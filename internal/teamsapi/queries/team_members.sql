@@ -1,24 +1,24 @@
 -- name: ListMembers :many
 SELECT
-    users.email
+	users.email
 FROM
-    users,
-    user_roles
+	users,
+	user_roles
 WHERE
-    users.id = user_roles.user_id AND
-	user_roles.target_team_slug = @team_slug::slug
+	users.id = user_roles.user_id
+	AND user_roles.target_team_slug = @team_slug::slug
 ORDER BY
-    users.email ASC
+	users.email ASC
 ;
 
 -- name: TeamExists :one
 SELECT
-    EXISTS (
-        SELECT
-            slug
-        FROM
-            teams
-        WHERE
-            slug = @slug
-    )
+	EXISTS (
+		SELECT
+			slug
+		FROM
+			teams
+		WHERE
+			slug = @slug
+	)
 ;
