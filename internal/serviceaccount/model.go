@@ -1,6 +1,7 @@
 package serviceaccount
 
 import (
+	"context"
 	"time"
 
 	"github.com/google/uuid"
@@ -35,6 +36,10 @@ func (s *ServiceAccount) IsServiceAccount() bool { return true }
 func (s *ServiceAccount) IsAdmin() bool          { return false }
 func (s *ServiceAccount) ID() ident.Ident {
 	return newIdent(s.UUID)
+}
+
+func (s *ServiceAccount) GCPTeamGroups(ctx context.Context) ([]string, error) {
+	return []string{}, nil
 }
 
 type CreateServiceAccountInput struct {

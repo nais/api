@@ -1,6 +1,7 @@
 package user
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -32,6 +33,9 @@ func (u *User) GetID() uuid.UUID       { return u.UUID }
 func (u *User) Identity() string       { return u.Email }
 func (u *User) IsServiceAccount() bool { return false }
 func (u *User) IsAdmin() bool          { return u.Admin }
+func (u *User) GCPTeamGroups(ctx context.Context) ([]string, error) {
+	return ListGCPGroupsForUser(ctx, u.UUID)
+}
 
 func (u User) ID() ident.Ident {
 	return NewIdent(u.UUID)
