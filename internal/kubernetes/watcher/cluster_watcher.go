@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/nais/api/internal/auth/authz"
-	"github.com/nais/api/internal/user"
 	"github.com/sirupsen/logrus"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -175,7 +174,7 @@ func WithImpersonatedClientGVR(gvr schema.GroupVersionResource) ImpersonatedClie
 func (w *clusterWatcher[T]) ImpersonatedClient(ctx context.Context, opts ...ImpersonatedClientOption) (dynamic.NamespaceableResourceInterface, error) {
 	actor := authz.ActorFromContext(ctx)
 
-	groups, err := user.ListGCPGroupsForUser(ctx, actor.User.GetID())
+	groups, err := actor.User.GCPTeamGroups(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("listing GCP groups for user: %w", err)
 	}

@@ -5,6 +5,8 @@
 package authz
 
 import (
+	"context"
+
 	"github.com/google/uuid"
 	mock "github.com/stretchr/testify/mock"
 )
@@ -35,6 +37,68 @@ type MockAuthenticatedUser_Expecter struct {
 
 func (_m *MockAuthenticatedUser) EXPECT() *MockAuthenticatedUser_Expecter {
 	return &MockAuthenticatedUser_Expecter{mock: &_m.Mock}
+}
+
+// GCPTeamGroups provides a mock function for the type MockAuthenticatedUser
+func (_mock *MockAuthenticatedUser) GCPTeamGroups(ctx context.Context) ([]string, error) {
+	ret := _mock.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GCPTeamGroups")
+	}
+
+	var r0 []string
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context) ([]string, error)); ok {
+		return returnFunc(ctx)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context) []string); ok {
+		r0 = returnFunc(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]string)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = returnFunc(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockAuthenticatedUser_GCPTeamGroups_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GCPTeamGroups'
+type MockAuthenticatedUser_GCPTeamGroups_Call struct {
+	*mock.Call
+}
+
+// GCPTeamGroups is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *MockAuthenticatedUser_Expecter) GCPTeamGroups(ctx interface{}) *MockAuthenticatedUser_GCPTeamGroups_Call {
+	return &MockAuthenticatedUser_GCPTeamGroups_Call{Call: _e.mock.On("GCPTeamGroups", ctx)}
+}
+
+func (_c *MockAuthenticatedUser_GCPTeamGroups_Call) Run(run func(ctx context.Context)) *MockAuthenticatedUser_GCPTeamGroups_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockAuthenticatedUser_GCPTeamGroups_Call) Return(strings []string, err error) *MockAuthenticatedUser_GCPTeamGroups_Call {
+	_c.Call.Return(strings, err)
+	return _c
+}
+
+func (_c *MockAuthenticatedUser_GCPTeamGroups_Call) RunAndReturn(run func(ctx context.Context) ([]string, error)) *MockAuthenticatedUser_GCPTeamGroups_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // GetID provides a mock function for the type MockAuthenticatedUser

@@ -3,12 +3,16 @@ package middleware
 import (
 	"context"
 	"fmt"
+	"maps"
 	"net/http"
+	"slices"
 
 	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/github/repository"
+	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/team"
 	"github.com/sirupsen/logrus"
 )
 
@@ -89,6 +93,7 @@ func GitHubOIDC(ctx context.Context, log logrus.FieldLogger) func(next http.Hand
 			}
 
 			roles := []*authz.Role{}
+			slugs := map[slug.Slug]struct{}{}
 			for _, repo := range repos {
 				repoRoles, err := authz.ForGitHubRepo(ctx, repo.TeamSlug)
 				if err != nil {
@@ -97,10 +102,12 @@ func GitHubOIDC(ctx context.Context, log logrus.FieldLogger) func(next http.Hand
 					return
 				}
 				roles = append(roles, repoRoles...)
+				slugs[repo.TeamSlug] = struct{}{}
 			}
 
 			usr := &GitHubRepoActor{
 				RepositoryName: claims.Repository,
+				TeamSlugs:      slices.Collect(maps.Keys(slugs)),
 			}
 
 			next.ServeHTTP(w, r.WithContext(authz.ContextWithActor(ctx, usr, roles)))
@@ -111,6 +118,7 @@ func GitHubOIDC(ctx context.Context, log logrus.FieldLogger) func(next http.Hand
 
 type GitHubRepoActor struct {
 	RepositoryName string
+	TeamSlugs      []slug.Slug
 }
 
 func (g *GitHubRepoActor) GetID() uuid.UUID { return uuid.Nil }
@@ -124,3 +132,7 @@ func (g *GitHubRepoActor) IsServiceAccount() bool { return true }
 func (g *GitHubRepoActor) IsGitHubActions() {}
 
 func (g *GitHubRepoActor) IsAdmin() bool { return false }
+
+func (g *GitHubRepoActor) GCPTeamGroups(ctx context.Context) ([]string, error) {
+	return team.ListGoogleGroupByTeamSlugs(ctx, g.TeamSlugs)
+}

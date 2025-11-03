@@ -13,6 +13,7 @@ type AuthenticatedUser interface {
 	Identity() string
 	IsServiceAccount() bool
 	IsAdmin() bool
+	GCPTeamGroups(ctx context.Context) ([]string, error)
 }
 
 type Actor struct {

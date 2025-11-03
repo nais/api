@@ -239,3 +239,13 @@ FROM
 ORDER BY
 	slug ASC
 ;
+
+-- name: ListGoogleGroupByTeamSlugs :one
+SELECT
+	ARRAY_AGG(teams.google_group_email)::TEXT[]
+FROM
+	teams
+WHERE
+	slug = ANY (@team_slugs::slug[])
+	AND google_group_email IS NOT NULL
+;
