@@ -34,6 +34,7 @@ import (
 	"github.com/nais/api/internal/loki"
 	"github.com/nais/api/internal/persistence/sqlinstance"
 	"github.com/nais/api/internal/servicemaintenance"
+	"github.com/nais/api/internal/teamsapi"
 	"github.com/nais/api/internal/thirdparty/aiven"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	fakehookd "github.com/nais/api/internal/thirdparty/hookd/fake"
@@ -314,6 +315,15 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 			cfg.InternalListenAddress,
 			promReg,
 			log.WithField("subsystem", "internal_http"),
+		)
+	})
+
+	wg.Go(func() error {
+		return teamsapi.Run(
+			ctx,
+			cfg.TeamsApiListenAddress,
+			pool,
+			log.WithField("subsystem", "teams_api"),
 		)
 	})
 
