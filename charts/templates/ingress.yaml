@@ -29,3 +29,10 @@ spec:
                   name: http
             path: /oauth2/
             pathType: Prefix
+          - backend:
+              service:
+                name: "{{ .Release.Name }}"
+                port:
+                  name: rest
+            path: /teams/
+            pathType: Prefix

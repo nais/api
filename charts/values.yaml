@@ -18,6 +18,9 @@ image:
 
 host: ""
 
+rest:
+  psk: ""
+
 hookd:
   psk: ""
 
