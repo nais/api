@@ -11,15 +11,15 @@ import (
 
 const listMembers = `-- name: ListMembers :many
 SELECT
-    users.email
+	users.email
 FROM
-    users,
-    user_roles
+	users,
+	user_roles
 WHERE
-    users.id = user_roles.user_id AND
-	user_roles.target_team_slug = $1::slug
+	users.id = user_roles.user_id
+	AND user_roles.target_team_slug = $1::slug
 ORDER BY
-    users.email ASC
+	users.email ASC
 `
 
 func (q *Queries) ListMembers(ctx context.Context, teamSlug slug.Slug) ([]string, error) {
@@ -44,14 +44,14 @@ func (q *Queries) ListMembers(ctx context.Context, teamSlug slug.Slug) ([]string
 
 const teamExists = `-- name: TeamExists :one
 SELECT
-    EXISTS (
-        SELECT
-            slug
-        FROM
-            teams
-        WHERE
-            slug = $1
-    )
+	EXISTS (
+		SELECT
+			slug
+		FROM
+			teams
+		WHERE
+			slug = $1
+	)
 `
 
 func (q *Queries) TeamExists(ctx context.Context, argSlug slug.Slug) (bool, error) {
