@@ -210,3 +210,12 @@ sql:
         <<: *default_go
         package: "issuesql"
         out: "../internal/issue/issuesql"
+
+  - <<: *default_domain
+    name: "Teams API SQL"
+    queries: "../internal/rest/restteamsapi/queries"
+    gen:
+      go:
+        <<: *default_go
+        package: "restteamsapisql"
+        out: "../internal/rest/restteamsapi/restteamsapisql"

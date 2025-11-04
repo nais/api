@@ -174,6 +174,12 @@ type Config struct {
 	ListenAddress         string `env:"LISTEN_ADDRESS,default=127.0.0.1:3000"`
 	InternalListenAddress string `env:"INTERNAL_LISTEN_ADDRESS,default=127.0.0.1:3005"`
 
+	// RestListenAddress is host:port combination used by the Rest server
+	RestListenAddress string `env:"REST_LISTEN_ADDRESS,default=127.0.0.1:3006"`
+
+	// RestPreSharedKey is a pre shared key for Rest authentication
+	RestPreSharedKey string `env:"REST_PRE_SHARED_KEY"`
+
 	// GRPCListenAddress is host:port combination used by the GRPC server
 	GRPCListenAddress string `env:"GRPC_LISTEN_ADDRESS,default=127.0.0.1:3001"`
 

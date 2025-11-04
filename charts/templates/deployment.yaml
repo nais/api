@@ -63,6 +63,8 @@ spec:
               value: ":3005"
             - name: GRPC_LISTEN_ADDRESS
               value: ":3001"
+            - name: REST_LISTEN_ADDRESS
+              value: ":3006"
             - name: USERSYNC_SERVICE_ACCOUNT
               value: {{ .Values.usersync.serviceAccount | quote }}
             - name: USERSYNC_SUBJECT_EMAIL
@@ -122,6 +124,9 @@ spec:
               protocol: TCP
             - name: grpc
               containerPort: 3001
+              protocol: TCP
+            - name: rest
+              containerPort: 3006
               protocol: TCP
           startupProbe:
             httpGet:

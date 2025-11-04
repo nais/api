@@ -15,5 +15,9 @@ spec:
       targetPort: grpc
       protocol: TCP
       name: grpc
+    - port: 3006
+      targetPort: rest
+      protocol: TCP
+      name: rest
   selector:
     app: "{{ .Release.Name }}"

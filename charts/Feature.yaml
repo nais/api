@@ -49,6 +49,13 @@ values:
       template: |
         {{ .Env.hookd_frontend_pre_shared_key | quote }}
 
+  rest.psk:
+    description: The pre-shared key used to authorize REST requests
+    displayName: REST pre-shared key
+    computed:
+      template: |
+        {{ .Env.nais_api_rest_pre_shared_key | quote }}
+
   serviceaccount.email:
     displayName: GCP SA email
     description: nais-api service account email

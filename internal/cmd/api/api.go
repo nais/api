@@ -33,6 +33,7 @@ import (
 	"github.com/nais/api/internal/logger"
 	"github.com/nais/api/internal/loki"
 	"github.com/nais/api/internal/persistence/sqlinstance"
+	restserver "github.com/nais/api/internal/rest"
 	"github.com/nais/api/internal/servicemaintenance"
 	"github.com/nais/api/internal/thirdparty/aiven"
 	"github.com/nais/api/internal/thirdparty/hookd"
@@ -315,6 +316,10 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 			promReg,
 			log.WithField("subsystem", "internal_http"),
 		)
+	})
+
+	wg.Go(func() error {
+		return restserver.Run(ctx, cfg.RestListenAddress, pool, cfg.RestPreSharedKey, log.WithField("subsystem", "rest"))
 	})
 
 	wg.Go(func() error {

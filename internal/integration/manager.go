@@ -28,6 +28,7 @@ import (
 	"github.com/nais/api/internal/kubernetes/watchers"
 	"github.com/nais/api/internal/loki"
 	"github.com/nais/api/internal/persistence/sqlinstance"
+	"github.com/nais/api/internal/rest"
 	"github.com/nais/api/internal/servicemaintenance"
 	"github.com/nais/api/internal/thirdparty/aiven"
 	fakeHookd "github.com/nais/api/internal/thirdparty/hookd/fake"
@@ -54,7 +55,7 @@ func TestRunner(ctx context.Context, skipSetup bool) (*testmanager.Manager, func
 		return nil, func() {}, err
 	}
 
-	mgr, err := testmanager.New(newConfig, newManager(ctx, container, connStr, skipSetup), &runner.GQL{}, &runner.SQL{}, &runner.PubSub{}, &apiRunner.K8s{})
+	mgr, err := testmanager.New(newConfig, newManager(ctx, container, connStr, skipSetup), &runner.GQL{}, &runner.SQL{}, &runner.PubSub{}, &apiRunner.K8s{}, &runner.REST{})
 	if err != nil {
 		return nil, func() {}, err
 	}
@@ -151,6 +152,12 @@ func newManager(_ context.Context, container *postgres.PostgresContainer, connSt
 			return ctx, nil, nil, err
 		}
 
+		restRunner, err := newRestRunner(ctx, pool, log)
+		if err != nil {
+			done()
+			return ctx, nil, nil, err
+		}
+
 		cleanups = append([]func(){gqlCleanup}, cleanups...)
 
 		runners := []spec.Runner{
@@ -158,6 +165,7 @@ func newManager(_ context.Context, container *postgres.PostgresContainer, connSt
 			runner.NewSQLRunner(pool),
 			topic,
 			k8sRunner,
+			restRunner,
 		}
 		sqlAdminService, err := sqlinstance.NewClient(ctx, log, sqlinstance.WithFakeClients(true), sqlinstance.WithInstanceWatcher(watchers.SqlInstanceWatcher))
 		if err != nil {
@@ -191,6 +199,12 @@ func newManager(_ context.Context, container *postgres.PostgresContainer, connSt
 			done()
 		}, nil
 	}
+}
+
+func newRestRunner(ctx context.Context, pool *pgxpool.Pool, logger logrus.FieldLogger) (spec.Runner, error) {
+	router := rest.MakeRouter(ctx, pool, logger)
+
+	return runner.NewRestRunner(router), nil
 }
 
 func newGQLRunner(
