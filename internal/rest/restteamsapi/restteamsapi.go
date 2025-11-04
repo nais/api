@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/nais/api/internal/rest/resterror"
 	"github.com/nais/api/internal/rest/restteamsapi/restteamsapisql"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/team"
@@ -24,26 +25,30 @@ func TeamsApiHandler(ctx context.Context, pool *pgxpool.Pool, log logrus.FieldLo
 		err := teamSlug.Validate()
 		if err != nil {
 			log.Errorf("invalid team slug: %v", err)
-			http.Error(rsp, err.Error(), http.StatusBadRequest)
+			restErr := resterror.Wrap(http.StatusBadRequest, err)
+			restErr.Write(rsp)
 			return
 		}
 
 		exists, err := querier.TeamExists(ctx, teamSlug)
 		if err != nil {
 			log.Errorf("failed to lookup team: %v", err)
-			http.Error(rsp, err.Error(), http.StatusInternalServerError)
+			restErr := resterror.Wrap(http.StatusInternalServerError, err)
+			restErr.Write(rsp)
 			return
 		}
 
 		if !exists {
-			http.Error(rsp, team.ErrNotFound{}.Error(), http.StatusNotFound)
+			restErr := resterror.Wrap(http.StatusNotFound, team.ErrNotFound{})
+			restErr.Write(rsp)
 			return
 		}
 
 		members, err := querier.ListMembers(ctx, teamSlug)
 		if err != nil {
 			log.Errorf("failed to list team members: %v", err)
-			http.Error(rsp, err.Error(), http.StatusInternalServerError)
+			restErr := resterror.Wrap(http.StatusInternalServerError, err)
+			restErr.Write(rsp)
 			return
 		}
 		t := Team{
@@ -52,8 +57,9 @@ func TeamsApiHandler(ctx context.Context, pool *pgxpool.Pool, log logrus.FieldLo
 
 		enc, err := json.Marshal(t)
 		if err != nil {
-			log.Errorf("failed to marshall response: %v", err)
-			http.Error(rsp, err.Error(), http.StatusInternalServerError)
+			log.Errorf("failed to marshal response: %v", err)
+			restErr := resterror.Wrap(http.StatusInternalServerError, err)
+			restErr.Write(rsp)
 			return
 		}
 
@@ -62,7 +68,8 @@ func TeamsApiHandler(ctx context.Context, pool *pgxpool.Pool, log logrus.FieldLo
 		_, err = rsp.Write(enc)
 		if err != nil {
 			log.Errorf("error while writing response: %v", err)
-			http.Error(rsp, err.Error(), http.StatusInternalServerError)
+			restErr := resterror.Wrap(http.StatusInternalServerError, err)
+			restErr.Write(rsp)
 			return
 		}
 	}

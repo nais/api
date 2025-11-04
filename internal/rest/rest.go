@@ -14,8 +14,7 @@ import (
 )
 
 func Run(ctx context.Context, listenAddress string, pool *pgxpool.Pool, log logrus.FieldLogger) error {
-	router := chi.NewRouter()
-	router.Get("/teams/{teamSlug}", restteamsapi.TeamsApiHandler(ctx, pool, log))
+	router := MakeRouter(ctx, pool, log)
 
 	srv := &http.Server{
 		Addr:              listenAddress,
@@ -46,4 +45,10 @@ func Run(ctx context.Context, listenAddress string, pool *pgxpool.Pool, log logr
 		return nil
 	})
 	return wg.Wait()
+}
+
+func MakeRouter(ctx context.Context, pool *pgxpool.Pool, log logrus.FieldLogger) *chi.Mux {
+	router := chi.NewRouter()
+	router.Get("/teams/{teamSlug}", restteamsapi.TeamsApiHandler(ctx, pool, log))
+	return router
 }
