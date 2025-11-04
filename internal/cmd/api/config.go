@@ -173,7 +173,9 @@ type Config struct {
 	// ListenAddress is host:port combination used by the http server
 	ListenAddress         string `env:"LISTEN_ADDRESS,default=127.0.0.1:3000"`
 	InternalListenAddress string `env:"INTERNAL_LISTEN_ADDRESS,default=127.0.0.1:3005"`
-	TeamsApiListenAddress string `env:"TEAMS_API_LISTEN_ADDRESS,default=127.0.0.1:3006"`
+
+	// RestListenAddress is host:port combination used by the Rest server
+	RestListenAddress string `env:"REST_LISTEN_ADDRESS,default=127.0.0.1:3006"`
 
 	// GRPCListenAddress is host:port combination used by the GRPC server
 	GRPCListenAddress string `env:"GRPC_LISTEN_ADDRESS,default=127.0.0.1:3001"`

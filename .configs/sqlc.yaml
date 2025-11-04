@@ -213,9 +213,9 @@ sql:
 
   - <<: *default_domain
     name: "Teams API SQL"
-    queries: "../internal/teamsapi/queries"
+    queries: "../internal/rest/restteamsapi/queries"
     gen:
       go:
         <<: *default_go
-        package: "teamsapisql"
-        out: "../internal/teamsapi/teamsapisql"
+        package: "restteamsapisql"
+        out: "../internal/rest/restteamsapi/restteamsapisql"

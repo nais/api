@@ -33,8 +33,8 @@ import (
 	"github.com/nais/api/internal/logger"
 	"github.com/nais/api/internal/loki"
 	"github.com/nais/api/internal/persistence/sqlinstance"
+	restserver "github.com/nais/api/internal/rest"
 	"github.com/nais/api/internal/servicemaintenance"
-	"github.com/nais/api/internal/teamsapi"
 	"github.com/nais/api/internal/thirdparty/aiven"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	fakehookd "github.com/nais/api/internal/thirdparty/hookd/fake"
@@ -319,11 +319,11 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	})
 
 	wg.Go(func() error {
-		return teamsapi.Run(
+		return restserver.Run(
 			ctx,
-			cfg.TeamsApiListenAddress,
+			cfg.RestListenAddress,
 			pool,
-			log.WithField("subsystem", "teams_api"),
+			log.WithField("subsystem", "rest"),
 		)
 	})
 
