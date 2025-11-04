@@ -8,13 +8,14 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/nais/api/internal/auth/middleware"
 	"github.com/nais/api/internal/rest/restteamsapi"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
 )
 
-func Run(ctx context.Context, listenAddress string, pool *pgxpool.Pool, log logrus.FieldLogger) error {
-	router := MakeRouter(ctx, pool, log)
+func Run(ctx context.Context, listenAddress string, pool *pgxpool.Pool, preSharedKey string, log logrus.FieldLogger) error {
+	router := MakeRouter(ctx, pool, log, middleware.PreSharedKeyAuthentication(preSharedKey))
 
 	srv := &http.Server{
 		Addr:              listenAddress,
@@ -47,8 +48,12 @@ func Run(ctx context.Context, listenAddress string, pool *pgxpool.Pool, log logr
 	return wg.Wait()
 }
 
-func MakeRouter(ctx context.Context, pool *pgxpool.Pool, log logrus.FieldLogger) *chi.Mux {
+func MakeRouter(ctx context.Context, pool *pgxpool.Pool, log logrus.FieldLogger, middlewares ...func(http.Handler) http.Handler) *chi.Mux {
 	router := chi.NewRouter()
+
+	router.Use(middlewares...)
+
 	router.Get("/teams/{teamSlug}", restteamsapi.TeamsApiHandler(ctx, pool, log))
+
 	return router
 }

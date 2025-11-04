@@ -319,12 +319,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	})
 
 	wg.Go(func() error {
-		return restserver.Run(
-			ctx,
-			cfg.RestListenAddress,
-			pool,
-			log.WithField("subsystem", "rest"),
-		)
+		return restserver.Run(ctx, cfg.RestListenAddress, pool, cfg.RestPreSharedKey, log.WithField("subsystem", "rest"))
 	})
 
 	wg.Go(func() error {
