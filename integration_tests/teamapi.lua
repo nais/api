@@ -17,8 +17,8 @@ Test.rest("list team members", function(t)
 	t.send("GET", string.format("/teams/%s", teamName))
 	t.check(200, {
 		members = {
-			"user.one@example.com",
-			"user.two@example.com",
+			"some-id-1",
+			"some-id-2",
 		},
 	})
 end)
