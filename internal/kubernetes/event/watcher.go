@@ -37,18 +37,14 @@ type Watcher struct {
 	logsSubscriber *pubsublog.Subscriber
 	wg             *pool.ContextPool
 
-	// State returns true when the watcher should be started/continue running and false when it should stop.
-	state           []chan bool
-	eventsCounter   metric.Int64Counter
-	handlersCounter metric.Int64UpDownCounter
+	watchCtx             context.Context
+	cancelWatchers       context.CancelFunc
+	eventsCounter        metric.Int64Counter
+	handlersCounter      metric.Int64UpDownCounter
+	droppedEventsCounter metric.Int64Counter
 }
 
 func NewWatcher(pool *pgxpool.Pool, logsSubscription *pubsub.Subscription, clients map[string]kubernetes.Interface, restMappers map[string]watcher.KindResolver, log logrus.FieldLogger) (*Watcher, error) {
-	chs := make([]chan bool, 0, len(clients))
-	for range clients {
-		chs = append(chs, make(chan bool, 1))
-	}
-
 	meter := otel.GetMeterProvider().Meter("nais_api_k8s_events")
 	eventsCounter, err := meter.Int64Counter("nais_api_k8s_events_total", metric.WithDescription("Number of events processed"))
 	if err != nil {
@@ -60,6 +56,11 @@ func NewWatcher(pool *pgxpool.Pool, logsSubscription *pubsub.Subscription, clien
 		return nil, fmt.Errorf("creating handlers counter: %w", err)
 	}
 
+	droppedEventsCounter, err := meter.Int64Counter("nais_api_k8s_events_dropped", metric.WithDescription("Number of events dropped due to channel overflow"))
+	if err != nil {
+		return nil, fmt.Errorf("creating dropped events counter: %w", err)
+	}
+
 	queries := eventsql.New(pool)
 
 	logSub, err := pubsublog.NewSubscriber(logsSubscription, queries, restMappers, log.WithField("sub", "pubsub_log"))
@@ -68,14 +69,14 @@ func NewWatcher(pool *pgxpool.Pool, logsSubscription *pubsub.Subscription, clien
 	}
 
 	return &Watcher{
-		clients:         clients,
-		events:          make(chan eventsql.UpsertParams, 20),
-		queries:         queries,
-		log:             log,
-		state:           chs,
-		eventsCounter:   eventsCounter,
-		handlersCounter: handlersCounter,
-		logsSubscriber:  logSub,
+		clients:              clients,
+		events:               make(chan eventsql.UpsertParams, 1000),
+		queries:              queries,
+		log:                  log,
+		eventsCounter:        eventsCounter,
+		handlersCounter:      handlersCounter,
+		droppedEventsCounter: droppedEventsCounter,
+		logsSubscriber:       logSub,
 	}, nil
 }
 
@@ -84,9 +85,6 @@ func (w *Watcher) Run(ctx context.Context) {
 
 	leaderelection.RegisterOnStartedLeading(w.onStartedLeading)
 	leaderelection.RegisterOnStoppedLeading(w.onStoppedLeading)
-	if leaderelection.IsLeader() {
-		w.onStartedLeading(ctx)
-	}
 
 	w.wg.Go(func(ctx context.Context) error {
 		return w.batchInsert(ctx)
@@ -94,13 +92,8 @@ func (w *Watcher) Run(ctx context.Context) {
 
 	w.wg.Go(w.logsSubscriber.Start)
 
-	i := 0
-	for env, client := range w.clients {
-		ch := w.state[i]
-		i++
-		w.wg.Go(func(ctx context.Context) error {
-			return w.run(ctx, env, client, ch)
-		})
+	if leaderelection.IsLeader() {
+		w.onStartedLeading(ctx)
 	}
 
 	if err := w.wg.Wait(); err != nil {
@@ -109,46 +102,71 @@ func (w *Watcher) Run(ctx context.Context) {
 }
 
 func (w *Watcher) onStoppedLeading() {
-	for _, ch := range w.state {
-		select {
-		case ch <- false:
-		default:
-			w.log.WithField("state", "stopped").Error("failed to send state")
-		}
+	w.log.Info("leadership lost, stopping watchers")
+	if w.cancelWatchers != nil {
+		w.cancelWatchers()
+		w.cancelWatchers = nil
 	}
 }
 
-func (w *Watcher) onStartedLeading(_ context.Context) {
-	for _, ch := range w.state {
-		select {
-		case ch <- true:
-		default:
-			w.log.WithField("state", "started").Error("failed to send state")
-		}
+func (w *Watcher) onStartedLeading(ctx context.Context) {
+	w.log.Info("leadership gained, starting watchers")
+
+	// Cancel any existing watchers first
+	if w.cancelWatchers != nil {
+		w.cancelWatchers()
+		// Wait a moment for old watchers to fully stop to avoid race conditions
+		time.Sleep(100 * time.Millisecond)
+	}
+
+	// Create a new context for this leadership session
+	w.watchCtx, w.cancelWatchers = context.WithCancel(ctx)
+
+	// Start a watcher for each environment
+	for env, client := range w.clients {
+		env := env       // Capture loop variable
+		client := client // Capture loop variable
+		w.wg.Go(func(ctx context.Context) error {
+			return w.runWithRetry(w.watchCtx, env, client)
+		})
 	}
 }
 
 var regHorizontalPodAutoscaler = regexp.MustCompile(`New size: (\d+); reason: (\w+).*(below|above) target`)
 
-func (w *Watcher) run(ctx context.Context, env string, client kubernetes.Interface, state chan bool) error {
+func (w *Watcher) runWithRetry(ctx context.Context, env string, client kubernetes.Interface) error {
+	w.log.WithField("env", env).Info("starting watch with retry")
+
 	for {
 		select {
 		case <-ctx.Done():
+			w.log.WithField("env", env).Info("context cancelled, stopping")
 			return nil
-		case s := <-state:
-			w.log.WithField("env", env).WithField("state", s).Info("state change")
-			if s {
-				if err := w.watch(ctx, env, client, state); err != nil {
-					w.log.WithError(err).Error("failed to watch events")
-				}
-				w.log.WithField("env", env).Info("stopped watching")
+		default:
+		}
 
-			}
+		err := w.watch(ctx, env, client)
+		if err != nil {
+			w.log.WithField("env", env).WithError(err).Error("watch failed, retrying in 5 seconds")
+		} else {
+			w.log.WithField("env", env).Info("watch stopped")
+		}
+
+		// If context is done, exit immediately
+		if ctx.Err() != nil {
+			return nil
+		}
+
+		// Wait before retry
+		select {
+		case <-ctx.Done():
+			return nil
+		case <-time.After(5 * time.Second):
 		}
 	}
 }
 
-func (w *Watcher) watch(ctx context.Context, env string, client kubernetes.Interface, state chan bool) error {
+func (w *Watcher) watch(ctx context.Context, env string, client kubernetes.Interface) error {
 	w.handlersCounter.Add(ctx, 1, metric.WithAttributes(attribute.String("environment", env)))
 	defer w.handlersCounter.Add(ctx, -1, metric.WithAttributes(attribute.String("environment", env)))
 
@@ -164,7 +182,7 @@ func (w *Watcher) watch(ctx context.Context, env string, client kubernetes.Inter
 		return watchtools.NewRetryWatcher(list.ResourceVersion, &cache.ListWatch{
 			WatchFunc: func(options metav1.ListOptions) (watch.Interface, error) {
 				options.FieldSelector = selector
-				return client.EventsV1().Events("").Watch(context.Background(), options)
+				return client.EventsV1().Events("").Watch(ctx, options)
 			},
 		})
 	}
@@ -196,10 +214,6 @@ func (w *Watcher) watch(ctx context.Context, env string, client kubernetes.Inter
 			return
 		}
 
-		if !leaderelection.IsLeader() {
-			return
-		}
-
 		v, ok := event.Object.(*eventv1.Event)
 		if !ok {
 			w.log.WithField("type", fmt.Sprintf("%T", event.Object)).Error("unexpected event type")
@@ -211,22 +225,25 @@ func (w *Watcher) watch(ctx context.Context, env string, client kubernetes.Inter
 			return
 		}
 
-		w.events <- e
+		// Try to send event, but don't block if channel is full
+		select {
+		case w.events <- e:
+		default:
+			w.log.WithField("env", env).Warn("events channel full, dropping event")
+			w.droppedEventsCounter.Add(context.Background(), 1, metric.WithAttributes(attribute.String("environment", env)))
+		}
 	}
 
 	w.log.WithField("env", env).Debug("watching events")
 	for {
 		select {
 		case <-ctx.Done():
+			w.log.WithField("env", env).Info("context cancelled, stopping watch")
 			return nil
-		case s := <-state:
-			if !s {
-				return nil
-			}
 		case event, ok := <-rescale.ResultChan():
 			if !ok {
 				w.log.WithField("env", env).WithField("watcher", "rescale").Error("watching events returned closed channel")
-				return fmt.Errorf("watcher failed")
+				return fmt.Errorf("rescale watcher channel closed")
 			}
 			w.eventsCounter.Add(ctx, 1, metric.WithAttributes(
 				attribute.String("environment", string(env)),
@@ -260,8 +277,8 @@ func (w *Watcher) watch(ctx context.Context, env string, client kubernetes.Inter
 			})
 		case event, ok := <-killing.ResultChan():
 			if !ok {
-				w.log.WithField("env", env).WithField("watcher", "rescale").Error("watching events returned closed channel")
-				return fmt.Errorf("watcher failed")
+				w.log.WithField("env", env).WithField("watcher", "killing").Error("watching events returned closed channel")
+				return fmt.Errorf("killing watcher channel closed")
 			}
 
 			w.eventsCounter.Add(ctx, 1, metric.WithAttributes(
@@ -291,21 +308,32 @@ func (w *Watcher) batchInsert(ctx context.Context) error {
 	ticker := time.NewTicker(2 * time.Second)
 	defer ticker.Stop()
 
+	flush := func() {
+		if len(events) > 0 {
+			w.log.WithField("count", len(events)).Debug("flushing events")
+			w.queries.Upsert(ctx, events).Exec(func(i int, err error) {
+				if err != nil {
+					w.log.WithError(err).Error("failed to insert event")
+				}
+			})
+			events = nil
+		}
+	}
+
 	for {
 		select {
 		case <-ctx.Done():
+			// Flush any remaining events before shutting down
+			flush()
 			return nil
 		case event := <-w.events:
 			events = append(events, event)
-		case <-ticker.C:
-			if len(events) > 0 {
-				w.queries.Upsert(ctx, events).Exec(func(i int, err error) {
-					if err != nil {
-						w.log.WithError(err).Error("failed to insert event")
-					}
-				})
-				events = nil
+			// Flush immediately if we have a large batch
+			if len(events) >= 100 {
+				flush()
 			}
+		case <-ticker.C:
+			flush()
 		}
 	}
 }
