@@ -11,7 +11,7 @@ import (
 
 const listMembers = `-- name: ListMembers :many
 SELECT
-	users.email
+	users.external_id
 FROM
 	users,
 	user_roles
@@ -30,11 +30,11 @@ func (q *Queries) ListMembers(ctx context.Context, teamSlug slug.Slug) ([]string
 	defer rows.Close()
 	items := []string{}
 	for rows.Next() {
-		var email string
-		if err := rows.Scan(&email); err != nil {
+		var external_id string
+		if err := rows.Scan(&external_id); err != nil {
 			return nil, err
 		}
-		items = append(items, email)
+		items = append(items, external_id)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
