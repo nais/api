@@ -1,6 +1,6 @@
 -- name: ListMembers :many
 SELECT
-	users.external_id
+	users.email
 FROM
 	users,
 	user_roles
