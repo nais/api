@@ -14,7 +14,7 @@ import (
 )
 
 type Team struct {
-	Members []string `json:"members"`
+	Members []string `json:"member"`
 }
 
 func TeamsApiHandler(ctx context.Context, pool *pgxpool.Pool, log logrus.FieldLogger) http.HandlerFunc {

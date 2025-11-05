@@ -16,7 +16,7 @@ otherTeam:addOwner(not_a_member)
 Test.rest("list team members", function(t)
 	t.send("GET", string.format("/teams/%s", teamName))
 	t.check(200, {
-		members = {
+		member = {
 			"some-id-1",
 			"some-id-2",
 		},
