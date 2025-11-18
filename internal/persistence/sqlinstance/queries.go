@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"hash/crc32"
+	"time"
 
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
@@ -199,7 +200,11 @@ func GrantPostgresAccess(ctx context.Context, input GrantPostgresAccessInput) er
 	}
 
 	annotations := make(map[string]string)
-	annotations["euthanaisa.nais.io/kill-after"] = "" // TODO: What is timestamp?
+	d, err := time.ParseDuration(input.DurationMinute)
+	if err != nil {
+		return fmt.Errorf("parsing TTL: %w", err)
+	}
+	annotations["euthanaisa.nais.io/kill-after"] = time.Now().Add(d).Format(time.RFC3339)
 
 	res := &unstructured.Unstructured{}
 	res.SetAPIVersion("rbac.authorization.k8s.io/v1")

@@ -412,7 +412,7 @@ type GrantPostgresAccessInput struct {
 	TeamSlug        slug.Slug `json:"teamSlug"`
 	EnvironmentName string    `json:"environmentName"`
 	Grantee         string    `json:"grantee"`
-	DurationMinute  int       `json:"durationMinute"`
+	DurationMinute  string    `json:"durationMinute"`
 }
 
 type GrantPostgresAccessPayload struct {
