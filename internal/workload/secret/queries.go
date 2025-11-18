@@ -17,6 +17,7 @@ import (
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/workload"
+	"github.com/sirupsen/logrus"
 	corev1 "k8s.io/api/core/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -69,6 +70,15 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 		secrets, err := client.Namespace(teamSlug.String()).List(ctx, v1.ListOptions{
 			LabelSelector: kubernetes.IsManagedByConsoleLabelSelector(),
 		})
+
+		if k8serrors.IsForbidden(err) {
+			fromContext(ctx).log.WithFields(logrus.Fields{
+				"team":        teamSlug,
+				"environment": env,
+			}).Infof("skipping secrets listing due to forbidden error")
+			continue
+		}
+
 		if err != nil {
 			return nil, fmt.Errorf("listing secrets for environment %q: %w", env, err)
 		}
