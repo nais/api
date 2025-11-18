@@ -214,7 +214,13 @@ func GrantPostgresAccess(ctx context.Context, input GrantPostgresAccessInput) er
 	res.SetAnnotations(kubernetes.WithCommonAnnotations(annotations, authz.ActorFromContext(ctx).User.Identity()))
 	kubernetes.SetManagedByConsoleLabel(res)
 
-	res.Object["rules"] = map[string]any{}
+	res.Object["rules"] = []map[string]any{
+		{
+			"apiGroups": []string{""},            // TODO Add other apiGroups as needed,
+			"resources": []string{"pods"},        // TODO Add other resources as needed,
+			"verbs":     []string{"get", "list"}, // TODO Add other verbs as needed
+		},
+	}
 
 	_, err = client.Create(ctx, res, metav1.CreateOptions{})
 	if err != nil {
@@ -227,7 +233,7 @@ func GrantPostgresAccess(ctx context.Context, input GrantPostgresAccessInput) er
 	err = activitylog.Create(ctx, activitylog.CreateInput{
 		Action:          activitylog.ActivityLogEntryActionCreated,
 		Actor:           authz.ActorFromContext(ctx).User,
-		ResourceType:    ActivityLogEntryResourceTypeOpenSearch, // TODO: Set this to correct thing
+		ResourceType:    "", // TODO: Set this to correct thing
 		ResourceName:    input.ClusterName,
 		EnvironmentName: ptr.To(input.EnvironmentName),
 		TeamSlug:        ptr.To(input.TeamSlug),
@@ -235,6 +241,50 @@ func GrantPostgresAccess(ctx context.Context, input GrantPostgresAccessInput) er
 	if err != nil {
 		return err
 	}
+
+	res = &unstructured.Unstructured{}
+	res.SetAPIVersion("rbac.authorization.k8s.io/v1")
+	res.SetKind("RoleBinding")
+	res.SetName(name)
+	res.SetNamespace(namespace)
+	res.SetAnnotations(kubernetes.WithCommonAnnotations(annotations, authz.ActorFromContext(ctx).User.Identity()))
+	kubernetes.SetManagedByConsoleLabel(res)
+
+	res.Object["roleRef"] = map[string]any{
+		"apiGroup": "rbac.authorization.k8s.io",
+		"kind":     "Role",
+		"name":     name,
+	}
+
+	res.Object["subjects"] = []map[string]any{
+		{
+			"apiGroup": "rbac.authorization.k8s.io",
+			"kind":     "User",
+			"name":     name,
+		},
+	}
+
+	_, err = client.Create(ctx, res, metav1.CreateOptions{})
+	if err != nil {
+		if k8serrors.IsAlreadyExists(err) {
+			return apierror.ErrAlreadyExists
+		}
+		return err
+	}
+
+	err = activitylog.Create(ctx, activitylog.CreateInput{
+		Action:          activitylog.ActivityLogEntryActionCreated,
+		Actor:           authz.ActorFromContext(ctx).User,
+		ResourceType:    "", // TODO: Set this to correct thing
+		ResourceName:    input.ClusterName,
+		EnvironmentName: ptr.To(input.EnvironmentName),
+		TeamSlug:        ptr.To(input.TeamSlug),
+	})
+	if err != nil {
+		return err
+	}
+
+	return err
 }
 
 func resourceNamer(teamSlug slug.Slug, grantee string, name string) (string, error) {
