@@ -200,11 +200,13 @@ func GrantPostgresAccess(ctx context.Context, input GrantPostgresAccessInput) er
 	}
 
 	annotations := make(map[string]string)
+	lables := make(map[string]string)
 	d, err := time.ParseDuration(input.DurationMinute)
 	if err != nil {
 		return fmt.Errorf("parsing TTL: %w", err)
 	}
 	annotations["euthanaisa.nais.io/kill-after"] = time.Now().Add(d).Format(time.RFC3339)
+	lables["euthanaisa.nais.io/enabled"] = "true"
 
 	res := &unstructured.Unstructured{}
 	res.SetAPIVersion("rbac.authorization.k8s.io/v1")
@@ -212,6 +214,7 @@ func GrantPostgresAccess(ctx context.Context, input GrantPostgresAccessInput) er
 	res.SetName(name)
 	res.SetNamespace(namespace)
 	res.SetAnnotations(kubernetes.WithCommonAnnotations(annotations, authz.ActorFromContext(ctx).User.Identity()))
+	res.SetLabels(lables)
 	kubernetes.SetManagedByConsoleLabel(res)
 
 	res.Object["rules"] = []map[string]any{
@@ -248,6 +251,7 @@ func GrantPostgresAccess(ctx context.Context, input GrantPostgresAccessInput) er
 	res.SetName(name)
 	res.SetNamespace(namespace)
 	res.SetAnnotations(kubernetes.WithCommonAnnotations(annotations, authz.ActorFromContext(ctx).User.Identity()))
+	res.SetLabels(lables)
 	kubernetes.SetManagedByConsoleLabel(res)
 
 	res.Object["roleRef"] = map[string]any{
