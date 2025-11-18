@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/issue"
@@ -33,6 +34,36 @@ func (r *jobResolver) SQLInstances(ctx context.Context, obj *job.Job, orderBy *s
 	}
 
 	return sqlinstance.ListForWorkload(ctx, obj.Name, obj.TeamSlug, obj.EnvironmentName, obj.Spec.GCP.SqlInstances, orderBy)
+}
+
+func (r *mutationResolver) GrantPostgresAccess(ctx context.Context, input sqlinstance.GrantPostgresAccessInput) (*sqlinstance.GrantPostgresAccessPayload, error) {
+	if err := authz.CanGrantPostgresAccess(ctx, input.TeamSlug); err != nil {
+		return nil, err
+	}
+
+	if err := sqlinstance.GrantPostgresAccess(ctx, input); err != nil {
+		return nil, err
+	}
+
+	return &sqlinstance.GrantPostgresAccessPayload{
+		Error: new(string),
+	}, nil
+}
+
+func (r *postgresResolver) Team(ctx context.Context, obj *sqlinstance.Postgres) (*team.Team, error) {
+	panic(fmt.Errorf("not implemented: Team - team"))
+}
+
+func (r *postgresResolver) Environment(ctx context.Context, obj *sqlinstance.Postgres) (*team.TeamEnvironment, error) {
+	panic(fmt.Errorf("not implemented: Environment - environment"))
+}
+
+func (r *postgresResolver) TeamEnvironment(ctx context.Context, obj *sqlinstance.Postgres) (*team.TeamEnvironment, error) {
+	panic(fmt.Errorf("not implemented: TeamEnvironment - teamEnvironment"))
+}
+
+func (r *postgresResolver) Workload(ctx context.Context, obj *sqlinstance.Postgres) (workload.Workload, error) {
+	panic(fmt.Errorf("not implemented: Workload - workload"))
 }
 
 func (r *sqlDatabaseResolver) Team(ctx context.Context, obj *sqlinstance.SQLDatabase) (*team.Team, error) {
@@ -274,6 +305,12 @@ func (r *teamServiceUtilizationSqlInstancesResolver) Disk(ctx context.Context, o
 	return ret, nil
 }
 
+func (r *grantPostgresAccessInputResolver) DurationMinutes(ctx context.Context, obj *sqlinstance.GrantPostgresAccessInput, data int) error {
+	panic(fmt.Errorf("not implemented: DurationMinutes - durationMinutes"))
+}
+
+func (r *Resolver) Postgres() gengql.PostgresResolver { return &postgresResolver{r} }
+
 func (r *Resolver) SqlDatabase() gengql.SqlDatabaseResolver { return &sqlDatabaseResolver{r} }
 
 func (r *Resolver) SqlInstance() gengql.SqlInstanceResolver { return &sqlInstanceResolver{r} }
@@ -286,9 +323,15 @@ func (r *Resolver) TeamServiceUtilizationSqlInstances() gengql.TeamServiceUtiliz
 	return &teamServiceUtilizationSqlInstancesResolver{r}
 }
 
+func (r *Resolver) GrantPostgresAccessInput() gengql.GrantPostgresAccessInputResolver {
+	return &grantPostgresAccessInputResolver{r}
+}
+
 type (
+	postgresResolver                           struct{ *Resolver }
 	sqlDatabaseResolver                        struct{ *Resolver }
 	sqlInstanceResolver                        struct{ *Resolver }
 	sqlInstanceMetricsResolver                 struct{ *Resolver }
 	teamServiceUtilizationSqlInstancesResolver struct{ *Resolver }
+	grantPostgresAccessInputResolver           struct{ *Resolver }
 )

@@ -406,3 +406,49 @@ type TeamServiceUtilizationSQLInstancesDisk struct {
 type AuditLog struct {
 	LogURL string `json:"logUrl"`
 }
+
+type GrantPostgresAccessInput struct {
+	ClusterName     string    `json:"clusterName"`
+	TeamSlug        slug.Slug `json:"teamSlug"`
+	EnvironmentName string    `json:"environmentName"`
+	Grantee         string    `json:"grantee"`
+	DurationMinute  int       `json:"durationMinute"`
+}
+
+type GrantPostgresAccessPayload struct {
+	Error *string `json:"error,omitempty"`
+}
+
+type Postgres struct {
+	Name              string              `json:"name"`
+	EnvironmentName   string              `json:"-"`
+	WorkloadReference *workload.Reference `json:"-"`
+	TeamSlug          slug.Slug           `json:"-"`
+}
+
+func (Postgres) IsPersistence() {}
+func (Postgres) IsNode()        {}
+
+func (p *Postgres) GetObjectKind() schema.ObjectKind {
+	return schema.EmptyObjectKind
+}
+
+func (p *Postgres) DeepCopyObject() runtime.Object {
+	return p
+}
+
+func (p *Postgres) GetName() string {
+	return p.Name
+}
+
+func (p *Postgres) GetNamespace() string {
+	return p.TeamSlug.String()
+}
+
+func (p *Postgres) GetLabels() map[string]string {
+	return nil
+}
+
+func (i *Postgres) ID() ident.Ident {
+	return newIdent(i.TeamSlug, i.EnvironmentName, i.Name)
+}

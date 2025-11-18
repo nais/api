@@ -18,6 +18,32 @@ extend type Team {
 	): SqlInstanceConnection!
 }
 
+extend type Mutation {
+    "Grant access to this postgres cluster"
+    grantPostgresAccess(input: GrantPostgresAccessInput!): GrantPostgresAccessPayload!
+}
+
+type GrantPostgresAccessPayload {
+    error: String
+}
+
+input GrantPostgresAccessInput {
+    clusterName: String!
+    teamSlug: Slug!
+    environmentName: String!
+    grantee: String!
+    durationMinutes: Int!
+}
+
+type Postgres implements Persistence & Node {
+    id: ID!
+    name: String!
+    team: Team!
+    environment: TeamEnvironment! @deprecated(reason: "Use the `teamEnvironment` field instead.")
+    teamEnvironment: TeamEnvironment!
+    workload: Workload
+}
+
 extend type TeamServiceUtilization {
 	sqlInstances: TeamServiceUtilizationSqlInstances!
 }

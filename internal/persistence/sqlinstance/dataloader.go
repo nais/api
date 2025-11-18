@@ -74,6 +74,7 @@ type loaders struct {
 	sqlMetricsService  *Metrics
 	sqlDatabaseWatcher *watcher.Watcher[*SQLDatabase]
 	sqlInstanceWatcher *watcher.Watcher[*SQLInstance]
+	postgresWatcher    *watcher.Watcher[*Postgres]
 	remoteSQLInstance  *dataloadgen.Loader[instanceKey, *sqladmin.DatabaseInstance]
 	auditLogProjectID  string
 	auditLogLocation   string

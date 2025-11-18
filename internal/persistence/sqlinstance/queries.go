@@ -4,14 +4,25 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"hash/crc32"
 
+	"github.com/nais/api/internal/activitylog"
+	"github.com/nais/api/internal/auth/authz"
+	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
+	"github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/slug"
 	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
+	"github.com/nais/liberator/pkg/namegen"
 	"google.golang.org/api/googleapi"
+	k8serrors "k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/util/validation"
+	"k8s.io/utils/ptr"
 )
 
 func GetByIdent(ctx context.Context, id ident.Ident) (*SQLInstance, error) {
@@ -173,4 +184,60 @@ func TeamSummaryMemory(ctx context.Context, projectID string) (*TeamServiceUtili
 
 func TeamSummaryDisk(ctx context.Context, projectID string) (*TeamServiceUtilizationSQLInstancesDisk, error) {
 	return fromContext(ctx).sqlMetricsService.teamSummaryDisk(ctx, projectID)
+}
+
+func GrantPostgresAccess(ctx context.Context, input GrantPostgresAccessInput) error {
+	namespace := fmt.Sprintf("pg-%s", input.TeamSlug.String())
+	client, err := fromContext(ctx).postgresWatcher.ImpersonatedClientWithNamespace(ctx, input.EnvironmentName, namespace)
+	if err != nil {
+		return err
+	}
+
+	name, err := resourceNamer(input.TeamSlug, input.Grantee, input.ClusterName)
+	if err != nil {
+		return err
+	}
+
+	annotations := make(map[string]string)
+	annotations["euthanaisa.nais.io/kill-after"] = "" // TODO: What is timestamp?
+
+	res := &unstructured.Unstructured{}
+	res.SetAPIVersion("rbac.authorization.k8s.io/v1")
+	res.SetKind("Role")
+	res.SetName(name)
+	res.SetNamespace(namespace)
+	res.SetAnnotations(kubernetes.WithCommonAnnotations(annotations, authz.ActorFromContext(ctx).User.Identity()))
+	kubernetes.SetManagedByConsoleLabel(res)
+
+	res.Object["rules"] = map[string]any{}
+
+	_, err = client.Create(ctx, res, metav1.CreateOptions{})
+	if err != nil {
+		if k8serrors.IsAlreadyExists(err) {
+			return apierror.ErrAlreadyExists
+		}
+		return err
+	}
+
+	err = activitylog.Create(ctx, activitylog.CreateInput{
+		Action:          activitylog.ActivityLogEntryActionCreated,
+		Actor:           authz.ActorFromContext(ctx).User,
+		ResourceType:    ActivityLogEntryResourceTypeOpenSearch, // TODO: Set this to correct thing
+		ResourceName:    input.ClusterName,
+		EnvironmentName: ptr.To(input.EnvironmentName),
+		TeamSlug:        ptr.To(input.TeamSlug),
+	})
+	if err != nil {
+		return err
+	}
+}
+
+func resourceNamer(teamSlug slug.Slug, grantee string, name string) (string, error) {
+	hasher := crc32.NewIEEE()
+	_, err := hasher.Write([]byte(fmt.Sprintf("%s-%s-%s", teamSlug.String(), grantee, name)))
+	if err != nil {
+		return "", err
+	}
+	hashStr := fmt.Sprintf("%08x", hasher.Sum32())
+	return namegen.ShortName(fmt.Sprintf("pg-grant-%s", hashStr), validation.DNS1035LabelMaxLength)
 }
