@@ -19,7 +19,6 @@ import (
 	"github.com/nais/api/internal/workload"
 	"github.com/sirupsen/logrus"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/errors"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -72,7 +71,7 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 			LabelSelector: kubernetes.IsManagedByConsoleLabelSelector(),
 		})
 
-		if errors.IsForbidden(err) {
+		if k8serrors.IsForbidden(err) {
 			fromContext(ctx).log.WithFields(logrus.Fields{
 				"team":        teamSlug,
 				"environment": env,
