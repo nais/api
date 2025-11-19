@@ -201,7 +201,7 @@ func GrantPostgresAccess(ctx context.Context, input GrantPostgresAccessInput) er
 
 	annotations := make(map[string]string)
 	lables := make(map[string]string)
-	d, err := time.ParseDuration(input.DurationMinute)
+	d, err := time.ParseDuration(input.Duration)
 	if err != nil {
 		return fmt.Errorf("parsing TTL: %w", err)
 	}

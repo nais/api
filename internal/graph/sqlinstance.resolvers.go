@@ -305,10 +305,6 @@ func (r *teamServiceUtilizationSqlInstancesResolver) Disk(ctx context.Context, o
 	return ret, nil
 }
 
-func (r *grantPostgresAccessInputResolver) DurationMinutes(ctx context.Context, obj *sqlinstance.GrantPostgresAccessInput, data int) error {
-	panic(fmt.Errorf("not implemented: DurationMinutes - durationMinutes"))
-}
-
 func (r *Resolver) Postgres() gengql.PostgresResolver { return &postgresResolver{r} }
 
 func (r *Resolver) SqlDatabase() gengql.SqlDatabaseResolver { return &sqlDatabaseResolver{r} }
@@ -323,15 +319,10 @@ func (r *Resolver) TeamServiceUtilizationSqlInstances() gengql.TeamServiceUtiliz
 	return &teamServiceUtilizationSqlInstancesResolver{r}
 }
 
-func (r *Resolver) GrantPostgresAccessInput() gengql.GrantPostgresAccessInputResolver {
-	return &grantPostgresAccessInputResolver{r}
-}
-
 type (
 	postgresResolver                           struct{ *Resolver }
 	sqlDatabaseResolver                        struct{ *Resolver }
 	sqlInstanceResolver                        struct{ *Resolver }
 	sqlInstanceMetricsResolver                 struct{ *Resolver }
 	teamServiceUtilizationSqlInstancesResolver struct{ *Resolver }
-	grantPostgresAccessInputResolver           struct{ *Resolver }
 )

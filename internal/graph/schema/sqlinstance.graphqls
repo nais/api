@@ -32,7 +32,7 @@ input GrantPostgresAccessInput {
     teamSlug: Slug!
     environmentName: String!
     grantee: String!
-    durationMinutes: Int!
+    duration: String!
 }
 
 type Postgres implements Persistence & Node {

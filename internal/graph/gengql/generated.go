@@ -154,7 +154,6 @@ type ResolverRoot interface {
 	WorkloadUtilization() WorkloadUtilizationResolver
 	WorkloadUtilizationData() WorkloadUtilizationDataResolver
 	WorkloadVulnerabilitySummary() WorkloadVulnerabilitySummaryResolver
-	GrantPostgresAccessInput() GrantPostgresAccessInputResolver
 }
 
 type DirectiveRoot struct {
@@ -3307,10 +3306,6 @@ type WorkloadUtilizationDataResolver interface {
 }
 type WorkloadVulnerabilitySummaryResolver interface {
 	Workload(ctx context.Context, obj *vulnerability.WorkloadVulnerabilitySummary) (workload.Workload, error)
-}
-
-type GrantPostgresAccessInputResolver interface {
-	DurationMinutes(ctx context.Context, obj *sqlinstance.GrantPostgresAccessInput, data int) error
 }
 
 type executableSchema struct {
@@ -20280,7 +20275,7 @@ input GrantPostgresAccessInput {
     teamSlug: Slug!
     environmentName: String!
     grantee: String!
-    durationMinutes: Int!
+    duration: String!
 }
 
 type Postgres implements Persistence & Node {
@@ -85010,7 +85005,7 @@ func (ec *executionContext) unmarshalInputGrantPostgresAccessInput(ctx context.C
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"clusterName", "teamSlug", "environmentName", "grantee", "durationMinutes"}
+	fieldsInOrder := [...]string{"clusterName", "teamSlug", "environmentName", "grantee", "duration"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -85045,15 +85040,13 @@ func (ec *executionContext) unmarshalInputGrantPostgresAccessInput(ctx context.C
 				return it, err
 			}
 			it.Grantee = data
-		case "durationMinutes":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("durationMinutes"))
-			data, err := ec.unmarshalNInt2int(ctx, v)
+		case "duration":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("duration"))
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			if err = ec.resolvers.GrantPostgresAccessInput().DurationMinutes(ctx, &it, data); err != nil {
-				return it, err
-			}
+			it.Duration = data
 		}
 	}
 
