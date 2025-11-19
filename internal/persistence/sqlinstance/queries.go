@@ -219,9 +219,24 @@ func GrantPostgresAccess(ctx context.Context, input GrantPostgresAccessInput) er
 
 	res.Object["rules"] = []map[string]any{
 		{
-			"apiGroups": []string{""},            // TODO Add other apiGroups as needed,
-			"resources": []string{"pods"},        // TODO Add other resources as needed,
-			"verbs":     []string{"get", "list"}, // TODO Add other verbs as needed
+			"apiGroups": []string{""},
+			"resources": []string{"pods"},
+			"verbs":     []string{"get", "list", "watch"},
+			"resourceNames": []string{
+				fmt.Sprintf("%s-0", input.ClusterName),
+				fmt.Sprintf("%s-1", input.ClusterName),
+				fmt.Sprintf("%s-2", input.ClusterName),
+			},
+		},
+		{
+			"apiGroups": []string{""},
+			"resources": []string{"pods/portforward"},
+			"verbs":     []string{"get", "list", "watch", "create"},
+			"resourceNames": []string{
+				fmt.Sprintf("%s-0", input.ClusterName),
+				fmt.Sprintf("%s-1", input.ClusterName),
+				fmt.Sprintf("%s-2", input.ClusterName),
+			},
 		},
 	}
 
@@ -236,8 +251,8 @@ func GrantPostgresAccess(ctx context.Context, input GrantPostgresAccessInput) er
 	err = activitylog.Create(ctx, activitylog.CreateInput{
 		Action:          activitylog.ActivityLogEntryActionCreated,
 		Actor:           authz.ActorFromContext(ctx).User,
-		ResourceType:    "", // TODO: Set this to correct thing
-		ResourceName:    input.ClusterName,
+		ResourceType:    "ROLE",
+		ResourceName:    name,
 		EnvironmentName: ptr.To(input.EnvironmentName),
 		TeamSlug:        ptr.To(input.TeamSlug),
 	})
@@ -262,9 +277,8 @@ func GrantPostgresAccess(ctx context.Context, input GrantPostgresAccessInput) er
 
 	res.Object["subjects"] = []map[string]any{
 		{
-			"apiGroup": "rbac.authorization.k8s.io",
-			"kind":     "User",
-			"name":     name,
+			"kind": "User",
+			"name": input.Grantee,
 		},
 	}
 
@@ -279,8 +293,8 @@ func GrantPostgresAccess(ctx context.Context, input GrantPostgresAccessInput) er
 	err = activitylog.Create(ctx, activitylog.CreateInput{
 		Action:          activitylog.ActivityLogEntryActionCreated,
 		Actor:           authz.ActorFromContext(ctx).User,
-		ResourceType:    "", // TODO: Set this to correct thing
-		ResourceName:    input.ClusterName,
+		ResourceType:    "ROLEBINDING",
+		ResourceName:    name,
 		EnvironmentName: ptr.To(input.EnvironmentName),
 		TeamSlug:        ptr.To(input.TeamSlug),
 	})
