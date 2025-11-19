@@ -11,6 +11,7 @@ import (
 	"github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/kubernetes/watcher"
 	liberator_aiven_io_v1alpha1 "github.com/nais/liberator/pkg/apis/aiven.io/v1alpha1"
+	data_nais_io_v1 "github.com/nais/liberator/pkg/apis/data.nais.io/v1"
 	unleash_nais_io_v1 "github.com/nais/unleasherator/api/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -184,6 +185,8 @@ func depluralized(s string) string {
 		return "unleashes"
 	case "remoteunleashs":
 		return "remoteunleashes"
+	case "postgreses":
+		return "postgres"
 	}
 
 	return s
@@ -210,6 +213,7 @@ func NewDynamicClient(scheme *runtime.Scheme) *dynfake.FakeDynamicClient {
 			liberator_aiven_io_v1alpha1.GroupVersion.WithResource("opensearches"): "OpenSearchList",
 			unleash_nais_io_v1.GroupVersion.WithResource("unleashes"):             "UnleashList",
 			unleash_nais_io_v1.GroupVersion.WithResource("remoteunleashes"):       "RemoteUnleashList",
+			data_nais_io_v1.GroupVersion.WithResource("postgres"):                 "PostgresList",
 		})
 }
 

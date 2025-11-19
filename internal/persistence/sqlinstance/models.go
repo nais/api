@@ -277,6 +277,14 @@ func toSQLDatabase(u *unstructured.Unstructured, environmentName string) (*SQLDa
 	}, nil
 }
 
+func toPostgres(u *unstructured.Unstructured, environmentName string) (*Postgres, error) {
+	return &Postgres{
+		Name:            u.GetName(),
+		EnvironmentName: environmentName,
+		TeamSlug:        slug.Slug(u.GetNamespace()),
+	}, nil
+}
+
 func toSQLInstance(u *unstructured.Unstructured, environmentName string) (*SQLInstance, error) {
 	obj := &sql_cnrm_cloud_google_com_v1beta1.SQLInstance{}
 	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(u.Object, obj); err != nil {
@@ -427,6 +435,7 @@ type Postgres struct {
 }
 
 func (Postgres) IsPersistence() {}
+func (Postgres) IsSearchNode()  {}
 func (Postgres) IsNode()        {}
 
 func (p *Postgres) GetObjectKind() schema.ObjectKind {

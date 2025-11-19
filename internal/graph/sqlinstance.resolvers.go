@@ -51,19 +51,15 @@ func (r *mutationResolver) GrantPostgresAccess(ctx context.Context, input sqlins
 }
 
 func (r *postgresResolver) Team(ctx context.Context, obj *sqlinstance.Postgres) (*team.Team, error) {
-	panic(fmt.Errorf("not implemented: Team - team"))
+	return team.Get(ctx, obj.TeamSlug)
 }
 
 func (r *postgresResolver) Environment(ctx context.Context, obj *sqlinstance.Postgres) (*team.TeamEnvironment, error) {
-	panic(fmt.Errorf("not implemented: Environment - environment"))
+	return r.TeamEnvironment(ctx, obj)
 }
 
 func (r *postgresResolver) TeamEnvironment(ctx context.Context, obj *sqlinstance.Postgres) (*team.TeamEnvironment, error) {
-	panic(fmt.Errorf("not implemented: TeamEnvironment - teamEnvironment"))
-}
-
-func (r *postgresResolver) Workload(ctx context.Context, obj *sqlinstance.Postgres) (workload.Workload, error) {
-	panic(fmt.Errorf("not implemented: Workload - workload"))
+	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
 
 func (r *sqlDatabaseResolver) Team(ctx context.Context, obj *sqlinstance.SQLDatabase) (*team.Team, error) {

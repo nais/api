@@ -5,11 +5,11 @@ import (
 	"errors"
 	"fmt"
 	"hash/crc32"
+	"strings"
 	"time"
 
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
-	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
@@ -23,7 +23,9 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/util/validation"
+	"k8s.io/client-go/dynamic"
 	"k8s.io/utils/ptr"
+	"sigs.k8s.io/yaml"
 )
 
 func GetByIdent(ctx context.Context, id ident.Ident) (*SQLInstance, error) {
@@ -61,6 +63,30 @@ func GetDatabase(ctx context.Context, teamSlug slug.Slug, environmentName, sqlIn
 		Cluster:   environmentName,
 		Namespace: teamSlug.String(),
 		Name:      sqlInstanceName,
+	}
+}
+
+func GetPostgresByIdent(ctx context.Context, id ident.Ident) (*Postgres, error) {
+	teamSlug, environmentName, clusterName, err := parseIdent(id)
+	if err != nil {
+		return nil, err
+	}
+
+	return GetPostgres(ctx, teamSlug, environmentName, clusterName)
+}
+
+func GetPostgres(ctx context.Context, teamSlug slug.Slug, environmentName string, clusterName string) (*Postgres, error) {
+	all := fromContext(ctx).postgresWatcher.GetByNamespace(teamSlug.String(), watcher.InCluster(environmentName))
+
+	for _, pg := range all {
+		if pg.GetName() == clusterName {
+			return pg.Obj, nil
+		}
+	}
+	return nil, &watcher.ErrorNotFound{
+		Cluster:   environmentName,
+		Namespace: teamSlug.String(),
+		Name:      clusterName,
 	}
 }
 
@@ -200,21 +226,57 @@ func GrantPostgresAccess(ctx context.Context, input GrantPostgresAccessInput) er
 	}
 
 	annotations := make(map[string]string)
-	lables := make(map[string]string)
 	d, err := time.ParseDuration(input.Duration)
 	if err != nil {
 		return fmt.Errorf("parsing TTL: %w", err)
 	}
 	annotations["euthanaisa.nais.io/kill-after"] = time.Now().Add(d).Format(time.RFC3339)
-	lables["euthanaisa.nais.io/enabled"] = "true"
 
+	labels := make(map[string]string)
+	labels["euthanaisa.nais.io/enabled"] = "true"
+
+	err = createRole(ctx, input, name, namespace, annotations, labels, client)
+	if err != nil {
+		return err
+	}
+
+	return createRoleBinding(ctx, input, name, namespace, annotations, labels, client)
+}
+
+func createRoleBinding(ctx context.Context, input GrantPostgresAccessInput, name string, namespace string, annotations map[string]string, labels map[string]string, client dynamic.ResourceInterface) error {
+	res := &unstructured.Unstructured{}
+	res.SetAPIVersion("rbac.authorization.k8s.io/v1")
+	res.SetKind("RoleBinding")
+	res.SetName(name)
+	res.SetNamespace(namespace)
+	res.SetAnnotations(kubernetes.WithCommonAnnotations(annotations, authz.ActorFromContext(ctx).User.Identity()))
+	res.SetLabels(labels)
+	kubernetes.SetManagedByConsoleLabel(res)
+
+	res.Object["roleRef"] = map[string]any{
+		"apiGroup": "rbac.authorization.k8s.io",
+		"kind":     "Role",
+		"name":     name,
+	}
+
+	res.Object["subjects"] = []map[string]any{
+		{
+			"kind": "User",
+			"name": input.Grantee,
+		},
+	}
+
+	return createOrUpdateResource(ctx, input, res, client)
+}
+
+func createRole(ctx context.Context, input GrantPostgresAccessInput, name string, namespace string, annotations map[string]string, labels map[string]string, client dynamic.ResourceInterface) error {
 	res := &unstructured.Unstructured{}
 	res.SetAPIVersion("rbac.authorization.k8s.io/v1")
 	res.SetKind("Role")
 	res.SetName(name)
 	res.SetNamespace(namespace)
 	res.SetAnnotations(kubernetes.WithCommonAnnotations(annotations, authz.ActorFromContext(ctx).User.Identity()))
-	res.SetLabels(lables)
+	res.SetLabels(labels)
 	kubernetes.SetManagedByConsoleLabel(res)
 
 	res.Object["rules"] = []map[string]any{
@@ -240,69 +302,51 @@ func GrantPostgresAccess(ctx context.Context, input GrantPostgresAccessInput) er
 		},
 	}
 
+	return createOrUpdateResource(ctx, input, res, client)
+}
+
+func createOrUpdateResource(ctx context.Context, input GrantPostgresAccessInput, res *unstructured.Unstructured, client dynamic.ResourceInterface) error {
+	res, err := fixDeepCopy(res)
+	if err != nil {
+		return nil
+	}
+
+	action := activitylog.ActivityLogEntryActionCreated
 	_, err = client.Create(ctx, res, metav1.CreateOptions{})
 	if err != nil {
 		if k8serrors.IsAlreadyExists(err) {
-			return apierror.ErrAlreadyExists
+			_, err = client.Update(ctx, res, metav1.UpdateOptions{})
+			if err != nil {
+				return nil
+			}
+			action = activitylog.ActivityLogEntryActionUpdated
 		}
-		return err
+		return nil
 	}
 
-	err = activitylog.Create(ctx, activitylog.CreateInput{
-		Action:          activitylog.ActivityLogEntryActionCreated,
+	return activitylog.Create(ctx, activitylog.CreateInput{
+		Action:          action,
 		Actor:           authz.ActorFromContext(ctx).User,
-		ResourceType:    "ROLE",
-		ResourceName:    name,
+		ResourceType:    activitylog.ActivityLogEntryResourceType(strings.ToUpper(res.GetKind())),
+		ResourceName:    res.GetName(),
 		EnvironmentName: ptr.To(input.EnvironmentName),
 		TeamSlug:        ptr.To(input.TeamSlug),
 	})
+}
+
+// fixDeepCopy fixes problems where Unstructured objects containing a []map[string]any crashes in DeepCopy
+// It is unclear what it does, so we haven't been able to change our resource definition to avoid this step.
+func fixDeepCopy(res *unstructured.Unstructured) (*unstructured.Unstructured, error) {
+	b, err := yaml.Marshal(res)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	res = &unstructured.Unstructured{}
-	res.SetAPIVersion("rbac.authorization.k8s.io/v1")
-	res.SetKind("RoleBinding")
-	res.SetName(name)
-	res.SetNamespace(namespace)
-	res.SetAnnotations(kubernetes.WithCommonAnnotations(annotations, authz.ActorFromContext(ctx).User.Identity()))
-	res.SetLabels(lables)
-	kubernetes.SetManagedByConsoleLabel(res)
-
-	res.Object["roleRef"] = map[string]any{
-		"apiGroup": "rbac.authorization.k8s.io",
-		"kind":     "Role",
-		"name":     name,
+	if err := yaml.Unmarshal(b, &res.Object); err != nil {
+		return nil, err
 	}
-
-	res.Object["subjects"] = []map[string]any{
-		{
-			"kind": "User",
-			"name": input.Grantee,
-		},
-	}
-
-	_, err = client.Create(ctx, res, metav1.CreateOptions{})
-	if err != nil {
-		if k8serrors.IsAlreadyExists(err) {
-			return apierror.ErrAlreadyExists
-		}
-		return err
-	}
-
-	err = activitylog.Create(ctx, activitylog.CreateInput{
-		Action:          activitylog.ActivityLogEntryActionCreated,
-		Actor:           authz.ActorFromContext(ctx).User,
-		ResourceType:    "ROLEBINDING",
-		ResourceName:    name,
-		EnvironmentName: ptr.To(input.EnvironmentName),
-		TeamSlug:        ptr.To(input.TeamSlug),
-	})
-	if err != nil {
-		return err
-	}
-
-	return err
+	return res, nil
 }
 
 func resourceNamer(teamSlug slug.Slug, grantee string, name string) (string, error) {

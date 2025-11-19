@@ -1266,7 +1266,6 @@ type ComplexityRoot struct {
 		Name            func(childComplexity int) int
 		Team            func(childComplexity int) int
 		TeamEnvironment func(childComplexity int) int
-		Workload        func(childComplexity int) int
 	}
 
 	Price struct {
@@ -3039,7 +3038,6 @@ type PostgresResolver interface {
 	Team(ctx context.Context, obj *sqlinstance.Postgres) (*team.Team, error)
 	Environment(ctx context.Context, obj *sqlinstance.Postgres) (*team.TeamEnvironment, error)
 	TeamEnvironment(ctx context.Context, obj *sqlinstance.Postgres) (*team.TeamEnvironment, error)
-	Workload(ctx context.Context, obj *sqlinstance.Postgres) (workload.Workload, error)
 }
 type PrometheusAlertResolver interface {
 	Team(ctx context.Context, obj *alerts.PrometheusAlert) (*team.Team, error)
@@ -7606,12 +7604,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Postgres.TeamEnvironment(childComplexity), true
-	case "Postgres.workload":
-		if e.complexity.Postgres.Workload == nil {
-			break
-		}
-
-		return e.complexity.Postgres.Workload(childComplexity), true
 
 	case "Price.value":
 		if e.complexity.Price.Value == nil {
@@ -20242,23 +20234,23 @@ type ServiceMaintenanceActivityLogEntry implements ActivityLogEntry & Node {
 }
 `, BuiltIn: false},
 	{Name: "../schema/sqlinstance.graphqls", Input: `extend type Team {
-	"SQL instances owned by the team."
-	sqlInstances(
-		"Get the first n items in the connection. This can be used in combination with the after parameter."
-		first: Int
+    "SQL instances owned by the team."
+    sqlInstances(
+        "Get the first n items in the connection. This can be used in combination with the after parameter."
+        first: Int
 
-		"Get items after this cursor."
-		after: Cursor
+        "Get items after this cursor."
+        after: Cursor
 
-		"Get the last n items in the connection. This can be used in combination with the before parameter."
-		last: Int
+        "Get the last n items in the connection. This can be used in combination with the before parameter."
+        last: Int
 
-		"Get items before this cursor."
-		before: Cursor
+        "Get items before this cursor."
+        before: Cursor
 
-		"Ordering options for items returned from the connection."
-		orderBy: SqlInstanceOrder
-	): SqlInstanceConnection!
+        "Ordering options for items returned from the connection."
+        orderBy: SqlInstanceOrder
+    ): SqlInstanceConnection!
 }
 
 extend type Mutation {
@@ -20284,271 +20276,276 @@ type Postgres implements Persistence & Node {
     team: Team!
     environment: TeamEnvironment! @deprecated(reason: "Use the ` + "`" + `teamEnvironment` + "`" + ` field instead.")
     teamEnvironment: TeamEnvironment!
-    workload: Workload
+}
+
+extend union SearchNode = Postgres
+
+extend enum SearchType {
+    POSTGRES
 }
 
 extend type TeamServiceUtilization {
-	sqlInstances: TeamServiceUtilizationSqlInstances!
+    sqlInstances: TeamServiceUtilizationSqlInstances!
 }
 
 type TeamServiceUtilizationSqlInstances {
-	cpu: TeamServiceUtilizationSqlInstancesCPU!
-	memory: TeamServiceUtilizationSqlInstancesMemory!
-	disk: TeamServiceUtilizationSqlInstancesDisk!
+    cpu: TeamServiceUtilizationSqlInstancesCPU!
+    memory: TeamServiceUtilizationSqlInstancesMemory!
+    disk: TeamServiceUtilizationSqlInstancesDisk!
 }
 
 type TeamServiceUtilizationSqlInstancesCPU {
-	used: Float!
-	requested: Float!
-	utilization: Float!
+    used: Float!
+    requested: Float!
+    utilization: Float!
 }
 
 type TeamServiceUtilizationSqlInstancesMemory {
-	used: Int!
-	requested: Int!
-	utilization: Float!
+    used: Int!
+    requested: Int!
+    utilization: Float!
 }
 
 type TeamServiceUtilizationSqlInstancesDisk {
-	used: Int!
-	requested: Int!
-	utilization: Float!
+    used: Int!
+    requested: Int!
+    utilization: Float!
 }
 
 extend type TeamEnvironment {
-	"SQL instance in the team environment."
-	sqlInstance(name: String!): SqlInstance!
+    "SQL instance in the team environment."
+    sqlInstance(name: String!): SqlInstance!
 }
 
 extend interface Workload {
-	"SQL instances referenced by the workload. This does not currently support pagination, but will return all available SQL instances."
-	sqlInstances(
-		"Ordering options for items returned from the connection."
-		orderBy: SqlInstanceOrder
-	): SqlInstanceConnection!
+    "SQL instances referenced by the workload. This does not currently support pagination, but will return all available SQL instances."
+    sqlInstances(
+        "Ordering options for items returned from the connection."
+        orderBy: SqlInstanceOrder
+    ): SqlInstanceConnection!
 }
 
 extend type Application {
-	"SQL instances referenced by the application. This does not currently support pagination, but will return all available SQL instances."
-	sqlInstances(
-		"Ordering options for items returned from the connection."
-		orderBy: SqlInstanceOrder
-	): SqlInstanceConnection!
+    "SQL instances referenced by the application. This does not currently support pagination, but will return all available SQL instances."
+    sqlInstances(
+        "Ordering options for items returned from the connection."
+        orderBy: SqlInstanceOrder
+    ): SqlInstanceConnection!
 }
 
 extend type Job {
-	"SQL instances referenced by the job. This does not currently support pagination, but will return all available SQL instances."
-	sqlInstances(
-		"Ordering options for items returned from the connection."
-		orderBy: SqlInstanceOrder
-	): SqlInstanceConnection!
+    "SQL instances referenced by the job. This does not currently support pagination, but will return all available SQL instances."
+    sqlInstances(
+        "Ordering options for items returned from the connection."
+        orderBy: SqlInstanceOrder
+    ): SqlInstanceConnection!
 }
 
 extend type TeamInventoryCounts {
-	sqlInstances: TeamInventoryCountSqlInstances!
+    sqlInstances: TeamInventoryCountSqlInstances!
 }
 
 type TeamInventoryCountSqlInstances {
-	"Total number of SQL instances."
-	total: Int!
+    "Total number of SQL instances."
+    total: Int!
 }
 
 type SqlDatabase implements Persistence & Node {
-	id: ID!
-	name: String!
-	team: Team!
-	environment: TeamEnvironment! @deprecated(reason: "Use the ` + "`" + `teamEnvironment` + "`" + ` field instead.")
-	teamEnvironment: TeamEnvironment!
-	charset: String
-	collation: String
-	deletionPolicy: String
-	healthy: Boolean!
+    id: ID!
+    name: String!
+    team: Team!
+    environment: TeamEnvironment! @deprecated(reason: "Use the ` + "`" + `teamEnvironment` + "`" + ` field instead.")
+    teamEnvironment: TeamEnvironment!
+    charset: String
+    collation: String
+    deletionPolicy: String
+    healthy: Boolean!
 }
 
 type SqlInstance implements Persistence & Node {
-	id: ID!
-	name: String!
-	team: Team!
-	environment: TeamEnvironment! @deprecated(reason: "Use the ` + "`" + `teamEnvironment` + "`" + ` field instead.")
-	teamEnvironment: TeamEnvironment!
-	workload: Workload
-	cascadingDelete: Boolean!
-	connectionName: String
-	diskAutoresize: Boolean
-	diskAutoresizeLimit: Int
-	highAvailability: Boolean!
-	healthy: Boolean!
-	maintenanceVersion: String
-	maintenanceWindow: SqlInstanceMaintenanceWindow
-	backupConfiguration: SqlInstanceBackupConfiguration
-	projectID: String!
-	tier: String!
-	version: String
-	status: SqlInstanceStatus!
-	database: SqlDatabase
-	flags(first: Int, after: Cursor, last: Int, before: Cursor): SqlInstanceFlagConnection!
-	users(
-		first: Int
-		after: Cursor
-		last: Int
-		before: Cursor
-		orderBy: SqlInstanceUserOrder
-	): SqlInstanceUserConnection!
-	metrics: SqlInstanceMetrics!
-	state: SqlInstanceState!
-	"Issues that affects the instance."
-	issues(
-		"Get the first n items in the connection. This can be used in combination with the after parameter."
-		first: Int
+    id: ID!
+    name: String!
+    team: Team!
+    environment: TeamEnvironment! @deprecated(reason: "Use the ` + "`" + `teamEnvironment` + "`" + ` field instead.")
+    teamEnvironment: TeamEnvironment!
+    workload: Workload
+    cascadingDelete: Boolean!
+    connectionName: String
+    diskAutoresize: Boolean
+    diskAutoresizeLimit: Int
+    highAvailability: Boolean!
+    healthy: Boolean!
+    maintenanceVersion: String
+    maintenanceWindow: SqlInstanceMaintenanceWindow
+    backupConfiguration: SqlInstanceBackupConfiguration
+    projectID: String!
+    tier: String!
+    version: String
+    status: SqlInstanceStatus!
+    database: SqlDatabase
+    flags(first: Int, after: Cursor, last: Int, before: Cursor): SqlInstanceFlagConnection!
+    users(
+        first: Int
+        after: Cursor
+        last: Int
+        before: Cursor
+        orderBy: SqlInstanceUserOrder
+    ): SqlInstanceUserConnection!
+    metrics: SqlInstanceMetrics!
+    state: SqlInstanceState!
+    "Issues that affects the instance."
+    issues(
+        "Get the first n items in the connection. This can be used in combination with the after parameter."
+        first: Int
 
-		"Get items after this cursor."
-		after: Cursor
+        "Get items after this cursor."
+        after: Cursor
 
-		"Get the last n items in the connection. This can be used in combination with the before parameter."
-		last: Int
+        "Get the last n items in the connection. This can be used in combination with the before parameter."
+        last: Int
 
-		"Get items before this cursor."
-		before: Cursor
+        "Get items before this cursor."
+        before: Cursor
 
-		"Ordering options for items returned from the connection."
-		orderBy: IssueOrder
+        "Ordering options for items returned from the connection."
+        orderBy: IssueOrder
 
-		"Filtering options for items returned from the connection."
-		filter: ResourceIssueFilter
-	): IssueConnection!
+        "Filtering options for items returned from the connection."
+        filter: ResourceIssueFilter
+    ): IssueConnection!
 
-	"Indicates whether audit logging is enabled for this SQL instance and provides a link to the logs if set."
-	auditLog: AuditLog
+    "Indicates whether audit logging is enabled for this SQL instance and provides a link to the logs if set."
+    auditLog: AuditLog
 }
 
 type AuditLog {
-	"Link to the audit log for this SQL instance."
-	logUrl: String!
+    "Link to the audit log for this SQL instance."
+    logUrl: String!
 }
 
 type SqlInstanceBackupConfiguration {
-	enabled: Boolean
-	startTime: String
-	retainedBackups: Int
-	pointInTimeRecovery: Boolean
-	transactionLogRetentionDays: Int
+    enabled: Boolean
+    startTime: String
+    retainedBackups: Int
+    pointInTimeRecovery: Boolean
+    transactionLogRetentionDays: Int
 }
 
 type SqlInstanceFlag {
-	name: String!
-	value: String!
+    name: String!
+    value: String!
 }
 
 type SqlInstanceMaintenanceWindow {
-	day: Int!
-	hour: Int!
+    day: Int!
+    hour: Int!
 }
 
 type SqlInstanceStatus {
-	publicIpAddress: String
-	privateIpAddress: String
+    publicIpAddress: String
+    privateIpAddress: String
 }
 
 type SqlInstanceUser {
-	name: String!
-	authentication: String!
+    name: String!
+    authentication: String!
 }
 
 type SqlInstanceConnection {
-	pageInfo: PageInfo!
-	nodes: [SqlInstance!]!
-	edges: [SqlInstanceEdge!]!
+    pageInfo: PageInfo!
+    nodes: [SqlInstance!]!
+    edges: [SqlInstanceEdge!]!
 }
 
 type SqlInstanceFlagConnection {
-	pageInfo: PageInfo!
-	nodes: [SqlInstanceFlag!]!
-	edges: [SqlInstanceFlagEdge!]!
+    pageInfo: PageInfo!
+    nodes: [SqlInstanceFlag!]!
+    edges: [SqlInstanceFlagEdge!]!
 }
 
 type SqlInstanceUserConnection {
-	pageInfo: PageInfo!
-	nodes: [SqlInstanceUser!]!
-	edges: [SqlInstanceUserEdge!]!
+    pageInfo: PageInfo!
+    nodes: [SqlInstanceUser!]!
+    edges: [SqlInstanceUserEdge!]!
 }
 
 type SqlInstanceEdge {
-	cursor: Cursor!
-	node: SqlInstance!
+    cursor: Cursor!
+    node: SqlInstance!
 }
 
 type SqlInstanceFlagEdge {
-	cursor: Cursor!
-	node: SqlInstanceFlag!
+    cursor: Cursor!
+    node: SqlInstanceFlag!
 }
 
 type SqlInstanceUserEdge {
-	cursor: Cursor!
-	node: SqlInstanceUser!
+    cursor: Cursor!
+    node: SqlInstanceUser!
 }
 
 input SqlInstanceOrder {
-	field: SqlInstanceOrderField!
-	direction: OrderDirection!
+    field: SqlInstanceOrderField!
+    direction: OrderDirection!
 }
 
 input SqlInstanceUserOrder {
-	field: SqlInstanceUserOrderField!
-	direction: OrderDirection!
+    field: SqlInstanceUserOrderField!
+    direction: OrderDirection!
 }
 
 enum SqlInstanceOrderField {
-	NAME
-	VERSION
-	ENVIRONMENT
-	COST
-	CPU_UTILIZATION
-	MEMORY_UTILIZATION
-	DISK_UTILIZATION
-	STATE
+    NAME
+    VERSION
+    ENVIRONMENT
+    COST
+    CPU_UTILIZATION
+    MEMORY_UTILIZATION
+    DISK_UTILIZATION
+    STATE
 }
 
 enum SqlInstanceUserOrderField {
-	NAME
-	AUTHENTICATION
+    NAME
+    AUTHENTICATION
 }
 
 extend union SearchNode = SqlInstance
 
 extend enum SearchType {
-	SQL_INSTANCE
+    SQL_INSTANCE
 }
 
 type SqlInstanceMetrics {
-	cpu: SqlInstanceCpu!
-	memory: SqlInstanceMemory!
-	disk: SqlInstanceDisk!
+    cpu: SqlInstanceCpu!
+    memory: SqlInstanceMemory!
+    disk: SqlInstanceDisk!
 }
 
 type SqlInstanceCpu {
-	cores: Float!
-	utilization: Float!
+    cores: Float!
+    utilization: Float!
 }
 
 type SqlInstanceMemory {
-	quotaBytes: Int!
-	utilization: Float!
+    quotaBytes: Int!
+    utilization: Float!
 }
 
 type SqlInstanceDisk {
-	quotaBytes: Int!
-	utilization: Float!
+    quotaBytes: Int!
+    utilization: Float!
 }
 
 enum SqlInstanceState {
-	UNSPECIFIED
-	STOPPED
-	RUNNABLE
-	SUSPENDED
-	PENDING_DELETE
-	PENDING_CREATE
-	MAINTENANCE
-	FAILED
+    UNSPECIFIED
+    STOPPED
+    RUNNABLE
+    SUSPENDED
+    PENDING_DELETE
+    PENDING_CREATE
+    MAINTENANCE
+    FAILED
 }
 `, BuiltIn: false},
 	{Name: "../schema/teams.graphqls", Input: `extend type Query {
@@ -50057,35 +50054,6 @@ func (ec *executionContext) fieldContext_Postgres_teamEnvironment(_ context.Cont
 				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Postgres_workload(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.Postgres) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_Postgres_workload,
-		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Postgres().Workload(ctx, obj)
-		},
-		nil,
-		ec.marshalOWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload,
-		true,
-		false,
-	)
-}
-
-func (ec *executionContext) fieldContext_Postgres_workload(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Postgres",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
 		},
 	}
 	return fc, nil
@@ -88897,6 +88865,11 @@ func (ec *executionContext) _SearchNode(ctx context.Context, sel ast.SelectionSe
 			return graphql.Null
 		}
 		return ec._SqlInstance(ctx, sel, obj)
+	case *sqlinstance.Postgres:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Postgres(ctx, sel, obj)
 	case kafkatopic.KafkaTopic:
 		return ec._KafkaTopic(ctx, sel, &obj)
 	case *kafkatopic.KafkaTopic:
@@ -101160,7 +101133,7 @@ func (ec *executionContext) _PageInfo(ctx context.Context, sel ast.SelectionSet,
 	return out
 }
 
-var postgresImplementors = []string{"Postgres", "Persistence", "Node"}
+var postgresImplementors = []string{"Postgres", "SearchNode", "Persistence", "Node"}
 
 func (ec *executionContext) _Postgres(ctx context.Context, sel ast.SelectionSet, obj *sqlinstance.Postgres) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, postgresImplementors)
@@ -101266,39 +101239,6 @@ func (ec *executionContext) _Postgres(ctx context.Context, sel ast.SelectionSet,
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "workload":
-			field := field
-
-			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Postgres_workload(ctx, field, obj)
 				return res
 			}
 

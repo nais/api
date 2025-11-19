@@ -5,6 +5,7 @@ import (
 	storage_cnrm_cloud_gogle_com_v1beta1 "github.com/GoogleCloudPlatform/k8s-config-connector/pkg/clients/generated/apis/storage/v1beta1"
 	liberator_aiven_io_v1alpha1 "github.com/nais/liberator/pkg/apis/aiven.io/v1alpha1"
 	aiven_nais_io_v1 "github.com/nais/liberator/pkg/apis/aiven.nais.io/v1"
+	data_nais_io_v1 "github.com/nais/liberator/pkg/apis/data.nais.io/v1"
 	bigquery_nais_io_v1 "github.com/nais/liberator/pkg/apis/google.nais.io/v1"
 	kafka_nais_io_v1 "github.com/nais/liberator/pkg/apis/kafka.nais.io/v1"
 	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
@@ -34,6 +35,7 @@ func NewScheme() (*runtime.Scheme, error) {
 		unleash_nais_io_v1.AddToScheme,
 		batchv1.AddToScheme,
 		aiven_nais_io_v1.AddToScheme,
+		data_nais_io_v1.AddToScheme,
 	}
 
 	for _, f := range funcs {
