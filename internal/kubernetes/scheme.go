@@ -12,6 +12,7 @@ import (
 	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
 	unleash_nais_io_v1 "github.com/nais/unleasherator/api/v1"
 	appsv1 "k8s.io/api/apps/v1"
+	authorizationv1 "k8s.io/api/authorization/v1"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	netv1 "k8s.io/api/networking/v1"
@@ -36,6 +37,7 @@ func NewScheme() (*runtime.Scheme, error) {
 		batchv1.AddToScheme,
 		aiven_nais_io_v1.AddToScheme,
 		data_nais_io_v1.AddToScheme,
+		authorizationv1.AddToScheme,
 	}
 
 	for _, f := range funcs {

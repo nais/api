@@ -17,12 +17,11 @@ import (
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/slug"
 	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
-	"github.com/nais/liberator/pkg/namegen"
 	"google.golang.org/api/googleapi"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	"k8s.io/apimachinery/pkg/util/validation"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/utils/ptr"
 	"sigs.k8s.io/yaml"
@@ -214,12 +213,12 @@ func TeamSummaryDisk(ctx context.Context, projectID string) (*TeamServiceUtiliza
 }
 
 func GrantPostgresAccess(ctx context.Context, input GrantPostgresAccessInput) error {
-	namespace := fmt.Sprintf("pg-%s", input.TeamSlug.String())
-	client, err := fromContext(ctx).postgresWatcher.ImpersonatedClientWithNamespace(ctx, input.EnvironmentName, namespace)
+	err := input.Validate(ctx)
 	if err != nil {
 		return err
 	}
 
+	namespace := fmt.Sprintf("pg-%s", input.TeamSlug.String())
 	name, err := resourceNamer(input.TeamSlug, input.Grantee, input.ClusterName)
 	if err != nil {
 		return err
@@ -235,17 +234,27 @@ func GrantPostgresAccess(ctx context.Context, input GrantPostgresAccessInput) er
 	labels := make(map[string]string)
 	labels["euthanaisa.nais.io/enabled"] = "true"
 
-	err = createRole(ctx, input, name, namespace, annotations, labels, client)
+	err = createRole(ctx, input, name, namespace, annotations, labels)
 	if err != nil {
 		return err
 	}
 
-	return createRoleBinding(ctx, input, name, namespace, annotations, labels, client)
+	return createRoleBinding(ctx, input, name, namespace, annotations, labels)
 }
 
-func createRoleBinding(ctx context.Context, input GrantPostgresAccessInput, name string, namespace string, annotations map[string]string, labels map[string]string, client dynamic.ResourceInterface) error {
+func createRoleBinding(ctx context.Context, input GrantPostgresAccessInput, name string, namespace string, annotations map[string]string, labels map[string]string) error {
+	gvr := schema.GroupVersionResource{
+		Group:    "rbac.authorization.k8s.io",
+		Version:  "v1",
+		Resource: "rolebindings",
+	}
+	client, err := fromContext(ctx).postgresWatcher.ImpersonatedClientWithNamespace(ctx, input.EnvironmentName, namespace, watcher.WithImpersonatedClientGVR(gvr))
+	if err != nil {
+		return err
+	}
+
 	res := &unstructured.Unstructured{}
-	res.SetAPIVersion("rbac.authorization.k8s.io/v1")
+	res.SetAPIVersion(gvr.GroupVersion().String())
 	res.SetKind("RoleBinding")
 	res.SetName(name)
 	res.SetNamespace(namespace)
@@ -269,9 +278,19 @@ func createRoleBinding(ctx context.Context, input GrantPostgresAccessInput, name
 	return createOrUpdateResource(ctx, input, res, client)
 }
 
-func createRole(ctx context.Context, input GrantPostgresAccessInput, name string, namespace string, annotations map[string]string, labels map[string]string, client dynamic.ResourceInterface) error {
+func createRole(ctx context.Context, input GrantPostgresAccessInput, name string, namespace string, annotations map[string]string, labels map[string]string) error {
+	gvr := schema.GroupVersionResource{
+		Group:    "rbac.authorization.k8s.io",
+		Version:  "v1",
+		Resource: "roles",
+	}
+	client, err := fromContext(ctx).postgresWatcher.ImpersonatedClientWithNamespace(ctx, input.EnvironmentName, namespace, watcher.WithImpersonatedClientGVR(gvr))
+	if err != nil {
+		return err
+	}
+
 	res := &unstructured.Unstructured{}
-	res.SetAPIVersion("rbac.authorization.k8s.io/v1")
+	res.SetAPIVersion(gvr.GroupVersion().String())
 	res.SetKind("Role")
 	res.SetName(name)
 	res.SetNamespace(namespace)
@@ -356,5 +375,5 @@ func resourceNamer(teamSlug slug.Slug, grantee string, name string) (string, err
 		return "", err
 	}
 	hashStr := fmt.Sprintf("%08x", hasher.Sum32())
-	return namegen.ShortName(fmt.Sprintf("pg-grant-%s", hashStr), validation.DNS1035LabelMaxLength)
+	return fmt.Sprintf("pg-grant-%s", hashStr), nil
 }
