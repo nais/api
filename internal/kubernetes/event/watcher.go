@@ -161,8 +161,8 @@ func (w *Watcher) watch(ctx context.Context, env string, client kubernetes.Inter
 			return nil, err
 		}
 
-		return watchtools.NewRetryWatcher(list.ResourceVersion, &cache.ListWatch{
-			WatchFunc: func(options metav1.ListOptions) (watch.Interface, error) {
+		return watchtools.NewRetryWatcherWithContext(ctx, list.ResourceVersion, &cache.ListWatch{
+			WatchFuncWithContext: func(ctx context.Context, options metav1.ListOptions) (watch.Interface, error) {
 				options.FieldSelector = selector
 				return client.EventsV1().Events("").Watch(context.Background(), options)
 			},
