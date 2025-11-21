@@ -37,7 +37,7 @@ func initializeChecker(L *lua.LState) int {
 }
 
 func runChecks(L *lua.LState) int {
-	checker := L.Context().Value("issue_checker").(*checker.Checker)
+	checker := L.Context().Value(issueCheckerKey).(*checker.Checker)
 	checker.RunChecksOnce(L.Context())
 	return 1
 }
