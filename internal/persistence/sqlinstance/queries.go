@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"hash/crc32"
-	"strings"
 	"time"
 
 	"github.com/nais/api/internal/activitylog"
@@ -24,6 +23,12 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/utils/ptr"
+)
+
+const (
+	activityLogEntryActionGrantAccess activitylog.ActivityLogEntryAction = "GRANT_ACCESS"
+
+	activityLogEntryResourceTypePostgres activitylog.ActivityLogEntryResourceType = "POSTGRES"
 )
 
 func GetByIdent(ctx context.Context, id ident.Ident) (*SQLInstance, error) {
@@ -238,7 +243,19 @@ func GrantPostgresAccess(ctx context.Context, input GrantPostgresAccessInput) er
 		return err
 	}
 
-	return createRoleBinding(ctx, input, name, namespace, annotations, labels)
+	err = createRoleBinding(ctx, input, name, namespace, annotations, labels)
+	if err != nil {
+		return err
+	}
+
+	return activitylog.Create(ctx, activitylog.CreateInput{
+		Action:          activityLogEntryActionGrantAccess,
+		Actor:           authz.ActorFromContext(ctx).User,
+		ResourceType:    activityLogEntryResourceTypePostgres,
+		ResourceName:    input.ClusterName,
+		EnvironmentName: ptr.To(input.EnvironmentName),
+		TeamSlug:        ptr.To(input.TeamSlug),
+	})
 }
 
 func createRoleBinding(ctx context.Context, input GrantPostgresAccessInput, name string, namespace string, annotations map[string]string, labels map[string]string) error {
@@ -274,7 +291,7 @@ func createRoleBinding(ctx context.Context, input GrantPostgresAccessInput, name
 		},
 	}
 
-	return createOrUpdateResource(ctx, input, res, client)
+	return createOrUpdateResource(ctx, res, client)
 }
 
 func createRole(ctx context.Context, input GrantPostgresAccessInput, name string, namespace string, annotations map[string]string, labels map[string]string) error {
@@ -320,31 +337,22 @@ func createRole(ctx context.Context, input GrantPostgresAccessInput, name string
 		},
 	}
 
-	return createOrUpdateResource(ctx, input, res, client)
+	return createOrUpdateResource(ctx, res, client)
 }
 
-func createOrUpdateResource(ctx context.Context, input GrantPostgresAccessInput, res *unstructured.Unstructured, client dynamic.ResourceInterface) error {
-	action := activitylog.ActivityLogEntryActionCreated
+func createOrUpdateResource(ctx context.Context, res *unstructured.Unstructured, client dynamic.ResourceInterface) error {
 	_, err := client.Create(ctx, res, metav1.CreateOptions{})
 	if err != nil {
 		if k8serrors.IsAlreadyExists(err) {
 			_, err = client.Update(ctx, res, metav1.UpdateOptions{})
 			if err != nil {
-				return nil
+				return err
 			}
-			action = activitylog.ActivityLogEntryActionUpdated
+			return nil
 		}
-		return nil
+		return err
 	}
-
-	return activitylog.Create(ctx, activitylog.CreateInput{
-		Action:          action,
-		Actor:           authz.ActorFromContext(ctx).User,
-		ResourceType:    activitylog.ActivityLogEntryResourceType(strings.ToUpper(res.GetKind())),
-		ResourceName:    res.GetName(),
-		EnvironmentName: ptr.To(input.EnvironmentName),
-		TeamSlug:        ptr.To(input.TeamSlug),
-	})
+	return nil
 }
 
 func resourceNamer(teamSlug slug.Slug, grantee string, name string) (string, error) {

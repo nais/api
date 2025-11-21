@@ -20284,6 +20284,11 @@ extend enum SearchType {
 	POSTGRES
 }
 
+extend enum ActivityLogEntryResourceType {
+	"All activity log entries related to postgres clusters will use this resource type."
+	POSTGRES
+}
+
 extend type TeamServiceUtilization {
 	sqlInstances: TeamServiceUtilizationSqlInstances!
 }
