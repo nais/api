@@ -708,6 +708,7 @@ type ComplexityRoot struct {
 	}
 
 	ImageVulnerability struct {
+		CvssScore                func(childComplexity int) int
 		Description              func(childComplexity int) int
 		ID                       func(childComplexity int) int
 		Identifier               func(childComplexity int) int
@@ -5216,6 +5217,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.IDPortenAuthIntegration.Name(childComplexity), true
 
+	case "ImageVulnerability.cvssScore":
+		if e.complexity.ImageVulnerability.CvssScore == nil {
+			break
+		}
+
+		return e.complexity.ImageVulnerability.CvssScore(childComplexity), true
 	case "ImageVulnerability.description":
 		if e.complexity.ImageVulnerability.Description == nil {
 			break
@@ -22927,6 +22934,9 @@ type ImageVulnerability implements Node {
 
 	"Link to the vulnerability details."
 	vulnerabilityDetailsLink: String!
+
+	"CVSS score of the vulnerability."
+	cvssScore: Float
 }
 
 enum ImageVulnerabilitySeverity {
@@ -37596,6 +37606,35 @@ func (ec *executionContext) fieldContext_ImageVulnerability_vulnerabilityDetails
 	return fc, nil
 }
 
+func (ec *executionContext) _ImageVulnerability_cvssScore(ctx context.Context, field graphql.CollectedField, obj *vulnerability.ImageVulnerability) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_ImageVulnerability_cvssScore,
+		func(ctx context.Context) (any, error) {
+			return obj.CvssScore, nil
+		},
+		nil,
+		ec.marshalOFloat2ᚖfloat64,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_ImageVulnerability_cvssScore(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ImageVulnerability",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ImageVulnerabilityConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*vulnerability.ImageVulnerability]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -37716,6 +37755,8 @@ func (ec *executionContext) fieldContext_ImageVulnerabilityConnection_nodes(_ co
 				return ec.fieldContext_ImageVulnerability_severitySince(ctx, field)
 			case "vulnerabilityDetailsLink":
 				return ec.fieldContext_ImageVulnerability_vulnerabilityDetailsLink(ctx, field)
+			case "cvssScore":
+				return ec.fieldContext_ImageVulnerability_cvssScore(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ImageVulnerability", field.Name)
 		},
@@ -37792,6 +37833,8 @@ func (ec *executionContext) fieldContext_ImageVulnerabilityEdge_node(_ context.C
 				return ec.fieldContext_ImageVulnerability_severitySince(ctx, field)
 			case "vulnerabilityDetailsLink":
 				return ec.fieldContext_ImageVulnerability_vulnerabilityDetailsLink(ctx, field)
+			case "cvssScore":
+				return ec.fieldContext_ImageVulnerability_cvssScore(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ImageVulnerability", field.Name)
 		},
@@ -75904,6 +75947,8 @@ func (ec *executionContext) fieldContext_UpdateImageVulnerabilityPayload_vulnera
 				return ec.fieldContext_ImageVulnerability_severitySince(ctx, field)
 			case "vulnerabilityDetailsLink":
 				return ec.fieldContext_ImageVulnerability_vulnerabilityDetailsLink(ctx, field)
+			case "cvssScore":
+				return ec.fieldContext_ImageVulnerability_cvssScore(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ImageVulnerability", field.Name)
 		},
@@ -95513,6 +95558,8 @@ func (ec *executionContext) _ImageVulnerability(ctx context.Context, sel ast.Sel
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "cvssScore":
+			out.Values[i] = ec._ImageVulnerability_cvssScore(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
