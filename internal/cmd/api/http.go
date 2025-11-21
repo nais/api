@@ -240,7 +240,9 @@ func ConfigureGraph(
 	kafkatopic.AddSearch(searcher, watchers.KafkaTopicWatcher)
 	opensearch.AddSearch(searcher, watchers.OpenSearchWatcher)
 	sqlinstance.AddSearchSQLInstance(searcher, watchers.SqlInstanceWatcher)
-	sqlinstance.AddSearchPostgres(searcher, watchers.PostgresWatcher)
+	// Disabled until we actually return Postgres instances in the graph
+	// See: https://github.com/nais/system/pull/241
+	// sqlinstance.AddSearchPostgres(searcher, watchers.PostgresWatcher)
 	valkey.AddSearch(searcher, watchers.ValkeyWatcher)
 	team.AddSearch(searcher, pool, notifier, log.WithField("subsystem", "team_search"))
 
