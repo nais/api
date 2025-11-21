@@ -79,18 +79,7 @@ func GetPostgresByIdent(ctx context.Context, id ident.Ident) (*Postgres, error) 
 }
 
 func GetPostgres(ctx context.Context, teamSlug slug.Slug, environmentName string, clusterName string) (*Postgres, error) {
-	all := fromContext(ctx).postgresWatcher.GetByNamespace(teamSlug.String(), watcher.InCluster(environmentName))
-
-	for _, pg := range all {
-		if pg.GetName() == clusterName {
-			return pg.Obj, nil
-		}
-	}
-	return nil, &watcher.ErrorNotFound{
-		Cluster:   environmentName,
-		Namespace: teamSlug.String(),
-		Name:      clusterName,
-	}
+	return fromContext(ctx).postgresWatcher.Get(environmentName, teamSlug.String(), clusterName)
 }
 
 func ListForWorkload(ctx context.Context, workloadName string, teamSlug slug.Slug, environmentName string, references []nais_io_v1.CloudSqlInstance, orderBy *SQLInstanceOrder) (*SQLInstanceConnection, error) {
