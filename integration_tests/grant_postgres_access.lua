@@ -227,3 +227,42 @@ Test.k8s("Validate RoleBinding resource", function(t)
 		},
 	})
 end)
+
+Test.gql("Check acitivity log entry", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[
+		{
+		  team(slug:"someteamname") {
+			activityLog {
+			  nodes {
+				message
+				... on PostgresGrantAccessActivityLogEntry {
+				  data {
+					grantee
+					until
+				  }
+				}
+			  }
+			}
+		  }
+		}
+	]]
+
+	t.check {
+		data = {
+			team = {
+				activityLog = {
+					nodes = {
+						{
+							message = Contains("Granted access to some@email.com"),
+							data = {
+								grantee = "some@email.com",
+								["until"] = NotNull(),
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+end)

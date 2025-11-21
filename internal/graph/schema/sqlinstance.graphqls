@@ -54,6 +54,49 @@ extend enum ActivityLogEntryResourceType {
 	POSTGRES
 }
 
+# This is managed directly by the activitylog package since it
+# combines data within the database.
+type PostgresGrantAccessActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: ActivityLogEntryResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+
+	"Data associated with the update."
+	data: PostgresGrantAccessActivityLogEntryData!
+}
+
+type PostgresGrantAccessActivityLogEntryData {
+	grantee: String!
+	until: Time!
+}
+
+extend enum ActivityLogActivityType {
+	"""
+	A user was granted access to a postgres cluster
+	"""
+	POSTGRES_GRANT_ACCESS
+}
+
 extend type TeamServiceUtilization {
 	sqlInstances: TeamServiceUtilizationSqlInstances!
 }

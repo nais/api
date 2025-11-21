@@ -25,12 +25,6 @@ import (
 	"k8s.io/utils/ptr"
 )
 
-const (
-	activityLogEntryActionGrantAccess activitylog.ActivityLogEntryAction = "GRANT_ACCESS"
-
-	activityLogEntryResourceTypePostgres activitylog.ActivityLogEntryResourceType = "POSTGRES"
-)
-
 func GetByIdent(ctx context.Context, id ident.Ident) (*SQLInstance, error) {
 	teamSlug, environmentName, sqlInstanceName, err := parseIdent(id)
 	if err != nil {
@@ -222,7 +216,8 @@ func GrantPostgresAccess(ctx context.Context, input GrantPostgresAccessInput) er
 	if err != nil {
 		return fmt.Errorf("parsing TTL: %w", err)
 	}
-	annotations["euthanaisa.nais.io/kill-after"] = time.Now().Add(d).Format(time.RFC3339)
+	until := time.Now().Add(d)
+	annotations["euthanaisa.nais.io/kill-after"] = until.Format(time.RFC3339)
 
 	labels := make(map[string]string)
 	labels["euthanaisa.nais.io/enabled"] = "true"
@@ -244,6 +239,10 @@ func GrantPostgresAccess(ctx context.Context, input GrantPostgresAccessInput) er
 		ResourceName:    input.ClusterName,
 		EnvironmentName: ptr.To(input.EnvironmentName),
 		TeamSlug:        ptr.To(input.TeamSlug),
+		Data: PostgresGrantAccessActivityLogEntryData{
+			Grantee: input.Grantee,
+			Until:   until,
+		},
 	})
 }
 

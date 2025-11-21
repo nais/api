@@ -33,10 +33,10 @@ func init() {
 			}, nil
 		case activityLogEntryActionAutoScaleApplication:
 			if entry.TeamSlug == nil {
-				return nil, fmt.Errorf("missing team slug for application restart activity log entry")
+				return nil, fmt.Errorf("missing team slug for application scale activity log entry")
 			}
 			if entry.EnvironmentName == nil {
-				return nil, fmt.Errorf("missing environment name for application restart activity log entry")
+				return nil, fmt.Errorf("missing environment name for application scale activity log entry")
 			}
 			data, err := activitylog.UnmarshalData[ApplicationScaledActivityLogEntryData](entry)
 			if err != nil {
@@ -49,7 +49,7 @@ func init() {
 		case deploymentactivity.ActivityLogEntryActionDeployment:
 			data, err := activitylog.UnmarshalData[deploymentactivity.DeploymentActivityLogEntryData](entry)
 			if err != nil {
-				return nil, fmt.Errorf("transforming application scaled activity log entry data: %w", err)
+				return nil, fmt.Errorf("transforming application deployment activity log entry data: %w", err)
 			}
 			return deploymentactivity.DeploymentActivityLogEntry{
 				GenericActivityLogEntry: entry.WithMessage("Application deployed"),

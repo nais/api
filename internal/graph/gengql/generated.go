@@ -1268,6 +1268,23 @@ type ComplexityRoot struct {
 		TeamEnvironment func(childComplexity int) int
 	}
 
+	PostgresGrantAccessActivityLogEntry struct {
+		Actor           func(childComplexity int) int
+		CreatedAt       func(childComplexity int) int
+		Data            func(childComplexity int) int
+		EnvironmentName func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Message         func(childComplexity int) int
+		ResourceName    func(childComplexity int) int
+		ResourceType    func(childComplexity int) int
+		TeamSlug        func(childComplexity int) int
+	}
+
+	PostgresGrantAccessActivityLogEntryData struct {
+		Grantee func(childComplexity int) int
+		Until   func(childComplexity int) int
+	}
+
 	Price struct {
 		Value func(childComplexity int) int
 	}
@@ -7604,6 +7621,74 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Postgres.TeamEnvironment(childComplexity), true
+
+	case "PostgresGrantAccessActivityLogEntry.actor":
+		if e.complexity.PostgresGrantAccessActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.complexity.PostgresGrantAccessActivityLogEntry.Actor(childComplexity), true
+	case "PostgresGrantAccessActivityLogEntry.createdAt":
+		if e.complexity.PostgresGrantAccessActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.PostgresGrantAccessActivityLogEntry.CreatedAt(childComplexity), true
+	case "PostgresGrantAccessActivityLogEntry.data":
+		if e.complexity.PostgresGrantAccessActivityLogEntry.Data == nil {
+			break
+		}
+
+		return e.complexity.PostgresGrantAccessActivityLogEntry.Data(childComplexity), true
+	case "PostgresGrantAccessActivityLogEntry.environmentName":
+		if e.complexity.PostgresGrantAccessActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.complexity.PostgresGrantAccessActivityLogEntry.EnvironmentName(childComplexity), true
+	case "PostgresGrantAccessActivityLogEntry.id":
+		if e.complexity.PostgresGrantAccessActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.complexity.PostgresGrantAccessActivityLogEntry.ID(childComplexity), true
+	case "PostgresGrantAccessActivityLogEntry.message":
+		if e.complexity.PostgresGrantAccessActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.complexity.PostgresGrantAccessActivityLogEntry.Message(childComplexity), true
+	case "PostgresGrantAccessActivityLogEntry.resourceName":
+		if e.complexity.PostgresGrantAccessActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.complexity.PostgresGrantAccessActivityLogEntry.ResourceName(childComplexity), true
+	case "PostgresGrantAccessActivityLogEntry.resourceType":
+		if e.complexity.PostgresGrantAccessActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.complexity.PostgresGrantAccessActivityLogEntry.ResourceType(childComplexity), true
+	case "PostgresGrantAccessActivityLogEntry.teamSlug":
+		if e.complexity.PostgresGrantAccessActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.complexity.PostgresGrantAccessActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "PostgresGrantAccessActivityLogEntryData.grantee":
+		if e.complexity.PostgresGrantAccessActivityLogEntryData.Grantee == nil {
+			break
+		}
+
+		return e.complexity.PostgresGrantAccessActivityLogEntryData.Grantee(childComplexity), true
+	case "PostgresGrantAccessActivityLogEntryData.until":
+		if e.complexity.PostgresGrantAccessActivityLogEntryData.Until == nil {
+			break
+		}
+
+		return e.complexity.PostgresGrantAccessActivityLogEntryData.Until(childComplexity), true
 
 	case "Price.value":
 		if e.complexity.Price.Value == nil {
@@ -20287,6 +20372,49 @@ extend enum SearchType {
 extend enum ActivityLogEntryResourceType {
 	"All activity log entries related to postgres clusters will use this resource type."
 	POSTGRES
+}
+
+# This is managed directly by the activitylog package since it
+# combines data within the database.
+type PostgresGrantAccessActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: ActivityLogEntryResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+
+	"Data associated with the update."
+	data: PostgresGrantAccessActivityLogEntryData!
+}
+
+type PostgresGrantAccessActivityLogEntryData {
+	grantee: String!
+	until: Time!
+}
+
+extend enum ActivityLogActivityType {
+	"""
+	A user was granted access to a postgres cluster
+	"""
+	POSTGRES_GRANT_ACCESS
 }
 
 extend type TeamServiceUtilization {
@@ -50059,6 +50187,331 @@ func (ec *executionContext) fieldContext_Postgres_teamEnvironment(_ context.Cont
 				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresGrantAccessActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.PostgresGrantAccessActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PostgresGrantAccessActivityLogEntry_id,
+		func(ctx context.Context) (any, error) {
+			return obj.ID(), nil
+		},
+		nil,
+		ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_PostgresGrantAccessActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresGrantAccessActivityLogEntry",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresGrantAccessActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.PostgresGrantAccessActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PostgresGrantAccessActivityLogEntry_actor,
+		func(ctx context.Context) (any, error) {
+			return obj.Actor, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_PostgresGrantAccessActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresGrantAccessActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresGrantAccessActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.PostgresGrantAccessActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PostgresGrantAccessActivityLogEntry_createdAt,
+		func(ctx context.Context) (any, error) {
+			return obj.CreatedAt, nil
+		},
+		nil,
+		ec.marshalNTime2timeᚐTime,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_PostgresGrantAccessActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresGrantAccessActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresGrantAccessActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.PostgresGrantAccessActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PostgresGrantAccessActivityLogEntry_message,
+		func(ctx context.Context) (any, error) {
+			return obj.Message, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_PostgresGrantAccessActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresGrantAccessActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresGrantAccessActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.PostgresGrantAccessActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PostgresGrantAccessActivityLogEntry_resourceType,
+		func(ctx context.Context) (any, error) {
+			return obj.ResourceType, nil
+		},
+		nil,
+		ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_PostgresGrantAccessActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresGrantAccessActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ActivityLogEntryResourceType does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresGrantAccessActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.PostgresGrantAccessActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PostgresGrantAccessActivityLogEntry_resourceName,
+		func(ctx context.Context) (any, error) {
+			return obj.ResourceName, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_PostgresGrantAccessActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresGrantAccessActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresGrantAccessActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.PostgresGrantAccessActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PostgresGrantAccessActivityLogEntry_teamSlug,
+		func(ctx context.Context) (any, error) {
+			return obj.TeamSlug, nil
+		},
+		nil,
+		ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_PostgresGrantAccessActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresGrantAccessActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Slug does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresGrantAccessActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.PostgresGrantAccessActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PostgresGrantAccessActivityLogEntry_environmentName,
+		func(ctx context.Context) (any, error) {
+			return obj.EnvironmentName, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_PostgresGrantAccessActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresGrantAccessActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresGrantAccessActivityLogEntry_data(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.PostgresGrantAccessActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PostgresGrantAccessActivityLogEntry_data,
+		func(ctx context.Context) (any, error) {
+			return obj.Data, nil
+		},
+		nil,
+		ec.marshalNPostgresGrantAccessActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐPostgresGrantAccessActivityLogEntryData,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_PostgresGrantAccessActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresGrantAccessActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "grantee":
+				return ec.fieldContext_PostgresGrantAccessActivityLogEntryData_grantee(ctx, field)
+			case "until":
+				return ec.fieldContext_PostgresGrantAccessActivityLogEntryData_until(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PostgresGrantAccessActivityLogEntryData", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresGrantAccessActivityLogEntryData_grantee(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.PostgresGrantAccessActivityLogEntryData) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PostgresGrantAccessActivityLogEntryData_grantee,
+		func(ctx context.Context) (any, error) {
+			return obj.Grantee, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_PostgresGrantAccessActivityLogEntryData_grantee(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresGrantAccessActivityLogEntryData",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresGrantAccessActivityLogEntryData_until(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.PostgresGrantAccessActivityLogEntryData) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PostgresGrantAccessActivityLogEntryData_until,
+		func(ctx context.Context) (any, error) {
+			return obj.Until, nil
+		},
+		nil,
+		ec.marshalNTime2timeᚐTime,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_PostgresGrantAccessActivityLogEntryData_until(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresGrantAccessActivityLogEntryData",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
 		},
 	}
 	return fc, nil
@@ -87578,6 +88031,13 @@ func (ec *executionContext) _ActivityLogEntry(ctx context.Context, sel ast.Selec
 			return graphql.Null
 		}
 		return ec._ReconcilerConfiguredActivityLogEntry(ctx, sel, obj)
+	case sqlinstance.PostgresGrantAccessActivityLogEntry:
+		return ec._PostgresGrantAccessActivityLogEntry(ctx, sel, &obj)
+	case *sqlinstance.PostgresGrantAccessActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._PostgresGrantAccessActivityLogEntry(ctx, sel, obj)
 	case opensearch.OpenSearchUpdatedActivityLogEntry:
 		return ec._OpenSearchUpdatedActivityLogEntry(ctx, sel, &obj)
 	case *opensearch.OpenSearchUpdatedActivityLogEntry:
@@ -88360,6 +88820,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._PrometheusAlert(ctx, sel, obj)
+	case sqlinstance.PostgresGrantAccessActivityLogEntry:
+		return ec._PostgresGrantAccessActivityLogEntry(ctx, sel, &obj)
+	case *sqlinstance.PostgresGrantAccessActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._PostgresGrantAccessActivityLogEntry(ctx, sel, obj)
 	case sqlinstance.Postgres:
 		return ec._Postgres(ctx, sel, &obj)
 	case *sqlinstance.Postgres:
@@ -101267,6 +101734,126 @@ func (ec *executionContext) _Postgres(ctx context.Context, sel ast.SelectionSet,
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var postgresGrantAccessActivityLogEntryImplementors = []string{"PostgresGrantAccessActivityLogEntry", "ActivityLogEntry", "Node"}
+
+func (ec *executionContext) _PostgresGrantAccessActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *sqlinstance.PostgresGrantAccessActivityLogEntry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, postgresGrantAccessActivityLogEntryImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PostgresGrantAccessActivityLogEntry")
+		case "id":
+			out.Values[i] = ec._PostgresGrantAccessActivityLogEntry_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "actor":
+			out.Values[i] = ec._PostgresGrantAccessActivityLogEntry_actor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "createdAt":
+			out.Values[i] = ec._PostgresGrantAccessActivityLogEntry_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "message":
+			out.Values[i] = ec._PostgresGrantAccessActivityLogEntry_message(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "resourceType":
+			out.Values[i] = ec._PostgresGrantAccessActivityLogEntry_resourceType(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "resourceName":
+			out.Values[i] = ec._PostgresGrantAccessActivityLogEntry_resourceName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "teamSlug":
+			out.Values[i] = ec._PostgresGrantAccessActivityLogEntry_teamSlug(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "environmentName":
+			out.Values[i] = ec._PostgresGrantAccessActivityLogEntry_environmentName(ctx, field, obj)
+		case "data":
+			out.Values[i] = ec._PostgresGrantAccessActivityLogEntry_data(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var postgresGrantAccessActivityLogEntryDataImplementors = []string{"PostgresGrantAccessActivityLogEntryData"}
+
+func (ec *executionContext) _PostgresGrantAccessActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, obj *sqlinstance.PostgresGrantAccessActivityLogEntryData) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, postgresGrantAccessActivityLogEntryDataImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PostgresGrantAccessActivityLogEntryData")
+		case "grantee":
+			out.Values[i] = ec._PostgresGrantAccessActivityLogEntryData_grantee(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "until":
+			out.Values[i] = ec._PostgresGrantAccessActivityLogEntryData_until(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -122519,6 +123106,16 @@ func (ec *executionContext) marshalNOutboundNetworkPolicy2ᚖgithubᚗcomᚋnais
 
 func (ec *executionContext) marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx context.Context, sel ast.SelectionSet, v pagination.PageInfo) graphql.Marshaler {
 	return ec._PageInfo(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNPostgresGrantAccessActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐPostgresGrantAccessActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *sqlinstance.PostgresGrantAccessActivityLogEntryData) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._PostgresGrantAccessActivityLogEntryData(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNPrice2githubᚗcomᚋnaisᚋapiᚋinternalᚋpriceᚐPrice(ctx context.Context, sel ast.SelectionSet, v price.Price) graphql.Marshaler {
