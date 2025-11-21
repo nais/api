@@ -47,7 +47,10 @@ import (
 
 type ctxKey int
 
-const databaseKey ctxKey = iota
+const (
+	databaseKey ctxKey = iota
+	issueCheckerKey
+)
 
 func TestRunner(ctx context.Context, skipSetup bool) (*testmanager.Manager, func(), error) {
 	container, connStr, err := startPostgresql(ctx)
@@ -189,7 +192,7 @@ func newManager(_ context.Context, container *postgres.PostgresContainer, connSt
 			return ctx, nil, nil, fmt.Errorf("create issue checker: %w", err)
 		}
 
-		ctx = context.WithValue(ctx, "issue_checker", checker)
+		ctx = context.WithValue(ctx, issueCheckerKey, checker)
 
 		ctx = context.WithValue(ctx, databaseKey, pool)
 		return ctx, runners, func() {
