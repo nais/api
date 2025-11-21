@@ -1,9 +1,12 @@
 package sqlinstance
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
+	"strings"
+	"time"
 
 	"github.com/GoogleCloudPlatform/k8s-config-connector/pkg/clients/generated/apis/k8s/v1alpha1"
 	sql_cnrm_cloud_google_com_v1beta1 "github.com/GoogleCloudPlatform/k8s-config-connector/pkg/clients/generated/apis/sql/v1beta1"
@@ -11,6 +14,7 @@ import (
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/validate"
 	"github.com/nais/api/internal/workload"
 	"google.golang.org/api/sqladmin/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -277,6 +281,14 @@ func toSQLDatabase(u *unstructured.Unstructured, environmentName string) (*SQLDa
 	}, nil
 }
 
+func toPostgres(u *unstructured.Unstructured, environmentName string) (*Postgres, error) {
+	return &Postgres{
+		Name:            u.GetName(),
+		EnvironmentName: environmentName,
+		TeamSlug:        slug.Slug(u.GetNamespace()),
+	}, nil
+}
+
 func toSQLInstance(u *unstructured.Unstructured, environmentName string) (*SQLInstance, error) {
 	obj := &sql_cnrm_cloud_google_com_v1beta1.SQLInstance{}
 	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(u.Object, obj); err != nil {
@@ -405,4 +417,81 @@ type TeamServiceUtilizationSQLInstancesDisk struct {
 
 type AuditLog struct {
 	LogURL string `json:"logUrl"`
+}
+
+type GrantPostgresAccessInput struct {
+	ClusterName     string    `json:"clusterName"`
+	TeamSlug        slug.Slug `json:"teamSlug"`
+	EnvironmentName string    `json:"environmentName"`
+	Grantee         string    `json:"grantee"`
+	Duration        string    `json:"duration"`
+}
+
+func (i *GrantPostgresAccessInput) Validate(ctx context.Context) error {
+	return i.ValidationErrors(ctx).NilIfEmpty()
+}
+
+func (i *GrantPostgresAccessInput) ValidationErrors(ctx context.Context) *validate.ValidationErrors {
+	verr := validate.New()
+	i.ClusterName = strings.TrimSpace(i.ClusterName)
+	i.EnvironmentName = strings.TrimSpace(i.EnvironmentName)
+
+	if i.ClusterName == "" {
+		verr.Add("name", "Name must not be empty.")
+	}
+	if i.EnvironmentName == "" {
+		verr.Add("environmentName", "Environment name must not be empty.")
+	}
+	if i.TeamSlug == "" {
+		verr.Add("teamSlug", "Team slug must not be empty.")
+	}
+	if i.Grantee == "" {
+		verr.Add("grantee", "Grantee must not be empty.")
+	}
+
+	_, err := time.ParseDuration(i.Duration)
+	if err != nil {
+		verr.Add("duration", "%s", err)
+	}
+
+	return verr
+}
+
+type GrantPostgresAccessPayload struct {
+	Error *string `json:"error,omitempty"`
+}
+
+type Postgres struct {
+	Name              string              `json:"name"`
+	EnvironmentName   string              `json:"-"`
+	WorkloadReference *workload.Reference `json:"-"`
+	TeamSlug          slug.Slug           `json:"-"`
+}
+
+func (Postgres) IsPersistence() {}
+func (Postgres) IsSearchNode()  {}
+func (Postgres) IsNode()        {}
+
+func (p *Postgres) GetObjectKind() schema.ObjectKind {
+	return schema.EmptyObjectKind
+}
+
+func (p *Postgres) DeepCopyObject() runtime.Object {
+	return p
+}
+
+func (p *Postgres) GetName() string {
+	return p.Name
+}
+
+func (p *Postgres) GetNamespace() string {
+	return p.TeamSlug.String()
+}
+
+func (p *Postgres) GetLabels() map[string]string {
+	return nil
+}
+
+func (i *Postgres) ID() ident.Ident {
+	return newIdent(i.TeamSlug, i.EnvironmentName, i.Name)
 }

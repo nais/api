@@ -239,7 +239,10 @@ func ConfigureGraph(
 	bucket.AddSearch(searcher, watchers.BucketWatcher)
 	kafkatopic.AddSearch(searcher, watchers.KafkaTopicWatcher)
 	opensearch.AddSearch(searcher, watchers.OpenSearchWatcher)
-	sqlinstance.AddSearch(searcher, watchers.SqlInstanceWatcher)
+	sqlinstance.AddSearchSQLInstance(searcher, watchers.SqlInstanceWatcher)
+	// Disabled until we actually return Postgres instances in the graph
+	// See: https://github.com/nais/system/pull/241
+	// sqlinstance.AddSearchPostgres(searcher, watchers.PostgresWatcher)
 	valkey.AddSearch(searcher, watchers.ValkeyWatcher)
 	team.AddSearch(searcher, pool, notifier, log.WithField("subsystem", "team_search"))
 
@@ -316,7 +319,7 @@ func ConfigureGraph(
 		ctx = utilization.NewLoaderContext(ctx, prometheusClient, log)
 		ctx = alerts.NewLoaderContext(ctx, prometheusClient, log)
 		ctx = metrics.NewLoaderContext(ctx, prometheusClient, log)
-		ctx = sqlinstance.NewLoaderContext(ctx, sqlAdminService, watchers.SqlDatabaseWatcher, watchers.SqlInstanceWatcher, auditLogProjectID, auditLogLocation)
+		ctx = sqlinstance.NewLoaderContext(ctx, sqlAdminService, watchers.SqlDatabaseWatcher, watchers.SqlInstanceWatcher, watchers.PostgresWatcher, auditLogProjectID, auditLogLocation)
 		ctx = database.NewLoaderContext(ctx, pool)
 		ctx = issue.NewContext(ctx, pool)
 		ctx = team.NewLoaderContext(ctx, pool, watchers.NamespaceWatcher)

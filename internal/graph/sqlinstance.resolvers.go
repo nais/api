@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/issue"
@@ -33,6 +34,32 @@ func (r *jobResolver) SQLInstances(ctx context.Context, obj *job.Job, orderBy *s
 	}
 
 	return sqlinstance.ListForWorkload(ctx, obj.Name, obj.TeamSlug, obj.EnvironmentName, obj.Spec.GCP.SqlInstances, orderBy)
+}
+
+func (r *mutationResolver) GrantPostgresAccess(ctx context.Context, input sqlinstance.GrantPostgresAccessInput) (*sqlinstance.GrantPostgresAccessPayload, error) {
+	if err := authz.CanGrantPostgresAccess(ctx, input.TeamSlug); err != nil {
+		return nil, err
+	}
+
+	if err := sqlinstance.GrantPostgresAccess(ctx, input); err != nil {
+		return nil, err
+	}
+
+	return &sqlinstance.GrantPostgresAccessPayload{
+		Error: new(string),
+	}, nil
+}
+
+func (r *postgresResolver) Team(ctx context.Context, obj *sqlinstance.Postgres) (*team.Team, error) {
+	return team.Get(ctx, obj.TeamSlug)
+}
+
+func (r *postgresResolver) Environment(ctx context.Context, obj *sqlinstance.Postgres) (*team.TeamEnvironment, error) {
+	return r.TeamEnvironment(ctx, obj)
+}
+
+func (r *postgresResolver) TeamEnvironment(ctx context.Context, obj *sqlinstance.Postgres) (*team.TeamEnvironment, error) {
+	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
 
 func (r *sqlDatabaseResolver) Team(ctx context.Context, obj *sqlinstance.SQLDatabase) (*team.Team, error) {
@@ -274,6 +301,8 @@ func (r *teamServiceUtilizationSqlInstancesResolver) Disk(ctx context.Context, o
 	return ret, nil
 }
 
+func (r *Resolver) Postgres() gengql.PostgresResolver { return &postgresResolver{r} }
+
 func (r *Resolver) SqlDatabase() gengql.SqlDatabaseResolver { return &sqlDatabaseResolver{r} }
 
 func (r *Resolver) SqlInstance() gengql.SqlInstanceResolver { return &sqlInstanceResolver{r} }
@@ -287,6 +316,7 @@ func (r *Resolver) TeamServiceUtilizationSqlInstances() gengql.TeamServiceUtiliz
 }
 
 type (
+	postgresResolver                           struct{ *Resolver }
 	sqlDatabaseResolver                        struct{ *Resolver }
 	sqlInstanceResolver                        struct{ *Resolver }
 	sqlInstanceMetricsResolver                 struct{ *Resolver }
