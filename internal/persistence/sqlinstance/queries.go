@@ -24,7 +24,6 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/utils/ptr"
-	"sigs.k8s.io/yaml"
 )
 
 func GetByIdent(ctx context.Context, id ident.Ident) (*SQLInstance, error) {
@@ -268,8 +267,8 @@ func createRoleBinding(ctx context.Context, input GrantPostgresAccessInput, name
 		"name":     name,
 	}
 
-	res.Object["subjects"] = []map[string]any{
-		{
+	res.Object["subjects"] = []any{
+		map[string]any{
 			"kind": "User",
 			"name": input.Grantee,
 		},
@@ -298,22 +297,22 @@ func createRole(ctx context.Context, input GrantPostgresAccessInput, name string
 	res.SetLabels(labels)
 	kubernetes.SetManagedByConsoleLabel(res)
 
-	res.Object["rules"] = []map[string]any{
-		{
-			"apiGroups": []string{""},
-			"resources": []string{"pods"},
-			"verbs":     []string{"get", "list", "watch"},
-			"resourceNames": []string{
+	res.Object["rules"] = []any{
+		map[string]any{
+			"apiGroups": []any{""},
+			"resources": []any{"pods"},
+			"verbs":     []any{"get", "list", "watch"},
+			"resourceNames": []any{
 				fmt.Sprintf("%s-0", input.ClusterName),
 				fmt.Sprintf("%s-1", input.ClusterName),
 				fmt.Sprintf("%s-2", input.ClusterName),
 			},
 		},
-		{
-			"apiGroups": []string{""},
-			"resources": []string{"pods/portforward"},
-			"verbs":     []string{"get", "list", "watch", "create"},
-			"resourceNames": []string{
+		map[string]any{
+			"apiGroups": []any{""},
+			"resources": []any{"pods/portforward"},
+			"verbs":     []any{"get", "list", "watch", "create"},
+			"resourceNames": []any{
 				fmt.Sprintf("%s-0", input.ClusterName),
 				fmt.Sprintf("%s-1", input.ClusterName),
 				fmt.Sprintf("%s-2", input.ClusterName),
@@ -325,13 +324,8 @@ func createRole(ctx context.Context, input GrantPostgresAccessInput, name string
 }
 
 func createOrUpdateResource(ctx context.Context, input GrantPostgresAccessInput, res *unstructured.Unstructured, client dynamic.ResourceInterface) error {
-	res, err := fixDeepCopy(res)
-	if err != nil {
-		return nil
-	}
-
 	action := activitylog.ActivityLogEntryActionCreated
-	_, err = client.Create(ctx, res, metav1.CreateOptions{})
+	_, err := client.Create(ctx, res, metav1.CreateOptions{})
 	if err != nil {
 		if k8serrors.IsAlreadyExists(err) {
 			_, err = client.Update(ctx, res, metav1.UpdateOptions{})
@@ -351,21 +345,6 @@ func createOrUpdateResource(ctx context.Context, input GrantPostgresAccessInput,
 		EnvironmentName: ptr.To(input.EnvironmentName),
 		TeamSlug:        ptr.To(input.TeamSlug),
 	})
-}
-
-// fixDeepCopy fixes problems where Unstructured objects containing a []map[string]any crashes in DeepCopy
-// It is unclear what it does, so we haven't been able to change our resource definition to avoid this step.
-func fixDeepCopy(res *unstructured.Unstructured) (*unstructured.Unstructured, error) {
-	b, err := yaml.Marshal(res)
-	if err != nil {
-		return nil, err
-	}
-
-	res = &unstructured.Unstructured{}
-	if err := yaml.Unmarshal(b, &res.Object); err != nil {
-		return nil, err
-	}
-	return res, nil
 }
 
 func resourceNamer(teamSlug slug.Slug, grantee string, name string) (string, error) {
