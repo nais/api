@@ -492,6 +492,6 @@ func (p *Postgres) GetLabels() map[string]string {
 	return nil
 }
 
-func (i *Postgres) ID() ident.Ident {
-	return newIdent(i.TeamSlug, i.EnvironmentName, i.Name)
+func (p *Postgres) ID() ident.Ident {
+	return newIdent(p.TeamSlug, p.EnvironmentName, p.Name)
 }
