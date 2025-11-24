@@ -221,6 +221,7 @@ func GrantPostgresAccess(ctx context.Context, input GrantPostgresAccessInput) er
 
 	labels := make(map[string]string)
 	labels["euthanaisa.nais.io/enabled"] = "true"
+	labels["postgres.data.nais.io/name"] = input.ClusterName
 
 	err = createRole(ctx, input, name, namespace, annotations, labels)
 	if err != nil {

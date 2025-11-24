@@ -221,7 +221,8 @@ Test.k8s("Validate Role resource", function(t)
 			labels = {
 				["app.kubernetes.io/managed-by"] = "console",
 				["euthanaisa.nais.io/enabled"] = "true",
-				["nais.io/managed-by"] = "console",
+                ["nais.io/managed-by"] = "console",
+				["postgres.data.nais.io/name"] = "foobar",
 			},
 		},
 		rules = {
@@ -286,6 +287,7 @@ Test.k8s("Validate RoleBinding resource", function(t)
 				["app.kubernetes.io/managed-by"] = "console",
 				["euthanaisa.nais.io/enabled"] = "true",
 				["nais.io/managed-by"] = "console",
+				["postgres.data.nais.io/name"] = "foobar",
 			},
 		},
 		roleRef = {
