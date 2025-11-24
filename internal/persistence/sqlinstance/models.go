@@ -1,7 +1,6 @@
 package sqlinstance
 
 import (
-	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -427,11 +426,11 @@ type GrantPostgresAccessInput struct {
 	Duration        string    `json:"duration"`
 }
 
-func (i *GrantPostgresAccessInput) Validate(ctx context.Context) error {
-	return i.ValidationErrors(ctx).NilIfEmpty()
+func (i *GrantPostgresAccessInput) Validate() error {
+	return i.ValidationErrors().NilIfEmpty()
 }
 
-func (i *GrantPostgresAccessInput) ValidationErrors(ctx context.Context) *validate.ValidationErrors {
+func (i *GrantPostgresAccessInput) ValidationErrors() *validate.ValidationErrors {
 	verr := validate.New()
 	i.ClusterName = strings.TrimSpace(i.ClusterName)
 	i.EnvironmentName = strings.TrimSpace(i.EnvironmentName)
@@ -449,9 +448,11 @@ func (i *GrantPostgresAccessInput) ValidationErrors(ctx context.Context) *valida
 		verr.Add("grantee", "Grantee must not be empty.")
 	}
 
-	_, err := time.ParseDuration(i.Duration)
+	duration, err := time.ParseDuration(i.Duration)
 	if err != nil {
 		verr.Add("duration", "%s", err)
+	} else if duration > 4*time.Hour {
+		verr.Add("duration", "Duration \"%s\" is out-of-bounds. Must be less than 4 hours.", i.Duration)
 	}
 
 	return verr

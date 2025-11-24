@@ -101,6 +101,41 @@ Test.gql("Grant postgres access with invalid duration", function(t)
 end)
 
 
+Test.gql("Grant postgres access with out-of-bounds duration", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[
+		mutation GrantPostgresAccess {
+		  grantPostgresAccess(
+		    input: {
+		      clusterName: "foobar"
+		      environmentName: "dev"
+		      teamSlug: "someteamname"
+		      grantee: "some@email.com"
+		      duration: "24h"
+		    }
+		  ) {
+		    error
+		  }
+		}
+	]]
+
+	t.check {
+		errors = {
+			{
+				extensions = {
+					field = "duration",
+				},
+				message = Contains("Duration \"24h\" is out-of-bounds"),
+				path = {
+					"grantPostgresAccess",
+				},
+			},
+		},
+		data = Null,
+	}
+end)
+
+
 Test.gql("Grant postgres access with authorization", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[
