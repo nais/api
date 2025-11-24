@@ -200,7 +200,7 @@ func TeamSummaryDisk(ctx context.Context, projectID string) (*TeamServiceUtiliza
 }
 
 func GrantPostgresAccess(ctx context.Context, input GrantPostgresAccessInput) error {
-	err := input.Validate()
+	err := input.Validate(ctx)
 	if err != nil {
 		return err
 	}

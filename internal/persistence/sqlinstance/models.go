@@ -1,6 +1,8 @@
 package sqlinstance
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -12,6 +14,7 @@ import (
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
+	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/validate"
 	"github.com/nais/api/internal/workload"
@@ -426,17 +429,17 @@ type GrantPostgresAccessInput struct {
 	Duration        string    `json:"duration"`
 }
 
-func (i *GrantPostgresAccessInput) Validate() error {
-	return i.ValidationErrors().NilIfEmpty()
+func (i *GrantPostgresAccessInput) Validate(ctx context.Context) error {
+	return i.ValidationErrors(ctx).NilIfEmpty()
 }
 
-func (i *GrantPostgresAccessInput) ValidationErrors() *validate.ValidationErrors {
+func (i *GrantPostgresAccessInput) ValidationErrors(ctx context.Context) *validate.ValidationErrors {
 	verr := validate.New()
 	i.ClusterName = strings.TrimSpace(i.ClusterName)
 	i.EnvironmentName = strings.TrimSpace(i.EnvironmentName)
 
 	if i.ClusterName == "" {
-		verr.Add("name", "Name must not be empty.")
+		verr.Add("clusterName", "ClusterName must not be empty.")
 	}
 	if i.EnvironmentName == "" {
 		verr.Add("environmentName", "Environment name must not be empty.")
@@ -453,6 +456,15 @@ func (i *GrantPostgresAccessInput) ValidationErrors() *validate.ValidationErrors
 		verr.Add("duration", "%s", err)
 	} else if duration > 4*time.Hour {
 		verr.Add("duration", "Duration \"%s\" is out-of-bounds. Must be less than 4 hours.", i.Duration)
+	}
+
+	_, err = GetPostgres(ctx, i.TeamSlug, i.EnvironmentName, i.ClusterName)
+	if err != nil {
+		if errors.Is(err, &watcher.ErrorNotFound{}) {
+			verr.Add("clusterName", "Could not find postgres cluster named \"%s\"", i.ClusterName)
+		} else {
+			verr.Add("clusterName", "%s", err)
+		}
 	}
 
 	return verr
