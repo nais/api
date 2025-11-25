@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/nais/api/internal/activitylog"
+	"github.com/nais/api/internal/environmentmapper"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/persistence/opensearch"
 	"github.com/nais/api/internal/persistence/valkey"
@@ -17,7 +18,15 @@ func (r *openSearchResolver) ActivityLog(ctx context.Context, obj *opensearch.Op
 		return nil, err
 	}
 
-	return activitylog.ListForResourceTeamAndEnvironment(ctx, opensearch.ActivityLogEntryResourceTypeOpenSearch, obj.TeamSlug, obj.EnvironmentName, obj.Name, page, filter)
+	return activitylog.ListForResourceTeamAndEnvironment(
+		ctx,
+		opensearch.ActivityLogEntryResourceTypeOpenSearch,
+		obj.TeamSlug,
+		environmentmapper.EnvironmentName(obj.EnvironmentName),
+		obj.Name,
+		page,
+		filter,
+	)
 }
 
 func (r *reconcilerResolver) ActivityLog(ctx context.Context, obj *reconciler.Reconciler, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*pagination.Connection[activitylog.ActivityLogEntry], error) {
@@ -44,5 +53,13 @@ func (r *valkeyResolver) ActivityLog(ctx context.Context, obj *valkey.Valkey, fi
 		return nil, err
 	}
 
-	return activitylog.ListForResourceTeamAndEnvironment(ctx, valkey.ActivityLogEntryResourceTypeValkey, obj.TeamSlug, obj.EnvironmentName, obj.Name, page, filter)
+	return activitylog.ListForResourceTeamAndEnvironment(
+		ctx,
+		valkey.ActivityLogEntryResourceTypeValkey,
+		obj.TeamSlug,
+		environmentmapper.EnvironmentName(obj.EnvironmentName),
+		obj.Name,
+		page,
+		filter,
+	)
 }
