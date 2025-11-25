@@ -19,6 +19,7 @@ func deprecatedRegistry(image, name, team, env string, resourceType issue.Resour
 		"docker.io/redis",
 		"docker.io/bitnami/redis",
 		"redis",
+		"krakend",
 	}
 
 	for _, registry := range allowedRegistries {
