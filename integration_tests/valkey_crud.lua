@@ -687,6 +687,51 @@ Test.gql("Delete Valkey as team-member", function(t)
 	}
 end)
 
+Test.gql("Verify activity log after deleting valkey", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query(string.format([[
+		{
+		  team(slug: "%s") {
+		    activityLog(first: 10, filter: { activityTypes: [VALKEY_DELETED] }) {
+		      nodes {
+		        __typename
+		        message
+		        actor
+		        createdAt
+		        resourceType
+		        resourceName
+		        ... on ValkeyDeletedActivityLogEntry {
+		          environmentName
+		          teamSlug
+		        }
+		      }
+		    }
+		  }
+		}
+	]], mainTeam:slug()))
+
+	t.check {
+		data = {
+			team = {
+				activityLog = {
+					nodes = {
+						{
+							__typename = "ValkeyDeletedActivityLogEntry",
+							message = "Deleted Valkey",
+							actor = user:email(),
+							createdAt = NotNull(),
+							resourceType = "VALKEY",
+							resourceName = "foobar",
+							environmentName = "dev",
+							teamSlug = mainTeam:slug(),
+						},
+					},
+				},
+			},
+		},
+	}
+end)
+
 Test.gql("Delete non-managed valkey as team-member", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[
@@ -713,5 +758,212 @@ Test.gql("Delete non-managed valkey as team-member", function(t)
 			},
 		},
 		data = Null,
+	}
+end)
+
+Test.gql("Verify activity log for valkey operations", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query(string.format([[
+		{
+		  team(slug: "%s") {
+		    activityLog(first: 50, filter: { activityTypes: [VALKEY_CREATED, VALKEY_UPDATED, VALKEY_DELETED] }) {
+		      nodes {
+		        __typename
+		        message
+		        actor
+		        createdAt
+		        resourceType
+		        resourceName
+		        environmentName
+		        teamSlug
+		        ... on ValkeyUpdatedActivityLogEntry {
+		          data {
+		            updatedFields {
+		              field
+		              oldValue
+		              newValue
+		            }
+		          }
+		        }
+		      }
+		    }
+		  }
+		}
+	]], mainTeam:slug()))
+
+	t.check {
+		data = {
+			team = {
+				activityLog = {
+					nodes = {
+						{
+							__typename = "ValkeyDeletedActivityLogEntry",
+							message = "Deleted Valkey",
+							actor = user:email(),
+							createdAt = NotNull(),
+							resourceType = "VALKEY",
+							resourceName = "foobar",
+							environmentName = "dev",
+							teamSlug = mainTeam:slug(),
+						},
+						{
+							__typename = "ValkeyUpdatedActivityLogEntry",
+							message = "Updated Valkey",
+							actor = user:email(),
+							createdAt = NotNull(),
+							resourceType = "VALKEY",
+							resourceName = "foobar",
+							environmentName = "dev",
+							teamSlug = mainTeam:slug(),
+							data = {
+								updatedFields = {
+									{
+										field = "tier",
+										oldValue = "HIGH_AVAILABILITY",
+										newValue = "SINGLE_NODE",
+									},
+									{
+										field = "memory",
+										oldValue = "GB_4",
+										newValue = "GB_1",
+									},
+								},
+							},
+						},
+						{
+							__typename = "ValkeyCreatedActivityLogEntry",
+							message = "Created Valkey",
+							actor = user:email(),
+							createdAt = NotNull(),
+							resourceType = "VALKEY",
+							resourceName = "foobar-hobbyist",
+							environmentName = "dev",
+							teamSlug = mainTeam:slug(),
+						},
+						{
+							__typename = "ValkeyUpdatedActivityLogEntry",
+							message = "Updated Valkey",
+							actor = user:email(),
+							createdAt = NotNull(),
+							resourceType = "VALKEY",
+							resourceName = "foobar",
+							environmentName = "dev",
+							teamSlug = mainTeam:slug(),
+							data = {
+								updatedFields = {
+									{
+										field = "tier",
+										oldValue = "SINGLE_NODE",
+										newValue = "HIGH_AVAILABILITY",
+									},
+									{
+										field = "memory",
+										oldValue = "GB_14",
+										newValue = "GB_4",
+									},
+									{
+										field = "maxMemoryPolicy",
+										oldValue = Null,
+										newValue = "ALLKEYS_RANDOM",
+									},
+									{
+										field = "notifyKeyspaceEvents",
+										oldValue = Null,
+										newValue = "Exd",
+									},
+								},
+							},
+						},
+						{
+							__typename = "ValkeyCreatedActivityLogEntry",
+							message = "Created Valkey",
+							actor = user:email(),
+							createdAt = NotNull(),
+							resourceType = "VALKEY",
+							resourceName = "foobar",
+							environmentName = "dev",
+							teamSlug = mainTeam:slug(),
+						},
+					},
+				},
+			},
+		},
+	}
+end)
+
+-- Test cross-team/environment isolation for activity logs
+otherTeam:addMember(user)
+
+Test.gql("Create valkey in other team", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query(string.format([[
+		mutation CreateValkey {
+		  createValkey(
+		    input: {
+		      name: "other-valkey"
+		      environmentName: "dev"
+		      teamSlug: "%s"
+		      tier: SINGLE_NODE
+		      memory: GB_14
+		    }
+		  ) {
+		    valkey {
+		      name
+		    }
+		  }
+		}
+	]], otherTeam:slug()))
+
+	t.check {
+		data = {
+			createValkey = {
+				valkey = {
+					name = "other-valkey",
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("Verify otherTeam activity log is isolated from mainTeam", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query(string.format([[
+		{
+		  team(slug: "%s") {
+		    activityLog(first: 50, filter: { activityTypes: [VALKEY_CREATED] }) {
+		      nodes {
+		        __typename
+		        message
+		        actor
+		        resourceType
+		        resourceName
+		        ... on ValkeyCreatedActivityLogEntry {
+		          environmentName
+		          teamSlug
+		        }
+		      }
+		    }
+		  }
+		}
+	]], otherTeam:slug()))
+
+	t.check {
+		data = {
+			team = {
+				activityLog = {
+					nodes = {
+						{
+							__typename = "ValkeyCreatedActivityLogEntry",
+							message = "Created Valkey",
+							actor = user:email(),
+							resourceType = "VALKEY",
+							resourceName = "other-valkey",
+							environmentName = "dev",
+							teamSlug = otherTeam:slug(),
+						},
+					},
+				},
+			},
+		},
 	}
 end)

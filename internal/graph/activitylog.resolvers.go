@@ -22,8 +22,8 @@ func (r *openSearchResolver) ActivityLog(ctx context.Context, obj *opensearch.Op
 		ctx,
 		opensearch.ActivityLogEntryResourceTypeOpenSearch,
 		obj.TeamSlug,
-		environmentmapper.EnvironmentName(obj.EnvironmentName),
 		obj.Name,
+		environmentmapper.EnvironmentName(obj.EnvironmentName),
 		page,
 		filter,
 	)
@@ -57,8 +57,8 @@ func (r *valkeyResolver) ActivityLog(ctx context.Context, obj *valkey.Valkey, fi
 		ctx,
 		valkey.ActivityLogEntryResourceTypeValkey,
 		obj.TeamSlug,
-		environmentmapper.EnvironmentName(obj.EnvironmentName),
 		obj.Name,
+		environmentmapper.EnvironmentName(obj.EnvironmentName),
 		page,
 		filter,
 	)
