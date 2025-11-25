@@ -833,6 +833,86 @@ Test.gql("Delete OpenSearch in non-existing team", function(t)
 	}
 end)
 
+-- Test cross-team/environment isolation for activity logs
+local otherTeam = Team.new("otherteamname", "purpose", "#slack_channel")
+otherTeam:addMember(user)
+
+Test.gql("Create opensearch in other team", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query(string.format([[
+		mutation CreateOpenSearch {
+		  createOpenSearch(
+		    input: {
+		      name: "other-opensearch"
+		      environmentName: "dev"
+		      teamSlug: "%s"
+		      tier: SINGLE_NODE
+		      memory: GB_16
+		      version: V2
+		      storageGB: 350
+		    }
+		  ) {
+		    openSearch {
+		      name
+		    }
+		  }
+		}
+	]], otherTeam:slug()))
+
+	t.check {
+		data = {
+			createOpenSearch = {
+				openSearch = {
+					name = "other-opensearch",
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("Verify otherTeam activity log is isolated from mainTeam", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query(string.format([[
+		{
+		  team(slug: "%s") {
+		    activityLog(first: 50, filter: { activityTypes: [OPENSEARCH_CREATED] }) {
+		      nodes {
+		        __typename
+		        message
+		        actor
+		        resourceType
+		        resourceName
+		        ... on OpenSearchCreatedActivityLogEntry {
+		          environmentName
+		          teamSlug
+		        }
+		      }
+		    }
+		  }
+		}
+	]], otherTeam:slug()))
+
+	t.check {
+		data = {
+			team = {
+				activityLog = {
+					nodes = {
+						{
+							__typename = "OpenSearchCreatedActivityLogEntry",
+							message = "Created OpenSearch",
+							actor = user:email(),
+							resourceType = "OPENSEARCH",
+							resourceName = "other-opensearch",
+							environmentName = "dev",
+							teamSlug = otherTeam:slug(),
+						},
+					},
+				},
+			},
+		},
+	}
+end)
+
 Test.gql("Delete OpenSearch as non-team-member", function(t)
 	t.addHeader("x-user-email", nonMemberUser:email())
 	t.query [[
@@ -882,6 +962,136 @@ Test.gql("Delete OpenSearch as team-member", function(t)
 		data = {
 			deleteOpenSearch = {
 				openSearchDeleted = true,
+			},
+		},
+	}
+end)
+
+Test.gql("Verify activity log for opensearch operations", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query(string.format([[
+		{
+		  team(slug: "%s") {
+		    activityLog(first: 50, filter: { activityTypes: [OPENSEARCH_CREATED, OPENSEARCH_UPDATED, OPENSEARCH_DELETED] }) {
+		      nodes {
+		        __typename
+		        message
+		        actor
+		        createdAt
+		        resourceType
+		        resourceName
+		        environmentName
+		        teamSlug
+		        ... on OpenSearchUpdatedActivityLogEntry {
+		          data {
+		            updatedFields {
+		              field
+		              oldValue
+		              newValue
+		            }
+		          }
+		        }
+		      }
+		    }
+		  }
+		}
+	]], mainTeam:slug()))
+
+	t.check {
+		data = {
+			team = {
+				activityLog = {
+					nodes = {
+						{
+							__typename = "OpenSearchDeletedActivityLogEntry",
+							message = "Deleted OpenSearch",
+							actor = user:email(),
+							createdAt = NotNull(),
+							resourceType = "OPENSEARCH",
+							resourceName = "foobar",
+							environmentName = "dev",
+							teamSlug = mainTeam:slug(),
+						},
+						{
+							__typename = "OpenSearchUpdatedActivityLogEntry",
+							message = "Updated OpenSearch",
+							actor = user:email(),
+							createdAt = NotNull(),
+							resourceType = "OPENSEARCH",
+							resourceName = "foobar",
+							environmentName = "dev",
+							teamSlug = mainTeam:slug(),
+							data = {
+								updatedFields = {
+									{
+										field = "tier",
+										oldValue = "HIGH_AVAILABILITY",
+										newValue = "SINGLE_NODE",
+									},
+									{
+										field = "memory",
+										oldValue = "GB_4",
+										newValue = "GB_2",
+									},
+									{
+										field = "storageGB",
+										oldValue = "1020",
+										newValue = "16",
+									},
+								},
+							},
+						},
+						{
+							__typename = "OpenSearchUpdatedActivityLogEntry",
+							message = "Updated OpenSearch",
+							actor = user:email(),
+							createdAt = NotNull(),
+							resourceType = "OPENSEARCH",
+							resourceName = "foobar",
+							environmentName = "dev",
+							teamSlug = mainTeam:slug(),
+							data = {
+								updatedFields = {
+									{
+										field = "tier",
+										oldValue = "SINGLE_NODE",
+										newValue = "HIGH_AVAILABILITY",
+									},
+									{
+										field = "memory",
+										oldValue = "GB_16",
+										newValue = "GB_4",
+									},
+									{
+										field = "storageGB",
+										oldValue = "350",
+										newValue = "1020",
+									},
+								},
+							},
+						},
+						{
+							__typename = "OpenSearchCreatedActivityLogEntry",
+							message = "Created OpenSearch",
+							actor = user:email(),
+							createdAt = NotNull(),
+							resourceType = "OPENSEARCH",
+							resourceName = "foobar-hobbyist",
+							environmentName = "dev",
+							teamSlug = mainTeam:slug(),
+						},
+						{
+							__typename = "OpenSearchCreatedActivityLogEntry",
+							message = "Created OpenSearch",
+							actor = user:email(),
+							createdAt = NotNull(),
+							resourceType = "OPENSEARCH",
+							resourceName = "foobar",
+							environmentName = "dev",
+							teamSlug = mainTeam:slug(),
+						},
+					},
+				},
 			},
 		},
 	}
