@@ -116,6 +116,24 @@ Test.gql("Add member", function(t)
 			) {
 				member {
 					role
+					team {
+						activityLog(first: 5) {
+							nodes {
+								__typename
+								message
+								actor
+								resourceType
+								resourceName
+								... on TeamMemberAddedActivityLogEntry {
+									data {
+										role
+										userEmail
+										userID
+									}
+								}
+							}
+						}
+					}
 				}
 			}
 		}
@@ -126,6 +144,31 @@ Test.gql("Add member", function(t)
 			addTeamMember = {
 				member = {
 					role = "MEMBER",
+					team = {
+						activityLog = {
+							nodes = {
+								{
+									__typename = "TeamMemberAddedActivityLogEntry",
+									message = "Add member",
+									actor = user:email(),
+									resourceType = "TEAM",
+									resourceName = teamSlug,
+									data = {
+										role = "MEMBER",
+										userEmail = memberToAdd:email(),
+										userID = NotNull(),
+									},
+								},
+								{
+									__typename = "TeamCreatedActivityLogEntry",
+									message = "Created team",
+									actor = user:email(),
+									resourceType = "TEAM",
+									resourceName = teamSlug,
+								},
+							},
+						},
+					},
 				},
 			},
 		},
@@ -160,6 +203,24 @@ Test.gql("Change role", function(t)
 			) {
 				member {
 					role
+					team {
+						activityLog(first: 5) {
+							nodes {
+								__typename
+								message
+								actor
+								resourceType
+								resourceName
+								... on TeamMemberSetRoleActivityLogEntry {
+									data {
+										role
+										userEmail
+										userID
+									}
+								}
+							}
+						}
+					}
 				}
 			}
 		}
@@ -170,6 +231,38 @@ Test.gql("Change role", function(t)
 			setTeamMemberRole = {
 				member = {
 					role = "OWNER",
+					team = {
+						activityLog = {
+							nodes = {
+								{
+									__typename = "TeamMemberSetRoleActivityLogEntry",
+									message = "Set member role",
+									actor = user:email(),
+									resourceType = "TEAM",
+									resourceName = teamSlug,
+									data = {
+										role = "OWNER",
+										userEmail = memberToAdd:email(),
+										userID = NotNull(),
+									},
+								},
+								{
+									__typename = "TeamMemberAddedActivityLogEntry",
+									message = "Add member",
+									actor = user:email(),
+									resourceType = "TEAM",
+									resourceName = teamSlug,
+								},
+								{
+									__typename = "TeamCreatedActivityLogEntry",
+									message = "Created team",
+									actor = user:email(),
+									resourceType = "TEAM",
+									resourceName = teamSlug,
+								},
+							},
+						},
+					},
 				},
 			},
 		},
@@ -277,6 +370,21 @@ Test.gql("Remove owner", function(t)
 							}
 						}
 					}
+					activityLog(first: 5) {
+						nodes {
+							__typename
+							message
+							actor
+							resourceType
+							resourceName
+							... on TeamMemberRemovedActivityLogEntry {
+								data {
+									userEmail
+									userID
+								}
+							}
+						}
+					}
 				}
 			}
 		}
@@ -301,6 +409,49 @@ Test.gql("Remove owner", function(t)
 									email = user:email(),
 									name = user:name(),
 								},
+							},
+						},
+					},
+					activityLog = {
+						nodes = {
+							{
+								__typename = "TeamMemberRemovedActivityLogEntry",
+								message = "Remove member",
+								actor = user:email(),
+								resourceType = "TEAM",
+								resourceName = teamSlug,
+								data = {
+									userEmail = ownerToAdd:email(),
+									userID = NotNull(),
+								},
+							},
+							{
+								__typename = "TeamMemberAddedActivityLogEntry",
+								message = "Add member",
+								actor = user:email(),
+								resourceType = "TEAM",
+								resourceName = teamSlug,
+							},
+							{
+								__typename = "TeamMemberSetRoleActivityLogEntry",
+								message = "Set member role",
+								actor = user:email(),
+								resourceType = "TEAM",
+								resourceName = teamSlug,
+							},
+							{
+								__typename = "TeamMemberAddedActivityLogEntry",
+								message = "Add member",
+								actor = user:email(),
+								resourceType = "TEAM",
+								resourceName = teamSlug,
+							},
+							{
+								__typename = "TeamCreatedActivityLogEntry",
+								message = "Created team",
+								actor = user:email(),
+								resourceType = "TEAM",
+								resourceName = teamSlug,
 							},
 						},
 					},
