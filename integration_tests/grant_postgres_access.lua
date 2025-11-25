@@ -4,6 +4,10 @@ local nonMemberUser = User.new("nonmember", "other@user.com")
 local mainTeam = Team.new("someteamname", "purpose", "#slack_channel")
 mainTeam:addMember(user)
 
+
+Helper.readK8sResources("k8s_resources/grant_postgres_access")
+
+
 Test.gql("Grant postgres access without authorization in non-existent team", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[
@@ -101,6 +105,76 @@ Test.gql("Grant postgres access with invalid duration", function(t)
 end)
 
 
+Test.gql("Grant postgres access with out-of-bounds duration", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[
+		mutation GrantPostgresAccess {
+		  grantPostgresAccess(
+		    input: {
+		      clusterName: "foobar"
+		      environmentName: "dev"
+		      teamSlug: "someteamname"
+		      grantee: "some@email.com"
+		      duration: "24h"
+		    }
+		  ) {
+		    error
+		  }
+		}
+	]]
+
+	t.check {
+		errors = {
+			{
+				extensions = {
+					field = "duration",
+				},
+				message = Contains("Duration \"24h\" is out-of-bounds"),
+				path = {
+					"grantPostgresAccess",
+				},
+			},
+		},
+		data = Null,
+	}
+end)
+
+
+Test.gql("Grant postgres access to non-existing cluster", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[
+		mutation GrantPostgresAccess {
+		  grantPostgresAccess(
+		    input: {
+		      clusterName: "baz"
+		      environmentName: "dev"
+		      teamSlug: "someteamname"
+		      grantee: "some@email.com"
+		      duration: "4h"
+		    }
+		  ) {
+		    error
+		  }
+		}
+	]]
+
+	t.check {
+		errors = {
+			{
+				extensions = {
+					field = "clusterName",
+				},
+				message = Contains("Could not find postgres cluster"),
+				path = {
+					"grantPostgresAccess",
+				},
+			},
+		},
+		data = Null,
+	}
+end)
+
+
 Test.gql("Grant postgres access with authorization", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[
@@ -148,6 +222,7 @@ Test.k8s("Validate Role resource", function(t)
 				["app.kubernetes.io/managed-by"] = "console",
 				["euthanaisa.nais.io/enabled"] = "true",
 				["nais.io/managed-by"] = "console",
+				["postgres.data.nais.io/name"] = "foobar",
 			},
 		},
 		rules = {
@@ -212,6 +287,7 @@ Test.k8s("Validate RoleBinding resource", function(t)
 				["app.kubernetes.io/managed-by"] = "console",
 				["euthanaisa.nais.io/enabled"] = "true",
 				["nais.io/managed-by"] = "console",
+				["postgres.data.nais.io/name"] = "foobar",
 			},
 		},
 		roleRef = {
