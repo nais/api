@@ -59,6 +59,54 @@ func (q *Queries) LatestDeploymentTimestampForWorkload(ctx context.Context, arg 
 	return created_at, err
 }
 
+const listByCreatedAt = `-- name: ListByCreatedAt :many
+SELECT
+    id, external_id, created_at, team_slug, repository, commit_sha, deployer_username, trigger_url, environment_name
+FROM
+	deployments
+ORDER BY
+	created_at DESC
+LIMIT
+	$2
+OFFSET
+	$1
+`
+
+type ListByCreatedAtParams struct {
+	Offset int32
+	Limit  int32
+}
+
+func (q *Queries) ListByCreatedAt(ctx context.Context, arg ListByCreatedAtParams) ([]*Deployment, error) {
+	rows, err := q.db.Query(ctx, listByCreatedAt, arg.Offset, arg.Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*Deployment{}
+	for rows.Next() {
+		var i Deployment
+		if err := rows.Scan(
+			&i.ID,
+			&i.ExternalID,
+			&i.CreatedAt,
+			&i.TeamSlug,
+			&i.Repository,
+			&i.CommitSha,
+			&i.DeployerUsername,
+			&i.TriggerUrl,
+			&i.EnvironmentName,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listByIDs = `-- name: ListByIDs :many
 SELECT
 	id, external_id, created_at, team_slug, repository, commit_sha, deployer_username, trigger_url, environment_name

@@ -16,6 +16,27 @@ import (
 	"k8s.io/utils/ptr"
 )
 
+func ListByCreatedAt(ctx context.Context, page *pagination.Pagination) (*DeploymentConnection, error) {
+	q := db(ctx)
+
+	ret, err := q.ListByCreatedAt(ctx, deploymentsql.ListByCreatedAtParams{
+		Offset: page.Offset(),
+		Limit:  page.Limit(),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]*Deployment, 0, len(ret))
+	for _, r := range ret {
+		result = append(result, toGraphDeployment(r))
+	}
+
+	return pagination.NewConvertConnection(ret, page, len(ret), func(from *deploymentsql.Deployment) *Deployment {
+		return toGraphDeployment(from)
+	}), nil
+}
+
 func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination) (*DeploymentConnection, error) {
 	q := db(ctx)
 

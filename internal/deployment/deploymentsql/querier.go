@@ -13,6 +13,7 @@ import (
 type Querier interface {
 	CleanupNaisVerification(ctx context.Context) (pgconn.CommandTag, error)
 	LatestDeploymentTimestampForWorkload(ctx context.Context, arg LatestDeploymentTimestampForWorkloadParams) (pgtype.Timestamptz, error)
+	ListByCreatedAt(ctx context.Context, arg ListByCreatedAtParams) ([]*Deployment, error)
 	ListByIDs(ctx context.Context, ids []uuid.UUID) ([]*Deployment, error)
 	ListByTeamSlug(ctx context.Context, arg ListByTeamSlugParams) ([]*ListByTeamSlugRow, error)
 	ListDeploymentResourcesByIDs(ctx context.Context, ids []uuid.UUID) ([]*DeploymentK8sResource, error)

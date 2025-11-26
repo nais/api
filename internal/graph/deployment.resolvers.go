@@ -62,6 +62,15 @@ func (r *mutationResolver) ChangeDeploymentKey(ctx context.Context, input deploy
 	return &deployment.ChangeDeploymentKeyPayload{DeploymentKey: dk}, nil
 }
 
+func (r *queryResolver) Deployments(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*deployment.Deployment], error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+
+	return deployment.ListByCreatedAt(ctx, page)
+}
+
 func (r *teamResolver) DeploymentKey(ctx context.Context, obj *team.Team) (*deployment.DeploymentKey, error) {
 	if err := authz.CanReadDeployKey(ctx, obj.Slug); err != nil {
 		return nil, err

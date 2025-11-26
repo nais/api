@@ -1,3 +1,16 @@
+-- name: ListByCreatedAt :many
+SELECT
+    *
+FROM
+	deployments
+ORDER BY
+	created_at DESC
+LIMIT
+	sqlc.arg('limit')
+OFFSET
+	sqlc.arg('offset')
+;
+
 -- name: ListByIDs :many
 SELECT
 	*
