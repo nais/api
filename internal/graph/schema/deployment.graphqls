@@ -438,6 +438,6 @@ extend enum ActivityLogActivityType {
 }
 
 input DeploymentFilter {
-	"Get deployments since a given date until today."
-	since: Time
+	"Get deployments from a given date until today."
+	From: Time
 }

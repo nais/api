@@ -26,7 +26,7 @@ func ListByCreatedAt(ctx context.Context, page *pagination.Pagination, filter *D
 
 	if filter != nil {
 		params.Since = pgtype.Timestamptz{
-			Time:  filter.Since,
+			Time:  filter.From,
 			Valid: true,
 		}
 	}

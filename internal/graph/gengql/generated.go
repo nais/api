@@ -16196,8 +16196,8 @@ extend enum ActivityLogActivityType {
 }
 
 input DeploymentFilter {
-	"Get deployments since a given date until today."
-	since: Time
+	"Get deployments from a given date until today."
+	From: Time
 }
 `, BuiltIn: false},
 	{Name: "../schema/environments.graphqls", Input: `extend type Query {
@@ -85473,20 +85473,20 @@ func (ec *executionContext) unmarshalInputDeploymentFilter(ctx context.Context, 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"since"}
+	fieldsInOrder := [...]string{"From"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "since":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("since"))
+		case "From":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("From"))
 			data, err := ec.unmarshalOTime2timeᚐTime(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Since = data
+			it.From = data
 		}
 	}
 

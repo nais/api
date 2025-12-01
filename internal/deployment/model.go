@@ -118,8 +118,8 @@ func (e DeploymentStatusState) MarshalGQL(w io.Writer) {
 }
 
 type DeploymentFilter struct {
-	// Get deployments since a given date until today.
-	Since time.Time `json:"from"`
+	// Get deployments from a given date until today.
+	From time.Time `json:"from"`
 }
 
 type ChangeDeploymentKeyInput struct {
