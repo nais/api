@@ -1,4 +1,4 @@
--- name: ListByCreatedAt :many
+-- name: List :many
 SELECT
 	*
 FROM

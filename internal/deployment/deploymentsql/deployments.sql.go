@@ -59,7 +59,7 @@ func (q *Queries) LatestDeploymentTimestampForWorkload(ctx context.Context, arg 
 	return created_at, err
 }
 
-const listByCreatedAt = `-- name: ListByCreatedAt :many
+const list = `-- name: List :many
 SELECT
 	id, external_id, created_at, team_slug, repository, commit_sha, deployer_username, trigger_url, environment_name
 FROM
@@ -74,14 +74,14 @@ OFFSET
 	$2
 `
 
-type ListByCreatedAtParams struct {
+type ListParams struct {
 	Since  pgtype.Timestamptz
 	Offset int32
 	Limit  int32
 }
 
-func (q *Queries) ListByCreatedAt(ctx context.Context, arg ListByCreatedAtParams) ([]*Deployment, error) {
-	rows, err := q.db.Query(ctx, listByCreatedAt, arg.Since, arg.Offset, arg.Limit)
+func (q *Queries) List(ctx context.Context, arg ListParams) ([]*Deployment, error) {
+	rows, err := q.db.Query(ctx, list, arg.Since, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}

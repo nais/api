@@ -68,7 +68,7 @@ func (r *queryResolver) Deployments(ctx context.Context, first *int, after *pagi
 		return nil, err
 	}
 
-	return deployment.ListByCreatedAt(ctx, page, filter)
+	return deployment.List(ctx, page, filter)
 }
 
 func (r *teamResolver) DeploymentKey(ctx context.Context, obj *team.Team) (*deployment.DeploymentKey, error) {

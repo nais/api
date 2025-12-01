@@ -17,9 +17,9 @@ import (
 	"k8s.io/utils/ptr"
 )
 
-func ListByCreatedAt(ctx context.Context, page *pagination.Pagination, filter *DeploymentFilter) (*DeploymentConnection, error) {
+func List(ctx context.Context, page *pagination.Pagination, filter *DeploymentFilter) (*DeploymentConnection, error) {
 	q := db(ctx)
-	params := deploymentsql.ListByCreatedAtParams{
+	params := deploymentsql.ListParams{
 		Offset: page.Offset(),
 		Limit:  page.Limit(),
 	}
@@ -31,7 +31,7 @@ func ListByCreatedAt(ctx context.Context, page *pagination.Pagination, filter *D
 		}
 	}
 
-	ret, err := q.ListByCreatedAt(ctx, params)
+	ret, err := q.List(ctx, params)
 	if err != nil {
 		return nil, err
 	}
