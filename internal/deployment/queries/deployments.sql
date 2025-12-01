@@ -1,8 +1,10 @@
 -- name: ListByCreatedAt :many
 SELECT
-    *
+	*
 FROM
 	deployments
+WHERE
+	created_at >= @since::TIMESTAMPTZ
 ORDER BY
 	created_at DESC
 LIMIT

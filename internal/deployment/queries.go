@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/deployment/deploymentactivity"
@@ -16,20 +17,23 @@ import (
 	"k8s.io/utils/ptr"
 )
 
-func ListByCreatedAt(ctx context.Context, page *pagination.Pagination) (*DeploymentConnection, error) {
+func ListByCreatedAt(ctx context.Context, page *pagination.Pagination, filter *DeploymentFilter) (*DeploymentConnection, error) {
 	q := db(ctx)
-
-	ret, err := q.ListByCreatedAt(ctx, deploymentsql.ListByCreatedAtParams{
+	params := deploymentsql.ListByCreatedAtParams{
 		Offset: page.Offset(),
 		Limit:  page.Limit(),
-	})
-	if err != nil {
-		return nil, err
 	}
 
-	result := make([]*Deployment, 0, len(ret))
-	for _, r := range ret {
-		result = append(result, toGraphDeployment(r))
+	if filter != nil {
+		params.Since = pgtype.Timestamptz{
+			Time:  filter.Since,
+			Valid: true,
+		}
+	}
+
+	ret, err := q.ListByCreatedAt(ctx, params)
+	if err != nil {
+		return nil, err
 	}
 
 	return pagination.NewConvertConnection(ret, page, len(ret), func(from *deploymentsql.Deployment) *Deployment {

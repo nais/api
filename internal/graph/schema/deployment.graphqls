@@ -12,6 +12,9 @@ extend type Query {
 
 		"Get items before this cursor."
 		before: Cursor
+
+		"Filter options for the deployments returned from the connection."
+		filter: DeploymentFilter
 	): DeploymentConnection!
 }
 
@@ -432,4 +435,9 @@ extend enum ActivityLogActivityType {
 
 	"Activity log entry for team deploy key updates."
 	TEAM_DEPLOY_KEY_UPDATED
+}
+
+input DeploymentFilter {
+	"Get deployments since a given date until today."
+	since: Time
 }

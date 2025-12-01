@@ -5,6 +5,7 @@ package gengql
 import (
 	activitylog "github.com/nais/api/internal/activitylog"
 	alerts "github.com/nais/api/internal/alerts"
+	deployment "github.com/nais/api/internal/deployment"
 	repository "github.com/nais/api/internal/github/repository"
 	pagination "github.com/nais/api/internal/graph/pagination"
 	issue "github.com/nais/api/internal/issue"
@@ -96,7 +97,7 @@ func NewComplexityRoot() ComplexityRoot {
 	c.OpenSearchMaintenance.Updates = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
-	c.Query.Deployments = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
+	c.Query.Deployments = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *deployment.DeploymentFilter) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.Query.Reconcilers = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {

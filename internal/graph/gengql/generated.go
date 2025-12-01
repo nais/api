@@ -1314,7 +1314,7 @@ type ComplexityRoot struct {
 	Query struct {
 		CostMonthlySummary        func(childComplexity int, from scalar.Date, to scalar.Date) int
 		CurrentUnitPrices         func(childComplexity int) int
-		Deployments               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Deployments               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *deployment.DeploymentFilter) int
 		Environment               func(childComplexity int, name string) int
 		Environments              func(childComplexity int, orderBy *environment.EnvironmentOrder) int
 		Features                  func(childComplexity int) int
@@ -3066,7 +3066,7 @@ type QueryResolver interface {
 	Node(ctx context.Context, id ident.Ident) (model.Node, error)
 	Roles(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*authz.Role], error)
 	CostMonthlySummary(ctx context.Context, from scalar.Date, to scalar.Date) (*cost.CostMonthlySummary, error)
-	Deployments(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*deployment.Deployment], error)
+	Deployments(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *deployment.DeploymentFilter) (*pagination.Connection[*deployment.Deployment], error)
 	Environments(ctx context.Context, orderBy *environment.EnvironmentOrder) (*pagination.Connection[*environment.Environment], error)
 	Environment(ctx context.Context, name string) (*environment.Environment, error)
 	Features(ctx context.Context) (*feature.Features, error)
@@ -7825,7 +7825,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Query.Deployments(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
+		return e.complexity.Query.Deployments(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["filter"].(*deployment.DeploymentFilter)), true
 	case "Query.environment":
 		if e.complexity.Query.Environment == nil {
 			break
@@ -13755,6 +13755,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputDeleteServiceAccountInput,
 		ec.unmarshalInputDeleteServiceAccountTokenInput,
 		ec.unmarshalInputDeleteValkeyInput,
+		ec.unmarshalInputDeploymentFilter,
 		ec.unmarshalInputDisableReconcilerInput,
 		ec.unmarshalInputEnableReconcilerInput,
 		ec.unmarshalInputEnvironmentOrder,
@@ -15769,6 +15770,9 @@ type SqlInstanceCost {
 
 		"Get items before this cursor."
 		before: Cursor
+
+		"Filter options for the deployments returned from the connection."
+		filter: DeploymentFilter
 	): DeploymentConnection!
 }
 
@@ -16189,6 +16193,11 @@ extend enum ActivityLogActivityType {
 
 	"Activity log entry for team deploy key updates."
 	TEAM_DEPLOY_KEY_UPDATED
+}
+
+input DeploymentFilter {
+	"Get deployments since a given date until today."
+	since: Time
 }
 `, BuiltIn: false},
 	{Name: "../schema/environments.graphqls", Input: `extend type Query {
@@ -25141,6 +25150,11 @@ func (ec *executionContext) field_Query_deployments_args(ctx context.Context, ra
 		return nil, err
 	}
 	args["before"] = arg3
+	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "filter", ec.unmarshalODeploymentFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentFilter)
+	if err != nil {
+		return nil, err
+	}
+	args["filter"] = arg4
 	return args, nil
 }
 
@@ -51355,7 +51369,7 @@ func (ec *executionContext) _Query_deployments(ctx context.Context, field graphq
 		ec.fieldContext_Query_deployments,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().Deployments(ctx, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
+			return ec.resolvers.Query().Deployments(ctx, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["filter"].(*deployment.DeploymentFilter))
 		},
 		nil,
 		ec.marshalNDeploymentConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -85446,6 +85460,33 @@ func (ec *executionContext) unmarshalInputDeleteValkeyInput(ctx context.Context,
 				return it, err
 			}
 			it.TeamSlug = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputDeploymentFilter(ctx context.Context, obj any) (deployment.DeploymentFilter, error) {
+	var it deployment.DeploymentFilter
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"since"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "since":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("since"))
+			data, err := ec.unmarshalOTime2timeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Since = data
 		}
 	}
 
@@ -128593,6 +128634,14 @@ func (ec *executionContext) marshalODate2ᚖgithubᚗcomᚋnaisᚋapiᚋinternal
 	return graphql.WrapContextMarshaler(ctx, v)
 }
 
+func (ec *executionContext) unmarshalODeploymentFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentFilter(ctx context.Context, v any) (*deployment.DeploymentFilter, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputDeploymentFilter(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) marshalODeploymentKey2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentKey(ctx context.Context, sel ast.SelectionSet, v *deployment.DeploymentKey) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -129268,6 +129317,18 @@ func (ec *executionContext) unmarshalOTeamWorkloadsFilter2ᚖgithubᚗcomᚋnais
 	}
 	res, err := ec.unmarshalInputTeamWorkloadsFilter(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOTime2timeᚐTime(ctx context.Context, v any) (time.Time, error) {
+	res, err := scalar.UnmarshalTime(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOTime2timeᚐTime(ctx context.Context, sel ast.SelectionSet, v time.Time) graphql.Marshaler {
+	_ = sel
+	_ = ctx
+	res := scalar.MarshalTime(v)
+	return res
 }
 
 func (ec *executionContext) unmarshalOTime2ᚖtimeᚐTime(ctx context.Context, v any) (*time.Time, error) {
