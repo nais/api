@@ -7,7 +7,6 @@ import (
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/workload"
 	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
-	"github.com/sirupsen/logrus"
 )
 
 func FromWorkload(ctx context.Context, wl workload.Workload) []LogDestination {
@@ -39,13 +38,11 @@ func FromWorkload(ctx context.Context, wl workload.Workload) []LogDestination {
 	var destinations []LogDestination
 	for _, logDestination := range logging.Destinations {
 		switch SupportedLogDestination(logDestination.ID) {
-		case Loki:
-			destinations = append(destinations, LogDestinationLoki{base})
 		case SecureLogs:
 			destinations = append(destinations, LogDestinationSecureLogs{base})
 		default:
 			// Unknown log destination
-			logrus.WithField("destination", logDestination.ID).Error("Unknown log destination")
+			destinations = append(destinations, LogDestinationLoki{base})
 		}
 	}
 
