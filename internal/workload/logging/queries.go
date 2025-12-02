@@ -46,6 +46,11 @@ func FromWorkload(ctx context.Context, wl workload.Workload) []LogDestination {
 		}
 	}
 
+	// If no destinations are defined, default to Loki
+	if len(logging.Destinations) == 0 {
+		destinations = append(destinations, LogDestinationLoki{base})
+	}
+
 	return destinations
 }
 
