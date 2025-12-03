@@ -65,7 +65,10 @@ SELECT
 FROM
 	deployments
 WHERE
-	($1::TIMESTAMPTZ IS NULL OR created_at >= $1::TIMESTAMPTZ)
+	(
+		$1::TIMESTAMPTZ IS NULL
+		OR created_at >= $1::TIMESTAMPTZ
+	)
 ORDER BY
 	created_at DESC
 LIMIT
