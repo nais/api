@@ -117,6 +117,11 @@ func (e DeploymentStatusState) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+type DeploymentFilter struct {
+	// Get deployments from a given date until today.
+	From time.Time `json:"from"`
+}
+
 type ChangeDeploymentKeyInput struct {
 	TeamSlug slug.Slug `json:"team"`
 }

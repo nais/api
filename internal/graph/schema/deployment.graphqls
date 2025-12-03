@@ -1,3 +1,23 @@
+extend type Query {
+	"Get a list of deployments."
+	deployments(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+
+		"Filter options for the deployments returned from the connection."
+		filter: DeploymentFilter
+	): DeploymentConnection!
+}
+
 extend type Team {
 	"""
 	Deployment key for the team.
@@ -415,4 +435,9 @@ extend enum ActivityLogActivityType {
 
 	"Activity log entry for team deploy key updates."
 	TEAM_DEPLOY_KEY_UPDATED
+}
+
+input DeploymentFilter {
+	"Get deployments from a given date until today."
+	from: Time
 }

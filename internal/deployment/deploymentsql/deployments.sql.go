@@ -59,6 +59,60 @@ func (q *Queries) LatestDeploymentTimestampForWorkload(ctx context.Context, arg 
 	return created_at, err
 }
 
+const list = `-- name: List :many
+SELECT
+	id, external_id, created_at, team_slug, repository, commit_sha, deployer_username, trigger_url, environment_name
+FROM
+	deployments
+WHERE
+	(
+		$1::TIMESTAMPTZ IS NULL
+		OR created_at >= $1::TIMESTAMPTZ
+	)
+ORDER BY
+	created_at DESC
+LIMIT
+	$3
+OFFSET
+	$2
+`
+
+type ListParams struct {
+	Since  pgtype.Timestamptz
+	Offset int32
+	Limit  int32
+}
+
+func (q *Queries) List(ctx context.Context, arg ListParams) ([]*Deployment, error) {
+	rows, err := q.db.Query(ctx, list, arg.Since, arg.Offset, arg.Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*Deployment{}
+	for rows.Next() {
+		var i Deployment
+		if err := rows.Scan(
+			&i.ID,
+			&i.ExternalID,
+			&i.CreatedAt,
+			&i.TeamSlug,
+			&i.Repository,
+			&i.CommitSha,
+			&i.DeployerUsername,
+			&i.TriggerUrl,
+			&i.EnvironmentName,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listByIDs = `-- name: ListByIDs :many
 SELECT
 	id, external_id, created_at, team_slug, repository, commit_sha, deployer_username, trigger_url, environment_name

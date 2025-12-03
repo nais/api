@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/deployment/deploymentactivity"
@@ -15,6 +16,30 @@ import (
 	"github.com/nais/api/internal/workload"
 	"k8s.io/utils/ptr"
 )
+
+func List(ctx context.Context, page *pagination.Pagination, filter *DeploymentFilter) (*DeploymentConnection, error) {
+	q := db(ctx)
+	params := deploymentsql.ListParams{
+		Offset: page.Offset(),
+		Limit:  page.Limit(),
+	}
+
+	if filter != nil {
+		params.Since = pgtype.Timestamptz{
+			Time:  filter.From,
+			Valid: true,
+		}
+	}
+
+	ret, err := q.List(ctx, params)
+	if err != nil {
+		return nil, err
+	}
+
+	return pagination.NewConvertConnection(ret, page, len(ret), func(from *deploymentsql.Deployment) *Deployment {
+		return toGraphDeployment(from)
+	}), nil
+}
 
 func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination) (*DeploymentConnection, error) {
 	q := db(ctx)

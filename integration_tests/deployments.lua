@@ -375,3 +375,43 @@ Test.gql("team deployment without resources and statuses", function(t)
 		},
 	}
 end)
+
+Test.gql("list all deployments", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query([[
+		{
+			deployments {
+				nodes {
+					id
+					environmentName
+				}
+			}
+		}
+	]])
+
+	t.check {
+		data = {
+			deployments = {
+				nodes = {
+					{
+						id = NotNull(),
+						environmentName = "dev",
+					},
+					{
+						id = NotNull(),
+						environmentName = "dev",
+					},
+					{
+						id = NotNull(),
+						environmentName = "dev",
+					},
+					{
+						id = NotNull(),
+						environmentName = "dev",
+					},
+				},
+			},
+		},
+	}
+end)

@@ -1,3 +1,21 @@
+-- name: List :many
+SELECT
+	*
+FROM
+	deployments
+WHERE
+	(
+		@since::TIMESTAMPTZ IS NULL
+		OR created_at >= @since::TIMESTAMPTZ
+	)
+ORDER BY
+	created_at DESC
+LIMIT
+	sqlc.arg('limit')
+OFFSET
+	sqlc.arg('offset')
+;
+
 -- name: ListByIDs :many
 SELECT
 	*
