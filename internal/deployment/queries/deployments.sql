@@ -4,7 +4,10 @@ SELECT
 FROM
 	deployments
 WHERE
-	(@since::TIMESTAMPTZ IS NULL OR created_at >= @since::TIMESTAMPTZ)
+	(
+		@since::TIMESTAMPTZ IS NULL
+		OR created_at >= @since::TIMESTAMPTZ
+	)
 ORDER BY
 	created_at DESC
 LIMIT
