@@ -46,6 +46,9 @@ func NewComplexityRoot() ComplexityRoot {
 	c.BigQueryDataset.Access = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bigquery.BigQueryDatasetAccessOrder) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
+	c.CVE.Workloads = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
+		return cursorComplexity(first, last) * childComplexity
+	}
 	c.ContainerImage.ActivityLog = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int {
 		return cursorComplexity(first, last) * childComplexity
 	}

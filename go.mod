@@ -42,7 +42,7 @@ require (
 	github.com/nais/liberator v0.0.0-20251112085730-ffef5fe13671
 	github.com/nais/tester v0.1.0-pre.14
 	github.com/nais/unleasherator v0.0.0-20240513081022-06f454638fc1
-	github.com/nais/v13s/pkg/api v0.0.0-20251121081612-8a473ce909ee
+	github.com/nais/v13s/pkg/api v0.0.0-20251205102800-f62552e867f4
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pressly/goose/v3 v3.24.1
 	github.com/prometheus/client_golang v1.22.0
@@ -404,7 +404,7 @@ require (
 	go.uber.org/zap v1.27.0 // indirect
 	go4.org/netipx v0.0.0-20230125063823-8449b0a6169f // indirect
 	golang.org/x/arch v0.14.0 // indirect
-	golang.org/x/crypto v0.44.0 // indirect
+	golang.org/x/crypto v0.45.0 // indirect
 	golang.org/x/exp/typeparams v0.0.0-20250210185358-939b2ce775ac // indirect
 	golang.org/x/mod v0.29.0 // indirect
 	golang.org/x/net v0.47.0 // indirect
