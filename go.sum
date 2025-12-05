@@ -786,8 +786,8 @@ github.com/nais/tester v0.1.0-pre.14 h1:fSdR2BtojGlgM5UkGgbpuVSyc9pdLxrngq9/3HjX
 github.com/nais/tester v0.1.0-pre.14/go.mod h1:bPACu92FpwKkJxn3lkWIQvw5iQnYX9HrxJ0/q/pPn3Y=
 github.com/nais/unleasherator v0.0.0-20240513081022-06f454638fc1 h1:Ei6o4MzKnaGys+uVHNcZd1ttV9lcmHGX3whH1GyPV8E=
 github.com/nais/unleasherator v0.0.0-20240513081022-06f454638fc1/go.mod h1:p5j21mYqhbtfQeTqs6lHgsuaL28tY5oNNf1r+gADFe0=
-github.com/nais/v13s/pkg/api v0.0.0-20251121081612-8a473ce909ee h1:jYv2CJCByr0iLkMqeZ9zSs2qd9UCuMRTa6oCgDspuq8=
-github.com/nais/v13s/pkg/api v0.0.0-20251121081612-8a473ce909ee/go.mod h1:N/0VV87/8jAi0IMBOOPXyRJlT41aaRxXCvvDN5y/dko=
+github.com/nais/v13s/pkg/api v0.0.0-20251205102800-f62552e867f4 h1:H0d8RvGTSCW18b3URvkBxZvEZf6sOsFTVsw8t3nJFxY=
+github.com/nais/v13s/pkg/api v0.0.0-20251205102800-f62552e867f4/go.mod h1:or9yEoOK+XBzWewdS4F7fXNp5TL0RW/XOp/zQ1/LBMI=
 github.com/ncruces/go-strftime v0.1.9 h1:bY0MQC28UADQmHmaF5dgpLmImcShSi2kHU9XLdhx/f4=
 github.com/ncruces/go-strftime v0.1.9/go.mod h1:Fwc5htZGVVkseilnfgOVb9mKy6w1naJmn9CehxcKcls=
 github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e/go.mod h1:zD1mROLANZcx1PVRCS0qkT7pwLkGfwJo4zjcN/Tysno=
@@ -1174,8 +1174,8 @@ golang.org/x/crypto v0.0.0-20190923035154-9ee001bba392/go.mod h1:/lpIB1dKB+9EgE3
 golang.org/x/crypto v0.0.0-20191011191535-87dc89f01550/go.mod h1:yigFU9vqHzYiE8UmvKecakEJjdnWj3jj499lnFckfCI=
 golang.org/x/crypto v0.0.0-20200115085410-6d4e4cb37c7d/go.mod h1:LzIPMQfyMNhhGPhUkYOs5KpL4U8rLKemX1yGLhDgUto=
 golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9/go.mod h1:LzIPMQfyMNhhGPhUkYOs5KpL4U8rLKemX1yGLhDgUto=
-golang.org/x/crypto v0.44.0 h1:A97SsFvM3AIwEEmTBiaxPPTYpDC47w720rdiiUvgoAU=
-golang.org/x/crypto v0.44.0/go.mod h1:013i+Nw79BMiQiMsOPcVCB5ZIJbYkerPrGnOa00tvmc=
+golang.org/x/crypto v0.45.0 h1:jMBrvKuj23MTlT0bQEOBcAE0mjg8mK9RXFhRH6nyF3Q=
+golang.org/x/crypto v0.45.0/go.mod h1:XTGrrkGJve7CYK7J8PEww4aY7gM3qMCElcJQ8n8JdX4=
 golang.org/x/exp v0.0.0-20180321215751-8460e604b9de/go.mod h1:CJ0aWSM057203Lf6IL+f9T1iT9GByDxfZKAQTCR3kQA=
 golang.org/x/exp v0.0.0-20180807140117-3d87b88a115f/go.mod h1:CJ0aWSM057203Lf6IL+f9T1iT9GByDxfZKAQTCR3kQA=
 golang.org/x/exp v0.0.0-20190121172915-509febef88a4/go.mod h1:CJ0aWSM057203Lf6IL+f9T1iT9GByDxfZKAQTCR3kQA=
