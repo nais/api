@@ -102,7 +102,7 @@ type oAuthConfig struct {
 
 type unleashConfig struct {
 	// BifrostApiEndpoint is the endpoint for the Bifrost API
-	BifrostApiUrl string `env:"UNLEASH_BIFROST_API_URL,default=*fake*"`
+	BifrostAPIURL string `env:"UNLEASH_BIFROST_API_URL,default=*fake*"`
 }
 
 type loggingConfig struct {
@@ -196,7 +196,7 @@ type Config struct {
 	K8s                k8sConfig
 	Usersync           usersyncConfig
 	Cost               costConfig
-	VulnerabilitiesApi vulnerabilitiesConfig
+	VulnerabilitiesAPI vulnerabilitiesConfig
 	Hookd              hookdConfig
 	OAuth              oAuthConfig
 	Unleash            unleashConfig
