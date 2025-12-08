@@ -116,12 +116,12 @@ func (r *mutationResolver) RequestTeamDeletion(ctx context.Context, input team.R
 }
 
 func (r *mutationResolver) ConfirmTeamDeletion(ctx context.Context, input team.ConfirmTeamDeletionInput) (*team.ConfirmTeamDeletionPayload, error) {
-	keyUid, err := uuid.Parse(input.Key)
+	keyUUID, err := uuid.Parse(input.Key)
 	if err != nil {
 		return nil, apierror.Errorf("Invalid delete key: %s", input.Key)
 	}
 
-	deleteKey, err := team.GetDeleteKey(ctx, input.Slug, keyUid)
+	deleteKey, err := team.GetDeleteKey(ctx, input.Slug, keyUUID)
 	if err != nil {
 		return nil, apierror.Errorf("Unknown deletion key: %q", input.Key)
 	}
@@ -143,7 +143,7 @@ func (r *mutationResolver) ConfirmTeamDeletion(ctx context.Context, input team.C
 		return nil, apierror.Errorf("Team delete key has expired, you need to request a new key.")
 	}
 
-	if err := team.ConfirmDeleteKey(ctx, deleteKey.TeamSlug, keyUid, actor); err != nil {
+	if err := team.ConfirmDeleteKey(ctx, deleteKey.TeamSlug, keyUUID, actor); err != nil {
 		return nil, err
 	}
 

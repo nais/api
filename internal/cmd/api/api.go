@@ -201,8 +201,8 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 
 	vulnMgr, err := vulnerability.NewManager(
 		ctx,
-		cfg.VulnerabilitiesApi.Endpoint,
-		cfg.VulnerabilitiesApi.ServiceAccount,
+		cfg.VulnerabilitiesAPI.Endpoint,
+		cfg.VulnerabilitiesAPI.ServiceAccount,
 		log.WithField("subsystem", "vulnerability"),
 	)
 	if err != nil {
@@ -281,7 +281,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 
 	// HTTP server
 	wg.Go(func() error {
-		return runHttpServer(
+		return runHTTPServer(
 			ctx,
 			cfg.Fakes,
 			cfg.ListenAddress,
@@ -299,7 +299,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 			cfg.Aiven.Projects,
 			vulnMgr,
 			hookdClient,
-			cfg.Unleash.BifrostApiUrl,
+			cfg.Unleash.BifrostAPIURL,
 			cfg.K8s.AllClusterNames(),
 			cfg.Logging.DefaultLogDestinations(),
 			notifier,
@@ -363,7 +363,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		},
 		pool,
 		watchers,
-		cfg.VulnerabilitiesApi.Endpoint == vulnerability.FakeVulnerabilitiesAPIURL,
+		cfg.VulnerabilitiesAPI.Endpoint == vulnerability.FakeVulnerabilitiesAPIURL,
 		log.WithField("subsystem", "issue_checker"),
 	)
 	if err != nil {

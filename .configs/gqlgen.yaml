@@ -4,7 +4,8 @@ schema:
 
 # Where should the generated server code go?
 exec:
-  filename: internal/graph/gengql/generated.go
+  layout: follow-schema
+  dir: internal/graph/gengql
   package: gengql
 
 # Where should any generated models go?
@@ -21,6 +22,14 @@ resolver:
 
 # Omit Query / Mutation models
 omit_root_models: true
+
+go_initialisms:
+  replace_defaults: false
+  initialisms:
+    - SQL
+    - ACL
+    - CVE
+    - CVSS
 
 # gqlgen will search for any type names in the schema in these go packages
 # if they match it will use them, otherwise it will generate them.

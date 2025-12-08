@@ -68,8 +68,8 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-// runHttpServer will start the HTTP server
-func runHttpServer(
+// runHTTPServer will start the HTTP server
+func runHTTPServer(
 	ctx context.Context,
 	fakes Fakes,
 	listenAddress string,
