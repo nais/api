@@ -3940,7 +3940,7 @@ func (ec *executionContext) marshalNCreateOpenSearchPayload2githubᚗcomᚋnais�
 func (ec *executionContext) marshalNCreateOpenSearchPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐCreateOpenSearchPayload(ctx context.Context, sel ast.SelectionSet, v *opensearch.CreateOpenSearchPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -3959,7 +3959,7 @@ func (ec *executionContext) marshalNDeleteOpenSearchPayload2githubᚗcomᚋnais�
 func (ec *executionContext) marshalNDeleteOpenSearchPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐDeleteOpenSearchPayload(ctx context.Context, sel ast.SelectionSet, v *opensearch.DeleteOpenSearchPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -4017,7 +4017,7 @@ func (ec *executionContext) marshalNOpenSearch2ᚕᚖgithubᚗcomᚋnaisᚋapi�
 func (ec *executionContext) marshalNOpenSearch2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearch(ctx context.Context, sel ast.SelectionSet, v *opensearch.OpenSearch) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -4071,7 +4071,7 @@ func (ec *executionContext) marshalNOpenSearchAccess2ᚕᚖgithubᚗcomᚋnais�
 func (ec *executionContext) marshalNOpenSearchAccess2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchAccess(ctx context.Context, sel ast.SelectionSet, v *opensearch.OpenSearchAccess) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -4085,7 +4085,7 @@ func (ec *executionContext) marshalNOpenSearchAccessConnection2githubᚗcomᚋna
 func (ec *executionContext) marshalNOpenSearchAccessConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*opensearch.OpenSearchAccess]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -4157,7 +4157,7 @@ func (ec *executionContext) marshalNOpenSearchConnection2githubᚗcomᚋnaisᚋa
 func (ec *executionContext) marshalNOpenSearchConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*opensearch.OpenSearch]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -4265,7 +4265,7 @@ func (ec *executionContext) marshalNOpenSearchTier2githubᚗcomᚋnaisᚋapiᚋi
 func (ec *executionContext) marshalNOpenSearchUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchUpdatedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *opensearch.OpenSearchUpdatedActivityLogEntryData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -4319,7 +4319,7 @@ func (ec *executionContext) marshalNOpenSearchUpdatedActivityLogEntryDataUpdated
 func (ec *executionContext) marshalNOpenSearchUpdatedActivityLogEntryDataUpdatedField2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchUpdatedActivityLogEntryDataUpdatedField(ctx context.Context, sel ast.SelectionSet, v *opensearch.OpenSearchUpdatedActivityLogEntryDataUpdatedField) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -4333,7 +4333,7 @@ func (ec *executionContext) marshalNOpenSearchVersion2githubᚗcomᚋnaisᚋapi�
 func (ec *executionContext) marshalNOpenSearchVersion2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchVersion(ctx context.Context, sel ast.SelectionSet, v *opensearch.OpenSearchVersion) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -4347,7 +4347,7 @@ func (ec *executionContext) marshalNTeamInventoryCountOpenSearches2githubᚗcom�
 func (ec *executionContext) marshalNTeamInventoryCountOpenSearches2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐTeamInventoryCountOpenSearches(ctx context.Context, sel ast.SelectionSet, v *opensearch.TeamInventoryCountOpenSearches) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -4366,7 +4366,7 @@ func (ec *executionContext) marshalNUpdateOpenSearchPayload2githubᚗcomᚋnais�
 func (ec *executionContext) marshalNUpdateOpenSearchPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐUpdateOpenSearchPayload(ctx context.Context, sel ast.SelectionSet, v *opensearch.UpdateOpenSearchPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}

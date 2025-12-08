@@ -2234,7 +2234,7 @@ func (ec *executionContext) marshalNKafkaTopic2ᚕᚖgithubᚗcomᚋnaisᚋapi�
 func (ec *executionContext) marshalNKafkaTopic2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopic(ctx context.Context, sel ast.SelectionSet, v *kafkatopic.KafkaTopic) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -2288,7 +2288,7 @@ func (ec *executionContext) marshalNKafkaTopicAcl2ᚕᚖgithubᚗcomᚋnaisᚋap
 func (ec *executionContext) marshalNKafkaTopicAcl2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicACL(ctx context.Context, sel ast.SelectionSet, v *kafkatopic.KafkaTopicACL) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -2302,7 +2302,7 @@ func (ec *executionContext) marshalNKafkaTopicAclConnection2githubᚗcomᚋnais�
 func (ec *executionContext) marshalNKafkaTopicAclConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*kafkatopic.KafkaTopicACL]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -2374,7 +2374,7 @@ func (ec *executionContext) marshalNKafkaTopicConnection2githubᚗcomᚋnaisᚋa
 func (ec *executionContext) marshalNKafkaTopicConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*kafkatopic.KafkaTopic]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -2446,7 +2446,7 @@ func (ec *executionContext) marshalNTeamInventoryCountKafkaTopics2githubᚗcom�
 func (ec *executionContext) marshalNTeamInventoryCountKafkaTopics2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐTeamInventoryCountKafkaTopics(ctx context.Context, sel ast.SelectionSet, v *kafkatopic.TeamInventoryCountKafkaTopics) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}

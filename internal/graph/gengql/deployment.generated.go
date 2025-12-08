@@ -2754,7 +2754,7 @@ func (ec *executionContext) marshalNChangeDeploymentKeyPayload2githubᚗcomᚋna
 func (ec *executionContext) marshalNChangeDeploymentKeyPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐChangeDeploymentKeyPayload(ctx context.Context, sel ast.SelectionSet, v *deployment.ChangeDeploymentKeyPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -2808,7 +2808,7 @@ func (ec *executionContext) marshalNDeployment2ᚕᚖgithubᚗcomᚋnaisᚋapi�
 func (ec *executionContext) marshalNDeployment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeployment(ctx context.Context, sel ast.SelectionSet, v *deployment.Deployment) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -2818,7 +2818,7 @@ func (ec *executionContext) marshalNDeployment2ᚖgithubᚗcomᚋnaisᚋapiᚋin
 func (ec *executionContext) marshalNDeploymentActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚋdeploymentactivityᚐDeploymentActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *deploymentactivity.DeploymentActivityLogEntryData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -2832,7 +2832,7 @@ func (ec *executionContext) marshalNDeploymentConnection2githubᚗcomᚋnaisᚋa
 func (ec *executionContext) marshalNDeploymentConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*deployment.Deployment]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -2934,7 +2934,7 @@ func (ec *executionContext) marshalNDeploymentResource2ᚕᚖgithubᚗcomᚋnais
 func (ec *executionContext) marshalNDeploymentResource2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentResource(ctx context.Context, sel ast.SelectionSet, v *deployment.DeploymentResource) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -2948,7 +2948,7 @@ func (ec *executionContext) marshalNDeploymentResourceConnection2githubᚗcomᚋ
 func (ec *executionContext) marshalNDeploymentResourceConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*deployment.DeploymentResource]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -3050,7 +3050,7 @@ func (ec *executionContext) marshalNDeploymentStatus2ᚕᚖgithubᚗcomᚋnais�
 func (ec *executionContext) marshalNDeploymentStatus2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentStatus(ctx context.Context, sel ast.SelectionSet, v *deployment.DeploymentStatus) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -3064,7 +3064,7 @@ func (ec *executionContext) marshalNDeploymentStatusConnection2githubᚗcomᚋna
 func (ec *executionContext) marshalNDeploymentStatusConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*deployment.DeploymentStatus]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}

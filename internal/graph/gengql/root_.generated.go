@@ -396,7 +396,7 @@ type ComplexityRoot struct {
 	}
 
 	CVE struct {
-		CvssScore   func(childComplexity int) int
+		CVSSScore   func(childComplexity int) int
 		Description func(childComplexity int) int
 		DetailsLink func(childComplexity int) int
 		ID          func(childComplexity int) int
@@ -1307,9 +1307,9 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
+		CVE                       func(childComplexity int, identifier string) int
 		CostMonthlySummary        func(childComplexity int, from scalar.Date, to scalar.Date) int
 		CurrentUnitPrices         func(childComplexity int) int
-		Cve                       func(childComplexity int, identifier string) int
 		Deployments               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *deployment.DeploymentFilter) int
 		Environment               func(childComplexity int, name string) int
 		Environments              func(childComplexity int, orderBy *environment.EnvironmentOrder) int
@@ -3895,11 +3895,11 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		return e.complexity.CPUScalingStrategy.Threshold(childComplexity), true
 
 	case "CVE.cvssScore":
-		if e.complexity.CVE.CvssScore == nil {
+		if e.complexity.CVE.CVSSScore == nil {
 			break
 		}
 
-		return e.complexity.CVE.CvssScore(childComplexity), true
+		return e.complexity.CVE.CVSSScore(childComplexity), true
 
 	case "CVE.description":
 		if e.complexity.CVE.Description == nil {
@@ -7833,6 +7833,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.PrometheusAlert.TeamEnvironment(childComplexity), true
 
+	case "Query.cve":
+		if e.complexity.Query.CVE == nil {
+			break
+		}
+
+		args, err := ec.field_Query_cve_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.CVE(childComplexity, args["identifier"].(string)), true
+
 	case "Query.costMonthlySummary":
 		if e.complexity.Query.CostMonthlySummary == nil {
 			break
@@ -7851,18 +7863,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Query.CurrentUnitPrices(childComplexity), true
-
-	case "Query.cve":
-		if e.complexity.Query.Cve == nil {
-			break
-		}
-
-		args, err := ec.field_Query_cve_args(ctx, rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.Cve(childComplexity, args["identifier"].(string)), true
 
 	case "Query.deployments":
 		if e.complexity.Query.Deployments == nil {

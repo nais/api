@@ -961,7 +961,7 @@ func (ec *executionContext) _OutboundNetworkPolicy(ctx context.Context, sel ast.
 func (ec *executionContext) marshalNExternalNetworkPolicyTarget2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋnetpolᚐExternalNetworkPolicyTarget(ctx context.Context, sel ast.SelectionSet, v netpol.ExternalNetworkPolicyTarget) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -1015,7 +1015,7 @@ func (ec *executionContext) marshalNExternalNetworkPolicyTarget2ᚕgithubᚗcom�
 func (ec *executionContext) marshalNInboundNetworkPolicy2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋnetpolᚐInboundNetworkPolicy(ctx context.Context, sel ast.SelectionSet, v *netpol.InboundNetworkPolicy) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -1029,7 +1029,7 @@ func (ec *executionContext) marshalNNetworkPolicy2githubᚗcomᚋnaisᚋapiᚋin
 func (ec *executionContext) marshalNNetworkPolicy2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋnetpolᚐNetworkPolicy(ctx context.Context, sel ast.SelectionSet, v *netpol.NetworkPolicy) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -1083,7 +1083,7 @@ func (ec *executionContext) marshalNNetworkPolicyRule2ᚕᚖgithubᚗcomᚋnais�
 func (ec *executionContext) marshalNNetworkPolicyRule2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋnetpolᚐNetworkPolicyRule(ctx context.Context, sel ast.SelectionSet, v *netpol.NetworkPolicyRule) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -1093,7 +1093,7 @@ func (ec *executionContext) marshalNNetworkPolicyRule2ᚖgithubᚗcomᚋnaisᚋa
 func (ec *executionContext) marshalNOutboundNetworkPolicy2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋnetpolᚐOutboundNetworkPolicy(ctx context.Context, sel ast.SelectionSet, v *netpol.OutboundNetworkPolicy) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}

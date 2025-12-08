@@ -241,7 +241,7 @@ func (ec *executionContext) marshalNWorkloadLogLine2githubᚗcomᚋnaisᚋapiᚋ
 func (ec *executionContext) marshalNWorkloadLogLine2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋpodlogᚐWorkloadLogLine(ctx context.Context, sel ast.SelectionSet, v *podlog.WorkloadLogLine) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}

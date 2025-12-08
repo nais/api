@@ -82,7 +82,7 @@ func (ec *executionContext) unmarshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋintern
 func (ec *executionContext) marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx context.Context, sel ast.SelectionSet, v *slug.Slug) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -99,7 +99,7 @@ func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel as
 	res := scalar.MarshalTime(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 	}
 	return res
@@ -115,7 +115,7 @@ func (ec *executionContext) marshalNTimeOfDay2string(ctx context.Context, sel as
 	res := graphql.MarshalString(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 	}
 	return res

@@ -126,7 +126,7 @@ type QueryResolver interface {
 	ImageVulnerabilityHistory(ctx context.Context, from scalar.Date) (*vulnerability.ImageVulnerabilityHistory, error)
 	VulnerabilitySummary(ctx context.Context) (*vulnerability.TenantVulnerabilitySummary, error)
 	VulnerabilityFixHistory(ctx context.Context, from scalar.Date) (*vulnerability.VulnerabilityFixHistory, error)
-	Cve(ctx context.Context, identifier string) (*vulnerability.Cve, error)
+	CVE(ctx context.Context, identifier string) (*vulnerability.CVE, error)
 }
 type SubscriptionResolver interface {
 	Log(ctx context.Context, filter loki.LogSubscriptionFilter) (<-chan *loki.LogLine, error)
@@ -4390,10 +4390,10 @@ func (ec *executionContext) _Query_cve(ctx context.Context, field graphql.Collec
 		ec.fieldContext_Query_cve,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().Cve(ctx, fc.Args["identifier"].(string))
+			return ec.resolvers.Query().CVE(ctx, fc.Args["identifier"].(string))
 		},
 		nil,
-		ec.marshalNCVE2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐCve,
+		ec.marshalNCVE2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐCVE,
 		true,
 		true,
 	)
@@ -5389,9 +5389,9 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Deployment(ctx, sel, obj)
-	case vulnerability.Cve:
+	case vulnerability.CVE:
 		return ec._CVE(ctx, sel, &obj)
-	case *vulnerability.Cve:
+	case *vulnerability.CVE:
 		if obj == nil {
 			return graphql.Null
 		}
@@ -6390,7 +6390,7 @@ func (ec *executionContext) _Subscription(ctx context.Context, sel ast.Selection
 		Object: "Subscription",
 	})
 	if len(fields) != 1 {
-		ec.Errorf(ctx, "must subscribe to exactly one stream")
+		graphql.AddErrorf(ctx, "must subscribe to exactly one stream")
 		return nil
 	}
 

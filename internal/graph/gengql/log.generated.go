@@ -379,7 +379,7 @@ func (ec *executionContext) marshalNLogLine2githubᚗcomᚋnaisᚋapiᚋinternal
 func (ec *executionContext) marshalNLogLine2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋlokiᚐLogLine(ctx context.Context, sel ast.SelectionSet, v *loki.LogLine) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -433,7 +433,7 @@ func (ec *executionContext) marshalNLogLineLabel2ᚕᚖgithubᚗcomᚋnaisᚋapi
 func (ec *executionContext) marshalNLogLineLabel2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋlokiᚐLogLineLabel(ctx context.Context, sel ast.SelectionSet, v *loki.LogLineLabel) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}

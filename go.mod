@@ -19,7 +19,7 @@ require (
 	cloud.google.com/go/cloudsqlconn v1.17.3
 	cloud.google.com/go/monitoring v1.24.2
 	cloud.google.com/go/pubsub v1.49.0
-	github.com/99designs/gqlgen v0.17.81
+	github.com/99designs/gqlgen v0.17.84
 	github.com/GoogleCloudPlatform/k8s-config-connector v1.128.0
 	github.com/aiven/go-client-codegen v0.106.0
 	github.com/blevesearch/bleve/v2 v2.4.4
@@ -56,7 +56,7 @@ require (
 	github.com/stretchr/testify v1.11.1
 	github.com/testcontainers/testcontainers-go v0.35.0
 	github.com/testcontainers/testcontainers-go/modules/postgres v0.35.0
-	github.com/vektah/gqlparser/v2 v2.5.30
+	github.com/vektah/gqlparser/v2 v2.5.31
 	github.com/vikstrous/dataloadgen v0.0.6
 	github.com/yuin/gopher-lua v1.1.1
 	github.com/zitadel/oidc/v3 v3.33.1
@@ -75,7 +75,7 @@ require (
 	golang.org/x/oauth2 v0.33.0
 	golang.org/x/sync v0.18.0
 	golang.org/x/text v0.31.0
-	golang.org/x/tools v0.38.0
+	golang.org/x/tools v0.39.0
 	google.golang.org/api v0.256.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20251022142026-3a174f9686a8
 	google.golang.org/grpc v1.77.0
@@ -204,6 +204,7 @@ require (
 	github.com/go-sql-driver/mysql v1.9.3 // indirect
 	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
 	github.com/goccy/go-json v0.10.5 // indirect
+	github.com/goccy/go-yaml v1.18.0 // indirect
 	github.com/gogo/googleapis v1.4.1 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/gogo/status v1.1.1 // indirect
@@ -366,6 +367,7 @@ require (
 	github.com/uber/jaeger-lib v2.4.1+incompatible // indirect
 	github.com/ugorji/go/codec v1.2.12 // indirect
 	github.com/urfave/cli/v2 v2.27.7 // indirect
+	github.com/urfave/cli/v3 v3.6.1 // indirect
 	github.com/vektra/mockery/v3 v3.5.3 // indirect
 	github.com/wasilibs/go-pgquery v0.0.0-20250409022910-10ac41983c07 // indirect
 	github.com/wasilibs/wazero-helpers v0.0.0-20240620070341-3dff1577cd52 // indirect
@@ -406,10 +408,10 @@ require (
 	golang.org/x/arch v0.14.0 // indirect
 	golang.org/x/crypto v0.45.0 // indirect
 	golang.org/x/exp/typeparams v0.0.0-20250210185358-939b2ce775ac // indirect
-	golang.org/x/mod v0.29.0 // indirect
+	golang.org/x/mod v0.30.0 // indirect
 	golang.org/x/net v0.47.0 // indirect
 	golang.org/x/sys v0.38.0 // indirect
-	golang.org/x/telemetry v0.0.0-20251008203120-078029d740a8 // indirect
+	golang.org/x/telemetry v0.0.0-20251111182119-bc8e575c7b54 // indirect
 	golang.org/x/term v0.37.0 // indirect
 	golang.org/x/time v0.14.0 // indirect
 	golang.org/x/tools/go/expect v0.1.1-deprecated // indirect

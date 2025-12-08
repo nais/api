@@ -4747,7 +4747,7 @@ func (ec *executionContext) _VulnerableImageIssue(ctx context.Context, sel ast.S
 func (ec *executionContext) marshalNIssue2githubᚗcomᚋnaisᚋapiᚋinternalᚋissueᚐIssue(ctx context.Context, sel ast.SelectionSet, v issue.Issue) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -4805,7 +4805,7 @@ func (ec *executionContext) marshalNIssueConnection2githubᚗcomᚋnaisᚋapiᚋ
 func (ec *executionContext) marshalNIssueConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[issue.Issue]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}

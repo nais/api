@@ -5970,7 +5970,7 @@ func (ec *executionContext) marshalNAssignRoleToServiceAccountPayload2githubᚗc
 func (ec *executionContext) marshalNAssignRoleToServiceAccountPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐAssignRoleToServiceAccountPayload(ctx context.Context, sel ast.SelectionSet, v *serviceaccount.AssignRoleToServiceAccountPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -5989,7 +5989,7 @@ func (ec *executionContext) marshalNCreateServiceAccountPayload2githubᚗcomᚋn
 func (ec *executionContext) marshalNCreateServiceAccountPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐCreateServiceAccountPayload(ctx context.Context, sel ast.SelectionSet, v *serviceaccount.CreateServiceAccountPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -6008,7 +6008,7 @@ func (ec *executionContext) marshalNCreateServiceAccountTokenPayload2githubᚗco
 func (ec *executionContext) marshalNCreateServiceAccountTokenPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐCreateServiceAccountTokenPayload(ctx context.Context, sel ast.SelectionSet, v *serviceaccount.CreateServiceAccountTokenPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -6027,7 +6027,7 @@ func (ec *executionContext) marshalNDeleteServiceAccountPayload2githubᚗcomᚋn
 func (ec *executionContext) marshalNDeleteServiceAccountPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐDeleteServiceAccountPayload(ctx context.Context, sel ast.SelectionSet, v *serviceaccount.DeleteServiceAccountPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -6046,7 +6046,7 @@ func (ec *executionContext) marshalNDeleteServiceAccountTokenPayload2githubᚗco
 func (ec *executionContext) marshalNDeleteServiceAccountTokenPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐDeleteServiceAccountTokenPayload(ctx context.Context, sel ast.SelectionSet, v *serviceaccount.DeleteServiceAccountTokenPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -6065,7 +6065,7 @@ func (ec *executionContext) marshalNRevokeRoleFromServiceAccountPayload2github�
 func (ec *executionContext) marshalNRevokeRoleFromServiceAccountPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐRevokeRoleFromServiceAccountPayload(ctx context.Context, sel ast.SelectionSet, v *serviceaccount.RevokeRoleFromServiceAccountPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -6075,7 +6075,7 @@ func (ec *executionContext) marshalNRevokeRoleFromServiceAccountPayload2ᚖgithu
 func (ec *executionContext) marshalNRoleAssignedToServiceAccountActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐRoleAssignedToServiceAccountActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *serviceaccount.RoleAssignedToServiceAccountActivityLogEntryData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -6085,7 +6085,7 @@ func (ec *executionContext) marshalNRoleAssignedToServiceAccountActivityLogEntry
 func (ec *executionContext) marshalNRoleRevokedFromServiceAccountActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐRoleRevokedFromServiceAccountActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *serviceaccount.RoleRevokedFromServiceAccountActivityLogEntryData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -6143,7 +6143,7 @@ func (ec *executionContext) marshalNServiceAccount2ᚕᚖgithubᚗcomᚋnaisᚋa
 func (ec *executionContext) marshalNServiceAccount2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐServiceAccount(ctx context.Context, sel ast.SelectionSet, v *serviceaccount.ServiceAccount) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -6157,7 +6157,7 @@ func (ec *executionContext) marshalNServiceAccountConnection2githubᚗcomᚋnais
 func (ec *executionContext) marshalNServiceAccountConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*serviceaccount.ServiceAccount]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -6259,7 +6259,7 @@ func (ec *executionContext) marshalNServiceAccountToken2ᚕᚖgithubᚗcomᚋnai
 func (ec *executionContext) marshalNServiceAccountToken2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐServiceAccountToken(ctx context.Context, sel ast.SelectionSet, v *serviceaccount.ServiceAccountToken) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -6273,7 +6273,7 @@ func (ec *executionContext) marshalNServiceAccountTokenConnection2githubᚗcom�
 func (ec *executionContext) marshalNServiceAccountTokenConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*serviceaccount.ServiceAccountToken]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -6283,7 +6283,7 @@ func (ec *executionContext) marshalNServiceAccountTokenConnection2ᚖgithubᚗco
 func (ec *executionContext) marshalNServiceAccountTokenCreatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐServiceAccountTokenCreatedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *serviceaccount.ServiceAccountTokenCreatedActivityLogEntryData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -6293,7 +6293,7 @@ func (ec *executionContext) marshalNServiceAccountTokenCreatedActivityLogEntryDa
 func (ec *executionContext) marshalNServiceAccountTokenDeletedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐServiceAccountTokenDeletedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *serviceaccount.ServiceAccountTokenDeletedActivityLogEntryData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -6351,7 +6351,7 @@ func (ec *executionContext) marshalNServiceAccountTokenEdge2ᚕgithubᚗcomᚋna
 func (ec *executionContext) marshalNServiceAccountTokenUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐServiceAccountTokenUpdatedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *serviceaccount.ServiceAccountTokenUpdatedActivityLogEntryData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -6405,7 +6405,7 @@ func (ec *executionContext) marshalNServiceAccountTokenUpdatedActivityLogEntryDa
 func (ec *executionContext) marshalNServiceAccountTokenUpdatedActivityLogEntryDataUpdatedField2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐServiceAccountTokenUpdatedActivityLogEntryDataUpdatedField(ctx context.Context, sel ast.SelectionSet, v *serviceaccount.ServiceAccountTokenUpdatedActivityLogEntryDataUpdatedField) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -6415,7 +6415,7 @@ func (ec *executionContext) marshalNServiceAccountTokenUpdatedActivityLogEntryDa
 func (ec *executionContext) marshalNServiceAccountUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐServiceAccountUpdatedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *serviceaccount.ServiceAccountUpdatedActivityLogEntryData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -6469,7 +6469,7 @@ func (ec *executionContext) marshalNServiceAccountUpdatedActivityLogEntryDataUpd
 func (ec *executionContext) marshalNServiceAccountUpdatedActivityLogEntryDataUpdatedField2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐServiceAccountUpdatedActivityLogEntryDataUpdatedField(ctx context.Context, sel ast.SelectionSet, v *serviceaccount.ServiceAccountUpdatedActivityLogEntryDataUpdatedField) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -6488,7 +6488,7 @@ func (ec *executionContext) marshalNUpdateServiceAccountPayload2githubᚗcomᚋn
 func (ec *executionContext) marshalNUpdateServiceAccountPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐUpdateServiceAccountPayload(ctx context.Context, sel ast.SelectionSet, v *serviceaccount.UpdateServiceAccountPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -6507,7 +6507,7 @@ func (ec *executionContext) marshalNUpdateServiceAccountTokenPayload2githubᚗco
 func (ec *executionContext) marshalNUpdateServiceAccountTokenPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐUpdateServiceAccountTokenPayload(ctx context.Context, sel ast.SelectionSet, v *serviceaccount.UpdateServiceAccountTokenPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}

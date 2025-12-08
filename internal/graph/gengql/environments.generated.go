@@ -730,7 +730,7 @@ func (ec *executionContext) marshalNEnvironment2ᚕᚖgithubᚗcomᚋnaisᚋapi�
 func (ec *executionContext) marshalNEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋenvironmentᚐEnvironment(ctx context.Context, sel ast.SelectionSet, v *environment.Environment) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -744,7 +744,7 @@ func (ec *executionContext) marshalNEnvironmentConnection2githubᚗcomᚋnaisᚋ
 func (ec *executionContext) marshalNEnvironmentConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*environment.Environment]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}

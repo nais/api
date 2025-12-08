@@ -1126,7 +1126,7 @@ func (ec *executionContext) marshalNBucket2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋint
 func (ec *executionContext) marshalNBucket2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbucketᚐBucket(ctx context.Context, sel ast.SelectionSet, v *bucket.Bucket) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -1140,7 +1140,7 @@ func (ec *executionContext) marshalNBucketConnection2githubᚗcomᚋnaisᚋapi�
 func (ec *executionContext) marshalNBucketConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*bucket.Bucket]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -1212,7 +1212,7 @@ func (ec *executionContext) marshalNTeamInventoryCountBuckets2githubᚗcomᚋnai
 func (ec *executionContext) marshalNTeamInventoryCountBuckets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbucketᚐTeamInventoryCountBuckets(ctx context.Context, sel ast.SelectionSet, v *bucket.TeamInventoryCountBuckets) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}

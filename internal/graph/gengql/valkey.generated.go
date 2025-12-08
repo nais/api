@@ -3796,7 +3796,7 @@ func (ec *executionContext) marshalNCreateValkeyPayload2githubᚗcomᚋnaisᚋap
 func (ec *executionContext) marshalNCreateValkeyPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐCreateValkeyPayload(ctx context.Context, sel ast.SelectionSet, v *valkey.CreateValkeyPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -3815,7 +3815,7 @@ func (ec *executionContext) marshalNDeleteValkeyPayload2githubᚗcomᚋnaisᚋap
 func (ec *executionContext) marshalNDeleteValkeyPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐDeleteValkeyPayload(ctx context.Context, sel ast.SelectionSet, v *valkey.DeleteValkeyPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -3829,7 +3829,7 @@ func (ec *executionContext) marshalNTeamInventoryCountValkeys2githubᚗcomᚋnai
 func (ec *executionContext) marshalNTeamInventoryCountValkeys2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐTeamInventoryCountValkeys(ctx context.Context, sel ast.SelectionSet, v *valkey.TeamInventoryCountValkeys) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -3848,7 +3848,7 @@ func (ec *executionContext) marshalNUpdateValkeyPayload2githubᚗcomᚋnaisᚋap
 func (ec *executionContext) marshalNUpdateValkeyPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐUpdateValkeyPayload(ctx context.Context, sel ast.SelectionSet, v *valkey.UpdateValkeyPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -3906,7 +3906,7 @@ func (ec *executionContext) marshalNValkey2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋint
 func (ec *executionContext) marshalNValkey2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkey(ctx context.Context, sel ast.SelectionSet, v *valkey.Valkey) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -3960,7 +3960,7 @@ func (ec *executionContext) marshalNValkeyAccess2ᚕᚖgithubᚗcomᚋnaisᚋapi
 func (ec *executionContext) marshalNValkeyAccess2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyAccess(ctx context.Context, sel ast.SelectionSet, v *valkey.ValkeyAccess) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -3974,7 +3974,7 @@ func (ec *executionContext) marshalNValkeyAccessConnection2githubᚗcomᚋnais�
 func (ec *executionContext) marshalNValkeyAccessConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*valkey.ValkeyAccess]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -4046,7 +4046,7 @@ func (ec *executionContext) marshalNValkeyConnection2githubᚗcomᚋnaisᚋapi�
 func (ec *executionContext) marshalNValkeyConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*valkey.Valkey]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -4144,7 +4144,7 @@ func (ec *executionContext) marshalNValkeyTier2githubᚗcomᚋnaisᚋapiᚋinter
 func (ec *executionContext) marshalNValkeyUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyUpdatedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *valkey.ValkeyUpdatedActivityLogEntryData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -4198,7 +4198,7 @@ func (ec *executionContext) marshalNValkeyUpdatedActivityLogEntryDataUpdatedFiel
 func (ec *executionContext) marshalNValkeyUpdatedActivityLogEntryDataUpdatedField2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyUpdatedActivityLogEntryDataUpdatedField(ctx context.Context, sel ast.SelectionSet, v *valkey.ValkeyUpdatedActivityLogEntryDataUpdatedField) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}

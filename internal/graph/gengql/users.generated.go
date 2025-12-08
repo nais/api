@@ -751,7 +751,7 @@ func (ec *executionContext) _UserEdge(ctx context.Context, sel ast.SelectionSet,
 func (ec *executionContext) marshalNAuthenticatedUser2githubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋauthzᚐAuthenticatedUser(ctx context.Context, sel ast.SelectionSet, v authz.AuthenticatedUser) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -809,7 +809,7 @@ func (ec *executionContext) marshalNUser2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinter
 func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋuserᚐUser(ctx context.Context, sel ast.SelectionSet, v *user.User) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -823,7 +823,7 @@ func (ec *executionContext) marshalNUserConnection2githubᚗcomᚋnaisᚋapiᚋi
 func (ec *executionContext) marshalNUserConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*user.User]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}

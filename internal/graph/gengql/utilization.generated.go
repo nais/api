@@ -1934,7 +1934,7 @@ func (ec *executionContext) marshalNApplicationInstanceUtilization2githubᚗcom�
 func (ec *executionContext) marshalNApplicationInstanceUtilization2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐApplicationInstanceUtilization(ctx context.Context, sel ast.SelectionSet, v *utilization.ApplicationInstanceUtilization) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -1948,7 +1948,7 @@ func (ec *executionContext) marshalNTeamServiceUtilization2githubᚗcomᚋnais�
 func (ec *executionContext) marshalNTeamServiceUtilization2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐTeamServiceUtilization(ctx context.Context, sel ast.SelectionSet, v *utilization.TeamServiceUtilization) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -2002,7 +2002,7 @@ func (ec *executionContext) marshalNTeamUtilizationData2ᚕᚖgithubᚗcomᚋnai
 func (ec *executionContext) marshalNTeamUtilizationData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐTeamUtilizationData(ctx context.Context, sel ast.SelectionSet, v *utilization.TeamUtilizationData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -2066,7 +2066,7 @@ func (ec *executionContext) marshalNUtilizationSample2ᚕᚖgithubᚗcomᚋnais�
 func (ec *executionContext) marshalNUtilizationSample2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐUtilizationSample(ctx context.Context, sel ast.SelectionSet, v *utilization.UtilizationSample) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -2080,7 +2080,7 @@ func (ec *executionContext) marshalNWorkloadUtilization2githubᚗcomᚋnaisᚋap
 func (ec *executionContext) marshalNWorkloadUtilization2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐWorkloadUtilization(ctx context.Context, sel ast.SelectionSet, v *utilization.WorkloadUtilization) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -2132,7 +2132,7 @@ func (ec *executionContext) marshalNWorkloadUtilizationRecommendations2githubᚗ
 func (ec *executionContext) marshalNWorkloadUtilizationRecommendations2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐWorkloadUtilizationRecommendations(ctx context.Context, sel ast.SelectionSet, v *utilization.WorkloadUtilizationRecommendations) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}

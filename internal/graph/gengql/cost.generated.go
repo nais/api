@@ -2082,7 +2082,7 @@ func (ec *executionContext) marshalNBigQueryDatasetCost2githubᚗcomᚋnaisᚋap
 func (ec *executionContext) marshalNBigQueryDatasetCost2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐBigQueryDatasetCost(ctx context.Context, sel ast.SelectionSet, v *cost.BigQueryDatasetCost) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -2096,7 +2096,7 @@ func (ec *executionContext) marshalNCostMonthlySummary2githubᚗcomᚋnaisᚋapi
 func (ec *executionContext) marshalNCostMonthlySummary2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐCostMonthlySummary(ctx context.Context, sel ast.SelectionSet, v *cost.CostMonthlySummary) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -2110,7 +2110,7 @@ func (ec *executionContext) marshalNOpenSearchCost2githubᚗcomᚋnaisᚋapiᚋi
 func (ec *executionContext) marshalNOpenSearchCost2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐOpenSearchCost(ctx context.Context, sel ast.SelectionSet, v *cost.OpenSearchCost) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -2164,7 +2164,7 @@ func (ec *executionContext) marshalNServiceCostSample2ᚕᚖgithubᚗcomᚋnais�
 func (ec *executionContext) marshalNServiceCostSample2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐServiceCostSample(ctx context.Context, sel ast.SelectionSet, v *cost.ServiceCostSample) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -2218,7 +2218,7 @@ func (ec *executionContext) marshalNServiceCostSeries2ᚕᚖgithubᚗcomᚋnais�
 func (ec *executionContext) marshalNServiceCostSeries2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐServiceCostSeries(ctx context.Context, sel ast.SelectionSet, v *cost.ServiceCostSeries) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -2232,7 +2232,7 @@ func (ec *executionContext) marshalNSqlInstanceCost2githubᚗcomᚋnaisᚋapiᚋ
 func (ec *executionContext) marshalNSqlInstanceCost2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐSQLInstanceCost(ctx context.Context, sel ast.SelectionSet, v *cost.SQLInstanceCost) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -2246,7 +2246,7 @@ func (ec *executionContext) marshalNTeamCost2githubᚗcomᚋnaisᚋapiᚋinterna
 func (ec *executionContext) marshalNTeamCost2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamCost(ctx context.Context, sel ast.SelectionSet, v *cost.TeamCost) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -2300,7 +2300,7 @@ func (ec *executionContext) marshalNTeamCostMonthlySample2ᚕᚖgithubᚗcomᚋn
 func (ec *executionContext) marshalNTeamCostMonthlySample2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamCostMonthlySample(ctx context.Context, sel ast.SelectionSet, v *cost.TeamCostMonthlySample) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -2314,7 +2314,7 @@ func (ec *executionContext) marshalNTeamCostMonthlySummary2githubᚗcomᚋnais�
 func (ec *executionContext) marshalNTeamCostMonthlySummary2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamCostMonthlySummary(ctx context.Context, sel ast.SelectionSet, v *cost.TeamCostMonthlySummary) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -2328,7 +2328,7 @@ func (ec *executionContext) marshalNTeamCostPeriod2githubᚗcomᚋnaisᚋapiᚋi
 func (ec *executionContext) marshalNTeamCostPeriod2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamCostPeriod(ctx context.Context, sel ast.SelectionSet, v *cost.TeamCostPeriod) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -2342,7 +2342,7 @@ func (ec *executionContext) marshalNTeamEnvironmentCost2githubᚗcomᚋnaisᚋap
 func (ec *executionContext) marshalNTeamEnvironmentCost2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamEnvironmentCost(ctx context.Context, sel ast.SelectionSet, v *cost.TeamEnvironmentCost) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -2356,7 +2356,7 @@ func (ec *executionContext) marshalNTeamEnvironmentCostPeriod2githubᚗcomᚋnai
 func (ec *executionContext) marshalNTeamEnvironmentCostPeriod2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamEnvironmentCostPeriod(ctx context.Context, sel ast.SelectionSet, v *cost.TeamEnvironmentCostPeriod) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -2370,7 +2370,7 @@ func (ec *executionContext) marshalNValkeyCost2githubᚗcomᚋnaisᚋapiᚋinter
 func (ec *executionContext) marshalNValkeyCost2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐValkeyCost(ctx context.Context, sel ast.SelectionSet, v *cost.ValkeyCost) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -2384,7 +2384,7 @@ func (ec *executionContext) marshalNWorkloadCost2githubᚗcomᚋnaisᚋapiᚋint
 func (ec *executionContext) marshalNWorkloadCost2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCost(ctx context.Context, sel ast.SelectionSet, v *cost.WorkloadCost) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -2398,7 +2398,7 @@ func (ec *executionContext) marshalNWorkloadCostPeriod2githubᚗcomᚋnaisᚋapi
 func (ec *executionContext) marshalNWorkloadCostPeriod2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCostPeriod(ctx context.Context, sel ast.SelectionSet, v *cost.WorkloadCostPeriod) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -2452,7 +2452,7 @@ func (ec *executionContext) marshalNWorkloadCostSample2ᚕᚖgithubᚗcomᚋnais
 func (ec *executionContext) marshalNWorkloadCostSample2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCostSample(ctx context.Context, sel ast.SelectionSet, v *cost.WorkloadCostSample) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -2506,7 +2506,7 @@ func (ec *executionContext) marshalNWorkloadCostSeries2ᚕᚖgithubᚗcomᚋnais
 func (ec *executionContext) marshalNWorkloadCostSeries2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCostSeries(ctx context.Context, sel ast.SelectionSet, v *cost.WorkloadCostSeries) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}

@@ -1178,7 +1178,7 @@ func (ec *executionContext) _PrometheusAlert(ctx context.Context, sel ast.Select
 func (ec *executionContext) marshalNAlert2githubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlert(ctx context.Context, sel ast.SelectionSet, v alerts.Alert) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -1236,7 +1236,7 @@ func (ec *executionContext) marshalNAlertConnection2githubᚗcomᚋnaisᚋapiᚋ
 func (ec *executionContext) marshalNAlertConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[alerts.Alert]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -1358,7 +1358,7 @@ func (ec *executionContext) marshalNPrometheusAlarm2ᚕᚖgithubᚗcomᚋnaisᚋ
 func (ec *executionContext) marshalNPrometheusAlarm2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐPrometheusAlarm(ctx context.Context, sel ast.SelectionSet, v *alerts.PrometheusAlarm) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}

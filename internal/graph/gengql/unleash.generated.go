@@ -1914,7 +1914,7 @@ func (ec *executionContext) marshalNAllowTeamAccessToUnleashPayload2githubᚗcom
 func (ec *executionContext) marshalNAllowTeamAccessToUnleashPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐAllowTeamAccessToUnleashPayload(ctx context.Context, sel ast.SelectionSet, v *unleash.AllowTeamAccessToUnleashPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -1933,7 +1933,7 @@ func (ec *executionContext) marshalNCreateUnleashForTeamPayload2githubᚗcomᚋn
 func (ec *executionContext) marshalNCreateUnleashForTeamPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐCreateUnleashForTeamPayload(ctx context.Context, sel ast.SelectionSet, v *unleash.CreateUnleashForTeamPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -1952,7 +1952,7 @@ func (ec *executionContext) marshalNRevokeTeamAccessToUnleashPayload2githubᚗco
 func (ec *executionContext) marshalNRevokeTeamAccessToUnleashPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐRevokeTeamAccessToUnleashPayload(ctx context.Context, sel ast.SelectionSet, v *unleash.RevokeTeamAccessToUnleashPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -1962,7 +1962,7 @@ func (ec *executionContext) marshalNRevokeTeamAccessToUnleashPayload2ᚖgithub�
 func (ec *executionContext) marshalNUnleashInstanceMetrics2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐUnleashInstanceMetrics(ctx context.Context, sel ast.SelectionSet, v *unleash.UnleashInstanceMetrics) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -1972,7 +1972,7 @@ func (ec *executionContext) marshalNUnleashInstanceMetrics2ᚖgithubᚗcomᚋnai
 func (ec *executionContext) marshalNUnleashInstanceUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐUnleashInstanceUpdatedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *unleash.UnleashInstanceUpdatedActivityLogEntryData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}

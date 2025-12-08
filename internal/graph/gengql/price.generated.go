@@ -296,7 +296,7 @@ func (ec *executionContext) marshalNCurrentUnitPrices2githubᚗcomᚋnaisᚋapi�
 func (ec *executionContext) marshalNCurrentUnitPrices2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpriceᚐCurrentUnitPrices(ctx context.Context, sel ast.SelectionSet, v *price.CurrentUnitPrices) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -310,7 +310,7 @@ func (ec *executionContext) marshalNPrice2githubᚗcomᚋnaisᚋapiᚋinternal�
 func (ec *executionContext) marshalNPrice2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpriceᚐPrice(ctx context.Context, sel ast.SelectionSet, v *price.Price) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}

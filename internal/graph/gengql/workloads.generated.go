@@ -1515,7 +1515,7 @@ func (ec *executionContext) _WorkloadResourceQuantity(ctx context.Context, sel a
 func (ec *executionContext) marshalNContainerImage2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐContainerImage(ctx context.Context, sel ast.SelectionSet, v *workload.ContainerImage) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -1535,7 +1535,7 @@ func (ec *executionContext) marshalNEnvironmentWorkloadOrderField2githubᚗcom�
 func (ec *executionContext) marshalNWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload(ctx context.Context, sel ast.SelectionSet, v workload.Workload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -1593,7 +1593,7 @@ func (ec *executionContext) marshalNWorkloadConnection2githubᚗcomᚋnaisᚋapi
 func (ec *executionContext) marshalNWorkloadConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[workload.Workload]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -1661,7 +1661,7 @@ func (ec *executionContext) marshalNWorkloadOrderField2githubᚗcomᚋnaisᚋapi
 func (ec *executionContext) marshalNWorkloadResourceQuantity2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkloadResourceQuantity(ctx context.Context, sel ast.SelectionSet, v *workload.WorkloadResourceQuantity) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}

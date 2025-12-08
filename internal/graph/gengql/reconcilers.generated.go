@@ -2970,7 +2970,7 @@ func (ec *executionContext) marshalNReconciler2ᚕᚖgithubᚗcomᚋnaisᚋapi�
 func (ec *executionContext) marshalNReconciler2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋreconcilerᚐReconciler(ctx context.Context, sel ast.SelectionSet, v *reconciler.Reconciler) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -3024,7 +3024,7 @@ func (ec *executionContext) marshalNReconcilerConfig2ᚕᚖgithubᚗcomᚋnais�
 func (ec *executionContext) marshalNReconcilerConfig2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋreconcilerᚐReconcilerConfig(ctx context.Context, sel ast.SelectionSet, v *reconciler.ReconcilerConfig) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -3054,7 +3054,7 @@ func (ec *executionContext) unmarshalNReconcilerConfigInput2ᚖgithubᚗcomᚋna
 func (ec *executionContext) marshalNReconcilerConfiguredActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋreconcilerᚐReconcilerConfiguredActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *reconciler.ReconcilerConfiguredActivityLogEntryData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -3068,7 +3068,7 @@ func (ec *executionContext) marshalNReconcilerConnection2githubᚗcomᚋnaisᚋa
 func (ec *executionContext) marshalNReconcilerConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*reconciler.Reconciler]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -3170,7 +3170,7 @@ func (ec *executionContext) marshalNReconcilerError2ᚕᚖgithubᚗcomᚋnaisᚋ
 func (ec *executionContext) marshalNReconcilerError2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋreconcilerᚐReconcilerError(ctx context.Context, sel ast.SelectionSet, v *reconciler.ReconcilerError) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -3184,7 +3184,7 @@ func (ec *executionContext) marshalNReconcilerErrorConnection2githubᚗcomᚋnai
 func (ec *executionContext) marshalNReconcilerErrorConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*reconciler.ReconcilerError]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}

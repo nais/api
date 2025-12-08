@@ -4031,7 +4031,7 @@ func (ec *executionContext) marshalNAddSecretValuePayload2githubᚗcomᚋnaisᚋ
 func (ec *executionContext) marshalNAddSecretValuePayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐAddSecretValuePayload(ctx context.Context, sel ast.SelectionSet, v *secret.AddSecretValuePayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -4050,7 +4050,7 @@ func (ec *executionContext) marshalNCreateSecretPayload2githubᚗcomᚋnaisᚋap
 func (ec *executionContext) marshalNCreateSecretPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐCreateSecretPayload(ctx context.Context, sel ast.SelectionSet, v *secret.CreateSecretPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -4069,7 +4069,7 @@ func (ec *executionContext) marshalNDeleteSecretPayload2githubᚗcomᚋnaisᚋap
 func (ec *executionContext) marshalNDeleteSecretPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐDeleteSecretPayload(ctx context.Context, sel ast.SelectionSet, v *secret.DeleteSecretPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -4088,7 +4088,7 @@ func (ec *executionContext) marshalNRemoveSecretValuePayload2githubᚗcomᚋnais
 func (ec *executionContext) marshalNRemoveSecretValuePayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐRemoveSecretValuePayload(ctx context.Context, sel ast.SelectionSet, v *secret.RemoveSecretValuePayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -4146,7 +4146,7 @@ func (ec *executionContext) marshalNSecret2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋint
 func (ec *executionContext) marshalNSecret2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecret(ctx context.Context, sel ast.SelectionSet, v *secret.Secret) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -4160,7 +4160,7 @@ func (ec *executionContext) marshalNSecretConnection2githubᚗcomᚋnaisᚋapi�
 func (ec *executionContext) marshalNSecretConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*secret.Secret]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -4272,7 +4272,7 @@ func (ec *executionContext) marshalNSecretValue2ᚕᚖgithubᚗcomᚋnaisᚋapi�
 func (ec *executionContext) marshalNSecretValue2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValue(ctx context.Context, sel ast.SelectionSet, v *secret.SecretValue) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -4282,7 +4282,7 @@ func (ec *executionContext) marshalNSecretValue2ᚖgithubᚗcomᚋnaisᚋapiᚋi
 func (ec *executionContext) marshalNSecretValueAddedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueAddedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *secret.SecretValueAddedActivityLogEntryData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -4297,7 +4297,7 @@ func (ec *executionContext) unmarshalNSecretValueInput2ᚖgithubᚗcomᚋnaisᚋ
 func (ec *executionContext) marshalNSecretValueRemovedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueRemovedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *secret.SecretValueRemovedActivityLogEntryData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -4307,7 +4307,7 @@ func (ec *executionContext) marshalNSecretValueRemovedActivityLogEntryData2ᚖgi
 func (ec *executionContext) marshalNSecretValueUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueUpdatedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *secret.SecretValueUpdatedActivityLogEntryData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -4326,7 +4326,7 @@ func (ec *executionContext) marshalNUpdateSecretValuePayload2githubᚗcomᚋnais
 func (ec *executionContext) marshalNUpdateSecretValuePayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐUpdateSecretValuePayload(ctx context.Context, sel ast.SelectionSet, v *secret.UpdateSecretValuePayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}

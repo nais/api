@@ -1669,7 +1669,7 @@ func (ec *executionContext) _UserUpdatedUserSyncLogEntry(ctx context.Context, se
 func (ec *executionContext) marshalNUserSyncLogEntry2githubᚗcomᚋnaisᚋapiᚋinternalᚋusersyncᚐUserSyncLogEntry(ctx context.Context, sel ast.SelectionSet, v usersync.UserSyncLogEntry) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -1727,7 +1727,7 @@ func (ec *executionContext) marshalNUserSyncLogEntryConnection2githubᚗcomᚋna
 func (ec *executionContext) marshalNUserSyncLogEntryConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[usersync.UserSyncLogEntry]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}

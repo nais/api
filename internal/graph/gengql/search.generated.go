@@ -434,7 +434,7 @@ func (ec *executionContext) unmarshalNSearchFilter2githubᚗcomᚋnaisᚋapiᚋi
 func (ec *executionContext) marshalNSearchNode2githubᚗcomᚋnaisᚋapiᚋinternalᚋsearchᚐSearchNode(ctx context.Context, sel ast.SelectionSet, v search.SearchNode) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -492,7 +492,7 @@ func (ec *executionContext) marshalNSearchNodeConnection2githubᚗcomᚋnaisᚋa
 func (ec *executionContext) marshalNSearchNodeConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[search.SearchNode]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}

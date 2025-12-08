@@ -2017,7 +2017,7 @@ func (ec *executionContext) marshalNOpenSearchMaintenance2githubᚗcomᚋnaisᚋ
 func (ec *executionContext) marshalNOpenSearchMaintenance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋservicemaintenanceᚐOpenSearchMaintenance(ctx context.Context, sel ast.SelectionSet, v *servicemaintenance.OpenSearchMaintenance) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -2071,7 +2071,7 @@ func (ec *executionContext) marshalNOpenSearchMaintenanceUpdate2ᚕᚖgithubᚗc
 func (ec *executionContext) marshalNOpenSearchMaintenanceUpdate2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋservicemaintenanceᚐOpenSearchMaintenanceUpdate(ctx context.Context, sel ast.SelectionSet, v *servicemaintenance.OpenSearchMaintenanceUpdate) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -2085,7 +2085,7 @@ func (ec *executionContext) marshalNOpenSearchMaintenanceUpdateConnection2github
 func (ec *executionContext) marshalNOpenSearchMaintenanceUpdateConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*servicemaintenance.OpenSearchMaintenanceUpdate]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -2157,7 +2157,7 @@ func (ec *executionContext) marshalNValkeyMaintenance2githubᚗcomᚋnaisᚋapi�
 func (ec *executionContext) marshalNValkeyMaintenance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋservicemaintenanceᚐValkeyMaintenance(ctx context.Context, sel ast.SelectionSet, v *servicemaintenance.ValkeyMaintenance) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -2211,7 +2211,7 @@ func (ec *executionContext) marshalNValkeyMaintenanceUpdate2ᚕᚖgithubᚗcom�
 func (ec *executionContext) marshalNValkeyMaintenanceUpdate2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋservicemaintenanceᚐValkeyMaintenanceUpdate(ctx context.Context, sel ast.SelectionSet, v *servicemaintenance.ValkeyMaintenanceUpdate) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -2225,7 +2225,7 @@ func (ec *executionContext) marshalNValkeyMaintenanceUpdateConnection2githubᚗc
 func (ec *executionContext) marshalNValkeyMaintenanceUpdateConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*servicemaintenance.ValkeyMaintenanceUpdate]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}

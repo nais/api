@@ -1833,7 +1833,7 @@ func (ec *executionContext) marshalNBigQueryDataset2ᚕᚖgithubᚗcomᚋnaisᚋ
 func (ec *executionContext) marshalNBigQueryDataset2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDataset(ctx context.Context, sel ast.SelectionSet, v *bigquery.BigQueryDataset) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -1887,7 +1887,7 @@ func (ec *executionContext) marshalNBigQueryDatasetAccess2ᚕᚖgithubᚗcomᚋn
 func (ec *executionContext) marshalNBigQueryDatasetAccess2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDatasetAccess(ctx context.Context, sel ast.SelectionSet, v *bigquery.BigQueryDatasetAccess) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -1901,7 +1901,7 @@ func (ec *executionContext) marshalNBigQueryDatasetAccessConnection2githubᚗcom
 func (ec *executionContext) marshalNBigQueryDatasetAccessConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*bigquery.BigQueryDatasetAccess]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -1973,7 +1973,7 @@ func (ec *executionContext) marshalNBigQueryDatasetConnection2githubᚗcomᚋnai
 func (ec *executionContext) marshalNBigQueryDatasetConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*bigquery.BigQueryDataset]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -2041,7 +2041,7 @@ func (ec *executionContext) marshalNBigQueryDatasetOrderField2githubᚗcomᚋnai
 func (ec *executionContext) marshalNBigQueryDatasetStatus2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDatasetStatus(ctx context.Context, sel ast.SelectionSet, v *bigquery.BigQueryDatasetStatus) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -2055,7 +2055,7 @@ func (ec *executionContext) marshalNTeamInventoryCountBigQueryDatasets2githubᚗ
 func (ec *executionContext) marshalNTeamInventoryCountBigQueryDatasets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐTeamInventoryCountBigQueryDatasets(ctx context.Context, sel ast.SelectionSet, v *bigquery.TeamInventoryCountBigQueryDatasets) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}

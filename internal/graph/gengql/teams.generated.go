@@ -12875,7 +12875,7 @@ func (ec *executionContext) marshalNAddTeamMemberPayload2githubᚗcomᚋnaisᚋa
 func (ec *executionContext) marshalNAddTeamMemberPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐAddTeamMemberPayload(ctx context.Context, sel ast.SelectionSet, v *team.AddTeamMemberPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -12894,7 +12894,7 @@ func (ec *executionContext) marshalNConfirmTeamDeletionPayload2githubᚗcomᚋna
 func (ec *executionContext) marshalNConfirmTeamDeletionPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐConfirmTeamDeletionPayload(ctx context.Context, sel ast.SelectionSet, v *team.ConfirmTeamDeletionPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -12913,7 +12913,7 @@ func (ec *executionContext) marshalNCreateTeamPayload2githubᚗcomᚋnaisᚋapi�
 func (ec *executionContext) marshalNCreateTeamPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐCreateTeamPayload(ctx context.Context, sel ast.SelectionSet, v *team.CreateTeamPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -12932,7 +12932,7 @@ func (ec *executionContext) marshalNRemoveTeamMemberPayload2githubᚗcomᚋnais�
 func (ec *executionContext) marshalNRemoveTeamMemberPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐRemoveTeamMemberPayload(ctx context.Context, sel ast.SelectionSet, v *team.RemoveTeamMemberPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -12951,7 +12951,7 @@ func (ec *executionContext) marshalNRequestTeamDeletionPayload2githubᚗcomᚋna
 func (ec *executionContext) marshalNRequestTeamDeletionPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐRequestTeamDeletionPayload(ctx context.Context, sel ast.SelectionSet, v *team.RequestTeamDeletionPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -12970,7 +12970,7 @@ func (ec *executionContext) marshalNSetTeamMemberRolePayload2githubᚗcomᚋnais
 func (ec *executionContext) marshalNSetTeamMemberRolePayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐSetTeamMemberRolePayload(ctx context.Context, sel ast.SelectionSet, v *team.SetTeamMemberRolePayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -13028,7 +13028,7 @@ func (ec *executionContext) marshalNTeam2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinter
 func (ec *executionContext) marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx context.Context, sel ast.SelectionSet, v *team.Team) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -13042,7 +13042,7 @@ func (ec *executionContext) marshalNTeamConnection2githubᚗcomᚋnaisᚋapiᚋi
 func (ec *executionContext) marshalNTeamConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*team.Team]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -13056,7 +13056,7 @@ func (ec *executionContext) marshalNTeamDeleteKey2githubᚗcomᚋnaisᚋapiᚋin
 func (ec *executionContext) marshalNTeamDeleteKey2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamDeleteKey(ctx context.Context, sel ast.SelectionSet, v *team.TeamDeleteKey) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -13162,7 +13162,7 @@ func (ec *executionContext) marshalNTeamEnvironment2ᚕᚖgithubᚗcomᚋnaisᚋ
 func (ec *executionContext) marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx context.Context, sel ast.SelectionSet, v *team.TeamEnvironment) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -13172,7 +13172,7 @@ func (ec *executionContext) marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapi
 func (ec *executionContext) marshalNTeamEnvironmentUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironmentUpdatedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *team.TeamEnvironmentUpdatedActivityLogEntryData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -13226,7 +13226,7 @@ func (ec *executionContext) marshalNTeamEnvironmentUpdatedActivityLogEntryDataUp
 func (ec *executionContext) marshalNTeamEnvironmentUpdatedActivityLogEntryDataUpdatedField2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironmentUpdatedActivityLogEntryDataUpdatedField(ctx context.Context, sel ast.SelectionSet, v *team.TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -13236,7 +13236,7 @@ func (ec *executionContext) marshalNTeamEnvironmentUpdatedActivityLogEntryDataUp
 func (ec *executionContext) marshalNTeamExternalResources2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamExternalResources(ctx context.Context, sel ast.SelectionSet, v *team.TeamExternalResources) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -13250,7 +13250,7 @@ func (ec *executionContext) marshalNTeamInventoryCounts2githubᚗcomᚋnaisᚋap
 func (ec *executionContext) marshalNTeamInventoryCounts2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamInventoryCounts(ctx context.Context, sel ast.SelectionSet, v *team.TeamInventoryCounts) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -13308,7 +13308,7 @@ func (ec *executionContext) marshalNTeamMember2ᚕᚖgithubᚗcomᚋnaisᚋapi�
 func (ec *executionContext) marshalNTeamMember2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMember(ctx context.Context, sel ast.SelectionSet, v *team.TeamMember) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -13318,7 +13318,7 @@ func (ec *executionContext) marshalNTeamMember2ᚖgithubᚗcomᚋnaisᚋapiᚋin
 func (ec *executionContext) marshalNTeamMemberAddedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberAddedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *team.TeamMemberAddedActivityLogEntryData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -13332,7 +13332,7 @@ func (ec *executionContext) marshalNTeamMemberConnection2githubᚗcomᚋnaisᚋa
 func (ec *executionContext) marshalNTeamMemberConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*team.TeamMember]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -13400,7 +13400,7 @@ func (ec *executionContext) marshalNTeamMemberOrderField2githubᚗcomᚋnaisᚋa
 func (ec *executionContext) marshalNTeamMemberRemovedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberRemovedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *team.TeamMemberRemovedActivityLogEntryData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -13420,7 +13420,7 @@ func (ec *executionContext) marshalNTeamMemberRole2githubᚗcomᚋnaisᚋapiᚋi
 func (ec *executionContext) marshalNTeamMemberSetRoleActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberSetRoleActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *team.TeamMemberSetRoleActivityLogEntryData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -13440,7 +13440,7 @@ func (ec *executionContext) marshalNTeamOrderField2githubᚗcomᚋnaisᚋapiᚋi
 func (ec *executionContext) marshalNTeamUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamUpdatedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *team.TeamUpdatedActivityLogEntryData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -13494,7 +13494,7 @@ func (ec *executionContext) marshalNTeamUpdatedActivityLogEntryDataUpdatedField2
 func (ec *executionContext) marshalNTeamUpdatedActivityLogEntryDataUpdatedField2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamUpdatedActivityLogEntryDataUpdatedField(ctx context.Context, sel ast.SelectionSet, v *team.TeamUpdatedActivityLogEntryDataUpdatedField) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -13513,7 +13513,7 @@ func (ec *executionContext) marshalNUpdateTeamEnvironmentPayload2githubᚗcomᚋ
 func (ec *executionContext) marshalNUpdateTeamEnvironmentPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐUpdateTeamEnvironmentPayload(ctx context.Context, sel ast.SelectionSet, v *team.UpdateTeamEnvironmentPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -13532,7 +13532,7 @@ func (ec *executionContext) marshalNUpdateTeamPayload2githubᚗcomᚋnaisᚋapi�
 func (ec *executionContext) marshalNUpdateTeamPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐUpdateTeamPayload(ctx context.Context, sel ast.SelectionSet, v *team.UpdateTeamPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}

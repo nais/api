@@ -1459,7 +1459,7 @@ func (ec *executionContext) marshalNAddRepositoryToTeamPayload2githubᚗcomᚋna
 func (ec *executionContext) marshalNAddRepositoryToTeamPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgithubᚋrepositoryᚐAddRepositoryToTeamPayload(ctx context.Context, sel ast.SelectionSet, v *repository.AddRepositoryToTeamPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -1478,7 +1478,7 @@ func (ec *executionContext) marshalNRemoveRepositoryFromTeamPayload2githubᚗcom
 func (ec *executionContext) marshalNRemoveRepositoryFromTeamPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgithubᚋrepositoryᚐRemoveRepositoryFromTeamPayload(ctx context.Context, sel ast.SelectionSet, v *repository.RemoveRepositoryFromTeamPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -1532,7 +1532,7 @@ func (ec *executionContext) marshalNRepository2ᚕᚖgithubᚗcomᚋnaisᚋapi�
 func (ec *executionContext) marshalNRepository2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgithubᚋrepositoryᚐRepository(ctx context.Context, sel ast.SelectionSet, v *repository.Repository) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -1546,7 +1546,7 @@ func (ec *executionContext) marshalNRepositoryConnection2githubᚗcomᚋnaisᚋa
 func (ec *executionContext) marshalNRepositoryConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*repository.Repository]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
