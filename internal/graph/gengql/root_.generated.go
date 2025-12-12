@@ -1085,6 +1085,7 @@ type ComplexityRoot struct {
 		UpdateServiceAccountToken    func(childComplexity int, input serviceaccount.UpdateServiceAccountTokenInput) int
 		UpdateTeam                   func(childComplexity int, input team.UpdateTeamInput) int
 		UpdateTeamEnvironment        func(childComplexity int, input team.UpdateTeamEnvironmentInput) int
+		UpdateUnleashInstance        func(childComplexity int, input unleash.UpdateUnleashInstanceInput) int
 		UpdateValkey                 func(childComplexity int, input valkey.UpdateValkeyInput) int
 	}
 
@@ -1325,6 +1326,7 @@ type ComplexityRoot struct {
 		Team                      func(childComplexity int, slug slug.Slug) int
 		Teams                     func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.TeamOrder, filter *team.TeamFilter) int
 		TeamsUtilization          func(childComplexity int, resourceType utilization.UtilizationResourceType) int
+		UnleashReleaseChannels    func(childComplexity int) int
 		User                      func(childComplexity int, email *string) int
 		UserSyncLog               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		Users                     func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *user.UserOrder) int
@@ -2406,14 +2408,16 @@ type ComplexityRoot struct {
 	}
 
 	UnleashInstance struct {
-		APIIngress   func(childComplexity int) int
-		AllowedTeams func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		ID           func(childComplexity int) int
-		Metrics      func(childComplexity int) int
-		Name         func(childComplexity int) int
-		Ready        func(childComplexity int) int
-		Version      func(childComplexity int) int
-		WebIngress   func(childComplexity int) int
+		APIIngress         func(childComplexity int) int
+		AllowedTeams       func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		CustomVersion      func(childComplexity int) int
+		ID                 func(childComplexity int) int
+		Metrics            func(childComplexity int) int
+		Name               func(childComplexity int) int
+		Ready              func(childComplexity int) int
+		ReleaseChannelName func(childComplexity int) int
+		Version            func(childComplexity int) int
+		WebIngress         func(childComplexity int) int
 	}
 
 	UnleashInstanceCreatedActivityLogEntry struct {
@@ -2449,8 +2453,18 @@ type ComplexityRoot struct {
 	}
 
 	UnleashInstanceUpdatedActivityLogEntryData struct {
-		AllowedTeamSlug func(childComplexity int) int
-		RevokedTeamSlug func(childComplexity int) int
+		AllowedTeamSlug       func(childComplexity int) int
+		RevokedTeamSlug       func(childComplexity int) int
+		UpdatedCustomVersion  func(childComplexity int) int
+		UpdatedReleaseChannel func(childComplexity int) int
+	}
+
+	UnleashReleaseChannel struct {
+		CurrentVersion func(childComplexity int) int
+		Description    func(childComplexity int) int
+		LastUpdated    func(childComplexity int) int
+		Name           func(childComplexity int) int
+		Type           func(childComplexity int) int
 	}
 
 	UpdateImageVulnerabilityPayload struct {
@@ -2481,6 +2495,10 @@ type ComplexityRoot struct {
 
 	UpdateTeamPayload struct {
 		Team func(childComplexity int) int
+	}
+
+	UpdateUnleashInstancePayload struct {
+		Unleash func(childComplexity int) int
 	}
 
 	UpdateValkeyPayload struct {
@@ -6884,6 +6902,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Mutation.UpdateTeamEnvironment(childComplexity, args["input"].(team.UpdateTeamEnvironmentInput)), true
 
+	case "Mutation.updateUnleashInstance":
+		if e.complexity.Mutation.UpdateUnleashInstance == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateUnleashInstance_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateUnleashInstance(childComplexity, args["input"].(unleash.UpdateUnleashInstanceInput)), true
+
 	case "Mutation.updateValkey":
 		if e.complexity.Mutation.UpdateValkey == nil {
 			break
@@ -8033,6 +8063,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Query.TeamsUtilization(childComplexity, args["resourceType"].(utilization.UtilizationResourceType)), true
+
+	case "Query.unleashReleaseChannels":
+		if e.complexity.Query.UnleashReleaseChannels == nil {
+			break
+		}
+
+		return e.complexity.Query.UnleashReleaseChannels(childComplexity), true
 
 	case "Query.user":
 		if e.complexity.Query.User == nil {
@@ -12798,6 +12835,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.UnleashInstance.AllowedTeams(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
 
+	case "UnleashInstance.customVersion":
+		if e.complexity.UnleashInstance.CustomVersion == nil {
+			break
+		}
+
+		return e.complexity.UnleashInstance.CustomVersion(childComplexity), true
+
 	case "UnleashInstance.id":
 		if e.complexity.UnleashInstance.ID == nil {
 			break
@@ -12825,6 +12869,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.UnleashInstance.Ready(childComplexity), true
+
+	case "UnleashInstance.releaseChannelName":
+		if e.complexity.UnleashInstance.ReleaseChannelName == nil {
+			break
+		}
+
+		return e.complexity.UnleashInstance.ReleaseChannelName(childComplexity), true
 
 	case "UnleashInstance.version":
 		if e.complexity.UnleashInstance.Version == nil {
@@ -13015,6 +13066,55 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.UnleashInstanceUpdatedActivityLogEntryData.RevokedTeamSlug(childComplexity), true
 
+	case "UnleashInstanceUpdatedActivityLogEntryData.updatedCustomVersion":
+		if e.complexity.UnleashInstanceUpdatedActivityLogEntryData.UpdatedCustomVersion == nil {
+			break
+		}
+
+		return e.complexity.UnleashInstanceUpdatedActivityLogEntryData.UpdatedCustomVersion(childComplexity), true
+
+	case "UnleashInstanceUpdatedActivityLogEntryData.updatedReleaseChannel":
+		if e.complexity.UnleashInstanceUpdatedActivityLogEntryData.UpdatedReleaseChannel == nil {
+			break
+		}
+
+		return e.complexity.UnleashInstanceUpdatedActivityLogEntryData.UpdatedReleaseChannel(childComplexity), true
+
+	case "UnleashReleaseChannel.currentVersion":
+		if e.complexity.UnleashReleaseChannel.CurrentVersion == nil {
+			break
+		}
+
+		return e.complexity.UnleashReleaseChannel.CurrentVersion(childComplexity), true
+
+	case "UnleashReleaseChannel.description":
+		if e.complexity.UnleashReleaseChannel.Description == nil {
+			break
+		}
+
+		return e.complexity.UnleashReleaseChannel.Description(childComplexity), true
+
+	case "UnleashReleaseChannel.lastUpdated":
+		if e.complexity.UnleashReleaseChannel.LastUpdated == nil {
+			break
+		}
+
+		return e.complexity.UnleashReleaseChannel.LastUpdated(childComplexity), true
+
+	case "UnleashReleaseChannel.name":
+		if e.complexity.UnleashReleaseChannel.Name == nil {
+			break
+		}
+
+		return e.complexity.UnleashReleaseChannel.Name(childComplexity), true
+
+	case "UnleashReleaseChannel.type":
+		if e.complexity.UnleashReleaseChannel.Type == nil {
+			break
+		}
+
+		return e.complexity.UnleashReleaseChannel.Type(childComplexity), true
+
 	case "UpdateImageVulnerabilityPayload.vulnerability":
 		if e.complexity.UpdateImageVulnerabilityPayload.Vulnerability == nil {
 			break
@@ -13077,6 +13177,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.UpdateTeamPayload.Team(childComplexity), true
+
+	case "UpdateUnleashInstancePayload.unleash":
+		if e.complexity.UpdateUnleashInstancePayload.Unleash == nil {
+			break
+		}
+
+		return e.complexity.UpdateUnleashInstancePayload.Unleash(childComplexity), true
 
 	case "UpdateValkeyPayload.valkey":
 		if e.complexity.UpdateValkeyPayload.Valkey == nil {
@@ -14590,6 +14697,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputUpdateServiceAccountTokenInput,
 		ec.unmarshalInputUpdateTeamEnvironmentInput,
 		ec.unmarshalInputUpdateTeamInput,
+		ec.unmarshalInputUpdateUnleashInstanceInput,
 		ec.unmarshalInputUpdateValkeyInput,
 		ec.unmarshalInputUserOrder,
 		ec.unmarshalInputUserTeamOrder,
@@ -22308,14 +22416,35 @@ extend enum ActivityLogActivityType {
 	TEAM_ENVIRONMENT_UPDATED
 }
 `, BuiltIn: false},
-	{Name: "../schema/unleash.graphqls", Input: `extend type Mutation {
+	{Name: "../schema/unleash.graphqls", Input: `extend type Query {
+	"""
+	Get a list of available release channels for Unleash instances.
+	Release channels provide automatic version updates based on the channel's update policy.
+	"""
+	unleashReleaseChannels: [UnleashReleaseChannel!]!
+}
+
+extend type Mutation {
 	"""
 	Create a new Unleash instance.
 
 	This mutation will create a new Unleash instance for the given team. The team
 	will be set as owner of the Unleash instance and will be able to manage it.
+
+	By default, instances are created with a custom version (the latest stable version).
+	Optionally specify a releaseChannel to subscribe to automatic version updates,
+	or a customVersion to pin to a specific version. These options are mutually exclusive.
 	"""
 	createUnleashForTeam(input: CreateUnleashForTeamInput!): CreateUnleashForTeamPayload!
+
+	"""
+	Update an Unleash instance's version configuration.
+
+	Use this mutation to change between custom version and release channel,
+	or to update to a different version/channel. The customVersion and releaseChannel
+	options are mutually exclusive - setting one will clear the other.
+	"""
+	updateUnleashInstance(input: UpdateUnleashInstanceInput!): UpdateUnleashInstancePayload!
 
 	"""
 	Add team to the list of teams that can access the Unleash instance.
@@ -22331,10 +22460,44 @@ extend enum ActivityLogActivityType {
 }
 
 input CreateUnleashForTeamInput {
+	"The team that will own this Unleash instance."
 	teamSlug: Slug!
+
+	"""
+	Pin the instance to a specific Unleash version.
+	Mutually exclusive with releaseChannel. If neither is specified, the latest stable version is used.
+	"""
+	customVersion: String
+
+	"""
+	Subscribe the instance to a release channel for automatic version updates.
+	Mutually exclusive with customVersion. Use the unleashReleaseChannels query to see available channels.
+	"""
+	releaseChannel: String
 }
 
 type CreateUnleashForTeamPayload {
+	unleash: UnleashInstance
+}
+
+input UpdateUnleashInstanceInput {
+	"The team that owns the Unleash instance to update."
+	teamSlug: Slug!
+
+	"""
+	Pin the instance to a specific Unleash version.
+	Mutually exclusive with releaseChannel. Set to switch from release channel to custom version.
+	"""
+	customVersion: String
+
+	"""
+	Subscribe the instance to a release channel for automatic version updates.
+	Mutually exclusive with customVersion. Set to switch from custom version to release channel.
+	"""
+	releaseChannel: String
+}
+
+type UpdateUnleashInstancePayload {
 	unleash: UnleashInstance
 }
 
@@ -22381,6 +22544,18 @@ type UnleashInstance implements Node {
 	apiIngress: String!
 	metrics: UnleashInstanceMetrics!
 	ready: Boolean!
+
+	"""
+	Custom version if using manual version management (mutually exclusive with releaseChannelName).
+	Populated from CRD spec.customImage field.
+	"""
+	customVersion: String
+
+	"""
+	Release channel name if using channel-based version management (mutually exclusive with customVersion).
+	Populated from CRD spec.releaseChannel.name field.
+	"""
+	releaseChannelName: String
 }
 
 type UnleashInstanceMetrics {
@@ -22390,6 +22565,27 @@ type UnleashInstanceMetrics {
 	cpuRequests: Float!
 	memoryUtilization: Float!
 	memoryRequests: Float!
+}
+
+"""
+UnleashReleaseChannel represents an available release channel for Unleash instances.
+Release channels provide automatic version updates based on the channel's update policy.
+"""
+type UnleashReleaseChannel {
+	"Unique name of the release channel (e.g., 'stable', 'rapid', 'regular')."
+	name: String!
+
+	"Current Unleash version on this channel."
+	currentVersion: String!
+
+	"Type of the release channel (e.g., 'sequential', 'canary', 'parallel')."
+	type: String!
+
+	"Human-readable description of the channel's purpose and update policy."
+	description: String
+
+	"When the channel version was last updated."
+	lastUpdated: Time
 }
 
 extend enum ActivityLogEntryResourceType {
@@ -22458,6 +22654,12 @@ type UnleashInstanceUpdatedActivityLogEntryData {
 
 	"Allowed team slug."
 	allowedTeamSlug: Slug
+
+	"Updated custom version (when switching to or changing custom version)."
+	updatedCustomVersion: String
+
+	"Updated release channel (when switching to or changing release channel)."
+	updatedReleaseChannel: String
 }
 
 extend enum ActivityLogActivityType {

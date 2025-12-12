@@ -274,6 +274,7 @@ Test.k8s("Ensure the resource exists", function(t)
 			federation = {},
 			networkPolicy = {},
 			prometheus = {},
+			releaseChannel = {},
 			resources = {
 				requests = {
 					cpu = "100m",

@@ -1,11 +1,32 @@
+extend type Query {
+	"""
+	Get a list of available release channels for Unleash instances.
+	Release channels provide automatic version updates based on the channel's update policy.
+	"""
+	unleashReleaseChannels: [UnleashReleaseChannel!]!
+}
+
 extend type Mutation {
 	"""
 	Create a new Unleash instance.
 
 	This mutation will create a new Unleash instance for the given team. The team
 	will be set as owner of the Unleash instance and will be able to manage it.
+
+	By default, instances are created with a custom version (the latest stable version).
+	Optionally specify a releaseChannel to subscribe to automatic version updates,
+	or a customVersion to pin to a specific version. These options are mutually exclusive.
 	"""
 	createUnleashForTeam(input: CreateUnleashForTeamInput!): CreateUnleashForTeamPayload!
+
+	"""
+	Update an Unleash instance's version configuration.
+
+	Use this mutation to change between custom version and release channel,
+	or to update to a different version/channel. The customVersion and releaseChannel
+	options are mutually exclusive - setting one will clear the other.
+	"""
+	updateUnleashInstance(input: UpdateUnleashInstanceInput!): UpdateUnleashInstancePayload!
 
 	"""
 	Add team to the list of teams that can access the Unleash instance.
@@ -21,10 +42,44 @@ extend type Mutation {
 }
 
 input CreateUnleashForTeamInput {
+	"The team that will own this Unleash instance."
 	teamSlug: Slug!
+
+	"""
+	Pin the instance to a specific Unleash version.
+	Mutually exclusive with releaseChannel. If neither is specified, the latest stable version is used.
+	"""
+	customVersion: String
+
+	"""
+	Subscribe the instance to a release channel for automatic version updates.
+	Mutually exclusive with customVersion. Use the unleashReleaseChannels query to see available channels.
+	"""
+	releaseChannel: String
 }
 
 type CreateUnleashForTeamPayload {
+	unleash: UnleashInstance
+}
+
+input UpdateUnleashInstanceInput {
+	"The team that owns the Unleash instance to update."
+	teamSlug: Slug!
+
+	"""
+	Pin the instance to a specific Unleash version.
+	Mutually exclusive with releaseChannel. Set to switch from release channel to custom version.
+	"""
+	customVersion: String
+
+	"""
+	Subscribe the instance to a release channel for automatic version updates.
+	Mutually exclusive with customVersion. Set to switch from custom version to release channel.
+	"""
+	releaseChannel: String
+}
+
+type UpdateUnleashInstancePayload {
 	unleash: UnleashInstance
 }
 
@@ -71,6 +126,18 @@ type UnleashInstance implements Node {
 	apiIngress: String!
 	metrics: UnleashInstanceMetrics!
 	ready: Boolean!
+
+	"""
+	Custom version if using manual version management (mutually exclusive with releaseChannelName).
+	Populated from CRD spec.customImage field.
+	"""
+	customVersion: String
+
+	"""
+	Release channel name if using channel-based version management (mutually exclusive with customVersion).
+	Populated from CRD spec.releaseChannel.name field.
+	"""
+	releaseChannelName: String
 }
 
 type UnleashInstanceMetrics {
@@ -80,6 +147,27 @@ type UnleashInstanceMetrics {
 	cpuRequests: Float!
 	memoryUtilization: Float!
 	memoryRequests: Float!
+}
+
+"""
+UnleashReleaseChannel represents an available release channel for Unleash instances.
+Release channels provide automatic version updates based on the channel's update policy.
+"""
+type UnleashReleaseChannel {
+	"Unique name of the release channel (e.g., 'stable', 'rapid', 'regular')."
+	name: String!
+
+	"Current Unleash version on this channel."
+	currentVersion: String!
+
+	"Type of the release channel (e.g., 'sequential', 'canary', 'parallel')."
+	type: String!
+
+	"Human-readable description of the channel's purpose and update policy."
+	description: String
+
+	"When the channel version was last updated."
+	lastUpdated: Time
 }
 
 extend enum ActivityLogEntryResourceType {
@@ -148,6 +236,12 @@ type UnleashInstanceUpdatedActivityLogEntryData {
 
 	"Allowed team slug."
 	allowedTeamSlug: Slug
+
+	"Updated custom version (when switching to or changing custom version)."
+	updatedCustomVersion: String
+
+	"Updated release channel (when switching to or changing release channel)."
+	updatedReleaseChannel: String
 }
 
 extend enum ActivityLogActivityType {

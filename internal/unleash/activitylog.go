@@ -20,7 +20,7 @@ func init() {
 			}, nil
 		case activitylog.ActivityLogEntryActionUpdated:
 			data, err := activitylog.TransformData(entry, func(data *UnleashInstanceUpdatedActivityLogEntryData) *UnleashInstanceUpdatedActivityLogEntryData {
-				if data.AllowedTeamSlug == nil && data.RevokedTeamSlug == nil {
+				if data.AllowedTeamSlug == nil && data.RevokedTeamSlug == nil && data.UpdatedCustomVersion == nil && data.UpdatedReleaseChannel == nil {
 					return nil
 				}
 				return data
@@ -53,6 +53,8 @@ type UnleashInstanceUpdatedActivityLogEntry struct {
 }
 
 type UnleashInstanceUpdatedActivityLogEntryData struct {
-	RevokedTeamSlug *slug.Slug `json:"revokedTeamSlug"`
-	AllowedTeamSlug *slug.Slug `json:"allowedTeamSlug"`
+	RevokedTeamSlug       *slug.Slug `json:"revokedTeamSlug"`
+	AllowedTeamSlug       *slug.Slug `json:"allowedTeamSlug"`
+	UpdatedCustomVersion  *string    `json:"updatedCustomVersion,omitempty"`
+	UpdatedReleaseChannel *string    `json:"updatedReleaseChannel,omitempty"`
 }

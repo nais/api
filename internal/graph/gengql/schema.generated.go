@@ -96,6 +96,7 @@ type MutationResolver interface {
 	RemoveTeamMember(ctx context.Context, input team.RemoveTeamMemberInput) (*team.RemoveTeamMemberPayload, error)
 	SetTeamMemberRole(ctx context.Context, input team.SetTeamMemberRoleInput) (*team.SetTeamMemberRolePayload, error)
 	CreateUnleashForTeam(ctx context.Context, input unleash.CreateUnleashForTeamInput) (*unleash.CreateUnleashForTeamPayload, error)
+	UpdateUnleashInstance(ctx context.Context, input unleash.UpdateUnleashInstanceInput) (*unleash.UpdateUnleashInstancePayload, error)
 	AllowTeamAccessToUnleash(ctx context.Context, input unleash.AllowTeamAccessToUnleashInput) (*unleash.AllowTeamAccessToUnleashPayload, error)
 	RevokeTeamAccessToUnleash(ctx context.Context, input unleash.RevokeTeamAccessToUnleashInput) (*unleash.RevokeTeamAccessToUnleashPayload, error)
 	CreateValkey(ctx context.Context, input valkey.CreateValkeyInput) (*valkey.CreateValkeyPayload, error)
@@ -118,6 +119,7 @@ type QueryResolver interface {
 	ServiceAccount(ctx context.Context, id ident.Ident) (*serviceaccount.ServiceAccount, error)
 	Teams(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.TeamOrder, filter *team.TeamFilter) (*pagination.Connection[*team.Team], error)
 	Team(ctx context.Context, slug slug.Slug) (*team.Team, error)
+	UnleashReleaseChannels(ctx context.Context) ([]*unleash.UnleashReleaseChannel, error)
 	Users(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *user.UserOrder) (*pagination.Connection[*user.User], error)
 	User(ctx context.Context, email *string) (*user.User, error)
 	Me(ctx context.Context) (authz.AuthenticatedUser, error)
@@ -603,6 +605,17 @@ func (ec *executionContext) field_Mutation_updateTeam_args(ctx context.Context, 
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNUpdateTeamInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐUpdateTeamInput)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_updateUnleashInstance_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNUpdateUnleashInstanceInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐUpdateUnleashInstanceInput)
 	if err != nil {
 		return nil, err
 	}
@@ -2797,6 +2810,51 @@ func (ec *executionContext) fieldContext_Mutation_createUnleashForTeam(ctx conte
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_updateUnleashInstance(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Mutation_updateUnleashInstance,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Mutation().UpdateUnleashInstance(ctx, fc.Args["input"].(unleash.UpdateUnleashInstanceInput))
+		},
+		nil,
+		ec.marshalNUpdateUnleashInstancePayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐUpdateUnleashInstancePayload,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Mutation_updateUnleashInstance(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "unleash":
+				return ec.fieldContext_UpdateUnleashInstancePayload_unleash(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type UpdateUnleashInstancePayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_updateUnleashInstance_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_allowTeamAccessToUnleash(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -4004,6 +4062,47 @@ func (ec *executionContext) fieldContext_Query_team(ctx context.Context, field g
 	if fc.Args, err = ec.field_Query_team_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_unleashReleaseChannels(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Query_unleashReleaseChannels,
+		func(ctx context.Context) (any, error) {
+			return ec.resolvers.Query().UnleashReleaseChannels(ctx)
+		},
+		nil,
+		ec.marshalNUnleashReleaseChannel2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐUnleashReleaseChannelᚄ,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Query_unleashReleaseChannels(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "name":
+				return ec.fieldContext_UnleashReleaseChannel_name(ctx, field)
+			case "currentVersion":
+				return ec.fieldContext_UnleashReleaseChannel_currentVersion(ctx, field)
+			case "type":
+				return ec.fieldContext_UnleashReleaseChannel_type(ctx, field)
+			case "description":
+				return ec.fieldContext_UnleashReleaseChannel_description(ctx, field)
+			case "lastUpdated":
+				return ec.fieldContext_UnleashReleaseChannel_lastUpdated(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type UnleashReleaseChannel", field.Name)
+		},
 	}
 	return fc, nil
 }
@@ -5701,6 +5800,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "updateUnleashInstance":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updateUnleashInstance(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "allowTeamAccessToUnleash":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_allowTeamAccessToUnleash(ctx, field)
@@ -6141,6 +6247,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_team(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "unleashReleaseChannels":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_unleashReleaseChannels(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}

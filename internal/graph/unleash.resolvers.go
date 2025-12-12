@@ -25,6 +25,19 @@ func (r *mutationResolver) CreateUnleashForTeam(ctx context.Context, input unlea
 	return &unleash.CreateUnleashForTeamPayload{Unleash: instance}, nil
 }
 
+func (r *mutationResolver) UpdateUnleashInstance(ctx context.Context, input unleash.UpdateUnleashInstanceInput) (*unleash.UpdateUnleashInstancePayload, error) {
+	if err := authz.CanUpdateUnleash(ctx, input.TeamSlug); err != nil {
+		return nil, err
+	}
+
+	instance, err := unleash.UpdateInstance(ctx, &input)
+	if err != nil {
+		return nil, err
+	}
+
+	return &unleash.UpdateUnleashInstancePayload{Unleash: instance}, nil
+}
+
 func (r *mutationResolver) AllowTeamAccessToUnleash(ctx context.Context, input unleash.AllowTeamAccessToUnleashInput) (*unleash.AllowTeamAccessToUnleashPayload, error) {
 	if err := authz.CanUpdateUnleash(ctx, input.TeamSlug); err != nil {
 		return nil, err
@@ -49,6 +62,10 @@ func (r *mutationResolver) RevokeTeamAccessToUnleash(ctx context.Context, input 
 	}
 
 	return &unleash.RevokeTeamAccessToUnleashPayload{Unleash: instance}, nil
+}
+
+func (r *queryResolver) UnleashReleaseChannels(ctx context.Context) ([]*unleash.UnleashReleaseChannel, error) {
+	return unleash.GetReleaseChannels(ctx)
 }
 
 func (r *teamResolver) Unleash(ctx context.Context, obj *team.Team) (*unleash.UnleashInstance, error) {
