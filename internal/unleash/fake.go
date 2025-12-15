@@ -76,10 +76,8 @@ func (f FakeBifrostClient) Post(ctx context.Context, path string, v any) (*http.
 
 	switch path {
 	case "/unleash/new", "/v1/unleash":
-		// Support both v0 and v1 create endpoints
 		var config BifrostV1CreateRequest
 		if v0Config, ok := v.(bifrost.UnleashConfig); ok {
-			// v0 format - convert to v1
 			config = BifrostV1CreateRequest{
 				Name:             v0Config.Name,
 				AllowedTeams:     v0Config.AllowedTeams,
@@ -87,14 +85,12 @@ func (f FakeBifrostClient) Post(ctx context.Context, path string, v any) (*http.
 				AllowedClusters:  v0Config.AllowedClusters,
 			}
 		} else if v1Config, ok := v.(BifrostV1CreateRequest); ok {
-			// v1 format
 			config = v1Config
 		} else {
 			return nil, fmt.Errorf("unknown config type for path: %s", path)
 		}
 		unleashInstance, err = f.createOrUpdateUnleash(ctx, config)
 	default:
-		// Check if it's an edit path (v0 format)
 		if strings.HasPrefix(path, "/unleash/") && strings.HasSuffix(path, "/edit") {
 			var config BifrostV1UpdateRequest
 			if v0Config, ok := v.(bifrost.UnleashConfig); ok {
@@ -106,7 +102,6 @@ func (f FakeBifrostClient) Post(ctx context.Context, path string, v any) (*http.
 			} else {
 				return nil, fmt.Errorf("unknown config type for path: %s", path)
 			}
-			// Extract name from path like "/unleash/team-name/edit"
 			parts := strings.Split(path, "/")
 			if len(parts) >= 3 {
 				name := parts[2]
@@ -132,12 +127,10 @@ func (f FakeBifrostClient) Post(ctx context.Context, path string, v any) (*http.
 }
 
 func (f FakeBifrostClient) Put(ctx context.Context, path string, v any) (*http.Response, error) {
-	// v1 PUT endpoint format: /v1/unleash/:name
 	if !strings.HasPrefix(path, "/v1/unleash/") {
 		return nil, fmt.Errorf("unknown PUT path: %s", path)
 	}
 
-	// Extract name from path
 	name := strings.TrimPrefix(path, "/v1/unleash/")
 
 	var config BifrostV1UpdateRequest
@@ -161,7 +154,6 @@ func (f FakeBifrostClient) Put(ctx context.Context, path string, v any) (*http.R
 }
 
 func (f FakeBifrostClient) Get(_ context.Context, path string) (*http.Response, error) {
-	// Handle release channels endpoint
 	if path == "/v1/releasechannels" {
 		channels := []BifrostV1ReleaseChannelResponse{
 			{
@@ -232,7 +224,6 @@ func (f FakeBifrostClient) createOrUpdateUnleash(ctx context.Context, config Bif
 }
 
 func (f FakeBifrostClient) updateUnleash(ctx context.Context, name string, config BifrostV1UpdateRequest) (*unleash_nais_io_v1.Unleash, error) {
-	// Create an unleash spec with updated allowed teams
 	unleashSpec := &unleash_nais_io_v1.Unleash{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "Unleash",

@@ -22,7 +22,6 @@ type UnleashInstance struct {
 	Metrics    *UnleashInstanceMetrics `json:"metrics"`
 	Ready      bool                    `json:"ready"`
 
-	// Version source tracking (for future release channel support)
 	CustomVersion      *string `json:"customVersion,omitempty"`
 	ReleaseChannelName *string `json:"releaseChannelName,omitempty"`
 
@@ -59,9 +58,7 @@ func toUnleashInstance(u *unleash_nais_io_v1.Unleash) *UnleashInstance {
 		},
 	}
 
-	// Populate version source tracking fields
 	if u.Spec.CustomImage != "" {
-		// Extract version from custom image
 		parts := strings.Split(u.Spec.CustomImage, ":")
 		if len(parts) > 1 {
 			instance.CustomVersion = &parts[1]
@@ -138,7 +135,6 @@ func (i *UpdateUnleashInstanceInput) Validate(_ context.Context) error {
 		verr.Add("releaseChannel", "Cannot specify both customVersion and releaseChannel. These options are mutually exclusive.")
 	}
 
-	// At least one must be specified for an update
 	if (i.CustomVersion == nil || *i.CustomVersion == "") && (i.ReleaseChannel == nil || *i.ReleaseChannel == "") {
 		verr.Add("customVersion", "Must specify either customVersion or releaseChannel.")
 	}
@@ -168,7 +164,7 @@ type BifrostV1CreateRequest struct {
 	LogLevel                  string `json:"log_level,omitempty"`
 	DatabasePoolMax           int    `json:"database_pool_max,omitempty"`
 	DatabasePoolIdleTimeoutMs int    `json:"database_pool_idle_timeout_ms,omitempty"`
-	// CustomVersion specifies a specific Unleash version to use (mutually exclusive with ReleaseChannelName)
+
 	CustomVersion string `json:"custom_version,omitempty"`
 	// ReleaseChannelName specifies a release channel for automatic version updates (mutually exclusive with CustomVersion)
 	ReleaseChannelName string `json:"release_channel_name,omitempty"`

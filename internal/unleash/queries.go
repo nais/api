@@ -51,7 +51,6 @@ func Create(ctx context.Context, input *CreateUnleashForTeamInput) (*UnleashInst
 		"releaseChannel":  input.ReleaseChannel,
 	}).Debug("creating unleash instance with allowed clusters")
 
-	// Use v1 API request format with snake_case
 	req := BifrostV1CreateRequest{
 		Name:             input.TeamSlug.String(),
 		AllowedTeams:     input.TeamSlug.String(),
@@ -258,7 +257,6 @@ func UpdateInstance(ctx context.Context, input *UpdateUnleashInstanceInput) (*Un
 	// Log is intentionally not including user input to avoid log injection
 	fromContext(ctx).log.Debug("updating unleash instance version configuration")
 
-	// Build update request - the validation has already checked mutual exclusivity
 	req := BifrostV1UpdateRequest{}
 	if input.CustomVersion != nil && *input.CustomVersion != "" {
 		req.CustomVersion = *input.CustomVersion
