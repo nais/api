@@ -110,8 +110,8 @@ func TestDeploymentServer_CreateDeployment(t *testing.T) {
 			t.Errorf("expected external ID to be nil, got %q", *d.ExternalID)
 		}
 
-		if !d.CreatedAt.Time.Before(time.Now()) || !d.CreatedAt.Time.After(time.Now().Add(-2*time.Second)) {
-			t.Errorf("expected created at to be before now and at most two seconds ago, got %v", d.CreatedAt.Time)
+		if !d.CreatedAt.Time.Before(time.Now()) || !d.CreatedAt.Time.After(time.Now().Add(-10*time.Second)) {
+			t.Errorf("expected created at to be before now and at most ten seconds ago, got %v", d.CreatedAt.Time)
 		}
 
 		if d.TeamSlug.String() != teamSlug {

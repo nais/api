@@ -254,11 +254,8 @@ func UpdateInstance(ctx context.Context, input *UpdateUnleashInstanceInput) (*Un
 		return nil, fmt.Errorf("unleash instance not found for team %s", input.TeamSlug)
 	}
 
-	fromContext(ctx).log.WithFields(logrus.Fields{
-		"team":           input.TeamSlug.String(),
-		"customVersion":  input.CustomVersion,
-		"releaseChannel": input.ReleaseChannel,
-	}).Debug("updating unleash instance version configuration")
+	// Log is intentionally not including user input to avoid log injection
+	fromContext(ctx).log.Debug("updating unleash instance version configuration")
 
 	// Build update request - the validation has already checked mutual exclusivity
 	req := BifrostV1UpdateRequest{}
