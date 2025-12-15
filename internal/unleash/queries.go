@@ -239,6 +239,11 @@ func GetReleaseChannels(ctx context.Context) ([]*UnleashReleaseChannel, error) {
 
 // UpdateInstance updates an Unleash instance's version configuration
 func UpdateInstance(ctx context.Context, input *UpdateUnleashInstanceInput) (*UnleashInstance, error) {
+	// Validate input
+	if err := input.Validate(ctx); err != nil {
+		return nil, err
+	}
+
 	client := fromContext(ctx).bifrostClient
 
 	// Verify the instance exists
