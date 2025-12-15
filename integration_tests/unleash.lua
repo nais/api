@@ -298,7 +298,6 @@ Test.gql("Get release channels", function(t)
 				name
 				currentVersion
 				type
-				description
 			}
 		}
 	]])
@@ -310,19 +309,16 @@ Test.gql("Get release channels", function(t)
 					name = "stable",
 					currentVersion = "5.11.0",
 					type = "sequential",
-					description = "Stable release channel with tested versions",
 				},
 				{
 					name = "rapid",
 					currentVersion = "5.12.0-beta.1",
 					type = "canary",
-					description = "Rapid release channel with latest features",
 				},
 				{
 					name = "regular",
 					currentVersion = "5.10.2",
 					type = "sequential",
-					description = "Regular release channel with conservative updates",
 				},
 			},
 		},
@@ -355,12 +351,12 @@ Test.gql("Update unleash instance with release channel", function(t)
 	}
 end)
 
-Test.gql("Update unleash instance validation - both options fail", function(t)
+Test.gql("Update unleash instance validation - empty release channel fails", function(t)
 	t.addHeader("x-user-email", user:email())
 
 	t.query(string.format([[
 		mutation {
-			updateUnleashInstance(input: {teamSlug: "%s", customVersion: "5.11.0", releaseChannel: "stable"}) {
+			updateUnleashInstance(input: {teamSlug: "%s", releaseChannel: ""}) {
 				unleash {
 					name
 				}
@@ -371,39 +367,9 @@ Test.gql("Update unleash instance validation - both options fail", function(t)
 	t.check {
 		errors = {
 			{
-				message = "Cannot specify both customVersion and releaseChannel. These options are mutually exclusive.",
-				path = { "updateUnleashInstance" },
-				extensions = { field = "customVersion" },
-			},
-			{
-				message = "Cannot specify both customVersion and releaseChannel. These options are mutually exclusive.",
+				message = "Release channel is required.",
 				path = { "updateUnleashInstance" },
 				extensions = { field = "releaseChannel" },
-			},
-		},
-		data = Null,
-	}
-end)
-
-Test.gql("Update unleash instance validation - neither option fails", function(t)
-	t.addHeader("x-user-email", user:email())
-
-	t.query(string.format([[
-		mutation {
-			updateUnleashInstance(input: {teamSlug: "%s"}) {
-				unleash {
-					name
-				}
-			}
-		}
-	]], team:slug()))
-
-	t.check {
-		errors = {
-			{
-				message = "Must specify either customVersion or releaseChannel.",
-				path = { "updateUnleashInstance" },
-				extensions = { field = "customVersion" },
 			},
 		},
 		data = Null,

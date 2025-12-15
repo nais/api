@@ -123,20 +123,14 @@ type CreateUnleashForTeamPayload struct {
 
 type UpdateUnleashInstanceInput struct {
 	TeamSlug       slug.Slug `json:"teamSlug"`
-	CustomVersion  *string   `json:"customVersion,omitempty"`
-	ReleaseChannel *string   `json:"releaseChannel,omitempty"`
+	ReleaseChannel string    `json:"releaseChannel"`
 }
 
 func (i *UpdateUnleashInstanceInput) Validate(_ context.Context) error {
 	verr := validate.New()
 
-	if i.CustomVersion != nil && i.ReleaseChannel != nil && *i.CustomVersion != "" && *i.ReleaseChannel != "" {
-		verr.Add("customVersion", "Cannot specify both customVersion and releaseChannel. These options are mutually exclusive.")
-		verr.Add("releaseChannel", "Cannot specify both customVersion and releaseChannel. These options are mutually exclusive.")
-	}
-
-	if (i.CustomVersion == nil || *i.CustomVersion == "") && (i.ReleaseChannel == nil || *i.ReleaseChannel == "") {
-		verr.Add("customVersion", "Must specify either customVersion or releaseChannel.")
+	if i.ReleaseChannel == "" {
+		verr.Add("releaseChannel", "Release channel is required.")
 	}
 
 	return verr.NilIfEmpty()
@@ -192,7 +186,6 @@ type UnleashReleaseChannel struct {
 	Name           string     `json:"name"`
 	CurrentVersion string     `json:"currentVersion"`
 	Type           string     `json:"type"`
-	Description    *string    `json:"description,omitempty"`
 	LastUpdated    *time.Time `json:"lastUpdated,omitempty"`
 }
 
@@ -202,7 +195,6 @@ type BifrostV1ReleaseChannelResponse struct {
 	Version        string `json:"version"`
 	Type           string `json:"type"`
 	Schedule       string `json:"schedule,omitempty"`
-	Description    string `json:"description,omitempty"`
 	CurrentVersion string `json:"current_version"`
 	LastUpdated    string `json:"last_updated,omitempty"`
 	CreatedAt      string `json:"created_at,omitempty"`
@@ -213,10 +205,6 @@ func (r *BifrostV1ReleaseChannelResponse) toReleaseChannel() *UnleashReleaseChan
 		Name:           r.Name,
 		CurrentVersion: r.CurrentVersion,
 		Type:           r.Type,
-	}
-
-	if r.Description != "" {
-		channel.Description = &r.Description
 	}
 
 	if r.LastUpdated != "" {

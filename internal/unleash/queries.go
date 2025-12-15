@@ -257,12 +257,8 @@ func UpdateInstance(ctx context.Context, input *UpdateUnleashInstanceInput) (*Un
 	// Log is intentionally not including user input to avoid log injection
 	fromContext(ctx).log.Debug("updating unleash instance version configuration")
 
-	req := BifrostV1UpdateRequest{}
-	if input.CustomVersion != nil && *input.CustomVersion != "" {
-		req.CustomVersion = *input.CustomVersion
-	}
-	if input.ReleaseChannel != nil && *input.ReleaseChannel != "" {
-		req.ReleaseChannelName = *input.ReleaseChannel
+	req := BifrostV1UpdateRequest{
+		ReleaseChannelName: input.ReleaseChannel,
 	}
 
 	unleashResponse, err := client.Put(ctx, fmt.Sprintf("/v1/unleash/%s", input.TeamSlug.String()), req)
@@ -276,13 +272,9 @@ func UpdateInstance(ctx context.Context, input *UpdateUnleashInstanceInput) (*Un
 		return nil, fmt.Errorf("decoding unleash instance: %w", err)
 	}
 
-	// Log the version change
-	data := &UnleashInstanceUpdatedActivityLogEntryData{}
-	if input.CustomVersion != nil && *input.CustomVersion != "" {
-		data.UpdatedCustomVersion = input.CustomVersion
-	}
-	if input.ReleaseChannel != nil && *input.ReleaseChannel != "" {
-		data.UpdatedReleaseChannel = input.ReleaseChannel
+	// Log the release channel change
+	data := &UnleashInstanceUpdatedActivityLogEntryData{
+		UpdatedReleaseChannel: &input.ReleaseChannel,
 	}
 
 	err = activitylog.Create(ctx, activitylog.CreateInput{

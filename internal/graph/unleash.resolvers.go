@@ -85,6 +85,25 @@ func (r *unleashInstanceResolver) AllowedTeams(ctx context.Context, obj *unleash
 	return team.ListBySlugs(ctx, obj.AllowedTeamSlugs, page)
 }
 
+func (r *unleashInstanceResolver) ReleaseChannel(ctx context.Context, obj *unleash.UnleashInstance) (*unleash.UnleashReleaseChannel, error) {
+	if obj.ReleaseChannelName == nil || *obj.ReleaseChannelName == "" {
+		return nil, nil
+	}
+
+	channels, err := unleash.GetReleaseChannels(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, ch := range channels {
+		if ch.Name == *obj.ReleaseChannelName {
+			return ch, nil
+		}
+	}
+
+	return nil, nil
+}
+
 func (r *unleashInstanceMetricsResolver) Toggles(ctx context.Context, obj *unleash.UnleashInstanceMetrics) (int, error) {
 	return unleash.Toggles(ctx, obj.TeamSlug)
 }

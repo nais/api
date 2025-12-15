@@ -18,66 +18,29 @@ func TestUpdateUnleashInstanceInput_Validate(t *testing.T) {
 		errContains string
 	}{
 		{
-			name: "valid with custom version only",
+			name: "valid with release channel",
 			input: UpdateUnleashInstanceInput{
-				TeamSlug:      "my-team",
-				CustomVersion: ptr("5.11.0"),
+				TeamSlug:       "my-team",
+				ReleaseChannel: "stable",
 			},
 			wantErr: false,
 		},
 		{
-			name: "valid with release channel only",
+			name: "invalid - empty release channel",
 			input: UpdateUnleashInstanceInput{
 				TeamSlug:       "my-team",
-				ReleaseChannel: ptr("stable"),
-			},
-			wantErr: false,
-		},
-		{
-			name: "invalid - both custom version and release channel",
-			input: UpdateUnleashInstanceInput{
-				TeamSlug:       "my-team",
-				CustomVersion:  ptr("5.11.0"),
-				ReleaseChannel: ptr("stable"),
+				ReleaseChannel: "",
 			},
 			wantErr:     true,
-			errContains: "mutually exclusive",
+			errContains: "Release channel is required",
 		},
 		{
-			name: "invalid - neither custom version nor release channel",
+			name: "invalid - missing release channel",
 			input: UpdateUnleashInstanceInput{
 				TeamSlug: "my-team",
 			},
 			wantErr:     true,
-			errContains: "Must specify either",
-		},
-		{
-			name: "invalid - empty strings for both",
-			input: UpdateUnleashInstanceInput{
-				TeamSlug:       "my-team",
-				CustomVersion:  ptr(""),
-				ReleaseChannel: ptr(""),
-			},
-			wantErr:     true,
-			errContains: "Must specify either",
-		},
-		{
-			name: "valid - empty custom version but valid release channel",
-			input: UpdateUnleashInstanceInput{
-				TeamSlug:       "my-team",
-				CustomVersion:  ptr(""),
-				ReleaseChannel: ptr("stable"),
-			},
-			wantErr: false,
-		},
-		{
-			name: "valid - empty release channel but valid custom version",
-			input: UpdateUnleashInstanceInput{
-				TeamSlug:       "my-team",
-				CustomVersion:  ptr("5.11.0"),
-				ReleaseChannel: ptr(""),
-			},
-			wantErr: false,
+			errContains: "Release channel is required",
 		},
 	}
 
@@ -292,14 +255,12 @@ func TestBifrostV1ReleaseChannelResponse_ToReleaseChannel(t *testing.T) {
 				Name:           "stable",
 				CurrentVersion: "5.11.0",
 				Type:           "sequential",
-				Description:    "Stable release channel",
 				LastUpdated:    "2024-03-15T10:30:00Z",
 			},
 			want: &UnleashReleaseChannel{
 				Name:           "stable",
 				CurrentVersion: "5.11.0",
 				Type:           "sequential",
-				Description:    ptr("Stable release channel"),
 				LastUpdated:    timePtr(time.Date(2024, 3, 15, 10, 30, 0, 0, time.UTC)),
 			},
 		},
@@ -314,7 +275,6 @@ func TestBifrostV1ReleaseChannelResponse_ToReleaseChannel(t *testing.T) {
 				Name:           "rapid",
 				CurrentVersion: "5.12.0",
 				Type:           "canary",
-				Description:    nil,
 				LastUpdated:    nil,
 			},
 		},
@@ -330,7 +290,6 @@ func TestBifrostV1ReleaseChannelResponse_ToReleaseChannel(t *testing.T) {
 				Name:           "regular",
 				CurrentVersion: "5.10.0",
 				Type:           "sequential",
-				Description:    nil,
 				LastUpdated:    nil,
 			},
 		},
@@ -348,16 +307,6 @@ func TestBifrostV1ReleaseChannelResponse_ToReleaseChannel(t *testing.T) {
 			}
 			if got.Type != tt.want.Type {
 				t.Errorf("Type = %q, want %q", got.Type, tt.want.Type)
-			}
-
-			if tt.want.Description != nil {
-				if got.Description == nil {
-					t.Error("expected Description to be set, got nil")
-				} else if *got.Description != *tt.want.Description {
-					t.Errorf("Description = %q, want %q", *got.Description, *tt.want.Description)
-				}
-			} else if got.Description != nil {
-				t.Errorf("expected Description to be nil, got %q", *got.Description)
 			}
 
 			if tt.want.LastUpdated != nil {

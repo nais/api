@@ -4096,8 +4096,6 @@ func (ec *executionContext) fieldContext_Query_unleashReleaseChannels(_ context.
 				return ec.fieldContext_UnleashReleaseChannel_currentVersion(ctx, field)
 			case "type":
 				return ec.fieldContext_UnleashReleaseChannel_type(ctx, field)
-			case "description":
-				return ec.fieldContext_UnleashReleaseChannel_description(ctx, field)
 			case "lastUpdated":
 				return ec.fieldContext_UnleashReleaseChannel_lastUpdated(ctx, field)
 			}

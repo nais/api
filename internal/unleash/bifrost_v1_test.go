@@ -95,51 +95,6 @@ func TestBifrostClient_PostV1(t *testing.T) {
 	}
 }
 
-func TestBifrostClient_PostV1WithCustomVersion(t *testing.T) {
-	s := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		var req unleash.BifrostV1CreateRequest
-		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-
-		if req.CustomVersion != "5.12.0" {
-			t.Errorf("expected custom_version 5.12.0, got %s", req.CustomVersion)
-		}
-		if req.ReleaseChannelName != "" {
-			t.Errorf("expected release_channel_name to be empty, got %s", req.ReleaseChannelName)
-		}
-
-		unleashInstance := unleash_nais_io_v1.Unleash{
-			ObjectMeta: v1.ObjectMeta{Name: req.Name},
-			Spec: unleash_nais_io_v1.UnleashSpec{
-				CustomImage: "unleash-server:5.12.0",
-			},
-		}
-
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(unleashInstance)
-	}))
-	defer s.Close()
-
-	logger, _ := test.NewNullLogger()
-	client := unleash.NewBifrostClient(s.URL, logger)
-
-	req := unleash.BifrostV1CreateRequest{
-		Name:             "test-team",
-		AllowedTeams:     "test-team",
-		EnableFederation: true,
-		AllowedClusters:  "dev-gcp",
-		CustomVersion:    "5.12.0",
-	}
-
-	resp, err := client.Post(context.Background(), "/v1/unleash", req)
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-	resp.Body.Close()
-}
-
 func TestBifrostClient_PutV1(t *testing.T) {
 	s := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPut {
@@ -259,14 +214,12 @@ func TestBifrostClient_GetReleaseChannels(t *testing.T) {
 				Name:           "stable",
 				CurrentVersion: "5.11.0",
 				Type:           "sequential",
-				Description:    "Stable release channel",
 				LastUpdated:    "2024-03-15T10:30:00Z",
 			},
 			{
 				Name:           "rapid",
 				CurrentVersion: "5.12.0-beta.1",
 				Type:           "canary",
-				Description:    "Rapid release channel",
 				LastUpdated:    "2024-03-20T14:15:00Z",
 			},
 		}

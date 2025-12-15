@@ -130,3 +130,8 @@ models:
   PageInfo:
     model:
       - github.com/nais/api/internal/graph/pagination.PageInfo
+
+  UnleashInstance:
+    fields:
+      releaseChannel:
+        resolver: true
