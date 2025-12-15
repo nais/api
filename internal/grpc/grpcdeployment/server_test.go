@@ -110,8 +110,11 @@ func TestDeploymentServer_CreateDeployment(t *testing.T) {
 			t.Errorf("expected external ID to be nil, got %q", *d.ExternalID)
 		}
 
-		if !d.CreatedAt.Time.Before(time.Now()) || !d.CreatedAt.Time.After(time.Now().Add(-10*time.Second)) {
-			t.Errorf("expected created at to be before now and at most ten seconds ago, got %v", d.CreatedAt.Time)
+		// Allow for small clock skew between container and host (1 second buffer)
+		now := time.Now().UTC()
+		createdAtUTC := d.CreatedAt.Time.UTC()
+		if !createdAtUTC.Before(now.Add(1*time.Second)) || !createdAtUTC.After(now.Add(-10*time.Second)) {
+			t.Errorf("expected created at to be within 10 seconds of now (with 1s clock skew tolerance), got %v (now: %v)", createdAtUTC, now)
 		}
 
 		if d.TeamSlug.String() != teamSlug {
