@@ -22431,9 +22431,8 @@ extend type Mutation {
 	This mutation will create a new Unleash instance for the given team. The team
 	will be set as owner of the Unleash instance and will be able to manage it.
 
-	By default, instances are created with a custom version (the latest stable version).
-	Optionally specify a releaseChannel to subscribe to automatic version updates,
-	or a customVersion to pin to a specific version. These options are mutually exclusive.
+	By default, instances are created with the default version.
+	Optionally specify a releaseChannel to subscribe to automatic version updates.
 	"""
 	createUnleashForTeam(input: CreateUnleashForTeamInput!): CreateUnleashForTeamPayload!
 
@@ -22464,14 +22463,9 @@ input CreateUnleashForTeamInput {
 	teamSlug: Slug!
 
 	"""
-	Pin the instance to a specific Unleash version.
-	Mutually exclusive with releaseChannel. If neither is specified, the latest stable version is used.
-	"""
-	customVersion: String
-
-	"""
 	Subscribe the instance to a release channel for automatic version updates.
-	Mutually exclusive with customVersion. Use the unleashReleaseChannels query to see available channels.
+	If not specified, the default version will be used.
+	Use the unleashReleaseChannels query to see available channels.
 	"""
 	releaseChannel: String
 }

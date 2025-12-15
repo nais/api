@@ -117,19 +117,7 @@ type AllowTeamAccessToUnleashPayload struct {
 
 type CreateUnleashForTeamInput struct {
 	TeamSlug       slug.Slug `json:"team"`
-	CustomVersion  *string   `json:"customVersion,omitempty"`
 	ReleaseChannel *string   `json:"releaseChannel,omitempty"`
-}
-
-func (i *CreateUnleashForTeamInput) Validate(_ context.Context) error {
-	verr := validate.New()
-
-	if i.CustomVersion != nil && i.ReleaseChannel != nil && *i.CustomVersion != "" && *i.ReleaseChannel != "" {
-		verr.Add("customVersion", "Cannot specify both customVersion and releaseChannel. These options are mutually exclusive.")
-		verr.Add("releaseChannel", "Cannot specify both customVersion and releaseChannel. These options are mutually exclusive.")
-	}
-
-	return verr.NilIfEmpty()
 }
 
 type CreateUnleashForTeamPayload struct {

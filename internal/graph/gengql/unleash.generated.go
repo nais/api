@@ -1579,7 +1579,7 @@ func (ec *executionContext) unmarshalInputCreateUnleashForTeamInput(ctx context.
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"teamSlug", "customVersion", "releaseChannel"}
+	fieldsInOrder := [...]string{"teamSlug", "releaseChannel"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -1593,13 +1593,6 @@ func (ec *executionContext) unmarshalInputCreateUnleashForTeamInput(ctx context.
 				return it, err
 			}
 			it.TeamSlug = data
-		case "customVersion":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("customVersion"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.CustomVersion = data
 		case "releaseChannel":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("releaseChannel"))
 			data, err := ec.unmarshalOString2ᚖstring(ctx, v)

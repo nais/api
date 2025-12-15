@@ -48,7 +48,6 @@ func Create(ctx context.Context, input *CreateUnleashForTeamInput) (*UnleashInst
 	fromContext(ctx).log.WithFields(logrus.Fields{
 		"team":            input.TeamSlug.String(),
 		"allowedClusters": fromContext(ctx).allowedClusters,
-		"customVersion":   input.CustomVersion,
 		"releaseChannel":  input.ReleaseChannel,
 	}).Debug("creating unleash instance with allowed clusters")
 
@@ -60,10 +59,7 @@ func Create(ctx context.Context, input *CreateUnleashForTeamInput) (*UnleashInst
 		AllowedClusters:  fromContext(ctx).allowedClusters,
 	}
 
-	// Set version source if specified (otherwise bifrost uses its default)
-	if input.CustomVersion != nil && *input.CustomVersion != "" {
-		req.CustomVersion = *input.CustomVersion
-	}
+	// Set release channel if specified (otherwise bifrost uses its default)
 	if input.ReleaseChannel != nil && *input.ReleaseChannel != "" {
 		req.ReleaseChannelName = *input.ReleaseChannel
 	}
