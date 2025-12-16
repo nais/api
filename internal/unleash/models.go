@@ -171,14 +171,12 @@ type BifrostV1CreateRequest struct {
 	DatabasePoolMax           int    `json:"database_pool_max,omitempty"`
 	DatabasePoolIdleTimeoutMs int    `json:"database_pool_idle_timeout_ms,omitempty"`
 
-	// ReleaseChannelName specifies a release channel for automatic version updates
 	ReleaseChannelName string `json:"release_channel_name,omitempty"`
 }
 
 // BifrostV1UpdateRequest represents the v1 API request format for updating an unleash instance
 type BifrostV1UpdateRequest struct {
-	AllowedTeams string `json:"allowed_teams,omitempty"`
-	// ReleaseChannelName specifies a release channel for automatic version updates
+	AllowedTeams       string `json:"allowed_teams,omitempty"`
 	ReleaseChannelName string `json:"release_channel_name,omitempty"`
 }
 
@@ -203,6 +201,7 @@ type BifrostV1ReleaseChannelResponse struct {
 	Name           string `json:"name"`
 	Version        string `json:"version"`
 	Type           string `json:"type"`
+	Description    string `json:"description,omitempty"`
 	Schedule       string `json:"schedule,omitempty"`
 	CurrentVersion string `json:"current_version"`
 	LastUpdated    string `json:"last_updated,omitempty"`

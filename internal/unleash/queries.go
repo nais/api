@@ -243,6 +243,18 @@ func UpdateInstance(ctx context.Context, input *UpdateUnleashInstanceInput) (*Un
 		return nil, err
 	}
 
+	// Return early if there's nothing to update
+	if input.ReleaseChannel == nil {
+		instance, err := ForTeam(ctx, input.TeamSlug)
+		if err != nil {
+			return nil, err
+		}
+		if instance == nil {
+			return nil, fmt.Errorf("unleash instance not found for team %s", input.TeamSlug)
+		}
+		return instance, nil
+	}
+
 	client := fromContext(ctx).bifrostClient
 
 	// Verify the instance exists
@@ -257,9 +269,8 @@ func UpdateInstance(ctx context.Context, input *UpdateUnleashInstanceInput) (*Un
 	// Log is intentionally not including user input to avoid log injection
 	fromContext(ctx).log.Debug("updating unleash instance version configuration")
 
-	req := BifrostV1UpdateRequest{}
-	if input.ReleaseChannel != nil {
-		req.ReleaseChannelName = *input.ReleaseChannel
+	req := BifrostV1UpdateRequest{
+		ReleaseChannelName: *input.ReleaseChannel,
 	}
 
 	unleashResponse, err := client.Put(ctx, fmt.Sprintf("/v1/unleash/%s", input.TeamSlug.String()), req)
