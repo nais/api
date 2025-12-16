@@ -257,24 +257,46 @@ func TestBifrostClient_GetReleaseChannels(t *testing.T) {
 
 func TestBifrostClient_ErrorHandling(t *testing.T) {
 	tests := []struct {
-		name       string
-		statusCode int
-		response   string
+		name           string
+		statusCode     int
+		response       string
+		expectedErrMsg string
 	}{
 		{
-			name:       "bad request",
-			statusCode: http.StatusBadRequest,
-			response:   `{"error": "validation_error", "message": "Invalid input"}`,
+			name:           "bad request with message",
+			statusCode:     http.StatusBadRequest,
+			response:       `{"error": "validation_error", "message": "Invalid input: release channel not found"}`,
+			expectedErrMsg: "bifrost: Invalid input: release channel not found",
 		},
 		{
-			name:       "not found",
-			statusCode: http.StatusNotFound,
-			response:   `{"error": "not_found", "message": "Instance not found"}`,
+			name:           "not found with message",
+			statusCode:     http.StatusNotFound,
+			response:       `{"error": "not_found", "message": "Instance not found"}`,
+			expectedErrMsg: "bifrost: Instance not found",
 		},
 		{
-			name:       "internal server error",
-			statusCode: http.StatusInternalServerError,
-			response:   `{"error": "internal_error", "message": "Something went wrong"}`,
+			name:           "internal server error with message",
+			statusCode:     http.StatusInternalServerError,
+			response:       `{"error": "internal_error", "message": "Something went wrong"}`,
+			expectedErrMsg: "bifrost: Something went wrong",
+		},
+		{
+			name:           "error without message falls back to error field",
+			statusCode:     http.StatusBadRequest,
+			response:       `{"error": "invalid_request"}`,
+			expectedErrMsg: "bifrost: invalid_request",
+		},
+		{
+			name:           "non-json response falls back to status",
+			statusCode:     http.StatusBadGateway,
+			response:       `Bad Gateway`,
+			expectedErrMsg: "bifrost POST /v1/unleash returned 502 Bad Gateway",
+		},
+		{
+			name:           "empty response falls back to status",
+			statusCode:     http.StatusServiceUnavailable,
+			response:       `{}`,
+			expectedErrMsg: "bifrost POST /v1/unleash returned 503 Service Unavailable",
 		},
 	}
 
@@ -295,7 +317,60 @@ func TestBifrostClient_ErrorHandling(t *testing.T) {
 
 			if err == nil {
 				t.Error("expected error but got nil")
+				return
+			}
+
+			if err.Error() != tt.expectedErrMsg {
+				t.Errorf("error message = %q, want %q", err.Error(), tt.expectedErrMsg)
 			}
 		})
+	}
+}
+
+func TestBifrostClient_ErrorHandling_Put(t *testing.T) {
+	s := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte(`{"error": "not_found", "message": "Unleash instance does not exist"}`))
+	}))
+	defer s.Close()
+
+	logger, _ := test.NewNullLogger()
+	client := unleash.NewBifrostClient(s.URL, logger)
+
+	_, err := client.Put(context.Background(), "/v1/unleash/my-team", unleash.BifrostV1UpdateRequest{
+		ReleaseChannelName: "stable",
+	})
+
+	if err == nil {
+		t.Error("expected error but got nil")
+		return
+	}
+
+	expected := "bifrost: Unleash instance does not exist"
+	if err.Error() != expected {
+		t.Errorf("error message = %q, want %q", err.Error(), expected)
+	}
+}
+
+func TestBifrostClient_ErrorHandling_Get(t *testing.T) {
+	s := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(`{"error": "database_error", "message": "Failed to fetch release channels"}`))
+	}))
+	defer s.Close()
+
+	logger, _ := test.NewNullLogger()
+	client := unleash.NewBifrostClient(s.URL, logger)
+
+	_, err := client.Get(context.Background(), "/v1/releasechannels")
+
+	if err == nil {
+		t.Error("expected error but got nil")
+		return
+	}
+
+	expected := "bifrost: Failed to fetch release channels"
+	if err.Error() != expected {
+		t.Errorf("error message = %q, want %q", err.Error(), expected)
 	}
 }
