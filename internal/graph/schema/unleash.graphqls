@@ -1,11 +1,29 @@
+extend type Query {
+	"""
+	Get a list of available release channels for Unleash instances.
+	Release channels provide automatic version updates based on the channel's update policy.
+	"""
+	unleashReleaseChannels: [UnleashReleaseChannel!]!
+}
+
 extend type Mutation {
 	"""
 	Create a new Unleash instance.
 
 	This mutation will create a new Unleash instance for the given team. The team
 	will be set as owner of the Unleash instance and will be able to manage it.
+
+	By default, instances are created with the default version.
+	Optionally specify a releaseChannel to subscribe to automatic version updates.
 	"""
 	createUnleashForTeam(input: CreateUnleashForTeamInput!): CreateUnleashForTeamPayload!
+
+	"""
+	Update an Unleash instance's release channel.
+
+	Use this mutation to change to a different release channel.
+	"""
+	updateUnleashInstance(input: UpdateUnleashInstanceInput!): UpdateUnleashInstancePayload!
 
 	"""
 	Add team to the list of teams that can access the Unleash instance.
@@ -21,10 +39,33 @@ extend type Mutation {
 }
 
 input CreateUnleashForTeamInput {
+	"The team that will own this Unleash instance."
 	teamSlug: Slug!
+
+	"""
+	Subscribe the instance to a release channel for automatic version updates.
+	If not specified, the default version will be used.
+	Use the unleashReleaseChannels query to see available channels.
+	"""
+	releaseChannel: String
 }
 
 type CreateUnleashForTeamPayload {
+	unleash: UnleashInstance
+}
+
+input UpdateUnleashInstanceInput {
+	"The team that owns the Unleash instance to update."
+	teamSlug: Slug!
+
+	"""
+	Subscribe the instance to a release channel for automatic version updates.
+	If not specified, the release channel will not be changed.
+	"""
+	releaseChannel: String
+}
+
+type UpdateUnleashInstancePayload {
 	unleash: UnleashInstance
 }
 
@@ -71,6 +112,18 @@ type UnleashInstance implements Node {
 	apiIngress: String!
 	metrics: UnleashInstanceMetrics!
 	ready: Boolean!
+
+	"""
+	Release channel name if using channel-based version management.
+	Populated from CRD spec.releaseChannel.name field.
+	"""
+	releaseChannelName: String
+
+	"""
+	Release channel details if using channel-based version management.
+	Returns the full release channel object with current version and update policy.
+	"""
+	releaseChannel: UnleashReleaseChannel
 }
 
 type UnleashInstanceMetrics {
@@ -80,6 +133,29 @@ type UnleashInstanceMetrics {
 	cpuRequests: Float!
 	memoryUtilization: Float!
 	memoryRequests: Float!
+}
+
+"""
+UnleashReleaseChannel represents an available release channel for Unleash instances.
+Release channels provide automatic version updates based on the channel's update policy.
+"""
+type UnleashReleaseChannel {
+	"Unique name of the release channel (e.g., 'stable', 'rapid', 'regular')."
+	name: String!
+
+	"Current Unleash version on this channel."
+	currentVersion: String!
+
+	"""
+	Rollout strategy type for version updates:
+	- 'sequential': Updates instances one-by-one in order
+	- 'canary': Gradual rollout with canary deployment
+	- 'parallel': Updates multiple instances simultaneously
+	"""
+	type: String!
+
+	"When the channel version was last updated."
+	lastUpdated: Time
 }
 
 extend enum ActivityLogEntryResourceType {
@@ -148,6 +224,9 @@ type UnleashInstanceUpdatedActivityLogEntryData {
 
 	"Allowed team slug."
 	allowedTeamSlug: Slug
+
+	"Updated release channel."
+	updatedReleaseChannel: String
 }
 
 extend enum ActivityLogActivityType {

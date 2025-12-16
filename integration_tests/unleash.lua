@@ -274,6 +274,7 @@ Test.k8s("Ensure the resource exists", function(t)
 			federation = {},
 			networkPolicy = {},
 			prometheus = {},
+			releaseChannel = {},
 			resources = {
 				requests = {
 					cpu = "100m",
@@ -286,4 +287,66 @@ Test.k8s("Ensure the resource exists", function(t)
 		},
 		status = Ignore(), -- This is mocked in the test
 	})
+end)
+
+Test.gql("Get release channels", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query([[
+		{
+			unleashReleaseChannels {
+				name
+				currentVersion
+				type
+			}
+		}
+	]])
+
+	t.check {
+		data = {
+			unleashReleaseChannels = {
+				{
+					name = "stable",
+					currentVersion = "5.11.0",
+					type = "sequential",
+				},
+				{
+					name = "rapid",
+					currentVersion = "5.12.0-beta.1",
+					type = "canary",
+				},
+				{
+					name = "regular",
+					currentVersion = "5.10.2",
+					type = "sequential",
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("Update unleash instance with release channel", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query(string.format([[
+		mutation {
+			updateUnleashInstance(input: {teamSlug: "%s", releaseChannel: "stable"}) {
+				unleash {
+					name
+					releaseChannelName
+				}
+			}
+		}
+	]], team:slug()))
+
+	t.check {
+		data = {
+			updateUnleashInstance = {
+				unleash = {
+					name = team:slug(),
+					releaseChannelName = "stable",
+				},
+			},
+		},
+	}
 end)

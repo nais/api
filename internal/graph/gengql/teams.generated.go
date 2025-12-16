@@ -2687,6 +2687,10 @@ func (ec *executionContext) fieldContext_Team_unleash(_ context.Context, field g
 				return ec.fieldContext_UnleashInstance_metrics(ctx, field)
 			case "ready":
 				return ec.fieldContext_UnleashInstance_ready(ctx, field)
+			case "releaseChannelName":
+				return ec.fieldContext_UnleashInstance_releaseChannelName(ctx, field)
+			case "releaseChannel":
+				return ec.fieldContext_UnleashInstance_releaseChannel(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type UnleashInstance", field.Name)
 		},

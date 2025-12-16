@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"sync"
 	"sync/atomic"
 
 	"github.com/99designs/gqlgen/graphql"
@@ -107,6 +108,10 @@ func (ec *executionContext) fieldContext_AllowTeamAccessToUnleashPayload_unleash
 				return ec.fieldContext_UnleashInstance_metrics(ctx, field)
 			case "ready":
 				return ec.fieldContext_UnleashInstance_ready(ctx, field)
+			case "releaseChannelName":
+				return ec.fieldContext_UnleashInstance_releaseChannelName(ctx, field)
+			case "releaseChannel":
+				return ec.fieldContext_UnleashInstance_releaseChannel(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type UnleashInstance", field.Name)
 		},
@@ -154,6 +159,10 @@ func (ec *executionContext) fieldContext_CreateUnleashForTeamPayload_unleash(_ c
 				return ec.fieldContext_UnleashInstance_metrics(ctx, field)
 			case "ready":
 				return ec.fieldContext_UnleashInstance_ready(ctx, field)
+			case "releaseChannelName":
+				return ec.fieldContext_UnleashInstance_releaseChannelName(ctx, field)
+			case "releaseChannel":
+				return ec.fieldContext_UnleashInstance_releaseChannel(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type UnleashInstance", field.Name)
 		},
@@ -201,6 +210,10 @@ func (ec *executionContext) fieldContext_RevokeTeamAccessToUnleashPayload_unleas
 				return ec.fieldContext_UnleashInstance_metrics(ctx, field)
 			case "ready":
 				return ec.fieldContext_UnleashInstance_ready(ctx, field)
+			case "releaseChannelName":
+				return ec.fieldContext_UnleashInstance_releaseChannelName(ctx, field)
+			case "releaseChannel":
+				return ec.fieldContext_UnleashInstance_releaseChannel(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type UnleashInstance", field.Name)
 		},
@@ -469,6 +482,74 @@ func (ec *executionContext) fieldContext_UnleashInstance_ready(_ context.Context
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UnleashInstance_releaseChannelName(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstance) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_UnleashInstance_releaseChannelName,
+		func(ctx context.Context) (any, error) {
+			return obj.ReleaseChannelName(), nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_UnleashInstance_releaseChannelName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UnleashInstance",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UnleashInstance_releaseChannel(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstance) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_UnleashInstance_releaseChannel,
+		func(ctx context.Context) (any, error) {
+			return obj.ReleaseChannel(ctx)
+		},
+		nil,
+		ec.marshalOUnleashReleaseChannel2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐUnleashReleaseChannel,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_UnleashInstance_releaseChannel(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UnleashInstance",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "name":
+				return ec.fieldContext_UnleashReleaseChannel_name(ctx, field)
+			case "currentVersion":
+				return ec.fieldContext_UnleashReleaseChannel_currentVersion(ctx, field)
+			case "type":
+				return ec.fieldContext_UnleashReleaseChannel_type(ctx, field)
+			case "lastUpdated":
+				return ec.fieldContext_UnleashReleaseChannel_lastUpdated(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type UnleashReleaseChannel", field.Name)
 		},
 	}
 	return fc, nil
@@ -1140,6 +1221,8 @@ func (ec *executionContext) fieldContext_UnleashInstanceUpdatedActivityLogEntry_
 				return ec.fieldContext_UnleashInstanceUpdatedActivityLogEntryData_revokedTeamSlug(ctx, field)
 			case "allowedTeamSlug":
 				return ec.fieldContext_UnleashInstanceUpdatedActivityLogEntryData_allowedTeamSlug(ctx, field)
+			case "updatedReleaseChannel":
+				return ec.fieldContext_UnleashInstanceUpdatedActivityLogEntryData_updatedReleaseChannel(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type UnleashInstanceUpdatedActivityLogEntryData", field.Name)
 		},
@@ -1205,6 +1288,202 @@ func (ec *executionContext) fieldContext_UnleashInstanceUpdatedActivityLogEntryD
 	return fc, nil
 }
 
+func (ec *executionContext) _UnleashInstanceUpdatedActivityLogEntryData_updatedReleaseChannel(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceUpdatedActivityLogEntryData) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_UnleashInstanceUpdatedActivityLogEntryData_updatedReleaseChannel,
+		func(ctx context.Context) (any, error) {
+			return obj.UpdatedReleaseChannel, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_UnleashInstanceUpdatedActivityLogEntryData_updatedReleaseChannel(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UnleashInstanceUpdatedActivityLogEntryData",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UnleashReleaseChannel_name(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashReleaseChannel) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_UnleashReleaseChannel_name,
+		func(ctx context.Context) (any, error) {
+			return obj.Name, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_UnleashReleaseChannel_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UnleashReleaseChannel",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UnleashReleaseChannel_currentVersion(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashReleaseChannel) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_UnleashReleaseChannel_currentVersion,
+		func(ctx context.Context) (any, error) {
+			return obj.CurrentVersion, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_UnleashReleaseChannel_currentVersion(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UnleashReleaseChannel",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UnleashReleaseChannel_type(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashReleaseChannel) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_UnleashReleaseChannel_type,
+		func(ctx context.Context) (any, error) {
+			return obj.Type, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_UnleashReleaseChannel_type(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UnleashReleaseChannel",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UnleashReleaseChannel_lastUpdated(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashReleaseChannel) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_UnleashReleaseChannel_lastUpdated,
+		func(ctx context.Context) (any, error) {
+			return obj.LastUpdated, nil
+		},
+		nil,
+		ec.marshalOTime2ᚖtimeᚐTime,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_UnleashReleaseChannel_lastUpdated(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UnleashReleaseChannel",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UpdateUnleashInstancePayload_unleash(ctx context.Context, field graphql.CollectedField, obj *unleash.UpdateUnleashInstancePayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_UpdateUnleashInstancePayload_unleash,
+		func(ctx context.Context) (any, error) {
+			return obj.Unleash, nil
+		},
+		nil,
+		ec.marshalOUnleashInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐUnleashInstance,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_UpdateUnleashInstancePayload_unleash(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UpdateUnleashInstancePayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_UnleashInstance_id(ctx, field)
+			case "name":
+				return ec.fieldContext_UnleashInstance_name(ctx, field)
+			case "version":
+				return ec.fieldContext_UnleashInstance_version(ctx, field)
+			case "allowedTeams":
+				return ec.fieldContext_UnleashInstance_allowedTeams(ctx, field)
+			case "webIngress":
+				return ec.fieldContext_UnleashInstance_webIngress(ctx, field)
+			case "apiIngress":
+				return ec.fieldContext_UnleashInstance_apiIngress(ctx, field)
+			case "metrics":
+				return ec.fieldContext_UnleashInstance_metrics(ctx, field)
+			case "ready":
+				return ec.fieldContext_UnleashInstance_ready(ctx, field)
+			case "releaseChannelName":
+				return ec.fieldContext_UnleashInstance_releaseChannelName(ctx, field)
+			case "releaseChannel":
+				return ec.fieldContext_UnleashInstance_releaseChannel(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type UnleashInstance", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 // endregion **************************** field.gotpl *****************************
 
 // region    **************************** input.gotpl *****************************
@@ -1250,7 +1529,7 @@ func (ec *executionContext) unmarshalInputCreateUnleashForTeamInput(ctx context.
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"teamSlug"}
+	fieldsInOrder := [...]string{"teamSlug", "releaseChannel"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -1264,6 +1543,13 @@ func (ec *executionContext) unmarshalInputCreateUnleashForTeamInput(ctx context.
 				return it, err
 			}
 			it.TeamSlug = data
+		case "releaseChannel":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("releaseChannel"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ReleaseChannel = data
 		}
 	}
 
@@ -1298,6 +1584,40 @@ func (ec *executionContext) unmarshalInputRevokeTeamAccessToUnleashInput(ctx con
 				return it, err
 			}
 			it.RevokedTeamSlug = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputUpdateUnleashInstanceInput(ctx context.Context, obj any) (unleash.UpdateUnleashInstanceInput, error) {
+	var it unleash.UpdateUnleashInstanceInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"teamSlug", "releaseChannel"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "teamSlug":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamSlug"))
+			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TeamSlug = data
+		case "releaseChannel":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("releaseChannel"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ReleaseChannel = data
 		}
 	}
 
@@ -1502,6 +1822,41 @@ func (ec *executionContext) _UnleashInstance(ctx context.Context, sel ast.Select
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "releaseChannelName":
+			out.Values[i] = ec._UnleashInstance_releaseChannelName(ctx, field, obj)
+		case "releaseChannel":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._UnleashInstance_releaseChannel(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -1875,6 +2230,95 @@ func (ec *executionContext) _UnleashInstanceUpdatedActivityLogEntryData(ctx cont
 			out.Values[i] = ec._UnleashInstanceUpdatedActivityLogEntryData_revokedTeamSlug(ctx, field, obj)
 		case "allowedTeamSlug":
 			out.Values[i] = ec._UnleashInstanceUpdatedActivityLogEntryData_allowedTeamSlug(ctx, field, obj)
+		case "updatedReleaseChannel":
+			out.Values[i] = ec._UnleashInstanceUpdatedActivityLogEntryData_updatedReleaseChannel(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var unleashReleaseChannelImplementors = []string{"UnleashReleaseChannel"}
+
+func (ec *executionContext) _UnleashReleaseChannel(ctx context.Context, sel ast.SelectionSet, obj *unleash.UnleashReleaseChannel) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, unleashReleaseChannelImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("UnleashReleaseChannel")
+		case "name":
+			out.Values[i] = ec._UnleashReleaseChannel_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "currentVersion":
+			out.Values[i] = ec._UnleashReleaseChannel_currentVersion(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "type":
+			out.Values[i] = ec._UnleashReleaseChannel_type(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "lastUpdated":
+			out.Values[i] = ec._UnleashReleaseChannel_lastUpdated(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var updateUnleashInstancePayloadImplementors = []string{"UpdateUnleashInstancePayload"}
+
+func (ec *executionContext) _UpdateUnleashInstancePayload(ctx context.Context, sel ast.SelectionSet, obj *unleash.UpdateUnleashInstancePayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, updateUnleashInstancePayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("UpdateUnleashInstancePayload")
+		case "unleash":
+			out.Values[i] = ec._UpdateUnleashInstancePayload_unleash(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -1979,11 +2423,91 @@ func (ec *executionContext) marshalNUnleashInstanceUpdatedActivityLogEntryData2�
 	return ec._UnleashInstanceUpdatedActivityLogEntryData(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNUnleashReleaseChannel2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐUnleashReleaseChannelᚄ(ctx context.Context, sel ast.SelectionSet, v []*unleash.UnleashReleaseChannel) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNUnleashReleaseChannel2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐUnleashReleaseChannel(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNUnleashReleaseChannel2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐUnleashReleaseChannel(ctx context.Context, sel ast.SelectionSet, v *unleash.UnleashReleaseChannel) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._UnleashReleaseChannel(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNUpdateUnleashInstanceInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐUpdateUnleashInstanceInput(ctx context.Context, v any) (unleash.UpdateUnleashInstanceInput, error) {
+	res, err := ec.unmarshalInputUpdateUnleashInstanceInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNUpdateUnleashInstancePayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐUpdateUnleashInstancePayload(ctx context.Context, sel ast.SelectionSet, v unleash.UpdateUnleashInstancePayload) graphql.Marshaler {
+	return ec._UpdateUnleashInstancePayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNUpdateUnleashInstancePayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐUpdateUnleashInstancePayload(ctx context.Context, sel ast.SelectionSet, v *unleash.UpdateUnleashInstancePayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._UpdateUnleashInstancePayload(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalOUnleashInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐUnleashInstance(ctx context.Context, sel ast.SelectionSet, v *unleash.UnleashInstance) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._UnleashInstance(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOUnleashReleaseChannel2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐUnleashReleaseChannel(ctx context.Context, sel ast.SelectionSet, v *unleash.UnleashReleaseChannel) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._UnleashReleaseChannel(ctx, sel, v)
 }
 
 // endregion ***************************** type.gotpl *****************************
