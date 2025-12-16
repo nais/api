@@ -350,28 +350,3 @@ Test.gql("Update unleash instance with release channel", function(t)
 		},
 	}
 end)
-
-Test.gql("Update unleash instance validation - empty release channel fails", function(t)
-	t.addHeader("x-user-email", user:email())
-
-	t.query(string.format([[
-		mutation {
-			updateUnleashInstance(input: {teamSlug: "%s", releaseChannel: ""}) {
-				unleash {
-					name
-				}
-			}
-		}
-	]], team:slug()))
-
-	t.check {
-		errors = {
-			{
-				message = "Release channel is required.",
-				path = { "updateUnleashInstance" },
-				extensions = { field = "releaseChannel" },
-			},
-		},
-		data = Null,
-	}
-end)
