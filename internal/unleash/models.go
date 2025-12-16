@@ -22,7 +22,6 @@ type UnleashInstance struct {
 	Metrics    *UnleashInstanceMetrics `json:"metrics"`
 	Ready      bool                    `json:"ready"`
 
-	CustomVersion      *string `json:"customVersion,omitempty"`
 	releaseChannelName *string // unexported - use ReleaseChannelName() and ReleaseChannel() methods
 
 	TeamSlug         slug.Slug   `json:"-"`
@@ -56,13 +55,6 @@ func toUnleashInstance(u *unleash_nais_io_v1.Unleash) *UnleashInstance {
 			MemoryRequests: u.Spec.Resources.Requests.Memory().AsApproximateFloat64(),
 			TeamSlug:       slug.Slug(u.Name),
 		},
-	}
-
-	if u.Spec.CustomImage != "" {
-		parts := strings.Split(u.Spec.CustomImage, ":")
-		if len(parts) > 1 {
-			instance.CustomVersion = &parts[1]
-		}
 	}
 
 	if u.Spec.ReleaseChannel.Name != "" {
@@ -148,17 +140,12 @@ type CreateUnleashForTeamPayload struct {
 
 type UpdateUnleashInstanceInput struct {
 	TeamSlug       slug.Slug `json:"teamSlug"`
-	ReleaseChannel string    `json:"releaseChannel"`
+	ReleaseChannel *string   `json:"releaseChannel"`
 }
 
 func (i *UpdateUnleashInstanceInput) Validate(_ context.Context) error {
-	verr := validate.New()
-
-	if i.ReleaseChannel == "" {
-		verr.Add("releaseChannel", "Release channel is required.")
-	}
-
-	return verr.NilIfEmpty()
+	// No validation needed - all fields are optional except TeamSlug which is required by GraphQL
+	return nil
 }
 
 type UpdateUnleashInstancePayload struct {
@@ -184,17 +171,14 @@ type BifrostV1CreateRequest struct {
 	DatabasePoolMax           int    `json:"database_pool_max,omitempty"`
 	DatabasePoolIdleTimeoutMs int    `json:"database_pool_idle_timeout_ms,omitempty"`
 
-	CustomVersion string `json:"custom_version,omitempty"`
-	// ReleaseChannelName specifies a release channel for automatic version updates (mutually exclusive with CustomVersion)
+	// ReleaseChannelName specifies a release channel for automatic version updates
 	ReleaseChannelName string `json:"release_channel_name,omitempty"`
 }
 
 // BifrostV1UpdateRequest represents the v1 API request format for updating an unleash instance
 type BifrostV1UpdateRequest struct {
 	AllowedTeams string `json:"allowed_teams,omitempty"`
-	// CustomVersion specifies a specific Unleash version to use (mutually exclusive with ReleaseChannelName)
-	CustomVersion string `json:"custom_version,omitempty"`
-	// ReleaseChannelName specifies a release channel for automatic version updates (mutually exclusive with CustomVersion)
+	// ReleaseChannelName specifies a release channel for automatic version updates
 	ReleaseChannelName string `json:"release_channel_name,omitempty"`
 }
 

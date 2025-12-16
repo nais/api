@@ -108,8 +108,6 @@ func (ec *executionContext) fieldContext_AllowTeamAccessToUnleashPayload_unleash
 				return ec.fieldContext_UnleashInstance_metrics(ctx, field)
 			case "ready":
 				return ec.fieldContext_UnleashInstance_ready(ctx, field)
-			case "customVersion":
-				return ec.fieldContext_UnleashInstance_customVersion(ctx, field)
 			case "releaseChannelName":
 				return ec.fieldContext_UnleashInstance_releaseChannelName(ctx, field)
 			case "releaseChannel":
@@ -161,8 +159,6 @@ func (ec *executionContext) fieldContext_CreateUnleashForTeamPayload_unleash(_ c
 				return ec.fieldContext_UnleashInstance_metrics(ctx, field)
 			case "ready":
 				return ec.fieldContext_UnleashInstance_ready(ctx, field)
-			case "customVersion":
-				return ec.fieldContext_UnleashInstance_customVersion(ctx, field)
 			case "releaseChannelName":
 				return ec.fieldContext_UnleashInstance_releaseChannelName(ctx, field)
 			case "releaseChannel":
@@ -214,8 +210,6 @@ func (ec *executionContext) fieldContext_RevokeTeamAccessToUnleashPayload_unleas
 				return ec.fieldContext_UnleashInstance_metrics(ctx, field)
 			case "ready":
 				return ec.fieldContext_UnleashInstance_ready(ctx, field)
-			case "customVersion":
-				return ec.fieldContext_UnleashInstance_customVersion(ctx, field)
 			case "releaseChannelName":
 				return ec.fieldContext_UnleashInstance_releaseChannelName(ctx, field)
 			case "releaseChannel":
@@ -488,35 +482,6 @@ func (ec *executionContext) fieldContext_UnleashInstance_ready(_ context.Context
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Boolean does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _UnleashInstance_customVersion(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstance) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_UnleashInstance_customVersion,
-		func(ctx context.Context) (any, error) {
-			return obj.CustomVersion, nil
-		},
-		nil,
-		ec.marshalOString2ᚖstring,
-		true,
-		false,
-	)
-}
-
-func (ec *executionContext) fieldContext_UnleashInstance_customVersion(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UnleashInstance",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -1508,8 +1473,6 @@ func (ec *executionContext) fieldContext_UpdateUnleashInstancePayload_unleash(_ 
 				return ec.fieldContext_UnleashInstance_metrics(ctx, field)
 			case "ready":
 				return ec.fieldContext_UnleashInstance_ready(ctx, field)
-			case "customVersion":
-				return ec.fieldContext_UnleashInstance_customVersion(ctx, field)
 			case "releaseChannelName":
 				return ec.fieldContext_UnleashInstance_releaseChannelName(ctx, field)
 			case "releaseChannel":
@@ -1650,7 +1613,7 @@ func (ec *executionContext) unmarshalInputUpdateUnleashInstanceInput(ctx context
 			it.TeamSlug = data
 		case "releaseChannel":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("releaseChannel"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -1859,8 +1822,6 @@ func (ec *executionContext) _UnleashInstance(ctx context.Context, sel ast.Select
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "customVersion":
-			out.Values[i] = ec._UnleashInstance_customVersion(ctx, field, obj)
 		case "releaseChannelName":
 			out.Values[i] = ec._UnleashInstance_releaseChannelName(ctx, field, obj)
 		case "releaseChannel":

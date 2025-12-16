@@ -2410,7 +2410,6 @@ type ComplexityRoot struct {
 	UnleashInstance struct {
 		APIIngress         func(childComplexity int) int
 		AllowedTeams       func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		CustomVersion      func(childComplexity int) int
 		ID                 func(childComplexity int) int
 		Metrics            func(childComplexity int) int
 		Name               func(childComplexity int) int
@@ -12834,13 +12833,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.UnleashInstance.AllowedTeams(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
 
-	case "UnleashInstance.customVersion":
-		if e.complexity.UnleashInstance.CustomVersion == nil {
-			break
-		}
-
-		return e.complexity.UnleashInstance.CustomVersion(childComplexity), true
-
 	case "UnleashInstance.id":
 		if e.complexity.UnleashInstance.ID == nil {
 			break
@@ -22468,8 +22460,11 @@ input UpdateUnleashInstanceInput {
 	"The team that owns the Unleash instance to update."
 	teamSlug: Slug!
 
-	"Subscribe the instance to a release channel for automatic version updates."
-	releaseChannel: String!
+	"""
+	Subscribe the instance to a release channel for automatic version updates.
+	If not specified, the release channel will not be changed.
+	"""
+	releaseChannel: String
 }
 
 type UpdateUnleashInstancePayload {
@@ -22519,14 +22514,6 @@ type UnleashInstance implements Node {
 	apiIngress: String!
 	metrics: UnleashInstanceMetrics!
 	ready: Boolean!
-
-	"""
-	Custom version if using manual version management.
-	Populated from CRD spec.customImage field.
-	Deprecated: customVersion is being phased out in favor of releaseChannel.
-	"""
-	customVersion: String
-		@deprecated(reason: "Use releaseChannelName instead. Custom versions are being phased out.")
 
 	"""
 	Release channel name if using channel-based version management.

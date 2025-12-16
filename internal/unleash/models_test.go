@@ -11,6 +11,7 @@ import (
 )
 
 func TestUpdateUnleashInstanceInput_Validate(t *testing.T) {
+	stable := "stable"
 	tests := []struct {
 		name        string
 		input       UpdateUnleashInstanceInput
@@ -21,26 +22,16 @@ func TestUpdateUnleashInstanceInput_Validate(t *testing.T) {
 			name: "valid with release channel",
 			input: UpdateUnleashInstanceInput{
 				TeamSlug:       "my-team",
-				ReleaseChannel: "stable",
+				ReleaseChannel: &stable,
 			},
 			wantErr: false,
 		},
 		{
-			name: "invalid - empty release channel",
-			input: UpdateUnleashInstanceInput{
-				TeamSlug:       "my-team",
-				ReleaseChannel: "",
-			},
-			wantErr:     true,
-			errContains: "Release channel is required",
-		},
-		{
-			name: "invalid - missing release channel",
+			name: "valid without release channel",
 			input: UpdateUnleashInstanceInput{
 				TeamSlug: "my-team",
 			},
-			wantErr:     true,
-			errContains: "Release channel is required",
+			wantErr: false,
 		},
 	}
 
@@ -66,7 +57,6 @@ func TestToUnleashInstance(t *testing.T) {
 	tests := []struct {
 		name                       string
 		unleash                    *unleash_nais_io_v1.Unleash
-		expectedCustomVersion      *string
 		expectedReleaseChannelName *string
 		expectedAllowedTeams       []string
 		expectedReady              bool
@@ -90,31 +80,8 @@ func TestToUnleashInstance(t *testing.T) {
 					Connected:  true,
 				},
 			},
-			expectedCustomVersion:      nil,
 			expectedReleaseChannelName: nil,
 			expectedAllowedTeams:       []string{"team1", "team2"},
-			expectedReady:              true,
-		},
-		{
-			name: "instance with custom image",
-			unleash: &unleash_nais_io_v1.Unleash{
-				ObjectMeta: metav1.ObjectMeta{
-					Name: "my-team",
-				},
-				Spec: unleash_nais_io_v1.UnleashSpec{
-					CustomImage: "unleash-server:5.12.0",
-					WebIngress:  unleash_nais_io_v1.UnleashIngressConfig{Host: "web.example.com"},
-					ApiIngress:  unleash_nais_io_v1.UnleashIngressConfig{Host: "api.example.com"},
-				},
-				Status: unleash_nais_io_v1.UnleashStatus{
-					Version:    "5.12.0",
-					Reconciled: true,
-					Connected:  true,
-				},
-			},
-			expectedCustomVersion:      ptr("5.12.0"),
-			expectedReleaseChannelName: nil,
-			expectedAllowedTeams:       nil,
 			expectedReady:              true,
 		},
 		{
@@ -136,7 +103,6 @@ func TestToUnleashInstance(t *testing.T) {
 					Connected:  true,
 				},
 			},
-			expectedCustomVersion:      nil,
 			expectedReleaseChannelName: ptr("stable"),
 			expectedAllowedTeams:       nil,
 			expectedReady:              true,
@@ -203,16 +169,6 @@ func TestToUnleashInstance(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			result := toUnleashInstance(tt.unleash)
-
-			if tt.expectedCustomVersion != nil {
-				if result.CustomVersion == nil {
-					t.Error("expected CustomVersion to be set, got nil")
-				} else if *result.CustomVersion != *tt.expectedCustomVersion {
-					t.Errorf("CustomVersion = %q, want %q", *result.CustomVersion, *tt.expectedCustomVersion)
-				}
-			} else if result.CustomVersion != nil {
-				t.Errorf("expected CustomVersion to be nil, got %q", *result.CustomVersion)
-			}
 
 			if tt.expectedReleaseChannelName != nil {
 				if result.ReleaseChannelName() == nil {

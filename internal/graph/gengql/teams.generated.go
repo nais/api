@@ -2687,8 +2687,6 @@ func (ec *executionContext) fieldContext_Team_unleash(_ context.Context, field g
 				return ec.fieldContext_UnleashInstance_metrics(ctx, field)
 			case "ready":
 				return ec.fieldContext_UnleashInstance_ready(ctx, field)
-			case "customVersion":
-				return ec.fieldContext_UnleashInstance_customVersion(ctx, field)
 			case "releaseChannelName":
 				return ec.fieldContext_UnleashInstance_releaseChannelName(ctx, field)
 			case "releaseChannel":
