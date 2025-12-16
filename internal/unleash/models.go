@@ -23,7 +23,7 @@ type UnleashInstance struct {
 	Ready      bool                    `json:"ready"`
 
 	CustomVersion      *string `json:"customVersion,omitempty"`
-	ReleaseChannelName *string `json:"releaseChannelName,omitempty"`
+	releaseChannelName *string // unexported - use ReleaseChannelName() and ReleaseChannel() methods
 
 	TeamSlug         slug.Slug   `json:"-"`
 	AllowedTeamSlugs []slug.Slug `json:"-"`
@@ -66,7 +66,7 @@ func toUnleashInstance(u *unleash_nais_io_v1.Unleash) *UnleashInstance {
 	}
 
 	if u.Spec.ReleaseChannel.Name != "" {
-		instance.ReleaseChannelName = &u.Spec.ReleaseChannel.Name
+		instance.releaseChannelName = &u.Spec.ReleaseChannel.Name
 	}
 
 	return instance
@@ -74,6 +74,31 @@ func toUnleashInstance(u *unleash_nais_io_v1.Unleash) *UnleashInstance {
 
 func (u UnleashInstance) ID() ident.Ident {
 	return newUnleashIdent(u.TeamSlug, u.Name)
+}
+
+// ReleaseChannelName returns the name of the release channel (for GraphQL field)
+func (u *UnleashInstance) ReleaseChannelName() *string {
+	return u.releaseChannelName
+}
+
+// ReleaseChannel returns the full release channel object by looking up the channel name from bifrost
+func (u *UnleashInstance) ReleaseChannel(ctx context.Context) (*UnleashReleaseChannel, error) {
+	if u.releaseChannelName == nil || *u.releaseChannelName == "" {
+		return nil, nil
+	}
+
+	channels, err := GetReleaseChannels(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, ch := range channels {
+		if ch.Name == *u.releaseChannelName {
+			return ch, nil
+		}
+	}
+
+	return nil, nil
 }
 
 func (UnleashInstance) IsNode() {}

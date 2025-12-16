@@ -21,8 +21,6 @@ import (
 
 type UnleashInstanceResolver interface {
 	AllowedTeams(ctx context.Context, obj *unleash.UnleashInstance, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*team.Team], error)
-
-	ReleaseChannel(ctx context.Context, obj *unleash.UnleashInstance) (*unleash.UnleashReleaseChannel, error)
 }
 type UnleashInstanceMetricsResolver interface {
 	Toggles(ctx context.Context, obj *unleash.UnleashInstanceMetrics) (int, error)
@@ -531,7 +529,7 @@ func (ec *executionContext) _UnleashInstance_releaseChannelName(ctx context.Cont
 		field,
 		ec.fieldContext_UnleashInstance_releaseChannelName,
 		func(ctx context.Context) (any, error) {
-			return obj.ReleaseChannelName, nil
+			return obj.ReleaseChannelName(), nil
 		},
 		nil,
 		ec.marshalOString2ᚖstring,
@@ -544,7 +542,7 @@ func (ec *executionContext) fieldContext_UnleashInstance_releaseChannelName(_ co
 	fc = &graphql.FieldContext{
 		Object:     "UnleashInstance",
 		Field:      field,
-		IsMethod:   false,
+		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
@@ -560,7 +558,7 @@ func (ec *executionContext) _UnleashInstance_releaseChannel(ctx context.Context,
 		field,
 		ec.fieldContext_UnleashInstance_releaseChannel,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.UnleashInstance().ReleaseChannel(ctx, obj)
+			return obj.ReleaseChannel(ctx)
 		},
 		nil,
 		ec.marshalOUnleashReleaseChannel2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐUnleashReleaseChannel,
@@ -574,7 +572,7 @@ func (ec *executionContext) fieldContext_UnleashInstance_releaseChannel(_ contex
 		Object:     "UnleashInstance",
 		Field:      field,
 		IsMethod:   true,
-		IsResolver: true,
+		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "name":

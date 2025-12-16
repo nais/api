@@ -215,13 +215,13 @@ func TestToUnleashInstance(t *testing.T) {
 			}
 
 			if tt.expectedReleaseChannelName != nil {
-				if result.ReleaseChannelName == nil {
+				if result.ReleaseChannelName() == nil {
 					t.Error("expected ReleaseChannelName to be set, got nil")
-				} else if *result.ReleaseChannelName != *tt.expectedReleaseChannelName {
-					t.Errorf("ReleaseChannelName = %q, want %q", *result.ReleaseChannelName, *tt.expectedReleaseChannelName)
+				} else if *result.ReleaseChannelName() != *tt.expectedReleaseChannelName {
+					t.Errorf("ReleaseChannelName = %q, want %q", *result.ReleaseChannelName(), *tt.expectedReleaseChannelName)
 				}
-			} else if result.ReleaseChannelName != nil {
-				t.Errorf("expected ReleaseChannelName to be nil, got %q", *result.ReleaseChannelName)
+			} else if result.ReleaseChannelName() != nil {
+				t.Errorf("expected ReleaseChannelName to be nil, got %q", *result.ReleaseChannelName())
 			}
 
 			if tt.expectedAllowedTeams != nil {
