@@ -59,7 +59,7 @@ func (b *bifrostClient) Post(ctx context.Context, path string, v any) (*http.Res
 	}
 
 	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusCreated {
-		return nil, b.error(fmt.Errorf("bifrost returned %s", resp.Status), "bifrost returned non-2xx")
+		return nil, b.handleErrorResponse(resp, "POST", path)
 	}
 	return resp, nil
 }
@@ -84,7 +84,7 @@ func (b *bifrostClient) Put(ctx context.Context, path string, v any) (*http.Resp
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, b.error(fmt.Errorf("bifrost returned %s", resp.Status), "bifrost returned non-200")
+		return nil, b.handleErrorResponse(resp, "PUT", path)
 	}
 	return resp, nil
 }
@@ -103,9 +103,55 @@ func (b *bifrostClient) Get(ctx context.Context, path string) (*http.Response, e
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, b.error(fmt.Errorf("bifrost returned %s", resp.Status), "bifrost returned non-200")
+		return nil, b.handleErrorResponse(resp, "GET", path)
 	}
 	return resp, nil
+}
+
+// handleErrorResponse parses and returns a structured error from bifrost's error response
+func (b *bifrostClient) handleErrorResponse(resp *http.Response, method, path string) error {
+	defer resp.Body.Close()
+
+	bodyBytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		b.log.WithError(err).WithFields(logrus.Fields{
+			"method":      method,
+			"path":        path,
+			"status_code": resp.StatusCode,
+		}).Error("failed to read bifrost error response body")
+		return fmt.Errorf("bifrost %s %s returned %s", method, path, resp.Status)
+	}
+
+	var bifrostErr BifrostV1ErrorResponse
+	if err := json.Unmarshal(bodyBytes, &bifrostErr); err != nil {
+		// If we can't parse the error response, return the raw status
+		b.log.WithFields(logrus.Fields{
+			"method":      method,
+			"path":        path,
+			"status_code": resp.StatusCode,
+			"body":        string(bodyBytes),
+		}).Error("bifrost returned error")
+		return fmt.Errorf("bifrost %s %s returned %s", method, path, resp.Status)
+	}
+
+	// Log the structured error
+	b.log.WithFields(logrus.Fields{
+		"method":        method,
+		"path":          path,
+		"status_code":   resp.StatusCode,
+		"error_type":    bifrostErr.Error,
+		"error_message": bifrostErr.Message,
+		"error_details": bifrostErr.Details,
+	}).Error("bifrost returned error")
+
+	// Return a user-friendly error message
+	if bifrostErr.Message != "" {
+		return fmt.Errorf("bifrost: %s", bifrostErr.Message)
+	}
+	if bifrostErr.Error != "" {
+		return fmt.Errorf("bifrost: %s", bifrostErr.Error)
+	}
+	return fmt.Errorf("bifrost %s %s returned %s", method, path, resp.Status)
 }
 
 func (b *bifrostClient) error(err error, msg string) error {
