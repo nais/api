@@ -16,6 +16,7 @@ type BifrostClient interface {
 	Post(ctx context.Context, path string, v any) (*http.Response, error)
 	Put(ctx context.Context, path string, v any) (*http.Response, error)
 	Get(ctx context.Context, path string) (*http.Response, error)
+	Delete(ctx context.Context, path string) (*http.Response, error)
 	WithClient(client *http.Client)
 }
 
@@ -104,6 +105,23 @@ func (b *bifrostClient) Get(ctx context.Context, path string) (*http.Response, e
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, b.handleErrorResponse(resp, "GET", path)
+	}
+	return resp, nil
+}
+
+func (b *bifrostClient) Delete(ctx context.Context, path string) (*http.Response, error) {
+	request, err := http.NewRequestWithContext(ctx, http.MethodDelete, b.url+path, nil)
+	if err != nil {
+		return nil, b.error(err, "create request")
+	}
+
+	resp, err := b.client.Do(request)
+	if err != nil {
+		return nil, b.error(err, "calling bifrost")
+	}
+
+	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNoContent {
+		return nil, b.handleErrorResponse(resp, "DELETE", path)
 	}
 	return resp, nil
 }

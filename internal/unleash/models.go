@@ -161,6 +161,18 @@ type RevokeTeamAccessToUnleashPayload struct {
 	Unleash *UnleashInstance `json:"unleash,omitempty"`
 }
 
+type DeleteUnleashInstanceInput struct {
+	TeamSlug slug.Slug `json:"teamSlug"`
+}
+
+func (i *DeleteUnleashInstanceInput) Validate(_ context.Context) error {
+	return nil
+}
+
+type DeleteUnleashInstancePayload struct {
+	Success bool `json:"success"`
+}
+
 // BifrostV1CreateRequest represents the v1 API request format for creating an unleash instance
 type BifrostV1CreateRequest struct {
 	Name                      string `json:"name"`

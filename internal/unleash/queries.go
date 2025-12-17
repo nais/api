@@ -304,6 +304,47 @@ func UpdateInstance(ctx context.Context, input *UpdateUnleashInstanceInput) (*Un
 	return toUnleashInstance(&unleashInstance), nil
 }
 
+func Delete(ctx context.Context, input *DeleteUnleashInstanceInput) (*DeleteUnleashInstancePayload, error) {
+	client := fromContext(ctx).bifrostClient
+
+	// Verify the instance exists
+	instance, err := ForTeam(ctx, input.TeamSlug)
+	if err != nil {
+		return nil, err
+	}
+	if instance == nil {
+		return nil, fmt.Errorf("unleash instance not found for team %s", input.TeamSlug)
+	}
+
+	// Verify all teams have been removed
+	if len(instance.AllowedTeamSlugs) > 0 {
+		return nil, fmt.Errorf("cannot delete unleash instance: %d team(s) still have access, all teams must be revoked before deletion", len(instance.AllowedTeamSlugs))
+	}
+
+	// Log is intentionally not including user input to avoid log injection
+	fromContext(ctx).log.WithField("team_slug", input.TeamSlug.String()).Info("deleting unleash instance")
+
+	unleashResponse, err := client.Delete(ctx, fmt.Sprintf("/v1/unleash/%s", input.TeamSlug.String()))
+	if err != nil {
+		return nil, err
+	}
+	defer unleashResponse.Body.Close()
+
+	// Log the deletion
+	err = activitylog.Create(ctx, activitylog.CreateInput{
+		Action:       activitylog.ActivityLogEntryActionDeleted,
+		Actor:        authz.ActorFromContext(ctx).User,
+		ResourceType: activityLogEntryResourceTypeUnleash,
+		ResourceName: input.TeamSlug.String(),
+		TeamSlug:     &input.TeamSlug,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &DeleteUnleashInstancePayload{Success: true}, nil
+}
+
 // @TODO decide how we want to specify which team can manage Unleash from Console
 func hasAccessToUnleash(team slug.Slug, unleash *UnleashInstance) bool {
 	for _, t := range unleash.AllowedTeamSlugs {

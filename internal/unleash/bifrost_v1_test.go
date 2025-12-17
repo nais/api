@@ -374,3 +374,55 @@ func TestBifrostClient_ErrorHandling_Get(t *testing.T) {
 		t.Errorf("error message = %q, want %q", err.Error(), expected)
 	}
 }
+
+func TestBifrostClient_DeleteV1(t *testing.T) {
+	s := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodDelete {
+			t.Errorf("expected DELETE method, got %s", r.Method)
+		}
+
+		if r.URL.Path != "/v1/unleash/my-team" {
+			t.Errorf("expected /v1/unleash/my-team, got %s", r.URL.Path)
+		}
+
+		// DELETE typically returns 204 No Content
+		w.WriteHeader(http.StatusNoContent)
+	}))
+	defer s.Close()
+
+	logger, _ := test.NewNullLogger()
+	client := unleash.NewBifrostClient(s.URL, logger)
+
+	resp, err := client.Delete(context.Background(), "/v1/unleash/my-team")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusNoContent {
+		t.Errorf("expected status 204, got %d", resp.StatusCode)
+	}
+}
+
+func TestBifrostClient_ErrorHandling_Delete(t *testing.T) {
+	s := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusConflict)
+		w.Write([]byte(`{"error": "conflict", "message": "Cannot delete: teams still have access"}`))
+	}))
+	defer s.Close()
+
+	logger, _ := test.NewNullLogger()
+	client := unleash.NewBifrostClient(s.URL, logger)
+
+	_, err := client.Delete(context.Background(), "/v1/unleash/my-team")
+
+	if err == nil {
+		t.Error("expected error but got nil")
+		return
+	}
+
+	expected := "bifrost: Cannot delete: teams still have access"
+	if err.Error() != expected {
+		t.Errorf("error message = %q, want %q", err.Error(), expected)
+	}
+}

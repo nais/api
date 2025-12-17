@@ -523,6 +523,10 @@ type ComplexityRoot struct {
 		ServiceAccountTokenDeleted func(childComplexity int) int
 	}
 
+	DeleteUnleashInstancePayload struct {
+		Success func(childComplexity int) int
+	}
+
 	DeleteValkeyPayload struct {
 		ValkeyDeleted func(childComplexity int) int
 	}
@@ -1063,6 +1067,7 @@ type ComplexityRoot struct {
 		DeleteSecret                 func(childComplexity int, input secret.DeleteSecretInput) int
 		DeleteServiceAccount         func(childComplexity int, input serviceaccount.DeleteServiceAccountInput) int
 		DeleteServiceAccountToken    func(childComplexity int, input serviceaccount.DeleteServiceAccountTokenInput) int
+		DeleteUnleashInstance        func(childComplexity int, input unleash.DeleteUnleashInstanceInput) int
 		DeleteValkey                 func(childComplexity int, input valkey.DeleteValkeyInput) int
 		DisableReconciler            func(childComplexity int, input reconciler.DisableReconcilerInput) int
 		EnableReconciler             func(childComplexity int, input reconciler.EnableReconcilerInput) int
@@ -4322,6 +4327,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.DeleteServiceAccountTokenPayload.ServiceAccountTokenDeleted(childComplexity), true
 
+	case "DeleteUnleashInstancePayload.success":
+		if e.complexity.DeleteUnleashInstancePayload.Success == nil {
+			break
+		}
+
+		return e.complexity.DeleteUnleashInstancePayload.Success(childComplexity), true
+
 	case "DeleteValkeyPayload.valkeyDeleted":
 		if e.complexity.DeleteValkeyPayload.ValkeyDeleted == nil {
 			break
@@ -6635,6 +6647,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Mutation.DeleteServiceAccountToken(childComplexity, args["input"].(serviceaccount.DeleteServiceAccountTokenInput)), true
+
+	case "Mutation.deleteUnleashInstance":
+		if e.complexity.Mutation.DeleteUnleashInstance == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deleteUnleashInstance_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeleteUnleashInstance(childComplexity, args["input"].(unleash.DeleteUnleashInstanceInput)), true
 
 	case "Mutation.deleteValkey":
 		if e.complexity.Mutation.DeleteValkey == nil {
@@ -14622,6 +14646,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputDeleteSecretInput,
 		ec.unmarshalInputDeleteServiceAccountInput,
 		ec.unmarshalInputDeleteServiceAccountTokenInput,
+		ec.unmarshalInputDeleteUnleashInstanceInput,
 		ec.unmarshalInputDeleteValkeyInput,
 		ec.unmarshalInputDeploymentFilter,
 		ec.unmarshalInputDisableReconcilerInput,
@@ -22438,6 +22463,13 @@ extend type Mutation {
 	revokeTeamAccessToUnleash(
 		input: RevokeTeamAccessToUnleashInput!
 	): RevokeTeamAccessToUnleashPayload!
+
+	"""
+	Delete an Unleash instance.
+
+	All teams must be revoked access before the instance can be deleted.
+	"""
+	deleteUnleashInstance(input: DeleteUnleashInstanceInput!): DeleteUnleashInstancePayload!
 }
 
 input CreateUnleashForTeamInput {
@@ -22487,6 +22519,14 @@ input RevokeTeamAccessToUnleashInput {
 
 type RevokeTeamAccessToUnleashPayload {
 	unleash: UnleashInstance
+}
+
+input DeleteUnleashInstanceInput {
+	teamSlug: Slug!
+}
+
+type DeleteUnleashInstancePayload {
+	success: Boolean!
 }
 
 extend type Team {
@@ -22637,6 +22677,9 @@ extend enum ActivityLogActivityType {
 
 	"Unleash instance was updated."
 	UNLEASH_INSTANCE_UPDATED
+
+	"Unleash instance was deleted."
+	UNLEASH_INSTANCE_DELETED
 }
 `, BuiltIn: false},
 	{Name: "../schema/users.graphqls", Input: `extend type Query {

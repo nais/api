@@ -190,6 +190,27 @@ func (f FakeBifrostClient) Get(_ context.Context, path string) (*http.Response, 
 	return nil, fmt.Errorf("unknown GET path: %s", path)
 }
 
+func (f FakeBifrostClient) Delete(ctx context.Context, path string) (*http.Response, error) {
+	if !strings.HasPrefix(path, "/v1/unleash/") {
+		return nil, fmt.Errorf("unknown DELETE path: %s", path)
+	}
+
+	name := strings.TrimPrefix(path, "/v1/unleash/")
+
+	defClient, err := f.watcher.SystemAuthenticatedClient(ctx, "management")
+	if err != nil {
+		return nil, err
+	}
+	client := defClient.Namespace(ManagementClusterNamespace)
+
+	err = client.Delete(ctx, name, metav1.DeleteOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	return test.Response("204 No Content", ""), nil
+}
+
 func (f FakeBifrostClient) WithClient(_ *http.Client) {
 }
 

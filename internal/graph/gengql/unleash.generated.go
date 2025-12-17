@@ -170,6 +170,35 @@ func (ec *executionContext) fieldContext_CreateUnleashForTeamPayload_unleash(_ c
 	return fc, nil
 }
 
+func (ec *executionContext) _DeleteUnleashInstancePayload_success(ctx context.Context, field graphql.CollectedField, obj *unleash.DeleteUnleashInstancePayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_DeleteUnleashInstancePayload_success,
+		func(ctx context.Context) (any, error) {
+			return obj.Success, nil
+		},
+		nil,
+		ec.marshalNBoolean2bool,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_DeleteUnleashInstancePayload_success(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DeleteUnleashInstancePayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _RevokeTeamAccessToUnleashPayload_unleash(ctx context.Context, field graphql.CollectedField, obj *unleash.RevokeTeamAccessToUnleashPayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -1556,6 +1585,33 @@ func (ec *executionContext) unmarshalInputCreateUnleashForTeamInput(ctx context.
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputDeleteUnleashInstanceInput(ctx context.Context, obj any) (unleash.DeleteUnleashInstanceInput, error) {
+	var it unleash.DeleteUnleashInstanceInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"teamSlug"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "teamSlug":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamSlug"))
+			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TeamSlug = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputRevokeTeamAccessToUnleashInput(ctx context.Context, obj any) (unleash.RevokeTeamAccessToUnleashInput, error) {
 	var it unleash.RevokeTeamAccessToUnleashInput
 	asMap := map[string]any{}
@@ -1681,6 +1737,45 @@ func (ec *executionContext) _CreateUnleashForTeamPayload(ctx context.Context, se
 			out.Values[i] = graphql.MarshalString("CreateUnleashForTeamPayload")
 		case "unleash":
 			out.Values[i] = ec._CreateUnleashForTeamPayload_unleash(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var deleteUnleashInstancePayloadImplementors = []string{"DeleteUnleashInstancePayload"}
+
+func (ec *executionContext) _DeleteUnleashInstancePayload(ctx context.Context, sel ast.SelectionSet, obj *unleash.DeleteUnleashInstancePayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, deleteUnleashInstancePayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("DeleteUnleashInstancePayload")
+		case "success":
+			out.Values[i] = ec._DeleteUnleashInstancePayload_success(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -2382,6 +2477,25 @@ func (ec *executionContext) marshalNCreateUnleashForTeamPayload2ᚖgithubᚗcom�
 		return graphql.Null
 	}
 	return ec._CreateUnleashForTeamPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNDeleteUnleashInstanceInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐDeleteUnleashInstanceInput(ctx context.Context, v any) (unleash.DeleteUnleashInstanceInput, error) {
+	res, err := ec.unmarshalInputDeleteUnleashInstanceInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNDeleteUnleashInstancePayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐDeleteUnleashInstancePayload(ctx context.Context, sel ast.SelectionSet, v unleash.DeleteUnleashInstancePayload) graphql.Marshaler {
+	return ec._DeleteUnleashInstancePayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNDeleteUnleashInstancePayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐDeleteUnleashInstancePayload(ctx context.Context, sel ast.SelectionSet, v *unleash.DeleteUnleashInstancePayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._DeleteUnleashInstancePayload(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNRevokeTeamAccessToUnleashInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐRevokeTeamAccessToUnleashInput(ctx context.Context, v any) (unleash.RevokeTeamAccessToUnleashInput, error) {

@@ -36,6 +36,13 @@ extend type Mutation {
 	revokeTeamAccessToUnleash(
 		input: RevokeTeamAccessToUnleashInput!
 	): RevokeTeamAccessToUnleashPayload!
+
+	"""
+	Delete an Unleash instance.
+
+	All teams must be revoked access before the instance can be deleted.
+	"""
+	deleteUnleashInstance(input: DeleteUnleashInstanceInput!): DeleteUnleashInstancePayload!
 }
 
 input CreateUnleashForTeamInput {
@@ -85,6 +92,14 @@ input RevokeTeamAccessToUnleashInput {
 
 type RevokeTeamAccessToUnleashPayload {
 	unleash: UnleashInstance
+}
+
+input DeleteUnleashInstanceInput {
+	teamSlug: Slug!
+}
+
+type DeleteUnleashInstancePayload {
+	success: Boolean!
 }
 
 extend type Team {
@@ -235,4 +250,7 @@ extend enum ActivityLogActivityType {
 
 	"Unleash instance was updated."
 	UNLEASH_INSTANCE_UPDATED
+
+	"Unleash instance was deleted."
+	UNLEASH_INSTANCE_DELETED
 }
