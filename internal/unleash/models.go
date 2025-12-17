@@ -8,8 +8,10 @@ import (
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/team"
+	"github.com/nais/api/internal/unleash/bifrostclient"
 	"github.com/nais/api/internal/validate"
 	unleash_nais_io_v1 "github.com/nais/unleasherator/api/v1"
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 )
@@ -161,35 +163,6 @@ type RevokeTeamAccessToUnleashPayload struct {
 	Unleash *UnleashInstance `json:"unleash,omitempty"`
 }
 
-// BifrostV1CreateRequest represents the v1 API request format for creating an unleash instance
-type BifrostV1CreateRequest struct {
-	Name                      string `json:"name"`
-	EnableFederation          bool   `json:"enable_federation"`
-	AllowedTeams              string `json:"allowed_teams"`
-	AllowedClusters           string `json:"allowed_clusters"`
-	LogLevel                  string `json:"log_level,omitempty"`
-	DatabasePoolMax           int    `json:"database_pool_max,omitempty"`
-	DatabasePoolIdleTimeoutMs int    `json:"database_pool_idle_timeout_ms,omitempty"`
-
-	// ReleaseChannelName specifies a release channel for automatic version updates
-	ReleaseChannelName string `json:"release_channel_name,omitempty"`
-}
-
-// BifrostV1UpdateRequest represents the v1 API request format for updating an unleash instance
-type BifrostV1UpdateRequest struct {
-	AllowedTeams string `json:"allowed_teams,omitempty"`
-	// ReleaseChannelName specifies a release channel for automatic version updates
-	ReleaseChannelName string `json:"release_channel_name,omitempty"`
-}
-
-// BifrostV1ErrorResponse represents the v1 API error response format
-type BifrostV1ErrorResponse struct {
-	Error      string            `json:"error"`
-	Message    string            `json:"message"`
-	Details    map[string]string `json:"details,omitempty"`
-	StatusCode int               `json:"status_code"`
-}
-
 // UnleashReleaseChannel represents an available release channel from bifrost
 type UnleashReleaseChannel struct {
 	Name           string     `json:"name"`
@@ -198,29 +171,85 @@ type UnleashReleaseChannel struct {
 	LastUpdated    *time.Time `json:"lastUpdated,omitempty"`
 }
 
-// BifrostV1ReleaseChannelResponse represents the v1 API response format for a release channel
-type BifrostV1ReleaseChannelResponse struct {
-	Name           string `json:"name"`
-	Version        string `json:"version"`
-	Type           string `json:"type"`
-	Schedule       string `json:"schedule,omitempty"`
-	CurrentVersion string `json:"current_version"`
-	LastUpdated    string `json:"last_updated,omitempty"`
-	CreatedAt      string `json:"created_at,omitempty"`
-}
-
-func (r *BifrostV1ReleaseChannelResponse) toReleaseChannel() *UnleashReleaseChannel {
+// toReleaseChannel converts the generated bifrostclient.ReleaseChannelResponse to our domain type
+func toReleaseChannel(r *bifrostclient.ReleaseChannelResponse) *UnleashReleaseChannel {
 	channel := &UnleashReleaseChannel{
 		Name:           r.Name,
 		CurrentVersion: r.CurrentVersion,
-		Type:           r.Type,
 	}
 
-	if r.LastUpdated != "" {
-		if t, err := time.Parse(time.RFC3339, r.LastUpdated); err == nil {
-			channel.LastUpdated = &t
-		}
+	if r.Type != nil {
+		channel.Type = *r.Type
+	}
+
+	if r.LastUpdated != nil {
+		channel.LastUpdated = r.LastUpdated
 	}
 
 	return channel
+}
+
+// bifrostUnleashToK8s converts the generated bifrostclient.Unleash to the unleasherator K8s type
+func bifrostUnleashToK8s(u *bifrostclient.Unleash) *unleash_nais_io_v1.Unleash {
+	if u == nil {
+		return nil
+	}
+
+	k8s := &unleash_nais_io_v1.Unleash{}
+
+	if u.ApiVersion != nil {
+		k8s.APIVersion = *u.ApiVersion
+	}
+	if u.Kind != nil {
+		k8s.Kind = *u.Kind
+	}
+
+	if u.Metadata != nil {
+		if u.Metadata.Name != nil {
+			k8s.Name = *u.Metadata.Name
+		}
+		if u.Metadata.Namespace != nil {
+			k8s.Namespace = *u.Metadata.Namespace
+		}
+		if u.Metadata.CreationTimestamp != nil {
+			k8s.CreationTimestamp.Time = *u.Metadata.CreationTimestamp
+		}
+	}
+
+	if u.Spec != nil {
+		if u.Spec.ReleaseChannel != nil {
+			k8s.Spec.ReleaseChannel.Name = *u.Spec.ReleaseChannel
+		}
+		if u.Spec.CustomImage != nil {
+			k8s.Spec.CustomImage = *u.Spec.CustomImage
+		}
+		if u.Spec.Federation != nil {
+			if u.Spec.Federation.Enabled != nil {
+				k8s.Spec.Federation.Enabled = *u.Spec.Federation.Enabled
+			}
+			if u.Spec.Federation.AllowedClusters != nil {
+				k8s.Spec.Federation.Clusters = *u.Spec.Federation.AllowedClusters
+			}
+			if u.Spec.Federation.AllowedTeams != nil {
+				k8s.Spec.Federation.Namespaces = *u.Spec.Federation.AllowedTeams
+				// Also set ExtraEnvVars for TEAMS_ALLOWED_TEAMS so toUnleashInstance can read it
+				allowedTeamsStr := strings.Join(*u.Spec.Federation.AllowedTeams, ",")
+				k8s.Spec.ExtraEnvVars = append(k8s.Spec.ExtraEnvVars, corev1.EnvVar{
+					Name:  "TEAMS_ALLOWED_TEAMS",
+					Value: allowedTeamsStr,
+				})
+			}
+		}
+	}
+
+	if u.Status != nil {
+		if u.Status.Version != nil {
+			k8s.Status.Version = *u.Status.Version
+		}
+		if u.Status.Connected != nil {
+			k8s.Status.Connected = *u.Status.Connected
+		}
+	}
+
+	return k8s
 }

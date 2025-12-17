@@ -1,160 +1,235 @@
 package unleash
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 
+	"github.com/nais/api/internal/unleash/bifrostclient"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
 
+// BifrostClient provides a high-level interface for interacting with the Bifrost API.
+// It wraps the generated OpenAPI client and provides error handling and logging.
 type BifrostClient interface {
-	Post(ctx context.Context, path string, v any) (*http.Response, error)
-	Put(ctx context.Context, path string, v any) (*http.Response, error)
-	Get(ctx context.Context, path string) (*http.Response, error)
-	WithClient(client *http.Client)
+	CreateInstance(ctx context.Context, req bifrostclient.UnleashConfigRequest) (*bifrostclient.CreateInstanceResponse, error)
+	UpdateInstance(ctx context.Context, name string, req bifrostclient.UnleashConfigRequest) (*bifrostclient.UpdateInstanceResponse, error)
+	GetInstance(ctx context.Context, name string) (*bifrostclient.GetInstanceResponse, error)
+	DeleteInstance(ctx context.Context, name string) (*bifrostclient.DeleteInstanceResponse, error)
+	ListInstances(ctx context.Context) (*bifrostclient.ListInstancesResponse, error)
+	ListChannels(ctx context.Context) (*bifrostclient.ListChannelsResponse, error)
+	GetChannel(ctx context.Context, name string) (*bifrostclient.GetChannelResponse, error)
 }
 
-type bifrostClient struct {
-	url    string
-	client *http.Client
+type bifrostClientImpl struct {
+	client bifrostclient.ClientWithResponsesInterface
 	log    logrus.FieldLogger
 }
 
-func NewBifrostClient(url string, log logrus.FieldLogger) BifrostClient {
-	return &bifrostClient{
-		url: url,
-		client: &http.Client{
-			Transport: otelhttp.NewTransport(http.DefaultTransport),
-		},
-		log: log,
+// NewBifrostClient creates a new BifrostClient with the given base URL and logger.
+// The client uses OpenTelemetry-instrumented HTTP transport for tracing.
+func NewBifrostClient(baseURL string, log logrus.FieldLogger) BifrostClient {
+	httpClient := &http.Client{
+		Transport: otelhttp.NewTransport(http.DefaultTransport),
+	}
+
+	client, err := bifrostclient.NewClientWithResponses(baseURL, bifrostclient.WithHTTPClient(httpClient))
+	if err != nil {
+		// This should only fail if the base URL is invalid
+		log.WithError(err).Fatal("failed to create bifrost client")
+	}
+
+	return &bifrostClientImpl{
+		client: client,
+		log:    log,
 	}
 }
 
-func (b *bifrostClient) WithClient(client *http.Client) {
-	b.client = client
+// NewBifrostClientWithInterface creates a new BifrostClient using a provided ClientWithResponsesInterface.
+// This is useful for testing with mock clients.
+func NewBifrostClientWithInterface(client bifrostclient.ClientWithResponsesInterface, log logrus.FieldLogger) BifrostClient {
+	return &bifrostClientImpl{
+		client: client,
+		log:    log,
+	}
 }
 
-func (b *bifrostClient) Post(ctx context.Context, path string, v any) (*http.Response, error) {
-	js, err := json.Marshal(v)
+func (b *bifrostClientImpl) CreateInstance(ctx context.Context, req bifrostclient.UnleashConfigRequest) (*bifrostclient.CreateInstanceResponse, error) {
+	resp, err := b.client.CreateInstanceWithResponse(ctx, req)
 	if err != nil {
-		return nil, b.error(err, "marshal unleash config")
+		return nil, b.logError(err, "CreateInstance", "calling bifrost")
 	}
 
-	body := io.NopCloser(bytes.NewReader(js))
-	request, err := http.NewRequestWithContext(ctx, http.MethodPost, b.url+path, body)
-	if err != nil {
-		return nil, b.error(err, "create request")
+	if resp.JSON201 != nil {
+		return resp, nil
 	}
 
-	request.Header.Set("Content-Type", "application/json")
-
-	resp, err := b.client.Do(request)
-	if err != nil {
-		return nil, b.error(err, "calling bifrost")
-	}
-
-	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusCreated {
-		return nil, b.handleErrorResponse(resp, "POST", path)
-	}
-	return resp, nil
+	return nil, b.handleErrorResponse(resp.HTTPResponse, resp.JSON400, resp.JSON500, "CreateInstance")
 }
 
-func (b *bifrostClient) Put(ctx context.Context, path string, v any) (*http.Response, error) {
-	js, err := json.Marshal(v)
+func (b *bifrostClientImpl) UpdateInstance(ctx context.Context, name string, req bifrostclient.UnleashConfigRequest) (*bifrostclient.UpdateInstanceResponse, error) {
+	resp, err := b.client.UpdateInstanceWithResponse(ctx, name, req)
 	if err != nil {
-		return nil, b.error(err, "marshal unleash config")
+		return nil, b.logError(err, "UpdateInstance", "calling bifrost")
 	}
 
-	body := io.NopCloser(bytes.NewReader(js))
-	request, err := http.NewRequestWithContext(ctx, http.MethodPut, b.url+path, body)
-	if err != nil {
-		return nil, b.error(err, "create request")
+	if resp.JSON200 != nil {
+		return resp, nil
 	}
 
-	request.Header.Set("Content-Type", "application/json")
-
-	resp, err := b.client.Do(request)
-	if err != nil {
-		return nil, b.error(err, "calling bifrost")
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, b.handleErrorResponse(resp, "PUT", path)
-	}
-	return resp, nil
+	return nil, b.handleUpdateErrorResponse(resp)
 }
 
-func (b *bifrostClient) Get(ctx context.Context, path string) (*http.Response, error) {
-	request, err := http.NewRequestWithContext(ctx, http.MethodGet, b.url+path, nil)
+func (b *bifrostClientImpl) GetInstance(ctx context.Context, name string) (*bifrostclient.GetInstanceResponse, error) {
+	resp, err := b.client.GetInstanceWithResponse(ctx, name)
 	if err != nil {
-		return nil, b.error(err, "create request")
+		return nil, b.logError(err, "GetInstance", "calling bifrost")
 	}
 
-	request.Header.Set("Accept", "application/json")
-
-	resp, err := b.client.Do(request)
-	if err != nil {
-		return nil, b.error(err, "calling bifrost")
+	if resp.JSON200 != nil {
+		return resp, nil
 	}
 
-	if resp.StatusCode != http.StatusOK {
-		return nil, b.handleErrorResponse(resp, "GET", path)
+	if resp.JSON404 != nil {
+		return nil, b.formatBifrostError(resp.JSON404)
 	}
-	return resp, nil
+
+	return nil, fmt.Errorf("bifrost GetInstance returned %s", resp.Status())
 }
 
-// handleErrorResponse parses and returns a structured error from bifrost's error response
-func (b *bifrostClient) handleErrorResponse(resp *http.Response, method, path string) error {
-	defer resp.Body.Close()
-
-	bodyBytes, err := io.ReadAll(resp.Body)
+func (b *bifrostClientImpl) DeleteInstance(ctx context.Context, name string) (*bifrostclient.DeleteInstanceResponse, error) {
+	resp, err := b.client.DeleteInstanceWithResponse(ctx, name)
 	if err != nil {
-		b.log.WithError(err).WithFields(logrus.Fields{
-			"method":      method,
-			"path":        path,
-			"status_code": resp.StatusCode,
-		}).Error("failed to read bifrost error response body")
-		return fmt.Errorf("bifrost %s %s returned %s", method, path, resp.Status)
+		return nil, b.logError(err, "DeleteInstance", "calling bifrost")
 	}
 
-	var bifrostErr BifrostV1ErrorResponse
-	if err := json.Unmarshal(bodyBytes, &bifrostErr); err != nil {
-		// If we can't parse the error response, return the raw status
-		b.log.WithFields(logrus.Fields{
-			"method":      method,
-			"path":        path,
-			"status_code": resp.StatusCode,
-			"body":        string(bodyBytes),
-		}).Error("bifrost returned error")
-		return fmt.Errorf("bifrost %s %s returned %s", method, path, resp.Status)
+	// Success is 204 No Content, which means no JSON body
+	if resp.StatusCode() == http.StatusNoContent || resp.StatusCode() == http.StatusOK {
+		return resp, nil
 	}
 
-	// Log the structured error
+	if resp.JSON404 != nil {
+		return nil, b.formatBifrostError(resp.JSON404)
+	}
+
+	if resp.JSON500 != nil {
+		return nil, b.formatBifrostError(resp.JSON500)
+	}
+
+	return nil, fmt.Errorf("bifrost DeleteInstance returned %s", resp.Status())
+}
+
+func (b *bifrostClientImpl) ListInstances(ctx context.Context) (*bifrostclient.ListInstancesResponse, error) {
+	resp, err := b.client.ListInstancesWithResponse(ctx)
+	if err != nil {
+		return nil, b.logError(err, "ListInstances", "calling bifrost")
+	}
+
+	if resp.JSON200 != nil {
+		return resp, nil
+	}
+
+	if resp.JSON500 != nil {
+		return nil, b.formatBifrostError(resp.JSON500)
+	}
+
+	return nil, fmt.Errorf("bifrost ListInstances returned %s", resp.Status())
+}
+
+func (b *bifrostClientImpl) ListChannels(ctx context.Context) (*bifrostclient.ListChannelsResponse, error) {
+	resp, err := b.client.ListChannelsWithResponse(ctx)
+	if err != nil {
+		return nil, b.logError(err, "ListChannels", "calling bifrost")
+	}
+
+	if resp.JSON200 != nil {
+		return resp, nil
+	}
+
+	if resp.JSON500 != nil {
+		return nil, b.formatBifrostError(resp.JSON500)
+	}
+
+	return nil, fmt.Errorf("bifrost ListChannels returned %s", resp.Status())
+}
+
+func (b *bifrostClientImpl) GetChannel(ctx context.Context, name string) (*bifrostclient.GetChannelResponse, error) {
+	resp, err := b.client.GetChannelWithResponse(ctx, name)
+	if err != nil {
+		return nil, b.logError(err, "GetChannel", "calling bifrost")
+	}
+
+	if resp.JSON200 != nil {
+		return resp, nil
+	}
+
+	if resp.JSON404 != nil {
+		return nil, b.formatBifrostError(resp.JSON404)
+	}
+
+	return nil, fmt.Errorf("bifrost GetChannel returned %s", resp.Status())
+}
+
+func (b *bifrostClientImpl) handleErrorResponse(resp *http.Response, json400, json500 *bifrostclient.ErrorResponse, operation string) error {
+	if json400 != nil {
+		b.logBifrostError(operation, resp.StatusCode, json400)
+		return b.formatBifrostError(json400)
+	}
+
+	if json500 != nil {
+		b.logBifrostError(operation, resp.StatusCode, json500)
+		return b.formatBifrostError(json500)
+	}
+
 	b.log.WithFields(logrus.Fields{
-		"method":        method,
-		"path":          path,
-		"status_code":   resp.StatusCode,
-		"error_type":    bifrostErr.Error,
-		"error_message": bifrostErr.Message,
-		"error_details": bifrostErr.Details,
-	}).Error("bifrost returned error")
+		"operation":   operation,
+		"status_code": resp.StatusCode,
+	}).Error("bifrost returned unexpected error")
 
-	// Return a user-friendly error message
-	if bifrostErr.Message != "" {
-		return fmt.Errorf("bifrost: %s", bifrostErr.Message)
-	}
-	if bifrostErr.Error != "" {
-		return fmt.Errorf("bifrost: %s", bifrostErr.Error)
-	}
-	return fmt.Errorf("bifrost %s %s returned %s", method, path, resp.Status)
+	return fmt.Errorf("bifrost %s returned %s", operation, resp.Status)
 }
 
-func (b *bifrostClient) error(err error, msg string) error {
-	b.log.WithError(err).Error(msg)
+func (b *bifrostClientImpl) handleUpdateErrorResponse(resp *bifrostclient.UpdateInstanceResponse) error {
+	if resp.JSON400 != nil {
+		b.logBifrostError("UpdateInstance", resp.StatusCode(), resp.JSON400)
+		return b.formatBifrostError(resp.JSON400)
+	}
+
+	if resp.JSON404 != nil {
+		b.logBifrostError("UpdateInstance", resp.StatusCode(), resp.JSON404)
+		return b.formatBifrostError(resp.JSON404)
+	}
+
+	if resp.JSON500 != nil {
+		b.logBifrostError("UpdateInstance", resp.StatusCode(), resp.JSON500)
+		return b.formatBifrostError(resp.JSON500)
+	}
+
+	return fmt.Errorf("bifrost UpdateInstance returned %s", resp.Status())
+}
+
+func (b *bifrostClientImpl) logBifrostError(operation string, statusCode int, errResp *bifrostclient.ErrorResponse) {
+	b.log.WithFields(logrus.Fields{
+		"operation":     operation,
+		"status_code":   statusCode,
+		"error_type":    errResp.Error,
+		"error_message": errResp.Message,
+		"error_details": errResp.Details,
+	}).Error("bifrost returned error")
+}
+
+func (b *bifrostClientImpl) formatBifrostError(errResp *bifrostclient.ErrorResponse) error {
+	if errResp.Message != "" {
+		return fmt.Errorf("bifrost: %s", errResp.Message)
+	}
+	if errResp.Error != "" {
+		return fmt.Errorf("bifrost: %s", errResp.Error)
+	}
+	return fmt.Errorf("bifrost error: status %d", errResp.StatusCode)
+}
+
+func (b *bifrostClientImpl) logError(err error, operation, msg string) error {
+	b.log.WithError(err).WithField("operation", operation).Error(msg)
 	return fmt.Errorf("%s: %w", msg, err)
 }

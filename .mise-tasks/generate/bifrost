@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+#MISE description="Generate Bifrost API client from OpenAPI spec"
+
+set -e
+
+SPEC_URL="https://raw.githubusercontent.com/nais/bifrost/refs/heads/main/api/openapi.yaml"
+SPEC_FILE="/tmp/bifrost-openapi.yaml"
+
+curl -sSL "$SPEC_URL" -o "$SPEC_FILE"
+
+go tool github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen \
+    --config .configs/oapi-codegen-bifrost.yaml \
+    "$SPEC_FILE"

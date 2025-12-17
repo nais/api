@@ -2,7 +2,6 @@ package unleash
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"slices"
 	"strings"
@@ -12,7 +11,7 @@ import (
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/slug"
-	unleash_nais_io_v1 "github.com/nais/unleasherator/api/v1"
+	"github.com/nais/api/internal/unleash/bifrostclient"
 	"github.com/sirupsen/logrus"
 )
 
@@ -51,28 +50,29 @@ func Create(ctx context.Context, input *CreateUnleashForTeamInput) (*UnleashInst
 		"releaseChannel":  input.ReleaseChannel,
 	}).Debug("creating unleash instance with allowed clusters")
 
-	req := BifrostV1CreateRequest{
-		Name:             input.TeamSlug.String(),
-		AllowedTeams:     input.TeamSlug.String(),
-		EnableFederation: true,
-		AllowedClusters:  fromContext(ctx).allowedClusters,
+	name := input.TeamSlug.String()
+	enableFederation := true
+	allowedTeams := input.TeamSlug.String()
+	allowedClusters := fromContext(ctx).allowedClusters
+
+	req := bifrostclient.UnleashConfigRequest{
+		Name:             &name,
+		EnableFederation: &enableFederation,
+		AllowedTeams:     &allowedTeams,
+		AllowedClusters:  &allowedClusters,
 	}
 
 	// Set release channel if specified (otherwise bifrost uses its default)
 	if input.ReleaseChannel != nil && *input.ReleaseChannel != "" {
-		req.ReleaseChannelName = *input.ReleaseChannel
+		req.ReleaseChannelName = input.ReleaseChannel
 	}
 
-	unleashResponse, err := client.Post(ctx, "/v1/unleash", req)
+	resp, err := client.CreateInstance(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 
-	var unleashInstance unleash_nais_io_v1.Unleash
-	err = json.NewDecoder(unleashResponse.Body).Decode(&unleashInstance)
-	if err != nil {
-		return nil, fmt.Errorf("decoding unleash instance: %w", err)
-	}
+	unleashInstance := bifrostUnleashToK8s(resp.JSON201)
 
 	err = activitylog.Create(ctx, activitylog.CreateInput{
 		Action:       activitylog.ActivityLogEntryActionCreated,
@@ -85,7 +85,7 @@ func Create(ctx context.Context, input *CreateUnleashForTeamInput) (*UnleashInst
 		return nil, err
 	}
 
-	return toUnleashInstance(&unleashInstance), nil
+	return toUnleashInstance(unleashInstance), nil
 }
 
 func alterTeamAccess(ctx context.Context, teamSlug slug.Slug, allowedTeams []slug.Slug) (*UnleashInstance, error) {
@@ -95,24 +95,19 @@ func alterTeamAccess(ctx context.Context, teamSlug slug.Slug, allowedTeams []slu
 	for i, t := range allowedTeams {
 		allowed[i] = t.String()
 	}
+	allowedTeamsStr := strings.Join(allowed, ",")
 
-	// Use v1 API request format with snake_case
-	req := BifrostV1UpdateRequest{
-		AllowedTeams: strings.Join(allowed, ","),
+	req := bifrostclient.UnleashConfigRequest{
+		AllowedTeams: &allowedTeamsStr,
 	}
 
-	unleashResponse, err := client.Put(ctx, fmt.Sprintf("/v1/unleash/%s", teamSlug.String()), req)
+	resp, err := client.UpdateInstance(ctx, teamSlug.String(), req)
 	if err != nil {
 		return nil, err
 	}
 
-	var unleashInstance unleash_nais_io_v1.Unleash
-	err = json.NewDecoder(unleashResponse.Body).Decode(&unleashInstance)
-	if err != nil {
-		return nil, fmt.Errorf("decoding unleash instance: %w", err)
-	}
-
-	return toUnleashInstance(&unleashInstance), nil
+	unleashInstance := bifrostUnleashToK8s(resp.JSON200)
+	return toUnleashInstance(unleashInstance), nil
 }
 
 func AllowTeamAccess(ctx context.Context, input AllowTeamAccessToUnleashInput) (*UnleashInstance, error) {
@@ -217,20 +212,14 @@ func MemoryUsage(ctx context.Context, teamSlug slug.Slug) (float64, error) {
 func GetReleaseChannels(ctx context.Context) ([]*UnleashReleaseChannel, error) {
 	client := fromContext(ctx).bifrostClient
 
-	resp, err := client.Get(ctx, "/v1/releasechannels")
+	resp, err := client.ListChannels(ctx)
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
 
-	var channelResponses []BifrostV1ReleaseChannelResponse
-	if err := json.NewDecoder(resp.Body).Decode(&channelResponses); err != nil {
-		return nil, fmt.Errorf("decoding release channels: %w", err)
-	}
-
-	channels := make([]*UnleashReleaseChannel, len(channelResponses))
-	for i, r := range channelResponses {
-		channels[i] = r.toReleaseChannel()
+	channels := make([]*UnleashReleaseChannel, len(*resp.JSON200))
+	for i, r := range *resp.JSON200 {
+		channels[i] = toReleaseChannel(&r)
 	}
 
 	return channels, nil
@@ -257,21 +246,17 @@ func UpdateInstance(ctx context.Context, input *UpdateUnleashInstanceInput) (*Un
 	// Log is intentionally not including user input to avoid log injection
 	fromContext(ctx).log.Debug("updating unleash instance version configuration")
 
-	req := BifrostV1UpdateRequest{}
+	req := bifrostclient.UnleashConfigRequest{}
 	if input.ReleaseChannel != nil {
-		req.ReleaseChannelName = *input.ReleaseChannel
+		req.ReleaseChannelName = input.ReleaseChannel
 	}
 
-	unleashResponse, err := client.Put(ctx, fmt.Sprintf("/v1/unleash/%s", input.TeamSlug.String()), req)
+	resp, err := client.UpdateInstance(ctx, input.TeamSlug.String(), req)
 	if err != nil {
 		return nil, err
 	}
 
-	var unleashInstance unleash_nais_io_v1.Unleash
-	err = json.NewDecoder(unleashResponse.Body).Decode(&unleashInstance)
-	if err != nil {
-		return nil, fmt.Errorf("decoding unleash instance: %w", err)
-	}
+	unleashInstance := bifrostUnleashToK8s(resp.JSON200)
 
 	// Log the release channel change
 	data := &UnleashInstanceUpdatedActivityLogEntryData{
@@ -290,7 +275,7 @@ func UpdateInstance(ctx context.Context, input *UpdateUnleashInstanceInput) (*Un
 		return nil, err
 	}
 
-	return toUnleashInstance(&unleashInstance), nil
+	return toUnleashInstance(unleashInstance), nil
 }
 
 // @TODO decide how we want to specify which team can manage Unleash from Console
