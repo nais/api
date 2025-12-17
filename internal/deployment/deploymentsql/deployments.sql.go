@@ -61,7 +61,8 @@ func (q *Queries) LatestDeploymentTimestampForWorkload(ctx context.Context, arg 
 
 const list = `-- name: List :many
 SELECT
-	id, external_id, created_at, team_slug, repository, commit_sha, deployer_username, trigger_url, environment_name
+	deployments.id, deployments.external_id, deployments.created_at, deployments.team_slug, deployments.repository, deployments.commit_sha, deployments.deployer_username, deployments.trigger_url, deployments.environment_name,
+	COUNT(*) OVER () AS total_count
 FROM
 	deployments
 WHERE
@@ -83,25 +84,31 @@ type ListParams struct {
 	Limit  int32
 }
 
-func (q *Queries) List(ctx context.Context, arg ListParams) ([]*Deployment, error) {
+type ListRow struct {
+	Deployment Deployment
+	TotalCount int64
+}
+
+func (q *Queries) List(ctx context.Context, arg ListParams) ([]*ListRow, error) {
 	rows, err := q.db.Query(ctx, list, arg.Since, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []*Deployment{}
+	items := []*ListRow{}
 	for rows.Next() {
-		var i Deployment
+		var i ListRow
 		if err := rows.Scan(
-			&i.ID,
-			&i.ExternalID,
-			&i.CreatedAt,
-			&i.TeamSlug,
-			&i.Repository,
-			&i.CommitSha,
-			&i.DeployerUsername,
-			&i.TriggerUrl,
-			&i.EnvironmentName,
+			&i.Deployment.ID,
+			&i.Deployment.ExternalID,
+			&i.Deployment.CreatedAt,
+			&i.Deployment.TeamSlug,
+			&i.Deployment.Repository,
+			&i.Deployment.CommitSha,
+			&i.Deployment.DeployerUsername,
+			&i.Deployment.TriggerUrl,
+			&i.Deployment.EnvironmentName,
+			&i.TotalCount,
 		); err != nil {
 			return nil, err
 		}

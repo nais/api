@@ -35,9 +35,13 @@ func List(ctx context.Context, page *pagination.Pagination, filter *DeploymentFi
 	if err != nil {
 		return nil, err
 	}
+	var total int64
+	if len(ret) > 0 {
+		total = ret[0].TotalCount
+	}
 
-	return pagination.NewConvertConnection(ret, page, len(ret), func(from *deploymentsql.Deployment) *Deployment {
-		return toGraphDeployment(from)
+	return pagination.NewConvertConnection(ret, page, total, func(from *deploymentsql.ListRow) *Deployment {
+		return toGraphDeployment(&from.Deployment)
 	}), nil
 }
 

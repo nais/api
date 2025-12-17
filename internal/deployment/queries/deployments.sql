@@ -1,6 +1,7 @@
 -- name: List :many
 SELECT
-	*
+	sqlc.embed(deployments),
+	COUNT(*) OVER () AS total_count
 FROM
 	deployments
 WHERE
