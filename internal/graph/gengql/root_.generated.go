@@ -17069,6 +17069,8 @@ input DeploymentFilter {
 	from: Time
 	"Exclude deployments from these teams."
 	excludeTeams: [Slug!]
+	"Filter deployments by environments."
+	environments: [String!]
 }
 `, BuiltIn: false},
 	{Name: "../schema/environments.graphqls", Input: `extend type Query {

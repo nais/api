@@ -36,6 +36,9 @@ func List(ctx context.Context, page *pagination.Pagination, filter *DeploymentFi
 			}
 			params.ExcludeTeams = excludeTeams
 		}
+		if len(filter.Environments) > 0 {
+			params.Environments = filter.Environments
+		}
 	}
 
 	ret, err := q.List(ctx, params)

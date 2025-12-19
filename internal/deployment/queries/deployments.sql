@@ -13,6 +13,10 @@ WHERE
 		sqlc.narg('exclude_teams')::TEXT[] IS NULL
 		OR team_slug != ALL (sqlc.narg('exclude_teams')::TEXT[])
 	)
+	AND (
+		sqlc.narg('environments')::TEXT[] IS NULL
+		OR environment_name = ANY (sqlc.narg('environments')::TEXT[])
+	)
 ORDER BY
 	created_at DESC
 LIMIT

@@ -74,17 +74,22 @@ WHERE
 		$2::TEXT[] IS NULL
 		OR team_slug != ALL ($2::TEXT[])
 	)
+	AND (
+		$3::TEXT[] IS NULL
+		OR environment_name = ANY ($3::TEXT[])
+	)
 ORDER BY
 	created_at DESC
 LIMIT
-	$4
+	$5
 OFFSET
-	$3
+	$4
 `
 
 type ListParams struct {
 	Since        pgtype.Timestamptz
 	ExcludeTeams []string
+	Environments []string
 	Offset       int32
 	Limit        int32
 }
@@ -98,6 +103,7 @@ func (q *Queries) List(ctx context.Context, arg ListParams) ([]*ListRow, error) 
 	rows, err := q.db.Query(ctx, list,
 		arg.Since,
 		arg.ExcludeTeams,
+		arg.Environments,
 		arg.Offset,
 		arg.Limit,
 	)

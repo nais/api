@@ -122,6 +122,8 @@ type DeploymentFilter struct {
 	From time.Time `json:"from"`
 	// Exclude deployments from these teams.
 	ExcludeTeams []slug.Slug `json:"excludeTeams"`
+	// Filter deployments by environments.
+	Environments []string `json:"environments"`
 }
 
 type ChangeDeploymentKeyInput struct {
