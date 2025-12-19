@@ -17067,6 +17067,8 @@ extend enum ActivityLogActivityType {
 input DeploymentFilter {
 	"Get deployments from a given date until today."
 	from: Time
+	"Exclude deployments from these teams."
+	excludeTeams: [Slug!]
 }
 `, BuiltIn: false},
 	{Name: "../schema/environments.graphqls", Input: `extend type Query {

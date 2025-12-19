@@ -9,6 +9,10 @@ WHERE
 		@since::TIMESTAMPTZ IS NULL
 		OR created_at >= @since::TIMESTAMPTZ
 	)
+	AND (
+		sqlc.narg('exclude_teams')::TEXT[] IS NULL
+		OR team_slug != ALL (sqlc.narg('exclude_teams')::TEXT[])
+	)
 ORDER BY
 	created_at DESC
 LIMIT

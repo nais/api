@@ -70,18 +70,23 @@ WHERE
 		$1::TIMESTAMPTZ IS NULL
 		OR created_at >= $1::TIMESTAMPTZ
 	)
+	AND (
+		$2::TEXT[] IS NULL
+		OR team_slug != ALL ($2::TEXT[])
+	)
 ORDER BY
 	created_at DESC
 LIMIT
-	$3
+	$4
 OFFSET
-	$2
+	$3
 `
 
 type ListParams struct {
-	Since  pgtype.Timestamptz
-	Offset int32
-	Limit  int32
+	Since        pgtype.Timestamptz
+	ExcludeTeams []string
+	Offset       int32
+	Limit        int32
 }
 
 type ListRow struct {
@@ -90,7 +95,12 @@ type ListRow struct {
 }
 
 func (q *Queries) List(ctx context.Context, arg ListParams) ([]*ListRow, error) {
-	rows, err := q.db.Query(ctx, list, arg.Since, arg.Offset, arg.Limit)
+	rows, err := q.db.Query(ctx, list,
+		arg.Since,
+		arg.ExcludeTeams,
+		arg.Offset,
+		arg.Limit,
+	)
 	if err != nil {
 		return nil, err
 	}
