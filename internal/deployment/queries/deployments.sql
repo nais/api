@@ -9,6 +9,11 @@ WHERE
 		@since::TIMESTAMPTZ IS NULL
 		OR created_at >= @since::TIMESTAMPTZ
 	)
+	AND team_slug != 'nais-verification'
+	AND (
+		sqlc.narg('environments')::TEXT[] IS NULL
+		OR environment_name = ANY (sqlc.narg('environments')::TEXT[])
+	)
 ORDER BY
 	created_at DESC
 LIMIT

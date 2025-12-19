@@ -415,3 +415,101 @@ Test.gql("list all deployments", function(t)
 		},
 	}
 end)
+
+-- Create additional test data for filter tests
+Team.new("slug-3", "purpose", "#slack-channel")
+
+Helper.SQLExec([[
+	INSERT INTO deployments (team_slug, repository, environment_name)
+	VALUES
+		('slug-1', 'org/repo-prod', 'prod'),
+		('slug-2', 'org/repo-staging', 'staging'),
+		('slug-3', 'org/repo-dev', 'dev'),
+		('slug-3', 'org/repo-prod2', 'prod')
+]])
+
+Test.gql("filter deployments by environments", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query([[
+		{
+			deployments(filter: { environments: ["prod"] }) {
+				pageInfo {
+					totalCount
+				}
+				nodes {
+					id
+					environmentName
+				}
+			}
+		}
+	]])
+
+	t.check {
+		data = {
+			deployments = {
+				pageInfo = {
+					totalCount = 2,
+				},
+				nodes = {
+					{
+						id = NotNull(),
+						environmentName = "prod",
+					},
+					{
+						id = NotNull(),
+						environmentName = "prod",
+					},
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("filter deployments by multiple environments", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query([[
+		{
+			deployments(filter: { environments: ["prod", "staging"] }) {
+				pageInfo {
+					totalCount
+				}
+			}
+		}
+	]])
+
+	t.check {
+		data = {
+			deployments = {
+				pageInfo = {
+					totalCount = 3,
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("empty environment filter returns all deployments", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query([[
+		{
+			deployments(filter: { environments: [] }) {
+				pageInfo {
+					totalCount
+				}
+			}
+		}
+	]])
+
+	t.check {
+		data = {
+			deployments = {
+				pageInfo = {
+					totalCount = 8,
+				},
+			},
+		},
+	}
+end)

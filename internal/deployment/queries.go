@@ -29,6 +29,9 @@ func List(ctx context.Context, page *pagination.Pagination, filter *DeploymentFi
 			Time:  filter.From,
 			Valid: true,
 		}
+		if len(filter.Environments) > 0 {
+			params.Environments = filter.Environments
+		}
 	}
 
 	ret, err := q.List(ctx, params)
