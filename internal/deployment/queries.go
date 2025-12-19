@@ -29,13 +29,6 @@ func List(ctx context.Context, page *pagination.Pagination, filter *DeploymentFi
 			Time:  filter.From,
 			Valid: true,
 		}
-		if len(filter.ExcludeTeams) > 0 {
-			excludeTeams := make([]string, len(filter.ExcludeTeams))
-			for i, team := range filter.ExcludeTeams {
-				excludeTeams[i] = string(team)
-			}
-			params.ExcludeTeams = excludeTeams
-		}
 		if len(filter.Environments) > 0 {
 			params.Environments = filter.Environments
 		}

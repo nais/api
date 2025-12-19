@@ -9,10 +9,7 @@ WHERE
 		@since::TIMESTAMPTZ IS NULL
 		OR created_at >= @since::TIMESTAMPTZ
 	)
-	AND (
-		sqlc.narg('exclude_teams')::TEXT[] IS NULL
-		OR team_slug != ALL (sqlc.narg('exclude_teams')::TEXT[])
-	)
+	AND team_slug != 'nais-verification'
 	AND (
 		sqlc.narg('environments')::TEXT[] IS NULL
 		OR environment_name = ANY (sqlc.narg('environments')::TEXT[])

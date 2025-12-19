@@ -1921,7 +1921,7 @@ func (ec *executionContext) unmarshalInputDeploymentFilter(ctx context.Context, 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"from", "excludeTeams", "environments"}
+	fieldsInOrder := [...]string{"from", "environments"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -1935,13 +1935,6 @@ func (ec *executionContext) unmarshalInputDeploymentFilter(ctx context.Context, 
 				return it, err
 			}
 			it.From = data
-		case "excludeTeams":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("excludeTeams"))
-			data, err := ec.unmarshalOSlug2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlugᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.ExcludeTeams = data
 		case "environments":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environments"))
 			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)

@@ -120,8 +120,6 @@ func (e DeploymentStatusState) MarshalGQL(w io.Writer) {
 type DeploymentFilter struct {
 	// Get deployments from a given date until today.
 	From time.Time `json:"from"`
-	// Exclude deployments from these teams.
-	ExcludeTeams []slug.Slug `json:"excludeTeams"`
 	// Filter deployments by environments.
 	Environments []string `json:"environments"`
 }

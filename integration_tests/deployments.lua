@@ -490,84 +490,12 @@ Test.gql("filter deployments by multiple environments", function(t)
 	}
 end)
 
-Test.gql("exclude teams from deployments", function(t)
-	t.addHeader("x-user-email", user:email())
-
-	t.query([[
-		{
-			deployments(filter: { excludeTeams: ["slug-1", "slug-2"] }) {
-				pageInfo {
-					totalCount
-				}
-			}
-		}
-	]])
-
-	t.check {
-		data = {
-			deployments = {
-				pageInfo = {
-					totalCount = 2,
-				},
-			},
-		},
-	}
-end)
-
-Test.gql("combine environment and excludeTeams filters", function(t)
-	t.addHeader("x-user-email", user:email())
-
-	t.query([[
-		{
-			deployments(filter: { environments: ["dev"], excludeTeams: ["slug-2"] }) {
-				pageInfo {
-					totalCount
-				}
-			}
-		}
-	]])
-
-	t.check {
-		data = {
-			deployments = {
-				pageInfo = {
-					totalCount = 2,
-				},
-			},
-		},
-	}
-end)
-
 Test.gql("empty environment filter returns all deployments", function(t)
 	t.addHeader("x-user-email", user:email())
 
 	t.query([[
 		{
 			deployments(filter: { environments: [] }) {
-				pageInfo {
-					totalCount
-				}
-			}
-		}
-	]])
-
-	t.check {
-		data = {
-			deployments = {
-				pageInfo = {
-					totalCount = 8,
-				},
-			},
-		},
-	}
-end)
-
-Test.gql("empty excludeTeams filter returns all deployments", function(t)
-	t.addHeader("x-user-email", user:email())
-
-	t.query([[
-		{
-			deployments(filter: { excludeTeams: [] }) {
 				pageInfo {
 					totalCount
 				}
