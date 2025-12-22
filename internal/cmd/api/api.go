@@ -156,7 +156,9 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	}
 	defer mgmtWatcher.Stop()
 
-	watchers := watchers.SetupWatchers(ctx, watcherMgr, mgmtWatcher)
+	watchers := watchers.SetupWatchers(ctx, watcherMgr, mgmtWatcher, watchers.SetupWatchersOptions{
+		UnleashEnabled: cfg.Unleash.Enabled,
+	})
 
 	pubsubClient, err := pubsub.NewClient(ctx, cfg.GoogleManagementProjectID)
 	if err != nil {

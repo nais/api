@@ -342,7 +342,7 @@ func ConfigureGraph(
 		ctx = environment.NewLoaderContext(ctx, pool)
 		ctx = feature.NewLoaderContext(
 			ctx,
-			watchers.UnleashWatcher.Enabled(),
+			watchers.UnleashEnabled(),
 			watchers.ValkeyWatcher.Enabled(),
 			watchers.KafkaTopicWatcher.Enabled(),
 			watchers.OpenSearchWatcher.Enabled(),
