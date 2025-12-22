@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/nais/bifrost/pkg/bifrostclient"
 	unleash_nais_io_v1 "github.com/nais/unleasherator/api/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -199,19 +200,26 @@ func TestToUnleashInstance(t *testing.T) {
 	}
 }
 
-func TestBifrostV1ReleaseChannelResponse_ToReleaseChannel(t *testing.T) {
+func TestToReleaseChannel(t *testing.T) {
+	sequential := "sequential"
+	canary := "canary"
+	lastUpdatedTime := time.Date(2024, 3, 15, 10, 30, 0, 0, time.UTC)
+	createdAtTime := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
+
 	tests := []struct {
 		name     string
-		response BifrostV1ReleaseChannelResponse
+		response bifrostclient.ReleaseChannelResponse
 		want     *UnleashReleaseChannel
 	}{
 		{
 			name: "full response",
-			response: BifrostV1ReleaseChannelResponse{
+			response: bifrostclient.ReleaseChannelResponse{
 				Name:           "stable",
 				CurrentVersion: "5.11.0",
-				Type:           "sequential",
-				LastUpdated:    "2024-03-15T10:30:00Z",
+				Type:           &sequential,
+				LastUpdated:    &lastUpdatedTime,
+				CreatedAt:      createdAtTime,
+				Image:          "unleash:5.11.0",
 			},
 			want: &UnleashReleaseChannel{
 				Name:           "stable",
@@ -222,10 +230,12 @@ func TestBifrostV1ReleaseChannelResponse_ToReleaseChannel(t *testing.T) {
 		},
 		{
 			name: "minimal response",
-			response: BifrostV1ReleaseChannelResponse{
+			response: bifrostclient.ReleaseChannelResponse{
 				Name:           "rapid",
 				CurrentVersion: "5.12.0",
-				Type:           "canary",
+				Type:           &canary,
+				CreatedAt:      createdAtTime,
+				Image:          "unleash:5.12.0",
 			},
 			want: &UnleashReleaseChannel{
 				Name:           "rapid",
@@ -235,17 +245,18 @@ func TestBifrostV1ReleaseChannelResponse_ToReleaseChannel(t *testing.T) {
 			},
 		},
 		{
-			name: "invalid timestamp ignored",
-			response: BifrostV1ReleaseChannelResponse{
+			name: "nil type uses empty string",
+			response: bifrostclient.ReleaseChannelResponse{
 				Name:           "regular",
 				CurrentVersion: "5.10.0",
-				Type:           "sequential",
-				LastUpdated:    "not-a-valid-timestamp",
+				Type:           nil,
+				CreatedAt:      createdAtTime,
+				Image:          "unleash:5.10.0",
 			},
 			want: &UnleashReleaseChannel{
 				Name:           "regular",
 				CurrentVersion: "5.10.0",
-				Type:           "sequential",
+				Type:           "",
 				LastUpdated:    nil,
 			},
 		},
@@ -253,7 +264,7 @@ func TestBifrostV1ReleaseChannelResponse_ToReleaseChannel(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := tt.response.toReleaseChannel()
+			got := toReleaseChannel(&tt.response)
 
 			if got.Name != tt.want.Name {
 				t.Errorf("Name = %q, want %q", got.Name, tt.want.Name)
