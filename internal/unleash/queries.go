@@ -11,7 +11,7 @@ import (
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/slug"
-	"github.com/nais/api/internal/unleash/bifrostclient"
+	"github.com/nais/bifrost/pkg/bifrostclient"
 	"github.com/sirupsen/logrus"
 )
 

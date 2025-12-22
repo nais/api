@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/nais/api/internal/environmentmapper"
-	"github.com/nais/api/internal/unleash/bifrostclient"
+	"github.com/nais/bifrost/pkg/bifrostclient"
 	"github.com/sirupsen/logrus/hooks/test"
 )
 

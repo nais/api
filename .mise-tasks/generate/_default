@@ -3,7 +3,7 @@
 
 unset MISE_TASK_OUTPUT
 
-mise run generate:sql ::: generate:graphql ::: generate:proto ::: generate:bifrost
+mise run generate:sql ::: generate:graphql ::: generate:proto
 mise run generate:mocks
 mise run generate:tester_spec
 mise run fmt:go ::: fmt:lua

@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/nais/api/internal/kubernetes/watcher"
-	"github.com/nais/api/internal/unleash/bifrostclient"
+	"github.com/nais/bifrost/pkg/bifrostclient"
 	unleash_nais_io_v1 "github.com/nais/unleasherator/api/v1"
 	promv1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	"github.com/prometheus/common/model"
