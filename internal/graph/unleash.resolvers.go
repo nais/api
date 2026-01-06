@@ -94,6 +94,10 @@ func (r *unleashInstanceMetricsResolver) APITokens(ctx context.Context, obj *unl
 }
 
 func (r *unleashInstanceMetricsResolver) CPUUtilization(ctx context.Context, obj *unleash.UnleashInstanceMetrics) (float64, error) {
+	if obj.CPURequests == 0 {
+		return 0, nil
+	}
+
 	usage, err := unleash.CPUUsage(ctx, obj.TeamSlug)
 	if err != nil {
 		return 0, err
@@ -103,6 +107,10 @@ func (r *unleashInstanceMetricsResolver) CPUUtilization(ctx context.Context, obj
 }
 
 func (r *unleashInstanceMetricsResolver) MemoryUtilization(ctx context.Context, obj *unleash.UnleashInstanceMetrics) (float64, error) {
+	if obj.MemoryRequests == 0 {
+		return 0, nil
+	}
+
 	usage, err := unleash.MemoryUsage(ctx, obj.TeamSlug)
 	if err != nil {
 		return 0, err
