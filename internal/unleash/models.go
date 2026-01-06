@@ -217,8 +217,8 @@ func bifrostUnleashToK8s(u *bifrostclient.Unleash) *unleash_nais_io_v1.Unleash {
 	}
 
 	if u.Spec != nil {
-		if u.Spec.ReleaseChannel != nil {
-			k8s.Spec.ReleaseChannel.Name = *u.Spec.ReleaseChannel
+		if u.Spec.ReleaseChannel != nil && u.Spec.ReleaseChannel.Name != nil {
+			k8s.Spec.ReleaseChannel.Name = *u.Spec.ReleaseChannel.Name
 		}
 		if u.Spec.CustomImage != nil {
 			k8s.Spec.CustomImage = *u.Spec.CustomImage
