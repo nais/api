@@ -7,9 +7,10 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/nais/api/internal/environmentmapper"
-	bifrost "github.com/nais/bifrost/pkg/unleash"
+	"github.com/nais/bifrost/pkg/bifrostclient"
 	"github.com/sirupsen/logrus/hooks/test"
 )
 
@@ -62,11 +63,16 @@ func TestAllowedClustersMapping(t *testing.T) {
 			defer environmentmapper.SetMapping(environmentmapper.EnvironmentMapping{})
 
 			// Track the actual request made to bifrost
-			var receivedConfig bifrost.UnleashConfig
+			var receivedConfig bifrostclient.UnleashConfigRequest
 			s := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				if r.URL.Path != "/unleash/new" {
-					t.Errorf("expected /unleash/new, got %s", r.URL.Path)
+				if r.URL.Path != "/unleash" {
+					t.Errorf("expected /unleash, got %s", r.URL.Path)
 					http.Error(w, "wrong path", http.StatusBadRequest)
+					return
+				}
+				if r.Method != http.MethodPost {
+					t.Errorf("expected POST, got %s", r.Method)
+					http.Error(w, "wrong method", http.StatusBadRequest)
 					return
 				}
 
@@ -76,8 +82,19 @@ func TestAllowedClustersMapping(t *testing.T) {
 					return
 				}
 
-				// Return a minimal valid response
-				w.Write([]byte(`{}`))
+				// Return a minimal valid Unleash response
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusCreated)
+				name := receivedConfig.Name
+				json.NewEncoder(w).Encode(bifrostclient.Unleash{
+					Metadata: &struct {
+						CreationTimestamp *time.Time `json:"creationTimestamp,omitempty"`
+						Name              *string    `json:"name,omitempty"`
+						Namespace         *string    `json:"namespace,omitempty"`
+					}{
+						Name: name,
+					},
+				})
 			}))
 			defer s.Close()
 
@@ -94,36 +111,50 @@ func TestAllowedClustersMapping(t *testing.T) {
 			}
 			allowedClustersStr := strings.Join(mappedClusters, ",")
 
-			// Create the bifrost config (as done in Create function)
-			bi := bifrost.UnleashConfig{
-				Name:             "test-team",
-				AllowedTeams:     "test-team",
-				EnableFederation: true,
-				AllowedClusters:  allowedClustersStr,
+			// Create the bifrost config request (as done in Create function)
+			enableFederation := true
+			teamName := "test-team"
+			req := bifrostclient.UnleashConfigRequest{
+				Name:             &teamName,
+				AllowedTeams:     &teamName,
+				EnableFederation: &enableFederation,
+				AllowedClusters:  &allowedClustersStr,
 			}
 
 			// Make the request
-			_, err := client.Post(context.Background(), "/unleash/new", bi)
+			_, err := client.CreateInstance(context.Background(), req)
 			if err != nil {
-				t.Fatalf("Post failed: %v", err)
+				t.Fatalf("CreateInstance failed: %v", err)
 			}
 
 			// Verify the received config has correct allowed clusters
-			if receivedConfig.AllowedClusters != tt.expectedAllowed {
+			if receivedConfig.AllowedClusters == nil || *receivedConfig.AllowedClusters != tt.expectedAllowed {
+				got := "<nil>"
+				if receivedConfig.AllowedClusters != nil {
+					got = *receivedConfig.AllowedClusters
+				}
 				t.Errorf("AllowedClusters mismatch\nwant: %s\ngot:  %s",
 					tt.expectedAllowed,
-					receivedConfig.AllowedClusters)
+					got)
 			}
 
 			// Verify basic config
-			if receivedConfig.Name != "test-team" {
-				t.Errorf("Name: want test-team, got %s", receivedConfig.Name)
+			if receivedConfig.Name == nil || *receivedConfig.Name != "test-team" {
+				got := "<nil>"
+				if receivedConfig.Name != nil {
+					got = *receivedConfig.Name
+				}
+				t.Errorf("Name: want test-team, got %s", got)
 			}
-			if receivedConfig.AllowedTeams != "test-team" {
-				t.Errorf("AllowedTeams: want test-team, got %s", receivedConfig.AllowedTeams)
+			if receivedConfig.AllowedTeams == nil || *receivedConfig.AllowedTeams != "test-team" {
+				got := "<nil>"
+				if receivedConfig.AllowedTeams != nil {
+					got = *receivedConfig.AllowedTeams
+				}
+				t.Errorf("AllowedTeams: want test-team, got %s", got)
 			}
-			if !receivedConfig.EnableFederation {
-				t.Error("EnableFederation: want true, got false")
+			if receivedConfig.EnableFederation == nil || !*receivedConfig.EnableFederation {
+				t.Error("EnableFederation: want true, got false or nil")
 			}
 		})
 	}

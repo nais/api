@@ -2,16 +2,13 @@ package unleash
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
-	"net/http"
 	"strings"
 	"time"
 
 	"github.com/nais/api/internal/kubernetes/watcher"
-	"github.com/nais/api/internal/test"
-	bifrost "github.com/nais/bifrost/pkg/unleash"
+	"github.com/nais/bifrost/pkg/bifrostclient"
 	unleash_nais_io_v1 "github.com/nais/unleasherator/api/v1"
 	promv1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	"github.com/prometheus/common/model"
@@ -70,131 +67,146 @@ func NewFakeBifrostClient(wtchr *watcher.Watcher[*UnleashInstance]) BifrostClien
 	return &FakeBifrostClient{watcher: wtchr}
 }
 
-func (f FakeBifrostClient) Post(ctx context.Context, path string, v any) (*http.Response, error) {
-	var unleashInstance *unleash_nais_io_v1.Unleash
-	var err error
-
-	switch path {
-	case "/unleash/new", "/v1/unleash":
-		var config BifrostV1CreateRequest
-		if v0Config, ok := v.(bifrost.UnleashConfig); ok {
-			config = BifrostV1CreateRequest{
-				Name:             v0Config.Name,
-				AllowedTeams:     v0Config.AllowedTeams,
-				EnableFederation: v0Config.EnableFederation,
-				AllowedClusters:  v0Config.AllowedClusters,
-			}
-		} else if v1Config, ok := v.(BifrostV1CreateRequest); ok {
-			config = v1Config
-		} else {
-			return nil, fmt.Errorf("unknown config type for path: %s", path)
-		}
-		unleashInstance, err = f.createOrUpdateUnleash(ctx, config)
-	default:
-		if strings.HasPrefix(path, "/unleash/") && strings.HasSuffix(path, "/edit") {
-			var config BifrostV1UpdateRequest
-			if v0Config, ok := v.(bifrost.UnleashConfig); ok {
-				config = BifrostV1UpdateRequest{
-					AllowedTeams: v0Config.AllowedTeams,
-				}
-			} else if v1Config, ok := v.(BifrostV1UpdateRequest); ok {
-				config = v1Config
-			} else {
-				return nil, fmt.Errorf("unknown config type for path: %s", path)
-			}
-			parts := strings.Split(path, "/")
-			if len(parts) >= 3 {
-				name := parts[2]
-				unleashInstance, err = f.updateUnleash(ctx, name, config)
-			} else {
-				return nil, fmt.Errorf("invalid edit path: %s", path)
-			}
-		} else {
-			return nil, fmt.Errorf("unknown path: %s", path)
-		}
-	}
-
+func (f *FakeBifrostClient) CreateInstance(ctx context.Context, req bifrostclient.UnleashConfigRequest) (*bifrostclient.CreateInstanceResponse, error) {
+	unleashInstance, err := f.createOrUpdateUnleash(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 
-	unleashJSON, err := json.Marshal(unleashInstance)
-	if err != nil {
-		return nil, err
-	}
-
-	return test.Response("200 OK", string(unleashJSON)), nil
+	bifrostUnleash := k8sToBifrostUnleash(unleashInstance)
+	return &bifrostclient.CreateInstanceResponse{
+		JSON201: bifrostUnleash,
+	}, nil
 }
 
-func (f FakeBifrostClient) Put(ctx context.Context, path string, v any) (*http.Response, error) {
-	if !strings.HasPrefix(path, "/v1/unleash/") {
-		return nil, fmt.Errorf("unknown PUT path: %s", path)
-	}
-
-	name := strings.TrimPrefix(path, "/v1/unleash/")
-
-	var config BifrostV1UpdateRequest
-	if v1Config, ok := v.(BifrostV1UpdateRequest); ok {
-		config = v1Config
-	} else {
-		return nil, fmt.Errorf("unknown config type for PUT: %T", v)
-	}
-
-	unleashInstance, err := f.updateUnleash(ctx, name, config)
+func (f *FakeBifrostClient) UpdateInstance(ctx context.Context, name string, req bifrostclient.UnleashConfigRequest) (*bifrostclient.UpdateInstanceResponse, error) {
+	unleashInstance, err := f.updateUnleash(ctx, name, req)
 	if err != nil {
 		return nil, err
 	}
 
-	unleashJSON, err := json.Marshal(unleashInstance)
-	if err != nil {
-		return nil, err
-	}
-
-	return test.Response("200 OK", string(unleashJSON)), nil
+	bifrostUnleash := k8sToBifrostUnleash(unleashInstance)
+	return &bifrostclient.UpdateInstanceResponse{
+		JSON200: bifrostUnleash,
+	}, nil
 }
 
-func (f FakeBifrostClient) Get(_ context.Context, path string) (*http.Response, error) {
-	if path == "/v1/releasechannels" {
-		channels := []BifrostV1ReleaseChannelResponse{
-			{
-				Name:           "stable",
-				Version:        "5.11.0",
-				Type:           "sequential",
-				CurrentVersion: "5.11.0",
-				LastUpdated:    "2024-03-15T10:30:00Z",
+func (f *FakeBifrostClient) GetInstance(_ context.Context, name string) (*bifrostclient.GetInstanceResponse, error) {
+	instance, err := f.watcher.Get("management", ManagementClusterNamespace, name)
+	if err != nil {
+		return nil, err
+	}
+
+	apiVersion := "unleash.nais.io/v1"
+	kind := "Unleash"
+	version := "9.9.9"
+	connected := true
+
+	return &bifrostclient.GetInstanceResponse{
+		JSON200: &bifrostclient.Unleash{
+			ApiVersion: &apiVersion,
+			Kind:       &kind,
+			Metadata: &struct {
+				CreationTimestamp *time.Time `json:"creationTimestamp,omitempty"`
+				Name              *string    `json:"name,omitempty"`
+				Namespace         *string    `json:"namespace,omitempty"`
+			}{
+				Name: &instance.Name,
 			},
-			{
-				Name:           "rapid",
-				Version:        "5.12.0-beta.1",
-				Type:           "canary",
-				CurrentVersion: "5.12.0-beta.1",
-				LastUpdated:    "2024-03-20T14:15:00Z",
+			Status: &struct {
+				Connected *bool   `json:"connected,omitempty"`
+				Version   *string `json:"version,omitempty"`
+			}{
+				Version:   &version,
+				Connected: &connected,
 			},
-			{
-				Name:           "regular",
-				Version:        "5.10.2",
-				Type:           "sequential",
-				CurrentVersion: "5.10.2",
-				LastUpdated:    "2024-03-10T08:00:00Z",
-			},
-		}
+		},
+	}, nil
+}
 
-		channelsJSON, err := json.Marshal(channels)
-		if err != nil {
-			return nil, err
-		}
+func (f *FakeBifrostClient) DeleteInstance(_ context.Context, _ string) (*bifrostclient.DeleteInstanceResponse, error) {
+	return &bifrostclient.DeleteInstanceResponse{}, nil
+}
 
-		return test.Response("200 OK", string(channelsJSON)), nil
+func (f *FakeBifrostClient) ListInstances(_ context.Context) (*bifrostclient.ListInstancesResponse, error) {
+	instances := []bifrostclient.Unleash{}
+	return &bifrostclient.ListInstancesResponse{
+		JSON200: &instances,
+	}, nil
+}
+
+func (f *FakeBifrostClient) ListChannels(_ context.Context) (*bifrostclient.ListChannelsResponse, error) {
+	stableType := "sequential"
+	rapidType := "canary"
+	regularType := "sequential"
+
+	stableTime := time.Date(2024, 3, 15, 10, 30, 0, 0, time.UTC)
+	rapidTime := time.Date(2024, 3, 20, 14, 15, 0, 0, time.UTC)
+	regularTime := time.Date(2024, 3, 10, 8, 0, 0, 0, time.UTC)
+
+	channels := []bifrostclient.ReleaseChannelResponse{
+		{
+			Name:           "stable",
+			Image:          "unleash:5.11.0",
+			CurrentVersion: "5.11.0",
+			Type:           &stableType,
+			LastUpdated:    &stableTime,
+			CreatedAt:      stableTime,
+		},
+		{
+			Name:           "rapid",
+			Image:          "unleash:5.12.0-beta.1",
+			CurrentVersion: "5.12.0-beta.1",
+			Type:           &rapidType,
+			LastUpdated:    &rapidTime,
+			CreatedAt:      rapidTime,
+		},
+		{
+			Name:           "regular",
+			Image:          "unleash:5.10.2",
+			CurrentVersion: "5.10.2",
+			Type:           &regularType,
+			LastUpdated:    &regularTime,
+			CreatedAt:      regularTime,
+		},
 	}
 
-	return nil, fmt.Errorf("unknown GET path: %s", path)
+	return &bifrostclient.ListChannelsResponse{
+		JSON200: &channels,
+	}, nil
 }
 
-func (f FakeBifrostClient) WithClient(_ *http.Client) {
+func (f *FakeBifrostClient) GetChannel(_ context.Context, name string) (*bifrostclient.GetChannelResponse, error) {
+	channelType := "sequential"
+	lastUpdated := time.Date(2024, 3, 15, 10, 30, 0, 0, time.UTC)
+
+	return &bifrostclient.GetChannelResponse{
+		JSON200: &bifrostclient.ReleaseChannelResponse{
+			Name:           name,
+			Image:          "unleash:5.11.0",
+			CurrentVersion: "5.11.0",
+			Type:           &channelType,
+			LastUpdated:    &lastUpdated,
+			CreatedAt:      lastUpdated,
+		},
+	}, nil
 }
 
-func (f FakeBifrostClient) createOrUpdateUnleash(ctx context.Context, config BifrostV1CreateRequest) (*unleash_nais_io_v1.Unleash, error) {
-	unleashSpec := unleashSpecFromV1Config(config)
+func (f *FakeBifrostClient) createOrUpdateUnleash(ctx context.Context, req bifrostclient.UnleashConfigRequest) (*unleash_nais_io_v1.Unleash, error) {
+	name := ""
+	if req.Name != nil {
+		name = *req.Name
+	}
+	allowedTeams := ""
+	if req.AllowedTeams != nil {
+		allowedTeams = *req.AllowedTeams
+	}
+	releaseChannelName := ""
+	if req.ReleaseChannelName != nil {
+		releaseChannelName = *req.ReleaseChannelName
+	}
+
+	unleashSpec := unleashSpecFromConfig(name, allowedTeams, releaseChannelName)
 	unleashObject, err := runtime.DefaultUnstructuredConverter.ToUnstructured(unleashSpec)
 	if err != nil {
 		return nil, err
@@ -205,7 +217,7 @@ func (f FakeBifrostClient) createOrUpdateUnleash(ctx context.Context, config Bif
 		return nil, err
 	}
 	client := defClient.Namespace(ManagementClusterNamespace)
-	if _, err := f.watcher.Get("management", ManagementClusterNamespace, config.Name); errors.Is(err, &watcher.ErrorNotFound{}) {
+	if _, err := f.watcher.Get("management", ManagementClusterNamespace, name); errors.Is(err, &watcher.ErrorNotFound{}) {
 		_, err := client.Create(ctx, &unstructured.Unstructured{Object: unleashObject}, metav1.CreateOptions{})
 		if err != nil {
 			return nil, err
@@ -220,7 +232,16 @@ func (f FakeBifrostClient) createOrUpdateUnleash(ctx context.Context, config Bif
 	return unleashSpec, nil
 }
 
-func (f FakeBifrostClient) updateUnleash(ctx context.Context, name string, config BifrostV1UpdateRequest) (*unleash_nais_io_v1.Unleash, error) {
+func (f *FakeBifrostClient) updateUnleash(ctx context.Context, name string, req bifrostclient.UnleashConfigRequest) (*unleash_nais_io_v1.Unleash, error) {
+	allowedTeams := ""
+	if req.AllowedTeams != nil {
+		allowedTeams = *req.AllowedTeams
+	}
+	releaseChannelName := ""
+	if req.ReleaseChannelName != nil {
+		releaseChannelName = *req.ReleaseChannelName
+	}
+
 	unleashSpec := &unleash_nais_io_v1.Unleash{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "Unleash",
@@ -239,7 +260,7 @@ func (f FakeBifrostClient) updateUnleash(ctx context.Context, name string, confi
 			},
 			ExtraEnvVars: []corev1.EnvVar{{
 				Name:  "TEAMS_ALLOWED_TEAMS",
-				Value: config.AllowedTeams,
+				Value: allowedTeams,
 			}},
 			Resources: corev1.ResourceRequirements{
 				Requests: corev1.ResourceList{
@@ -248,7 +269,7 @@ func (f FakeBifrostClient) updateUnleash(ctx context.Context, name string, confi
 				},
 			},
 			ReleaseChannel: unleash_nais_io_v1.UnleashReleaseChannelConfig{
-				Name: config.ReleaseChannelName,
+				Name: releaseChannelName,
 			},
 		},
 		Status: unleash_nais_io_v1.UnleashStatus{
@@ -277,9 +298,7 @@ func (f FakeBifrostClient) updateUnleash(ctx context.Context, name string, confi
 	return unleashSpec, nil
 }
 
-func unleashSpecFromV1Config(config BifrostV1CreateRequest) *unleash_nais_io_v1.Unleash {
-	name := config.Name
-
+func unleashSpecFromConfig(name, allowedTeams, releaseChannelName string) *unleash_nais_io_v1.Unleash {
 	webIngressHost := fmt.Sprintf("%s-unleash-web.example.com", name)
 	apiIngessHost := fmt.Sprintf("%s-unleash-api.example.com", name)
 
@@ -301,7 +320,7 @@ func unleashSpecFromV1Config(config BifrostV1CreateRequest) *unleash_nais_io_v1.
 			},
 			ExtraEnvVars: []corev1.EnvVar{{
 				Name:  "TEAMS_ALLOWED_TEAMS",
-				Value: config.AllowedTeams,
+				Value: allowedTeams,
 			}},
 			Resources: corev1.ResourceRequirements{
 				Requests: corev1.ResourceList{
@@ -310,13 +329,78 @@ func unleashSpecFromV1Config(config BifrostV1CreateRequest) *unleash_nais_io_v1.
 				},
 			},
 			ReleaseChannel: unleash_nais_io_v1.UnleashReleaseChannelConfig{
-				Name: config.ReleaseChannelName,
+				Name: releaseChannelName,
 			},
 		},
 		Status: unleash_nais_io_v1.UnleashStatus{
 			Reconciled: true,
 			Connected:  true,
 			Version:    "9.9.9",
+		},
+	}
+}
+
+// k8sToBifrostUnleash converts a K8s Unleash object to the bifrostclient.Unleash type
+func k8sToBifrostUnleash(u *unleash_nais_io_v1.Unleash) *bifrostclient.Unleash {
+	if u == nil {
+		return nil
+	}
+
+	apiVersion := u.APIVersion
+	kind := u.Kind
+	name := u.Name
+	namespace := u.Namespace
+	creationTimestamp := u.CreationTimestamp.Time
+	version := u.Status.Version
+	connected := u.Status.Connected
+	releaseChannel := u.Spec.ReleaseChannel.Name
+
+	// Extract allowed teams from ExtraEnvVars
+	var allowedTeams *[]string
+	for _, env := range u.Spec.ExtraEnvVars {
+		if env.Name == "TEAMS_ALLOWED_TEAMS" && env.Value != "" {
+			teams := strings.Split(env.Value, ",")
+			allowedTeams = &teams
+			break
+		}
+	}
+
+	return &bifrostclient.Unleash{
+		ApiVersion: &apiVersion,
+		Kind:       &kind,
+		Metadata: &struct {
+			CreationTimestamp *time.Time `json:"creationTimestamp,omitempty"`
+			Name              *string    `json:"name,omitempty"`
+			Namespace         *string    `json:"namespace,omitempty"`
+		}{
+			CreationTimestamp: &creationTimestamp,
+			Name:              &name,
+			Namespace:         &namespace,
+		},
+		Spec: &struct {
+			CustomImage *string `json:"customImage,omitempty"`
+			Federation  *struct {
+				AllowedClusters *[]string `json:"allowedClusters,omitempty"`
+				AllowedTeams    *[]string `json:"allowedTeams,omitempty"`
+				Enabled         *bool     `json:"enabled,omitempty"`
+			} `json:"federation,omitempty"`
+			ReleaseChannel *string `json:"releaseChannel,omitempty"`
+		}{
+			ReleaseChannel: &releaseChannel,
+			Federation: &struct {
+				AllowedClusters *[]string `json:"allowedClusters,omitempty"`
+				AllowedTeams    *[]string `json:"allowedTeams,omitempty"`
+				Enabled         *bool     `json:"enabled,omitempty"`
+			}{
+				AllowedTeams: allowedTeams,
+			},
+		},
+		Status: &struct {
+			Connected *bool   `json:"connected,omitempty"`
+			Version   *string `json:"version,omitempty"`
+		}{
+			Version:   &version,
+			Connected: &connected,
 		},
 	}
 }
