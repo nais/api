@@ -65,8 +65,8 @@ func TestAllowedClustersMapping(t *testing.T) {
 			// Track the actual request made to bifrost
 			var receivedConfig bifrostclient.UnleashConfigRequest
 			s := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				if r.URL.Path != "/unleash" {
-					t.Errorf("expected /unleash, got %s", r.URL.Path)
+				if r.URL.Path != "/v1/unleash" {
+					t.Errorf("expected /v1/unleash, got %s", r.URL.Path)
 					http.Error(w, "wrong path", http.StatusBadRequest)
 					return
 				}

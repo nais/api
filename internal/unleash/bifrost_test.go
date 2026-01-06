@@ -18,8 +18,8 @@ func TestBifrostClient_CreateInstance(t *testing.T) {
 		if r.Method != http.MethodPost {
 			t.Errorf("expected POST method, got %s", r.Method)
 		}
-		if r.URL.Path != "/unleash" {
-			t.Error("expected /unleash, got", r.URL.Path)
+		if r.URL.Path != "/v1/unleash" {
+			t.Error("expected /v1/unleash, got", r.URL.Path)
 		}
 
 		var req bifrostclient.UnleashConfigRequest
@@ -115,8 +115,8 @@ func TestBifrostClient_UpdateInstance(t *testing.T) {
 		if r.Method != http.MethodPut {
 			t.Errorf("expected PUT method, got %s", r.Method)
 		}
-		if r.URL.Path != "/unleash/my-team" {
-			t.Errorf("expected /unleash/my-team, got %s", r.URL.Path)
+		if r.URL.Path != "/v1/unleash/my-team" {
+			t.Errorf("expected /v1/unleash/my-team, got %s", r.URL.Path)
 		}
 
 		var req bifrostclient.UnleashConfigRequest
@@ -194,8 +194,8 @@ func TestBifrostClient_GetInstance(t *testing.T) {
 		if r.Method != http.MethodGet {
 			t.Errorf("expected GET method, got %s", r.Method)
 		}
-		if r.URL.Path != "/unleash/my-team" {
-			t.Errorf("expected /unleash/my-team, got %s", r.URL.Path)
+		if r.URL.Path != "/v1/unleash/my-team" {
+			t.Errorf("expected /v1/unleash/my-team, got %s", r.URL.Path)
 		}
 
 		name := "my-team"
@@ -248,8 +248,8 @@ func TestBifrostClient_DeleteInstance(t *testing.T) {
 		if r.Method != http.MethodDelete {
 			t.Errorf("expected DELETE method, got %s", r.Method)
 		}
-		if r.URL.Path != "/unleash/my-team" {
-			t.Errorf("expected /unleash/my-team, got %s", r.URL.Path)
+		if r.URL.Path != "/v1/unleash/my-team" {
+			t.Errorf("expected /v1/unleash/my-team, got %s", r.URL.Path)
 		}
 
 		deleted = true
@@ -275,8 +275,8 @@ func TestBifrostClient_ListChannels(t *testing.T) {
 		if r.Method != http.MethodGet {
 			t.Errorf("expected GET method, got %s", r.Method)
 		}
-		if r.URL.Path != "/releasechannels" {
-			t.Errorf("expected /releasechannels, got %s", r.URL.Path)
+		if r.URL.Path != "/v1/releasechannels" {
+			t.Errorf("expected /v1/releasechannels, got %s", r.URL.Path)
 		}
 
 		stableType := "sequential"
