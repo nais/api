@@ -65,9 +65,15 @@ func TestBifrostClient_CreateInstance(t *testing.T) {
 					AllowedTeams    *[]string `json:"allowedTeams,omitempty"`
 					Enabled         *bool     `json:"enabled,omitempty"`
 				} `json:"federation,omitempty"`
-				ReleaseChannel *string `json:"releaseChannel,omitempty"`
+				ReleaseChannel *struct {
+					Name *string `json:"name,omitempty"`
+				} `json:"releaseChannel,omitempty"`
 			}{
-				ReleaseChannel: &releaseChannel,
+				ReleaseChannel: &struct {
+					Name *string `json:"name,omitempty"`
+				}{
+					Name: &releaseChannel,
+				},
 			},
 			Status: &struct {
 				Connected *bool   `json:"connected,omitempty"`
@@ -151,9 +157,15 @@ func TestBifrostClient_UpdateInstance(t *testing.T) {
 					AllowedTeams    *[]string `json:"allowedTeams,omitempty"`
 					Enabled         *bool     `json:"enabled,omitempty"`
 				} `json:"federation,omitempty"`
-				ReleaseChannel *string `json:"releaseChannel,omitempty"`
+				ReleaseChannel *struct {
+					Name *string `json:"name,omitempty"`
+				} `json:"releaseChannel,omitempty"`
 			}{
-				ReleaseChannel: &releaseChannel,
+				ReleaseChannel: &struct {
+					Name *string `json:"name,omitempty"`
+				}{
+					Name: &releaseChannel,
+				},
 			},
 			Status: &struct {
 				Connected *bool   `json:"connected,omitempty"`
@@ -184,7 +196,7 @@ func TestBifrostClient_UpdateInstance(t *testing.T) {
 	if resp == nil || resp.JSON200 == nil {
 		t.Fatal("expected response with JSON200, got nil")
 	}
-	if resp.JSON200.Spec == nil || resp.JSON200.Spec.ReleaseChannel == nil || *resp.JSON200.Spec.ReleaseChannel != "rapid" {
+	if resp.JSON200.Spec == nil || resp.JSON200.Spec.ReleaseChannel == nil || resp.JSON200.Spec.ReleaseChannel.Name == nil || *resp.JSON200.Spec.ReleaseChannel.Name != "rapid" {
 		t.Errorf("expected release channel 'rapid', got %v", resp.JSON200.Spec)
 	}
 }

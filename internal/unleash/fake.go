@@ -384,9 +384,15 @@ func k8sToBifrostUnleash(u *unleash_nais_io_v1.Unleash) *bifrostclient.Unleash {
 				AllowedTeams    *[]string `json:"allowedTeams,omitempty"`
 				Enabled         *bool     `json:"enabled,omitempty"`
 			} `json:"federation,omitempty"`
-			ReleaseChannel *string `json:"releaseChannel,omitempty"`
+			ReleaseChannel *struct {
+				Name *string `json:"name,omitempty"`
+			} `json:"releaseChannel,omitempty"`
 		}{
-			ReleaseChannel: &releaseChannel,
+			ReleaseChannel: &struct {
+				Name *string `json:"name,omitempty"`
+			}{
+				Name: &releaseChannel,
+			},
 			Federation: &struct {
 				AllowedClusters *[]string `json:"allowedClusters,omitempty"`
 				AllowedTeams    *[]string `json:"allowedTeams,omitempty"`

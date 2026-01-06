@@ -38,7 +38,7 @@ require (
 	github.com/lestrrat-go/httprc/v3 v3.0.0-beta2
 	github.com/lestrrat-go/jwx/v3 v3.0.1
 	github.com/nais/api/pkg/apiclient v0.0.0-20250219111538-2b76a0fd6ed9
-	github.com/nais/bifrost v0.0.0-20260106083845-85d908802f47
+	github.com/nais/bifrost v0.0.0-20260106105449-911627ac2c61
 	github.com/nais/liberator v0.0.0-20251112085730-ffef5fe13671
 	github.com/nais/tester v0.1.0
 	github.com/nais/unleasherator v0.0.0-20251216221129-efebc54203fe
