@@ -2817,6 +2817,20 @@ func (ec *executionContext) marshalNRevokeTeamAccessToUnleashPayload2ᚖgithub�
 	return ec._RevokeTeamAccessToUnleashPayload(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNUnleashInstance2githubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐUnleashInstance(ctx context.Context, sel ast.SelectionSet, v unleash.UnleashInstance) graphql.Marshaler {
+	return ec._UnleashInstance(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNUnleashInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐUnleashInstance(ctx context.Context, sel ast.SelectionSet, v *unleash.UnleashInstance) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._UnleashInstance(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNUnleashInstanceMetrics2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐUnleashInstanceMetrics(ctx context.Context, sel ast.SelectionSet, v *unleash.UnleashInstanceMetrics) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
