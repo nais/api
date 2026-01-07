@@ -249,6 +249,10 @@ func CanUpdateUnleash(ctx context.Context, teamSlug slug.Slug) error {
 	return requireTeamAuthorization(ctx, teamSlug, "unleash:update")
 }
 
+func CanDeleteUnleash(ctx context.Context, teamSlug slug.Slug) error {
+	return requireTeamAuthorization(ctx, teamSlug, "unleash:delete")
+}
+
 func CanUpdateVulnerability(ctx context.Context, teamSlug slug.Slug) error {
 	return requireTeamAuthorization(ctx, teamSlug, "vulnerability:update")
 }

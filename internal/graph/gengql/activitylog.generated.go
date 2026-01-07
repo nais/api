@@ -287,6 +287,13 @@ func (ec *executionContext) _ActivityLogEntry(ctx context.Context, sel ast.Selec
 			return graphql.Null
 		}
 		return ec._UnleashInstanceUpdatedActivityLogEntry(ctx, sel, obj)
+	case unleash.UnleashInstanceDeletedActivityLogEntry:
+		return ec._UnleashInstanceDeletedActivityLogEntry(ctx, sel, &obj)
+	case *unleash.UnleashInstanceDeletedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._UnleashInstanceDeletedActivityLogEntry(ctx, sel, obj)
 	case unleash.UnleashInstanceCreatedActivityLogEntry:
 		return ec._UnleashInstanceCreatedActivityLogEntry(ctx, sel, &obj)
 	case *unleash.UnleashInstanceCreatedActivityLogEntry:

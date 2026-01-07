@@ -1,6 +1,7 @@
 Team.new("slug-2", "purpose", "#channel")
 local team = Team.new("slug-1", "purpose", "#channel")
-local user = User.new()
+local user = User.new("user", "user@example.com")
+local nonMember = User.new("nonmember", "nonmember@example.com")
 team:addMember(user)
 
 Test.gql("Get unleash when no instance exists", function(t)
@@ -345,6 +346,211 @@ Test.gql("Update unleash instance with release channel", function(t)
 				unleash = {
 					name = team:slug(),
 					releaseChannelName = "stable",
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("Re-allow other team access for delete tests", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query(string.format([[
+		mutation {
+			allowTeamAccessToUnleash(input: {teamSlug: "%s", allowedTeamSlug: "slug-2"}) {
+				unleash {
+					name
+					allowedTeams {
+						pageInfo {
+							totalCount
+						}
+					}
+				}
+			}
+		}
+	]], team:slug()))
+
+	t.check {
+		data = {
+			allowTeamAccessToUnleash = {
+				unleash = {
+					name = team:slug(),
+					allowedTeams = {
+						pageInfo = {
+							totalCount = 2,
+						},
+					},
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("Attempt to delete unleash instance with other teams still having access", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query(string.format([[
+		mutation {
+			deleteUnleashInstance(input: {teamSlug: "%s"}) {
+				unleashDeleted
+			}
+		}
+	]], team:slug()))
+
+	t.check {
+		errors = {
+			{
+				extensions = {
+					field = "unleash",
+				},
+				message = Contains("Revoke access for all other teams before deleting the unleash instance"),
+				path = {
+					"deleteUnleashInstance",
+				},
+			},
+		},
+		data = Null,
+	}
+end)
+
+Test.gql("Revoke all other teams access before deletion", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query(string.format([[
+		mutation {
+			revokeTeamAccessToUnleash(input: {teamSlug: "%s", revokedTeamSlug: "slug-2"}) {
+				unleash {
+					name
+					allowedTeams {
+						nodes {
+							slug
+						}
+						pageInfo {
+							totalCount
+						}
+					}
+				}
+			}
+		}
+	]], team:slug()))
+
+	t.check {
+		data = {
+			revokeTeamAccessToUnleash = {
+				unleash = {
+					name = team:slug(),
+					allowedTeams = {
+						nodes = {
+							{ slug = team:slug() },
+						},
+						pageInfo = {
+							totalCount = 1,
+						},
+					},
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("Attempt to delete unleash instance as non-member", function(t)
+	t.addHeader("x-user-email", nonMember:email())
+
+	t.query(string.format([[
+		mutation {
+			deleteUnleashInstance(input: {teamSlug: "%s"}) {
+				unleashDeleted
+			}
+		}
+	]], team:slug()))
+
+	t.check {
+		errors = {
+			{
+				message = Contains("You are authenticated"),
+				path = {
+					"deleteUnleashInstance",
+				},
+			},
+		},
+		data = Null,
+	}
+end)
+
+Test.gql("Delete unleash instance successfully", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query(string.format([[
+		mutation {
+			deleteUnleashInstance(input: {teamSlug: "%s"}) {
+				unleashDeleted
+			}
+		}
+	]], team:slug()))
+
+	t.check {
+		data = {
+			deleteUnleashInstance = {
+				unleashDeleted = true,
+			},
+		},
+	}
+end)
+
+Test.gql("Verify unleash instance is gone", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query(string.format([[
+		{
+			team(slug: "%s") {
+				unleash {
+					name
+				}
+			}
+		}
+	]], team:slug()))
+
+	t.check {
+		data = {
+			team = {
+				unleash = Null,
+			},
+		},
+	}
+end)
+
+Test.gql("Verify activity log contains delete entry", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query(string.format([[
+		{
+			team(slug: "%s") {
+				activityLog(first: 1, filter: { activityTypes: [UNLEASH_INSTANCE_DELETED] }) {
+					nodes {
+						... on UnleashInstanceDeletedActivityLogEntry {
+							message
+							resourceType
+							resourceName
+							actor
+						}
+					}
+				}
+			}
+		}
+	]], team:slug()))
+
+	t.check {
+		data = {
+			team = {
+				activityLog = {
+					nodes = {
+						{
+							message = "Deleted Unleash instance",
+							resourceType = "UNLEASH",
+							resourceName = team:slug(),
+							actor = user:email(),
+						},
+					},
 				},
 			},
 		},
