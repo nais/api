@@ -19,10 +19,12 @@ import (
 const (
 	appCPULimit         = `max by (container, namespace) (kube_pod_container_resource_limits{namespace=%q, container=%q, resource="cpu", unit="core"})`
 	appCPURequest       = `max by (container, namespace) (kube_pod_container_resource_requests{namespace=%q, container=%q, resource="cpu",unit="core"})`
-	appCPUUsage         = `avg by (container, namespace) (rate(container_cpu_usage_seconds_total{namespace=%q, container=%q}[5m]))`
+	appCPUUsage         = `rate(container_cpu_usage_seconds_total{namespace=%q, container=%q}[5m])`
+	appCPUUsageAvg      = `avg by (container, namespace) (rate(container_cpu_usage_seconds_total{namespace=%q, container=%q}[5m]))`
 	appMemoryLimit      = `max by (container, namespace) (kube_pod_container_resource_limits{namespace=%q, container=%q, resource="memory", unit="byte"})`
 	appMemoryRequest    = `max by (container, namespace) (kube_pod_container_resource_requests{namespace=%q, container=%q, resource="memory",unit="byte"})`
-	appMemoryUsage      = `avg by (container, namespace) (last_over_time(container_memory_working_set_bytes{namespace=%q, container=%q}[5m]))`
+	appMemoryUsage      = `last_over_time(container_memory_working_set_bytes{namespace=%q, container=%q}[5m])`
+	appMemoryUsageAvg   = `avg by (container, namespace) (last_over_time(container_memory_working_set_bytes{namespace=%q, container=%q}[5m]))`
 	instanceCPUUsage    = `rate(container_cpu_usage_seconds_total{namespace=%q, container=%q, pod=%q}[5m])`
 	instanceMemoryUsage = `last_over_time(container_memory_working_set_bytes{namespace=%q, container=%q, pod=%q}[5m])`
 	teamCPURequest      = `sum by (container, owner_kind) (kube_pod_container_resource_requests{namespace=%q, container!~%q, resource="cpu",unit="core"} * on(pod,namespace) group_left(owner_kind) kube_pod_owner{owner_kind="ReplicaSet"})`
@@ -230,9 +232,9 @@ func WorkloadResourceLimit(ctx context.Context, env string, teamSlug slug.Slug, 
 }
 
 func WorkloadResourceUsage(ctx context.Context, env string, teamSlug slug.Slug, workloadName string, resourceType UtilizationResourceType) (float64, error) {
-	q := appMemoryUsage
+	q := appMemoryUsageAvg
 	if resourceType == UtilizationResourceTypeCPU {
-		q = appCPUUsage
+		q = appCPUUsageAvg
 	}
 
 	c := fromContext(ctx).client
