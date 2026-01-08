@@ -141,9 +141,7 @@ func newManager(_ context.Context, container *postgres.PostgresContainer, connSt
 			return ctx, nil, nil, fmt.Errorf("failed to create management watcher manager: %w", err)
 		}
 
-		watchers := watchers.SetupWatchers(ctx, watcherMgr, managementWatcherMgr, watchers.SetupWatchersOptions{
-			UnleashEnabled: true, // Enable Unleash in integration tests
-		})
+		watchers := watchers.SetupWatchers(ctx, watcherMgr, managementWatcherMgr)
 
 		lokiClient, err := loki.NewClient(clusters(), "tenant", log.WithField("subsystem", "loki_client"), loki.WithLocalLoki("http://127.0.0.1:3100"))
 		if err != nil {

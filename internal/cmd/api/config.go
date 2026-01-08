@@ -101,9 +101,6 @@ type oAuthConfig struct {
 }
 
 type unleashConfig struct {
-	// Enabled controls whether Unleash integration is enabled
-	Enabled bool `env:"UNLEASH_ENABLED,default=false"`
-
 	// BifrostApiEndpoint is the endpoint for the Bifrost API
 	BifrostAPIURL string `env:"UNLEASH_BIFROST_API_URL,default=*fake*"`
 }

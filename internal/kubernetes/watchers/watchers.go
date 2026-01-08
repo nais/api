@@ -58,21 +58,11 @@ type Watchers struct {
 	UnleashWatcher     *UnleashWatcher
 }
 
-type SetupWatchersOptions struct {
-	UnleashEnabled bool
-}
-
 func SetupWatchers(
 	ctx context.Context,
 	watcherMgr *watcher.Manager,
 	mgmtWatcherMgr *watcher.Manager,
-	opts SetupWatchersOptions,
 ) *Watchers {
-	var unleashWatcher *UnleashWatcher
-	if opts.UnleashEnabled {
-		unleashWatcher = unleash.NewWatcher(ctx, mgmtWatcherMgr)
-	}
-
 	return &Watchers{
 		AppWatcher:         application.NewWatcher(ctx, watcherMgr),
 		JobWatcher:         job.NewWatcher(ctx, watcherMgr),
@@ -88,11 +78,6 @@ func SetupWatchers(
 		PodWatcher:         workload.NewWatcher(ctx, watcherMgr),
 		IngressWatcher:     application.NewIngressWatcher(ctx, watcherMgr),
 		NamespaceWatcher:   team.NewNamespaceWatcher(ctx, watcherMgr),
-		UnleashWatcher:     unleashWatcher,
+		UnleashWatcher:     unleash.NewWatcher(ctx, mgmtWatcherMgr),
 	}
-}
-
-// UnleashEnabled returns true if the UnleashWatcher is initialized and enabled
-func (w *Watchers) UnleashEnabled() bool {
-	return w.UnleashWatcher != nil && w.UnleashWatcher.Enabled()
 }
