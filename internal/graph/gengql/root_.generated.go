@@ -14,6 +14,7 @@ import (
 	"github.com/nais/api/internal/alerts"
 	"github.com/nais/api/internal/cost"
 	"github.com/nais/api/internal/deployment"
+	"github.com/nais/api/internal/elevation"
 	"github.com/nais/api/internal/environment"
 	"github.com/nais/api/internal/github/repository"
 	"github.com/nais/api/internal/graph/ident"
@@ -78,6 +79,7 @@ type ResolverRoot interface {
 	Deployment() DeploymentResolver
 	DeprecatedIngressIssue() DeprecatedIngressIssueResolver
 	DeprecatedRegistryIssue() DeprecatedRegistryIssueResolver
+	ElevationCreatedActivityLogEntry() ElevationCreatedActivityLogEntryResolver
 	Environment() EnvironmentResolver
 	FailedSynchronizationIssue() FailedSynchronizationIssueResolver
 	Ingress() IngressResolver
@@ -472,6 +474,10 @@ type ComplexityRoot struct {
 		Series func(childComplexity int) int
 	}
 
+	CreateElevationPayload struct {
+		Elevation func(childComplexity int) int
+	}
+
 	CreateOpenSearchPayload struct {
 		OpenSearch func(childComplexity int) int
 	}
@@ -639,6 +645,56 @@ type ComplexityRoot struct {
 		Severity        func(childComplexity int) int
 		TeamEnvironment func(childComplexity int) int
 		Workload        func(childComplexity int) int
+	}
+
+	Elevation struct {
+		CreatedAt    func(childComplexity int) int
+		Environment  func(childComplexity int) int
+		ExpiresAt    func(childComplexity int) int
+		ID           func(childComplexity int) int
+		Reason       func(childComplexity int) int
+		ResourceName func(childComplexity int) int
+		Status       func(childComplexity int) int
+		Team         func(childComplexity int) int
+		Type         func(childComplexity int) int
+		User         func(childComplexity int) int
+	}
+
+	ElevationConnection struct {
+		Edges    func(childComplexity int) int
+		Nodes    func(childComplexity int) int
+		PageInfo func(childComplexity int) int
+	}
+
+	ElevationCreatedActivityLogEntry struct {
+		Actor              func(childComplexity int) int
+		CreatedAt          func(childComplexity int) int
+		ElevationType      func(childComplexity int) int
+		EnvironmentName    func(childComplexity int) int
+		ExpiresAt          func(childComplexity int) int
+		ID                 func(childComplexity int) int
+		Message            func(childComplexity int) int
+		Reason             func(childComplexity int) int
+		ResourceName       func(childComplexity int) int
+		ResourceType       func(childComplexity int) int
+		TargetResourceName func(childComplexity int) int
+		TeamSlug           func(childComplexity int) int
+	}
+
+	ElevationEdge struct {
+		Cursor func(childComplexity int) int
+		Node   func(childComplexity int) int
+	}
+
+	ElevationRevokedActivityLogEntry struct {
+		Actor           func(childComplexity int) int
+		CreatedAt       func(childComplexity int) int
+		EnvironmentName func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Message         func(childComplexity int) int
+		ResourceName    func(childComplexity int) int
+		ResourceType    func(childComplexity int) int
+		TeamSlug        func(childComplexity int) int
 	}
 
 	EntraIDAuthIntegration struct {
@@ -1065,6 +1121,7 @@ type ComplexityRoot struct {
 		ChangeDeploymentKey          func(childComplexity int, input deployment.ChangeDeploymentKeyInput) int
 		ConfigureReconciler          func(childComplexity int, input reconciler.ConfigureReconcilerInput) int
 		ConfirmTeamDeletion          func(childComplexity int, input team.ConfirmTeamDeletionInput) int
+		CreateElevation              func(childComplexity int, input elevation.CreateElevationInput) int
 		CreateOpenSearch             func(childComplexity int, input opensearch.CreateOpenSearchInput) int
 		CreateSecret                 func(childComplexity int, input secret.CreateSecretInput) int
 		CreateServiceAccount         func(childComplexity int, input serviceaccount.CreateServiceAccountInput) int
@@ -1088,6 +1145,7 @@ type ComplexityRoot struct {
 		RemoveTeamMember             func(childComplexity int, input team.RemoveTeamMemberInput) int
 		RequestTeamDeletion          func(childComplexity int, input team.RequestTeamDeletionInput) int
 		RestartApplication           func(childComplexity int, input application.RestartApplicationInput) int
+		RevokeElevation              func(childComplexity int, input elevation.RevokeElevationInput) int
 		RevokeRoleFromServiceAccount func(childComplexity int, input serviceaccount.RevokeRoleFromServiceAccountInput) int
 		RevokeTeamAccessToUnleash    func(childComplexity int, input unleash.RevokeTeamAccessToUnleashInput) int
 		SetTeamMemberRole            func(childComplexity int, input team.SetTeamMemberRoleInput) int
@@ -1329,11 +1387,14 @@ type ComplexityRoot struct {
 		CurrentUnitPrices         func(childComplexity int) int
 		Cves                      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *vulnerability.CVEOrder) int
 		Deployments               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *deployment.DeploymentFilter) int
+		Elevation                 func(childComplexity int, id ident.Ident) int
+		Elevations                func(childComplexity int, team slug.Slug, environment string, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, includeHistory *bool) int
 		Environment               func(childComplexity int, name string) int
 		Environments              func(childComplexity int, orderBy *environment.EnvironmentOrder) int
 		Features                  func(childComplexity int) int
 		ImageVulnerabilityHistory func(childComplexity int, from scalar.Date) int
 		Me                        func(childComplexity int) int
+		MyElevations              func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		Node                      func(childComplexity int, id ident.Ident) int
 		Reconcilers               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		Roles                     func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
@@ -1498,6 +1559,10 @@ type ComplexityRoot struct {
 
 	RestartApplicationPayload struct {
 		Application func(childComplexity int) int
+	}
+
+	RevokeElevationPayload struct {
+		Success func(childComplexity int) int
 	}
 
 	RevokeRoleFromServiceAccountPayload struct {
@@ -4245,6 +4310,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.CostMonthlySummary.Series(childComplexity), true
 
+	case "CreateElevationPayload.elevation":
+		if e.complexity.CreateElevationPayload.Elevation == nil {
+			break
+		}
+
+		return e.complexity.CreateElevationPayload.Elevation(childComplexity), true
+
 	case "CreateOpenSearchPayload.openSearch":
 		if e.complexity.CreateOpenSearchPayload.OpenSearch == nil {
 			break
@@ -4807,6 +4879,251 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.DeprecatedRegistryIssue.Workload(childComplexity), true
+
+	case "Elevation.createdAt":
+		if e.complexity.Elevation.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.Elevation.CreatedAt(childComplexity), true
+
+	case "Elevation.environment":
+		if e.complexity.Elevation.Environment == nil {
+			break
+		}
+
+		return e.complexity.Elevation.Environment(childComplexity), true
+
+	case "Elevation.expiresAt":
+		if e.complexity.Elevation.ExpiresAt == nil {
+			break
+		}
+
+		return e.complexity.Elevation.ExpiresAt(childComplexity), true
+
+	case "Elevation.id":
+		if e.complexity.Elevation.ID == nil {
+			break
+		}
+
+		return e.complexity.Elevation.ID(childComplexity), true
+
+	case "Elevation.reason":
+		if e.complexity.Elevation.Reason == nil {
+			break
+		}
+
+		return e.complexity.Elevation.Reason(childComplexity), true
+
+	case "Elevation.resourceName":
+		if e.complexity.Elevation.ResourceName == nil {
+			break
+		}
+
+		return e.complexity.Elevation.ResourceName(childComplexity), true
+
+	case "Elevation.status":
+		if e.complexity.Elevation.Status == nil {
+			break
+		}
+
+		return e.complexity.Elevation.Status(childComplexity), true
+
+	case "Elevation.team":
+		if e.complexity.Elevation.Team == nil {
+			break
+		}
+
+		return e.complexity.Elevation.Team(childComplexity), true
+
+	case "Elevation.type":
+		if e.complexity.Elevation.Type == nil {
+			break
+		}
+
+		return e.complexity.Elevation.Type(childComplexity), true
+
+	case "Elevation.user":
+		if e.complexity.Elevation.User == nil {
+			break
+		}
+
+		return e.complexity.Elevation.User(childComplexity), true
+
+	case "ElevationConnection.edges":
+		if e.complexity.ElevationConnection.Edges == nil {
+			break
+		}
+
+		return e.complexity.ElevationConnection.Edges(childComplexity), true
+
+	case "ElevationConnection.nodes":
+		if e.complexity.ElevationConnection.Nodes == nil {
+			break
+		}
+
+		return e.complexity.ElevationConnection.Nodes(childComplexity), true
+
+	case "ElevationConnection.pageInfo":
+		if e.complexity.ElevationConnection.PageInfo == nil {
+			break
+		}
+
+		return e.complexity.ElevationConnection.PageInfo(childComplexity), true
+
+	case "ElevationCreatedActivityLogEntry.actor":
+		if e.complexity.ElevationCreatedActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.complexity.ElevationCreatedActivityLogEntry.Actor(childComplexity), true
+
+	case "ElevationCreatedActivityLogEntry.createdAt":
+		if e.complexity.ElevationCreatedActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.ElevationCreatedActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "ElevationCreatedActivityLogEntry.elevationType":
+		if e.complexity.ElevationCreatedActivityLogEntry.ElevationType == nil {
+			break
+		}
+
+		return e.complexity.ElevationCreatedActivityLogEntry.ElevationType(childComplexity), true
+
+	case "ElevationCreatedActivityLogEntry.environmentName":
+		if e.complexity.ElevationCreatedActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.complexity.ElevationCreatedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "ElevationCreatedActivityLogEntry.expiresAt":
+		if e.complexity.ElevationCreatedActivityLogEntry.ExpiresAt == nil {
+			break
+		}
+
+		return e.complexity.ElevationCreatedActivityLogEntry.ExpiresAt(childComplexity), true
+
+	case "ElevationCreatedActivityLogEntry.id":
+		if e.complexity.ElevationCreatedActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.complexity.ElevationCreatedActivityLogEntry.ID(childComplexity), true
+
+	case "ElevationCreatedActivityLogEntry.message":
+		if e.complexity.ElevationCreatedActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.complexity.ElevationCreatedActivityLogEntry.Message(childComplexity), true
+
+	case "ElevationCreatedActivityLogEntry.reason":
+		if e.complexity.ElevationCreatedActivityLogEntry.Reason == nil {
+			break
+		}
+
+		return e.complexity.ElevationCreatedActivityLogEntry.Reason(childComplexity), true
+
+	case "ElevationCreatedActivityLogEntry.resourceName":
+		if e.complexity.ElevationCreatedActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.complexity.ElevationCreatedActivityLogEntry.ResourceName(childComplexity), true
+
+	case "ElevationCreatedActivityLogEntry.resourceType":
+		if e.complexity.ElevationCreatedActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.complexity.ElevationCreatedActivityLogEntry.ResourceType(childComplexity), true
+
+	case "ElevationCreatedActivityLogEntry.targetResourceName":
+		if e.complexity.ElevationCreatedActivityLogEntry.TargetResourceName == nil {
+			break
+		}
+
+		return e.complexity.ElevationCreatedActivityLogEntry.TargetResourceName(childComplexity), true
+
+	case "ElevationCreatedActivityLogEntry.teamSlug":
+		if e.complexity.ElevationCreatedActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.complexity.ElevationCreatedActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "ElevationEdge.cursor":
+		if e.complexity.ElevationEdge.Cursor == nil {
+			break
+		}
+
+		return e.complexity.ElevationEdge.Cursor(childComplexity), true
+
+	case "ElevationEdge.node":
+		if e.complexity.ElevationEdge.Node == nil {
+			break
+		}
+
+		return e.complexity.ElevationEdge.Node(childComplexity), true
+
+	case "ElevationRevokedActivityLogEntry.actor":
+		if e.complexity.ElevationRevokedActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.complexity.ElevationRevokedActivityLogEntry.Actor(childComplexity), true
+
+	case "ElevationRevokedActivityLogEntry.createdAt":
+		if e.complexity.ElevationRevokedActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.ElevationRevokedActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "ElevationRevokedActivityLogEntry.environmentName":
+		if e.complexity.ElevationRevokedActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.complexity.ElevationRevokedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "ElevationRevokedActivityLogEntry.id":
+		if e.complexity.ElevationRevokedActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.complexity.ElevationRevokedActivityLogEntry.ID(childComplexity), true
+
+	case "ElevationRevokedActivityLogEntry.message":
+		if e.complexity.ElevationRevokedActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.complexity.ElevationRevokedActivityLogEntry.Message(childComplexity), true
+
+	case "ElevationRevokedActivityLogEntry.resourceName":
+		if e.complexity.ElevationRevokedActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.complexity.ElevationRevokedActivityLogEntry.ResourceName(childComplexity), true
+
+	case "ElevationRevokedActivityLogEntry.resourceType":
+		if e.complexity.ElevationRevokedActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.complexity.ElevationRevokedActivityLogEntry.ResourceType(childComplexity), true
+
+	case "ElevationRevokedActivityLogEntry.teamSlug":
+		if e.complexity.ElevationRevokedActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.complexity.ElevationRevokedActivityLogEntry.TeamSlug(childComplexity), true
 
 	case "EntraIDAuthIntegration.name":
 		if e.complexity.EntraIDAuthIntegration.Name == nil {
@@ -6550,6 +6867,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Mutation.ConfirmTeamDeletion(childComplexity, args["input"].(team.ConfirmTeamDeletionInput)), true
 
+	case "Mutation.createElevation":
+		if e.complexity.Mutation.CreateElevation == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createElevation_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateElevation(childComplexity, args["input"].(elevation.CreateElevationInput)), true
+
 	case "Mutation.createOpenSearch":
 		if e.complexity.Mutation.CreateOpenSearch == nil {
 			break
@@ -6825,6 +7154,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Mutation.RestartApplication(childComplexity, args["input"].(application.RestartApplicationInput)), true
+
+	case "Mutation.revokeElevation":
+		if e.complexity.Mutation.RevokeElevation == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_revokeElevation_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.RevokeElevation(childComplexity, args["input"].(elevation.RevokeElevationInput)), true
 
 	case "Mutation.revokeRoleFromServiceAccount":
 		if e.complexity.Mutation.RevokeRoleFromServiceAccount == nil {
@@ -7998,6 +8339,30 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Query.Deployments(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["filter"].(*deployment.DeploymentFilter)), true
 
+	case "Query.elevation":
+		if e.complexity.Query.Elevation == nil {
+			break
+		}
+
+		args, err := ec.field_Query_elevation_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Elevation(childComplexity, args["id"].(ident.Ident)), true
+
+	case "Query.elevations":
+		if e.complexity.Query.Elevations == nil {
+			break
+		}
+
+		args, err := ec.field_Query_elevations_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Elevations(childComplexity, args["team"].(slug.Slug), args["environment"].(string), args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["includeHistory"].(*bool)), true
+
 	case "Query.environment":
 		if e.complexity.Query.Environment == nil {
 			break
@@ -8047,6 +8412,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Query.Me(childComplexity), true
+
+	case "Query.myElevations":
+		if e.complexity.Query.MyElevations == nil {
+			break
+		}
+
+		args, err := ec.field_Query_myElevations_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.MyElevations(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
 
 	case "Query.node":
 		if e.complexity.Query.Node == nil {
@@ -8829,6 +9206,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.RestartApplicationPayload.Application(childComplexity), true
+
+	case "RevokeElevationPayload.success":
+		if e.complexity.RevokeElevationPayload.Success == nil {
+			break
+		}
+
+		return e.complexity.RevokeElevationPayload.Success(childComplexity), true
 
 	case "RevokeRoleFromServiceAccountPayload.serviceAccount":
 		if e.complexity.RevokeRoleFromServiceAccountPayload.ServiceAccount == nil {
@@ -14760,6 +15144,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputChangeDeploymentKeyInput,
 		ec.unmarshalInputConfigureReconcilerInput,
 		ec.unmarshalInputConfirmTeamDeletionInput,
+		ec.unmarshalInputCreateElevationInput,
 		ec.unmarshalInputCreateOpenSearchInput,
 		ec.unmarshalInputCreateSecretInput,
 		ec.unmarshalInputCreateServiceAccountInput,
@@ -14804,6 +15189,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputRequestTeamDeletionInput,
 		ec.unmarshalInputResourceIssueFilter,
 		ec.unmarshalInputRestartApplicationInput,
+		ec.unmarshalInputRevokeElevationInput,
 		ec.unmarshalInputRevokeRoleFromServiceAccountInput,
 		ec.unmarshalInputRevokeTeamAccessToUnleashInput,
 		ec.unmarshalInputSearchFilter,
@@ -17221,6 +17607,430 @@ input DeploymentFilter {
 	from: Time
 	"Filter deployments by environments."
 	environments: [String!]
+}
+`, BuiltIn: false},
+	{Name: "../schema/elevation.graphqls", Input: `"""
+Type of elevation that can be requested.
+"""
+enum ElevationType {
+	"""
+	Access to read secrets in plain text.
+	"""
+	SECRET
+
+	"""
+	Access to execute commands in a pod.
+	"""
+	POD_EXEC
+
+	"""
+	Access to port-forward to a pod.
+	"""
+	POD_PORT_FORWARD
+
+	"""
+	Access to debug a pod with ephemeral containers.
+	"""
+	POD_DEBUG
+}
+
+"""
+Status of an elevation.
+"""
+enum ElevationStatus {
+	"""
+	Elevation is currently active.
+	"""
+	ACTIVE
+
+	"""
+	Elevation has expired.
+	"""
+	EXPIRED
+
+	"""
+	Elevation was manually revoked before expiration.
+	"""
+	REVOKED
+}
+
+"""
+An active elevation grants temporary elevated privileges to a specific resource.
+Elevations are stored as Kubernetes Role and RoleBinding resources.
+Historical elevations are tracked via the activity log.
+"""
+type Elevation implements Node {
+	"""
+	Globally unique ID of the elevation (matches the Kubernetes Role/RoleBinding name).
+	"""
+	id: ID!
+
+	"""
+	Type of elevation.
+	"""
+	type: ElevationType!
+
+	"""
+	Team slug (derived from namespace).
+	"""
+	team: Team!
+
+	"""
+	Environment where the resource is located.
+	"""
+	environment: String!
+
+	"""
+	Name of the resource being elevated to.
+	"""
+	resourceName: String!
+
+	"""
+	User who requested the elevation.
+	"""
+	user: User!
+
+	"""
+	Reason provided for the elevation.
+	"""
+	reason: String!
+
+	"""
+	When the elevation was created.
+	"""
+	createdAt: Time!
+
+	"""
+	When the elevation will expire.
+	"""
+	expiresAt: Time!
+
+	"""
+	Current status of the elevation.
+	Only ACTIVE elevations exist in Kubernetes; expired/revoked ones are only in activity log.
+	"""
+	status: ElevationStatus!
+}
+
+"""
+Input for creating an elevation.
+"""
+input CreateElevationInput {
+	"""
+	Type of elevation to create.
+	"""
+	type: ElevationType!
+
+	"""
+	Team slug.
+	"""
+	team: Slug!
+
+	"""
+	Environment name.
+	"""
+	environment: String!
+
+	"""
+	Name of the resource to elevate access to.
+	"""
+	resourceName: String!
+
+	"""
+	Reason for requesting the elevation. Must be at least 10 characters.
+	"""
+	reason: String!
+
+	"""
+	Duration of the elevation in minutes. Maximum 60 minutes.
+	"""
+	durationMinutes: Int! = 60
+}
+
+"""
+Payload returned when creating an elevation.
+"""
+type CreateElevationPayload {
+	"""
+	The created elevation.
+	"""
+	elevation: Elevation!
+}
+
+"""
+Input for revoking an elevation.
+"""
+input RevokeElevationInput {
+	"""
+	ID of the elevation to revoke.
+	"""
+	elevationId: ID!
+}
+
+"""
+Payload returned when revoking an elevation.
+"""
+type RevokeElevationPayload {
+	"""
+	Whether the revocation was successful.
+	"""
+	success: Boolean!
+}
+
+"""
+Connection type for elevations.
+"""
+type ElevationConnection {
+	"""
+	A list of elevations.
+	"""
+	nodes: [Elevation!]!
+
+	"""
+	A list of elevation edges.
+	"""
+	edges: [ElevationEdge!]!
+
+	"""
+	Information to aid in pagination.
+	"""
+	pageInfo: PageInfo!
+}
+
+"""
+Edge type for elevations.
+"""
+type ElevationEdge {
+	"""
+	The elevation.
+	"""
+	node: Elevation!
+
+	"""
+	A cursor for use in pagination.
+	"""
+	cursor: Cursor!
+}
+
+extend enum ActivityLogEntryResourceType {
+	"""
+	All activity log entries related to elevations will use this resource type.
+	"""
+	ELEVATION
+}
+
+extend enum ActivityLogActivityType {
+	"""
+	Elevation was created.
+	"""
+	ELEVATION_CREATED
+
+	"""
+	Elevation was revoked.
+	"""
+	ELEVATION_REVOKED
+
+	"""
+	Elevation expired automatically.
+	"""
+	ELEVATION_EXPIRED
+}
+
+"""
+Activity log entry for elevation creation.
+"""
+type ElevationCreatedActivityLogEntry implements ActivityLogEntry & Node {
+	"""
+	ID of the entry.
+	"""
+	id: ID!
+
+	"""
+	The identity of the actor who created the elevation.
+	"""
+	actor: String!
+
+	"""
+	Creation time of the entry.
+	"""
+	createdAt: Time!
+
+	"""
+	Message that summarizes the entry.
+	"""
+	message: String!
+
+	"""
+	Resource type (ELEVATION).
+	"""
+	resourceType: ActivityLogEntryResourceType!
+
+	"""
+	Name of the elevation resource.
+	"""
+	resourceName: String!
+
+	"""
+	The team slug.
+	"""
+	teamSlug: Slug!
+
+	"""
+	The environment name.
+	"""
+	environmentName: String
+
+	"""
+	Type of elevation that was created.
+	"""
+	elevationType: ElevationType!
+
+	"""
+	Target resource name that was elevated to.
+	"""
+	targetResourceName: String!
+
+	"""
+	Reason provided for the elevation.
+	"""
+	reason: String!
+
+	"""
+	When the elevation will expire.
+	"""
+	expiresAt: Time!
+}
+
+"""
+Activity log entry for elevation revocation.
+"""
+type ElevationRevokedActivityLogEntry implements ActivityLogEntry & Node {
+	"""
+	ID of the entry.
+	"""
+	id: ID!
+
+	"""
+	The identity of the actor who revoked the elevation.
+	"""
+	actor: String!
+
+	"""
+	Creation time of the entry.
+	"""
+	createdAt: Time!
+
+	"""
+	Message that summarizes the entry.
+	"""
+	message: String!
+
+	"""
+	Resource type (ELEVATION).
+	"""
+	resourceType: ActivityLogEntryResourceType!
+
+	"""
+	Name of the elevation resource.
+	"""
+	resourceName: String!
+
+	"""
+	The team slug.
+	"""
+	teamSlug: Slug!
+
+	"""
+	The environment name.
+	"""
+	environmentName: String
+}
+
+extend type Query {
+	"""
+	Get all active elevations for the current user across all teams.
+	Only returns ACTIVE elevations (from Kubernetes).
+	"""
+	myElevations(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+	): ElevationConnection!
+
+	"""
+	Get all elevations for a specific team and environment.
+	Requires team membership.
+	By default only returns ACTIVE elevations from Kubernetes.
+	Set includeHistory to true to include historical elevations from activity log.
+	"""
+	elevations(
+		"The team to get elevations for."
+		team: Slug!
+
+		"The environment to get elevations for."
+		environment: String!
+
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+
+		"Include historical elevations from activity log. Defaults to false (only active from Kubernetes)."
+		includeHistory: Boolean = false
+	): ElevationConnection!
+
+	"""
+	Get a specific elevation by ID.
+	"""
+	elevation(id: ID!): Elevation
+}
+
+extend type Mutation {
+	"""
+	Create a temporary elevation of privileges.
+
+	This mutation:
+	1. Creates a Role and RoleBinding in Kubernetes with a time-to-live (TTL)
+	2. Logs the action to the activity log for audit trail
+	
+	The elevation grants access to a specific resource for a limited time.
+	When the TTL expires, euthanaisa automatically deletes the Role and RoleBinding.
+
+	Requirements:
+	- User must be a team member (Team member or Team owner role)
+	- Reason must be at least 10 characters
+	- Duration cannot exceed 60 minutes
+	- Resource must exist in the specified team/environment
+	"""
+	createElevation(input: CreateElevationInput!): CreateElevationPayload!
+
+	"""
+	Revoke an active elevation before it expires.
+
+	This mutation:
+	1. Deletes the associated Role and RoleBinding from Kubernetes
+	2. Logs the revocation to the activity log
+
+	Requirements:
+	- User must be the owner of the elevation or a team owner
+	- Elevation must exist and be in ACTIVE status
+	"""
+	revokeElevation(input: RevokeElevationInput!): RevokeElevationPayload!
 }
 `, BuiltIn: false},
 	{Name: "../schema/environments.graphqls", Input: `extend type Query {

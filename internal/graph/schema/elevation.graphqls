@@ -1,0 +1,423 @@
+"""
+Type of elevation that can be requested.
+"""
+enum ElevationType {
+	"""
+	Access to read secrets in plain text.
+	"""
+	SECRET
+
+	"""
+	Access to execute commands in a pod.
+	"""
+	POD_EXEC
+
+	"""
+	Access to port-forward to a pod.
+	"""
+	POD_PORT_FORWARD
+
+	"""
+	Access to debug a pod with ephemeral containers.
+	"""
+	POD_DEBUG
+}
+
+"""
+Status of an elevation.
+"""
+enum ElevationStatus {
+	"""
+	Elevation is currently active.
+	"""
+	ACTIVE
+
+	"""
+	Elevation has expired.
+	"""
+	EXPIRED
+
+	"""
+	Elevation was manually revoked before expiration.
+	"""
+	REVOKED
+}
+
+"""
+An active elevation grants temporary elevated privileges to a specific resource.
+Elevations are stored as Kubernetes Role and RoleBinding resources.
+Historical elevations are tracked via the activity log.
+"""
+type Elevation implements Node {
+	"""
+	Globally unique ID of the elevation (matches the Kubernetes Role/RoleBinding name).
+	"""
+	id: ID!
+
+	"""
+	Type of elevation.
+	"""
+	type: ElevationType!
+
+	"""
+	Team slug (derived from namespace).
+	"""
+	team: Team!
+
+	"""
+	Environment where the resource is located.
+	"""
+	environment: String!
+
+	"""
+	Name of the resource being elevated to.
+	"""
+	resourceName: String!
+
+	"""
+	User who requested the elevation.
+	"""
+	user: User!
+
+	"""
+	Reason provided for the elevation.
+	"""
+	reason: String!
+
+	"""
+	When the elevation was created.
+	"""
+	createdAt: Time!
+
+	"""
+	When the elevation will expire.
+	"""
+	expiresAt: Time!
+
+	"""
+	Current status of the elevation.
+	Only ACTIVE elevations exist in Kubernetes; expired/revoked ones are only in activity log.
+	"""
+	status: ElevationStatus!
+}
+
+"""
+Input for creating an elevation.
+"""
+input CreateElevationInput {
+	"""
+	Type of elevation to create.
+	"""
+	type: ElevationType!
+
+	"""
+	Team slug.
+	"""
+	team: Slug!
+
+	"""
+	Environment name.
+	"""
+	environment: String!
+
+	"""
+	Name of the resource to elevate access to.
+	"""
+	resourceName: String!
+
+	"""
+	Reason for requesting the elevation. Must be at least 10 characters.
+	"""
+	reason: String!
+
+	"""
+	Duration of the elevation in minutes. Maximum 60 minutes.
+	"""
+	durationMinutes: Int! = 60
+}
+
+"""
+Payload returned when creating an elevation.
+"""
+type CreateElevationPayload {
+	"""
+	The created elevation.
+	"""
+	elevation: Elevation!
+}
+
+"""
+Input for revoking an elevation.
+"""
+input RevokeElevationInput {
+	"""
+	ID of the elevation to revoke.
+	"""
+	elevationId: ID!
+}
+
+"""
+Payload returned when revoking an elevation.
+"""
+type RevokeElevationPayload {
+	"""
+	Whether the revocation was successful.
+	"""
+	success: Boolean!
+}
+
+"""
+Connection type for elevations.
+"""
+type ElevationConnection {
+	"""
+	A list of elevations.
+	"""
+	nodes: [Elevation!]!
+
+	"""
+	A list of elevation edges.
+	"""
+	edges: [ElevationEdge!]!
+
+	"""
+	Information to aid in pagination.
+	"""
+	pageInfo: PageInfo!
+}
+
+"""
+Edge type for elevations.
+"""
+type ElevationEdge {
+	"""
+	The elevation.
+	"""
+	node: Elevation!
+
+	"""
+	A cursor for use in pagination.
+	"""
+	cursor: Cursor!
+}
+
+extend enum ActivityLogEntryResourceType {
+	"""
+	All activity log entries related to elevations will use this resource type.
+	"""
+	ELEVATION
+}
+
+extend enum ActivityLogActivityType {
+	"""
+	Elevation was created.
+	"""
+	ELEVATION_CREATED
+
+	"""
+	Elevation was revoked.
+	"""
+	ELEVATION_REVOKED
+
+	"""
+	Elevation expired automatically.
+	"""
+	ELEVATION_EXPIRED
+}
+
+"""
+Activity log entry for elevation creation.
+"""
+type ElevationCreatedActivityLogEntry implements ActivityLogEntry & Node {
+	"""
+	ID of the entry.
+	"""
+	id: ID!
+
+	"""
+	The identity of the actor who created the elevation.
+	"""
+	actor: String!
+
+	"""
+	Creation time of the entry.
+	"""
+	createdAt: Time!
+
+	"""
+	Message that summarizes the entry.
+	"""
+	message: String!
+
+	"""
+	Resource type (ELEVATION).
+	"""
+	resourceType: ActivityLogEntryResourceType!
+
+	"""
+	Name of the elevation resource.
+	"""
+	resourceName: String!
+
+	"""
+	The team slug.
+	"""
+	teamSlug: Slug!
+
+	"""
+	The environment name.
+	"""
+	environmentName: String
+
+	"""
+	Type of elevation that was created.
+	"""
+	elevationType: ElevationType!
+
+	"""
+	Target resource name that was elevated to.
+	"""
+	targetResourceName: String!
+
+	"""
+	Reason provided for the elevation.
+	"""
+	reason: String!
+
+	"""
+	When the elevation will expire.
+	"""
+	expiresAt: Time!
+}
+
+"""
+Activity log entry for elevation revocation.
+"""
+type ElevationRevokedActivityLogEntry implements ActivityLogEntry & Node {
+	"""
+	ID of the entry.
+	"""
+	id: ID!
+
+	"""
+	The identity of the actor who revoked the elevation.
+	"""
+	actor: String!
+
+	"""
+	Creation time of the entry.
+	"""
+	createdAt: Time!
+
+	"""
+	Message that summarizes the entry.
+	"""
+	message: String!
+
+	"""
+	Resource type (ELEVATION).
+	"""
+	resourceType: ActivityLogEntryResourceType!
+
+	"""
+	Name of the elevation resource.
+	"""
+	resourceName: String!
+
+	"""
+	The team slug.
+	"""
+	teamSlug: Slug!
+
+	"""
+	The environment name.
+	"""
+	environmentName: String
+}
+
+extend type Query {
+	"""
+	Get all active elevations for the current user across all teams.
+	Only returns ACTIVE elevations (from Kubernetes).
+	"""
+	myElevations(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+	): ElevationConnection!
+
+	"""
+	Get all elevations for a specific team and environment.
+	Requires team membership.
+	By default only returns ACTIVE elevations from Kubernetes.
+	Set includeHistory to true to include historical elevations from activity log.
+	"""
+	elevations(
+		"The team to get elevations for."
+		team: Slug!
+
+		"The environment to get elevations for."
+		environment: String!
+
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+
+		"Include historical elevations from activity log. Defaults to false (only active from Kubernetes)."
+		includeHistory: Boolean = false
+	): ElevationConnection!
+
+	"""
+	Get a specific elevation by ID.
+	"""
+	elevation(id: ID!): Elevation
+}
+
+extend type Mutation {
+	"""
+	Create a temporary elevation of privileges.
+
+	This mutation:
+	1. Creates a Role and RoleBinding in Kubernetes with a time-to-live (TTL)
+	2. Logs the action to the activity log for audit trail
+	
+	The elevation grants access to a specific resource for a limited time.
+	When the TTL expires, euthanaisa automatically deletes the Role and RoleBinding.
+
+	Requirements:
+	- User must be a team member (Team member or Team owner role)
+	- Reason must be at least 10 characters
+	- Duration cannot exceed 60 minutes
+	- Resource must exist in the specified team/environment
+	"""
+	createElevation(input: CreateElevationInput!): CreateElevationPayload!
+
+	"""
+	Revoke an active elevation before it expires.
+
+	This mutation:
+	1. Deletes the associated Role and RoleBinding from Kubernetes
+	2. Logs the revocation to the activity log
+
+	Requirements:
+	- User must be the owner of the elevation or a team owner
+	- Elevation must exist and be in ACTIVE status
+	"""
+	revokeElevation(input: RevokeElevationInput!): RevokeElevationPayload!
+}
