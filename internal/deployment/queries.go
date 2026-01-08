@@ -2,6 +2,7 @@ package deployment
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/google/uuid"
@@ -13,6 +14,7 @@ import (
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/thirdparty/hookd"
 	"github.com/nais/api/internal/workload"
 	"k8s.io/utils/ptr"
 )
@@ -142,6 +144,9 @@ func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName, w
 func KeyForTeam(ctx context.Context, teamSlug slug.Slug) (*DeploymentKey, error) {
 	dk, err := fromContext(ctx).client.DeployKey(ctx, teamSlug.String())
 	if err != nil {
+		if errors.Is(err, hookd.ErrNotFound) {
+			return nil, nil
+		}
 		return nil, err
 	}
 
