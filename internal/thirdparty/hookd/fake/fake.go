@@ -57,9 +57,9 @@ func (f *FakeHookdClient) ChangeDeployKey(_ context.Context, team string) (*hook
 	return n, nil
 }
 
-func (f *FakeHookdClient) DeployKey(ctx context.Context, team string) (*hookd.DeployKey, error) {
+func (f *FakeHookdClient) DeployKey(_ context.Context, team string) (*hookd.DeployKey, error) {
 	if !f.keys.Has(team) {
-		return f.ChangeDeployKey(ctx, team)
+		return nil, hookd.ErrNotFound
 	}
 	return f.keys.Get(team), nil
 }
