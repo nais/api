@@ -124,7 +124,10 @@ func (f *FakeBifrostClient) GetInstance(_ context.Context, name string) (*bifros
 	}, nil
 }
 
-func (f *FakeBifrostClient) DeleteInstance(_ context.Context, _ string) (*bifrostclient.DeleteInstanceResponse, error) {
+func (f *FakeBifrostClient) DeleteInstance(ctx context.Context, name string) (*bifrostclient.DeleteInstanceResponse, error) {
+	if err := f.watcher.Delete(ctx, "management", ManagementClusterNamespace, name); err != nil {
+		return nil, err
+	}
 	return &bifrostclient.DeleteInstanceResponse{}, nil
 }
 
@@ -233,11 +236,29 @@ func (f *FakeBifrostClient) createOrUpdateUnleash(ctx context.Context, req bifro
 }
 
 func (f *FakeBifrostClient) updateUnleash(ctx context.Context, name string, req bifrostclient.UnleashConfigRequest) (*unleash_nais_io_v1.Unleash, error) {
+	// Get existing instance to preserve fields not being updated
+	existing, err := f.watcher.Get("management", ManagementClusterNamespace, name)
+	if err != nil {
+		return nil, err
+	}
+
+	// Start with existing values
 	allowedTeams := ""
+	for _, team := range existing.AllowedTeamSlugs {
+		if allowedTeams != "" {
+			allowedTeams += ","
+		}
+		allowedTeams += team.String()
+	}
+	releaseChannelName := ""
+	if existing.releaseChannelName != nil {
+		releaseChannelName = *existing.releaseChannelName
+	}
+
+	// Override with request values if provided
 	if req.AllowedTeams != nil {
 		allowedTeams = *req.AllowedTeams
 	}
-	releaseChannelName := ""
 	if req.ReleaseChannelName != nil {
 		releaseChannelName = *req.ReleaseChannelName
 	}

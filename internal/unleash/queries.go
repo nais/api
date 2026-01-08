@@ -176,6 +176,35 @@ func RevokeTeamAccess(ctx context.Context, input RevokeTeamAccessToUnleashInput)
 	return ins, nil
 }
 
+func Delete(ctx context.Context, input *DeleteUnleashInstanceInput) (*DeleteUnleashInstancePayload, error) {
+	if err := input.Validate(ctx); err != nil {
+		return nil, err
+	}
+
+	client := fromContext(ctx).bifrostClient
+	name := input.TeamSlug.String()
+
+	_, err := client.DeleteInstance(ctx, name)
+	if err != nil {
+		return nil, err
+	}
+
+	if err = activitylog.Create(ctx, activitylog.CreateInput{
+		Action:       activitylog.ActivityLogEntryActionDeleted,
+		Actor:        authz.ActorFromContext(ctx).User,
+		ResourceType: activityLogEntryResourceTypeUnleash,
+		ResourceName: input.TeamSlug.String(),
+		TeamSlug:     &input.TeamSlug,
+	}); err != nil {
+		return nil, err
+	}
+
+	deleted := true
+	return &DeleteUnleashInstancePayload{
+		UnleashDeleted: &deleted,
+	}, nil
+}
+
 func Toggles(ctx context.Context, teamSlug slug.Slug) (int, error) {
 	val, err := fromContext(ctx).PromQuery(ctx, fmt.Sprintf("sum(feature_toggles_total{job=~%q, namespace=%q})", teamSlug.String(), ManagementClusterNamespace))
 	if err != nil {

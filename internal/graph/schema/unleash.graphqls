@@ -36,6 +36,14 @@ extend type Mutation {
 	revokeTeamAccessToUnleash(
 		input: RevokeTeamAccessToUnleashInput!
 	): RevokeTeamAccessToUnleashPayload!
+
+	"""
+	Delete an Unleash instance.
+
+	The Unleash instance can only be deleted if no other teams have access to it.
+	Revoke access for all other teams before deleting the instance.
+	"""
+	deleteUnleashInstance(input: DeleteUnleashInstanceInput!): DeleteUnleashInstancePayload!
 }
 
 input CreateUnleashForTeamInput {
@@ -85,6 +93,16 @@ input RevokeTeamAccessToUnleashInput {
 
 type RevokeTeamAccessToUnleashPayload {
 	unleash: UnleashInstance
+}
+
+input DeleteUnleashInstanceInput {
+	"The team that owns the Unleash instance to delete."
+	teamSlug: Slug!
+}
+
+type DeleteUnleashInstancePayload {
+	"Whether the Unleash instance was successfully deleted."
+	unleashDeleted: Boolean
 }
 
 extend type Team {
@@ -229,10 +247,39 @@ type UnleashInstanceUpdatedActivityLogEntryData {
 	updatedReleaseChannel: String
 }
 
+type UnleashInstanceDeletedActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: ActivityLogEntryResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+}
+
 extend enum ActivityLogActivityType {
 	"Unleash instance was created."
 	UNLEASH_INSTANCE_CREATED
 
 	"Unleash instance was updated."
 	UNLEASH_INSTANCE_UPDATED
+
+	"Unleash instance was deleted."
+	UNLEASH_INSTANCE_DELETED
 }

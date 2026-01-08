@@ -64,6 +64,19 @@ func (r *mutationResolver) RevokeTeamAccessToUnleash(ctx context.Context, input 
 	return &unleash.RevokeTeamAccessToUnleashPayload{Unleash: instance}, nil
 }
 
+func (r *mutationResolver) DeleteUnleashInstance(ctx context.Context, input unleash.DeleteUnleashInstanceInput) (*unleash.DeleteUnleashInstancePayload, error) {
+	if err := authz.CanDeleteUnleash(ctx, input.TeamSlug); err != nil {
+		return nil, err
+	}
+
+	payload, err := unleash.Delete(ctx, &input)
+	if err != nil {
+		return nil, err
+	}
+
+	return payload, nil
+}
+
 func (r *queryResolver) UnleashReleaseChannels(ctx context.Context) ([]*unleash.UnleashReleaseChannel, error) {
 	return unleash.GetReleaseChannels(ctx)
 }

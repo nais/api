@@ -163,6 +163,34 @@ type RevokeTeamAccessToUnleashPayload struct {
 	Unleash *UnleashInstance `json:"unleash,omitempty"`
 }
 
+type DeleteUnleashInstanceInput struct {
+	TeamSlug slug.Slug `json:"teamSlug"`
+}
+
+func (i *DeleteUnleashInstanceInput) Validate(ctx context.Context) error {
+	verr := validate.New()
+
+	instance, err := ForTeam(ctx, i.TeamSlug)
+	if err != nil {
+		return err
+	}
+
+	if instance == nil {
+		verr.Add("teamSlug", "No Unleash instance found for this team.")
+		return verr.NilIfEmpty()
+	}
+
+	if len(instance.AllowedTeamSlugs) > 1 {
+		verr.Add("unleash", "Revoke access for all other teams before deleting the unleash instance.")
+	}
+
+	return verr.NilIfEmpty()
+}
+
+type DeleteUnleashInstancePayload struct {
+	UnleashDeleted *bool `json:"unleashDeleted,omitempty"`
+}
+
 // UnleashReleaseChannel represents an available release channel from bifrost
 type UnleashReleaseChannel struct {
 	Name           string     `json:"name"`

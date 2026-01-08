@@ -170,6 +170,35 @@ func (ec *executionContext) fieldContext_CreateUnleashForTeamPayload_unleash(_ c
 	return fc, nil
 }
 
+func (ec *executionContext) _DeleteUnleashInstancePayload_unleashDeleted(ctx context.Context, field graphql.CollectedField, obj *unleash.DeleteUnleashInstancePayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_DeleteUnleashInstancePayload_unleashDeleted,
+		func(ctx context.Context) (any, error) {
+			return obj.UnleashDeleted, nil
+		},
+		nil,
+		ec.marshalOBoolean2ᚖbool,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_DeleteUnleashInstancePayload_unleashDeleted(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DeleteUnleashInstancePayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _RevokeTeamAccessToUnleashPayload_unleash(ctx context.Context, field graphql.CollectedField, obj *unleash.RevokeTeamAccessToUnleashPayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -777,6 +806,238 @@ func (ec *executionContext) _UnleashInstanceCreatedActivityLogEntry_environmentN
 func (ec *executionContext) fieldContext_UnleashInstanceCreatedActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "UnleashInstanceCreatedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UnleashInstanceDeletedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceDeletedActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_UnleashInstanceDeletedActivityLogEntry_id,
+		func(ctx context.Context) (any, error) {
+			return obj.ID(), nil
+		},
+		nil,
+		ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_UnleashInstanceDeletedActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UnleashInstanceDeletedActivityLogEntry",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UnleashInstanceDeletedActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceDeletedActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_UnleashInstanceDeletedActivityLogEntry_actor,
+		func(ctx context.Context) (any, error) {
+			return obj.Actor, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_UnleashInstanceDeletedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UnleashInstanceDeletedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UnleashInstanceDeletedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceDeletedActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_UnleashInstanceDeletedActivityLogEntry_createdAt,
+		func(ctx context.Context) (any, error) {
+			return obj.CreatedAt, nil
+		},
+		nil,
+		ec.marshalNTime2timeᚐTime,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_UnleashInstanceDeletedActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UnleashInstanceDeletedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UnleashInstanceDeletedActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceDeletedActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_UnleashInstanceDeletedActivityLogEntry_message,
+		func(ctx context.Context) (any, error) {
+			return obj.Message, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_UnleashInstanceDeletedActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UnleashInstanceDeletedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UnleashInstanceDeletedActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceDeletedActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_UnleashInstanceDeletedActivityLogEntry_resourceType,
+		func(ctx context.Context) (any, error) {
+			return obj.ResourceType, nil
+		},
+		nil,
+		ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_UnleashInstanceDeletedActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UnleashInstanceDeletedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ActivityLogEntryResourceType does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UnleashInstanceDeletedActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceDeletedActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_UnleashInstanceDeletedActivityLogEntry_resourceName,
+		func(ctx context.Context) (any, error) {
+			return obj.ResourceName, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_UnleashInstanceDeletedActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UnleashInstanceDeletedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UnleashInstanceDeletedActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceDeletedActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_UnleashInstanceDeletedActivityLogEntry_teamSlug,
+		func(ctx context.Context) (any, error) {
+			return obj.TeamSlug, nil
+		},
+		nil,
+		ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_UnleashInstanceDeletedActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UnleashInstanceDeletedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Slug does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UnleashInstanceDeletedActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceDeletedActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_UnleashInstanceDeletedActivityLogEntry_environmentName,
+		func(ctx context.Context) (any, error) {
+			return obj.EnvironmentName, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_UnleashInstanceDeletedActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UnleashInstanceDeletedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -1556,6 +1817,33 @@ func (ec *executionContext) unmarshalInputCreateUnleashForTeamInput(ctx context.
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputDeleteUnleashInstanceInput(ctx context.Context, obj any) (unleash.DeleteUnleashInstanceInput, error) {
+	var it unleash.DeleteUnleashInstanceInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"teamSlug"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "teamSlug":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamSlug"))
+			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TeamSlug = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputRevokeTeamAccessToUnleashInput(ctx context.Context, obj any) (unleash.RevokeTeamAccessToUnleashInput, error) {
 	var it unleash.RevokeTeamAccessToUnleashInput
 	asMap := map[string]any{}
@@ -1681,6 +1969,42 @@ func (ec *executionContext) _CreateUnleashForTeamPayload(ctx context.Context, se
 			out.Values[i] = graphql.MarshalString("CreateUnleashForTeamPayload")
 		case "unleash":
 			out.Values[i] = ec._CreateUnleashForTeamPayload_unleash(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var deleteUnleashInstancePayloadImplementors = []string{"DeleteUnleashInstancePayload"}
+
+func (ec *executionContext) _DeleteUnleashInstancePayload(ctx context.Context, sel ast.SelectionSet, obj *unleash.DeleteUnleashInstancePayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, deleteUnleashInstancePayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("DeleteUnleashInstancePayload")
+		case "unleashDeleted":
+			out.Values[i] = ec._DeleteUnleashInstancePayload_unleashDeleted(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -1928,6 +2252,77 @@ func (ec *executionContext) _UnleashInstanceCreatedActivityLogEntry(ctx context.
 			}
 		case "environmentName":
 			out.Values[i] = ec._UnleashInstanceCreatedActivityLogEntry_environmentName(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var unleashInstanceDeletedActivityLogEntryImplementors = []string{"UnleashInstanceDeletedActivityLogEntry", "ActivityLogEntry", "Node"}
+
+func (ec *executionContext) _UnleashInstanceDeletedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *unleash.UnleashInstanceDeletedActivityLogEntry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, unleashInstanceDeletedActivityLogEntryImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("UnleashInstanceDeletedActivityLogEntry")
+		case "id":
+			out.Values[i] = ec._UnleashInstanceDeletedActivityLogEntry_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "actor":
+			out.Values[i] = ec._UnleashInstanceDeletedActivityLogEntry_actor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "createdAt":
+			out.Values[i] = ec._UnleashInstanceDeletedActivityLogEntry_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "message":
+			out.Values[i] = ec._UnleashInstanceDeletedActivityLogEntry_message(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "resourceType":
+			out.Values[i] = ec._UnleashInstanceDeletedActivityLogEntry_resourceType(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "resourceName":
+			out.Values[i] = ec._UnleashInstanceDeletedActivityLogEntry_resourceName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "teamSlug":
+			out.Values[i] = ec._UnleashInstanceDeletedActivityLogEntry_teamSlug(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "environmentName":
+			out.Values[i] = ec._UnleashInstanceDeletedActivityLogEntry_environmentName(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -2382,6 +2777,25 @@ func (ec *executionContext) marshalNCreateUnleashForTeamPayload2ᚖgithubᚗcom�
 		return graphql.Null
 	}
 	return ec._CreateUnleashForTeamPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNDeleteUnleashInstanceInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐDeleteUnleashInstanceInput(ctx context.Context, v any) (unleash.DeleteUnleashInstanceInput, error) {
+	res, err := ec.unmarshalInputDeleteUnleashInstanceInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNDeleteUnleashInstancePayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐDeleteUnleashInstancePayload(ctx context.Context, sel ast.SelectionSet, v unleash.DeleteUnleashInstancePayload) graphql.Marshaler {
+	return ec._DeleteUnleashInstancePayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNDeleteUnleashInstancePayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐDeleteUnleashInstancePayload(ctx context.Context, sel ast.SelectionSet, v *unleash.DeleteUnleashInstancePayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._DeleteUnleashInstancePayload(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNRevokeTeamAccessToUnleashInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐRevokeTeamAccessToUnleashInput(ctx context.Context, v any) (unleash.RevokeTeamAccessToUnleashInput, error) {

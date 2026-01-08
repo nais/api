@@ -33,6 +33,10 @@ func init() {
 				GenericActivityLogEntry: entry.WithMessage("Updated Unleash instance"),
 				Data:                    data,
 			}, nil
+		case activitylog.ActivityLogEntryActionDeleted:
+			return UnleashInstanceDeletedActivityLogEntry{
+				GenericActivityLogEntry: entry.WithMessage("Deleted Unleash instance"),
+			}, nil
 
 		default:
 			return nil, fmt.Errorf("unsupported unleash activity log entry action: %q", entry.Action)
@@ -41,6 +45,7 @@ func init() {
 
 	activitylog.RegisterFilter("UNLEASH_INSTANCE_CREATED", activitylog.ActivityLogEntryActionCreated, activityLogEntryResourceTypeUnleash)
 	activitylog.RegisterFilter("UNLEASH_INSTANCE_UPDATED", activitylog.ActivityLogEntryActionUpdated, activityLogEntryResourceTypeUnleash)
+	activitylog.RegisterFilter("UNLEASH_INSTANCE_DELETED", activitylog.ActivityLogEntryActionDeleted, activityLogEntryResourceTypeUnleash)
 }
 
 type UnleashInstanceCreatedActivityLogEntry struct {
@@ -56,4 +61,8 @@ type UnleashInstanceUpdatedActivityLogEntryData struct {
 	RevokedTeamSlug       *slug.Slug `json:"revokedTeamSlug"`
 	AllowedTeamSlug       *slug.Slug `json:"allowedTeamSlug"`
 	UpdatedReleaseChannel *string    `json:"updatedReleaseChannel,omitempty"`
+}
+
+type UnleashInstanceDeletedActivityLogEntry struct {
+	activitylog.GenericActivityLogEntry
 }
