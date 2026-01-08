@@ -4,6 +4,19 @@
 
 set -e
 
+# Export Docker environment variables for colima (if not already set)
+if [ -z "$DOCKER_HOST" ]; then
+	if [ -S "$HOME/.colima/default/docker.sock" ]; then
+		export DOCKER_HOST="unix://$HOME/.colima/default/docker.sock"
+		# For testcontainers to work with colima, we need to tell it where the docker socket is
+		export TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE="$HOME/.colima/default/docker.sock"
+		# This allows testcontainers to use the host docker socket directly
+		export TESTCONTAINERS_HOST_OVERRIDE="localhost"
+		# Disable the Ryuk container that manages test container cleanup with colima
+		export TESTCONTAINERS_RYUK_DISABLED="true"
+	fi
+fi
+
 # shellcheck disable=SC2154
 if [ "$usage_coverage" = "true" ]; then
 	rm -f hack/coverprofile.txt
