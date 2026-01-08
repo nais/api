@@ -12,6 +12,8 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
 
+var ErrNotFound = fmt.Errorf("deploy key not found")
+
 type Client interface {
 	ChangeDeployKey(ctx context.Context, team string) (*DeployKey, error)
 	DeployKey(ctx context.Context, team string) (*DeployKey, error)
@@ -88,6 +90,11 @@ func (c *client) DeployKey(ctx context.Context, team string) (*DeployKey, error)
 	}()
 
 	if resp.StatusCode != http.StatusOK {
+		if resp.StatusCode == http.StatusNotFound {
+			// Skip logging not found errors as they are expected for now teams
+			return nil, ErrNotFound
+		}
+
 		return nil, c.error(ctx, fmt.Errorf("deploy key API returned %s", resp.Status), "deploy key API returned non-200")
 	}
 
