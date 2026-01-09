@@ -129,7 +129,7 @@ type QueryResolver interface {
 	VulnerabilitySummary(ctx context.Context) (*vulnerability.TenantVulnerabilitySummary, error)
 	VulnerabilityFixHistory(ctx context.Context, from scalar.Date) (*vulnerability.VulnerabilityFixHistory, error)
 	CVE(ctx context.Context, identifier string) (*vulnerability.CVE, error)
-	Cves(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *vulnerability.CVEFilter) (*pagination.Connection[*vulnerability.CVE], error)
+	Cves(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *vulnerability.CVEOrder) (*pagination.Connection[*vulnerability.CVE], error)
 }
 type SubscriptionResolver interface {
 	Log(ctx context.Context, filter loki.LogSubscriptionFilter) (<-chan *loki.LogLine, error)
@@ -696,11 +696,11 @@ func (ec *executionContext) field_Query_cves_args(ctx context.Context, rawArgs m
 		return nil, err
 	}
 	args["before"] = arg3
-	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "filter", ec.unmarshalOCVEFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐCVEFilter)
+	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "orderBy", ec.unmarshalOCVEOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐCVEOrder)
 	if err != nil {
 		return nil, err
 	}
-	args["filter"] = arg4
+	args["orderBy"] = arg4
 	return args, nil
 }
 
@@ -4550,6 +4550,8 @@ func (ec *executionContext) fieldContext_Query_cve(ctx context.Context, field gr
 				return ec.fieldContext_CVE_detailsLink(ctx, field)
 			case "cvssScore":
 				return ec.fieldContext_CVE_cvssScore(ctx, field)
+			case "affectedWorkloadsCount":
+				return ec.fieldContext_CVE_affectedWorkloadsCount(ctx, field)
 			case "workloads":
 				return ec.fieldContext_CVE_workloads(ctx, field)
 			}
@@ -4578,7 +4580,7 @@ func (ec *executionContext) _Query_cves(ctx context.Context, field graphql.Colle
 		ec.fieldContext_Query_cves,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().Cves(ctx, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["filter"].(*vulnerability.CVEFilter))
+			return ec.resolvers.Query().Cves(ctx, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*vulnerability.CVEOrder))
 		},
 		nil,
 		ec.marshalNCVEConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,

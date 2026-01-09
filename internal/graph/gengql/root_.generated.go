@@ -396,14 +396,15 @@ type ComplexityRoot struct {
 	}
 
 	CVE struct {
-		CVSSScore   func(childComplexity int) int
-		Description func(childComplexity int) int
-		DetailsLink func(childComplexity int) int
-		ID          func(childComplexity int) int
-		Identifier  func(childComplexity int) int
-		Severity    func(childComplexity int) int
-		Title       func(childComplexity int) int
-		Workloads   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		AffectedWorkloadsCount func(childComplexity int) int
+		CVSSScore              func(childComplexity int) int
+		Description            func(childComplexity int) int
+		DetailsLink            func(childComplexity int) int
+		ID                     func(childComplexity int) int
+		Identifier             func(childComplexity int) int
+		Severity               func(childComplexity int) int
+		Title                  func(childComplexity int) int
+		Workloads              func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 	}
 
 	CVEConnection struct {
@@ -1322,7 +1323,7 @@ type ComplexityRoot struct {
 		CVE                       func(childComplexity int, identifier string) int
 		CostMonthlySummary        func(childComplexity int, from scalar.Date, to scalar.Date) int
 		CurrentUnitPrices         func(childComplexity int) int
-		Cves                      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *vulnerability.CVEFilter) int
+		Cves                      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *vulnerability.CVEOrder) int
 		Deployments               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *deployment.DeploymentFilter) int
 		Environment               func(childComplexity int, name string) int
 		Environments              func(childComplexity int, orderBy *environment.EnvironmentOrder) int
@@ -3921,6 +3922,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.CPUScalingStrategy.Threshold(childComplexity), true
+
+	case "CVE.affectedWorkloadsCount":
+		if e.complexity.CVE.AffectedWorkloadsCount == nil {
+			break
+		}
+
+		return e.complexity.CVE.AffectedWorkloadsCount(childComplexity), true
 
 	case "CVE.cvssScore":
 		if e.complexity.CVE.CVSSScore == nil {
@@ -7949,7 +7957,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Query.Cves(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["filter"].(*vulnerability.CVEFilter)), true
+		return e.complexity.Query.Cves(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*vulnerability.CVEOrder)), true
 
 	case "Query.deployments":
 		if e.complexity.Query.Deployments == nil {
@@ -14665,7 +14673,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputBigQueryDatasetAccessOrder,
 		ec.unmarshalInputBigQueryDatasetOrder,
 		ec.unmarshalInputBucketOrder,
-		ec.unmarshalInputCVEFilter,
+		ec.unmarshalInputCVEOrder,
 		ec.unmarshalInputChangeDeploymentKeyInput,
 		ec.unmarshalInputConfigureReconcilerInput,
 		ec.unmarshalInputConfirmTeamDeletionInput,
@@ -23734,14 +23742,25 @@ extend type Query {
 		"Get items before this cursor."
 		before: Cursor
 
-		"Filter the CVEs."
-		filter: CVEFilter
+		"Ordering options for items returned from the connection."
+		orderBy: CVEOrder
 	): CVEConnection!
 }
 
-input CVEFilter {
-	"Minimum CVSS score to filter CVEs (inclusive)."
-	minimumCVSSScore: Float
+"Ordering options when fetching CVEs."
+input CVEOrder {
+	"The field to order items by."
+	field: CVEOrderField!
+
+	"The direction to order items by."
+	direction: OrderDirection!
+}
+
+enum CVEOrderField {
+	IDENTIFIER
+	SEVERITY
+	CVSS_SCORE
+	AFFECTED_WORKLOADS_COUNT
 }
 
 extend interface Workload {
@@ -24050,6 +24069,9 @@ type CVE implements Node {
 
 	"CVSS score of the CVE."
 	cvssScore: Float
+
+	"Number of workloads affected by this CVE."
+	affectedWorkloadsCount: Int!
 
 	"Affected workloads"
 	workloads(
