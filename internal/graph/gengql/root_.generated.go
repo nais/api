@@ -23867,7 +23867,7 @@ extend type Query {
 	"Get a specific CVE by its identifier."
 	cve(identifier: String!): CVE!
 
-	"List active CVEs for workloads in all environments, optionally filtered by minimum CVSS score."
+	"List active CVEs for workloads in all environments."
 	cves(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
 		first: Int
@@ -24210,7 +24210,7 @@ type CVE implements Node {
 	cvssScore: Float
 
 	"Number of workloads affected by this CVE."
-	affectedWorkloadsCount: Int!
+	affectedWorkloadsCount: Int
 
 	"Affected workloads"
 	workloads(
