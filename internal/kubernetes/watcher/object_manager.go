@@ -1,6 +1,7 @@
 package watcher
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -77,6 +78,16 @@ func (c *clusterManager) createInformer(obj runtime.Object, gvr *schema.GroupVer
 		if err != nil {
 			c.log.WithError(err).WithField("resource", gvr.String()).Error("resource not available in cluster")
 			return nil, *gvr, fmt.Errorf("resource not available in cluster")
+		}
+
+		// Also verify we have permission to list the resource by doing a test list with limit=1
+		// This prevents errors at runtime when the informer tries to watch resources we can't access
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		_, err = c.client.Resource(*gvr).List(ctx, v1.ListOptions{Limit: 1})
+		if err != nil {
+			c.log.WithError(err).WithField("resource", gvr.String()).Warn("no permission to list resource, skipping watcher")
+			return nil, *gvr, fmt.Errorf("no permission to list resource: %w", err)
 		}
 	}
 
