@@ -4607,8 +4607,6 @@ func (ec *executionContext) fieldContext_Query_cve(ctx context.Context, field gr
 				return ec.fieldContext_CVE_detailsLink(ctx, field)
 			case "cvssScore":
 				return ec.fieldContext_CVE_cvssScore(ctx, field)
-			case "affectedWorkloadsCount":
-				return ec.fieldContext_CVE_affectedWorkloadsCount(ctx, field)
 			case "workloads":
 				return ec.fieldContext_CVE_workloads(ctx, field)
 			}

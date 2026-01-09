@@ -396,15 +396,14 @@ type ComplexityRoot struct {
 	}
 
 	CVE struct {
-		AffectedWorkloadsCount func(childComplexity int) int
-		CVSSScore              func(childComplexity int) int
-		Description            func(childComplexity int) int
-		DetailsLink            func(childComplexity int) int
-		ID                     func(childComplexity int) int
-		Identifier             func(childComplexity int) int
-		Severity               func(childComplexity int) int
-		Title                  func(childComplexity int) int
-		Workloads              func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		CVSSScore   func(childComplexity int) int
+		Description func(childComplexity int) int
+		DetailsLink func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Identifier  func(childComplexity int) int
+		Severity    func(childComplexity int) int
+		Title       func(childComplexity int) int
+		Workloads   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 	}
 
 	CVEConnection struct {
@@ -3938,13 +3937,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.CPUScalingStrategy.Threshold(childComplexity), true
-
-	case "CVE.affectedWorkloadsCount":
-		if e.complexity.CVE.AffectedWorkloadsCount == nil {
-			break
-		}
-
-		return e.complexity.CVE.AffectedWorkloadsCount(childComplexity), true
 
 	case "CVE.cvssScore":
 		if e.complexity.CVE.CVSSScore == nil {
@@ -24208,9 +24200,6 @@ type CVE implements Node {
 
 	"CVSS score of the CVE."
 	cvssScore: Float
-
-	"Number of workloads affected by this CVE."
-	affectedWorkloadsCount: Int
 
 	"Affected workloads"
 	workloads(
