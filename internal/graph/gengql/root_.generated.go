@@ -406,6 +406,17 @@ type ComplexityRoot struct {
 		Workloads   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 	}
 
+	CVEConnection struct {
+		Edges    func(childComplexity int) int
+		Nodes    func(childComplexity int) int
+		PageInfo func(childComplexity int) int
+	}
+
+	CVEEdge struct {
+		Cursor func(childComplexity int) int
+		Node   func(childComplexity int) int
+	}
+
 	ChangeDeploymentKeyPayload struct {
 		DeploymentKey func(childComplexity int) int
 	}
@@ -1316,6 +1327,7 @@ type ComplexityRoot struct {
 		CVE                       func(childComplexity int, identifier string) int
 		CostMonthlySummary        func(childComplexity int, from scalar.Date, to scalar.Date) int
 		CurrentUnitPrices         func(childComplexity int) int
+		Cves                      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *vulnerability.CVEOrder) int
 		Deployments               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *deployment.DeploymentFilter) int
 		Environment               func(childComplexity int, name string) int
 		Environments              func(childComplexity int, orderBy *environment.EnvironmentOrder) int
@@ -3986,6 +3998,41 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.CVE.Workloads(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
+
+	case "CVEConnection.edges":
+		if e.complexity.CVEConnection.Edges == nil {
+			break
+		}
+
+		return e.complexity.CVEConnection.Edges(childComplexity), true
+
+	case "CVEConnection.nodes":
+		if e.complexity.CVEConnection.Nodes == nil {
+			break
+		}
+
+		return e.complexity.CVEConnection.Nodes(childComplexity), true
+
+	case "CVEConnection.pageInfo":
+		if e.complexity.CVEConnection.PageInfo == nil {
+			break
+		}
+
+		return e.complexity.CVEConnection.PageInfo(childComplexity), true
+
+	case "CVEEdge.cursor":
+		if e.complexity.CVEEdge.Cursor == nil {
+			break
+		}
+
+		return e.complexity.CVEEdge.Cursor(childComplexity), true
+
+	case "CVEEdge.node":
+		if e.complexity.CVEEdge.Node == nil {
+			break
+		}
+
+		return e.complexity.CVEEdge.Node(childComplexity), true
 
 	case "ChangeDeploymentKeyPayload.deploymentKey":
 		if e.complexity.ChangeDeploymentKeyPayload.DeploymentKey == nil {
@@ -7926,6 +7973,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Query.CurrentUnitPrices(childComplexity), true
+
+	case "Query.cves":
+		if e.complexity.Query.Cves == nil {
+			break
+		}
+
+		args, err := ec.field_Query_cves_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Cves(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*vulnerability.CVEOrder)), true
 
 	case "Query.deployments":
 		if e.complexity.Query.Deployments == nil {
@@ -14697,6 +14756,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputBigQueryDatasetAccessOrder,
 		ec.unmarshalInputBigQueryDatasetOrder,
 		ec.unmarshalInputBucketOrder,
+		ec.unmarshalInputCVEOrder,
 		ec.unmarshalInputChangeDeploymentKeyInput,
 		ec.unmarshalInputConfigureReconcilerInput,
 		ec.unmarshalInputConfirmTeamDeletionInput,
@@ -23798,6 +23858,40 @@ extend type Query {
 
 	"Get a specific CVE by its identifier."
 	cve(identifier: String!): CVE!
+
+	"List active CVEs for workloads in all environments."
+	cves(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+
+		"Ordering options for items returned from the connection."
+		orderBy: CVEOrder
+	): CVEConnection!
+}
+
+"Ordering options when fetching CVEs."
+input CVEOrder {
+	"The field to order items by."
+	field: CVEOrderField!
+
+	"The direction to order items by."
+	direction: OrderDirection!
+}
+
+enum CVEOrderField {
+	IDENTIFIER
+	SEVERITY
+	CVSS_SCORE
+	AFFECTED_WORKLOADS_COUNT
 }
 
 extend interface Workload {
@@ -24145,6 +24239,25 @@ type WorkloadWithVulnerabilityEdge {
 type WorkloadWithVulnerability {
 	vulnerability: ImageVulnerability!
 	workload: Workload!
+}
+
+type CVEConnection {
+	"Information to aid in pagination."
+	pageInfo: PageInfo!
+
+	"List of edges."
+	edges: [CVEEdge!]!
+
+	"List of nodes."
+	nodes: [CVE!]!
+}
+
+type CVEEdge {
+	"A cursor for use in pagination."
+	cursor: Cursor!
+
+	"The CVE."
+	node: CVE!
 }
 
 enum ImageVulnerabilitySeverity {
