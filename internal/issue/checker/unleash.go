@@ -71,34 +71,16 @@ func (u Unleash) Run(ctx context.Context) ([]Issue, error) {
 	for _, instance := range u.UnleashWatcher.All() {
 		channelName := instance.Obj.ReleaseChannelName()
 
-		// Check for missing release channel
+		// Skip instances without a release channel (should not happen after migration)
 		if channelName == nil || *channelName == "" {
-			ret = append(ret, Issue{
-				ResourceName: instance.Obj.Name,
-				ResourceType: issue.ResourceTypeUnleash,
-				Env:          unleashEnvironment,
-				Team:         instance.Obj.TeamSlug.String(),
-				IssueType:    issue.IssueTypeUnleashMissingReleaseChannel,
-				Message:      "Unleash instance is not configured with a release channel",
-				Severity:     issue.SeverityCritical,
-			})
+			u.Log.WithField("instance", instance.Obj.Name).Warn("instance has no release channel configured, skipping")
 			continue
 		}
 
 		// Look up the channel info
 		chInfo, found := channelMap[*channelName]
 		if !found {
-			u.Log.WithField("channel", *channelName).WithField("instance", instance.Obj.Name).Warn("instance is on unknown release channel")
-			// Treat unknown channel as missing channel
-			ret = append(ret, Issue{
-				ResourceName: instance.Obj.Name,
-				ResourceType: issue.ResourceTypeUnleash,
-				Env:          unleashEnvironment,
-				Team:         instance.Obj.TeamSlug.String(),
-				IssueType:    issue.IssueTypeUnleashMissingReleaseChannel,
-				Message:      fmt.Sprintf("Unleash instance is on unknown release channel: %s", *channelName),
-				Severity:     issue.SeverityCritical,
-			})
+			u.Log.WithField("channel", *channelName).WithField("instance", instance.Obj.Name).Warn("instance is on unknown release channel, skipping")
 			continue
 		}
 

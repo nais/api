@@ -126,7 +126,6 @@ type ResolverRoot interface {
 	TriggerJobPayload() TriggerJobPayloadResolver
 	UnleashInstance() UnleashInstanceResolver
 	UnleashInstanceMetrics() UnleashInstanceMetricsResolver
-	UnleashMissingReleaseChannelIssue() UnleashMissingReleaseChannelIssueResolver
 	UnleashReleaseChannelIssue() UnleashReleaseChannelIssueResolver
 	UpdateTeamEnvironmentPayload() UpdateTeamEnvironmentPayloadResolver
 	User() UserResolver
@@ -2474,14 +2473,6 @@ type ComplexityRoot struct {
 		AllowedTeamSlug       func(childComplexity int) int
 		RevokedTeamSlug       func(childComplexity int) int
 		UpdatedReleaseChannel func(childComplexity int) int
-	}
-
-	UnleashMissingReleaseChannelIssue struct {
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		Severity        func(childComplexity int) int
-		TeamEnvironment func(childComplexity int) int
-		Unleash         func(childComplexity int) int
 	}
 
 	UnleashReleaseChannel struct {
@@ -13183,41 +13174,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.UnleashInstanceUpdatedActivityLogEntryData.UpdatedReleaseChannel(childComplexity), true
 
-	case "UnleashMissingReleaseChannelIssue.id":
-		if e.complexity.UnleashMissingReleaseChannelIssue.ID == nil {
-			break
-		}
-
-		return e.complexity.UnleashMissingReleaseChannelIssue.ID(childComplexity), true
-
-	case "UnleashMissingReleaseChannelIssue.message":
-		if e.complexity.UnleashMissingReleaseChannelIssue.Message == nil {
-			break
-		}
-
-		return e.complexity.UnleashMissingReleaseChannelIssue.Message(childComplexity), true
-
-	case "UnleashMissingReleaseChannelIssue.severity":
-		if e.complexity.UnleashMissingReleaseChannelIssue.Severity == nil {
-			break
-		}
-
-		return e.complexity.UnleashMissingReleaseChannelIssue.Severity(childComplexity), true
-
-	case "UnleashMissingReleaseChannelIssue.teamEnvironment":
-		if e.complexity.UnleashMissingReleaseChannelIssue.TeamEnvironment == nil {
-			break
-		}
-
-		return e.complexity.UnleashMissingReleaseChannelIssue.TeamEnvironment(childComplexity), true
-
-	case "UnleashMissingReleaseChannelIssue.unleash":
-		if e.complexity.UnleashMissingReleaseChannelIssue.Unleash == nil {
-			break
-		}
-
-		return e.complexity.UnleashMissingReleaseChannelIssue.Unleash(childComplexity), true
-
 	case "UnleashReleaseChannel.currentVersion":
 		if e.complexity.UnleashReleaseChannel.CurrentVersion == nil {
 			break
@@ -17629,7 +17585,6 @@ enum IssueType {
 	MISSING_SBOM
 	VULNERABLE_IMAGE
 	UNLEASH_RELEASE_CHANNEL
-	UNLEASH_MISSING_RELEASE_CHANNEL
 }
 
 type VulnerableImageIssue implements Issue & Node {
@@ -17759,15 +17714,6 @@ type UnleashReleaseChannelIssue implements Issue & Node {
 	majorVersion: Int!
 	"The current major version of Unleash available."
 	currentMajorVersion: Int!
-}
-
-type UnleashMissingReleaseChannelIssue implements Issue & Node {
-	id: ID!
-	teamEnvironment: TeamEnvironment!
-	severity: Severity!
-	message: String!
-
-	unleash: UnleashInstance!
 }
 `, BuiltIn: false},
 	{Name: "../schema/jobs.graphqls", Input: `extend type Team {
@@ -22766,14 +22712,11 @@ type UnleashInstance implements Node {
 	metrics: UnleashInstanceMetrics!
 	ready: Boolean!
 
-	"""
-	Release channel name if using channel-based version management.
-	Populated from CRD spec.releaseChannel.name field.
-	"""
-	releaseChannelName: String
+	"Release channel name for automatic version updates."
+	releaseChannelName: String!
 
 	"""
-	Release channel details if using channel-based version management.
+	Release channel details.
 	Returns the full release channel object with current version and update policy.
 	"""
 	releaseChannel: UnleashReleaseChannel

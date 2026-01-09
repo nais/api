@@ -526,9 +526,9 @@ func (ec *executionContext) _UnleashInstance_releaseChannelName(ctx context.Cont
 			return obj.ReleaseChannelName(), nil
 		},
 		nil,
-		ec.marshalOString2ᚖstring,
+		ec.marshalNString2ᚖstring,
 		true,
-		false,
+		true,
 	)
 }
 
@@ -2148,6 +2148,9 @@ func (ec *executionContext) _UnleashInstance(ctx context.Context, sel ast.Select
 			}
 		case "releaseChannelName":
 			out.Values[i] = ec._UnleashInstance_releaseChannelName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		case "releaseChannel":
 			field := field
 

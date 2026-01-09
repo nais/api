@@ -4916,13 +4916,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._UnleashReleaseChannelIssue(ctx, sel, obj)
-	case issue.UnleashMissingReleaseChannelIssue:
-		return ec._UnleashMissingReleaseChannelIssue(ctx, sel, &obj)
-	case *issue.UnleashMissingReleaseChannelIssue:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._UnleashMissingReleaseChannelIssue(ctx, sel, obj)
 	case unleash.UnleashInstanceUpdatedActivityLogEntry:
 		return ec._UnleashInstanceUpdatedActivityLogEntry(ctx, sel, &obj)
 	case *unleash.UnleashInstanceUpdatedActivityLogEntry:

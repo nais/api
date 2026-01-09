@@ -182,10 +182,6 @@ func convert(issue *issuesql.Issue) (Issue, error) {
 			Base:                              base,
 			UnleashReleaseChannelIssueDetails: *d,
 		}, nil
-	case IssueTypeUnleashMissingReleaseChannel:
-		return &UnleashMissingReleaseChannelIssue{
-			Base: base,
-		}, nil
 	}
 
 	return nil, fmt.Errorf("unknown issue type: %s", issue.IssueType)

@@ -105,14 +105,6 @@ func (r *teamResolver) Issues(ctx context.Context, obj *team.Team, first *int, a
 	return issue.ListIssues(ctx, obj.Slug, page, orderBy, filter)
 }
 
-func (r *unleashMissingReleaseChannelIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.UnleashMissingReleaseChannelIssue) (*team.TeamEnvironment, error) {
-	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
-}
-
-func (r *unleashMissingReleaseChannelIssueResolver) Unleash(ctx context.Context, obj *issue.UnleashMissingReleaseChannelIssue) (*unleash.UnleashInstance, error) {
-	return unleash.ForTeam(ctx, obj.TeamSlug)
-}
-
 func (r *unleashReleaseChannelIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.UnleashReleaseChannelIssue) (*team.TeamEnvironment, error) {
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
@@ -177,10 +169,6 @@ func (r *Resolver) SqlInstanceVersionIssue() gengql.SqlInstanceVersionIssueResol
 	return &sqlInstanceVersionIssueResolver{r}
 }
 
-func (r *Resolver) UnleashMissingReleaseChannelIssue() gengql.UnleashMissingReleaseChannelIssueResolver {
-	return &unleashMissingReleaseChannelIssueResolver{r}
-}
-
 func (r *Resolver) UnleashReleaseChannelIssue() gengql.UnleashReleaseChannelIssueResolver {
 	return &unleashReleaseChannelIssueResolver{r}
 }
@@ -192,18 +180,17 @@ func (r *Resolver) VulnerableImageIssue() gengql.VulnerableImageIssueResolver {
 }
 
 type (
-	deprecatedIngressIssueResolver            struct{ *Resolver }
-	deprecatedRegistryIssueResolver           struct{ *Resolver }
-	failedSynchronizationIssueResolver        struct{ *Resolver }
-	invalidSpecIssueResolver                  struct{ *Resolver }
-	lastRunFailedIssueResolver                struct{ *Resolver }
-	missingSbomIssueResolver                  struct{ *Resolver }
-	noRunningInstancesIssueResolver           struct{ *Resolver }
-	openSearchIssueResolver                   struct{ *Resolver }
-	sqlInstanceStateIssueResolver             struct{ *Resolver }
-	sqlInstanceVersionIssueResolver           struct{ *Resolver }
-	unleashMissingReleaseChannelIssueResolver struct{ *Resolver }
-	unleashReleaseChannelIssueResolver        struct{ *Resolver }
-	valkeyIssueResolver                       struct{ *Resolver }
-	vulnerableImageIssueResolver              struct{ *Resolver }
+	deprecatedIngressIssueResolver     struct{ *Resolver }
+	deprecatedRegistryIssueResolver    struct{ *Resolver }
+	failedSynchronizationIssueResolver struct{ *Resolver }
+	invalidSpecIssueResolver           struct{ *Resolver }
+	lastRunFailedIssueResolver         struct{ *Resolver }
+	missingSbomIssueResolver           struct{ *Resolver }
+	noRunningInstancesIssueResolver    struct{ *Resolver }
+	openSearchIssueResolver            struct{ *Resolver }
+	sqlInstanceStateIssueResolver      struct{ *Resolver }
+	sqlInstanceVersionIssueResolver    struct{ *Resolver }
+	unleashReleaseChannelIssueResolver struct{ *Resolver }
+	valkeyIssueResolver                struct{ *Resolver }
+	vulnerableImageIssueResolver       struct{ *Resolver }
 )

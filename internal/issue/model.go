@@ -185,20 +185,19 @@ type VulnerableImageIssueDetails struct {
 type IssueType string
 
 const (
-	IssueTypeOpenSearch                   IssueType = "OPENSEARCH"
-	IssueTypeValkey                       IssueType = "VALKEY"
-	IssueTypeSqlInstanceState             IssueType = "SQLINSTANCE_STATE"
-	IssueTypeSqlInstanceVersion           IssueType = "SQLINSTANCE_VERSION"
-	IssueTypeDeprecatedIngress            IssueType = "DEPRECATED_INGRESS"
-	IssueTypeDeprecatedRegistry           IssueType = "DEPRECATED_REGISTRY"
-	IssueTypeNoRunningInstances           IssueType = "NO_RUNNING_INSTANCES"
-	IssueTypeLastRunFailed                IssueType = "LAST_RUN_FAILED"
-	IssueTypeFailedSynchronization        IssueType = "FAILED_SYNCHRONIZATION"
-	IssueTypeInvalidSpec                  IssueType = "INVALID_SPEC"
-	IssueTypeVulnerableImage              IssueType = "VULNERABLE_IMAGE"
-	IssueTypeMissingSBOM                  IssueType = "MISSING_SBOM"
-	IssueTypeUnleashReleaseChannel        IssueType = "UNLEASH_RELEASE_CHANNEL"
-	IssueTypeUnleashMissingReleaseChannel IssueType = "UNLEASH_MISSING_RELEASE_CHANNEL"
+	IssueTypeOpenSearch            IssueType = "OPENSEARCH"
+	IssueTypeValkey                IssueType = "VALKEY"
+	IssueTypeSqlInstanceState      IssueType = "SQLINSTANCE_STATE"
+	IssueTypeSqlInstanceVersion    IssueType = "SQLINSTANCE_VERSION"
+	IssueTypeDeprecatedIngress     IssueType = "DEPRECATED_INGRESS"
+	IssueTypeDeprecatedRegistry    IssueType = "DEPRECATED_REGISTRY"
+	IssueTypeNoRunningInstances    IssueType = "NO_RUNNING_INSTANCES"
+	IssueTypeLastRunFailed         IssueType = "LAST_RUN_FAILED"
+	IssueTypeFailedSynchronization IssueType = "FAILED_SYNCHRONIZATION"
+	IssueTypeInvalidSpec           IssueType = "INVALID_SPEC"
+	IssueTypeVulnerableImage       IssueType = "VULNERABLE_IMAGE"
+	IssueTypeMissingSBOM           IssueType = "MISSING_SBOM"
+	IssueTypeUnleashReleaseChannel IssueType = "UNLEASH_RELEASE_CHANNEL"
 )
 
 var AllIssueType = []IssueType{
@@ -215,12 +214,11 @@ var AllIssueType = []IssueType{
 	IssueTypeVulnerableImage,
 	IssueTypeMissingSBOM,
 	IssueTypeUnleashReleaseChannel,
-	IssueTypeUnleashMissingReleaseChannel,
 }
 
 func (e IssueType) IsValid() bool {
 	switch e {
-	case IssueTypeOpenSearch, IssueTypeValkey, IssueTypeSqlInstanceState, IssueTypeSqlInstanceVersion, IssueTypeDeprecatedIngress, IssueTypeDeprecatedRegistry, IssueTypeNoRunningInstances, IssueTypeLastRunFailed, IssueTypeInvalidSpec, IssueTypeFailedSynchronization, IssueTypeVulnerableImage, IssueTypeMissingSBOM, IssueTypeUnleashReleaseChannel, IssueTypeUnleashMissingReleaseChannel:
+	case IssueTypeOpenSearch, IssueTypeValkey, IssueTypeSqlInstanceState, IssueTypeSqlInstanceVersion, IssueTypeDeprecatedIngress, IssueTypeDeprecatedRegistry, IssueTypeNoRunningInstances, IssueTypeLastRunFailed, IssueTypeInvalidSpec, IssueTypeFailedSynchronization, IssueTypeVulnerableImage, IssueTypeMissingSBOM, IssueTypeUnleashReleaseChannel:
 		return true
 	}
 	return false
@@ -390,14 +388,6 @@ type UnleashReleaseChannelIssue struct {
 func (UnleashReleaseChannelIssue) IsIssue() {}
 
 func (UnleashReleaseChannelIssue) IsNode() {}
-
-type UnleashMissingReleaseChannelIssue struct {
-	Base
-}
-
-func (UnleashMissingReleaseChannelIssue) IsIssue() {}
-
-func (UnleashMissingReleaseChannelIssue) IsNode() {}
 
 type ResourceIssueFilter struct {
 	// Filter by severity.
