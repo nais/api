@@ -32,6 +32,40 @@ Test.gql("Create team", function(t)
 	}
 end)
 
+Test.gql("Create deploy key for team", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query [[
+		mutation {
+			changeDeploymentKey(
+				input: {
+					teamSlug: "newteam"
+				}
+			) {
+				deploymentKey {
+					id
+					key
+					created
+					expires
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			changeDeploymentKey = {
+				deploymentKey = {
+					id      = "DK_5BePKzWsvC",
+					key     = Save("key"),
+					created = NotNull(),
+					expires = NotNull(),
+				},
+			},
+		},
+	}
+end)
+
 Test.gql("Get deploy key for team I'm member of", function(t)
 	t.addHeader("x-user-email", user:email())
 
@@ -147,6 +181,7 @@ Test.gql("Check activity log after deploy key change", function(t)
 			team = {
 				activityLog = {
 					nodes = {
+						{ message = "Updated deployment key" },
 						{ message = "Updated deployment key" },
 						{ message = "Created team" },
 					},

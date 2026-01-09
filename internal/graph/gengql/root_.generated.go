@@ -535,6 +535,10 @@ type ComplexityRoot struct {
 		ServiceAccountTokenDeleted func(childComplexity int) int
 	}
 
+	DeleteUnleashInstancePayload struct {
+		UnleashDeleted func(childComplexity int) int
+	}
+
 	DeleteValkeyPayload struct {
 		ValkeyDeleted func(childComplexity int) int
 	}
@@ -1075,6 +1079,7 @@ type ComplexityRoot struct {
 		DeleteSecret                 func(childComplexity int, input secret.DeleteSecretInput) int
 		DeleteServiceAccount         func(childComplexity int, input serviceaccount.DeleteServiceAccountInput) int
 		DeleteServiceAccountToken    func(childComplexity int, input serviceaccount.DeleteServiceAccountTokenInput) int
+		DeleteUnleashInstance        func(childComplexity int, input unleash.DeleteUnleashInstanceInput) int
 		DeleteValkey                 func(childComplexity int, input valkey.DeleteValkeyInput) int
 		DisableReconciler            func(childComplexity int, input reconciler.DisableReconcilerInput) int
 		EnableReconciler             func(childComplexity int, input reconciler.EnableReconcilerInput) int
@@ -2434,6 +2439,17 @@ type ComplexityRoot struct {
 	}
 
 	UnleashInstanceCreatedActivityLogEntry struct {
+		Actor           func(childComplexity int) int
+		CreatedAt       func(childComplexity int) int
+		EnvironmentName func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Message         func(childComplexity int) int
+		ResourceName    func(childComplexity int) int
+		ResourceType    func(childComplexity int) int
+		TeamSlug        func(childComplexity int) int
+	}
+
+	UnleashInstanceDeletedActivityLogEntry struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
 		EnvironmentName func(childComplexity int) int
@@ -4376,6 +4392,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.DeleteServiceAccountTokenPayload.ServiceAccountTokenDeleted(childComplexity), true
+
+	case "DeleteUnleashInstancePayload.unleashDeleted":
+		if e.complexity.DeleteUnleashInstancePayload.UnleashDeleted == nil {
+			break
+		}
+
+		return e.complexity.DeleteUnleashInstancePayload.UnleashDeleted(childComplexity), true
 
 	case "DeleteValkeyPayload.valkeyDeleted":
 		if e.complexity.DeleteValkeyPayload.ValkeyDeleted == nil {
@@ -6690,6 +6713,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Mutation.DeleteServiceAccountToken(childComplexity, args["input"].(serviceaccount.DeleteServiceAccountTokenInput)), true
+
+	case "Mutation.deleteUnleashInstance":
+		if e.complexity.Mutation.DeleteUnleashInstance == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deleteUnleashInstance_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeleteUnleashInstance(childComplexity, args["input"].(unleash.DeleteUnleashInstanceInput)), true
 
 	case "Mutation.deleteValkey":
 		if e.complexity.Mutation.DeleteValkey == nil {
@@ -13012,6 +13047,62 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.UnleashInstanceCreatedActivityLogEntry.TeamSlug(childComplexity), true
 
+	case "UnleashInstanceDeletedActivityLogEntry.actor":
+		if e.complexity.UnleashInstanceDeletedActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.complexity.UnleashInstanceDeletedActivityLogEntry.Actor(childComplexity), true
+
+	case "UnleashInstanceDeletedActivityLogEntry.createdAt":
+		if e.complexity.UnleashInstanceDeletedActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.UnleashInstanceDeletedActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "UnleashInstanceDeletedActivityLogEntry.environmentName":
+		if e.complexity.UnleashInstanceDeletedActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.complexity.UnleashInstanceDeletedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "UnleashInstanceDeletedActivityLogEntry.id":
+		if e.complexity.UnleashInstanceDeletedActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.complexity.UnleashInstanceDeletedActivityLogEntry.ID(childComplexity), true
+
+	case "UnleashInstanceDeletedActivityLogEntry.message":
+		if e.complexity.UnleashInstanceDeletedActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.complexity.UnleashInstanceDeletedActivityLogEntry.Message(childComplexity), true
+
+	case "UnleashInstanceDeletedActivityLogEntry.resourceName":
+		if e.complexity.UnleashInstanceDeletedActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.complexity.UnleashInstanceDeletedActivityLogEntry.ResourceName(childComplexity), true
+
+	case "UnleashInstanceDeletedActivityLogEntry.resourceType":
+		if e.complexity.UnleashInstanceDeletedActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.complexity.UnleashInstanceDeletedActivityLogEntry.ResourceType(childComplexity), true
+
+	case "UnleashInstanceDeletedActivityLogEntry.teamSlug":
+		if e.complexity.UnleashInstanceDeletedActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.complexity.UnleashInstanceDeletedActivityLogEntry.TeamSlug(childComplexity), true
+
 	case "UnleashInstanceMetrics.apiTokens":
 		if e.complexity.UnleashInstanceMetrics.APITokens == nil {
 			break
@@ -14690,6 +14781,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputDeleteSecretInput,
 		ec.unmarshalInputDeleteServiceAccountInput,
 		ec.unmarshalInputDeleteServiceAccountTokenInput,
+		ec.unmarshalInputDeleteUnleashInstanceInput,
 		ec.unmarshalInputDeleteValkeyInput,
 		ec.unmarshalInputDeploymentFilter,
 		ec.unmarshalInputDisableReconcilerInput,
@@ -22508,6 +22600,14 @@ extend type Mutation {
 	revokeTeamAccessToUnleash(
 		input: RevokeTeamAccessToUnleashInput!
 	): RevokeTeamAccessToUnleashPayload!
+
+	"""
+	Delete an Unleash instance.
+
+	The Unleash instance can only be deleted if no other teams have access to it.
+	Revoke access for all other teams before deleting the instance.
+	"""
+	deleteUnleashInstance(input: DeleteUnleashInstanceInput!): DeleteUnleashInstancePayload!
 }
 
 input CreateUnleashForTeamInput {
@@ -22557,6 +22657,16 @@ input RevokeTeamAccessToUnleashInput {
 
 type RevokeTeamAccessToUnleashPayload {
 	unleash: UnleashInstance
+}
+
+input DeleteUnleashInstanceInput {
+	"The team that owns the Unleash instance to delete."
+	teamSlug: Slug!
+}
+
+type DeleteUnleashInstancePayload {
+	"Whether the Unleash instance was successfully deleted."
+	unleashDeleted: Boolean
 }
 
 extend type Team {
@@ -22701,12 +22811,41 @@ type UnleashInstanceUpdatedActivityLogEntryData {
 	updatedReleaseChannel: String
 }
 
+type UnleashInstanceDeletedActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: ActivityLogEntryResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+}
+
 extend enum ActivityLogActivityType {
 	"Unleash instance was created."
 	UNLEASH_INSTANCE_CREATED
 
 	"Unleash instance was updated."
 	UNLEASH_INSTANCE_UPDATED
+
+	"Unleash instance was deleted."
+	UNLEASH_INSTANCE_DELETED
 }
 `, BuiltIn: false},
 	{Name: "../schema/users.graphqls", Input: `extend type Query {
