@@ -63,7 +63,6 @@ type MutationResolver interface {
 	RestartApplication(ctx context.Context, input application.RestartApplicationInput) (*application.RestartApplicationPayload, error)
 	ChangeDeploymentKey(ctx context.Context, input deployment.ChangeDeploymentKeyInput) (*deployment.ChangeDeploymentKeyPayload, error)
 	CreateElevation(ctx context.Context, input elevation.CreateElevationInput) (*elevation.CreateElevationPayload, error)
-	RevokeElevation(ctx context.Context, input elevation.RevokeElevationInput) (*elevation.RevokeElevationPayload, error)
 	DeleteJob(ctx context.Context, input job.DeleteJobInput) (*job.DeleteJobPayload, error)
 	TriggerJob(ctx context.Context, input job.TriggerJobInput) (*job.TriggerJobPayload, error)
 	CreateOpenSearch(ctx context.Context, input opensearch.CreateOpenSearchInput) (*opensearch.CreateOpenSearchPayload, error)
@@ -113,9 +112,7 @@ type QueryResolver interface {
 	Roles(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*authz.Role], error)
 	CostMonthlySummary(ctx context.Context, from scalar.Date, to scalar.Date) (*cost.CostMonthlySummary, error)
 	Deployments(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *deployment.DeploymentFilter) (*pagination.Connection[*deployment.Deployment], error)
-	MyElevations(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*elevation.Elevation], error)
-	Elevations(ctx context.Context, team slug.Slug, environment string, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, includeHistory *bool) (*pagination.Connection[*elevation.Elevation], error)
-	Elevation(ctx context.Context, id ident.Ident) (*elevation.Elevation, error)
+	Elevations(ctx context.Context, input elevation.ElevationInput) ([]*elevation.Elevation, error)
 	Environments(ctx context.Context, orderBy *environment.EnvironmentOrder) (*pagination.Connection[*environment.Environment], error)
 	Environment(ctx context.Context, name string) (*environment.Environment, error)
 	Features(ctx context.Context) (*feature.Features, error)
@@ -499,17 +496,6 @@ func (ec *executionContext) field_Mutation_restartApplication_args(ctx context.C
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_revokeElevation_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
-	var err error
-	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNRevokeElevationInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋelevationᚐRevokeElevationInput)
-	if err != nil {
-		return nil, err
-	}
-	args["input"] = arg0
-	return args, nil
-}
-
 func (ec *executionContext) field_Mutation_revokeRoleFromServiceAccount_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -775,55 +761,14 @@ func (ec *executionContext) field_Query_deployments_args(ctx context.Context, ra
 	return args, nil
 }
 
-func (ec *executionContext) field_Query_elevation_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
-	var err error
-	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "id", ec.unmarshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent)
-	if err != nil {
-		return nil, err
-	}
-	args["id"] = arg0
-	return args, nil
-}
-
 func (ec *executionContext) field_Query_elevations_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "team", ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug)
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNElevationInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋelevationᚐElevationInput)
 	if err != nil {
 		return nil, err
 	}
-	args["team"] = arg0
-	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "environment", ec.unmarshalNString2string)
-	if err != nil {
-		return nil, err
-	}
-	args["environment"] = arg1
-	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "first", ec.unmarshalOInt2ᚖint)
-	if err != nil {
-		return nil, err
-	}
-	args["first"] = arg2
-	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "after", ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor)
-	if err != nil {
-		return nil, err
-	}
-	args["after"] = arg3
-	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "last", ec.unmarshalOInt2ᚖint)
-	if err != nil {
-		return nil, err
-	}
-	args["last"] = arg4
-	arg5, err := graphql.ProcessArgField(ctx, rawArgs, "before", ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor)
-	if err != nil {
-		return nil, err
-	}
-	args["before"] = arg5
-	arg6, err := graphql.ProcessArgField(ctx, rawArgs, "includeHistory", ec.unmarshalOBoolean2ᚖbool)
-	if err != nil {
-		return nil, err
-	}
-	args["includeHistory"] = arg6
+	args["input"] = arg0
 	return args, nil
 }
 
@@ -857,32 +802,6 @@ func (ec *executionContext) field_Query_imageVulnerabilityHistory_args(ctx conte
 		return nil, err
 	}
 	args["from"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Query_myElevations_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
-	var err error
-	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first", ec.unmarshalOInt2ᚖint)
-	if err != nil {
-		return nil, err
-	}
-	args["first"] = arg0
-	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after", ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor)
-	if err != nil {
-		return nil, err
-	}
-	args["after"] = arg1
-	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last", ec.unmarshalOInt2ᚖint)
-	if err != nil {
-		return nil, err
-	}
-	args["last"] = arg2
-	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before", ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor)
-	if err != nil {
-		return nil, err
-	}
-	args["before"] = arg3
 	return args, nil
 }
 
@@ -1360,51 +1279,6 @@ func (ec *executionContext) fieldContext_Mutation_createElevation(ctx context.Co
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_createElevation_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Mutation_revokeElevation(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_Mutation_revokeElevation,
-		func(ctx context.Context) (any, error) {
-			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().RevokeElevation(ctx, fc.Args["input"].(elevation.RevokeElevationInput))
-		},
-		nil,
-		ec.marshalNRevokeElevationPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋelevationᚐRevokeElevationPayload,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_Mutation_revokeElevation(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "success":
-				return ec.fieldContext_RevokeElevationPayload_success(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type RevokeElevationPayload", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_revokeElevation_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -3797,55 +3671,6 @@ func (ec *executionContext) fieldContext_Query_deployments(ctx context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_myElevations(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_Query_myElevations,
-		func(ctx context.Context) (any, error) {
-			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().MyElevations(ctx, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
-		},
-		nil,
-		ec.marshalNElevationConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_Query_myElevations(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "nodes":
-				return ec.fieldContext_ElevationConnection_nodes(ctx, field)
-			case "edges":
-				return ec.fieldContext_ElevationConnection_edges(ctx, field)
-			case "pageInfo":
-				return ec.fieldContext_ElevationConnection_pageInfo(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type ElevationConnection", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_myElevations_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Query_elevations(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -3854,65 +3679,16 @@ func (ec *executionContext) _Query_elevations(ctx context.Context, field graphql
 		ec.fieldContext_Query_elevations,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().Elevations(ctx, fc.Args["team"].(slug.Slug), fc.Args["environment"].(string), fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["includeHistory"].(*bool))
+			return ec.resolvers.Query().Elevations(ctx, fc.Args["input"].(elevation.ElevationInput))
 		},
 		nil,
-		ec.marshalNElevationConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
+		ec.marshalNElevation2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋelevationᚐElevationᚄ,
 		true,
 		true,
 	)
 }
 
 func (ec *executionContext) fieldContext_Query_elevations(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "nodes":
-				return ec.fieldContext_ElevationConnection_nodes(ctx, field)
-			case "edges":
-				return ec.fieldContext_ElevationConnection_edges(ctx, field)
-			case "pageInfo":
-				return ec.fieldContext_ElevationConnection_pageInfo(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type ElevationConnection", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_elevations_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Query_elevation(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_Query_elevation,
-		func(ctx context.Context) (any, error) {
-			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().Elevation(ctx, fc.Args["id"].(ident.Ident))
-		},
-		nil,
-		ec.marshalOElevation2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋelevationᚐElevation,
-		true,
-		false,
-	)
-}
-
-func (ec *executionContext) fieldContext_Query_elevation(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -3938,8 +3714,6 @@ func (ec *executionContext) fieldContext_Query_elevation(ctx context.Context, fi
 				return ec.fieldContext_Elevation_createdAt(ctx, field)
 			case "expiresAt":
 				return ec.fieldContext_Elevation_expiresAt(ctx, field)
-			case "status":
-				return ec.fieldContext_Elevation_status(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Elevation", field.Name)
 		},
@@ -3951,7 +3725,7 @@ func (ec *executionContext) fieldContext_Query_elevation(ctx context.Context, fi
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_elevation_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Query_elevations_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -5739,13 +5513,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._FailedSynchronizationIssue(ctx, sel, obj)
-	case elevation.ElevationRevokedActivityLogEntry:
-		return ec._ElevationRevokedActivityLogEntry(ctx, sel, &obj)
-	case *elevation.ElevationRevokedActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._ElevationRevokedActivityLogEntry(ctx, sel, obj)
 	case elevation.ElevationCreatedActivityLogEntry:
 		return ec._ElevationCreatedActivityLogEntry(ctx, sel, &obj)
 	case *elevation.ElevationCreatedActivityLogEntry:
@@ -5974,13 +5741,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Environment(ctx, sel, obj)
-	case elevation.Elevation:
-		return ec._Elevation(ctx, sel, &obj)
-	case *elevation.Elevation:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Elevation(ctx, sel, obj)
 	case deployment.DeploymentStatus:
 		return ec._DeploymentStatus(ctx, sel, &obj)
 	case *deployment.DeploymentStatus:
@@ -6085,13 +5845,6 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "createElevation":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createElevation(ctx, field)
-			})
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "revokeElevation":
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_revokeElevation(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -6581,28 +6334,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
-		case "myElevations":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_myElevations(ctx, field)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx,
-					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "elevations":
 			field := field
 
@@ -6616,25 +6347,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
-				return res
-			}
-
-			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx,
-					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
-		case "elevation":
-			field := field
-
-			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_elevation(ctx, field)
 				return res
 			}
 

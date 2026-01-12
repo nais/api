@@ -8,9 +8,6 @@ import (
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/elevation"
 	"github.com/nais/api/internal/graph/gengql"
-	"github.com/nais/api/internal/graph/ident"
-	"github.com/nais/api/internal/graph/pagination"
-	"github.com/nais/api/internal/slug"
 )
 
 func (r *elevationCreatedActivityLogEntryResolver) ElevationType(ctx context.Context, obj *elevation.ElevationCreatedActivityLogEntry) (elevation.ElevationType, error) {
@@ -52,59 +49,9 @@ func (r *mutationResolver) CreateElevation(ctx context.Context, input elevation.
 	}, nil
 }
 
-func (r *mutationResolver) RevokeElevation(ctx context.Context, input elevation.RevokeElevationInput) (*elevation.RevokeElevationPayload, error) {
+func (r *queryResolver) Elevations(ctx context.Context, input elevation.ElevationInput) ([]*elevation.Elevation, error) {
 	actor := authz.ActorFromContext(ctx)
-
-	if err := elevation.Revoke(ctx, &input, actor); err != nil {
-		return nil, err
-	}
-
-	return &elevation.RevokeElevationPayload{
-		Success: true,
-	}, nil
-}
-
-func (r *queryResolver) MyElevations(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*elevation.Elevation], error) {
-	page, err := pagination.ParsePage(first, after, last, before)
-	if err != nil {
-		return nil, err
-	}
-
-	actor := authz.ActorFromContext(ctx)
-
-	elevations, err := elevation.ListForUser(ctx, actor)
-	if err != nil {
-		return nil, err
-	}
-
-	ret := pagination.Slice(elevations, page)
-	return pagination.NewConnection(ret, page, len(elevations)), nil
-}
-
-func (r *queryResolver) Elevations(ctx context.Context, team slug.Slug, environment string, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, includeHistory *bool) (*pagination.Connection[*elevation.Elevation], error) {
-	page, err := pagination.ParsePage(first, after, last, before)
-	if err != nil {
-		return nil, err
-	}
-
-	// Check team authorization
-	if err := authz.CanUpdateTeamMetadata(ctx, team); err != nil {
-		return nil, elevation.ErrNotAuthorized
-	}
-
-	elevations, err := elevation.ListForTeamEnvironment(ctx, team, environment)
-	if err != nil {
-		return nil, err
-	}
-
-	// TODO: if includeHistory is true, also fetch from activity log
-
-	ret := pagination.Slice(elevations, page)
-	return pagination.NewConnection(ret, page, len(elevations)), nil
-}
-
-func (r *queryResolver) Elevation(ctx context.Context, id ident.Ident) (*elevation.Elevation, error) {
-	return elevation.Get(ctx, id.ID)
+	return elevation.List(ctx, &input, actor)
 }
 
 func (r *Resolver) ElevationCreatedActivityLogEntry() gengql.ElevationCreatedActivityLogEntryResolver {
@@ -112,3 +59,20 @@ func (r *Resolver) ElevationCreatedActivityLogEntry() gengql.ElevationCreatedAct
 }
 
 type elevationCreatedActivityLogEntryResolver struct{ *Resolver }
+
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//    it when you're done.
+//  - You have helper methods in this file. Move them out to keep these resolver files clean.
+/*
+	func (r *elevationResolver) ID(ctx context.Context, obj *elevation.Elevation) (*ident.Ident, error) {
+	return &obj.ID, nil
+}
+func (r *Resolver) Elevation() gengql.ElevationResolver { return &elevationResolver{r} }
+type (
+	elevationResolver                        struct{ *Resolver }
+	elevationCreatedActivityLogEntryResolver struct{ *Resolver }
+)
+*/

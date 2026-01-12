@@ -13,7 +13,6 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/nais/api/internal/elevation"
-	"github.com/nais/api/internal/graph/pagination"
 	"github.com/vektah/gqlparser/v2/ast"
 )
 
@@ -80,8 +79,6 @@ func (ec *executionContext) fieldContext_CreateElevationPayload_elevation(_ cont
 				return ec.fieldContext_Elevation_createdAt(ctx, field)
 			case "expiresAt":
 				return ec.fieldContext_Elevation_expiresAt(ctx, field)
-			case "status":
-				return ec.fieldContext_Elevation_status(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Elevation", field.Name)
 		},
@@ -444,166 +441,6 @@ func (ec *executionContext) fieldContext_Elevation_expiresAt(_ context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _Elevation_status(ctx context.Context, field graphql.CollectedField, obj *elevation.Elevation) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_Elevation_status,
-		func(ctx context.Context) (any, error) {
-			return obj.Status, nil
-		},
-		nil,
-		ec.marshalNElevationStatus2githubᚗcomᚋnaisᚋapiᚋinternalᚋelevationᚐElevationStatus,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_Elevation_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Elevation",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ElevationStatus does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _ElevationConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*elevation.Elevation]) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_ElevationConnection_nodes,
-		func(ctx context.Context) (any, error) {
-			return obj.Nodes(), nil
-		},
-		nil,
-		ec.marshalNElevation2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋelevationᚐElevationᚄ,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_ElevationConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ElevationConnection",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Elevation_id(ctx, field)
-			case "type":
-				return ec.fieldContext_Elevation_type(ctx, field)
-			case "team":
-				return ec.fieldContext_Elevation_team(ctx, field)
-			case "environment":
-				return ec.fieldContext_Elevation_environment(ctx, field)
-			case "resourceName":
-				return ec.fieldContext_Elevation_resourceName(ctx, field)
-			case "user":
-				return ec.fieldContext_Elevation_user(ctx, field)
-			case "reason":
-				return ec.fieldContext_Elevation_reason(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_Elevation_createdAt(ctx, field)
-			case "expiresAt":
-				return ec.fieldContext_Elevation_expiresAt(ctx, field)
-			case "status":
-				return ec.fieldContext_Elevation_status(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Elevation", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _ElevationConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*elevation.Elevation]) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_ElevationConnection_edges,
-		func(ctx context.Context) (any, error) {
-			return obj.Edges, nil
-		},
-		nil,
-		ec.marshalNElevationEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_ElevationConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ElevationConnection",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "node":
-				return ec.fieldContext_ElevationEdge_node(ctx, field)
-			case "cursor":
-				return ec.fieldContext_ElevationEdge_cursor(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type ElevationEdge", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _ElevationConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*elevation.Elevation]) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_ElevationConnection_pageInfo,
-		func(ctx context.Context) (any, error) {
-			return obj.PageInfo, nil
-		},
-		nil,
-		ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_ElevationConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ElevationConnection",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "hasNextPage":
-				return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
-			case "endCursor":
-				return ec.fieldContext_PageInfo_endCursor(ctx, field)
-			case "hasPreviousPage":
-				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
-			case "startCursor":
-				return ec.fieldContext_PageInfo_startCursor(ctx, field)
-			case "totalCount":
-				return ec.fieldContext_PageInfo_totalCount(ctx, field)
-			case "pageStart":
-				return ec.fieldContext_PageInfo_pageStart(ctx, field)
-			case "pageEnd":
-				return ec.fieldContext_PageInfo_pageEnd(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _ElevationCreatedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *elevation.ElevationCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -952,347 +789,6 @@ func (ec *executionContext) fieldContext_ElevationCreatedActivityLogEntry_expire
 	return fc, nil
 }
 
-func (ec *executionContext) _ElevationEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*elevation.Elevation]) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_ElevationEdge_node,
-		func(ctx context.Context) (any, error) {
-			return obj.Node, nil
-		},
-		nil,
-		ec.marshalNElevation2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋelevationᚐElevation,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_ElevationEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ElevationEdge",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Elevation_id(ctx, field)
-			case "type":
-				return ec.fieldContext_Elevation_type(ctx, field)
-			case "team":
-				return ec.fieldContext_Elevation_team(ctx, field)
-			case "environment":
-				return ec.fieldContext_Elevation_environment(ctx, field)
-			case "resourceName":
-				return ec.fieldContext_Elevation_resourceName(ctx, field)
-			case "user":
-				return ec.fieldContext_Elevation_user(ctx, field)
-			case "reason":
-				return ec.fieldContext_Elevation_reason(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_Elevation_createdAt(ctx, field)
-			case "expiresAt":
-				return ec.fieldContext_Elevation_expiresAt(ctx, field)
-			case "status":
-				return ec.fieldContext_Elevation_status(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Elevation", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _ElevationEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*elevation.Elevation]) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_ElevationEdge_cursor,
-		func(ctx context.Context) (any, error) {
-			return obj.Cursor, nil
-		},
-		nil,
-		ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_ElevationEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ElevationEdge",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Cursor does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _ElevationRevokedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *elevation.ElevationRevokedActivityLogEntry) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_ElevationRevokedActivityLogEntry_id,
-		func(ctx context.Context) (any, error) {
-			return obj.ID(), nil
-		},
-		nil,
-		ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_ElevationRevokedActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ElevationRevokedActivityLogEntry",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _ElevationRevokedActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *elevation.ElevationRevokedActivityLogEntry) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_ElevationRevokedActivityLogEntry_actor,
-		func(ctx context.Context) (any, error) {
-			return obj.Actor, nil
-		},
-		nil,
-		ec.marshalNString2string,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_ElevationRevokedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ElevationRevokedActivityLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _ElevationRevokedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *elevation.ElevationRevokedActivityLogEntry) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_ElevationRevokedActivityLogEntry_createdAt,
-		func(ctx context.Context) (any, error) {
-			return obj.CreatedAt, nil
-		},
-		nil,
-		ec.marshalNTime2timeᚐTime,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_ElevationRevokedActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ElevationRevokedActivityLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _ElevationRevokedActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *elevation.ElevationRevokedActivityLogEntry) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_ElevationRevokedActivityLogEntry_message,
-		func(ctx context.Context) (any, error) {
-			return obj.Message, nil
-		},
-		nil,
-		ec.marshalNString2string,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_ElevationRevokedActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ElevationRevokedActivityLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _ElevationRevokedActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *elevation.ElevationRevokedActivityLogEntry) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_ElevationRevokedActivityLogEntry_resourceType,
-		func(ctx context.Context) (any, error) {
-			return obj.ResourceType, nil
-		},
-		nil,
-		ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_ElevationRevokedActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ElevationRevokedActivityLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ActivityLogEntryResourceType does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _ElevationRevokedActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *elevation.ElevationRevokedActivityLogEntry) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_ElevationRevokedActivityLogEntry_resourceName,
-		func(ctx context.Context) (any, error) {
-			return obj.ResourceName, nil
-		},
-		nil,
-		ec.marshalNString2string,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_ElevationRevokedActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ElevationRevokedActivityLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _ElevationRevokedActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *elevation.ElevationRevokedActivityLogEntry) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_ElevationRevokedActivityLogEntry_teamSlug,
-		func(ctx context.Context) (any, error) {
-			return obj.TeamSlug, nil
-		},
-		nil,
-		ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_ElevationRevokedActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ElevationRevokedActivityLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Slug does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _ElevationRevokedActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *elevation.ElevationRevokedActivityLogEntry) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_ElevationRevokedActivityLogEntry_environmentName,
-		func(ctx context.Context) (any, error) {
-			return obj.EnvironmentName, nil
-		},
-		nil,
-		ec.marshalOString2ᚖstring,
-		true,
-		false,
-	)
-}
-
-func (ec *executionContext) fieldContext_ElevationRevokedActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ElevationRevokedActivityLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _RevokeElevationPayload_success(ctx context.Context, field graphql.CollectedField, obj *elevation.RevokeElevationPayload) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_RevokeElevationPayload_success,
-		func(ctx context.Context) (any, error) {
-			return obj.Success, nil
-		},
-		nil,
-		ec.marshalNBoolean2bool,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_RevokeElevationPayload_success(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "RevokeElevationPayload",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 // endregion **************************** field.gotpl *****************************
 
 // region    **************************** input.gotpl *****************************
@@ -1363,27 +859,48 @@ func (ec *executionContext) unmarshalInputCreateElevationInput(ctx context.Conte
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputRevokeElevationInput(ctx context.Context, obj any) (elevation.RevokeElevationInput, error) {
-	var it elevation.RevokeElevationInput
+func (ec *executionContext) unmarshalInputElevationInput(ctx context.Context, obj any) (elevation.ElevationInput, error) {
+	var it elevation.ElevationInput
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"elevationId"}
+	fieldsInOrder := [...]string{"type", "team", "environment", "resourceName"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "elevationId":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("elevationId"))
-			data, err := ec.unmarshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, v)
+		case "type":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
+			data, err := ec.unmarshalNElevationType2githubᚗcomᚋnaisᚋapiᚋinternalᚋelevationᚐElevationType(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.ElevationID = data
+			it.Type = data
+		case "team":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("team"))
+			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Team = data
+		case "environment":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environment"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Environment = data
+		case "resourceName":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("resourceName"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ResourceName = data
 		}
 	}
 
@@ -1437,7 +954,7 @@ func (ec *executionContext) _CreateElevationPayload(ctx context.Context, sel ast
 	return out
 }
 
-var elevationImplementors = []string{"Elevation", "Node"}
+var elevationImplementors = []string{"Elevation"}
 
 func (ec *executionContext) _Elevation(ctx context.Context, sel ast.SelectionSet, obj *elevation.Elevation) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, elevationImplementors)
@@ -1490,60 +1007,6 @@ func (ec *executionContext) _Elevation(ctx context.Context, sel ast.SelectionSet
 			}
 		case "expiresAt":
 			out.Values[i] = ec._Elevation_expiresAt(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "status":
-			out.Values[i] = ec._Elevation_status(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var elevationConnectionImplementors = []string{"ElevationConnection"}
-
-func (ec *executionContext) _ElevationConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.Connection[*elevation.Elevation]) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, elevationConnectionImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("ElevationConnection")
-		case "nodes":
-			out.Values[i] = ec._ElevationConnection_nodes(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "edges":
-			out.Values[i] = ec._ElevationConnection_edges(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "pageInfo":
-			out.Values[i] = ec._ElevationConnection_pageInfo(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -1785,160 +1248,6 @@ func (ec *executionContext) _ElevationCreatedActivityLogEntry(ctx context.Contex
 	return out
 }
 
-var elevationEdgeImplementors = []string{"ElevationEdge"}
-
-func (ec *executionContext) _ElevationEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[*elevation.Elevation]) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, elevationEdgeImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("ElevationEdge")
-		case "node":
-			out.Values[i] = ec._ElevationEdge_node(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "cursor":
-			out.Values[i] = ec._ElevationEdge_cursor(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var elevationRevokedActivityLogEntryImplementors = []string{"ElevationRevokedActivityLogEntry", "ActivityLogEntry", "Node"}
-
-func (ec *executionContext) _ElevationRevokedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *elevation.ElevationRevokedActivityLogEntry) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, elevationRevokedActivityLogEntryImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("ElevationRevokedActivityLogEntry")
-		case "id":
-			out.Values[i] = ec._ElevationRevokedActivityLogEntry_id(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "actor":
-			out.Values[i] = ec._ElevationRevokedActivityLogEntry_actor(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "createdAt":
-			out.Values[i] = ec._ElevationRevokedActivityLogEntry_createdAt(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "message":
-			out.Values[i] = ec._ElevationRevokedActivityLogEntry_message(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "resourceType":
-			out.Values[i] = ec._ElevationRevokedActivityLogEntry_resourceType(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "resourceName":
-			out.Values[i] = ec._ElevationRevokedActivityLogEntry_resourceName(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "teamSlug":
-			out.Values[i] = ec._ElevationRevokedActivityLogEntry_teamSlug(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "environmentName":
-			out.Values[i] = ec._ElevationRevokedActivityLogEntry_environmentName(ctx, field, obj)
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var revokeElevationPayloadImplementors = []string{"RevokeElevationPayload"}
-
-func (ec *executionContext) _RevokeElevationPayload(ctx context.Context, sel ast.SelectionSet, obj *elevation.RevokeElevationPayload) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, revokeElevationPayloadImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("RevokeElevationPayload")
-		case "success":
-			out.Values[i] = ec._RevokeElevationPayload_success(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
 // endregion **************************** object.gotpl ****************************
 
 // region    ***************************** type.gotpl *****************************
@@ -2016,76 +1325,9 @@ func (ec *executionContext) marshalNElevation2ᚖgithubᚗcomᚋnaisᚋapiᚋint
 	return ec._Elevation(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNElevationConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[*elevation.Elevation]) graphql.Marshaler {
-	return ec._ElevationConnection(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNElevationConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*elevation.Elevation]) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._ElevationConnection(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalNElevationEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[*elevation.Elevation]) graphql.Marshaler {
-	return ec._ElevationEdge(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNElevationEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[*elevation.Elevation]) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNElevationEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
-func (ec *executionContext) unmarshalNElevationStatus2githubᚗcomᚋnaisᚋapiᚋinternalᚋelevationᚐElevationStatus(ctx context.Context, v any) (elevation.ElevationStatus, error) {
-	var res elevation.ElevationStatus
-	err := res.UnmarshalGQL(v)
+func (ec *executionContext) unmarshalNElevationInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋelevationᚐElevationInput(ctx context.Context, v any) (elevation.ElevationInput, error) {
+	res, err := ec.unmarshalInputElevationInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNElevationStatus2githubᚗcomᚋnaisᚋapiᚋinternalᚋelevationᚐElevationStatus(ctx context.Context, sel ast.SelectionSet, v elevation.ElevationStatus) graphql.Marshaler {
-	return v
 }
 
 func (ec *executionContext) unmarshalNElevationType2githubᚗcomᚋnaisᚋapiᚋinternalᚋelevationᚐElevationType(ctx context.Context, v any) (elevation.ElevationType, error) {
@@ -2096,32 +1338,6 @@ func (ec *executionContext) unmarshalNElevationType2githubᚗcomᚋnaisᚋapiᚋ
 
 func (ec *executionContext) marshalNElevationType2githubᚗcomᚋnaisᚋapiᚋinternalᚋelevationᚐElevationType(ctx context.Context, sel ast.SelectionSet, v elevation.ElevationType) graphql.Marshaler {
 	return v
-}
-
-func (ec *executionContext) unmarshalNRevokeElevationInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋelevationᚐRevokeElevationInput(ctx context.Context, v any) (elevation.RevokeElevationInput, error) {
-	res, err := ec.unmarshalInputRevokeElevationInput(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNRevokeElevationPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋelevationᚐRevokeElevationPayload(ctx context.Context, sel ast.SelectionSet, v elevation.RevokeElevationPayload) graphql.Marshaler {
-	return ec._RevokeElevationPayload(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNRevokeElevationPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋelevationᚐRevokeElevationPayload(ctx context.Context, sel ast.SelectionSet, v *elevation.RevokeElevationPayload) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._RevokeElevationPayload(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalOElevation2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋelevationᚐElevation(ctx context.Context, sel ast.SelectionSet, v *elevation.Elevation) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._Elevation(ctx, sel, v)
 }
 
 // endregion ***************************** type.gotpl *****************************

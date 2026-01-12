@@ -16,7 +16,6 @@ import (
 	sqlinstance "github.com/nais/api/internal/persistence/sqlinstance"
 	valkey "github.com/nais/api/internal/persistence/valkey"
 	search "github.com/nais/api/internal/search"
-	slug "github.com/nais/api/internal/slug"
 	team "github.com/nais/api/internal/team"
 	user "github.com/nais/api/internal/user"
 	vulnerability "github.com/nais/api/internal/vulnerability"
@@ -105,12 +104,6 @@ func NewComplexityRoot() ComplexityRoot {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.Query.Deployments = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *deployment.DeploymentFilter) int {
-		return cursorComplexity(first, last) * childComplexity
-	}
-	c.Query.Elevations = func(childComplexity int, team slug.Slug, environment string, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, includeHistory *bool) int {
-		return cursorComplexity(first, last) * childComplexity
-	}
-	c.Query.MyElevations = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.Query.Reconcilers = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {

@@ -8,8 +8,6 @@ import (
 
 const (
 	activityLogEntryResourceTypeElevation activitylog.ActivityLogEntryResourceType = "ELEVATION"
-	activityLogEntryActionRevoked         activitylog.ActivityLogEntryAction       = "REVOKED"
-	activityLogEntryActionExpired         activitylog.ActivityLogEntryAction       = "EXPIRED"
 )
 
 func init() {
@@ -25,18 +23,12 @@ func init() {
 				GenericActivityLogEntry: entry.WithMessage(fmt.Sprintf("Created elevation for %s access to %s", data.ElevationType, data.TargetResourceName)),
 				Data:                    data,
 			}, nil
-		case activityLogEntryActionRevoked:
-			return ElevationRevokedActivityLogEntry{
-				GenericActivityLogEntry: entry.WithMessage("Revoked elevation"),
-			}, nil
 		default:
 			return nil, fmt.Errorf("unsupported elevation activity log entry action: %q", entry.Action)
 		}
 	})
 
 	activitylog.RegisterFilter("ELEVATION_CREATED", activitylog.ActivityLogEntryActionCreated, activityLogEntryResourceTypeElevation)
-	activitylog.RegisterFilter("ELEVATION_REVOKED", activityLogEntryActionRevoked, activityLogEntryResourceTypeElevation)
-	activitylog.RegisterFilter("ELEVATION_EXPIRED", activityLogEntryActionExpired, activityLogEntryResourceTypeElevation)
 }
 
 type ElevationCreatedActivityLogEntry struct {
@@ -80,9 +72,3 @@ func (e ElevationCreatedActivityLogEntry) GetExpiresAt() string {
 	}
 	return e.Data.ExpiresAt
 }
-
-type ElevationRevokedActivityLogEntry struct {
-	activitylog.GenericActivityLogEntry
-}
-
-func (ElevationRevokedActivityLogEntry) IsActivityLogEntry() {}

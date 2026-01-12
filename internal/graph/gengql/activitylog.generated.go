@@ -540,13 +540,6 @@ func (ec *executionContext) _ActivityLogEntry(ctx context.Context, sel ast.Selec
 			return graphql.Null
 		}
 		return ec._JobDeletedActivityLogEntry(ctx, sel, obj)
-	case elevation.ElevationRevokedActivityLogEntry:
-		return ec._ElevationRevokedActivityLogEntry(ctx, sel, &obj)
-	case *elevation.ElevationRevokedActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._ElevationRevokedActivityLogEntry(ctx, sel, obj)
 	case elevation.ElevationCreatedActivityLogEntry:
 		return ec._ElevationCreatedActivityLogEntry(ctx, sel, &obj)
 	case *elevation.ElevationCreatedActivityLogEntry:
