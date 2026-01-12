@@ -20,6 +20,7 @@ import (
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/database/notify"
 	"github.com/nais/api/internal/deployment"
+	"github.com/nais/api/internal/elevation"
 	"github.com/nais/api/internal/environment"
 	"github.com/nais/api/internal/feature"
 	"github.com/nais/api/internal/github/repository"
@@ -66,6 +67,7 @@ import (
 	semconv "go.opentelemetry.io/otel/semconv/v1.37.0"
 	"go.opentelemetry.io/otel/trace"
 	"golang.org/x/sync/errgroup"
+	"k8s.io/client-go/kubernetes"
 )
 
 // runHTTPServer will start the HTTP server
@@ -280,9 +282,11 @@ func ConfigureGraph(
 
 	var podLogStreamer podlog.Streamer
 	var secretClientCreator secret.ClientCreator
+	var elevationClients map[string]kubernetes.Interface
 	if fakes.WithFakeKubernetes {
 		podLogStreamer = fakepodlog.NewLogStreamer()
 		secretClientCreator = secret.CreatorFromClients(watcherMgr.GetDynamicClients())
+		elevationClients = nil // TODO: fake clients for testing
 	} else {
 		clients, err := apik8s.NewClientSets(k8sClients)
 		if err != nil {
@@ -290,6 +294,7 @@ func ConfigureGraph(
 		}
 		podLogStreamer = podlog.NewLogStreamer(clients, log)
 		secretClientCreator = secret.CreatorFromConfig(ctx, k8sClients)
+		elevationClients = clients
 	}
 
 	var costOpts []cost.Option
@@ -340,6 +345,7 @@ func ConfigureGraph(
 		ctx = unleash.NewLoaderContext(ctx, tenantName, watchers.UnleashWatcher, bifrostAPIURL, allowedClusters, log)
 		ctx = logging.NewPackageContext(ctx, tenantName, defaultLogDestinations)
 		ctx = environment.NewLoaderContext(ctx, pool)
+		ctx = elevation.NewLoaderContext(ctx, elevationClients, log)
 		ctx = feature.NewLoaderContext(
 			ctx,
 			watchers.UnleashWatcher.Enabled(),

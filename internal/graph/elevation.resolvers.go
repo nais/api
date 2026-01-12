@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/elevation"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/ident"
@@ -39,23 +40,71 @@ func (r *elevationCreatedActivityLogEntryResolver) ExpiresAt(ctx context.Context
 }
 
 func (r *mutationResolver) CreateElevation(ctx context.Context, input elevation.CreateElevationInput) (*elevation.CreateElevationPayload, error) {
-	panic(fmt.Errorf("not implemented: CreateElevation - createElevation"))
+	actor := authz.ActorFromContext(ctx)
+
+	elev, err := elevation.Create(ctx, &input, actor)
+	if err != nil {
+		return nil, err
+	}
+
+	return &elevation.CreateElevationPayload{
+		Elevation: elev,
+	}, nil
 }
 
 func (r *mutationResolver) RevokeElevation(ctx context.Context, input elevation.RevokeElevationInput) (*elevation.RevokeElevationPayload, error) {
-	panic(fmt.Errorf("not implemented: RevokeElevation - revokeElevation"))
+	actor := authz.ActorFromContext(ctx)
+
+	if err := elevation.Revoke(ctx, &input, actor); err != nil {
+		return nil, err
+	}
+
+	return &elevation.RevokeElevationPayload{
+		Success: true,
+	}, nil
 }
 
 func (r *queryResolver) MyElevations(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*elevation.Elevation], error) {
-	panic(fmt.Errorf("not implemented: MyElevations - myElevations"))
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+
+	actor := authz.ActorFromContext(ctx)
+
+	elevations, err := elevation.ListForUser(ctx, actor)
+	if err != nil {
+		return nil, err
+	}
+
+	ret := pagination.Slice(elevations, page)
+	return pagination.NewConnection(ret, page, len(elevations)), nil
 }
 
 func (r *queryResolver) Elevations(ctx context.Context, team slug.Slug, environment string, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, includeHistory *bool) (*pagination.Connection[*elevation.Elevation], error) {
-	panic(fmt.Errorf("not implemented: Elevations - elevations"))
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+
+	// Check team authorization
+	if err := authz.CanUpdateTeamMetadata(ctx, team); err != nil {
+		return nil, elevation.ErrNotAuthorized
+	}
+
+	elevations, err := elevation.ListForTeamEnvironment(ctx, team, environment)
+	if err != nil {
+		return nil, err
+	}
+
+	// TODO: if includeHistory is true, also fetch from activity log
+
+	ret := pagination.Slice(elevations, page)
+	return pagination.NewConnection(ret, page, len(elevations)), nil
 }
 
 func (r *queryResolver) Elevation(ctx context.Context, id ident.Ident) (*elevation.Elevation, error) {
-	panic(fmt.Errorf("not implemented: Elevation - elevation"))
+	return elevation.Get(ctx, id.ID)
 }
 
 func (r *Resolver) ElevationCreatedActivityLogEntry() gengql.ElevationCreatedActivityLogEntryResolver {
