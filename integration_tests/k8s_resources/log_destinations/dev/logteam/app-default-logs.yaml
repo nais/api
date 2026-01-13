@@ -1,0 +1,30 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: app-default-logs
+spec:
+  image: europe-north1-docker.pkg.dev/nais/navikt/app-default-logs:latest
+  replicas:
+    min: 1
+    max: 1
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: app-default-logs-1
+  labels:
+    app: app-default-logs
+  creationTimestamp: "2021-09-30T12:00:00Z"
+spec:
+  containers:
+    - name: app-default-logs
+      image: europe-north1-docker.pkg.dev/nais/navikt/app-default-logs:latest
+status:
+  containerStatuses:
+    - name: app-default-logs
+      ready: true
+      restartCount: 0
+      state:
+        running:
+          startedAt: "2022-07-06T09:45:18Z"

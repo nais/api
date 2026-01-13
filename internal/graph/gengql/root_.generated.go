@@ -999,6 +999,11 @@ type ComplexityRoot struct {
 		TeamEnvironment func(childComplexity int) int
 	}
 
+	LogDestinationGeneric struct {
+		ID   func(childComplexity int) int
+		Name func(childComplexity int) int
+	}
+
 	LogDestinationLoki struct {
 		GrafanaURL func(childComplexity int) int
 		ID         func(childComplexity int) int
@@ -6285,6 +6290,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.LastRunFailedIssue.TeamEnvironment(childComplexity), true
+
+	case "LogDestinationGeneric.id":
+		if e.complexity.LogDestinationGeneric.ID == nil {
+			break
+		}
+
+		return e.complexity.LogDestinationGeneric.ID(childComplexity), true
+
+	case "LogDestinationGeneric.name":
+		if e.complexity.LogDestinationGeneric.Name == nil {
+			break
+		}
+
+		return e.complexity.LogDestinationGeneric.Name(childComplexity), true
 
 	case "LogDestinationLoki.grafanaURL":
 		if e.complexity.LogDestinationLoki.GrafanaURL == nil {
@@ -18406,6 +18425,13 @@ type LogDestinationLoki implements LogDestination & Node {
 type LogDestinationSecureLogs implements LogDestination & Node {
 	"The globally unique ID of the log destination."
 	id: ID!
+}
+
+type LogDestinationGeneric implements LogDestination & Node {
+	"The globally unique ID of the log destination."
+	id: ID!
+	"Name defined in the manifest"
+	name: String!
 }
 `, BuiltIn: false},
 	{Name: "../schema/metrics.graphqls", Input: `extend type Environment {
