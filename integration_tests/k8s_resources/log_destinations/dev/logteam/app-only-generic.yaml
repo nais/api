@@ -1,0 +1,36 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: app-only-generic
+spec:
+  image: europe-north1-docker.pkg.dev/nais/navikt/app-only-generic:latest
+  replicas:
+    min: 1
+    max: 1
+  observability:
+    logging:
+      enabled: true
+      destinations:
+        - id: elastic
+        - id: custom-sink
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: app-only-generic-1
+  labels:
+    app: app-only-generic
+  creationTimestamp: "2021-09-30T12:00:00Z"
+spec:
+  containers:
+    - name: app-only-generic
+      image: europe-north1-docker.pkg.dev/nais/navikt/app-only-generic:latest
+status:
+  containerStatuses:
+    - name: app-only-generic
+      ready: true
+      restartCount: 0
+      state:
+        running:
+          startedAt: "2022-07-06T09:45:18Z"

@@ -1,0 +1,34 @@
+apiVersion: nais.io/v1
+kind: Naisjob
+metadata:
+  name: job-multi-logs
+spec:
+  image: europe-north1-docker.pkg.dev/nais/navikt/job-multi-logs:latest
+  schedule: "0 * * * *"
+  observability:
+    logging:
+      enabled: true
+      destinations:
+        - id: loki
+        - id: elastic
+
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: job-multi-logs
+  labels:
+    app: job-multi-logs
+spec:
+  schedule: "0 * * * *"
+  jobTemplate:
+    metadata:
+      labels:
+        app: job-multi-logs
+    spec:
+      template:
+        spec:
+          containers:
+            - name: job-multi-logs
+              image: europe-north1-docker.pkg.dev/nais/navikt/job-multi-logs:latest
+          restartPolicy: Never
