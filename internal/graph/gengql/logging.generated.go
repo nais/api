@@ -29,6 +29,64 @@ import (
 
 // region    **************************** field.gotpl *****************************
 
+func (ec *executionContext) _LogDestinationGeneric_id(ctx context.Context, field graphql.CollectedField, obj *logging.LogDestinationGeneric) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_LogDestinationGeneric_id,
+		func(ctx context.Context) (any, error) {
+			return obj.ID(), nil
+		},
+		nil,
+		ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_LogDestinationGeneric_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LogDestinationGeneric",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LogDestinationGeneric_name(ctx context.Context, field graphql.CollectedField, obj *logging.LogDestinationGeneric) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_LogDestinationGeneric_name,
+		func(ctx context.Context) (any, error) {
+			return obj.Name, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_LogDestinationGeneric_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LogDestinationGeneric",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _LogDestinationLoki_id(ctx context.Context, field graphql.CollectedField, obj *logging.LogDestinationLoki) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -142,6 +200,13 @@ func (ec *executionContext) _LogDestination(ctx context.Context, sel ast.Selecti
 			return graphql.Null
 		}
 		return ec._LogDestinationLoki(ctx, sel, obj)
+	case logging.LogDestinationGeneric:
+		return ec._LogDestinationGeneric(ctx, sel, &obj)
+	case *logging.LogDestinationGeneric:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._LogDestinationGeneric(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -150,6 +215,50 @@ func (ec *executionContext) _LogDestination(ctx context.Context, sel ast.Selecti
 // endregion ************************** interface.gotpl ***************************
 
 // region    **************************** object.gotpl ****************************
+
+var logDestinationGenericImplementors = []string{"LogDestinationGeneric", "LogDestination", "Node"}
+
+func (ec *executionContext) _LogDestinationGeneric(ctx context.Context, sel ast.SelectionSet, obj *logging.LogDestinationGeneric) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, logDestinationGenericImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("LogDestinationGeneric")
+		case "id":
+			out.Values[i] = ec._LogDestinationGeneric_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "name":
+			out.Values[i] = ec._LogDestinationGeneric_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
 
 var logDestinationLokiImplementors = []string{"LogDestinationLoki", "LogDestination", "Node"}
 
