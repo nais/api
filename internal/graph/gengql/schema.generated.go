@@ -3702,8 +3702,8 @@ func (ec *executionContext) fieldContext_Query_elevations(ctx context.Context, f
 				return ec.fieldContext_Elevation_type(ctx, field)
 			case "team":
 				return ec.fieldContext_Elevation_team(ctx, field)
-			case "environment":
-				return ec.fieldContext_Elevation_environment(ctx, field)
+			case "teamEnvironment":
+				return ec.fieldContext_Elevation_teamEnvironment(ctx, field)
 			case "resourceName":
 				return ec.fieldContext_Elevation_resourceName(ctx, field)
 			case "user":
@@ -5741,6 +5741,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Environment(ctx, sel, obj)
+	case elevation.Elevation:
+		return ec._Elevation(ctx, sel, &obj)
+	case *elevation.Elevation:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Elevation(ctx, sel, obj)
 	case deployment.DeploymentStatus:
 		return ec._DeploymentStatus(ctx, sel, &obj)
 	case *deployment.DeploymentStatus:

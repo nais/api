@@ -2,6 +2,7 @@ package elevation
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/nais/api/internal/activitylog"
 )
@@ -39,36 +40,8 @@ type ElevationCreatedActivityLogEntry struct {
 func (ElevationCreatedActivityLogEntry) IsActivityLogEntry() {}
 
 type ElevationCreatedActivityLogEntryData struct {
-	ElevationType      string `json:"elevationType"`
-	TargetResourceName string `json:"targetResourceName"`
-	Reason             string `json:"reason"`
-	ExpiresAt          string `json:"expiresAt"`
-}
-
-func (e ElevationCreatedActivityLogEntry) GetElevationType() string {
-	if e.Data == nil {
-		return ""
-	}
-	return e.Data.ElevationType
-}
-
-func (e ElevationCreatedActivityLogEntry) GetTargetResourceName() string {
-	if e.Data == nil {
-		return ""
-	}
-	return e.Data.TargetResourceName
-}
-
-func (e ElevationCreatedActivityLogEntry) GetReason() string {
-	if e.Data == nil {
-		return ""
-	}
-	return e.Data.Reason
-}
-
-func (e ElevationCreatedActivityLogEntry) GetExpiresAt() string {
-	if e.Data == nil {
-		return ""
-	}
-	return e.Data.ExpiresAt
+	ElevationType      ElevationType `json:"elevationType"`
+	TargetResourceName string        `json:"targetResourceName"`
+	Reason             string        `json:"reason"`
+	ExpiresAt          time.Time     `json:"expiresAt"`
 }

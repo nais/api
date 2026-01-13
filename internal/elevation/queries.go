@@ -10,10 +10,10 @@ import (
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/slug"
-	"github.com/nais/api/internal/team"
-	"github.com/nais/api/internal/user"
 	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
 const (
@@ -29,6 +29,11 @@ const (
 	annotationElevationNamespace = "nais.io/elevation-namespace"
 )
 
+var (
+	roleGVR        = schema.GroupVersionResource{Group: "rbac.authorization.k8s.io", Version: "v1", Resource: "roles"}
+	roleBindingGVR = schema.GroupVersionResource{Group: "rbac.authorization.k8s.io", Version: "v1", Resource: "rolebindings"}
+)
+
 func Create(ctx context.Context, input *CreateElevationInput, actor *authz.Actor) (*Elevation, error) {
 	if err := validateInput(input); err != nil {
 		return nil, err
@@ -39,26 +44,26 @@ func Create(ctx context.Context, input *CreateElevationInput, actor *authz.Actor
 	}
 
 	clients := fromContext(ctx)
-	k8sClient, exists := clients.GetClient(input.Environment)
+	k8sClient, exists := clients.GetClient(input.EnvironmentName)
 	if !exists {
 		return nil, ErrEnvironmentNotFound
 	}
 
 	elevationID := generateElevationID()
-	namespace := namespaceForTeam(input.Team)
+	namespace := input.Team.String()
 	expiresAt := time.Now().Add(time.Duration(input.DurationMinutes) * time.Minute)
 	createdAt := time.Now()
 
-	role := buildRole(elevationID, namespace, input, actor, createdAt, expiresAt)
-	_, err := k8sClient.RbacV1().Roles(namespace).Create(ctx, role, metav1.CreateOptions{})
+	role := buildRoleUnstructured(elevationID, namespace, input, actor, createdAt, expiresAt)
+	_, err := k8sClient.Resource(roleGVR).Namespace(namespace).Create(ctx, role, metav1.CreateOptions{})
 	if err != nil {
 		return nil, fmt.Errorf("creating role: %w", err)
 	}
 
-	roleBinding := buildRoleBinding(elevationID, namespace, actor, createdAt, expiresAt)
-	_, err = k8sClient.RbacV1().RoleBindings(namespace).Create(ctx, roleBinding, metav1.CreateOptions{})
+	roleBinding := buildRoleBindingUnstructured(elevationID, namespace, actor, createdAt, expiresAt)
+	_, err = k8sClient.Resource(roleBindingGVR).Namespace(namespace).Create(ctx, roleBinding, metav1.CreateOptions{})
 	if err != nil {
-		_ = k8sClient.RbacV1().Roles(namespace).Delete(ctx, elevationID, metav1.DeleteOptions{})
+		_ = k8sClient.Resource(roleGVR).Namespace(namespace).Delete(ctx, elevationID, metav1.DeleteOptions{})
 		return nil, fmt.Errorf("creating rolebinding: %w", err)
 	}
 
@@ -66,26 +71,16 @@ func Create(ctx context.Context, input *CreateElevationInput, actor *authz.Actor
 		clients.log.WithError(err).Error("failed to log elevation creation")
 	}
 
-	t, err := team.Get(ctx, input.Team)
-	if err != nil {
-		return nil, fmt.Errorf("getting team: %w", err)
-	}
-
-	u, err := user.Get(ctx, actor.User.GetID())
-	if err != nil {
-		return nil, fmt.Errorf("getting user: %w", err)
-	}
-
 	return &Elevation{
-		ID:           newIdent(elevationID),
-		Type:         input.Type,
-		Team:         t,
-		Environment:  input.Environment,
-		ResourceName: input.ResourceName,
-		User:         u,
-		Reason:       input.Reason,
-		CreatedAt:    createdAt,
-		ExpiresAt:    expiresAt,
+		ID:              newIdent(input.Team, input.EnvironmentName, elevationID),
+		Type:            input.Type,
+		TeamSlug:        input.Team,
+		EnvironmentName: input.EnvironmentName,
+		ResourceName:    input.ResourceName,
+		UserEmail:       actor.User.Identity(),
+		Reason:          input.Reason,
+		CreatedAt:       createdAt,
+		ExpiresAt:       expiresAt,
 	}, nil
 }
 
@@ -109,56 +104,90 @@ func generateElevationID() string {
 	return fmt.Sprintf("elev-%s", uuid.New().String()[:8])
 }
 
-func namespaceForTeam(teamSlug slug.Slug) string {
-	return teamSlug.String()
-}
+func buildRoleUnstructured(elevationID, namespace string, input *CreateElevationInput, actor *authz.Actor, createdAt, expiresAt time.Time) *unstructured.Unstructured {
+	rules := getRoleRules(input.Type, input.ResourceName)
+	rulesUnstructured := make([]any, len(rules))
+	for i, rule := range rules {
+		// Convert string slices to []any for proper unstructured serialization
+		apiGroups := make([]any, len(rule.APIGroups))
+		for j, v := range rule.APIGroups {
+			apiGroups[j] = v
+		}
+		resources := make([]any, len(rule.Resources))
+		for j, v := range rule.Resources {
+			resources[j] = v
+		}
+		verbs := make([]any, len(rule.Verbs))
+		for j, v := range rule.Verbs {
+			verbs[j] = v
+		}
+		resourceNames := make([]any, len(rule.ResourceNames))
+		for j, v := range rule.ResourceNames {
+			resourceNames[j] = v
+		}
+		rulesUnstructured[i] = map[string]any{
+			"apiGroups":     apiGroups,
+			"resources":     resources,
+			"verbs":         verbs,
+			"resourceNames": resourceNames,
+		}
+	}
 
-func buildRole(elevationID, namespace string, input *CreateElevationInput, actor *authz.Actor, createdAt, expiresAt time.Time) *rbacv1.Role {
-	return &rbacv1.Role{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      elevationID,
-			Namespace: namespace,
-			Labels: map[string]string{
-				labelElevation:     "true",
-				labelElevationType: string(input.Type),
+	return &unstructured.Unstructured{
+		Object: map[string]any{
+			"apiVersion": "rbac.authorization.k8s.io/v1",
+			"kind":       "Role",
+			"metadata": map[string]any{
+				"name":      elevationID,
+				"namespace": namespace,
+				"labels": map[string]any{
+					labelElevation:     "true",
+					labelElevationType: string(input.Type),
+				},
+				"annotations": map[string]any{
+					annotationKillAfter:          expiresAt.Format(time.RFC3339),
+					annotationElevationResource:  input.ResourceName,
+					annotationElevationUser:      actor.User.Identity(),
+					annotationElevationReason:    input.Reason,
+					annotationElevationCreated:   createdAt.Format(time.RFC3339),
+					annotationElevationType:      string(input.Type),
+					annotationElevationNamespace: namespace,
+				},
 			},
-			Annotations: map[string]string{
-				annotationKillAfter:          expiresAt.Format(time.RFC3339),
-				annotationElevationResource:  input.ResourceName,
-				annotationElevationUser:      actor.User.Identity(),
-				annotationElevationReason:    input.Reason,
-				annotationElevationCreated:   createdAt.Format(time.RFC3339),
-				annotationElevationType:      string(input.Type),
-				annotationElevationNamespace: namespace,
-			},
+			"rules": rulesUnstructured,
 		},
-		Rules: getRoleRules(input.Type, input.ResourceName),
 	}
 }
 
-func buildRoleBinding(elevationID, namespace string, actor *authz.Actor, createdAt, expiresAt time.Time) *rbacv1.RoleBinding {
-	return &rbacv1.RoleBinding{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      elevationID,
-			Namespace: namespace,
-			Labels: map[string]string{
-				labelElevation: "true",
+func buildRoleBindingUnstructured(elevationID, namespace string, actor *authz.Actor, createdAt, expiresAt time.Time) *unstructured.Unstructured {
+	return &unstructured.Unstructured{
+		Object: map[string]any{
+			"apiVersion": "rbac.authorization.k8s.io/v1",
+			"kind":       "RoleBinding",
+			"metadata": map[string]any{
+				"name":      elevationID,
+				"namespace": namespace,
+				"labels": map[string]any{
+					labelElevation: "true",
+				},
+				"annotations": map[string]any{
+					annotationKillAfter:        expiresAt.Format(time.RFC3339),
+					annotationElevationCreated: createdAt.Format(time.RFC3339),
+				},
 			},
-			Annotations: map[string]string{
-				annotationKillAfter:        expiresAt.Format(time.RFC3339),
-				annotationElevationCreated: createdAt.Format(time.RFC3339),
+			"roleRef": map[string]any{
+				"apiGroup": "rbac.authorization.k8s.io",
+				"kind":     "Role",
+				"name":     elevationID,
+			},
+			"subjects": []any{
+				map[string]any{
+					"apiGroup": "rbac.authorization.k8s.io",
+					"kind":     "User",
+					"name":     actor.User.Identity(),
+				},
 			},
 		},
-		RoleRef: rbacv1.RoleRef{
-			APIGroup: "rbac.authorization.k8s.io",
-			Kind:     "Role",
-			Name:     elevationID,
-		},
-		Subjects: []rbacv1.Subject{{
-			APIGroup: "rbac.authorization.k8s.io",
-			Kind:     "User",
-			Name:     actor.User.Identity(),
-		}},
 	}
 }
 
@@ -173,21 +202,21 @@ func getRoleRules(elevationType ElevationType, resourceName string) []rbacv1.Pol
 			Verbs:         []string{"get"},
 			ResourceNames: []string{resourceName},
 		}
-	case ElevationTypePodExec:
+	case ElevationTypeExec:
 		rule = rbacv1.PolicyRule{
 			APIGroups:     []string{""},
 			Resources:     []string{"pods/exec"},
 			Verbs:         []string{"create"},
 			ResourceNames: []string{resourceName},
 		}
-	case ElevationTypePodPortForward:
+	case ElevationTypePortForward:
 		rule = rbacv1.PolicyRule{
 			APIGroups:     []string{""},
 			Resources:     []string{"pods/portforward"},
 			Verbs:         []string{"create"},
 			ResourceNames: []string{resourceName},
 		}
-	case ElevationTypePodDebug:
+	case ElevationTypeDebug:
 		rule = rbacv1.PolicyRule{
 			APIGroups:     []string{""},
 			Resources:     []string{"pods/ephemeralcontainers"},
@@ -207,30 +236,55 @@ func logElevationCreated(ctx context.Context, elevationID, namespace string, inp
 			ResourceType:    activityLogEntryResourceTypeElevation,
 			ResourceName:    elevationID,
 			TeamSlug:        &input.Team,
-			EnvironmentName: &input.Environment,
+			EnvironmentName: &input.EnvironmentName,
 			Data: &ElevationCreatedActivityLogEntryData{
-				ElevationType:      string(input.Type),
+				ElevationType:      input.Type,
 				TargetResourceName: input.ResourceName,
 				Reason:             input.Reason,
-				ExpiresAt:          expiresAt.Format(time.RFC3339),
+				ExpiresAt:          expiresAt,
 			},
 		})
 	})
+}
+
+// Get returns a specific elevation by team, environment and elevation ID
+func Get(ctx context.Context, teamSlug slug.Slug, environmentName, elevationID string) (*Elevation, error) {
+	clients := fromContext(ctx)
+
+	k8sClient, exists := clients.GetClient(environmentName)
+	if !exists {
+		return nil, ErrEnvironmentNotFound
+	}
+
+	namespace := teamSlug.String()
+
+	role, err := k8sClient.Resource(roleGVR).Namespace(namespace).Get(ctx, elevationID, metav1.GetOptions{})
+	if err != nil {
+		return nil, fmt.Errorf("getting role: %w", err)
+	}
+
+	// Verify this is actually an elevation role
+	labels := role.GetLabels()
+	if labels[labelElevation] != "true" {
+		return nil, fmt.Errorf("role is not an elevation")
+	}
+
+	return unstructuredToElevation(role, environmentName)
 }
 
 // List returns active elevations for the current user by type, team, environment and resourceName
 func List(ctx context.Context, input *ElevationInput, actor *authz.Actor) ([]*Elevation, error) {
 	clients := fromContext(ctx)
 
-	k8sClient, exists := clients.GetClient(input.Environment)
+	k8sClient, exists := clients.GetClient(input.EnvironmentName)
 	if !exists {
 		return []*Elevation{}, nil // Environment not found, return empty list
 	}
 
-	namespace := namespaceForTeam(input.Team)
+	namespace := input.Team.String()
 	userIdentity := actor.User.Identity()
 
-	roles, err := k8sClient.RbacV1().Roles(namespace).List(ctx, metav1.ListOptions{
+	roles, err := k8sClient.Resource(roleGVR).Namespace(namespace).List(ctx, metav1.ListOptions{
 		LabelSelector: fmt.Sprintf("%s=true,%s=%s", labelElevation, labelElevationType, string(input.Type)),
 	})
 	if err != nil {
@@ -239,18 +293,19 @@ func List(ctx context.Context, input *ElevationInput, actor *authz.Actor) ([]*El
 
 	var elevations []*Elevation
 	for _, role := range roles.Items {
+		annotations := role.GetAnnotations()
 		// Filter by user
-		if role.Annotations[annotationElevationUser] != userIdentity {
+		if annotations[annotationElevationUser] != userIdentity {
 			continue
 		}
 		// Filter by resourceName
-		if role.Annotations[annotationElevationResource] != input.ResourceName {
+		if annotations[annotationElevationResource] != input.ResourceName {
 			continue
 		}
 
-		elev, err := roleToElevation(ctx, &role, input.Environment)
+		elev, err := unstructuredToElevation(&role, input.EnvironmentName)
 		if err != nil {
-			clients.log.WithError(err).WithField("role", role.Name).Debug("failed to convert role to elevation")
+			clients.log.WithError(err).WithField("role", role.GetName()).Debug("failed to convert role to elevation")
 			continue
 		}
 		elevations = append(elevations, elev)
@@ -259,46 +314,39 @@ func List(ctx context.Context, input *ElevationInput, actor *authz.Actor) ([]*El
 	return elevations, nil
 }
 
-// roleToElevation converts a Kubernetes Role to an Elevation
-func roleToElevation(ctx context.Context, role *rbacv1.Role, environment string) (*Elevation, error) {
-	elevationType := ElevationType(role.Annotations[annotationElevationType])
+// unstructuredToElevation converts an unstructured Role to an Elevation
+func unstructuredToElevation(role *unstructured.Unstructured, environmentName string) (*Elevation, error) {
+	annotations := role.GetAnnotations()
+	labels := role.GetLabels()
+
+	elevationType := ElevationType(annotations[annotationElevationType])
 	if !elevationType.IsValid() {
-		elevationType = ElevationType(role.Labels[labelElevationType])
+		elevationType = ElevationType(labels[labelElevationType])
 	}
 
-	createdAtStr := role.Annotations[annotationElevationCreated]
+	createdAtStr := annotations[annotationElevationCreated]
 	createdAt, err := time.Parse(time.RFC3339, createdAtStr)
 	if err != nil {
-		createdAt = role.CreationTimestamp.Time
+		createdAt = role.GetCreationTimestamp().Time
 	}
 
-	expiresAtStr := role.Annotations[annotationKillAfter]
+	expiresAtStr := annotations[annotationKillAfter]
 	expiresAt, err := time.Parse(time.RFC3339, expiresAtStr)
 	if err != nil {
 		expiresAt = createdAt.Add(time.Hour)
 	}
 
-	teamSlug := slug.Slug(role.Namespace)
-	t, err := team.Get(ctx, teamSlug)
-	if err != nil {
-		return nil, fmt.Errorf("getting team: %w", err)
-	}
-
-	userIdentity := role.Annotations[annotationElevationUser]
-	u, err := user.GetByEmail(ctx, userIdentity)
-	if err != nil {
-		return nil, fmt.Errorf("getting user: %w", err)
-	}
+	teamSlug := slug.Slug(role.GetNamespace())
 
 	return &Elevation{
-		ID:           newIdent(role.Name),
-		Type:         elevationType,
-		Team:         t,
-		Environment:  environment,
-		ResourceName: role.Annotations[annotationElevationResource],
-		User:         u,
-		Reason:       role.Annotations[annotationElevationReason],
-		CreatedAt:    createdAt,
-		ExpiresAt:    expiresAt,
+		ID:              newIdent(teamSlug, environmentName, role.GetName()),
+		Type:            elevationType,
+		TeamSlug:        teamSlug,
+		EnvironmentName: environmentName,
+		ResourceName:    annotations[annotationElevationResource],
+		UserEmail:       annotations[annotationElevationUser],
+		Reason:          annotations[annotationElevationReason],
+		CreatedAt:       createdAt,
+		ExpiresAt:       expiresAt,
 	}, nil
 }

@@ -8,20 +8,18 @@ import (
 
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/slug"
-	"github.com/nais/api/internal/team"
-	"github.com/nais/api/internal/user"
 )
 
 type Elevation struct {
-	ID           ident.Ident
-	Type         ElevationType
-	Team         *team.Team
-	Environment  string
-	ResourceName string
-	User         *user.User
-	Reason       string
-	CreatedAt    time.Time
-	ExpiresAt    time.Time
+	ID              ident.Ident
+	Type            ElevationType
+	TeamSlug        slug.Slug
+	EnvironmentName string
+	ResourceName    string
+	UserEmail       string
+	Reason          string
+	CreatedAt       time.Time
+	ExpiresAt       time.Time
 }
 
 func (Elevation) IsNode() {}
@@ -29,15 +27,15 @@ func (Elevation) IsNode() {}
 type ElevationType string
 
 const (
-	ElevationTypeSecret         ElevationType = "SECRET"
-	ElevationTypePodExec        ElevationType = "POD_EXEC"
-	ElevationTypePodPortForward ElevationType = "POD_PORT_FORWARD"
-	ElevationTypePodDebug       ElevationType = "POD_DEBUG"
+	ElevationTypeSecret      ElevationType = "SECRET"
+	ElevationTypeExec        ElevationType = "INSTANCE_EXEC"
+	ElevationTypePortForward ElevationType = "INSTANCE_PORT_FORWARD"
+	ElevationTypeDebug       ElevationType = "INSTANCE_DEBUG"
 )
 
 func (e ElevationType) IsValid() bool {
 	switch e {
-	case ElevationTypeSecret, ElevationTypePodExec, ElevationTypePodPortForward, ElevationTypePodDebug:
+	case ElevationTypeSecret, ElevationTypeExec, ElevationTypePortForward, ElevationTypeDebug:
 		return true
 	}
 	return false
@@ -65,16 +63,16 @@ func (e ElevationType) MarshalGQL(w io.Writer) {
 }
 
 type ElevationInput struct {
-	Type         ElevationType
-	Team         slug.Slug
-	Environment  string
-	ResourceName string
+	Type            ElevationType
+	Team            slug.Slug
+	EnvironmentName string
+	ResourceName    string
 }
 
 type CreateElevationInput struct {
 	Type            ElevationType
 	Team            slug.Slug
-	Environment     string
+	EnvironmentName string
 	ResourceName    string
 	Reason          string
 	DurationMinutes int

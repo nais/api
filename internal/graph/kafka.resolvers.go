@@ -110,7 +110,5 @@ func (r *Resolver) KafkaTopic() gengql.KafkaTopicResolver { return &kafkaTopicRe
 
 func (r *Resolver) KafkaTopicAcl() gengql.KafkaTopicAclResolver { return &kafkaTopicAclResolver{r} }
 
-type (
-	kafkaTopicResolver    struct{ *Resolver }
-	kafkaTopicAclResolver struct{ *Resolver }
-)
+type kafkaTopicResolver struct{ *Resolver }
+type kafkaTopicAclResolver struct{ *Resolver }

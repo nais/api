@@ -67,7 +67,6 @@ import (
 	semconv "go.opentelemetry.io/otel/semconv/v1.37.0"
 	"go.opentelemetry.io/otel/trace"
 	"golang.org/x/sync/errgroup"
-	"k8s.io/client-go/kubernetes"
 )
 
 // runHTTPServer will start the HTTP server
@@ -282,11 +281,9 @@ func ConfigureGraph(
 
 	var podLogStreamer podlog.Streamer
 	var secretClientCreator secret.ClientCreator
-	var elevationClients map[string]kubernetes.Interface
 	if fakes.WithFakeKubernetes {
 		podLogStreamer = fakepodlog.NewLogStreamer()
 		secretClientCreator = secret.CreatorFromClients(watcherMgr.GetDynamicClients())
-		elevationClients = nil // TODO: fake clients for testing
 	} else {
 		clients, err := apik8s.NewClientSets(k8sClients)
 		if err != nil {
@@ -294,8 +291,9 @@ func ConfigureGraph(
 		}
 		podLogStreamer = podlog.NewLogStreamer(clients, log)
 		secretClientCreator = secret.CreatorFromConfig(ctx, k8sClients)
-		elevationClients = clients
 	}
+
+	elevationClients := watcherMgr.GetDynamicClients()
 
 	var costOpts []cost.Option
 	if fakes.WithFakeCostClient {

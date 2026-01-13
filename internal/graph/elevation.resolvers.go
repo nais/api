@@ -2,38 +2,24 @@ package graph
 
 import (
 	"context"
-	"fmt"
-	"time"
 
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/elevation"
 	"github.com/nais/api/internal/graph/gengql"
+	"github.com/nais/api/internal/team"
+	"github.com/nais/api/internal/user"
 )
 
-func (r *elevationCreatedActivityLogEntryResolver) ElevationType(ctx context.Context, obj *elevation.ElevationCreatedActivityLogEntry) (elevation.ElevationType, error) {
-	return elevation.ElevationType(obj.GetElevationType()), nil
+func (r *elevationResolver) Team(ctx context.Context, obj *elevation.Elevation) (*team.Team, error) {
+	return team.Get(ctx, obj.TeamSlug)
 }
 
-func (r *elevationCreatedActivityLogEntryResolver) TargetResourceName(ctx context.Context, obj *elevation.ElevationCreatedActivityLogEntry) (string, error) {
-	return obj.GetTargetResourceName(), nil
+func (r *elevationResolver) TeamEnvironment(ctx context.Context, obj *elevation.Elevation) (*team.TeamEnvironment, error) {
+	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
 
-func (r *elevationCreatedActivityLogEntryResolver) Reason(ctx context.Context, obj *elevation.ElevationCreatedActivityLogEntry) (string, error) {
-	return obj.GetReason(), nil
-}
-
-func (r *elevationCreatedActivityLogEntryResolver) ExpiresAt(ctx context.Context, obj *elevation.ElevationCreatedActivityLogEntry) (*time.Time, error) {
-	expiresAtStr := obj.GetExpiresAt()
-	if expiresAtStr == "" {
-		return nil, nil
-	}
-
-	expiresAt, err := time.Parse(time.RFC3339, expiresAtStr)
-	if err != nil {
-		return nil, fmt.Errorf("parsing expiresAt: %w", err)
-	}
-
-	return &expiresAt, nil
+func (r *elevationResolver) User(ctx context.Context, obj *elevation.Elevation) (*user.User, error) {
+	return user.GetByEmail(ctx, obj.UserEmail)
 }
 
 func (r *mutationResolver) CreateElevation(ctx context.Context, input elevation.CreateElevationInput) (*elevation.CreateElevationPayload, error) {
@@ -54,8 +40,6 @@ func (r *queryResolver) Elevations(ctx context.Context, input elevation.Elevatio
 	return elevation.List(ctx, &input, actor)
 }
 
-func (r *Resolver) ElevationCreatedActivityLogEntry() gengql.ElevationCreatedActivityLogEntryResolver {
-	return &elevationCreatedActivityLogEntryResolver{r}
-}
+func (r *Resolver) Elevation() gengql.ElevationResolver { return &elevationResolver{r} }
 
-type elevationCreatedActivityLogEntryResolver struct{ *Resolver }
+type elevationResolver struct{ *Resolver }

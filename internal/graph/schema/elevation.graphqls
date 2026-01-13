@@ -8,19 +8,19 @@ enum ElevationType {
 	SECRET
 
 	"""
-	Access to execute commands in a pod.
+	Access to execute commands in an instance.
 	"""
-	POD_EXEC
+	INSTANCE_EXEC
 
 	"""
-	Access to port-forward to a pod.
+	Access to port-forward to an instance.
 	"""
-	POD_PORT_FORWARD
+	INSTANCE_PORT_FORWARD
 
 	"""
-	Access to debug a pod with ephemeral containers.
+	Access to debug an instance with ephemeral containers.
 	"""
-	POD_DEBUG
+	INSTANCE_DEBUG
 }
 
 """
@@ -28,7 +28,7 @@ An active elevation grants temporary elevated privileges to a specific resource.
 Elevations are stored as Kubernetes Role and RoleBinding resources.
 Historical elevations are tracked via the activity log.
 """
-type Elevation {
+type Elevation implements Node {
 	"""
 	Unique ID of the elevation (matches the Kubernetes Role/RoleBinding name).
 	"""
@@ -40,14 +40,14 @@ type Elevation {
 	type: ElevationType!
 
 	"""
-	Team slug (derived from namespace).
+	Team that owns the resource.
 	"""
 	team: Team!
 
 	"""
 	Environment where the resource is located.
 	"""
-	environment: String!
+	teamEnvironment: TeamEnvironment!
 
 	"""
 	Name of the resource being elevated to.
@@ -92,7 +92,7 @@ input ElevationInput {
 	"""
 	Environment name.
 	"""
-	environment: String!
+	environmentName: String!
 
 	"""
 	Name of the resource.
@@ -117,7 +117,7 @@ input CreateElevationInput {
 	"""
 	Environment name.
 	"""
-	environment: String!
+	environmentName: String!
 
 	"""
 	Name of the resource to elevate access to.
@@ -157,6 +157,31 @@ extend enum ActivityLogActivityType {
 	Elevation was created.
 	"""
 	ELEVATION_CREATED
+}
+
+"""
+Data associated with an elevation creation activity log entry.
+"""
+type ElevationCreatedActivityLogEntryData {
+	"""
+	Type of elevation that was created.
+	"""
+	elevationType: ElevationType!
+
+	"""
+	Target resource name that was elevated to.
+	"""
+	targetResourceName: String!
+
+	"""
+	Reason provided for the elevation.
+	"""
+	reason: String!
+
+	"""
+	When the elevation will expire.
+	"""
+	expiresAt: Time!
 }
 
 """
@@ -204,24 +229,9 @@ type ElevationCreatedActivityLogEntry implements ActivityLogEntry & Node {
 	environmentName: String
 
 	"""
-	Type of elevation that was created.
+	Data associated with the entry.
 	"""
-	elevationType: ElevationType!
-
-	"""
-	Target resource name that was elevated to.
-	"""
-	targetResourceName: String!
-
-	"""
-	Reason provided for the elevation.
-	"""
-	reason: String!
-
-	"""
-	When the elevation will expire.
-	"""
-	expiresAt: Time!
+	data: ElevationCreatedActivityLogEntryData!
 }
 
 extend type Query {
