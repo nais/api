@@ -5400,6 +5400,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._LogDestinationLoki(ctx, sel, obj)
+	case logging.LogDestinationGeneric:
+		return ec._LogDestinationGeneric(ctx, sel, &obj)
+	case *logging.LogDestinationGeneric:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._LogDestinationGeneric(ctx, sel, obj)
 	case issue.LastRunFailedIssue:
 		return ec._LastRunFailedIssue(ctx, sel, &obj)
 	case *issue.LastRunFailedIssue:

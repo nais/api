@@ -40,9 +40,14 @@ func FromWorkload(ctx context.Context, wl workload.Workload) []LogDestination {
 		switch SupportedLogDestination(logDestination.ID) {
 		case SecureLogs:
 			destinations = append(destinations, LogDestinationSecureLogs{base})
+		case Loki:
+			destinations = append(destinations, LogDestinationLoki{base})
 		default:
 			// Unknown log destination
-			destinations = append(destinations, LogDestinationLoki{base})
+			destinations = append(destinations, LogDestinationGeneric{
+				logDestinationBase: base,
+				Name:               logDestination.ID,
+			})
 		}
 	}
 
@@ -55,7 +60,7 @@ func FromWorkload(ctx context.Context, wl workload.Workload) []LogDestination {
 }
 
 func getByIdent(ctx context.Context, id ident.Ident) (LogDestination, error) {
-	kind, workloadType, teamSlug, environment, name, err := parseIdent(id)
+	kind, workloadType, teamSlug, environment, workloadName, logName, err := parseIdent(id)
 	if err != nil {
 		return nil, err
 	}
@@ -64,7 +69,7 @@ func getByIdent(ctx context.Context, id ident.Ident) (LogDestination, error) {
 		WorkloadType:    workload.Type(workloadType),
 		TeamSlug:        teamSlug,
 		EnvironmentName: environment,
-		WorkloadName:    name,
+		WorkloadName:    workloadName,
 	}
 
 	switch kind {
@@ -72,6 +77,11 @@ func getByIdent(ctx context.Context, id ident.Ident) (LogDestination, error) {
 		return LogDestinationLoki{base}, nil
 	case SecureLogs:
 		return LogDestinationSecureLogs{base}, nil
+	case Generic:
+		return LogDestinationGeneric{
+			logDestinationBase: base,
+			Name:               logName,
+		}, nil
 	default:
 		return nil, apierror.Errorf("Unknown log destination: %q.", kind)
 	}
