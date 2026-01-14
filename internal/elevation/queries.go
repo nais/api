@@ -57,12 +57,14 @@ func Create(ctx context.Context, input *CreateElevationInput, actor *authz.Actor
 	role := buildRoleUnstructured(elevationID, namespace, input, actor, createdAt, expiresAt)
 	_, err := k8sClient.Resource(roleGVR).Namespace(namespace).Create(ctx, role, metav1.CreateOptions{})
 	if err != nil {
+		clients.log.WithError(err).WithField("namespace", namespace).Error("failed to create elevation role")
 		return nil, fmt.Errorf("creating role: %w", err)
 	}
 
 	roleBinding := buildRoleBindingUnstructured(elevationID, namespace, actor, createdAt, expiresAt)
 	_, err = k8sClient.Resource(roleBindingGVR).Namespace(namespace).Create(ctx, roleBinding, metav1.CreateOptions{})
 	if err != nil {
+		clients.log.WithError(err).WithField("namespace", namespace).Error("failed to create elevation rolebinding")
 		_ = k8sClient.Resource(roleGVR).Namespace(namespace).Delete(ctx, elevationID, metav1.DeleteOptions{})
 		return nil, fmt.Errorf("creating rolebinding: %w", err)
 	}
