@@ -237,7 +237,6 @@ type ElevationCreatedActivityLogEntry implements ActivityLogEntry & Node {
 extend type User {
 	"""
 	Get active elevations for this user matching the given parameters.
-	All parameters are optional filters - omit to match all.
 	Returns an empty list if no active elevations match.
 	"""
 	elevations(input: ElevationInput!): [Elevation!]!
