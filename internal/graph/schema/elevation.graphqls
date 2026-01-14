@@ -25,12 +25,10 @@ enum ElevationType {
 
 """
 An active elevation grants temporary elevated privileges to a specific resource.
-Elevations are stored as Kubernetes Role and RoleBinding resources.
-Historical elevations are tracked via the activity log.
 """
 type Elevation implements Node {
 	"""
-	Unique ID of the elevation (matches the Kubernetes Role/RoleBinding name).
+	Unique ID of the elevation.
 	"""
 	id: ID!
 
