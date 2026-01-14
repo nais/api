@@ -208,14 +208,15 @@ type Config struct {
 }
 
 type Fakes struct {
-	WithInsecureUserHeader bool `env:"WITH_INSECURE_USER_HEADER"`
-	WithFakeAivenClient    bool `env:"WITH_FAKE_AIVEN_CLIENT"`
-	WithFakeKubernetes     bool `env:"WITH_FAKE_KUBERNETES"`
-	WithFakeHookd          bool `env:"WITH_FAKE_HOOKD"`
-	WithFakeCloudSQL       bool `env:"WITH_FAKE_CLOUD_SQL"`
-	WithFakePrometheus     bool `env:"WITH_FAKE_PROMETHEUS"`
-	WithFakeCostClient     bool `env:"WITH_FAKE_COST_CLIENT"`
-	WithFakePriceClient    bool `env:"WITH_FAKE_PRICE_CLIENT"`
+	WithInsecureUserHeader       bool `env:"WITH_INSECURE_USER_HEADER"`
+	WithFakeAivenClient          bool `env:"WITH_FAKE_AIVEN_CLIENT"`
+	WithFakeKubernetes           bool `env:"WITH_FAKE_KUBERNETES"`
+	WithFakeManagementKubernetes bool `env:"WITH_FAKE_MANAGEMENT_KUBERNETES"`
+	WithFakeHookd                bool `env:"WITH_FAKE_HOOKD"`
+	WithFakeCloudSQL             bool `env:"WITH_FAKE_CLOUD_SQL"`
+	WithFakePrometheus           bool `env:"WITH_FAKE_PROMETHEUS"`
+	WithFakeCostClient           bool `env:"WITH_FAKE_COST_CLIENT"`
+	WithFakePriceClient          bool `env:"WITH_FAKE_PRICE_CLIENT"`
 }
 
 func (f Fakes) Inform(log logrus.FieldLogger) {

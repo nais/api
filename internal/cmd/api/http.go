@@ -20,6 +20,7 @@ import (
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/database/notify"
 	"github.com/nais/api/internal/deployment"
+	"github.com/nais/api/internal/elevation"
 	"github.com/nais/api/internal/environment"
 	"github.com/nais/api/internal/feature"
 	"github.com/nais/api/internal/github/repository"
@@ -292,6 +293,8 @@ func ConfigureGraph(
 		secretClientCreator = secret.CreatorFromConfig(ctx, k8sClients)
 	}
 
+	elevationClients := watcherMgr.GetDynamicClients()
+
 	var costOpts []cost.Option
 	if fakes.WithFakeCostClient {
 		costOpts = append(costOpts, cost.WithClient(cost.NewFakeClient()))
@@ -340,6 +343,7 @@ func ConfigureGraph(
 		ctx = unleash.NewLoaderContext(ctx, tenantName, watchers.UnleashWatcher, bifrostAPIURL, allowedClusters, log)
 		ctx = logging.NewPackageContext(ctx, tenantName, defaultLogDestinations)
 		ctx = environment.NewLoaderContext(ctx, pool)
+		ctx = elevation.NewLoaderContext(ctx, elevationClients, log)
 		ctx = feature.NewLoaderContext(
 			ctx,
 			watchers.UnleashWatcher.Enabled(),

@@ -139,6 +139,11 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		watcherOpts = append(watcherOpts, watcher.WithClientCreator(fake.Clients(os.DirFS("./data/k8s"))))
 	}
 
+	mgmtWatcherOpts := []watcher.Option{}
+	if cfg.Fakes.WithFakeKubernetes || cfg.Fakes.WithFakeManagementKubernetes {
+		mgmtWatcherOpts = append(mgmtWatcherOpts, watcher.WithClientCreator(fake.Clients(os.DirFS("./data/k8s"))))
+	}
+
 	clusterConfig, err := kubernetes.CreateClusterConfigMap(cfg.Tenant, cfg.K8s.Clusters, cfg.K8s.StaticClusters)
 	if err != nil {
 		return fmt.Errorf("creating cluster config map: %w", err)
@@ -150,7 +155,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	}
 	defer watcherMgr.Stop()
 
-	mgmtWatcher, err := watcher.NewManager(scheme, kubernetes.ClusterConfigMap{"management": nil}, log.WithField("subsystem", "k8s_watcher"), watcherOpts...)
+	mgmtWatcher, err := watcher.NewManager(scheme, kubernetes.ClusterConfigMap{"management": nil}, log.WithField("subsystem", "k8s_watcher"), mgmtWatcherOpts...)
 	if err != nil {
 		return fmt.Errorf("create k8s watcher manager for management: %w", err)
 	}
@@ -210,7 +215,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	}
 
 	var mgmtK8sClient k8s.Interface
-	if cfg.Fakes.WithFakeKubernetes {
+	if cfg.Fakes.WithFakeKubernetes || cfg.Fakes.WithFakeManagementKubernetes {
 		mgmtK8sClient = k8sfake.NewSimpleClientset()
 	} else {
 		cfg, err := rest.InClusterConfig()

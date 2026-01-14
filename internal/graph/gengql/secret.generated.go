@@ -861,6 +861,8 @@ func (ec *executionContext) fieldContext_Secret_lastModifiedBy(_ context.Context
 				return ec.fieldContext_User_teams(ctx, field)
 			case "isAdmin":
 				return ec.fieldContext_User_isAdmin(ctx, field)
+			case "elevations":
+				return ec.fieldContext_User_elevations(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},

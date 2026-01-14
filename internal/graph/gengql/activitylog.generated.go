@@ -13,6 +13,7 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/deployment/deploymentactivity"
+	"github.com/nais/api/internal/elevation"
 	"github.com/nais/api/internal/github/repository"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/kubernetes/event/pubsublog"
@@ -539,6 +540,13 @@ func (ec *executionContext) _ActivityLogEntry(ctx context.Context, sel ast.Selec
 			return graphql.Null
 		}
 		return ec._JobDeletedActivityLogEntry(ctx, sel, obj)
+	case elevation.ElevationCreatedActivityLogEntry:
+		return ec._ElevationCreatedActivityLogEntry(ctx, sel, &obj)
+	case *elevation.ElevationCreatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ElevationCreatedActivityLogEntry(ctx, sel, obj)
 	case deploymentactivity.DeploymentActivityLogEntry:
 		return ec._DeploymentActivityLogEntry(ctx, sel, &obj)
 	case *deploymentactivity.DeploymentActivityLogEntry:

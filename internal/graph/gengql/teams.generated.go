@@ -1125,6 +1125,8 @@ func (ec *executionContext) fieldContext_RemoveTeamMemberPayload_user(_ context.
 				return ec.fieldContext_User_teams(ctx, field)
 			case "isAdmin":
 				return ec.fieldContext_User_isAdmin(ctx, field)
+			case "elevations":
+				return ec.fieldContext_User_elevations(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
@@ -4117,6 +4119,8 @@ func (ec *executionContext) fieldContext_TeamDeleteKey_createdBy(_ context.Conte
 				return ec.fieldContext_User_teams(ctx, field)
 			case "isAdmin":
 				return ec.fieldContext_User_isAdmin(ctx, field)
+			case "elevations":
+				return ec.fieldContext_User_elevations(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
@@ -6538,6 +6542,8 @@ func (ec *executionContext) fieldContext_TeamMember_user(_ context.Context, fiel
 				return ec.fieldContext_User_teams(ctx, field)
 			case "isAdmin":
 				return ec.fieldContext_User_isAdmin(ctx, field)
+			case "elevations":
+				return ec.fieldContext_User_elevations(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},

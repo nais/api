@@ -1,0 +1,249 @@
+"""
+Type of elevation that can be requested.
+"""
+enum ElevationType {
+	"""
+	Access to read secrets in plain text.
+	"""
+	SECRET
+
+	"""
+	Access to execute commands in an instance.
+	"""
+	INSTANCE_EXEC
+
+	"""
+	Access to port-forward to an instance.
+	"""
+	INSTANCE_PORT_FORWARD
+
+	"""
+	Access to debug an instance with ephemeral containers.
+	"""
+	INSTANCE_DEBUG
+}
+
+"""
+An active elevation grants temporary elevated privileges to a specific resource.
+"""
+type Elevation implements Node {
+	"""
+	Unique ID of the elevation.
+	"""
+	id: ID!
+
+	"""
+	Type of elevation.
+	"""
+	type: ElevationType!
+
+	"""
+	Team that owns the resource.
+	"""
+	team: Team!
+
+	"""
+	Environment where the resource is located.
+	"""
+	teamEnvironment: TeamEnvironment!
+
+	"""
+	Name of the resource being elevated to.
+	"""
+	resourceName: String!
+
+	"""
+	User who requested the elevation.
+	"""
+	user: User!
+
+	"""
+	Reason provided for the elevation.
+	"""
+	reason: String!
+
+	"""
+	When the elevation was created.
+	"""
+	createdAt: Time!
+
+	"""
+	When the elevation will expire.
+	"""
+	expiresAt: Time!
+}
+
+"""
+Input for looking up an existing elevation.
+"""
+input ElevationInput {
+	"""
+	Type of elevation.
+	"""
+	type: ElevationType!
+
+	"""
+	Team slug.
+	"""
+	team: Slug!
+
+	"""
+	Environment name.
+	"""
+	environmentName: String!
+
+	"""
+	Name of the resource.
+	"""
+	resourceName: String!
+}
+
+"""
+Input for creating an elevation.
+"""
+input CreateElevationInput {
+	"""
+	Type of elevation to create.
+	"""
+	type: ElevationType!
+
+	"""
+	Team slug.
+	"""
+	team: Slug!
+
+	"""
+	Environment name.
+	"""
+	environmentName: String!
+
+	"""
+	Name of the resource to elevate access to.
+	"""
+	resourceName: String!
+
+	"""
+	Reason for requesting the elevation. Must be at least 10 characters.
+	"""
+	reason: String!
+
+	"""
+	Duration of the elevation in minutes. Maximum 60 minutes.
+	"""
+	durationMinutes: Int! = 60
+}
+
+"""
+Payload returned when creating an elevation.
+"""
+type CreateElevationPayload {
+	"""
+	The created elevation.
+	"""
+	elevation: Elevation!
+}
+
+extend enum ActivityLogEntryResourceType {
+	"""
+	All activity log entries related to elevations will use this resource type.
+	"""
+	ELEVATION
+}
+
+extend enum ActivityLogActivityType {
+	"""
+	Elevation was created.
+	"""
+	ELEVATION_CREATED
+}
+
+"""
+Data associated with an elevation creation activity log entry.
+"""
+type ElevationCreatedActivityLogEntryData {
+	"""
+	Type of elevation that was created.
+	"""
+	elevationType: ElevationType!
+
+	"""
+	Target resource name that was elevated to.
+	"""
+	targetResourceName: String!
+
+	"""
+	Reason provided for the elevation.
+	"""
+	reason: String!
+
+	"""
+	When the elevation will expire.
+	"""
+	expiresAt: Time!
+}
+
+"""
+Activity log entry for elevation creation.
+"""
+type ElevationCreatedActivityLogEntry implements ActivityLogEntry & Node {
+	"""
+	ID of the entry.
+	"""
+	id: ID!
+
+	"""
+	The identity of the actor who created the elevation.
+	"""
+	actor: String!
+
+	"""
+	Creation time of the entry.
+	"""
+	createdAt: Time!
+
+	"""
+	Message that summarizes the entry.
+	"""
+	message: String!
+
+	"""
+	Resource type (ELEVATION).
+	"""
+	resourceType: ActivityLogEntryResourceType!
+
+	"""
+	Name of the elevation resource.
+	"""
+	resourceName: String!
+
+	"""
+	The team slug.
+	"""
+	teamSlug: Slug!
+
+	"""
+	The environment name.
+	"""
+	environmentName: String
+
+	"""
+	Data associated with the entry.
+	"""
+	data: ElevationCreatedActivityLogEntryData!
+}
+
+extend type User {
+	"""
+	Get active elevations for this user matching the given parameters.
+	Returns an empty list if no active elevations match.
+	"""
+	elevations(input: ElevationInput!): [Elevation!]!
+}
+
+extend type Mutation {
+	"""
+	Create a temporary elevation of privileges for a specific resource.
+	The elevation expires automatically after the specified duration.
+	"""
+	createElevation(input: CreateElevationInput!): CreateElevationPayload!
+}
