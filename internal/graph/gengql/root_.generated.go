@@ -17476,12 +17476,10 @@ enum ElevationType {
 
 """
 An active elevation grants temporary elevated privileges to a specific resource.
-Elevations are stored as Kubernetes Role and RoleBinding resources.
-Historical elevations are tracked via the activity log.
 """
 type Elevation implements Node {
 	"""
-	Unique ID of the elevation (matches the Kubernetes Role/RoleBinding name).
+	Unique ID of the elevation.
 	"""
 	id: ID!
 
@@ -17688,7 +17686,6 @@ type ElevationCreatedActivityLogEntry implements ActivityLogEntry & Node {
 extend type User {
 	"""
 	Get active elevations for this user matching the given parameters.
-	All parameters are optional filters - omit to match all.
 	Returns an empty list if no active elevations match.
 	"""
 	elevations(input: ElevationInput!): [Elevation!]!
@@ -17696,20 +17693,8 @@ extend type User {
 
 extend type Mutation {
 	"""
-	Create a temporary elevation of privileges.
-
-	This mutation:
-	1. Creates a Role and RoleBinding in Kubernetes with a time-to-live (TTL)
-	2. Logs the action to the activity log for audit trail
-
-	The elevation grants access to a specific resource for a limited time.
-	When the TTL expires, euthanaisa automatically deletes the Role and RoleBinding.
-
-	Requirements:
-	- User must be a team member (Team member or Team owner role)
-	- Reason must be at least 10 characters
-	- Duration cannot exceed 60 minutes
-	- Resource must exist in the specified team/environment
+	Create a temporary elevation of privileges for a specific resource.
+	The elevation expires automatically after the specified duration.
 	"""
 	createElevation(input: CreateElevationInput!): CreateElevationPayload!
 }
