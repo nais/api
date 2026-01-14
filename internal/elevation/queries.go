@@ -272,8 +272,8 @@ func Get(ctx context.Context, teamSlug slug.Slug, environmentName, elevationID s
 	return unstructuredToElevation(role, environmentName)
 }
 
-// List returns active elevations for the current user by type, team, environment and resourceName
-func List(ctx context.Context, input *ElevationInput, actor *authz.Actor) ([]*Elevation, error) {
+// List returns active elevations for the specified user by type, team, environment and resourceName
+func List(ctx context.Context, input *ElevationInput, userEmail string) ([]*Elevation, error) {
 	clients := fromContext(ctx)
 
 	k8sClient, exists := clients.GetClient(input.EnvironmentName)
@@ -282,7 +282,6 @@ func List(ctx context.Context, input *ElevationInput, actor *authz.Actor) ([]*El
 	}
 
 	namespace := input.Team.String()
-	userIdentity := actor.User.Identity()
 
 	roles, err := k8sClient.Resource(roleGVR).Namespace(namespace).List(ctx, metav1.ListOptions{
 		LabelSelector: fmt.Sprintf("%s=true,%s=%s", labelElevation, labelElevationType, string(input.Type)),
@@ -295,7 +294,7 @@ func List(ctx context.Context, input *ElevationInput, actor *authz.Actor) ([]*El
 	for _, role := range roles.Items {
 		annotations := role.GetAnnotations()
 		// Filter by user
-		if annotations[annotationElevationUser] != userIdentity {
+		if annotations[annotationElevationUser] != userEmail {
 			continue
 		}
 		// Filter by resourceName

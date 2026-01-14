@@ -35,9 +35,8 @@ func (r *mutationResolver) CreateElevation(ctx context.Context, input elevation.
 	}, nil
 }
 
-func (r *queryResolver) Elevations(ctx context.Context, input elevation.ElevationInput) ([]*elevation.Elevation, error) {
-	actor := authz.ActorFromContext(ctx)
-	return elevation.List(ctx, &input, actor)
+func (r *userResolver) Elevations(ctx context.Context, obj *user.User, input elevation.ElevationInput) ([]*elevation.Elevation, error) {
+	return elevation.List(ctx, &input, obj.Email)
 }
 
 func (r *Resolver) Elevation() gengql.ElevationResolver { return &elevationResolver{r} }

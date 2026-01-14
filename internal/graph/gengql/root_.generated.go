@@ -1367,7 +1367,6 @@ type ComplexityRoot struct {
 		CurrentUnitPrices         func(childComplexity int) int
 		Cves                      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *vulnerability.CVEOrder) int
 		Deployments               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *deployment.DeploymentFilter) int
-		Elevations                func(childComplexity int, input elevation.ElevationInput) int
 		Environment               func(childComplexity int, name string) int
 		Environments              func(childComplexity int, orderBy *environment.EnvironmentOrder) int
 		Features                  func(childComplexity int) int
@@ -2571,6 +2570,7 @@ type ComplexityRoot struct {
 	}
 
 	User struct {
+		Elevations func(childComplexity int, input elevation.ElevationInput) int
 		Email      func(childComplexity int) int
 		ExternalID func(childComplexity int) int
 		ID         func(childComplexity int) int
@@ -8210,18 +8210,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Query.Deployments(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["filter"].(*deployment.DeploymentFilter)), true
 
-	case "Query.elevations":
-		if e.complexity.Query.Elevations == nil {
-			break
-		}
-
-		args, err := ec.field_Query_elevations_args(ctx, rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.Elevations(childComplexity, args["input"].(elevation.ElevationInput)), true
-
 	case "Query.environment":
 		if e.complexity.Query.Environment == nil {
 			break
@@ -13550,6 +13538,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.UpdateValkeyPayload.Valkey(childComplexity), true
 
+	case "User.elevations":
+		if e.complexity.User.Elevations == nil {
+			break
+		}
+
+		args, err := ec.field_User_elevations_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.User.Elevations(childComplexity, args["input"].(elevation.ElevationInput)), true
+
 	case "User.email":
 		if e.complexity.User.Email == nil {
 			break
@@ -17685,9 +17685,9 @@ type ElevationCreatedActivityLogEntry implements ActivityLogEntry & Node {
 	data: ElevationCreatedActivityLogEntryData!
 }
 
-extend type Query {
+extend type User {
 	"""
-	Get active elevations for the current user matching the given parameters.
+	Get active elevations for this user matching the given parameters.
 	All parameters are optional filters - omit to match all.
 	Returns an empty list if no active elevations match.
 	"""

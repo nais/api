@@ -195,7 +195,9 @@ func (r *Resolver) WorkloadCostSample() gengql.WorkloadCostSampleResolver {
 	return &workloadCostSampleResolver{r}
 }
 
-type teamCostResolver struct{ *Resolver }
-type teamEnvironmentCostResolver struct{ *Resolver }
-type workloadCostResolver struct{ *Resolver }
-type workloadCostSampleResolver struct{ *Resolver }
+type (
+	teamCostResolver            struct{ *Resolver }
+	teamEnvironmentCostResolver struct{ *Resolver }
+	workloadCostResolver        struct{ *Resolver }
+	workloadCostSampleResolver  struct{ *Resolver }
+)

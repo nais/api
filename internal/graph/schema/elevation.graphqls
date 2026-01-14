@@ -234,9 +234,9 @@ type ElevationCreatedActivityLogEntry implements ActivityLogEntry & Node {
 	data: ElevationCreatedActivityLogEntryData!
 }
 
-extend type Query {
+extend type User {
 	"""
-	Get active elevations for the current user matching the given parameters.
+	Get active elevations for this user matching the given parameters.
 	All parameters are optional filters - omit to match all.
 	Returns an empty list if no active elevations match.
 	"""

@@ -140,5 +140,7 @@ func (r *Resolver) UnleashInstanceMetrics() gengql.UnleashInstanceMetricsResolve
 	return &unleashInstanceMetricsResolver{r}
 }
 
-type unleashInstanceResolver struct{ *Resolver }
-type unleashInstanceMetricsResolver struct{ *Resolver }
+type (
+	unleashInstanceResolver        struct{ *Resolver }
+	unleashInstanceMetricsResolver struct{ *Resolver }
+)

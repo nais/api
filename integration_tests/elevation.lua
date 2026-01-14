@@ -3,37 +3,8 @@ Helper.readK8sResources("k8s_resources/elevation")
 local user = User.new("username-1", "user@example.com", "e")
 local otherUser = User.new("username-2", "user2@example.com", "e2")
 
-Test.gql("Create team for elevation tests", function(t)
-	t.addHeader("x-user-email", user:email())
-
-	t.query [[
-		mutation {
-			createTeam(
-				input: {
-					slug: "myteam"
-					purpose: "some purpose"
-					slackChannel: "#channel"
-				}
-			) {
-				team {
-					id
-					slug
-				}
-			}
-		}
-	]]
-
-	t.check {
-		data = {
-			createTeam = {
-				team = {
-					id = Save("teamID"),
-					slug = "myteam",
-				},
-			},
-		},
-	}
-end)
+local team = Team.new("myteam", "Elevation test team", "#myteam")
+team:addOwner(user)
 
 Test.gql("Create elevation for secret - success", function(t)
 	t.addHeader("x-user-email", user:email())
@@ -95,28 +66,34 @@ Test.gql("Query elevations - find created elevation", function(t)
 
 	t.query [[
 		query {
-			elevations(input: {
-				type: SECRET
-				team: "myteam"
-				environmentName: "dev"
-				resourceName: "test-secret"
-			}) {
-				id
-				type
-				resourceName
-				reason
+			me {
+				... on User {
+					elevations(input: {
+						type: SECRET
+						team: "myteam"
+						environmentName: "dev"
+						resourceName: "test-secret"
+					}) {
+						id
+						type
+						resourceName
+						reason
+					}
+				}
 			}
 		}
 	]]
 
 	t.check {
 		data = {
-			elevations = {
-				{
-					id = State.elevationID,
-					type = "SECRET",
-					resourceName = "test-secret",
-					reason = "Need to debug database connection issues",
+			me = {
+				elevations = {
+					{
+						id = State.elevationID,
+						type = "SECRET",
+						resourceName = "test-secret",
+						reason = "Need to debug database connection issues",
+					},
 				},
 			},
 		},
@@ -357,20 +334,26 @@ Test.gql("Query elevations - empty when no match", function(t)
 
 	t.query [[
 		query {
-			elevations(input: {
-				type: SECRET
-				team: "myteam"
-				environmentName: "dev"
-				resourceName: "nonexistent-secret"
-			}) {
-				id
+			me {
+				... on User {
+					elevations(input: {
+						type: SECRET
+						team: "myteam"
+						environmentName: "dev"
+						resourceName: "nonexistent-secret"
+					}) {
+						id
+					}
+				}
 			}
 		}
 	]]
 
 	t.check {
 		data = {
-			elevations = {},
+			me = {
+				elevations = {},
+			},
 		},
 	}
 end)
@@ -380,20 +363,26 @@ Test.gql("Query elevations - other user sees empty list", function(t)
 
 	t.query [[
 		query {
-			elevations(input: {
-				type: SECRET
-				team: "myteam"
-				environmentName: "dev"
-				resourceName: "test-secret"
-			}) {
-				id
+			me {
+				... on User {
+					elevations(input: {
+						type: SECRET
+						team: "myteam"
+						environmentName: "dev"
+						resourceName: "test-secret"
+					}) {
+						id
+					}
+				}
 			}
 		}
 	]]
 
 	t.check {
 		data = {
-			elevations = {},
+			me = {
+				elevations = {},
+			},
 		},
 	}
 end)
