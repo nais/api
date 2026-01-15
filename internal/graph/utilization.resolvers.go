@@ -98,7 +98,9 @@ func (r *Resolver) WorkloadUtilizationData() gengql.WorkloadUtilizationDataResol
 	return &workloadUtilizationDataResolver{r}
 }
 
-type teamServiceUtilizationResolver struct{ *Resolver }
-type teamUtilizationDataResolver struct{ *Resolver }
-type workloadUtilizationResolver struct{ *Resolver }
-type workloadUtilizationDataResolver struct{ *Resolver }
+type (
+	teamServiceUtilizationResolver  struct{ *Resolver }
+	teamUtilizationDataResolver     struct{ *Resolver }
+	workloadUtilizationResolver     struct{ *Resolver }
+	workloadUtilizationDataResolver struct{ *Resolver }
+)
