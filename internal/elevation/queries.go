@@ -9,6 +9,7 @@ import (
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/database"
+	"github.com/nais/api/internal/environmentmapper"
 	"github.com/nais/api/internal/slug"
 	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -45,7 +46,7 @@ func Create(ctx context.Context, input *CreateElevationInput, actor *authz.Actor
 	}
 
 	clients := fromContext(ctx)
-	k8sClient, exists := clients.GetClient(input.EnvironmentName)
+	k8sClient, exists := clients.GetClient(environmentmapper.ClusterName(input.EnvironmentName))
 	if !exists {
 		return nil, ErrEnvironmentNotFound
 	}
@@ -256,7 +257,7 @@ func logElevationCreated(ctx context.Context, elevationID, namespace string, inp
 func Get(ctx context.Context, teamSlug slug.Slug, environmentName, elevationID string) (*Elevation, error) {
 	clients := fromContext(ctx)
 
-	k8sClient, exists := clients.GetClient(environmentName)
+	k8sClient, exists := clients.GetClient(environmentmapper.ClusterName(environmentName))
 	if !exists {
 		return nil, ErrEnvironmentNotFound
 	}
@@ -281,7 +282,7 @@ func Get(ctx context.Context, teamSlug slug.Slug, environmentName, elevationID s
 func List(ctx context.Context, input *ElevationInput, userEmail string) ([]*Elevation, error) {
 	clients := fromContext(ctx)
 
-	k8sClient, exists := clients.GetClient(input.EnvironmentName)
+	k8sClient, exists := clients.GetClient(environmentmapper.ClusterName(input.EnvironmentName))
 	if !exists {
 		return []*Elevation{}, nil // Environment not found, return empty list
 	}
