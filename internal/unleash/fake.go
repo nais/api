@@ -139,38 +139,36 @@ func (f *FakeBifrostClient) ListInstances(_ context.Context) (*bifrostclient.Lis
 }
 
 func (f *FakeBifrostClient) ListChannels(_ context.Context) (*bifrostclient.ListChannelsResponse, error) {
-	stableType := "sequential"
-	rapidType := "canary"
-	regularType := "sequential"
+	sequentialType := "sequential"
 
 	stableTime := time.Date(2024, 3, 15, 10, 30, 0, 0, time.UTC)
-	rapidTime := time.Date(2024, 3, 20, 14, 15, 0, 0, time.UTC)
 	regularTime := time.Date(2024, 3, 10, 8, 0, 0, 0, time.UTC)
+	legacyTime := time.Date(2024, 1, 5, 12, 0, 0, 0, time.UTC)
 
 	channels := []bifrostclient.ReleaseChannelResponse{
 		{
 			Name:           "stable",
-			Image:          "unleash:5.11.0",
-			CurrentVersion: "5.11.0",
-			Type:           &stableType,
+			Image:          "unleash:7.1.0",
+			CurrentVersion: "7.1.0",
+			Type:           &sequentialType,
 			LastUpdated:    &stableTime,
 			CreatedAt:      stableTime,
 		},
 		{
-			Name:           "rapid",
-			Image:          "unleash:5.12.0-beta.1",
-			CurrentVersion: "5.12.0-beta.1",
-			Type:           &rapidType,
-			LastUpdated:    &rapidTime,
-			CreatedAt:      rapidTime,
-		},
-		{
 			Name:           "regular",
-			Image:          "unleash:5.10.2",
-			CurrentVersion: "5.10.2",
-			Type:           &regularType,
+			Image:          "unleash:6.5.2",
+			CurrentVersion: "6.5.2",
+			Type:           &sequentialType,
 			LastUpdated:    &regularTime,
 			CreatedAt:      regularTime,
+		},
+		{
+			Name:           "legacy",
+			Image:          "unleash:5.10.2",
+			CurrentVersion: "5.10.2",
+			Type:           &sequentialType,
+			LastUpdated:    &legacyTime,
+			CreatedAt:      legacyTime,
 		},
 	}
 
@@ -183,11 +181,20 @@ func (f *FakeBifrostClient) GetChannel(_ context.Context, name string) (*bifrost
 	channelType := "sequential"
 	lastUpdated := time.Date(2024, 3, 15, 10, 30, 0, 0, time.UTC)
 
+	// Default to stable channel version
+	version := "7.1.0"
+	switch name {
+	case "regular":
+		version = "6.5.2"
+	case "legacy":
+		version = "5.10.2"
+	}
+
 	return &bifrostclient.GetChannelResponse{
 		JSON200: &bifrostclient.ReleaseChannelResponse{
 			Name:           name,
-			Image:          "unleash:5.11.0",
-			CurrentVersion: "5.11.0",
+			Image:          "unleash:" + version,
+			CurrentVersion: version,
 			Type:           &channelType,
 			LastUpdated:    &lastUpdated,
 			CreatedAt:      lastUpdated,

@@ -308,16 +308,16 @@ Test.gql("Get release channels", function(t)
 			unleashReleaseChannels = {
 				{
 					name = "stable",
-					currentVersion = "5.11.0",
+					currentVersion = "7.1.0",
 					type = "sequential",
 				},
 				{
-					name = "rapid",
-					currentVersion = "5.12.0-beta.1",
-					type = "canary",
+					name = "regular",
+					currentVersion = "6.5.2",
+					type = "sequential",
 				},
 				{
-					name = "regular",
+					name = "legacy",
 					currentVersion = "5.10.2",
 					type = "sequential",
 				},

@@ -131,14 +131,11 @@ type UnleashInstance implements Node {
 	metrics: UnleashInstanceMetrics!
 	ready: Boolean!
 
-	"""
-	Release channel name if using channel-based version management.
-	Populated from CRD spec.releaseChannel.name field.
-	"""
-	releaseChannelName: String
+	"Release channel name for automatic version updates."
+	releaseChannelName: String!
 
 	"""
-	Release channel details if using channel-based version management.
+	Release channel details.
 	Returns the full release channel object with current version and update policy.
 	"""
 	releaseChannel: UnleashReleaseChannel

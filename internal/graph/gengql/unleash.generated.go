@@ -526,9 +526,9 @@ func (ec *executionContext) _UnleashInstance_releaseChannelName(ctx context.Cont
 			return obj.ReleaseChannelName(), nil
 		},
 		nil,
-		ec.marshalOString2ᚖstring,
+		ec.marshalNString2ᚖstring,
 		true,
-		false,
+		true,
 	)
 }
 
@@ -2148,6 +2148,9 @@ func (ec *executionContext) _UnleashInstance(ctx context.Context, sel ast.Select
 			}
 		case "releaseChannelName":
 			out.Values[i] = ec._UnleashInstance_releaseChannelName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		case "releaseChannel":
 			field := field
 
@@ -2815,6 +2818,20 @@ func (ec *executionContext) marshalNRevokeTeamAccessToUnleashPayload2ᚖgithub�
 		return graphql.Null
 	}
 	return ec._RevokeTeamAccessToUnleashPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNUnleashInstance2githubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐUnleashInstance(ctx context.Context, sel ast.SelectionSet, v unleash.UnleashInstance) graphql.Marshaler {
+	return ec._UnleashInstance(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNUnleashInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐUnleashInstance(ctx context.Context, sel ast.SelectionSet, v *unleash.UnleashInstance) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._UnleashInstance(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNUnleashInstanceMetrics2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐUnleashInstanceMetrics(ctx context.Context, sel ast.SelectionSet, v *unleash.UnleashInstanceMetrics) graphql.Marshaler {
