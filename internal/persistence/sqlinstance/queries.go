@@ -220,7 +220,6 @@ func GrantPostgresAccess(ctx context.Context, input GrantPostgresAccessInput) er
 	until := time.Now().Add(d)
 
 	labels := make(map[string]string)
-	labels["euthanaisa.nais.io/enabled"] = "true"
 	labels["euthanaisa.nais.io/kill-after"] = strconv.FormatInt(until.Unix(), 10)
 	labels["postgres.data.nais.io/name"] = input.ClusterName
 

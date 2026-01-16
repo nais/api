@@ -19,10 +19,9 @@ import (
 )
 
 const (
-	labelElevation         = "nais.io/elevation"
-	labelElevationType     = "nais.io/elevation-type"
-	labelEuthanaisaEnabled = "euthanaisa.nais.io/enabled"
-	labelKillAfter         = "euthanaisa.nais.io/kill-after"
+	labelElevation     = "nais.io/elevation"
+	labelElevationType = "nais.io/elevation-type"
+	labelKillAfter     = "euthanaisa.nais.io/kill-after"
 	annotationElevationResource  = "nais.io/elevation-resource"
 	annotationElevationUser      = "nais.io/elevation-user"
 	annotationElevationReason    = "nais.io/elevation-reason"
@@ -145,10 +144,9 @@ func buildRoleUnstructured(elevationID, namespace string, input *CreateElevation
 				"name":      elevationID,
 				"namespace": namespace,
 				"labels": map[string]any{
-					labelElevation:         "true",
-					labelElevationType:     string(input.Type),
-					labelEuthanaisaEnabled: "true",
-					labelKillAfter:         strconv.FormatInt(expiresAt.Unix(), 10),
+					labelElevation:     "true",
+					labelElevationType: string(input.Type),
+					labelKillAfter:     strconv.FormatInt(expiresAt.Unix(), 10),
 				},
 				"annotations": map[string]any{
 					annotationElevationResource:  input.ResourceName,
@@ -173,9 +171,8 @@ func buildRoleBindingUnstructured(elevationID, namespace string, actor *authz.Ac
 				"name":      elevationID,
 				"namespace": namespace,
 				"labels": map[string]any{
-					labelElevation:         "true",
-					labelEuthanaisaEnabled: "true",
-					labelKillAfter:         strconv.FormatInt(expiresAt.Unix(), 10),
+					labelElevation: "true",
+					labelKillAfter: strconv.FormatInt(expiresAt.Unix(), 10),
 				},
 				"annotations": map[string]any{
 					annotationElevationCreated: createdAt.Format(time.RFC3339),
