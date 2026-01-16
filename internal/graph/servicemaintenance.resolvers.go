@@ -142,7 +142,5 @@ func (r *Resolver) ValkeyMaintenance() gengql.ValkeyMaintenanceResolver {
 	return &valkeyMaintenanceResolver{r}
 }
 
-type (
-	openSearchMaintenanceResolver struct{ *Resolver }
-	valkeyMaintenanceResolver     struct{ *Resolver }
-)
+type openSearchMaintenanceResolver struct{ *Resolver }
+type valkeyMaintenanceResolver struct{ *Resolver }

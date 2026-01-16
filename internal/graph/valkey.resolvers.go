@@ -119,7 +119,5 @@ func (r *Resolver) Valkey() gengql.ValkeyResolver { return &valkeyResolver{r} }
 
 func (r *Resolver) ValkeyAccess() gengql.ValkeyAccessResolver { return &valkeyAccessResolver{r} }
 
-type (
-	valkeyResolver       struct{ *Resolver }
-	valkeyAccessResolver struct{ *Resolver }
-)
+type valkeyResolver struct{ *Resolver }
+type valkeyAccessResolver struct{ *Resolver }

@@ -20401,8 +20401,8 @@ type Secret implements Node {
 	"The names of the keys in the secret. This does not require elevation to access."
 	keys: [String!]!
 
-	"The secret values contained within the secret. Requires elevation to access the values."
-	values: [SecretValue!]!
+	"The secret values contained within the secret. Requires elevation to access the values. Returns null if not authorized."
+	values: [SecretValue!]
 
 	"Applications that use the secret."
 	applications(
