@@ -128,6 +128,10 @@ func (r *secretResolver) Team(ctx context.Context, obj *secret.Secret) (*team.Te
 	return team.Get(ctx, obj.TeamSlug)
 }
 
+func (r *secretResolver) Keys(ctx context.Context, obj *secret.Secret) ([]string, error) {
+	return secret.GetSecretKeys(ctx, obj.TeamSlug, environmentmapper.ClusterName(obj.EnvironmentName), obj.Name)
+}
+
 func (r *secretResolver) Values(ctx context.Context, obj *secret.Secret) ([]*secret.SecretValue, error) {
 	if err := authz.CanReadSecrets(ctx, obj.TeamSlug); err != nil {
 		return nil, err
