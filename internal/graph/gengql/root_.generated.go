@@ -1636,6 +1636,7 @@ type ComplexityRoot struct {
 		Environment     func(childComplexity int) int
 		ID              func(childComplexity int) int
 		Jobs            func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Keys            func(childComplexity int) int
 		LastModifiedAt  func(childComplexity int) int
 		LastModifiedBy  func(childComplexity int) int
 		Name            func(childComplexity int) int
@@ -9441,6 +9442,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Secret.Jobs(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
+
+	case "Secret.keys":
+		if e.complexity.Secret.Keys == nil {
+			break
+		}
+
+		return e.complexity.Secret.Keys(childComplexity), true
 
 	case "Secret.lastModifiedAt":
 		if e.complexity.Secret.LastModifiedAt == nil {
@@ -20390,7 +20398,10 @@ type Secret implements Node {
 	"The team that owns the secret."
 	team: Team!
 
-	"The secret values contained within the secret."
+	"The names of the keys in the secret. This does not require elevation to access."
+	keys: [String!]!
+
+	"The secret values contained within the secret. Requires elevation to access the values."
 	values: [SecretValue!]!
 
 	"Applications that use the secret."

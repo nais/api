@@ -281,9 +281,10 @@ func ConfigureGraph(
 
 	var podLogStreamer podlog.Streamer
 	var secretClientCreator secret.ClientCreator
+	var secretSAClientCreator secret.ServiceAccountClientCreator
 	if fakes.WithFakeKubernetes {
 		podLogStreamer = fakepodlog.NewLogStreamer()
-		secretClientCreator = secret.CreatorFromClients(watcherMgr.GetDynamicClients())
+		secretClientCreator, secretSAClientCreator = secret.CreatorFromClients(watcherMgr.GetDynamicClients())
 	} else {
 		clients, err := apik8s.NewClientSets(k8sClients)
 		if err != nil {
@@ -291,6 +292,7 @@ func ConfigureGraph(
 		}
 		podLogStreamer = podlog.NewLogStreamer(clients, log)
 		secretClientCreator = secret.CreatorFromConfig(ctx, k8sClients)
+		secretSAClientCreator = secret.ServiceAccountCreatorFromConfig(k8sClients)
 	}
 
 	elevationClients := watcherMgr.GetDynamicClients()
@@ -314,7 +316,7 @@ func ConfigureGraph(
 		ctx = job.NewLoaderContext(ctx, watchers.JobWatcher, watchers.RunWatcher)
 		ctx = kafkatopic.NewLoaderContext(ctx, watchers.KafkaTopicWatcher)
 		ctx = workload.NewLoaderContext(ctx, watchers.PodWatcher)
-		ctx = secret.NewLoaderContext(ctx, secretClientCreator, clusters, log)
+		ctx = secret.NewLoaderContext(ctx, secretClientCreator, secretSAClientCreator, clusters, log)
 		ctx = aiven.NewLoaderContext(ctx, aivenProjects)
 		ctx = opensearch.NewLoaderContext(ctx, tenantName, watchers.OpenSearchWatcher, aivenClient, log)
 		ctx = valkey.NewLoaderContext(ctx, tenantName, watchers.ValkeyWatcher, aivenClient)

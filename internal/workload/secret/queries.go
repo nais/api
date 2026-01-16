@@ -3,6 +3,7 @@ package secret
 import (
 	"context"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"slices"
 	"strings"
@@ -23,12 +24,13 @@ import (
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/validation"
 	"k8s.io/utils/ptr"
 )
 
 func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName string, workload workload.Workload, page *pagination.Pagination) (*SecretConnection, error) {
-	client, err := fromContext(ctx).Client(ctx, environmentName)
+	client, err := fromContext(ctx).ServiceAccountClient(environmentName)
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +62,7 @@ func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName st
 }
 
 func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *SecretOrder, filter *SecretFilter) (*SecretConnection, error) {
-	clients, err := fromContext(ctx).Clients(ctx)
+	clients, err := fromContext(ctx).ServiceAccountClients()
 	if err != nil {
 		return nil, err
 	}
@@ -107,7 +109,7 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 }
 
 func Get(ctx context.Context, teamSlug slug.Slug, environment, name string) (*Secret, error) {
-	client, err := fromContext(ctx).Client(ctx, environment)
+	client, err := fromContext(ctx).ServiceAccountClient(environment)
 	if err != nil {
 		return nil, err
 	}
@@ -132,6 +134,33 @@ func GetByIdent(ctx context.Context, id ident.Ident) (*Secret, error) {
 	return Get(ctx, teamSlug, env, name)
 }
 
+// GetSecretKeys returns only the key names from a secret using the service account client.
+// This does not require elevation as it does not return the actual values.
+func GetSecretKeys(ctx context.Context, teamSlug slug.Slug, environmentName, name string) ([]string, error) {
+	client, err := fromContext(ctx).ServiceAccountClient(environmentName)
+	if err != nil {
+		return nil, err
+	}
+
+	u, err := client.Namespace(teamSlug.String()).Get(ctx, name, v1.GetOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	data, _, _ := unstructured.NestedMap(u.Object, "data")
+
+	keys := make([]string, 0, len(data))
+	for k := range data {
+		keys = append(keys, k)
+	}
+
+	slices.Sort(keys)
+
+	return keys, nil
+}
+
+// GetSecretValues returns the secret values using an impersonated client.
+// This requires elevation as it returns the actual secret values.
 func GetSecretValues(ctx context.Context, teamSlug slug.Slug, environmentName, name string) ([]*SecretValue, error) {
 	client, err := fromContext(ctx).Client(ctx, environmentName)
 	if err != nil {
@@ -169,7 +198,7 @@ func GetSecretValues(ctx context.Context, teamSlug slug.Slug, environmentName, n
 }
 
 func Create(ctx context.Context, teamSlug slug.Slug, environment, name string) (*Secret, error) {
-	client, err := fromContext(ctx).Client(ctx, environment)
+	client, err := fromContext(ctx).ServiceAccountClient(environment)
 	if err != nil {
 		return nil, err
 	}
@@ -228,27 +257,12 @@ func AddSecretValue(ctx context.Context, teamSlug slug.Slug, environment, secret
 		return nil, err
 	}
 
-	secretValues, err := GetSecretValues(ctx, teamSlug, environment, secretName)
+	client, err := fromContext(ctx).ServiceAccountClient(environment)
 	if err != nil {
 		return nil, err
 	}
 
-	for _, v := range secretValues {
-		if v.Name == valueToAdd.Name {
-			return nil, apierror.Errorf("The secret already contains a secret value with the name %q.", valueToAdd.Name)
-		}
-	}
-
-	secretValues = append(secretValues, &SecretValue{
-		Name:  valueToAdd.Name,
-		Value: valueToAdd.Value,
-	})
-
-	client, err := fromContext(ctx).Client(ctx, environment)
-	if err != nil {
-		return nil, err
-	}
-
+	// First check if the secret exists and is managed by console (without reading values)
 	obj, err := client.Namespace(teamSlug.String()).Get(ctx, secretName, v1.GetOptions{})
 	if err != nil {
 		return nil, err
@@ -258,24 +272,38 @@ func AddSecretValue(ctx context.Context, teamSlug slug.Slug, environment, secret
 		return nil, ErrUnmanaged
 	}
 
-	secret := &corev1.Secret{}
-	if err = runtime.DefaultUnstructuredConverter.FromUnstructured(obj.Object, secret); err != nil {
-		return nil, err
+	// Check if key already exists by looking at data keys (not values)
+	data, dataExists, _ := unstructured.NestedMap(obj.Object, "data")
+	if _, exists := data[valueToAdd.Name]; exists {
+		return nil, apierror.Errorf("The secret already contains a secret value with the name %q.", valueToAdd.Name)
 	}
 
+	// Use JSON Patch to add the new key without reading existing values
 	actor := authz.ActorFromContext(ctx)
-	secret.Annotations = annotations(actor.User.Identity())
-	kubernetes.SetManagedByConsoleLabel(secret)
-	secret.Data = secretTupleToMap(secretValues)
+	encodedValue := base64.StdEncoding.EncodeToString([]byte(valueToAdd.Value))
 
-	unstructeredMap, err := runtime.DefaultUnstructuredConverter.ToUnstructured(secret)
-	if err != nil {
-		return nil, err
+	var patch []map[string]any
+	if !dataExists || data == nil {
+		// If /data doesn't exist, we need to create it first
+		patch = []map[string]any{
+			{"op": "add", "path": "/data", "value": map[string]any{valueToAdd.Name: encodedValue}},
+			{"op": "replace", "path": "/metadata/annotations", "value": annotations(actor.User.Identity())},
+		}
+	} else {
+		patch = []map[string]any{
+			{"op": "add", "path": "/data/" + escapeJSONPointer(valueToAdd.Name), "value": encodedValue},
+			{"op": "replace", "path": "/metadata/annotations", "value": annotations(actor.User.Identity())},
+		}
 	}
 
-	u := &unstructured.Unstructured{Object: unstructeredMap}
-	if _, err := client.Namespace(teamSlug.String()).Update(ctx, u, v1.UpdateOptions{}); err != nil {
-		return nil, err
+	patchBytes, err := json.Marshal(patch)
+	if err != nil {
+		return nil, fmt.Errorf("marshaling patch: %w", err)
+	}
+
+	_, err = client.Namespace(teamSlug.String()).Patch(ctx, secretName, types.JSONPatchType, patchBytes, v1.PatchOptions{})
+	if err != nil {
+		return nil, fmt.Errorf("patching secret: %w", err)
 	}
 
 	err = activitylog.Create(ctx, activitylog.CreateInput{
@@ -301,28 +329,12 @@ func UpdateSecretValue(ctx context.Context, teamSlug slug.Slug, environment, sec
 		return nil, err
 	}
 
-	secretValues, err := GetSecretValues(ctx, teamSlug, environment, secretName)
+	client, err := fromContext(ctx).ServiceAccountClient(environment)
 	if err != nil {
 		return nil, err
 	}
 
-	found := false
-	for i, v := range secretValues {
-		if v.Name == valueToUpdate.Name {
-			found = true
-			secretValues[i].Value = valueToUpdate.Value
-			break
-		}
-	}
-	if !found {
-		return nil, apierror.Errorf("The secret does not contain a secret value with the name %q.", valueToUpdate.Name)
-	}
-
-	client, err := fromContext(ctx).Client(ctx, environment)
-	if err != nil {
-		return nil, err
-	}
-
+	// Check if the secret exists and is managed by console
 	obj, err := client.Namespace(teamSlug.String()).Get(ctx, secretName, v1.GetOptions{})
 	if err != nil {
 		return nil, err
@@ -332,24 +344,29 @@ func UpdateSecretValue(ctx context.Context, teamSlug slug.Slug, environment, sec
 		return nil, ErrUnmanaged
 	}
 
-	secret := &corev1.Secret{}
-	if err = runtime.DefaultUnstructuredConverter.FromUnstructured(obj.Object, secret); err != nil {
-		return nil, err
+	// Check if key exists by looking at data keys (not values)
+	data, _, _ := unstructured.NestedMap(obj.Object, "data")
+	if _, exists := data[valueToUpdate.Name]; !exists {
+		return nil, apierror.Errorf("The secret does not contain a secret value with the name %q.", valueToUpdate.Name)
 	}
 
+	// Use JSON Patch to update the key without reading other values
 	actor := authz.ActorFromContext(ctx)
-	secret.Annotations = annotations(actor.User.Identity())
-	kubernetes.SetManagedByConsoleLabel(secret)
-	secret.Data = secretTupleToMap(secretValues)
+	encodedValue := base64.StdEncoding.EncodeToString([]byte(valueToUpdate.Value))
 
-	unstructeredMap, err := runtime.DefaultUnstructuredConverter.ToUnstructured(secret)
-	if err != nil {
-		return nil, err
+	patch := []map[string]any{
+		{"op": "replace", "path": "/data/" + escapeJSONPointer(valueToUpdate.Name), "value": encodedValue},
+		{"op": "replace", "path": "/metadata/annotations", "value": annotations(actor.User.Identity())},
 	}
 
-	u := &unstructured.Unstructured{Object: unstructeredMap}
-	if _, err := client.Namespace(teamSlug.String()).Update(ctx, u, v1.UpdateOptions{}); err != nil {
-		return nil, err
+	patchBytes, err := json.Marshal(patch)
+	if err != nil {
+		return nil, fmt.Errorf("marshaling patch: %w", err)
+	}
+
+	_, err = client.Namespace(teamSlug.String()).Patch(ctx, secretName, types.JSONPatchType, patchBytes, v1.PatchOptions{})
+	if err != nil {
+		return nil, fmt.Errorf("patching secret: %w", err)
 	}
 
 	err = activitylog.Create(ctx, activitylog.CreateInput{
@@ -371,23 +388,12 @@ func UpdateSecretValue(ctx context.Context, teamSlug slug.Slug, environment, sec
 }
 
 func RemoveSecretValue(ctx context.Context, teamSlug slug.Slug, environment, secretName, valueName string) (*Secret, error) {
-	secretValues, err := GetSecretValues(ctx, teamSlug, environment, secretName)
+	client, err := fromContext(ctx).ServiceAccountClient(environment)
 	if err != nil {
 		return nil, err
 	}
 
-	secretMap := secretTupleToMap(secretValues)
-	if _, exists := secretMap[valueName]; !exists {
-		return nil, apierror.Errorf("The secret does not contain a secret value with the name: %q.", valueName)
-	}
-
-	delete(secretMap, valueName)
-
-	client, err := fromContext(ctx).Client(ctx, environment)
-	if err != nil {
-		return nil, err
-	}
-
+	// Check if the secret exists and is managed by console
 	obj, err := client.Namespace(teamSlug.String()).Get(ctx, secretName, v1.GetOptions{})
 	if err != nil {
 		return nil, err
@@ -397,24 +403,28 @@ func RemoveSecretValue(ctx context.Context, teamSlug slug.Slug, environment, sec
 		return nil, ErrUnmanaged
 	}
 
-	secret := &corev1.Secret{}
-	if err = runtime.DefaultUnstructuredConverter.FromUnstructured(obj.Object, secret); err != nil {
-		return nil, err
+	// Check if key exists by looking at data keys (not values)
+	data, _, _ := unstructured.NestedMap(obj.Object, "data")
+	if _, exists := data[valueName]; !exists {
+		return nil, apierror.Errorf("The secret does not contain a secret value with the name: %q.", valueName)
 	}
 
+	// Use JSON Patch to remove the key without reading values
 	actor := authz.ActorFromContext(ctx)
-	secret.Annotations = annotations(actor.User.Identity())
-	kubernetes.SetManagedByConsoleLabel(secret)
-	secret.Data = secretMap
 
-	unstructeredMap, err := runtime.DefaultUnstructuredConverter.ToUnstructured(secret)
-	if err != nil {
-		return nil, err
+	patch := []map[string]any{
+		{"op": "remove", "path": "/data/" + escapeJSONPointer(valueName)},
+		{"op": "replace", "path": "/metadata/annotations", "value": annotations(actor.User.Identity())},
 	}
 
-	u := &unstructured.Unstructured{Object: unstructeredMap}
-	if _, err := client.Namespace(teamSlug.String()).Update(ctx, u, v1.UpdateOptions{}); err != nil {
-		return nil, err
+	patchBytes, err := json.Marshal(patch)
+	if err != nil {
+		return nil, fmt.Errorf("marshaling patch: %w", err)
+	}
+
+	_, err = client.Namespace(teamSlug.String()).Patch(ctx, secretName, types.JSONPatchType, patchBytes, v1.PatchOptions{})
+	if err != nil {
+		return nil, fmt.Errorf("patching secret: %w", err)
 	}
 
 	err = activitylog.Create(ctx, activitylog.CreateInput{
@@ -436,7 +446,7 @@ func RemoveSecretValue(ctx context.Context, teamSlug slug.Slug, environment, sec
 }
 
 func Delete(ctx context.Context, teamSlug slug.Slug, environment, name string) error {
-	client, err := fromContext(ctx).Client(ctx, environment)
+	client, err := fromContext(ctx).ServiceAccountClient(environment)
 	if err != nil {
 		return err
 	}
@@ -503,4 +513,12 @@ func secretIsManagedByConsole(secret *unstructured.Unstructured) bool {
 	hasFinalizers := len(secret.GetFinalizers()) > 0
 
 	return hasConsoleLabel && isOpaque && !hasOwnerReferences && !hasFinalizers
+}
+
+// escapeJSONPointer escapes special characters in JSON Pointer (RFC 6901)
+// ~ becomes ~0, / becomes ~1
+func escapeJSONPointer(s string) string {
+	s = strings.ReplaceAll(s, "~", "~0")
+	s = strings.ReplaceAll(s, "/", "~1")
+	return s
 }
