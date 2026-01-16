@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"hash/crc32"
+	"strconv"
 	"time"
 
 	"github.com/nais/api/internal/activitylog"
@@ -217,10 +218,10 @@ func GrantPostgresAccess(ctx context.Context, input GrantPostgresAccessInput) er
 		return fmt.Errorf("parsing TTL: %w", err)
 	}
 	until := time.Now().Add(d)
-	annotations["euthanaisa.nais.io/kill-after"] = until.Format(time.RFC3339)
 
 	labels := make(map[string]string)
 	labels["euthanaisa.nais.io/enabled"] = "true"
+	labels["euthanaisa.nais.io/kill-after"] = strconv.FormatInt(until.Unix(), 10)
 	labels["postgres.data.nais.io/name"] = input.ClusterName
 
 	err = createRole(ctx, input, name, namespace, annotations, labels)
