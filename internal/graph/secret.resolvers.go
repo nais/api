@@ -128,10 +128,6 @@ func (r *secretResolver) Team(ctx context.Context, obj *secret.Secret) (*team.Te
 	return team.Get(ctx, obj.TeamSlug)
 }
 
-func (r *secretResolver) Keys(ctx context.Context, obj *secret.Secret) ([]string, error) {
-	return obj.Keys, nil
-}
-
 func (r *secretResolver) Values(ctx context.Context, obj *secret.Secret) ([]*secret.SecretValue, error) {
 	if err := authz.CanReadSecrets(ctx, obj.TeamSlug); err != nil {
 		return nil, err
@@ -216,11 +212,10 @@ func (r *secretResolver) LastModifiedBy(ctx context.Context, obj *secret.Secret)
 	return user.GetByEmail(ctx, *obj.ModifiedByUserEmail)
 }
 
+// Secrets returns all secrets for a team.
+// Secret metadata (names, keys) is visible to all authenticated users.
+// Secret values require team membership and elevation.
 func (r *teamResolver) Secrets(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *secret.SecretOrder, filter *secret.SecretFilter) (*pagination.Connection[*secret.Secret], error) {
-	if err := authz.CanReadSecrets(ctx, obj.Slug); err != nil {
-		return nil, nil
-	}
-
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
@@ -229,14 +224,25 @@ func (r *teamResolver) Secrets(ctx context.Context, obj *team.Team, first *int, 
 	return secret.ListForTeam(ctx, obj.Slug, page, orderBy, filter)
 }
 
+// Secret returns a single secret by name.
+// Secret metadata (name, keys) is visible to all authenticated users.
+// Secret values require team membership and elevation.
 func (r *teamEnvironmentResolver) Secret(ctx context.Context, obj *team.TeamEnvironment, name string) (*secret.Secret, error) {
-	if err := authz.CanReadSecrets(ctx, obj.TeamSlug); err != nil {
-		return nil, nil
-	}
-
 	return secret.Get(ctx, obj.TeamSlug, environmentmapper.ClusterName(obj.EnvironmentName), name)
 }
 
 func (r *Resolver) Secret() gengql.SecretResolver { return &secretResolver{r} }
 
 type secretResolver struct{ *Resolver }
+
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//    it when you're done.
+//  - You have helper methods in this file. Move them out to keep these resolver files clean.
+/*
+	func (r *secretResolver) Keys(ctx context.Context, obj *secret.Secret) ([]string, error) {
+	return obj.Keys, nil
+}
+*/
