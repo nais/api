@@ -18,7 +18,6 @@ import (
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/workload"
-	"github.com/sirupsen/logrus"
 	corev1 "k8s.io/api/core/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -29,31 +28,15 @@ import (
 	"k8s.io/utils/ptr"
 )
 
-func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName string, workload workload.Workload, page *pagination.Pagination) (*SecretConnection, error) {
-	client, err := fromContext(ctx).ServiceAccountClient(environmentName)
-	if err != nil {
-		return nil, err
-	}
+func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName string, w workload.Workload, page *pagination.Pagination) (*SecretConnection, error) {
+	secretNames := w.GetSecrets()
+	allSecrets := watcher.Objects(fromContext(ctx).Watcher().GetByNamespace(teamSlug.String(), watcher.InCluster(environmentName)))
 
-	all, err := client.Namespace(teamSlug.String()).List(ctx, v1.ListOptions{
-		LabelSelector: kubernetes.IsManagedByConsoleLabelSelector(),
-	})
-	if err != nil {
-		return nil, fmt.Errorf("listing secret: %w", err)
-	}
-
-	secretNames := workload.GetSecrets()
-
-	ret := make([]*Secret, 0, len(all.Items))
-	for _, u := range all.Items {
-		if !slices.Contains(secretNames, u.GetName()) {
-			continue
+	ret := make([]*Secret, 0, len(allSecrets))
+	for _, s := range allSecrets {
+		if slices.Contains(secretNames, s.Name) {
+			ret = append(ret, s)
 		}
-		s, ok := toGraphSecret(&u, environmentName)
-		if !ok {
-			continue
-		}
-		ret = append(ret, s)
 	}
 
 	SortFilter.Sort(ctx, ret, "NAME", model.OrderDirectionAsc)
@@ -62,37 +45,7 @@ func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName st
 }
 
 func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *SecretOrder, filter *SecretFilter) (*SecretConnection, error) {
-	clients, err := fromContext(ctx).ServiceAccountClients()
-	if err != nil {
-		return nil, err
-	}
-
-	retVal := make([]*Secret, 0)
-	for env, client := range clients {
-		secrets, err := client.Namespace(teamSlug.String()).List(ctx, v1.ListOptions{
-			LabelSelector: kubernetes.IsManagedByConsoleLabelSelector(),
-		})
-
-		if k8serrors.IsForbidden(err) {
-			fromContext(ctx).log.WithFields(logrus.Fields{
-				"team":        teamSlug,
-				"environment": env,
-			}).Infof("skipping secrets listing due to forbidden error")
-			continue
-		}
-
-		if err != nil {
-			return nil, fmt.Errorf("listing secrets for environment %q: %w", env, err)
-		}
-
-		for _, u := range secrets.Items {
-			s, ok := toGraphSecret(&u, env)
-			if !ok {
-				continue
-			}
-			retVal = append(retVal, s)
-		}
-	}
+	allSecrets := watcher.Objects(fromContext(ctx).Watcher().GetByNamespace(teamSlug.String()))
 
 	if orderBy == nil {
 		orderBy = &SecretOrder{
@@ -101,29 +54,19 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 		}
 	}
 
-	retVal = SortFilter.Filter(ctx, retVal, filter)
-	SortFilter.Sort(ctx, retVal, orderBy.Field, orderBy.Direction)
+	filtered := SortFilter.Filter(ctx, allSecrets, filter)
+	SortFilter.Sort(ctx, filtered, orderBy.Field, orderBy.Direction)
 
-	secrets := pagination.Slice(retVal, page)
-	return pagination.NewConnection(secrets, page, len(retVal)), nil
+	secrets := pagination.Slice(filtered, page)
+	return pagination.NewConnection(secrets, page, len(filtered)), nil
 }
 
 func Get(ctx context.Context, teamSlug slug.Slug, environment, name string) (*Secret, error) {
-	client, err := fromContext(ctx).ServiceAccountClient(environment)
+	secret, err := fromContext(ctx).Watcher().Get(environment, teamSlug.String(), name)
 	if err != nil {
 		return nil, err
 	}
-
-	u, err := client.Namespace(teamSlug.String()).Get(ctx, name, v1.GetOptions{})
-	if err != nil {
-		return nil, err
-	}
-
-	s, ok := toGraphSecret(u, environment)
-	if !ok {
-		return nil, &watcher.ErrorNotFound{Cluster: environment, Namespace: teamSlug.String(), Name: name}
-	}
-	return s, nil
+	return secret, nil
 }
 
 func GetByIdent(ctx context.Context, id ident.Ident) (*Secret, error) {
@@ -134,29 +77,16 @@ func GetByIdent(ctx context.Context, id ident.Ident) (*Secret, error) {
 	return Get(ctx, teamSlug, env, name)
 }
 
-// GetSecretKeys returns only the key names from a secret using the service account client.
+// GetSecretKeys returns only the key names from a secret using the cached data.
 // This does not require elevation as it does not return the actual values.
+// The keys are stored in an annotation by the transformer during caching.
 func GetSecretKeys(ctx context.Context, teamSlug slug.Slug, environmentName, name string) ([]string, error) {
-	client, err := fromContext(ctx).ServiceAccountClient(environmentName)
+	secret, err := fromContext(ctx).Watcher().Get(environmentName, teamSlug.String(), name)
 	if err != nil {
 		return nil, err
 	}
 
-	u, err := client.Namespace(teamSlug.String()).Get(ctx, name, v1.GetOptions{})
-	if err != nil {
-		return nil, err
-	}
-
-	data, _, _ := unstructured.NestedMap(u.Object, "data")
-
-	keys := make([]string, 0, len(data))
-	for k := range data {
-		keys = append(keys, k)
-	}
-
-	slices.Sort(keys)
-
-	return keys, nil
+	return secret.Keys, nil
 }
 
 // GetSecretValues returns the secret values using an impersonated client.
@@ -494,14 +424,6 @@ func validateSecretValue(value *SecretValueInput) error {
 	}
 
 	return nil
-}
-
-func secretTupleToMap(data []*SecretValue) map[string][]byte {
-	ret := make(map[string][]byte, len(data))
-	for _, tuple := range data {
-		ret[tuple.Name] = []byte(tuple.Value)
-	}
-	return ret
 }
 
 func secretIsManagedByConsole(secret *unstructured.Unstructured) bool {

@@ -316,7 +316,7 @@ func ConfigureGraph(
 		ctx = job.NewLoaderContext(ctx, watchers.JobWatcher, watchers.RunWatcher)
 		ctx = kafkatopic.NewLoaderContext(ctx, watchers.KafkaTopicWatcher)
 		ctx = workload.NewLoaderContext(ctx, watchers.PodWatcher)
-		ctx = secret.NewLoaderContext(ctx, secretClientCreator, secretSAClientCreator, clusters, log)
+		ctx = secret.NewLoaderContext(ctx, watchers.SecretWatcher, secretClientCreator, secretSAClientCreator, clusters, log)
 		ctx = aiven.NewLoaderContext(ctx, aivenProjects)
 		ctx = opensearch.NewLoaderContext(ctx, tenantName, watchers.OpenSearchWatcher, aivenClient, log)
 		ctx = valkey.NewLoaderContext(ctx, tenantName, watchers.ValkeyWatcher, aivenClient)
