@@ -5247,6 +5247,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_secret(ctx context.Cont
 				return ec.fieldContext_Secret_teamEnvironment(ctx, field)
 			case "team":
 				return ec.fieldContext_Secret_team(ctx, field)
+			case "keys":
+				return ec.fieldContext_Secret_keys(ctx, field)
 			case "values":
 				return ec.fieldContext_Secret_values(ctx, field)
 			case "applications":
