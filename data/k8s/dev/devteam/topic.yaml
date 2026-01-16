@@ -134,7 +134,7 @@ spec:
       application: spesialist
       team: devteam
     - access: readwrite
-      application: spesialist-migrering
+      application: app-migrering
       team: devteam
     - access: readwrite
       application: spinnvill
