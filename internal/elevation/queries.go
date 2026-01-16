@@ -3,6 +3,7 @@ package elevation
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/google/uuid"
@@ -21,8 +22,7 @@ const (
 	labelElevation         = "nais.io/elevation"
 	labelElevationType     = "nais.io/elevation-type"
 	labelEuthanaisaEnabled = "euthanaisa.nais.io/enabled"
-
-	annotationKillAfter          = "euthanaisa.nais.io/kill-after"
+	labelKillAfter         = "euthanaisa.nais.io/kill-after"
 	annotationElevationResource  = "nais.io/elevation-resource"
 	annotationElevationUser      = "nais.io/elevation-user"
 	annotationElevationReason    = "nais.io/elevation-reason"
@@ -148,9 +148,9 @@ func buildRoleUnstructured(elevationID, namespace string, input *CreateElevation
 					labelElevation:         "true",
 					labelElevationType:     string(input.Type),
 					labelEuthanaisaEnabled: "true",
+					labelKillAfter:         strconv.FormatInt(expiresAt.Unix(), 10),
 				},
 				"annotations": map[string]any{
-					annotationKillAfter:          expiresAt.Format(time.RFC3339),
 					annotationElevationResource:  input.ResourceName,
 					annotationElevationUser:      actor.User.Identity(),
 					annotationElevationReason:    input.Reason,
@@ -175,9 +175,9 @@ func buildRoleBindingUnstructured(elevationID, namespace string, actor *authz.Ac
 				"labels": map[string]any{
 					labelElevation:         "true",
 					labelEuthanaisaEnabled: "true",
+					labelKillAfter:         strconv.FormatInt(expiresAt.Unix(), 10),
 				},
 				"annotations": map[string]any{
-					annotationKillAfter:        expiresAt.Format(time.RFC3339),
 					annotationElevationCreated: createdAt.Format(time.RFC3339),
 				},
 			},
@@ -335,10 +335,12 @@ func unstructuredToElevation(role *unstructured.Unstructured, environmentName st
 		createdAt = role.GetCreationTimestamp().Time
 	}
 
-	expiresAtStr := annotations[annotationKillAfter]
-	expiresAt, err := time.Parse(time.RFC3339, expiresAtStr)
-	if err != nil {
+	var expiresAt time.Time
+	expiresAtUnix, parseErr := strconv.ParseInt(labels[labelKillAfter], 10, 64)
+	if parseErr != nil {
 		expiresAt = createdAt.Add(time.Hour)
+	} else {
+		expiresAt = time.Unix(expiresAtUnix, 0)
 	}
 
 	teamSlug := slug.Slug(role.GetNamespace())
