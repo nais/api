@@ -3,12 +3,16 @@ package secret
 import (
 	"context"
 	"fmt"
+	"slices"
 
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/apierror"
+	"github.com/nais/api/internal/kubernetes"
+	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/user"
 	"github.com/sirupsen/logrus"
-	v1 "k8s.io/api/core/v1"
+	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/rest"
 )
@@ -23,8 +27,9 @@ type ClientCreator func(ctx context.Context, environment string) (dynamic.Namesp
 // ServiceAccountClientCreator creates a client using the API's service account (for write operations)
 type ServiceAccountClientCreator func(environment string) (dynamic.NamespaceableResourceInterface, error)
 
-func NewLoaderContext(ctx context.Context, clientCreator ClientCreator, saClientCreator ServiceAccountClientCreator, environments []string, log logrus.FieldLogger) context.Context {
+func NewLoaderContext(ctx context.Context, watcher *watcher.Watcher[*Secret], clientCreator ClientCreator, saClientCreator ServiceAccountClientCreator, environments []string, log logrus.FieldLogger) context.Context {
 	return context.WithValue(ctx, loadersKey, &loaders{
+		watcher:         watcher,
 		clientCreator:   clientCreator,
 		saClientCreator: saClientCreator,
 		log:             log,
@@ -32,15 +37,79 @@ func NewLoaderContext(ctx context.Context, clientCreator ClientCreator, saClient
 	})
 }
 
+func NewWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watcher[*Secret] {
+	w := watcher.Watch(
+		mgr,
+		&Secret{},
+		watcher.WithConverter(func(o *unstructured.Unstructured, environmentName string) (any, bool) {
+			return toGraphSecret(o, environmentName)
+		}),
+		watcher.WithTransformer(transformSecret),
+		watcher.WithInformerFilter(kubernetes.IsManagedByConsoleLabelSelector()),
+		watcher.WithGVR(corev1.SchemeGroupVersion.WithResource("secrets")),
+	)
+	w.Start(ctx)
+	return w
+}
+
+// transformSecret removes secret values from the object before caching,
+// keeping only the key names. This ensures secret values are never stored in memory.
+func transformSecret(in any) (any, error) {
+	secret, ok := in.(*unstructured.Unstructured)
+	if !ok {
+		return nil, fmt.Errorf("expected *unstructured.Unstructured, got %T", in)
+	}
+
+	// Extract key names from data before removing it
+	data, _, _ := unstructured.NestedMap(secret.Object, "data")
+	keys := make([]string, 0, len(data))
+	for k := range data {
+		keys = append(keys, k)
+	}
+	slices.Sort(keys)
+
+	// Remove the actual secret data
+	unstructured.RemoveNestedField(secret.Object, "data")
+	unstructured.RemoveNestedField(secret.Object, "stringData")
+
+	// Store key names in an annotation for later retrieval
+	annotations := secret.GetAnnotations()
+	if annotations == nil {
+		annotations = make(map[string]string)
+	}
+
+	// Store keys as comma-separated list (empty string if no keys)
+	keyList := ""
+	for i, k := range keys {
+		if i > 0 {
+			keyList += ","
+		}
+		keyList += k
+	}
+	annotations[annotationSecretKeys] = keyList
+	secret.SetAnnotations(annotations)
+
+	// Remove other unnecessary fields to reduce memory usage
+	unstructured.RemoveNestedField(secret.Object, "metadata", "managedFields")
+
+	return secret, nil
+}
+
 func fromContext(ctx context.Context) *loaders {
 	return ctx.Value(loadersKey).(*loaders)
 }
 
 type loaders struct {
+	watcher         *watcher.Watcher[*Secret]
 	clientCreator   ClientCreator
 	saClientCreator ServiceAccountClientCreator
 	log             logrus.FieldLogger
 	environments    []string
+}
+
+// Watcher returns the secret watcher
+func (l *loaders) Watcher() *watcher.Watcher[*Secret] {
+	return l.watcher
 }
 
 // Client returns an impersonated client for read operations (requires user to have elevation)
@@ -111,7 +180,7 @@ func CreatorFromConfig(ctx context.Context, configs map[string]*rest.Config) Cli
 			return nil, fmt.Errorf("creating dynamic client: %w", err)
 		}
 
-		return client.Resource(v1.SchemeGroupVersion.WithResource(string(v1.ResourceSecrets))), nil
+		return client.Resource(corev1.SchemeGroupVersion.WithResource(string(corev1.ResourceSecrets))), nil
 	}
 }
 
@@ -137,7 +206,7 @@ func ServiceAccountCreatorFromConfig(configs map[string]*rest.Config) ServiceAcc
 			return nil, fmt.Errorf("creating dynamic client: %w", err)
 		}
 
-		resourceClient := client.Resource(v1.SchemeGroupVersion.WithResource(string(v1.ResourceSecrets)))
+		resourceClient := client.Resource(corev1.SchemeGroupVersion.WithResource(string(corev1.ResourceSecrets)))
 		clients[environment] = resourceClient
 		return resourceClient, nil
 	}
@@ -150,7 +219,7 @@ func CreatorFromClients(clients map[string]dynamic.Interface) (ClientCreator, Se
 		if !exists {
 			return nil, apierror.Errorf("Environment %q does not exist.", environment)
 		}
-		return client.Resource(v1.SchemeGroupVersion.WithResource(string(v1.ResourceSecrets))), nil
+		return client.Resource(corev1.SchemeGroupVersion.WithResource(string(corev1.ResourceSecrets))), nil
 	}
 
 	saClientCreator := func(environment string) (dynamic.NamespaceableResourceInterface, error) {
@@ -158,7 +227,7 @@ func CreatorFromClients(clients map[string]dynamic.Interface) (ClientCreator, Se
 		if !exists {
 			return nil, apierror.Errorf("Environment %q does not exist.", environment)
 		}
-		return client.Resource(v1.SchemeGroupVersion.WithResource(string(v1.ResourceSecrets))), nil
+		return client.Resource(corev1.SchemeGroupVersion.WithResource(string(corev1.ResourceSecrets))), nil
 	}
 
 	return clientCreator, saClientCreator

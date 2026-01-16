@@ -129,7 +129,7 @@ func (r *secretResolver) Team(ctx context.Context, obj *secret.Secret) (*team.Te
 }
 
 func (r *secretResolver) Keys(ctx context.Context, obj *secret.Secret) ([]string, error) {
-	return secret.GetSecretKeys(ctx, obj.TeamSlug, environmentmapper.ClusterName(obj.EnvironmentName), obj.Name)
+	return obj.Keys, nil
 }
 
 func (r *secretResolver) Values(ctx context.Context, obj *secret.Secret) ([]*secret.SecretValue, error) {
