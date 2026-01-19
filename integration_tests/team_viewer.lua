@@ -8,24 +8,24 @@ memberTeam:addMember(user)
 ownerTeam:addOwner(user)
 
 
-Test.gql("Check team is viewer / owner", function(t)
+Test.gql("Check team is user / owner", function(t)
 	t.addHeader("x-user-email", user:email())
 
 	t.query [[
 		query {
 			team1: team(slug:"member") {
-				viewerIsMember
-				viewerIsOwner
+				userIsMember
+				userIsOwner
 			}
 
 			team2: team(slug:"owner") {
-				viewerIsMember
-				viewerIsOwner
+				userIsMember
+				userIsOwner
 			}
 
 			team3: team(slug:"not-a-member") {
-				viewerIsMember
-				viewerIsOwner
+				userIsMember
+				userIsOwner
 			}
 		}
 	]]
@@ -33,16 +33,16 @@ Test.gql("Check team is viewer / owner", function(t)
 	t.check {
 		data = {
 			team1 = {
-				viewerIsMember = true,
-				viewerIsOwner = false,
+				userIsMember = true,
+				userIsOwner = false,
 			},
 			team2 = {
-				viewerIsMember = true,
-				viewerIsOwner = true,
+				userIsMember = true,
+				userIsOwner = true,
 			},
 			team3 = {
-				viewerIsMember = false,
-				viewerIsOwner = false,
+				userIsMember = false,
+				userIsOwner = false,
 			},
 		},
 	}

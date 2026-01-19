@@ -43,7 +43,7 @@ Test.gql("Set role on user that is not a member", function(t)
 				input: {
 					teamSlug: "%s",
 					userEmail: "%s",
-					role: MEMBER
+					role: EDITOR
 				}
 			) {
 				member {
@@ -77,7 +77,7 @@ Test.gql("Add user that does not exist", function(t)
 				input: {
 					teamSlug: "%s"
 					userEmail: "userthatdoesnotexist@example.com"
-					role: MEMBER
+					role: EDITOR
 				}
 			) {
 				member {
@@ -111,7 +111,7 @@ Test.gql("Add member", function(t)
 				input: {
 					teamSlug: "%s"
 					userEmail: "%s"
-					role: MEMBER
+					role: EDITOR
 				}
 			) {
 				member {
@@ -143,7 +143,7 @@ Test.gql("Add member", function(t)
 		data = {
 			addTeamMember = {
 				member = {
-					role = "MEMBER",
+					role = "EDITOR",
 					team = {
 						activityLog = {
 							nodes = {
@@ -154,7 +154,7 @@ Test.gql("Add member", function(t)
 									resourceType = "TEAM",
 									resourceName = teamSlug,
 									data = {
-										role = "MEMBER",
+										role = "EDITOR",
 										userEmail = memberToAdd:email(),
 										userID = NotNull(),
 									},

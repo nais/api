@@ -197,7 +197,7 @@ Test.gql("Add team member without permission", function(t)
 				input: {
 					teamSlug: "%s"
 					userEmail: "authenticated@example.com"
-					role: MEMBER
+					role: EDITOR
 				}
 			) {
 				member {
@@ -275,7 +275,7 @@ Test.gql("Add team member with correct permission", function(t)
 				input: {
 					teamSlug: "%s"
 					userEmail: "%s"
-					role: MEMBER
+					role: EDITOR
 				}
 			) {
 				member {
@@ -289,7 +289,7 @@ Test.gql("Add team member with correct permission", function(t)
 		data = {
 			addTeamMember = {
 				member = {
-					role = "MEMBER",
+					role = "EDITOR",
 				},
 			},
 		},
