@@ -19,9 +19,9 @@ import (
 )
 
 const (
-	labelElevation     = "nais.io/elevation"
-	labelElevationType = "nais.io/elevation-type"
-	labelKillAfter     = "euthanaisa.nais.io/kill-after"
+	labelElevation               = "nais.io/elevation"
+	labelElevationType           = "nais.io/elevation-type"
+	labelKillAfter               = "euthanaisa.nais.io/kill-after"
 	annotationElevationResource  = "nais.io/elevation-resource"
 	annotationElevationUser      = "nais.io/elevation-user"
 	annotationElevationReason    = "nais.io/elevation-reason"
@@ -40,7 +40,7 @@ func Create(ctx context.Context, input *CreateElevationInput, actor *authz.Actor
 		return nil, err
 	}
 
-	if err := authz.CanUpdateTeamMetadata(ctx, input.Team); err != nil {
+	if err := authz.CanCreateElevation(ctx, input.Team); err != nil {
 		return nil, ErrNotAuthorized
 	}
 

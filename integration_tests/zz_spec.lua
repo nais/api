@@ -224,6 +224,12 @@ function Team:addOwner(...)
 	print("addOwner")
 end
 
+--- Add a viewer to the team (read-only, cannot elevate)
+---@param ... User
+function Team:addViewer(...)
+	print("addViewer")
+end
+
 ---@class User
 User = {}
 --- Create a new user

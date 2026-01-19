@@ -166,15 +166,17 @@ func (r *Resolver) VulnerableImageIssue() gengql.VulnerableImageIssueResolver {
 	return &vulnerableImageIssueResolver{r}
 }
 
-type deprecatedIngressIssueResolver struct{ *Resolver }
-type deprecatedRegistryIssueResolver struct{ *Resolver }
-type failedSynchronizationIssueResolver struct{ *Resolver }
-type invalidSpecIssueResolver struct{ *Resolver }
-type lastRunFailedIssueResolver struct{ *Resolver }
-type missingSbomIssueResolver struct{ *Resolver }
-type noRunningInstancesIssueResolver struct{ *Resolver }
-type openSearchIssueResolver struct{ *Resolver }
-type sqlInstanceStateIssueResolver struct{ *Resolver }
-type sqlInstanceVersionIssueResolver struct{ *Resolver }
-type valkeyIssueResolver struct{ *Resolver }
-type vulnerableImageIssueResolver struct{ *Resolver }
+type (
+	deprecatedIngressIssueResolver     struct{ *Resolver }
+	deprecatedRegistryIssueResolver    struct{ *Resolver }
+	failedSynchronizationIssueResolver struct{ *Resolver }
+	invalidSpecIssueResolver           struct{ *Resolver }
+	lastRunFailedIssueResolver         struct{ *Resolver }
+	missingSbomIssueResolver           struct{ *Resolver }
+	noRunningInstancesIssueResolver    struct{ *Resolver }
+	openSearchIssueResolver            struct{ *Resolver }
+	sqlInstanceStateIssueResolver      struct{ *Resolver }
+	sqlInstanceVersionIssueResolver    struct{ *Resolver }
+	valkeyIssueResolver                struct{ *Resolver }
+	vulnerableImageIssueResolver       struct{ *Resolver }
+)

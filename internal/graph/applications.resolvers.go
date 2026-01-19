@@ -197,9 +197,11 @@ func (r *Resolver) RestartApplicationPayload() gengql.RestartApplicationPayloadR
 	return &restartApplicationPayloadResolver{r}
 }
 
-type applicationResolver struct{ *Resolver }
-type applicationInstanceResolver struct{ *Resolver }
-type deleteApplicationPayloadResolver struct{ *Resolver }
-type ingressResolver struct{ *Resolver }
-type ingressMetricsResolver struct{ *Resolver }
-type restartApplicationPayloadResolver struct{ *Resolver }
+type (
+	applicationResolver               struct{ *Resolver }
+	applicationInstanceResolver       struct{ *Resolver }
+	deleteApplicationPayloadResolver  struct{ *Resolver }
+	ingressResolver                   struct{ *Resolver }
+	ingressMetricsResolver            struct{ *Resolver }
+	restartApplicationPayloadResolver struct{ *Resolver }
+)
