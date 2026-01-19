@@ -40,8 +40,8 @@ type Querier interface {
 	Update(ctx context.Context, arg UpdateParams) (*Team, error)
 	UpdateExternalReferences(ctx context.Context, arg UpdateExternalReferencesParams) error
 	UpsertEnvironment(ctx context.Context, arg UpsertEnvironmentParams) error
-	UserIsMember(ctx context.Context, arg UserIsMemberParams) (bool, error)
-	UserIsOwner(ctx context.Context, arg UserIsOwnerParams) (bool, error)
+	ViewerIsMember(ctx context.Context, arg ViewerIsMemberParams) (bool, error)
+	ViewerIsOwner(ctx context.Context, arg ViewerIsOwnerParams) (bool, error)
 }
 
 var _ Querier = (*Queries)(nil)

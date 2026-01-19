@@ -124,14 +124,6 @@ func MakeUserTeamOwner(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug
 	})
 }
 
-func MakeUserTeamViewer(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug) error {
-	return db(ctx).AssignTeamRoleToUser(ctx, authzsql.AssignTeamRoleToUserParams{
-		UserID:         userID,
-		RoleName:       "Team viewer",
-		TargetTeamSlug: teamSlug,
-	})
-}
-
 func GetRole(ctx context.Context, name string) (*Role, error) {
 	row, err := db(ctx).GetRoleByName(ctx, name)
 	if err != nil {
@@ -295,10 +287,6 @@ func CanDeleteOpenSearch(ctx context.Context, teamSlug slug.Slug) error {
 
 func CanGrantPostgresAccess(ctx context.Context, teamSlug slug.Slug) error {
 	return requireTeamAuthorization(ctx, teamSlug, "postgres:access:grant")
-}
-
-func CanCreateElevation(ctx context.Context, teamSlug slug.Slug) error {
-	return requireTeamAuthorization(ctx, teamSlug, "elevation:create")
 }
 
 func RequireGlobalAdmin(ctx context.Context) error {

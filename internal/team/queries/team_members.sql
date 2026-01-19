@@ -102,7 +102,7 @@ WHERE
 	AND target_team_slug = @team_slug::slug
 ;
 
--- name: UserIsMember :one
+-- name: ViewerIsMember :one
 SELECT
 	EXISTS (
 		SELECT
@@ -112,11 +112,11 @@ SELECT
 		WHERE
 			user_id = @user_id
 			AND target_team_slug = @team_slug::slug
-			AND role_name IN ('Team viewer', 'Team editor', 'Team owner')
+			AND role_name IN ('Team editor', 'Team owner')
 	)
 ;
 
--- name: UserIsOwner :one
+-- name: ViewerIsOwner :one
 SELECT
 	EXISTS (
 		SELECT

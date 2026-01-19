@@ -75,14 +75,6 @@ func teamMetatable() *spec.Typemetatable {
 				},
 				Func: teamAddOwner,
 			},
-			{
-				Name: "addViewer",
-				Doc:  "Add a viewer to the team (read-only, cannot elevate)",
-				Args: []spec.Argument{
-					{Name: "...", Type: []spec.ArgumentType{spec.ArgumentTypeMetatable("User")}, Doc: "The user IDs to add to the team"},
-				},
-				Func: teamAddViewer,
-			},
 		},
 	}
 }
@@ -172,10 +164,6 @@ func teamAddMember(L *lua.LState) int {
 
 func teamAddOwner(L *lua.LState) int {
 	return addTeamRole(L, "Team owner")
-}
-
-func teamAddViewer(L *lua.LState) int {
-	return addTeamRole(L, "Team viewer")
 }
 
 func checkTeam(L *lua.LState) *Team {

@@ -40,7 +40,7 @@ func Create(ctx context.Context, input *CreateElevationInput, actor *authz.Actor
 		return nil, err
 	}
 
-	if err := authz.CanCreateElevation(ctx, input.Team); err != nil {
+	if err := authz.CanUpdateTeamMetadata(ctx, input.Team); err != nil {
 		return nil, ErrNotAuthorized
 	}
 

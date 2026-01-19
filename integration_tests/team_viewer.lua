@@ -14,18 +14,18 @@ Test.gql("Check team is user / owner", function(t)
 	t.query [[
 		query {
 			team1: team(slug:"member") {
-				userIsMember
-				userIsOwner
+				viewerIsMember
+				viewerIsOwner
 			}
 
 			team2: team(slug:"owner") {
-				userIsMember
-				userIsOwner
+				viewerIsMember
+				viewerIsOwner
 			}
 
 			team3: team(slug:"not-a-member") {
-				userIsMember
-				userIsOwner
+				viewerIsMember
+				viewerIsOwner
 			}
 		}
 	]]
@@ -33,16 +33,16 @@ Test.gql("Check team is user / owner", function(t)
 	t.check {
 		data = {
 			team1 = {
-				userIsMember = true,
-				userIsOwner = false,
+				viewerIsMember = true,
+				viewerIsOwner = false,
 			},
 			team2 = {
-				userIsMember = true,
-				userIsOwner = true,
+				viewerIsMember = true,
+				viewerIsOwner = true,
 			},
 			team3 = {
-				userIsMember = false,
-				userIsOwner = false,
+				viewerIsMember = false,
+				viewerIsOwner = false,
 			},
 		},
 	}

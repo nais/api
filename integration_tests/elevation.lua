@@ -2,11 +2,9 @@ Helper.readK8sResources("k8s_resources/elevation")
 
 local user = User.new("username-1", "user@example.com", "e")
 local otherUser = User.new("username-2", "user2@example.com", "e2")
-local viewerUser = User.new("username-viewer", "viewer@example.com", "ev")
 
 local team = Team.new("myteam", "Elevation test team", "#myteam")
 team:addOwner(user)
-team:addViewer(viewerUser)
 
 Test.gql("Create elevation for secret - success", function(t)
 	t.addHeader("x-user-email", user:email())
@@ -195,36 +193,7 @@ Test.gql("Create elevation - non-team member not authorized", function(t)
 	}
 end)
 
-Test.gql("Create elevation - team viewer not authorized", function(t)
-	t.addHeader("x-user-email", viewerUser:email())
-
-	t.query [[
-		mutation {
-			createElevation(input: {
-				type: SECRET
-				team: "myteam"
-				environmentName: "dev"
-				resourceName: "test-secret"
-				reason: "Need to debug database connection issues"
-				durationMinutes: 30
-			}) {
-				elevation {
-					id
-				}
-			}
-		}
-	]]
-
-	t.check {
-		errors = {
-			{
-				message = Contains("authorized"),
-				path = { "createElevation" },
-			},
-		},
-		data = Null,
-	}
-end)
+-- Viewer role test removed - viewer role no longer exists
 
 Test.gql("Create elevation - environment not found", function(t)
 	t.addHeader("x-user-email", user:email())

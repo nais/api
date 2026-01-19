@@ -452,15 +452,15 @@ func SetMemberRole(ctx context.Context, input SetTeamMemberRoleInput, actor *aut
 	})
 }
 
-func UserIsOwner(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID) (bool, error) {
-	return db(ctx).UserIsOwner(ctx, teamsql.UserIsOwnerParams{
+func ViewerIsOwner(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID) (bool, error) {
+	return db(ctx).ViewerIsOwner(ctx, teamsql.ViewerIsOwnerParams{
 		UserID:   userID,
 		TeamSlug: teamSlug,
 	})
 }
 
-func UserIsMember(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID) (bool, error) {
-	return db(ctx).UserIsMember(ctx, teamsql.UserIsMemberParams{
+func ViewerIsMember(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID) (bool, error) {
+	return db(ctx).ViewerIsMember(ctx, teamsql.ViewerIsMemberParams{
 		UserID:   userID,
 		TeamSlug: teamSlug,
 	})

@@ -148,14 +148,14 @@ type Team implements Node {
 	"Whether or not the team is currently being deleted."
 	deletionInProgress: Boolean!
 
-	"Whether or not the current user is an owner of the team."
-	userIsOwner: Boolean!
+	"Whether or not the viewer is an owner of the team."
+	viewerIsOwner: Boolean!
 
-	"Whether or not the current user is a member of the team."
-	userIsMember: Boolean!
+	"Whether or not the viewer is a member of the team."
+	viewerIsMember: Boolean!
 
-	"Whether or not the current user can create elevations for the team."
-	userCanElevate: Boolean!
+	"Whether or not the viewer can create elevations for the team."
+	viewerCanElevate: Boolean!
 
 	"Environments for the team."
 	environments: [TeamEnvironment!]!
@@ -437,9 +437,6 @@ enum TeamMemberOrderField {
 
 "Team member roles."
 enum TeamMemberRole {
-	"Viewer, can see resources but cannot elevate or make changes."
-	VIEWER
-
 	"Editor, full access including elevation."
 	EDITOR
 
