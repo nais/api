@@ -299,7 +299,7 @@ SELECT
 		WHERE
 			user_id = $1
 			AND target_team_slug = $2::slug
-			AND role_name IN ('Team member', 'Team owner')
+			AND role_name IN ('Team viewer', 'Team editor', 'Team owner')
 	)
 `
 

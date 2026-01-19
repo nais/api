@@ -2090,9 +2090,10 @@ type ComplexityRoot struct {
 		SlackChannel              func(childComplexity int) int
 		Slug                      func(childComplexity int) int
 		Unleash                   func(childComplexity int) int
+		UserCanElevate            func(childComplexity int) int
+		UserIsMember              func(childComplexity int) int
+		UserIsOwner               func(childComplexity int) int
 		Valkeys                   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *valkey.ValkeyOrder) int
-		ViewerIsMember            func(childComplexity int) int
-		ViewerIsOwner             func(childComplexity int) int
 		VulnerabilityFixHistory   func(childComplexity int, from scalar.Date) int
 		VulnerabilitySummaries    func(childComplexity int, filter *vulnerability.TeamVulnerabilitySummaryFilter, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *vulnerability.VulnerabilitySummaryOrder) int
 		VulnerabilitySummary      func(childComplexity int, filter *vulnerability.TeamVulnerabilitySummaryFilter) int
@@ -11554,6 +11555,27 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Team.Unleash(childComplexity), true
 
+	case "Team.userCanElevate":
+		if e.complexity.Team.UserCanElevate == nil {
+			break
+		}
+
+		return e.complexity.Team.UserCanElevate(childComplexity), true
+
+	case "Team.userIsMember":
+		if e.complexity.Team.UserIsMember == nil {
+			break
+		}
+
+		return e.complexity.Team.UserIsMember(childComplexity), true
+
+	case "Team.userIsOwner":
+		if e.complexity.Team.UserIsOwner == nil {
+			break
+		}
+
+		return e.complexity.Team.UserIsOwner(childComplexity), true
+
 	case "Team.valkeys":
 		if e.complexity.Team.Valkeys == nil {
 			break
@@ -11565,20 +11587,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Team.Valkeys(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*valkey.ValkeyOrder)), true
-
-	case "Team.viewerIsMember":
-		if e.complexity.Team.ViewerIsMember == nil {
-			break
-		}
-
-		return e.complexity.Team.ViewerIsMember(childComplexity), true
-
-	case "Team.viewerIsOwner":
-		if e.complexity.Team.ViewerIsOwner == nil {
-			break
-		}
-
-		return e.complexity.Team.ViewerIsOwner(childComplexity), true
 
 	case "Team.vulnerabilityFixHistory":
 		if e.complexity.Team.VulnerabilityFixHistory == nil {
@@ -22417,11 +22425,14 @@ type Team implements Node {
 	"Whether or not the team is currently being deleted."
 	deletionInProgress: Boolean!
 
-	"Whether or not the viewer is an owner of the team."
-	viewerIsOwner: Boolean!
+	"Whether or not the current user is an owner of the team."
+	userIsOwner: Boolean!
 
-	"Whether or not the viewer is a member of the team."
-	viewerIsMember: Boolean!
+	"Whether or not the current user is a member of the team."
+	userIsMember: Boolean!
+
+	"Whether or not the current user can create elevations for the team."
+	userCanElevate: Boolean!
 
 	"Environments for the team."
 	environments: [TeamEnvironment!]!
@@ -22703,10 +22714,13 @@ enum TeamMemberOrderField {
 
 "Team member roles."
 enum TeamMemberRole {
-	"Regular member, read only access."
-	MEMBER
+	"Viewer, can see resources but cannot elevate or make changes."
+	VIEWER
 
-	"Team owner, full access to the team."
+	"Editor, full access including elevation."
+	EDITOR
+
+	"Team owner, full access to the team including member management."
 	OWNER
 }
 

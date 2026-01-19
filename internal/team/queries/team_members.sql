@@ -112,7 +112,7 @@ SELECT
 		WHERE
 			user_id = @user_id
 			AND target_team_slug = @team_slug::slug
-			AND role_name IN ('Team member', 'Team owner')
+			AND role_name IN ('Team viewer', 'Team editor', 'Team owner')
 	)
 ;
 

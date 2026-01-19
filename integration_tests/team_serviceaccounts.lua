@@ -146,7 +146,7 @@ Test.gql("Assign role to service account as non-member", function(t)
 			assignRoleToServiceAccount(
 				input: {
 					serviceAccountID: "%s"
-					roleName: "Team member"
+					roleName: "Team editor"
 				}
 			) {
 				serviceAccount {
@@ -290,7 +290,7 @@ Test.gql("Assign another role to service account as member", function(t)
 			assignRoleToServiceAccount(
 				input: {
 					serviceAccountID: "%s"
-					roleName: "Team member"
+					roleName: "Team editor"
 				}
 			) {
 				serviceAccount {
@@ -316,7 +316,7 @@ Test.gql("Assign another role to service account as member", function(t)
 								name = "Deploy key viewer",
 							},
 							{
-								name = "Team member",
+								name = "Team editor",
 							},
 						},
 					},
@@ -401,7 +401,7 @@ Test.gql("Revoke role from service account as member", function(t)
 			revokeRoleFromServiceAccount(
 				input: {
 					serviceAccountID: "%s"
-					roleName: "Team member"
+					roleName: "Team editor"
 				}
 			) {
 				serviceAccount {

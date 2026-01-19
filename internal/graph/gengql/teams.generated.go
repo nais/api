@@ -48,8 +48,9 @@ type TeamResolver interface {
 	Member(ctx context.Context, obj *team.Team, email string) (*team.TeamMember, error)
 	Members(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.TeamMemberOrder) (*pagination.Connection[*team.TeamMember], error)
 
-	ViewerIsOwner(ctx context.Context, obj *team.Team) (bool, error)
-	ViewerIsMember(ctx context.Context, obj *team.Team) (bool, error)
+	UserIsOwner(ctx context.Context, obj *team.Team) (bool, error)
+	UserIsMember(ctx context.Context, obj *team.Team) (bool, error)
+	UserCanElevate(ctx context.Context, obj *team.Team) (bool, error)
 	Environments(ctx context.Context, obj *team.Team) ([]*team.TeamEnvironment, error)
 	Environment(ctx context.Context, obj *team.Team, name string) (*team.TeamEnvironment, error)
 	DeleteKey(ctx context.Context, obj *team.Team, key string) (*team.TeamDeleteKey, error)
@@ -1022,10 +1023,12 @@ func (ec *executionContext) fieldContext_CreateTeamPayload_team(_ context.Contex
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
 			case "deletionInProgress":
 				return ec.fieldContext_Team_deletionInProgress(ctx, field)
-			case "viewerIsOwner":
-				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
-			case "viewerIsMember":
-				return ec.fieldContext_Team_viewerIsMember(ctx, field)
+			case "userIsOwner":
+				return ec.fieldContext_Team_userIsOwner(ctx, field)
+			case "userIsMember":
+				return ec.fieldContext_Team_userIsMember(ctx, field)
+			case "userCanElevate":
+				return ec.fieldContext_Team_userCanElevate(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
 			case "environment":
@@ -1176,10 +1179,12 @@ func (ec *executionContext) fieldContext_RemoveTeamMemberPayload_team(_ context.
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
 			case "deletionInProgress":
 				return ec.fieldContext_Team_deletionInProgress(ctx, field)
-			case "viewerIsOwner":
-				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
-			case "viewerIsMember":
-				return ec.fieldContext_Team_viewerIsMember(ctx, field)
+			case "userIsOwner":
+				return ec.fieldContext_Team_userIsOwner(ctx, field)
+			case "userIsMember":
+				return ec.fieldContext_Team_userIsMember(ctx, field)
+			case "userCanElevate":
+				return ec.fieldContext_Team_userCanElevate(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
 			case "environment":
@@ -1634,14 +1639,14 @@ func (ec *executionContext) fieldContext_Team_deletionInProgress(_ context.Conte
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_viewerIsOwner(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+func (ec *executionContext) _Team_userIsOwner(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Team_viewerIsOwner,
+		ec.fieldContext_Team_userIsOwner,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Team().ViewerIsOwner(ctx, obj)
+			return ec.resolvers.Team().UserIsOwner(ctx, obj)
 		},
 		nil,
 		ec.marshalNBoolean2bool,
@@ -1650,7 +1655,7 @@ func (ec *executionContext) _Team_viewerIsOwner(ctx context.Context, field graph
 	)
 }
 
-func (ec *executionContext) fieldContext_Team_viewerIsOwner(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Team_userIsOwner(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Team",
 		Field:      field,
@@ -1663,14 +1668,14 @@ func (ec *executionContext) fieldContext_Team_viewerIsOwner(_ context.Context, f
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_viewerIsMember(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+func (ec *executionContext) _Team_userIsMember(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Team_viewerIsMember,
+		ec.fieldContext_Team_userIsMember,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Team().ViewerIsMember(ctx, obj)
+			return ec.resolvers.Team().UserIsMember(ctx, obj)
 		},
 		nil,
 		ec.marshalNBoolean2bool,
@@ -1679,7 +1684,36 @@ func (ec *executionContext) _Team_viewerIsMember(ctx context.Context, field grap
 	)
 }
 
-func (ec *executionContext) fieldContext_Team_viewerIsMember(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Team_userIsMember(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Team",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Team_userCanElevate(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Team_userCanElevate,
+		func(ctx context.Context) (any, error) {
+			return ec.resolvers.Team().UserCanElevate(ctx, obj)
+		},
+		nil,
+		ec.marshalNBoolean2bool,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Team_userCanElevate(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Team",
 		Field:      field,
@@ -3430,10 +3464,12 @@ func (ec *executionContext) fieldContext_TeamConnection_nodes(_ context.Context,
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
 			case "deletionInProgress":
 				return ec.fieldContext_Team_deletionInProgress(ctx, field)
-			case "viewerIsOwner":
-				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
-			case "viewerIsMember":
-				return ec.fieldContext_Team_viewerIsMember(ctx, field)
+			case "userIsOwner":
+				return ec.fieldContext_Team_userIsOwner(ctx, field)
+			case "userIsMember":
+				return ec.fieldContext_Team_userIsMember(ctx, field)
+			case "userCanElevate":
+				return ec.fieldContext_Team_userCanElevate(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
 			case "environment":
@@ -4170,10 +4206,12 @@ func (ec *executionContext) fieldContext_TeamDeleteKey_team(_ context.Context, f
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
 			case "deletionInProgress":
 				return ec.fieldContext_Team_deletionInProgress(ctx, field)
-			case "viewerIsOwner":
-				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
-			case "viewerIsMember":
-				return ec.fieldContext_Team_viewerIsMember(ctx, field)
+			case "userIsOwner":
+				return ec.fieldContext_Team_userIsOwner(ctx, field)
+			case "userIsMember":
+				return ec.fieldContext_Team_userIsMember(ctx, field)
+			case "userCanElevate":
+				return ec.fieldContext_Team_userCanElevate(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
 			case "environment":
@@ -4308,10 +4346,12 @@ func (ec *executionContext) fieldContext_TeamEdge_node(_ context.Context, field 
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
 			case "deletionInProgress":
 				return ec.fieldContext_Team_deletionInProgress(ctx, field)
-			case "viewerIsOwner":
-				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
-			case "viewerIsMember":
-				return ec.fieldContext_Team_viewerIsMember(ctx, field)
+			case "userIsOwner":
+				return ec.fieldContext_Team_userIsOwner(ctx, field)
+			case "userIsMember":
+				return ec.fieldContext_Team_userIsMember(ctx, field)
+			case "userCanElevate":
+				return ec.fieldContext_Team_userCanElevate(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
 			case "environment":
@@ -4562,10 +4602,12 @@ func (ec *executionContext) fieldContext_TeamEnvironment_team(_ context.Context,
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
 			case "deletionInProgress":
 				return ec.fieldContext_Team_deletionInProgress(ctx, field)
-			case "viewerIsOwner":
-				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
-			case "viewerIsMember":
-				return ec.fieldContext_Team_viewerIsMember(ctx, field)
+			case "userIsOwner":
+				return ec.fieldContext_Team_userIsOwner(ctx, field)
+			case "userIsMember":
+				return ec.fieldContext_Team_userIsMember(ctx, field)
+			case "userCanElevate":
+				return ec.fieldContext_Team_userCanElevate(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
 			case "environment":
@@ -6441,10 +6483,12 @@ func (ec *executionContext) fieldContext_TeamMember_team(_ context.Context, fiel
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
 			case "deletionInProgress":
 				return ec.fieldContext_Team_deletionInProgress(ctx, field)
-			case "viewerIsOwner":
-				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
-			case "viewerIsMember":
-				return ec.fieldContext_Team_viewerIsMember(ctx, field)
+			case "userIsOwner":
+				return ec.fieldContext_Team_userIsOwner(ctx, field)
+			case "userIsMember":
+				return ec.fieldContext_Team_userIsMember(ctx, field)
+			case "userCanElevate":
+				return ec.fieldContext_Team_userCanElevate(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
 			case "environment":
@@ -8367,10 +8411,12 @@ func (ec *executionContext) fieldContext_UpdateTeamPayload_team(_ context.Contex
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
 			case "deletionInProgress":
 				return ec.fieldContext_Team_deletionInProgress(ctx, field)
-			case "viewerIsOwner":
-				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
-			case "viewerIsMember":
-				return ec.fieldContext_Team_viewerIsMember(ctx, field)
+			case "userIsOwner":
+				return ec.fieldContext_Team_userIsOwner(ctx, field)
+			case "userIsMember":
+				return ec.fieldContext_Team_userIsMember(ctx, field)
+			case "userCanElevate":
+				return ec.fieldContext_Team_userCanElevate(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
 			case "environment":
@@ -9236,7 +9282,7 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "viewerIsOwner":
+		case "userIsOwner":
 			field := field
 
 			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
@@ -9245,7 +9291,7 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Team_viewerIsOwner(ctx, field, obj)
+				res = ec._Team_userIsOwner(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -9272,7 +9318,7 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "viewerIsMember":
+		case "userIsMember":
 			field := field
 
 			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
@@ -9281,7 +9327,43 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Team_viewerIsMember(ctx, field, obj)
+				res = ec._Team_userIsMember(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "userCanElevate":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Team_userCanElevate(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}

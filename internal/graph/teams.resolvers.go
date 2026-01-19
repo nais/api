@@ -285,12 +285,17 @@ func (r *teamResolver) Members(ctx context.Context, obj *team.Team, first *int, 
 	return team.ListMembers(ctx, obj.Slug, page, orderBy)
 }
 
-func (r *teamResolver) ViewerIsOwner(ctx context.Context, obj *team.Team) (bool, error) {
+func (r *teamResolver) UserIsOwner(ctx context.Context, obj *team.Team) (bool, error) {
 	return team.UserIsOwner(ctx, obj.Slug, authz.ActorFromContext(ctx).User.GetID())
 }
 
-func (r *teamResolver) ViewerIsMember(ctx context.Context, obj *team.Team) (bool, error) {
+func (r *teamResolver) UserIsMember(ctx context.Context, obj *team.Team) (bool, error) {
 	return team.UserIsMember(ctx, obj.Slug, authz.ActorFromContext(ctx).User.GetID())
+}
+
+func (r *teamResolver) UserCanElevate(ctx context.Context, obj *team.Team) (bool, error) {
+	err := authz.CanCreateElevation(ctx, obj.Slug)
+	return err == nil, nil
 }
 
 func (r *teamResolver) Environments(ctx context.Context, obj *team.Team) ([]*team.TeamEnvironment, error) {

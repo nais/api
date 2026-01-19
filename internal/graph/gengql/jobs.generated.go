@@ -375,10 +375,12 @@ func (ec *executionContext) fieldContext_DeleteJobPayload_team(_ context.Context
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
 			case "deletionInProgress":
 				return ec.fieldContext_Team_deletionInProgress(ctx, field)
-			case "viewerIsOwner":
-				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
-			case "viewerIsMember":
-				return ec.fieldContext_Team_viewerIsMember(ctx, field)
+			case "userIsOwner":
+				return ec.fieldContext_Team_userIsOwner(ctx, field)
+			case "userIsMember":
+				return ec.fieldContext_Team_userIsMember(ctx, field)
+			case "userCanElevate":
+				return ec.fieldContext_Team_userCanElevate(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
 			case "environment":
@@ -571,10 +573,12 @@ func (ec *executionContext) fieldContext_Job_team(_ context.Context, field graph
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
 			case "deletionInProgress":
 				return ec.fieldContext_Team_deletionInProgress(ctx, field)
-			case "viewerIsOwner":
-				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
-			case "viewerIsMember":
-				return ec.fieldContext_Team_viewerIsMember(ctx, field)
+			case "userIsOwner":
+				return ec.fieldContext_Team_userIsOwner(ctx, field)
+			case "userIsMember":
+				return ec.fieldContext_Team_userIsMember(ctx, field)
+			case "userCanElevate":
+				return ec.fieldContext_Team_userCanElevate(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
 			case "environment":
