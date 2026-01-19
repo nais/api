@@ -33,6 +33,5 @@ INSERT INTO
 	role_authorizations (role_name, authorization_name)
 VALUES
 	('Team viewer', 'teams:secrets:list'),
-	('Team viewer', 'deploy_key:read'),
 	('Team viewer', 'service_accounts:read')
 ;
