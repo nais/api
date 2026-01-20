@@ -193,8 +193,6 @@ Test.gql("Create elevation - non-team member not authorized", function(t)
 	}
 end)
 
--- Viewer role test removed - viewer role no longer exists
-
 Test.gql("Create elevation - environment not found", function(t)
 	t.addHeader("x-user-email", user:email())
 
