@@ -128,7 +128,8 @@ func GetSecretValues(ctx context.Context, teamSlug slug.Slug, environmentName, n
 }
 
 func Create(ctx context.Context, teamSlug slug.Slug, environment, name string) (*Secret, error) {
-	client, err := fromContext(ctx).ServiceAccountClient(environment)
+	w := fromContext(ctx).Watcher()
+	client, err := w.ImpersonatedClient(ctx, environment)
 	if err != nil {
 		return nil, err
 	}
@@ -187,7 +188,8 @@ func AddSecretValue(ctx context.Context, teamSlug slug.Slug, environment, secret
 		return nil, err
 	}
 
-	client, err := fromContext(ctx).ServiceAccountClient(environment)
+	w := fromContext(ctx).Watcher()
+	client, err := w.ImpersonatedClient(ctx, environment)
 	if err != nil {
 		return nil, err
 	}
@@ -259,7 +261,8 @@ func UpdateSecretValue(ctx context.Context, teamSlug slug.Slug, environment, sec
 		return nil, err
 	}
 
-	client, err := fromContext(ctx).ServiceAccountClient(environment)
+	w := fromContext(ctx).Watcher()
+	client, err := w.ImpersonatedClient(ctx, environment)
 	if err != nil {
 		return nil, err
 	}
@@ -318,7 +321,8 @@ func UpdateSecretValue(ctx context.Context, teamSlug slug.Slug, environment, sec
 }
 
 func RemoveSecretValue(ctx context.Context, teamSlug slug.Slug, environment, secretName, valueName string) (*Secret, error) {
-	client, err := fromContext(ctx).ServiceAccountClient(environment)
+	w := fromContext(ctx).Watcher()
+	client, err := w.ImpersonatedClient(ctx, environment)
 	if err != nil {
 		return nil, err
 	}
@@ -376,7 +380,10 @@ func RemoveSecretValue(ctx context.Context, teamSlug slug.Slug, environment, sec
 }
 
 func Delete(ctx context.Context, teamSlug slug.Slug, environment, name string) error {
-	client, err := fromContext(ctx).ServiceAccountClient(environment)
+	w := fromContext(ctx).Watcher()
+
+	// Check if secret exists first
+	client, err := w.ImpersonatedClient(ctx, environment)
 	if err != nil {
 		return err
 	}
@@ -388,7 +395,8 @@ func Delete(ctx context.Context, teamSlug slug.Slug, environment, name string) e
 		return err
 	}
 
-	if err := client.Namespace(teamSlug.String()).Delete(ctx, name, v1.DeleteOptions{}); err != nil {
+	// Use watcher.Delete like other workloads
+	if err := w.Delete(ctx, environment, teamSlug.String(), name); err != nil {
 		return err
 	}
 

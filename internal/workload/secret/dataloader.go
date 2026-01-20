@@ -3,6 +3,7 @@ package secret
 import (
 	"context"
 	"fmt"
+	"maps"
 	"slices"
 
 	"github.com/nais/api/internal/auth/authz"
@@ -24,16 +25,12 @@ const loadersKey ctxKey = iota
 // ClientCreator creates a client that impersonates the user (for read operations requiring elevation)
 type ClientCreator func(ctx context.Context, environment string) (dynamic.NamespaceableResourceInterface, error)
 
-// ServiceAccountClientCreator creates a client using the API's service account (for write operations)
-type ServiceAccountClientCreator func(environment string) (dynamic.NamespaceableResourceInterface, error)
-
-func NewLoaderContext(ctx context.Context, watcher *watcher.Watcher[*Secret], clientCreator ClientCreator, saClientCreator ServiceAccountClientCreator, environments []string, log logrus.FieldLogger) context.Context {
+func NewLoaderContext(ctx context.Context, watcher *watcher.Watcher[*Secret], clientCreator ClientCreator, environments []string, log logrus.FieldLogger) context.Context {
 	return context.WithValue(ctx, loadersKey, &loaders{
-		watcher:         watcher,
-		clientCreator:   clientCreator,
-		saClientCreator: saClientCreator,
-		log:             log,
-		environments:    environments,
+		watcher:       watcher,
+		clientCreator: clientCreator,
+		log:           log,
+		environments:  environments,
 	})
 }
 
@@ -62,11 +59,7 @@ func transformSecret(in any) (any, error) {
 
 	// Extract key names from data before removing it
 	data, _, _ := unstructured.NestedMap(secret.Object, "data")
-	keys := make([]string, 0, len(data))
-	for k := range data {
-		keys = append(keys, k)
-	}
-	slices.Sort(keys)
+	keys := slices.Sorted(maps.Keys(data))
 
 	// Remove the actual secret data
 	unstructured.RemoveNestedField(secret.Object, "data")
@@ -100,11 +93,10 @@ func fromContext(ctx context.Context) *loaders {
 }
 
 type loaders struct {
-	watcher         *watcher.Watcher[*Secret]
-	clientCreator   ClientCreator
-	saClientCreator ServiceAccountClientCreator
-	log             logrus.FieldLogger
-	environments    []string
+	watcher       *watcher.Watcher[*Secret]
+	clientCreator ClientCreator
+	log           logrus.FieldLogger
+	environments  []string
 }
 
 // Watcher returns the secret watcher
@@ -115,11 +107,6 @@ func (l *loaders) Watcher() *watcher.Watcher[*Secret] {
 // Client returns an impersonated client for read operations (requires user to have elevation)
 func (l *loaders) Client(ctx context.Context, environment string) (dynamic.NamespaceableResourceInterface, error) {
 	return l.clientCreator(ctx, environment)
-}
-
-// ServiceAccountClient returns a client using API's service account for write operations
-func (l *loaders) ServiceAccountClient(environment string) (dynamic.NamespaceableResourceInterface, error) {
-	return l.saClientCreator(environment)
 }
 
 // Clients returns impersonated clients for all environments
@@ -138,21 +125,7 @@ func (l *loaders) Clients(ctx context.Context) (map[string]dynamic.Namespaceable
 	return clients, nil
 }
 
-// ServiceAccountClients returns service account clients for all environments
-func (l *loaders) ServiceAccountClients() (map[string]dynamic.NamespaceableResourceInterface, error) {
-	clients := make(map[string]dynamic.NamespaceableResourceInterface)
 
-	for _, environment := range l.environments {
-		client, err := l.ServiceAccountClient(environment)
-		if err != nil {
-			return nil, fmt.Errorf("creating SA client for environment %q: %w", environment, err)
-		}
-
-		clients[environment] = client
-	}
-
-	return clients, nil
-}
 
 // CreatorFromConfig creates an impersonated client creator (for read operations)
 func CreatorFromConfig(ctx context.Context, configs map[string]*rest.Config) ClientCreator {
@@ -184,51 +157,13 @@ func CreatorFromConfig(ctx context.Context, configs map[string]*rest.Config) Cli
 	}
 }
 
-// ServiceAccountCreatorFromConfig creates a service account client creator (for write operations)
-func ServiceAccountCreatorFromConfig(configs map[string]*rest.Config) ServiceAccountClientCreator {
-	// Pre-create clients for each environment
-	clients := make(map[string]dynamic.NamespaceableResourceInterface)
-
-	return func(environment string) (dynamic.NamespaceableResourceInterface, error) {
-		// Return cached client if exists
-		if client, exists := clients[environment]; exists {
-			return client, nil
-		}
-
-		config, exists := configs[environment]
-		if !exists {
-			return nil, apierror.Errorf("Environment %q does not exist.", environment)
-		}
-
-		// No impersonation - use API's service account
-		client, err := dynamic.NewForConfig(config)
-		if err != nil {
-			return nil, fmt.Errorf("creating dynamic client: %w", err)
-		}
-
-		resourceClient := client.Resource(corev1.SchemeGroupVersion.WithResource(string(corev1.ResourceSecrets)))
-		clients[environment] = resourceClient
-		return resourceClient, nil
-	}
-}
-
-// CreatorFromClients creates client creators from pre-existing dynamic clients (for testing/fake mode)
-func CreatorFromClients(clients map[string]dynamic.Interface) (ClientCreator, ServiceAccountClientCreator) {
-	clientCreator := func(ctx context.Context, environment string) (dynamic.NamespaceableResourceInterface, error) {
+// CreatorFromClients creates a client creator from pre-existing dynamic clients (for testing/fake mode)
+func CreatorFromClients(clients map[string]dynamic.Interface) ClientCreator {
+	return func(ctx context.Context, environment string) (dynamic.NamespaceableResourceInterface, error) {
 		client, exists := clients[environment]
 		if !exists {
 			return nil, apierror.Errorf("Environment %q does not exist.", environment)
 		}
 		return client.Resource(corev1.SchemeGroupVersion.WithResource(string(corev1.ResourceSecrets))), nil
 	}
-
-	saClientCreator := func(environment string) (dynamic.NamespaceableResourceInterface, error) {
-		client, exists := clients[environment]
-		if !exists {
-			return nil, apierror.Errorf("Environment %q does not exist.", environment)
-		}
-		return client.Resource(corev1.SchemeGroupVersion.WithResource(string(corev1.ResourceSecrets))), nil
-	}
-
-	return clientCreator, saClientCreator
 }
