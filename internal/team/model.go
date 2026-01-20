@@ -166,13 +166,13 @@ type TeamMember struct {
 type TeamMemberRole string
 
 const (
-	TeamMemberRoleEditor TeamMemberRole = "EDITOR"
+	TeamMemberRoleMember TeamMemberRole = "MEMBER"
 	TeamMemberRoleOwner  TeamMemberRole = "OWNER"
 )
 
 func (e TeamMemberRole) IsValid() bool {
 	switch e {
-	case TeamMemberRoleEditor, TeamMemberRoleOwner:
+	case TeamMemberRoleMember, TeamMemberRoleOwner:
 		return true
 	}
 	return false
@@ -180,8 +180,8 @@ func (e TeamMemberRole) IsValid() bool {
 
 func teamMemberRoleToSqlRole(role TeamMemberRole) string {
 	switch role {
-	case TeamMemberRoleEditor:
-		return "Team editor"
+	case TeamMemberRoleMember:
+		return "Team member"
 	default:
 		return "Team owner"
 	}
@@ -192,7 +192,7 @@ func teamMemberRoleFromSqlTeamRole(t string) TeamMemberRole {
 	case "Team owner":
 		return TeamMemberRoleOwner
 	default:
-		return TeamMemberRoleEditor
+		return TeamMemberRoleMember
 	}
 }
 

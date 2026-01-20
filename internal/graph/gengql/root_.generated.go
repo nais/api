@@ -22714,8 +22714,8 @@ enum TeamMemberOrderField {
 
 "Team member roles."
 enum TeamMemberRole {
-	"Editor, full access including elevation."
-	EDITOR
+	"Member, full access including elevation."
+	MEMBER
 
 	"Team owner, full access to the team including member management."
 	OWNER

@@ -111,7 +111,7 @@ func RevokeRoleFromServiceAccount(ctx context.Context, serviceAccountID uuid.UUI
 func MakeUserTeamMember(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug) error {
 	return db(ctx).AssignTeamRoleToUser(ctx, authzsql.AssignTeamRoleToUserParams{
 		UserID:         userID,
-		RoleName:       "Team editor",
+		RoleName:       "Team member",
 		TargetTeamSlug: teamSlug,
 	})
 }

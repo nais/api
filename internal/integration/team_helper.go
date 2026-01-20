@@ -159,7 +159,7 @@ func addTeamRole(L *lua.LState, role string) int {
 }
 
 func teamAddMember(L *lua.LState) int {
-	return addTeamRole(L, "Team editor")
+	return addTeamRole(L, "Team member")
 }
 
 func teamAddOwner(L *lua.LState) int {

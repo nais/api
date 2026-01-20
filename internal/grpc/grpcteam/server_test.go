@@ -317,7 +317,7 @@ func TestTeamsServer_Members(t *testing.T) {
 			t.Fatalf("failed to insert user: %v", err)
 		}
 
-		stmt = "INSERT INTO user_roles (role_name, user_id, target_team_slug) VALUES ('Team editor', $1, $2)"
+		stmt = "INSERT INTO user_roles (role_name, user_id, target_team_slug) VALUES ('Team member', $1, $2)"
 		if _, err = pool.Exec(ctx, stmt, userID1, teamSlug1); err != nil {
 			t.Fatalf("failed to insert user roles: %v", err)
 		}
