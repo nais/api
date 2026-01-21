@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/99designs/gqlgen/graphql"
+	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
@@ -335,25 +336,55 @@ type CreateOpenSearchPayload struct {
 type OpenSearchMajorVersion string
 
 const (
-	OpenSearchMajorVersionV2 OpenSearchMajorVersion = "V2"
-	OpenSearchMajorVersionV1 OpenSearchMajorVersion = "V1"
+	OpenSearchMajorVersionV1    OpenSearchMajorVersion = "V1"
+	OpenSearchMajorVersionV2    OpenSearchMajorVersion = "V2"
+	OpenSearchMajorVersionV2_19 OpenSearchMajorVersion = "V2_19"
+	OpenSearchMajorVersionV3_3  OpenSearchMajorVersion = "V3_3"
 )
 
-func (e OpenSearchMajorVersion) IsDowngradeTo(other OpenSearchMajorVersion) bool {
-	if !e.IsValid() || !other.IsValid() {
-		return false
+type upgradePath []OpenSearchMajorVersion
+
+func (u upgradePath) String() string {
+	versions := make([]string, len(u))
+	for i, v := range u {
+		versions[i] = v.String()
+	}
+	return strings.Join(versions, ",")
+}
+
+var upgradePaths = map[OpenSearchMajorVersion]upgradePath{
+	OpenSearchMajorVersionV1:    {OpenSearchMajorVersionV2, OpenSearchMajorVersionV2_19},
+	OpenSearchMajorVersionV2:    {OpenSearchMajorVersionV2_19},
+	OpenSearchMajorVersionV2_19: {OpenSearchMajorVersionV3_3},
+	OpenSearchMajorVersionV3_3:  {},
+}
+
+func (e OpenSearchMajorVersion) ValidateUpgradePath(other OpenSearchMajorVersion) error {
+	path, ok := upgradePaths[other]
+	if !ok {
+		return fmt.Errorf("unknown OpenSearch major version: %q", other)
 	}
 
-	// Since we've already checked if both versions are valid, the Atoi calls should never fail
-	our, _ := strconv.Atoi(e.ToAivenString())
-	their, _ := strconv.Atoi(other.ToAivenString())
+	if len(path) == 0 {
+		return apierror.Errorf("Cannot change OpenSearch version from %v to %v. No further upgrades available.", other, e)
+	}
 
-	return our < their
+	for _, v := range path {
+		if v == e {
+			return nil
+		}
+	}
+
+	return apierror.Errorf("Cannot change OpenSearch version from %v to %v. New version must be one of [%s]", other, e, path)
 }
 
 func (e OpenSearchMajorVersion) IsValid() bool {
 	switch e {
-	case OpenSearchMajorVersionV2, OpenSearchMajorVersionV1:
+	case
+		OpenSearchMajorVersionV1,
+		OpenSearchMajorVersionV2,
+		OpenSearchMajorVersionV2_19,
+		OpenSearchMajorVersionV3_3:
 		return true
 	}
 	return false
@@ -381,22 +412,34 @@ func (e OpenSearchMajorVersion) MarshalGQL(w io.Writer) {
 }
 
 // ToAivenString returns the version string without the "V" prefix, e.g. "2" or "1".
-func (e OpenSearchMajorVersion) ToAivenString() string {
-	return strings.TrimLeft(string(e), "V")
+func (e OpenSearchMajorVersion) ToAivenString() (string, error) {
+	switch e {
+	case OpenSearchMajorVersionV1:
+		return "1", nil
+	case OpenSearchMajorVersionV2:
+		return "2", nil
+	case OpenSearchMajorVersionV2_19:
+		return "2.19", nil
+	case OpenSearchMajorVersionV3_3:
+		return "3.3", nil
+	default:
+		return "", fmt.Errorf("unexpected OpenSearch major version: %q", e)
+	}
 }
 
 func OpenSearchMajorVersionFromAivenString(s string) (OpenSearchMajorVersion, error) {
-	parts := strings.Split(s, ".")
-	if len(parts) == 0 {
-		return "", fmt.Errorf("unexpected Aiven OpenSearch version: %q", s)
-	}
-
-	v := OpenSearchMajorVersion("V" + parts[0])
-	if !v.IsValid() {
+	switch {
+	case strings.HasPrefix(s, "1"):
+		return OpenSearchMajorVersionV1, nil
+	case strings.HasPrefix(s, "2.19"):
+		return OpenSearchMajorVersionV2_19, nil
+	case strings.HasPrefix(s, "2"):
+		return OpenSearchMajorVersionV2, nil
+	case strings.HasPrefix(s, "3.3"):
+		return OpenSearchMajorVersionV3_3, nil
+	default:
 		return "", fmt.Errorf("unsupported Aiven OpenSearch version: %q", s)
 	}
-
-	return v, nil
 }
 
 type OpenSearchMemory string

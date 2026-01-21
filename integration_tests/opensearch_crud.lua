@@ -654,7 +654,7 @@ Test.gql("Downgrade OpenSearch as team-member", function(t)
 	t.check {
 		errors = {
 			{
-				message = "Cannot downgrade OpenSearch version from V2 to V1",
+				message = "Cannot change OpenSearch version from V2 to V1. New version must be one of [V2_19]",
 				path = {
 					"updateOpenSearch",
 				},
@@ -689,7 +689,7 @@ Test.gql("Downgrade OpenSearch without explicit version set", function(t)
 	t.check {
 		errors = {
 			{
-				message = "Cannot downgrade OpenSearch version from V2 to V1",
+				message = "Cannot change OpenSearch version from V2 to V1. New version must be one of [V2_19]",
 				path = {
 					"updateOpenSearch",
 				},
