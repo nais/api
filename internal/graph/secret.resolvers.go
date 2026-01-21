@@ -5,6 +5,7 @@ import (
 	"slices"
 
 	"github.com/nais/api/internal/auth/authz"
+	"github.com/nais/api/internal/environmentmapper"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
@@ -39,7 +40,7 @@ func (r *mutationResolver) CreateSecret(ctx context.Context, input secret.Create
 		return nil, err
 	}
 
-	s, err := secret.Create(ctx, input.Team, input.Environment, input.Name)
+	s, err := secret.Create(ctx, input.Team, environmentmapper.ClusterName(input.Environment), input.Name)
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +55,7 @@ func (r *mutationResolver) AddSecretValue(ctx context.Context, input secret.AddS
 		return nil, err
 	}
 
-	s, err := secret.AddSecretValue(ctx, input.Team, input.Environment, input.Name, input.Value)
+	s, err := secret.AddSecretValue(ctx, input.Team, environmentmapper.ClusterName(input.Environment), input.Name, input.Value)
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +70,7 @@ func (r *mutationResolver) UpdateSecretValue(ctx context.Context, input secret.U
 		return nil, err
 	}
 
-	s, err := secret.UpdateSecretValue(ctx, input.Team, input.Environment, input.Name, input.Value)
+	s, err := secret.UpdateSecretValue(ctx, input.Team, environmentmapper.ClusterName(input.Environment), input.Name, input.Value)
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +85,7 @@ func (r *mutationResolver) RemoveSecretValue(ctx context.Context, input secret.R
 		return nil, err
 	}
 
-	s, err := secret.RemoveSecretValue(ctx, input.Team, input.Environment, input.SecretName, input.ValueName)
+	s, err := secret.RemoveSecretValue(ctx, input.Team, environmentmapper.ClusterName(input.Environment), input.SecretName, input.ValueName)
 	if err != nil {
 		return nil, err
 	}
@@ -99,7 +100,7 @@ func (r *mutationResolver) DeleteSecret(ctx context.Context, input secret.Delete
 		return nil, err
 	}
 
-	if err := secret.Delete(ctx, input.Team, input.Environment, input.Name); err != nil {
+	if err := secret.Delete(ctx, input.Team, environmentmapper.ClusterName(input.Environment), input.Name); err != nil {
 		return nil, err
 	}
 
@@ -125,7 +126,7 @@ func (r *secretResolver) Values(ctx context.Context, obj *secret.Secret) ([]*sec
 		return nil, err
 	}
 
-	return secret.GetSecretValues(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Name)
+	return secret.GetSecretValues(ctx, obj.TeamSlug, environmentmapper.ClusterName(obj.EnvironmentName), obj.Name)
 }
 
 func (r *secretResolver) Applications(ctx context.Context, obj *secret.Secret, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*application.Application], error) {
