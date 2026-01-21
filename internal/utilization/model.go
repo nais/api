@@ -143,7 +143,7 @@ func (w WorkloadUtilizationRecommendations) CPURequestCores(ctx context.Context)
 	return math.Max(cpuReq, minCPURequest), nil
 }
 
-func (w WorkloadUtilizationRecommendations) MemoryRequestBytes(ctx context.Context, env string) (int64, error) {
+func (w WorkloadUtilizationRecommendations) MemoryRequestBytes(ctx context.Context) (int64, error) {
 	v, err := w.client.Query(ctx, w.environmentName, fmt.Sprintf(memoryRequestRecommendation, w.environmentName, w.teamSlug, w.workloadName, w.start.Hour(), w.start.Add(time.Hour*12).Hour()))
 	if err != nil {
 		return 0, err
