@@ -212,11 +212,10 @@ func (r *secretResolver) LastModifiedBy(ctx context.Context, obj *secret.Secret)
 	return user.GetByEmail(ctx, *obj.ModifiedByUserEmail)
 }
 
+// Secrets returns all secrets for a team.
+// Secret metadata (names, keys) is visible to all authenticated users.
+// Secret values require team membership and elevation.
 func (r *teamResolver) Secrets(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *secret.SecretOrder, filter *secret.SecretFilter) (*pagination.Connection[*secret.Secret], error) {
-	if err := authz.CanReadSecrets(ctx, obj.Slug); err != nil {
-		return nil, nil
-	}
-
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
@@ -225,11 +224,10 @@ func (r *teamResolver) Secrets(ctx context.Context, obj *team.Team, first *int, 
 	return secret.ListForTeam(ctx, obj.Slug, page, orderBy, filter)
 }
 
+// Secret returns a single secret by name.
+// Secret metadata (name, keys) is visible to all authenticated users.
+// Secret values require team membership and elevation.
 func (r *teamEnvironmentResolver) Secret(ctx context.Context, obj *team.TeamEnvironment, name string) (*secret.Secret, error) {
-	if err := authz.CanReadSecrets(ctx, obj.TeamSlug); err != nil {
-		return nil, nil
-	}
-
 	return secret.Get(ctx, obj.TeamSlug, environmentmapper.ClusterName(obj.EnvironmentName), name)
 }
 

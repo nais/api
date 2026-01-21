@@ -50,6 +50,7 @@ type TeamResolver interface {
 
 	ViewerIsOwner(ctx context.Context, obj *team.Team) (bool, error)
 	ViewerIsMember(ctx context.Context, obj *team.Team) (bool, error)
+	ViewerCanElevate(ctx context.Context, obj *team.Team) (bool, error)
 	Environments(ctx context.Context, obj *team.Team) ([]*team.TeamEnvironment, error)
 	Environment(ctx context.Context, obj *team.Team, name string) (*team.TeamEnvironment, error)
 	DeleteKey(ctx context.Context, obj *team.Team, key string) (*team.TeamDeleteKey, error)
@@ -1026,6 +1027,8 @@ func (ec *executionContext) fieldContext_CreateTeamPayload_team(_ context.Contex
 				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
 			case "viewerIsMember":
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
+			case "viewerCanElevate":
+				return ec.fieldContext_Team_viewerCanElevate(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
 			case "environment":
@@ -1180,6 +1183,8 @@ func (ec *executionContext) fieldContext_RemoveTeamMemberPayload_team(_ context.
 				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
 			case "viewerIsMember":
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
+			case "viewerCanElevate":
+				return ec.fieldContext_Team_viewerCanElevate(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
 			case "environment":
@@ -1680,6 +1685,35 @@ func (ec *executionContext) _Team_viewerIsMember(ctx context.Context, field grap
 }
 
 func (ec *executionContext) fieldContext_Team_viewerIsMember(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Team",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Team_viewerCanElevate(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Team_viewerCanElevate,
+		func(ctx context.Context) (any, error) {
+			return ec.resolvers.Team().ViewerCanElevate(ctx, obj)
+		},
+		nil,
+		ec.marshalNBoolean2bool,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Team_viewerCanElevate(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Team",
 		Field:      field,
@@ -3434,6 +3468,8 @@ func (ec *executionContext) fieldContext_TeamConnection_nodes(_ context.Context,
 				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
 			case "viewerIsMember":
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
+			case "viewerCanElevate":
+				return ec.fieldContext_Team_viewerCanElevate(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
 			case "environment":
@@ -4174,6 +4210,8 @@ func (ec *executionContext) fieldContext_TeamDeleteKey_team(_ context.Context, f
 				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
 			case "viewerIsMember":
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
+			case "viewerCanElevate":
+				return ec.fieldContext_Team_viewerCanElevate(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
 			case "environment":
@@ -4312,6 +4350,8 @@ func (ec *executionContext) fieldContext_TeamEdge_node(_ context.Context, field 
 				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
 			case "viewerIsMember":
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
+			case "viewerCanElevate":
+				return ec.fieldContext_Team_viewerCanElevate(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
 			case "environment":
@@ -4566,6 +4606,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_team(_ context.Context,
 				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
 			case "viewerIsMember":
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
+			case "viewerCanElevate":
+				return ec.fieldContext_Team_viewerCanElevate(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
 			case "environment":
@@ -5247,6 +5289,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_secret(ctx context.Cont
 				return ec.fieldContext_Secret_teamEnvironment(ctx, field)
 			case "team":
 				return ec.fieldContext_Secret_team(ctx, field)
+			case "keys":
+				return ec.fieldContext_Secret_keys(ctx, field)
 			case "values":
 				return ec.fieldContext_Secret_values(ctx, field)
 			case "applications":
@@ -6443,6 +6487,8 @@ func (ec *executionContext) fieldContext_TeamMember_team(_ context.Context, fiel
 				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
 			case "viewerIsMember":
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
+			case "viewerCanElevate":
+				return ec.fieldContext_Team_viewerCanElevate(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
 			case "environment":
@@ -8369,6 +8415,8 @@ func (ec *executionContext) fieldContext_UpdateTeamPayload_team(_ context.Contex
 				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
 			case "viewerIsMember":
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
+			case "viewerCanElevate":
+				return ec.fieldContext_Team_viewerCanElevate(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
 			case "environment":
@@ -9280,6 +9328,42 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 					}
 				}()
 				res = ec._Team_viewerIsMember(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "viewerCanElevate":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Team_viewerCanElevate(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
