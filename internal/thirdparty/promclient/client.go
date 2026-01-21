@@ -48,7 +48,7 @@ type RealClient struct {
 	log          logrus.FieldLogger
 }
 
-func New(tenant string, log logrus.FieldLogger) (*RealClient, error) {
+func New(clusters []string, tenant string, log logrus.FieldLogger) (*RealClient, error) {
 	mimirMetrics, err := api.NewClient(api.Config{Address: "http://mimir-query-frontend"})
 	if err != nil {
 		return nil, err
