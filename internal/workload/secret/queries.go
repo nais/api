@@ -129,7 +129,7 @@ func GetSecretValues(ctx context.Context, teamSlug slug.Slug, environmentName, n
 
 func Create(ctx context.Context, teamSlug slug.Slug, environment, name string) (*Secret, error) {
 	w := fromContext(ctx).Watcher()
-	client, err := w.ImpersonatedClient(ctx, environment)
+	client, err := w.SystemAuthenticatedClient(ctx, environment)
 	if err != nil {
 		return nil, err
 	}
@@ -189,7 +189,7 @@ func AddSecretValue(ctx context.Context, teamSlug slug.Slug, environment, secret
 	}
 
 	w := fromContext(ctx).Watcher()
-	client, err := w.ImpersonatedClient(ctx, environment)
+	client, err := w.SystemAuthenticatedClient(ctx, environment)
 	if err != nil {
 		return nil, err
 	}
@@ -262,7 +262,7 @@ func UpdateSecretValue(ctx context.Context, teamSlug slug.Slug, environment, sec
 	}
 
 	w := fromContext(ctx).Watcher()
-	client, err := w.ImpersonatedClient(ctx, environment)
+	client, err := w.SystemAuthenticatedClient(ctx, environment)
 	if err != nil {
 		return nil, err
 	}
@@ -322,7 +322,7 @@ func UpdateSecretValue(ctx context.Context, teamSlug slug.Slug, environment, sec
 
 func RemoveSecretValue(ctx context.Context, teamSlug slug.Slug, environment, secretName, valueName string) (*Secret, error) {
 	w := fromContext(ctx).Watcher()
-	client, err := w.ImpersonatedClient(ctx, environment)
+	client, err := w.SystemAuthenticatedClient(ctx, environment)
 	if err != nil {
 		return nil, err
 	}
@@ -381,9 +381,7 @@ func RemoveSecretValue(ctx context.Context, teamSlug slug.Slug, environment, sec
 
 func Delete(ctx context.Context, teamSlug slug.Slug, environment, name string) error {
 	w := fromContext(ctx).Watcher()
-
-	// Check if secret exists first
-	client, err := w.ImpersonatedClient(ctx, environment)
+	client, err := w.SystemAuthenticatedClient(ctx, environment)
 	if err != nil {
 		return err
 	}
