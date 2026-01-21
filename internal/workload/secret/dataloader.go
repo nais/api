@@ -125,8 +125,6 @@ func (l *loaders) Clients(ctx context.Context) (map[string]dynamic.Namespaceable
 	return clients, nil
 }
 
-
-
 // CreatorFromConfig creates an impersonated client creator (for read operations)
 func CreatorFromConfig(ctx context.Context, configs map[string]*rest.Config) ClientCreator {
 	return func(ctx context.Context, environment string) (dynamic.NamespaceableResourceInterface, error) {

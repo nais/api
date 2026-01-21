@@ -102,7 +102,7 @@ WHERE
 	AND target_team_slug = @team_slug::slug
 ;
 
--- name: ViewerIsMember :one
+-- name: UserIsMember :one
 SELECT
 	EXISTS (
 		SELECT
@@ -116,7 +116,7 @@ SELECT
 	)
 ;
 
--- name: ViewerIsOwner :one
+-- name: UserIsOwner :one
 SELECT
 	EXISTS (
 		SELECT

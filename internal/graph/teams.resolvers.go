@@ -286,11 +286,11 @@ func (r *teamResolver) Members(ctx context.Context, obj *team.Team, first *int, 
 }
 
 func (r *teamResolver) ViewerIsOwner(ctx context.Context, obj *team.Team) (bool, error) {
-	return team.ViewerIsOwner(ctx, obj.Slug, authz.ActorFromContext(ctx).User.GetID())
+	return team.UserIsOwner(ctx, obj.Slug, authz.ActorFromContext(ctx).User.GetID())
 }
 
 func (r *teamResolver) ViewerIsMember(ctx context.Context, obj *team.Team) (bool, error) {
-	return team.ViewerIsMember(ctx, obj.Slug, authz.ActorFromContext(ctx).User.GetID())
+	return team.UserIsMember(ctx, obj.Slug, authz.ActorFromContext(ctx).User.GetID())
 }
 
 func (r *teamResolver) ViewerCanElevate(ctx context.Context, obj *team.Team) (bool, error) {

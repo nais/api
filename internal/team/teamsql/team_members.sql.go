@@ -289,7 +289,7 @@ func (q *Queries) RemoveMember(ctx context.Context, arg RemoveMemberParams) erro
 	return err
 }
 
-const viewerIsMember = `-- name: ViewerIsMember :one
+const userIsMember = `-- name: UserIsMember :one
 SELECT
 	EXISTS (
 		SELECT
@@ -303,19 +303,19 @@ SELECT
 	)
 `
 
-type ViewerIsMemberParams struct {
+type UserIsMemberParams struct {
 	UserID   uuid.UUID
 	TeamSlug slug.Slug
 }
 
-func (q *Queries) ViewerIsMember(ctx context.Context, arg ViewerIsMemberParams) (bool, error) {
-	row := q.db.QueryRow(ctx, viewerIsMember, arg.UserID, arg.TeamSlug)
+func (q *Queries) UserIsMember(ctx context.Context, arg UserIsMemberParams) (bool, error) {
+	row := q.db.QueryRow(ctx, userIsMember, arg.UserID, arg.TeamSlug)
 	var exists bool
 	err := row.Scan(&exists)
 	return exists, err
 }
 
-const viewerIsOwner = `-- name: ViewerIsOwner :one
+const userIsOwner = `-- name: UserIsOwner :one
 SELECT
 	EXISTS (
 		SELECT
@@ -329,13 +329,13 @@ SELECT
 	)
 `
 
-type ViewerIsOwnerParams struct {
+type UserIsOwnerParams struct {
 	UserID   uuid.UUID
 	TeamSlug slug.Slug
 }
 
-func (q *Queries) ViewerIsOwner(ctx context.Context, arg ViewerIsOwnerParams) (bool, error) {
-	row := q.db.QueryRow(ctx, viewerIsOwner, arg.UserID, arg.TeamSlug)
+func (q *Queries) UserIsOwner(ctx context.Context, arg UserIsOwnerParams) (bool, error) {
+	row := q.db.QueryRow(ctx, userIsOwner, arg.UserID, arg.TeamSlug)
 	var exists bool
 	err := row.Scan(&exists)
 	return exists, err
