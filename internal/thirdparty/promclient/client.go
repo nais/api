@@ -10,7 +10,6 @@ import (
 	"github.com/prometheus/client_golang/api"
 	promv1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	prom "github.com/prometheus/common/model"
-	"github.com/prometheus/prometheus/rules"
 	"github.com/sirupsen/logrus"
 	"github.com/sourcegraph/conc/pool"
 )
