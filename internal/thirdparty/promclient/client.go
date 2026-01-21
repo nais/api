@@ -44,24 +44,12 @@ func WithTime(t time.Time) QueryOption {
 }
 
 type RealClient struct {
-	prometheuses map[string]promv1.API
 	mimirMetrics promv1.API
-	mimirAlerts  promv1.API
+	mimirRules   promv1.API
 	log          logrus.FieldLogger
 }
 
-func New(clusters []string, tenant string, log logrus.FieldLogger) (*RealClient, error) {
-	proms := map[string]promv1.API{}
-	for _, cluster := range clusters {
-		client, err := api.NewClient(api.Config{Address: fmt.Sprintf("https://prometheus.%s.%s.cloud.nais.io", cluster, tenant)})
-
-		if err != nil {
-			return nil, err
-		}
-
-		proms[cluster] = promv1.NewAPI(client)
-	}
-
+func New(tenant string, log logrus.FieldLogger) (*RealClient, error) {
 	mimirMetrics, err := api.NewClient(api.Config{Address: "http://mimir-query-frontend"})
 	if err != nil {
 		return nil, err
@@ -73,9 +61,8 @@ func New(clusters []string, tenant string, log logrus.FieldLogger) (*RealClient,
 	}
 
 	return &RealClient{
-		prometheuses: proms,
 		mimirMetrics: promv1.NewAPI(mimirMetrics),
-		mimirAlerts:  promv1.NewAPI(mimirAlerts),
+		mimirRules:   promv1.NewAPI(mimirAlerts),
 		log:          log,
 	}, nil
 }
@@ -87,7 +74,7 @@ func (c *RealClient) QueryAll(ctx context.Context, query string, opts ...QueryOp
 	}
 	wg := pool.NewWithResults[*result]().WithContext(ctx)
 
-	for env := range c.prometheuses {
+	for _, env := range []string{"dev"} {
 		wg.Go(func(ctx context.Context) (*result, error) {
 			v, err := c.Query(ctx, env, query, opts...)
 			if err != nil {
@@ -112,10 +99,7 @@ func (c *RealClient) QueryAll(ctx context.Context, query string, opts ...QueryOp
 }
 
 func (c *RealClient) Query(ctx context.Context, environmentName string, query string, opts ...QueryOption) (prom.Vector, error) {
-	client, ok := c.prometheuses[environmentName]
-	if !ok {
-		return nil, fmt.Errorf("no prometheus client for environment %s", environmentName)
-	}
+	client := c.mimirMetrics
 
 	opt := &QueryOpts{
 		Time: time.Now().Add(-5 * time.Minute),
@@ -145,19 +129,13 @@ func (c *RealClient) Query(ctx context.Context, environmentName string, query st
 }
 
 func (c *RealClient) QueryRange(ctx context.Context, environment string, query string, promRange promv1.Range) (prom.Value, promv1.Warnings, error) {
-	client, ok := c.prometheuses[environment]
-	if !ok {
-		return nil, nil, fmt.Errorf("no prometheus client for environment %s", environment)
-	}
-
+	client := c.mimirMetrics
 	return client.QueryRange(ctx, query, promRange)
 }
 
 func (c *RealClient) Rules(ctx context.Context, environment string, teamSlug slug.Slug) (promv1.RulesResult, error) {
-	api, ok := c.prometheuses[environment]
-	if !ok {
-		return promv1.RulesResult{}, fmt.Errorf("no prometheus client for environment %s", environment)
-	}
+	api := c.mimirRules
+
 	res, err := api.Rules(ctx)
 	if err != nil {
 		return promv1.RulesResult{}, err
@@ -175,7 +153,7 @@ func (c *RealClient) RulesAll(ctx context.Context, teamSlug slug.Slug) (map[stri
 	}
 	wg := pool.NewWithResults[*item]().WithContext(ctx)
 
-	for env := range c.prometheuses {
+	for _, env := range []string{"dev"} {
 		wg.Go(func(ctx context.Context) (*item, error) {
 			res, err := c.Rules(ctx, env, teamSlug)
 			if err != nil {
