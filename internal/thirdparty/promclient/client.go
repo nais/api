@@ -10,6 +10,7 @@ import (
 	"github.com/prometheus/client_golang/api"
 	promv1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	prom "github.com/prometheus/common/model"
+	"github.com/prometheus/prometheus/rules"
 	"github.com/sirupsen/logrus"
 	"github.com/sourcegraph/conc/pool"
 )
@@ -44,14 +45,16 @@ func WithTime(t time.Time) QueryOption {
 
 type RealClient struct {
 	prometheuses map[string]promv1.API
+	mimirMetrics promv1.API
+	mimirAlerts  promv1.API
 	log          logrus.FieldLogger
 }
 
 func New(clusters []string, tenant string, log logrus.FieldLogger) (*RealClient, error) {
 	proms := map[string]promv1.API{}
-
 	for _, cluster := range clusters {
-		client, err := api.NewClient(api.Config{Address: "http://mimir-query-frontend"})
+		client, err := api.NewClient(api.Config{Address: fmt.Sprintf("https://prometheus.%s.%s.cloud.nais.io", cluster, tenant)})
+
 		if err != nil {
 			return nil, err
 		}
@@ -59,8 +62,20 @@ func New(clusters []string, tenant string, log logrus.FieldLogger) (*RealClient,
 		proms[cluster] = promv1.NewAPI(client)
 	}
 
+	mimirMetrics, err := api.NewClient(api.Config{Address: "http://mimir-query-frontend"})
+	if err != nil {
+		return nil, err
+	}
+
+	mimirAlerts, err := api.NewClient(api.Config{Address: "http://mimir-ruler"})
+	if err != nil {
+		return nil, err
+	}
+
 	return &RealClient{
 		prometheuses: proms,
+		mimirMetrics: promv1.NewAPI(mimirMetrics),
+		mimirAlerts:  promv1.NewAPI(mimirAlerts),
 		log:          log,
 	}, nil
 }
