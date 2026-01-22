@@ -12,6 +12,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/nais/api/internal/activitylog"
+	"github.com/nais/api/internal/agent"
 	"github.com/nais/api/internal/alerts"
 	"github.com/nais/api/internal/auth/authn"
 	"github.com/nais/api/internal/auth/authz"
@@ -96,6 +97,7 @@ func runHTTPServer(
 	lokiClient loki.Client,
 	auditLogProjectID string,
 	auditLogLocation string,
+	agentHandler *agent.Handler,
 	log logrus.FieldLogger,
 ) error {
 	router := chi.NewRouter()
@@ -174,6 +176,33 @@ func runHTTPServer(
 		r.Get("/logout", authHandler.Logout)
 		r.Get("/callback", authHandler.Callback)
 	})
+
+	// Agent chat routes (if enabled)
+	if agentHandler != nil {
+		router.Route("/agent", func(r chi.Router) {
+			middlewares := []func(http.Handler) http.Handler{
+				contextDependencies,
+			}
+
+			if fakes.WithInsecureUserHeader {
+				middlewares = append(middlewares, middleware.InsecureUserHeader())
+			}
+
+			if jwtMiddleware != nil {
+				middlewares = append(middlewares, jwtMiddleware)
+			}
+
+			middlewares = append(
+				middlewares,
+				middleware.ApiKeyAuthentication(),
+				middleware.Oauth2Authentication(authHandler),
+				middleware.RequireAuthenticatedUser(),
+			)
+			r.Use(middlewares...)
+			agentHandler.RegisterRoutes(r)
+		})
+		log.Info("Agent HTTP routes registered at /agent")
+	}
 
 	srv := &http.Server{
 		Addr:              listenAddress,
@@ -325,6 +354,7 @@ func ConfigureGraph(
 		ctx = postgres.NewLoaderContext(ctx, watchers.ZalandoPostgresWatcher, auditLogProjectID, auditLogLocation)
 		ctx = aivencredentials.NewClientContext(ctx, dynamicClients, log)
 		ctx = database.NewLoaderContext(ctx, pool)
+		ctx = agent.NewLoaderContext(ctx, pool)
 		ctx = issue.NewContext(ctx, pool)
 		ctx = team.NewLoaderContext(ctx, pool, watchers.NamespaceWatcher)
 		ctx = loki.NewLoaderContext(ctx, lokiClient)
