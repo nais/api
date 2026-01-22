@@ -8,7 +8,7 @@ memberTeam:addMember(user)
 ownerTeam:addOwner(user)
 
 
-Test.gql("Check team is viewer / owner", function(t)
+Test.gql("Check team is user / owner", function(t)
 	t.addHeader("x-user-email", user:email())
 
 	t.query [[

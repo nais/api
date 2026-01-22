@@ -1636,6 +1636,7 @@ type ComplexityRoot struct {
 		Environment     func(childComplexity int) int
 		ID              func(childComplexity int) int
 		Jobs            func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Keys            func(childComplexity int) int
 		LastModifiedAt  func(childComplexity int) int
 		LastModifiedBy  func(childComplexity int) int
 		Name            func(childComplexity int) int
@@ -2090,6 +2091,7 @@ type ComplexityRoot struct {
 		Slug                      func(childComplexity int) int
 		Unleash                   func(childComplexity int) int
 		Valkeys                   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *valkey.ValkeyOrder) int
+		ViewerCanElevate          func(childComplexity int) int
 		ViewerIsMember            func(childComplexity int) int
 		ViewerIsOwner             func(childComplexity int) int
 		VulnerabilityFixHistory   func(childComplexity int, from scalar.Date) int
@@ -9442,6 +9444,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Secret.Jobs(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
 
+	case "Secret.keys":
+		if e.complexity.Secret.Keys == nil {
+			break
+		}
+
+		return e.complexity.Secret.Keys(childComplexity), true
+
 	case "Secret.lastModifiedAt":
 		if e.complexity.Secret.LastModifiedAt == nil {
 			break
@@ -11557,6 +11566,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Team.Valkeys(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*valkey.ValkeyOrder)), true
+
+	case "Team.viewerCanElevate":
+		if e.complexity.Team.ViewerCanElevate == nil {
+			break
+		}
+
+		return e.complexity.Team.ViewerCanElevate(childComplexity), true
 
 	case "Team.viewerIsMember":
 		if e.complexity.Team.ViewerIsMember == nil {
@@ -19273,9 +19289,13 @@ enum OpenSearchMemory {
 }
 
 enum OpenSearchMajorVersion {
-	"OpenSearch Version 2.x"
+	"OpenSearch Version 3.3.x"
+	V3_3
+	"OpenSearch Version 2.19.x"
+	V2_19
+	"OpenSearch Version 2.17.x"
 	V2
-	"OpenSearch Version 1.x"
+	"OpenSearch Version 1.3.x"
 	V1
 }
 
@@ -20386,8 +20406,11 @@ type Secret implements Node {
 	"The team that owns the secret."
 	team: Team!
 
-	"The secret values contained within the secret."
-	values: [SecretValue!]!
+	"The names of the keys in the secret. This does not require elevation to access."
+	keys: [String!]!
+
+	"The secret values contained within the secret. Requires elevation to access the values. Returns null if not authorized."
+	values: [SecretValue!]
 
 	"Applications that use the secret."
 	applications(
@@ -22408,6 +22431,9 @@ type Team implements Node {
 	"Whether or not the viewer is a member of the team."
 	viewerIsMember: Boolean!
 
+	"Whether or not the viewer can create elevations for the team."
+	viewerCanElevate: Boolean!
+
 	"Environments for the team."
 	environments: [TeamEnvironment!]!
 
@@ -22688,10 +22714,10 @@ enum TeamMemberOrderField {
 
 "Team member roles."
 enum TeamMemberRole {
-	"Regular member, read only access."
+	"Member, full access including elevation."
 	MEMBER
 
-	"Team owner, full access to the team."
+	"Team owner, full access to the team including member management."
 	OWNER
 }
 

@@ -2,12 +2,14 @@ package fake
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
 
+	jsonpatch "github.com/evanphx/json-patch/v5"
 	"github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/kubernetes/watcher"
 	liberator_aiven_io_v1alpha1 "github.com/nais/liberator/pkg/apis/aiven.io/v1alpha1"
@@ -17,9 +19,11 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/dynamic"
 	dynfake "k8s.io/client-go/dynamic/fake"
 	"k8s.io/client-go/rest"
+	k8stesting "k8s.io/client-go/testing"
 	"sigs.k8s.io/yaml"
 )
 
@@ -207,7 +211,7 @@ func NewDynamicClient(scheme *runtime.Scheme) *dynfake.FakeDynamicClient {
 		newScheme.AddKnownTypeWithName(gvk, &unstructured.Unstructured{})
 	}
 
-	return dynfake.NewSimpleDynamicClientWithCustomListKinds(newScheme,
+	client := dynfake.NewSimpleDynamicClientWithCustomListKinds(newScheme,
 		map[schema.GroupVersionResource]string{
 			liberator_aiven_io_v1alpha1.GroupVersion.WithResource("valkeys"):      "ValkeyList",
 			liberator_aiven_io_v1alpha1.GroupVersion.WithResource("opensearches"): "OpenSearchList",
@@ -215,6 +219,75 @@ func NewDynamicClient(scheme *runtime.Scheme) *dynfake.FakeDynamicClient {
 			unleash_nais_io_v1.GroupVersion.WithResource("remoteunleashes"):       "RemoteUnleashList",
 			data_nais_io_v1.GroupVersion.WithResource("postgres"):                 "PostgresList",
 		})
+
+	// Add reactor for JSON Patch support
+	client.PrependReactor("patch", "*", func(action k8stesting.Action) (handled bool, ret runtime.Object, err error) {
+		patchAction, ok := action.(k8stesting.PatchAction)
+		if !ok {
+			return false, nil, nil
+		}
+
+		// Only handle JSON Patch type
+		if patchAction.GetPatchType() != types.JSONPatchType {
+			return false, nil, nil
+		}
+
+		// Get the existing object from the tracker
+		gvr := patchAction.GetResource()
+		ns := patchAction.GetNamespace()
+		name := patchAction.GetName()
+
+		obj, err := client.Tracker().Get(gvr, ns, name)
+		if err != nil {
+			return true, nil, err
+		}
+
+		// Get the original object as unstructured to preserve apiVersion/kind
+		original, ok := obj.(*unstructured.Unstructured)
+		if !ok {
+			return true, nil, fmt.Errorf("expected *unstructured.Unstructured, got %T", obj)
+		}
+
+		// Convert to JSON
+		objJSON, err := json.Marshal(obj)
+		if err != nil {
+			return true, nil, fmt.Errorf("marshaling object: %w", err)
+		}
+
+		// Apply the JSON patch
+		patch, err := jsonpatch.DecodePatch(patchAction.GetPatch())
+		if err != nil {
+			return true, nil, fmt.Errorf("decoding patch: %w", err)
+		}
+
+		modifiedJSON, err := patch.Apply(objJSON)
+		if err != nil {
+			return true, nil, fmt.Errorf("applying patch: %w", err)
+		}
+
+		// Convert back to unstructured
+		modified := &unstructured.Unstructured{}
+		if err := json.Unmarshal(modifiedJSON, &modified.Object); err != nil {
+			return true, nil, fmt.Errorf("unmarshaling modified object: %w", err)
+		}
+
+		// Preserve apiVersion and kind from original object (JSON patch may not include them)
+		if modified.GetAPIVersion() == "" {
+			modified.SetAPIVersion(original.GetAPIVersion())
+		}
+		if modified.GetKind() == "" {
+			modified.SetKind(original.GetKind())
+		}
+
+		// Update the object in the tracker
+		if err := client.Tracker().Update(gvr, modified, ns); err != nil {
+			return true, nil, fmt.Errorf("updating object: %w", err)
+		}
+
+		return true, modified, nil
+	})
+
+	return client
 }
 
 func AddObjectToDynamicClient(scheme *runtime.Scheme, fc *dynfake.FakeDynamicClient, objs ...runtime.Object) {

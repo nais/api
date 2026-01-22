@@ -4139,6 +4139,8 @@ func (ec *executionContext) fieldContext_Query_team(ctx context.Context, field g
 				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
 			case "viewerIsMember":
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
+			case "viewerCanElevate":
+				return ec.fieldContext_Team_viewerCanElevate(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
 			case "environment":

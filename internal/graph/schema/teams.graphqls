@@ -154,6 +154,9 @@ type Team implements Node {
 	"Whether or not the viewer is a member of the team."
 	viewerIsMember: Boolean!
 
+	"Whether or not the viewer can create elevations for the team."
+	viewerCanElevate: Boolean!
+
 	"Environments for the team."
 	environments: [TeamEnvironment!]!
 
@@ -434,10 +437,10 @@ enum TeamMemberOrderField {
 
 "Team member roles."
 enum TeamMemberRole {
-	"Regular member, read only access."
+	"Member, full access including elevation."
 	MEMBER
 
-	"Team owner, full access to the team."
+	"Team owner, full access to the team including member management."
 	OWNER
 }
 

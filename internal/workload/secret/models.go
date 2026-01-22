@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/nais/api/internal/graph/ident"
@@ -18,6 +19,7 @@ import (
 const (
 	secretAnnotationLastModifiedAt = "console.nais.io/last-modified-at"
 	secretAnnotationLastModifiedBy = "console.nais.io/last-modified-by"
+	annotationSecretKeys           = "console.nais.io/cached-secret-keys"
 )
 
 type (
@@ -29,6 +31,7 @@ type Secret struct {
 	Name                string     `json:"name"`
 	LastModifiedAt      *time.Time `json:"lastModifiedAt"`
 	ModifiedByUserEmail *string    `json:"lastModifiedBy"`
+	Keys                []string   `json:"-"` // Cached key names from transformer
 
 	TeamSlug        slug.Slug `json:"-"`
 	EnvironmentName string    `json:"-"`
@@ -104,12 +107,19 @@ func toGraphSecret(o *unstructured.Unstructured, environmentName string) (*Secre
 		lastModifiedBy = &email
 	}
 
+	// Extract cached keys from annotation (set by transformer)
+	var keys []string
+	if keyList, ok := o.GetAnnotations()[annotationSecretKeys]; ok && keyList != "" {
+		keys = strings.Split(keyList, ",")
+	}
+
 	return &Secret{
 		Name:                o.GetName(),
 		TeamSlug:            slug.Slug(o.GetNamespace()),
 		EnvironmentName:     environmentName,
 		LastModifiedAt:      lastModifiedAt,
 		ModifiedByUserEmail: lastModifiedBy,
+		Keys:                keys,
 	}, true
 }
 

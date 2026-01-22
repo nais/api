@@ -23,8 +23,7 @@ func (r *applicationResolver) Secrets(ctx context.Context, obj *application.Appl
 		return nil, err
 	}
 
-	envName := environmentmapper.ClusterName(obj.EnvironmentName)
-	return secret.ListForWorkload(ctx, obj.TeamSlug, envName, obj, page)
+	return secret.ListForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj, page)
 }
 
 func (r *jobResolver) Secrets(ctx context.Context, obj *job.Job, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*secret.Secret], error) {
@@ -33,8 +32,7 @@ func (r *jobResolver) Secrets(ctx context.Context, obj *job.Job, first *int, aft
 		return nil, err
 	}
 
-	envName := environmentmapper.ClusterName(obj.EnvironmentName)
-	return secret.ListForWorkload(ctx, obj.TeamSlug, envName, obj, page)
+	return secret.ListForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj, page)
 }
 
 func (r *mutationResolver) CreateSecret(ctx context.Context, input secret.CreateSecretInput) (*secret.CreateSecretPayload, error) {
@@ -42,8 +40,7 @@ func (r *mutationResolver) CreateSecret(ctx context.Context, input secret.Create
 		return nil, err
 	}
 
-	envName := environmentmapper.ClusterName(input.Environment)
-	s, err := secret.Create(ctx, input.Team, envName, input.Name)
+	s, err := secret.Create(ctx, input.Team, environmentmapper.ClusterName(input.Environment), input.Name)
 	if err != nil {
 		return nil, err
 	}
@@ -58,8 +55,7 @@ func (r *mutationResolver) AddSecretValue(ctx context.Context, input secret.AddS
 		return nil, err
 	}
 
-	envName := environmentmapper.ClusterName(input.Environment)
-	s, err := secret.AddSecretValue(ctx, input.Team, envName, input.Name, input.Value)
+	s, err := secret.AddSecretValue(ctx, input.Team, environmentmapper.ClusterName(input.Environment), input.Name, input.Value)
 	if err != nil {
 		return nil, err
 	}
@@ -74,8 +70,7 @@ func (r *mutationResolver) UpdateSecretValue(ctx context.Context, input secret.U
 		return nil, err
 	}
 
-	envName := environmentmapper.ClusterName(input.Environment)
-	s, err := secret.UpdateSecretValue(ctx, input.Team, envName, input.Name, input.Value)
+	s, err := secret.UpdateSecretValue(ctx, input.Team, environmentmapper.ClusterName(input.Environment), input.Name, input.Value)
 	if err != nil {
 		return nil, err
 	}
@@ -90,8 +85,7 @@ func (r *mutationResolver) RemoveSecretValue(ctx context.Context, input secret.R
 		return nil, err
 	}
 
-	envName := environmentmapper.ClusterName(input.Environment)
-	s, err := secret.RemoveSecretValue(ctx, input.Team, envName, input.SecretName, input.ValueName)
+	s, err := secret.RemoveSecretValue(ctx, input.Team, environmentmapper.ClusterName(input.Environment), input.SecretName, input.ValueName)
 	if err != nil {
 		return nil, err
 	}
@@ -106,8 +100,7 @@ func (r *mutationResolver) DeleteSecret(ctx context.Context, input secret.Delete
 		return nil, err
 	}
 
-	envName := environmentmapper.ClusterName(input.Environment)
-	if err := secret.Delete(ctx, input.Team, envName, input.Name); err != nil {
+	if err := secret.Delete(ctx, input.Team, environmentmapper.ClusterName(input.Environment), input.Name); err != nil {
 		return nil, err
 	}
 
@@ -121,7 +114,7 @@ func (r *secretResolver) Environment(ctx context.Context, obj *secret.Secret) (*
 }
 
 func (r *secretResolver) TeamEnvironment(ctx context.Context, obj *secret.Secret) (*team.TeamEnvironment, error) {
-	return team.GetTeamEnvironment(ctx, obj.TeamSlug, environmentmapper.EnvironmentName(obj.EnvironmentName))
+	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
 
 func (r *secretResolver) Team(ctx context.Context, obj *secret.Secret) (*team.Team, error) {
@@ -180,17 +173,16 @@ func (r *secretResolver) Workloads(ctx context.Context, obj *secret.Secret, firs
 		return nil, err
 	}
 
-	envName := environmentmapper.EnvironmentName(obj.EnvironmentName)
 	ret := make([]workload.Workload, 0)
 
-	applications := application.ListAllForTeamInEnvironment(ctx, obj.TeamSlug, envName)
+	applications := application.ListAllForTeamInEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 	for _, app := range applications {
 		if slices.Contains(app.GetSecrets(), obj.Name) {
 			ret = append(ret, app)
 		}
 	}
 
-	jobs := job.ListAllForTeamInEnvironment(ctx, obj.TeamSlug, envName)
+	jobs := job.ListAllForTeamInEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 	for _, j := range jobs {
 		if slices.Contains(j.GetSecrets(), obj.Name) {
 			ret = append(ret, j)
@@ -212,11 +204,10 @@ func (r *secretResolver) LastModifiedBy(ctx context.Context, obj *secret.Secret)
 	return user.GetByEmail(ctx, *obj.ModifiedByUserEmail)
 }
 
+// Secrets returns all secrets for a team.
+// Secret metadata (names, keys) is visible to all authenticated users.
+// Secret values require team membership and elevation.
 func (r *teamResolver) Secrets(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *secret.SecretOrder, filter *secret.SecretFilter) (*pagination.Connection[*secret.Secret], error) {
-	if err := authz.CanReadSecrets(ctx, obj.Slug); err != nil {
-		return nil, nil
-	}
-
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
@@ -225,12 +216,11 @@ func (r *teamResolver) Secrets(ctx context.Context, obj *team.Team, first *int, 
 	return secret.ListForTeam(ctx, obj.Slug, page, orderBy, filter)
 }
 
+// Secret returns a single secret by name.
+// Secret metadata (name, keys) is visible to all authenticated users.
+// Secret values require team membership and elevation.
 func (r *teamEnvironmentResolver) Secret(ctx context.Context, obj *team.TeamEnvironment, name string) (*secret.Secret, error) {
-	if err := authz.CanReadSecrets(ctx, obj.TeamSlug); err != nil {
-		return nil, nil
-	}
-
-	return secret.Get(ctx, obj.TeamSlug, environmentmapper.ClusterName(obj.EnvironmentName), name)
+	return secret.Get(ctx, obj.TeamSlug, obj.EnvironmentName, name)
 }
 
 func (r *Resolver) Secret() gengql.SecretResolver { return &secretResolver{r} }

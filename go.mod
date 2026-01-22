@@ -27,6 +27,7 @@ require (
 	github.com/bombsimon/logrusr/v4 v4.1.0
 	github.com/btcsuite/btcutil v1.0.2
 	github.com/coreos/go-oidc/v3 v3.12.0
+	github.com/evanphx/json-patch/v5 v5.9.11
 	github.com/exaring/otelpgx v0.9.0
 	github.com/go-chi/chi/v5 v5.2.2
 	github.com/google/go-cmp v0.7.0
@@ -184,7 +185,6 @@ require (
 	github.com/emicklei/go-restful/v3 v3.13.0 // indirect
 	github.com/envoyproxy/protoc-gen-validate v1.2.1 // indirect
 	github.com/evanphx/json-patch v5.9.0+incompatible // indirect
-	github.com/evanphx/json-patch/v5 v5.9.11 // indirect
 	github.com/facette/natsort v0.0.0-20181210072756-2cd4dd1e2dcb // indirect
 	github.com/fatih/color v1.18.0 // indirect
 	github.com/fatih/structs v1.1.0 // indirect

@@ -179,18 +179,21 @@ func (e TeamMemberRole) IsValid() bool {
 }
 
 func teamMemberRoleToSqlRole(role TeamMemberRole) string {
-	if role == TeamMemberRoleMember {
+	switch role {
+	case TeamMemberRoleMember:
 		return "Team member"
+	default:
+		return "Team owner"
 	}
-
-	return "Team owner"
 }
 
 func teamMemberRoleFromSqlTeamRole(t string) TeamMemberRole {
-	if t == "Team owner" {
+	switch t {
+	case "Team owner":
 		return TeamMemberRoleOwner
+	default:
+		return TeamMemberRoleMember
 	}
-	return TeamMemberRoleMember
 }
 
 func (e TeamMemberRole) String() string {
