@@ -49,12 +49,12 @@ type RealClient struct {
 }
 
 func New(clusters []string, tenant string, log logrus.FieldLogger) (*RealClient, error) {
-	mimirMetrics, err := api.NewClient(api.Config{Address: "http://mimir-query-frontend:8080"})
+	mimirMetrics, err := api.NewClient(api.Config{Address: "http://mimir-query-frontend:8080/prometheus"})
 	if err != nil {
 		return nil, err
 	}
 
-	mimirAlerts, err := api.NewClient(api.Config{Address: "http://mimir-ruler:8080"})
+	mimirAlerts, err := api.NewClient(api.Config{Address: "http://mimir-ruler:8080/prometheus"})
 	if err != nil {
 		return nil, err
 	}
