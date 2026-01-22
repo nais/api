@@ -1,3 +1,19 @@
+// Package secret provides operations for managing Kubernetes secrets.
+//
+// Secret operations use different Kubernetes clients based on security requirements:
+//
+// SystemAuthenticatedClient (nais-api service account):
+//   - List/Get secret metadata and keys
+//   - Create secrets
+//   - Add/Update/Remove secret values (using JSON Patch - never reads values)
+//   - Delete secrets
+//   - Allows admin bypass - admins can manage secrets in any team
+//
+// ImpersonatedClient (user's RBAC):
+//   - Read secret values
+//   - Requires user to be team member AND have active elevation
+//   - NO admin bypass - even admins must be team members and request elevation
+//   - This ensures all secret value access is audited via elevation system
 package secret
 
 import (
@@ -393,8 +409,8 @@ func Delete(ctx context.Context, teamSlug slug.Slug, environment, name string) e
 		return err
 	}
 
-	// Use watcher.Delete like other workloads
-	if err := w.Delete(ctx, environment, teamSlug.String(), name); err != nil {
+	// Use SystemAuthenticatedClient directly (not watcher.Delete which uses impersonation)
+	if err := client.Namespace(teamSlug.String()).Delete(ctx, name, v1.DeleteOptions{}); err != nil {
 		return err
 	}
 

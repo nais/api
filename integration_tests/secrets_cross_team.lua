@@ -395,7 +395,39 @@ end)
 -- Verify team owner still has full access
 -- ============================================================
 
-Test.gql("Team owner CAN still see values", function(t)
+Test.gql("Team owner needs elevation to see values", function(t)
+	t.addHeader("x-user-email", teamOwner:email())
+
+	-- First create elevation
+	t.query [[
+		mutation {
+			createElevation(input: {
+				type: SECRET
+				team: "alpha"
+				environmentName: "dev"
+				resourceName: "alpha-secret"
+				reason: "Testing team owner access to secret values"
+				durationMinutes: 5
+			}) {
+				elevation {
+					id
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			createElevation = {
+				elevation = {
+					id = Save("ownerElevationID"),
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("Team owner CAN see values WITH elevation", function(t)
 	t.addHeader("x-user-email", teamOwner:email())
 
 	t.query [[

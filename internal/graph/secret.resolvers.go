@@ -5,6 +5,7 @@ import (
 	"slices"
 
 	"github.com/nais/api/internal/auth/authz"
+	"github.com/nais/api/internal/elevation"
 	"github.com/nais/api/internal/environmentmapper"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/model"
@@ -23,8 +24,7 @@ func (r *applicationResolver) Secrets(ctx context.Context, obj *application.Appl
 		return nil, err
 	}
 
-	envName := environmentmapper.ClusterName(obj.EnvironmentName)
-	return secret.ListForWorkload(ctx, obj.TeamSlug, envName, obj, page)
+	return secret.ListForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj, page)
 }
 
 func (r *jobResolver) Secrets(ctx context.Context, obj *job.Job, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*secret.Secret], error) {
@@ -33,8 +33,7 @@ func (r *jobResolver) Secrets(ctx context.Context, obj *job.Job, first *int, aft
 		return nil, err
 	}
 
-	envName := environmentmapper.ClusterName(obj.EnvironmentName)
-	return secret.ListForWorkload(ctx, obj.TeamSlug, envName, obj, page)
+	return secret.ListForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj, page)
 }
 
 func (r *mutationResolver) CreateSecret(ctx context.Context, input secret.CreateSecretInput) (*secret.CreateSecretPayload, error) {
@@ -129,8 +128,26 @@ func (r *secretResolver) Team(ctx context.Context, obj *secret.Secret) (*team.Te
 }
 
 func (r *secretResolver) Values(ctx context.Context, obj *secret.Secret) ([]*secret.SecretValue, error) {
-	if err := authz.CanReadSecrets(ctx, obj.TeamSlug); err != nil {
+	// First check if user is a team member (strict check without admin bypass)
+	if err := authz.CanReadSecretValues(ctx, obj.TeamSlug); err != nil {
 		return nil, err
+	}
+
+	// Then check if user has an active elevation for this specific secret
+	actor := authz.ActorFromContext(ctx)
+	elevations, err := elevation.List(ctx, &elevation.ElevationInput{
+		Type:            elevation.ElevationTypeSecret,
+		Team:            obj.TeamSlug,
+		EnvironmentName: environmentmapper.EnvironmentName(obj.EnvironmentName),
+		ResourceName:    obj.Name,
+	}, actor.User.Identity())
+	if err != nil {
+		return nil, err
+	}
+
+	if len(elevations) == 0 {
+		// No active elevation found - user must request elevation to view secret values
+		return nil, authz.ErrUnauthorized
 	}
 
 	return secret.GetSecretValues(ctx, obj.TeamSlug, environmentmapper.ClusterName(obj.EnvironmentName), obj.Name)
@@ -228,7 +245,7 @@ func (r *teamResolver) Secrets(ctx context.Context, obj *team.Team, first *int, 
 // Secret metadata (name, keys) is visible to all authenticated users.
 // Secret values require team membership and elevation.
 func (r *teamEnvironmentResolver) Secret(ctx context.Context, obj *team.TeamEnvironment, name string) (*secret.Secret, error) {
-	return secret.Get(ctx, obj.TeamSlug, environmentmapper.ClusterName(obj.EnvironmentName), name)
+	return secret.Get(ctx, obj.TeamSlug, obj.EnvironmentName, name)
 }
 
 func (r *Resolver) Secret() gengql.SecretResolver { return &secretResolver{r} }

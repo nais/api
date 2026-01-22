@@ -317,6 +317,37 @@ func (q *Queries) HasTeamAuthorization(ctx context.Context, arg HasTeamAuthoriza
 	return column_1, err
 }
 
+const hasTeamMembership = `-- name: HasTeamMembership :one
+SELECT
+	EXISTS (
+		SELECT
+			1
+		FROM
+			authorizations a
+			INNER JOIN role_authorizations ra ON ra.authorization_name = a.name
+			INNER JOIN user_roles ur ON ur.role_name = ra.role_name
+		WHERE
+			ur.user_id = $1
+			AND a.name = $2
+			AND ur.target_team_slug = $3::slug
+	)::BOOLEAN
+`
+
+type HasTeamMembershipParams struct {
+	UserID            uuid.UUID
+	AuthorizationName string
+	TeamSlug          slug.Slug
+}
+
+// Strict team membership check WITHOUT admin bypass
+// Used for security-sensitive operations like elevations and reading secret values
+func (q *Queries) HasTeamMembership(ctx context.Context, arg HasTeamMembershipParams) (bool, error) {
+	row := q.db.QueryRow(ctx, hasTeamMembership, arg.UserID, arg.AuthorizationName, arg.TeamSlug)
+	var column_1 bool
+	err := row.Scan(&column_1)
+	return column_1, err
+}
+
 const listRoles = `-- name: ListRoles :many
 SELECT
 	name, description, is_only_global
@@ -553,6 +584,36 @@ type ServiceAccountHasTeamAuthorizationParams struct {
 
 func (q *Queries) ServiceAccountHasTeamAuthorization(ctx context.Context, arg ServiceAccountHasTeamAuthorizationParams) (bool, error) {
 	row := q.db.QueryRow(ctx, serviceAccountHasTeamAuthorization, arg.ServiceAccountID, arg.AuthorizationName, arg.TeamSlug)
+	var column_1 bool
+	err := row.Scan(&column_1)
+	return column_1, err
+}
+
+const serviceAccountHasTeamMembership = `-- name: ServiceAccountHasTeamMembership :one
+SELECT
+	EXISTS (
+		SELECT
+			1
+		FROM
+			authorizations a
+			INNER JOIN role_authorizations ra ON ra.authorization_name = a.name
+			INNER JOIN service_account_roles sar ON sar.role_name = ra.role_name
+		WHERE
+			sar.service_account_id = $1
+			AND a.name = $2
+			AND sar.target_team_slug = $3::slug
+	)::BOOLEAN
+`
+
+type ServiceAccountHasTeamMembershipParams struct {
+	ServiceAccountID  uuid.UUID
+	AuthorizationName string
+	TeamSlug          slug.Slug
+}
+
+// Strict team membership check for service accounts WITHOUT admin bypass
+func (q *Queries) ServiceAccountHasTeamMembership(ctx context.Context, arg ServiceAccountHasTeamMembershipParams) (bool, error) {
+	row := q.db.QueryRow(ctx, serviceAccountHasTeamMembership, arg.ServiceAccountID, arg.AuthorizationName, arg.TeamSlug)
 	var column_1 bool
 	err := row.Scan(&column_1)
 	return column_1, err

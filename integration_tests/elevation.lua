@@ -193,6 +193,78 @@ Test.gql("Create elevation - non-team member not authorized", function(t)
 	}
 end)
 
+Test.gql("Create elevation - admin user cannot bypass team membership", function(t)
+	-- Create an admin user
+	local adminUser = User.new("admin-user", "admin@example.com", "admin-ext")
+	adminUser:admin(true)
+
+	-- Admin tries to create elevation for myteam (where they are NOT a member)
+	t.addHeader("x-user-email", adminUser:email())
+
+	t.query [[
+		mutation {
+			createElevation(input: {
+				type: SECRET
+				team: "myteam"
+				environmentName: "dev"
+				resourceName: "test-secret"
+				reason: "Admin trying to access team secrets without membership"
+				durationMinutes: 5
+			}) {
+				elevation {
+					id
+				}
+			}
+		}
+	]]
+
+	t.check {
+		errors = {
+			{
+				message = Contains("authorized"),
+				path = { "createElevation" },
+			},
+		},
+		data = Null,
+	}
+end)
+
+Test.gql("Create elevation - user from different team cannot elevate", function(t)
+	-- Create a second team with otherUser as owner
+	local otherTeam = Team.new("otherteam", "Other team", "#otherteam")
+	otherTeam:addOwner(otherUser)
+
+	-- otherUser tries to create elevation for myteam's secret (where they are NOT a member)
+	t.addHeader("x-user-email", otherUser:email())
+
+	t.query [[
+		mutation {
+			createElevation(input: {
+				type: SECRET
+				team: "myteam"
+				environmentName: "dev"
+				resourceName: "test-secret"
+				reason: "Trying to access another team's secrets"
+				durationMinutes: 5
+			}) {
+				elevation {
+					id
+				}
+			}
+		}
+	]]
+
+	t.check {
+		errors = {
+			{
+				message = Contains("authorized"),
+				path = { "createElevation" },
+			},
+		},
+		data = Null,
+	}
+end)
+
 Test.gql("Create elevation - environment not found", function(t)
 	t.addHeader("x-user-email", user:email())
 
