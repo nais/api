@@ -18,9 +18,16 @@ import (
 	"google.golang.org/grpc"
 )
 
-func Run(ctx context.Context, listenAddress string, pool *pgxpool.Pool, log logrus.FieldLogger) error {
-	log.Info("GRPC serving on ", listenAddress)
-	lis, err := net.Listen("tcp", listenAddress)
+// Config holds configuration for the gRPC server.
+type Config struct {
+	ListenAddress string
+	Pool          *pgxpool.Pool
+	Log           logrus.FieldLogger
+}
+
+func Run(ctx context.Context, cfg *Config) error {
+	cfg.Log.Info("GRPC serving on ", cfg.ListenAddress)
+	lis, err := net.Listen("tcp", cfg.ListenAddress)
 	if err != nil {
 		return fmt.Errorf("failed to listen: %w", err)
 	}
@@ -30,10 +37,10 @@ func Run(ctx context.Context, listenAddress string, pool *pgxpool.Pool, log logr
 	}
 	s := grpc.NewServer(opts...)
 
-	protoapi.RegisterTeamsServer(s, grpcteam.NewServer(pool))
-	protoapi.RegisterUsersServer(s, grpcuser.NewServer(pool))
-	protoapi.RegisterReconcilersServer(s, grpcreconciler.NewServer(pool))
-	protoapi.RegisterDeploymentsServer(s, grpcdeployment.NewServer(pool))
+	protoapi.RegisterTeamsServer(s, grpcteam.NewServer(cfg.Pool))
+	protoapi.RegisterUsersServer(s, grpcuser.NewServer(cfg.Pool))
+	protoapi.RegisterReconcilersServer(s, grpcreconciler.NewServer(cfg.Pool))
+	protoapi.RegisterDeploymentsServer(s, grpcdeployment.NewServer(cfg.Pool))
 
 	g, ctx := errgroup.WithContext(ctx)
 	g.Go(func() error { return s.Serve(lis) })
