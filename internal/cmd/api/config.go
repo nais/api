@@ -144,6 +144,7 @@ type Aiven struct {
 
 type Config struct {
 	Aiven Aiven
+	Agent agentConfig
 
 	// Tenant is the active tenant
 	Tenant string `env:"TENANT,default=dev-nais"`
@@ -238,6 +239,45 @@ type JWTConfig struct {
 type pubSubConfig struct {
 	APITopic           string `env:"PUBSUB_API_TOPIC,default=nais-api"`
 	EventsSubscription string `env:"PUBSUB_EVENTS_SUBSCRIPTION,default=nais-api-log-topic-subscription"`
+}
+
+// agentConfig contains configuration for the AI agent service.
+type agentConfig struct {
+	// Enabled enables the AI agent gRPC service.
+	Enabled bool `env:"AGENT_ENABLED,default=false"`
+
+	// LLMProvider selects the LLM provider ("vertexai").
+	LLMProvider string `env:"AGENT_LLM_PROVIDER,default=vertexai"`
+
+	// RAGProvider selects the RAG provider ("duckdb" or "none").
+	RAGProvider string `env:"AGENT_RAG_PROVIDER,default=duckdb"`
+
+	// VertexAI contains Vertex AI specific configuration for LLM and embeddings.
+	VertexAI agentVertexAIConfig
+
+	// RAG contains RAG-specific configuration.
+	RAG agentRAGConfig
+}
+
+// agentVertexAIConfig contains Vertex AI specific configuration for the agent.
+type agentVertexAIConfig struct {
+	// ProjectID is the GCP project hosting Vertex AI resources.
+	ProjectID string `env:"AGENT_VERTEX_AI_PROJECT_ID"`
+
+	// Location is the region for Vertex AI (must be in EU, e.g., "europe-west1").
+	Location string `env:"AGENT_VERTEX_AI_LOCATION,default=europe-west1"`
+
+	// ModelName is the Gemini model to use for chat.
+	ModelName string `env:"AGENT_VERTEX_AI_MODEL,default=gemini-2.0-flash"`
+
+	// EmbeddingModel is the model to use for query embeddings.
+	EmbeddingModel string `env:"AGENT_VERTEX_AI_EMBEDDING_MODEL,default=text-embedding-004"`
+}
+
+// agentRAGConfig contains RAG-specific configuration.
+type agentRAGConfig struct {
+	// DuckDBPath is the local path to the DuckDB RAG index file.
+	DuckDBPath string `env:"AGENT_RAG_DUCKDB_PATH,default=/data/rag_index.duckdb"`
 }
 
 // NewConfig creates a new configuration instance from environment variables

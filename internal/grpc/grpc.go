@@ -7,6 +7,9 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/nais/api/internal/grpc/grpcagent"
+	"github.com/nais/api/internal/grpc/grpcagent/agent/chat"
+	"github.com/nais/api/internal/grpc/grpcagent/agent/rag"
 	"github.com/nais/api/internal/grpc/grpcdeployment"
 	"github.com/nais/api/internal/grpc/grpcreconciler"
 	"github.com/nais/api/internal/grpc/grpcteam"
@@ -18,9 +21,24 @@ import (
 	"google.golang.org/grpc"
 )
 
-func Run(ctx context.Context, listenAddress string, pool *pgxpool.Pool, log logrus.FieldLogger) error {
-	log.Info("GRPC serving on ", listenAddress)
-	lis, err := net.Listen("tcp", listenAddress)
+// AgentConfig holds configuration for the agent gRPC service.
+type AgentConfig struct {
+	ChatClient chat.StreamingClient
+	RAGClient  rag.DocumentSearcher
+	NaisAPIURL string
+}
+
+// Config holds configuration for the gRPC server.
+type Config struct {
+	ListenAddress string
+	Pool          *pgxpool.Pool
+	Log           logrus.FieldLogger
+	Agent         *AgentConfig
+}
+
+func Run(ctx context.Context, cfg *Config) error {
+	cfg.Log.Info("GRPC serving on ", cfg.ListenAddress)
+	lis, err := net.Listen("tcp", cfg.ListenAddress)
 	if err != nil {
 		return fmt.Errorf("failed to listen: %w", err)
 	}
@@ -30,10 +48,22 @@ func Run(ctx context.Context, listenAddress string, pool *pgxpool.Pool, log logr
 	}
 	s := grpc.NewServer(opts...)
 
-	protoapi.RegisterTeamsServer(s, grpcteam.NewServer(pool))
-	protoapi.RegisterUsersServer(s, grpcuser.NewServer(pool))
-	protoapi.RegisterReconcilersServer(s, grpcreconciler.NewServer(pool))
-	protoapi.RegisterDeploymentsServer(s, grpcdeployment.NewServer(pool))
+	protoapi.RegisterTeamsServer(s, grpcteam.NewServer(cfg.Pool))
+	protoapi.RegisterUsersServer(s, grpcuser.NewServer(cfg.Pool))
+	protoapi.RegisterReconcilersServer(s, grpcreconciler.NewServer(cfg.Pool))
+	protoapi.RegisterDeploymentsServer(s, grpcdeployment.NewServer(cfg.Pool))
+
+	// Register agent server if configured
+	if cfg.Agent != nil {
+		protoapi.RegisterAgentServer(s, grpcagent.NewServer(
+			cfg.Pool,
+			cfg.Agent.ChatClient,
+			cfg.Agent.RAGClient,
+			cfg.Agent.NaisAPIURL,
+			cfg.Log.WithField("service", "agent"),
+		))
+		cfg.Log.Info("Agent gRPC service registered")
+	}
 
 	g, ctx := errgroup.WithContext(ctx)
 	g.Go(func() error { return s.Serve(lis) })

@@ -23,6 +23,10 @@ import (
 	"github.com/nais/api/internal/graph"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/grpc"
+	"github.com/nais/api/internal/grpc/grpcagent/agent/chat"
+	"github.com/nais/api/internal/grpc/grpcagent/agent/chat/vertexai"
+	"github.com/nais/api/internal/grpc/grpcagent/agent/rag"
+	"github.com/nais/api/internal/grpc/grpcagent/agent/rag/duckdb"
 	"github.com/nais/api/internal/issue/checker"
 	"github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/kubernetes/event"
@@ -284,6 +288,25 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		return fmt.Errorf("create loki client: %w", err)
 	}
 
+	// Initialize agent clients if enabled
+	var agentConfig *grpc.AgentConfig
+	if cfg.Agent.Enabled {
+		chatClient, ragClient, err := initAgentClients(ctx, cfg.Agent, log)
+		if err != nil {
+			return fmt.Errorf("initializing agent clients: %w", err)
+		}
+		// Defer closing clients
+		defer chatClient.Close()
+		defer ragClient.Close()
+
+		agentConfig = &grpc.AgentConfig{
+			ChatClient: chatClient,
+			RAGClient:  ragClient,
+			NaisAPIURL: "http://" + cfg.ListenAddress,
+		}
+		log.Info("Agent service enabled")
+	}
+
 	// HTTP server
 	wg.Go(func() error {
 		return runHTTPServer(
@@ -328,7 +351,13 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	})
 
 	wg.Go(func() error {
-		if err := grpc.Run(ctx, cfg.GRPCListenAddress, pool, log.WithField("subsystem", "grpc")); err != nil {
+		grpcCfg := &grpc.Config{
+			ListenAddress: cfg.GRPCListenAddress,
+			Pool:          pool,
+			Log:           log.WithField("subsystem", "grpc"),
+			Agent:         agentConfig,
+		}
+		if err := grpc.Run(ctx, grpcCfg); err != nil {
 			log.WithError(err).Errorf("error in GRPC server")
 			return err
 		}
@@ -424,4 +453,67 @@ func setupAuthHandler(ctx context.Context, cfg oAuthConfig, log logrus.FieldLogg
 		return nil, err
 	}
 	return authn.New(cf, log), nil
+}
+
+func initAgentClients(ctx context.Context, cfg agentConfig, log logrus.FieldLogger) (chat.StreamingClient, rag.DocumentSearcher, error) {
+	var chatClient chat.StreamingClient
+	var ragClient rag.DocumentSearcher
+	var err error
+
+	switch cfg.LLMProvider {
+	case "vertexai":
+		chatClient, err = vertexai.NewClient(ctx, vertexai.Config{
+			ProjectID: cfg.VertexAI.ProjectID,
+			Location:  cfg.VertexAI.Location,
+			ModelName: cfg.VertexAI.ModelName,
+		}, log.WithField("client", "vertexai-chat"))
+		if err != nil {
+			return nil, nil, fmt.Errorf("creating vertexai chat client: %w", err)
+		}
+	default:
+		return nil, nil, fmt.Errorf("unsupported LLM provider: %s", cfg.LLMProvider)
+	}
+
+	switch cfg.RAGProvider {
+	case "duckdb":
+		// Create embedding client for query embeddings
+		embeddingClient, err := duckdb.NewVertexAIEmbeddingClient(ctx, duckdb.EmbeddingConfig{
+			ProjectID: cfg.VertexAI.ProjectID,
+			Location:  cfg.VertexAI.Location,
+			ModelName: cfg.VertexAI.EmbeddingModel,
+		}, log.WithField("client", "vertexai-embedding"))
+		if err != nil {
+			chatClient.Close()
+			return nil, nil, fmt.Errorf("creating embedding client: %w", err)
+		}
+
+		ragClient, err = duckdb.NewSearcher(duckdb.Config{
+			DBPath:          cfg.RAG.DuckDBPath,
+			EmbeddingClient: embeddingClient,
+		}, log.WithField("client", "duckdb-rag"))
+		if err != nil {
+			embeddingClient.Close()
+			chatClient.Close()
+			return nil, nil, fmt.Errorf("creating duckdb rag client: %w", err)
+		}
+	case "none":
+		// No RAG - use a no-op searcher
+		ragClient = &noopSearcher{}
+	default:
+		chatClient.Close()
+		return nil, nil, fmt.Errorf("unsupported RAG provider: %s", cfg.RAGProvider)
+	}
+
+	return chatClient, ragClient, nil
+}
+
+// noopSearcher implements rag.DocumentSearcher but returns no results.
+type noopSearcher struct{}
+
+func (n *noopSearcher) Search(ctx context.Context, query string, opts *rag.SearchOptions) (*rag.SearchResult, error) {
+	return &rag.SearchResult{Documents: []rag.Document{}}, nil
+}
+
+func (n *noopSearcher) Close() error {
+	return nil
 }
