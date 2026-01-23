@@ -21,6 +21,9 @@ type Querier interface {
 	GitHubAuthorizationRoleCheck(ctx context.Context, arg GitHubAuthorizationRoleCheckParams) (bool, error)
 	HasGlobalAuthorization(ctx context.Context, arg HasGlobalAuthorizationParams) (bool, error)
 	HasTeamAuthorization(ctx context.Context, arg HasTeamAuthorizationParams) (bool, error)
+	// Strict team membership check WITHOUT admin bypass
+	// Used for security-sensitive operations like elevations and reading secret values
+	HasTeamMembership(ctx context.Context, arg HasTeamMembershipParams) (bool, error)
 	ListRoles(ctx context.Context, arg ListRolesParams) ([]*Role, error)
 	ListRolesForServiceAccount(ctx context.Context, arg ListRolesForServiceAccountParams) ([]*Role, error)
 	RevokeRoleFromServiceAccount(ctx context.Context, arg RevokeRoleFromServiceAccountParams) error
@@ -28,6 +31,8 @@ type Querier interface {
 	ServiceAccountHasGlobalAuthorization(ctx context.Context, arg ServiceAccountHasGlobalAuthorizationParams) (bool, error)
 	ServiceAccountHasRole(ctx context.Context, arg ServiceAccountHasRoleParams) (bool, error)
 	ServiceAccountHasTeamAuthorization(ctx context.Context, arg ServiceAccountHasTeamAuthorizationParams) (bool, error)
+	// Strict team membership check for service accounts WITHOUT admin bypass
+	ServiceAccountHasTeamMembership(ctx context.Context, arg ServiceAccountHasTeamMembershipParams) (bool, error)
 	UserCanAssignRole(ctx context.Context, arg UserCanAssignRoleParams) (bool, error)
 }
 

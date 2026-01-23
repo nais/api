@@ -294,7 +294,7 @@ func (r *teamResolver) ViewerIsMember(ctx context.Context, obj *team.Team) (bool
 }
 
 func (r *teamResolver) ViewerCanElevate(ctx context.Context, obj *team.Team) (bool, error) {
-	err := authz.CanUpdateTeamMetadata(ctx, obj.Slug)
+	err := authz.CanCreateElevation(ctx, obj.Slug)
 	return err == nil, nil
 }
 

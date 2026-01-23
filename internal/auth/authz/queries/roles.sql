@@ -43,6 +43,23 @@ WHERE
 	service_account_id = @service_account_id
 ;
 
+-- name: ServiceAccountHasTeamMembership :one
+-- Strict team membership check for service accounts WITHOUT admin bypass
+SELECT
+	EXISTS (
+		SELECT
+			1
+		FROM
+			authorizations a
+			INNER JOIN role_authorizations ra ON ra.authorization_name = a.name
+			INNER JOIN service_account_roles sar ON sar.role_name = ra.role_name
+		WHERE
+			sar.service_account_id = @service_account_id
+			AND a.name = @authorization_name
+			AND sar.target_team_slug = @team_slug::slug
+	)::BOOLEAN
+;
+
 -- name: GetRoleByName :one
 SELECT
 	*
@@ -157,6 +174,24 @@ SELECT
 				id = @user_id
 				AND admin = TRUE
 		)
+	)::BOOLEAN
+;
+
+-- name: HasTeamMembership :one
+-- Strict team membership check WITHOUT admin bypass
+-- Used for security-sensitive operations like elevations and reading secret values
+SELECT
+	EXISTS (
+		SELECT
+			1
+		FROM
+			authorizations a
+			INNER JOIN role_authorizations ra ON ra.authorization_name = a.name
+			INNER JOIN user_roles ur ON ur.role_name = ra.role_name
+		WHERE
+			ur.user_id = @user_id
+			AND a.name = @authorization_name
+			AND ur.target_team_slug = @team_slug::slug
 	)::BOOLEAN
 ;
 
