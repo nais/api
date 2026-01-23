@@ -19,6 +19,7 @@ import (
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/database/notify"
 	"github.com/nais/api/internal/environment"
+	"github.com/nais/api/internal/environmentmapper"
 	"github.com/nais/api/internal/graph"
 	"github.com/nais/api/internal/graph/gengql"
 	apiRunner "github.com/nais/api/internal/integration/runner"
@@ -87,6 +88,11 @@ func newManager(_ context.Context, container *postgres.PostgresContainer, connSt
 		config, ok := configInput.(*Config)
 		if !ok {
 			config = &Config{}
+		}
+
+		// Setup environment mapping if configured
+		if config.EnvironmentMapping != nil {
+			environmentmapper.SetMapping(config.EnvironmentMapping)
 		}
 
 		ctx, done := context.WithCancel(ctx)
@@ -196,6 +202,10 @@ func newManager(_ context.Context, container *postgres.PostgresContainer, connSt
 
 		ctx = context.WithValue(ctx, databaseKey, pool)
 		return ctx, runners, func() {
+			// Reset environment mapping after tests
+			if config.EnvironmentMapping != nil {
+				environmentmapper.SetMapping(nil)
+			}
 			for _, cleanup := range cleanups {
 				cleanup()
 			}
