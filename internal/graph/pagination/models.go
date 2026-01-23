@@ -67,6 +67,15 @@ func EmptyConnection[T any]() *Connection[T] {
 	}
 }
 
+func NewTotalCountOnlyConnection[T any](total int) *Connection[T] {
+	return &Connection[T]{
+		Edges: []Edge[T]{},
+		PageInfo: PageInfo{
+			TotalCount: total,
+		},
+	}
+}
+
 func NewConvertConnectionWithError[T any, F any, I Integer](nodes []T, page *Pagination, total I, fn func(from T) (F, error)) (*Connection[F], error) {
 	edges := make([]Edge[F], len(nodes))
 	for i, node := range nodes {

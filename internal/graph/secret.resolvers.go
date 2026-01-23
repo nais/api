@@ -41,8 +41,7 @@ func (r *mutationResolver) CreateSecret(ctx context.Context, input secret.Create
 		return nil, err
 	}
 
-	envName := environmentmapper.ClusterName(input.Environment)
-	s, err := secret.Create(ctx, input.Team, envName, input.Name)
+	s, err := secret.Create(ctx, input.Team, environmentmapper.ClusterName(input.Environment), input.Name)
 	if err != nil {
 		return nil, err
 	}
@@ -57,8 +56,7 @@ func (r *mutationResolver) AddSecretValue(ctx context.Context, input secret.AddS
 		return nil, err
 	}
 
-	envName := environmentmapper.ClusterName(input.Environment)
-	s, err := secret.AddSecretValue(ctx, input.Team, envName, input.Name, input.Value)
+	s, err := secret.AddSecretValue(ctx, input.Team, environmentmapper.ClusterName(input.Environment), input.Name, input.Value)
 	if err != nil {
 		return nil, err
 	}
@@ -73,8 +71,7 @@ func (r *mutationResolver) UpdateSecretValue(ctx context.Context, input secret.U
 		return nil, err
 	}
 
-	envName := environmentmapper.ClusterName(input.Environment)
-	s, err := secret.UpdateSecretValue(ctx, input.Team, envName, input.Name, input.Value)
+	s, err := secret.UpdateSecretValue(ctx, input.Team, environmentmapper.ClusterName(input.Environment), input.Name, input.Value)
 	if err != nil {
 		return nil, err
 	}
@@ -89,8 +86,7 @@ func (r *mutationResolver) RemoveSecretValue(ctx context.Context, input secret.R
 		return nil, err
 	}
 
-	envName := environmentmapper.ClusterName(input.Environment)
-	s, err := secret.RemoveSecretValue(ctx, input.Team, envName, input.SecretName, input.ValueName)
+	s, err := secret.RemoveSecretValue(ctx, input.Team, environmentmapper.ClusterName(input.Environment), input.SecretName, input.ValueName)
 	if err != nil {
 		return nil, err
 	}
@@ -105,8 +101,7 @@ func (r *mutationResolver) DeleteSecret(ctx context.Context, input secret.Delete
 		return nil, err
 	}
 
-	envName := environmentmapper.ClusterName(input.Environment)
-	if err := secret.Delete(ctx, input.Team, envName, input.Name); err != nil {
+	if err := secret.Delete(ctx, input.Team, environmentmapper.ClusterName(input.Environment), input.Name); err != nil {
 		return nil, err
 	}
 
@@ -120,7 +115,7 @@ func (r *secretResolver) Environment(ctx context.Context, obj *secret.Secret) (*
 }
 
 func (r *secretResolver) TeamEnvironment(ctx context.Context, obj *secret.Secret) (*team.TeamEnvironment, error) {
-	return team.GetTeamEnvironment(ctx, obj.TeamSlug, environmentmapper.EnvironmentName(obj.EnvironmentName))
+	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
 
 func (r *secretResolver) Team(ctx context.Context, obj *secret.Secret) (*team.Team, error) {
@@ -197,17 +192,16 @@ func (r *secretResolver) Workloads(ctx context.Context, obj *secret.Secret, firs
 		return nil, err
 	}
 
-	envName := environmentmapper.EnvironmentName(obj.EnvironmentName)
 	ret := make([]workload.Workload, 0)
 
-	applications := application.ListAllForTeamInEnvironment(ctx, obj.TeamSlug, envName)
+	applications := application.ListAllForTeamInEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 	for _, app := range applications {
 		if slices.Contains(app.GetSecrets(), obj.Name) {
 			ret = append(ret, app)
 		}
 	}
 
-	jobs := job.ListAllForTeamInEnvironment(ctx, obj.TeamSlug, envName)
+	jobs := job.ListAllForTeamInEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 	for _, j := range jobs {
 		if slices.Contains(j.GetSecrets(), obj.Name) {
 			ret = append(ret, j)
