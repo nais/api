@@ -52,7 +52,7 @@ type RealClient struct {
 type mimirRoundTrip struct{}
 
 func (r mimirRoundTrip) RoundTrip(req *http.Request) (*http.Response, error) {
-	req.Header.Set("X--Scope-OrgID", "nais")
+	req.Header.Set("X-Scope-OrgID", "nais")
 	return http.DefaultTransport.RoundTrip(req)
 }
 
