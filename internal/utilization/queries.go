@@ -110,14 +110,12 @@ func ForTeams(ctx context.Context, resourceType UtilizationResourceType) ([]*Tea
 
 	ret := []*TeamUtilizationData{}
 
-	for env, samples := range requested {
-		for _, sample := range samples {
-			ret = append(ret, &TeamUtilizationData{
-				TeamSlug:        slug.Slug(sample.Metric["namespace"]),
-				Requested:       float64(sample.Value),
-				EnvironmentName: env,
-			})
-		}
+	for _, sample := range requested {
+		ret = append(ret, &TeamUtilizationData{
+			TeamSlug:        slug.Slug(sample.Metric["namespace"]),
+			Requested:       float64(sample.Value),
+			EnvironmentName: string(sample.Metric["k8s_cluster_name"]),
+		})
 	}
 
 	used, err := c.QueryAll(ctx, fmt.Sprintf(usageQ, ignoredNamespaces, ignoredContainers), promclient.WithTime(queryTime))
@@ -138,12 +136,10 @@ func ForTeams(ctx context.Context, resourceType UtilizationResourceType) ([]*Tea
 	}
 	ret = filtered
 
-	for env, samples := range used {
-		for _, sample := range samples {
-			for _, data := range ret {
-				if data.TeamSlug == slug.Slug(sample.Metric["namespace"]) && data.EnvironmentName == env {
-					data.Used = float64(sample.Value)
-				}
+	for _, sample := range used {
+		for _, data := range ret {
+			if data.TeamSlug == slug.Slug(sample.Metric["namespace"]) && data.EnvironmentName == string(sample.Metric["k8s_cluster_name"]) {
+				data.Used = float64(sample.Value)
 			}
 		}
 	}
@@ -169,15 +165,13 @@ func ForTeam(ctx context.Context, teamSlug slug.Slug, resourceType UtilizationRe
 
 	ret := []*WorkloadUtilizationData{}
 
-	for env, samples := range requested {
-		for _, sample := range samples {
-			ret = append(ret, &WorkloadUtilizationData{
-				TeamSlug:        teamSlug,
-				WorkloadName:    string(sample.Metric["container"]),
-				EnvironmentName: env,
-				Requested:       float64(sample.Value),
-			})
-		}
+	for _, sample := range requested {
+		ret = append(ret, &WorkloadUtilizationData{
+			TeamSlug:        teamSlug,
+			WorkloadName:    string(sample.Metric["container"]),
+			EnvironmentName: string(sample.Metric["k8s_cluster_name"]),
+			Requested:       float64(sample.Value),
+		})
 	}
 
 	used, err := c.QueryAll(ctx, fmt.Sprintf(usageQ, teamSlug, ignoredContainers))
@@ -185,12 +179,10 @@ func ForTeam(ctx context.Context, teamSlug slug.Slug, resourceType UtilizationRe
 		return nil, err
 	}
 
-	for env, samples := range used {
-		for _, sample := range samples {
-			for _, data := range ret {
-				if data.WorkloadName == string(sample.Metric["container"]) && data.EnvironmentName == env {
-					data.Used = float64(sample.Value)
-				}
+	for _, sample := range used {
+		for _, data := range ret {
+			if data.WorkloadName == string(sample.Metric["container"]) && data.EnvironmentName == string(sample.Metric["k8s_cluster_name"]) {
+				data.Used = float64(sample.Value)
 			}
 		}
 	}

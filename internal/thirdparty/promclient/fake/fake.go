@@ -45,16 +45,8 @@ func NewFakeClient(environments []string, random *rand.Rand, nowFunc func() prom
 	}
 }
 
-func (c *FakeClient) QueryAll(ctx context.Context, query string, opts ...promclient.QueryOption) (map[string]prom.Vector, error) {
-	ret := map[string]prom.Vector{}
-	for _, env := range c.environments {
-		v, err := c.Query(ctx, env, query, opts...)
-		if err != nil {
-			return nil, err
-		}
-		ret[env] = v
-	}
-	return ret, nil
+func (c *FakeClient) QueryAll(ctx context.Context, query string, opts ...promclient.QueryOption) (prom.Vector, error) {
+	return c.Query(ctx, "query-all", query, opts...)
 }
 
 func (c *FakeClient) Query(ctx context.Context, environment string, query string, opts ...promclient.QueryOption) (prom.Vector, error) {
@@ -71,6 +63,7 @@ func (c *FakeClient) Query(ctx context.Context, environment string, query string
 	}
 
 	var (
+		cluster        string
 		teamSlug       slug.Slug
 		workload       string
 		unit           string
@@ -80,13 +73,14 @@ func (c *FakeClient) Query(ctx context.Context, environment string, query string
 	switch expr := expr.(type) {
 	case *parser.AggregateExpr:
 		labelsToCreate = expr.Grouping
-		teamSlug, workload, unit, err = c.selector(expr.Expr)
+		cluster, teamSlug, workload, unit, err = c.selector(expr.Expr)
 
 	case *parser.VectorSelector:
 		for _, matcher := range expr.LabelMatchers {
 			labelsToCreate = append(labelsToCreate, matcher.Name)
 		}
-		teamSlug, workload, unit, err = c.selector(expr)
+		labelsToCreate = append(labelsToCreate, "k8s_cluster_name")
+		cluster, teamSlug, workload, unit, err = c.selector(expr)
 
 	case *parser.Call:
 		vectorSelector, ok := expr.Args[0].(*parser.VectorSelector)
@@ -103,8 +97,8 @@ func (c *FakeClient) Query(ctx context.Context, environment string, query string
 		for _, matcher := range vectorSelector.LabelMatchers {
 			labelsToCreate = append(labelsToCreate, matcher.Name)
 		}
-		labelsToCreate = append(labelsToCreate, "pod")
-		teamSlug, workload, unit, err = c.selector(expr)
+		labelsToCreate = append(labelsToCreate, []string{"pod", "k8s_cluster_name"}...)
+		cluster, teamSlug, workload, unit, err = c.selector(expr)
 
 	default:
 		return nil, fmt.Errorf("query: unexpected expression type %T", expr)
@@ -117,6 +111,8 @@ func (c *FakeClient) Query(ctx context.Context, environment string, query string
 		lbls := prom.Metric{}
 		for _, label := range labelsToCreate {
 			switch label {
+			case "k8s_cluster_name":
+				lbls["k8s_cluster_name"] = prom.LabelValue(cluster)
 			case "namespace":
 				lbls["namespace"] = prom.LabelValue(teamSlug)
 			case "workload_namespace":
@@ -223,7 +219,7 @@ func (c *FakeClient) QueryRange(ctx context.Context, environment string, query s
 	return matrix, nil, nil
 }
 
-func (c *FakeClient) selector(expr parser.Expr) (teamSlug slug.Slug, workload string, unit string, err error) {
+func (c *FakeClient) selector(expr parser.Expr) (cluster string, teamSlug slug.Slug, workload string, unit string, err error) {
 	switch expr := expr.(type) {
 	case *parser.VectorSelector:
 		for _, m := range expr.LabelMatchers {
@@ -231,6 +227,8 @@ func (c *FakeClient) selector(expr parser.Expr) (teamSlug slug.Slug, workload st
 				continue
 			}
 			switch m.Name {
+			case "k8s_cluster_name":
+				cluster = m.Value
 			case "namespace":
 				teamSlug = slug.Slug(m.Value)
 			case "app", "container":
@@ -256,9 +254,9 @@ func (c *FakeClient) selector(expr parser.Expr) (teamSlug slug.Slug, workload st
 		return c.selector(expr.VectorSelector)
 
 	case *parser.BinaryExpr:
-		teamSlug, workload, unit, err = c.selector(expr.LHS)
+		cluster, teamSlug, workload, unit, err = c.selector(expr.LHS)
 		if err != nil {
-			return "", "", "", err
+			return "", "", "", "", err
 		}
 
 	case *parser.SubqueryExpr:
@@ -268,10 +266,10 @@ func (c *FakeClient) selector(expr parser.Expr) (teamSlug slug.Slug, workload st
 		// no-op
 
 	default:
-		return "", "", "", fmt.Errorf("selector: unexpected expression type %T", expr)
+		return "", "", "", "", fmt.Errorf("selector: unexpected expression type %T", expr)
 	}
 
-	return teamSlug, workload, unit, nil
+	return cluster, teamSlug, workload, unit, nil
 }
 
 func (c *FakeClient) Rules(ctx context.Context, environment string, teamSlug slug.Slug) (promv1.RulesResult, error) {

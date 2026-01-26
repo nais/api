@@ -17,7 +17,7 @@ import (
 
 type QueryClient interface {
 	Query(ctx context.Context, environment string, query string, opts ...QueryOption) (prom.Vector, error)
-	QueryAll(ctx context.Context, query string, opts ...QueryOption) (map[string]prom.Vector, error)
+	QueryAll(ctx context.Context, query string, opts ...QueryOption) (prom.Vector, error)
 	QueryRange(ctx context.Context, environment string, query string, promRange promv1.Range) (prom.Value, promv1.Warnings, error)
 }
 
@@ -76,35 +76,8 @@ func New(clusters []string, tenant string, log logrus.FieldLogger) (*RealClient,
 	}, nil
 }
 
-func (c *RealClient) QueryAll(ctx context.Context, query string, opts ...QueryOption) (map[string]prom.Vector, error) {
-	type result struct {
-		env string
-		vec prom.Vector
-	}
-	wg := pool.NewWithResults[*result]().WithContext(ctx)
-
-	for _, env := range []string{"dev"} {
-		wg.Go(func(ctx context.Context) (*result, error) {
-			v, err := c.Query(ctx, env, query, opts...)
-			if err != nil {
-				c.log.WithError(err).Errorf("failed to query prometheus in %s", env)
-				return nil, err
-			}
-			return &result{env: env, vec: v}, nil
-		})
-	}
-
-	results, err := wg.Wait()
-	if err != nil {
-		return nil, err
-	}
-
-	ret := map[string]prom.Vector{}
-	for _, res := range results {
-		ret[res.env] = res.vec
-	}
-
-	return ret, nil
+func (c *RealClient) QueryAll(ctx context.Context, query string, opts ...QueryOption) (prom.Vector, error) {
+	return c.Query(ctx, "query-all", query, opts...)
 }
 
 func (c *RealClient) Query(ctx context.Context, environmentName string, query string, opts ...QueryOption) (prom.Vector, error) {
