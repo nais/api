@@ -14,6 +14,11 @@ import (
 	aiven_service "github.com/aiven/go-client-codegen"
 	"github.com/joho/godotenv"
 	"github.com/nais/api/internal/activitylog"
+	"github.com/nais/api/internal/agent"
+	"github.com/nais/api/internal/agent/chat"
+	"github.com/nais/api/internal/agent/chat/vertexai"
+	"github.com/nais/api/internal/agent/rag"
+	"github.com/nais/api/internal/agent/rag/duckdb"
 	"github.com/nais/api/internal/auth/authn"
 	"github.com/nais/api/internal/auth/middleware"
 	"github.com/nais/api/internal/database"
@@ -23,10 +28,6 @@ import (
 	"github.com/nais/api/internal/graph"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/grpc"
-	"github.com/nais/api/internal/grpc/grpcagent/agent/chat"
-	"github.com/nais/api/internal/grpc/grpcagent/agent/chat/vertexai"
-	"github.com/nais/api/internal/grpc/grpcagent/agent/rag"
-	"github.com/nais/api/internal/grpc/grpcagent/agent/rag/duckdb"
 	"github.com/nais/api/internal/issue/checker"
 	"github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/kubernetes/event"
@@ -288,8 +289,8 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		return fmt.Errorf("create loki client: %w", err)
 	}
 
-	// Initialize agent clients if enabled
-	var agentConfig *grpc.AgentConfig
+	// Initialize agent handler if enabled
+	var agentHandler *agent.Handler
 	if cfg.Agent.Enabled {
 		chatClient, ragClient, err := initAgentClients(ctx, cfg.Agent, log)
 		if err != nil {
@@ -299,11 +300,13 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		defer chatClient.Close()
 		defer ragClient.Close()
 
-		agentConfig = &grpc.AgentConfig{
+		agentHandler = agent.NewHandler(agent.Config{
+			Pool:       pool,
 			ChatClient: chatClient,
 			RAGClient:  ragClient,
 			NaisAPIURL: "http://" + cfg.ListenAddress,
-		}
+			Log:        log.WithField("subsystem", "agent"),
+		})
 		log.Info("Agent service enabled")
 	}
 
@@ -334,6 +337,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 			lokiClient,
 			cfg.AuditLog.ProjectID,
 			cfg.AuditLog.Location,
+			agentHandler,
 			log.WithField("subsystem", "http"),
 		)
 	})
@@ -355,7 +359,6 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 			ListenAddress: cfg.GRPCListenAddress,
 			Pool:          pool,
 			Log:           log.WithField("subsystem", "grpc"),
-			Agent:         agentConfig,
 		}
 		if err := grpc.Run(ctx, grpcCfg); err != nil {
 			log.WithError(err).Errorf("error in GRPC server")
@@ -406,6 +409,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	}
 
 	wg.Go(func() error {
+		return nil
 		err = issueChecker.RunChecks(ctx)
 		if err != nil {
 			log.WithError(err).Error("running issue checks")

@@ -221,10 +221,10 @@ sql:
         out: "../internal/rest/restteamsapi/restteamsapisql"
 
   - <<: *default_domain
-    name: "Agent SQL for gRPC"
-    queries: "../internal/grpc/grpcagent/queries"
+    name: "Agent SQL"
+    queries: "../internal/agent/queries"
     gen:
       go:
         <<: *default_go
-        package: "grpcagentsql"
-        out: "../internal/grpc/grpcagent/grpcagentsql"
+        package: "agentsql"
+        out: "../internal/agent/agentsql"

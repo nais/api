@@ -1,0 +1,8 @@
+#!/bin/bash
+#MISE description="Generate DuckDB RAG index from documentation search index"
+#MISE depends=["build:gen-rag-index"]
+
+set -e
+
+
+go run ./cmd/gen_rag_index

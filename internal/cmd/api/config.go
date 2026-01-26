@@ -271,7 +271,7 @@ type agentVertexAIConfig struct {
 	ModelName string `env:"AGENT_VERTEX_AI_MODEL,default=gemini-2.0-flash"`
 
 	// EmbeddingModel is the model to use for query embeddings.
-	EmbeddingModel string `env:"AGENT_VERTEX_AI_EMBEDDING_MODEL,default=text-embedding-004"`
+	EmbeddingModel string `env:"AGENT_VERTEX_AI_EMBEDDING_MODEL,default=gemini-embedding-001"`
 }
 
 // agentRAGConfig contains RAG-specific configuration.
