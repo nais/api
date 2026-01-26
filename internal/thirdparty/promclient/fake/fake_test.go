@@ -230,7 +230,7 @@ func TestFakeQueryRange(t *testing.T) {
 			args:  []any{"team1", "workload1"},
 			expected: prom.Matrix{
 				{
-					Metric: prom.Metric{"container": "workload1", "namespace": "team1", "pod": "workload1-1"},
+					Metric: prom.Metric{"container": "workload1", "namespace": "team1", "k8s_cluster_name": "test", "pod": "workload1-1"},
 					Values: []prom.SamplePair{
 						{Value: 750014392, Timestamp: 1609458900 * 1000},
 						{Value: 487676427, Timestamp: 1609458915 * 1000},
@@ -297,7 +297,6 @@ func TestFakeQueryRange(t *testing.T) {
 			c := NewFakeClient([]string{"test", "dev"}, rand.New(rand.NewPCG(1, 1)), now)
 
 			args := append([]any{"test"}, test.args...)
-			query := fmt.Sprintf(test.query, args...)
 			res, _, err := c.QueryRange(ctx, "test", fmt.Sprintf(test.query, args...), test.rng)
 			if err != nil {
 				t.Errorf("Expected no error, got %v", err)
