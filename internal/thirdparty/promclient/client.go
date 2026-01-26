@@ -3,6 +3,7 @@ package promclient
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"strings"
 	"time"
 
@@ -48,13 +49,22 @@ type RealClient struct {
 	log          logrus.FieldLogger
 }
 
+type mimirRoundTrip struct{}
+
+func (r mimirRoundTrip) RoundTrip(req *http.Request) (*http.Response, error) {
+	req.Header.Set("X--Scope-OrgID", "nais")
+	return http.DefaultTransport.RoundTrip(req)
+}
+
 func New(clusters []string, tenant string, log logrus.FieldLogger) (*RealClient, error) {
-	mimirMetrics, err := api.NewClient(api.Config{Address: "http://mimir-query-frontend:8080/prometheus"})
+	roundTrip := mimirRoundTrip{}
+
+	mimirMetrics, err := api.NewClient(api.Config{Address: "http://mimir-query-frontend:8080/prometheus", RoundTripper: roundTrip})
 	if err != nil {
 		return nil, err
 	}
 
-	mimirAlerts, err := api.NewClient(api.Config{Address: "http://mimir-ruler:8080/prometheus"})
+	mimirAlerts, err := api.NewClient(api.Config{Address: "http://mimir-ruler:8080/prometheus", RoundTripper: roundTrip})
 	if err != nil {
 		return nil, err
 	}
