@@ -18,25 +18,25 @@ import (
 
 const (
 	appCPULimit         = `max by (container, namespace) (kube_pod_container_resource_limits{k8s_cluster_name=%q, namespace=%q, container=%q, resource="cpu", unit="core"})`
-	appCPURequest       = `max by (container, namespace) (kube_pod_container_resource_requests{k8s_cluster_name=%q, namespace=%q, container=%q, resource="cpu",unit="core"})`
-	appCPUUsage         = `rate(container_cpu_usage_seconds_total{k8s_cluster_name=%q, namespace=%q, container=%q}[5m])`
+	AppCPURequest       = `max by (container, namespace) (kube_pod_container_resource_requests{k8s_cluster_name=%q, namespace=%q, container=%q, resource="cpu",unit="core"})`
+	AppCPUUsage         = `rate(container_cpu_usage_seconds_total{k8s_cluster_name=%q, namespace=%q, container=%q}[5m])`
 	appCPUUsageAvg      = `avg by (container, namespace) (rate(container_cpu_usage_seconds_total{k8s_cluster_name=%q, namespace=%q, container=%q}[5m]))`
 	appMemoryLimit      = `max by (container, namespace) (kube_pod_container_resource_limits{k8s_cluster_name=%q, namespace=%q, container=%q, resource="memory", unit="byte"})`
-	appMemoryRequest    = `max by (container, namespace) (kube_pod_container_resource_requests{k8s_cluster_name=%q, namespace=%q, container=%q, resource="memory",unit="byte"})`
-	appMemoryUsage      = `last_over_time(container_memory_working_set_bytes{k8s_cluster_name=%q, namespace=%q, container=%q}[5m])`
+	AppMemoryRequest    = `max by (container, namespace) (kube_pod_container_resource_requests{k8s_cluster_name=%q, namespace=%q, container=%q, resource="memory",unit="byte"})`
+	AppMemoryUsage      = `last_over_time(container_memory_working_set_bytes{k8s_cluster_name=%q, namespace=%q, container=%q}[5m])`
 	appMemoryUsageAvg   = `avg by (container, namespace) (last_over_time(container_memory_working_set_bytes{k8s_cluster_name=%q, namespace=%q, container=%q}[5m]))`
 	instanceCPUUsage    = `rate(container_cpu_usage_seconds_total{k8s_cluster_name=%q, namespace=%q, container=%q, pod=%q}[5m])`
 	instanceMemoryUsage = `last_over_time(container_memory_working_set_bytes{k8s_cluster_name=%q, namespace=%q, container=%q, pod=%q}[5m])`
 
-	teamCPURequest    = `sum by (container, owner_kind) (kube_pod_container_resource_requests{k8s_cluster_name=%q, namespace=%q, container!~%q, resource="cpu",unit="core"} * on(pod,namespace) group_left(owner_kind) kube_pod_owner{owner_kind="ReplicaSet"})`
-	teamCPUUsage      = `sum by (container, owner_kind) (rate(container_cpu_usage_seconds_total{k8s_cluster_name=%q, namespace=%q, container!~%q}[5m]) * on(pod,namespace) group_left(owner_kind) kube_pod_owner{owner_kind="ReplicaSet"} )`
-	teamMemoryRequest = `sum by (container, owner_kind) (kube_pod_container_resource_requests{k8s_cluster_name=%q, namespace=%q, container!~%q, resource="memory",unit="byte"} * on(pod,namespace) group_left(owner_kind) kube_pod_owner{owner_kind="ReplicaSet"})`
-	teamMemoryUsage   = `sum by (container, owner_kind) (container_memory_working_set_bytes{k8s_cluster_name=%q, namespace=%q, container!~%q} * on(pod,namespace) group_left(owner_kind) kube_pod_owner{owner_kind="ReplicaSet"})`
+	TeamCPURequest    = `sum by (k8s_cluster_name, container, owner_kind) (kube_pod_container_resource_requests{namespace=%q, container!~%q, resource="cpu",unit="core"} * on(pod,namespace) group_left(owner_kind) kube_pod_owner{owner_kind="ReplicaSet"})`
+	TeamCPUUsage      = `sum by (k8s_cluster_name, container, owner_kind) (rate(container_cpu_usage_seconds_total{namespace=%q, container!~%q}[5m]) * on(pod,namespace) group_left(owner_kind) kube_pod_owner{owner_kind="ReplicaSet"} )`
+	TeamMemoryRequest = `sum by (k8s_cluster_name, container, owner_kind) (kube_pod_container_resource_requests{namespace=%q, container!~%q, resource="memory",unit="byte"} * on(pod,namespace) group_left(owner_kind) kube_pod_owner{owner_kind="ReplicaSet"})`
+	TeamMemoryUsage   = `sum by (k8s_cluster_name, container, owner_kind) (container_memory_working_set_bytes{namespace=%q, container!~%q} * on(pod,namespace) group_left(owner_kind) kube_pod_owner{owner_kind="ReplicaSet"})`
 
-	teamsCPURequest    = `sum by (k8s_cluster_name, namespace, owner_kind) (kube_pod_container_resource_requests{namespace!~%q, container!~%q, resource="cpu",unit="core"} * on(pod, namespace, k8s_cluster_name) group_left(owner_kind) kube_pod_owner{owner_kind="ReplicaSet"})`
-	teamsCPUUsage      = `sum by (k8s_cluster_name, namespace, owner_kind) (rate(container_cpu_usage_seconds_total{namespace!~%q, container!~%q}[5m]) * on(pod, namespace, k8s_cluster_name) group_left(owner_kind) kube_pod_owner{owner_kind="ReplicaSet"})`
-	teamsMemoryRequest = `sum by (k8s_cluster_name, namespace, owner_kind) (kube_pod_container_resource_requests{namespace!~%q, container!~%q, resource="memory",unit="byte"} * on(pod, namespace, k8s_cluster_name) group_left(owner_kind) kube_pod_owner{owner_kind="ReplicaSet"})`
-	teamsMemoryUsage   = `sum by (k8s_cluster_name, namespace, owner_kind) (container_memory_working_set_bytes{namespace!~%q, container!~%q} * on(pod, namespace, k8s_cluster_name) group_left(owner_kind) kube_pod_owner{owner_kind="ReplicaSet"})`
+	TeamsCPURequest    = `sum by (k8s_cluster_name, namespace, owner_kind) (kube_pod_container_resource_requests{namespace!~%q, container!~%q, resource="cpu",unit="core"} * on(pod, namespace, k8s_cluster_name) group_left(owner_kind) kube_pod_owner{owner_kind="ReplicaSet"})`
+	TeamsCPUUsage      = `sum by (k8s_cluster_name, namespace, owner_kind) (rate(container_cpu_usage_seconds_total{namespace!~%q, container!~%q}[5m]) * on(pod, namespace, k8s_cluster_name) group_left(owner_kind) kube_pod_owner{owner_kind="ReplicaSet"})`
+	TeamsMemoryRequest = `sum by (k8s_cluster_name, namespace, owner_kind) (kube_pod_container_resource_requests{namespace!~%q, container!~%q, resource="memory",unit="byte"} * on(pod, namespace, k8s_cluster_name) group_left(owner_kind) kube_pod_owner{owner_kind="ReplicaSet"})`
+	TeamsMemoryUsage   = `sum by (k8s_cluster_name, namespace, owner_kind) (container_memory_working_set_bytes{namespace!~%q, container!~%q} * on(pod, namespace, k8s_cluster_name) group_left(owner_kind) kube_pod_owner{owner_kind="ReplicaSet"})`
 
 	cpuRequestRecommendation = `max(
 		avg_over_time(
@@ -92,12 +92,12 @@ func ForInstance(ctx context.Context, env string, teamSlug slug.Slug, workloadNa
 }
 
 func ForTeams(ctx context.Context, resourceType UtilizationResourceType) ([]*TeamUtilizationData, error) {
-	reqQ := teamsMemoryRequest
-	usageQ := teamsMemoryUsage
+	reqQ := TeamsMemoryRequest
+	usageQ := TeamsMemoryUsage
 
 	if resourceType == UtilizationResourceTypeCPU {
-		reqQ = teamsCPURequest
-		usageQ = teamsCPUUsage
+		reqQ = TeamsCPURequest
+		usageQ = TeamsCPUUsage
 	}
 
 	c := fromContext(ctx).client
@@ -152,12 +152,12 @@ func ForTeams(ctx context.Context, resourceType UtilizationResourceType) ([]*Tea
 }
 
 func ForTeam(ctx context.Context, teamSlug slug.Slug, resourceType UtilizationResourceType) ([]*WorkloadUtilizationData, error) {
-	reqQ := teamMemoryRequest
-	usageQ := teamMemoryUsage
+	reqQ := TeamMemoryRequest
+	usageQ := TeamMemoryUsage
 
 	if resourceType == UtilizationResourceTypeCPU {
-		reqQ = teamCPURequest
-		usageQ = teamCPUUsage
+		reqQ = TeamCPURequest
+		usageQ = TeamCPUUsage
 	}
 
 	c := fromContext(ctx).client
@@ -199,9 +199,9 @@ func ForTeam(ctx context.Context, teamSlug slug.Slug, resourceType UtilizationRe
 }
 
 func WorkloadResourceRequest(ctx context.Context, env string, teamSlug slug.Slug, workloadName string, resourceType UtilizationResourceType) (float64, error) {
-	q := appMemoryRequest
+	q := AppMemoryRequest
 	if resourceType == UtilizationResourceTypeCPU {
-		q = appCPURequest
+		q = AppCPURequest
 	}
 
 	c := fromContext(ctx).client
@@ -314,17 +314,17 @@ func WorkloadResourceRecommendations(ctx context.Context, env string, teamSlug s
 }
 
 func WorkloadResourceUsageRange(ctx context.Context, env string, teamSlug slug.Slug, workloadName string, resourceType UtilizationResourceType, start time.Time, end time.Time, step int) ([]*UtilizationSample, error) {
-	queryTemplate := appMemoryUsage
+	queryTemplate := AppMemoryUsage
 	if resourceType == UtilizationResourceTypeCPU {
-		queryTemplate = appCPUUsage
+		queryTemplate = AppCPUUsage
 	}
 	return queryPrometheusRange(ctx, env, teamSlug, workloadName, queryTemplate, start, end, step)
 }
 
 func WorkloadResourceRequestRange(ctx context.Context, env string, teamSlug slug.Slug, workloadName string, resourceType UtilizationResourceType, start time.Time, end time.Time, step int) ([]*UtilizationSample, error) {
-	queryTemplate := appMemoryRequest
+	queryTemplate := AppMemoryRequest
 	if resourceType == UtilizationResourceTypeCPU {
-		queryTemplate = appCPURequest
+		queryTemplate = AppCPURequest
 	}
 	return queryPrometheusRange(ctx, env, teamSlug, workloadName, queryTemplate, start, end, step)
 }

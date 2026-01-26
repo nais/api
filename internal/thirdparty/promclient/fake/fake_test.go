@@ -27,21 +27,6 @@ import (
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
 )
 
-const (
-	appCPURequest      = `max by (container, namespace) (kube_pod_container_resource_requests{namespace=%q, container=%q, resource="cpu",unit="core"})`
-	appCPUUsage        = `rate(container_cpu_usage_seconds_total{namespace=%q, container=%q}[5m])`
-	appMemoryRequest   = `max by (container, namespace) (kube_pod_container_resource_requests{namespace=%q, container=%q, resource="memory",unit="byte"})`
-	appMemoryUsage     = `last_over_time(container_memory_working_set_bytes{namespace=%q, container=%q}[5m])`
-	teamCPURequest     = `sum by (container, owner_kind) (kube_pod_container_resource_requests{namespace=%q, container!~%q, resource="cpu",unit="core"} * on(pod,namespace) group_left(owner_kind) kube_pod_owner{owner_kind="ReplicaSet"})`
-	teamCPUUsage       = `sum by (container, owner_kind) (rate(container_cpu_usage_seconds_total{namespace=%q, container!~%q}[5m]) * on(pod,namespace) group_left(owner_kind) kube_pod_owner{owner_kind="ReplicaSet"} )`
-	teamMemoryRequest  = `sum by (container, owner_kind) (kube_pod_container_resource_requests{namespace=%q, container!~%q, resource="memory",unit="byte"} * on(pod,namespace) group_left(owner_kind) kube_pod_owner{owner_kind="ReplicaSet"})`
-	teamMemoryUsage    = `sum by (container, owner_kind) (container_memory_working_set_bytes{namespace=%q, container!~%q} * on(pod,namespace) group_left(owner_kind) kube_pod_owner{owner_kind="ReplicaSet"})`
-	teamsCPURequest    = `sum by (namespace, owner_kind) (kube_pod_container_resource_requests{namespace!~%q, container!~%q, resource="cpu",unit="core"} * on(pod,namespace) group_left(owner_kind) kube_pod_owner{owner_kind="ReplicaSet"})`
-	teamsCPUUsage      = `sum by (namespace, owner_kind) (rate(container_cpu_usage_seconds_total{namespace!~%q, container!~%q}[5m]) * on(pod,namespace) group_left(owner_kind) kube_pod_owner{owner_kind="ReplicaSet"})`
-	teamsMemoryRequest = `sum by (namespace, owner_kind) (kube_pod_container_resource_requests{namespace!~%q, container!~%q, resource="memory",unit="byte"} * on(pod,namespace) group_left(owner_kind) kube_pod_owner{owner_kind="ReplicaSet"})`
-	teamsMemoryUsage   = `sum by (namespace, owner_kind) (container_memory_working_set_bytes{namespace!~%q, container!~%q} * on(pod,namespace) group_left(owner_kind) kube_pod_owner{owner_kind="ReplicaSet"})`
-)
-
 func TestFakeQuery(t *testing.T) {
 	now := func() prom.Time {
 		return prom.TimeFromUnix(100000)
@@ -55,28 +40,28 @@ func TestFakeQuery(t *testing.T) {
 		expected prom.Vector
 	}{
 		"appCPURequest": {
-			query: appCPURequest,
+			query: utilization.AppCPURequest,
 			args:  []any{"team", "workload"},
 			expected: prom.Vector{
 				{Metric: prom.Metric{"container": "workload", "namespace": "team"}, Value: 0.15658213673311283, Timestamp: now()},
 			},
 		},
 		"appCPUUsage": {
-			query: appCPUUsage,
+			query: utilization.AppCPUUsage,
 			args:  []any{"team", "workload"},
 			expected: prom.Vector{
 				{Metric: prom.Metric{"container": "workload", "namespace": "team", "pod": "workload-1"}, Value: 0.15658213673311283, Timestamp: now()},
 			},
 		},
 		"appMemoryRequest": {
-			query: appMemoryRequest,
+			query: utilization.AppMemoryRequest,
 			args:  []any{"team", "workload"},
 			expected: prom.Vector{
 				{Metric: prom.Metric{"container": "workload", "namespace": "team"}, Value: 105283867, Timestamp: now()},
 			},
 		},
 		"appMemoryUsage": {
-			query: appMemoryUsage,
+			query: utilization.AppMemoryUsage,
 			args:  []any{"team", "workload"},
 			expected: prom.Vector{
 				{Metric: prom.Metric{"container": "workload", "namespace": "team", "pod": "workload-1"}, Value: 105283867, Timestamp: now()},
@@ -111,7 +96,7 @@ func TestFakeQueryAll(t *testing.T) {
 		expected map[string]prom.Vector
 	}{
 		"teamsMemoryRequest": {
-			query: teamsMemoryRequest,
+			query: utilization.TeamsMemoryRequest,
 			args:  []any{"", ""},
 			expected: map[string]prom.Vector{
 				"dev":  {&prom.Sample{Metric: prom.Metric{"namespace": "team1"}, Value: 313949612, Timestamp: now()}, &prom.Sample{Metric: prom.Metric{"namespace": "team2"}, Value: 910654684, Timestamp: now()}},
@@ -119,7 +104,7 @@ func TestFakeQueryAll(t *testing.T) {
 			},
 		},
 		"teamsMemoryUsage": {
-			query: teamsMemoryUsage,
+			query: utilization.TeamsMemoryUsage,
 			args:  []any{"", ""},
 			expected: map[string]prom.Vector{
 				"dev":  {&prom.Sample{Metric: prom.Metric{"namespace": "team1"}, Value: 313949612, Timestamp: now()}, &prom.Sample{Metric: prom.Metric{"namespace": "team2"}, Value: 910654684, Timestamp: now()}},
@@ -127,7 +112,7 @@ func TestFakeQueryAll(t *testing.T) {
 			},
 		},
 		"teamsCPURequest": {
-			query: teamsCPURequest,
+			query: utilization.TeamsCPURequest,
 			args:  []any{"", ""},
 			expected: map[string]prom.Vector{
 				"dev":  {&prom.Sample{Metric: prom.Metric{"namespace": "team1"}, Value: 1.6575697128208544, Timestamp: now()}, &prom.Sample{Metric: prom.Metric{"namespace": "team2"}, Value: 1.6466714936466849, Timestamp: now()}},
@@ -135,7 +120,7 @@ func TestFakeQueryAll(t *testing.T) {
 			},
 		},
 		"teamsCPUUsage": {
-			query: teamsCPUUsage,
+			query: utilization.TeamsCPUUsage,
 			args:  []any{"", ""},
 			expected: map[string]prom.Vector{
 				"dev":  {&prom.Sample{Metric: prom.Metric{"namespace": "team1"}, Value: 1.6575697128208544, Timestamp: now()}, &prom.Sample{Metric: prom.Metric{"namespace": "team2"}, Value: 1.6466714936466849, Timestamp: now()}},
@@ -143,7 +128,7 @@ func TestFakeQueryAll(t *testing.T) {
 			},
 		},
 		"teamMemoryRequest": {
-			query: teamMemoryRequest,
+			query: utilization.TeamMemoryRequest,
 			args:  []any{"team1", ""},
 			expected: map[string]prom.Vector{
 				"dev":  {&prom.Sample{Metric: prom.Metric{"container": "app-name-dev"}, Value: 313949612, Timestamp: now()}, &prom.Sample{Metric: prom.Metric{"container": "app-second-dev"}, Value: 910654684, Timestamp: now()}},
@@ -151,7 +136,7 @@ func TestFakeQueryAll(t *testing.T) {
 			},
 		},
 		"teamMemoryUsage": {
-			query: teamMemoryUsage,
+			query: utilization.TeamMemoryUsage,
 			args:  []any{"team2", ""},
 			expected: map[string]prom.Vector{
 				"dev":  {&prom.Sample{Metric: prom.Metric{"container": "team-app-name-dev"}, Value: 313949612, Timestamp: now()}, &prom.Sample{Metric: prom.Metric{"container": "team-app-second-dev"}, Value: 910654684, Timestamp: now()}},
@@ -159,7 +144,7 @@ func TestFakeQueryAll(t *testing.T) {
 			},
 		},
 		"teamCPURequest": {
-			query: teamCPURequest,
+			query: utilization.TeamCPURequest,
 			args:  []any{"team2", ""},
 			expected: map[string]prom.Vector{
 				"dev":  {&prom.Sample{Metric: prom.Metric{"container": "team-app-name-dev"}, Value: 1.6575697128208544, Timestamp: now()}, &prom.Sample{Metric: prom.Metric{"container": "team-app-second-dev"}, Value: 1.6466714936466849, Timestamp: now()}},
@@ -167,7 +152,7 @@ func TestFakeQueryAll(t *testing.T) {
 			},
 		},
 		"teamCPUUsage": {
-			query: teamCPUUsage,
+			query: utilization.TeamCPUUsage,
 			args:  []any{"team1", ""},
 			expected: map[string]prom.Vector{
 				"dev":  {&prom.Sample{Metric: prom.Metric{"container": "app-name-dev"}, Value: 1.6575697128208544, Timestamp: now()}, &prom.Sample{Metric: prom.Metric{"container": "app-second-dev"}, Value: 1.6466714936466849, Timestamp: now()}},
@@ -250,7 +235,7 @@ func TestFakeQueryRange(t *testing.T) {
 		expected prom.Matrix
 	}{
 		"appMemoryUsage": {
-			query: appMemoryUsage,
+			query: utilization.AppMemoryUsage,
 			rng:   promv1.Range{Start: start.Add(-5 * time.Minute), End: start, Step: 15 * time.Second},
 			args:  []any{"team1", "workload1"},
 			expected: prom.Matrix{
@@ -282,12 +267,12 @@ func TestFakeQueryRange(t *testing.T) {
 			},
 		},
 		"appCPUUsage": {
-			query: appCPUUsage,
+			query: utilization.AppCPUUsage,
 			rng:   promv1.Range{Start: start.Add(-5 * time.Minute), End: start, Step: 15 * time.Second},
 			args:  []any{"team1", "workload1"},
 			expected: prom.Matrix{
 				{
-					Metric: prom.Metric{"container": "workload1", "namespace": "team1", "pod": "workload1-1"},
+					Metric: prom.Metric{"container": "workload1", "namespace": "team1", "k8s_cluster_name": "test", "pod": "workload1-1"},
 					Values: []prom.SamplePair{
 						{Value: 0.6805719573212468, Timestamp: 1609458900 * 1000},
 						{Value: 1.8199158760450043, Timestamp: 1609458915 * 1000},
