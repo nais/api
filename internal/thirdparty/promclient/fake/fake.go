@@ -46,7 +46,17 @@ func NewFakeClient(environments []string, random *rand.Rand, nowFunc func() prom
 }
 
 func (c *FakeClient) QueryAll(ctx context.Context, query string, opts ...promclient.QueryOption) (prom.Vector, error) {
-	return c.Query(ctx, "query-all", query, opts...)
+	var vectors prom.Vector
+	for _, env := range c.environments {
+		vec, err := c.Query(ctx, env, query, opts...)
+		if err != nil {
+			return vec, err
+		}
+
+		vectors = append(vec, vectors...)
+	}
+
+	return vectors, nil
 }
 
 func (c *FakeClient) Query(ctx context.Context, environment string, query string, opts ...promclient.QueryOption) (prom.Vector, error) {

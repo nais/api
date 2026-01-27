@@ -42,30 +42,30 @@ func TestFakeQuery(t *testing.T) {
 	}{
 		"appCPURequest": {
 			query: utilization.AppCPURequest,
-			args:  []any{"team", "workload"},
+			args:  []any{"test", "team", "workload"},
 			expected: prom.Vector{
-				{Metric: prom.Metric{"container": "workload", "namespace": "team"}, Value: 0.15658213673311283, Timestamp: now()},
+				{Metric: prom.Metric{"container": "workload", "k8s_cluster_name": "test", "namespace": "team"}, Value: 0.15658213673311283, Timestamp: now()},
 			},
 		},
 		"appCPUUsage": {
 			query: utilization.AppCPUUsage,
-			args:  []any{"team", "workload"},
+			args:  []any{"test", "team", "workload"},
 			expected: prom.Vector{
-				{Metric: prom.Metric{"container": "workload", "namespace": "team", "pod": "workload-1"}, Value: 0.15658213673311283, Timestamp: now()},
+				{Metric: prom.Metric{"container": "workload", "k8s_cluster_name": "test", "namespace": "team", "pod": "workload-1"}, Value: 0.15658213673311283, Timestamp: now()},
 			},
 		},
 		"appMemoryRequest": {
 			query: utilization.AppMemoryRequest,
-			args:  []any{"team", "workload"},
+			args:  []any{"test", "team", "workload"},
 			expected: prom.Vector{
-				{Metric: prom.Metric{"container": "workload", "namespace": "team"}, Value: 105283867, Timestamp: now()},
+				{Metric: prom.Metric{"container": "workload", "k8s_cluster_name": "test", "namespace": "team"}, Value: 105283867, Timestamp: now()},
 			},
 		},
 		"appMemoryUsage": {
 			query: utilization.AppMemoryUsage,
-			args:  []any{"team", "workload"},
+			args:  []any{"test", "team", "workload"},
 			expected: prom.Vector{
-				{Metric: prom.Metric{"container": "workload", "namespace": "team", "pod": "workload-1"}, Value: 105283867, Timestamp: now()},
+				{Metric: prom.Metric{"container": "workload", "k8s_cluster_name": "test", "namespace": "team", "pod": "workload-1"}, Value: 105283867, Timestamp: now()},
 			},
 		},
 	}
@@ -74,8 +74,7 @@ func TestFakeQuery(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			c := NewFakeClient([]string{"test", "dev"}, rand.New(rand.NewPCG(2, 2)), now)
 
-			args := append(test.args, "test")
-			res, err := c.Query(ctx, "unused", fmt.Sprintf(test.query, args...))
+			res, err := c.Query(ctx, "test", fmt.Sprintf(test.query, test.args...))
 			if err != nil {
 				t.Errorf("Expected no error, got %v", err)
 			}
@@ -102,52 +101,80 @@ func TestFakeQueryAll(t *testing.T) {
 			args:  []any{"", ""},
 			expected: prom.Vector{
 				&prom.Sample{Metric: prom.Metric{"k8s_cluster_name": "dev", "namespace": "team1"}, Value: 313949612, Timestamp: now()},
-				&prom.Sample{Metric: prom.Metric{"namespace": "team2"}, Value: 910654684, Timestamp: now()},
+				&prom.Sample{Metric: prom.Metric{"k8s_cluster_name": "dev", "namespace": "team2"}, Value: 910654684, Timestamp: now()},
 				&prom.Sample{Metric: prom.Metric{"k8s_cluster_name": "test", "namespace": "team1"}, Value: 750014392, Timestamp: now()},
-				&prom.Sample{Metric: prom.Metric{"namespace": "team2"}, Value: 487676427, Timestamp: now()},
+				&prom.Sample{Metric: prom.Metric{"k8s_cluster_name": "test", "namespace": "team2"}, Value: 487676427, Timestamp: now()},
 			},
 		},
 		"teamsMemoryUsage": {
 			query: utilization.TeamsMemoryUsage,
 			args:  []any{"", ""},
 			expected: prom.Vector{
-				&prom.Sample{Metric: prom.Metric{"k8s_cluster_name": "dev", "namespace": "team1"}, Value: 313949612, Timestamp: now()}, &prom.Sample{Metric: prom.Metric{"k8s_cluster_name": "dev", "namespace": "team2"}, Value: 910654684, Timestamp: now()}, &prom.Sample{Metric: prom.Metric{"k8s_cluster_name": "test", "namespace": "team1"}, Value: 750014392, Timestamp: now()}, &prom.Sample{Metric: prom.Metric{"k8s_cluster_name": "test", "namespace": "team2"}, Value: 487676427, Timestamp: now()}},
+				&prom.Sample{Metric: prom.Metric{"k8s_cluster_name": "dev", "namespace": "team1"}, Value: 313949612, Timestamp: now()},
+				&prom.Sample{Metric: prom.Metric{"k8s_cluster_name": "dev", "namespace": "team2"}, Value: 910654684, Timestamp: now()},
+				&prom.Sample{Metric: prom.Metric{"k8s_cluster_name": "test", "namespace": "team1"}, Value: 750014392, Timestamp: now()},
+				&prom.Sample{Metric: prom.Metric{"k8s_cluster_name": "test", "namespace": "team2"}, Value: 487676427, Timestamp: now()},
+			},
 		},
 		"teamsCPURequest": {
 			query: utilization.TeamsCPURequest,
 			args:  []any{"", ""},
 			expected: prom.Vector{
-				&prom.Sample{Metric: prom.Metric{"k8s_cluster_name": "dev", "namespace": "team1"}, Value: 1.6575697128208544, Timestamp: now()}, &prom.Sample{Metric: prom.Metric{"namespace": "team2"}, Value: 1.6466714936466849, Timestamp: now()}, &prom.Sample{Metric: prom.Metric{"k8s_cluster_name": "test", "namespace": "team1"}, Value: 0.6805719573212468, Timestamp: now()}, &prom.Sample{Metric: prom.Metric{"namespace": "team2"}, Value: 1.8199158760450043, Timestamp: now()}},
+				&prom.Sample{Metric: prom.Metric{"k8s_cluster_name": "dev", "namespace": "team1"}, Value: 1.6575697128208544, Timestamp: now()},
+				&prom.Sample{Metric: prom.Metric{"k8s_cluster_name": "dev", "namespace": "team2"}, Value: 1.6466714936466849, Timestamp: now()},
+				&prom.Sample{Metric: prom.Metric{"k8s_cluster_name": "test", "namespace": "team1"}, Value: 0.6805719573212468, Timestamp: now()},
+				&prom.Sample{Metric: prom.Metric{"k8s_cluster_name": "test", "namespace": "team2"}, Value: 1.8199158760450043, Timestamp: now()},
+			},
 		},
 		"teamsCPUUsage": {
 			query: utilization.TeamsCPUUsage,
 			args:  []any{"", ""},
 			expected: prom.Vector{
-				&prom.Sample{Metric: prom.Metric{"k8s_cluster_name": "dev", "namespace": "team1"}, Value: 1.6575697128208544, Timestamp: now()}, &prom.Sample{Metric: prom.Metric{"namespace": "team2"}, Value: 1.6466714936466849, Timestamp: now()}, &prom.Sample{Metric: prom.Metric{"k8s_cluster_name": "test", "namespace": "team1"}, Value: 0.6805719573212468, Timestamp: now()}, &prom.Sample{Metric: prom.Metric{"namespace": "team2"}, Value: 1.8199158760450043, Timestamp: now()}},
+				&prom.Sample{Metric: prom.Metric{"k8s_cluster_name": "dev", "namespace": "team1"}, Value: 1.6575697128208544, Timestamp: now()},
+				&prom.Sample{Metric: prom.Metric{"k8s_cluster_name": "dev", "namespace": "team2"}, Value: 1.6466714936466849, Timestamp: now()},
+				&prom.Sample{Metric: prom.Metric{"k8s_cluster_name": "test", "namespace": "team1"}, Value: 0.6805719573212468, Timestamp: now()},
+				&prom.Sample{Metric: prom.Metric{"k8s_cluster_name": "test", "namespace": "team2"}, Value: 1.8199158760450043, Timestamp: now()},
+			},
 		},
 		"teamMemoryRequest": {
 			query: utilization.TeamMemoryRequest,
 			args:  []any{"team1", ""},
 			expected: prom.Vector{
-				&prom.Sample{Metric: prom.Metric{"k8s_cluster_name": "dev", "container": "app-name-dev"}, Value: 313949612, Timestamp: now()}, &prom.Sample{Metric: prom.Metric{"container": "app-second-dev"}, Value: 910654684, Timestamp: now()}, &prom.Sample{Metric: prom.Metric{"k8s_cluster_name": "test", "container": "app-name-test"}, Value: 750014392, Timestamp: now()}, &prom.Sample{Metric: prom.Metric{"container": "app-second-test"}, Value: 487676427, Timestamp: now()}},
+				&prom.Sample{Metric: prom.Metric{"k8s_cluster_name": "dev", "container": "app-name-dev"}, Value: 313949612, Timestamp: now()},
+				&prom.Sample{Metric: prom.Metric{"k8s_cluster_name": "dev", "container": "app-second-dev"}, Value: 910654684, Timestamp: now()},
+				&prom.Sample{Metric: prom.Metric{"k8s_cluster_name": "test", "container": "app-name-test"}, Value: 750014392, Timestamp: now()},
+				&prom.Sample{Metric: prom.Metric{"k8s_cluster_name": "test", "container": "app-second-test"}, Value: 487676427, Timestamp: now()},
+			},
 		},
 		"teamMemoryUsage": {
 			query: utilization.TeamMemoryUsage,
 			args:  []any{"team2", ""},
 			expected: prom.Vector{
-				&prom.Sample{Metric: prom.Metric{"k8s_cluster_name": "dev", "container": "team-app-name-dev"}, Value: 313949612, Timestamp: now()}, &prom.Sample{Metric: prom.Metric{"container": "team-app-second-dev"}, Value: 910654684, Timestamp: now()}, &prom.Sample{Metric: prom.Metric{"k8s_cluster_name": "test", "container": "team-app-name-test"}, Value: 750014392, Timestamp: now()}, &prom.Sample{Metric: prom.Metric{"container": "team-app-second-test"}, Value: 487676427, Timestamp: now()}},
+				&prom.Sample{Metric: prom.Metric{"k8s_cluster_name": "dev", "container": "team-app-name-dev"}, Value: 313949612, Timestamp: now()},
+				&prom.Sample{Metric: prom.Metric{"k8s_cluster_name": "dev", "container": "team-app-second-dev"}, Value: 910654684, Timestamp: now()},
+				&prom.Sample{Metric: prom.Metric{"k8s_cluster_name": "test", "container": "team-app-name-test"}, Value: 750014392, Timestamp: now()},
+				&prom.Sample{Metric: prom.Metric{"k8s_cluster_name": "test", "container": "team-app-second-test"}, Value: 487676427, Timestamp: now()},
+			},
 		},
 		"teamCPURequest": {
 			query: utilization.TeamCPURequest,
 			args:  []any{"team2", ""},
 			expected: prom.Vector{
-				&prom.Sample{Metric: prom.Metric{"k8s_cluster_name": "dev", "container": "team-app-name-dev"}, Value: 1.6575697128208544, Timestamp: now()}, &prom.Sample{Metric: prom.Metric{"container": "team-app-second-dev"}, Value: 1.6466714936466849, Timestamp: now()}, &prom.Sample{Metric: prom.Metric{"k8s_cluster_name": "test", "container": "team-app-name-test"}, Value: 0.6805719573212468, Timestamp: now()}, &prom.Sample{Metric: prom.Metric{"container": "team-app-second-test"}, Value: 1.8199158760450043, Timestamp: now()}},
+				&prom.Sample{Metric: prom.Metric{"k8s_cluster_name": "dev", "container": "team-app-name-dev"}, Value: 1.6575697128208544, Timestamp: now()},
+				&prom.Sample{Metric: prom.Metric{"k8s_cluster_name": "dev", "container": "team-app-second-dev"}, Value: 1.6466714936466849, Timestamp: now()},
+				&prom.Sample{Metric: prom.Metric{"k8s_cluster_name": "test", "container": "team-app-name-test"}, Value: 0.6805719573212468, Timestamp: now()},
+				&prom.Sample{Metric: prom.Metric{"k8s_cluster_name": "test", "container": "team-app-second-test"}, Value: 1.8199158760450043, Timestamp: now()},
+			},
 		},
 		"teamCPUUsage": {
 			query: utilization.TeamCPUUsage,
 			args:  []any{"team1", ""},
 			expected: prom.Vector{
-				&prom.Sample{Metric: prom.Metric{"k8s_cluster_name": "dev", "container": "app-name-dev"}, Value: 1.6575697128208544, Timestamp: now()}, &prom.Sample{Metric: prom.Metric{"container": "app-second-dev"}, Value: 1.6466714936466849, Timestamp: now()}, &prom.Sample{Metric: prom.Metric{"k8s_cluster_name": "test", "container": "app-name-test"}, Value: 0.6805719573212468, Timestamp: now()}, &prom.Sample{Metric: prom.Metric{"container": "app-second-test"}, Value: 1.8199158760450043, Timestamp: now()}},
+				&prom.Sample{Metric: prom.Metric{"k8s_cluster_name": "dev", "container": "app-name-dev"}, Value: 1.6575697128208544, Timestamp: now()},
+				&prom.Sample{Metric: prom.Metric{"k8s_cluster_name": "dev", "container": "app-second-dev"}, Value: 1.6466714936466849, Timestamp: now()},
+				&prom.Sample{Metric: prom.Metric{"k8s_cluster_name": "test", "container": "app-name-test"}, Value: 0.6805719573212468, Timestamp: now()},
+				&prom.Sample{Metric: prom.Metric{"k8s_cluster_name": "test", "container": "app-second-test"}, Value: 1.8199158760450043, Timestamp: now()},
+			},
 		},
 	}
 
