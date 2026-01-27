@@ -81,7 +81,7 @@ func ForInstance(ctx context.Context, env string, teamSlug slug.Slug, workloadNa
 
 	c := fromContext(ctx).client
 
-	current, err := c.Query(ctx, env, fmt.Sprintf(usageQ, teamSlug, workloadName, instanceName))
+	current, err := c.Query(ctx, env, fmt.Sprintf(usageQ, env, teamSlug, workloadName, instanceName))
 	if err != nil {
 		return nil, err
 	}
