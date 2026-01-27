@@ -49,22 +49,22 @@ type RealClient struct {
 	log          logrus.FieldLogger
 }
 
-type mimirRoundTrip struct{}
+type mimirRoundTrip struct {
+	HeaderValue string
+}
 
 func (r mimirRoundTrip) RoundTrip(req *http.Request) (*http.Response, error) {
-	req.Header.Set("X-Scope-OrgID", "nais")
+	req.Header.Set("X-Scope-OrgID", r.HeaderValue)
 	return http.DefaultTransport.RoundTrip(req)
 }
 
 func New(clusters []string, tenant string, log logrus.FieldLogger) (*RealClient, error) {
-	roundTrip := mimirRoundTrip{}
-
-	mimirMetrics, err := api.NewClient(api.Config{Address: "http://mimir-query-frontend:8080/prometheus", RoundTripper: roundTrip})
+	mimirMetrics, err := api.NewClient(api.Config{Address: "http://mimir-query-frontend:8080/prometheus", RoundTripper: mimirRoundTrip{HeaderValue: "nais"}})
 	if err != nil {
 		return nil, err
 	}
 
-	mimirAlerts, err := api.NewClient(api.Config{Address: "http://mimir-ruler:8080/prometheus", RoundTripper: roundTrip})
+	mimirAlerts, err := api.NewClient(api.Config{Address: "http://mimir-ruler:8080/prometheus", RoundTripper: mimirRoundTrip{HeaderValue: "tenant"}})
 	if err != nil {
 		return nil, err
 	}
