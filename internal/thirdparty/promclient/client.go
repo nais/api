@@ -161,16 +161,22 @@ func filterRulesByTeam(in promv1.RulesResult, teamSlug slug.Slug) promv1.RulesRe
 	out.Groups = make([]promv1.RuleGroup, 0, len(in.Groups))
 
 	for _, g := range in.Groups {
-		fmt.Printf("Alert rules: File: %s, Name: %s\n", g.File, g.Name)
+		splittedFile := strings.Split(g.File, "/")
+		if len(splittedFile) < 2 {
+			continue
+		}
+
+		namespace := splittedFile[1]
+
 		var filtered promv1.Rules
-		for _, r := range g.Rules {
-			if ar, ok := r.(promv1.AlertingRule); ok {
-				if string(ar.Labels["namespace"]) == teamSlug.String() ||
-					string(ar.Labels["team"]) == teamSlug.String() {
+		if namespace == teamSlug.String() {
+			for _, r := range g.Rules {
+				if ar, ok := r.(promv1.AlertingRule); ok {
 					filtered = append(filtered, ar)
 				}
 			}
 		}
+
 		if len(filtered) > 0 {
 			out.Groups = append(out.Groups, promv1.RuleGroup{
 				Name:     g.Name,
@@ -180,5 +186,6 @@ func filterRulesByTeam(in promv1.RulesResult, teamSlug slug.Slug) promv1.RulesRe
 			})
 		}
 	}
+
 	return out
 }
