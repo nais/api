@@ -161,6 +161,7 @@ func filterRulesByTeam(in promv1.RulesResult, teamSlug slug.Slug) promv1.RulesRe
 	out.Groups = make([]promv1.RuleGroup, 0, len(in.Groups))
 
 	for _, g := range in.Groups {
+		fmt.Printf("Alert rules: File: %s, Name: %s\n", g.File, g.Name)
 		var filtered promv1.Rules
 		for _, r := range g.Rules {
 			if ar, ok := r.(promv1.AlertingRule); ok {
