@@ -12,7 +12,6 @@ import (
 	promv1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	prom "github.com/prometheus/common/model"
 	"github.com/sirupsen/logrus"
-	"github.com/sourcegraph/conc/pool"
 )
 
 type QueryClient interface {
@@ -116,47 +115,42 @@ func (c *RealClient) QueryRange(ctx context.Context, environment string, query s
 }
 
 func (c *RealClient) Rules(ctx context.Context, environment string, teamSlug slug.Slug) (promv1.RulesResult, error) {
-	api := c.mimirRules
-
-	res, err := api.Rules(ctx)
+	res, err := c.mimirRules.Rules(ctx)
 	if err != nil {
 		return promv1.RulesResult{}, err
 	}
-	if teamSlug == "" {
+
+	if teamSlug == "" && environment == "" {
 		return res, nil
 	}
-	return filterRulesByTeam(res, teamSlug), nil
+
+	return filterRulesByTeam(res, environment, teamSlug), nil
 }
 
 func (c *RealClient) RulesAll(ctx context.Context, teamSlug slug.Slug) (map[string]promv1.RulesResult, error) {
-	type item struct {
-		env string
-		res promv1.RulesResult
-	}
-	wg := pool.NewWithResults[*item]().WithContext(ctx)
-
-	for _, env := range []string{"dev"} {
-		wg.Go(func(ctx context.Context) (*item, error) {
-			res, err := c.Rules(ctx, env, teamSlug)
-			if err != nil {
-				c.log.WithError(err).Errorf("failed to get rules in %s", env)
-				return nil, err
-			}
-			return &item{env: env, res: res}, nil
-		})
-	}
-	items, err := wg.Wait()
+	res, err := c.Rules(ctx, "", teamSlug)
 	if err != nil {
 		return nil, err
 	}
-	out := make(map[string]promv1.RulesResult, len(items))
-	for _, it := range items {
-		out[it.env] = it.res
+
+	rules := map[string]promv1.RulesResult{}
+	for _, group := range res.Groups {
+		splittedFile := strings.Split(group.File, "/")
+		if len(splittedFile) < 1 {
+			continue
+		}
+
+		cluster := splittedFile[0]
+
+		rule := rules[cluster]
+		rule.Groups = append(rules[cluster].Groups, group)
+		rules[cluster] = rule
 	}
-	return out, nil
+
+	return rules, nil
 }
 
-func filterRulesByTeam(in promv1.RulesResult, teamSlug slug.Slug) promv1.RulesResult {
+func filterRulesByTeam(in promv1.RulesResult, env string, teamSlug slug.Slug) promv1.RulesResult {
 	out := promv1.RulesResult{}
 	out.Groups = make([]promv1.RuleGroup, 0, len(in.Groups))
 
@@ -166,13 +160,16 @@ func filterRulesByTeam(in promv1.RulesResult, teamSlug slug.Slug) promv1.RulesRe
 			continue
 		}
 
+		cluster := splittedFile[0]
 		namespace := splittedFile[1]
 
 		var filtered promv1.Rules
 		if namespace == teamSlug.String() {
-			for _, r := range g.Rules {
-				if ar, ok := r.(promv1.AlertingRule); ok {
-					filtered = append(filtered, ar)
+			if env == "" || cluster == env {
+				for _, r := range g.Rules {
+					if ar, ok := r.(promv1.AlertingRule); ok {
+						filtered = append(filtered, ar)
+					}
 				}
 			}
 		}

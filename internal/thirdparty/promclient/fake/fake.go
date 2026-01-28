@@ -296,8 +296,9 @@ func (c *FakeClient) Rules(ctx context.Context, environment string, teamSlug slu
 		if t.Slug != teamSlug {
 			continue
 		}
+
 		groupName := fmt.Sprintf("team-%s.rules", t.Slug)
-		file := fmt.Sprintf("/etc/prometheus/rules/%s.yaml", t.Slug)
+		file := fmt.Sprintf("%s/%s/%s/e9441e95-9a6d-4d21-93cf-265e51aa0a67", environment, t.Slug, groupName)
 
 		labelsFor := func(sev string) prom.LabelSet {
 			return prom.LabelSet{
@@ -342,6 +343,7 @@ func (c *FakeClient) Rules(ctx context.Context, environment string, teamSlug slu
 			Rules: rules,
 		})
 	}
+
 	return promv1.RulesResult{Groups: groups}, nil
 }
 
@@ -352,7 +354,9 @@ func (c *FakeClient) RulesAll(ctx context.Context, teamSlug slug.Slug) (map[stri
 		if err != nil {
 			return nil, err
 		}
+
 		out[env] = res
 	}
+
 	return out, nil
 }
