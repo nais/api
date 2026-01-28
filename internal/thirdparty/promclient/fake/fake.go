@@ -31,7 +31,7 @@ type FakeClient struct {
 	random *rand.Rand
 }
 
-func NewFakeClient(environments []string, random *rand.Rand, nowFunc func() prom.Time) *FakeClient {
+func NewFakeClient(random *rand.Rand, nowFunc func() prom.Time) *FakeClient {
 	if nowFunc == nil {
 		nowFunc = prom.Now
 	}
@@ -39,22 +39,24 @@ func NewFakeClient(environments []string, random *rand.Rand, nowFunc func() prom
 		random = rand.New(rand.NewPCG(rand.Uint64(), rand.Uint64()))
 	}
 	return &FakeClient{
-		environments: environments,
+		environments: []string{"test", "dev"},
 		random:       random,
 		now:          nowFunc,
 	}
 }
 
-func (c *FakeClient) QueryAll(ctx context.Context, query string, opts ...promclient.QueryOption) (map[string]prom.Vector, error) {
-	ret := map[string]prom.Vector{}
+func (c *FakeClient) QueryAll(ctx context.Context, query string, opts ...promclient.QueryOption) (prom.Vector, error) {
+	var vectors prom.Vector
 	for _, env := range c.environments {
-		v, err := c.Query(ctx, env, query, opts...)
+		vec, err := c.Query(ctx, env, query, opts...)
 		if err != nil {
-			return nil, err
+			return vec, err
 		}
-		ret[env] = v
+
+		vectors = append(vec, vectors...)
 	}
-	return ret, nil
+
+	return vectors, nil
 }
 
 func (c *FakeClient) Query(ctx context.Context, environment string, query string, opts ...promclient.QueryOption) (prom.Vector, error) {
@@ -86,6 +88,7 @@ func (c *FakeClient) Query(ctx context.Context, environment string, query string
 		for _, matcher := range expr.LabelMatchers {
 			labelsToCreate = append(labelsToCreate, matcher.Name)
 		}
+		labelsToCreate = append(labelsToCreate, "k8s_cluster_name")
 		teamSlug, workload, unit, err = c.selector(expr)
 
 	case *parser.Call:
@@ -103,7 +106,7 @@ func (c *FakeClient) Query(ctx context.Context, environment string, query string
 		for _, matcher := range vectorSelector.LabelMatchers {
 			labelsToCreate = append(labelsToCreate, matcher.Name)
 		}
-		labelsToCreate = append(labelsToCreate, "pod")
+		labelsToCreate = append(labelsToCreate, []string{"pod", "k8s_cluster_name"}...)
 		teamSlug, workload, unit, err = c.selector(expr)
 
 	default:
@@ -114,20 +117,22 @@ func (c *FakeClient) Query(ctx context.Context, environment string, query string
 	}
 
 	makeLabels := func() prom.Metric {
-		lbls := prom.Metric{}
+		labels := prom.Metric{}
 		for _, label := range labelsToCreate {
 			switch label {
 			case "namespace":
-				lbls["namespace"] = prom.LabelValue(teamSlug)
+				labels["namespace"] = prom.LabelValue(teamSlug)
 			case "workload_namespace":
-				lbls["workload_namespace"] = prom.LabelValue(teamSlug)
+				labels["workload_namespace"] = prom.LabelValue(teamSlug)
 			case "container":
-				lbls["container"] = prom.LabelValue(workload)
+				labels["container"] = prom.LabelValue(workload)
 			case "pod":
-				lbls["pod"] = prom.LabelValue(fmt.Sprintf("%s-%s", workload, "1"))
+				labels["pod"] = prom.LabelValue(fmt.Sprintf("%s-%s", workload, "1"))
 			}
 		}
-		return lbls
+		// TODO: Støtte de spørringene som har et miljø satt, og QueryAll som svarer med flere miljøer
+		labels["k8s_cluster_name"] = prom.LabelValue(environment)
+		return labels
 	}
 
 	value := func() prom.SampleValue {
@@ -291,8 +296,9 @@ func (c *FakeClient) Rules(ctx context.Context, environment string, teamSlug slu
 		if t.Slug != teamSlug {
 			continue
 		}
+
 		groupName := fmt.Sprintf("team-%s.rules", t.Slug)
-		file := fmt.Sprintf("/etc/prometheus/rules/%s.yaml", t.Slug)
+		file := fmt.Sprintf("%s/%s/%s/e9441e95-9a6d-4d21-93cf-265e51aa0a67", environment, t.Slug, groupName)
 
 		labelsFor := func(sev string) prom.LabelSet {
 			return prom.LabelSet{
@@ -337,6 +343,7 @@ func (c *FakeClient) Rules(ctx context.Context, environment string, teamSlug slu
 			Rules: rules,
 		})
 	}
+
 	return promv1.RulesResult{Groups: groups}, nil
 }
 
@@ -347,7 +354,9 @@ func (c *FakeClient) RulesAll(ctx context.Context, teamSlug slug.Slug) (map[stri
 		if err != nil {
 			return nil, err
 		}
+
 		out[env] = res
 	}
+
 	return out, nil
 }

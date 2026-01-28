@@ -270,10 +270,10 @@ func ConfigureGraph(
 
 	var prometheusClient promclient.Client
 	if fakes.WithFakePrometheus {
-		prometheusClient = promfake.NewFakeClient(clusters, nil, nil)
+		prometheusClient = promfake.NewFakeClient(nil, nil)
 	} else {
 		var err error
-		prometheusClient, err = promclient.New(clusters, tenantName, log)
+		prometheusClient, err = promclient.New(tenantName, log)
 		if err != nil {
 			return nil, fmt.Errorf("create utilization client: %w", err)
 		}

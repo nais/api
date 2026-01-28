@@ -20,6 +20,10 @@ spec:
     - to:
         - podSelector:
             matchLabels:
+              app.kubernetes.io/name: mimir
+    - to:
+        - podSelector:
+            matchLabels:
               app.kubernetes.io/name: hookd
     - to:
         - podSelector:

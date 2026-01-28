@@ -10,6 +10,6 @@ import (
 
 type ResourceUsageClient interface {
 	Query(ctx context.Context, environment string, query string, opts ...promclient.QueryOption) (prom.Vector, error)
-	QueryAll(ctx context.Context, query string, opts ...promclient.QueryOption) (map[string]prom.Vector, error)
+	QueryAll(ctx context.Context, query string, opts ...promclient.QueryOption) (prom.Vector, error)
 	QueryRange(ctx context.Context, environment string, query string, promRange promv1.Range) (prom.Value, promv1.Warnings, error)
 }
