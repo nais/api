@@ -10,6 +10,7 @@ import (
 	"github.com/nais/api/internal/persistence/valkey"
 	"github.com/nais/api/internal/reconciler"
 	"github.com/nais/api/internal/team"
+	"github.com/nais/api/internal/workload/secret"
 )
 
 func (r *openSearchResolver) ActivityLog(ctx context.Context, obj *opensearch.OpenSearch, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*pagination.Connection[activitylog.ActivityLogEntry], error) {
@@ -36,6 +37,23 @@ func (r *reconcilerResolver) ActivityLog(ctx context.Context, obj *reconciler.Re
 	}
 
 	return activitylog.ListForResource(ctx, reconciler.ActivityLogEntryResourceTypeReconciler, obj.Name, page, filter)
+}
+
+func (r *secretResolver) ActivityLog(ctx context.Context, obj *secret.Secret, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*pagination.Connection[activitylog.ActivityLogEntry], error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+
+	return activitylog.ListForResourceTeamAndEnvironment(
+		ctx,
+		secret.ActivityLogEntryResourceTypeSecret,
+		obj.TeamSlug,
+		obj.Name,
+		environmentmapper.EnvironmentName(obj.EnvironmentName),
+		page,
+		filter,
+	)
 }
 
 func (r *teamResolver) ActivityLog(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*pagination.Connection[activitylog.ActivityLogEntry], error) {

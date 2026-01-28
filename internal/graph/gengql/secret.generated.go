@@ -11,6 +11,7 @@ import (
 	"sync/atomic"
 
 	"github.com/99designs/gqlgen/graphql"
+	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/user"
@@ -34,11 +35,43 @@ type SecretResolver interface {
 	Workloads(ctx context.Context, obj *secret.Secret, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[workload.Workload], error)
 
 	LastModifiedBy(ctx context.Context, obj *secret.Secret) (*user.User, error)
+	ActivityLog(ctx context.Context, obj *secret.Secret, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*pagination.Connection[activitylog.ActivityLogEntry], error)
 }
 
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
+
+func (ec *executionContext) field_Secret_activityLog_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first", ec.unmarshalOInt2ᚖint)
+	if err != nil {
+		return nil, err
+	}
+	args["first"] = arg0
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after", ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor)
+	if err != nil {
+		return nil, err
+	}
+	args["after"] = arg1
+	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last", ec.unmarshalOInt2ᚖint)
+	if err != nil {
+		return nil, err
+	}
+	args["last"] = arg2
+	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before", ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor)
+	if err != nil {
+		return nil, err
+	}
+	args["before"] = arg3
+	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "filter", ec.unmarshalOActivityLogFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogFilter)
+	if err != nil {
+		return nil, err
+	}
+	args["filter"] = arg4
+	return args, nil
+}
 
 func (ec *executionContext) field_Secret_applications_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
@@ -174,6 +207,8 @@ func (ec *executionContext) fieldContext_AddSecretValuePayload_secret(_ context.
 				return ec.fieldContext_Secret_lastModifiedAt(ctx, field)
 			case "lastModifiedBy":
 				return ec.fieldContext_Secret_lastModifiedBy(ctx, field)
+			case "activityLog":
+				return ec.fieldContext_Secret_activityLog(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Secret", field.Name)
 		},
@@ -229,6 +264,8 @@ func (ec *executionContext) fieldContext_CreateSecretPayload_secret(_ context.Co
 				return ec.fieldContext_Secret_lastModifiedAt(ctx, field)
 			case "lastModifiedBy":
 				return ec.fieldContext_Secret_lastModifiedBy(ctx, field)
+			case "activityLog":
+				return ec.fieldContext_Secret_activityLog(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Secret", field.Name)
 		},
@@ -313,6 +350,8 @@ func (ec *executionContext) fieldContext_RemoveSecretValuePayload_secret(_ conte
 				return ec.fieldContext_Secret_lastModifiedAt(ctx, field)
 			case "lastModifiedBy":
 				return ec.fieldContext_Secret_lastModifiedBy(ctx, field)
+			case "activityLog":
+				return ec.fieldContext_Secret_activityLog(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Secret", field.Name)
 		},
@@ -908,6 +947,55 @@ func (ec *executionContext) fieldContext_Secret_lastModifiedBy(_ context.Context
 	return fc, nil
 }
 
+func (ec *executionContext) _Secret_activityLog(ctx context.Context, field graphql.CollectedField, obj *secret.Secret) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Secret_activityLog,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Secret().ActivityLog(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["filter"].(*activitylog.ActivityLogFilter))
+		},
+		nil,
+		ec.marshalNActivityLogEntryConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Secret_activityLog(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Secret",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "pageInfo":
+				return ec.fieldContext_ActivityLogEntryConnection_pageInfo(ctx, field)
+			case "nodes":
+				return ec.fieldContext_ActivityLogEntryConnection_nodes(ctx, field)
+			case "edges":
+				return ec.fieldContext_ActivityLogEntryConnection_edges(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ActivityLogEntryConnection", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Secret_activityLog_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _SecretConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*secret.Secret]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -1001,6 +1089,8 @@ func (ec *executionContext) fieldContext_SecretConnection_nodes(_ context.Contex
 				return ec.fieldContext_Secret_lastModifiedAt(ctx, field)
 			case "lastModifiedBy":
 				return ec.fieldContext_Secret_lastModifiedBy(ctx, field)
+			case "activityLog":
+				return ec.fieldContext_Secret_activityLog(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Secret", field.Name)
 		},
@@ -1584,6 +1674,8 @@ func (ec *executionContext) fieldContext_SecretEdge_node(_ context.Context, fiel
 				return ec.fieldContext_Secret_lastModifiedAt(ctx, field)
 			case "lastModifiedBy":
 				return ec.fieldContext_Secret_lastModifiedBy(ctx, field)
+			case "activityLog":
+				return ec.fieldContext_Secret_activityLog(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Secret", field.Name)
 		},
@@ -2579,6 +2671,8 @@ func (ec *executionContext) fieldContext_UpdateSecretValuePayload_secret(_ conte
 				return ec.fieldContext_Secret_lastModifiedAt(ctx, field)
 			case "lastModifiedBy":
 				return ec.fieldContext_Secret_lastModifiedBy(ctx, field)
+			case "activityLog":
+				return ec.fieldContext_Secret_activityLog(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Secret", field.Name)
 		},
@@ -3070,7 +3164,7 @@ func (ec *executionContext) _RemoveSecretValuePayload(ctx context.Context, sel a
 	return out
 }
 
-var secretImplementors = []string{"Secret", "Node"}
+var secretImplementors = []string{"Secret", "Node", "ActivityLogger"}
 
 func (ec *executionContext) _Secret(ctx context.Context, sel ast.SelectionSet, obj *secret.Secret) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, secretImplementors)
@@ -3357,6 +3451,42 @@ func (ec *executionContext) _Secret(ctx context.Context, sel ast.SelectionSet, o
 					}
 				}()
 				res = ec._Secret_lastModifiedBy(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "activityLog":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Secret_activityLog(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
 				return res
 			}
 

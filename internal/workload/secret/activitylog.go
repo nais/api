@@ -7,14 +7,14 @@ import (
 )
 
 const (
-	activityLogEntryResourceTypeSecret      activitylog.ActivityLogEntryResourceType = "SECRET"
+	ActivityLogEntryResourceTypeSecret      activitylog.ActivityLogEntryResourceType = "SECRET"
 	activityLogEntryActionAddSecretValue    activitylog.ActivityLogEntryAction       = "ADD_SECRET_VALUE"
 	activityLogEntryActionUpdateSecretValue activitylog.ActivityLogEntryAction       = "UPDATE_SECRET_VALUE"
 	activityLogEntryActionRemoveSecretValue activitylog.ActivityLogEntryAction       = "REMOVE_SECRET_VALUE"
 )
 
 func init() {
-	activitylog.RegisterTransformer(activityLogEntryResourceTypeSecret, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
+	activitylog.RegisterTransformer(ActivityLogEntryResourceTypeSecret, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
 		switch entry.Action {
 		case activitylog.ActivityLogEntryActionCreated:
 			return SecretCreatedActivityLogEntry{
@@ -65,11 +65,11 @@ func init() {
 		}
 	})
 
-	activitylog.RegisterFilter("SECRET_CREATED", activitylog.ActivityLogEntryActionCreated, activityLogEntryResourceTypeSecret)
-	activitylog.RegisterFilter("SECRET_DELETED", activitylog.ActivityLogEntryActionDeleted, activityLogEntryResourceTypeSecret)
-	activitylog.RegisterFilter("SECRET_VALUE_ADDED", activityLogEntryActionAddSecretValue, activityLogEntryResourceTypeSecret)
-	activitylog.RegisterFilter("SECRET_VALUE_UPDATED", activityLogEntryActionUpdateSecretValue, activityLogEntryResourceTypeSecret)
-	activitylog.RegisterFilter("SECRET_VALUE_REMOVED", activityLogEntryActionRemoveSecretValue, activityLogEntryResourceTypeSecret)
+	activitylog.RegisterFilter("SECRET_CREATED", activitylog.ActivityLogEntryActionCreated, ActivityLogEntryResourceTypeSecret)
+	activitylog.RegisterFilter("SECRET_DELETED", activitylog.ActivityLogEntryActionDeleted, ActivityLogEntryResourceTypeSecret)
+	activitylog.RegisterFilter("SECRET_VALUE_ADDED", activityLogEntryActionAddSecretValue, ActivityLogEntryResourceTypeSecret)
+	activitylog.RegisterFilter("SECRET_VALUE_UPDATED", activityLogEntryActionUpdateSecretValue, ActivityLogEntryResourceTypeSecret)
+	activitylog.RegisterFilter("SECRET_VALUE_REMOVED", activityLogEntryActionRemoveSecretValue, ActivityLogEntryResourceTypeSecret)
 }
 
 type SecretCreatedActivityLogEntry struct {
