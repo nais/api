@@ -216,11 +216,10 @@ Test.k8s("Validate Role resource", function(t)
 			annotations = {
 				["console.nais.io/last-modified-at"] = NotNull(),
 				["console.nais.io/last-modified-by"] = user:email(),
-				["euthanaisa.nais.io/kill-after"] = NotNull(),
 			},
 			labels = {
 				["app.kubernetes.io/managed-by"] = "console",
-				["euthanaisa.nais.io/enabled"] = "true",
+				["euthanaisa.nais.io/kill-after"] = NotNull(),
 				["nais.io/managed-by"] = "console",
 				["postgres.data.nais.io/name"] = "foobar",
 			},
@@ -281,11 +280,10 @@ Test.k8s("Validate RoleBinding resource", function(t)
 			annotations = {
 				["console.nais.io/last-modified-at"] = NotNull(),
 				["console.nais.io/last-modified-by"] = user:email(),
-				["euthanaisa.nais.io/kill-after"] = NotNull(),
 			},
 			labels = {
 				["app.kubernetes.io/managed-by"] = "console",
-				["euthanaisa.nais.io/enabled"] = "true",
+				["euthanaisa.nais.io/kill-after"] = NotNull(),
 				["nais.io/managed-by"] = "console",
 				["postgres.data.nais.io/name"] = "foobar",
 			},

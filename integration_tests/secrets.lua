@@ -3,37 +3,8 @@ Helper.readK8sResources("k8s_resources/secrets")
 local user = User.new("username-1", "user@example.com", "e")
 local otherUser = User.new("username-2", "user2@example.com", "e2")
 
-Test.gql("Create team", function(t)
-	t.addHeader("x-user-email", user:email())
-
-	t.query [[
-		mutation {
-			createTeam(
-				input: {
-					slug: "myteam"
-					purpose: "some purpose"
-					slackChannel: "#channel"
-				}
-			) {
-				team {
-					id
-					slug
-				}
-			}
-		}
-	]]
-
-	t.check {
-		data = {
-			createTeam = {
-				team = {
-					id = Save("teamID"),
-					slug = "myteam",
-				},
-			},
-		},
-	}
-end)
+local team = Team.new("myteam", "some purpose", "#channel")
+team:addOwner(user)
 
 Test.gql("Create secret for team that does not exist", function(t)
 	t.addHeader("x-user-email", user:email())
@@ -107,9 +78,7 @@ Test.gql("Create secret", function(t)
 			}) {
 				secret {
 					name
-					values {
-						name
-					}
+					keys
 				}
 			}
 		}
@@ -120,7 +89,7 @@ Test.gql("Create secret", function(t)
 			createSecret = {
 				secret = {
 					name = "secret-name",
-					values = {},
+					keys = {},
 				},
 			},
 		},
@@ -143,10 +112,7 @@ Test.gql("Add secret value", function(t)
 			}) {
 				secret {
 					name
-					values {
-						name
-						value
-					}
+					keys
 				}
 			}
 		}
@@ -157,12 +123,7 @@ Test.gql("Add secret value", function(t)
 			addSecretValue = {
 				secret = {
 					name = "secret-name",
-					values = {
-						{
-							name = "value-name",
-							value = "value",
-						},
-					},
+					keys = { "value-name" },
 				},
 			},
 		},
@@ -219,10 +180,7 @@ Test.gql("Update secret value", function(t)
 			}) {
 				secret {
 					name
-					values {
-						name
-						value
-					}
+					keys
 				}
 			}
 		}
@@ -233,12 +191,7 @@ Test.gql("Update secret value", function(t)
 			updateSecretValue = {
 				secret = {
 					name = "secret-name",
-					values = {
-						{
-							name = "value-name",
-							value = "new value",
-						},
-					},
+					keys = { "value-name" },
 				},
 			},
 		},
@@ -326,9 +279,7 @@ Test.gql("Remove secret value that already exists", function(t)
 			}) {
 				secret {
 					name
-					values {
-						name
-					}
+					keys
 				}
 			}
 		}
@@ -339,14 +290,7 @@ Test.gql("Remove secret value that already exists", function(t)
 			addSecretValue = {
 				secret = {
 					name = "secret-name",
-					values = {
-						{
-							name = "dont-remove",
-						},
-						{
-							name = "value-name",
-						},
-					},
+					keys = { "dont-remove", "value-name" },
 				},
 			},
 		},
@@ -362,9 +306,7 @@ Test.gql("Remove secret value that already exists", function(t)
 			}) {
 				secret {
 					name
-					values {
-						name
-					}
+					keys
 				}
 			}
 		}
@@ -375,11 +317,7 @@ Test.gql("Remove secret value that already exists", function(t)
 			removeSecretValue = {
 				secret = {
 					name = "secret-name",
-					values = {
-						{
-							name = "dont-remove",
-						},
-					},
+					keys = { "dont-remove" },
 				},
 			},
 		},
@@ -529,5 +467,378 @@ Test.gql("Delete secret as non-team member", function(t)
 			},
 		},
 		data = Null,
+	}
+end)
+
+Test.gql("Create secret for elevation test", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query [[
+		mutation {
+			createSecret(input: {
+				name: "test-elevation-secret"
+				environment: "dev"
+				team: "myteam"
+			}) {
+				secret {
+					name
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			createSecret = {
+				secret = {
+					name = "test-elevation-secret",
+				},
+			},
+		},
+	}
+
+	-- Add a value
+	t.query [[
+		mutation {
+			addSecretValue(input: {
+				name: "test-elevation-secret"
+				environment: "dev"
+				team: "myteam"
+				value: {
+					name: "api-key",
+					value: "super-secret-123"
+				}
+			}) {
+				secret {
+					name
+					keys
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			addSecretValue = {
+				secret = {
+					name = "test-elevation-secret",
+					keys = { "api-key" },
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("Reading secret values WITHOUT elevation should fail", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query [[
+		query {
+			team(slug: "myteam") {
+				environment(name: "dev") {
+					secret(name: "test-elevation-secret") {
+						name
+						values {
+							name
+							value
+						}
+					}
+				}
+			}
+		}
+	]]
+
+	t.check {
+		errors = {
+			{
+				message = Contains("You are authenticated"),
+				path = { "team", "environment", "secret", "values" },
+			},
+		},
+		data = {
+			team = {
+				environment = {
+					secret = {
+						name = "test-elevation-secret",
+						values = Null,
+					},
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("Create elevation for reading secret values", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query [[
+		mutation {
+			createElevation(input: {
+				type: SECRET
+				team: "myteam"
+				environmentName: "dev"
+				resourceName: "test-elevation-secret"
+				reason: "Testing secret values access with elevation"
+				durationMinutes: 5
+			}) {
+				elevation {
+					id
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			createElevation = {
+				elevation = {
+					id = Save("elevationID"),
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("Reading secret values WITH elevation should succeed", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query [[
+		query {
+			team(slug: "myteam") {
+				environment(name: "dev") {
+					secret(name: "test-elevation-secret") {
+						name
+						values {
+							name
+							value
+						}
+					}
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			team = {
+				environment = {
+					secret = {
+						name = "test-elevation-secret",
+						values = {
+							{
+								name = "api-key",
+								value = "super-secret-123",
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("Admin user cannot read secret values without team membership", function(t)
+	-- Create an admin user (not a member of myteam)
+	local adminUser = User.new("admin-user", "admin@example.com", "admin-ext")
+	adminUser:admin(true)
+
+	-- Admin tries to read secret values without being a team member
+	-- Since admin is not a team member, they cannot read secret values even with admin privileges
+	t.addHeader("x-user-email", adminUser:email())
+
+	t.query [[
+		query {
+			team(slug: "myteam") {
+				environment(name: "dev") {
+					secret(name: "test-elevation-secret") {
+						name
+						values {
+							name
+							value
+						}
+					}
+				}
+			}
+		}
+	]]
+
+	-- Admin can see secret metadata but cannot read values without team membership
+	t.check {
+		errors = {
+			{
+				message = Contains("You are authenticated"),
+				path = { "team", "environment", "secret", "values" },
+			},
+		},
+		data = {
+			team = {
+				environment = {
+					secret = {
+						name = "test-elevation-secret",
+						values = Null,
+					},
+				},
+			},
+		},
+	}
+end)
+
+
+Test.gql("Admin can delete secret in other team", function(t)
+	-- Use unique admin user for this test
+	local adminUser = User.new("admin-delete-test", "admin-delete@example.com", "admin-del")
+	adminUser:admin(true)
+
+	local teamOwner = User.new("team-owner-del", "owner-del@example.com", "owner-del")
+	local otherTeam = Team.new("admindeltest", "admin delete test team", "#channel")
+	otherTeam:addOwner(teamOwner)
+
+	-- Create a secret in the team as team owner
+	t.addHeader("x-user-email", teamOwner:email())
+	t.query [[
+		mutation {
+			createSecret(input: {
+				name: "admin-delete-test"
+				environment: "dev"
+				team: "admindeltest"
+			}) {
+				secret {
+					name
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			createSecret = {
+				secret = {
+					name = "admin-delete-test",
+				},
+			},
+		},
+	}
+
+	-- Admin (not team member) should be able to delete it
+	t.addHeader("x-user-email", adminUser:email())
+	t.query [[
+		mutation {
+			deleteSecret(input: {
+				name: "admin-delete-test"
+				environment: "dev"
+				team: "admindeltest"
+			}) {
+				secretDeleted
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			deleteSecret = {
+				secretDeleted = true,
+			},
+		},
+	}
+end)
+
+Test.gql("Admin can manage secrets but CANNOT read values without team membership", function(t)
+	-- Use unique admin user for this test
+	local adminUser = User.new("admin-readonly-test", "admin-readonly@example.com", "admin-ro")
+	adminUser:admin(true)
+
+	local otherTeam = Team.new("adminrotest", "admin readonly test team", "#channel")
+
+	-- Admin should be able to create secret (metadata operation)
+	t.addHeader("x-user-email", adminUser:email())
+	t.query [[
+		mutation {
+			createSecret(input: {
+				name: "admin-managed-secret"
+				environment: "dev"
+				team: "adminrotest"
+			}) {
+				secret {
+					name
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			createSecret = {
+				secret = {
+					name = "admin-managed-secret",
+				},
+			},
+		},
+	}
+
+	-- Admin should be able to add secret value (using JSON Patch - doesn't read values)
+	t.query [[
+		mutation {
+			addSecretValue(input: {
+				name: "admin-managed-secret"
+				environment: "dev"
+				team: "adminrotest"
+				value: {
+					name: "API_KEY"
+					value: "secret-value"
+				}
+			}) {
+				secret {
+					name
+					keys
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			addSecretValue = {
+				secret = {
+					name = "admin-managed-secret",
+					keys = { "API_KEY" },
+				},
+			},
+		},
+	}
+
+	-- Admin should NOT be able to read secret values (requires team membership + elevation)
+	local secret = t.query [[
+		query {
+			team(slug: "adminrotest") {
+				environment(name: "dev") {
+					secret(name: "admin-managed-secret") {
+						name
+						values {
+							name
+							value
+						}
+					}
+				}
+			}
+		}
+	]]
+
+	t.check {
+		errors = {
+			{
+				message = Contains("You are authenticated"),
+				path = { "team", "environment", "secret", "values" },
+			},
+		},
+		data = {
+			team = {
+				environment = {
+					secret = {
+						name = "admin-managed-secret",
+						values = Null,
+					},
+				},
+			},
+		},
 	}
 end)
