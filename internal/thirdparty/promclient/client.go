@@ -76,7 +76,7 @@ func New(tenant string, log logrus.FieldLogger) (*RealClient, error) {
 }
 
 func (c *RealClient) QueryAll(ctx context.Context, query string, opts ...QueryOption) (prom.Vector, error) {
-	return c.Query(ctx, "query-all", query, opts...)
+	return c.Query(ctx, "", query, opts...)
 }
 
 func (c *RealClient) Query(ctx context.Context, environmentName string, query string, opts ...QueryOption) (prom.Vector, error) {
@@ -87,6 +87,14 @@ func (c *RealClient) Query(ctx context.Context, environmentName string, query st
 	}
 	for _, fn := range opts {
 		fn(opt)
+	}
+
+	if environmentName != "" {
+		var err error
+		query, err = injectEnvToQuery(query, environmentName)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	v, warnings, err := client.Query(ctx, query, opt.Time)
