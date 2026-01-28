@@ -5303,6 +5303,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_secret(ctx context.Cont
 				return ec.fieldContext_Secret_lastModifiedAt(ctx, field)
 			case "lastModifiedBy":
 				return ec.fieldContext_Secret_lastModifiedBy(ctx, field)
+			case "activityLog":
+				return ec.fieldContext_Secret_activityLog(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Secret", field.Name)
 		},

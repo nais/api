@@ -69,6 +69,8 @@ func (s *Secret) ID() ident.Ident {
 
 func (Secret) IsNode() {}
 
+func (Secret) IsActivityLogger() {}
+
 func (s *Secret) GetName() string {
 	return s.Name
 }

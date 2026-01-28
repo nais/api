@@ -184,7 +184,7 @@ func Create(ctx context.Context, teamSlug slug.Slug, environment, name string) (
 		Action:          activitylog.ActivityLogEntryActionCreated,
 		Actor:           actor.User,
 		EnvironmentName: ptr.To(environment),
-		ResourceType:    activityLogEntryResourceTypeSecret,
+		ResourceType:    ActivityLogEntryResourceTypeSecret,
 		ResourceName:    name,
 		TeamSlug:        ptr.To(teamSlug),
 	})
@@ -258,7 +258,7 @@ func AddSecretValue(ctx context.Context, teamSlug slug.Slug, environment, secret
 		Action:          activityLogEntryActionAddSecretValue,
 		Actor:           actor.User,
 		EnvironmentName: ptr.To(environment),
-		ResourceType:    activityLogEntryResourceTypeSecret,
+		ResourceType:    ActivityLogEntryResourceTypeSecret,
 		ResourceName:    secretName,
 		TeamSlug:        ptr.To(teamSlug),
 		Data: &SecretValueAddedActivityLogEntryData{
@@ -322,7 +322,7 @@ func UpdateSecretValue(ctx context.Context, teamSlug slug.Slug, environment, sec
 		Action:          activityLogEntryActionUpdateSecretValue,
 		Actor:           actor.User,
 		EnvironmentName: ptr.To(environment),
-		ResourceType:    activityLogEntryResourceTypeSecret,
+		ResourceType:    ActivityLogEntryResourceTypeSecret,
 		ResourceName:    secretName,
 		TeamSlug:        ptr.To(teamSlug),
 		Data: &SecretValueUpdatedActivityLogEntryData{
@@ -381,7 +381,7 @@ func RemoveSecretValue(ctx context.Context, teamSlug slug.Slug, environment, sec
 		Action:          activityLogEntryActionRemoveSecretValue,
 		Actor:           actor.User,
 		EnvironmentName: ptr.To(environment),
-		ResourceType:    activityLogEntryResourceTypeSecret,
+		ResourceType:    ActivityLogEntryResourceTypeSecret,
 		ResourceName:    secretName,
 		TeamSlug:        ptr.To(teamSlug),
 		Data: &SecretValueRemovedActivityLogEntryData{
@@ -418,7 +418,7 @@ func Delete(ctx context.Context, teamSlug slug.Slug, environment, name string) e
 		Action:          activitylog.ActivityLogEntryActionDeleted,
 		Actor:           authz.ActorFromContext(ctx).User,
 		EnvironmentName: ptr.To(environment),
-		ResourceType:    activityLogEntryResourceTypeSecret,
+		ResourceType:    ActivityLogEntryResourceTypeSecret,
 		ResourceName:    name,
 		TeamSlug:        ptr.To(teamSlug),
 	})
