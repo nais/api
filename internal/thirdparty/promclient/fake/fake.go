@@ -39,7 +39,7 @@ func NewFakeClient(random *rand.Rand, nowFunc func() prom.Time) *FakeClient {
 		random = rand.New(rand.NewPCG(rand.Uint64(), rand.Uint64()))
 	}
 	return &FakeClient{
-		environments: []string{"test", "dev", "fancy-dev", "dev-fss"},
+		environments: []string{"test", "dev"},
 		random:       random,
 		now:          nowFunc,
 	}

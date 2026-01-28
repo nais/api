@@ -47,7 +47,7 @@ Test.gql("Team with alerts", function(t)
 						},
 					},
 					pageInfo = {
-						totalCount = 12,
+						totalCount = 6,
 					},
 				},
 			},
