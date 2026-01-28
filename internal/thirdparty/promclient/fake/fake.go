@@ -31,7 +31,7 @@ type FakeClient struct {
 	random *rand.Rand
 }
 
-func NewFakeClient(environments []string, random *rand.Rand, nowFunc func() prom.Time) *FakeClient {
+func NewFakeClient(random *rand.Rand, nowFunc func() prom.Time) *FakeClient {
 	if nowFunc == nil {
 		nowFunc = prom.Now
 	}
@@ -39,7 +39,7 @@ func NewFakeClient(environments []string, random *rand.Rand, nowFunc func() prom
 		random = rand.New(rand.NewPCG(rand.Uint64(), rand.Uint64()))
 	}
 	return &FakeClient{
-		environments: environments,
+		environments: []string{"test", "dev", "fancy-dev", "dev-fss"},
 		random:       random,
 		now:          nowFunc,
 	}

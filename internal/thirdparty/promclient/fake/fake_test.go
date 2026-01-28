@@ -72,7 +72,7 @@ func TestFakeQuery(t *testing.T) {
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			c := NewFakeClient([]string{"test", "dev"}, rand.New(rand.NewPCG(2, 2)), now)
+			c := NewFakeClient(rand.New(rand.NewPCG(2, 2)), now)
 
 			res, err := c.Query(ctx, "test", fmt.Sprintf(test.query, test.args...))
 			if err != nil {
@@ -213,7 +213,7 @@ func TestFakeQueryAll(t *testing.T) {
 		t.Fatalf("failed to create watcher manager: %v", err)
 	}
 
-	prometheusClient := NewFakeClient(clusters, nil, nil)
+	prometheusClient := NewFakeClient(nil, nil)
 	ctx = application.NewLoaderContext(ctx, application.NewWatcher(ctx, mgr), application.NewIngressWatcher(ctx, mgr), prometheusClient, logrus.New())
 	ctx = team.NewLoaderContext(ctx, pool, nil)
 
@@ -225,7 +225,7 @@ func TestFakeQueryAll(t *testing.T) {
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			c := NewFakeClient([]string{"test", "dev"}, rand.New(rand.NewPCG(1, 1)), now)
+			c := NewFakeClient(rand.New(rand.NewPCG(1, 1)), now)
 
 			res, err := c.QueryAll(ctx, fmt.Sprintf(test.query, test.args...))
 			if err != nil {
@@ -321,7 +321,7 @@ func TestFakeQueryRange(t *testing.T) {
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			c := NewFakeClient([]string{"test", "dev"}, rand.New(rand.NewPCG(1, 1)), now)
+			c := NewFakeClient(rand.New(rand.NewPCG(1, 1)), now)
 
 			args := append([]any{"test"}, test.args...)
 			res, _, err := c.QueryRange(ctx, "test", fmt.Sprintf(test.query, args...), test.rng)

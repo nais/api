@@ -57,7 +57,7 @@ func (r mimirRoundTrip) RoundTrip(req *http.Request) (*http.Response, error) {
 	return http.DefaultTransport.RoundTrip(req)
 }
 
-func New(clusters []string, tenant string, log logrus.FieldLogger) (*RealClient, error) {
+func New(tenant string, log logrus.FieldLogger) (*RealClient, error) {
 	mimirMetrics, err := api.NewClient(api.Config{Address: "http://mimir-query-frontend:8080/prometheus", RoundTripper: mimirRoundTrip{HeaderValue: "nais"}})
 	if err != nil {
 		return nil, err
