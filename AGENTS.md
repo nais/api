@@ -12,19 +12,19 @@ Kjøreregler for AI-agenter som jobber med dette prosjektet.
 
 ## Vanlige kommandoer
 
-| Oppgave | Kommando |
-|---------|----------|
-| Bygg | `mise run build` |
-| Kjør lokalt | `mise run local` |
-| Kjør alle tester | `mise run test` |
-| Kun enhetstester | `mise run test:unit` |
-| Integrasjonstester med UI | `mise run test:ui` |
-| Generer all kode | `mise run generate` |
-| Generer GraphQL | `mise run generate:graphql` |
-| Generer SQL | `mise run generate:sql` |
-| Generer mocks | `mise run generate:mocks` |
-| Formater kode | `mise run fmt` |
-| Alle sjekker | `mise run check` |
+| Oppgave                   | Kommando                    |
+| ------------------------- | --------------------------- |
+| Bygg                      | `mise run build`            |
+| Kjør lokalt               | `mise run local`            |
+| Kjør alle tester          | `mise run test`             |
+| Kun enhetstester          | `mise run test:unit`        |
+| Integrasjonstester med UI | `mise run test:ui`          |
+| Generer all kode          | `mise run generate`         |
+| Generer GraphQL           | `mise run generate:graphql` |
+| Generer SQL               | `mise run generate:sql`     |
+| Generer mocks             | `mise run generate:mocks`   |
+| Formater kode             | `mise run fmt`              |
+| Alle sjekker              | `mise run check`            |
 
 ## Kjøre spesifikke integrasjonstester
 
