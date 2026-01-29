@@ -29,6 +29,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
+	"github.com/nais/api/internal/environmentmapper"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/model"
@@ -557,7 +558,8 @@ var (
 // createTemporaryRBAC creates a temporary Role and RoleBinding for reading a specific secret.
 // The RBAC resources have a 1 minute TTL and will be cleaned up by euthanaisa.
 func createTemporaryRBAC(ctx context.Context, loaders *loaders, input ViewSecretValuesInput, actor *authz.Actor) (string, error) {
-	k8sClient, exists := loaders.K8sClient(input.Environment)
+	clusterName := environmentmapper.ClusterName(input.Environment)
+	k8sClient, exists := loaders.K8sClient(clusterName)
 	if !exists {
 		return "", apierror.Errorf("Environment %q does not exist.", input.Environment)
 	}
