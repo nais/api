@@ -25,10 +25,11 @@ const loadersKey ctxKey = iota
 // ClientCreator creates a client that impersonates the user (for read operations requiring elevation)
 type ClientCreator func(ctx context.Context, environment string) (dynamic.NamespaceableResourceInterface, error)
 
-func NewLoaderContext(ctx context.Context, watcher *watcher.Watcher[*Secret], clientCreator ClientCreator, environments []string, log logrus.FieldLogger) context.Context {
+func NewLoaderContext(ctx context.Context, watcher *watcher.Watcher[*Secret], clientCreator ClientCreator, k8sClients map[string]dynamic.Interface, environments []string, log logrus.FieldLogger) context.Context {
 	return context.WithValue(ctx, loadersKey, &loaders{
 		watcher:       watcher,
 		clientCreator: clientCreator,
+		k8sClients:    k8sClients,
 		log:           log,
 		environments:  environments,
 	})
@@ -95,6 +96,7 @@ func fromContext(ctx context.Context) *loaders {
 type loaders struct {
 	watcher       *watcher.Watcher[*Secret]
 	clientCreator ClientCreator
+	k8sClients    map[string]dynamic.Interface
 	log           logrus.FieldLogger
 	environments  []string
 }
@@ -102,6 +104,12 @@ type loaders struct {
 // Watcher returns the secret watcher
 func (l *loaders) Watcher() *watcher.Watcher[*Secret] {
 	return l.watcher
+}
+
+// K8sClient returns a dynamic client for the given environment (system authenticated)
+func (l *loaders) K8sClient(environment string) (dynamic.Interface, bool) {
+	client, exists := l.k8sClients[environment]
+	return client, exists
 }
 
 // Client returns an impersonated client for read operations (requires user to have elevation)

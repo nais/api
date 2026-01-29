@@ -212,3 +212,17 @@ type SecretFilter struct {
 	Name  string `json:"name"`
 	InUse *bool  `json:"inUse"`
 }
+
+type ViewSecretValuesInput struct {
+	Name        string    `json:"name"`
+	Environment string    `json:"environment"`
+	Team        slug.Slug `json:"team"`
+	Reason      string    `json:"reason"`
+}
+
+type ViewSecretValuesPayload struct {
+	Values []*SecretValue `json:"values"`
+}
+
+// IsActivityLogger implements the ActivityLogger interface.
+func (Secret) IsActivityLogger() {}
