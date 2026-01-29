@@ -496,7 +496,8 @@ func ViewSecretValues(ctx context.Context, input ViewSecretValuesInput) (*ViewSe
 	}
 
 	// Use impersonated client to read secret values (defense in depth)
-	impersonatedClient, err := loaders.Client(ctx, input.Environment)
+	clusterName := environmentmapper.ClusterName(input.Environment)
+	impersonatedClient, err := loaders.Client(ctx, clusterName)
 	if err != nil {
 		return nil, fmt.Errorf("creating impersonated client: %w", err)
 	}
