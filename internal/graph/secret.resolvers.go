@@ -4,6 +4,7 @@ import (
 	"context"
 	"slices"
 
+	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/elevation"
 	"github.com/nais/api/internal/environmentmapper"
@@ -108,6 +109,10 @@ func (r *mutationResolver) DeleteSecret(ctx context.Context, input secret.Delete
 	return &secret.DeleteSecretPayload{
 		SecretDeleted: true,
 	}, nil
+}
+
+func (r *mutationResolver) ViewSecretValues(ctx context.Context, input secret.ViewSecretValuesInput) (*secret.ViewSecretValuesPayload, error) {
+	return secret.ViewSecretValues(ctx, input)
 }
 
 func (r *secretResolver) Environment(ctx context.Context, obj *secret.Secret) (*team.TeamEnvironment, error) {
@@ -221,6 +226,23 @@ func (r *secretResolver) LastModifiedBy(ctx context.Context, obj *secret.Secret)
 	}
 
 	return user.GetByEmail(ctx, *obj.ModifiedByUserEmail)
+}
+
+func (r *secretResolver) ActivityLog(ctx context.Context, obj *secret.Secret, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*pagination.Connection[activitylog.ActivityLogEntry], error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+
+	return activitylog.ListForResourceTeamAndEnvironment(
+		ctx,
+		"SECRET",
+		obj.TeamSlug,
+		obj.Name,
+		environmentmapper.EnvironmentName(obj.EnvironmentName),
+		page,
+		filter,
+	)
 }
 
 // Secrets returns all secrets for a team.

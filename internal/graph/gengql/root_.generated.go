@@ -1146,6 +1146,7 @@ type ComplexityRoot struct {
 		UpdateTeamEnvironment        func(childComplexity int, input team.UpdateTeamEnvironmentInput) int
 		UpdateUnleashInstance        func(childComplexity int, input unleash.UpdateUnleashInstanceInput) int
 		UpdateValkey                 func(childComplexity int, input valkey.UpdateValkeyInput) int
+		ViewSecretValues             func(childComplexity int, input secret.ViewSecretValuesInput) int
 	}
 
 	NetworkPolicy struct {
@@ -1632,6 +1633,7 @@ type ComplexityRoot struct {
 	}
 
 	Secret struct {
+		ActivityLog     func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int
 		Applications    func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		Environment     func(childComplexity int) int
 		ID              func(childComplexity int) int
@@ -1730,6 +1732,22 @@ type ComplexityRoot struct {
 
 	SecretValueUpdatedActivityLogEntryData struct {
 		ValueName func(childComplexity int) int
+	}
+
+	SecretValuesViewedActivityLogEntry struct {
+		Actor           func(childComplexity int) int
+		CreatedAt       func(childComplexity int) int
+		Data            func(childComplexity int) int
+		EnvironmentName func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Message         func(childComplexity int) int
+		ResourceName    func(childComplexity int) int
+		ResourceType    func(childComplexity int) int
+		TeamSlug        func(childComplexity int) int
+	}
+
+	SecretValuesViewedActivityLogEntryData struct {
+		Reason func(childComplexity int) int
 	}
 
 	ServiceAccount struct {
@@ -2768,6 +2786,10 @@ type ComplexityRoot struct {
 		Field    func(childComplexity int) int
 		NewValue func(childComplexity int) int
 		OldValue func(childComplexity int) int
+	}
+
+	ViewSecretValuesPayload struct {
+		Values func(childComplexity int) int
 	}
 
 	VulnerabilityActivityLogEntryData struct {
@@ -7239,6 +7261,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Mutation.UpdateValkey(childComplexity, args["input"].(valkey.UpdateValkeyInput)), true
 
+	case "Mutation.viewSecretValues":
+		if e.complexity.Mutation.ViewSecretValues == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_viewSecretValues_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.ViewSecretValues(childComplexity, args["input"].(secret.ViewSecretValuesInput)), true
+
 	case "NetworkPolicy.inbound":
 		if e.complexity.NetworkPolicy.Inbound == nil {
 			break
@@ -9406,6 +9440,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.SearchNodeEdge.Node(childComplexity), true
 
+	case "Secret.activityLog":
+		if e.complexity.Secret.ActivityLog == nil {
+			break
+		}
+
+		args, err := ec.field_Secret_activityLog_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Secret.ActivityLog(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["filter"].(*activitylog.ActivityLogFilter)), true
+
 	case "Secret.applications":
 		if e.complexity.Secret.Applications == nil {
 			break
@@ -9875,6 +9921,76 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.SecretValueUpdatedActivityLogEntryData.ValueName(childComplexity), true
+
+	case "SecretValuesViewedActivityLogEntry.actor":
+		if e.complexity.SecretValuesViewedActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.complexity.SecretValuesViewedActivityLogEntry.Actor(childComplexity), true
+
+	case "SecretValuesViewedActivityLogEntry.createdAt":
+		if e.complexity.SecretValuesViewedActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.SecretValuesViewedActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "SecretValuesViewedActivityLogEntry.data":
+		if e.complexity.SecretValuesViewedActivityLogEntry.Data == nil {
+			break
+		}
+
+		return e.complexity.SecretValuesViewedActivityLogEntry.Data(childComplexity), true
+
+	case "SecretValuesViewedActivityLogEntry.environmentName":
+		if e.complexity.SecretValuesViewedActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.complexity.SecretValuesViewedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "SecretValuesViewedActivityLogEntry.id":
+		if e.complexity.SecretValuesViewedActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.complexity.SecretValuesViewedActivityLogEntry.ID(childComplexity), true
+
+	case "SecretValuesViewedActivityLogEntry.message":
+		if e.complexity.SecretValuesViewedActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.complexity.SecretValuesViewedActivityLogEntry.Message(childComplexity), true
+
+	case "SecretValuesViewedActivityLogEntry.resourceName":
+		if e.complexity.SecretValuesViewedActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.complexity.SecretValuesViewedActivityLogEntry.ResourceName(childComplexity), true
+
+	case "SecretValuesViewedActivityLogEntry.resourceType":
+		if e.complexity.SecretValuesViewedActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.complexity.SecretValuesViewedActivityLogEntry.ResourceType(childComplexity), true
+
+	case "SecretValuesViewedActivityLogEntry.teamSlug":
+		if e.complexity.SecretValuesViewedActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.complexity.SecretValuesViewedActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "SecretValuesViewedActivityLogEntryData.reason":
+		if e.complexity.SecretValuesViewedActivityLogEntryData.Reason == nil {
+			break
+		}
+
+		return e.complexity.SecretValuesViewedActivityLogEntryData.Reason(childComplexity), true
 
 	case "ServiceAccount.createdAt":
 		if e.complexity.ServiceAccount.CreatedAt == nil {
@@ -14415,6 +14531,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.ValkeyUpdatedActivityLogEntryDataUpdatedField.OldValue(childComplexity), true
 
+	case "ViewSecretValuesPayload.values":
+		if e.complexity.ViewSecretValuesPayload.Values == nil {
+			break
+		}
+
+		return e.complexity.ViewSecretValuesPayload.Values(childComplexity), true
+
 	case "VulnerabilityActivityLogEntryData.identifier":
 		if e.complexity.VulnerabilityActivityLogEntryData.Identifier == nil {
 			break
@@ -15100,6 +15223,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputUserTeamOrder,
 		ec.unmarshalInputValkeyAccessOrder,
 		ec.unmarshalInputValkeyOrder,
+		ec.unmarshalInputViewSecretValuesInput,
 		ec.unmarshalInputVulnerabilitySummaryOrder,
 		ec.unmarshalInputWorkloadLogSubscriptionFilter,
 		ec.unmarshalInputWorkloadOrder,
@@ -20293,6 +20417,12 @@ enum SearchType {
 
 	"Delete a secret, and the values it contains."
 	deleteSecret(input: DeleteSecretInput!): DeleteSecretPayload!
+
+	"""
+	View the values of a secret. Requires team membership and a reason for access.
+	This creates a temporary elevation and logs the access for auditing purposes.
+	"""
+	viewSecretValues(input: ViewSecretValuesInput!): ViewSecretValuesPayload!
 }
 
 extend type Team {
@@ -20390,7 +20520,7 @@ extend type Job {
 }
 
 "A secret is a collection of secret values."
-type Secret implements Node {
+type Secret implements Node & ActivityLogger {
 	"The globally unique ID of the secret."
 	id: ID!
 
@@ -20462,6 +20592,24 @@ type Secret implements Node {
 
 	"User who last modified the secret."
 	lastModifiedBy: User
+
+	"Activity log associated with the secret."
+	activityLog(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+
+		"Filter items."
+		filter: ActivityLogFilter
+	): ActivityLogEntryConnection!
 }
 
 input SecretValueInput {
@@ -20536,6 +20684,23 @@ input DeleteSecretInput {
 	team: Slug!
 }
 
+"""
+Input for viewing secret values.
+"""
+input ViewSecretValuesInput {
+	"The name of the secret."
+	name: String!
+
+	"The environment the secret exists in."
+	environment: String!
+
+	"The team that owns the secret."
+	team: Slug!
+
+	"Reason for viewing the secret values. Must be at least 10 characters."
+	reason: String!
+}
+
 type CreateSecretPayload {
 	"The created secret."
 	secret: Secret
@@ -20578,6 +20743,14 @@ type RemoveSecretValuePayload {
 type DeleteSecretPayload {
 	"The deleted secret."
 	secretDeleted: Boolean
+}
+
+"""
+Payload returned when viewing secret values.
+"""
+type ViewSecretValuesPayload {
+	"The secret values."
+	values: [SecretValue!]!
 }
 
 type SecretConnection {
@@ -20777,6 +20950,48 @@ extend enum ActivityLogActivityType {
 	SECRET_VALUE_REMOVED
 	"Secret was deleted."
 	SECRET_DELETED
+	"Secret values were viewed."
+	SECRET_VALUES_VIEWED
+}
+
+"""
+Activity log entry for viewing secret values.
+"""
+type SecretValuesViewedActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: ActivityLogEntryResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+
+	"Data associated with the entry."
+	data: SecretValuesViewedActivityLogEntryData!
+}
+
+"""
+Data associated with a secret values viewed activity log entry.
+"""
+type SecretValuesViewedActivityLogEntryData {
+	"The reason provided for viewing the secret values."
+	reason: String!
 }
 `, BuiltIn: false},
 	{Name: "../schema/serviceaccounts.graphqls", Input: `extend type Query {

@@ -11,6 +11,7 @@ const (
 	activityLogEntryActionAddSecretValue    activitylog.ActivityLogEntryAction       = "ADD_SECRET_VALUE"
 	activityLogEntryActionUpdateSecretValue activitylog.ActivityLogEntryAction       = "UPDATE_SECRET_VALUE"
 	activityLogEntryActionRemoveSecretValue activitylog.ActivityLogEntryAction       = "REMOVE_SECRET_VALUE"
+	activityLogEntryActionViewSecretValues  activitylog.ActivityLogEntryAction       = "VIEW_SECRET_VALUES"
 )
 
 func init() {
@@ -60,6 +61,18 @@ func init() {
 				GenericActivityLogEntry: entry.WithMessage("Removed secret value"),
 				Data:                    data,
 			}, nil
+		case activityLogEntryActionViewSecretValues:
+			data, err := activitylog.TransformData(entry, func(data *SecretValuesViewedActivityLogEntryData) *SecretValuesViewedActivityLogEntryData {
+				return data
+			})
+			if err != nil {
+				return nil, err
+			}
+
+			return SecretValuesViewedActivityLogEntry{
+				GenericActivityLogEntry: entry.WithMessage("Viewed secret values"),
+				Data:                    data,
+			}, nil
 		default:
 			return nil, fmt.Errorf("unsupported secret activity log entry action: %q", entry.Action)
 		}
@@ -70,6 +83,7 @@ func init() {
 	activitylog.RegisterFilter("SECRET_VALUE_ADDED", activityLogEntryActionAddSecretValue, activityLogEntryResourceTypeSecret)
 	activitylog.RegisterFilter("SECRET_VALUE_UPDATED", activityLogEntryActionUpdateSecretValue, activityLogEntryResourceTypeSecret)
 	activitylog.RegisterFilter("SECRET_VALUE_REMOVED", activityLogEntryActionRemoveSecretValue, activityLogEntryResourceTypeSecret)
+	activitylog.RegisterFilter("SECRET_VALUES_VIEWED", activityLogEntryActionViewSecretValues, activityLogEntryResourceTypeSecret)
 }
 
 type SecretCreatedActivityLogEntry struct {
@@ -105,4 +119,14 @@ type SecretValueRemovedActivityLogEntryData struct {
 
 type SecretDeletedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
+}
+
+type SecretValuesViewedActivityLogEntry struct {
+	activitylog.GenericActivityLogEntry
+	Data *SecretValuesViewedActivityLogEntryData
+}
+
+type SecretValuesViewedActivityLogEntryData struct {
+	Reason      string
+	ElevationID string
 }

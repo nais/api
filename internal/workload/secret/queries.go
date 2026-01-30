@@ -22,10 +22,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"slices"
+	"strconv"
 	"strings"
+	"time"
 
+	"github.com/google/uuid"
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
+	"github.com/nais/api/internal/environmentmapper"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/model"
@@ -39,6 +43,7 @@ import (
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/validation"
 	"k8s.io/utils/ptr"
@@ -465,4 +470,176 @@ func escapeJSONPointer(s string) string {
 	s = strings.ReplaceAll(s, "~", "~0")
 	s = strings.ReplaceAll(s, "/", "~1")
 	return s
+}
+
+// ViewSecretValues returns secret values after verifying authorization and logging the access.
+// This creates a temporary RBAC elevation and uses impersonation to read the values,
+// providing defense in depth (API authorization + Kubernetes RBAC).
+func ViewSecretValues(ctx context.Context, input ViewSecretValuesInput) (*ViewSecretValuesPayload, error) {
+	// Validate reason
+	if len(input.Reason) < 10 {
+		return nil, apierror.Errorf("Reason must be at least 10 characters")
+	}
+
+	// Check team membership (strict check without admin bypass)
+	if err := authz.CanReadSecretValues(ctx, input.Team); err != nil {
+		return nil, err
+	}
+
+	actor := authz.ActorFromContext(ctx)
+	loaders := fromContext(ctx)
+
+	// Create temporary Role and RoleBinding for the user (1 minute TTL)
+	elevationID, err := createTemporaryRBAC(ctx, loaders, input, actor)
+	if err != nil {
+		return nil, fmt.Errorf("creating temporary RBAC: %w", err)
+	}
+
+	// Use impersonated client to read secret values (defense in depth)
+	clusterName := environmentmapper.ClusterName(input.Environment)
+	impersonatedClient, err := loaders.Client(ctx, clusterName)
+	if err != nil {
+		return nil, fmt.Errorf("creating impersonated client: %w", err)
+	}
+
+	u, err := impersonatedClient.Namespace(input.Team.String()).Get(ctx, input.Name, v1.GetOptions{})
+	if err != nil {
+		return nil, fmt.Errorf("reading secret: %w", err)
+	}
+
+	data, _, err := unstructured.NestedStringMap(u.Object, "data")
+	if err != nil {
+		return nil, err
+	}
+
+	values := make([]*SecretValue, 0, len(data))
+	for k, v := range data {
+		val, err := base64.StdEncoding.DecodeString(v)
+		if err != nil {
+			return nil, err
+		}
+
+		values = append(values, &SecretValue{
+			Name:  k,
+			Value: string(val),
+		})
+	}
+
+	slices.SortFunc(values, func(a, b *SecretValue) int {
+		return strings.Compare(a.Name, b.Name)
+	})
+
+	// Log the access to activity log
+	err = activitylog.Create(ctx, activitylog.CreateInput{
+		Action:          activityLogEntryActionViewSecretValues,
+		Actor:           actor.User,
+		EnvironmentName: ptr.To(input.Environment),
+		ResourceType:    activityLogEntryResourceTypeSecret,
+		ResourceName:    input.Name,
+		TeamSlug:        ptr.To(input.Team),
+		Data: &SecretValuesViewedActivityLogEntryData{
+			Reason:      input.Reason,
+			ElevationID: elevationID,
+		},
+	})
+	if err != nil {
+		loaders.log.WithError(err).Errorf("unable to create activity log entry")
+	}
+
+	return &ViewSecretValuesPayload{
+		Values: values,
+	}, nil
+}
+
+var (
+	roleGVR        = schema.GroupVersionResource{Group: "rbac.authorization.k8s.io", Version: "v1", Resource: "roles"}
+	roleBindingGVR = schema.GroupVersionResource{Group: "rbac.authorization.k8s.io", Version: "v1", Resource: "rolebindings"}
+)
+
+// createTemporaryRBAC creates a temporary Role and RoleBinding for reading a specific secret.
+// The RBAC resources have a 1 minute TTL and will be cleaned up by euthanaisa.
+func createTemporaryRBAC(ctx context.Context, loaders *loaders, input ViewSecretValuesInput, actor *authz.Actor) (string, error) {
+	clusterName := environmentmapper.ClusterName(input.Environment)
+	k8sClient, exists := loaders.K8sClient(clusterName)
+	if !exists {
+		return "", apierror.Errorf("Environment %q does not exist.", input.Environment)
+	}
+
+	elevationID := fmt.Sprintf("view-secret-%s", uuid.New().String()[:8])
+	namespace := input.Team.String()
+	createdAt := time.Now()
+	expiresAt := createdAt.Add(1 * time.Minute) // Short TTL - just enough to read the secret
+
+	// Create Role
+	role := &unstructured.Unstructured{
+		Object: map[string]any{
+			"apiVersion": "rbac.authorization.k8s.io/v1",
+			"kind":       "Role",
+			"metadata": map[string]any{
+				"name":      elevationID,
+				"namespace": namespace,
+				"labels": map[string]any{
+					"nais.io/elevation":             "true",
+					"nais.io/elevation-type":        "SECRET",
+					"euthanaisa.nais.io/kill-after": strconv.FormatInt(expiresAt.Unix(), 10),
+				},
+				"annotations": map[string]any{
+					"nais.io/elevation-resource": input.Name,
+					"nais.io/elevation-user":     actor.User.Identity(),
+					"nais.io/elevation-reason":   input.Reason,
+					"nais.io/elevation-created":  createdAt.Format(time.RFC3339),
+				},
+			},
+			"rules": []any{
+				map[string]any{
+					"apiGroups":     []any{""},
+					"resources":     []any{"secrets"},
+					"verbs":         []any{"get"},
+					"resourceNames": []any{input.Name},
+				},
+			},
+		},
+	}
+
+	_, err := k8sClient.Resource(roleGVR).Namespace(namespace).Create(ctx, role, v1.CreateOptions{})
+	if err != nil {
+		return "", fmt.Errorf("creating role: %w", err)
+	}
+
+	// Create RoleBinding
+	roleBinding := &unstructured.Unstructured{
+		Object: map[string]any{
+			"apiVersion": "rbac.authorization.k8s.io/v1",
+			"kind":       "RoleBinding",
+			"metadata": map[string]any{
+				"name":      elevationID,
+				"namespace": namespace,
+				"labels": map[string]any{
+					"nais.io/elevation":             "true",
+					"euthanaisa.nais.io/kill-after": strconv.FormatInt(expiresAt.Unix(), 10),
+				},
+			},
+			"roleRef": map[string]any{
+				"apiGroup": "rbac.authorization.k8s.io",
+				"kind":     "Role",
+				"name":     elevationID,
+			},
+			"subjects": []any{
+				map[string]any{
+					"apiGroup": "rbac.authorization.k8s.io",
+					"kind":     "User",
+					"name":     actor.User.Identity(),
+				},
+			},
+		},
+	}
+
+	_, err = k8sClient.Resource(roleBindingGVR).Namespace(namespace).Create(ctx, roleBinding, v1.CreateOptions{})
+	if err != nil {
+		// Clean up the role if rolebinding creation fails
+		_ = k8sClient.Resource(roleGVR).Namespace(namespace).Delete(ctx, elevationID, v1.DeleteOptions{})
+		return "", fmt.Errorf("creating rolebinding: %w", err)
+	}
+
+	return elevationID, nil
 }
