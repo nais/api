@@ -15,6 +15,7 @@ type SupportedLogDestination string
 const (
 	Loki       SupportedLogDestination = "loki"
 	SecureLogs SupportedLogDestination = "secure_logs"
+	Generic    SupportedLogDestination = "generic"
 )
 
 func (s SupportedLogDestination) Valid() bool {
@@ -50,6 +51,18 @@ func (LogDestinationSecureLogs) IsLogDestination() {}
 func (LogDestinationSecureLogs) IsNode()           {}
 func (l LogDestinationSecureLogs) ID() ident.Ident {
 	return newIdent(SecureLogs, l.WorkloadType, l.TeamSlug, l.EnvironmentName, l.WorkloadName)
+}
+
+type LogDestinationGeneric struct {
+	logDestinationBase
+
+	Name string
+}
+
+func (LogDestinationGeneric) IsLogDestination() {}
+func (LogDestinationGeneric) IsNode()           {}
+func (l LogDestinationGeneric) ID() ident.Ident {
+	return newGenericIdent(Generic, l.WorkloadType, l.TeamSlug, l.EnvironmentName, l.WorkloadName, l.Name)
 }
 
 type LogDestinationLoki struct {

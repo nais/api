@@ -5243,8 +5243,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_secret(ctx context.Cont
 				return ec.fieldContext_Secret_teamEnvironment(ctx, field)
 			case "team":
 				return ec.fieldContext_Secret_team(ctx, field)
-			case "values":
-				return ec.fieldContext_Secret_values(ctx, field)
+			case "keys":
+				return ec.fieldContext_Secret_keys(ctx, field)
 			case "applications":
 				return ec.fieldContext_Secret_applications(ctx, field)
 			case "jobs":
@@ -5255,6 +5255,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_secret(ctx context.Cont
 				return ec.fieldContext_Secret_lastModifiedAt(ctx, field)
 			case "lastModifiedBy":
 				return ec.fieldContext_Secret_lastModifiedBy(ctx, field)
+			case "activityLog":
+				return ec.fieldContext_Secret_activityLog(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Secret", field.Name)
 		},

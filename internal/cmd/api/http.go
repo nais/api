@@ -269,10 +269,10 @@ func ConfigureGraph(
 
 	var prometheusClient promclient.Client
 	if fakes.WithFakePrometheus {
-		prometheusClient = promfake.NewFakeClient(clusters, nil, nil)
+		prometheusClient = promfake.NewFakeClient(nil, nil)
 	} else {
 		var err error
-		prometheusClient, err = promclient.New(clusters, tenantName, log)
+		prometheusClient, err = promclient.New(tenantName, log)
 		if err != nil {
 			return nil, fmt.Errorf("create utilization client: %w", err)
 		}
@@ -291,6 +291,8 @@ func ConfigureGraph(
 		podLogStreamer = podlog.NewLogStreamer(clients, log)
 		secretClientCreator = secret.CreatorFromConfig(ctx, k8sClients)
 	}
+
+	dynamicClients := watcherMgr.GetDynamicClients()
 
 	var costOpts []cost.Option
 	if fakes.WithFakeCostClient {
@@ -311,7 +313,7 @@ func ConfigureGraph(
 		ctx = job.NewLoaderContext(ctx, watchers.JobWatcher, watchers.RunWatcher)
 		ctx = kafkatopic.NewLoaderContext(ctx, watchers.KafkaTopicWatcher)
 		ctx = workload.NewLoaderContext(ctx, watchers.PodWatcher)
-		ctx = secret.NewLoaderContext(ctx, secretClientCreator, clusters, log)
+		ctx = secret.NewLoaderContext(ctx, watchers.SecretWatcher, secretClientCreator, dynamicClients, clusters, log)
 		ctx = aiven.NewLoaderContext(ctx, aivenProjects)
 		ctx = opensearch.NewLoaderContext(ctx, tenantName, watchers.OpenSearchWatcher, aivenClient, log)
 		ctx = valkey.NewLoaderContext(ctx, tenantName, watchers.ValkeyWatcher, aivenClient)

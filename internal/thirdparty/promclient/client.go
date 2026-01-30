@@ -3,6 +3,7 @@ package promclient
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"strings"
 	"time"
 
@@ -11,12 +12,11 @@ import (
 	promv1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	prom "github.com/prometheus/common/model"
 	"github.com/sirupsen/logrus"
-	"github.com/sourcegraph/conc/pool"
 )
 
 type QueryClient interface {
 	Query(ctx context.Context, environment string, query string, opts ...QueryOption) (prom.Vector, error)
-	QueryAll(ctx context.Context, query string, opts ...QueryOption) (map[string]prom.Vector, error)
+	QueryAll(ctx context.Context, query string, opts ...QueryOption) (prom.Vector, error)
 	QueryRange(ctx context.Context, environment string, query string, promRange promv1.Range) (prom.Value, promv1.Warnings, error)
 }
 
@@ -43,70 +43,58 @@ func WithTime(t time.Time) QueryOption {
 }
 
 type RealClient struct {
-	prometheuses map[string]promv1.API
+	mimirMetrics promv1.API
+	mimirRules   promv1.API
 	log          logrus.FieldLogger
 }
 
-func New(clusters []string, tenant string, log logrus.FieldLogger) (*RealClient, error) {
-	proms := map[string]promv1.API{}
-
-	for _, cluster := range clusters {
-		client, err := api.NewClient(api.Config{Address: fmt.Sprintf("https://prometheus.%s.%s.cloud.nais.io", cluster, tenant)})
-		if err != nil {
-			return nil, err
-		}
-
-		proms[cluster] = promv1.NewAPI(client)
-	}
-
-	return &RealClient{
-		prometheuses: proms,
-		log:          log,
-	}, nil
+type mimirRoundTrip struct {
+	HeaderValue string
 }
 
-func (c *RealClient) QueryAll(ctx context.Context, query string, opts ...QueryOption) (map[string]prom.Vector, error) {
-	type result struct {
-		env string
-		vec prom.Vector
-	}
-	wg := pool.NewWithResults[*result]().WithContext(ctx)
+func (r mimirRoundTrip) RoundTrip(req *http.Request) (*http.Response, error) {
+	req.Header.Set("X-Scope-OrgID", r.HeaderValue)
+	return http.DefaultTransport.RoundTrip(req)
+}
 
-	for env := range c.prometheuses {
-		wg.Go(func(ctx context.Context) (*result, error) {
-			v, err := c.Query(ctx, env, query, opts...)
-			if err != nil {
-				c.log.WithError(err).Errorf("failed to query prometheus in %s", env)
-				return nil, err
-			}
-			return &result{env: env, vec: v}, nil
-		})
-	}
-
-	results, err := wg.Wait()
+func New(tenant string, log logrus.FieldLogger) (*RealClient, error) {
+	mimirMetrics, err := api.NewClient(api.Config{Address: "http://mimir-query-frontend:8080/prometheus", RoundTripper: mimirRoundTrip{HeaderValue: "nais"}})
 	if err != nil {
 		return nil, err
 	}
 
-	ret := map[string]prom.Vector{}
-	for _, res := range results {
-		ret[res.env] = res.vec
+	mimirAlerts, err := api.NewClient(api.Config{Address: "http://mimir-ruler:8080/prometheus", RoundTripper: mimirRoundTrip{HeaderValue: "tenant"}})
+	if err != nil {
+		return nil, err
 	}
 
-	return ret, nil
+	return &RealClient{
+		mimirMetrics: promv1.NewAPI(mimirMetrics),
+		mimirRules:   promv1.NewAPI(mimirAlerts),
+		log:          log,
+	}, nil
+}
+
+func (c *RealClient) QueryAll(ctx context.Context, query string, opts ...QueryOption) (prom.Vector, error) {
+	return c.Query(ctx, "", query, opts...)
 }
 
 func (c *RealClient) Query(ctx context.Context, environmentName string, query string, opts ...QueryOption) (prom.Vector, error) {
-	client, ok := c.prometheuses[environmentName]
-	if !ok {
-		return nil, fmt.Errorf("no prometheus client for environment %s", environmentName)
-	}
+	client := c.mimirMetrics
 
 	opt := &QueryOpts{
 		Time: time.Now().Add(-5 * time.Minute),
 	}
 	for _, fn := range opts {
 		fn(opt)
+	}
+
+	if environmentName != "" {
+		var err error
+		query, err = injectEnvToQuery(query, environmentName)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	v, warnings, err := client.Query(ctx, query, opt.Time)
@@ -130,71 +118,70 @@ func (c *RealClient) Query(ctx context.Context, environmentName string, query st
 }
 
 func (c *RealClient) QueryRange(ctx context.Context, environment string, query string, promRange promv1.Range) (prom.Value, promv1.Warnings, error) {
-	client, ok := c.prometheuses[environment]
-	if !ok {
-		return nil, nil, fmt.Errorf("no prometheus client for environment %s", environment)
-	}
-
+	client := c.mimirMetrics
 	return client.QueryRange(ctx, query, promRange)
 }
 
 func (c *RealClient) Rules(ctx context.Context, environment string, teamSlug slug.Slug) (promv1.RulesResult, error) {
-	api, ok := c.prometheuses[environment]
-	if !ok {
-		return promv1.RulesResult{}, fmt.Errorf("no prometheus client for environment %s", environment)
-	}
-	res, err := api.Rules(ctx)
+	res, err := c.mimirRules.Rules(ctx)
 	if err != nil {
 		return promv1.RulesResult{}, err
 	}
-	if teamSlug == "" {
+
+	if teamSlug == "" && environment == "" {
 		return res, nil
 	}
-	return filterRulesByTeam(res, teamSlug), nil
+
+	return filterRulesByTeam(res, environment, teamSlug), nil
 }
 
 func (c *RealClient) RulesAll(ctx context.Context, teamSlug slug.Slug) (map[string]promv1.RulesResult, error) {
-	type item struct {
-		env string
-		res promv1.RulesResult
-	}
-	wg := pool.NewWithResults[*item]().WithContext(ctx)
-
-	for env := range c.prometheuses {
-		wg.Go(func(ctx context.Context) (*item, error) {
-			res, err := c.Rules(ctx, env, teamSlug)
-			if err != nil {
-				c.log.WithError(err).Errorf("failed to get rules in %s", env)
-				return nil, err
-			}
-			return &item{env: env, res: res}, nil
-		})
-	}
-	items, err := wg.Wait()
+	res, err := c.Rules(ctx, "", teamSlug)
 	if err != nil {
 		return nil, err
 	}
-	out := make(map[string]promv1.RulesResult, len(items))
-	for _, it := range items {
-		out[it.env] = it.res
+
+	rules := map[string]promv1.RulesResult{}
+	for _, group := range res.Groups {
+		splittedFile := strings.Split(group.File, "/")
+		if len(splittedFile) < 1 {
+			continue
+		}
+
+		cluster := splittedFile[0]
+
+		rule := rules[cluster]
+		rule.Groups = append(rules[cluster].Groups, group)
+		rules[cluster] = rule
 	}
-	return out, nil
+
+	return rules, nil
 }
 
-func filterRulesByTeam(in promv1.RulesResult, teamSlug slug.Slug) promv1.RulesResult {
+func filterRulesByTeam(in promv1.RulesResult, env string, teamSlug slug.Slug) promv1.RulesResult {
 	out := promv1.RulesResult{}
 	out.Groups = make([]promv1.RuleGroup, 0, len(in.Groups))
 
 	for _, g := range in.Groups {
+		splittedFile := strings.Split(g.File, "/")
+		if len(splittedFile) < 2 {
+			continue
+		}
+
+		cluster := splittedFile[0]
+		namespace := splittedFile[1]
+
 		var filtered promv1.Rules
-		for _, r := range g.Rules {
-			if ar, ok := r.(promv1.AlertingRule); ok {
-				if string(ar.Labels["namespace"]) == teamSlug.String() ||
-					string(ar.Labels["team"]) == teamSlug.String() {
-					filtered = append(filtered, ar)
+		if namespace == teamSlug.String() {
+			if env == "" || cluster == env {
+				for _, r := range g.Rules {
+					if ar, ok := r.(promv1.AlertingRule); ok {
+						filtered = append(filtered, ar)
+					}
 				}
 			}
 		}
+
 		if len(filtered) > 0 {
 			out.Groups = append(out.Groups, promv1.RuleGroup{
 				Name:     g.Name,
@@ -204,5 +191,6 @@ func filterRulesByTeam(in promv1.RulesResult, teamSlug slug.Slug) promv1.RulesRe
 			})
 		}
 	}
+
 	return out
 }

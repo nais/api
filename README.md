@@ -30,7 +30,7 @@ To develop the logging API with real data:
 TENANT_NAME="example.com"
 nais login
 narc jita grant k8s-admin "$TENANT_NAME" --duration 1h --reason "port forward for loki local testing"
-CONTEXT="dev" WITH_LOG_PRXOY="true" mise run local|debug
+CONTEXT="dev" WITH_LOG_PROXY="true" mise run local|debug
 ```
 
 ## Development practices

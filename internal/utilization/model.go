@@ -42,7 +42,7 @@ func (e UtilizationResourceType) String() string {
 	return string(e)
 }
 
-func (e *UtilizationResourceType) UnmarshalGQL(v interface{}) error {
+func (e *UtilizationResourceType) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -133,7 +133,7 @@ type WorkloadUtilizationRecommendations struct {
 }
 
 func (w WorkloadUtilizationRecommendations) CPURequestCores(ctx context.Context) (float64, error) {
-	v, err := w.client.Query(ctx, w.environmentName, fmt.Sprintf(cpuRequestRecommendation, w.workloadName, w.teamSlug, w.start.Hour(), w.start.Add(time.Hour*12).Hour()))
+	v, err := w.client.Query(ctx, w.environmentName, fmt.Sprintf(cpuRequestRecommendation, w.environmentName, w.teamSlug, w.workloadName, w.start.Hour(), w.start.Add(time.Hour*12).Hour()))
 	if err != nil {
 		return 0, err
 	}
@@ -144,7 +144,7 @@ func (w WorkloadUtilizationRecommendations) CPURequestCores(ctx context.Context)
 }
 
 func (w WorkloadUtilizationRecommendations) MemoryRequestBytes(ctx context.Context) (int64, error) {
-	v, err := w.client.Query(ctx, w.environmentName, fmt.Sprintf(memoryRequestRecommendation, w.workloadName, w.teamSlug, w.start.Hour(), w.start.Add(time.Hour*12).Hour()))
+	v, err := w.client.Query(ctx, w.environmentName, fmt.Sprintf(memoryRequestRecommendation, w.environmentName, w.teamSlug, w.workloadName, w.start.Hour(), w.start.Add(time.Hour*12).Hour()))
 	if err != nil {
 		return 0, err
 	}
@@ -154,7 +154,7 @@ func (w WorkloadUtilizationRecommendations) MemoryRequestBytes(ctx context.Conte
 }
 
 func (w WorkloadUtilizationRecommendations) MemoryLimitBytes(ctx context.Context) (int64, error) {
-	v, err := w.client.Query(ctx, w.environmentName, fmt.Sprintf(memoryLimitRecommendation, w.workloadName, w.teamSlug, w.start.Hour(), w.start.Add(time.Hour*12).Hour()))
+	v, err := w.client.Query(ctx, w.environmentName, fmt.Sprintf(memoryLimitRecommendation, w.environmentName, w.teamSlug, w.workloadName, w.start.Hour(), w.start.Add(time.Hour*12).Hour()))
 	if err != nil {
 		return 0, err
 	}

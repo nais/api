@@ -190,6 +190,11 @@ func Create(ctx context.Context, input CreateOpenSearchInput) (*CreateOpenSearch
 	if err != nil {
 		return nil, err
 	}
+	version, err := input.Version.ToAivenString()
+	if err != nil {
+		return nil, err
+	}
+
 	res.Object["spec"] = map[string]any{
 		"cloudName":             "google-europe-north1",
 		"plan":                  machine.AivenPlan,
@@ -203,7 +208,7 @@ func Create(ctx context.Context, input CreateOpenSearchInput) (*CreateOpenSearch
 			"tenant":      fromContext(ctx).tenantName,
 		},
 		"userConfig": map[string]any{
-			"opensearch_version": input.Version.ToAivenString(),
+			"opensearch_version": version,
 		},
 	}
 
@@ -411,8 +416,8 @@ func updateVersion(ctx context.Context, openSearch *unstructured.Unstructured, i
 		return changes, nil
 	}
 
-	if input.Version.IsDowngradeTo(oldMajorVersion) {
-		return nil, apierror.Errorf("Cannot downgrade OpenSearch version from %v to %v", oldMajorVersion, input.Version.String())
+	if err := input.Version.ValidateUpgradePath(oldMajorVersion); err != nil {
+		return nil, err
 	}
 
 	changes = append(changes, &OpenSearchUpdatedActivityLogEntryDataUpdatedField{
@@ -426,7 +431,12 @@ func updateVersion(ctx context.Context, openSearch *unstructured.Unstructured, i
 		NewValue: ptr.To(input.Version.String()),
 	})
 
-	if err := unstructured.SetNestedField(openSearch.Object, input.Version.ToAivenString(), specOpenSearchVersion...); err != nil {
+	version, err := input.Version.ToAivenString()
+	if err != nil {
+		return nil, err
+	}
+
+	if err := unstructured.SetNestedField(openSearch.Object, version, specOpenSearchVersion...); err != nil {
 		return nil, err
 	}
 	return changes, nil

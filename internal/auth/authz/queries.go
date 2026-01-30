@@ -225,6 +225,12 @@ func CanDeleteSecrets(ctx context.Context, teamSlug slug.Slug) error {
 	return requireTeamAuthorization(ctx, teamSlug, "teams:secrets:delete")
 }
 
+// CanReadSecretValues checks if the user can read secret values for the team.
+// This enforces strict team membership WITHOUT admin bypass for security reasons.
+func CanReadSecretValues(ctx context.Context, teamSlug slug.Slug) error {
+	return requireStrictTeamAuthorization(ctx, teamSlug, "teams:secrets:read-values")
+}
+
 func CanCreateTeam(ctx context.Context) error {
 	return requireGlobalAuthorization(ctx, "teams:create")
 }
@@ -297,6 +303,10 @@ func RequireGlobalAdmin(ctx context.Context) error {
 	return ErrUnauthorized
 }
 
+// requireTeamAuthorization enforces team authorization WITH admin bypass.
+// Admins can perform actions even if they're not team members.
+// This also allows global roles (target_team_slug IS NULL) to apply.
+// Use this for normal team operations like updating apps, managing resources, etc.
 func requireTeamAuthorization(ctx context.Context, teamSlug slug.Slug, authorizationName string) error {
 	actor := ActorFromContext(ctx)
 	user := actor.User
@@ -321,6 +331,53 @@ func requireTeamAuthorization(ctx context.Context, teamSlug slug.Slug, authoriza
 		})
 	} else {
 		hasAuthorization, err = db(ctx).HasTeamAuthorization(ctx, authzsql.HasTeamAuthorizationParams{
+			UserID:            user.GetID(),
+			AuthorizationName: authorizationName,
+			TeamSlug:          teamSlug,
+		})
+	}
+	if err != nil {
+		return err
+	}
+
+	if hasAuthorization {
+		return nil
+	}
+
+	return newMissingAuthorizationError(authorizationName)
+}
+
+// requireStrictTeamAuthorization enforces team authorization WITHOUT admin bypass.
+// Even admins MUST be team members to perform these security-sensitive operations.
+// This does NOT allow global roles - the user must have the role on the specific team.
+// Use this for operations that:
+// - Create audit trail (elevations)
+// - Access sensitive data (secret values)
+// - Should never bypass team membership for security reasons
+func requireStrictTeamAuthorization(ctx context.Context, teamSlug slug.Slug, authorizationName string) error {
+	actor := ActorFromContext(ctx)
+	user := actor.User
+	var (
+		hasAuthorization bool
+		err              error
+	)
+
+	type githubActions interface {
+		IsGitHubActions()
+	}
+	if user.IsServiceAccount() {
+		if _, ok := user.(githubActions); ok {
+			// This is a cheat to support OIDC from GitHubActions. See middleware.GitHubOIDC for how the roles are assigned
+			return isAuthorizedThroughRoles(ctx, authorizationName, teamSlug, actor.Roles)
+		}
+
+		hasAuthorization, err = db(ctx).ServiceAccountHasTeamMembership(ctx, authzsql.ServiceAccountHasTeamMembershipParams{
+			ServiceAccountID:  user.GetID(),
+			AuthorizationName: authorizationName,
+			TeamSlug:          teamSlug,
+		})
+	} else {
+		hasAuthorization, err = db(ctx).HasTeamMembership(ctx, authzsql.HasTeamMembershipParams{
 			UserID:            user.GetID(),
 			AuthorizationName: authorizationName,
 			TeamSlug:          teamSlug,
