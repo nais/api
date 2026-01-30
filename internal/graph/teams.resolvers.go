@@ -293,11 +293,6 @@ func (r *teamResolver) ViewerIsMember(ctx context.Context, obj *team.Team) (bool
 	return team.UserIsMember(ctx, obj.Slug, authz.ActorFromContext(ctx).User.GetID())
 }
 
-func (r *teamResolver) ViewerCanElevate(ctx context.Context, obj *team.Team) (bool, error) {
-	err := authz.CanCreateElevation(ctx, obj.Slug)
-	return err == nil, nil
-}
-
 func (r *teamResolver) Environments(ctx context.Context, obj *team.Team) ([]*team.TeamEnvironment, error) {
 	return team.ListTeamEnvironments(ctx, obj.Slug)
 }

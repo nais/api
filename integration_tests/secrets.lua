@@ -470,218 +470,8 @@ Test.gql("Delete secret as non-team member", function(t)
 	}
 end)
 
-Test.gql("Create secret for elevation test", function(t)
-	t.addHeader("x-user-email", user:email())
-
-	t.query [[
-		mutation {
-			createSecret(input: {
-				name: "test-elevation-secret"
-				environment: "dev"
-				team: "myteam"
-			}) {
-				secret {
-					name
-				}
-			}
-		}
-	]]
-
-	t.check {
-		data = {
-			createSecret = {
-				secret = {
-					name = "test-elevation-secret",
-				},
-			},
-		},
-	}
-
-	-- Add a value
-	t.query [[
-		mutation {
-			addSecretValue(input: {
-				name: "test-elevation-secret"
-				environment: "dev"
-				team: "myteam"
-				value: {
-					name: "api-key",
-					value: "super-secret-123"
-				}
-			}) {
-				secret {
-					name
-					keys
-				}
-			}
-		}
-	]]
-
-	t.check {
-		data = {
-			addSecretValue = {
-				secret = {
-					name = "test-elevation-secret",
-					keys = { "api-key" },
-				},
-			},
-		},
-	}
-end)
-
-Test.gql("Reading secret values WITHOUT elevation should fail", function(t)
-	t.addHeader("x-user-email", user:email())
-
-	t.query [[
-		query {
-			team(slug: "myteam") {
-				environment(name: "dev") {
-					secret(name: "test-elevation-secret") {
-						name
-						values {
-							name
-							value
-						}
-					}
-				}
-			}
-		}
-	]]
-
-	t.check {
-		errors = {
-			{
-				message = Contains("You are authenticated"),
-				path = { "team", "environment", "secret", "values" },
-			},
-		},
-		data = {
-			team = {
-				environment = {
-					secret = {
-						name = "test-elevation-secret",
-						values = Null,
-					},
-				},
-			},
-		},
-	}
-end)
-
-Test.gql("Create elevation for reading secret values", function(t)
-	t.addHeader("x-user-email", user:email())
-
-	t.query [[
-		mutation {
-			createElevation(input: {
-				type: SECRET
-				team: "myteam"
-				environmentName: "dev"
-				resourceName: "test-elevation-secret"
-				reason: "Testing secret values access with elevation"
-				durationMinutes: 5
-			}) {
-				elevation {
-					id
-				}
-			}
-		}
-	]]
-
-	t.check {
-		data = {
-			createElevation = {
-				elevation = {
-					id = Save("elevationID"),
-				},
-			},
-		},
-	}
-end)
-
-Test.gql("Reading secret values WITH elevation should succeed", function(t)
-	t.addHeader("x-user-email", user:email())
-
-	t.query [[
-		query {
-			team(slug: "myteam") {
-				environment(name: "dev") {
-					secret(name: "test-elevation-secret") {
-						name
-						values {
-							name
-							value
-						}
-					}
-				}
-			}
-		}
-	]]
-
-	t.check {
-		data = {
-			team = {
-				environment = {
-					secret = {
-						name = "test-elevation-secret",
-						values = {
-							{
-								name = "api-key",
-								value = "super-secret-123",
-							},
-						},
-					},
-				},
-			},
-		},
-	}
-end)
-
-Test.gql("Admin user cannot read secret values without team membership", function(t)
-	-- Create an admin user (not a member of myteam)
-	local adminUser = User.new("admin-user", "admin@example.com", "admin-ext")
-	adminUser:admin(true)
-
-	-- Admin tries to read secret values without being a team member
-	-- Since admin is not a team member, they cannot read secret values even with admin privileges
-	t.addHeader("x-user-email", adminUser:email())
-
-	t.query [[
-		query {
-			team(slug: "myteam") {
-				environment(name: "dev") {
-					secret(name: "test-elevation-secret") {
-						name
-						values {
-							name
-							value
-						}
-					}
-				}
-			}
-		}
-	]]
-
-	-- Admin can see secret metadata but cannot read values without team membership
-	t.check {
-		errors = {
-			{
-				message = Contains("You are authenticated"),
-				path = { "team", "environment", "secret", "values" },
-			},
-		},
-		data = {
-			team = {
-				environment = {
-					secret = {
-						name = "test-elevation-secret",
-						values = Null,
-					},
-				},
-			},
-		},
-	}
-end)
+-- Tests for reading secret values now use viewSecretValues mutation
+-- The old elevation-based values resolver has been removed
 
 
 Test.gql("Admin can delete secret in other team", function(t)
@@ -806,18 +596,18 @@ Test.gql("Admin can manage secrets but CANNOT read values without team membershi
 		},
 	}
 
-	-- Admin should NOT be able to read secret values (requires team membership + elevation)
-	local secret = t.query [[
-		query {
-			team(slug: "adminrotest") {
-				environment(name: "dev") {
-					secret(name: "admin-managed-secret") {
-						name
-						values {
-							name
-							value
-						}
-					}
+	-- Admin should NOT be able to read secret values via viewSecretValues (requires team membership)
+	t.query [[
+		mutation {
+			viewSecretValues(input: {
+				name: "admin-managed-secret"
+				environment: "dev"
+				team: "adminrotest"
+				reason: "Admin trying to read secret values without team membership"
+			}) {
+				values {
+					name
+					value
 				}
 			}
 		}
@@ -827,19 +617,10 @@ Test.gql("Admin can manage secrets but CANNOT read values without team membershi
 		errors = {
 			{
 				message = Contains("You are authenticated"),
-				path = { "team", "environment", "secret", "values" },
+				path = { "viewSecretValues" },
 			},
 		},
-		data = {
-			team = {
-				environment = {
-					secret = {
-						name = "admin-managed-secret",
-						values = Null,
-					},
-				},
-			},
-		},
+		data = Null,
 	}
 end)
 
@@ -896,43 +677,7 @@ Test.gql("viewSecretValues - success with valid reason", function(t)
 		},
 	}
 
-	-- First verify that direct read via values resolver fails (requires elevation)
-	t.query [[
-		query {
-			team(slug: "myteam") {
-				environment(name: "dev") {
-					secret(name: "view-test-secret") {
-						name
-						values {
-							name
-							value
-						}
-					}
-				}
-			}
-		}
-	]]
-
-	t.check {
-		errors = {
-			{
-				message = Contains("You are authenticated"),
-				path = { "team", "environment", "secret", "values" },
-			},
-		},
-		data = {
-			team = {
-				environment = {
-					secret = {
-						name = "view-test-secret",
-						values = Null,
-					},
-				},
-			},
-		},
-	}
-
-	-- Now use viewSecretValues to read the values (should succeed without separate elevation)
+	-- Use viewSecretValues to read the values
 	t.query [[
 		mutation {
 			viewSecretValues(input: {

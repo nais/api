@@ -29,7 +29,6 @@ type SecretResolver interface {
 	TeamEnvironment(ctx context.Context, obj *secret.Secret) (*team.TeamEnvironment, error)
 	Team(ctx context.Context, obj *secret.Secret) (*team.Team, error)
 
-	Values(ctx context.Context, obj *secret.Secret) ([]*secret.SecretValue, error)
 	Applications(ctx context.Context, obj *secret.Secret, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*application.Application], error)
 	Jobs(ctx context.Context, obj *secret.Secret, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*job.Job], error)
 	Workloads(ctx context.Context, obj *secret.Secret, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[workload.Workload], error)
@@ -195,8 +194,6 @@ func (ec *executionContext) fieldContext_AddSecretValuePayload_secret(_ context.
 				return ec.fieldContext_Secret_team(ctx, field)
 			case "keys":
 				return ec.fieldContext_Secret_keys(ctx, field)
-			case "values":
-				return ec.fieldContext_Secret_values(ctx, field)
 			case "applications":
 				return ec.fieldContext_Secret_applications(ctx, field)
 			case "jobs":
@@ -252,8 +249,6 @@ func (ec *executionContext) fieldContext_CreateSecretPayload_secret(_ context.Co
 				return ec.fieldContext_Secret_team(ctx, field)
 			case "keys":
 				return ec.fieldContext_Secret_keys(ctx, field)
-			case "values":
-				return ec.fieldContext_Secret_values(ctx, field)
 			case "applications":
 				return ec.fieldContext_Secret_applications(ctx, field)
 			case "jobs":
@@ -338,8 +333,6 @@ func (ec *executionContext) fieldContext_RemoveSecretValuePayload_secret(_ conte
 				return ec.fieldContext_Secret_team(ctx, field)
 			case "keys":
 				return ec.fieldContext_Secret_keys(ctx, field)
-			case "values":
-				return ec.fieldContext_Secret_values(ctx, field)
 			case "applications":
 				return ec.fieldContext_Secret_applications(ctx, field)
 			case "jobs":
@@ -597,8 +590,6 @@ func (ec *executionContext) fieldContext_Secret_team(_ context.Context, field gr
 				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
 			case "viewerIsMember":
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
-			case "viewerCanElevate":
-				return ec.fieldContext_Team_viewerCanElevate(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
 			case "environment":
@@ -686,41 +677,6 @@ func (ec *executionContext) fieldContext_Secret_keys(_ context.Context, field gr
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Secret_values(ctx context.Context, field graphql.CollectedField, obj *secret.Secret) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_Secret_values,
-		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Secret().Values(ctx, obj)
-		},
-		nil,
-		ec.marshalOSecretValue2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueᚄ,
-		true,
-		false,
-	)
-}
-
-func (ec *executionContext) fieldContext_Secret_values(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Secret",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "name":
-				return ec.fieldContext_SecretValue_name(ctx, field)
-			case "value":
-				return ec.fieldContext_SecretValue_value(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type SecretValue", field.Name)
 		},
 	}
 	return fc, nil
@@ -938,8 +894,6 @@ func (ec *executionContext) fieldContext_Secret_lastModifiedBy(_ context.Context
 				return ec.fieldContext_User_teams(ctx, field)
 			case "isAdmin":
 				return ec.fieldContext_User_isAdmin(ctx, field)
-			case "elevations":
-				return ec.fieldContext_User_elevations(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
@@ -1077,8 +1031,6 @@ func (ec *executionContext) fieldContext_SecretConnection_nodes(_ context.Contex
 				return ec.fieldContext_Secret_team(ctx, field)
 			case "keys":
 				return ec.fieldContext_Secret_keys(ctx, field)
-			case "values":
-				return ec.fieldContext_Secret_values(ctx, field)
 			case "applications":
 				return ec.fieldContext_Secret_applications(ctx, field)
 			case "jobs":
@@ -1662,8 +1614,6 @@ func (ec *executionContext) fieldContext_SecretEdge_node(_ context.Context, fiel
 				return ec.fieldContext_Secret_team(ctx, field)
 			case "keys":
 				return ec.fieldContext_Secret_keys(ctx, field)
-			case "values":
-				return ec.fieldContext_Secret_values(ctx, field)
 			case "applications":
 				return ec.fieldContext_Secret_applications(ctx, field)
 			case "jobs":
@@ -2953,8 +2903,6 @@ func (ec *executionContext) fieldContext_UpdateSecretValuePayload_secret(_ conte
 				return ec.fieldContext_Secret_team(ctx, field)
 			case "keys":
 				return ec.fieldContext_Secret_keys(ctx, field)
-			case "values":
-				return ec.fieldContext_Secret_values(ctx, field)
 			case "applications":
 				return ec.fieldContext_Secret_applications(ctx, field)
 			case "jobs":
@@ -3675,39 +3623,6 @@ func (ec *executionContext) _Secret(ctx context.Context, sel ast.SelectionSet, o
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "values":
-			field := field
-
-			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Secret_values(ctx, field, obj)
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "applications":
 			field := field
 
@@ -5092,53 +5007,6 @@ func (ec *executionContext) unmarshalOSecretOrder2ᚖgithubᚗcomᚋnaisᚋapi�
 	}
 	res, err := ec.unmarshalInputSecretOrder(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOSecretValue2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueᚄ(ctx context.Context, sel ast.SelectionSet, v []*secret.SecretValue) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNSecretValue2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValue(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
 }
 
 // endregion ***************************** type.gotpl *****************************
