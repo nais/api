@@ -201,20 +201,20 @@ end)
 -- Cross-team VALUE read tests (should be BLOCKED)
 -- ============================================================
 
-Test.gql("Other team CANNOT see secret values", function(t)
+Test.gql("Other team CANNOT see secret values via viewSecretValues", function(t)
 	t.addHeader("x-user-email", otherUser:email())
 
 	t.query [[
-		query {
-			team(slug: "alpha") {
-				environment(name: "dev") {
-					secret(name: "alpha-secret") {
-						name
-						values {
-							name
-							value
-						}
-					}
+		mutation {
+			viewSecretValues(input: {
+				name: "alpha-secret"
+				environment: "dev"
+				team: "alpha"
+				reason: "Trying to read secret values from another team"
+			}) {
+				values {
+					name
+					value
 				}
 			}
 		}
@@ -224,19 +224,10 @@ Test.gql("Other team CANNOT see secret values", function(t)
 		errors = {
 			{
 				message = Contains("You are authenticated"),
-				path = { "team", "environment", "secret", "values" },
+				path = { "viewSecretValues" },
 			},
 		},
-		data = {
-			team = {
-				environment = {
-					secret = {
-						name = "alpha-secret",
-						values = Null,
-					},
-				},
-			},
-		},
+		data = Null,
 	}
 end)
 
@@ -395,22 +386,20 @@ end)
 -- Verify team owner still has full access
 -- ============================================================
 
-Test.gql("Team owner needs elevation to see values", function(t)
+Test.gql("Team owner CAN see values via viewSecretValues", function(t)
 	t.addHeader("x-user-email", teamOwner:email())
 
-	-- First create elevation
 	t.query [[
 		mutation {
-			createElevation(input: {
-				type: SECRET
+			viewSecretValues(input: {
+				name: "alpha-secret"
+				environment: "dev"
 				team: "alpha"
-				environmentName: "dev"
-				resourceName: "alpha-secret"
 				reason: "Testing team owner access to secret values"
-				durationMinutes: 5
 			}) {
-				elevation {
-					id
+				values {
+					name
+					value
 				}
 			}
 		}
@@ -418,48 +407,11 @@ Test.gql("Team owner needs elevation to see values", function(t)
 
 	t.check {
 		data = {
-			createElevation = {
-				elevation = {
-					id = Save("ownerElevationID"),
-				},
-			},
-		},
-	}
-end)
-
-Test.gql("Team owner CAN see values WITH elevation", function(t)
-	t.addHeader("x-user-email", teamOwner:email())
-
-	t.query [[
-		query {
-			team(slug: "alpha") {
-				environment(name: "dev") {
-					secret(name: "alpha-secret") {
-						name
-						keys
-						values {
-							name
-							value
-						}
-					}
-				}
-			}
-		}
-	]]
-
-	t.check {
-		data = {
-			team = {
-				environment = {
-					secret = {
-						name = "alpha-secret",
-						keys = { "api-key" },
-						values = {
-							{
-								name = "api-key",
-								value = "super-secret-value-123",
-							},
-						},
+			viewSecretValues = {
+				values = {
+					{
+						name = "api-key",
+						value = "super-secret-value-123",
 					},
 				},
 			},

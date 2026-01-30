@@ -6,7 +6,6 @@ import (
 
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
-	"github.com/nais/api/internal/elevation"
 	"github.com/nais/api/internal/environmentmapper"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/model"
@@ -127,32 +126,6 @@ func (r *secretResolver) Team(ctx context.Context, obj *secret.Secret) (*team.Te
 	return team.Get(ctx, obj.TeamSlug)
 }
 
-func (r *secretResolver) Values(ctx context.Context, obj *secret.Secret) ([]*secret.SecretValue, error) {
-	// First check if user is a team member (strict check without admin bypass)
-	if err := authz.CanReadSecretValues(ctx, obj.TeamSlug); err != nil {
-		return nil, err
-	}
-
-	// Then check if user has an active elevation for this specific secret
-	actor := authz.ActorFromContext(ctx)
-	elevations, err := elevation.List(ctx, &elevation.ElevationInput{
-		Type:            elevation.ElevationTypeSecret,
-		Team:            obj.TeamSlug,
-		EnvironmentName: environmentmapper.EnvironmentName(obj.EnvironmentName),
-		ResourceName:    obj.Name,
-	}, actor.User.Identity())
-	if err != nil {
-		return nil, err
-	}
-
-	if len(elevations) == 0 {
-		// No active elevation found - user must request elevation to view secret values
-		return nil, authz.ErrUnauthorized
-	}
-
-	return secret.GetSecretValues(ctx, obj.TeamSlug, environmentmapper.ClusterName(obj.EnvironmentName), obj.Name)
-}
-
 func (r *secretResolver) Applications(ctx context.Context, obj *secret.Secret, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*application.Application], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
@@ -247,7 +220,7 @@ func (r *secretResolver) ActivityLog(ctx context.Context, obj *secret.Secret, fi
 
 // Secrets returns all secrets for a team.
 // Secret metadata (names, keys) is visible to all authenticated users.
-// Secret values require team membership and elevation.
+// Secret values require team membership (use viewSecretValues mutation).
 func (r *teamResolver) Secrets(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *secret.SecretOrder, filter *secret.SecretFilter) (*pagination.Connection[*secret.Secret], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
@@ -259,7 +232,7 @@ func (r *teamResolver) Secrets(ctx context.Context, obj *team.Team, first *int, 
 
 // Secret returns a single secret by name.
 // Secret metadata (name, keys) is visible to all authenticated users.
-// Secret values require team membership and elevation.
+// Secret values require team membership (use viewSecretValues mutation).
 func (r *teamEnvironmentResolver) Secret(ctx context.Context, obj *team.TeamEnvironment, name string) (*secret.Secret, error) {
 	return secret.Get(ctx, obj.TeamSlug, obj.EnvironmentName, name)
 }

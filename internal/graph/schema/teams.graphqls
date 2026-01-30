@@ -154,9 +154,6 @@ type Team implements Node {
 	"Whether or not the viewer is a member of the team."
 	viewerIsMember: Boolean!
 
-	"Whether or not the viewer can create elevations for the team."
-	viewerCanElevate: Boolean!
-
 	"Environments for the team."
 	environments: [TeamEnvironment!]!
 

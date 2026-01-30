@@ -12,7 +12,6 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/nais/api/internal/auth/authz"
-	"github.com/nais/api/internal/elevation"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/serviceaccount"
 	"github.com/nais/api/internal/team"
@@ -24,24 +23,11 @@ import (
 
 type UserResolver interface {
 	Teams(ctx context.Context, obj *user.User, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.UserTeamOrder) (*pagination.Connection[*team.TeamMember], error)
-
-	Elevations(ctx context.Context, obj *user.User, input elevation.ElevationInput) ([]*elevation.Elevation, error)
 }
 
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
-
-func (ec *executionContext) field_User_elevations_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
-	var err error
-	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNElevationInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋelevationᚐElevationInput)
-	if err != nil {
-		return nil, err
-	}
-	args["input"] = arg0
-	return args, nil
-}
 
 func (ec *executionContext) field_User_teams_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
@@ -276,67 +262,6 @@ func (ec *executionContext) fieldContext_User_isAdmin(_ context.Context, field g
 	return fc, nil
 }
 
-func (ec *executionContext) _User_elevations(ctx context.Context, field graphql.CollectedField, obj *user.User) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_User_elevations,
-		func(ctx context.Context) (any, error) {
-			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.User().Elevations(ctx, obj, fc.Args["input"].(elevation.ElevationInput))
-		},
-		nil,
-		ec.marshalNElevation2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋelevationᚐElevationᚄ,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_User_elevations(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "User",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Elevation_id(ctx, field)
-			case "type":
-				return ec.fieldContext_Elevation_type(ctx, field)
-			case "team":
-				return ec.fieldContext_Elevation_team(ctx, field)
-			case "teamEnvironment":
-				return ec.fieldContext_Elevation_teamEnvironment(ctx, field)
-			case "resourceName":
-				return ec.fieldContext_Elevation_resourceName(ctx, field)
-			case "user":
-				return ec.fieldContext_Elevation_user(ctx, field)
-			case "reason":
-				return ec.fieldContext_Elevation_reason(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_Elevation_createdAt(ctx, field)
-			case "expiresAt":
-				return ec.fieldContext_Elevation_expiresAt(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Elevation", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_User_elevations_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _UserConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*user.User]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -418,8 +343,6 @@ func (ec *executionContext) fieldContext_UserConnection_nodes(_ context.Context,
 				return ec.fieldContext_User_teams(ctx, field)
 			case "isAdmin":
 				return ec.fieldContext_User_isAdmin(ctx, field)
-			case "elevations":
-				return ec.fieldContext_User_elevations(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
@@ -527,8 +450,6 @@ func (ec *executionContext) fieldContext_UserEdge_node(_ context.Context, field 
 				return ec.fieldContext_User_teams(ctx, field)
 			case "isAdmin":
 				return ec.fieldContext_User_isAdmin(ctx, field)
-			case "elevations":
-				return ec.fieldContext_User_elevations(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
@@ -707,42 +628,6 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "elevations":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._User_elevations(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

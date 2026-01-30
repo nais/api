@@ -16,7 +16,6 @@ import (
 	"github.com/nais/api/internal/cost"
 	"github.com/nais/api/internal/deployment"
 	"github.com/nais/api/internal/deployment/deploymentactivity"
-	"github.com/nais/api/internal/elevation"
 	"github.com/nais/api/internal/environment"
 	"github.com/nais/api/internal/feature"
 	"github.com/nais/api/internal/github/repository"
@@ -62,7 +61,6 @@ type MutationResolver interface {
 	DeleteApplication(ctx context.Context, input application.DeleteApplicationInput) (*application.DeleteApplicationPayload, error)
 	RestartApplication(ctx context.Context, input application.RestartApplicationInput) (*application.RestartApplicationPayload, error)
 	ChangeDeploymentKey(ctx context.Context, input deployment.ChangeDeploymentKeyInput) (*deployment.ChangeDeploymentKeyPayload, error)
-	CreateElevation(ctx context.Context, input elevation.CreateElevationInput) (*elevation.CreateElevationPayload, error)
 	DeleteJob(ctx context.Context, input job.DeleteJobInput) (*job.DeleteJobPayload, error)
 	TriggerJob(ctx context.Context, input job.TriggerJobInput) (*job.TriggerJobPayload, error)
 	CreateOpenSearch(ctx context.Context, input opensearch.CreateOpenSearchInput) (*opensearch.CreateOpenSearchPayload, error)
@@ -225,17 +223,6 @@ func (ec *executionContext) field_Mutation_confirmTeamDeletion_args(ctx context.
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNConfirmTeamDeletionInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐConfirmTeamDeletionInput)
-	if err != nil {
-		return nil, err
-	}
-	args["input"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Mutation_createElevation_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
-	var err error
-	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNCreateElevationInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋelevationᚐCreateElevationInput)
 	if err != nil {
 		return nil, err
 	}
@@ -1234,51 +1221,6 @@ func (ec *executionContext) fieldContext_Mutation_changeDeploymentKey(ctx contex
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_changeDeploymentKey_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Mutation_createElevation(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_Mutation_createElevation,
-		func(ctx context.Context) (any, error) {
-			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().CreateElevation(ctx, fc.Args["input"].(elevation.CreateElevationInput))
-		},
-		nil,
-		ec.marshalNCreateElevationPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋelevationᚐCreateElevationPayload,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_Mutation_createElevation(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "elevation":
-				return ec.fieldContext_CreateElevationPayload_elevation(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type CreateElevationPayload", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_createElevation_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -4196,8 +4138,6 @@ func (ec *executionContext) fieldContext_Query_team(ctx context.Context, field g
 				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
 			case "viewerIsMember":
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
-			case "viewerCanElevate":
-				return ec.fieldContext_Team_viewerCanElevate(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
 			case "environment":
@@ -4397,8 +4337,6 @@ func (ec *executionContext) fieldContext_Query_user(ctx context.Context, field g
 				return ec.fieldContext_User_teams(ctx, field)
 			case "isAdmin":
 				return ec.fieldContext_User_isAdmin(ctx, field)
-			case "elevations":
-				return ec.fieldContext_User_elevations(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
@@ -5522,13 +5460,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._FailedSynchronizationIssue(ctx, sel, obj)
-	case elevation.ElevationCreatedActivityLogEntry:
-		return ec._ElevationCreatedActivityLogEntry(ctx, sel, &obj)
-	case *elevation.ElevationCreatedActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._ElevationCreatedActivityLogEntry(ctx, sel, obj)
 	case issue.DeprecatedRegistryIssue:
 		return ec._DeprecatedRegistryIssue(ctx, sel, &obj)
 	case *issue.DeprecatedRegistryIssue:
@@ -5743,13 +5674,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Environment(ctx, sel, obj)
-	case elevation.Elevation:
-		return ec._Elevation(ctx, sel, &obj)
-	case *elevation.Elevation:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Elevation(ctx, sel, obj)
 	case deployment.DeploymentStatus:
 		return ec._DeploymentStatus(ctx, sel, &obj)
 	case *deployment.DeploymentStatus:
@@ -5847,13 +5771,6 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "changeDeploymentKey":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_changeDeploymentKey(ctx, field)
-			})
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "createElevation":
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_createElevation(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++

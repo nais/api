@@ -225,12 +225,6 @@ func CanDeleteSecrets(ctx context.Context, teamSlug slug.Slug) error {
 	return requireTeamAuthorization(ctx, teamSlug, "teams:secrets:delete")
 }
 
-// CanCreateElevation checks if the user can create an elevation for the team.
-// This enforces strict team membership WITHOUT admin bypass for security reasons.
-func CanCreateElevation(ctx context.Context, teamSlug slug.Slug) error {
-	return requireStrictTeamAuthorization(ctx, teamSlug, "teams:elevations:create")
-}
-
 // CanReadSecretValues checks if the user can read secret values for the team.
 // This enforces strict team membership WITHOUT admin bypass for security reasons.
 func CanReadSecretValues(ctx context.Context, teamSlug slug.Slug) error {

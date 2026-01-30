@@ -10,10 +10,10 @@
 //   - Allows admin bypass - admins can manage secrets in any team
 //
 // ImpersonatedClient (user's RBAC):
-//   - Read secret values
-//   - Requires user to be team member AND have active elevation
-//   - NO admin bypass - even admins must be team members and request elevation
-//   - This ensures all secret value access is audited via elevation system
+//   - Read secret values via viewSecretValues mutation
+//   - Requires user to be team member (no admin bypass)
+//   - Creates temporary RBAC, uses impersonation for defense in depth
+//   - All access is audited via activity log
 package secret
 
 import (

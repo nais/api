@@ -20,7 +20,6 @@ import (
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/database/notify"
 	"github.com/nais/api/internal/deployment"
-	"github.com/nais/api/internal/elevation"
 	"github.com/nais/api/internal/environment"
 	"github.com/nais/api/internal/feature"
 	"github.com/nais/api/internal/github/repository"
@@ -293,7 +292,7 @@ func ConfigureGraph(
 		secretClientCreator = secret.CreatorFromConfig(ctx, k8sClients)
 	}
 
-	elevationClients := watcherMgr.GetDynamicClients()
+	dynamicClients := watcherMgr.GetDynamicClients()
 
 	var costOpts []cost.Option
 	if fakes.WithFakeCostClient {
@@ -314,7 +313,7 @@ func ConfigureGraph(
 		ctx = job.NewLoaderContext(ctx, watchers.JobWatcher, watchers.RunWatcher)
 		ctx = kafkatopic.NewLoaderContext(ctx, watchers.KafkaTopicWatcher)
 		ctx = workload.NewLoaderContext(ctx, watchers.PodWatcher)
-		ctx = secret.NewLoaderContext(ctx, watchers.SecretWatcher, secretClientCreator, elevationClients, clusters, log)
+		ctx = secret.NewLoaderContext(ctx, watchers.SecretWatcher, secretClientCreator, dynamicClients, clusters, log)
 		ctx = aiven.NewLoaderContext(ctx, aivenProjects)
 		ctx = opensearch.NewLoaderContext(ctx, tenantName, watchers.OpenSearchWatcher, aivenClient, log)
 		ctx = valkey.NewLoaderContext(ctx, tenantName, watchers.ValkeyWatcher, aivenClient)
@@ -343,7 +342,6 @@ func ConfigureGraph(
 		ctx = unleash.NewLoaderContext(ctx, tenantName, watchers.UnleashWatcher, bifrostAPIURL, allowedClusters, log)
 		ctx = logging.NewPackageContext(ctx, tenantName, defaultLogDestinations)
 		ctx = environment.NewLoaderContext(ctx, pool)
-		ctx = elevation.NewLoaderContext(ctx, elevationClients, log)
 		ctx = feature.NewLoaderContext(
 			ctx,
 			watchers.UnleashWatcher.Enabled(),
