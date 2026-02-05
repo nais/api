@@ -19,6 +19,7 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/util/validation"
 )
 
 type (
@@ -215,6 +216,9 @@ func (v *ValkeyMetadataInput) ValidationErrors(ctx context.Context) *validate.Va
 
 	if v.Name == "" {
 		verr.Add("name", "Name must not be empty.")
+	}
+	if errs := validation.IsDNS1123Subdomain(v.Name); len(errs) > 0 {
+		verr.Add("name", "Name must consist of lowercase letters, numbers, hyphens, or periods, and must start and end with a letter or number.")
 	}
 	if v.EnvironmentName == "" {
 		verr.Add("environmentName", "Environment name must not be empty.")

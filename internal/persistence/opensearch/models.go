@@ -21,6 +21,7 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/util/validation"
 )
 
 type (
@@ -226,6 +227,9 @@ func (o *OpenSearchMetadataInput) ValidationErrors(ctx context.Context) *validat
 
 	if o.Name == "" {
 		verr.Add("name", "Name must not be empty.")
+	}
+	if errs := validation.IsDNS1123Subdomain(o.Name); len(errs) > 0 {
+		verr.Add("name", "Name must be a valid DNS name: lowercase letters, numbers, and hyphens only. It cannot start or end with a hyphen.")
 	}
 	if o.EnvironmentName == "" {
 		verr.Add("environmentName", "Environment name must not be empty.")
