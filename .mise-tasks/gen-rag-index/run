@@ -4,5 +4,4 @@
 
 set -e
 
-
 go run ./cmd/gen_rag_index
