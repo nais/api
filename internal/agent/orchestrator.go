@@ -120,21 +120,21 @@ type OrchestratorResult struct {
 
 // Orchestrator manages the conversation loop between user, LLM, and tools.
 type Orchestrator struct {
-	chatClient     chat.StreamingClient
-	mcpIntegration *MCPIntegration
-	log            logrus.FieldLogger
+	chatClient      chat.StreamingClient
+	toolIntegration *ToolIntegration
+	log             logrus.FieldLogger
 }
 
-// NewOrchestrator creates a new orchestrator with MCP integration.
+// NewOrchestrator creates a new orchestrator with tool integration.
 func NewOrchestrator(
 	chatClient chat.StreamingClient,
-	mcpIntegration *MCPIntegration,
+	toolIntegration *ToolIntegration,
 	log logrus.FieldLogger,
 ) *Orchestrator {
 	return &Orchestrator{
-		chatClient:     chatClient,
-		mcpIntegration: mcpIntegration,
-		log:            log,
+		chatClient:      chatClient,
+		toolIntegration: toolIntegration,
+		log:             log,
 	}
 }
 

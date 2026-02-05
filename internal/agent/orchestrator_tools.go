@@ -9,7 +9,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// executeTool executes a tool call using the MCP integration.
+// executeTool executes a tool call using the tool integration.
 // Returns the result string and an optional ChartData if this was a render_chart call.
 func (o *Orchestrator) executeTool(ctx context.Context, toolCall chat.ToolCall) (string, *ChartData, error) {
 	o.log.WithFields(logrus.Fields{
@@ -27,8 +27,8 @@ func (o *Orchestrator) executeTool(ctx context.Context, toolCall chat.ToolCall) 
 		return "Chart rendered successfully. The user can now see the visualization.", chart, nil
 	}
 
-	// Execute the tool via MCP integration
-	result, err := o.mcpIntegration.ExecuteTool(ctx, toolCall.Name, toolCall.Arguments)
+	// Execute the tool via tool integration
+	result, err := o.toolIntegration.ExecuteTool(ctx, toolCall.Name, toolCall.Arguments)
 	if err != nil {
 		return "", nil, fmt.Errorf("tool %s failed: %w", toolCall.Name, err)
 	}
@@ -115,14 +115,12 @@ func (o *Orchestrator) parseChartToolCall(toolCall chat.ToolCall) (*ChartData, e
 
 // getToolDefinitions returns the tool definitions for the LLM.
 func (o *Orchestrator) getToolDefinitions() []chat.ToolDefinition {
-	mcpTools := o.mcpIntegration.ListTools()
-	result := make([]chat.ToolDefinition, 0, len(mcpTools)+1)
+	registeredTools := o.toolIntegration.ListTools()
+	result := make([]chat.ToolDefinition, 0, len(registeredTools)+1)
 
-	for _, tool := range mcpTools {
-		// Extract parameters from the tool's InputSchema
-		mcpParams := tool.GetParameters()
-		chatParams := make([]chat.ParameterDefinition, len(mcpParams))
-		for i, p := range mcpParams {
+	for _, tool := range registeredTools {
+		chatParams := make([]chat.ParameterDefinition, len(tool.Parameters))
+		for i, p := range tool.Parameters {
 			chatParams[i] = chat.ParameterDefinition{
 				Name:        p.Name,
 				Type:        p.Type,

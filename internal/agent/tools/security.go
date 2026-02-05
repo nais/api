@@ -1,3 +1,4 @@
+// Package tools provides tool definitions and execution for the agent.
 package tools
 
 import (
@@ -9,7 +10,7 @@ import (
 
 const maxQueryDepth = 15
 
-// forbiddenTypes are GraphQL types that contain sensitive data and should not be accessible via MCP queries.
+// forbiddenTypes are GraphQL types that contain sensitive data and should not be accessible via queries.
 // These types and their fields expose secret values that should not be returned to LLMs.
 var forbiddenTypes = map[string]bool{
 	"Secret":                           true, // The Secret type contains secret values
@@ -23,15 +24,6 @@ var forbiddenTypes = map[string]bool{
 	"ServiceAccountTokenEdge":          true, // Edge type that wraps ServiceAccountToken
 }
 
-// QueryValidationResult contains the result of validating a GraphQL query.
-type QueryValidationResult struct {
-	Valid         bool
-	Error         string
-	OperationType string
-	OperationName string
-	Depth         int
-}
-
 // checkForSecrets recursively checks if a selection set accesses any forbidden secret-related types.
 // It validates against the GraphQL schema to ensure queries don't access Secret or SecretValue types.
 func checkForSecrets(selectionSet ast.SelectionSet, schema *ast.Schema) (bool, string) {
@@ -43,7 +35,7 @@ func checkForSecrets(selectionSet ast.SelectionSet, schema *ast.Schema) (bool, s
 				// Check if the field returns a forbidden type
 				typeName := getBaseTypeName(sel.Definition.Type)
 				if forbiddenTypes[typeName] {
-					return true, fmt.Sprintf("MCP security policy: field '%s' returns type '%s' which contains sensitive data that cannot be accessed via this interface. Use the Nais Console or CLI to manage secrets directly.", sel.Name, typeName)
+					return true, fmt.Sprintf("security policy: field '%s' returns type '%s' which contains sensitive data that cannot be accessed via this interface. Use the Nais Console or CLI to manage secrets directly.", sel.Name, typeName)
 				}
 			}
 
@@ -56,7 +48,7 @@ func checkForSecrets(selectionSet ast.SelectionSet, schema *ast.Schema) (bool, s
 		case *ast.InlineFragment:
 			// Check if the inline fragment is on a forbidden type
 			if sel.TypeCondition != "" && forbiddenTypes[sel.TypeCondition] {
-				return true, fmt.Sprintf("MCP security policy: inline fragment on type '%s' which contains sensitive data that cannot be accessed via this interface", sel.TypeCondition)
+				return true, fmt.Sprintf("security policy: inline fragment on type '%s' which contains sensitive data that cannot be accessed via this interface", sel.TypeCondition)
 			}
 			// Check inline fragments recursively
 			if found, reason := checkForSecrets(sel.SelectionSet, schema); found {
@@ -66,7 +58,7 @@ func checkForSecrets(selectionSet ast.SelectionSet, schema *ast.Schema) (bool, s
 			// Fragment spreads would need fragment definitions to be fully validated
 			// For now, we flag any fragment that has "secret" in its name as a heuristic
 			if strings.Contains(strings.ToLower(sel.Name), "secret") {
-				return true, fmt.Sprintf("MCP security policy: fragment '%s' may access sensitive data that cannot be accessed via this interface", sel.Name)
+				return true, fmt.Sprintf("security policy: fragment '%s' may access sensitive data that cannot be accessed via this interface", sel.Name)
 			}
 		}
 	}

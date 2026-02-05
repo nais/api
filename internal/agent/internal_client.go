@@ -17,23 +17,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// MCPClient defines the interface for GraphQL operations needed by MCP tools.
-// This mirrors the mcp.Client interface from pkg/mcp but is defined here
-// to avoid import cycle issues with the separate mcp module.
-type MCPClient interface {
-	// ExecuteGraphQL runs a GraphQL query with the given variables.
-	// Returns the data portion of the response as a map.
-	ExecuteGraphQL(ctx context.Context, query string, variables map[string]any) (map[string]any, error)
-
-	// GetCurrentUser returns information about the current authenticated user.
-	GetCurrentUser(ctx context.Context) (*MCPUserInfo, error)
-
-	// GetUserTeams returns the teams the current user belongs to.
-	GetUserTeams(ctx context.Context) ([]MCPTeamInfo, error)
-}
-
-// MCPUserInfo contains information about an authenticated user.
-type MCPUserInfo struct {
+// InternalUserInfo contains information about an authenticated user.
+type InternalUserInfo struct {
 	// Name is the user's display name or email.
 	Name string
 
@@ -41,8 +26,8 @@ type MCPUserInfo struct {
 	IsAdmin bool
 }
 
-// MCPTeamInfo contains information about a team the user belongs to.
-type MCPTeamInfo struct {
+// InternalTeamInfo contains information about a team the user belongs to.
+type InternalTeamInfo struct {
 	// Slug is the team's unique identifier.
 	Slug string
 
@@ -53,9 +38,9 @@ type MCPTeamInfo struct {
 	Role string
 }
 
-// InternalClient implements the MCPClient interface for the hosted agent,
-// executing GraphQL queries directly against the internal handler without
-// going through a real HTTP connection.
+// InternalClient executes GraphQL queries directly against the internal handler
+// without going through a real HTTP connection. This is used by the tool integration
+// to query the Nais API on behalf of users.
 type InternalClient struct {
 	handler *handler.Server
 	log     logrus.FieldLogger
@@ -82,9 +67,6 @@ func NewInternalClient(cfg InternalClientConfig) *InternalClient {
 		log:     cfg.Log,
 	}
 }
-
-// Ensure InternalClient implements MCPClient
-var _ MCPClient = (*InternalClient)(nil)
 
 // ExecuteGraphQL runs a GraphQL query with the given variables.
 // Returns the data portion of the response as a map.
@@ -164,7 +146,7 @@ func (c *InternalClient) ExecuteGraphQL(ctx context.Context, query string, varia
 }
 
 // GetCurrentUser returns information about the current authenticated user.
-func (c *InternalClient) GetCurrentUser(ctx context.Context) (*MCPUserInfo, error) {
+func (c *InternalClient) GetCurrentUser(ctx context.Context) (*InternalUserInfo, error) {
 	c.log.Debug("getting current user from context")
 
 	actor := authz.ActorFromContext(ctx)
@@ -172,14 +154,14 @@ func (c *InternalClient) GetCurrentUser(ctx context.Context) (*MCPUserInfo, erro
 		return nil, fmt.Errorf("no authenticated user in context")
 	}
 
-	return &MCPUserInfo{
+	return &InternalUserInfo{
 		Name:    actor.User.Identity(),
 		IsAdmin: actor.User.IsAdmin(),
 	}, nil
 }
 
 // GetUserTeams returns the teams the current user belongs to.
-func (c *InternalClient) GetUserTeams(ctx context.Context) ([]MCPTeamInfo, error) {
+func (c *InternalClient) GetUserTeams(ctx context.Context) ([]InternalTeamInfo, error) {
 	c.log.Debug("getting user teams")
 
 	actor := authz.ActorFromContext(ctx)
@@ -202,9 +184,9 @@ func (c *InternalClient) GetUserTeams(ctx context.Context) ([]MCPTeamInfo, error
 		return nil, fmt.Errorf("failed to list teams for user: %w", err)
 	}
 
-	// Convert to MCPTeamInfo
+	// Convert to InternalTeamInfo
 	nodes := teamsResult.Nodes()
-	result := make([]MCPTeamInfo, 0, len(nodes))
+	result := make([]InternalTeamInfo, 0, len(nodes))
 	for _, member := range nodes {
 		// Get team details
 		t, err := team.Get(ctx, member.TeamSlug)
@@ -213,7 +195,7 @@ func (c *InternalClient) GetUserTeams(ctx context.Context) ([]MCPTeamInfo, error
 			continue
 		}
 
-		result = append(result, MCPTeamInfo{
+		result = append(result, InternalTeamInfo{
 			Slug:    string(member.TeamSlug),
 			Purpose: t.Purpose,
 			Role:    string(member.Role),
@@ -230,73 +212,4 @@ func InternalClientFromHandler(h *handler.Server) *InternalClient {
 	return NewInternalClient(InternalClientConfig{
 		Handler: h,
 	})
-}
-
-// MCPClientAdapter adapts the internal MCPClient interface to the pkg/mcp.Client interface.
-// This is useful when you need to pass an InternalClient to the mcp.Executor.
-//
-// Usage:
-//
-//	internalClient := agent.NewInternalClient(cfg)
-//	adapter := agent.NewMCPClientAdapter(internalClient)
-//	executor, _ := mcp.NewExecutor(
-//	    mcp.WithClient(adapter),
-//	    mcp.WithSchemaProvider(schemaProvider),
-//	)
-type MCPClientAdapter struct {
-	client MCPClient
-}
-
-// NewMCPClientAdapter creates a new adapter wrapping an MCPClient.
-func NewMCPClientAdapter(client MCPClient) *MCPClientAdapter {
-	return &MCPClientAdapter{client: client}
-}
-
-// ExecuteGraphQL implements the mcp.Client interface.
-func (a *MCPClientAdapter) ExecuteGraphQL(ctx context.Context, query string, variables map[string]any) (map[string]any, error) {
-	return a.client.ExecuteGraphQL(ctx, query, variables)
-}
-
-// GetCurrentUser implements the mcp.Client interface.
-// Note: The return type matches mcp.UserInfo structure.
-func (a *MCPClientAdapter) GetCurrentUser(ctx context.Context) (any, error) {
-	user, err := a.client.GetCurrentUser(ctx)
-	if err != nil {
-		return nil, err
-	}
-	// Return a struct that matches mcp.UserInfo
-	return &struct {
-		Name    string
-		IsAdmin bool
-	}{
-		Name:    user.Name,
-		IsAdmin: user.IsAdmin,
-	}, nil
-}
-
-// GetUserTeams implements the mcp.Client interface.
-// Note: The return type matches []mcp.TeamInfo structure.
-func (a *MCPClientAdapter) GetUserTeams(ctx context.Context) (any, error) {
-	teams, err := a.client.GetUserTeams(ctx)
-	if err != nil {
-		return nil, err
-	}
-	// Return a slice that matches []mcp.TeamInfo
-	result := make([]struct {
-		Slug    string
-		Purpose string
-		Role    string
-	}, len(teams))
-	for i, t := range teams {
-		result[i] = struct {
-			Slug    string
-			Purpose string
-			Role    string
-		}{
-			Slug:    t.Slug,
-			Purpose: t.Purpose,
-			Role:    t.Role,
-		}
-	}
-	return result, nil
 }

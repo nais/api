@@ -1,3 +1,4 @@
+// Package tools provides tool definitions and execution for the agent.
 package tools
 
 import (
@@ -9,7 +10,7 @@ import (
 	"github.com/vektah/gqlparser/v2/ast"
 )
 
-// Nais API guidance for LLMs - provides context about the API structure and common patterns
+// NaisAPIGuidance provides context about the API structure and common patterns for LLMs.
 const NaisAPIGuidance = `
 ## Nais API Guidance
 
@@ -177,7 +178,6 @@ Replace the placeholders (e.g., ` + "`{team}`" + `, ` + "`{env}`" + `, ` + "`{ap
 `
 
 // GraphQLClient is the interface for executing GraphQL queries.
-// This is a subset of the mcp.Client interface focused on GraphQL execution.
 type GraphQLClient interface {
 	// ExecuteGraphQL runs a GraphQL query with the given variables.
 	ExecuteGraphQL(ctx context.Context, query string, variables map[string]any) (map[string]any, error)
@@ -221,7 +221,7 @@ func NewGraphQLTools(client GraphQLClient, schema *ast.Schema, consoleBaseURL st
 }
 
 // GetNaisContext returns the current user, their teams, and console URL information.
-func (g *GraphQLTools) GetNaisContext(ctx context.Context, input GetNaisContextInput) (GetNaisContextOutput, error) {
+func (g *GraphQLTools) GetNaisContext(ctx context.Context) (GetNaisContextOutput, error) {
 	// Get current user
 	user, err := g.client.GetCurrentUser(ctx)
 	if err != nil {

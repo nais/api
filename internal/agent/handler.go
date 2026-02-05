@@ -25,11 +25,11 @@ const (
 
 // Handler implements the HTTP handler for the agent chat service.
 type Handler struct {
-	conversations  *ConversationStore
-	chatClient     chat.StreamingClient
-	ragClient      rag.DocumentSearcher
-	mcpIntegration *MCPIntegration
-	log            logrus.FieldLogger
+	conversations   *ConversationStore
+	chatClient      chat.StreamingClient
+	ragClient       rag.DocumentSearcher
+	toolIntegration *ToolIntegration
+	log             logrus.FieldLogger
 }
 
 // Config holds configuration for the agent handler.
@@ -44,22 +44,22 @@ type Config struct {
 
 // NewHandler creates a new agent HTTP handler.
 func NewHandler(cfg Config) (*Handler, error) {
-	// Create MCP integration for tool execution
-	mcpIntegration, err := NewMCPIntegration(MCPIntegrationConfig{
+	// Create tool integration for tool execution
+	toolIntegration, err := NewToolIntegration(ToolIntegrationConfig{
 		Handler:    cfg.GraphQLHandler,
 		TenantName: cfg.TenantName,
 		Log:        cfg.Log,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("failed to create MCP integration: %w", err)
+		return nil, fmt.Errorf("failed to create tool integration: %w", err)
 	}
 
 	return &Handler{
-		conversations:  NewConversationStore(cfg.Pool),
-		chatClient:     cfg.ChatClient,
-		ragClient:      cfg.RAGClient,
-		mcpIntegration: mcpIntegration,
-		log:            cfg.Log,
+		conversations:   NewConversationStore(cfg.Pool),
+		chatClient:      cfg.ChatClient,
+		ragClient:       cfg.RAGClient,
+		toolIntegration: toolIntegration,
+		log:             cfg.Log,
 	}, nil
 }
 
@@ -180,7 +180,7 @@ func (h *Handler) Chat(w http.ResponseWriter, r *http.Request) {
 	// Build orchestrator and run conversation
 	orchestrator := NewOrchestrator(
 		h.chatClient,
-		h.mcpIntegration,
+		h.toolIntegration,
 		log,
 	)
 
@@ -320,7 +320,7 @@ func (h *Handler) ChatStream(w http.ResponseWriter, r *http.Request) {
 	// Build orchestrator and run streaming conversation
 	orchestrator := NewOrchestrator(
 		h.chatClient,
-		h.mcpIntegration,
+		h.toolIntegration,
 		log,
 	)
 

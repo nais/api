@@ -1,3 +1,4 @@
+// Package tools provides tool definitions and execution for the agent.
 package tools
 
 import (
