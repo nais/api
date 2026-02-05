@@ -63,7 +63,7 @@ const (
 		(hour() >= %d and hour() < %d and day_of_week() > 0 and day_of_week() < 6)
 	)`
 
-	minCPURequest         = 0.01             // 10m
+	minCPURequest         = 0.05             // 50m
 	minMemoryRequestBytes = 32 * 1024 * 1024 // 64 MiB
 )
 
