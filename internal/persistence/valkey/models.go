@@ -218,7 +218,7 @@ func (v *ValkeyMetadataInput) ValidationErrors(ctx context.Context) *validate.Va
 		verr.Add("name", "Name must not be empty.")
 	}
 	if errs := validation.IsDNS1123Subdomain(v.Name); len(errs) > 0 {
-		verr.Add("name", "Name must consist of lowercase letters, numbers, hyphens, or periods, and must start and end with a letter or number.")
+		verr.Add("name", "Name must consist of lowercase letters, numbers, and hyphens only. It cannot start or end with a hyphen.")
 	}
 	if v.EnvironmentName == "" {
 		verr.Add("environmentName", "Environment name must not be empty.")

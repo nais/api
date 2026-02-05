@@ -10,7 +10,7 @@ import (
 )
 
 func TestOpenSearchMetadataInput_Validate(t *testing.T) {
-	dnsError := "Name must be a valid DNS name: lowercase letters, numbers, and hyphens only. It cannot start or end with a hyphen."
+	dnsError := "Name must consist of lowercase letters, numbers, and hyphens only. It cannot start or end with a hyphen."
 
 	tests := []struct {
 		name    string

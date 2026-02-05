@@ -229,7 +229,7 @@ func (o *OpenSearchMetadataInput) ValidationErrors(ctx context.Context) *validat
 		verr.Add("name", "Name must not be empty.")
 	}
 	if errs := validation.IsDNS1123Subdomain(o.Name); len(errs) > 0 {
-		verr.Add("name", "Name must be a valid DNS name: lowercase letters, numbers, and hyphens only. It cannot start or end with a hyphen.")
+		verr.Add("name", "Name must consist of lowercase letters, numbers, and hyphens only. It cannot start or end with a hyphen.")
 	}
 	if o.EnvironmentName == "" {
 		verr.Add("environmentName", "Environment name must not be empty.")

@@ -10,7 +10,7 @@ import (
 )
 
 func TestValkeyMetadataInput_Validate(t *testing.T) {
-	dnsError := "Name must consist of lowercase letters, numbers, hyphens, or periods, and must start and end with a letter or number."
+	dnsError := "Name must consist of lowercase letters, numbers, and hyphens only. It cannot start or end with a hyphen."
 
 	tests := []struct {
 		name    string
