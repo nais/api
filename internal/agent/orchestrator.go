@@ -1,12 +1,8 @@
 package agent
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
 	"strings"
 	"time"
 
@@ -17,10 +13,14 @@ import (
 )
 
 const (
-	maxToolIterations = 5
-	requestTimeout    = 60 * time.Second
-	retryAttempts     = 3
-	retryBaseDelay    = 100 * time.Millisecond
+	maxToolIterations  = 5
+	requestTimeout     = 60 * time.Second
+	retryAttempts      = 3
+	retryBaseDelay     = 100 * time.Millisecond
+	maxToolOutputChars = 50000 // Truncate tool outputs to prevent context window exhaustion
+
+	// Tool name for rendering charts
+	renderChartToolName = "render_chart"
 )
 
 // OrchestratorEventType represents the type of streaming event from the orchestrator.
@@ -30,50 +30,295 @@ const (
 	OrchestratorEventToolStart OrchestratorEventType = iota
 	OrchestratorEventToolEnd
 	OrchestratorEventContent
+	OrchestratorEventThinking // Model's reasoning/thought process (when thinking mode is enabled)
+	OrchestratorEventChart    // Chart data to be rendered by the client
 	OrchestratorEventError
+	OrchestratorEventUsage // Token usage statistics
 )
+
+// ChartData represents the data needed to render a chart on the client.
+type ChartData struct {
+	// ChartType is the type of chart (currently only "line" is supported)
+	ChartType string `json:"chart_type"`
+	// Title is a human-readable title for the chart
+	Title string `json:"title"`
+	// Environment is the environment to query metrics from
+	Environment string `json:"environment"`
+	// Query is the Prometheus query to execute
+	Query string `json:"query"`
+	// Interval is the time interval for the query (1h, 6h, 1d, 7d, 30d)
+	Interval string `json:"interval,omitempty"`
+	// YFormat is the format type for Y-axis values (number, percentage, bytes, cpu_cores, duration)
+	YFormat string `json:"y_format,omitempty"`
+	// LabelTemplate is a template string for formatting labels, e.g., "{pod}/{container}"
+	LabelTemplate string `json:"label_template,omitempty"`
+}
+
+// ContentBlockType represents the type of content block in an assistant message.
+type ContentBlockType string
+
+const (
+	// ContentBlockTypeThinking represents the model's reasoning/thought process.
+	ContentBlockTypeThinking ContentBlockType = "thinking"
+	// ContentBlockTypeText represents regular text output.
+	ContentBlockTypeText ContentBlockType = "text"
+	// ContentBlockTypeToolUse represents a tool invocation.
+	ContentBlockTypeToolUse ContentBlockType = "tool_use"
+	// ContentBlockTypeChart represents a chart to be rendered.
+	ContentBlockTypeChart ContentBlockType = "chart"
+	// ContentBlockTypeUsage represents usage statistics.
+	ContentBlockTypeUsage ContentBlockType = "usage"
+)
+
+// ContentBlock represents a single block of content in an assistant message.
+// Messages are composed of multiple blocks that are displayed in order.
+type ContentBlock struct {
+	// Type indicates the kind of content block.
+	Type ContentBlockType `json:"type"`
+	// Text is the text content (for "text" type blocks).
+	Text string `json:"text,omitempty"`
+	// Thinking is the model's reasoning (for "thinking" type blocks).
+	Thinking string `json:"thinking,omitempty"`
+	// ToolCallID is the unique identifier for the tool call (for "tool_use" type blocks).
+	// This is important for providers that use unique IDs (like OpenAI's call_... IDs).
+	ToolCallID string `json:"tool_call_id,omitempty"`
+	// ToolName is the name of the tool (for "tool_use" type blocks).
+	ToolName string `json:"tool_name,omitempty"`
+	// ToolSuccess indicates whether the tool execution succeeded (for "tool_use" type blocks).
+	ToolSuccess bool `json:"tool_success,omitempty"`
+	// ToolResult is the result returned by the tool (for "tool_use" type blocks).
+	// This is stored to reconstruct the full conversation history for subsequent LLM calls.
+	ToolResult string `json:"tool_result,omitempty"`
+	// Chart contains chart data (for "chart" type blocks).
+	Chart *ChartData `json:"chart,omitempty"`
+	// Usage contains usage statistics (for "usage" type blocks).
+	Usage *chat.UsageStats `json:"usage,omitempty"`
+}
 
 // OrchestratorStreamEvent represents an event in the streaming response from the orchestrator.
 type OrchestratorStreamEvent struct {
 	Type        OrchestratorEventType
 	Content     string
+	Thinking    string // Model's reasoning (only set for OrchestratorEventThinking)
 	ToolName    string
 	Description string
 	Success     bool
 	Error       error
+	Chart       *ChartData       // Chart data (only set for OrchestratorEventChart)
+	Usage       *chat.UsageStats // Usage statistics (only set for OrchestratorEventUsage)
+	ToolCallID  string           // Unique identifier for the tool call
+	ToolResult  string           // Result from tool execution (only set for OrchestratorEventToolEnd)
 }
 
 // OrchestratorResult contains the result of an orchestrated conversation.
 type OrchestratorResult struct {
-	Content   string
-	ToolsUsed []ToolUsed
-	Usage     *chat.UsageStats
+	// Blocks contains the sequence of content blocks that make up the response.
+	Blocks []ContentBlock
+	// Usage contains token usage statistics.
+	Usage *chat.UsageStats
 }
 
 // Orchestrator manages the conversation loop between user, LLM, and tools.
 type Orchestrator struct {
-	chatClient chat.StreamingClient
-	naisAPIURL string
-	authHeader string
-	httpClient *http.Client
-	log        logrus.FieldLogger
+	chatClient     chat.StreamingClient
+	mcpIntegration *MCPIntegration
+	log            logrus.FieldLogger
 }
 
-// NewOrchestrator creates a new orchestrator.
+// NewOrchestrator creates a new orchestrator with MCP integration.
 func NewOrchestrator(
 	chatClient chat.StreamingClient,
-	naisAPIURL string,
-	authHeader string,
+	mcpIntegration *MCPIntegration,
 	log logrus.FieldLogger,
 ) *Orchestrator {
 	return &Orchestrator{
-		chatClient: chatClient,
-		naisAPIURL: naisAPIURL,
-		authHeader: authHeader,
-		httpClient: &http.Client{
-			Timeout: 30 * time.Second,
-		},
-		log: log,
+		chatClient:     chatClient,
+		mcpIntegration: mcpIntegration,
+		log:            log,
+	}
+}
+
+// conversationLoop manages the shared state for a conversation turn loop.
+// This abstraction reduces duplication between Run and RunStream.
+type conversationLoop struct {
+	orchestrator *Orchestrator
+	ctx          context.Context
+	messages     []chat.Message
+	tools        []chat.ToolDefinition
+	systemPrompt string
+	docs         []rag.Document
+	blocks       []ContentBlock
+	totalUsage   chat.UsageStats
+	log          logrus.FieldLogger
+}
+
+// newConversationLoop creates a new conversation loop with initialized state.
+func (o *Orchestrator) newConversationLoop(
+	ctx context.Context,
+	userMessage string,
+	chatCtx *ChatContext,
+	docs []rag.Document,
+	history []chat.Message,
+) *conversationLoop {
+	tools := o.getToolDefinitions()
+	systemPrompt := o.buildSystemPrompt(chatCtx, docs, tools)
+
+	// Initialize messages with conversation history plus current user message
+	messages := make([]chat.Message, 0, len(history)+1)
+	messages = append(messages, history...)
+	messages = append(messages, chat.Message{
+		Role:    chat.RoleUser,
+		Content: userMessage,
+	})
+
+	return &conversationLoop{
+		orchestrator: o,
+		ctx:          ctx,
+		messages:     messages,
+		tools:        tools,
+		systemPrompt: systemPrompt,
+		docs:         docs,
+		blocks:       nil,
+		log:          o.log,
+	}
+}
+
+// buildRequest creates a chat request from the current state.
+func (cl *conversationLoop) buildRequest() *chat.Request {
+	return &chat.Request{
+		SystemPrompt: cl.systemPrompt,
+		Messages:     cl.messages,
+		Tools:        cl.tools,
+		Documents:    cl.docs,
+	}
+}
+
+// addThinkingBlock adds a thinking block if the content is non-empty.
+func (cl *conversationLoop) addThinkingBlock(thinking string) {
+	if thinking != "" {
+		cl.blocks = append(cl.blocks, ContentBlock{
+			Type:     ContentBlockTypeThinking,
+			Thinking: thinking,
+		})
+	}
+}
+
+// addTextBlock adds a text block if the content is non-empty.
+func (cl *conversationLoop) addTextBlock(text string) {
+	if text != "" {
+		cl.blocks = append(cl.blocks, ContentBlock{
+			Type: ContentBlockTypeText,
+			Text: text,
+		})
+	}
+}
+
+// addAssistantMessage adds an assistant message with tool calls to the conversation.
+func (cl *conversationLoop) addAssistantMessage(content string, toolCalls []chat.ToolCall) {
+	cl.messages = append(cl.messages, chat.Message{
+		Role:      chat.RoleAssistant,
+		Content:   content,
+		ToolCalls: toolCalls,
+	})
+}
+
+// toolExecutionResult holds the result of executing a single tool.
+type toolExecutionResult struct {
+	ToolCall  chat.ToolCall
+	Result    string
+	ChartData *ChartData
+	Success   bool
+	Error     error
+}
+
+// executeToolCall executes a single tool call and returns the result.
+func (cl *conversationLoop) executeToolCall(toolCall chat.ToolCall) toolExecutionResult {
+	cl.log.WithFields(logrus.Fields{
+		"tool":    toolCall.Name,
+		"tool_id": toolCall.ID,
+	}).Debug("executing tool call")
+
+	toolResult, chartData, err := cl.orchestrator.executeTool(cl.ctx, toolCall)
+	success := err == nil
+
+	var resultContent string
+	if err != nil {
+		resultContent = fmt.Sprintf("Error executing tool: %s", err.Error())
+		cl.log.WithError(err).WithField("tool", toolCall.Name).Warn("tool execution failed")
+	} else {
+		cl.log.WithFields(logrus.Fields{
+			"tool":          toolCall.Name,
+			"result_length": len(toolResult),
+			"has_chart":     chartData != nil,
+		}).Debug("tool execution succeeded")
+		resultContent = toolResult
+	}
+
+	return toolExecutionResult{
+		ToolCall:  toolCall,
+		Result:    resultContent,
+		ChartData: chartData,
+		Success:   success,
+		Error:     err,
+	}
+}
+
+// recordToolExecution records a tool execution in blocks and messages.
+func (cl *conversationLoop) recordToolExecution(result toolExecutionResult) {
+	// Add tool use block with result for history reconstruction
+	cl.blocks = append(cl.blocks, ContentBlock{
+		Type:        ContentBlockTypeToolUse,
+		ToolCallID:  result.ToolCall.ID,
+		ToolName:    result.ToolCall.Name,
+		ToolSuccess: result.Success,
+		ToolResult:  result.Result,
+	})
+
+	// Add chart block if this was a chart tool
+	if result.ChartData != nil {
+		cl.blocks = append(cl.blocks, ContentBlock{
+			Type:  ContentBlockTypeChart,
+			Chart: result.ChartData,
+		})
+	}
+
+	// Add tool result message
+	cl.messages = append(cl.messages, chat.Message{
+		Role:       chat.RoleTool,
+		Content:    result.Result,
+		ToolCallID: result.ToolCall.ID,
+	})
+}
+
+// accumulateUsage adds usage stats to the total.
+func (cl *conversationLoop) accumulateUsage(usage *chat.UsageStats) {
+	if usage != nil {
+		cl.totalUsage.InputTokens += usage.InputTokens
+		cl.totalUsage.OutputTokens += usage.OutputTokens
+		cl.totalUsage.TotalTokens += usage.TotalTokens
+		if usage.MaxTokens > 0 {
+			cl.totalUsage.MaxTokens = usage.MaxTokens
+		}
+		cl.log.WithFields(logrus.Fields{
+			"input_tokens":  usage.InputTokens,
+			"output_tokens": usage.OutputTokens,
+			"total_tokens":  usage.TotalTokens,
+			"max_tokens":    usage.MaxTokens,
+		}).Debug("LLM usage stats")
+	}
+}
+
+// result returns the final orchestrator result.
+func (cl *conversationLoop) result() *OrchestratorResult {
+	// Append usage block to ensure it's persisted
+	cl.blocks = append(cl.blocks, ContentBlock{
+		Type:  ContentBlockTypeUsage,
+		Usage: &cl.totalUsage,
+	})
+
+	return &OrchestratorResult{
+		Blocks: cl.blocks,
+		Usage:  &cl.totalUsage,
 	}
 }
 
@@ -84,6 +329,7 @@ func (o *Orchestrator) Run(
 	chatCtx *ChatContext,
 	docs []rag.Document,
 	conversationID uuid.UUID,
+	history []chat.Message,
 ) (*OrchestratorResult, error) {
 	ctx, cancel := context.WithTimeout(ctx, requestTimeout)
 	defer cancel()
@@ -92,107 +338,47 @@ func (o *Orchestrator) Run(
 		"conversation_id": conversationID,
 		"message_length":  len(userMessage),
 		"doc_count":       len(docs),
+		"history_length":  len(history),
 	}).Debug("starting orchestrator run")
 
-	// Build system prompt
-	systemPrompt := buildSystemPrompt(chatCtx, docs)
-	o.log.WithField("prompt_length", len(systemPrompt)).Debug("built system prompt")
-
-	// Initialize messages with user message
-	messages := []chat.Message{
-		{
-			Role:    chat.RoleUser,
-			Content: userMessage,
-		},
-	}
-
-	var toolsUsed []ToolUsed
-	var totalUsage chat.UsageStats
+	loop := o.newConversationLoop(ctx, userMessage, chatCtx, docs, history)
+	o.log.WithField("prompt_length", len(loop.systemPrompt)).Debug("built system prompt")
 
 	// Tool execution loop
 	for iteration := 0; iteration < maxToolIterations; iteration++ {
 		o.log.WithField("iteration", iteration).Debug("starting tool iteration")
-		// Build request
-		req := &chat.Request{
-			SystemPrompt: systemPrompt,
-			Messages:     messages,
-			Tools:        getToolDefinitions(),
-			Documents:    docs,
-		}
 
 		// Call LLM with retries
-		o.log.Debug("calling LLM")
-		resp, err := o.callLLMWithRetry(ctx, req)
+		resp, err := o.callLLMWithRetry(ctx, loop.buildRequest())
 		if err != nil {
 			o.log.WithError(err).Error("LLM call failed")
 			return nil, fmt.Errorf("LLM call failed: %w", err)
 		}
 
-		// Accumulate usage
-		if resp.Usage != nil {
-			totalUsage.InputTokens += resp.Usage.InputTokens
-			totalUsage.OutputTokens += resp.Usage.OutputTokens
-			o.log.WithFields(logrus.Fields{
-				"input_tokens":  resp.Usage.InputTokens,
-				"output_tokens": resp.Usage.OutputTokens,
-			}).Debug("LLM usage stats")
-		}
+		loop.accumulateUsage(resp.Usage)
 
 		o.log.WithFields(logrus.Fields{
 			"content_length": len(resp.Content),
 			"tool_calls":     len(resp.ToolCalls),
 		}).Debug("LLM response received")
 
-		// If no tool calls, we're done
+		// If no tool calls, we're done - add final blocks and return
 		if len(resp.ToolCalls) == 0 {
 			o.log.Debug("no tool calls, returning response")
-			return &OrchestratorResult{
-				Content:   resp.Content,
-				ToolsUsed: toolsUsed,
-				Usage:     &totalUsage,
-			}, nil
+			loop.addThinkingBlock(resp.Thinking)
+			loop.addTextBlock(resp.Content)
+			return loop.result(), nil
 		}
 
-		// Add assistant message with tool calls
-		messages = append(messages, chat.Message{
-			Role:      chat.RoleAssistant,
-			Content:   resp.Content,
-			ToolCalls: resp.ToolCalls,
-		})
+		// Process response with tool calls
+		loop.addThinkingBlock(resp.Thinking)
+		loop.addTextBlock(resp.Content)
+		loop.addAssistantMessage(resp.Content, resp.ToolCalls)
 
-		// Execute tool calls
+		// Execute all tool calls
 		for _, toolCall := range resp.ToolCalls {
-			o.log.WithFields(logrus.Fields{
-				"tool":      toolCall.Name,
-				"tool_id":   toolCall.ID,
-				"iteration": iteration,
-			}).Debug("executing tool call")
-
-			toolResult, err := o.executeTool(ctx, toolCall)
-
-			toolsUsed = append(toolsUsed, ToolUsed{
-				Name:        toolCall.Name,
-				Description: fmt.Sprintf("Executed %s", toolCall.Name),
-			})
-
-			var resultContent string
-			if err != nil {
-				resultContent = fmt.Sprintf("Error executing tool: %s", err.Error())
-				o.log.WithError(err).WithField("tool", toolCall.Name).Warn("tool execution failed")
-			} else {
-				o.log.WithFields(logrus.Fields{
-					"tool":          toolCall.Name,
-					"result_length": len(toolResult),
-				}).Debug("tool execution succeeded")
-				resultContent = toolResult
-			}
-
-			// Add tool result message
-			messages = append(messages, chat.Message{
-				Role:       chat.RoleTool,
-				Content:    resultContent,
-				ToolCallID: toolCall.ID,
-			})
+			result := loop.executeToolCall(toolCall)
+			loop.recordToolExecution(result)
 		}
 	}
 
@@ -207,6 +393,7 @@ func (o *Orchestrator) RunStream(
 	chatCtx *ChatContext,
 	docs []rag.Document,
 	conversationID uuid.UUID,
+	history []chat.Message,
 ) (<-chan OrchestratorStreamEvent, error) {
 	eventCh := make(chan OrchestratorStreamEvent, 100)
 
@@ -214,6 +401,7 @@ func (o *Orchestrator) RunStream(
 		"conversation_id": conversationID,
 		"message_length":  len(userMessage),
 		"doc_count":       len(docs),
+		"history_length":  len(history),
 	}).Debug("starting streaming orchestrator")
 
 	go func() {
@@ -222,32 +410,15 @@ func (o *Orchestrator) RunStream(
 		ctx, cancel := context.WithTimeout(ctx, requestTimeout)
 		defer cancel()
 
-		// Build system prompt
-		systemPrompt := buildSystemPrompt(chatCtx, docs)
-		o.log.WithField("prompt_length", len(systemPrompt)).Debug("built system prompt")
-
-		// Initialize messages with user message
-		messages := []chat.Message{
-			{
-				Role:    chat.RoleUser,
-				Content: userMessage,
-			},
-		}
+		loop := o.newConversationLoop(ctx, userMessage, chatCtx, docs, history)
+		o.log.WithField("prompt_length", len(loop.systemPrompt)).Debug("built system prompt")
 
 		// Tool execution loop
 		for iteration := 0; iteration < maxToolIterations; iteration++ {
 			o.log.WithField("iteration", iteration).Debug("starting streaming tool iteration")
-			// Build request
-			req := &chat.Request{
-				SystemPrompt: systemPrompt,
-				Messages:     messages,
-				Tools:        getToolDefinitions(),
-				Documents:    docs,
-			}
 
 			// Get streaming response
-			o.log.Debug("starting LLM stream")
-			streamCh, err := o.chatClient.ChatStream(ctx, req)
+			streamCh, err := o.chatClient.ChatStream(ctx, loop.buildRequest())
 			if err != nil {
 				o.log.WithError(err).Error("failed to start LLM stream")
 				eventCh <- OrchestratorStreamEvent{
@@ -257,102 +428,29 @@ func (o *Orchestrator) RunStream(
 				return
 			}
 
-			var contentBuilder strings.Builder
-			var toolCalls []chat.ToolCall
-			chunkCount := 0
-
-			// Process stream chunks
-			o.log.Debug("processing stream chunks")
-			for chunk := range streamCh {
-				chunkCount++
-				if chunk.Error != nil {
-					o.log.WithError(chunk.Error).Error("received error in stream chunk")
-					eventCh <- OrchestratorStreamEvent{
-						Type:  OrchestratorEventError,
-						Error: chunk.Error,
-					}
-					return
-				}
-
-				if chunk.Content != "" {
-					contentBuilder.WriteString(chunk.Content)
-					eventCh <- OrchestratorStreamEvent{
-						Type:    OrchestratorEventContent,
-						Content: chunk.Content,
-					}
-				}
-
-				if len(chunk.ToolCalls) > 0 {
-					toolCalls = append(toolCalls, chunk.ToolCalls...)
-				}
+			// Process stream and collect results
+			content, toolCalls, usage, done := o.processStream(streamCh, eventCh)
+			if done {
+				return // Error occurred or context cancelled
 			}
 
-			o.log.WithFields(logrus.Fields{
-				"chunk_count":    chunkCount,
-				"content_length": contentBuilder.Len(),
-				"tool_calls":     len(toolCalls),
-			}).Debug("finished processing stream chunks")
+			loop.accumulateUsage(usage)
 
 			// If no tool calls, we're done
 			if len(toolCalls) == 0 {
+				eventCh <- OrchestratorStreamEvent{
+					Type:  OrchestratorEventUsage,
+					Usage: &loop.totalUsage,
+				}
 				o.log.Debug("no tool calls, stream complete")
 				return
 			}
 
-			// Add assistant message with tool calls
-			messages = append(messages, chat.Message{
-				Role:      chat.RoleAssistant,
-				Content:   contentBuilder.String(),
-				ToolCalls: toolCalls,
-			})
+			// Add assistant message for tool calls
+			loop.addAssistantMessage(content, toolCalls)
 
-			// Execute tool calls
-			for _, toolCall := range toolCalls {
-				o.log.WithFields(logrus.Fields{
-					"tool":    toolCall.Name,
-					"tool_id": toolCall.ID,
-				}).Debug("executing streaming tool call")
-
-				// Send tool start event
-				eventCh <- OrchestratorStreamEvent{
-					Type:        OrchestratorEventToolStart,
-					ToolName:    toolCall.Name,
-					Description: fmt.Sprintf("Executing %s...", toolCall.Name),
-				}
-
-				toolResult, err := o.executeTool(ctx, toolCall)
-
-				success := err == nil
-				if success {
-					o.log.WithFields(logrus.Fields{
-						"tool":          toolCall.Name,
-						"result_length": len(toolResult),
-					}).Debug("streaming tool execution succeeded")
-				} else {
-					o.log.WithError(err).WithField("tool", toolCall.Name).Warn("streaming tool execution failed")
-				}
-
-				eventCh <- OrchestratorStreamEvent{
-					Type:        OrchestratorEventToolEnd,
-					ToolName:    toolCall.Name,
-					Description: fmt.Sprintf("Executed %s", toolCall.Name),
-					Success:     success,
-				}
-
-				var resultContent string
-				if err != nil {
-					resultContent = fmt.Sprintf("Error executing tool: %s", err.Error())
-				} else {
-					resultContent = toolResult
-				}
-
-				// Add tool result message
-				messages = append(messages, chat.Message{
-					Role:       chat.RoleTool,
-					Content:    resultContent,
-					ToolCallID: toolCall.ID,
-				})
-			}
+			// Execute tool calls with streaming events
+			o.executeToolCallsStreaming(loop, toolCalls, eventCh)
 		}
 
 		o.log.WithField("max_iterations", maxToolIterations).Error("streaming max tool iterations exceeded")
@@ -363,6 +461,115 @@ func (o *Orchestrator) RunStream(
 	}()
 
 	return eventCh, nil
+}
+
+// processStream consumes the LLM stream, emitting events and collecting results.
+// Returns the accumulated content, tool calls, and whether to stop (due to error).
+func (o *Orchestrator) processStream(
+	streamCh <-chan chat.StreamChunk,
+	eventCh chan<- OrchestratorStreamEvent,
+) (content string, toolCalls []chat.ToolCall, usage *chat.UsageStats, done bool) {
+	var contentBuilder strings.Builder
+	chunkCount := 0
+	usage = &chat.UsageStats{}
+
+	o.log.Debug("processing stream chunks")
+	for chunk := range streamCh {
+		chunkCount++
+
+		if chunk.Error != nil {
+			o.log.WithError(chunk.Error).Error("received error in stream chunk")
+			eventCh <- OrchestratorStreamEvent{
+				Type:  OrchestratorEventError,
+				Error: chunk.Error,
+			}
+			return "", nil, nil, true
+		}
+
+		if chunk.Usage != nil {
+			usage.InputTokens += chunk.Usage.InputTokens
+			usage.OutputTokens += chunk.Usage.OutputTokens
+			usage.TotalTokens += chunk.Usage.TotalTokens
+			if chunk.Usage.MaxTokens > 0 {
+				usage.MaxTokens = chunk.Usage.MaxTokens
+			}
+		}
+
+		// Emit thinking content if present
+		if chunk.Thinking != "" {
+			eventCh <- OrchestratorStreamEvent{
+				Type:     OrchestratorEventThinking,
+				Thinking: chunk.Thinking,
+			}
+		}
+
+		// Emit and accumulate content
+		if chunk.Content != "" {
+			contentBuilder.WriteString(chunk.Content)
+			eventCh <- OrchestratorStreamEvent{
+				Type:    OrchestratorEventContent,
+				Content: chunk.Content,
+			}
+		}
+
+		// Collect tool calls
+		if len(chunk.ToolCalls) > 0 {
+			toolCalls = append(toolCalls, chunk.ToolCalls...)
+		}
+	}
+
+	o.log.WithFields(logrus.Fields{
+		"chunk_count":    chunkCount,
+		"content_length": contentBuilder.Len(),
+		"tool_calls":     len(toolCalls),
+	}).Debug("finished processing stream chunks")
+
+	return contentBuilder.String(), toolCalls, usage, false
+}
+
+// executeToolCallsStreaming executes tool calls and emits streaming events.
+func (o *Orchestrator) executeToolCallsStreaming(
+	loop *conversationLoop,
+	toolCalls []chat.ToolCall,
+	eventCh chan<- OrchestratorStreamEvent,
+) {
+	for _, toolCall := range toolCalls {
+		// Emit tool start event
+		eventCh <- OrchestratorStreamEvent{
+			Type:        OrchestratorEventToolStart,
+			ToolName:    toolCall.Name,
+			ToolCallID:  toolCall.ID,
+			Description: fmt.Sprintf("Executing %s...", toolCall.Name),
+		}
+
+		// Execute the tool
+		result := loop.executeToolCall(toolCall)
+
+		// Emit tool end event with result for history reconstruction
+		eventCh <- OrchestratorStreamEvent{
+			Type:        OrchestratorEventToolEnd,
+			ToolName:    toolCall.Name,
+			ToolCallID:  toolCall.ID,
+			Description: fmt.Sprintf("Executed %s", toolCall.Name),
+			Success:     result.Success,
+			ToolResult:  result.Result,
+		}
+
+		// Emit chart event if applicable
+		if result.ChartData != nil {
+			eventCh <- OrchestratorStreamEvent{
+				Type:  OrchestratorEventChart,
+				Chart: result.ChartData,
+			}
+		}
+
+		// Record in conversation (for next iteration)
+		loop.messages = append(loop.messages, chat.Message{
+			Role:       chat.RoleTool,
+			Content:    result.Result,
+			ToolCallID: result.ToolCall.ID,
+		})
+	}
 }
 
 func (o *Orchestrator) callLLMWithRetry(ctx context.Context, req *chat.Request) (*chat.Response, error) {
@@ -390,153 +597,4 @@ func (o *Orchestrator) callLLMWithRetry(ctx context.Context, req *chat.Request) 
 	}
 	o.log.WithField("attempts", retryAttempts).Error("all LLM retry attempts exhausted")
 	return nil, fmt.Errorf("LLM call failed after %d attempts: %w", retryAttempts, lastErr)
-}
-
-func (o *Orchestrator) executeTool(ctx context.Context, toolCall chat.ToolCall) (string, error) {
-	switch toolCall.Name {
-	case "query_nais_api":
-		return o.executeGraphQLTool(ctx, toolCall.Arguments)
-	default:
-		return "", fmt.Errorf("unknown tool: %s", toolCall.Name)
-	}
-}
-
-func (o *Orchestrator) executeGraphQLTool(ctx context.Context, args map[string]any) (string, error) {
-	query, ok := args["query"].(string)
-	if !ok {
-		return "", fmt.Errorf("query argument is required and must be a string")
-	}
-
-	variables, _ := args["variables"].(map[string]any)
-
-	o.log.WithFields(logrus.Fields{
-		"query_length":  len(query),
-		"has_variables": variables != nil,
-	}).Debug("executing GraphQL tool")
-
-	// Build GraphQL request
-	gqlReq := map[string]any{
-		"query": query,
-	}
-	if variables != nil {
-		gqlReq["variables"] = variables
-	}
-
-	body, err := json.Marshal(gqlReq)
-	if err != nil {
-		return "", fmt.Errorf("failed to marshal GraphQL request: %w", err)
-	}
-
-	// Create HTTP request
-	req, err := http.NewRequestWithContext(ctx, "POST", o.naisAPIURL+"/graphql", bytes.NewReader(body))
-	if err != nil {
-		return "", fmt.Errorf("failed to create request: %w", err)
-	}
-
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", o.authHeader)
-
-	o.log.WithField("url", o.naisAPIURL+"/graphql").Debug("sending GraphQL request")
-
-	// Execute request
-	resp, err := o.httpClient.Do(req)
-	if err != nil {
-		o.log.WithError(err).Error("GraphQL request failed")
-		return "", fmt.Errorf("GraphQL request failed: %w", err)
-	}
-	defer resp.Body.Close()
-
-	// Read response
-	respBody, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return "", fmt.Errorf("failed to read response: %w", err)
-	}
-
-	o.log.WithFields(logrus.Fields{
-		"status_code":     resp.StatusCode,
-		"response_length": len(respBody),
-	}).Debug("GraphQL response received")
-
-	if resp.StatusCode != http.StatusOK {
-		o.log.WithFields(logrus.Fields{
-			"status_code": resp.StatusCode,
-			"response":    string(respBody),
-		}).Warn("GraphQL request returned non-OK status")
-		return "", fmt.Errorf("GraphQL request returned status %d: %s", resp.StatusCode, string(respBody))
-	}
-
-	return string(respBody), nil
-}
-
-func buildSystemPrompt(ctx *ChatContext, docs []rag.Document) string {
-	var sb strings.Builder
-
-	sb.WriteString(`You are a helpful assistant for the Nais platform, a Kubernetes-based application platform. You help users understand and troubleshoot their applications.
-
-## Current Context
-`)
-
-	if ctx != nil {
-		if ctx.Path != "" {
-			sb.WriteString(fmt.Sprintf("- User is viewing: %s\n", ctx.Path))
-		}
-		if ctx.Team != "" {
-			sb.WriteString(fmt.Sprintf("- Team: %s\n", ctx.Team))
-		}
-		if ctx.App != "" {
-			sb.WriteString(fmt.Sprintf("- Application: %s\n", ctx.App))
-		}
-		if ctx.Env != "" {
-			sb.WriteString(fmt.Sprintf("- Environment: %s\n", ctx.Env))
-		}
-	}
-
-	sb.WriteString(`
-## Available Tools
-1. **query_nais_api**: Execute GraphQL queries to fetch real-time data about the user's teams, applications, deployments, and other resources.
-
-## Guidelines
-- For general questions about Nais features, use the documentation provided below.
-- For specific questions about the user's resources, use the query_nais_api tool.
-- Always provide actionable advice when possible.
-- Include links to relevant documentation when helpful.
-- If you encounter an error from a tool, explain it clearly to the user.
-`)
-
-	if len(docs) > 0 {
-		sb.WriteString("\n## Documentation\n")
-		for _, doc := range docs {
-			sb.WriteString(fmt.Sprintf("\n### %s\n%s\nSource: %s\n", doc.Title, doc.Content, doc.URL))
-		}
-	}
-
-	return sb.String()
-}
-
-func getToolDefinitions() []chat.ToolDefinition {
-	return []chat.ToolDefinition{
-		{
-			Name: "query_nais_api",
-			Description: `Execute a GraphQL query against the Nais API to fetch information about teams, applications, deployments, logs, and other resources. Use this for specific questions about the user's resources.
-
-Example queries:
-- Get team info: query { team(slug: "my-team") { slug purpose } }
-- Get applications: query { team(slug: "my-team") { applications { nodes { name state } } } }
-- Get app status: query { team(slug: "my-team") { applications(filter: {name: "my-app"}) { nodes { name state instances { nodes { name status { state message } } } } } } }`,
-			Parameters: []chat.ParameterDefinition{
-				{
-					Name:        "query",
-					Type:        "string",
-					Description: "The GraphQL query to execute",
-					Required:    true,
-				},
-				{
-					Name:        "variables",
-					Type:        "object",
-					Description: "Variables for the GraphQL query (optional)",
-					Required:    false,
-				},
-			},
-		},
-	}
 }

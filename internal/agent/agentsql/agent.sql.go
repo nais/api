@@ -160,8 +160,7 @@ const getConversationHistory = `-- name: GetConversationHistory :many
 SELECT
 	role,
 	content,
-	tool_calls,
-	tool_call_id
+	blocks
 FROM
 	agent_messages
 WHERE
@@ -171,10 +170,9 @@ ORDER BY
 `
 
 type GetConversationHistoryRow struct {
-	Role       string
-	Content    string
-	ToolCalls  []byte
-	ToolCallID *string
+	Role    string
+	Content string
+	Blocks  []byte
 }
 
 func (q *Queries) GetConversationHistory(ctx context.Context, conversationID uuid.UUID) ([]*GetConversationHistoryRow, error) {
@@ -186,12 +184,7 @@ func (q *Queries) GetConversationHistory(ctx context.Context, conversationID uui
 	items := []*GetConversationHistoryRow{}
 	for rows.Next() {
 		var i GetConversationHistoryRow
-		if err := rows.Scan(
-			&i.Role,
-			&i.Content,
-			&i.ToolCalls,
-			&i.ToolCallID,
-		); err != nil {
+		if err := rows.Scan(&i.Role, &i.Content, &i.Blocks); err != nil {
 			return nil, err
 		}
 		items = append(items, &i)
@@ -207,7 +200,8 @@ SELECT
 	id,
 	role,
 	content,
-	tool_calls,
+	sources,
+	blocks,
 	created_at
 FROM
 	agent_messages
@@ -221,7 +215,8 @@ type GetConversationMessagesRow struct {
 	ID        uuid.UUID
 	Role      string
 	Content   string
-	ToolCalls []byte
+	Sources   []byte
+	Blocks    []byte
 	CreatedAt pgtype.Timestamptz
 }
 
@@ -238,7 +233,8 @@ func (q *Queries) GetConversationMessages(ctx context.Context, conversationID uu
 			&i.ID,
 			&i.Role,
 			&i.Content,
-			&i.ToolCalls,
+			&i.Sources,
+			&i.Blocks,
 			&i.CreatedAt,
 		); err != nil {
 			return nil, err
@@ -253,16 +249,17 @@ func (q *Queries) GetConversationMessages(ctx context.Context, conversationID uu
 
 const insertMessage = `-- name: InsertMessage :exec
 INSERT INTO
-	agent_messages (conversation_id, role, content, tool_calls)
+	agent_messages (conversation_id, role, content, sources, blocks)
 VALUES
-	($1, $2, $3, $4)
+	($1, $2, $3, $4, $5)
 `
 
 type InsertMessageParams struct {
 	ConversationID uuid.UUID
 	Role           string
 	Content        string
-	ToolCalls      []byte
+	Sources        []byte
+	Blocks         []byte
 }
 
 func (q *Queries) InsertMessage(ctx context.Context, arg InsertMessageParams) error {
@@ -270,7 +267,8 @@ func (q *Queries) InsertMessage(ctx context.Context, arg InsertMessageParams) er
 		arg.ConversationID,
 		arg.Role,
 		arg.Content,
-		arg.ToolCalls,
+		arg.Sources,
+		arg.Blocks,
 	)
 	return err
 }

@@ -11,6 +11,7 @@ import (
 	_ "github.com/duckdb/duckdb-go/v2"
 	"github.com/nais/api/internal/agent/rag"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/genai"
 )
 
 // Config holds configuration for the DuckDB searcher.
@@ -18,25 +19,26 @@ type Config struct {
 	// DBPath is the path to the DuckDB file.
 	DBPath string
 
-	// EmbeddingClient is used to embed queries at runtime.
-	EmbeddingClient EmbeddingClient
-}
+	// ProjectID is the GCP project ID for Vertex AI embeddings.
+	ProjectID string
 
-// EmbeddingClient generates embeddings for text.
-type EmbeddingClient interface {
-	// Embed returns the embedding vector for the given text.
-	Embed(ctx context.Context, text string) ([]float32, error)
+	// Location is the GCP region for Vertex AI (must be in EU, e.g., "europe-west1").
+	Location string
+
+	// EmbeddingModel is the model to use for embeddings (e.g., "gemini-embedding-001").
+	EmbeddingModel string
 }
 
 // Searcher implements rag.DocumentSearcher using a local DuckDB file.
 type Searcher struct {
-	db              *sql.DB
-	embeddingClient EmbeddingClient
-	log             logrus.FieldLogger
+	db             *sql.DB
+	embeddingModel string
+	genaiClient    *genai.Client
+	log            logrus.FieldLogger
 }
 
 // NewSearcher creates a new DuckDB-based searcher.
-func NewSearcher(cfg Config, log logrus.FieldLogger) (*Searcher, error) {
+func NewSearcher(ctx context.Context, cfg Config, log logrus.FieldLogger) (*Searcher, error) {
 	// Open DuckDB in read-only mode
 	db, err := sql.Open("duckdb", cfg.DBPath+"?access_mode=read_only")
 	if err != nil {
@@ -49,12 +51,29 @@ func NewSearcher(cfg Config, log logrus.FieldLogger) (*Searcher, error) {
 		return nil, fmt.Errorf("failed to ping DuckDB: %w", err)
 	}
 
-	log.WithField("db_path", cfg.DBPath).Info("initialized DuckDB searcher")
+	// Create Vertex AI client for embeddings
+	genaiClient, err := genai.NewClient(ctx, &genai.ClientConfig{
+		Project:  cfg.ProjectID,
+		Location: cfg.Location,
+		Backend:  genai.BackendVertexAI,
+	})
+	if err != nil {
+		db.Close()
+		return nil, fmt.Errorf("failed to create Vertex AI client: %w", err)
+	}
+
+	log.WithFields(logrus.Fields{
+		"db_path":         cfg.DBPath,
+		"project":         cfg.ProjectID,
+		"location":        cfg.Location,
+		"embedding_model": cfg.EmbeddingModel,
+	}).Info("initialized DuckDB searcher with Vertex AI embeddings")
 
 	return &Searcher{
-		db:              db,
-		embeddingClient: cfg.EmbeddingClient,
-		log:             log,
+		db:             db,
+		embeddingModel: cfg.EmbeddingModel,
+		genaiClient:    genaiClient,
+		log:            log,
 	}, nil
 }
 
@@ -66,7 +85,7 @@ func (s *Searcher) Search(ctx context.Context, query string, opts *rag.SearchOpt
 	}
 
 	// Embed the query
-	queryEmbedding, err := s.embeddingClient.Embed(ctx, query)
+	queryEmbedding, err := s.embed(ctx, query)
 	if err != nil {
 		return nil, fmt.Errorf("failed to embed query: %w", err)
 	}
@@ -91,6 +110,13 @@ func (s *Searcher) Search(ctx context.Context, query string, opts *rag.SearchOpt
 	var docs []scoredDoc
 
 	for rows.Next() {
+		// Check for context cancellation during iteration
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		default:
+		}
+
 		var title, url, content string
 		var embeddingBytes []byte
 
@@ -151,6 +177,24 @@ func (s *Searcher) Search(ctx context.Context, query string, opts *rag.SearchOpt
 // Close cleans up resources.
 func (s *Searcher) Close() error {
 	return s.db.Close()
+}
+
+// embed returns the embedding vector for the given text using Vertex AI.
+func (s *Searcher) embed(ctx context.Context, text string) ([]float32, error) {
+	contents := []*genai.Content{
+		{Parts: []*genai.Part{{Text: text}}},
+	}
+
+	result, err := s.genaiClient.Models.EmbedContent(ctx, s.embeddingModel, contents, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to embed text: %w", err)
+	}
+
+	if result == nil || len(result.Embeddings) == 0 {
+		return nil, fmt.Errorf("no embeddings returned")
+	}
+
+	return result.Embeddings[0].Values, nil
 }
 
 // parseEmbedding converts stored bytes to a float32 slice.

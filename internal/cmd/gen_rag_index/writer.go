@@ -15,8 +15,10 @@ import (
 
 // Writer handles writing chunks and embeddings to a DuckDB file.
 type Writer struct {
-	db  *sql.DB
-	log logrus.FieldLogger
+	db        *sql.DB
+	log       logrus.FieldLogger
+	finalPath string
+	tempPath  string
 }
 
 // NewWriter creates a new DuckDB writer.
@@ -29,15 +31,18 @@ func NewWriter(outputPath string, log logrus.FieldLogger) (*Writer, error) {
 		}
 	}
 
-	// Remove existing file if it exists
-	if _, err := os.Stat(outputPath); err == nil {
-		if err := os.Remove(outputPath); err != nil {
-			return nil, fmt.Errorf("removing existing file: %w", err)
+	// Use a temporary file for writing
+	tempPath := outputPath + ".tmp"
+
+	// Remove existing temp file if it exists
+	if _, err := os.Stat(tempPath); err == nil {
+		if err := os.Remove(tempPath); err != nil {
+			return nil, fmt.Errorf("removing existing temp file: %w", err)
 		}
 	}
 
-	// Open DuckDB
-	db, err := sql.Open("duckdb", outputPath)
+	// Open DuckDB on temp path
+	db, err := sql.Open("duckdb", tempPath)
 	if err != nil {
 		return nil, fmt.Errorf("opening DuckDB: %w", err)
 	}
@@ -48,11 +53,13 @@ func NewWriter(outputPath string, log logrus.FieldLogger) (*Writer, error) {
 		return nil, fmt.Errorf("creating schema: %w", err)
 	}
 
-	log.WithField("output_path", outputPath).Info("initialized DuckDB writer")
+	log.WithField("temp_path", tempPath).Info("initialized DuckDB writer")
 
 	return &Writer{
-		db:  db,
-		log: log,
+		db:        db,
+		log:       log,
+		finalPath: outputPath,
+		tempPath:  tempPath,
 	}, nil
 }
 
@@ -147,9 +154,18 @@ type Stats struct {
 	AvgContentLength float64
 }
 
-// Close closes the database connection.
+// Close closes the database connection and atomically moves the file to the final destination.
 func (w *Writer) Close() error {
-	return w.db.Close()
+	if err := w.db.Close(); err != nil {
+		return fmt.Errorf("closing database: %w", err)
+	}
+
+	if err := os.Rename(w.tempPath, w.finalPath); err != nil {
+		return fmt.Errorf("renaming temp file to final path: %w", err)
+	}
+
+	w.log.WithField("final_path", w.finalPath).Info("atomically wrote index file")
+	return nil
 }
 
 // encodeEmbedding converts a float32 slice to bytes for storage.

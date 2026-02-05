@@ -7,7 +7,9 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
+	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -17,39 +19,48 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var _ = logrus.Fields{} // ensure logrus is used
-
 const (
 	maxRAGResults = 5
 )
 
 // Handler implements the HTTP handler for the agent chat service.
 type Handler struct {
-	conversations *ConversationStore
-	chatClient    chat.StreamingClient
-	ragClient     rag.DocumentSearcher
-	naisAPIURL    string
-	log           logrus.FieldLogger
+	conversations  *ConversationStore
+	chatClient     chat.StreamingClient
+	ragClient      rag.DocumentSearcher
+	mcpIntegration *MCPIntegration
+	log            logrus.FieldLogger
 }
 
 // Config holds configuration for the agent handler.
 type Config struct {
-	Pool       *pgxpool.Pool
-	ChatClient chat.StreamingClient
-	RAGClient  rag.DocumentSearcher
-	NaisAPIURL string
-	Log        logrus.FieldLogger
+	Pool           *pgxpool.Pool
+	ChatClient     chat.StreamingClient
+	RAGClient      rag.DocumentSearcher
+	GraphQLHandler *handler.Server
+	TenantName     string
+	Log            logrus.FieldLogger
 }
 
 // NewHandler creates a new agent HTTP handler.
-func NewHandler(cfg Config) *Handler {
-	return &Handler{
-		conversations: NewConversationStore(cfg.Pool),
-		chatClient:    cfg.ChatClient,
-		ragClient:     cfg.RAGClient,
-		naisAPIURL:    cfg.NaisAPIURL,
-		log:           cfg.Log,
+func NewHandler(cfg Config) (*Handler, error) {
+	// Create MCP integration for tool execution
+	mcpIntegration, err := NewMCPIntegration(MCPIntegrationConfig{
+		Handler:    cfg.GraphQLHandler,
+		TenantName: cfg.TenantName,
+		Log:        cfg.Log,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to create MCP integration: %w", err)
 	}
+
+	return &Handler{
+		conversations:  NewConversationStore(cfg.Pool),
+		chatClient:     cfg.ChatClient,
+		ragClient:      cfg.RAGClient,
+		mcpIntegration: mcpIntegration,
+		log:            cfg.Log,
+	}, nil
 }
 
 // RegisterRoutes registers the agent routes on the given router.
@@ -70,29 +81,35 @@ type ChatRequest struct {
 
 // ChatResponse represents a non-streaming chat response.
 type ChatResponse struct {
-	ConversationID string     `json:"conversation_id"`
-	MessageID      string     `json:"message_id"`
-	Content        string     `json:"content"`
-	ToolsUsed      []ToolUsed `json:"tools_used,omitempty"`
-	Sources        []Source   `json:"sources,omitempty"`
+	ConversationID string           `json:"conversation_id"`
+	MessageID      string           `json:"message_id"`
+	Content        string           `json:"content"`
+	Blocks         []ContentBlock   `json:"blocks,omitempty"`
+	Sources        []Source         `json:"sources,omitempty"`
+	Usage          *chat.UsageStats `json:"usage,omitempty"`
 }
 
 // StreamEvent represents a server-sent event for streaming responses.
 type StreamEvent struct {
-	Type           string   `json:"type"`
-	ConversationID string   `json:"conversation_id,omitempty"`
-	MessageID      string   `json:"message_id,omitempty"`
-	Content        string   `json:"content,omitempty"`
-	ToolName       string   `json:"tool_name,omitempty"`
-	ToolSuccess    bool     `json:"tool_success,omitempty"`
-	Description    string   `json:"description,omitempty"`
-	Sources        []Source `json:"sources,omitempty"`
-	ErrorCode      string   `json:"error_code,omitempty"`
-	ErrorMessage   string   `json:"error_message,omitempty"`
+	Type           string           `json:"type"`
+	ConversationID string           `json:"conversation_id,omitempty"`
+	MessageID      string           `json:"message_id,omitempty"`
+	Content        string           `json:"content,omitempty"`
+	Thinking       string           `json:"thinking,omitempty"`
+	ToolName       string           `json:"tool_name,omitempty"`
+	ToolSuccess    bool             `json:"tool_success,omitempty"`
+	Description    string           `json:"description,omitempty"`
+	Sources        []Source         `json:"sources,omitempty"`
+	Chart          *ChartData       `json:"chart,omitempty"`
+	Usage          *chat.UsageStats `json:"usage,omitempty"`
+	ToolCallID     string           `json:"tool_call_id,omitempty"`
+	ErrorCode      string           `json:"error_code,omitempty"`
+	ErrorMessage   string           `json:"error_message,omitempty"`
 }
 
 // Chat handles non-streaming chat requests.
 func (h *Handler) Chat(w http.ResponseWriter, r *http.Request) {
+	start := time.Now()
 	ctx := r.Context()
 	log := h.log.WithField("method", "Chat")
 
@@ -140,6 +157,15 @@ func (h *Handler) Chat(w http.ResponseWriter, r *http.Request) {
 	log = log.WithField("conversation_id", conversationID)
 	log.Debug("got/created conversation")
 
+	// Load conversation history for context
+	history, err := h.conversations.GetConversationHistory(ctx, conversationID)
+	if err != nil {
+		log.WithError(err).Warn("failed to load conversation history, continuing without")
+		history = nil
+	} else {
+		log.WithField("history_length", len(history)).Debug("loaded conversation history")
+	}
+
 	// Perform RAG search
 	log.Debug("performing RAG search")
 	docs, sources, err := h.searchDocumentation(ctx, req.Message)
@@ -151,20 +177,15 @@ func (h *Handler) Chat(w http.ResponseWriter, r *http.Request) {
 		RecordRAGSearch("success", 0, len(docs))
 	}
 
-	// Get authorization header
-	authHeader := r.Header.Get("Authorization")
-	log.WithField("has_auth_header", authHeader != "").Debug("checked auth header")
-
 	// Build orchestrator and run conversation
 	orchestrator := NewOrchestrator(
 		h.chatClient,
-		h.naisAPIURL,
-		authHeader,
+		h.mcpIntegration,
 		log,
 	)
 
 	log.Debug("starting orchestrator")
-	result, err := orchestrator.Run(ctx, req.Message, req.Context, docs, conversationID)
+	result, err := orchestrator.Run(ctx, req.Message, req.Context, docs, conversationID, history)
 	if err != nil {
 		log.WithError(err).Error("orchestrator failed")
 		writeJSONError(w, http.StatusInternalServerError, "failed to process chat request")
@@ -172,8 +193,7 @@ func (h *Handler) Chat(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.WithFields(logrus.Fields{
-		"content_length": len(result.Content),
-		"tools_used":     len(result.ToolsUsed),
+		"block_count": len(result.Blocks),
 	}).Debug("orchestrator completed")
 
 	// Store messages
@@ -182,16 +202,23 @@ func (h *Handler) Chat(w http.ResponseWriter, r *http.Request) {
 		// Continue anyway - we have the response
 	}
 
-	RecordChatRequest("success", false, 0)
-	RecordToolIterations(len(result.ToolsUsed))
+	RecordChatRequest("success", false, time.Since(start).Seconds(), result.Usage.InputTokens, result.Usage.OutputTokens)
+	RecordToolIterations(countToolBlocks(result.Blocks))
+
+	// Extract text content for source filtering
+	textContent := extractTextFromBlocks(result.Blocks)
+
+	// Filter sources to only include those actually referenced in the response
+	usedSources := filterUsedSources(textContent, sources)
 
 	// Build response
 	resp := ChatResponse{
 		ConversationID: conversationID.String(),
 		MessageID:      uuid.New().String(),
-		Content:        result.Content,
-		ToolsUsed:      result.ToolsUsed,
-		Sources:        sources,
+		Content:        textContent,
+		Blocks:         result.Blocks,
+		Sources:        usedSources,
+		Usage:          result.Usage,
 	}
 
 	log.Debug("sending chat response")
@@ -200,6 +227,7 @@ func (h *Handler) Chat(w http.ResponseWriter, r *http.Request) {
 
 // ChatStream handles streaming chat requests using Server-Sent Events.
 func (h *Handler) ChatStream(w http.ResponseWriter, r *http.Request) {
+	start := time.Now()
 	ctx := r.Context()
 	log := h.log.WithField("method", "ChatStream")
 
@@ -247,6 +275,15 @@ func (h *Handler) ChatStream(w http.ResponseWriter, r *http.Request) {
 	log = log.WithField("conversation_id", conversationID)
 	log.Debug("got/created conversation")
 
+	// Load conversation history for context
+	history, err := h.conversations.GetConversationHistory(ctx, conversationID)
+	if err != nil {
+		log.WithError(err).Warn("failed to load conversation history, continuing without")
+		history = nil
+	} else {
+		log.WithField("history_length", len(history)).Debug("loaded conversation history")
+	}
+
 	// Set up SSE headers
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-cache")
@@ -280,20 +317,15 @@ func (h *Handler) ChatStream(w http.ResponseWriter, r *http.Request) {
 		RecordRAGSearch("success", 0, len(docs))
 	}
 
-	// Get authorization header
-	authHeader := r.Header.Get("Authorization")
-	log.WithField("has_auth_header", authHeader != "").Debug("checked auth header")
-
 	// Build orchestrator and run streaming conversation
 	orchestrator := NewOrchestrator(
 		h.chatClient,
-		h.naisAPIURL,
-		authHeader,
+		h.mcpIntegration,
 		log,
 	)
 
 	log.Debug("starting streaming orchestrator")
-	streamCh, err := orchestrator.RunStream(ctx, req.Message, req.Context, docs, conversationID)
+	streamCh, err := orchestrator.RunStream(ctx, req.Message, req.Context, docs, conversationID, history)
 	if err != nil {
 		log.WithError(err).Error("orchestrator stream failed to start")
 		sendSSE(w, flusher, StreamEvent{
@@ -305,7 +337,9 @@ func (h *Handler) ChatStream(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var fullContent strings.Builder
-	var toolsUsed []ToolUsed
+	var blocks []ContentBlock
+	var currentThinking strings.Builder
+	var totalUsage chat.UsageStats
 	eventCount := 0
 
 	log.Debug("processing stream events")
@@ -314,9 +348,26 @@ func (h *Handler) ChatStream(w http.ResponseWriter, r *http.Request) {
 		switch event.Type {
 		case OrchestratorEventToolStart:
 			log.WithField("tool", event.ToolName).Debug("tool started")
+			// Flush any accumulated content before tool starts
+			if fullContent.Len() > 0 {
+				blocks = append(blocks, ContentBlock{
+					Type: ContentBlockTypeText,
+					Text: fullContent.String(),
+				})
+				fullContent.Reset()
+			}
+			// Flush any accumulated thinking before tool starts
+			if currentThinking.Len() > 0 {
+				blocks = append(blocks, ContentBlock{
+					Type:     ContentBlockTypeThinking,
+					Thinking: currentThinking.String(),
+				})
+				currentThinking.Reset()
+			}
 			sendSSE(w, flusher, StreamEvent{
 				Type:        "tool_start",
 				ToolName:    event.ToolName,
+				ToolCallID:  event.ToolCallID,
 				Description: event.Description,
 			})
 
@@ -328,12 +379,37 @@ func (h *Handler) ChatStream(w http.ResponseWriter, r *http.Request) {
 			sendSSE(w, flusher, StreamEvent{
 				Type:        "tool_end",
 				ToolName:    event.ToolName,
+				ToolCallID:  event.ToolCallID,
 				Description: event.Description,
 				ToolSuccess: event.Success,
 			})
-			toolsUsed = append(toolsUsed, ToolUsed{
-				Name:        event.ToolName,
-				Description: event.Description,
+			// Add tool use block with result for history reconstruction
+			blocks = append(blocks, ContentBlock{
+				Type:        ContentBlockTypeToolUse,
+				ToolName:    event.ToolName,
+				ToolCallID:  event.ToolCallID,
+				ToolSuccess: event.Success,
+				ToolResult:  event.ToolResult,
+			})
+
+		case OrchestratorEventThinking:
+			log.Debug("received thinking content")
+			currentThinking.WriteString(event.Thinking)
+			sendSSE(w, flusher, StreamEvent{
+				Type:     "thinking",
+				Thinking: event.Thinking,
+			})
+
+		case OrchestratorEventChart:
+			log.WithField("chart_title", event.Chart.Title).Debug("received chart data")
+			// Add chart block
+			blocks = append(blocks, ContentBlock{
+				Type:  ContentBlockTypeChart,
+				Chart: event.Chart,
+			})
+			sendSSE(w, flusher, StreamEvent{
+				Type:  "chart",
+				Chart: event.Chart,
 			})
 
 		case OrchestratorEventContent:
@@ -351,21 +427,53 @@ func (h *Handler) ChatStream(w http.ResponseWriter, r *http.Request) {
 				ErrorMessage: event.Error.Error(),
 			})
 			return
+
+		case OrchestratorEventUsage:
+			if event.Usage != nil {
+				totalUsage.InputTokens += event.Usage.InputTokens
+				totalUsage.OutputTokens += event.Usage.OutputTokens
+				totalUsage.TotalTokens += event.Usage.TotalTokens
+				if event.Usage.MaxTokens > 0 {
+					totalUsage.MaxTokens = event.Usage.MaxTokens
+				}
+				sendSSE(w, flusher, StreamEvent{
+					Type:  "usage",
+					Usage: event.Usage,
+				})
+			}
 		}
 	}
 
+	// Flush any remaining content
+	if fullContent.Len() > 0 {
+		blocks = append(blocks, ContentBlock{
+			Type: ContentBlockTypeText,
+			Text: fullContent.String(),
+		})
+	}
+	// Flush any remaining thinking
+	if currentThinking.Len() > 0 {
+		blocks = append(blocks, ContentBlock{
+			Type:     ContentBlockTypeThinking,
+			Thinking: currentThinking.String(),
+		})
+	}
+
 	log.WithFields(logrus.Fields{
-		"event_count":    eventCount,
-		"content_length": fullContent.Len(),
-		"tools_used":     len(toolsUsed),
+		"event_count": eventCount,
+		"block_count": len(blocks),
 	}).Debug("stream processing completed")
 
-	// Send sources if available
-	if len(sources) > 0 {
-		log.WithField("source_count", len(sources)).Debug("sending sources")
+	// Extract text content for source filtering
+	textContent := extractTextFromBlocks(blocks)
+
+	// Filter and send sources if available
+	usedSources := filterUsedSources(textContent, sources)
+	if len(usedSources) > 0 {
+		log.WithField("source_count", len(usedSources)).Debug("sending sources")
 		sendSSE(w, flusher, StreamEvent{
 			Type:    "sources",
-			Sources: sources,
+			Sources: usedSources,
 		})
 	}
 
@@ -377,10 +485,15 @@ func (h *Handler) ChatStream(w http.ResponseWriter, r *http.Request) {
 
 	// Store messages asynchronously
 	go func() {
+		// Append usage block to ensure it's persisted
+		blocks = append(blocks, ContentBlock{
+			Type:  ContentBlockTypeUsage,
+			Usage: &totalUsage,
+		})
+
 		result := &OrchestratorResult{
-			Content:   fullContent.String(),
-			ToolsUsed: toolsUsed,
-			Usage:     &chat.UsageStats{},
+			Blocks: blocks,
+			Usage:  &totalUsage,
 		}
 		if err := h.conversations.StoreMessages(context.Background(), conversationID, req.Message, result); err != nil {
 			log.WithError(err).Error("failed to store messages")
@@ -389,8 +502,8 @@ func (h *Handler) ChatStream(w http.ResponseWriter, r *http.Request) {
 		}
 	}()
 
-	RecordChatRequest("success", true, 0)
-	RecordToolIterations(len(toolsUsed))
+	RecordChatRequest("success", true, time.Since(start).Seconds(), totalUsage.InputTokens, totalUsage.OutputTokens)
+	RecordToolIterations(countToolBlocks(blocks))
 	log.Debug("streaming chat request completed")
 }
 
@@ -539,4 +652,72 @@ func writeJSON(w http.ResponseWriter, status int, v any) {
 
 func writeJSONError(w http.ResponseWriter, status int, message string) {
 	writeJSON(w, status, map[string]string{"error": message})
+}
+
+// filterUsedSources returns only the sources that appear to be referenced in the response.
+// This ensures we don't return sources that weren't actually used by the LLM.
+func filterUsedSources(response string, sources []Source) []Source {
+	if len(sources) == 0 {
+		return sources
+	}
+
+	responseLower := strings.ToLower(response)
+	used := make([]Source, 0, len(sources))
+
+	for _, source := range sources {
+		// Check if the source title or URL is mentioned in the response
+		titleLower := strings.ToLower(source.Title)
+		urlLower := strings.ToLower(source.URL)
+
+		// Check for title mention (with some flexibility for partial matches)
+		titleMentioned := strings.Contains(responseLower, titleLower)
+
+		// Check for URL mention
+		urlMentioned := strings.Contains(responseLower, urlLower)
+
+		// Also check for key parts of the title (e.g., "deployment" from "Nais Deployment Guide")
+		// This helps catch cases where the LLM paraphrases the source name
+		titleWords := strings.Fields(titleLower)
+		keywordMentioned := false
+		for _, word := range titleWords {
+			// Skip common words that wouldn't indicate a specific reference
+			if len(word) > 4 && word != "guide" && word != "documentation" && word != "nais" {
+				if strings.Contains(responseLower, word) {
+					keywordMentioned = true
+					break
+				}
+			}
+		}
+
+		if titleMentioned || urlMentioned || keywordMentioned {
+			used = append(used, source)
+		}
+	}
+
+	return used
+}
+
+// extractTextFromBlocks extracts all text content from a slice of content blocks.
+func extractTextFromBlocks(blocks []ContentBlock) string {
+	var sb strings.Builder
+	for _, block := range blocks {
+		if block.Type == ContentBlockTypeText && block.Text != "" {
+			if sb.Len() > 0 {
+				sb.WriteString(" ")
+			}
+			sb.WriteString(block.Text)
+		}
+	}
+	return sb.String()
+}
+
+// countToolBlocks counts the number of tool use blocks.
+func countToolBlocks(blocks []ContentBlock) int {
+	count := 0
+	for _, block := range blocks {
+		if block.Type == ContentBlockTypeToolUse {
+			count++
+		}
+	}
+	return count
 }

@@ -17,9 +17,8 @@ CREATE TABLE agent_messages (
     conversation_id UUID NOT NULL REFERENCES agent_conversations(id) ON DELETE CASCADE,
     role TEXT NOT NULL CHECK (role IN ('user', 'assistant', 'tool')),
     content TEXT NOT NULL,
-    tool_calls JSONB,
-    tool_call_id TEXT,
-    tool_name TEXT,
+    sources JSONB,
+    blocks JSONB,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 

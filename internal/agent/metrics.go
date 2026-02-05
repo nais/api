@@ -32,6 +32,14 @@ var (
 		},
 	)
 
+	chatTokensTotal = promauto.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "agent_chat_tokens_total",
+			Help: "Total number of tokens used in chat requests",
+		},
+		[]string{"type", "streaming"}, // type: input/output
+	)
+
 	// LLM metrics
 	llmRequestsTotal = promauto.NewCounterVec(
 		prometheus.CounterOpts{
@@ -127,13 +135,20 @@ var (
 )
 
 // RecordChatRequest records metrics for a chat request.
-func RecordChatRequest(status string, streaming bool, durationSeconds float64) {
+func RecordChatRequest(status string, streaming bool, durationSeconds float64, inputTokens, outputTokens int) {
 	streamingStr := "false"
 	if streaming {
 		streamingStr = "true"
 	}
 	chatRequestsTotal.WithLabelValues(status, streamingStr).Inc()
 	chatDurationSeconds.WithLabelValues(streamingStr).Observe(durationSeconds)
+
+	if inputTokens > 0 {
+		chatTokensTotal.WithLabelValues("input", streamingStr).Add(float64(inputTokens))
+	}
+	if outputTokens > 0 {
+		chatTokensTotal.WithLabelValues("output", streamingStr).Add(float64(outputTokens))
+	}
 }
 
 // RecordTimeToFirstToken records the time to first token for streaming responses.

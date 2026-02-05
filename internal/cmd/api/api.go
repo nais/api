@@ -16,7 +16,6 @@ import (
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/agent"
 	"github.com/nais/api/internal/agent/chat"
-	"github.com/nais/api/internal/agent/chat/vertexai"
 	"github.com/nais/api/internal/agent/rag"
 	"github.com/nais/api/internal/agent/rag/duckdb"
 	"github.com/nais/api/internal/auth/authn"
@@ -300,13 +299,17 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		defer chatClient.Close()
 		defer ragClient.Close()
 
-		agentHandler = agent.NewHandler(agent.Config{
-			Pool:       pool,
-			ChatClient: chatClient,
-			RAGClient:  ragClient,
-			NaisAPIURL: "http://" + cfg.ListenAddress,
-			Log:        log.WithField("subsystem", "agent"),
+		agentHandler, err = agent.NewHandler(agent.Config{
+			Pool:           pool,
+			ChatClient:     chatClient,
+			RAGClient:      ragClient,
+			GraphQLHandler: graphHandler,
+			TenantName:     cfg.Tenant,
+			Log:            log.WithField("subsystem", "agent"),
 		})
+		if err != nil {
+			return fmt.Errorf("initializing agent handler: %w", err)
+		}
 		log.Info("Agent service enabled")
 	}
 
@@ -460,52 +463,32 @@ func setupAuthHandler(ctx context.Context, cfg oAuthConfig, log logrus.FieldLogg
 }
 
 func initAgentClients(ctx context.Context, cfg agentConfig, log logrus.FieldLogger) (chat.StreamingClient, rag.DocumentSearcher, error) {
-	var chatClient chat.StreamingClient
-	var ragClient rag.DocumentSearcher
-	var err error
-
-	switch cfg.LLMProvider {
-	case "vertexai":
-		chatClient, err = vertexai.NewClient(ctx, vertexai.Config{
-			ProjectID: cfg.VertexAI.ProjectID,
-			Location:  cfg.VertexAI.Location,
-			ModelName: cfg.VertexAI.ModelName,
-		}, log.WithField("client", "vertexai-chat"))
-		if err != nil {
-			return nil, nil, fmt.Errorf("creating vertexai chat client: %w", err)
-		}
-	default:
-		return nil, nil, fmt.Errorf("unsupported LLM provider: %s", cfg.LLMProvider)
+	// Create Vertex AI chat client
+	chatClient, err := chat.NewClient(ctx, chat.Config{
+		ProjectID:       cfg.VertexAI.ProjectID,
+		Location:        cfg.VertexAI.Location,
+		ModelName:       cfg.VertexAI.ModelName,
+		IncludeThoughts: cfg.VertexAI.IncludeThoughts,
+	}, log.WithField("client", "vertexai-chat"))
+	if err != nil {
+		return nil, nil, fmt.Errorf("creating vertexai chat client: %w", err)
 	}
 
-	switch cfg.RAGProvider {
-	case "duckdb":
-		// Create embedding client for query embeddings
-		embeddingClient, err := duckdb.NewVertexAIEmbeddingClient(ctx, duckdb.EmbeddingConfig{
-			ProjectID: cfg.VertexAI.ProjectID,
-			Location:  cfg.VertexAI.Location,
-			ModelName: cfg.VertexAI.EmbeddingModel,
-		}, log.WithField("client", "vertexai-embedding"))
-		if err != nil {
-			chatClient.Close()
-			return nil, nil, fmt.Errorf("creating embedding client: %w", err)
-		}
-
-		ragClient, err = duckdb.NewSearcher(duckdb.Config{
-			DBPath:          cfg.RAG.DuckDBPath,
-			EmbeddingClient: embeddingClient,
+	// Create RAG client if enabled
+	var ragClient rag.DocumentSearcher
+	if cfg.RAGEnabled {
+		ragClient, err = duckdb.NewSearcher(ctx, duckdb.Config{
+			DBPath:         cfg.RAG.DuckDBPath,
+			ProjectID:      cfg.VertexAI.ProjectID,
+			Location:       cfg.VertexAI.Location,
+			EmbeddingModel: cfg.VertexAI.EmbeddingModel,
 		}, log.WithField("client", "duckdb-rag"))
 		if err != nil {
-			embeddingClient.Close()
 			chatClient.Close()
 			return nil, nil, fmt.Errorf("creating duckdb rag client: %w", err)
 		}
-	case "none":
-		// No RAG - use a no-op searcher
+	} else {
 		ragClient = &noopSearcher{}
-	default:
-		chatClient.Close()
-		return nil, nil, fmt.Errorf("unsupported RAG provider: %s", cfg.RAGProvider)
 	}
 
 	return chatClient, ragClient, nil

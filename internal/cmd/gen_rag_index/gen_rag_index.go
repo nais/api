@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/joho/godotenv"
-	"github.com/nais/api/internal/agent/rag/duckdb"
+	"github.com/nais/api/internal/agent/chat"
 	"github.com/nais/api/internal/logger"
 	"github.com/sethvargo/go-envconfig"
 	"github.com/sirupsen/logrus"
@@ -74,7 +74,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 
 	// Step 4: Initialize embedding client
 	log.Info("initializing embedding client...")
-	embeddingClient, err := duckdb.NewVertexAIEmbeddingClient(ctx, duckdb.EmbeddingConfig{
+	embeddingClient, err := chat.NewEmbeddingClient(ctx, chat.EmbeddingConfig{
 		ProjectID: cfg.VertexAI.ProjectID,
 		Location:  cfg.VertexAI.Location,
 		ModelName: cfg.VertexAI.EmbeddingModel,
@@ -128,7 +128,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 
 // generateEmbeddings generates embeddings for all chunks using batch API calls.
 // The Vertex AI API supports up to 250 texts per batch, but we use 100 for safety.
-func generateEmbeddings(ctx context.Context, client *duckdb.VertexAIEmbeddingClient, chunks []Chunk, log logrus.FieldLogger) ([]ChunkWithEmbedding, error) {
+func generateEmbeddings(ctx context.Context, client *chat.EmbeddingClient, chunks []Chunk, log logrus.FieldLogger) ([]ChunkWithEmbedding, error) {
 	const batchSize = 100
 
 	result := make([]ChunkWithEmbedding, 0, len(chunks))

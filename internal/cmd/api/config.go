@@ -246,16 +246,14 @@ type agentConfig struct {
 	// Enabled enables the AI agent gRPC service.
 	Enabled bool `env:"AGENT_ENABLED,default=false"`
 
-	// LLMProvider selects the LLM provider ("vertexai").
-	LLMProvider string `env:"AGENT_LLM_PROVIDER,default=vertexai"`
-
-	// RAGProvider selects the RAG provider ("duckdb" or "none").
-	RAGProvider string `env:"AGENT_RAG_PROVIDER,default=duckdb"`
+	// RAGEnabled enables RAG (retrieval-augmented generation) using DuckDB.
+	// When disabled, the agent will not search documentation.
+	RAGEnabled bool `env:"AGENT_RAG_ENABLED,default=true"`
 
 	// VertexAI contains Vertex AI specific configuration for LLM and embeddings.
 	VertexAI agentVertexAIConfig
 
-	// RAG contains RAG-specific configuration.
+	// RAG contains RAG-specific configuration (only used when RAGEnabled is true).
 	RAG agentRAGConfig
 }
 
@@ -268,10 +266,15 @@ type agentVertexAIConfig struct {
 	Location string `env:"AGENT_VERTEX_AI_LOCATION,default=europe-west1"`
 
 	// ModelName is the Gemini model to use for chat.
-	ModelName string `env:"AGENT_VERTEX_AI_MODEL,default=gemini-2.0-flash"`
+	ModelName string `env:"AGENT_VERTEX_AI_MODEL,default=gemini-2.5-flash"`
 
 	// EmbeddingModel is the model to use for query embeddings.
 	EmbeddingModel string `env:"AGENT_VERTEX_AI_EMBEDDING_MODEL,default=gemini-embedding-001"`
+
+	// IncludeThoughts enables returning the model's thinking/reasoning in responses.
+	// When enabled, Gemini 3+ models will include their thought process in the response.
+	// This is streamed to clients as "thinking" events.
+	IncludeThoughts bool `env:"AGENT_VERTEX_AI_INCLUDE_THOUGHTS,default=false"`
 }
 
 // agentRAGConfig contains RAG-specific configuration.

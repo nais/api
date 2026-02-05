@@ -132,25 +132,26 @@ func (s *ConversationStore) StoreMessages(ctx context.Context, conversationID uu
 		ConversationID: conversationID,
 		Role:           "user",
 		Content:        userMessage,
-		ToolCalls:      nil,
+		Blocks:         nil,
 	}); err != nil {
 		return fmt.Errorf("failed to store user message: %w", err)
 	}
 
-	// Store assistant message
-	var toolCallsJSON []byte
-	if len(result.ToolsUsed) > 0 {
-		toolCallsJSON, err = json.Marshal(result.ToolsUsed)
+	// Store assistant message with blocks
+	var blocksJSON []byte
+	if len(result.Blocks) > 0 {
+		blocksJSON, err = json.Marshal(result.Blocks)
 		if err != nil {
-			return fmt.Errorf("failed to marshal tool calls: %w", err)
+			return fmt.Errorf("failed to marshal blocks: %w", err)
 		}
 	}
 
+	// Assistant messages store content in blocks; content column left empty
 	if err := qtx.InsertMessage(ctx, agentsql.InsertMessageParams{
 		ConversationID: conversationID,
 		Role:           "assistant",
-		Content:        result.Content,
-		ToolCalls:      toolCallsJSON,
+		Content:        "",
+		Blocks:         blocksJSON,
 	}); err != nil {
 		return fmt.Errorf("failed to store assistant message: %w", err)
 	}
@@ -222,10 +223,15 @@ func (s *ConversationStore) GetConversation(ctx context.Context, userID uuid.UUI
 			CreatedAt: msg.CreatedAt.Time,
 		}
 
-		if msg.ToolCalls != nil {
-			if err := json.Unmarshal(msg.ToolCalls, &cm.ToolsUsed); err != nil {
-				// Log but don't fail - tools_used is optional
-				cm.ToolsUsed = nil
+		// Parse blocks if present
+		if msg.Blocks != nil {
+			if err := json.Unmarshal(msg.Blocks, &cm.Blocks); err != nil {
+				// Log but don't fail - blocks is optional
+				cm.Blocks = nil
+			}
+			// For assistant messages, derive content from blocks
+			if msg.Role == "assistant" && cm.Content == "" {
+				cm.Content = extractTextContentFromBlocks(cm.Blocks)
 			}
 		}
 
@@ -253,34 +259,116 @@ func (s *ConversationStore) DeleteConversation(ctx context.Context, userID uuid.
 }
 
 // GetConversationHistory retrieves the message history for a conversation, formatted for the LLM.
+// This reconstructs the full conversation including tool call responses from stored blocks.
 func (s *ConversationStore) GetConversationHistory(ctx context.Context, conversationID uuid.UUID) ([]chat.Message, error) {
 	rows, err := s.querier.GetConversationHistory(ctx, conversationID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query messages: %w", err)
 	}
 
-	messages := make([]chat.Message, 0, len(rows))
+	messages := make([]chat.Message, 0, len(rows)*2) // Pre-allocate for potential tool messages
 	for _, row := range rows {
-		msg := chat.Message{
+		if row.Role == "user" {
+			// User messages are stored directly
+			messages = append(messages, chat.Message{
+				Role:    chat.RoleUser,
+				Content: row.Content,
+			})
+			continue
+		}
+
+		if row.Role == "assistant" && row.Blocks != nil {
+			// Assistant messages need to be reconstructed from blocks.
+			// The blocks contain tool calls and their results in order.
+			var blocks []ContentBlock
+			if err := json.Unmarshal(row.Blocks, &blocks); err != nil {
+				// If we can't parse blocks, just add a simple assistant message
+				messages = append(messages, chat.Message{
+					Role:    chat.RoleAssistant,
+					Content: row.Content,
+				})
+				continue
+			}
+
+			// Reconstruct the conversation from blocks:
+			// 1. Collect tool calls made by the assistant
+			// 2. For each tool call, add the tool response
+			// 3. Add the final text response
+			toolCalls := extractToolCallsFromBlocks(blocks)
+			textContent := extractTextContentFromBlocks(blocks)
+
+			if len(toolCalls) > 0 {
+				// Add assistant message with tool calls
+				messages = append(messages, chat.Message{
+					Role:      chat.RoleAssistant,
+					Content:   "", // Content before tool calls is typically empty or minimal
+					ToolCalls: toolCalls,
+				})
+
+				// Add tool response messages in order
+				for _, block := range blocks {
+					if block.Type == ContentBlockTypeToolUse && block.ToolResult != "" {
+						messages = append(messages, chat.Message{
+							Role:       chat.RoleTool,
+							Content:    block.ToolResult,
+							ToolCallID: block.ToolCallID,
+						})
+					}
+				}
+
+				// Add final assistant response if there's text content
+				if textContent != "" {
+					messages = append(messages, chat.Message{
+						Role:    chat.RoleAssistant,
+						Content: textContent,
+					})
+				}
+			} else {
+				// No tool calls, just a simple assistant message
+				messages = append(messages, chat.Message{
+					Role:    chat.RoleAssistant,
+					Content: textContent,
+				})
+			}
+			continue
+		}
+
+		// Fallback for other roles or missing blocks
+		messages = append(messages, chat.Message{
 			Role:    chat.Role(row.Role),
 			Content: row.Content,
-		}
-
-		if row.ToolCallID != nil {
-			msg.ToolCallID = *row.ToolCallID
-		}
-
-		if row.ToolCalls != nil {
-			var toolCalls []chat.ToolCall
-			if err := json.Unmarshal(row.ToolCalls, &toolCalls); err == nil {
-				msg.ToolCalls = toolCalls
-			}
-		}
-
-		messages = append(messages, msg)
+		})
 	}
 
 	return messages, nil
+}
+
+// extractToolCallsFromBlocks extracts tool call information from blocks for LLM history.
+func extractToolCallsFromBlocks(blocks []ContentBlock) []chat.ToolCall {
+	var toolCalls []chat.ToolCall
+	for _, block := range blocks {
+		if block.Type == ContentBlockTypeToolUse {
+			toolCalls = append(toolCalls, chat.ToolCall{
+				ID:   block.ToolCallID,
+				Name: block.ToolName,
+			})
+		}
+	}
+	return toolCalls
+}
+
+// extractTextContentFromBlocks extracts all text content from blocks.
+func extractTextContentFromBlocks(blocks []ContentBlock) string {
+	var sb strings.Builder
+	for _, block := range blocks {
+		if block.Type == ContentBlockTypeText && block.Text != "" {
+			if sb.Len() > 0 {
+				sb.WriteString(" ")
+			}
+			sb.WriteString(block.Text)
+		}
+	}
+	return sb.String()
 }
 
 // generateTitle creates a title from the first message.

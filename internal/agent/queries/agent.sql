@@ -56,9 +56,9 @@ RETURNING
 
 -- name: InsertMessage :exec
 INSERT INTO
-	agent_messages (conversation_id, role, content, tool_calls)
+	agent_messages (conversation_id, role, content, sources, blocks)
 VALUES
-	(@conversation_id, @role, @content, @tool_calls)
+	(@conversation_id, @role, @content, @sources, @blocks)
 ;
 
 -- name: ListConversations :many
@@ -92,7 +92,8 @@ SELECT
 	id,
 	role,
 	content,
-	tool_calls,
+	sources,
+	blocks,
 	created_at
 FROM
 	agent_messages
@@ -113,8 +114,7 @@ WHERE
 SELECT
 	role,
 	content,
-	tool_calls,
-	tool_call_id
+	blocks
 FROM
 	agent_messages
 WHERE

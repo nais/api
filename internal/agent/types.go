@@ -14,12 +14,6 @@ type ChatContext struct {
 	Env  string `json:"env,omitempty"`
 }
 
-// ToolUsed describes a tool that was invoked.
-type ToolUsed struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
-}
-
 // Source describes a documentation source used in the response.
 type Source struct {
 	Title string `json:"title"`
@@ -44,9 +38,9 @@ type Conversation struct {
 
 // ConversationMessage represents a message in a conversation.
 type ConversationMessage struct {
-	ID        uuid.UUID  `json:"id"`
-	Role      string     `json:"role"`
-	Content   string     `json:"content"`
-	ToolsUsed []ToolUsed `json:"tools_used,omitempty"`
-	CreatedAt time.Time  `json:"created_at"`
+	ID        uuid.UUID      `json:"id"`
+	Role      string         `json:"role"`
+	Content   string         `json:"content"`
+	Blocks    []ContentBlock `json:"blocks,omitempty"`
+	CreatedAt time.Time      `json:"created_at"`
 }
