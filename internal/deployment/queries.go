@@ -3,6 +3,7 @@ package deployment
 import (
 	"context"
 	"errors"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -22,7 +23,7 @@ import (
 func List(ctx context.Context, page *pagination.Pagination, filter *DeploymentFilter, orderBy *DeploymentOrder) (*DeploymentConnection, error) {
 	q := db(ctx)
 	params := deploymentsql.ListParams{
-		OrderBy: orderBy.String(),
+		OrderBy: strings.ToLower(orderBy.String()),
 		Offset:  page.Offset(),
 		Limit:   page.Limit(),
 	}

@@ -20,7 +20,8 @@ ORDER BY
 	END ASC,
 	CASE
 		WHEN @order_by::TEXT = 'desc' THEN created_at
-	END DESC
+	END DESC,
+	created_at DESC
 LIMIT
 	sqlc.arg('limit')
 OFFSET

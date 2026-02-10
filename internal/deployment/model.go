@@ -132,10 +132,10 @@ type DeploymentOrder struct {
 
 func (d *DeploymentOrder) String() string {
 	if d == nil || !d.Direction.IsValid() {
-		return "DESC"
+		return model.OrderDirectionDesc.String()
 	}
 
-	return strings.ToUpper(d.Direction.String())
+	return d.Direction.String()
 }
 
 type ChangeDeploymentKeyInput struct {
