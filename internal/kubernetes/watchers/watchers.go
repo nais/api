@@ -48,6 +48,7 @@ type (
 	ConfigWatcher          = watcher.Watcher[*config.Config]
 	ReplicaSetWatcher      = watcher.Watcher[*appsv1.ReplicaSet]
 	TunnelWatcher          = watcher.Watcher[*tunnel.Tunnel]
+	NaisValkeyWatcher      = watcher.Watcher[*valkey.Valkey]
 )
 
 type Watchers struct {
@@ -70,6 +71,7 @@ type Watchers struct {
 	ConfigWatcher          *ConfigWatcher
 	ReplicaSetWatcher      *ReplicaSetWatcher
 	TunnelWatcher          *TunnelWatcher
+	NaisValkeyWatcher      *NaisValkeyWatcher
 }
 
 func SetupWatchers(
@@ -97,5 +99,6 @@ func SetupWatchers(
 		ConfigWatcher:          config.NewWatcher(ctx, watcherMgr),
 		ReplicaSetWatcher:      instancegroup.NewWatcher(ctx, watcherMgr),
 		TunnelWatcher:          tunnel.NewWatcher(ctx, watcherMgr),
+		NaisValkeyWatcher:      valkey.NewNaisValkeyWatcher(ctx, watcherMgr),
 	}
 }
