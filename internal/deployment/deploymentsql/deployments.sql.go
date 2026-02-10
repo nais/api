@@ -77,11 +77,12 @@ WHERE
 	)
 ORDER BY
 	CASE
-		WHEN $3::TEXT = 'asc' THEN created_at
+		WHEN $3::TEXT = 'created_at:asc' THEN created_at
 	END ASC,
 	CASE
-		WHEN $3::TEXT = 'desc' THEN created_at
-	END DESC
+		WHEN $3::TEXT = 'created_at:desc' THEN created_at
+	END DESC,
+	created_at DESC
 LIMIT
 	$5
 OFFSET

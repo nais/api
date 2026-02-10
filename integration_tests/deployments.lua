@@ -519,7 +519,7 @@ Test.gql("order deployments by ASC", function(t)
 
 	t.query([[
 		{
-		  deployments(orderBy: {direction: ASC}) {
+		  deployments(orderBy: {field: CREATED_AT, direction: ASC}) {
 		    pageInfo {
 		      totalCount
 		    }

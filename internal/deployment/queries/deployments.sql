@@ -16,11 +16,12 @@ WHERE
 	)
 ORDER BY
 	CASE
-		WHEN @order_by::TEXT = 'asc' THEN created_at
+		WHEN @order_by::TEXT = 'created_at:asc' THEN created_at
 	END ASC,
 	CASE
-		WHEN @order_by::TEXT = 'desc' THEN created_at
-	END DESC
+		WHEN @order_by::TEXT = 'created_at:desc' THEN created_at
+	END DESC,
+	created_at DESC
 LIMIT
 	sqlc.arg('limit')
 OFFSET
