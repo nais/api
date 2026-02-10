@@ -513,3 +513,27 @@ Test.gql("empty environment filter returns all deployments", function(t)
 		},
 	}
 end)
+
+Test.gql("order deployments by ASC", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query([[
+		{
+		  deployments(orderBy: {direction: ASC}) {
+		    pageInfo {
+		      totalCount
+		    }
+		  }
+		}
+	]])
+
+	t.check {
+		data = {
+			deployments = {
+				pageInfo = {
+					totalCount = 8,
+				},
+			},
+		},
+	}
+end)

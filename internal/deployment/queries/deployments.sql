@@ -15,7 +15,12 @@ WHERE
 		OR environment_name = ANY (sqlc.narg('environments')::TEXT[])
 	)
 ORDER BY
-	created_at DESC
+	CASE
+		WHEN @order_by::TEXT = 'asc' THEN created_at
+	END ASC,
+	CASE
+		WHEN @order_by::TEXT = 'desc' THEN created_at
+	END DESC
 LIMIT
 	sqlc.arg('limit')
 OFFSET

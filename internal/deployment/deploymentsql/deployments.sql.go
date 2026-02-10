@@ -76,16 +76,22 @@ WHERE
 		OR environment_name = ANY ($2::TEXT[])
 	)
 ORDER BY
-	created_at DESC
+	CASE
+		WHEN $3::TEXT = 'asc' THEN created_at
+	END ASC,
+	CASE
+		WHEN $3::TEXT = 'desc' THEN created_at
+	END DESC
 LIMIT
-	$4
+	$5
 OFFSET
-	$3
+	$4
 `
 
 type ListParams struct {
 	Since        pgtype.Timestamptz
 	Environments []string
+	OrderBy      string
 	Offset       int32
 	Limit        int32
 }
@@ -99,6 +105,7 @@ func (q *Queries) List(ctx context.Context, arg ListParams) ([]*ListRow, error) 
 	rows, err := q.db.Query(ctx, list,
 		arg.Since,
 		arg.Environments,
+		arg.OrderBy,
 		arg.Offset,
 		arg.Limit,
 	)

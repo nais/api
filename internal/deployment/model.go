@@ -5,11 +5,13 @@ import (
 	"io"
 	"slices"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/deployment/deploymentsql"
 	"github.com/nais/api/internal/graph/ident"
+	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/thirdparty/hookd"
@@ -122,6 +124,18 @@ type DeploymentFilter struct {
 	From time.Time `json:"from"`
 	// Filter deployments by environments.
 	Environments []string `json:"environments"`
+}
+
+type DeploymentOrder struct {
+	Direction model.OrderDirection `json:"direction"`
+}
+
+func (d *DeploymentOrder) String() string {
+	if d == nil || !d.Direction.IsValid() {
+		return "DESC"
+	}
+
+	return strings.ToUpper(d.Direction.String())
 }
 
 type ChangeDeploymentKeyInput struct {

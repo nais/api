@@ -13,6 +13,9 @@ extend type Query {
 		"Get items before this cursor."
 		before: Cursor
 
+		"Ordering options for items returned from the connection."
+		orderBy: DeploymentOrder
+
 		"Filter options for the deployments returned from the connection."
 		filter: DeploymentFilter
 	): DeploymentConnection!
@@ -442,4 +445,8 @@ input DeploymentFilter {
 	from: Time
 	"Filter deployments by environments."
 	environments: [String!]
+}
+
+input DeploymentOrder {
+	direction: OrderDirection!
 }
