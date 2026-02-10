@@ -14,6 +14,7 @@ import (
 	"github.com/nais/api/internal/persistence/opensearch"
 	"github.com/nais/api/internal/persistence/sqlinstance"
 	"github.com/nais/api/internal/persistence/valkey"
+	"github.com/nais/api/internal/persistence/zalandopostgres"
 	"github.com/vektah/gqlparser/v2/ast"
 )
 
@@ -57,6 +58,13 @@ func (ec *executionContext) _Persistence(ctx context.Context, sel ast.SelectionS
 			return graphql.Null
 		}
 		return ec._OpenSearch(ctx, sel, obj)
+	case zalandopostgres.ZalandoPostgres:
+		return ec._ZalandoPostgres(ctx, sel, &obj)
+	case *zalandopostgres.ZalandoPostgres:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ZalandoPostgres(ctx, sel, obj)
 	case sqlinstance.SQLInstance:
 		return ec._SqlInstance(ctx, sel, &obj)
 	case *sqlinstance.SQLInstance:
@@ -71,13 +79,6 @@ func (ec *executionContext) _Persistence(ctx context.Context, sel ast.SelectionS
 			return graphql.Null
 		}
 		return ec._SqlDatabase(ctx, sel, obj)
-	case sqlinstance.Postgres:
-		return ec._Postgres(ctx, sel, &obj)
-	case *sqlinstance.Postgres:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Postgres(ctx, sel, obj)
 	case kafkatopic.KafkaTopic:
 		return ec._KafkaTopic(ctx, sel, &obj)
 	case *kafkatopic.KafkaTopic:

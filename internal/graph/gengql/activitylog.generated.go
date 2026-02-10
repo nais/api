@@ -17,8 +17,8 @@ import (
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/kubernetes/event/pubsublog"
 	"github.com/nais/api/internal/persistence/opensearch"
-	"github.com/nais/api/internal/persistence/sqlinstance"
 	"github.com/nais/api/internal/persistence/valkey"
+	"github.com/nais/api/internal/persistence/zalandopostgres"
 	"github.com/nais/api/internal/reconciler"
 	"github.com/nais/api/internal/serviceaccount"
 	activitylog1 "github.com/nais/api/internal/servicemaintenance/activitylog"
@@ -252,6 +252,13 @@ func (ec *executionContext) _ActivityLogEntry(ctx context.Context, sel ast.Selec
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
+	case zalandopostgres.ZalandoPostgresGrantAccessActivityLogEntry:
+		return ec._ZalandoPostgresGrantAccessActivityLogEntry(ctx, sel, &obj)
+	case *zalandopostgres.ZalandoPostgresGrantAccessActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ZalandoPostgresGrantAccessActivityLogEntry(ctx, sel, obj)
 	case vulnerability.VulnerabilityUpdatedActivityLogEntry:
 		return ec._VulnerabilityUpdatedActivityLogEntry(ctx, sel, &obj)
 	case *vulnerability.VulnerabilityUpdatedActivityLogEntry:
@@ -504,13 +511,6 @@ func (ec *executionContext) _ActivityLogEntry(ctx context.Context, sel ast.Selec
 			return graphql.Null
 		}
 		return ec._ReconcilerConfiguredActivityLogEntry(ctx, sel, obj)
-	case sqlinstance.PostgresGrantAccessActivityLogEntry:
-		return ec._PostgresGrantAccessActivityLogEntry(ctx, sel, &obj)
-	case *sqlinstance.PostgresGrantAccessActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._PostgresGrantAccessActivityLogEntry(ctx, sel, obj)
 	case opensearch.OpenSearchUpdatedActivityLogEntry:
 		return ec._OpenSearchUpdatedActivityLogEntry(ctx, sel, &obj)
 	case *opensearch.OpenSearchUpdatedActivityLogEntry:

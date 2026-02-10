@@ -36,6 +36,7 @@ import (
 	"github.com/nais/api/internal/persistence/opensearch"
 	"github.com/nais/api/internal/persistence/sqlinstance"
 	"github.com/nais/api/internal/persistence/valkey"
+	"github.com/nais/api/internal/persistence/zalandopostgres"
 	"github.com/nais/api/internal/price"
 	fakeprice "github.com/nais/api/internal/price/fake"
 	"github.com/nais/api/internal/reconciler"
@@ -321,7 +322,8 @@ func ConfigureGraph(
 		ctx = utilization.NewLoaderContext(ctx, prometheusClient, log)
 		ctx = alerts.NewLoaderContext(ctx, prometheusClient, log)
 		ctx = metrics.NewLoaderContext(ctx, prometheusClient, log)
-		ctx = sqlinstance.NewLoaderContext(ctx, sqlAdminService, watchers.SqlDatabaseWatcher, watchers.SqlInstanceWatcher, watchers.PostgresWatcher, auditLogProjectID, auditLogLocation)
+		ctx = sqlinstance.NewLoaderContext(ctx, sqlAdminService, watchers.SqlDatabaseWatcher, watchers.SqlInstanceWatcher, auditLogProjectID, auditLogLocation)
+		ctx = zalandopostgres.NewLoaderContext(ctx, watchers.ZalandoPostgresWatcher)
 		ctx = database.NewLoaderContext(ctx, pool)
 		ctx = issue.NewContext(ctx, pool)
 		ctx = team.NewLoaderContext(ctx, pool, watchers.NamespaceWatcher)

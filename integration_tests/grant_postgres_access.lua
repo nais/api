@@ -4,15 +4,13 @@ local nonMemberUser = User.new("nonmember", "other@user.com")
 local mainTeam = Team.new("someteamname", "purpose", "#slack_channel")
 mainTeam:addMember(user)
 
+Helper.readK8sResources("k8s_resources/grant_zalando_postgres_access")
 
-Helper.readK8sResources("k8s_resources/grant_postgres_access")
-
-
-Test.gql("Grant postgres access without authorization in non-existent team", function(t)
+Test.gql("Grant zalando postgres access without authorization in non-existent team", function(t)
 	t.addHeader("x-user-email", user:email())
-	t.query [[
-		mutation GrantPostgresAccess {
-		  grantPostgresAccess(
+	t.query([[
+		mutation GrantZalandoPostgresAccess {
+		  grantZalandoPostgresAccess(
 		    input: {
 		      clusterName: "foobar"
 		      environmentName: "dev"
@@ -24,26 +22,26 @@ Test.gql("Grant postgres access without authorization in non-existent team", fun
 		    error
 		  }
 		}
-	]]
+	]])
 
-	t.check {
+	t.check({
 		errors = {
 			{
-				message = Contains("you need the \"postgres:access:grant\" authorization."),
+				message = Contains('you need the "postgres:access:grant" authorization.'),
 				path = {
-					"grantPostgresAccess",
+					"grantZalandoPostgresAccess",
 				},
 			},
 		},
 		data = Null,
-	}
+	})
 end)
 
-Test.gql("Grant postgres access without authorization in existing team", function(t)
+Test.gql("Grant zalando postgres access without authorization in existing team", function(t)
 	t.addHeader("x-user-email", nonMemberUser:email())
-	t.query [[
-		mutation GrantPostgresAccess {
-		  grantPostgresAccess(
+	t.query([[
+		mutation GrantZalandoPostgresAccess {
+		  grantZalandoPostgresAccess(
 		    input: {
 		      clusterName: "foobar"
 		      environmentName: "dev"
@@ -55,26 +53,26 @@ Test.gql("Grant postgres access without authorization in existing team", functio
 		    error
 		  }
 		}
-	]]
+	]])
 
-	t.check {
+	t.check({
 		errors = {
 			{
-				message = Contains("you need the \"postgres:access:grant\" authorization."),
+				message = Contains('you need the "postgres:access:grant" authorization.'),
 				path = {
-					"grantPostgresAccess",
+					"grantZalandoPostgresAccess",
 				},
 			},
 		},
 		data = Null,
-	}
+	})
 end)
 
-Test.gql("Grant postgres access with invalid duration", function(t)
+Test.gql("Grant zalando postgres access with invalid duration", function(t)
 	t.addHeader("x-user-email", user:email())
-	t.query [[
-		mutation GrantPostgresAccess {
-		  grantPostgresAccess(
+	t.query([[
+		mutation GrantZalandoPostgresAccess {
+		  grantZalandoPostgresAccess(
 		    input: {
 		      clusterName: "foobar"
 		      environmentName: "dev"
@@ -86,30 +84,29 @@ Test.gql("Grant postgres access with invalid duration", function(t)
 		    error
 		  }
 		}
-	]]
+	]])
 
-	t.check {
+	t.check({
 		errors = {
 			{
 				extensions = {
 					field = "duration",
 				},
-				message = Contains("invalid duration \"halfhour\""),
+				message = Contains('invalid duration "halfhour"'),
 				path = {
-					"grantPostgresAccess",
+					"grantZalandoPostgresAccess",
 				},
 			},
 		},
 		data = Null,
-	}
+	})
 end)
 
-
-Test.gql("Grant postgres access with out-of-bounds duration", function(t)
+Test.gql("Grant zalando postgres access with out-of-bounds duration", function(t)
 	t.addHeader("x-user-email", user:email())
-	t.query [[
-		mutation GrantPostgresAccess {
-		  grantPostgresAccess(
+	t.query([[
+		mutation GrantZalandoPostgresAccess {
+		  grantZalandoPostgresAccess(
 		    input: {
 		      clusterName: "foobar"
 		      environmentName: "dev"
@@ -121,30 +118,29 @@ Test.gql("Grant postgres access with out-of-bounds duration", function(t)
 		    error
 		  }
 		}
-	]]
+	]])
 
-	t.check {
+	t.check({
 		errors = {
 			{
 				extensions = {
 					field = "duration",
 				},
-				message = Contains("Duration \"24h\" is out-of-bounds"),
+				message = Contains('Duration "24h" is out-of-bounds'),
 				path = {
-					"grantPostgresAccess",
+					"grantZalandoPostgresAccess",
 				},
 			},
 		},
 		data = Null,
-	}
+	})
 end)
 
-
-Test.gql("Grant postgres access to non-existing cluster", function(t)
+Test.gql("Grant zalando postgres access to non-existing cluster", function(t)
 	t.addHeader("x-user-email", user:email())
-	t.query [[
-		mutation GrantPostgresAccess {
-		  grantPostgresAccess(
+	t.query([[
+		mutation GrantZalandoPostgresAccess {
+		  grantZalandoPostgresAccess(
 		    input: {
 		      clusterName: "baz"
 		      environmentName: "dev"
@@ -156,30 +152,29 @@ Test.gql("Grant postgres access to non-existing cluster", function(t)
 		    error
 		  }
 		}
-	]]
+	]])
 
-	t.check {
+	t.check({
 		errors = {
 			{
 				extensions = {
 					field = "clusterName",
 				},
-				message = Contains("Could not find postgres cluster"),
+				message = Contains("Could not find zalando postgres cluster"),
 				path = {
-					"grantPostgresAccess",
+					"grantZalandoPostgresAccess",
 				},
 			},
 		},
 		data = Null,
-	}
+	})
 end)
 
-
-Test.gql("Grant postgres access with authorization", function(t)
+Test.gql("Grant zalando postgres access with authorization", function(t)
 	t.addHeader("x-user-email", user:email())
-	t.query [[
-		mutation GrantPostgresAccess {
-		  grantPostgresAccess(
+	t.query([[
+		mutation GrantZalandoPostgresAccess {
+		  grantZalandoPostgresAccess(
 		    input: {
 		      clusterName: "foobar"
 		      environmentName: "dev"
@@ -191,21 +186,20 @@ Test.gql("Grant postgres access with authorization", function(t)
 		    error
 		  }
 		}
-	]]
+	]])
 
-	t.check {
+	t.check({
 		data = {
-			grantPostgresAccess = {
+			grantZalandoPostgresAccess = {
 				error = "",
 			},
 		},
-	}
+	})
 end)
 
 Test.k8s("Validate Role resource", function(t)
 	local resourceName = "pg-grant-93a898ea"
 	local pgNamespace = string.format("pg-%s", mainTeam:slug())
-
 
 	t.check("rbac.authorization.k8s.io/v1", "roles", "dev", pgNamespace, resourceName, {
 		apiVersion = "rbac.authorization.k8s.io/v1",
@@ -270,7 +264,6 @@ Test.k8s("Validate RoleBinding resource", function(t)
 	local resourceName = "pg-grant-93a898ea"
 	local pgNamespace = string.format("pg-%s", mainTeam:slug())
 
-
 	t.check("rbac.authorization.k8s.io/v1", "rolebindings", "dev", pgNamespace, resourceName, {
 		apiVersion = "rbac.authorization.k8s.io/v1",
 		kind = "RoleBinding",
@@ -304,13 +297,13 @@ end)
 
 Test.gql("Check acitivity log entry", function(t)
 	t.addHeader("x-user-email", user:email())
-	t.query [[
+	t.query([[
 		{
 		  team(slug:"someteamname") {
 			activityLog {
 			  nodes {
 				message
-				... on PostgresGrantAccessActivityLogEntry {
+				... on ZalandoPostgresGrantAccessActivityLogEntry {
 				  data {
 					grantee
 					until
@@ -320,9 +313,9 @@ Test.gql("Check acitivity log entry", function(t)
 			}
 		  }
 		}
-	]]
+	]])
 
-	t.check {
+	t.check({
 		data = {
 			team = {
 				activityLog = {
@@ -338,5 +331,5 @@ Test.gql("Check acitivity log entry", function(t)
 				},
 			},
 		},
-	}
+	})
 end)

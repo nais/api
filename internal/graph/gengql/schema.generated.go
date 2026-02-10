@@ -33,6 +33,7 @@ import (
 	"github.com/nais/api/internal/persistence/opensearch"
 	"github.com/nais/api/internal/persistence/sqlinstance"
 	"github.com/nais/api/internal/persistence/valkey"
+	"github.com/nais/api/internal/persistence/zalandopostgres"
 	"github.com/nais/api/internal/price"
 	"github.com/nais/api/internal/reconciler"
 	"github.com/nais/api/internal/search"
@@ -87,7 +88,6 @@ type MutationResolver interface {
 	DeleteServiceAccountToken(ctx context.Context, input serviceaccount.DeleteServiceAccountTokenInput) (*serviceaccount.DeleteServiceAccountTokenPayload, error)
 	StartValkeyMaintenance(ctx context.Context, input servicemaintenance.StartValkeyMaintenanceInput) (*servicemaintenance.StartValkeyMaintenancePayload, error)
 	StartOpenSearchMaintenance(ctx context.Context, input servicemaintenance.StartOpenSearchMaintenanceInput) (*servicemaintenance.StartOpenSearchMaintenancePayload, error)
-	GrantPostgresAccess(ctx context.Context, input sqlinstance.GrantPostgresAccessInput) (*sqlinstance.GrantPostgresAccessPayload, error)
 	CreateTeam(ctx context.Context, input team.CreateTeamInput) (*team.CreateTeamPayload, error)
 	UpdateTeam(ctx context.Context, input team.UpdateTeamInput) (*team.UpdateTeamPayload, error)
 	UpdateTeamEnvironment(ctx context.Context, input team.UpdateTeamEnvironmentInput) (*team.UpdateTeamEnvironmentPayload, error)
@@ -105,6 +105,7 @@ type MutationResolver interface {
 	UpdateValkey(ctx context.Context, input valkey.UpdateValkeyInput) (*valkey.UpdateValkeyPayload, error)
 	DeleteValkey(ctx context.Context, input valkey.DeleteValkeyInput) (*valkey.DeleteValkeyPayload, error)
 	UpdateImageVulnerability(ctx context.Context, input vulnerability.UpdateImageVulnerabilityInput) (*vulnerability.UpdateImageVulnerabilityPayload, error)
+	GrantZalandoPostgresAccess(ctx context.Context, input zalandopostgres.GrantZalandoPostgresAccessInput) (*zalandopostgres.GrantZalandoPostgresAccessPayload, error)
 }
 type QueryResolver interface {
 	Node(ctx context.Context, id ident.Ident) (model.Node, error)
@@ -417,10 +418,10 @@ func (ec *executionContext) field_Mutation_enableReconciler_args(ctx context.Con
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_grantPostgresAccess_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func (ec *executionContext) field_Mutation_grantZalandoPostgresAccess_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNGrantPostgresAccessInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐGrantPostgresAccessInput)
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNGrantZalandoPostgresAccessInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋzalandopostgresᚐGrantZalandoPostgresAccessInput)
 	if err != nil {
 		return nil, err
 	}
@@ -2462,51 +2463,6 @@ func (ec *executionContext) fieldContext_Mutation_startOpenSearchMaintenance(ctx
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_grantPostgresAccess(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_Mutation_grantPostgresAccess,
-		func(ctx context.Context) (any, error) {
-			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().GrantPostgresAccess(ctx, fc.Args["input"].(sqlinstance.GrantPostgresAccessInput))
-		},
-		nil,
-		ec.marshalNGrantPostgresAccessPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐGrantPostgresAccessPayload,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_Mutation_grantPostgresAccess(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "error":
-				return ec.fieldContext_GrantPostgresAccessPayload_error(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type GrantPostgresAccessPayload", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_grantPostgresAccess_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Mutation_createTeam(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -3270,6 +3226,51 @@ func (ec *executionContext) fieldContext_Mutation_updateImageVulnerability(ctx c
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_updateImageVulnerability_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_grantZalandoPostgresAccess(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Mutation_grantZalandoPostgresAccess,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Mutation().GrantZalandoPostgresAccess(ctx, fc.Args["input"].(zalandopostgres.GrantZalandoPostgresAccessInput))
+		},
+		nil,
+		ec.marshalNGrantZalandoPostgresAccessPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋzalandopostgresᚐGrantZalandoPostgresAccessPayload,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Mutation_grantZalandoPostgresAccess(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "error":
+				return ec.fieldContext_GrantZalandoPostgresAccessPayload_error(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type GrantZalandoPostgresAccessPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_grantZalandoPostgresAccess_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -4984,6 +4985,20 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Application(ctx, sel, obj)
+	case zalandopostgres.ZalandoPostgresGrantAccessActivityLogEntry:
+		return ec._ZalandoPostgresGrantAccessActivityLogEntry(ctx, sel, &obj)
+	case *zalandopostgres.ZalandoPostgresGrantAccessActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ZalandoPostgresGrantAccessActivityLogEntry(ctx, sel, obj)
+	case zalandopostgres.ZalandoPostgres:
+		return ec._ZalandoPostgres(ctx, sel, &obj)
+	case *zalandopostgres.ZalandoPostgres:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ZalandoPostgres(ctx, sel, obj)
 	case workload.Workload:
 		if obj == nil {
 			return graphql.Null
@@ -5346,20 +5361,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._PrometheusAlert(ctx, sel, obj)
-	case sqlinstance.PostgresGrantAccessActivityLogEntry:
-		return ec._PostgresGrantAccessActivityLogEntry(ctx, sel, &obj)
-	case *sqlinstance.PostgresGrantAccessActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._PostgresGrantAccessActivityLogEntry(ctx, sel, obj)
-	case sqlinstance.Postgres:
-		return ec._Postgres(ctx, sel, &obj)
-	case *sqlinstance.Postgres:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Postgres(ctx, sel, obj)
 	case opensearch.OpenSearchUpdatedActivityLogEntry:
 		return ec._OpenSearchUpdatedActivityLogEntry(ctx, sel, &obj)
 	case *opensearch.OpenSearchUpdatedActivityLogEntry:
@@ -5956,13 +5957,6 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_startOpenSearchMaintenance(ctx, field)
 			})
-		case "grantPostgresAccess":
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_grantPostgresAccess(ctx, field)
-			})
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "createTeam":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createTeam(ctx, field)
@@ -6078,6 +6072,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "updateImageVulnerability":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_updateImageVulnerability(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "grantZalandoPostgresAccess":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_grantZalandoPostgresAccess(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++

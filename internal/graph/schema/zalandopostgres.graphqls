@@ -1,0 +1,78 @@
+type ZalandoPostgres implements Persistence & Node {
+	id: ID!
+	name: String!
+	team: Team!
+	environment: TeamEnvironment! @deprecated(reason: "Use the `teamEnvironment` field instead.")
+	teamEnvironment: TeamEnvironment!
+}
+
+extend union SearchNode = ZalandoPostgres
+
+extend enum SearchType {
+	ZALANDO_POSTGRES
+}
+
+extend enum ActivityLogEntryResourceType {
+	"All activity log entries related to zalando postgres clusters will use this resource type."
+	ZALANDO_POSTGRES
+}
+
+# This is managed directly by the activitylog package since it
+# combines data within the database.
+type ZalandoPostgresGrantAccessActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: ActivityLogEntryResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+
+	"Data associated with the update."
+	data: ZalandoPostgresGrantAccessActivityLogEntryData!
+}
+
+type ZalandoPostgresGrantAccessActivityLogEntryData {
+	grantee: String!
+	until: Time!
+}
+
+extend enum ActivityLogActivityType {
+	"""
+	A user was granted access to a zalando postgres cluster
+	"""
+	ZALANDO_POSTGRES_GRANT_ACCESS
+}
+
+extend type Mutation {
+	"Grant access to this zalando postgres cluster"
+	grantZalandoPostgresAccess(input: GrantZalandoPostgresAccessInput!): GrantZalandoPostgresAccessPayload!
+}
+
+type GrantZalandoPostgresAccessPayload {
+	error: String
+}
+
+input GrantZalandoPostgresAccessInput {
+	clusterName: String!
+	teamSlug: Slug!
+	environmentName: String!
+	grantee: String!
+	duration: String!
+}
