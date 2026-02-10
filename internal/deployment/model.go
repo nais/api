@@ -1,6 +1,7 @@
 package deployment
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"slices"
@@ -127,15 +128,16 @@ type DeploymentFilter struct {
 }
 
 type DeploymentOrder struct {
+	Field     DeploymentOrderField `json:"field"`
 	Direction model.OrderDirection `json:"direction"`
 }
 
 func (d *DeploymentOrder) String() string {
-	if d == nil || !d.Direction.IsValid() {
-		return model.OrderDirectionDesc.String()
+	if d == nil {
+		return ""
 	}
 
-	return d.Direction.String()
+	return strings.ToLower(d.Field.String() + ":" + d.Direction.String())
 }
 
 type ChangeDeploymentKeyInput struct {
@@ -218,4 +220,59 @@ func toGraphDeploymentStatus(row *deploymentsql.DeploymentStatus) *DeploymentSta
 		Message:   row.Message,
 		UUID:      row.ID,
 	}
+}
+
+// Possible fields to order deployments by.
+type DeploymentOrderField string
+
+const (
+	// The time the deployment was created at.
+	DeploymentOrderFieldCreatedAt DeploymentOrderField = "CREATED_AT"
+)
+
+var AllDeploymentOrderField = []DeploymentOrderField{
+	DeploymentOrderFieldCreatedAt,
+}
+
+func (e DeploymentOrderField) IsValid() bool {
+	switch e {
+	case DeploymentOrderFieldCreatedAt:
+		return true
+	}
+	return false
+}
+
+func (e DeploymentOrderField) String() string {
+	return string(e)
+}
+
+func (e *DeploymentOrderField) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = DeploymentOrderField(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid DeploymentOrderField", str)
+	}
+	return nil
+}
+
+func (e DeploymentOrderField) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *DeploymentOrderField) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e DeploymentOrderField) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }

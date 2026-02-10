@@ -17371,7 +17371,17 @@ input DeploymentFilter {
 }
 
 input DeploymentOrder {
+	"The field to order items by."
+	field: DeploymentOrderField!
+
+	"The direction to order items by."
 	direction: OrderDirection!
+}
+
+"Possible fields to order deployments by."
+enum DeploymentOrderField {
+	"The time the deployment was created at."
+	CREATED_AT
 }
 `, BuiltIn: false},
 	{Name: "../schema/environments.graphqls", Input: `extend type Query {
