@@ -19,11 +19,12 @@ import (
 	"k8s.io/utils/ptr"
 )
 
-func List(ctx context.Context, page *pagination.Pagination, filter *DeploymentFilter) (*DeploymentConnection, error) {
+func List(ctx context.Context, page *pagination.Pagination, filter *DeploymentFilter, orderBy *DeploymentOrder) (*DeploymentConnection, error) {
 	q := db(ctx)
 	params := deploymentsql.ListParams{
-		Offset: page.Offset(),
-		Limit:  page.Limit(),
+		OrderBy: orderBy.String(),
+		Offset:  page.Offset(),
+		Limit:   page.Limit(),
 	}
 
 	if filter != nil {

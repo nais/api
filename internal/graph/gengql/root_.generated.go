@@ -1334,7 +1334,7 @@ type ComplexityRoot struct {
 		CostMonthlySummary        func(childComplexity int, from scalar.Date, to scalar.Date) int
 		CurrentUnitPrices         func(childComplexity int) int
 		Cves                      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *vulnerability.CVEOrder) int
-		Deployments               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *deployment.DeploymentFilter) int
+		Deployments               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *deployment.DeploymentOrder, filter *deployment.DeploymentFilter) int
 		Environment               func(childComplexity int, name string) int
 		Environments              func(childComplexity int, orderBy *environment.EnvironmentOrder) int
 		Features                  func(childComplexity int) int
@@ -8049,7 +8049,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Query.Deployments(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["filter"].(*deployment.DeploymentFilter)), true
+		return e.complexity.Query.Deployments(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*deployment.DeploymentOrder), args["filter"].(*deployment.DeploymentFilter)), true
 
 	case "Query.environment":
 		if e.complexity.Query.Environment == nil {
@@ -14918,6 +14918,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputDeleteUnleashInstanceInput,
 		ec.unmarshalInputDeleteValkeyInput,
 		ec.unmarshalInputDeploymentFilter,
+		ec.unmarshalInputDeploymentOrder,
 		ec.unmarshalInputDisableReconcilerInput,
 		ec.unmarshalInputEnableReconcilerInput,
 		ec.unmarshalInputEnvironmentOrder,
@@ -16935,6 +16936,9 @@ type SqlInstanceCost {
 		"Get items before this cursor."
 		before: Cursor
 
+		"Ordering options for items returned from the connection."
+		orderBy: DeploymentOrder
+
 		"Filter options for the deployments returned from the connection."
 		filter: DeploymentFilter
 	): DeploymentConnection!
@@ -17364,6 +17368,10 @@ input DeploymentFilter {
 	from: Time
 	"Filter deployments by environments."
 	environments: [String!]
+}
+
+input DeploymentOrder {
+	direction: OrderDirection!
 }
 `, BuiltIn: false},
 	{Name: "../schema/environments.graphqls", Input: `extend type Query {
