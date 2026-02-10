@@ -8,9 +8,9 @@ import (
 	"github.com/nais/api/internal/persistence/bucket"
 	"github.com/nais/api/internal/persistence/kafkatopic"
 	"github.com/nais/api/internal/persistence/opensearch"
+	"github.com/nais/api/internal/persistence/postgres"
 	"github.com/nais/api/internal/persistence/sqlinstance"
 	"github.com/nais/api/internal/persistence/valkey"
-	"github.com/nais/api/internal/persistence/zalandopostgres"
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/unleash"
 	"github.com/nais/api/internal/workload"
@@ -34,7 +34,7 @@ type (
 	BucketWatcher          = watcher.Watcher[*bucket.Bucket]
 	SqlDatabaseWatcher     = watcher.Watcher[*sqlinstance.SQLDatabase]
 	SqlInstanceWatcher     = watcher.Watcher[*sqlinstance.SQLInstance]
-	ZalandoPostgresWatcher = watcher.Watcher[*zalandopostgres.ZalandoPostgres]
+	ZalandoPostgresWatcher = watcher.Watcher[*postgres.Postgres]
 	KafkaTopicWatcher      = watcher.Watcher[*kafkatopic.KafkaTopic]
 	PodWatcher             = watcher.Watcher[*v1.Pod]
 	IngressWatcher         = watcher.Watcher[*netv1.Ingress]
@@ -77,7 +77,7 @@ func SetupWatchers(
 		BucketWatcher:          bucket.NewWatcher(ctx, watcherMgr),
 		SqlDatabaseWatcher:     sqlinstance.NewDatabaseWatcher(ctx, watcherMgr),
 		SqlInstanceWatcher:     sqlinstance.NewInstanceWatcher(ctx, watcherMgr),
-		ZalandoPostgresWatcher: zalandopostgres.NewZalandoPostgresWatcher(ctx, watcherMgr),
+		ZalandoPostgresWatcher: postgres.NewZalandoPostgresWatcher(ctx, watcherMgr),
 		KafkaTopicWatcher:      kafkatopic.NewWatcher(ctx, watcherMgr),
 		PodWatcher:             workload.NewWatcher(ctx, watcherMgr),
 		IngressWatcher:         application.NewIngressWatcher(ctx, watcherMgr),

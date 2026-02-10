@@ -10,17 +10,17 @@ import (
 	"sync/atomic"
 
 	"github.com/99designs/gqlgen/graphql"
-	"github.com/nais/api/internal/persistence/zalandopostgres"
+	"github.com/nais/api/internal/persistence/postgres"
 	"github.com/nais/api/internal/team"
 	"github.com/vektah/gqlparser/v2/ast"
 )
 
 // region    ************************** generated!.gotpl **************************
 
-type ZalandoPostgresResolver interface {
-	Team(ctx context.Context, obj *zalandopostgres.ZalandoPostgres) (*team.Team, error)
-	Environment(ctx context.Context, obj *zalandopostgres.ZalandoPostgres) (*team.TeamEnvironment, error)
-	TeamEnvironment(ctx context.Context, obj *zalandopostgres.ZalandoPostgres) (*team.TeamEnvironment, error)
+type PostgresResolver interface {
+	Team(ctx context.Context, obj *postgres.Postgres) (*team.Team, error)
+	Environment(ctx context.Context, obj *postgres.Postgres) (*team.TeamEnvironment, error)
+	TeamEnvironment(ctx context.Context, obj *postgres.Postgres) (*team.TeamEnvironment, error)
 }
 
 // endregion ************************** generated!.gotpl **************************
@@ -35,12 +35,12 @@ type ZalandoPostgresResolver interface {
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _GrantZalandoPostgresAccessPayload_error(ctx context.Context, field graphql.CollectedField, obj *zalandopostgres.GrantZalandoPostgresAccessPayload) (ret graphql.Marshaler) {
+func (ec *executionContext) _GrantPostgresAccessPayload_error(ctx context.Context, field graphql.CollectedField, obj *postgres.GrantPostgresAccessPayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_GrantZalandoPostgresAccessPayload_error,
+		ec.fieldContext_GrantPostgresAccessPayload_error,
 		func(ctx context.Context) (any, error) {
 			return obj.Error, nil
 		},
@@ -51,9 +51,9 @@ func (ec *executionContext) _GrantZalandoPostgresAccessPayload_error(ctx context
 	)
 }
 
-func (ec *executionContext) fieldContext_GrantZalandoPostgresAccessPayload_error(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_GrantPostgresAccessPayload_error(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "GrantZalandoPostgresAccessPayload",
+		Object:     "GrantPostgresAccessPayload",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -64,12 +64,12 @@ func (ec *executionContext) fieldContext_GrantZalandoPostgresAccessPayload_error
 	return fc, nil
 }
 
-func (ec *executionContext) _ZalandoPostgres_id(ctx context.Context, field graphql.CollectedField, obj *zalandopostgres.ZalandoPostgres) (ret graphql.Marshaler) {
+func (ec *executionContext) _Postgres_id(ctx context.Context, field graphql.CollectedField, obj *postgres.Postgres) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ZalandoPostgres_id,
+		ec.fieldContext_Postgres_id,
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
@@ -80,9 +80,9 @@ func (ec *executionContext) _ZalandoPostgres_id(ctx context.Context, field graph
 	)
 }
 
-func (ec *executionContext) fieldContext_ZalandoPostgres_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Postgres_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ZalandoPostgres",
+		Object:     "Postgres",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
@@ -93,12 +93,12 @@ func (ec *executionContext) fieldContext_ZalandoPostgres_id(_ context.Context, f
 	return fc, nil
 }
 
-func (ec *executionContext) _ZalandoPostgres_name(ctx context.Context, field graphql.CollectedField, obj *zalandopostgres.ZalandoPostgres) (ret graphql.Marshaler) {
+func (ec *executionContext) _Postgres_name(ctx context.Context, field graphql.CollectedField, obj *postgres.Postgres) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ZalandoPostgres_name,
+		ec.fieldContext_Postgres_name,
 		func(ctx context.Context) (any, error) {
 			return obj.Name, nil
 		},
@@ -109,9 +109,9 @@ func (ec *executionContext) _ZalandoPostgres_name(ctx context.Context, field gra
 	)
 }
 
-func (ec *executionContext) fieldContext_ZalandoPostgres_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Postgres_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ZalandoPostgres",
+		Object:     "Postgres",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -122,14 +122,14 @@ func (ec *executionContext) fieldContext_ZalandoPostgres_name(_ context.Context,
 	return fc, nil
 }
 
-func (ec *executionContext) _ZalandoPostgres_team(ctx context.Context, field graphql.CollectedField, obj *zalandopostgres.ZalandoPostgres) (ret graphql.Marshaler) {
+func (ec *executionContext) _Postgres_team(ctx context.Context, field graphql.CollectedField, obj *postgres.Postgres) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ZalandoPostgres_team,
+		ec.fieldContext_Postgres_team,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.ZalandoPostgres().Team(ctx, obj)
+			return ec.resolvers.Postgres().Team(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam,
@@ -138,9 +138,9 @@ func (ec *executionContext) _ZalandoPostgres_team(ctx context.Context, field gra
 	)
 }
 
-func (ec *executionContext) fieldContext_ZalandoPostgres_team(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Postgres_team(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ZalandoPostgres",
+		Object:     "Postgres",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
@@ -231,14 +231,14 @@ func (ec *executionContext) fieldContext_ZalandoPostgres_team(_ context.Context,
 	return fc, nil
 }
 
-func (ec *executionContext) _ZalandoPostgres_environment(ctx context.Context, field graphql.CollectedField, obj *zalandopostgres.ZalandoPostgres) (ret graphql.Marshaler) {
+func (ec *executionContext) _Postgres_environment(ctx context.Context, field graphql.CollectedField, obj *postgres.Postgres) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ZalandoPostgres_environment,
+		ec.fieldContext_Postgres_environment,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.ZalandoPostgres().Environment(ctx, obj)
+			return ec.resolvers.Postgres().Environment(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment,
@@ -247,9 +247,9 @@ func (ec *executionContext) _ZalandoPostgres_environment(ctx context.Context, fi
 	)
 }
 
-func (ec *executionContext) fieldContext_ZalandoPostgres_environment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Postgres_environment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ZalandoPostgres",
+		Object:     "Postgres",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
@@ -298,14 +298,14 @@ func (ec *executionContext) fieldContext_ZalandoPostgres_environment(_ context.C
 	return fc, nil
 }
 
-func (ec *executionContext) _ZalandoPostgres_teamEnvironment(ctx context.Context, field graphql.CollectedField, obj *zalandopostgres.ZalandoPostgres) (ret graphql.Marshaler) {
+func (ec *executionContext) _Postgres_teamEnvironment(ctx context.Context, field graphql.CollectedField, obj *postgres.Postgres) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ZalandoPostgres_teamEnvironment,
+		ec.fieldContext_Postgres_teamEnvironment,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.ZalandoPostgres().TeamEnvironment(ctx, obj)
+			return ec.resolvers.Postgres().TeamEnvironment(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment,
@@ -314,9 +314,9 @@ func (ec *executionContext) _ZalandoPostgres_teamEnvironment(ctx context.Context
 	)
 }
 
-func (ec *executionContext) fieldContext_ZalandoPostgres_teamEnvironment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Postgres_teamEnvironment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ZalandoPostgres",
+		Object:     "Postgres",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
@@ -365,12 +365,12 @@ func (ec *executionContext) fieldContext_ZalandoPostgres_teamEnvironment(_ conte
 	return fc, nil
 }
 
-func (ec *executionContext) _ZalandoPostgresGrantAccessActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *zalandopostgres.ZalandoPostgresGrantAccessActivityLogEntry) (ret graphql.Marshaler) {
+func (ec *executionContext) _PostgresGrantAccessActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresGrantAccessActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ZalandoPostgresGrantAccessActivityLogEntry_id,
+		ec.fieldContext_PostgresGrantAccessActivityLogEntry_id,
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
@@ -381,9 +381,9 @@ func (ec *executionContext) _ZalandoPostgresGrantAccessActivityLogEntry_id(ctx c
 	)
 }
 
-func (ec *executionContext) fieldContext_ZalandoPostgresGrantAccessActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_PostgresGrantAccessActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ZalandoPostgresGrantAccessActivityLogEntry",
+		Object:     "PostgresGrantAccessActivityLogEntry",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
@@ -394,12 +394,12 @@ func (ec *executionContext) fieldContext_ZalandoPostgresGrantAccessActivityLogEn
 	return fc, nil
 }
 
-func (ec *executionContext) _ZalandoPostgresGrantAccessActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *zalandopostgres.ZalandoPostgresGrantAccessActivityLogEntry) (ret graphql.Marshaler) {
+func (ec *executionContext) _PostgresGrantAccessActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresGrantAccessActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ZalandoPostgresGrantAccessActivityLogEntry_actor,
+		ec.fieldContext_PostgresGrantAccessActivityLogEntry_actor,
 		func(ctx context.Context) (any, error) {
 			return obj.Actor, nil
 		},
@@ -410,9 +410,9 @@ func (ec *executionContext) _ZalandoPostgresGrantAccessActivityLogEntry_actor(ct
 	)
 }
 
-func (ec *executionContext) fieldContext_ZalandoPostgresGrantAccessActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_PostgresGrantAccessActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ZalandoPostgresGrantAccessActivityLogEntry",
+		Object:     "PostgresGrantAccessActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -423,12 +423,12 @@ func (ec *executionContext) fieldContext_ZalandoPostgresGrantAccessActivityLogEn
 	return fc, nil
 }
 
-func (ec *executionContext) _ZalandoPostgresGrantAccessActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *zalandopostgres.ZalandoPostgresGrantAccessActivityLogEntry) (ret graphql.Marshaler) {
+func (ec *executionContext) _PostgresGrantAccessActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresGrantAccessActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ZalandoPostgresGrantAccessActivityLogEntry_createdAt,
+		ec.fieldContext_PostgresGrantAccessActivityLogEntry_createdAt,
 		func(ctx context.Context) (any, error) {
 			return obj.CreatedAt, nil
 		},
@@ -439,9 +439,9 @@ func (ec *executionContext) _ZalandoPostgresGrantAccessActivityLogEntry_createdA
 	)
 }
 
-func (ec *executionContext) fieldContext_ZalandoPostgresGrantAccessActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_PostgresGrantAccessActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ZalandoPostgresGrantAccessActivityLogEntry",
+		Object:     "PostgresGrantAccessActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -452,12 +452,12 @@ func (ec *executionContext) fieldContext_ZalandoPostgresGrantAccessActivityLogEn
 	return fc, nil
 }
 
-func (ec *executionContext) _ZalandoPostgresGrantAccessActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *zalandopostgres.ZalandoPostgresGrantAccessActivityLogEntry) (ret graphql.Marshaler) {
+func (ec *executionContext) _PostgresGrantAccessActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresGrantAccessActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ZalandoPostgresGrantAccessActivityLogEntry_message,
+		ec.fieldContext_PostgresGrantAccessActivityLogEntry_message,
 		func(ctx context.Context) (any, error) {
 			return obj.Message, nil
 		},
@@ -468,9 +468,9 @@ func (ec *executionContext) _ZalandoPostgresGrantAccessActivityLogEntry_message(
 	)
 }
 
-func (ec *executionContext) fieldContext_ZalandoPostgresGrantAccessActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_PostgresGrantAccessActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ZalandoPostgresGrantAccessActivityLogEntry",
+		Object:     "PostgresGrantAccessActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -481,12 +481,12 @@ func (ec *executionContext) fieldContext_ZalandoPostgresGrantAccessActivityLogEn
 	return fc, nil
 }
 
-func (ec *executionContext) _ZalandoPostgresGrantAccessActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *zalandopostgres.ZalandoPostgresGrantAccessActivityLogEntry) (ret graphql.Marshaler) {
+func (ec *executionContext) _PostgresGrantAccessActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresGrantAccessActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ZalandoPostgresGrantAccessActivityLogEntry_resourceType,
+		ec.fieldContext_PostgresGrantAccessActivityLogEntry_resourceType,
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceType, nil
 		},
@@ -497,9 +497,9 @@ func (ec *executionContext) _ZalandoPostgresGrantAccessActivityLogEntry_resource
 	)
 }
 
-func (ec *executionContext) fieldContext_ZalandoPostgresGrantAccessActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_PostgresGrantAccessActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ZalandoPostgresGrantAccessActivityLogEntry",
+		Object:     "PostgresGrantAccessActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -510,12 +510,12 @@ func (ec *executionContext) fieldContext_ZalandoPostgresGrantAccessActivityLogEn
 	return fc, nil
 }
 
-func (ec *executionContext) _ZalandoPostgresGrantAccessActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *zalandopostgres.ZalandoPostgresGrantAccessActivityLogEntry) (ret graphql.Marshaler) {
+func (ec *executionContext) _PostgresGrantAccessActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresGrantAccessActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ZalandoPostgresGrantAccessActivityLogEntry_resourceName,
+		ec.fieldContext_PostgresGrantAccessActivityLogEntry_resourceName,
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceName, nil
 		},
@@ -526,9 +526,9 @@ func (ec *executionContext) _ZalandoPostgresGrantAccessActivityLogEntry_resource
 	)
 }
 
-func (ec *executionContext) fieldContext_ZalandoPostgresGrantAccessActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_PostgresGrantAccessActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ZalandoPostgresGrantAccessActivityLogEntry",
+		Object:     "PostgresGrantAccessActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -539,12 +539,12 @@ func (ec *executionContext) fieldContext_ZalandoPostgresGrantAccessActivityLogEn
 	return fc, nil
 }
 
-func (ec *executionContext) _ZalandoPostgresGrantAccessActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *zalandopostgres.ZalandoPostgresGrantAccessActivityLogEntry) (ret graphql.Marshaler) {
+func (ec *executionContext) _PostgresGrantAccessActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresGrantAccessActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ZalandoPostgresGrantAccessActivityLogEntry_teamSlug,
+		ec.fieldContext_PostgresGrantAccessActivityLogEntry_teamSlug,
 		func(ctx context.Context) (any, error) {
 			return obj.TeamSlug, nil
 		},
@@ -555,9 +555,9 @@ func (ec *executionContext) _ZalandoPostgresGrantAccessActivityLogEntry_teamSlug
 	)
 }
 
-func (ec *executionContext) fieldContext_ZalandoPostgresGrantAccessActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_PostgresGrantAccessActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ZalandoPostgresGrantAccessActivityLogEntry",
+		Object:     "PostgresGrantAccessActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -568,12 +568,12 @@ func (ec *executionContext) fieldContext_ZalandoPostgresGrantAccessActivityLogEn
 	return fc, nil
 }
 
-func (ec *executionContext) _ZalandoPostgresGrantAccessActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *zalandopostgres.ZalandoPostgresGrantAccessActivityLogEntry) (ret graphql.Marshaler) {
+func (ec *executionContext) _PostgresGrantAccessActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresGrantAccessActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ZalandoPostgresGrantAccessActivityLogEntry_environmentName,
+		ec.fieldContext_PostgresGrantAccessActivityLogEntry_environmentName,
 		func(ctx context.Context) (any, error) {
 			return obj.EnvironmentName, nil
 		},
@@ -584,9 +584,9 @@ func (ec *executionContext) _ZalandoPostgresGrantAccessActivityLogEntry_environm
 	)
 }
 
-func (ec *executionContext) fieldContext_ZalandoPostgresGrantAccessActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_PostgresGrantAccessActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ZalandoPostgresGrantAccessActivityLogEntry",
+		Object:     "PostgresGrantAccessActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -597,47 +597,47 @@ func (ec *executionContext) fieldContext_ZalandoPostgresGrantAccessActivityLogEn
 	return fc, nil
 }
 
-func (ec *executionContext) _ZalandoPostgresGrantAccessActivityLogEntry_data(ctx context.Context, field graphql.CollectedField, obj *zalandopostgres.ZalandoPostgresGrantAccessActivityLogEntry) (ret graphql.Marshaler) {
+func (ec *executionContext) _PostgresGrantAccessActivityLogEntry_data(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresGrantAccessActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ZalandoPostgresGrantAccessActivityLogEntry_data,
+		ec.fieldContext_PostgresGrantAccessActivityLogEntry_data,
 		func(ctx context.Context) (any, error) {
 			return obj.Data, nil
 		},
 		nil,
-		ec.marshalNZalandoPostgresGrantAccessActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋzalandopostgresᚐZalandoPostgresGrantAccessActivityLogEntryData,
+		ec.marshalNPostgresGrantAccessActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresGrantAccessActivityLogEntryData,
 		true,
 		true,
 	)
 }
 
-func (ec *executionContext) fieldContext_ZalandoPostgresGrantAccessActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_PostgresGrantAccessActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ZalandoPostgresGrantAccessActivityLogEntry",
+		Object:     "PostgresGrantAccessActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "grantee":
-				return ec.fieldContext_ZalandoPostgresGrantAccessActivityLogEntryData_grantee(ctx, field)
+				return ec.fieldContext_PostgresGrantAccessActivityLogEntryData_grantee(ctx, field)
 			case "until":
-				return ec.fieldContext_ZalandoPostgresGrantAccessActivityLogEntryData_until(ctx, field)
+				return ec.fieldContext_PostgresGrantAccessActivityLogEntryData_until(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type ZalandoPostgresGrantAccessActivityLogEntryData", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type PostgresGrantAccessActivityLogEntryData", field.Name)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _ZalandoPostgresGrantAccessActivityLogEntryData_grantee(ctx context.Context, field graphql.CollectedField, obj *zalandopostgres.ZalandoPostgresGrantAccessActivityLogEntryData) (ret graphql.Marshaler) {
+func (ec *executionContext) _PostgresGrantAccessActivityLogEntryData_grantee(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresGrantAccessActivityLogEntryData) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ZalandoPostgresGrantAccessActivityLogEntryData_grantee,
+		ec.fieldContext_PostgresGrantAccessActivityLogEntryData_grantee,
 		func(ctx context.Context) (any, error) {
 			return obj.Grantee, nil
 		},
@@ -648,9 +648,9 @@ func (ec *executionContext) _ZalandoPostgresGrantAccessActivityLogEntryData_gran
 	)
 }
 
-func (ec *executionContext) fieldContext_ZalandoPostgresGrantAccessActivityLogEntryData_grantee(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_PostgresGrantAccessActivityLogEntryData_grantee(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ZalandoPostgresGrantAccessActivityLogEntryData",
+		Object:     "PostgresGrantAccessActivityLogEntryData",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -661,12 +661,12 @@ func (ec *executionContext) fieldContext_ZalandoPostgresGrantAccessActivityLogEn
 	return fc, nil
 }
 
-func (ec *executionContext) _ZalandoPostgresGrantAccessActivityLogEntryData_until(ctx context.Context, field graphql.CollectedField, obj *zalandopostgres.ZalandoPostgresGrantAccessActivityLogEntryData) (ret graphql.Marshaler) {
+func (ec *executionContext) _PostgresGrantAccessActivityLogEntryData_until(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresGrantAccessActivityLogEntryData) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ZalandoPostgresGrantAccessActivityLogEntryData_until,
+		ec.fieldContext_PostgresGrantAccessActivityLogEntryData_until,
 		func(ctx context.Context) (any, error) {
 			return obj.Until, nil
 		},
@@ -677,9 +677,9 @@ func (ec *executionContext) _ZalandoPostgresGrantAccessActivityLogEntryData_unti
 	)
 }
 
-func (ec *executionContext) fieldContext_ZalandoPostgresGrantAccessActivityLogEntryData_until(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_PostgresGrantAccessActivityLogEntryData_until(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ZalandoPostgresGrantAccessActivityLogEntryData",
+		Object:     "PostgresGrantAccessActivityLogEntryData",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -694,8 +694,8 @@ func (ec *executionContext) fieldContext_ZalandoPostgresGrantAccessActivityLogEn
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputGrantZalandoPostgresAccessInput(ctx context.Context, obj any) (zalandopostgres.GrantZalandoPostgresAccessInput, error) {
-	var it zalandopostgres.GrantZalandoPostgresAccessInput
+func (ec *executionContext) unmarshalInputGrantPostgresAccessInput(ctx context.Context, obj any) (postgres.GrantPostgresAccessInput, error) {
+	var it postgres.GrantPostgresAccessInput
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -757,19 +757,19 @@ func (ec *executionContext) unmarshalInputGrantZalandoPostgresAccessInput(ctx co
 
 // region    **************************** object.gotpl ****************************
 
-var grantZalandoPostgresAccessPayloadImplementors = []string{"GrantZalandoPostgresAccessPayload"}
+var grantPostgresAccessPayloadImplementors = []string{"GrantPostgresAccessPayload"}
 
-func (ec *executionContext) _GrantZalandoPostgresAccessPayload(ctx context.Context, sel ast.SelectionSet, obj *zalandopostgres.GrantZalandoPostgresAccessPayload) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, grantZalandoPostgresAccessPayloadImplementors)
+func (ec *executionContext) _GrantPostgresAccessPayload(ctx context.Context, sel ast.SelectionSet, obj *postgres.GrantPostgresAccessPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, grantPostgresAccessPayloadImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("GrantZalandoPostgresAccessPayload")
+			out.Values[i] = graphql.MarshalString("GrantPostgresAccessPayload")
 		case "error":
-			out.Values[i] = ec._GrantZalandoPostgresAccessPayload_error(ctx, field, obj)
+			out.Values[i] = ec._GrantPostgresAccessPayload_error(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -793,24 +793,24 @@ func (ec *executionContext) _GrantZalandoPostgresAccessPayload(ctx context.Conte
 	return out
 }
 
-var zalandoPostgresImplementors = []string{"ZalandoPostgres", "SearchNode", "Persistence", "Node"}
+var postgresImplementors = []string{"Postgres", "Persistence", "Node", "SearchNode"}
 
-func (ec *executionContext) _ZalandoPostgres(ctx context.Context, sel ast.SelectionSet, obj *zalandopostgres.ZalandoPostgres) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, zalandoPostgresImplementors)
+func (ec *executionContext) _Postgres(ctx context.Context, sel ast.SelectionSet, obj *postgres.Postgres) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, postgresImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("ZalandoPostgres")
+			out.Values[i] = graphql.MarshalString("Postgres")
 		case "id":
-			out.Values[i] = ec._ZalandoPostgres_id(ctx, field, obj)
+			out.Values[i] = ec._Postgres_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "name":
-			out.Values[i] = ec._ZalandoPostgres_name(ctx, field, obj)
+			out.Values[i] = ec._Postgres_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -823,7 +823,7 @@ func (ec *executionContext) _ZalandoPostgres(ctx context.Context, sel ast.Select
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._ZalandoPostgres_team(ctx, field, obj)
+				res = ec._Postgres_team(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -859,7 +859,7 @@ func (ec *executionContext) _ZalandoPostgres(ctx context.Context, sel ast.Select
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._ZalandoPostgres_environment(ctx, field, obj)
+				res = ec._Postgres_environment(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -895,7 +895,7 @@ func (ec *executionContext) _ZalandoPostgres(ctx context.Context, sel ast.Select
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._ZalandoPostgres_teamEnvironment(ctx, field, obj)
+				res = ec._Postgres_teamEnvironment(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -945,56 +945,56 @@ func (ec *executionContext) _ZalandoPostgres(ctx context.Context, sel ast.Select
 	return out
 }
 
-var zalandoPostgresGrantAccessActivityLogEntryImplementors = []string{"ZalandoPostgresGrantAccessActivityLogEntry", "ActivityLogEntry", "Node"}
+var postgresGrantAccessActivityLogEntryImplementors = []string{"PostgresGrantAccessActivityLogEntry", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _ZalandoPostgresGrantAccessActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *zalandopostgres.ZalandoPostgresGrantAccessActivityLogEntry) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, zalandoPostgresGrantAccessActivityLogEntryImplementors)
+func (ec *executionContext) _PostgresGrantAccessActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *postgres.PostgresGrantAccessActivityLogEntry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, postgresGrantAccessActivityLogEntryImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("ZalandoPostgresGrantAccessActivityLogEntry")
+			out.Values[i] = graphql.MarshalString("PostgresGrantAccessActivityLogEntry")
 		case "id":
-			out.Values[i] = ec._ZalandoPostgresGrantAccessActivityLogEntry_id(ctx, field, obj)
+			out.Values[i] = ec._PostgresGrantAccessActivityLogEntry_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._ZalandoPostgresGrantAccessActivityLogEntry_actor(ctx, field, obj)
+			out.Values[i] = ec._PostgresGrantAccessActivityLogEntry_actor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "createdAt":
-			out.Values[i] = ec._ZalandoPostgresGrantAccessActivityLogEntry_createdAt(ctx, field, obj)
+			out.Values[i] = ec._PostgresGrantAccessActivityLogEntry_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._ZalandoPostgresGrantAccessActivityLogEntry_message(ctx, field, obj)
+			out.Values[i] = ec._PostgresGrantAccessActivityLogEntry_message(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._ZalandoPostgresGrantAccessActivityLogEntry_resourceType(ctx, field, obj)
+			out.Values[i] = ec._PostgresGrantAccessActivityLogEntry_resourceType(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._ZalandoPostgresGrantAccessActivityLogEntry_resourceName(ctx, field, obj)
+			out.Values[i] = ec._PostgresGrantAccessActivityLogEntry_resourceName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._ZalandoPostgresGrantAccessActivityLogEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = ec._PostgresGrantAccessActivityLogEntry_teamSlug(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._ZalandoPostgresGrantAccessActivityLogEntry_environmentName(ctx, field, obj)
+			out.Values[i] = ec._PostgresGrantAccessActivityLogEntry_environmentName(ctx, field, obj)
 		case "data":
-			out.Values[i] = ec._ZalandoPostgresGrantAccessActivityLogEntry_data(ctx, field, obj)
+			out.Values[i] = ec._PostgresGrantAccessActivityLogEntry_data(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -1021,24 +1021,24 @@ func (ec *executionContext) _ZalandoPostgresGrantAccessActivityLogEntry(ctx cont
 	return out
 }
 
-var zalandoPostgresGrantAccessActivityLogEntryDataImplementors = []string{"ZalandoPostgresGrantAccessActivityLogEntryData"}
+var postgresGrantAccessActivityLogEntryDataImplementors = []string{"PostgresGrantAccessActivityLogEntryData"}
 
-func (ec *executionContext) _ZalandoPostgresGrantAccessActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, obj *zalandopostgres.ZalandoPostgresGrantAccessActivityLogEntryData) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, zalandoPostgresGrantAccessActivityLogEntryDataImplementors)
+func (ec *executionContext) _PostgresGrantAccessActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, obj *postgres.PostgresGrantAccessActivityLogEntryData) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, postgresGrantAccessActivityLogEntryDataImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("ZalandoPostgresGrantAccessActivityLogEntryData")
+			out.Values[i] = graphql.MarshalString("PostgresGrantAccessActivityLogEntryData")
 		case "grantee":
-			out.Values[i] = ec._ZalandoPostgresGrantAccessActivityLogEntryData_grantee(ctx, field, obj)
+			out.Values[i] = ec._PostgresGrantAccessActivityLogEntryData_grantee(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "until":
-			out.Values[i] = ec._ZalandoPostgresGrantAccessActivityLogEntryData_until(ctx, field, obj)
+			out.Values[i] = ec._PostgresGrantAccessActivityLogEntryData_until(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -1069,33 +1069,33 @@ func (ec *executionContext) _ZalandoPostgresGrantAccessActivityLogEntryData(ctx 
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) unmarshalNGrantZalandoPostgresAccessInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋzalandopostgresᚐGrantZalandoPostgresAccessInput(ctx context.Context, v any) (zalandopostgres.GrantZalandoPostgresAccessInput, error) {
-	res, err := ec.unmarshalInputGrantZalandoPostgresAccessInput(ctx, v)
+func (ec *executionContext) unmarshalNGrantPostgresAccessInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐGrantPostgresAccessInput(ctx context.Context, v any) (postgres.GrantPostgresAccessInput, error) {
+	res, err := ec.unmarshalInputGrantPostgresAccessInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNGrantZalandoPostgresAccessPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋzalandopostgresᚐGrantZalandoPostgresAccessPayload(ctx context.Context, sel ast.SelectionSet, v zalandopostgres.GrantZalandoPostgresAccessPayload) graphql.Marshaler {
-	return ec._GrantZalandoPostgresAccessPayload(ctx, sel, &v)
+func (ec *executionContext) marshalNGrantPostgresAccessPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐGrantPostgresAccessPayload(ctx context.Context, sel ast.SelectionSet, v postgres.GrantPostgresAccessPayload) graphql.Marshaler {
+	return ec._GrantPostgresAccessPayload(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNGrantZalandoPostgresAccessPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋzalandopostgresᚐGrantZalandoPostgresAccessPayload(ctx context.Context, sel ast.SelectionSet, v *zalandopostgres.GrantZalandoPostgresAccessPayload) graphql.Marshaler {
+func (ec *executionContext) marshalNGrantPostgresAccessPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐGrantPostgresAccessPayload(ctx context.Context, sel ast.SelectionSet, v *postgres.GrantPostgresAccessPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._GrantZalandoPostgresAccessPayload(ctx, sel, v)
+	return ec._GrantPostgresAccessPayload(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNZalandoPostgresGrantAccessActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋzalandopostgresᚐZalandoPostgresGrantAccessActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *zalandopostgres.ZalandoPostgresGrantAccessActivityLogEntryData) graphql.Marshaler {
+func (ec *executionContext) marshalNPostgresGrantAccessActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresGrantAccessActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *postgres.PostgresGrantAccessActivityLogEntryData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._ZalandoPostgresGrantAccessActivityLogEntryData(ctx, sel, v)
+	return ec._PostgresGrantAccessActivityLogEntryData(ctx, sel, v)
 }
 
 // endregion ***************************** type.gotpl *****************************

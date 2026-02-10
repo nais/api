@@ -1,4 +1,4 @@
-package zalandopostgres
+package postgres
 
 import (
 	"context"
@@ -9,8 +9,8 @@ import (
 	"github.com/nais/api/internal/slug"
 )
 
-func AddSearchZalandoPostgres(client search.Client, watcher *watcher.Watcher[*ZalandoPostgres]) {
-	createIdent := func(env string, obj *ZalandoPostgres) ident.Ident {
+func AddSearchZalandoPostgres(client search.Client, watcher *watcher.Watcher[*Postgres]) {
+	createIdent := func(env string, obj *Postgres) ident.Ident {
 		return newZalandoPostgresIdent(slug.Slug(obj.GetNamespace()), env, obj.GetName())
 	}
 

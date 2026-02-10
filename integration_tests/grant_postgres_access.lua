@@ -6,11 +6,11 @@ mainTeam:addMember(user)
 
 Helper.readK8sResources("k8s_resources/grant_zalando_postgres_access")
 
-Test.gql("Grant zalando postgres access without authorization in non-existent team", function(t)
+Test.gql("Grant postgres access without authorization in non-existent team", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query([[
-		mutation GrantZalandoPostgresAccess {
-		  grantZalandoPostgresAccess(
+		mutation GrantPostgresAccess {
+		  grantPostgresAccess(
 		    input: {
 		      clusterName: "foobar"
 		      environmentName: "dev"
@@ -29,7 +29,7 @@ Test.gql("Grant zalando postgres access without authorization in non-existent te
 			{
 				message = Contains('you need the "postgres:access:grant" authorization.'),
 				path = {
-					"grantZalandoPostgresAccess",
+					"grantPostgresAccess",
 				},
 			},
 		},
@@ -37,11 +37,11 @@ Test.gql("Grant zalando postgres access without authorization in non-existent te
 	})
 end)
 
-Test.gql("Grant zalando postgres access without authorization in existing team", function(t)
+Test.gql("Grant postgres access without authorization in existing team", function(t)
 	t.addHeader("x-user-email", nonMemberUser:email())
 	t.query([[
-		mutation GrantZalandoPostgresAccess {
-		  grantZalandoPostgresAccess(
+		mutation GrantPostgresAccess {
+		  grantPostgresAccess(
 		    input: {
 		      clusterName: "foobar"
 		      environmentName: "dev"
@@ -60,7 +60,7 @@ Test.gql("Grant zalando postgres access without authorization in existing team",
 			{
 				message = Contains('you need the "postgres:access:grant" authorization.'),
 				path = {
-					"grantZalandoPostgresAccess",
+					"grantPostgresAccess",
 				},
 			},
 		},
@@ -68,11 +68,11 @@ Test.gql("Grant zalando postgres access without authorization in existing team",
 	})
 end)
 
-Test.gql("Grant zalando postgres access with invalid duration", function(t)
+Test.gql("Grant postgres access with invalid duration", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query([[
-		mutation GrantZalandoPostgresAccess {
-		  grantZalandoPostgresAccess(
+		mutation GrantPostgresAccess {
+		  grantPostgresAccess(
 		    input: {
 		      clusterName: "foobar"
 		      environmentName: "dev"
@@ -94,7 +94,7 @@ Test.gql("Grant zalando postgres access with invalid duration", function(t)
 				},
 				message = Contains('invalid duration "halfhour"'),
 				path = {
-					"grantZalandoPostgresAccess",
+					"grantPostgresAccess",
 				},
 			},
 		},
@@ -102,11 +102,11 @@ Test.gql("Grant zalando postgres access with invalid duration", function(t)
 	})
 end)
 
-Test.gql("Grant zalando postgres access with out-of-bounds duration", function(t)
+Test.gql("Grant postgres access with out-of-bounds duration", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query([[
-		mutation GrantZalandoPostgresAccess {
-		  grantZalandoPostgresAccess(
+		mutation GrantPostgresAccess {
+		  grantPostgresAccess(
 		    input: {
 		      clusterName: "foobar"
 		      environmentName: "dev"
@@ -128,7 +128,7 @@ Test.gql("Grant zalando postgres access with out-of-bounds duration", function(t
 				},
 				message = Contains('Duration "24h" is out-of-bounds'),
 				path = {
-					"grantZalandoPostgresAccess",
+					"grantPostgresAccess",
 				},
 			},
 		},
@@ -136,11 +136,11 @@ Test.gql("Grant zalando postgres access with out-of-bounds duration", function(t
 	})
 end)
 
-Test.gql("Grant zalando postgres access to non-existing cluster", function(t)
+Test.gql("Grant postgres access to non-existing cluster", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query([[
-		mutation GrantZalandoPostgresAccess {
-		  grantZalandoPostgresAccess(
+		mutation GrantPostgresAccess {
+		  grantPostgresAccess(
 		    input: {
 		      clusterName: "baz"
 		      environmentName: "dev"
@@ -160,9 +160,9 @@ Test.gql("Grant zalando postgres access to non-existing cluster", function(t)
 				extensions = {
 					field = "clusterName",
 				},
-				message = Contains("Could not find zalando postgres cluster"),
+				message = Contains("Could not find postgres cluster"),
 				path = {
-					"grantZalandoPostgresAccess",
+					"grantPostgresAccess",
 				},
 			},
 		},
@@ -170,11 +170,11 @@ Test.gql("Grant zalando postgres access to non-existing cluster", function(t)
 	})
 end)
 
-Test.gql("Grant zalando postgres access with authorization", function(t)
+Test.gql("Grant postgres access with authorization", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query([[
-		mutation GrantZalandoPostgresAccess {
-		  grantZalandoPostgresAccess(
+		mutation GrantPostgresAccess {
+		  grantPostgresAccess(
 		    input: {
 		      clusterName: "foobar"
 		      environmentName: "dev"
@@ -190,7 +190,7 @@ Test.gql("Grant zalando postgres access with authorization", function(t)
 
 	t.check({
 		data = {
-			grantZalandoPostgresAccess = {
+			grantPostgresAccess = {
 				error = "",
 			},
 		},
@@ -303,7 +303,7 @@ Test.gql("Check acitivity log entry", function(t)
 			activityLog {
 			  nodes {
 				message
-				... on ZalandoPostgresGrantAccessActivityLogEntry {
+				... on PostgresGrantAccessActivityLogEntry {
 				  data {
 					grantee
 					until

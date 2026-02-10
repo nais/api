@@ -26,9 +26,9 @@ import (
 	"github.com/nais/api/internal/persistence/bucket"
 	"github.com/nais/api/internal/persistence/kafkatopic"
 	"github.com/nais/api/internal/persistence/opensearch"
+	"github.com/nais/api/internal/persistence/postgres"
 	"github.com/nais/api/internal/persistence/sqlinstance"
 	"github.com/nais/api/internal/persistence/valkey"
-	"github.com/nais/api/internal/persistence/zalandopostgres"
 	"github.com/nais/api/internal/reconciler"
 	"github.com/nais/api/internal/search"
 	"github.com/nais/api/internal/serviceaccount"
@@ -97,6 +97,7 @@ type ResolverRoot interface {
 	OpenSearchAccess() OpenSearchAccessResolver
 	OpenSearchIssue() OpenSearchIssueResolver
 	OpenSearchMaintenance() OpenSearchMaintenanceResolver
+	Postgres() PostgresResolver
 	PrometheusAlert() PrometheusAlertResolver
 	Query() QueryResolver
 	Reconciler() ReconcilerResolver
@@ -138,7 +139,6 @@ type ResolverRoot interface {
 	WorkloadUtilization() WorkloadUtilizationResolver
 	WorkloadUtilizationData() WorkloadUtilizationDataResolver
 	WorkloadVulnerabilitySummary() WorkloadVulnerabilitySummaryResolver
-	ZalandoPostgres() ZalandoPostgresResolver
 }
 
 type DirectiveRoot struct {
@@ -710,7 +710,7 @@ type ComplexityRoot struct {
 		Valkey     func(childComplexity int) int
 	}
 
-	GrantZalandoPostgresAccessPayload struct {
+	GrantPostgresAccessPayload struct {
 		Error func(childComplexity int) int
 	}
 
@@ -1088,7 +1088,7 @@ type ComplexityRoot struct {
 		DeleteValkey                 func(childComplexity int, input valkey.DeleteValkeyInput) int
 		DisableReconciler            func(childComplexity int, input reconciler.DisableReconcilerInput) int
 		EnableReconciler             func(childComplexity int, input reconciler.EnableReconcilerInput) int
-		GrantZalandoPostgresAccess   func(childComplexity int, input zalandopostgres.GrantZalandoPostgresAccessInput) int
+		GrantPostgresAccess          func(childComplexity int, input postgres.GrantPostgresAccessInput) int
 		RemoveRepositoryFromTeam     func(childComplexity int, input repository.RemoveRepositoryFromTeamInput) int
 		RemoveSecretValue            func(childComplexity int, input secret.RemoveSecretValueInput) int
 		RemoveTeamMember             func(childComplexity int, input team.RemoveTeamMemberInput) int
@@ -1278,6 +1278,31 @@ type ComplexityRoot struct {
 		PageStart       func(childComplexity int) int
 		StartCursor     func(childComplexity int) int
 		TotalCount      func(childComplexity int) int
+	}
+
+	Postgres struct {
+		Environment     func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Name            func(childComplexity int) int
+		Team            func(childComplexity int) int
+		TeamEnvironment func(childComplexity int) int
+	}
+
+	PostgresGrantAccessActivityLogEntry struct {
+		Actor           func(childComplexity int) int
+		CreatedAt       func(childComplexity int) int
+		Data            func(childComplexity int) int
+		EnvironmentName func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Message         func(childComplexity int) int
+		ResourceName    func(childComplexity int) int
+		ResourceType    func(childComplexity int) int
+		TeamSlug        func(childComplexity int) int
+	}
+
+	PostgresGrantAccessActivityLogEntryData struct {
+		Grantee func(childComplexity int) int
+		Until   func(childComplexity int) int
 	}
 
 	Price struct {
@@ -2869,31 +2894,6 @@ type ComplexityRoot struct {
 	WorkloadWithVulnerabilityEdge struct {
 		Cursor func(childComplexity int) int
 		Node   func(childComplexity int) int
-	}
-
-	ZalandoPostgres struct {
-		Environment     func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Name            func(childComplexity int) int
-		Team            func(childComplexity int) int
-		TeamEnvironment func(childComplexity int) int
-	}
-
-	ZalandoPostgresGrantAccessActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		Data            func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
-	}
-
-	ZalandoPostgresGrantAccessActivityLogEntryData struct {
-		Grantee func(childComplexity int) int
-		Until   func(childComplexity int) int
 	}
 }
 
@@ -5070,12 +5070,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Features.Valkey(childComplexity), true
 
-	case "GrantZalandoPostgresAccessPayload.error":
-		if e.complexity.GrantZalandoPostgresAccessPayload.Error == nil {
+	case "GrantPostgresAccessPayload.error":
+		if e.complexity.GrantPostgresAccessPayload.Error == nil {
 			break
 		}
 
-		return e.complexity.GrantZalandoPostgresAccessPayload.Error(childComplexity), true
+		return e.complexity.GrantPostgresAccessPayload.Error(childComplexity), true
 
 	case "IDPortenAuthIntegration.name":
 		if e.complexity.IDPortenAuthIntegration.Name == nil {
@@ -6796,17 +6796,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Mutation.EnableReconciler(childComplexity, args["input"].(reconciler.EnableReconcilerInput)), true
 
-	case "Mutation.grantZalandoPostgresAccess":
-		if e.complexity.Mutation.GrantZalandoPostgresAccess == nil {
+	case "Mutation.grantPostgresAccess":
+		if e.complexity.Mutation.GrantPostgresAccess == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_grantZalandoPostgresAccess_args(ctx, rawArgs)
+		args, err := ec.field_Mutation_grantPostgresAccess_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.GrantZalandoPostgresAccess(childComplexity, args["input"].(zalandopostgres.GrantZalandoPostgresAccessInput)), true
+		return e.complexity.Mutation.GrantPostgresAccess(childComplexity, args["input"].(postgres.GrantPostgresAccessInput)), true
 
 	case "Mutation.removeRepositoryFromTeam":
 		if e.complexity.Mutation.RemoveRepositoryFromTeam == nil {
@@ -7772,6 +7772,118 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.PageInfo.TotalCount(childComplexity), true
+
+	case "Postgres.environment":
+		if e.complexity.Postgres.Environment == nil {
+			break
+		}
+
+		return e.complexity.Postgres.Environment(childComplexity), true
+
+	case "Postgres.id":
+		if e.complexity.Postgres.ID == nil {
+			break
+		}
+
+		return e.complexity.Postgres.ID(childComplexity), true
+
+	case "Postgres.name":
+		if e.complexity.Postgres.Name == nil {
+			break
+		}
+
+		return e.complexity.Postgres.Name(childComplexity), true
+
+	case "Postgres.team":
+		if e.complexity.Postgres.Team == nil {
+			break
+		}
+
+		return e.complexity.Postgres.Team(childComplexity), true
+
+	case "Postgres.teamEnvironment":
+		if e.complexity.Postgres.TeamEnvironment == nil {
+			break
+		}
+
+		return e.complexity.Postgres.TeamEnvironment(childComplexity), true
+
+	case "PostgresGrantAccessActivityLogEntry.actor":
+		if e.complexity.PostgresGrantAccessActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.complexity.PostgresGrantAccessActivityLogEntry.Actor(childComplexity), true
+
+	case "PostgresGrantAccessActivityLogEntry.createdAt":
+		if e.complexity.PostgresGrantAccessActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.PostgresGrantAccessActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "PostgresGrantAccessActivityLogEntry.data":
+		if e.complexity.PostgresGrantAccessActivityLogEntry.Data == nil {
+			break
+		}
+
+		return e.complexity.PostgresGrantAccessActivityLogEntry.Data(childComplexity), true
+
+	case "PostgresGrantAccessActivityLogEntry.environmentName":
+		if e.complexity.PostgresGrantAccessActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.complexity.PostgresGrantAccessActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "PostgresGrantAccessActivityLogEntry.id":
+		if e.complexity.PostgresGrantAccessActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.complexity.PostgresGrantAccessActivityLogEntry.ID(childComplexity), true
+
+	case "PostgresGrantAccessActivityLogEntry.message":
+		if e.complexity.PostgresGrantAccessActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.complexity.PostgresGrantAccessActivityLogEntry.Message(childComplexity), true
+
+	case "PostgresGrantAccessActivityLogEntry.resourceName":
+		if e.complexity.PostgresGrantAccessActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.complexity.PostgresGrantAccessActivityLogEntry.ResourceName(childComplexity), true
+
+	case "PostgresGrantAccessActivityLogEntry.resourceType":
+		if e.complexity.PostgresGrantAccessActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.complexity.PostgresGrantAccessActivityLogEntry.ResourceType(childComplexity), true
+
+	case "PostgresGrantAccessActivityLogEntry.teamSlug":
+		if e.complexity.PostgresGrantAccessActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.complexity.PostgresGrantAccessActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "PostgresGrantAccessActivityLogEntryData.grantee":
+		if e.complexity.PostgresGrantAccessActivityLogEntryData.Grantee == nil {
+			break
+		}
+
+		return e.complexity.PostgresGrantAccessActivityLogEntryData.Grantee(childComplexity), true
+
+	case "PostgresGrantAccessActivityLogEntryData.until":
+		if e.complexity.PostgresGrantAccessActivityLogEntryData.Until == nil {
+			break
+		}
+
+		return e.complexity.PostgresGrantAccessActivityLogEntryData.Until(childComplexity), true
 
 	case "Price.value":
 		if e.complexity.Price.Value == nil {
@@ -14768,118 +14880,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.WorkloadWithVulnerabilityEdge.Node(childComplexity), true
 
-	case "ZalandoPostgres.environment":
-		if e.complexity.ZalandoPostgres.Environment == nil {
-			break
-		}
-
-		return e.complexity.ZalandoPostgres.Environment(childComplexity), true
-
-	case "ZalandoPostgres.id":
-		if e.complexity.ZalandoPostgres.ID == nil {
-			break
-		}
-
-		return e.complexity.ZalandoPostgres.ID(childComplexity), true
-
-	case "ZalandoPostgres.name":
-		if e.complexity.ZalandoPostgres.Name == nil {
-			break
-		}
-
-		return e.complexity.ZalandoPostgres.Name(childComplexity), true
-
-	case "ZalandoPostgres.team":
-		if e.complexity.ZalandoPostgres.Team == nil {
-			break
-		}
-
-		return e.complexity.ZalandoPostgres.Team(childComplexity), true
-
-	case "ZalandoPostgres.teamEnvironment":
-		if e.complexity.ZalandoPostgres.TeamEnvironment == nil {
-			break
-		}
-
-		return e.complexity.ZalandoPostgres.TeamEnvironment(childComplexity), true
-
-	case "ZalandoPostgresGrantAccessActivityLogEntry.actor":
-		if e.complexity.ZalandoPostgresGrantAccessActivityLogEntry.Actor == nil {
-			break
-		}
-
-		return e.complexity.ZalandoPostgresGrantAccessActivityLogEntry.Actor(childComplexity), true
-
-	case "ZalandoPostgresGrantAccessActivityLogEntry.createdAt":
-		if e.complexity.ZalandoPostgresGrantAccessActivityLogEntry.CreatedAt == nil {
-			break
-		}
-
-		return e.complexity.ZalandoPostgresGrantAccessActivityLogEntry.CreatedAt(childComplexity), true
-
-	case "ZalandoPostgresGrantAccessActivityLogEntry.data":
-		if e.complexity.ZalandoPostgresGrantAccessActivityLogEntry.Data == nil {
-			break
-		}
-
-		return e.complexity.ZalandoPostgresGrantAccessActivityLogEntry.Data(childComplexity), true
-
-	case "ZalandoPostgresGrantAccessActivityLogEntry.environmentName":
-		if e.complexity.ZalandoPostgresGrantAccessActivityLogEntry.EnvironmentName == nil {
-			break
-		}
-
-		return e.complexity.ZalandoPostgresGrantAccessActivityLogEntry.EnvironmentName(childComplexity), true
-
-	case "ZalandoPostgresGrantAccessActivityLogEntry.id":
-		if e.complexity.ZalandoPostgresGrantAccessActivityLogEntry.ID == nil {
-			break
-		}
-
-		return e.complexity.ZalandoPostgresGrantAccessActivityLogEntry.ID(childComplexity), true
-
-	case "ZalandoPostgresGrantAccessActivityLogEntry.message":
-		if e.complexity.ZalandoPostgresGrantAccessActivityLogEntry.Message == nil {
-			break
-		}
-
-		return e.complexity.ZalandoPostgresGrantAccessActivityLogEntry.Message(childComplexity), true
-
-	case "ZalandoPostgresGrantAccessActivityLogEntry.resourceName":
-		if e.complexity.ZalandoPostgresGrantAccessActivityLogEntry.ResourceName == nil {
-			break
-		}
-
-		return e.complexity.ZalandoPostgresGrantAccessActivityLogEntry.ResourceName(childComplexity), true
-
-	case "ZalandoPostgresGrantAccessActivityLogEntry.resourceType":
-		if e.complexity.ZalandoPostgresGrantAccessActivityLogEntry.ResourceType == nil {
-			break
-		}
-
-		return e.complexity.ZalandoPostgresGrantAccessActivityLogEntry.ResourceType(childComplexity), true
-
-	case "ZalandoPostgresGrantAccessActivityLogEntry.teamSlug":
-		if e.complexity.ZalandoPostgresGrantAccessActivityLogEntry.TeamSlug == nil {
-			break
-		}
-
-		return e.complexity.ZalandoPostgresGrantAccessActivityLogEntry.TeamSlug(childComplexity), true
-
-	case "ZalandoPostgresGrantAccessActivityLogEntryData.grantee":
-		if e.complexity.ZalandoPostgresGrantAccessActivityLogEntryData.Grantee == nil {
-			break
-		}
-
-		return e.complexity.ZalandoPostgresGrantAccessActivityLogEntryData.Grantee(childComplexity), true
-
-	case "ZalandoPostgresGrantAccessActivityLogEntryData.until":
-		if e.complexity.ZalandoPostgresGrantAccessActivityLogEntryData.Until == nil {
-			break
-		}
-
-		return e.complexity.ZalandoPostgresGrantAccessActivityLogEntryData.Until(childComplexity), true
-
 	}
 	return 0, false
 }
@@ -14924,7 +14924,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputEnableReconcilerInput,
 		ec.unmarshalInputEnvironmentOrder,
 		ec.unmarshalInputEnvironmentWorkloadOrder,
-		ec.unmarshalInputGrantZalandoPostgresAccessInput,
+		ec.unmarshalInputGrantPostgresAccessInput,
 		ec.unmarshalInputImageVulnerabilityFilter,
 		ec.unmarshalInputImageVulnerabilityOrder,
 		ec.unmarshalInputIngressMetricsInput,
@@ -19184,369 +19184,84 @@ type WorkloadLogLine {
 	instance: String!
 }
 `, BuiltIn: false},
-	{Name: "../schema/postgres.graphqls", Input: `# interface Postgres implements Persistence & Node {
-# 	id: ID!
-# 	name: String!
-# 	team: Team!
-# 	environment: TeamEnvironment! @deprecated(reason: "Use the ` + "`" + `teamEnvironment` + "`" + ` field instead.")
-# 	teamEnvironment: TeamEnvironment!
-# }
-#
-# extend type Team {
-# 	"SQL instances owned by the team."
-# 	sqlInstances(
-# 		"Get the first n items in the connection. This can be used in combination with the after parameter."
-# 		first: Int
-#
-# 		"Get items after this cursor."
-# 		after: Cursor
-#
-# 		"Get the last n items in the connection. This can be used in combination with the before parameter."
-# 		last: Int
-#
-# 		"Get items before this cursor."
-# 		before: Cursor
-#
-# 		"Ordering options for items returned from the connection."
-# 		orderBy: SqlInstanceOrder
-# 	): SqlInstanceConnection!
-# }
-#
-# extend type Mutation {
-# 	"Grant access to this postgres cluster"
-# 	grantPostgresAccess(input: GrantPostgresAccessInput!): GrantPostgresAccessPayload!
-# }
-#
-# type GrantPostgresAccessPayload {
-# 	error: String
-# }
-#
-# input GrantPostgresAccessInput {
-# 	clusterName: String!
-# 	teamSlug: Slug!
-# 	environmentName: String!
-# 	grantee: String!
-# 	duration: String!
-# }
-#
-#
-# extend union SearchNode = Postgres
-#
-# extend enum SearchType {
-# 	POSTGRES
-# }
-#
-# extend enum ActivityLogEntryResourceType {
-# 	"All activity log entries related to postgres clusters will use this resource type."
-# 	POSTGRES
-# }
-#
-# # This is managed directly by the activitylog package since it
-# # combines data within the database.
-# type PostgresGrantAccessActivityLogEntry implements ActivityLogEntry & Node {
-# 	"ID of the entry."
-# 	id: ID!
-#
-# 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
-# 	actor: String!
-#
-# 	"Creation time of the entry."
-# 	createdAt: Time!
-#
-# 	"Message that summarizes the entry."
-# 	message: String!
-#
-# 	"Type of the resource that was affected by the action."
-# 	resourceType: ActivityLogEntryResourceType!
-#
-# 	"Name of the resource that was affected by the action."
-# 	resourceName: String!
-#
-# 	"The team slug that the entry belongs to."
-# 	teamSlug: Slug!
-#
-# 	"The environment name that the entry belongs to."
-# 	environmentName: String
-#
-# 	"Data associated with the update."
-# 	data: PostgresGrantAccessActivityLogEntryData!
-# }
-#
-# type PostgresGrantAccessActivityLogEntryData {
-# 	grantee: String!
-# 	until: Time!
-# }
-#
-# extend enum ActivityLogActivityType {
-# 	"""
-# 	A user was granted access to a postgres cluster
-# 	"""
-# 	POSTGRES_GRANT_ACCESS
-# }
-#
-# extend type TeamServiceUtilization {
-# 	sqlInstances: TeamServiceUtilizationSqlInstances!
-# }
-#
-# type TeamServiceUtilizationSqlInstances {
-# 	cpu: TeamServiceUtilizationSqlInstancesCPU!
-# 	memory: TeamServiceUtilizationSqlInstancesMemory!
-# 	disk: TeamServiceUtilizationSqlInstancesDisk!
-# }
-#
-# type TeamServiceUtilizationSqlInstancesCPU {
-# 	used: Float!
-# 	requested: Float!
-# 	utilization: Float!
-# }
-#
-# type TeamServiceUtilizationSqlInstancesMemory {
-# 	used: Int!
-# 	requested: Int!
-# 	utilization: Float!
-# }
-#
-# type TeamServiceUtilizationSqlInstancesDisk {
-# 	used: Int!
-# 	requested: Int!
-# 	utilization: Float!
-# }
-#
-# extend type TeamEnvironment {
-# 	"SQL instance in the team environment."
-# 	sqlInstance(name: String!): SqlInstance!
-# }
-#
-# extend interface Workload {
-# 	"SQL instances referenced by the workload. This does not currently support pagination, but will return all available SQL instances."
-# 	sqlInstances(
-# 		"Ordering options for items returned from the connection."
-# 		orderBy: SqlInstanceOrder
-# 	): SqlInstanceConnection!
-# }
-#
-# extend type Application {
-# 	"SQL instances referenced by the application. This does not currently support pagination, but will return all available SQL instances."
-# 	sqlInstances(
-# 		"Ordering options for items returned from the connection."
-# 		orderBy: SqlInstanceOrder
-# 	): SqlInstanceConnection!
-# }
-#
-# extend type Job {
-# 	"SQL instances referenced by the job. This does not currently support pagination, but will return all available SQL instances."
-# 	sqlInstances(
-# 		"Ordering options for items returned from the connection."
-# 		orderBy: SqlInstanceOrder
-# 	): SqlInstanceConnection!
-# }
-#
-# extend type TeamInventoryCounts {
-# 	sqlInstances: TeamInventoryCountSqlInstances!
-# }
-#
-# type TeamInventoryCountSqlInstances {
-# 	"Total number of SQL instances."
-# 	total: Int!
-# }
-#
-# type SqlDatabase implements Persistence & Node {
-# 	id: ID!
-# 	name: String!
-# 	team: Team!
-# 	environment: TeamEnvironment! @deprecated(reason: "Use the ` + "`" + `teamEnvironment` + "`" + ` field instead.")
-# 	teamEnvironment: TeamEnvironment!
-# 	charset: String
-# 	collation: String
-# 	deletionPolicy: String
-# 	healthy: Boolean!
-# }
-#
-# type SqlInstance implements Persistence & Node {
-# 	id: ID!
-# 	name: String!
-# 	team: Team!
-# 	environment: TeamEnvironment! @deprecated(reason: "Use the ` + "`" + `teamEnvironment` + "`" + ` field instead.")
-# 	teamEnvironment: TeamEnvironment!
-# 	workload: Workload
-# 	cascadingDelete: Boolean!
-# 	connectionName: String
-# 	diskAutoresize: Boolean
-# 	diskAutoresizeLimit: Int
-# 	highAvailability: Boolean!
-# 	healthy: Boolean!
-# 	maintenanceVersion: String
-# 	maintenanceWindow: SqlInstanceMaintenanceWindow
-# 	backupConfiguration: SqlInstanceBackupConfiguration
-# 	projectID: String!
-# 	tier: String!
-# 	version: String
-# 	status: SqlInstanceStatus!
-# 	database: SqlDatabase
-# 	flags(first: Int, after: Cursor, last: Int, before: Cursor): SqlInstanceFlagConnection!
-# 	users(
-# 		first: Int
-# 		after: Cursor
-# 		last: Int
-# 		before: Cursor
-# 		orderBy: SqlInstanceUserOrder
-# 	): SqlInstanceUserConnection!
-# 	metrics: SqlInstanceMetrics!
-# 	state: SqlInstanceState!
-# 	"Issues that affects the instance."
-# 	issues(
-# 		"Get the first n items in the connection. This can be used in combination with the after parameter."
-# 		first: Int
-#
-# 		"Get items after this cursor."
-# 		after: Cursor
-#
-# 		"Get the last n items in the connection. This can be used in combination with the before parameter."
-# 		last: Int
-#
-# 		"Get items before this cursor."
-# 		before: Cursor
-#
-# 		"Ordering options for items returned from the connection."
-# 		orderBy: IssueOrder
-#
-# 		"Filtering options for items returned from the connection."
-# 		filter: ResourceIssueFilter
-# 	): IssueConnection!
-#
-# 	"Indicates whether audit logging is enabled for this SQL instance and provides a link to the logs if set."
-# 	auditLog: AuditLog
-# }
-#
-# type AuditLog {
-# 	"Link to the audit log for this SQL instance."
-# 	logUrl: String!
-# }
-#
-# type SqlInstanceBackupConfiguration {
-# 	enabled: Boolean
-# 	startTime: String
-# 	retainedBackups: Int
-# 	pointInTimeRecovery: Boolean
-# 	transactionLogRetentionDays: Int
-# }
-#
-# type SqlInstanceFlag {
-# 	name: String!
-# 	value: String!
-# }
-#
-# type SqlInstanceMaintenanceWindow {
-# 	day: Int!
-# 	hour: Int!
-# }
-#
-# type SqlInstanceStatus {
-# 	publicIpAddress: String
-# 	privateIpAddress: String
-# }
-#
-# type SqlInstanceUser {
-# 	name: String!
-# 	authentication: String!
-# }
-#
-# type SqlInstanceConnection {
-# 	pageInfo: PageInfo!
-# 	nodes: [SqlInstance!]!
-# 	edges: [SqlInstanceEdge!]!
-# }
-#
-# type SqlInstanceFlagConnection {
-# 	pageInfo: PageInfo!
-# 	nodes: [SqlInstanceFlag!]!
-# 	edges: [SqlInstanceFlagEdge!]!
-# }
-#
-# type SqlInstanceUserConnection {
-# 	pageInfo: PageInfo!
-# 	nodes: [SqlInstanceUser!]!
-# 	edges: [SqlInstanceUserEdge!]!
-# }
-#
-# type SqlInstanceEdge {
-# 	cursor: Cursor!
-# 	node: SqlInstance!
-# }
-#
-# type SqlInstanceFlagEdge {
-# 	cursor: Cursor!
-# 	node: SqlInstanceFlag!
-# }
-#
-# type SqlInstanceUserEdge {
-# 	cursor: Cursor!
-# 	node: SqlInstanceUser!
-# }
-#
-# input SqlInstanceOrder {
-# 	field: SqlInstanceOrderField!
-# 	direction: OrderDirection!
-# }
-#
-# input SqlInstanceUserOrder {
-# 	field: SqlInstanceUserOrderField!
-# 	direction: OrderDirection!
-# }
-#
-# enum SqlInstanceOrderField {
-# 	NAME
-# 	VERSION
-# 	ENVIRONMENT
-# 	COST
-# 	CPU_UTILIZATION
-# 	MEMORY_UTILIZATION
-# 	DISK_UTILIZATION
-# 	STATE
-# }
-#
-# enum SqlInstanceUserOrderField {
-# 	NAME
-# 	AUTHENTICATION
-# }
-#
-# extend union SearchNode = SqlInstance
-#
-# extend enum SearchType {
-# 	SQL_INSTANCE
-# }
-#
-# type SqlInstanceMetrics {
-# 	cpu: SqlInstanceCpu!
-# 	memory: SqlInstanceMemory!
-# 	disk: SqlInstanceDisk!
-# }
-#
-# type SqlInstanceCpu {
-# 	cores: Float!
-# 	utilization: Float!
-# }
-#
-# type SqlInstanceMemory {
-# 	quotaBytes: Int!
-# 	utilization: Float!
-# }
-#
-# type SqlInstanceDisk {
-# 	quotaBytes: Int!
-# 	utilization: Float!
-# }
-#
-# enum SqlInstanceState {
-# 	UNSPECIFIED
-# 	STOPPED
-# 	RUNNABLE
-# 	SUSPENDED
-# 	PENDING_DELETE
-# 	PENDING_CREATE
-# 	MAINTENANCE
-# 	FAILED
-# }
+	{Name: "../schema/postgres.graphqls", Input: `type Postgres implements Persistence & Node {
+	id: ID!
+	name: String!
+	team: Team!
+	environment: TeamEnvironment! @deprecated(reason: "Use the ` + "`" + `teamEnvironment` + "`" + ` field instead.")
+	teamEnvironment: TeamEnvironment!
+}
+
+extend union SearchNode = Postgres
+
+extend enum SearchType {
+	POSTGRES
+}
+
+extend enum ActivityLogEntryResourceType {
+	"All activity log entries related to  postgres clusters will use this resource type."
+	POSTGRES
+}
+
+# This is managed directly by the activitylog package since it
+# combines data within the database.
+type PostgresGrantAccessActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: ActivityLogEntryResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+
+	"Data associated with the update."
+	data: PostgresGrantAccessActivityLogEntryData!
+}
+
+type PostgresGrantAccessActivityLogEntryData {
+	grantee: String!
+	until: Time!
+}
+
+extend enum ActivityLogActivityType {
+	"""
+	A user was granted access to a postgres cluster
+	"""
+	POSTGRES_GRANT_ACCESS
+}
+
+extend type Mutation {
+	"Grant access to this postgres cluster"
+	grantPostgresAccess(input: GrantPostgresAccessInput!): GrantPostgresAccessPayload!
+}
+
+type GrantPostgresAccessPayload {
+	error: String
+}
+
+input GrantPostgresAccessInput {
+	clusterName: String!
+	teamSlug: Slug!
+	environmentName: String!
+	grantee: String!
+	duration: String!
+}
 `, BuiltIn: false},
 	{Name: "../schema/price.graphqls", Input: `extend type Query {
 	"""
@@ -22034,7 +21749,6 @@ type ServiceMaintenanceActivityLogEntry implements ActivityLogEntry & Node {
 		orderBy: SqlInstanceOrder
 	): SqlInstanceConnection!
 }
-
 
 extend type TeamServiceUtilization {
 	sqlInstances: TeamServiceUtilizationSqlInstances!
@@ -25544,85 +25258,6 @@ input TeamWorkloadsFilter {
 	Only return workloads from the given named environments.
 	"""
 	environments: [String!]
-}
-`, BuiltIn: false},
-	{Name: "../schema/zalandopostgres.graphqls", Input: `type ZalandoPostgres implements Persistence & Node {
-	id: ID!
-	name: String!
-	team: Team!
-	environment: TeamEnvironment! @deprecated(reason: "Use the ` + "`" + `teamEnvironment` + "`" + ` field instead.")
-	teamEnvironment: TeamEnvironment!
-}
-
-extend union SearchNode = ZalandoPostgres
-
-extend enum SearchType {
-	ZALANDO_POSTGRES
-}
-
-extend enum ActivityLogEntryResourceType {
-	"All activity log entries related to zalando postgres clusters will use this resource type."
-	ZALANDO_POSTGRES
-}
-
-# This is managed directly by the activitylog package since it
-# combines data within the database.
-type ZalandoPostgresGrantAccessActivityLogEntry implements ActivityLogEntry & Node {
-	"ID of the entry."
-	id: ID!
-
-	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
-	actor: String!
-
-	"Creation time of the entry."
-	createdAt: Time!
-
-	"Message that summarizes the entry."
-	message: String!
-
-	"Type of the resource that was affected by the action."
-	resourceType: ActivityLogEntryResourceType!
-
-	"Name of the resource that was affected by the action."
-	resourceName: String!
-
-	"The team slug that the entry belongs to."
-	teamSlug: Slug!
-
-	"The environment name that the entry belongs to."
-	environmentName: String
-
-	"Data associated with the update."
-	data: ZalandoPostgresGrantAccessActivityLogEntryData!
-}
-
-type ZalandoPostgresGrantAccessActivityLogEntryData {
-	grantee: String!
-	until: Time!
-}
-
-extend enum ActivityLogActivityType {
-	"""
-	A user was granted access to a zalando postgres cluster
-	"""
-	ZALANDO_POSTGRES_GRANT_ACCESS
-}
-
-extend type Mutation {
-	"Grant access to this zalando postgres cluster"
-	grantZalandoPostgresAccess(input: GrantZalandoPostgresAccessInput!): GrantZalandoPostgresAccessPayload!
-}
-
-type GrantZalandoPostgresAccessPayload {
-	error: String
-}
-
-input GrantZalandoPostgresAccessInput {
-	clusterName: String!
-	teamSlug: Slug!
-	environmentName: String!
-	grantee: String!
-	duration: String!
 }
 `, BuiltIn: false},
 }

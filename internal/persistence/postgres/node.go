@@ -1,4 +1,4 @@
-package zalandopostgres
+package postgres
 
 import (
 	"fmt"

@@ -16,9 +16,9 @@ import (
 	"github.com/nais/api/internal/persistence/bucket"
 	"github.com/nais/api/internal/persistence/kafkatopic"
 	"github.com/nais/api/internal/persistence/opensearch"
+	"github.com/nais/api/internal/persistence/postgres"
 	"github.com/nais/api/internal/persistence/sqlinstance"
 	"github.com/nais/api/internal/persistence/valkey"
-	"github.com/nais/api/internal/persistence/zalandopostgres"
 	"github.com/nais/api/internal/search"
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/workload/application"
@@ -281,11 +281,6 @@ func (ec *executionContext) _SearchNode(ctx context.Context, sel ast.SelectionSe
 			return graphql.Null
 		}
 		return ec._Application(ctx, sel, obj)
-	case *zalandopostgres.ZalandoPostgres:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._ZalandoPostgres(ctx, sel, obj)
 	case team.Team:
 		return ec._Team(ctx, sel, &obj)
 	case *team.Team:
@@ -300,6 +295,11 @@ func (ec *executionContext) _SearchNode(ctx context.Context, sel ast.SelectionSe
 			return graphql.Null
 		}
 		return ec._SqlInstance(ctx, sel, obj)
+	case *postgres.Postgres:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Postgres(ctx, sel, obj)
 	case kafkatopic.KafkaTopic:
 		return ec._KafkaTopic(ctx, sel, &obj)
 	case *kafkatopic.KafkaTopic:

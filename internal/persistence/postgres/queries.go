@@ -1,4 +1,4 @@
-package zalandopostgres
+package postgres
 
 import (
 	"context"
@@ -21,7 +21,7 @@ import (
 	"k8s.io/utils/ptr"
 )
 
-func GetZalandoPostgresByIdent(ctx context.Context, id ident.Ident) (*ZalandoPostgres, error) {
+func GetZalandoPostgresByIdent(ctx context.Context, id ident.Ident) (*Postgres, error) {
 	teamSlug, environmentName, clusterName, err := parseIdent(id)
 	if err != nil {
 		return nil, err
@@ -30,11 +30,11 @@ func GetZalandoPostgresByIdent(ctx context.Context, id ident.Ident) (*ZalandoPos
 	return GetZalandoPostgres(ctx, teamSlug, environmentName, clusterName)
 }
 
-func GetZalandoPostgres(ctx context.Context, teamSlug slug.Slug, environmentName string, clusterName string) (*ZalandoPostgres, error) {
+func GetZalandoPostgres(ctx context.Context, teamSlug slug.Slug, environmentName string, clusterName string) (*Postgres, error) {
 	return fromContext(ctx).zalandoPostgresWatcher.Get(environmentName, teamSlug.String(), clusterName)
 }
 
-func GrantZalandoPostgresAccess(ctx context.Context, input GrantZalandoPostgresAccessInput) error {
+func GrantZalandoPostgresAccess(ctx context.Context, input GrantPostgresAccessInput) error {
 	err := input.Validate(ctx)
 	if err != nil {
 		return err
@@ -70,18 +70,18 @@ func GrantZalandoPostgresAccess(ctx context.Context, input GrantZalandoPostgresA
 	return activitylog.Create(ctx, activitylog.CreateInput{
 		Action:          activityLogEntryActionGrantAccess,
 		Actor:           authz.ActorFromContext(ctx).User,
-		ResourceType:    activityLogEntryResourceTypeZalandoPostgres,
+		ResourceType:    activityLogEntryResourceTypePostgres,
 		ResourceName:    input.ClusterName,
 		EnvironmentName: ptr.To(input.EnvironmentName),
 		TeamSlug:        ptr.To(input.TeamSlug),
-		Data: ZalandoPostgresGrantAccessActivityLogEntryData{
+		Data: PostgresGrantAccessActivityLogEntryData{
 			Grantee: input.Grantee,
 			Until:   until,
 		},
 	})
 }
 
-func createRoleBinding(ctx context.Context, input GrantZalandoPostgresAccessInput, name string, namespace string, annotations map[string]string, labels map[string]string) error {
+func createRoleBinding(ctx context.Context, input GrantPostgresAccessInput, name string, namespace string, annotations map[string]string, labels map[string]string) error {
 	gvr := schema.GroupVersionResource{
 		Group:    "rbac.authorization.k8s.io",
 		Version:  "v1",
@@ -117,7 +117,7 @@ func createRoleBinding(ctx context.Context, input GrantZalandoPostgresAccessInpu
 	return createOrUpdateResource(ctx, res, client)
 }
 
-func createRole(ctx context.Context, input GrantZalandoPostgresAccessInput, name string, namespace string, annotations map[string]string, labels map[string]string) error {
+func createRole(ctx context.Context, input GrantPostgresAccessInput, name string, namespace string, annotations map[string]string, labels map[string]string) error {
 	gvr := schema.GroupVersionResource{
 		Group:    "rbac.authorization.k8s.io",
 		Version:  "v1",

@@ -1,4 +1,4 @@
-type ZalandoPostgres implements Persistence & Node {
+type Postgres implements Persistence & Node {
 	id: ID!
 	name: String!
 	team: Team!
@@ -6,20 +6,20 @@ type ZalandoPostgres implements Persistence & Node {
 	teamEnvironment: TeamEnvironment!
 }
 
-extend union SearchNode = ZalandoPostgres
+extend union SearchNode = Postgres
 
 extend enum SearchType {
-	ZALANDO_POSTGRES
+	POSTGRES
 }
 
 extend enum ActivityLogEntryResourceType {
-	"All activity log entries related to zalando postgres clusters will use this resource type."
-	ZALANDO_POSTGRES
+	"All activity log entries related to  postgres clusters will use this resource type."
+	POSTGRES
 }
 
 # This is managed directly by the activitylog package since it
 # combines data within the database.
-type ZalandoPostgresGrantAccessActivityLogEntry implements ActivityLogEntry & Node {
+type PostgresGrantAccessActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -45,31 +45,31 @@ type ZalandoPostgresGrantAccessActivityLogEntry implements ActivityLogEntry & No
 	environmentName: String
 
 	"Data associated with the update."
-	data: ZalandoPostgresGrantAccessActivityLogEntryData!
+	data: PostgresGrantAccessActivityLogEntryData!
 }
 
-type ZalandoPostgresGrantAccessActivityLogEntryData {
+type PostgresGrantAccessActivityLogEntryData {
 	grantee: String!
 	until: Time!
 }
 
 extend enum ActivityLogActivityType {
 	"""
-	A user was granted access to a zalando postgres cluster
+	A user was granted access to a postgres cluster
 	"""
-	ZALANDO_POSTGRES_GRANT_ACCESS
+	POSTGRES_GRANT_ACCESS
 }
 
 extend type Mutation {
-	"Grant access to this zalando postgres cluster"
-	grantZalandoPostgresAccess(input: GrantZalandoPostgresAccessInput!): GrantZalandoPostgresAccessPayload!
+	"Grant access to this postgres cluster"
+	grantPostgresAccess(input: GrantPostgresAccessInput!): GrantPostgresAccessPayload!
 }
 
-type GrantZalandoPostgresAccessPayload {
+type GrantPostgresAccessPayload {
 	error: String
 }
 
-input GrantZalandoPostgresAccessInput {
+input GrantPostgresAccessInput {
 	clusterName: String!
 	teamSlug: Slug!
 	environmentName: String!

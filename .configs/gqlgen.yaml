@@ -56,7 +56,7 @@ autobind:
   - "github.com/nais/api/internal/persistence/opensearch"
   - "github.com/nais/api/internal/persistence/sqlinstance"
   - "github.com/nais/api/internal/persistence/valkey"
-  - "github.com/nais/api/internal/persistence/zalandopostgres"
+  - "github.com/nais/api/internal/persistence/postgres"
   - "github.com/nais/api/internal/price"
   - "github.com/nais/api/internal/reconciler"
   - "github.com/nais/api/internal/search"
