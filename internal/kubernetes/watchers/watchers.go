@@ -41,6 +41,7 @@ type (
 	NamespaceWatcher       = watcher.Watcher[*v1.Namespace]
 	UnleashWatcher         = watcher.Watcher[*unleash.UnleashInstance]
 	SecretWatcher          = watcher.Watcher[*secret.Secret]
+	NaisValkeyWatcher      = watcher.Watcher[*valkey.Valkey]
 )
 
 type Watchers struct {
@@ -60,6 +61,7 @@ type Watchers struct {
 	NamespaceWatcher       *NamespaceWatcher
 	UnleashWatcher         *UnleashWatcher
 	SecretWatcher          *SecretWatcher
+	NaisValkeyWatcher      *NaisValkeyWatcher
 }
 
 func SetupWatchers(
@@ -84,5 +86,6 @@ func SetupWatchers(
 		NamespaceWatcher:       team.NewNamespaceWatcher(ctx, watcherMgr),
 		UnleashWatcher:         unleash.NewWatcher(ctx, mgmtWatcherMgr),
 		SecretWatcher:          secret.NewWatcher(ctx, watcherMgr),
+		NaisValkeyWatcher:      valkey.NewNaisValkeyWatcher(ctx, watcherMgr),
 	}
 }

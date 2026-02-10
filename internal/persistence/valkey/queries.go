@@ -2,6 +2,7 @@ package valkey
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -16,6 +17,7 @@ import (
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/thirdparty/aiven"
 	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
+	naiscrd "github.com/nais/pgrator/pkg/api/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -39,11 +41,15 @@ func GetByIdent(ctx context.Context, id ident.Ident) (*Valkey, error) {
 }
 
 func Get(ctx context.Context, teamSlug slug.Slug, environment, name string) (*Valkey, error) {
-	prefix := instanceNamer(teamSlug, "")
-	if !strings.HasPrefix(name, prefix) {
-		name = instanceNamer(teamSlug, name)
+	v, err := fromContext(ctx).naisWatcher.Get(environment, teamSlug.String(), name)
+	if errors.Is(err, &watcher.ErrorNotFound{}) {
+		prefix := instanceNamer(teamSlug, "")
+		if !strings.HasPrefix(name, prefix) {
+			name = instanceNamer(teamSlug, name)
+		}
+		v, err = fromContext(ctx).watcher.Get(environment, teamSlug.String(), name)
 	}
-	return fromContext(ctx).client.watcher.Get(environment, teamSlug.String(), name)
+	return v, err
 }
 
 func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *ValkeyOrder) (*ValkeyConnection, error) {
@@ -55,7 +61,9 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 }
 
 func ListAllForTeam(ctx context.Context, teamSlug slug.Slug) []*Valkey {
-	all := fromContext(ctx).client.watcher.GetByNamespace(teamSlug.String(), watcher.WithoutDeleted())
+	all := fromContext(ctx).watcher.GetByNamespace(teamSlug.String(), watcher.WithoutDeleted())
+	allNais := fromContext(ctx).naisWatcher.GetByNamespace(teamSlug.String(), watcher.WithoutDeleted())
+	all = append(all, allNais...)
 	return watcher.Objects(all)
 }
 
@@ -89,7 +97,9 @@ func ListAccess(ctx context.Context, valkey *Valkey, page *pagination.Pagination
 }
 
 func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName string, references []nais_io_v1.Valkey, orderBy *ValkeyOrder) (*ValkeyConnection, error) {
-	all := fromContext(ctx).client.watcher.GetByNamespace(teamSlug.String(), watcher.InCluster(environmentName))
+	all := fromContext(ctx).watcher.GetByNamespace(teamSlug.String(), watcher.InCluster(environmentName))
+	allNais := fromContext(ctx).naisWatcher.GetByNamespace(teamSlug.String(), watcher.InCluster(environmentName))
+	all = append(all, allNais...)
 	ret := make([]*Valkey, 0)
 
 	for _, ref := range references {
@@ -120,69 +130,40 @@ func Create(ctx context.Context, input CreateValkeyInput) (*CreateValkeyPayload,
 		return nil, err
 	}
 
-	namespace := input.TeamSlug.String()
-	client, err := fromContext(ctx).watcher.ImpersonatedClientWithNamespace(ctx, input.EnvironmentName, namespace)
+	client, err := newK8sClient(ctx, input.EnvironmentName, input.TeamSlug)
 	if err != nil {
 		return nil, err
 	}
 
-	machine, err := machineTypeFromTierAndMemory(input.Tier, input.Memory)
-	if err != nil {
-		return nil, err
+	// Ensure there's no existing Aiven Valkey with the same name
+	// This can be removed when we manage all valkeys through Console
+	_, err = fromContext(ctx).watcher.Get(input.EnvironmentName, input.TeamSlug.String(), instanceNamer(input.TeamSlug, input.Name))
+	if !errors.Is(err, &watcher.ErrorNotFound{}) {
+		return nil, apierror.Errorf("Valkey with the name %q already exists, but are not yet managed through Console.", input.Name)
 	}
 
-	res := &unstructured.Unstructured{}
-	res.SetAPIVersion("aiven.io/v1alpha1")
-	res.SetKind("Valkey")
-	res.SetName(instanceNamer(input.TeamSlug, input.Name))
-	res.SetNamespace(namespace)
+	res := &naiscrd.Valkey{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "Valkey",
+			APIVersion: "nais.io/v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      input.Name,
+			Namespace: input.TeamSlug.String(),
+		},
+		Spec: naiscrd.ValkeySpec{
+			Tier:   toMapperatorTier(input.Tier),
+			Memory: toMapperatorMemory(input.Memory),
+		},
+	}
 	res.SetAnnotations(kubernetes.WithCommonAnnotations(nil, authz.ActorFromContext(ctx).User.Identity()))
 	kubernetes.SetManagedByConsoleLabel(res)
 
-	aivenProject, err := aiven.GetProject(ctx, input.EnvironmentName)
-	if err != nil {
-		return nil, err
-	}
-
-	res.Object["spec"] = map[string]any{
-		"cloudName":             "google-europe-north1",
-		"plan":                  machine.AivenPlan,
-		"project":               aivenProject.ID,
-		"projectVpcId":          aivenProject.VPC,
-		"terminationProtection": true,
-		"tags": map[string]any{
-			"environment": input.EnvironmentName,
-			"team":        namespace,
-			"tenant":      fromContext(ctx).tenantName,
-		},
-	}
-
 	if input.MaxMemoryPolicy != nil {
-		maxMemoryPolicy := input.MaxMemoryPolicy.ToAivenString()
-		err := unstructured.SetNestedField(res.Object, maxMemoryPolicy, specMaxMemoryPolicy...)
-		if err != nil {
-			return nil, err
-		}
+		res.Spec.MaxMemoryPolicy = naiscrd.ValkeyMaxMemoryPolicy(input.MaxMemoryPolicy.ToAivenString())
 	}
-
 	if input.NotifyKeyspaceEvents != nil {
-		err := unstructured.SetNestedField(res.Object, *input.NotifyKeyspaceEvents, specNotifyKeyspaceEvents...)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	ret, err := client.Create(ctx, res, metav1.CreateOptions{})
-	if err != nil {
-		if k8serrors.IsAlreadyExists(err) {
-			return nil, apierror.ErrAlreadyExists
-		}
-		return nil, err
-	}
-
-	err = aiven.UpsertPrometheusServiceIntegration(ctx, fromContext(ctx).watcher, ret, aivenProject, input.EnvironmentName)
-	if err != nil {
-		return nil, fmt.Errorf("creating Prometheus service integration: %w", err)
+		res.Spec.NotifyKeyspaceEvents = *input.NotifyKeyspaceEvents
 	}
 
 	err = activitylog.Create(ctx, activitylog.CreateInput{
@@ -193,11 +174,20 @@ func Create(ctx context.Context, input CreateValkeyInput) (*CreateValkeyPayload,
 		EnvironmentName: ptr.To(input.EnvironmentName),
 		TeamSlug:        ptr.To(input.TeamSlug),
 	})
+
+	obj, err := kubernetes.ToUnstructured(res)
 	if err != nil {
 		return nil, err
 	}
 
-	valkey, err := toValkey(ret, input.EnvironmentName)
+	if _, err = client.Create(ctx, obj, metav1.CreateOptions{}); err != nil {
+		if k8serrors.IsAlreadyExists(err) {
+			return nil, apierror.ErrAlreadyExists
+		}
+		return nil, err
+	}
+
+	valkey, err := toValkeyFromNais(res, input.EnvironmentName)
 	if err != nil {
 		return nil, err
 	}
@@ -212,38 +202,36 @@ func Update(ctx context.Context, input UpdateValkeyInput) (*UpdateValkeyPayload,
 		return nil, err
 	}
 
-	client, err := fromContext(ctx).watcher.ImpersonatedClientWithNamespace(ctx, input.EnvironmentName, input.TeamSlug.String())
+	client, err := newK8sClient(ctx, input.EnvironmentName, input.TeamSlug)
 	if err != nil {
 		return nil, err
 	}
 
-	valkey, err := client.Get(ctx, instanceNamer(input.TeamSlug, input.Name), metav1.GetOptions{})
+	valkey, err := client.Get(ctx, input.Name, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
-	if !kubernetes.HasManagedByConsoleLabel(valkey) {
-		return nil, apierror.Errorf("Valkey %s/%s is not managed by Console", input.TeamSlug, input.Name)
+
+	concreteValkey, err := kubernetes.ToConcrete[naiscrd.Valkey](valkey)
+	if err != nil {
+		return nil, err
 	}
 
 	changes := make([]*ValkeyUpdatedActivityLogEntryDataUpdatedField, 0)
-
-	res, err := updatePlan(valkey, input)
-	if err != nil {
-		return nil, err
+	updateFuncs := []func(*naiscrd.Valkey, UpdateValkeyInput) ([]*ValkeyUpdatedActivityLogEntryDataUpdatedField, error){
+		updateTier,
+		updateMemory,
+		updateMaxMemoryPolicy,
+		updateNotifyKeyspaceEvents,
 	}
-	changes = append(changes, res...)
 
-	res, err = updateMaxMemoryPolicy(valkey, input)
-	if err != nil {
-		return nil, err
+	for _, f := range updateFuncs {
+		res, err := f(concreteValkey, input)
+		if err != nil {
+			return nil, err
+		}
+		changes = append(changes, res...)
 	}
-	changes = append(changes, res...)
-
-	res, err = updateNotifyKeyspaceEvents(valkey, input)
-	if err != nil {
-		return nil, err
-	}
-	changes = append(changes, res...)
 
 	if len(changes) == 0 {
 		vk, err := toValkey(valkey, input.EnvironmentName)
@@ -256,21 +244,16 @@ func Update(ctx context.Context, input UpdateValkeyInput) (*UpdateValkeyPayload,
 		}, nil
 	}
 
-	valkey.SetAnnotations(kubernetes.WithCommonAnnotations(valkey.GetAnnotations(), authz.ActorFromContext(ctx).User.Identity()))
-
-	ret, err := client.Update(ctx, valkey, metav1.UpdateOptions{})
+	obj, err := kubernetes.ToUnstructured(concreteValkey)
 	if err != nil {
 		return nil, err
 	}
 
-	aivenProject, err := aiven.GetProject(ctx, input.EnvironmentName)
+	obj.SetAnnotations(kubernetes.WithCommonAnnotations(obj.GetAnnotations(), authz.ActorFromContext(ctx).User.Identity()))
+
+	ret, err := client.Update(ctx, obj, metav1.UpdateOptions{})
 	if err != nil {
 		return nil, err
-	}
-
-	err = aiven.UpsertPrometheusServiceIntegration(ctx, fromContext(ctx).watcher, ret, aivenProject, input.EnvironmentName)
-	if err != nil {
-		return nil, fmt.Errorf("creating Prometheus service integration: %w", err)
 	}
 
 	err = activitylog.Create(ctx, activitylog.CreateInput{
@@ -288,7 +271,12 @@ func Update(ctx context.Context, input UpdateValkeyInput) (*UpdateValkeyPayload,
 		return nil, err
 	}
 
-	valkeyUpdated, err := toValkey(ret, input.EnvironmentName)
+	retValkey, err := kubernetes.ToConcrete[naiscrd.Valkey](ret)
+	if err != nil {
+		return nil, err
+	}
+
+	valkeyUpdated, err := toValkeyFromNais(retValkey, input.EnvironmentName)
 	if err != nil {
 		return nil, err
 	}
@@ -298,126 +286,93 @@ func Update(ctx context.Context, input UpdateValkeyInput) (*UpdateValkeyPayload,
 	}, nil
 }
 
-func updatePlan(valkey *unstructured.Unstructured, input UpdateValkeyInput) ([]*ValkeyUpdatedActivityLogEntryDataUpdatedField, error) {
+func updateTier(valkey *naiscrd.Valkey, input UpdateValkeyInput) ([]*ValkeyUpdatedActivityLogEntryDataUpdatedField, error) {
 	changes := make([]*ValkeyUpdatedActivityLogEntryDataUpdatedField, 0)
 
-	desired, err := machineTypeFromTierAndMemory(input.Tier, input.Memory)
-	if err != nil {
-		return nil, err
-	}
-
-	oldPlan, found, err := unstructured.NestedString(valkey.Object, specPlan...)
-	if err != nil {
-		return nil, err
-	}
-	if !found {
-		// .spec.plan is a required field
-		return nil, fmt.Errorf("missing .spec.plan in Valkey resource")
-	}
-
-	if oldPlan == desired.AivenPlan {
-		return changes, nil
-	}
-
-	oldMachine, err := machineTypeFromPlan(oldPlan)
-	if err != nil {
-		return nil, err
-	}
-
-	if input.Tier != oldMachine.Tier {
+	origTier := fromMapperatorTier(valkey.Spec.Tier)
+	if input.Tier != origTier {
 		changes = append(changes, &ValkeyUpdatedActivityLogEntryDataUpdatedField{
 			Field:    "tier",
-			OldValue: ptr.To(oldMachine.Tier.String()),
+			OldValue: ptr.To(origTier.String()),
 			NewValue: ptr.To(input.Tier.String()),
 		})
 	}
 
-	if input.Memory != oldMachine.Memory {
+	valkey.Spec.Tier = toMapperatorTier(input.Tier)
+
+	return changes, nil
+}
+
+func updateMemory(valkey *naiscrd.Valkey, input UpdateValkeyInput) ([]*ValkeyUpdatedActivityLogEntryDataUpdatedField, error) {
+	changes := make([]*ValkeyUpdatedActivityLogEntryDataUpdatedField, 0)
+
+	origMemory := fromMapperatorMemory(valkey.Spec.Memory)
+	if input.Memory != origMemory {
 		changes = append(changes, &ValkeyUpdatedActivityLogEntryDataUpdatedField{
 			Field:    "memory",
-			OldValue: ptr.To(oldMachine.Memory.String()),
+			OldValue: ptr.To(origMemory.String()),
 			NewValue: ptr.To(input.Memory.String()),
 		})
 	}
 
-	if err := unstructured.SetNestedField(valkey.Object, desired.AivenPlan, specPlan...); err != nil {
-		return nil, err
-	}
+	valkey.Spec.Memory = toMapperatorMemory(input.Memory)
 
 	return changes, nil
 }
 
-func updateMaxMemoryPolicy(valkey *unstructured.Unstructured, input UpdateValkeyInput) ([]*ValkeyUpdatedActivityLogEntryDataUpdatedField, error) {
-	changes := make([]*ValkeyUpdatedActivityLogEntryDataUpdatedField, 0)
-
+func updateMaxMemoryPolicy(valkey *naiscrd.Valkey, input UpdateValkeyInput) ([]*ValkeyUpdatedActivityLogEntryDataUpdatedField, error) {
 	if input.MaxMemoryPolicy == nil {
-		return changes, nil
+		return nil, nil
 	}
 
-	oldAivenPolicy, found, err := unstructured.NestedString(valkey.Object, specMaxMemoryPolicy...)
-	if err != nil {
-		return nil, err
+	if string(valkey.Spec.MaxMemoryPolicy) == input.MaxMemoryPolicy.ToAivenString() {
+		return nil, nil
 	}
 
-	if found && oldAivenPolicy == input.MaxMemoryPolicy.ToAivenString() {
-		return changes, nil
-	}
-	// continue if not found so that we explicitly set the policy on the resource
-
-	var oldValue *string
-	if found {
-		oldPolicy, err := ValkeyMaxMemoryPolicyFromAivenString(oldAivenPolicy)
+	var oldMMP *string
+	if valkey.Spec.MaxMemoryPolicy != "" {
+		old, err := ValkeyMaxMemoryPolicyFromAivenString(valkey.Spec.MaxMemoryPolicy)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("parsing existing max memory policy: %w", err)
 		}
-		oldValue = ptr.To(oldPolicy.String())
+		oldMMP = ptr.To(old.String())
 	}
+
+	changes := make([]*ValkeyUpdatedActivityLogEntryDataUpdatedField, 0)
 
 	changes = append(changes, &ValkeyUpdatedActivityLogEntryDataUpdatedField{
 		Field:    "maxMemoryPolicy",
-		OldValue: oldValue,
+		OldValue: oldMMP,
 		NewValue: ptr.To(input.MaxMemoryPolicy.String()),
 	})
 
-	maxMemoryPolicy := input.MaxMemoryPolicy.ToAivenString()
-	if err := unstructured.SetNestedField(valkey.Object, maxMemoryPolicy, specMaxMemoryPolicy...); err != nil {
-		return nil, err
-	}
+	valkey.Spec.MaxMemoryPolicy = naiscrd.ValkeyMaxMemoryPolicy(input.MaxMemoryPolicy.ToAivenString())
 
 	return changes, nil
 }
 
-func updateNotifyKeyspaceEvents(valkey *unstructured.Unstructured, input UpdateValkeyInput) ([]*ValkeyUpdatedActivityLogEntryDataUpdatedField, error) {
+func updateNotifyKeyspaceEvents(valkey *naiscrd.Valkey, input UpdateValkeyInput) ([]*ValkeyUpdatedActivityLogEntryDataUpdatedField, error) {
+	if input.NotifyKeyspaceEvents == nil {
+		return nil, nil
+	}
+
+	if string(valkey.Spec.NotifyKeyspaceEvents) == *input.NotifyKeyspaceEvents {
+		return nil, nil
+	}
+
 	changes := make([]*ValkeyUpdatedActivityLogEntryDataUpdatedField, 0)
 
-	if input.NotifyKeyspaceEvents == nil {
-		return changes, nil
+	var oldValue *string
+	if valkey.Spec.NotifyKeyspaceEvents != "" {
+		oldValue = ptr.To(string(valkey.Spec.NotifyKeyspaceEvents))
 	}
-
-	oldValue, found, err := unstructured.NestedString(valkey.Object, specNotifyKeyspaceEvents...)
-	if err != nil {
-		return nil, err
-	}
-
-	if found && oldValue == *input.NotifyKeyspaceEvents {
-		return changes, nil
-	}
-
-	var oldValPtr *string
-	if found {
-		oldValPtr = ptr.To(oldValue)
-	}
-
 	changes = append(changes, &ValkeyUpdatedActivityLogEntryDataUpdatedField{
 		Field:    "notifyKeyspaceEvents",
-		OldValue: oldValPtr,
+		OldValue: oldValue,
 		NewValue: input.NotifyKeyspaceEvents,
 	})
 
-	if err := unstructured.SetNestedField(valkey.Object, *input.NotifyKeyspaceEvents, specNotifyKeyspaceEvents...); err != nil {
-		return nil, err
-	}
-
+	valkey.Spec.NotifyKeyspaceEvents = *input.NotifyKeyspaceEvents
 	return changes, nil
 }
 
@@ -426,13 +381,12 @@ func Delete(ctx context.Context, input DeleteValkeyInput) (*DeleteValkeyPayload,
 		return nil, err
 	}
 
-	name := instanceNamer(input.TeamSlug, input.Name)
-	client, err := fromContext(ctx).watcher.ImpersonatedClientWithNamespace(ctx, input.EnvironmentName, input.TeamSlug.String())
+	client, err := newK8sClient(ctx, input.EnvironmentName, input.TeamSlug)
 	if err != nil {
 		return nil, err
 	}
 
-	valkey, err := client.Get(ctx, name, metav1.GetOptions{})
+	valkey, err := client.Get(ctx, input.Name, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -456,7 +410,7 @@ func Delete(ctx context.Context, input DeleteValkeyInput) (*DeleteValkeyPayload,
 		}
 	}
 
-	if err := fromContext(ctx).watcher.Delete(ctx, input.EnvironmentName, input.TeamSlug.String(), name); err != nil {
+	if err := fromContext(ctx).naisWatcher.Delete(ctx, input.EnvironmentName, input.TeamSlug.String(), input.Name); err != nil {
 		return nil, err
 	}
 
@@ -498,5 +452,73 @@ func State(ctx context.Context, v *Valkey) (ValkeyState, error) {
 		return ValkeyStatePoweroff, nil
 	default:
 		return ValkeyStateUnknown, nil
+	}
+}
+
+func toMapperatorTier(tier ValkeyTier) naiscrd.ValkeyTier {
+	switch tier {
+	case ValkeyTierSingleNode:
+		return naiscrd.ValkeyTierSingleNode
+	case ValkeyTierHighAvailability:
+		return naiscrd.ValkeyTierHighAvailability
+	default:
+		return ""
+	}
+}
+
+func fromMapperatorTier(tier naiscrd.ValkeyTier) ValkeyTier {
+	switch tier {
+	case naiscrd.ValkeyTierSingleNode:
+		return ValkeyTierSingleNode
+	case naiscrd.ValkeyTierHighAvailability:
+		return ValkeyTierHighAvailability
+	default:
+		return ""
+	}
+}
+
+func toMapperatorMemory(memory ValkeyMemory) naiscrd.ValkeyMemory {
+	switch memory {
+	case ValkeyMemoryGB1:
+		return naiscrd.ValkeyMemory1GB
+	case ValkeyMemoryGB4:
+		return naiscrd.ValkeyMemory4GB
+	case ValkeyMemoryGB8:
+		return naiscrd.ValkeyMemory8GB
+	case ValkeyMemoryGB14:
+		return naiscrd.ValkeyMemory14GB
+	case ValkeyMemoryGB28:
+		return naiscrd.ValkeyMemory28GB
+	case ValkeyMemoryGB56:
+		return naiscrd.ValkeyMemory56GB
+	case ValkeyMemoryGB112:
+		return naiscrd.ValkeyMemory112GB
+	case ValkeyMemoryGB200:
+		return naiscrd.ValkeyMemory200GB
+	default:
+		return ""
+	}
+}
+
+func fromMapperatorMemory(memory naiscrd.ValkeyMemory) ValkeyMemory {
+	switch memory {
+	case naiscrd.ValkeyMemory1GB:
+		return ValkeyMemoryGB1
+	case naiscrd.ValkeyMemory4GB:
+		return ValkeyMemoryGB4
+	case naiscrd.ValkeyMemory8GB:
+		return ValkeyMemoryGB8
+	case naiscrd.ValkeyMemory14GB:
+		return ValkeyMemoryGB14
+	case naiscrd.ValkeyMemory28GB:
+		return ValkeyMemoryGB28
+	case naiscrd.ValkeyMemory56GB:
+		return ValkeyMemoryGB56
+	case naiscrd.ValkeyMemory112GB:
+		return ValkeyMemoryGB112
+	case naiscrd.ValkeyMemory200GB:
+		return ValkeyMemoryGB200
+	default:
+		return ""
 	}
 }

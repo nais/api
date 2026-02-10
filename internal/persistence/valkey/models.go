@@ -15,6 +15,8 @@ import (
 	"github.com/nais/api/internal/validate"
 	"github.com/nais/api/internal/workload"
 	aiven_io_v1alpha1 "github.com/nais/liberator/pkg/apis/aiven.io/v1alpha1"
+	"github.com/nais/pgrator/pkg/api"
+	naiscrd "github.com/nais/pgrator/pkg/api/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -31,7 +33,7 @@ type (
 
 type Valkey struct {
 	Name                  string                `json:"name"`
-	Status                *ValkeyStatus         `json:"status"`
+	Status                *naiscrd.ValkeyStatus `json:"status"`
 	TerminationProtection bool                  `json:"terminationProtection"`
 	Tier                  ValkeyTier            `json:"tier"`
 	Memory                ValkeyMemory          `json:"memory"`
@@ -156,11 +158,19 @@ func toValkey(u *unstructured.Unstructured, envName string) (*Valkey, error) {
 		return nil, fmt.Errorf("converting to Valkey instance: %w", err)
 	}
 
+	if len(obj.GetOwnerReferences()) > 0 {
+		for _, ownerRef := range obj.GetOwnerReferences() {
+			if ownerRef.Kind == "Valkey" {
+				return nil, fmt.Errorf("skipping Valkey %s in namespace %s because it has an owner reference", obj.GetName(), obj.GetNamespace())
+			}
+		}
+	}
+
 	// Liberator doesn't contain this field, so we read it directly from the unstructured object
 	terminationProtection, _, _ := unstructured.NestedBool(u.Object, specTerminationProtection...)
 
 	maxMemoryPolicyStr, _, _ := unstructured.NestedString(u.Object, specMaxMemoryPolicy...)
-	maxMemoryPolicy, err := ValkeyMaxMemoryPolicyFromAivenString(maxMemoryPolicyStr)
+	maxMemoryPolicy, err := ValkeyMaxMemoryPolicyFromAivenString(naiscrd.ValkeyMaxMemoryPolicy(maxMemoryPolicyStr))
 	if err != nil {
 		maxMemoryPolicy = ""
 	}
@@ -181,9 +191,10 @@ func toValkey(u *unstructured.Unstructured, envName string) (*Valkey, error) {
 		Name:                  name,
 		EnvironmentName:       envName,
 		TerminationProtection: terminationProtection,
-		Status: &ValkeyStatus{
-			Conditions: obj.Status.Conditions,
-			State:      obj.Status.State,
+		Status: &naiscrd.ValkeyStatus{
+			BaseStatus: api.BaseStatus{
+				Conditions: obj.Status.Conditions,
+			},
 		},
 		TeamSlug:             slug.Slug(obj.GetNamespace()),
 		WorkloadReference:    workload.ReferenceFromOwnerReferences(obj.GetOwnerReferences()),
@@ -192,6 +203,28 @@ func toValkey(u *unstructured.Unstructured, envName string) (*Valkey, error) {
 		Memory:               machine.Memory,
 		MaxMemoryPolicy:      maxMemoryPolicy,
 		NotifyKeyspaceEvents: notifyKeyspaceEvents,
+	}, nil
+}
+
+func toValkeyFromNais(v *naiscrd.Valkey, envName string) (*Valkey, error) {
+	var mmp ValkeyMaxMemoryPolicy
+	if v.Spec.MaxMemoryPolicy != "" {
+		var err error
+		mmp, err = ValkeyMaxMemoryPolicyFromAivenString(v.Spec.MaxMemoryPolicy)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return &Valkey{
+		Name:                 v.Name,
+		EnvironmentName:      envName,
+		Status:               v.Status,
+		TeamSlug:             slug.Slug(v.Namespace),
+		WorkloadReference:    workload.ReferenceFromOwnerReferences(v.OwnerReferences),
+		Tier:                 fromMapperatorTier(v.Spec.Tier),
+		Memory:               fromMapperatorMemory(v.Spec.Memory),
+		NotifyKeyspaceEvents: v.Spec.NotifyKeyspaceEvents,
+		MaxMemoryPolicy:      mmp,
 	}, nil
 }
 
@@ -323,9 +356,9 @@ func (e ValkeyMaxMemoryPolicy) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
-func ValkeyMaxMemoryPolicyFromAivenString(s string) (ValkeyMaxMemoryPolicy, error) {
+func ValkeyMaxMemoryPolicyFromAivenString(s naiscrd.ValkeyMaxMemoryPolicy) (ValkeyMaxMemoryPolicy, error) {
 	for _, policy := range AllValkeyMaxMemoryPolicy {
-		if policy.ToAivenString() == s {
+		if policy.ToAivenString() == string(s) {
 			return policy, nil
 		}
 	}
@@ -335,21 +368,21 @@ func ValkeyMaxMemoryPolicyFromAivenString(s string) (ValkeyMaxMemoryPolicy, erro
 func (e ValkeyMaxMemoryPolicy) ToAivenString() string {
 	switch e {
 	case ValkeyMaxMemoryPolicyAllkeysLfu:
-		return "allkeys-lfu"
+		return string(naiscrd.ValkeyMaxMemoryPolicyAllkeysLFU)
 	case ValkeyMaxMemoryPolicyAllkeysLru:
-		return "allkeys-lru"
+		return string(naiscrd.ValkeyMaxMemoryPolicyAllkeysLRU)
 	case ValkeyMaxMemoryPolicyAllkeysRandom:
-		return "allkeys-random"
+		return string(naiscrd.ValkeyMaxMemoryPolicyAllkeysRandom)
 	case ValkeyMaxMemoryPolicyNoEviction:
-		return "noeviction"
+		return string(naiscrd.ValkeyMaxMemoryPolicyNoEviction)
 	case ValkeyMaxMemoryPolicyVolatileLfu:
-		return "volatile-lfu"
+		return string(naiscrd.ValkeyMaxMemoryPolicyVolatileLFU)
 	case ValkeyMaxMemoryPolicyVolatileLru:
-		return "volatile-lru"
+		return string(naiscrd.ValkeyMaxMemoryPolicyVolatileLRU)
 	case ValkeyMaxMemoryPolicyVolatileRandom:
-		return "volatile-random"
+		return string(naiscrd.ValkeyMaxMemoryPolicyVolatileRandom)
 	case ValkeyMaxMemoryPolicyVolatileTTL:
-		return "volatile-ttl"
+		return string(naiscrd.ValkeyMaxMemoryPolicyVolatileTTL)
 	default:
 		return ""
 	}

@@ -315,7 +315,7 @@ func ConfigureGraph(
 		ctx = secret.NewLoaderContext(ctx, watchers.SecretWatcher, secretClientCreator, dynamicClients, clusters, log)
 		ctx = aiven.NewLoaderContext(ctx, aivenProjects)
 		ctx = opensearch.NewLoaderContext(ctx, tenantName, watchers.OpenSearchWatcher, aivenClient, log)
-		ctx = valkey.NewLoaderContext(ctx, tenantName, watchers.ValkeyWatcher, aivenClient)
+		ctx = valkey.NewLoaderContext(ctx, tenantName, watchers.ValkeyWatcher, watchers.NaisValkeyWatcher, aivenClient)
 		ctx = price.NewLoaderContext(ctx, priceRetriever, log)
 		ctx = utilization.NewLoaderContext(ctx, prometheusClient, log)
 		ctx = alerts.NewLoaderContext(ctx, prometheusClient, log)
