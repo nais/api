@@ -19391,7 +19391,9 @@ type PostgresInstance implements Persistence & Node {
 	team: Team!
 	environment: TeamEnvironment! @deprecated(reason: "Use the ` + "`" + `teamEnvironment` + "`" + ` field instead.")
 	teamEnvironment: TeamEnvironment!
+	"Resource allocation for the Postgres cluster."
 	resources: PostgresInstanceResources!
+	"Major version of PostgreSQL."
 	majorVersion: String!
 }
 
@@ -19467,7 +19469,7 @@ extend enum ActivityLogActivityType {
 }
 
 extend type Mutation {
-	"Grant access to this Postgres cluster"
+	"Grant temporary access to a Postgres cluster."
 	grantPostgresAccess(input: GrantPostgresAccessInput!): GrantPostgresAccessPayload!
 }
 
@@ -19480,6 +19482,7 @@ input GrantPostgresAccessInput {
 	teamSlug: Slug!
 	environmentName: String!
 	grantee: String!
+	"Duration of the access grant (maximum 4 hours)."
 	duration: String!
 }
 `, BuiltIn: false},
