@@ -2,7 +2,6 @@ local user = User.new("user", "user@usersen.com")
 
 local mainTeam = Team.new("someteamname", "purpose", "#slack_channel")
 mainTeam:addMember(user)
-local otherTeam = Team.new("someothername", "purpose", "#slack_channel")
 
 Helper.readK8sResources("k8s_resources/postgres_instances")
 
