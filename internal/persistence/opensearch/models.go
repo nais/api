@@ -17,6 +17,8 @@ import (
 	"github.com/nais/api/internal/validate"
 	"github.com/nais/api/internal/workload"
 	aiven_io_v1alpha1 "github.com/nais/liberator/pkg/apis/aiven.io/v1alpha1"
+	"github.com/nais/pgrator/pkg/api"
+	naiscrd "github.com/nais/pgrator/pkg/api/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -32,17 +34,17 @@ type (
 )
 
 type OpenSearch struct {
-	Name                  string                 `json:"name"`
-	Status                *OpenSearchStatus      `json:"status"`
-	TerminationProtection bool                   `json:"terminationProtection"`
-	Tier                  OpenSearchTier         `json:"tier"`
-	Memory                OpenSearchMemory       `json:"memory"`
-	StorageGB             StorageGB              `json:"storageGB"`
-	TeamSlug              slug.Slug              `json:"-"`
-	EnvironmentName       string                 `json:"-"`
-	WorkloadReference     *workload.Reference    `json:"-"`
-	AivenProject          string                 `json:"-"`
-	MajorVersion          OpenSearchMajorVersion `json:"-"`
+	Name                  string                    `json:"name"`
+	Status                *naiscrd.OpenSearchStatus `json:"status"`
+	TerminationProtection bool                      `json:"terminationProtection"`
+	Tier                  OpenSearchTier            `json:"tier"`
+	Memory                OpenSearchMemory          `json:"memory"`
+	StorageGB             StorageGB                 `json:"storageGB"`
+	TeamSlug              slug.Slug                 `json:"-"`
+	EnvironmentName       string                    `json:"-"`
+	WorkloadReference     *workload.Reference       `json:"-"`
+	AivenProject          string                    `json:"-"`
+	MajorVersion          OpenSearchMajorVersion    `json:"-"`
 }
 
 func (OpenSearch) IsPersistence()    {}
@@ -158,6 +160,14 @@ func toOpenSearch(u *unstructured.Unstructured, envName string) (*OpenSearch, er
 		return nil, fmt.Errorf("converting to OpenSearch: %w", err)
 	}
 
+	if len(obj.GetOwnerReferences()) > 0 {
+		for _, ownerRef := range obj.GetOwnerReferences() {
+			if ownerRef.Kind == "OpenSearch" {
+				return nil, fmt.Errorf("skipping OpenSearch %s in namespace %s because it has an owner reference", obj.GetName(), obj.GetNamespace())
+			}
+		}
+	}
+
 	// Liberator doesn't contain this field, so we read it directly from the unstructured object
 	terminationProtection, _, _ := unstructured.NestedBool(u.Object, specTerminationProtection...)
 
@@ -192,9 +202,10 @@ func toOpenSearch(u *unstructured.Unstructured, envName string) (*OpenSearch, er
 		Name:                  name,
 		EnvironmentName:       envName,
 		TerminationProtection: terminationProtection,
-		Status: &OpenSearchStatus{
-			Conditions: obj.Status.Conditions,
-			State:      obj.Status.State,
+		Status: &naiscrd.OpenSearchStatus{
+			BaseStatus: api.BaseStatus{
+				Conditions: obj.Status.Conditions,
+			},
 		},
 		TeamSlug:          slug.Slug(obj.GetNamespace()),
 		WorkloadReference: workload.ReferenceFromOwnerReferences(obj.GetOwnerReferences()),
@@ -203,6 +214,22 @@ func toOpenSearch(u *unstructured.Unstructured, envName string) (*OpenSearch, er
 		Memory:            machine.Memory,
 		MajorVersion:      majorVersion,
 		StorageGB:         storageGB,
+	}, nil
+}
+
+func toOpenSearchFromNais(o *naiscrd.OpenSearch, envName string) (*OpenSearch, error) {
+	majorVersion := fromMapperatorVersion(o.Spec.Version)
+
+	return &OpenSearch{
+		Name:              o.Name,
+		EnvironmentName:   envName,
+		Status:            o.Status,
+		TeamSlug:          slug.Slug(o.Namespace),
+		WorkloadReference: workload.ReferenceFromOwnerReferences(o.OwnerReferences),
+		Tier:              fromMapperatorTier(o.Spec.Tier),
+		Memory:            fromMapperatorMemory(o.Spec.Memory),
+		MajorVersion:      majorVersion,
+		StorageGB:         StorageGB(o.Spec.StorageGB),
 	}, nil
 }
 
