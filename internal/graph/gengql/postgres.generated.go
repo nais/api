@@ -694,6 +694,72 @@ func (ec *executionContext) fieldContext_PostgresInstance_teamEnvironment(_ cont
 	return fc, nil
 }
 
+func (ec *executionContext) _PostgresInstance_resources(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstance) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PostgresInstance_resources,
+		func(ctx context.Context) (any, error) {
+			return obj.Resources, nil
+		},
+		nil,
+		ec.marshalNPostgresInstanceResources2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceResources,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_PostgresInstance_resources(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresInstance",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "cpu":
+				return ec.fieldContext_PostgresInstanceResources_cpu(ctx, field)
+			case "memory":
+				return ec.fieldContext_PostgresInstanceResources_memory(ctx, field)
+			case "diskSize":
+				return ec.fieldContext_PostgresInstanceResources_diskSize(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PostgresInstanceResources", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresInstance_majorVersion(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstance) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PostgresInstance_majorVersion,
+		func(ctx context.Context) (any, error) {
+			return obj.MajorVersion, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_PostgresInstance_majorVersion(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresInstance",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _PostgresInstanceConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*postgres.PostgresInstance]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -773,6 +839,10 @@ func (ec *executionContext) fieldContext_PostgresInstanceConnection_nodes(_ cont
 				return ec.fieldContext_PostgresInstance_environment(ctx, field)
 			case "teamEnvironment":
 				return ec.fieldContext_PostgresInstance_teamEnvironment(ctx, field)
+			case "resources":
+				return ec.fieldContext_PostgresInstance_resources(ctx, field)
+			case "majorVersion":
+				return ec.fieldContext_PostgresInstance_majorVersion(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PostgresInstance", field.Name)
 		},
@@ -878,8 +948,99 @@ func (ec *executionContext) fieldContext_PostgresInstanceEdge_node(_ context.Con
 				return ec.fieldContext_PostgresInstance_environment(ctx, field)
 			case "teamEnvironment":
 				return ec.fieldContext_PostgresInstance_teamEnvironment(ctx, field)
+			case "resources":
+				return ec.fieldContext_PostgresInstance_resources(ctx, field)
+			case "majorVersion":
+				return ec.fieldContext_PostgresInstance_majorVersion(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PostgresInstance", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresInstanceResources_cpu(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstanceResources) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PostgresInstanceResources_cpu,
+		func(ctx context.Context) (any, error) {
+			return obj.CPU, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_PostgresInstanceResources_cpu(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresInstanceResources",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresInstanceResources_memory(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstanceResources) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PostgresInstanceResources_memory,
+		func(ctx context.Context) (any, error) {
+			return obj.Memory, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_PostgresInstanceResources_memory(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresInstanceResources",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresInstanceResources_diskSize(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstanceResources) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PostgresInstanceResources_diskSize,
+		func(ctx context.Context) (any, error) {
+			return obj.DiskSize, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_PostgresInstanceResources_diskSize(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresInstanceResources",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -1271,6 +1432,16 @@ func (ec *executionContext) _PostgresInstance(ctx context.Context, sel ast.Selec
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "resources":
+			out.Values[i] = ec._PostgresInstance_resources(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "majorVersion":
+			out.Values[i] = ec._PostgresInstance_majorVersion(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -1361,6 +1532,55 @@ func (ec *executionContext) _PostgresInstanceEdge(ctx context.Context, sel ast.S
 			}
 		case "node":
 			out.Values[i] = ec._PostgresInstanceEdge_node(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var postgresInstanceResourcesImplementors = []string{"PostgresInstanceResources"}
+
+func (ec *executionContext) _PostgresInstanceResources(ctx context.Context, sel ast.SelectionSet, obj *postgres.PostgresInstanceResources) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, postgresInstanceResourcesImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PostgresInstanceResources")
+		case "cpu":
+			out.Values[i] = ec._PostgresInstanceResources_cpu(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "memory":
+			out.Values[i] = ec._PostgresInstanceResources_memory(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "diskSize":
+			out.Values[i] = ec._PostgresInstanceResources_diskSize(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -1544,6 +1764,16 @@ func (ec *executionContext) unmarshalNPostgresInstanceOrderField2githubᚗcomᚋ
 
 func (ec *executionContext) marshalNPostgresInstanceOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceOrderField(ctx context.Context, sel ast.SelectionSet, v postgres.PostgresInstanceOrderField) graphql.Marshaler {
 	return v
+}
+
+func (ec *executionContext) marshalNPostgresInstanceResources2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceResources(ctx context.Context, sel ast.SelectionSet, v *postgres.PostgresInstanceResources) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._PostgresInstanceResources(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOPostgresInstanceOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceOrder(ctx context.Context, v any) (*postgres.PostgresInstanceOrder, error) {

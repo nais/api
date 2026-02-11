@@ -28,10 +28,24 @@ type (
 )
 
 type PostgresInstance struct {
-	Name              string              `json:"name"`
-	EnvironmentName   string              `json:"-"`
-	WorkloadReference *workload.Reference `json:"-"`
-	TeamSlug          slug.Slug           `json:"-"`
+	Name              string                     `json:"name"`
+	EnvironmentName   string                     `json:"-"`
+	WorkloadReference *workload.Reference        `json:"-"`
+	TeamSlug          slug.Slug                  `json:"-"`
+	Resources         *PostgresInstanceResources `json:"resources"`
+	MajorVersion      string                     `json:"majorVersion"`
+}
+
+func (PostgresInstance) IsPersistence() {}
+
+func (PostgresInstance) IsNode() {}
+
+func (PostgresInstance) IsSearchNode() {}
+
+type PostgresInstanceResources struct {
+	CPU      string `json:"cpu"`
+	Memory   string `json:"memory"`
+	DiskSize string `json:"diskSize"`
 }
 
 type GrantPostgresAccessInput struct {
@@ -87,10 +101,6 @@ type GrantPostgresAccessPayload struct {
 	Error *string `json:"error,omitempty"`
 }
 
-func (PostgresInstance) IsPersistence() {}
-func (PostgresInstance) IsSearchNode()  {}
-func (PostgresInstance) IsNode()        {}
-
 func (p *PostgresInstance) GetObjectKind() schema.ObjectKind {
 	return schema.EmptyObjectKind
 }
@@ -116,10 +126,21 @@ func (p *PostgresInstance) ID() ident.Ident {
 }
 
 func toPostgres(u *unstructured.Unstructured, environmentName string) (*PostgresInstance, error) {
+	cpu, _, _ := unstructured.NestedString(u.Object, specCPU...)
+	memory, _, _ := unstructured.NestedString(u.Object, specMemory...)
+	diskSize, _, _ := unstructured.NestedString(u.Object, specDiskSize...)
+	majorVersion, _, _ := unstructured.NestedString(u.Object, specMajorVersion...)
+
 	return &PostgresInstance{
 		Name:            u.GetName(),
 		EnvironmentName: environmentName,
 		TeamSlug:        slug.Slug(u.GetNamespace()),
+		Resources: &PostgresInstanceResources{
+			CPU:      cpu,
+			Memory:   memory,
+			DiskSize: diskSize,
+		},
+		MajorVersion: majorVersion,
 	}, nil
 }
 

@@ -1300,7 +1300,9 @@ type ComplexityRoot struct {
 	PostgresInstance struct {
 		Environment     func(childComplexity int) int
 		ID              func(childComplexity int) int
+		MajorVersion    func(childComplexity int) int
 		Name            func(childComplexity int) int
+		Resources       func(childComplexity int) int
 		Team            func(childComplexity int) int
 		TeamEnvironment func(childComplexity int) int
 	}
@@ -1314,6 +1316,12 @@ type ComplexityRoot struct {
 	PostgresInstanceEdge struct {
 		Cursor func(childComplexity int) int
 		Node   func(childComplexity int) int
+	}
+
+	PostgresInstanceResources struct {
+		CPU      func(childComplexity int) int
+		DiskSize func(childComplexity int) int
+		Memory   func(childComplexity int) int
 	}
 
 	Price struct {
@@ -7876,12 +7884,26 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.PostgresInstance.ID(childComplexity), true
 
+	case "PostgresInstance.majorVersion":
+		if e.complexity.PostgresInstance.MajorVersion == nil {
+			break
+		}
+
+		return e.complexity.PostgresInstance.MajorVersion(childComplexity), true
+
 	case "PostgresInstance.name":
 		if e.complexity.PostgresInstance.Name == nil {
 			break
 		}
 
 		return e.complexity.PostgresInstance.Name(childComplexity), true
+
+	case "PostgresInstance.resources":
+		if e.complexity.PostgresInstance.Resources == nil {
+			break
+		}
+
+		return e.complexity.PostgresInstance.Resources(childComplexity), true
 
 	case "PostgresInstance.team":
 		if e.complexity.PostgresInstance.Team == nil {
@@ -7931,6 +7953,27 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.PostgresInstanceEdge.Node(childComplexity), true
+
+	case "PostgresInstanceResources.cpu":
+		if e.complexity.PostgresInstanceResources.CPU == nil {
+			break
+		}
+
+		return e.complexity.PostgresInstanceResources.CPU(childComplexity), true
+
+	case "PostgresInstanceResources.diskSize":
+		if e.complexity.PostgresInstanceResources.DiskSize == nil {
+			break
+		}
+
+		return e.complexity.PostgresInstanceResources.DiskSize(childComplexity), true
+
+	case "PostgresInstanceResources.memory":
+		if e.complexity.PostgresInstanceResources.Memory == nil {
+			break
+		}
+
+		return e.complexity.PostgresInstanceResources.Memory(childComplexity), true
 
 	case "Price.value":
 		if e.complexity.Price.Value == nil {
@@ -19280,6 +19323,8 @@ type PostgresInstance implements Persistence & Node {
 	team: Team!
 	environment: TeamEnvironment! @deprecated(reason: "Use the ` + "`" + `teamEnvironment` + "`" + ` field instead.")
 	teamEnvironment: TeamEnvironment!
+	resources: PostgresInstanceResources!
+	majorVersion: String!
 }
 
 type PostgresInstanceConnection {
@@ -19291,6 +19336,12 @@ type PostgresInstanceConnection {
 type PostgresInstanceEdge {
 	cursor: Cursor!
 	node: PostgresInstance!
+}
+
+type PostgresInstanceResources {
+	cpu: String!
+	memory: String!
+	diskSize: String!
 }
 
 extend union SearchNode = PostgresInstance

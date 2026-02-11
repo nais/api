@@ -23,6 +23,13 @@ import (
 	"k8s.io/utils/ptr"
 )
 
+var (
+	specMajorVersion = []string{"spec", "cluster", "majorVersion"}
+	specCPU          = []string{"spec", "cluster", "resources", "cpu"}
+	specMemory       = []string{"spec", "cluster", "resources", "memory"}
+	specDiskSize     = []string{"spec", "cluster", "resources", "diskSize"}
+)
+
 func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *PostgresInstanceOrder) (*PostgresInstanceConnection, error) {
 	all := ListAllForTeam(ctx, teamSlug)
 	orderPostgresInstances(ctx, all, orderBy)

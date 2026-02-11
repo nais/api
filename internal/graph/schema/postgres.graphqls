@@ -34,6 +34,8 @@ type PostgresInstance implements Persistence & Node {
 	team: Team!
 	environment: TeamEnvironment! @deprecated(reason: "Use the `teamEnvironment` field instead.")
 	teamEnvironment: TeamEnvironment!
+	resources: PostgresInstanceResources!
+	majorVersion: String!
 }
 
 type PostgresInstanceConnection {
@@ -45,6 +47,12 @@ type PostgresInstanceConnection {
 type PostgresInstanceEdge {
 	cursor: Cursor!
 	node: PostgresInstance!
+}
+
+type PostgresInstanceResources {
+	cpu: String!
+	memory: String!
+	diskSize: String!
 }
 
 extend union SearchNode = PostgresInstance
