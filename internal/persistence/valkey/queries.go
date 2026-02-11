@@ -173,6 +173,9 @@ func Create(ctx context.Context, input CreateValkeyInput) (*CreateValkeyPayload,
 		EnvironmentName: ptr.To(input.EnvironmentName),
 		TeamSlug:        ptr.To(input.TeamSlug),
 	})
+	if err != nil {
+		return nil, err
+	}
 
 	obj, err := kubernetes.ToUnstructured(res)
 	if err != nil {
