@@ -126,10 +126,10 @@ func (p *PostgresInstance) ID() ident.Ident {
 }
 
 func toPostgres(u *unstructured.Unstructured, environmentName string) (*PostgresInstance, error) {
-	cpu, _, _ := unstructured.NestedString(u.Object, specCPU...)
-	memory, _, _ := unstructured.NestedString(u.Object, specMemory...)
-	diskSize, _, _ := unstructured.NestedString(u.Object, specDiskSize...)
-	majorVersion, _, _ := unstructured.NestedString(u.Object, specMajorVersion...)
+	cpu, _, _ := unstructured.NestedString(u.Object, "spec", "cluster", "resources", "cpu")
+	memory, _, _ := unstructured.NestedString(u.Object, "spec", "cluster", "resources", "memory")
+	diskSize, _, _ := unstructured.NestedString(u.Object, "spec", "cluster", "resources", "diskSize")
+	majorVersion, _, _ := unstructured.NestedString(u.Object, "spec", "cluster", "majorVersion")
 
 	return &PostgresInstance{
 		Name:              u.GetName(),

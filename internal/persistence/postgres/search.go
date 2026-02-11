@@ -11,7 +11,7 @@ import (
 
 func AddSearchZalandoPostgres(client search.Client, watcher *watcher.Watcher[*PostgresInstance]) {
 	createIdent := func(env string, obj *PostgresInstance) ident.Ident {
-		return newZalandoPostgresIdent(slug.Slug(obj.GetNamespace()), env, obj.GetName())
+		return newIdent(slug.Slug(obj.GetNamespace()), env, obj.GetName())
 	}
 
 	gbi := func(ctx context.Context, id ident.Ident) (search.SearchNode, error) {

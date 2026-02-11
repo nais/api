@@ -23,13 +23,6 @@ import (
 	"k8s.io/utils/ptr"
 )
 
-var (
-	specMajorVersion = []string{"spec", "cluster", "majorVersion"}
-	specCPU          = []string{"spec", "cluster", "resources", "cpu"}
-	specMemory       = []string{"spec", "cluster", "resources", "memory"}
-	specDiskSize     = []string{"spec", "cluster", "resources", "diskSize"}
-)
-
 func GetForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName, clusterName string) (*PostgresInstance, error) {
 	if clusterName == "" {
 		return nil, nil

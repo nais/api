@@ -17,10 +17,6 @@ func init() {
 	ident.RegisterIdentType(identZalandoPostgres, "PP", GetZalandoPostgresByIdent)
 }
 
-func newZalandoPostgresIdent(teamSlug slug.Slug, environmentName, postgresInstanceName string) ident.Ident {
-	return ident.NewIdent(identZalandoPostgres, teamSlug.String(), environmentName, postgresInstanceName)
-}
-
 func parseIdent(id ident.Ident) (teamSlug slug.Slug, environmentName, postgresInstanceName string, err error) {
 	parts := id.Parts()
 	if len(parts) != 3 {
