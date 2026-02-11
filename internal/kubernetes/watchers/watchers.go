@@ -34,7 +34,7 @@ type (
 	BucketWatcher          = watcher.Watcher[*bucket.Bucket]
 	SqlDatabaseWatcher     = watcher.Watcher[*sqlinstance.SQLDatabase]
 	SqlInstanceWatcher     = watcher.Watcher[*sqlinstance.SQLInstance]
-	ZalandoPostgresWatcher = watcher.Watcher[*postgres.Postgres]
+	ZalandoPostgresWatcher = watcher.Watcher[*postgres.PostgresInstance]
 	KafkaTopicWatcher      = watcher.Watcher[*kafkatopic.KafkaTopic]
 	PodWatcher             = watcher.Watcher[*v1.Pod]
 	IngressWatcher         = watcher.Watcher[*netv1.Ingress]

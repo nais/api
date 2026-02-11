@@ -97,7 +97,7 @@ type ResolverRoot interface {
 	OpenSearchAccess() OpenSearchAccessResolver
 	OpenSearchIssue() OpenSearchIssueResolver
 	OpenSearchMaintenance() OpenSearchMaintenanceResolver
-	Postgres() PostgresResolver
+	PostgresInstance() PostgresInstanceResolver
 	PrometheusAlert() PrometheusAlertResolver
 	Query() QueryResolver
 	Reconciler() ReconcilerResolver
@@ -1280,14 +1280,6 @@ type ComplexityRoot struct {
 		TotalCount      func(childComplexity int) int
 	}
 
-	Postgres struct {
-		Environment     func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Name            func(childComplexity int) int
-		Team            func(childComplexity int) int
-		TeamEnvironment func(childComplexity int) int
-	}
-
 	PostgresGrantAccessActivityLogEntry struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
@@ -1303,6 +1295,25 @@ type ComplexityRoot struct {
 	PostgresGrantAccessActivityLogEntryData struct {
 		Grantee func(childComplexity int) int
 		Until   func(childComplexity int) int
+	}
+
+	PostgresInstance struct {
+		Environment     func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Name            func(childComplexity int) int
+		Team            func(childComplexity int) int
+		TeamEnvironment func(childComplexity int) int
+	}
+
+	PostgresInstanceConnection struct {
+		Edges    func(childComplexity int) int
+		Nodes    func(childComplexity int) int
+		PageInfo func(childComplexity int) int
+	}
+
+	PostgresInstanceEdge struct {
+		Cursor func(childComplexity int) int
+		Node   func(childComplexity int) int
 	}
 
 	Price struct {
@@ -2062,6 +2073,7 @@ type ComplexityRoot struct {
 		Member                    func(childComplexity int, email string) int
 		Members                   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.TeamMemberOrder) int
 		OpenSearches              func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *opensearch.OpenSearchOrder) int
+		PostgresInstances         func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *postgres.PostgresInstanceOrder) int
 		Purpose                   func(childComplexity int) int
 		Repositories              func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *repository.RepositoryOrder, filter *repository.TeamRepositoryFilter) int
 		SQLInstances              func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *sqlinstance.SQLInstanceOrder) int
@@ -7773,41 +7785,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.PageInfo.TotalCount(childComplexity), true
 
-	case "Postgres.environment":
-		if e.complexity.Postgres.Environment == nil {
-			break
-		}
-
-		return e.complexity.Postgres.Environment(childComplexity), true
-
-	case "Postgres.id":
-		if e.complexity.Postgres.ID == nil {
-			break
-		}
-
-		return e.complexity.Postgres.ID(childComplexity), true
-
-	case "Postgres.name":
-		if e.complexity.Postgres.Name == nil {
-			break
-		}
-
-		return e.complexity.Postgres.Name(childComplexity), true
-
-	case "Postgres.team":
-		if e.complexity.Postgres.Team == nil {
-			break
-		}
-
-		return e.complexity.Postgres.Team(childComplexity), true
-
-	case "Postgres.teamEnvironment":
-		if e.complexity.Postgres.TeamEnvironment == nil {
-			break
-		}
-
-		return e.complexity.Postgres.TeamEnvironment(childComplexity), true
-
 	case "PostgresGrantAccessActivityLogEntry.actor":
 		if e.complexity.PostgresGrantAccessActivityLogEntry.Actor == nil {
 			break
@@ -7884,6 +7861,76 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.PostgresGrantAccessActivityLogEntryData.Until(childComplexity), true
+
+	case "PostgresInstance.environment":
+		if e.complexity.PostgresInstance.Environment == nil {
+			break
+		}
+
+		return e.complexity.PostgresInstance.Environment(childComplexity), true
+
+	case "PostgresInstance.id":
+		if e.complexity.PostgresInstance.ID == nil {
+			break
+		}
+
+		return e.complexity.PostgresInstance.ID(childComplexity), true
+
+	case "PostgresInstance.name":
+		if e.complexity.PostgresInstance.Name == nil {
+			break
+		}
+
+		return e.complexity.PostgresInstance.Name(childComplexity), true
+
+	case "PostgresInstance.team":
+		if e.complexity.PostgresInstance.Team == nil {
+			break
+		}
+
+		return e.complexity.PostgresInstance.Team(childComplexity), true
+
+	case "PostgresInstance.teamEnvironment":
+		if e.complexity.PostgresInstance.TeamEnvironment == nil {
+			break
+		}
+
+		return e.complexity.PostgresInstance.TeamEnvironment(childComplexity), true
+
+	case "PostgresInstanceConnection.edges":
+		if e.complexity.PostgresInstanceConnection.Edges == nil {
+			break
+		}
+
+		return e.complexity.PostgresInstanceConnection.Edges(childComplexity), true
+
+	case "PostgresInstanceConnection.nodes":
+		if e.complexity.PostgresInstanceConnection.Nodes == nil {
+			break
+		}
+
+		return e.complexity.PostgresInstanceConnection.Nodes(childComplexity), true
+
+	case "PostgresInstanceConnection.pageInfo":
+		if e.complexity.PostgresInstanceConnection.PageInfo == nil {
+			break
+		}
+
+		return e.complexity.PostgresInstanceConnection.PageInfo(childComplexity), true
+
+	case "PostgresInstanceEdge.cursor":
+		if e.complexity.PostgresInstanceEdge.Cursor == nil {
+			break
+		}
+
+		return e.complexity.PostgresInstanceEdge.Cursor(childComplexity), true
+
+	case "PostgresInstanceEdge.node":
+		if e.complexity.PostgresInstanceEdge.Node == nil {
+			break
+		}
+
+		return e.complexity.PostgresInstanceEdge.Node(childComplexity), true
 
 	case "Price.value":
 		if e.complexity.Price.Value == nil {
@@ -11379,6 +11426,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Team.OpenSearches(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*opensearch.OpenSearchOrder)), true
+
+	case "Team.postgresInstances":
+		if e.complexity.Team.PostgresInstances == nil {
+			break
+		}
+
+		args, err := ec.field_Team_postgresInstances_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Team.PostgresInstances(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*postgres.PostgresInstanceOrder)), true
 
 	case "Team.purpose":
 		if e.complexity.Team.Purpose == nil {
@@ -14940,6 +14999,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputMetricsRangeInput,
 		ec.unmarshalInputOpenSearchAccessOrder,
 		ec.unmarshalInputOpenSearchOrder,
+		ec.unmarshalInputPostgresInstanceOrder,
 		ec.unmarshalInputReconcilerConfigInput,
 		ec.unmarshalInputRemoveRepositoryFromTeamInput,
 		ec.unmarshalInputRemoveSecretValueInput,
@@ -19184,7 +19244,37 @@ type WorkloadLogLine {
 	instance: String!
 }
 `, BuiltIn: false},
-	{Name: "../schema/postgres.graphqls", Input: `type Postgres implements Persistence & Node {
+	{Name: "../schema/postgres.graphqls", Input: `extend type Team {
+	"SQL instances owned by the team."
+	postgresInstances(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+
+		"Ordering options for items returned from the connection."
+		orderBy: PostgresInstanceOrder
+	): PostgresInstanceConnection!
+}
+
+input PostgresInstanceOrder {
+	field: PostgresInstanceOrderField!
+	direction: OrderDirection!
+}
+
+enum PostgresInstanceOrderField {
+	NAME
+	ENVIRONMENT
+}
+
+type PostgresInstance implements Persistence & Node {
 	id: ID!
 	name: String!
 	team: Team!
@@ -19192,7 +19282,18 @@ type WorkloadLogLine {
 	teamEnvironment: TeamEnvironment!
 }
 
-extend union SearchNode = Postgres
+type PostgresInstanceConnection {
+	pageInfo: PageInfo!
+	nodes: [PostgresInstance!]!
+	edges: [PostgresInstanceEdge!]!
+}
+
+type PostgresInstanceEdge {
+	cursor: Cursor!
+	node: PostgresInstance!
+}
+
+extend union SearchNode = PostgresInstance
 
 extend enum SearchType {
 	POSTGRES

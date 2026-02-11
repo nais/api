@@ -14,25 +14,25 @@ const loadersKey ctxKey = iota
 
 func NewLoaderContext(
 	ctx context.Context,
-	zalandoPostgresWatcher *watcher.Watcher[*Postgres],
+	zalandoPostgresWatcher *watcher.Watcher[*PostgresInstance],
 ) context.Context {
 	return context.WithValue(ctx, loadersKey, newLoaders(zalandoPostgresWatcher))
 }
 
 type loaders struct {
-	zalandoPostgresWatcher *watcher.Watcher[*Postgres]
+	zalandoPostgresWatcher *watcher.Watcher[*PostgresInstance]
 }
 
 func newLoaders(
-	zalandoPostgresWatcher *watcher.Watcher[*Postgres],
+	zalandoPostgresWatcher *watcher.Watcher[*PostgresInstance],
 ) *loaders {
 	return &loaders{
 		zalandoPostgresWatcher: zalandoPostgresWatcher,
 	}
 }
 
-func NewZalandoPostgresWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watcher[*Postgres] {
-	w := watcher.Watch(mgr, &Postgres{}, watcher.WithConverter(func(o *unstructured.Unstructured, environmentName string) (obj any, ok bool) {
+func NewZalandoPostgresWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watcher[*PostgresInstance] {
+	w := watcher.Watch(mgr, &PostgresInstance{}, watcher.WithConverter(func(o *unstructured.Unstructured, environmentName string) (obj any, ok bool) {
 		ret, err := toPostgres(o, environmentName)
 		if err != nil {
 			return nil, false

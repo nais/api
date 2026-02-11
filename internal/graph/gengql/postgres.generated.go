@@ -7,9 +7,11 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"sync"
 	"sync/atomic"
 
 	"github.com/99designs/gqlgen/graphql"
+	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/persistence/postgres"
 	"github.com/nais/api/internal/team"
 	"github.com/vektah/gqlparser/v2/ast"
@@ -17,10 +19,10 @@ import (
 
 // region    ************************** generated!.gotpl **************************
 
-type PostgresResolver interface {
-	Team(ctx context.Context, obj *postgres.Postgres) (*team.Team, error)
-	Environment(ctx context.Context, obj *postgres.Postgres) (*team.TeamEnvironment, error)
-	TeamEnvironment(ctx context.Context, obj *postgres.Postgres) (*team.TeamEnvironment, error)
+type PostgresInstanceResolver interface {
+	Team(ctx context.Context, obj *postgres.PostgresInstance) (*team.Team, error)
+	Environment(ctx context.Context, obj *postgres.PostgresInstance) (*team.TeamEnvironment, error)
+	TeamEnvironment(ctx context.Context, obj *postgres.PostgresInstance) (*team.TeamEnvironment, error)
 }
 
 // endregion ************************** generated!.gotpl **************************
@@ -59,307 +61,6 @@ func (ec *executionContext) fieldContext_GrantPostgresAccessPayload_error(_ cont
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Postgres_id(ctx context.Context, field graphql.CollectedField, obj *postgres.Postgres) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_Postgres_id,
-		func(ctx context.Context) (any, error) {
-			return obj.ID(), nil
-		},
-		nil,
-		ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_Postgres_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Postgres",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Postgres_name(ctx context.Context, field graphql.CollectedField, obj *postgres.Postgres) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_Postgres_name,
-		func(ctx context.Context) (any, error) {
-			return obj.Name, nil
-		},
-		nil,
-		ec.marshalNString2string,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_Postgres_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Postgres",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Postgres_team(ctx context.Context, field graphql.CollectedField, obj *postgres.Postgres) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_Postgres_team,
-		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Postgres().Team(ctx, obj)
-		},
-		nil,
-		ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_Postgres_team(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Postgres",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Team_id(ctx, field)
-			case "slug":
-				return ec.fieldContext_Team_slug(ctx, field)
-			case "slackChannel":
-				return ec.fieldContext_Team_slackChannel(ctx, field)
-			case "purpose":
-				return ec.fieldContext_Team_purpose(ctx, field)
-			case "externalResources":
-				return ec.fieldContext_Team_externalResources(ctx, field)
-			case "member":
-				return ec.fieldContext_Team_member(ctx, field)
-			case "members":
-				return ec.fieldContext_Team_members(ctx, field)
-			case "lastSuccessfulSync":
-				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
-			case "deletionInProgress":
-				return ec.fieldContext_Team_deletionInProgress(ctx, field)
-			case "viewerIsOwner":
-				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
-			case "viewerIsMember":
-				return ec.fieldContext_Team_viewerIsMember(ctx, field)
-			case "environments":
-				return ec.fieldContext_Team_environments(ctx, field)
-			case "environment":
-				return ec.fieldContext_Team_environment(ctx, field)
-			case "deleteKey":
-				return ec.fieldContext_Team_deleteKey(ctx, field)
-			case "inventoryCounts":
-				return ec.fieldContext_Team_inventoryCounts(ctx, field)
-			case "activityLog":
-				return ec.fieldContext_Team_activityLog(ctx, field)
-			case "alerts":
-				return ec.fieldContext_Team_alerts(ctx, field)
-			case "applications":
-				return ec.fieldContext_Team_applications(ctx, field)
-			case "bigQueryDatasets":
-				return ec.fieldContext_Team_bigQueryDatasets(ctx, field)
-			case "buckets":
-				return ec.fieldContext_Team_buckets(ctx, field)
-			case "cost":
-				return ec.fieldContext_Team_cost(ctx, field)
-			case "deploymentKey":
-				return ec.fieldContext_Team_deploymentKey(ctx, field)
-			case "deployments":
-				return ec.fieldContext_Team_deployments(ctx, field)
-			case "issues":
-				return ec.fieldContext_Team_issues(ctx, field)
-			case "jobs":
-				return ec.fieldContext_Team_jobs(ctx, field)
-			case "kafkaTopics":
-				return ec.fieldContext_Team_kafkaTopics(ctx, field)
-			case "openSearches":
-				return ec.fieldContext_Team_openSearches(ctx, field)
-			case "repositories":
-				return ec.fieldContext_Team_repositories(ctx, field)
-			case "secrets":
-				return ec.fieldContext_Team_secrets(ctx, field)
-			case "sqlInstances":
-				return ec.fieldContext_Team_sqlInstances(ctx, field)
-			case "unleash":
-				return ec.fieldContext_Team_unleash(ctx, field)
-			case "workloadUtilization":
-				return ec.fieldContext_Team_workloadUtilization(ctx, field)
-			case "serviceUtilization":
-				return ec.fieldContext_Team_serviceUtilization(ctx, field)
-			case "valkeys":
-				return ec.fieldContext_Team_valkeys(ctx, field)
-			case "imageVulnerabilityHistory":
-				return ec.fieldContext_Team_imageVulnerabilityHistory(ctx, field)
-			case "vulnerabilityFixHistory":
-				return ec.fieldContext_Team_vulnerabilityFixHistory(ctx, field)
-			case "vulnerabilitySummary":
-				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
-			case "vulnerabilitySummaries":
-				return ec.fieldContext_Team_vulnerabilitySummaries(ctx, field)
-			case "workloads":
-				return ec.fieldContext_Team_workloads(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Postgres_environment(ctx context.Context, field graphql.CollectedField, obj *postgres.Postgres) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_Postgres_environment,
-		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Postgres().Environment(ctx, obj)
-		},
-		nil,
-		ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_Postgres_environment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Postgres",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_TeamEnvironment_id(ctx, field)
-			case "name":
-				return ec.fieldContext_TeamEnvironment_name(ctx, field)
-			case "gcpProjectID":
-				return ec.fieldContext_TeamEnvironment_gcpProjectID(ctx, field)
-			case "slackAlertsChannel":
-				return ec.fieldContext_TeamEnvironment_slackAlertsChannel(ctx, field)
-			case "team":
-				return ec.fieldContext_TeamEnvironment_team(ctx, field)
-			case "alerts":
-				return ec.fieldContext_TeamEnvironment_alerts(ctx, field)
-			case "application":
-				return ec.fieldContext_TeamEnvironment_application(ctx, field)
-			case "bigQueryDataset":
-				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
-			case "bucket":
-				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
-			case "cost":
-				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
-			case "environment":
-				return ec.fieldContext_TeamEnvironment_environment(ctx, field)
-			case "job":
-				return ec.fieldContext_TeamEnvironment_job(ctx, field)
-			case "kafkaTopic":
-				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
-			case "openSearch":
-				return ec.fieldContext_TeamEnvironment_openSearch(ctx, field)
-			case "secret":
-				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
-			case "sqlInstance":
-				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
-			case "valkey":
-				return ec.fieldContext_TeamEnvironment_valkey(ctx, field)
-			case "workload":
-				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Postgres_teamEnvironment(ctx context.Context, field graphql.CollectedField, obj *postgres.Postgres) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_Postgres_teamEnvironment,
-		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Postgres().TeamEnvironment(ctx, obj)
-		},
-		nil,
-		ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_Postgres_teamEnvironment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Postgres",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_TeamEnvironment_id(ctx, field)
-			case "name":
-				return ec.fieldContext_TeamEnvironment_name(ctx, field)
-			case "gcpProjectID":
-				return ec.fieldContext_TeamEnvironment_gcpProjectID(ctx, field)
-			case "slackAlertsChannel":
-				return ec.fieldContext_TeamEnvironment_slackAlertsChannel(ctx, field)
-			case "team":
-				return ec.fieldContext_TeamEnvironment_team(ctx, field)
-			case "alerts":
-				return ec.fieldContext_TeamEnvironment_alerts(ctx, field)
-			case "application":
-				return ec.fieldContext_TeamEnvironment_application(ctx, field)
-			case "bigQueryDataset":
-				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
-			case "bucket":
-				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
-			case "cost":
-				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
-			case "environment":
-				return ec.fieldContext_TeamEnvironment_environment(ctx, field)
-			case "job":
-				return ec.fieldContext_TeamEnvironment_job(ctx, field)
-			case "kafkaTopic":
-				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
-			case "openSearch":
-				return ec.fieldContext_TeamEnvironment_openSearch(ctx, field)
-			case "secret":
-				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
-			case "sqlInstance":
-				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
-			case "valkey":
-				return ec.fieldContext_TeamEnvironment_valkey(ctx, field)
-			case "workload":
-				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
 		},
 	}
 	return fc, nil
@@ -690,6 +391,500 @@ func (ec *executionContext) fieldContext_PostgresGrantAccessActivityLogEntryData
 	return fc, nil
 }
 
+func (ec *executionContext) _PostgresInstance_id(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstance) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PostgresInstance_id,
+		func(ctx context.Context) (any, error) {
+			return obj.ID(), nil
+		},
+		nil,
+		ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_PostgresInstance_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresInstance",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresInstance_name(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstance) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PostgresInstance_name,
+		func(ctx context.Context) (any, error) {
+			return obj.Name, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_PostgresInstance_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresInstance",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresInstance_team(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstance) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PostgresInstance_team,
+		func(ctx context.Context) (any, error) {
+			return ec.resolvers.PostgresInstance().Team(ctx, obj)
+		},
+		nil,
+		ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_PostgresInstance_team(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresInstance",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Team_id(ctx, field)
+			case "slug":
+				return ec.fieldContext_Team_slug(ctx, field)
+			case "slackChannel":
+				return ec.fieldContext_Team_slackChannel(ctx, field)
+			case "purpose":
+				return ec.fieldContext_Team_purpose(ctx, field)
+			case "externalResources":
+				return ec.fieldContext_Team_externalResources(ctx, field)
+			case "member":
+				return ec.fieldContext_Team_member(ctx, field)
+			case "members":
+				return ec.fieldContext_Team_members(ctx, field)
+			case "lastSuccessfulSync":
+				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "deletionInProgress":
+				return ec.fieldContext_Team_deletionInProgress(ctx, field)
+			case "viewerIsOwner":
+				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
+			case "viewerIsMember":
+				return ec.fieldContext_Team_viewerIsMember(ctx, field)
+			case "environments":
+				return ec.fieldContext_Team_environments(ctx, field)
+			case "environment":
+				return ec.fieldContext_Team_environment(ctx, field)
+			case "deleteKey":
+				return ec.fieldContext_Team_deleteKey(ctx, field)
+			case "inventoryCounts":
+				return ec.fieldContext_Team_inventoryCounts(ctx, field)
+			case "activityLog":
+				return ec.fieldContext_Team_activityLog(ctx, field)
+			case "alerts":
+				return ec.fieldContext_Team_alerts(ctx, field)
+			case "applications":
+				return ec.fieldContext_Team_applications(ctx, field)
+			case "bigQueryDatasets":
+				return ec.fieldContext_Team_bigQueryDatasets(ctx, field)
+			case "buckets":
+				return ec.fieldContext_Team_buckets(ctx, field)
+			case "cost":
+				return ec.fieldContext_Team_cost(ctx, field)
+			case "deploymentKey":
+				return ec.fieldContext_Team_deploymentKey(ctx, field)
+			case "deployments":
+				return ec.fieldContext_Team_deployments(ctx, field)
+			case "issues":
+				return ec.fieldContext_Team_issues(ctx, field)
+			case "jobs":
+				return ec.fieldContext_Team_jobs(ctx, field)
+			case "kafkaTopics":
+				return ec.fieldContext_Team_kafkaTopics(ctx, field)
+			case "openSearches":
+				return ec.fieldContext_Team_openSearches(ctx, field)
+			case "postgresInstances":
+				return ec.fieldContext_Team_postgresInstances(ctx, field)
+			case "repositories":
+				return ec.fieldContext_Team_repositories(ctx, field)
+			case "secrets":
+				return ec.fieldContext_Team_secrets(ctx, field)
+			case "sqlInstances":
+				return ec.fieldContext_Team_sqlInstances(ctx, field)
+			case "unleash":
+				return ec.fieldContext_Team_unleash(ctx, field)
+			case "workloadUtilization":
+				return ec.fieldContext_Team_workloadUtilization(ctx, field)
+			case "serviceUtilization":
+				return ec.fieldContext_Team_serviceUtilization(ctx, field)
+			case "valkeys":
+				return ec.fieldContext_Team_valkeys(ctx, field)
+			case "imageVulnerabilityHistory":
+				return ec.fieldContext_Team_imageVulnerabilityHistory(ctx, field)
+			case "vulnerabilityFixHistory":
+				return ec.fieldContext_Team_vulnerabilityFixHistory(ctx, field)
+			case "vulnerabilitySummary":
+				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
+			case "vulnerabilitySummaries":
+				return ec.fieldContext_Team_vulnerabilitySummaries(ctx, field)
+			case "workloads":
+				return ec.fieldContext_Team_workloads(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresInstance_environment(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstance) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PostgresInstance_environment,
+		func(ctx context.Context) (any, error) {
+			return ec.resolvers.PostgresInstance().Environment(ctx, obj)
+		},
+		nil,
+		ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_PostgresInstance_environment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresInstance",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_TeamEnvironment_id(ctx, field)
+			case "name":
+				return ec.fieldContext_TeamEnvironment_name(ctx, field)
+			case "gcpProjectID":
+				return ec.fieldContext_TeamEnvironment_gcpProjectID(ctx, field)
+			case "slackAlertsChannel":
+				return ec.fieldContext_TeamEnvironment_slackAlertsChannel(ctx, field)
+			case "team":
+				return ec.fieldContext_TeamEnvironment_team(ctx, field)
+			case "alerts":
+				return ec.fieldContext_TeamEnvironment_alerts(ctx, field)
+			case "application":
+				return ec.fieldContext_TeamEnvironment_application(ctx, field)
+			case "bigQueryDataset":
+				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
+			case "bucket":
+				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
+			case "cost":
+				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
+			case "environment":
+				return ec.fieldContext_TeamEnvironment_environment(ctx, field)
+			case "job":
+				return ec.fieldContext_TeamEnvironment_job(ctx, field)
+			case "kafkaTopic":
+				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
+			case "openSearch":
+				return ec.fieldContext_TeamEnvironment_openSearch(ctx, field)
+			case "secret":
+				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
+			case "sqlInstance":
+				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "valkey":
+				return ec.fieldContext_TeamEnvironment_valkey(ctx, field)
+			case "workload":
+				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresInstance_teamEnvironment(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstance) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PostgresInstance_teamEnvironment,
+		func(ctx context.Context) (any, error) {
+			return ec.resolvers.PostgresInstance().TeamEnvironment(ctx, obj)
+		},
+		nil,
+		ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_PostgresInstance_teamEnvironment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresInstance",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_TeamEnvironment_id(ctx, field)
+			case "name":
+				return ec.fieldContext_TeamEnvironment_name(ctx, field)
+			case "gcpProjectID":
+				return ec.fieldContext_TeamEnvironment_gcpProjectID(ctx, field)
+			case "slackAlertsChannel":
+				return ec.fieldContext_TeamEnvironment_slackAlertsChannel(ctx, field)
+			case "team":
+				return ec.fieldContext_TeamEnvironment_team(ctx, field)
+			case "alerts":
+				return ec.fieldContext_TeamEnvironment_alerts(ctx, field)
+			case "application":
+				return ec.fieldContext_TeamEnvironment_application(ctx, field)
+			case "bigQueryDataset":
+				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
+			case "bucket":
+				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
+			case "cost":
+				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
+			case "environment":
+				return ec.fieldContext_TeamEnvironment_environment(ctx, field)
+			case "job":
+				return ec.fieldContext_TeamEnvironment_job(ctx, field)
+			case "kafkaTopic":
+				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
+			case "openSearch":
+				return ec.fieldContext_TeamEnvironment_openSearch(ctx, field)
+			case "secret":
+				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
+			case "sqlInstance":
+				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "valkey":
+				return ec.fieldContext_TeamEnvironment_valkey(ctx, field)
+			case "workload":
+				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresInstanceConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*postgres.PostgresInstance]) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PostgresInstanceConnection_pageInfo,
+		func(ctx context.Context) (any, error) {
+			return obj.PageInfo, nil
+		},
+		nil,
+		ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_PostgresInstanceConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresInstanceConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "hasNextPage":
+				return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
+			case "endCursor":
+				return ec.fieldContext_PageInfo_endCursor(ctx, field)
+			case "hasPreviousPage":
+				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
+			case "startCursor":
+				return ec.fieldContext_PageInfo_startCursor(ctx, field)
+			case "totalCount":
+				return ec.fieldContext_PageInfo_totalCount(ctx, field)
+			case "pageStart":
+				return ec.fieldContext_PageInfo_pageStart(ctx, field)
+			case "pageEnd":
+				return ec.fieldContext_PageInfo_pageEnd(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresInstanceConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*postgres.PostgresInstance]) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PostgresInstanceConnection_nodes,
+		func(ctx context.Context) (any, error) {
+			return obj.Nodes(), nil
+		},
+		nil,
+		ec.marshalNPostgresInstance2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceᚄ,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_PostgresInstanceConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresInstanceConnection",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_PostgresInstance_id(ctx, field)
+			case "name":
+				return ec.fieldContext_PostgresInstance_name(ctx, field)
+			case "team":
+				return ec.fieldContext_PostgresInstance_team(ctx, field)
+			case "environment":
+				return ec.fieldContext_PostgresInstance_environment(ctx, field)
+			case "teamEnvironment":
+				return ec.fieldContext_PostgresInstance_teamEnvironment(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PostgresInstance", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresInstanceConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*postgres.PostgresInstance]) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PostgresInstanceConnection_edges,
+		func(ctx context.Context) (any, error) {
+			return obj.Edges, nil
+		},
+		nil,
+		ec.marshalNPostgresInstanceEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_PostgresInstanceConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresInstanceConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "cursor":
+				return ec.fieldContext_PostgresInstanceEdge_cursor(ctx, field)
+			case "node":
+				return ec.fieldContext_PostgresInstanceEdge_node(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PostgresInstanceEdge", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresInstanceEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*postgres.PostgresInstance]) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PostgresInstanceEdge_cursor,
+		func(ctx context.Context) (any, error) {
+			return obj.Cursor, nil
+		},
+		nil,
+		ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_PostgresInstanceEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresInstanceEdge",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Cursor does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresInstanceEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*postgres.PostgresInstance]) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PostgresInstanceEdge_node,
+		func(ctx context.Context) (any, error) {
+			return obj.Node, nil
+		},
+		nil,
+		ec.marshalNPostgresInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstance,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_PostgresInstanceEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresInstanceEdge",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_PostgresInstance_id(ctx, field)
+			case "name":
+				return ec.fieldContext_PostgresInstance_name(ctx, field)
+			case "team":
+				return ec.fieldContext_PostgresInstance_team(ctx, field)
+			case "environment":
+				return ec.fieldContext_PostgresInstance_environment(ctx, field)
+			case "teamEnvironment":
+				return ec.fieldContext_PostgresInstance_teamEnvironment(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PostgresInstance", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 // endregion **************************** field.gotpl *****************************
 
 // region    **************************** input.gotpl *****************************
@@ -749,6 +944,40 @@ func (ec *executionContext) unmarshalInputGrantPostgresAccessInput(ctx context.C
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputPostgresInstanceOrder(ctx context.Context, obj any) (postgres.PostgresInstanceOrder, error) {
+	var it postgres.PostgresInstanceOrder
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"field", "direction"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "field":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("field"))
+			data, err := ec.unmarshalNPostgresInstanceOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceOrderField(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Field = data
+		case "direction":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("direction"))
+			data, err := ec.unmarshalNOrderDirection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOrderDirection(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Direction = data
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -770,158 +999,6 @@ func (ec *executionContext) _GrantPostgresAccessPayload(ctx context.Context, sel
 			out.Values[i] = graphql.MarshalString("GrantPostgresAccessPayload")
 		case "error":
 			out.Values[i] = ec._GrantPostgresAccessPayload_error(ctx, field, obj)
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var postgresImplementors = []string{"Postgres", "Persistence", "Node", "SearchNode"}
-
-func (ec *executionContext) _Postgres(ctx context.Context, sel ast.SelectionSet, obj *postgres.Postgres) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, postgresImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("Postgres")
-		case "id":
-			out.Values[i] = ec._Postgres_id(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "name":
-			out.Values[i] = ec._Postgres_name(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "team":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Postgres_team(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "environment":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Postgres_environment(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "teamEnvironment":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Postgres_teamEnvironment(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -1065,6 +1142,251 @@ func (ec *executionContext) _PostgresGrantAccessActivityLogEntryData(ctx context
 	return out
 }
 
+var postgresInstanceImplementors = []string{"PostgresInstance", "Persistence", "Node", "SearchNode"}
+
+func (ec *executionContext) _PostgresInstance(ctx context.Context, sel ast.SelectionSet, obj *postgres.PostgresInstance) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, postgresInstanceImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PostgresInstance")
+		case "id":
+			out.Values[i] = ec._PostgresInstance_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "name":
+			out.Values[i] = ec._PostgresInstance_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "team":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._PostgresInstance_team(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "environment":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._PostgresInstance_environment(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "teamEnvironment":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._PostgresInstance_teamEnvironment(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var postgresInstanceConnectionImplementors = []string{"PostgresInstanceConnection"}
+
+func (ec *executionContext) _PostgresInstanceConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.Connection[*postgres.PostgresInstance]) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, postgresInstanceConnectionImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PostgresInstanceConnection")
+		case "pageInfo":
+			out.Values[i] = ec._PostgresInstanceConnection_pageInfo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "nodes":
+			out.Values[i] = ec._PostgresInstanceConnection_nodes(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "edges":
+			out.Values[i] = ec._PostgresInstanceConnection_edges(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var postgresInstanceEdgeImplementors = []string{"PostgresInstanceEdge"}
+
+func (ec *executionContext) _PostgresInstanceEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[*postgres.PostgresInstance]) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, postgresInstanceEdgeImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PostgresInstanceEdge")
+		case "cursor":
+			out.Values[i] = ec._PostgresInstanceEdge_cursor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "node":
+			out.Values[i] = ec._PostgresInstanceEdge_node(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 // endregion **************************** object.gotpl ****************************
 
 // region    ***************************** type.gotpl *****************************
@@ -1096,6 +1418,140 @@ func (ec *executionContext) marshalNPostgresGrantAccessActivityLogEntryData2ᚖg
 		return graphql.Null
 	}
 	return ec._PostgresGrantAccessActivityLogEntryData(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNPostgresInstance2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceᚄ(ctx context.Context, sel ast.SelectionSet, v []*postgres.PostgresInstance) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNPostgresInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstance(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNPostgresInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstance(ctx context.Context, sel ast.SelectionSet, v *postgres.PostgresInstance) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._PostgresInstance(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNPostgresInstanceConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[*postgres.PostgresInstance]) graphql.Marshaler {
+	return ec._PostgresInstanceConnection(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNPostgresInstanceConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*postgres.PostgresInstance]) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._PostgresInstanceConnection(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNPostgresInstanceEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[*postgres.PostgresInstance]) graphql.Marshaler {
+	return ec._PostgresInstanceEdge(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNPostgresInstanceEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[*postgres.PostgresInstance]) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNPostgresInstanceEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) unmarshalNPostgresInstanceOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceOrderField(ctx context.Context, v any) (postgres.PostgresInstanceOrderField, error) {
+	var res postgres.PostgresInstanceOrderField
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNPostgresInstanceOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceOrderField(ctx context.Context, sel ast.SelectionSet, v postgres.PostgresInstanceOrderField) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalOPostgresInstanceOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceOrder(ctx context.Context, v any) (*postgres.PostgresInstanceOrder, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputPostgresInstanceOrder(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 // endregion ***************************** type.gotpl *****************************

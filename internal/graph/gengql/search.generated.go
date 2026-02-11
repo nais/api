@@ -295,11 +295,11 @@ func (ec *executionContext) _SearchNode(ctx context.Context, sel ast.SelectionSe
 			return graphql.Null
 		}
 		return ec._SqlInstance(ctx, sel, obj)
-	case *postgres.Postgres:
+	case *postgres.PostgresInstance:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._Postgres(ctx, sel, obj)
+		return ec._PostgresInstance(ctx, sel, obj)
 	case kafkatopic.KafkaTopic:
 		return ec._KafkaTopic(ctx, sel, &obj)
 	case *kafkatopic.KafkaTopic:

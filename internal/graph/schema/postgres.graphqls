@@ -1,4 +1,34 @@
-type Postgres implements Persistence & Node {
+extend type Team {
+	"SQL instances owned by the team."
+	postgresInstances(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+
+		"Ordering options for items returned from the connection."
+		orderBy: PostgresInstanceOrder
+	): PostgresInstanceConnection!
+}
+
+input PostgresInstanceOrder {
+	field: PostgresInstanceOrderField!
+	direction: OrderDirection!
+}
+
+enum PostgresInstanceOrderField {
+	NAME
+	ENVIRONMENT
+}
+
+type PostgresInstance implements Persistence & Node {
 	id: ID!
 	name: String!
 	team: Team!
@@ -6,7 +36,18 @@ type Postgres implements Persistence & Node {
 	teamEnvironment: TeamEnvironment!
 }
 
-extend union SearchNode = Postgres
+type PostgresInstanceConnection {
+	pageInfo: PageInfo!
+	nodes: [PostgresInstance!]!
+	edges: [PostgresInstanceEdge!]!
+}
+
+type PostgresInstanceEdge {
+	cursor: Cursor!
+	node: PostgresInstance!
+}
+
+extend union SearchNode = PostgresInstance
 
 extend enum SearchType {
 	POSTGRES

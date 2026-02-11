@@ -323,6 +323,8 @@ func (ec *executionContext) fieldContext_SqlDatabase_team(_ context.Context, fie
 				return ec.fieldContext_Team_kafkaTopics(ctx, field)
 			case "openSearches":
 				return ec.fieldContext_Team_openSearches(ctx, field)
+			case "postgresInstances":
+				return ec.fieldContext_Team_postgresInstances(ctx, field)
 			case "repositories":
 				return ec.fieldContext_Team_repositories(ctx, field)
 			case "secrets":
@@ -740,6 +742,8 @@ func (ec *executionContext) fieldContext_SqlInstance_team(_ context.Context, fie
 				return ec.fieldContext_Team_kafkaTopics(ctx, field)
 			case "openSearches":
 				return ec.fieldContext_Team_openSearches(ctx, field)
+			case "postgresInstances":
+				return ec.fieldContext_Team_postgresInstances(ctx, field)
 			case "repositories":
 				return ec.fieldContext_Team_repositories(ctx, field)
 			case "secrets":

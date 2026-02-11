@@ -72,13 +72,13 @@ func (ec *executionContext) _Persistence(ctx context.Context, sel ast.SelectionS
 			return graphql.Null
 		}
 		return ec._SqlDatabase(ctx, sel, obj)
-	case postgres.Postgres:
-		return ec._Postgres(ctx, sel, &obj)
-	case *postgres.Postgres:
+	case postgres.PostgresInstance:
+		return ec._PostgresInstance(ctx, sel, &obj)
+	case *postgres.PostgresInstance:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._Postgres(ctx, sel, obj)
+		return ec._PostgresInstance(ctx, sel, obj)
 	case kafkatopic.KafkaTopic:
 		return ec._KafkaTopic(ctx, sel, &obj)
 	case *kafkatopic.KafkaTopic:

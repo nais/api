@@ -9,8 +9,8 @@ import (
 	"github.com/nais/api/internal/slug"
 )
 
-func AddSearchZalandoPostgres(client search.Client, watcher *watcher.Watcher[*Postgres]) {
-	createIdent := func(env string, obj *Postgres) ident.Ident {
+func AddSearchZalandoPostgres(client search.Client, watcher *watcher.Watcher[*PostgresInstance]) {
+	createIdent := func(env string, obj *PostgresInstance) ident.Ident {
 		return newZalandoPostgresIdent(slug.Slug(obj.GetNamespace()), env, obj.GetName())
 	}
 

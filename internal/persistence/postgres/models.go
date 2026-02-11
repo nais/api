@@ -1,12 +1,18 @@
 package postgres
 
 import (
+	"bytes"
 	"context"
 	"errors"
+	"fmt"
+	"io"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/nais/api/internal/graph/ident"
+	"github.com/nais/api/internal/graph/model"
+	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/validate"
@@ -16,7 +22,12 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-type Postgres struct {
+type (
+	PostgresInstanceConnection = pagination.Connection[*PostgresInstance]
+	PostgresInstanceEdge       = pagination.Edge[*PostgresInstance]
+)
+
+type PostgresInstance struct {
 	Name              string              `json:"name"`
 	EnvironmentName   string              `json:"-"`
 	WorkloadReference *workload.Reference `json:"-"`
@@ -76,38 +87,98 @@ type GrantPostgresAccessPayload struct {
 	Error *string `json:"error,omitempty"`
 }
 
-func (Postgres) IsPersistence() {}
-func (Postgres) IsSearchNode()  {}
-func (Postgres) IsNode()        {}
+func (PostgresInstance) IsPersistence() {}
+func (PostgresInstance) IsSearchNode()  {}
+func (PostgresInstance) IsNode()        {}
 
-func (p *Postgres) GetObjectKind() schema.ObjectKind {
+func (p *PostgresInstance) GetObjectKind() schema.ObjectKind {
 	return schema.EmptyObjectKind
 }
 
-func (p *Postgres) DeepCopyObject() runtime.Object {
+func (p *PostgresInstance) DeepCopyObject() runtime.Object {
 	return p
 }
 
-func (p *Postgres) GetName() string {
+func (p *PostgresInstance) GetName() string {
 	return p.Name
 }
 
-func (p *Postgres) GetNamespace() string {
+func (p *PostgresInstance) GetNamespace() string {
 	return p.TeamSlug.String()
 }
 
-func (p *Postgres) GetLabels() map[string]string {
+func (p *PostgresInstance) GetLabels() map[string]string {
 	return nil
 }
 
-func (p *Postgres) ID() ident.Ident {
+func (p *PostgresInstance) ID() ident.Ident {
 	return newIdent(p.TeamSlug, p.EnvironmentName, p.Name)
 }
 
-func toPostgres(u *unstructured.Unstructured, environmentName string) (*Postgres, error) {
-	return &Postgres{
+func toPostgres(u *unstructured.Unstructured, environmentName string) (*PostgresInstance, error) {
+	return &PostgresInstance{
 		Name:            u.GetName(),
 		EnvironmentName: environmentName,
 		TeamSlug:        slug.Slug(u.GetNamespace()),
 	}, nil
+}
+
+type PostgresInstanceOrder struct {
+	Field     PostgresInstanceOrderField `json:"field"`
+	Direction model.OrderDirection       `json:"direction"`
+}
+
+type PostgresInstanceOrderField string
+
+const (
+	PostgresInstanceOrderFieldName        PostgresInstanceOrderField = "NAME"
+	PostgresInstanceOrderFieldEnvironment PostgresInstanceOrderField = "ENVIRONMENT"
+)
+
+var AllPostgresInstanceOrderField = []PostgresInstanceOrderField{
+	PostgresInstanceOrderFieldName,
+	PostgresInstanceOrderFieldEnvironment,
+}
+
+func (e PostgresInstanceOrderField) IsValid() bool {
+	switch e {
+	case PostgresInstanceOrderFieldName, PostgresInstanceOrderFieldEnvironment:
+		return true
+	}
+	return false
+}
+
+func (e PostgresInstanceOrderField) String() string {
+	return string(e)
+}
+
+func (e *PostgresInstanceOrderField) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = PostgresInstanceOrderField(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid PostgresInstanceOrderField", str)
+	}
+	return nil
+}
+
+func (e PostgresInstanceOrderField) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *PostgresInstanceOrderField) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e PostgresInstanceOrderField) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }

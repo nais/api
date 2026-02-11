@@ -10,6 +10,8 @@ import (
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/ident"
+	"github.com/nais/api/internal/graph/model"
+	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/slug"
@@ -21,7 +23,31 @@ import (
 	"k8s.io/utils/ptr"
 )
 
-func GetZalandoPostgresByIdent(ctx context.Context, id ident.Ident) (*Postgres, error) {
+func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *PostgresInstanceOrder) (*PostgresInstanceConnection, error) {
+	all := ListAllForTeam(ctx, teamSlug)
+	orderPostgresInstances(ctx, all, orderBy)
+
+	instances := pagination.Slice(all, page)
+	return pagination.NewConnection(instances, page, len(all)), nil
+}
+
+func ListAllForTeam(ctx context.Context, teamSlug slug.Slug) []*PostgresInstance {
+	all := fromContext(ctx).zalandoPostgresWatcher.GetByNamespace(teamSlug.String())
+	return watcher.Objects(all)
+}
+
+func orderPostgresInstances(ctx context.Context, instances []*PostgresInstance, orderBy *PostgresInstanceOrder) {
+	if orderBy == nil {
+		orderBy = &PostgresInstanceOrder{
+			Field:     PostgresInstanceOrderFieldName,
+			Direction: model.OrderDirectionAsc,
+		}
+	}
+
+	SortFilterPostgresInstance.Sort(ctx, instances, orderBy.Field, orderBy.Direction)
+}
+
+func GetZalandoPostgresByIdent(ctx context.Context, id ident.Ident) (*PostgresInstance, error) {
 	teamSlug, environmentName, clusterName, err := parseIdent(id)
 	if err != nil {
 		return nil, err
@@ -30,7 +56,7 @@ func GetZalandoPostgresByIdent(ctx context.Context, id ident.Ident) (*Postgres, 
 	return GetZalandoPostgres(ctx, teamSlug, environmentName, clusterName)
 }
 
-func GetZalandoPostgres(ctx context.Context, teamSlug slug.Slug, environmentName string, clusterName string) (*Postgres, error) {
+func GetZalandoPostgres(ctx context.Context, teamSlug slug.Slug, environmentName string, clusterName string) (*PostgresInstance, error) {
 	return fromContext(ctx).zalandoPostgresWatcher.Get(environmentName, teamSlug.String(), clusterName)
 }
 

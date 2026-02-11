@@ -176,6 +176,8 @@ func (ec *executionContext) fieldContext_Bucket_team(_ context.Context, field gr
 				return ec.fieldContext_Team_kafkaTopics(ctx, field)
 			case "openSearches":
 				return ec.fieldContext_Team_openSearches(ctx, field)
+			case "postgresInstances":
+				return ec.fieldContext_Team_postgresInstances(ctx, field)
 			case "repositories":
 				return ec.fieldContext_Team_repositories(ctx, field)
 			case "secrets":

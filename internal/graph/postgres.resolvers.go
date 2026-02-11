@@ -5,6 +5,7 @@ import (
 
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/gengql"
+	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/persistence/postgres"
 	"github.com/nais/api/internal/team"
 )
@@ -23,18 +24,29 @@ func (r *mutationResolver) GrantPostgresAccess(ctx context.Context, input postgr
 	}, nil
 }
 
-func (r *postgresResolver) Team(ctx context.Context, obj *postgres.Postgres) (*team.Team, error) {
+func (r *postgresInstanceResolver) Team(ctx context.Context, obj *postgres.PostgresInstance) (*team.Team, error) {
 	return team.Get(ctx, obj.TeamSlug)
 }
 
-func (r *postgresResolver) Environment(ctx context.Context, obj *postgres.Postgres) (*team.TeamEnvironment, error) {
+func (r *postgresInstanceResolver) Environment(ctx context.Context, obj *postgres.PostgresInstance) (*team.TeamEnvironment, error) {
 	return r.TeamEnvironment(ctx, obj)
 }
 
-func (r *postgresResolver) TeamEnvironment(ctx context.Context, obj *postgres.Postgres) (*team.TeamEnvironment, error) {
+func (r *postgresInstanceResolver) TeamEnvironment(ctx context.Context, obj *postgres.PostgresInstance) (*team.TeamEnvironment, error) {
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
 
-func (r *Resolver) Postgres() gengql.PostgresResolver { return &postgresResolver{r} }
+func (r *teamResolver) PostgresInstances(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *postgres.PostgresInstanceOrder) (*pagination.Connection[*postgres.PostgresInstance], error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
 
-type postgresResolver struct{ *Resolver }
+	return postgres.ListForTeam(ctx, obj.Slug, page, orderBy)
+}
+
+func (r *Resolver) PostgresInstance() gengql.PostgresInstanceResolver {
+	return &postgresInstanceResolver{r}
+}
+
+type postgresInstanceResolver struct{ *Resolver }

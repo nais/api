@@ -4176,6 +4176,8 @@ func (ec *executionContext) fieldContext_Query_team(ctx context.Context, field g
 				return ec.fieldContext_Team_kafkaTopics(ctx, field)
 			case "openSearches":
 				return ec.fieldContext_Team_openSearches(ctx, field)
+			case "postgresInstances":
+				return ec.fieldContext_Team_postgresInstances(ctx, field)
 			case "repositories":
 				return ec.fieldContext_Team_repositories(ctx, field)
 			case "secrets":
@@ -5347,6 +5349,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._PrometheusAlert(ctx, sel, obj)
+	case postgres.PostgresInstance:
+		return ec._PostgresInstance(ctx, sel, &obj)
+	case *postgres.PostgresInstance:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._PostgresInstance(ctx, sel, obj)
 	case postgres.PostgresGrantAccessActivityLogEntry:
 		return ec._PostgresGrantAccessActivityLogEntry(ctx, sel, &obj)
 	case *postgres.PostgresGrantAccessActivityLogEntry:
@@ -5354,13 +5363,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._PostgresGrantAccessActivityLogEntry(ctx, sel, obj)
-	case postgres.Postgres:
-		return ec._Postgres(ctx, sel, &obj)
-	case *postgres.Postgres:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Postgres(ctx, sel, obj)
 	case opensearch.OpenSearchUpdatedActivityLogEntry:
 		return ec._OpenSearchUpdatedActivityLogEntry(ctx, sel, &obj)
 	case *opensearch.OpenSearchUpdatedActivityLogEntry:
