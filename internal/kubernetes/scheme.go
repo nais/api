@@ -10,7 +10,6 @@ import (
 	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
 	data_nais_io_v1 "github.com/nais/pgrator/pkg/api/datav1"
-	mapperatordatav1 "github.com/nais/pgrator/pkg/api/v1"
 	mapperatorv1 "github.com/nais/pgrator/pkg/api/v1"
 	unleash_nais_io_v1 "github.com/nais/unleasherator/api/v1"
 	appsv1 "k8s.io/api/apps/v1"
@@ -43,7 +42,6 @@ func NewScheme() (*runtime.Scheme, error) {
 		data_nais_io_v1.AddToScheme,
 		authorizationv1.AddToScheme,
 		mapperatorv1.AddToScheme,
-		mapperatordatav1.AddToScheme,
 	}
 
 	for _, f := range funcs {
