@@ -30,6 +30,14 @@ var (
 	specDiskSize     = []string{"spec", "cluster", "resources", "diskSize"}
 )
 
+func GetForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName, clusterName string) (*PostgresInstance, error) {
+	if clusterName == "" {
+		return nil, nil
+	}
+
+	return GetZalandoPostgres(ctx, teamSlug, environmentName, clusterName)
+}
+
 func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *PostgresInstanceOrder) (*PostgresInstanceConnection, error) {
 	all := ListAllForTeam(ctx, teamSlug)
 	orderPostgresInstances(ctx, all, orderBy)

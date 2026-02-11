@@ -2,7 +2,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/gengql"
@@ -14,11 +13,37 @@ import (
 )
 
 func (r *applicationResolver) PostgresInstances(ctx context.Context, obj *application.Application, orderBy *postgres.PostgresInstanceOrder) (*pagination.Connection[*postgres.PostgresInstance], error) {
-	panic(fmt.Errorf("not implemented: PostgresInstances - postgresInstances"))
+	if obj.Spec.Postgres == nil || obj.Spec.Postgres.ClusterName == "" {
+		return pagination.EmptyConnection[*postgres.PostgresInstance](), nil
+	}
+
+	instance, err := postgres.GetForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Spec.Postgres.ClusterName)
+	if err != nil {
+		return nil, err
+	}
+
+	if instance == nil {
+		return pagination.EmptyConnection[*postgres.PostgresInstance](), nil
+	}
+
+	return pagination.NewConnectionWithoutPagination([]*postgres.PostgresInstance{instance}), nil
 }
 
 func (r *jobResolver) PostgresInstances(ctx context.Context, obj *job.Job, orderBy *postgres.PostgresInstanceOrder) (*pagination.Connection[*postgres.PostgresInstance], error) {
-	panic(fmt.Errorf("not implemented: PostgresInstances - postgresInstances"))
+	if obj.Spec.Postgres == nil || obj.Spec.Postgres.ClusterName == "" {
+		return pagination.EmptyConnection[*postgres.PostgresInstance](), nil
+	}
+
+	instance, err := postgres.GetForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Spec.Postgres.ClusterName)
+	if err != nil {
+		return nil, err
+	}
+
+	if instance == nil {
+		return pagination.EmptyConnection[*postgres.PostgresInstance](), nil
+	}
+
+	return pagination.NewConnectionWithoutPagination([]*postgres.PostgresInstance{instance}), nil
 }
 
 func (r *mutationResolver) GrantPostgresAccess(ctx context.Context, input postgres.GrantPostgresAccessInput) (*postgres.GrantPostgresAccessPayload, error) {
@@ -57,7 +82,7 @@ func (r *teamResolver) PostgresInstances(ctx context.Context, obj *team.Team, fi
 }
 
 func (r *teamEnvironmentResolver) PostgresInstances(ctx context.Context, obj *team.TeamEnvironment, name string) (*postgres.PostgresInstance, error) {
-	panic(fmt.Errorf("not implemented: PostgresInstances - postgresInstances"))
+	return postgres.GetZalandoPostgres(ctx, obj.TeamSlug, obj.EnvironmentName, name)
 }
 
 func (r *Resolver) PostgresInstance() gengql.PostgresInstanceResolver {

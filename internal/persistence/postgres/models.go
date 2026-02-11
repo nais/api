@@ -132,9 +132,10 @@ func toPostgres(u *unstructured.Unstructured, environmentName string) (*Postgres
 	majorVersion, _, _ := unstructured.NestedString(u.Object, specMajorVersion...)
 
 	return &PostgresInstance{
-		Name:            u.GetName(),
-		EnvironmentName: environmentName,
-		TeamSlug:        slug.Slug(u.GetNamespace()),
+		Name:              u.GetName(),
+		EnvironmentName:   environmentName,
+		TeamSlug:          slug.Slug(u.GetNamespace()),
+		WorkloadReference: workload.ReferenceFromOwnerReferences(u.GetOwnerReferences()),
 		Resources: &PostgresInstanceResources{
 			CPU:      cpu,
 			Memory:   memory,
