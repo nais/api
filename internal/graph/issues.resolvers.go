@@ -10,6 +10,7 @@ import (
 	"github.com/nais/api/internal/persistence/sqlinstance"
 	"github.com/nais/api/internal/persistence/valkey"
 	"github.com/nais/api/internal/team"
+	"github.com/nais/api/internal/unleash"
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
 	"github.com/nais/api/internal/workload/job"
@@ -104,6 +105,14 @@ func (r *teamResolver) Issues(ctx context.Context, obj *team.Team, first *int, a
 	return issue.ListIssues(ctx, obj.Slug, page, orderBy, filter)
 }
 
+func (r *unleashReleaseChannelIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.UnleashReleaseChannelIssue) (*team.TeamEnvironment, error) {
+	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
+}
+
+func (r *unleashReleaseChannelIssueResolver) Unleash(ctx context.Context, obj *issue.UnleashReleaseChannelIssue) (*unleash.UnleashInstance, error) {
+	return unleash.ForTeam(ctx, obj.TeamSlug)
+}
+
 func (r *valkeyIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.ValkeyIssue) (*team.TeamEnvironment, error) {
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
@@ -160,6 +169,10 @@ func (r *Resolver) SqlInstanceVersionIssue() gengql.SqlInstanceVersionIssueResol
 	return &sqlInstanceVersionIssueResolver{r}
 }
 
+func (r *Resolver) UnleashReleaseChannelIssue() gengql.UnleashReleaseChannelIssueResolver {
+	return &unleashReleaseChannelIssueResolver{r}
+}
+
 func (r *Resolver) ValkeyIssue() gengql.ValkeyIssueResolver { return &valkeyIssueResolver{r} }
 
 func (r *Resolver) VulnerableImageIssue() gengql.VulnerableImageIssueResolver {
@@ -177,6 +190,7 @@ type (
 	openSearchIssueResolver            struct{ *Resolver }
 	sqlInstanceStateIssueResolver      struct{ *Resolver }
 	sqlInstanceVersionIssueResolver    struct{ *Resolver }
+	unleashReleaseChannelIssueResolver struct{ *Resolver }
 	valkeyIssueResolver                struct{ *Resolver }
 	vulnerableImageIssueResolver       struct{ *Resolver }
 )

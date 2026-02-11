@@ -123,6 +123,7 @@ const (
 	ResourceTypeSQLInstance ResourceType = "SQLINSTANCE"
 	ResourceTypeApplication ResourceType = "APPLICATION"
 	ResourceTypeJob         ResourceType = "JOB"
+	ResourceTypeUnleash     ResourceType = "UNLEASH"
 )
 
 var AllResourceType = []ResourceType{
@@ -131,11 +132,12 @@ var AllResourceType = []ResourceType{
 	ResourceTypeSQLInstance,
 	ResourceTypeApplication,
 	ResourceTypeJob,
+	ResourceTypeUnleash,
 }
 
 func (e ResourceType) IsValid() bool {
 	switch e {
-	case ResourceTypeOpensearch, ResourceTypeValkey, ResourceTypeSQLInstance, ResourceTypeApplication, ResourceTypeJob:
+	case ResourceTypeOpensearch, ResourceTypeValkey, ResourceTypeSQLInstance, ResourceTypeApplication, ResourceTypeJob, ResourceTypeUnleash:
 		return true
 	}
 	return false
@@ -195,12 +197,14 @@ const (
 	IssueTypeInvalidSpec           IssueType = "INVALID_SPEC"
 	IssueTypeVulnerableImage       IssueType = "VULNERABLE_IMAGE"
 	IssueTypeMissingSBOM           IssueType = "MISSING_SBOM"
+	IssueTypeUnleashReleaseChannel IssueType = "UNLEASH_RELEASE_CHANNEL"
 )
 
 var AllIssueType = []IssueType{
 	IssueTypeOpenSearch,
 	IssueTypeValkey,
 	IssueTypeSqlInstanceState,
+	IssueTypeSqlInstanceVersion,
 	IssueTypeDeprecatedIngress,
 	IssueTypeDeprecatedRegistry,
 	IssueTypeNoRunningInstances,
@@ -209,11 +213,12 @@ var AllIssueType = []IssueType{
 	IssueTypeFailedSynchronization,
 	IssueTypeVulnerableImage,
 	IssueTypeMissingSBOM,
+	IssueTypeUnleashReleaseChannel,
 }
 
 func (e IssueType) IsValid() bool {
 	switch e {
-	case IssueTypeOpenSearch, IssueTypeValkey, IssueTypeSqlInstanceState, IssueTypeSqlInstanceVersion, IssueTypeDeprecatedIngress, IssueTypeDeprecatedRegistry, IssueTypeNoRunningInstances, IssueTypeLastRunFailed, IssueTypeInvalidSpec, IssueTypeFailedSynchronization, IssueTypeVulnerableImage, IssueTypeMissingSBOM:
+	case IssueTypeOpenSearch, IssueTypeValkey, IssueTypeSqlInstanceState, IssueTypeSqlInstanceVersion, IssueTypeDeprecatedIngress, IssueTypeDeprecatedRegistry, IssueTypeNoRunningInstances, IssueTypeLastRunFailed, IssueTypeInvalidSpec, IssueTypeFailedSynchronization, IssueTypeVulnerableImage, IssueTypeMissingSBOM, IssueTypeUnleashReleaseChannel:
 		return true
 	}
 	return false
@@ -368,6 +373,21 @@ type VulnerableImageIssue struct {
 func (VulnerableImageIssue) IsIssue() {}
 
 func (VulnerableImageIssue) IsNode() {}
+
+type UnleashReleaseChannelIssueDetails struct {
+	ChannelName         string `json:"channelName"`
+	MajorVersion        int    `json:"majorVersion"`
+	CurrentMajorVersion int    `json:"currentMajorVersion"`
+}
+
+type UnleashReleaseChannelIssue struct {
+	Base
+	UnleashReleaseChannelIssueDetails
+}
+
+func (UnleashReleaseChannelIssue) IsIssue() {}
+
+func (UnleashReleaseChannelIssue) IsNode() {}
 
 type ResourceIssueFilter struct {
 	// Filter by severity.
