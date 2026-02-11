@@ -14,6 +14,10 @@ import (
 	aiven_service "github.com/aiven/go-client-codegen"
 	"github.com/joho/godotenv"
 	"github.com/nais/api/internal/activitylog"
+	"github.com/nais/api/internal/agent"
+	"github.com/nais/api/internal/agent/chat"
+	"github.com/nais/api/internal/agent/rag"
+	"github.com/nais/api/internal/agent/rag/duckdb"
 	"github.com/nais/api/internal/auth/authn"
 	"github.com/nais/api/internal/auth/middleware"
 	"github.com/nais/api/internal/database"
@@ -284,6 +288,31 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		return fmt.Errorf("create loki client: %w", err)
 	}
 
+	// Initialize agent handler if enabled
+	var agentHandler *agent.Handler
+	if cfg.Agent.Enabled {
+		chatClient, ragClient, err := initAgentClients(ctx, cfg.Agent, log)
+		if err != nil {
+			return fmt.Errorf("initializing agent clients: %w", err)
+		}
+		// Defer closing clients
+		defer chatClient.Close()
+		defer ragClient.Close()
+
+		agentHandler, err = agent.NewHandler(agent.Config{
+			Pool:           pool,
+			ChatClient:     chatClient,
+			RAGClient:      ragClient,
+			GraphQLHandler: graphHandler,
+			TenantName:     cfg.Tenant,
+			Log:            log.WithField("subsystem", "agent"),
+		})
+		if err != nil {
+			return fmt.Errorf("initializing agent handler: %w", err)
+		}
+		log.Info("Agent service enabled")
+	}
+
 	// HTTP server
 	wg.Go(func() error {
 		return runHTTPServer(
@@ -311,6 +340,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 			lokiClient,
 			cfg.AuditLog.ProjectID,
 			cfg.AuditLog.Location,
+			agentHandler,
 			log.WithField("subsystem", "http"),
 		)
 	})
@@ -328,7 +358,12 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	})
 
 	wg.Go(func() error {
-		if err := grpc.Run(ctx, cfg.GRPCListenAddress, pool, log.WithField("subsystem", "grpc")); err != nil {
+		grpcCfg := &grpc.Config{
+			ListenAddress: cfg.GRPCListenAddress,
+			Pool:          pool,
+			Log:           log.WithField("subsystem", "grpc"),
+		}
+		if err := grpc.Run(ctx, grpcCfg); err != nil {
 			log.WithError(err).Errorf("error in GRPC server")
 			return err
 		}
@@ -377,6 +412,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	}
 
 	wg.Go(func() error {
+		return nil
 		err = issueChecker.RunChecks(ctx)
 		if err != nil {
 			log.WithError(err).Error("running issue checks")
@@ -424,4 +460,47 @@ func setupAuthHandler(ctx context.Context, cfg oAuthConfig, log logrus.FieldLogg
 		return nil, err
 	}
 	return authn.New(cf, log), nil
+}
+
+func initAgentClients(ctx context.Context, cfg agentConfig, log logrus.FieldLogger) (chat.StreamingClient, rag.DocumentSearcher, error) {
+	// Create Vertex AI chat client
+	chatClient, err := chat.NewClient(ctx, chat.Config{
+		ProjectID:       cfg.VertexAI.ProjectID,
+		Location:        cfg.VertexAI.Location,
+		ModelName:       cfg.VertexAI.ModelName,
+		IncludeThoughts: cfg.VertexAI.IncludeThoughts,
+	}, log.WithField("client", "vertexai-chat"))
+	if err != nil {
+		return nil, nil, fmt.Errorf("creating vertexai chat client: %w", err)
+	}
+
+	// Create RAG client if enabled
+	var ragClient rag.DocumentSearcher
+	if cfg.RAGEnabled {
+		ragClient, err = duckdb.NewSearcher(ctx, duckdb.Config{
+			DBPath:         cfg.RAG.DuckDBPath,
+			ProjectID:      cfg.VertexAI.ProjectID,
+			Location:       cfg.VertexAI.Location,
+			EmbeddingModel: cfg.VertexAI.EmbeddingModel,
+		}, log.WithField("client", "duckdb-rag"))
+		if err != nil {
+			chatClient.Close()
+			return nil, nil, fmt.Errorf("creating duckdb rag client: %w", err)
+		}
+	} else {
+		ragClient = &noopSearcher{}
+	}
+
+	return chatClient, ragClient, nil
+}
+
+// noopSearcher implements rag.DocumentSearcher but returns no results.
+type noopSearcher struct{}
+
+func (n *noopSearcher) Search(ctx context.Context, query string, opts *rag.SearchOptions) (*rag.SearchResult, error) {
+	return &rag.SearchResult{Documents: []rag.Document{}}, nil
+}
+
+func (n *noopSearcher) Close() error {
+	return nil
 }
