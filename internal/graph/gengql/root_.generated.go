@@ -2206,7 +2206,7 @@ type ComplexityRoot struct {
 		KafkaTopic         func(childComplexity int, name string) int
 		Name               func(childComplexity int) int
 		OpenSearch         func(childComplexity int, name string) int
-		PostgresInstances  func(childComplexity int, name string) int
+		PostgresInstance   func(childComplexity int, name string) int
 		SQLInstance        func(childComplexity int, name string) int
 		Secret             func(childComplexity int, name string) int
 		SlackAlertsChannel func(childComplexity int) int
@@ -12154,17 +12154,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.TeamEnvironment.OpenSearch(childComplexity, args["name"].(string)), true
 
-	case "TeamEnvironment.postgresInstances":
-		if e.complexity.TeamEnvironment.PostgresInstances == nil {
+	case "TeamEnvironment.postgresInstance":
+		if e.complexity.TeamEnvironment.PostgresInstance == nil {
 			break
 		}
 
-		args, err := ec.field_TeamEnvironment_postgresInstances_args(ctx, rawArgs)
+		args, err := ec.field_TeamEnvironment_postgresInstance_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.TeamEnvironment.PostgresInstances(childComplexity, args["name"].(string)), true
+		return e.complexity.TeamEnvironment.PostgresInstance(childComplexity, args["name"].(string)), true
 
 	case "TeamEnvironment.sqlInstance":
 		if e.complexity.TeamEnvironment.SQLInstance == nil {
@@ -19348,7 +19348,7 @@ type WorkloadLogLine {
 
 extend type TeamEnvironment {
 	"Postgres instance in the team environment."
-	postgresInstances(name: String!): PostgresInstance!
+	postgresInstance(name: String!): PostgresInstance!
 }
 
 extend interface Workload {

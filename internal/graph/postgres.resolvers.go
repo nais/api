@@ -81,7 +81,7 @@ func (r *teamResolver) PostgresInstances(ctx context.Context, obj *team.Team, fi
 	return postgres.ListForTeam(ctx, obj.Slug, page, orderBy)
 }
 
-func (r *teamEnvironmentResolver) PostgresInstances(ctx context.Context, obj *team.TeamEnvironment, name string) (*postgres.PostgresInstance, error) {
+func (r *teamEnvironmentResolver) PostgresInstance(ctx context.Context, obj *team.TeamEnvironment, name string) (*postgres.PostgresInstance, error) {
 	return postgres.GetZalandoPostgres(ctx, obj.TeamSlug, obj.EnvironmentName, name)
 }
 

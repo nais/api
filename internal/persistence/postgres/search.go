@@ -18,5 +18,5 @@ func AddSearchZalandoPostgres(client search.Client, watcher *watcher.Watcher[*Po
 		return GetZalandoPostgresByIdent(ctx, id)
 	}
 
-	client.AddClient("ZALANDO_POSTGRES", search.NewK8sSearch("ZALANDO_POSTGRES", watcher, gbi, createIdent))
+	client.AddClient("POSTGRES", search.NewK8sSearch("POSTGRES", watcher, gbi, createIdent))
 }

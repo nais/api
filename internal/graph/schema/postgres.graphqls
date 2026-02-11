@@ -20,7 +20,7 @@ extend type Team {
 
 extend type TeamEnvironment {
 	"Postgres instance in the team environment."
-	postgresInstances(name: String!): PostgresInstance!
+	postgresInstance(name: String!): PostgresInstance!
 }
 
 extend interface Workload {

@@ -407,8 +407,8 @@ func (ec *executionContext) fieldContext_TeamUtilizationData_environment(_ conte
 				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
 			case "openSearch":
 				return ec.fieldContext_TeamEnvironment_openSearch(ctx, field)
-			case "postgresInstances":
-				return ec.fieldContext_TeamEnvironment_postgresInstances(ctx, field)
+			case "postgresInstance":
+				return ec.fieldContext_TeamEnvironment_postgresInstance(ctx, field)
 			case "secret":
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
@@ -476,8 +476,8 @@ func (ec *executionContext) fieldContext_TeamUtilizationData_teamEnvironment(_ c
 				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
 			case "openSearch":
 				return ec.fieldContext_TeamEnvironment_openSearch(ctx, field)
-			case "postgresInstances":
-				return ec.fieldContext_TeamEnvironment_postgresInstances(ctx, field)
+			case "postgresInstance":
+				return ec.fieldContext_TeamEnvironment_postgresInstance(ctx, field)
 			case "secret":
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
