@@ -4,13 +4,11 @@ local nonMemberUser = User.new("nonmember", "other@user.com")
 local mainTeam = Team.new("someteamname", "purpose", "#slack_channel")
 mainTeam:addMember(user)
 
-
-Helper.readK8sResources("k8s_resources/grant_postgres_access")
-
+Helper.readK8sResources("k8s_resources/grant_zalando_postgres_access")
 
 Test.gql("Grant postgres access without authorization in non-existent team", function(t)
 	t.addHeader("x-user-email", user:email())
-	t.query [[
+	t.query([[
 		mutation GrantPostgresAccess {
 		  grantPostgresAccess(
 		    input: {
@@ -24,24 +22,24 @@ Test.gql("Grant postgres access without authorization in non-existent team", fun
 		    error
 		  }
 		}
-	]]
+	]])
 
-	t.check {
+	t.check({
 		errors = {
 			{
-				message = Contains("you need the \"postgres:access:grant\" authorization."),
+				message = Contains('you need the "postgres:access:grant" authorization.'),
 				path = {
 					"grantPostgresAccess",
 				},
 			},
 		},
 		data = Null,
-	}
+	})
 end)
 
 Test.gql("Grant postgres access without authorization in existing team", function(t)
 	t.addHeader("x-user-email", nonMemberUser:email())
-	t.query [[
+	t.query([[
 		mutation GrantPostgresAccess {
 		  grantPostgresAccess(
 		    input: {
@@ -55,24 +53,24 @@ Test.gql("Grant postgres access without authorization in existing team", functio
 		    error
 		  }
 		}
-	]]
+	]])
 
-	t.check {
+	t.check({
 		errors = {
 			{
-				message = Contains("you need the \"postgres:access:grant\" authorization."),
+				message = Contains('you need the "postgres:access:grant" authorization.'),
 				path = {
 					"grantPostgresAccess",
 				},
 			},
 		},
 		data = Null,
-	}
+	})
 end)
 
 Test.gql("Grant postgres access with invalid duration", function(t)
 	t.addHeader("x-user-email", user:email())
-	t.query [[
+	t.query([[
 		mutation GrantPostgresAccess {
 		  grantPostgresAccess(
 		    input: {
@@ -86,28 +84,27 @@ Test.gql("Grant postgres access with invalid duration", function(t)
 		    error
 		  }
 		}
-	]]
+	]])
 
-	t.check {
+	t.check({
 		errors = {
 			{
 				extensions = {
 					field = "duration",
 				},
-				message = Contains("invalid duration \"halfhour\""),
+				message = Contains('invalid duration "halfhour"'),
 				path = {
 					"grantPostgresAccess",
 				},
 			},
 		},
 		data = Null,
-	}
+	})
 end)
-
 
 Test.gql("Grant postgres access with out-of-bounds duration", function(t)
 	t.addHeader("x-user-email", user:email())
-	t.query [[
+	t.query([[
 		mutation GrantPostgresAccess {
 		  grantPostgresAccess(
 		    input: {
@@ -121,28 +118,27 @@ Test.gql("Grant postgres access with out-of-bounds duration", function(t)
 		    error
 		  }
 		}
-	]]
+	]])
 
-	t.check {
+	t.check({
 		errors = {
 			{
 				extensions = {
 					field = "duration",
 				},
-				message = Contains("Duration \"24h\" is out-of-bounds"),
+				message = Contains('Duration "24h" is out-of-bounds'),
 				path = {
 					"grantPostgresAccess",
 				},
 			},
 		},
 		data = Null,
-	}
+	})
 end)
-
 
 Test.gql("Grant postgres access to non-existing cluster", function(t)
 	t.addHeader("x-user-email", user:email())
-	t.query [[
+	t.query([[
 		mutation GrantPostgresAccess {
 		  grantPostgresAccess(
 		    input: {
@@ -156,9 +152,9 @@ Test.gql("Grant postgres access to non-existing cluster", function(t)
 		    error
 		  }
 		}
-	]]
+	]])
 
-	t.check {
+	t.check({
 		errors = {
 			{
 				extensions = {
@@ -171,13 +167,12 @@ Test.gql("Grant postgres access to non-existing cluster", function(t)
 			},
 		},
 		data = Null,
-	}
+	})
 end)
-
 
 Test.gql("Grant postgres access with authorization", function(t)
 	t.addHeader("x-user-email", user:email())
-	t.query [[
+	t.query([[
 		mutation GrantPostgresAccess {
 		  grantPostgresAccess(
 		    input: {
@@ -191,21 +186,20 @@ Test.gql("Grant postgres access with authorization", function(t)
 		    error
 		  }
 		}
-	]]
+	]])
 
-	t.check {
+	t.check({
 		data = {
 			grantPostgresAccess = {
 				error = "",
 			},
 		},
-	}
+	})
 end)
 
 Test.k8s("Validate Role resource", function(t)
 	local resourceName = "pg-grant-93a898ea"
 	local pgNamespace = string.format("pg-%s", mainTeam:slug())
-
 
 	t.check("rbac.authorization.k8s.io/v1", "roles", "dev", pgNamespace, resourceName, {
 		apiVersion = "rbac.authorization.k8s.io/v1",
@@ -270,7 +264,6 @@ Test.k8s("Validate RoleBinding resource", function(t)
 	local resourceName = "pg-grant-93a898ea"
 	local pgNamespace = string.format("pg-%s", mainTeam:slug())
 
-
 	t.check("rbac.authorization.k8s.io/v1", "rolebindings", "dev", pgNamespace, resourceName, {
 		apiVersion = "rbac.authorization.k8s.io/v1",
 		kind = "RoleBinding",
@@ -304,7 +297,7 @@ end)
 
 Test.gql("Check acitivity log entry", function(t)
 	t.addHeader("x-user-email", user:email())
-	t.query [[
+	t.query([[
 		{
 		  team(slug:"someteamname") {
 			activityLog {
@@ -320,9 +313,9 @@ Test.gql("Check acitivity log entry", function(t)
 			}
 		  }
 		}
-	]]
+	]])
 
-	t.check {
+	t.check({
 		data = {
 			team = {
 				activityLog = {
@@ -338,5 +331,5 @@ Test.gql("Check acitivity log entry", function(t)
 				},
 			},
 		},
-	}
+	})
 end)

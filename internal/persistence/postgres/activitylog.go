@@ -1,4 +1,4 @@
-package sqlinstance
+package postgres
 
 import (
 	"fmt"

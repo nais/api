@@ -12,6 +12,7 @@ import (
 	"github.com/nais/api/internal/persistence/bucket"
 	"github.com/nais/api/internal/persistence/kafkatopic"
 	"github.com/nais/api/internal/persistence/opensearch"
+	"github.com/nais/api/internal/persistence/postgres"
 	"github.com/nais/api/internal/persistence/sqlinstance"
 	"github.com/nais/api/internal/persistence/valkey"
 	"github.com/vektah/gqlparser/v2/ast"
@@ -71,13 +72,13 @@ func (ec *executionContext) _Persistence(ctx context.Context, sel ast.SelectionS
 			return graphql.Null
 		}
 		return ec._SqlDatabase(ctx, sel, obj)
-	case sqlinstance.Postgres:
-		return ec._Postgres(ctx, sel, &obj)
-	case *sqlinstance.Postgres:
+	case postgres.PostgresInstance:
+		return ec._PostgresInstance(ctx, sel, &obj)
+	case *postgres.PostgresInstance:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._Postgres(ctx, sel, obj)
+		return ec._PostgresInstance(ctx, sel, obj)
 	case kafkatopic.KafkaTopic:
 		return ec._KafkaTopic(ctx, sel, &obj)
 	case *kafkatopic.KafkaTopic:
