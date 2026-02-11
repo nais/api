@@ -26,7 +26,6 @@ import (
 
 var (
 	specDiskSpace             = []string{"spec", "disk_space"}
-	specPlan                  = []string{"spec", "plan"}
 	specTerminationProtection = []string{"spec", "terminationProtection"}
 	specOpenSearchVersion     = []string{"spec", "userConfig", "opensearch_version"}
 )
@@ -187,11 +186,6 @@ func Create(ctx context.Context, input CreateOpenSearchInput) (*CreateOpenSearch
 		return nil, apierror.Errorf("OpenSearch with the name %q already exists, but are not yet managed through Console.", input.Name)
 	}
 
-	version, err := input.Version.ToAivenString()
-	if err != nil {
-		return nil, err
-	}
-
 	res := &naiscrd.OpenSearch{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "OpenSearch",
@@ -204,7 +198,7 @@ func Create(ctx context.Context, input CreateOpenSearchInput) (*CreateOpenSearch
 		Spec: naiscrd.OpenSearchSpec{
 			Tier:      toMapperatorTier(input.Tier),
 			Memory:    toMapperatorMemory(input.Memory),
-			Version:   naiscrd.OpenSearchVersion(version),
+			Version:   toMapperatorVersion(input.Version),
 			StorageGB: int(input.StorageGB),
 		},
 	}
@@ -219,6 +213,9 @@ func Create(ctx context.Context, input CreateOpenSearchInput) (*CreateOpenSearch
 		EnvironmentName: ptr.To(input.EnvironmentName),
 		TeamSlug:        ptr.To(input.TeamSlug),
 	})
+	if err != nil {
+		return nil, err
+	}
 
 	obj, err := kubernetes.ToUnstructured(res)
 	if err != nil {
@@ -389,12 +386,7 @@ func updateVersion(openSearch *naiscrd.OpenSearch, input UpdateOpenSearchInput) 
 		NewValue: ptr.To(input.Version.String()),
 	})
 
-	version, err := input.Version.ToAivenString()
-	if err != nil {
-		return nil, err
-	}
-
-	openSearch.Spec.Version = naiscrd.OpenSearchVersion(version)
+	openSearch.Spec.Version = toMapperatorVersion(input.Version)
 
 	return changes, nil
 }
