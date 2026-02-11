@@ -137,8 +137,10 @@ func Create(ctx context.Context, input CreateValkeyInput) (*CreateValkeyPayload,
 	// Ensure there's no existing Aiven Valkey with the same name
 	// This can be removed when we manage all valkeys through Console
 	_, err = fromContext(ctx).watcher.Get(input.EnvironmentName, input.TeamSlug.String(), instanceNamer(input.TeamSlug, input.Name))
-	if !errors.Is(err, &watcher.ErrorNotFound{}) {
+	if err == nil {
 		return nil, apierror.Errorf("Valkey with the name %q already exists, but are not yet managed through Console.", input.Name)
+	} else if !errors.Is(err, &watcher.ErrorNotFound{}) {
+		return nil, err
 	}
 
 	res := &naiscrd.Valkey{
@@ -236,7 +238,11 @@ func Update(ctx context.Context, input UpdateValkeyInput) (*UpdateValkeyPayload,
 	}
 
 	if len(changes) == 0 {
-		vk, err := toValkey(valkey, input.EnvironmentName)
+		v, err := kubernetes.ToConcrete[naiscrd.Valkey](valkey)
+		if err != nil {
+			return nil, err
+		}
+		vk, err := toValkeyFromNais(v, input.EnvironmentName)
 		if err != nil {
 			return nil, err
 		}
