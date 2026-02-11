@@ -1,15 +1,18 @@
 package deployment
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"slices"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/deployment/deploymentsql"
 	"github.com/nais/api/internal/graph/ident"
+	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/thirdparty/hookd"
@@ -124,6 +127,19 @@ type DeploymentFilter struct {
 	Environments []string `json:"environments"`
 }
 
+type DeploymentOrder struct {
+	Field     DeploymentOrderField `json:"field"`
+	Direction model.OrderDirection `json:"direction"`
+}
+
+func (d *DeploymentOrder) String() string {
+	if d == nil {
+		return ""
+	}
+
+	return strings.ToLower(d.Field.String() + ":" + d.Direction.String())
+}
+
 type ChangeDeploymentKeyInput struct {
 	TeamSlug slug.Slug `json:"team"`
 }
@@ -204,4 +220,59 @@ func toGraphDeploymentStatus(row *deploymentsql.DeploymentStatus) *DeploymentSta
 		Message:   row.Message,
 		UUID:      row.ID,
 	}
+}
+
+// Possible fields to order deployments by.
+type DeploymentOrderField string
+
+const (
+	// The time the deployment was created at.
+	DeploymentOrderFieldCreatedAt DeploymentOrderField = "CREATED_AT"
+)
+
+var AllDeploymentOrderField = []DeploymentOrderField{
+	DeploymentOrderFieldCreatedAt,
+}
+
+func (e DeploymentOrderField) IsValid() bool {
+	switch e {
+	case DeploymentOrderFieldCreatedAt:
+		return true
+	}
+	return false
+}
+
+func (e DeploymentOrderField) String() string {
+	return string(e)
+}
+
+func (e *DeploymentOrderField) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = DeploymentOrderField(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid DeploymentOrderField", str)
+	}
+	return nil
+}
+
+func (e DeploymentOrderField) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *DeploymentOrderField) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e DeploymentOrderField) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }

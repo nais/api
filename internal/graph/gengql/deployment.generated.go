@@ -1948,6 +1948,40 @@ func (ec *executionContext) unmarshalInputDeploymentFilter(ctx context.Context, 
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputDeploymentOrder(ctx context.Context, obj any) (deployment.DeploymentOrder, error) {
+	var it deployment.DeploymentOrder
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"field", "direction"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "field":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("field"))
+			data, err := ec.unmarshalNDeploymentOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentOrderField(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Field = data
+		case "direction":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("direction"))
+			data, err := ec.unmarshalNOrderDirection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOrderDirection(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Direction = data
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -2894,6 +2928,16 @@ func (ec *executionContext) marshalNDeploymentEdge2ᚕgithubᚗcomᚋnaisᚋapi�
 	return ret
 }
 
+func (ec *executionContext) unmarshalNDeploymentOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentOrderField(ctx context.Context, v any) (deployment.DeploymentOrderField, error) {
+	var res deployment.DeploymentOrderField
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNDeploymentOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentOrderField(ctx context.Context, sel ast.SelectionSet, v deployment.DeploymentOrderField) graphql.Marshaler {
+	return v
+}
+
 func (ec *executionContext) marshalNDeploymentResource2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentResourceᚄ(ctx context.Context, sel ast.SelectionSet, v []*deployment.DeploymentResource) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -3149,6 +3193,14 @@ func (ec *executionContext) marshalODeploymentKey2ᚖgithubᚗcomᚋnaisᚋapi�
 		return graphql.Null
 	}
 	return ec._DeploymentKey(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalODeploymentOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentOrder(ctx context.Context, v any) (*deployment.DeploymentOrder, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputDeploymentOrder(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 // endregion ***************************** type.gotpl *****************************
