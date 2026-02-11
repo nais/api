@@ -96,6 +96,7 @@ type TeamEnvironmentResolver interface {
 	Job(ctx context.Context, obj *team.TeamEnvironment, name string) (*job.Job, error)
 	KafkaTopic(ctx context.Context, obj *team.TeamEnvironment, name string) (*kafkatopic.KafkaTopic, error)
 	OpenSearch(ctx context.Context, obj *team.TeamEnvironment, name string) (*opensearch.OpenSearch, error)
+	PostgresInstances(ctx context.Context, obj *team.TeamEnvironment, name string) (*postgres.PostgresInstance, error)
 	Secret(ctx context.Context, obj *team.TeamEnvironment, name string) (*secret.Secret, error)
 	SQLInstance(ctx context.Context, obj *team.TeamEnvironment, name string) (*sqlinstance.SQLInstance, error)
 	Valkey(ctx context.Context, obj *team.TeamEnvironment, name string) (*valkey.Valkey, error)
@@ -215,6 +216,17 @@ func (ec *executionContext) field_TeamEnvironment_kafkaTopic_args(ctx context.Co
 }
 
 func (ec *executionContext) field_TeamEnvironment_openSearch_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "name", ec.unmarshalNString2string)
+	if err != nil {
+		return nil, err
+	}
+	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_TeamEnvironment_postgresInstances_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "name", ec.unmarshalNString2string)
@@ -1779,6 +1791,8 @@ func (ec *executionContext) fieldContext_Team_environments(_ context.Context, fi
 				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
 			case "openSearch":
 				return ec.fieldContext_TeamEnvironment_openSearch(ctx, field)
+			case "postgresInstances":
+				return ec.fieldContext_TeamEnvironment_postgresInstances(ctx, field)
 			case "secret":
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
@@ -1847,6 +1861,8 @@ func (ec *executionContext) fieldContext_Team_environment(ctx context.Context, f
 				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
 			case "openSearch":
 				return ec.fieldContext_TeamEnvironment_openSearch(ctx, field)
+			case "postgresInstances":
+				return ec.fieldContext_TeamEnvironment_postgresInstances(ctx, field)
 			case "secret":
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
@@ -4839,6 +4855,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_application(ctx context
 				return ec.fieldContext_Application_networkPolicy(ctx, field)
 			case "openSearch":
 				return ec.fieldContext_Application_openSearch(ctx, field)
+			case "postgresInstances":
+				return ec.fieldContext_Application_postgresInstances(ctx, field)
 			case "secrets":
 				return ec.fieldContext_Application_secrets(ctx, field)
 			case "sqlInstances":
@@ -5138,6 +5156,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_job(ctx context.Context
 				return ec.fieldContext_Job_networkPolicy(ctx, field)
 			case "openSearch":
 				return ec.fieldContext_Job_openSearch(ctx, field)
+			case "postgresInstances":
+				return ec.fieldContext_Job_postgresInstances(ctx, field)
 			case "secrets":
 				return ec.fieldContext_Job_secrets(ctx, field)
 			case "sqlInstances":
@@ -5296,6 +5316,63 @@ func (ec *executionContext) fieldContext_TeamEnvironment_openSearch(ctx context.
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_TeamEnvironment_openSearch_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamEnvironment_postgresInstances(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironment) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_TeamEnvironment_postgresInstances,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.TeamEnvironment().PostgresInstances(ctx, obj, fc.Args["name"].(string))
+		},
+		nil,
+		ec.marshalNPostgresInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstance,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_TeamEnvironment_postgresInstances(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamEnvironment",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_PostgresInstance_id(ctx, field)
+			case "name":
+				return ec.fieldContext_PostgresInstance_name(ctx, field)
+			case "team":
+				return ec.fieldContext_PostgresInstance_team(ctx, field)
+			case "environment":
+				return ec.fieldContext_PostgresInstance_environment(ctx, field)
+			case "teamEnvironment":
+				return ec.fieldContext_PostgresInstance_teamEnvironment(ctx, field)
+			case "resources":
+				return ec.fieldContext_PostgresInstance_resources(ctx, field)
+			case "majorVersion":
+				return ec.fieldContext_PostgresInstance_majorVersion(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PostgresInstance", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_TeamEnvironment_postgresInstances_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -8333,6 +8410,8 @@ func (ec *executionContext) fieldContext_UpdateTeamEnvironmentPayload_environmen
 				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
 			case "openSearch":
 				return ec.fieldContext_TeamEnvironment_openSearch(ctx, field)
+			case "postgresInstances":
+				return ec.fieldContext_TeamEnvironment_postgresInstances(ctx, field)
 			case "secret":
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
@@ -8400,6 +8479,8 @@ func (ec *executionContext) fieldContext_UpdateTeamEnvironmentPayload_teamEnviro
 				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
 			case "openSearch":
 				return ec.fieldContext_TeamEnvironment_openSearch(ctx, field)
+			case "postgresInstances":
+				return ec.fieldContext_TeamEnvironment_postgresInstances(ctx, field)
 			case "secret":
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
@@ -11328,6 +11409,42 @@ func (ec *executionContext) _TeamEnvironment(ctx context.Context, sel ast.Select
 					}
 				}()
 				res = ec._TeamEnvironment_openSearch(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "postgresInstances":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TeamEnvironment_postgresInstances(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}

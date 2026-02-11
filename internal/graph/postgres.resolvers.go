@@ -2,13 +2,24 @@ package graph
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/persistence/postgres"
 	"github.com/nais/api/internal/team"
+	"github.com/nais/api/internal/workload/application"
+	"github.com/nais/api/internal/workload/job"
 )
+
+func (r *applicationResolver) PostgresInstances(ctx context.Context, obj *application.Application, orderBy *postgres.PostgresInstanceOrder) (*pagination.Connection[*postgres.PostgresInstance], error) {
+	panic(fmt.Errorf("not implemented: PostgresInstances - postgresInstances"))
+}
+
+func (r *jobResolver) PostgresInstances(ctx context.Context, obj *job.Job, orderBy *postgres.PostgresInstanceOrder) (*pagination.Connection[*postgres.PostgresInstance], error) {
+	panic(fmt.Errorf("not implemented: PostgresInstances - postgresInstances"))
+}
 
 func (r *mutationResolver) GrantPostgresAccess(ctx context.Context, input postgres.GrantPostgresAccessInput) (*postgres.GrantPostgresAccessPayload, error) {
 	if err := authz.CanGrantPostgresAccess(ctx, input.TeamSlug); err != nil {
@@ -43,6 +54,10 @@ func (r *teamResolver) PostgresInstances(ctx context.Context, obj *team.Team, fi
 	}
 
 	return postgres.ListForTeam(ctx, obj.Slug, page, orderBy)
+}
+
+func (r *teamEnvironmentResolver) PostgresInstances(ctx context.Context, obj *team.TeamEnvironment, name string) (*postgres.PostgresInstance, error) {
+	panic(fmt.Errorf("not implemented: PostgresInstances - postgresInstances"))
 }
 
 func (r *Resolver) PostgresInstance() gengql.PostgresInstanceResolver {

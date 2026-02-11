@@ -179,6 +179,8 @@ func (ec *executionContext) fieldContext_DeprecatedIngressIssue_teamEnvironment(
 				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
 			case "openSearch":
 				return ec.fieldContext_TeamEnvironment_openSearch(ctx, field)
+			case "postgresInstances":
+				return ec.fieldContext_TeamEnvironment_postgresInstances(ctx, field)
 			case "secret":
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
@@ -351,6 +353,8 @@ func (ec *executionContext) fieldContext_DeprecatedIngressIssue_application(_ co
 				return ec.fieldContext_Application_networkPolicy(ctx, field)
 			case "openSearch":
 				return ec.fieldContext_Application_openSearch(ctx, field)
+			case "postgresInstances":
+				return ec.fieldContext_Application_postgresInstances(ctx, field)
 			case "secrets":
 				return ec.fieldContext_Application_secrets(ctx, field)
 			case "sqlInstances":
@@ -451,6 +455,8 @@ func (ec *executionContext) fieldContext_DeprecatedRegistryIssue_teamEnvironment
 				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
 			case "openSearch":
 				return ec.fieldContext_TeamEnvironment_openSearch(ctx, field)
+			case "postgresInstances":
+				return ec.fieldContext_TeamEnvironment_postgresInstances(ctx, field)
 			case "secret":
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
@@ -634,6 +640,8 @@ func (ec *executionContext) fieldContext_FailedSynchronizationIssue_teamEnvironm
 				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
 			case "openSearch":
 				return ec.fieldContext_TeamEnvironment_openSearch(ctx, field)
+			case "postgresInstances":
+				return ec.fieldContext_TeamEnvironment_postgresInstances(ctx, field)
 			case "secret":
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
@@ -817,6 +825,8 @@ func (ec *executionContext) fieldContext_InvalidSpecIssue_teamEnvironment(_ cont
 				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
 			case "openSearch":
 				return ec.fieldContext_TeamEnvironment_openSearch(ctx, field)
+			case "postgresInstances":
+				return ec.fieldContext_TeamEnvironment_postgresInstances(ctx, field)
 			case "secret":
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
@@ -1167,6 +1177,8 @@ func (ec *executionContext) fieldContext_LastRunFailedIssue_teamEnvironment(_ co
 				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
 			case "openSearch":
 				return ec.fieldContext_TeamEnvironment_openSearch(ctx, field)
+			case "postgresInstances":
+				return ec.fieldContext_TeamEnvironment_postgresInstances(ctx, field)
 			case "secret":
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
@@ -1310,6 +1322,8 @@ func (ec *executionContext) fieldContext_LastRunFailedIssue_job(_ context.Contex
 				return ec.fieldContext_Job_networkPolicy(ctx, field)
 			case "openSearch":
 				return ec.fieldContext_Job_openSearch(ctx, field)
+			case "postgresInstances":
+				return ec.fieldContext_Job_postgresInstances(ctx, field)
 			case "secrets":
 				return ec.fieldContext_Job_secrets(ctx, field)
 			case "sqlInstances":
@@ -1408,6 +1422,8 @@ func (ec *executionContext) fieldContext_MissingSbomIssue_teamEnvironment(_ cont
 				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
 			case "openSearch":
 				return ec.fieldContext_TeamEnvironment_openSearch(ctx, field)
+			case "postgresInstances":
+				return ec.fieldContext_TeamEnvironment_postgresInstances(ctx, field)
 			case "secret":
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
@@ -1591,6 +1607,8 @@ func (ec *executionContext) fieldContext_NoRunningInstancesIssue_teamEnvironment
 				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
 			case "openSearch":
 				return ec.fieldContext_TeamEnvironment_openSearch(ctx, field)
+			case "postgresInstances":
+				return ec.fieldContext_TeamEnvironment_postgresInstances(ctx, field)
 			case "secret":
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
@@ -1774,6 +1792,8 @@ func (ec *executionContext) fieldContext_OpenSearchIssue_teamEnvironment(_ conte
 				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
 			case "openSearch":
 				return ec.fieldContext_TeamEnvironment_openSearch(ctx, field)
+			case "postgresInstances":
+				return ec.fieldContext_TeamEnvironment_postgresInstances(ctx, field)
 			case "secret":
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
@@ -2022,6 +2042,8 @@ func (ec *executionContext) fieldContext_SqlInstanceStateIssue_teamEnvironment(_
 				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
 			case "openSearch":
 				return ec.fieldContext_TeamEnvironment_openSearch(ctx, field)
+			case "postgresInstances":
+				return ec.fieldContext_TeamEnvironment_postgresInstances(ctx, field)
 			case "secret":
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
@@ -2290,6 +2312,8 @@ func (ec *executionContext) fieldContext_SqlInstanceVersionIssue_teamEnvironment
 				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
 			case "openSearch":
 				return ec.fieldContext_TeamEnvironment_openSearch(ctx, field)
+			case "postgresInstances":
+				return ec.fieldContext_TeamEnvironment_postgresInstances(ctx, field)
 			case "secret":
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
@@ -2529,6 +2553,8 @@ func (ec *executionContext) fieldContext_ValkeyIssue_teamEnvironment(_ context.C
 				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
 			case "openSearch":
 				return ec.fieldContext_TeamEnvironment_openSearch(ctx, field)
+			case "postgresInstances":
+				return ec.fieldContext_TeamEnvironment_postgresInstances(ctx, field)
 			case "secret":
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
@@ -2777,6 +2803,8 @@ func (ec *executionContext) fieldContext_VulnerableImageIssue_teamEnvironment(_ 
 				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
 			case "openSearch":
 				return ec.fieldContext_TeamEnvironment_openSearch(ctx, field)
+			case "postgresInstances":
+				return ec.fieldContext_TeamEnvironment_postgresInstances(ctx, field)
 			case "secret":
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":

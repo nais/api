@@ -204,6 +204,7 @@ type ComplexityRoot struct {
 		Name                      func(childComplexity int) int
 		NetworkPolicy             func(childComplexity int) int
 		OpenSearch                func(childComplexity int) int
+		PostgresInstances         func(childComplexity int, orderBy *postgres.PostgresInstanceOrder) int
 		Resources                 func(childComplexity int) int
 		SQLInstances              func(childComplexity int, orderBy *sqlinstance.SQLInstanceOrder) int
 		Secrets                   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
@@ -825,6 +826,7 @@ type ComplexityRoot struct {
 		Name                      func(childComplexity int) int
 		NetworkPolicy             func(childComplexity int) int
 		OpenSearch                func(childComplexity int) int
+		PostgresInstances         func(childComplexity int, orderBy *postgres.PostgresInstanceOrder) int
 		Resources                 func(childComplexity int) int
 		Runs                      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		SQLInstances              func(childComplexity int, orderBy *sqlinstance.SQLInstanceOrder) int
@@ -2204,6 +2206,7 @@ type ComplexityRoot struct {
 		KafkaTopic         func(childComplexity int, name string) int
 		Name               func(childComplexity int) int
 		OpenSearch         func(childComplexity int, name string) int
+		PostgresInstances  func(childComplexity int, name string) int
 		SQLInstance        func(childComplexity int, name string) int
 		Secret             func(childComplexity int, name string) int
 		SlackAlertsChannel func(childComplexity int) int
@@ -3213,6 +3216,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Application.OpenSearch(childComplexity), true
+
+	case "Application.postgresInstances":
+		if e.complexity.Application.PostgresInstances == nil {
+			break
+		}
+
+		args, err := ec.field_Application_postgresInstances_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Application.PostgresInstances(childComplexity, args["orderBy"].(*postgres.PostgresInstanceOrder)), true
 
 	case "Application.resources":
 		if e.complexity.Application.Resources == nil {
@@ -5591,6 +5606,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Job.OpenSearch(childComplexity), true
+
+	case "Job.postgresInstances":
+		if e.complexity.Job.PostgresInstances == nil {
+			break
+		}
+
+		args, err := ec.field_Job_postgresInstances_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Job.PostgresInstances(childComplexity, args["orderBy"].(*postgres.PostgresInstanceOrder)), true
 
 	case "Job.resources":
 		if e.complexity.Job.Resources == nil {
@@ -12126,6 +12153,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.TeamEnvironment.OpenSearch(childComplexity, args["name"].(string)), true
+
+	case "TeamEnvironment.postgresInstances":
+		if e.complexity.TeamEnvironment.PostgresInstances == nil {
+			break
+		}
+
+		args, err := ec.field_TeamEnvironment_postgresInstances_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.TeamEnvironment.PostgresInstances(childComplexity, args["name"].(string)), true
 
 	case "TeamEnvironment.sqlInstance":
 		if e.complexity.TeamEnvironment.SQLInstance == nil {
@@ -19288,7 +19327,7 @@ type WorkloadLogLine {
 }
 `, BuiltIn: false},
 	{Name: "../schema/postgres.graphqls", Input: `extend type Team {
-	"SQL instances owned by the team."
+	"Postgres instances owned by the team."
 	postgresInstances(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
 		first: Int
@@ -19302,6 +19341,35 @@ type WorkloadLogLine {
 		"Get items before this cursor."
 		before: Cursor
 
+		"Ordering options for items returned from the connection."
+		orderBy: PostgresInstanceOrder
+	): PostgresInstanceConnection!
+}
+
+extend type TeamEnvironment {
+	"Postgres instance in the team environment."
+	postgresInstances(name: String!): PostgresInstance!
+}
+
+extend interface Workload {
+	"Postgres instances referenced by the workload. This does not currently support pagination, but will return all available Postgres instances."
+	postgresInstances(
+		"Ordering options for items returned from the connection."
+		orderBy: PostgresInstanceOrder
+	): PostgresInstanceConnection!
+}
+
+extend type Application {
+	"Postgres instances referenced by the application. This does not currently support pagination, but will return all available Postgres instances."
+	postgresInstances(
+		"Ordering options for items returned from the connection."
+		orderBy: PostgresInstanceOrder
+	): PostgresInstanceConnection!
+}
+
+extend type Job {
+	"Postgres instances referenced by the job. This does not currently support pagination, but will return all available Postgres instances."
+	postgresInstances(
 		"Ordering options for items returned from the connection."
 		orderBy: PostgresInstanceOrder
 	): PostgresInstanceConnection!
@@ -19351,7 +19419,7 @@ extend enum SearchType {
 }
 
 extend enum ActivityLogEntryResourceType {
-	"All activity log entries related to  postgres clusters will use this resource type."
+	"All activity log entries related to Postgres clusters will use this resource type."
 	POSTGRES
 }
 
@@ -19393,13 +19461,13 @@ type PostgresGrantAccessActivityLogEntryData {
 
 extend enum ActivityLogActivityType {
 	"""
-	A user was granted access to a postgres cluster
+	A user was granted access to a Postgres cluster
 	"""
 	POSTGRES_GRANT_ACCESS
 }
 
 extend type Mutation {
-	"Grant access to this postgres cluster"
+	"Grant access to this Postgres cluster"
 	grantPostgresAccess(input: GrantPostgresAccessInput!): GrantPostgresAccessPayload!
 }
 
