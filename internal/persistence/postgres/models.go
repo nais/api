@@ -136,9 +136,10 @@ func toPostgres(u *unstructured.Unstructured, environmentName string) (*Postgres
 	memory, _, _ := unstructured.NestedString(u.Object, "spec", "cluster", "resources", "memory")
 	diskSize, _, _ := unstructured.NestedString(u.Object, "spec", "cluster", "resources", "diskSize")
 	majorVersion, _, _ := unstructured.NestedString(u.Object, "spec", "cluster", "majorVersion")
-	audit, _, err := unstructured.NestedBool(u.Object, "spec", "cluster", "audit", "enabled")
-	if err != nil {
-		return nil, fmt.Errorf("parsing spec.cluster.audit.enabled: %w", err)
+
+	audit := false
+	if v, found, err := unstructured.NestedBool(u.Object, "spec", "cluster", "audit", "enabled"); err == nil && found {
+		audit = v
 	}
 
 	return &PostgresInstance{
