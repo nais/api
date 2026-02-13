@@ -52,7 +52,11 @@ func Get(ctx context.Context, teamSlug slug.Slug, environment, name string) (*Op
 }
 
 func State(ctx context.Context, os *OpenSearch) (OpenSearchState, error) {
-	s, err := fromContext(ctx).aivenClient.ServiceGet(ctx, os.AivenProject, os.FullyQualifiedName())
+	project, err := aiven.GetProject(ctx, os.EnvironmentName)
+	if err != nil {
+		return OpenSearchStateUnknown, err
+	}
+	s, err := fromContext(ctx).aivenClient.ServiceGet(ctx, project.ID, os.FullyQualifiedName())
 	if err != nil {
 		// The OpenSearch instance may not have been created in Aiven yet, or it has been deleted.
 		// In both cases, we return "unknown" state rather than an error.
@@ -121,8 +125,12 @@ func ListAccess(ctx context.Context, openSearch *OpenSearch, page *pagination.Pa
 }
 
 func GetOpenSearchVersion(ctx context.Context, os *OpenSearch) (*OpenSearchVersion, error) {
+	project, err := aiven.GetProject(ctx, os.EnvironmentName)
+	if err != nil {
+		return nil, err
+	}
 	key := AivenDataLoaderKey{
-		Project:     os.AivenProject,
+		Project:     project.ID,
 		ServiceName: os.FullyQualifiedName(),
 	}
 
