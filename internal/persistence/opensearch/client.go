@@ -3,16 +3,13 @@ package opensearch
 import (
 	"context"
 
-	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
 	"github.com/nais/api/internal/workload/job"
 )
 
-type client struct {
-	watcher *watcher.Watcher[*OpenSearch]
-}
+type client struct{}
 
 func instanceNamer(teamSlug slug.Slug, instanceName string) string {
 	return namePrefix(teamSlug) + instanceName

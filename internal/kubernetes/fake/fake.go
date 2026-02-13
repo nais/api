@@ -13,7 +13,8 @@ import (
 	"github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/kubernetes/watcher"
 	liberator_aiven_io_v1alpha1 "github.com/nais/liberator/pkg/apis/aiven.io/v1alpha1"
-	data_nais_io_v1 "github.com/nais/liberator/pkg/apis/data.nais.io/v1"
+	data_nais_io_v1 "github.com/nais/pgrator/pkg/api/datav1"
+	mapperatorv1 "github.com/nais/pgrator/pkg/api/v1"
 	unleash_nais_io_v1 "github.com/nais/unleasherator/api/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -218,6 +219,8 @@ func NewDynamicClient(scheme *runtime.Scheme) *dynfake.FakeDynamicClient {
 			unleash_nais_io_v1.GroupVersion.WithResource("unleashes"):             "UnleashList",
 			unleash_nais_io_v1.GroupVersion.WithResource("remoteunleashes"):       "RemoteUnleashList",
 			data_nais_io_v1.GroupVersion.WithResource("postgres"):                 "PostgresList",
+			mapperatorv1.GroupVersion.WithResource("valkeys"):                     "ValkeyList",
+			mapperatorv1.GroupVersion.WithResource("opensearches"):                "OpenSearchList",
 		})
 
 	// Add reactor for JSON Patch support

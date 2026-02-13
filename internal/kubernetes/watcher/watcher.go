@@ -276,6 +276,7 @@ func (w *Watcher[T]) GetByNamespace(namespace string, filter ...Filter) []*Envir
 	return ret
 }
 
+// Delete will delete the resource using an imperonated client.
 func (w *Watcher[T]) Delete(ctx context.Context, cluster, namespace string, name string) error {
 	for _, watcher := range w.watchers {
 		if watcher.cluster == cluster {

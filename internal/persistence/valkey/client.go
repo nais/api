@@ -3,16 +3,13 @@ package valkey
 import (
 	"context"
 
-	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
 	"github.com/nais/api/internal/workload/job"
 )
 
-type client struct {
-	watcher *watcher.Watcher[*Valkey]
-}
+type client struct{}
 
 func namePrefix(teamSlug slug.Slug) string {
 	return "valkey-" + teamSlug.String() + "-"
