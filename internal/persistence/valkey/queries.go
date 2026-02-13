@@ -165,18 +165,6 @@ func Create(ctx context.Context, input CreateValkeyInput) (*CreateValkeyPayload,
 		res.Spec.NotifyKeyspaceEvents = *input.NotifyKeyspaceEvents
 	}
 
-	err = activitylog.Create(ctx, activitylog.CreateInput{
-		Action:          activitylog.ActivityLogEntryActionCreated,
-		Actor:           authz.ActorFromContext(ctx).User,
-		ResourceType:    ActivityLogEntryResourceTypeValkey,
-		ResourceName:    input.Name,
-		EnvironmentName: ptr.To(input.EnvironmentName),
-		TeamSlug:        ptr.To(input.TeamSlug),
-	})
-	if err != nil {
-		return nil, err
-	}
-
 	obj, err := kubernetes.ToUnstructured(res)
 	if err != nil {
 		return nil, err
@@ -186,6 +174,18 @@ func Create(ctx context.Context, input CreateValkeyInput) (*CreateValkeyPayload,
 		if k8serrors.IsAlreadyExists(err) {
 			return nil, apierror.ErrAlreadyExists
 		}
+		return nil, err
+	}
+
+	err = activitylog.Create(ctx, activitylog.CreateInput{
+		Action:          activitylog.ActivityLogEntryActionCreated,
+		Actor:           authz.ActorFromContext(ctx).User,
+		ResourceType:    ActivityLogEntryResourceTypeValkey,
+		ResourceName:    input.Name,
+		EnvironmentName: ptr.To(input.EnvironmentName),
+		TeamSlug:        ptr.To(input.TeamSlug),
+	})
+	if err != nil {
 		return nil, err
 	}
 
@@ -436,8 +436,11 @@ func Delete(ctx context.Context, input DeleteValkeyInput) (*DeleteValkeyPayload,
 }
 
 func State(ctx context.Context, v *Valkey) (ValkeyState, error) {
+	fmt.Println("Getting state for", v.FullyQualifiedName())
+
 	s, err := fromContext(ctx).aivenClient.ServiceGet(ctx, v.AivenProject, v.FullyQualifiedName())
 	if err != nil {
+		fmt.Println("Error getting state", err)
 		// The Valkey instance may not have been created in Aiven yet, or it has been deleted.
 		// In both cases, we return "unknown" state rather than an error.
 		if aiven.IsNotFound(err) {

@@ -205,18 +205,6 @@ func Create(ctx context.Context, input CreateOpenSearchInput) (*CreateOpenSearch
 	res.SetAnnotations(kubernetes.WithCommonAnnotations(nil, authz.ActorFromContext(ctx).User.Identity()))
 	kubernetes.SetManagedByConsoleLabel(res)
 
-	err = activitylog.Create(ctx, activitylog.CreateInput{
-		Action:          activitylog.ActivityLogEntryActionCreated,
-		Actor:           authz.ActorFromContext(ctx).User,
-		ResourceType:    ActivityLogEntryResourceTypeOpenSearch,
-		ResourceName:    input.Name,
-		EnvironmentName: ptr.To(input.EnvironmentName),
-		TeamSlug:        ptr.To(input.TeamSlug),
-	})
-	if err != nil {
-		return nil, err
-	}
-
 	obj, err := kubernetes.ToUnstructured(res)
 	if err != nil {
 		return nil, err
@@ -226,6 +214,18 @@ func Create(ctx context.Context, input CreateOpenSearchInput) (*CreateOpenSearch
 		if k8serrors.IsAlreadyExists(err) {
 			return nil, apierror.ErrAlreadyExists
 		}
+		return nil, err
+	}
+
+	err = activitylog.Create(ctx, activitylog.CreateInput{
+		Action:          activitylog.ActivityLogEntryActionCreated,
+		Actor:           authz.ActorFromContext(ctx).User,
+		ResourceType:    ActivityLogEntryResourceTypeOpenSearch,
+		ResourceName:    input.Name,
+		EnvironmentName: ptr.To(input.EnvironmentName),
+		TeamSlug:        ptr.To(input.TeamSlug),
+	})
+	if err != nil {
 		return nil, err
 	}
 
