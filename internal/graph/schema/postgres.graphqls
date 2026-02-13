@@ -67,6 +67,13 @@ type PostgresInstance implements Persistence & Node {
 	resources: PostgresInstanceResources!
 	"Major version of PostgreSQL."
 	majorVersion: String!
+	"Audit logging configuration for the Postgres cluster."
+	audit: PostgresInstanceAudit!
+}
+
+type PostgresInstanceAudit {
+	"Indicates whether audit logging is enabled for the Postgres cluster."
+	enabled: Boolean!
 }
 
 type PostgresInstanceConnection {
