@@ -44,7 +44,6 @@ type Valkey struct {
 	TeamSlug              slug.Slug             `json:"-"`
 	EnvironmentName       string                `json:"-"`
 	WorkloadReference     *workload.Reference   `json:"-"`
-	AivenProject          string                `json:"-"`
 }
 
 func (Valkey) IsPersistence()    {}
@@ -205,7 +204,6 @@ func toValkey(u *unstructured.Unstructured, envName string) (*Valkey, error) {
 		},
 		TeamSlug:             slug.Slug(obj.GetNamespace()),
 		WorkloadReference:    workload.ReferenceFromOwnerReferences(obj.GetOwnerReferences()),
-		AivenProject:         obj.Spec.Project,
 		Tier:                 machine.Tier,
 		Memory:               machine.Memory,
 		MaxMemoryPolicy:      maxMemoryPolicy,

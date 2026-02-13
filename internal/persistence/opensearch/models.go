@@ -45,7 +45,6 @@ type OpenSearch struct {
 	TeamSlug              slug.Slug                 `json:"-"`
 	EnvironmentName       string                    `json:"-"`
 	WorkloadReference     *workload.Reference       `json:"-"`
-	AivenProject          string                    `json:"-"`
 	MajorVersion          OpenSearchMajorVersion    `json:"-"`
 }
 
@@ -211,7 +210,6 @@ func toOpenSearch(u *unstructured.Unstructured, envName string) (*OpenSearch, er
 		},
 		TeamSlug:          slug.Slug(obj.GetNamespace()),
 		WorkloadReference: workload.ReferenceFromOwnerReferences(obj.GetOwnerReferences()),
-		AivenProject:      obj.Spec.Project,
 		Tier:              machine.Tier,
 		Memory:            machine.Memory,
 		MajorVersion:      majorVersion,
