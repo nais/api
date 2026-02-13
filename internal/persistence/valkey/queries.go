@@ -96,15 +96,13 @@ func ListAccess(ctx context.Context, valkey *Valkey, page *pagination.Pagination
 }
 
 func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName string, references []nais_io_v1.Valkey, orderBy *ValkeyOrder) (*ValkeyConnection, error) {
-	all := fromContext(ctx).watcher.GetByNamespace(teamSlug.String(), watcher.InCluster(environmentName))
-	allNais := fromContext(ctx).naisWatcher.GetByNamespace(teamSlug.String(), watcher.InCluster(environmentName))
-	all = append(all, allNais...)
+	all := ListAllForTeam(ctx, teamSlug)
 	ret := make([]*Valkey, 0)
 
 	for _, ref := range references {
 		for _, d := range all {
-			if d.Obj.FullyQualifiedName() == instanceNamer(teamSlug, ref.Instance) {
-				ret = append(ret, d.Obj)
+			if d.FullyQualifiedName() == instanceNamer(teamSlug, ref.Instance) || d.FullyQualifiedName() == ref.Instance {
+				ret = append(ret, d)
 			}
 		}
 	}
