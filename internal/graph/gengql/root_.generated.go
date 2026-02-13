@@ -1300,6 +1300,7 @@ type ComplexityRoot struct {
 	}
 
 	PostgresInstance struct {
+		Audit           func(childComplexity int) int
 		Environment     func(childComplexity int) int
 		ID              func(childComplexity int) int
 		MajorVersion    func(childComplexity int) int
@@ -1307,6 +1308,10 @@ type ComplexityRoot struct {
 		Resources       func(childComplexity int) int
 		Team            func(childComplexity int) int
 		TeamEnvironment func(childComplexity int) int
+	}
+
+	PostgresInstanceAudit struct {
+		Enabled func(childComplexity int) int
 	}
 
 	PostgresInstanceConnection struct {
@@ -7897,6 +7902,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.PostgresGrantAccessActivityLogEntryData.Until(childComplexity), true
 
+	case "PostgresInstance.audit":
+		if e.complexity.PostgresInstance.Audit == nil {
+			break
+		}
+
+		return e.complexity.PostgresInstance.Audit(childComplexity), true
+
 	case "PostgresInstance.environment":
 		if e.complexity.PostgresInstance.Environment == nil {
 			break
@@ -7945,6 +7957,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.PostgresInstance.TeamEnvironment(childComplexity), true
+
+	case "PostgresInstanceAudit.enabled":
+		if e.complexity.PostgresInstanceAudit.Enabled == nil {
+			break
+		}
+
+		return e.complexity.PostgresInstanceAudit.Enabled(childComplexity), true
 
 	case "PostgresInstanceConnection.edges":
 		if e.complexity.PostgresInstanceConnection.Edges == nil {
@@ -19395,6 +19414,13 @@ type PostgresInstance implements Persistence & Node {
 	resources: PostgresInstanceResources!
 	"Major version of PostgreSQL."
 	majorVersion: String!
+	"Audit logging configuration for the Postgres cluster."
+	audit: PostgresInstanceAudit!
+}
+
+type PostgresInstanceAudit {
+	"Indicates whether audit logging is enabled for the Postgres cluster."
+	enabled: Boolean!
 }
 
 type PostgresInstanceConnection {

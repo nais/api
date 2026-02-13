@@ -34,6 +34,12 @@ type PostgresInstance struct {
 	TeamSlug          slug.Slug                  `json:"-"`
 	Resources         *PostgresInstanceResources `json:"resources"`
 	MajorVersion      string                     `json:"majorVersion"`
+	Audit             PostgresInstanceAudit      `json:"audit"`
+}
+
+type PostgresInstanceAudit struct {
+	// Indicates whether audit logging is enabled for the Postgres cluster.
+	Enabled bool `json:"enabled"`
 }
 
 func (PostgresInstance) IsPersistence() {}
@@ -130,6 +136,10 @@ func toPostgres(u *unstructured.Unstructured, environmentName string) (*Postgres
 	memory, _, _ := unstructured.NestedString(u.Object, "spec", "cluster", "resources", "memory")
 	diskSize, _, _ := unstructured.NestedString(u.Object, "spec", "cluster", "resources", "diskSize")
 	majorVersion, _, _ := unstructured.NestedString(u.Object, "spec", "cluster", "majorVersion")
+	audit, _, err := unstructured.NestedBool(u.Object, "spec", "cluster", "audit", "enabled")
+	if err != nil {
+		return nil, fmt.Errorf("parsing spec.cluster.audit.enabled: %w", err)
+	}
 
 	return &PostgresInstance{
 		Name:              u.GetName(),
@@ -142,6 +152,9 @@ func toPostgres(u *unstructured.Unstructured, environmentName string) (*Postgres
 			DiskSize: diskSize,
 		},
 		MajorVersion: majorVersion,
+		Audit: PostgresInstanceAudit{
+			Enabled: audit,
+		},
 	}, nil
 }
 
