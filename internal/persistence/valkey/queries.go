@@ -415,7 +415,7 @@ func Delete(ctx context.Context, input DeleteValkeyInput) (*DeleteValkeyPayload,
 		}
 	}
 
-	if err := fromContext(ctx).naisWatcher.Delete(ctx, input.EnvironmentName, input.TeamSlug.String(), input.Name); err != nil {
+	if err := client.Delete(ctx, input.Name, metav1.DeleteOptions{}); err != nil {
 		return nil, err
 	}
 
