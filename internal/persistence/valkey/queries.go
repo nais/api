@@ -17,10 +17,10 @@ import (
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/thirdparty/aiven"
 	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
+	"github.com/nais/pgrator/pkg/api"
 	naiscrd "github.com/nais/pgrator/pkg/api/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/utils/ptr"
 )
 
@@ -403,18 +403,17 @@ func Delete(ctx context.Context, input DeleteValkeyInput) (*DeleteValkeyPayload,
 		return nil, apierror.Errorf("Valkey %s/%s is not managed by Console", input.TeamSlug, input.Name)
 	}
 
-	terminationProtection, found, err := unstructured.NestedBool(valkey.Object, specTerminationProtection...)
-	if err != nil {
-		return nil, err
+	annotations := valkey.GetAnnotations()
+	if annotations == nil {
+		annotations = make(map[string]string)
 	}
-	if found && terminationProtection {
-		if err := unstructured.SetNestedField(valkey.Object, false, specTerminationProtection...); err != nil {
-			return nil, err
-		}
+	if annotations[api.AllowDeletionAnnotation] != "true" {
+		annotations[api.AllowDeletionAnnotation] = "true"
+		valkey.SetAnnotations(annotations)
 
 		_, err = client.Update(ctx, valkey, metav1.UpdateOptions{})
 		if err != nil {
-			return nil, fmt.Errorf("removing deletion protection: %w", err)
+			return nil, fmt.Errorf("set allow deletion annotation: %w", err)
 		}
 	}
 
