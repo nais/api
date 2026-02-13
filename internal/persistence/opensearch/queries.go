@@ -155,7 +155,7 @@ func GetForWorkload(ctx context.Context, teamSlug slug.Slug, environment string,
 		return nil, nil
 	}
 
-	return fromContext(ctx).watcher.Get(environment, teamSlug.String(), instanceNamer(teamSlug, reference.Instance))
+	return Get(ctx, teamSlug, environment, reference.Instance)
 }
 
 func orderOpenSearch(ctx context.Context, ret []*OpenSearch, orderBy *OpenSearchOrder) {
