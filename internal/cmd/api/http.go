@@ -348,7 +348,7 @@ func ConfigureGraph(
 		ctx = config.NewLoaderContext(ctx, watchers.ConfigWatcher, log)
 		ctx = instancegroup.NewLoaderContext(ctx, watchers.ReplicaSetWatcher, watchers.PodWatcher, watchers.AppWatcher, dynamicClients, log)
 		ctx = aiven.NewLoaderContext(ctx, aivenProjects)
-		ctx = opensearch.NewLoaderContext(ctx, tenantName, watchers.OpenSearchWatcher, aivenClient, log)
+		ctx = opensearch.NewLoaderContext(ctx, tenantName, watchers.OpenSearchWatcher, watchers.NaisOpenSearchWatcher, aivenClient, log)
 		ctx = valkey.NewLoaderContext(ctx, tenantName, watchers.ValkeyWatcher, watchers.NaisValkeyWatcher, aivenClient)
 		ctx = price.NewLoaderContext(ctx, priceRetriever, log)
 		ctx = utilization.NewLoaderContext(ctx, prometheusClient, log)
