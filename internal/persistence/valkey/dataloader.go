@@ -18,12 +18,6 @@ type ctxKey int
 
 const loadersKey ctxKey = iota
 
-var naisGVR = schema.GroupVersionResource{
-	Group:    "nais.io",
-	Version:  "v1",
-	Resource: "valkeys",
-}
-
 func NewLoaderContext(ctx context.Context, tenantName string, valkeyWatcher, naisValkeyWatcher *watcher.Watcher[*Valkey], aivenClient aiven.AivenClient, logger logrus.FieldLogger) context.Context {
 	return context.WithValue(ctx, loadersKey, newLoaders(tenantName, valkeyWatcher, naisValkeyWatcher, aivenClient, logger))
 }
@@ -55,7 +49,11 @@ func NewNaisValkeyWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Wa
 			return nil, false
 		}
 		return ret, true
-	}), watcher.WithGVR(naisGVR))
+	}), watcher.WithGVR(schema.GroupVersionResource{
+		Group:    "nais.io",
+		Version:  "v1",
+		Resource: "valkeys",
+	}))
 	w.Start(ctx)
 	return w
 }
@@ -87,10 +85,9 @@ func newLoaders(tenantName string, watcher, naisValkeyWatcher *watcher.Watcher[*
 }
 
 func newK8sClient(ctx context.Context, environmentName string, teamSlug slug.Slug) (dynamic.ResourceInterface, error) {
-	sysClient, err := fromContext(ctx).watcher.ImpersonatedClient(
+	sysClient, err := fromContext(ctx).naisWatcher.SystemAuthenticatedClient(
 		ctx,
 		environmentName,
-		watcher.WithImpersonatedClientGVR(naisGVR),
 	)
 	if err != nil {
 		return nil, err
