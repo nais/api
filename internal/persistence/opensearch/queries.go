@@ -149,7 +149,7 @@ func GetOpenSearchVersion(ctx context.Context, os *OpenSearch) (*OpenSearchVersi
 	}
 
 	if major == "" {
-		major = OpenSearchMajorVersionV2
+		major = OpenSearchMajorVersionV3_3
 	}
 
 	return &OpenSearchVersion{
