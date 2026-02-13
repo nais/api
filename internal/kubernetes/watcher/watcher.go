@@ -309,7 +309,7 @@ func (w *Watcher[T]) ImpersonatedClientWithNamespace(ctx context.Context, cluste
 	return c.Namespace(namespace), nil
 }
 
-func (w *Watcher[T]) SystemAuthenticatedClient(ctx context.Context, cluster string, opts ...ImpersonatedClientOption) (dynamic.NamespaceableResourceInterface, error) {
+func (w *Watcher[T]) SystemAuthenticatedClient(ctx context.Context, cluster string) (dynamic.NamespaceableResourceInterface, error) {
 	for _, watcher := range w.watchers {
 		if watcher.cluster == cluster {
 			return watcher.SystemAuthenticatedClient(ctx)

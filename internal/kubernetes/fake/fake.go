@@ -220,6 +220,7 @@ func NewDynamicClient(scheme *runtime.Scheme) *dynfake.FakeDynamicClient {
 			unleash_nais_io_v1.GroupVersion.WithResource("remoteunleashes"):       "RemoteUnleashList",
 			data_nais_io_v1.GroupVersion.WithResource("postgres"):                 "PostgresList",
 			mapperatorv1.GroupVersion.WithResource("valkeys"):                     "ValkeyList",
+			mapperatorv1.GroupVersion.WithResource("opensearches"):                "OpenSearchList",
 		})
 
 	// Add reactor for JSON Patch support
