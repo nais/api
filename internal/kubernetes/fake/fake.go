@@ -217,8 +217,9 @@ func NewDynamicClient(scheme *runtime.Scheme) *dynfake.FakeDynamicClient {
 			unleash_nais_io_v1.GroupVersion.WithResource("unleashes"):             "UnleashList",
 			unleash_nais_io_v1.GroupVersion.WithResource("remoteunleashes"):       "RemoteUnleashList",
 			data_nais_io_v1.GroupVersion.WithResource("postgres"):                 "PostgresList",
-			mapperatorv1.GroupVersion.WithResource("valkeys"):                     "ValkeyList",
 			nais_io_v1alpha1.GroupVersion.WithResource("tunnels"):                 "TunnelList",
+			mapperatorv1.GroupVersion.WithResource("valkeys"):                     "ValkeyList",
+			mapperatorv1.GroupVersion.WithResource("opensearches"):                "OpenSearchList",
 		})
 
 	client.PrependReactor("patch", "*", func(action k8stesting.Action) (handled bool, ret runtime.Object, err error) {
