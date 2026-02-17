@@ -2295,6 +2295,10 @@ type ComplexityRoot struct {
 		Total func(childComplexity int) int
 	}
 
+	TeamInventoryCountPostgresInstances struct {
+		Total func(childComplexity int) int
+	}
+
 	TeamInventoryCountSqlInstances struct {
 		Total func(childComplexity int) int
 	}
@@ -2304,14 +2308,15 @@ type ComplexityRoot struct {
 	}
 
 	TeamInventoryCounts struct {
-		Applications     func(childComplexity int) int
-		BigQueryDatasets func(childComplexity int) int
-		Buckets          func(childComplexity int) int
-		Jobs             func(childComplexity int) int
-		KafkaTopics      func(childComplexity int) int
-		OpenSearches     func(childComplexity int) int
-		SQLInstances     func(childComplexity int) int
-		Valkeys          func(childComplexity int) int
+		Applications      func(childComplexity int) int
+		BigQueryDatasets  func(childComplexity int) int
+		Buckets           func(childComplexity int) int
+		Jobs              func(childComplexity int) int
+		KafkaTopics       func(childComplexity int) int
+		OpenSearches      func(childComplexity int) int
+		PostgresInstances func(childComplexity int) int
+		SQLInstances      func(childComplexity int) int
+		Valkeys           func(childComplexity int) int
 	}
 
 	TeamMember struct {
@@ -12462,6 +12467,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.TeamInventoryCountOpenSearches.Total(childComplexity), true
 
+	case "TeamInventoryCountPostgresInstances.total":
+		if e.complexity.TeamInventoryCountPostgresInstances.Total == nil {
+			break
+		}
+
+		return e.complexity.TeamInventoryCountPostgresInstances.Total(childComplexity), true
+
 	case "TeamInventoryCountSqlInstances.total":
 		if e.complexity.TeamInventoryCountSqlInstances.Total == nil {
 			break
@@ -12517,6 +12529,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.TeamInventoryCounts.OpenSearches(childComplexity), true
+
+	case "TeamInventoryCounts.postgresInstances":
+		if e.complexity.TeamInventoryCounts.PostgresInstances == nil {
+			break
+		}
+
+		return e.complexity.TeamInventoryCounts.PostgresInstances(childComplexity), true
 
 	case "TeamInventoryCounts.sqlInstances":
 		if e.complexity.TeamInventoryCounts.SQLInstances == nil {
@@ -19510,6 +19529,15 @@ input GrantPostgresAccessInput {
 	grantee: String!
 	"Duration of the access grant (maximum 4 hours)."
 	duration: String!
+}
+
+extend type TeamInventoryCounts {
+	postgresInstances: TeamInventoryCountPostgresInstances!
+}
+
+type TeamInventoryCountPostgresInstances {
+	"Total number of Postgres instances."
+	total: Int!
 }
 `, BuiltIn: false},
 	{Name: "../schema/price.graphqls", Input: `extend type Query {

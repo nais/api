@@ -1116,6 +1116,35 @@ func (ec *executionContext) fieldContext_PostgresInstanceResources_diskSize(_ co
 	return fc, nil
 }
 
+func (ec *executionContext) _TeamInventoryCountPostgresInstances_total(ctx context.Context, field graphql.CollectedField, obj *postgres.TeamInventoryCountPostgresInstances) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_TeamInventoryCountPostgresInstances_total,
+		func(ctx context.Context) (any, error) {
+			return obj.Total, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_TeamInventoryCountPostgresInstances_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamInventoryCountPostgresInstances",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 // endregion **************************** field.gotpl *****************************
 
 // region    **************************** input.gotpl *****************************
@@ -1721,6 +1750,45 @@ func (ec *executionContext) _PostgresInstanceResources(ctx context.Context, sel 
 	return out
 }
 
+var teamInventoryCountPostgresInstancesImplementors = []string{"TeamInventoryCountPostgresInstances"}
+
+func (ec *executionContext) _TeamInventoryCountPostgresInstances(ctx context.Context, sel ast.SelectionSet, obj *postgres.TeamInventoryCountPostgresInstances) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamInventoryCountPostgresInstancesImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TeamInventoryCountPostgresInstances")
+		case "total":
+			out.Values[i] = ec._TeamInventoryCountPostgresInstances_total(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 // endregion **************************** object.gotpl ****************************
 
 // region    ***************************** type.gotpl *****************************
@@ -1896,6 +1964,20 @@ func (ec *executionContext) marshalNPostgresInstanceResources2ᚖgithubᚗcomᚋ
 		return graphql.Null
 	}
 	return ec._PostgresInstanceResources(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNTeamInventoryCountPostgresInstances2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐTeamInventoryCountPostgresInstances(ctx context.Context, sel ast.SelectionSet, v postgres.TeamInventoryCountPostgresInstances) graphql.Marshaler {
+	return ec._TeamInventoryCountPostgresInstances(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNTeamInventoryCountPostgresInstances2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐTeamInventoryCountPostgresInstances(ctx context.Context, sel ast.SelectionSet, v *postgres.TeamInventoryCountPostgresInstances) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._TeamInventoryCountPostgresInstances(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOPostgresInstanceOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceOrder(ctx context.Context, v any) (*postgres.PostgresInstanceOrder, error) {
