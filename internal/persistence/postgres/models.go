@@ -218,3 +218,7 @@ func (e PostgresInstanceOrderField) MarshalJSON() ([]byte, error) {
 	e.MarshalGQL(&buf)
 	return buf.Bytes(), nil
 }
+
+type TeamInventoryCountPostgresInstances struct {
+	Total int `json:"total"`
+}

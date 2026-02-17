@@ -85,6 +85,12 @@ func (r *teamEnvironmentResolver) PostgresInstance(ctx context.Context, obj *tea
 	return postgres.GetZalandoPostgres(ctx, obj.TeamSlug, obj.EnvironmentName, name)
 }
 
+func (r *teamInventoryCountsResolver) PostgresInstances(ctx context.Context, obj *team.TeamInventoryCounts) (*postgres.TeamInventoryCountPostgresInstances, error) {
+	return &postgres.TeamInventoryCountPostgresInstances{
+		Total: len(postgres.ListAllForTeam(ctx, obj.TeamSlug)),
+	}, nil
+}
+
 func (r *Resolver) PostgresInstance() gengql.PostgresInstanceResolver {
 	return &postgresInstanceResolver{r}
 }
