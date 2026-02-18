@@ -102,11 +102,9 @@ func (s *Usersynchronizer) Sync(ctx context.Context) error {
 
 	if s.zitadelClient != nil {
 		wg := &sync.WaitGroup{}
-		wg.Add(1)
-		go func() {
+		wg.Go(func() {
 			s.zitadelUserSync(ctx, googleUsers)
-			wg.Done()
-		}()
+		})
 		defer wg.Wait()
 	}
 

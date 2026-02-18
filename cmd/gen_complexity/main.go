@@ -124,8 +124,8 @@ func combine(f *Field, parent ...string) (ret []Func) {
 
 func signature(t *types.Tuple) string {
 	var ret []string
-	for i := 0; i < t.Len(); i++ {
-		param := t.At(i)
+	for param := range t.Variables() {
+		param := param
 		ret = append(ret, param.Name()+" "+formatParam(param.Type()))
 	}
 	return strings.Join(ret, ", ")
@@ -157,8 +157,8 @@ func generateForStruct(name string, str *types.Struct) *Field {
 	ret := &Field{
 		Name: name,
 	}
-	for i := 0; i < str.NumFields(); i++ {
-		field := str.Field(i)
+	for field := range str.Fields() {
+		field := field
 		switch f := field.Type().Underlying().(type) {
 		case *types.Struct:
 			s := generateForStruct(field.Name(), f)
@@ -171,8 +171,8 @@ func generateForStruct(name string, str *types.Struct) *Field {
 			}
 
 			var first, last *types.Var
-			for i := 0; i < f.Params().Len(); i++ {
-				param := f.Params().At(i)
+			for param := range f.Params().Variables() {
+				param := param
 				if param.Name() == "first" {
 					first = param
 				} else if param.Name() == "last" {
@@ -210,8 +210,8 @@ func importsForField(f *Field) []Import {
 		ret = append(ret, importsForField(n)...)
 	}
 
-	for i := 0; i < f.Params.Len(); i++ {
-		param := f.Params.At(i)
+	for param := range f.Params.Variables() {
+		param := param
 		ret = append(ret, importFromType(param.Type()))
 	}
 

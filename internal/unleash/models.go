@@ -34,8 +34,8 @@ func toUnleashInstance(u *unleash_nais_io_v1.Unleash) *UnleashInstance {
 	var teams []slug.Slug
 	for _, env := range u.Spec.ExtraEnvVars {
 		if env.Name == "TEAMS_ALLOWED_TEAMS" {
-			parts := strings.Split(env.Value, ",")
-			for _, t := range parts {
+			parts := strings.SplitSeq(env.Value, ",")
+			for t := range parts {
 				if t == "" {
 					continue
 				}

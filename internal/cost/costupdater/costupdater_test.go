@@ -141,7 +141,7 @@ func TestUpdater_FetchBigQueryData(t *testing.T) {
 		}
 
 		// jump ahead some results
-		for i := 0; i < 42; i++ {
+		for range 42 {
 			_, ok = <-ch
 			if !ok {
 				t.Fatal("expected channel to contain more items")

@@ -2,6 +2,7 @@ package kubernetes
 
 import (
 	"fmt"
+	"maps"
 	"net/http"
 	"strings"
 
@@ -34,9 +35,7 @@ func CreateClusterConfigMap(tenant string, clusters []string, staticClusters []S
 	}
 
 	staticConfigs := getStaticClusterConfigs(staticClusters)
-	for cluster, cfg := range staticConfigs {
-		configs[cluster] = cfg
-	}
+	maps.Copy(configs, staticConfigs)
 
 	return configs, nil
 }

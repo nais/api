@@ -205,7 +205,7 @@ func (e JobRunState) String() string {
 	}
 }
 
-func (e *JobRunState) UnmarshalGQL(v interface{}) error {
+func (e *JobRunState) UnmarshalGQL(v any) error {
 	panic("not implemented")
 }
 
@@ -232,7 +232,7 @@ func (e JobOrderField) String() string {
 	return string(e)
 }
 
-func (e *JobOrderField) UnmarshalGQL(v interface{}) error {
+func (e *JobOrderField) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")

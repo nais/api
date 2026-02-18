@@ -89,7 +89,7 @@ func (e BigQueryDatasetOrderField) String() string {
 	return string(e)
 }
 
-func (e *BigQueryDatasetOrderField) UnmarshalGQL(v interface{}) error {
+func (e *BigQueryDatasetOrderField) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -121,7 +121,7 @@ func (e BigQueryDatasetAccessOrderField) String() string {
 	return string(e)
 }
 
-func (e *BigQueryDatasetAccessOrderField) UnmarshalGQL(v interface{}) error {
+func (e *BigQueryDatasetAccessOrderField) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")

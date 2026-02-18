@@ -35,7 +35,7 @@ func (c Cursor) MarshalGQLContext(_ context.Context, w io.Writer) error {
 	return err
 }
 
-func (c *Cursor) UnmarshalGQLContext(_ context.Context, v interface{}) error {
+func (c *Cursor) UnmarshalGQLContext(_ context.Context, v any) error {
 	if s, ok := v.(string); ok {
 		if s == "" {
 			c.empty = true

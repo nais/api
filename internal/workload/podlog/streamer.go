@@ -67,9 +67,7 @@ func (l *streamer) Logs(ctx context.Context, filter *WorkloadLogSubscriptionFilt
 			continue
 		}
 
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+		wg.Go(func() {
 			logs, err := coreV1Client.Pods(namespace).GetLogs(pod.Name, &corev1.PodLogOptions{
 				Container:  container,
 				Follow:     true,
@@ -111,7 +109,7 @@ func (l *streamer) Logs(ctx context.Context, filter *WorkloadLogSubscriptionFilt
 				case ch <- entry:
 				}
 			}
-		}()
+		})
 	}
 
 	go func() {

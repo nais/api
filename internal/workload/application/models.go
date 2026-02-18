@@ -214,7 +214,7 @@ func (e ApplicationOrderField) String() string {
 	return string(e)
 }
 
-func (e *ApplicationOrderField) UnmarshalGQL(v interface{}) error {
+func (e *ApplicationOrderField) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -448,7 +448,7 @@ func (e ApplicationInstanceState) String() string {
 	return string(e)
 }
 
-func (e *ApplicationInstanceState) UnmarshalGQL(v interface{}) error {
+func (e *ApplicationInstanceState) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -505,7 +505,7 @@ func (e IngressType) String() string {
 	return string(e)
 }
 
-func (e *IngressType) UnmarshalGQL(v interface{}) error {
+func (e *IngressType) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")

@@ -104,7 +104,7 @@ type ServiceAccountToken struct {
 	Name             string       `json:"name"`
 	Description      string       `json:"description"`
 	CreatedAt        time.Time    `json:"createdAt"`
-	UpdatedAt        time.Time    `json:"updatedAt,omitempty"`
+	UpdatedAt        time.Time    `json:"updatedAt"`
 	LastUsedAt       *time.Time   `json:"lastUsedAt,omitempty"`
 	ExpiresAt        *scalar.Date `json:"expiresAt,omitempty"`
 	UUID             uuid.UUID    `json:"-"`
