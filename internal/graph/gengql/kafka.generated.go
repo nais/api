@@ -216,6 +216,8 @@ func (ec *executionContext) fieldContext_KafkaTopic_team(_ context.Context, fiel
 				return ec.fieldContext_Team_kafkaTopics(ctx, field)
 			case "openSearches":
 				return ec.fieldContext_Team_openSearches(ctx, field)
+			case "postgresInstances":
+				return ec.fieldContext_Team_postgresInstances(ctx, field)
 			case "repositories":
 				return ec.fieldContext_Team_repositories(ctx, field)
 			case "secrets":
@@ -299,6 +301,8 @@ func (ec *executionContext) fieldContext_KafkaTopic_environment(_ context.Contex
 				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
 			case "openSearch":
 				return ec.fieldContext_TeamEnvironment_openSearch(ctx, field)
+			case "postgresInstance":
+				return ec.fieldContext_TeamEnvironment_postgresInstance(ctx, field)
 			case "secret":
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
@@ -366,6 +370,8 @@ func (ec *executionContext) fieldContext_KafkaTopic_teamEnvironment(_ context.Co
 				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
 			case "openSearch":
 				return ec.fieldContext_TeamEnvironment_openSearch(ctx, field)
+			case "postgresInstance":
+				return ec.fieldContext_TeamEnvironment_postgresInstance(ctx, field)
 			case "secret":
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
@@ -671,6 +677,8 @@ func (ec *executionContext) fieldContext_KafkaTopicAcl_team(_ context.Context, f
 				return ec.fieldContext_Team_kafkaTopics(ctx, field)
 			case "openSearches":
 				return ec.fieldContext_Team_openSearches(ctx, field)
+			case "postgresInstances":
+				return ec.fieldContext_Team_postgresInstances(ctx, field)
 			case "repositories":
 				return ec.fieldContext_Team_repositories(ctx, field)
 			case "secrets":

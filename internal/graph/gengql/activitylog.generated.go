@@ -17,7 +17,7 @@ import (
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/kubernetes/event/pubsublog"
 	"github.com/nais/api/internal/persistence/opensearch"
-	"github.com/nais/api/internal/persistence/sqlinstance"
+	"github.com/nais/api/internal/persistence/postgres"
 	"github.com/nais/api/internal/persistence/valkey"
 	"github.com/nais/api/internal/reconciler"
 	"github.com/nais/api/internal/serviceaccount"
@@ -504,9 +504,9 @@ func (ec *executionContext) _ActivityLogEntry(ctx context.Context, sel ast.Selec
 			return graphql.Null
 		}
 		return ec._ReconcilerConfiguredActivityLogEntry(ctx, sel, obj)
-	case sqlinstance.PostgresGrantAccessActivityLogEntry:
+	case postgres.PostgresGrantAccessActivityLogEntry:
 		return ec._PostgresGrantAccessActivityLogEntry(ctx, sel, &obj)
-	case *sqlinstance.PostgresGrantAccessActivityLogEntry:
+	case *postgres.PostgresGrantAccessActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}

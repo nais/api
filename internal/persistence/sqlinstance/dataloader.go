@@ -21,11 +21,10 @@ func NewLoaderContext(
 	client *Client,
 	sqlDatabaseWatcher *watcher.Watcher[*SQLDatabase],
 	sqlInstanceWatcher *watcher.Watcher[*SQLInstance],
-	postgresWatcher *watcher.Watcher[*Postgres],
 	auditLogProjectID string,
 	auditLogLocation string,
 ) context.Context {
-	return context.WithValue(ctx, loadersKey, newLoaders(client, sqlDatabaseWatcher, sqlInstanceWatcher, postgresWatcher, auditLogProjectID, auditLogLocation))
+	return context.WithValue(ctx, loadersKey, newLoaders(client, sqlDatabaseWatcher, sqlInstanceWatcher, auditLogProjectID, auditLogLocation))
 }
 
 func NewInstanceWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watcher[*SQLInstance] {
@@ -60,22 +59,6 @@ func NewDatabaseWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watc
 	return w
 }
 
-func NewPostgresWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watcher[*Postgres] {
-	w := watcher.Watch(mgr, &Postgres{}, watcher.WithConverter(func(o *unstructured.Unstructured, environmentName string) (obj any, ok bool) {
-		ret, err := toPostgres(o, environmentName)
-		if err != nil {
-			return nil, false
-		}
-		return ret, true
-	}), watcher.WithGVR(schema.GroupVersionResource{
-		Group:    "data.nais.io",
-		Version:  "v1",
-		Resource: "postgres",
-	}))
-	w.Start(ctx)
-	return w
-}
-
 func fromContext(ctx context.Context) *loaders {
 	return ctx.Value(loadersKey).(*loaders)
 }
@@ -91,7 +74,6 @@ type loaders struct {
 	sqlMetricsService  *Metrics
 	sqlDatabaseWatcher *watcher.Watcher[*SQLDatabase]
 	sqlInstanceWatcher *watcher.Watcher[*SQLInstance]
-	postgresWatcher    *watcher.Watcher[*Postgres]
 	remoteSQLInstance  *dataloadgen.Loader[instanceKey, *sqladmin.DatabaseInstance]
 	auditLogProjectID  string
 	auditLogLocation   string
@@ -101,7 +83,6 @@ func newLoaders(
 	client *Client,
 	sqlDatabaseWatcher *watcher.Watcher[*SQLDatabase],
 	sqlInstanceWatcher *watcher.Watcher[*SQLInstance],
-	postgresWatcher *watcher.Watcher[*Postgres],
 	auditLogProjectID string,
 	auditLogLocation string,
 ) *loaders {
@@ -111,7 +92,6 @@ func newLoaders(
 		sqlMetricsService:  client.metrics,
 		sqlDatabaseWatcher: sqlDatabaseWatcher,
 		sqlInstanceWatcher: sqlInstanceWatcher,
-		postgresWatcher:    postgresWatcher,
 		remoteSQLInstance:  dataloadgen.NewLoader(dataloader.remoteInstance, loader.DefaultDataLoaderOptions...),
 		auditLogProjectID:  auditLogProjectID,
 		auditLogLocation:   auditLogLocation,
