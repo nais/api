@@ -83,7 +83,7 @@ func (e UserOrderField) String() string {
 	return string(e)
 }
 
-func (e *UserOrderField) UnmarshalGQL(v interface{}) error {
+func (e *UserOrderField) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")

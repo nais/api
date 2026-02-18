@@ -309,11 +309,5 @@ func UpdateInstance(ctx context.Context, input *UpdateUnleashInstanceInput) (*Un
 
 // @TODO decide how we want to specify which team can manage Unleash from Console
 func hasAccessToUnleash(team slug.Slug, unleash *UnleashInstance) bool {
-	for _, t := range unleash.AllowedTeamSlugs {
-		if t == team {
-			return true
-		}
-	}
-
-	return false
+	return slices.Contains(unleash.AllowedTeamSlugs, team)
 }

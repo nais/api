@@ -85,7 +85,7 @@ func (e BucketOrderField) String() string {
 	return string(e)
 }
 
-func (e *BucketOrderField) UnmarshalGQL(v interface{}) error {
+func (e *BucketOrderField) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -214,7 +214,7 @@ func (e BucketState) String() string {
 	return string(e)
 }
 
-func (e *BucketState) UnmarshalGQL(v interface{}) error {
+func (e *BucketState) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")

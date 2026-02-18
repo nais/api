@@ -108,7 +108,7 @@ func newDeprecationTracer(log logrus.FieldLogger) (deprecationTracer, error) {
 	}, nil
 }
 
-func (t deprecationTracer) InterceptField(ctx context.Context, next graphql.Resolver) (res interface{}, err error) {
+func (t deprecationTracer) InterceptField(ctx context.Context, next graphql.Resolver) (res any, err error) {
 	fieldCtx := graphql.GetFieldContext(ctx)
 	t.processField(ctx, fieldCtx)
 	return next(ctx)

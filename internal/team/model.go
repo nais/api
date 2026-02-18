@@ -97,7 +97,7 @@ func (e TeamOrderField) String() string {
 	return string(e)
 }
 
-func (e *TeamOrderField) UnmarshalGQL(v interface{}) error {
+func (e *TeamOrderField) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -200,7 +200,7 @@ func (e TeamMemberRole) String() string {
 	return string(e)
 }
 
-func (e *TeamMemberRole) UnmarshalGQL(v interface{}) error {
+func (e *TeamMemberRole) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -250,7 +250,7 @@ func (e TeamMemberOrderField) String() string {
 	return string(e)
 }
 
-func (e *TeamMemberOrderField) UnmarshalGQL(v interface{}) error {
+func (e *TeamMemberOrderField) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -339,7 +339,7 @@ func (e UserTeamOrderField) String() string {
 	return string(e)
 }
 
-func (e *UserTeamOrderField) UnmarshalGQL(v interface{}) error {
+func (e *UserTeamOrderField) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")

@@ -20,7 +20,7 @@ func (d Date) MarshalGQLContext(_ context.Context, w io.Writer) error {
 	return nil
 }
 
-func (d *Date) UnmarshalGQLContext(_ context.Context, v interface{}) error {
+func (d *Date) UnmarshalGQLContext(_ context.Context, v any) error {
 	date, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("date must be a string")

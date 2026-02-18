@@ -73,10 +73,7 @@ var (
 )
 
 func calculateRateWindow(stepSeconds int) string {
-	windowSeconds := stepSeconds * 4
-	if windowSeconds < 60 {
-		windowSeconds = 60
-	}
+	windowSeconds := max(stepSeconds*4, 60)
 	if windowSeconds > 3600 {
 		windowSeconds = 3600
 	}

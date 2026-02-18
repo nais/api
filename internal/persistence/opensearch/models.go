@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -102,7 +103,7 @@ func (e OpenSearchOrderField) String() string {
 	return string(e)
 }
 
-func (e *OpenSearchOrderField) UnmarshalGQL(v interface{}) error {
+func (e *OpenSearchOrderField) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -134,7 +135,7 @@ func (e OpenSearchAccessOrderField) String() string {
 	return string(e)
 }
 
-func (e *OpenSearchAccessOrderField) UnmarshalGQL(v interface{}) error {
+func (e *OpenSearchAccessOrderField) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -373,10 +374,8 @@ func (e OpenSearchMajorVersion) ValidateUpgradePath(other OpenSearchMajorVersion
 		return apierror.Errorf("Cannot change OpenSearch version from %v to %v. No further upgrades available.", other, e)
 	}
 
-	for _, v := range path {
-		if v == e {
-			return nil
-		}
+	if slices.Contains(path, e) {
+		return nil
 	}
 
 	return apierror.Errorf("Cannot change OpenSearch version from %v to %v. New version must be one of [%s]", other, e, path)
