@@ -3,6 +3,8 @@ package secret
 import (
 	"fmt"
 	"io"
+	"maps"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -121,6 +123,43 @@ func toGraphSecret(o *unstructured.Unstructured, environmentName string) (*Secre
 		ModifiedByUserEmail: lastModifiedBy,
 		Keys:                keys,
 	}, true
+}
+
+// toSecretFromAPIObject converts an unstructured Kubernetes Secret fetched directly
+// from the API server into a *Secret. Unlike toGraphSecret, it reads key names from
+// the actual "data" field rather than from the cached-secret-keys annotation, making
+// it suitable for returning up-to-date data after a mutation without waiting for the
+// watcher cache to sync.
+func toSecretFromAPIObject(o *unstructured.Unstructured, environmentName string) (*Secret, error) {
+	if !secretIsManagedByConsole(o) {
+		return nil, fmt.Errorf("secret is not managed by console")
+	}
+
+	var lastModifiedAt *time.Time
+	if t, ok := o.GetAnnotations()[secretAnnotationLastModifiedAt]; ok {
+		tm, err := time.Parse(time.RFC3339, t)
+		if err == nil {
+			lastModifiedAt = &tm
+		}
+	}
+
+	var lastModifiedBy *string
+	if email, ok := o.GetAnnotations()[secretAnnotationLastModifiedBy]; ok {
+		lastModifiedBy = &email
+	}
+
+	// Extract key names directly from the data field (not from the cached annotation)
+	data, _, _ := unstructured.NestedMap(o.Object, "data")
+	keys := slices.Sorted(maps.Keys(data))
+
+	return &Secret{
+		Name:                o.GetName(),
+		TeamSlug:            slug.Slug(o.GetNamespace()),
+		EnvironmentName:     environmentName,
+		LastModifiedAt:      lastModifiedAt,
+		ModifiedByUserEmail: lastModifiedBy,
+		Keys:                keys,
+	}, nil
 }
 
 type SecretValue struct {
