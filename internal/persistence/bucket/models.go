@@ -127,13 +127,13 @@ func toBucketStatus(status storage_cnrm_cloud_google_com_v1beta1.StorageBucketSt
 			if !ready {
 				errors = append(errors, &BucketError{
 					Message: "Bucket is unhealthy",
-					Details: ptr.To(condition.Message),
+					Details: new(condition.Message),
 				})
 			}
 		default:
 			unknown = append(errors, &BucketError{
 				Message: fmt.Sprintf("Unknown state: %s", condition.Type),
-				Details: ptr.To(condition.Message),
+				Details: new(condition.Message),
 			})
 		}
 	}

@@ -104,7 +104,7 @@ func TestToUnleashInstance(t *testing.T) {
 					Connected:  true,
 				},
 			},
-			expectedReleaseChannelName: ptr("stable"),
+			expectedReleaseChannelName: new("stable"),
 			expectedAllowedTeams:       nil,
 			expectedReady:              true,
 		},
@@ -225,7 +225,7 @@ func TestToReleaseChannel(t *testing.T) {
 				Name:           "stable",
 				CurrentVersion: "5.11.0",
 				Type:           "sequential",
-				LastUpdated:    timePtr(time.Date(2024, 3, 15, 10, 30, 0, 0, time.UTC)),
+				LastUpdated:    new(time.Date(2024, 3, 15, 10, 30, 0, 0, time.UTC)),
 			},
 		},
 		{
@@ -290,12 +290,15 @@ func TestToReleaseChannel(t *testing.T) {
 }
 
 // Helper functions
+//
+//go:fix inline
 func ptr(s string) *string {
-	return &s
+	return new(s)
 }
 
+//go:fix inline
 func timePtr(t time.Time) *time.Time {
-	return &t
+	return new(t)
 }
 
 func containsString(s, substr string) bool {

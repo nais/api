@@ -17,7 +17,6 @@ import (
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/team/teamsql"
 	"github.com/nais/api/internal/validate"
-	"k8s.io/utils/ptr"
 )
 
 type (
@@ -401,11 +400,11 @@ func (i *UpdateTeamInput) Validate() error {
 	verr := validate.New()
 
 	if i.Purpose != nil {
-		i.Purpose = ptr.To(strings.TrimSpace(*i.Purpose))
+		i.Purpose = new(strings.TrimSpace(*i.Purpose))
 	}
 
 	if i.SlackChannel != nil {
-		i.SlackChannel = ptr.To(strings.TrimSpace(*i.SlackChannel))
+		i.SlackChannel = new(strings.TrimSpace(*i.SlackChannel))
 	}
 
 	if i.Purpose != nil && *i.Purpose == "" {
@@ -511,7 +510,7 @@ func (i *UpdateTeamEnvironmentInput) Validate() error {
 
 	if i.SlackAlertsChannel != nil {
 		s := strings.TrimSpace(*i.SlackAlertsChannel)
-		i.SlackAlertsChannel = ptr.To(s)
+		i.SlackAlertsChannel = new(s)
 		if s != "" && (!strings.HasPrefix(s, "#") || len(s) < 3 || len(s) > 80) {
 			verr.Add("slackAlertsChannel", "This is not a valid Slack channel name. A valid channel name starts with a '#' and is between 3 and 80 characters long.")
 		}
