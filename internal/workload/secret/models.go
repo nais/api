@@ -3,8 +3,6 @@ package secret
 import (
 	"fmt"
 	"io"
-	"maps"
-	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -125,19 +123,13 @@ func toGraphSecret(o *unstructured.Unstructured, environmentName string) (*Secre
 	}, true
 }
 
-// secretFromAPIResponse prepares a K8s API response for toGraphSecret by extracting
-// key names from the actual "data" field into the cached-secret-keys annotation.
-// This allows reusing toGraphSecret for fresh API responses where the watcher
-// transformer hasn't run yet.
+// secretFromAPIResponse converts a secret fetched directly from the K8s API into a
+// *Secret by running it through transformSecret (which extracts keys from data into
+// the cached annotation) and then toGraphSecret.
 func secretFromAPIResponse(o *unstructured.Unstructured, environmentName string) (*Secret, error) {
-	data, _, _ := unstructured.NestedMap(o.Object, "data")
-	keys := slices.Sorted(maps.Keys(data))
-	annotations := o.GetAnnotations()
-	if annotations == nil {
-		annotations = make(map[string]string)
+	if _, err := transformSecret(o); err != nil {
+		return nil, err
 	}
-	annotations[annotationSecretKeys] = strings.Join(keys, ",")
-	o.SetAnnotations(annotations)
 
 	s, ok := toGraphSecret(o, environmentName)
 	if !ok {
