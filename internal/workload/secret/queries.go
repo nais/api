@@ -274,7 +274,12 @@ func AddSecretValue(ctx context.Context, teamSlug slug.Slug, environment, secret
 		fromContext(ctx).log.WithError(err).Errorf("unable to create activity log entry")
 	}
 
-	return Get(ctx, teamSlug, environment, secretName)
+	// Re-fetch from the K8s API to return up-to-date data without waiting for the watcher cache.
+	updated, err := client.Namespace(teamSlug.String()).Get(ctx, secretName, v1.GetOptions{})
+	if err != nil {
+		return nil, fmt.Errorf("fetching updated secret: %w", err)
+	}
+	return secretFromAPIResponse(updated, environment)
 }
 
 func UpdateSecretValue(ctx context.Context, teamSlug slug.Slug, environment, secretName string, valueToUpdate *SecretValueInput) (*Secret, error) {
@@ -338,7 +343,12 @@ func UpdateSecretValue(ctx context.Context, teamSlug slug.Slug, environment, sec
 		fromContext(ctx).log.WithError(err).Errorf("unable to create activity log entry")
 	}
 
-	return Get(ctx, teamSlug, environment, secretName)
+	// Re-fetch from the K8s API to return up-to-date data without waiting for the watcher cache.
+	updated, err := client.Namespace(teamSlug.String()).Get(ctx, secretName, v1.GetOptions{})
+	if err != nil {
+		return nil, fmt.Errorf("fetching updated secret: %w", err)
+	}
+	return secretFromAPIResponse(updated, environment)
 }
 
 func RemoveSecretValue(ctx context.Context, teamSlug slug.Slug, environment, secretName, valueName string) (*Secret, error) {
@@ -397,7 +407,12 @@ func RemoveSecretValue(ctx context.Context, teamSlug slug.Slug, environment, sec
 		fromContext(ctx).log.WithError(err).Errorf("unable to create activity log entry")
 	}
 
-	return Get(ctx, teamSlug, environment, secretName)
+	// Re-fetch from the K8s API to return up-to-date data without waiting for the watcher cache.
+	updated, err := client.Namespace(teamSlug.String()).Get(ctx, secretName, v1.GetOptions{})
+	if err != nil {
+		return nil, fmt.Errorf("fetching updated secret: %w", err)
+	}
+	return secretFromAPIResponse(updated, environment)
 }
 
 func Delete(ctx context.Context, teamSlug slug.Slug, environment, name string) error {
