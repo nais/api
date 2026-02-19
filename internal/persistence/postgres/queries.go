@@ -51,6 +51,10 @@ func ListAllForTeam(ctx context.Context, teamSlug slug.Slug) []*PostgresInstance
 	return ret
 }
 
+func CountForTeam(ctx context.Context, teamSlug slug.Slug) int {
+	return len(fromContext(ctx).zalandoPostgresWatcher.GetByNamespace(teamSlug.String()))
+}
+
 func orderPostgresInstances(ctx context.Context, instances []*PostgresInstance, orderBy *PostgresInstanceOrder) {
 	if orderBy == nil {
 		orderBy = &PostgresInstanceOrder{
@@ -86,7 +90,6 @@ func withAuditURL(ctx context.Context, instance *PostgresInstance) *PostgresInst
 	}
 
 	ret := *instance
-	ret.Audit = instance.Audit
 
 	if !ret.Audit.Enabled {
 		return &ret

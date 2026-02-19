@@ -87,7 +87,7 @@ func (r *teamEnvironmentResolver) PostgresInstance(ctx context.Context, obj *tea
 
 func (r *teamInventoryCountsResolver) PostgresInstances(ctx context.Context, obj *team.TeamInventoryCounts) (*postgres.TeamInventoryCountPostgresInstances, error) {
 	return &postgres.TeamInventoryCountPostgresInstances{
-		Total: len(postgres.ListAllForTeam(ctx, obj.TeamSlug)),
+		Total: postgres.CountForTeam(ctx, obj.TeamSlug),
 	}, nil
 }
 
