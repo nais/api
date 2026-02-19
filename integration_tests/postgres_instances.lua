@@ -363,6 +363,7 @@ Test.gql("Postgres instance with audit logging enabled", function(t)
 		        name
 		        audit {
 		          enabled
+		          url
 		        }
 		      }
 		    }
@@ -378,6 +379,7 @@ Test.gql("Postgres instance with audit logging enabled", function(t)
 						name = "with-audit",
 						audit = {
 							enabled = true,
+							url = Null,
 						},
 					},
 				},
@@ -397,6 +399,7 @@ Test.gql("Postgres instance without audit logging", function(t)
 		        name
 		        audit {
 		          enabled
+		          url
 		        }
 		      }
 		    }
@@ -412,6 +415,7 @@ Test.gql("Postgres instance without audit logging", function(t)
 						name = "foobar",
 						audit = {
 							enabled = false,
+							url = Null,
 						},
 					},
 				},
@@ -431,6 +435,7 @@ Test.gql("Postgres instance with explicit audit disabled", function(t)
 		        name
 		        audit {
 		          enabled
+		          url
 		        }
 		      }
 		    }
@@ -446,6 +451,7 @@ Test.gql("Postgres instance with explicit audit disabled", function(t)
 						name = "without-audit",
 						audit = {
 							enabled = false,
+							url = Null,
 						},
 					},
 				},
