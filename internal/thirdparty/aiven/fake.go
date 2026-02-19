@@ -70,11 +70,6 @@ func (f *FakeAivenClient) ProjectAlertsList(ctx context.Context, p string) ([]pr
 	return []project.AlertOut{}, nil
 }
 
-//go:fix inline
-func stringPtr(s string) *string {
-	return new(s)
-}
-
 // ServiceGet returns hardcoded example dataset
 func (f *FakeAivenClient) ServiceGet(_ context.Context, _ string, serviceName string, _ ...[2]string) (*aiven.ServiceGetOut, error) {
 	description := "This is a description (Nais API call it title)"

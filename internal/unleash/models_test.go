@@ -290,17 +290,6 @@ func TestToReleaseChannel(t *testing.T) {
 }
 
 // Helper functions
-//
-//go:fix inline
-func ptr(s string) *string {
-	return new(s)
-}
-
-//go:fix inline
-func timePtr(t time.Time) *time.Time {
-	return new(t)
-}
-
 func containsString(s, substr string) bool {
 	return len(s) >= len(substr) && (s == substr || len(s) > 0 && containsStringHelper(s, substr))
 }
