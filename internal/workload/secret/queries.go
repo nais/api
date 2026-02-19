@@ -279,7 +279,7 @@ func AddSecretValue(ctx context.Context, teamSlug slug.Slug, environment, secret
 	if err != nil {
 		return nil, fmt.Errorf("fetching updated secret: %w", err)
 	}
-	return toSecretFromAPIObject(updated, environment)
+	return secretFromAPIResponse(updated, environment)
 }
 
 func UpdateSecretValue(ctx context.Context, teamSlug slug.Slug, environment, secretName string, valueToUpdate *SecretValueInput) (*Secret, error) {
@@ -348,7 +348,7 @@ func UpdateSecretValue(ctx context.Context, teamSlug slug.Slug, environment, sec
 	if err != nil {
 		return nil, fmt.Errorf("fetching updated secret: %w", err)
 	}
-	return toSecretFromAPIObject(updated, environment)
+	return secretFromAPIResponse(updated, environment)
 }
 
 func RemoveSecretValue(ctx context.Context, teamSlug slug.Slug, environment, secretName, valueName string) (*Secret, error) {
@@ -412,7 +412,7 @@ func RemoveSecretValue(ctx context.Context, teamSlug slug.Slug, environment, sec
 	if err != nil {
 		return nil, fmt.Errorf("fetching updated secret: %w", err)
 	}
-	return toSecretFromAPIObject(updated, environment)
+	return secretFromAPIResponse(updated, environment)
 }
 
 func Delete(ctx context.Context, teamSlug slug.Slug, environment, name string) error {

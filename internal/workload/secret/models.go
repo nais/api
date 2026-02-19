@@ -125,41 +125,25 @@ func toGraphSecret(o *unstructured.Unstructured, environmentName string) (*Secre
 	}, true
 }
 
-// toSecretFromAPIObject converts an unstructured Kubernetes Secret fetched directly
-// from the API server into a *Secret. Unlike toGraphSecret, it reads key names from
-// the actual "data" field rather than from the cached-secret-keys annotation, making
-// it suitable for returning up-to-date data after a mutation without waiting for the
-// watcher cache to sync.
-func toSecretFromAPIObject(o *unstructured.Unstructured, environmentName string) (*Secret, error) {
-	if !secretIsManagedByConsole(o) {
-		return nil, fmt.Errorf("secret is not managed by console")
-	}
-
-	var lastModifiedAt *time.Time
-	if t, ok := o.GetAnnotations()[secretAnnotationLastModifiedAt]; ok {
-		tm, err := time.Parse(time.RFC3339, t)
-		if err == nil {
-			lastModifiedAt = &tm
-		}
-	}
-
-	var lastModifiedBy *string
-	if email, ok := o.GetAnnotations()[secretAnnotationLastModifiedBy]; ok {
-		lastModifiedBy = &email
-	}
-
-	// Extract key names directly from the data field (not from the cached annotation)
+// secretFromAPIResponse prepares a K8s API response for toGraphSecret by extracting
+// key names from the actual "data" field into the cached-secret-keys annotation.
+// This allows reusing toGraphSecret for fresh API responses where the watcher
+// transformer hasn't run yet.
+func secretFromAPIResponse(o *unstructured.Unstructured, environmentName string) (*Secret, error) {
 	data, _, _ := unstructured.NestedMap(o.Object, "data")
 	keys := slices.Sorted(maps.Keys(data))
+	annotations := o.GetAnnotations()
+	if annotations == nil {
+		annotations = make(map[string]string)
+	}
+	annotations[annotationSecretKeys] = strings.Join(keys, ",")
+	o.SetAnnotations(annotations)
 
-	return &Secret{
-		Name:                o.GetName(),
-		TeamSlug:            slug.Slug(o.GetNamespace()),
-		EnvironmentName:     environmentName,
-		LastModifiedAt:      lastModifiedAt,
-		ModifiedByUserEmail: lastModifiedBy,
-		Keys:                keys,
-	}, nil
+	s, ok := toGraphSecret(o, environmentName)
+	if !ok {
+		return nil, fmt.Errorf("failed to convert secret")
+	}
+	return s, nil
 }
 
 type SecretValue struct {
