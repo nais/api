@@ -24,6 +24,9 @@ type PostgresInstanceResolver interface {
 	Environment(ctx context.Context, obj *postgres.PostgresInstance) (*team.TeamEnvironment, error)
 	TeamEnvironment(ctx context.Context, obj *postgres.PostgresInstance) (*team.TeamEnvironment, error)
 }
+type PostgresInstanceAuditResolver interface {
+	URL(ctx context.Context, obj *postgres.PostgresInstanceAudit) (*string, error)
+}
 
 // endregion ************************** generated!.gotpl **************************
 
@@ -835,7 +838,7 @@ func (ec *executionContext) _PostgresInstanceAudit_url(ctx context.Context, fiel
 		field,
 		ec.fieldContext_PostgresInstanceAudit_url,
 		func(ctx context.Context) (any, error) {
-			return obj.URL, nil
+			return ec.resolvers.PostgresInstanceAudit().URL(ctx, obj)
 		},
 		nil,
 		ec.marshalOString2ᚖstring,
@@ -848,8 +851,8 @@ func (ec *executionContext) fieldContext_PostgresInstanceAudit_url(_ context.Con
 	fc = &graphql.FieldContext{
 		Object:     "PostgresInstanceAudit",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
 		},
@@ -1614,10 +1617,41 @@ func (ec *executionContext) _PostgresInstanceAudit(ctx context.Context, sel ast.
 		case "enabled":
 			out.Values[i] = ec._PostgresInstanceAudit_enabled(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "url":
-			out.Values[i] = ec._PostgresInstanceAudit_url(ctx, field, obj)
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._PostgresInstanceAudit_url(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

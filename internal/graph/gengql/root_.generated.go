@@ -98,6 +98,7 @@ type ResolverRoot interface {
 	OpenSearchIssue() OpenSearchIssueResolver
 	OpenSearchMaintenance() OpenSearchMaintenanceResolver
 	PostgresInstance() PostgresInstanceResolver
+	PostgresInstanceAudit() PostgresInstanceAuditResolver
 	PrometheusAlert() PrometheusAlertResolver
 	Query() QueryResolver
 	Reconciler() ReconcilerResolver

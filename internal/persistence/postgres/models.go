@@ -39,8 +39,10 @@ type PostgresInstance struct {
 }
 
 type PostgresInstanceAudit struct {
-	Enabled bool    `json:"enabled"`
-	URL     *string `json:"url,omitempty"`
+	Enabled         bool      `json:"enabled"`
+	TeamSlug        slug.Slug `json:"-"`
+	EnvironmentName string    `json:"-"`
+	InstanceName    string    `json:"-"`
 }
 
 func (PostgresInstance) IsPersistence() {}
@@ -156,7 +158,10 @@ func toPostgres(ctx context.Context, u *unstructured.Unstructured, environmentNa
 		},
 		MajorVersion: obj.Spec.Cluster.MajorVersion,
 		Audit: PostgresInstanceAudit{
-			Enabled: audit,
+			Enabled:         audit,
+			TeamSlug:        slug.Slug(obj.GetNamespace()),
+			EnvironmentName: environmentName,
+			InstanceName:    obj.GetName(),
 		},
 	}, nil
 }

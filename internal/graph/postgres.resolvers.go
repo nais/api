@@ -72,6 +72,10 @@ func (r *postgresInstanceResolver) TeamEnvironment(ctx context.Context, obj *pos
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
 
+func (r *postgresInstanceAuditResolver) URL(ctx context.Context, obj *postgres.PostgresInstanceAudit) (*string, error) {
+	return postgres.GetAuditURL(ctx, obj)
+}
+
 func (r *teamResolver) PostgresInstances(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *postgres.PostgresInstanceOrder) (*pagination.Connection[*postgres.PostgresInstance], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
@@ -95,4 +99,11 @@ func (r *Resolver) PostgresInstance() gengql.PostgresInstanceResolver {
 	return &postgresInstanceResolver{r}
 }
 
-type postgresInstanceResolver struct{ *Resolver }
+func (r *Resolver) PostgresInstanceAudit() gengql.PostgresInstanceAuditResolver {
+	return &postgresInstanceAuditResolver{r}
+}
+
+type (
+	postgresInstanceResolver      struct{ *Resolver }
+	postgresInstanceAuditResolver struct{ *Resolver }
+)
