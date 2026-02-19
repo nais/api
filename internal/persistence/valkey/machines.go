@@ -27,24 +27,10 @@ var machineTypes = []machineType{
 	{AivenPlan: "business-200", Tier: ValkeyTierHighAvailability, Memory: ValkeyMemoryGB200},
 }
 
-// tierAndMemory transposes machineTypes for lookup by ValkeyTier and ValkeyMemory
-var tierAndMemory map[ValkeyTier]map[ValkeyMemory]machineType
-
 // aivenPlans transposes machineTypes for lookup by an Aiven plan string
 var aivenPlans map[string]machineType
 
 func init() {
-	tierAndMemory = make(map[ValkeyTier]map[ValkeyMemory]machineType)
-	for _, m := range machineTypes {
-		if _, ok := tierAndMemory[m.Tier]; !ok {
-			tierAndMemory[m.Tier] = make(map[ValkeyMemory]machineType)
-		}
-		if _, ok := tierAndMemory[m.Tier][m.Memory]; ok {
-			panic("duplicate tier and memory combination [" + string(m.Tier) + ", " + string(m.Memory) + "] in machineTypes")
-		}
-		tierAndMemory[m.Tier][m.Memory] = m
-	}
-
 	aivenPlans = make(map[string]machineType)
 	for _, m := range machineTypes {
 		if _, ok := aivenPlans[m.AivenPlan]; ok {
@@ -52,20 +38,6 @@ func init() {
 		}
 		aivenPlans[m.AivenPlan] = m
 	}
-}
-
-func machineTypeFromTierAndMemory(tier ValkeyTier, memory ValkeyMemory) (*machineType, error) {
-	memories, ok := tierAndMemory[tier]
-	if !ok {
-		return nil, apierror.Errorf("Invalid Valkey tier: %s", tier)
-	}
-
-	machine, ok := memories[memory]
-	if !ok {
-		return nil, apierror.Errorf("Invalid Valkey memory for tier. %v cannot have memory %v", tier, memory)
-	}
-
-	return &machine, nil
 }
 
 func machineTypeFromPlan(plan string) (*machineType, error) {

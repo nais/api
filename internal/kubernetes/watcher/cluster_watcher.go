@@ -135,6 +135,7 @@ func (w *clusterWatcher[T]) OnDelete(obj any) {
 	w.watcher.remove(w.cluster, t)
 }
 
+// Delete will delete the resource using an imperonated client.
 func (w *clusterWatcher[T]) Delete(ctx context.Context, namespace, name string) error {
 	client, err := w.ImpersonatedClient(ctx)
 	if err != nil {

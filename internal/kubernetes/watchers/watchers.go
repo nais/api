@@ -31,6 +31,7 @@ type (
 	BqWatcher              = watcher.Watcher[*bigquery.BigQueryDataset]
 	ValkeyWatcher          = watcher.Watcher[*valkey.Valkey]
 	OpenSearchWatcher      = watcher.Watcher[*opensearch.OpenSearch]
+	NaisOpenSearchWatcher  = watcher.Watcher[*opensearch.OpenSearch]
 	BucketWatcher          = watcher.Watcher[*bucket.Bucket]
 	SqlDatabaseWatcher     = watcher.Watcher[*sqlinstance.SQLDatabase]
 	SqlInstanceWatcher     = watcher.Watcher[*sqlinstance.SQLInstance]
@@ -41,6 +42,7 @@ type (
 	NamespaceWatcher       = watcher.Watcher[*v1.Namespace]
 	UnleashWatcher         = watcher.Watcher[*unleash.UnleashInstance]
 	SecretWatcher          = watcher.Watcher[*secret.Secret]
+	NaisValkeyWatcher      = watcher.Watcher[*valkey.Valkey]
 )
 
 type Watchers struct {
@@ -50,6 +52,7 @@ type Watchers struct {
 	BqWatcher              *BqWatcher
 	ValkeyWatcher          *ValkeyWatcher
 	OpenSearchWatcher      *OpenSearchWatcher
+	NaisOpenSearchWatcher  *NaisOpenSearchWatcher
 	BucketWatcher          *BucketWatcher
 	SqlDatabaseWatcher     *SqlDatabaseWatcher
 	SqlInstanceWatcher     *SqlInstanceWatcher
@@ -60,6 +63,7 @@ type Watchers struct {
 	NamespaceWatcher       *NamespaceWatcher
 	UnleashWatcher         *UnleashWatcher
 	SecretWatcher          *SecretWatcher
+	NaisValkeyWatcher      *NaisValkeyWatcher
 }
 
 func SetupWatchers(
@@ -74,6 +78,7 @@ func SetupWatchers(
 		BqWatcher:              bigquery.NewWatcher(ctx, watcherMgr),
 		ValkeyWatcher:          valkey.NewWatcher(ctx, watcherMgr),
 		OpenSearchWatcher:      opensearch.NewWatcher(ctx, watcherMgr),
+		NaisOpenSearchWatcher:  opensearch.NewNaisOpenSearchWatcher(ctx, watcherMgr),
 		BucketWatcher:          bucket.NewWatcher(ctx, watcherMgr),
 		SqlDatabaseWatcher:     sqlinstance.NewDatabaseWatcher(ctx, watcherMgr),
 		SqlInstanceWatcher:     sqlinstance.NewInstanceWatcher(ctx, watcherMgr),
@@ -84,5 +89,6 @@ func SetupWatchers(
 		NamespaceWatcher:       team.NewNamespaceWatcher(ctx, watcherMgr),
 		UnleashWatcher:         unleash.NewWatcher(ctx, mgmtWatcherMgr),
 		SecretWatcher:          secret.NewWatcher(ctx, watcherMgr),
+		NaisValkeyWatcher:      valkey.NewNaisValkeyWatcher(ctx, watcherMgr),
 	}
 }
