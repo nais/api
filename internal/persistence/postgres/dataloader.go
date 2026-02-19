@@ -47,7 +47,7 @@ func GetAuditLogConfig(ctx context.Context) (projectID, location string) {
 
 func NewZalandoPostgresWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watcher[*PostgresInstance] {
 	w := watcher.Watch(mgr, &PostgresInstance{}, watcher.WithConverter(func(o *unstructured.Unstructured, environmentName string) (obj any, ok bool) {
-		ret, err := toPostgres(ctx, o, environmentName)
+		ret, err := toPostgres(o, environmentName)
 		if err != nil {
 			return nil, false
 		}

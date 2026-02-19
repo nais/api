@@ -134,7 +134,7 @@ func (p *PostgresInstance) ID() ident.Ident {
 	return newIdent(p.TeamSlug, p.EnvironmentName, p.Name)
 }
 
-func toPostgres(ctx context.Context, u *unstructured.Unstructured, environmentName string) (*PostgresInstance, error) {
+func toPostgres(u *unstructured.Unstructured, environmentName string) (*PostgresInstance, error) {
 	obj := &data_nais_io_v1.Postgres{}
 
 	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(u.Object, obj); err != nil {
