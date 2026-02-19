@@ -74,6 +74,8 @@ type PostgresInstance implements Persistence & Node {
 type PostgresInstanceAudit {
 	"Indicates whether audit logging is enabled for the Postgres cluster."
 	enabled: Boolean!
+	"URL for accessing the audit logs."
+	url: String
 }
 
 type PostgresInstanceConnection {

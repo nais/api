@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"hash/crc32"
+	"net/url"
 	"strconv"
 	"time"
 
@@ -15,6 +16,7 @@ import (
 	"github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/team"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -41,7 +43,12 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 
 func ListAllForTeam(ctx context.Context, teamSlug slug.Slug) []*PostgresInstance {
 	all := fromContext(ctx).zalandoPostgresWatcher.GetByNamespace(teamSlug.String())
-	return watcher.Objects(all)
+	instances := watcher.Objects(all)
+	ret := make([]*PostgresInstance, 0, len(instances))
+	for _, instance := range instances {
+		ret = append(ret, withAuditURL(ctx, instance))
+	}
+	return ret
 }
 
 func orderPostgresInstances(ctx context.Context, instances []*PostgresInstance, orderBy *PostgresInstanceOrder) {
@@ -65,7 +72,51 @@ func GetZalandoPostgresByIdent(ctx context.Context, id ident.Ident) (*PostgresIn
 }
 
 func GetZalandoPostgres(ctx context.Context, teamSlug slug.Slug, environmentName string, clusterName string) (*PostgresInstance, error) {
-	return fromContext(ctx).zalandoPostgresWatcher.Get(environmentName, teamSlug.String(), clusterName)
+	instance, err := fromContext(ctx).zalandoPostgresWatcher.Get(environmentName, teamSlug.String(), clusterName)
+	if err != nil {
+		return nil, err
+	}
+
+	return withAuditURL(ctx, instance), nil
+}
+
+func withAuditURL(ctx context.Context, instance *PostgresInstance) *PostgresInstance {
+	if instance == nil {
+		return nil
+	}
+
+	ret := *instance
+	ret.Audit = instance.Audit
+
+	if !ret.Audit.Enabled {
+		return &ret
+	}
+
+	auditProjectID, location := GetAuditLogConfig(ctx)
+	if auditProjectID == "" || location == "" {
+		return &ret
+	}
+
+	databaseProjectID := ""
+	teamEnv, err := team.GetTeamEnvironment(ctx, instance.TeamSlug, instance.EnvironmentName)
+	if err == nil && teamEnv.GCPProjectID != nil {
+		databaseProjectID = *teamEnv.GCPProjectID
+	}
+	if databaseProjectID == "" {
+		return &ret
+	}
+
+	databaseID := fmt.Sprintf("%s:%s", databaseProjectID, instance.Name)
+	query := fmt.Sprintf("labels.databaseId=\"%s\"", databaseID)
+	storageScope := fmt.Sprintf("storage,projects/%s/locations/%s/buckets/%s-%s/views/_AllLogs", auditProjectID, location, instance.TeamSlug.String(), instance.EnvironmentName)
+	logURL := fmt.Sprintf("https://console.cloud.google.com/logs/query;query=%s;storageScope=%s?project=%s",
+		url.QueryEscape(query),
+		url.QueryEscape(storageScope),
+		databaseProjectID,
+	)
+	ret.Audit.URL = &logURL
+
+	return &ret
 }
 
 func GrantZalandoPostgresAccess(ctx context.Context, input GrantPostgresAccessInput) error {

@@ -1312,6 +1312,7 @@ type ComplexityRoot struct {
 
 	PostgresInstanceAudit struct {
 		Enabled func(childComplexity int) int
+		URL     func(childComplexity int) int
 	}
 
 	PostgresInstanceConnection struct {
@@ -7969,6 +7970,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.PostgresInstanceAudit.Enabled(childComplexity), true
+
+	case "PostgresInstanceAudit.url":
+		if e.complexity.PostgresInstanceAudit.URL == nil {
+			break
+		}
+
+		return e.complexity.PostgresInstanceAudit.URL(childComplexity), true
 
 	case "PostgresInstanceConnection.edges":
 		if e.complexity.PostgresInstanceConnection.Edges == nil {
@@ -19440,6 +19448,8 @@ type PostgresInstance implements Persistence & Node {
 type PostgresInstanceAudit {
 	"Indicates whether audit logging is enabled for the Postgres cluster."
 	enabled: Boolean!
+	"URL for accessing the audit logs."
+	url: String
 }
 
 type PostgresInstanceConnection {

@@ -790,6 +790,8 @@ func (ec *executionContext) fieldContext_PostgresInstance_audit(_ context.Contex
 			switch field.Name {
 			case "enabled":
 				return ec.fieldContext_PostgresInstanceAudit_enabled(ctx, field)
+			case "url":
+				return ec.fieldContext_PostgresInstanceAudit_url(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PostgresInstanceAudit", field.Name)
 		},
@@ -821,6 +823,35 @@ func (ec *executionContext) fieldContext_PostgresInstanceAudit_enabled(_ context
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresInstanceAudit_url(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstanceAudit) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PostgresInstanceAudit_url,
+		func(ctx context.Context) (any, error) {
+			return obj.URL, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_PostgresInstanceAudit_url(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresInstanceAudit",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -1585,6 +1616,8 @@ func (ec *executionContext) _PostgresInstanceAudit(ctx context.Context, sel ast.
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "url":
+			out.Values[i] = ec._PostgresInstanceAudit_url(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

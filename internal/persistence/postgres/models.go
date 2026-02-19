@@ -38,8 +38,8 @@ type PostgresInstance struct {
 }
 
 type PostgresInstanceAudit struct {
-	// Indicates whether audit logging is enabled for the Postgres cluster.
-	Enabled bool `json:"enabled"`
+	Enabled bool    `json:"enabled"`
+	URL     *string `json:"url,omitempty"`
 }
 
 func (PostgresInstance) IsPersistence() {}
@@ -131,7 +131,7 @@ func (p *PostgresInstance) ID() ident.Ident {
 	return newIdent(p.TeamSlug, p.EnvironmentName, p.Name)
 }
 
-func toPostgres(u *unstructured.Unstructured, environmentName string) (*PostgresInstance, error) {
+func toPostgres(ctx context.Context, u *unstructured.Unstructured, environmentName string) (*PostgresInstance, error) {
 	cpu, _, _ := unstructured.NestedString(u.Object, "spec", "cluster", "resources", "cpu")
 	memory, _, _ := unstructured.NestedString(u.Object, "spec", "cluster", "resources", "memory")
 	diskSize, _, _ := unstructured.NestedString(u.Object, "spec", "cluster", "resources", "diskSize")
@@ -155,6 +155,7 @@ func toPostgres(u *unstructured.Unstructured, environmentName string) (*Postgres
 		MajorVersion: majorVersion,
 		Audit: PostgresInstanceAudit{
 			Enabled: audit,
+			URL:     nil,
 		},
 	}, nil
 }
