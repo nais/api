@@ -67,6 +67,15 @@ type PostgresInstance implements Persistence & Node {
 	resources: PostgresInstanceResources!
 	"Major version of PostgreSQL."
 	majorVersion: String!
+	"Audit logging configuration for the Postgres cluster."
+	audit: PostgresInstanceAudit!
+}
+
+type PostgresInstanceAudit {
+	"Indicates whether audit logging is enabled for the Postgres cluster."
+	enabled: Boolean!
+	"URL for accessing the audit logs."
+	url: String
 }
 
 type PostgresInstanceConnection {
@@ -156,4 +165,13 @@ input GrantPostgresAccessInput {
 	grantee: String!
 	"Duration of the access grant (maximum 4 hours)."
 	duration: String!
+}
+
+extend type TeamInventoryCounts {
+	postgresInstances: TeamInventoryCountPostgresInstances!
+}
+
+type TeamInventoryCountPostgresInstances {
+	"Total number of Postgres instances."
+	total: Int!
 }

@@ -98,6 +98,7 @@ type ResolverRoot interface {
 	OpenSearchIssue() OpenSearchIssueResolver
 	OpenSearchMaintenance() OpenSearchMaintenanceResolver
 	PostgresInstance() PostgresInstanceResolver
+	PostgresInstanceAudit() PostgresInstanceAuditResolver
 	PrometheusAlert() PrometheusAlertResolver
 	Query() QueryResolver
 	Reconciler() ReconcilerResolver
@@ -1300,6 +1301,7 @@ type ComplexityRoot struct {
 	}
 
 	PostgresInstance struct {
+		Audit           func(childComplexity int) int
 		Environment     func(childComplexity int) int
 		ID              func(childComplexity int) int
 		MajorVersion    func(childComplexity int) int
@@ -1307,6 +1309,11 @@ type ComplexityRoot struct {
 		Resources       func(childComplexity int) int
 		Team            func(childComplexity int) int
 		TeamEnvironment func(childComplexity int) int
+	}
+
+	PostgresInstanceAudit struct {
+		Enabled func(childComplexity int) int
+		URL     func(childComplexity int) int
 	}
 
 	PostgresInstanceConnection struct {
@@ -2290,6 +2297,10 @@ type ComplexityRoot struct {
 		Total func(childComplexity int) int
 	}
 
+	TeamInventoryCountPostgresInstances struct {
+		Total func(childComplexity int) int
+	}
+
 	TeamInventoryCountSqlInstances struct {
 		Total func(childComplexity int) int
 	}
@@ -2299,14 +2310,15 @@ type ComplexityRoot struct {
 	}
 
 	TeamInventoryCounts struct {
-		Applications     func(childComplexity int) int
-		BigQueryDatasets func(childComplexity int) int
-		Buckets          func(childComplexity int) int
-		Jobs             func(childComplexity int) int
-		KafkaTopics      func(childComplexity int) int
-		OpenSearches     func(childComplexity int) int
-		SQLInstances     func(childComplexity int) int
-		Valkeys          func(childComplexity int) int
+		Applications      func(childComplexity int) int
+		BigQueryDatasets  func(childComplexity int) int
+		Buckets           func(childComplexity int) int
+		Jobs              func(childComplexity int) int
+		KafkaTopics       func(childComplexity int) int
+		OpenSearches      func(childComplexity int) int
+		PostgresInstances func(childComplexity int) int
+		SQLInstances      func(childComplexity int) int
+		Valkeys           func(childComplexity int) int
 	}
 
 	TeamMember struct {
@@ -7897,6 +7909,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.PostgresGrantAccessActivityLogEntryData.Until(childComplexity), true
 
+	case "PostgresInstance.audit":
+		if e.complexity.PostgresInstance.Audit == nil {
+			break
+		}
+
+		return e.complexity.PostgresInstance.Audit(childComplexity), true
+
 	case "PostgresInstance.environment":
 		if e.complexity.PostgresInstance.Environment == nil {
 			break
@@ -7945,6 +7964,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.PostgresInstance.TeamEnvironment(childComplexity), true
+
+	case "PostgresInstanceAudit.enabled":
+		if e.complexity.PostgresInstanceAudit.Enabled == nil {
+			break
+		}
+
+		return e.complexity.PostgresInstanceAudit.Enabled(childComplexity), true
+
+	case "PostgresInstanceAudit.url":
+		if e.complexity.PostgresInstanceAudit.URL == nil {
+			break
+		}
+
+		return e.complexity.PostgresInstanceAudit.URL(childComplexity), true
 
 	case "PostgresInstanceConnection.edges":
 		if e.complexity.PostgresInstanceConnection.Edges == nil {
@@ -12443,6 +12476,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.TeamInventoryCountOpenSearches.Total(childComplexity), true
 
+	case "TeamInventoryCountPostgresInstances.total":
+		if e.complexity.TeamInventoryCountPostgresInstances.Total == nil {
+			break
+		}
+
+		return e.complexity.TeamInventoryCountPostgresInstances.Total(childComplexity), true
+
 	case "TeamInventoryCountSqlInstances.total":
 		if e.complexity.TeamInventoryCountSqlInstances.Total == nil {
 			break
@@ -12498,6 +12538,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.TeamInventoryCounts.OpenSearches(childComplexity), true
+
+	case "TeamInventoryCounts.postgresInstances":
+		if e.complexity.TeamInventoryCounts.PostgresInstances == nil {
+			break
+		}
+
+		return e.complexity.TeamInventoryCounts.PostgresInstances(childComplexity), true
 
 	case "TeamInventoryCounts.sqlInstances":
 		if e.complexity.TeamInventoryCounts.SQLInstances == nil {
@@ -19395,6 +19442,15 @@ type PostgresInstance implements Persistence & Node {
 	resources: PostgresInstanceResources!
 	"Major version of PostgreSQL."
 	majorVersion: String!
+	"Audit logging configuration for the Postgres cluster."
+	audit: PostgresInstanceAudit!
+}
+
+type PostgresInstanceAudit {
+	"Indicates whether audit logging is enabled for the Postgres cluster."
+	enabled: Boolean!
+	"URL for accessing the audit logs."
+	url: String
 }
 
 type PostgresInstanceConnection {
@@ -19484,6 +19540,15 @@ input GrantPostgresAccessInput {
 	grantee: String!
 	"Duration of the access grant (maximum 4 hours)."
 	duration: String!
+}
+
+extend type TeamInventoryCounts {
+	postgresInstances: TeamInventoryCountPostgresInstances!
+}
+
+type TeamInventoryCountPostgresInstances {
+	"Total number of Postgres instances."
+	total: Int!
 }
 `, BuiltIn: false},
 	{Name: "../schema/price.graphqls", Input: `extend type Query {

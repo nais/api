@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"hash/crc32"
+	"net/url"
 	"strconv"
 	"time"
 
@@ -15,6 +16,7 @@ import (
 	"github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/team"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -44,6 +46,10 @@ func ListAllForTeam(ctx context.Context, teamSlug slug.Slug) []*PostgresInstance
 	return watcher.Objects(all)
 }
 
+func CountForTeam(ctx context.Context, teamSlug slug.Slug) int {
+	return len(fromContext(ctx).zalandoPostgresWatcher.GetByNamespace(teamSlug.String()))
+}
+
 func orderPostgresInstances(ctx context.Context, instances []*PostgresInstance, orderBy *PostgresInstanceOrder) {
 	if orderBy == nil {
 		orderBy = &PostgresInstanceOrder{
@@ -66,6 +72,36 @@ func GetZalandoPostgresByIdent(ctx context.Context, id ident.Ident) (*PostgresIn
 
 func GetZalandoPostgres(ctx context.Context, teamSlug slug.Slug, environmentName string, clusterName string) (*PostgresInstance, error) {
 	return fromContext(ctx).zalandoPostgresWatcher.Get(environmentName, teamSlug.String(), clusterName)
+}
+
+func GetAuditURL(ctx context.Context, audit *PostgresInstanceAudit) (*string, error) {
+	if audit == nil || !audit.Enabled {
+		return nil, nil
+	}
+
+	auditProjectID, location := GetAuditLogConfig(ctx)
+	if auditProjectID == "" || location == "" {
+		return nil, nil
+	}
+
+	teamEnv, err := team.GetTeamEnvironment(ctx, audit.TeamSlug, audit.EnvironmentName)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get team environment for audit URL (team=%s, env=%s): %w", audit.TeamSlug, audit.EnvironmentName, err)
+	}
+	if teamEnv.GCPProjectID == nil || *teamEnv.GCPProjectID == "" {
+		return nil, nil
+	}
+
+	databaseProjectID := *teamEnv.GCPProjectID
+	databaseID := fmt.Sprintf("%s:%s", databaseProjectID, audit.InstanceName)
+	query := fmt.Sprintf("labels.databaseId=\"%s\"", databaseID)
+	storageScope := fmt.Sprintf("storage,projects/%s/locations/%s/buckets/%s-%s/views/_AllLogs", auditProjectID, location, audit.TeamSlug.String(), audit.EnvironmentName)
+	logURL := fmt.Sprintf("https://console.cloud.google.com/logs/query;query=%s;storageScope=%s?project=%s",
+		url.QueryEscape(query),
+		url.QueryEscape(storageScope),
+		databaseProjectID,
+	)
+	return &logURL, nil
 }
 
 func GrantZalandoPostgresAccess(ctx context.Context, input GrantPostgresAccessInput) error {

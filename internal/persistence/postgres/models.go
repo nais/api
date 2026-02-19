@@ -17,6 +17,7 @@ import (
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/validate"
 	"github.com/nais/api/internal/workload"
+	data_nais_io_v1 "github.com/nais/liberator/pkg/apis/data.nais.io/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -34,6 +35,14 @@ type PostgresInstance struct {
 	TeamSlug          slug.Slug                  `json:"-"`
 	Resources         *PostgresInstanceResources `json:"resources"`
 	MajorVersion      string                     `json:"majorVersion"`
+	Audit             PostgresInstanceAudit      `json:"audit"`
+}
+
+type PostgresInstanceAudit struct {
+	Enabled         bool      `json:"enabled"`
+	TeamSlug        slug.Slug `json:"-"`
+	EnvironmentName string    `json:"-"`
+	InstanceName    string    `json:"-"`
 }
 
 func (PostgresInstance) IsPersistence() {}
@@ -126,22 +135,34 @@ func (p *PostgresInstance) ID() ident.Ident {
 }
 
 func toPostgres(u *unstructured.Unstructured, environmentName string) (*PostgresInstance, error) {
-	cpu, _, _ := unstructured.NestedString(u.Object, "spec", "cluster", "resources", "cpu")
-	memory, _, _ := unstructured.NestedString(u.Object, "spec", "cluster", "resources", "memory")
-	diskSize, _, _ := unstructured.NestedString(u.Object, "spec", "cluster", "resources", "diskSize")
-	majorVersion, _, _ := unstructured.NestedString(u.Object, "spec", "cluster", "majorVersion")
+	obj := &data_nais_io_v1.Postgres{}
+
+	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(u.Object, obj); err != nil {
+		return nil, fmt.Errorf("converting to Postgres: %w", err)
+	}
+
+	audit := false
+	if obj.Spec.Cluster.Audit != nil {
+		audit = obj.Spec.Cluster.Audit.Enabled
+	}
 
 	return &PostgresInstance{
-		Name:              u.GetName(),
+		Name:              obj.GetName(),
 		EnvironmentName:   environmentName,
-		TeamSlug:          slug.Slug(u.GetNamespace()),
-		WorkloadReference: workload.ReferenceFromOwnerReferences(u.GetOwnerReferences()),
+		TeamSlug:          slug.Slug(obj.GetNamespace()),
+		WorkloadReference: workload.ReferenceFromOwnerReferences(obj.GetOwnerReferences()),
 		Resources: &PostgresInstanceResources{
-			CPU:      cpu,
-			Memory:   memory,
-			DiskSize: diskSize,
+			CPU:      obj.Spec.Cluster.Resources.Cpu.String(),
+			Memory:   obj.Spec.Cluster.Resources.Memory.String(),
+			DiskSize: obj.Spec.Cluster.Resources.DiskSize.String(),
 		},
-		MajorVersion: majorVersion,
+		MajorVersion: obj.Spec.Cluster.MajorVersion,
+		Audit: PostgresInstanceAudit{
+			Enabled:         audit,
+			TeamSlug:        slug.Slug(obj.GetNamespace()),
+			EnvironmentName: environmentName,
+			InstanceName:    obj.GetName(),
+		},
 	}, nil
 }
 
@@ -203,4 +224,8 @@ func (e PostgresInstanceOrderField) MarshalJSON() ([]byte, error) {
 	var buf bytes.Buffer
 	e.MarshalGQL(&buf)
 	return buf.Bytes(), nil
+}
+
+type TeamInventoryCountPostgresInstances struct {
+	Total int `json:"total"`
 }

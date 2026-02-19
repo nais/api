@@ -321,7 +321,7 @@ func ConfigureGraph(
 		ctx = alerts.NewLoaderContext(ctx, prometheusClient, log)
 		ctx = metrics.NewLoaderContext(ctx, prometheusClient, log)
 		ctx = sqlinstance.NewLoaderContext(ctx, sqlAdminService, watchers.SqlDatabaseWatcher, watchers.SqlInstanceWatcher, auditLogProjectID, auditLogLocation)
-		ctx = postgres.NewLoaderContext(ctx, watchers.ZalandoPostgresWatcher)
+		ctx = postgres.NewLoaderContext(ctx, watchers.ZalandoPostgresWatcher, auditLogProjectID, auditLogLocation)
 		ctx = database.NewLoaderContext(ctx, pool)
 		ctx = issue.NewContext(ctx, pool)
 		ctx = team.NewLoaderContext(ctx, pool, watchers.NamespaceWatcher)

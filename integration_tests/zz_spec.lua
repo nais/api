@@ -224,6 +224,13 @@ function Team:addOwner(...)
 	print("addOwner")
 end
 
+--- Set GCP project ID for a team environment
+---@param environment string
+---@param gcpProjectID string
+function Team:setEnvironmentGCPProjectID(environment, gcpProjectID)
+	print("setEnvironmentGCPProjectID")
+end
+
 ---@class User
 User = {}
 --- Create a new user
