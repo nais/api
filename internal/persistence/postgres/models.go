@@ -17,7 +17,7 @@ import (
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/validate"
 	"github.com/nais/api/internal/workload"
-	data_nais_io_v1 "github.com/nais/liberator/pkg/apis/data.nais.io/v1"
+	data_nais_io_v1 "github.com/nais/pgrator/pkg/api/datav1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -29,20 +29,28 @@ type (
 )
 
 type PostgresInstance struct {
-	Name              string                     `json:"name"`
-	EnvironmentName   string                     `json:"-"`
-	WorkloadReference *workload.Reference        `json:"-"`
-	TeamSlug          slug.Slug                  `json:"-"`
-	Resources         *PostgresInstanceResources `json:"resources"`
-	MajorVersion      string                     `json:"majorVersion"`
-	Audit             PostgresInstanceAudit      `json:"audit"`
+	Name              string                             `json:"name"`
+	EnvironmentName   string                             `json:"-"`
+	WorkloadReference *workload.Reference                `json:"-"`
+	TeamSlug          slug.Slug                          `json:"-"`
+	Resources         *PostgresInstanceResources         `json:"resources"`
+	MajorVersion      string                             `json:"majorVersion"`
+	Audit             PostgresInstanceAudit              `json:"audit"`
+	MaintenanceWindow *PostgresInstanceMaintenanceWindow `json:"maintenanceWindow,omitempty"`
+	HighAvailability  bool                               `json:"highAvailability"`
 }
 
 type PostgresInstanceAudit struct {
-	Enabled         bool      `json:"enabled"`
-	TeamSlug        slug.Slug `json:"-"`
-	EnvironmentName string    `json:"-"`
-	InstanceName    string    `json:"-"`
+	Enabled          bool      `json:"enabled"`
+	StatementClasses []string  `json:"statementClasses,omitempty"`
+	TeamSlug         slug.Slug `json:"-"`
+	EnvironmentName  string    `json:"-"`
+	InstanceName     string    `json:"-"`
+}
+
+type PostgresInstanceMaintenanceWindow struct {
+	Day  int `json:"day"`
+	Hour int `json:"hour"`
 }
 
 func (PostgresInstance) IsPersistence() {}
@@ -163,6 +171,20 @@ func toPostgres(u *unstructured.Unstructured, environmentName string) (*Postgres
 			EnvironmentName: environmentName,
 			InstanceName:    obj.GetName(),
 		},
+		HighAvailability: obj.Spec.Cluster.HighAvailability,
+		MaintenanceWindow: func() *PostgresInstanceMaintenanceWindow {
+			if obj.Spec.MaintenanceWindow == nil {
+				return nil
+			}
+			hour := 0
+			if obj.Spec.MaintenanceWindow.Hour != nil {
+				hour = *obj.Spec.MaintenanceWindow.Hour
+			}
+			return &PostgresInstanceMaintenanceWindow{
+				Day:  obj.Spec.MaintenanceWindow.Day,
+				Hour: hour,
+			}
+		}(),
 	}, nil
 }
 
