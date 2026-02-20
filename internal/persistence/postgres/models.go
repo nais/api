@@ -214,8 +214,15 @@ func toPostgres(u *unstructured.Unstructured, environmentName string) (*Postgres
 	}
 
 	audit := false
+	statementClasses := []string(nil)
 	if obj.Spec.Cluster.Audit != nil {
 		audit = obj.Spec.Cluster.Audit.Enabled
+		if len(obj.Spec.Cluster.Audit.StatementClasses) > 0 {
+			statementClasses = make([]string, 0, len(obj.Spec.Cluster.Audit.StatementClasses))
+			for _, statementClass := range obj.Spec.Cluster.Audit.StatementClasses {
+				statementClasses = append(statementClasses, string(statementClass))
+			}
+		}
 	}
 
 	state := PostgresInstanceStateAvailable
@@ -235,10 +242,11 @@ func toPostgres(u *unstructured.Unstructured, environmentName string) (*Postgres
 		},
 		MajorVersion: obj.Spec.Cluster.MajorVersion,
 		Audit: PostgresInstanceAudit{
-			Enabled:         audit,
-			TeamSlug:        slug.Slug(obj.GetNamespace()),
-			EnvironmentName: environmentName,
-			InstanceName:    obj.GetName(),
+			Enabled:          audit,
+			StatementClasses: statementClasses,
+			TeamSlug:         slug.Slug(obj.GetNamespace()),
+			EnvironmentName:  environmentName,
+			InstanceName:     obj.GetName(),
 		},
 		HighAvailability: obj.Spec.Cluster.HighAvailability,
 		MaintenanceWindow: func() *PostgresInstanceMaintenanceWindow {

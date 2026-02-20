@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"reflect"
 	"testing"
 
 	data_nais_io_v1 "github.com/nais/pgrator/pkg/api/datav1"
@@ -148,6 +149,61 @@ func TestToPostgres_MaintenanceWindow_WithConditions(t *testing.T) {
 
 	if got.State != PostgresInstanceStateDegraded {
 		t.Errorf("State = %q, want %q", got.State, PostgresInstanceStateDegraded)
+	}
+}
+
+func TestToPostgres_AuditStatementClasses(t *testing.T) {
+	obj := newPostgresTestObject(nil, nil)
+	obj.Spec.Cluster.Audit = &data_nais_io_v1.PostgresAudit{
+		Enabled: true,
+		StatementClasses: []data_nais_io_v1.PostgresAuditStatementClass{
+			"ddl",
+			"write",
+		},
+	}
+
+	got := toPostgresFromCRD(t, obj)
+
+	if !got.Audit.Enabled {
+		t.Fatalf("Audit.Enabled = %v, want true", got.Audit.Enabled)
+	}
+
+	want := []string{"ddl", "write"}
+	if !reflect.DeepEqual(got.Audit.StatementClasses, want) {
+		t.Errorf("Audit.StatementClasses = %#v, want %#v", got.Audit.StatementClasses, want)
+	}
+}
+
+func TestToPostgres_AuditStatementClasses_EmptyWhenAuditMissingOrEmpty(t *testing.T) {
+	tests := []struct {
+		name  string
+		audit *data_nais_io_v1.PostgresAudit
+	}{
+		{
+			name:  "missing audit config",
+			audit: nil,
+		},
+		{
+			name:  "empty audit config",
+			audit: &data_nais_io_v1.PostgresAudit{},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			obj := newPostgresTestObject(nil, nil)
+			obj.Spec.Cluster.Audit = tt.audit
+
+			got := toPostgresFromCRD(t, obj)
+
+			if got.Audit.Enabled {
+				t.Errorf("Audit.Enabled = %v, want false", got.Audit.Enabled)
+			}
+
+			if len(got.Audit.StatementClasses) != 0 {
+				t.Errorf("Audit.StatementClasses = %#v, want empty", got.Audit.StatementClasses)
+			}
+		})
 	}
 }
 
