@@ -19519,7 +19519,7 @@ type PostgresInstanceAudit {
 	enabled: Boolean!
 	"URL for accessing the audit logs."
 	url: String
-	"Classes of statements that are being logged. This is a comma-separated list of statement classes, such as ` + "`" + `ddl` + "`" + `, ` + "`" + `dml` + "`" + `, and ` + "`" + `read` + "`" + `."
+	"List of statement classes that are being logged, such as ` + "`" + `ddl` + "`" + `, ` + "`" + `dml` + "`" + `, and ` + "`" + `read` + "`" + `."
 	statementClasses: [String!]
 }
 
