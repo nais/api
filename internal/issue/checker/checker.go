@@ -14,6 +14,7 @@ import (
 	"github.com/nais/api/internal/leaderelection"
 	"github.com/nais/api/internal/persistence/sqlinstance"
 	"github.com/nais/api/internal/thirdparty/aiven"
+	"github.com/nais/api/internal/unleash"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
@@ -40,6 +41,7 @@ type Config struct {
 	V13sClient     V13sClient
 	Tenant         string
 	Clusters       []string
+	BifrostClient  unleash.BifrostClient
 }
 
 type Issue struct {
@@ -80,6 +82,7 @@ func New(config Config, pool *pgxpool.Pool, watchers *watchers.Watchers, fakeEna
 		Aiven{aivenClient: config.AivenClient, tenant: config.Tenant, environments: envs, log: log.WithField("check", "Aiven")},
 		SQLInstance{Client: config.CloudSQLClient, SQLInstanceWatcher: watchers.SqlInstanceWatcher, Log: log.WithField("check", "SQLInstance")},
 		Workload{AppWatcher: *watchers.AppWatcher, JobWatcher: *watchers.JobWatcher, PodWatcher: *watchers.PodWatcher, RunWatcher: *watchers.RunWatcher, V13sClient: v13s, log: log.WithField("check", "Workload")},
+		Unleash{UnleashWatcher: watchers.UnleashWatcher, BifrostClient: config.BifrostClient, Log: log.WithField("check", "Unleash")},
 	}
 
 	return checker, nil

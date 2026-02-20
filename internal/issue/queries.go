@@ -173,6 +173,15 @@ func convert(issue *issuesql.Issue) (Issue, error) {
 		return &MissingSbomIssue{
 			Base: base,
 		}, nil
+	case IssueTypeUnleashReleaseChannel:
+		d, err := unmarshal[UnleashReleaseChannelIssueDetails](issue.IssueDetails)
+		if err != nil {
+			return nil, err
+		}
+		return &UnleashReleaseChannelIssue{
+			Base:                              base,
+			UnleashReleaseChannelIssueDetails: *d,
+		}, nil
 	}
 
 	return nil, fmt.Errorf("unknown issue type: %s", issue.IssueType)

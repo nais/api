@@ -147,6 +147,7 @@ enum ResourceType {
 	SQLINSTANCE
 	APPLICATION
 	JOB
+	UNLEASH
 }
 
 enum IssueType {
@@ -162,6 +163,7 @@ enum IssueType {
 	INVALID_SPEC
 	MISSING_SBOM
 	VULNERABLE_IMAGE
+	UNLEASH_RELEASE_CHANNEL
 }
 
 type VulnerableImageIssue implements Issue & Node {
@@ -276,4 +278,19 @@ type LastRunFailedIssue implements Issue & Node {
 	message: String!
 
 	job: Job!
+}
+
+type UnleashReleaseChannelIssue implements Issue & Node {
+	id: ID!
+	teamEnvironment: TeamEnvironment!
+	severity: Severity!
+	message: String!
+
+	unleash: UnleashInstance!
+	"The name of the release channel the instance is on."
+	channelName: String!
+	"The major version of Unleash the instance is running."
+	majorVersion: Int!
+	"The current major version of Unleash available."
+	currentMajorVersion: Int!
 }

@@ -128,6 +128,7 @@ type ResolverRoot interface {
 	TriggerJobPayload() TriggerJobPayloadResolver
 	UnleashInstance() UnleashInstanceResolver
 	UnleashInstanceMetrics() UnleashInstanceMetricsResolver
+	UnleashReleaseChannelIssue() UnleashReleaseChannelIssueResolver
 	UpdateTeamEnvironmentPayload() UpdateTeamEnvironmentPayloadResolver
 	User() UserResolver
 	Valkey() ValkeyResolver
@@ -2550,6 +2551,17 @@ type ComplexityRoot struct {
 		LastUpdated    func(childComplexity int) int
 		Name           func(childComplexity int) int
 		Type           func(childComplexity int) int
+	}
+
+	UnleashReleaseChannelIssue struct {
+		ChannelName         func(childComplexity int) int
+		CurrentMajorVersion func(childComplexity int) int
+		ID                  func(childComplexity int) int
+		MajorVersion        func(childComplexity int) int
+		Message             func(childComplexity int) int
+		Severity            func(childComplexity int) int
+		TeamEnvironment     func(childComplexity int) int
+		Unleash             func(childComplexity int) int
 	}
 
 	UpdateImageVulnerabilityPayload struct {
@@ -13573,6 +13585,62 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.UnleashReleaseChannel.Type(childComplexity), true
 
+	case "UnleashReleaseChannelIssue.channelName":
+		if e.complexity.UnleashReleaseChannelIssue.ChannelName == nil {
+			break
+		}
+
+		return e.complexity.UnleashReleaseChannelIssue.ChannelName(childComplexity), true
+
+	case "UnleashReleaseChannelIssue.currentMajorVersion":
+		if e.complexity.UnleashReleaseChannelIssue.CurrentMajorVersion == nil {
+			break
+		}
+
+		return e.complexity.UnleashReleaseChannelIssue.CurrentMajorVersion(childComplexity), true
+
+	case "UnleashReleaseChannelIssue.id":
+		if e.complexity.UnleashReleaseChannelIssue.ID == nil {
+			break
+		}
+
+		return e.complexity.UnleashReleaseChannelIssue.ID(childComplexity), true
+
+	case "UnleashReleaseChannelIssue.majorVersion":
+		if e.complexity.UnleashReleaseChannelIssue.MajorVersion == nil {
+			break
+		}
+
+		return e.complexity.UnleashReleaseChannelIssue.MajorVersion(childComplexity), true
+
+	case "UnleashReleaseChannelIssue.message":
+		if e.complexity.UnleashReleaseChannelIssue.Message == nil {
+			break
+		}
+
+		return e.complexity.UnleashReleaseChannelIssue.Message(childComplexity), true
+
+	case "UnleashReleaseChannelIssue.severity":
+		if e.complexity.UnleashReleaseChannelIssue.Severity == nil {
+			break
+		}
+
+		return e.complexity.UnleashReleaseChannelIssue.Severity(childComplexity), true
+
+	case "UnleashReleaseChannelIssue.teamEnvironment":
+		if e.complexity.UnleashReleaseChannelIssue.TeamEnvironment == nil {
+			break
+		}
+
+		return e.complexity.UnleashReleaseChannelIssue.TeamEnvironment(childComplexity), true
+
+	case "UnleashReleaseChannelIssue.unleash":
+		if e.complexity.UnleashReleaseChannelIssue.Unleash == nil {
+			break
+		}
+
+		return e.complexity.UnleashReleaseChannelIssue.Unleash(childComplexity), true
+
 	case "UpdateImageVulnerabilityPayload.vulnerability":
 		if e.complexity.UpdateImageVulnerabilityPayload.Vulnerability == nil {
 			break
@@ -17911,6 +17979,7 @@ enum ResourceType {
 	SQLINSTANCE
 	APPLICATION
 	JOB
+	UNLEASH
 }
 
 enum IssueType {
@@ -17926,6 +17995,7 @@ enum IssueType {
 	INVALID_SPEC
 	MISSING_SBOM
 	VULNERABLE_IMAGE
+	UNLEASH_RELEASE_CHANNEL
 }
 
 type VulnerableImageIssue implements Issue & Node {
@@ -18040,6 +18110,21 @@ type LastRunFailedIssue implements Issue & Node {
 	message: String!
 
 	job: Job!
+}
+
+type UnleashReleaseChannelIssue implements Issue & Node {
+	id: ID!
+	teamEnvironment: TeamEnvironment!
+	severity: Severity!
+	message: String!
+
+	unleash: UnleashInstance!
+	"The name of the release channel the instance is on."
+	channelName: String!
+	"The major version of Unleash the instance is running."
+	majorVersion: Int!
+	"The current major version of Unleash available."
+	currentMajorVersion: Int!
 }
 `, BuiltIn: false},
 	{Name: "../schema/jobs.graphqls", Input: `extend type Team {
@@ -23239,14 +23324,11 @@ type UnleashInstance implements Node {
 	metrics: UnleashInstanceMetrics!
 	ready: Boolean!
 
-	"""
-	Release channel name if using channel-based version management.
-	Populated from CRD spec.releaseChannel.name field.
-	"""
-	releaseChannelName: String
+	"Release channel name for automatic version updates."
+	releaseChannelName: String!
 
 	"""
-	Release channel details if using channel-based version management.
+	Release channel details.
 	Returns the full release channel object with current version and update policy.
 	"""
 	releaseChannel: UnleashReleaseChannel

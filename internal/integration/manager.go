@@ -181,6 +181,7 @@ func newManager(_ context.Context, container *postgres.PostgresContainer, connSt
 				CloudSQLClient: sqlAdminService,
 				Tenant:         "tenant",
 				Clusters:       clusters(),
+				BifrostClient:  unleash.NewFakeBifrostClient(watchers.UnleashWatcher),
 			},
 			pool,
 			watchers,
