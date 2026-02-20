@@ -275,10 +275,6 @@ func postgresStateFromConditions(conditions []metav1.Condition) PostgresInstance
 		return PostgresInstanceStateProgressing
 	}
 
-	if meta.IsStatusConditionTrue(conditions, postgresConditionTypeAvailable) {
-		return PostgresInstanceStateAvailable
-	}
-
 	return PostgresInstanceStateAvailable
 }
 
