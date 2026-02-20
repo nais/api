@@ -219,3 +219,12 @@ sql:
         <<: *default_go
         package: "restteamsapisql"
         out: "../internal/rest/restteamsapi/restteamsapisql"
+
+  - <<: *default_domain
+    name: "Agent SQL"
+    queries: "../internal/agent/queries"
+    gen:
+      go:
+        <<: *default_go
+        package: "agentsql"
+        out: "../internal/agent/agentsql"
