@@ -5366,6 +5366,12 @@ func (ec *executionContext) fieldContext_TeamEnvironment_postgresInstance(ctx co
 				return ec.fieldContext_PostgresInstance_majorVersion(ctx, field)
 			case "audit":
 				return ec.fieldContext_PostgresInstance_audit(ctx, field)
+			case "highAvailability":
+				return ec.fieldContext_PostgresInstance_highAvailability(ctx, field)
+			case "state":
+				return ec.fieldContext_PostgresInstance_state(ctx, field)
+			case "maintenanceWindow":
+				return ec.fieldContext_PostgresInstance_maintenanceWindow(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PostgresInstance", field.Name)
 		},

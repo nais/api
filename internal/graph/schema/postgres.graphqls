@@ -69,6 +69,23 @@ type PostgresInstance implements Persistence & Node {
 	majorVersion: String!
 	"Audit logging configuration for the Postgres cluster."
 	audit: PostgresInstanceAudit!
+	"Indicates whether the Postgres cluster is configured for high availability."
+	highAvailability: Boolean!
+	"Current state of the Postgres cluster."
+	state: PostgresInstanceState!
+	"Maintenance window for the Postgres cluster, if configured."
+	maintenanceWindow: PostgresInstanceMaintenanceWindow
+}
+
+enum PostgresInstanceState {
+	AVAILABLE
+	PROGRESSING
+	DEGRADED
+}
+
+type PostgresInstanceMaintenanceWindow {
+	day: Int!
+	hour: Int!
 }
 
 type PostgresInstanceAudit {
@@ -76,6 +93,8 @@ type PostgresInstanceAudit {
 	enabled: Boolean!
 	"URL for accessing the audit logs."
 	url: String
+	"List of statement classes that are being logged, such as `ddl`, `dml`, and `read`."
+	statementClasses: [String!]
 }
 
 type PostgresInstanceConnection {

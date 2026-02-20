@@ -17,7 +17,9 @@ import (
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/validate"
 	"github.com/nais/api/internal/workload"
-	data_nais_io_v1 "github.com/nais/liberator/pkg/apis/data.nais.io/v1"
+	data_nais_io_v1 "github.com/nais/pgrator/pkg/api/datav1"
+	"k8s.io/apimachinery/pkg/api/meta"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -29,20 +31,90 @@ type (
 )
 
 type PostgresInstance struct {
-	Name              string                     `json:"name"`
-	EnvironmentName   string                     `json:"-"`
-	WorkloadReference *workload.Reference        `json:"-"`
-	TeamSlug          slug.Slug                  `json:"-"`
-	Resources         *PostgresInstanceResources `json:"resources"`
-	MajorVersion      string                     `json:"majorVersion"`
-	Audit             PostgresInstanceAudit      `json:"audit"`
+	Name              string                             `json:"name"`
+	EnvironmentName   string                             `json:"-"`
+	WorkloadReference *workload.Reference                `json:"-"`
+	TeamSlug          slug.Slug                          `json:"-"`
+	Resources         *PostgresInstanceResources         `json:"resources"`
+	MajorVersion      string                             `json:"majorVersion"`
+	Audit             PostgresInstanceAudit              `json:"audit"`
+	MaintenanceWindow *PostgresInstanceMaintenanceWindow `json:"maintenanceWindow,omitempty"`
+	HighAvailability  bool                               `json:"highAvailability"`
+	State             PostgresInstanceState              `json:"state"`
+}
+
+type PostgresInstanceState string
+
+const (
+	PostgresInstanceStateAvailable   PostgresInstanceState = "AVAILABLE"
+	PostgresInstanceStateProgressing PostgresInstanceState = "PROGRESSING"
+	PostgresInstanceStateDegraded    PostgresInstanceState = "DEGRADED"
+
+	postgresConditionTypeAvailable   = "Available"
+	postgresConditionTypeProgressing = "Progressing"
+	postgresConditionTypeDegraded    = "Degraded"
+)
+
+var AllPostgresInstanceState = []PostgresInstanceState{
+	PostgresInstanceStateAvailable,
+	PostgresInstanceStateProgressing,
+	PostgresInstanceStateDegraded,
+}
+
+func (e PostgresInstanceState) IsValid() bool {
+	switch e {
+	case PostgresInstanceStateAvailable, PostgresInstanceStateProgressing, PostgresInstanceStateDegraded:
+		return true
+	}
+	return false
+}
+
+func (e PostgresInstanceState) String() string {
+	return string(e)
+}
+
+func (e *PostgresInstanceState) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = PostgresInstanceState(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid PostgresInstanceState", str)
+	}
+	return nil
+}
+
+func (e PostgresInstanceState) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *PostgresInstanceState) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e PostgresInstanceState) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 type PostgresInstanceAudit struct {
-	Enabled         bool      `json:"enabled"`
-	TeamSlug        slug.Slug `json:"-"`
-	EnvironmentName string    `json:"-"`
-	InstanceName    string    `json:"-"`
+	Enabled          bool      `json:"enabled"`
+	StatementClasses []string  `json:"statementClasses,omitempty"`
+	TeamSlug         slug.Slug `json:"-"`
+	EnvironmentName  string    `json:"-"`
+	InstanceName     string    `json:"-"`
+}
+
+type PostgresInstanceMaintenanceWindow struct {
+	Day  int `json:"day"`
+	Hour int `json:"hour"`
 }
 
 func (PostgresInstance) IsPersistence() {}
@@ -142,8 +214,20 @@ func toPostgres(u *unstructured.Unstructured, environmentName string) (*Postgres
 	}
 
 	audit := false
+	statementClasses := []string(nil)
 	if obj.Spec.Cluster.Audit != nil {
 		audit = obj.Spec.Cluster.Audit.Enabled
+		if len(obj.Spec.Cluster.Audit.StatementClasses) > 0 {
+			statementClasses = make([]string, 0, len(obj.Spec.Cluster.Audit.StatementClasses))
+			for _, statementClass := range obj.Spec.Cluster.Audit.StatementClasses {
+				statementClasses = append(statementClasses, string(statementClass))
+			}
+		}
+	}
+
+	state := PostgresInstanceStateAvailable
+	if obj.Status != nil {
+		state = postgresStateFromConditions(obj.Status.Conditions)
 	}
 
 	return &PostgresInstance{
@@ -158,12 +242,40 @@ func toPostgres(u *unstructured.Unstructured, environmentName string) (*Postgres
 		},
 		MajorVersion: obj.Spec.Cluster.MajorVersion,
 		Audit: PostgresInstanceAudit{
-			Enabled:         audit,
-			TeamSlug:        slug.Slug(obj.GetNamespace()),
-			EnvironmentName: environmentName,
-			InstanceName:    obj.GetName(),
+			Enabled:          audit,
+			StatementClasses: statementClasses,
+			TeamSlug:         slug.Slug(obj.GetNamespace()),
+			EnvironmentName:  environmentName,
+			InstanceName:     obj.GetName(),
 		},
+		HighAvailability: obj.Spec.Cluster.HighAvailability,
+		MaintenanceWindow: func() *PostgresInstanceMaintenanceWindow {
+			if obj.Spec.MaintenanceWindow == nil {
+				return nil
+			}
+			hour := 0
+			if obj.Spec.MaintenanceWindow.Hour != nil {
+				hour = *obj.Spec.MaintenanceWindow.Hour
+			}
+			return &PostgresInstanceMaintenanceWindow{
+				Day:  obj.Spec.MaintenanceWindow.Day,
+				Hour: hour,
+			}
+		}(),
+		State: state,
 	}, nil
+}
+
+func postgresStateFromConditions(conditions []metav1.Condition) PostgresInstanceState {
+	if meta.IsStatusConditionTrue(conditions, postgresConditionTypeDegraded) {
+		return PostgresInstanceStateDegraded
+	}
+
+	if meta.IsStatusConditionTrue(conditions, postgresConditionTypeProgressing) {
+		return PostgresInstanceStateProgressing
+	}
+
+	return PostgresInstanceStateAvailable
 }
 
 type PostgresInstanceOrder struct {

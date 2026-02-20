@@ -795,8 +795,103 @@ func (ec *executionContext) fieldContext_PostgresInstance_audit(_ context.Contex
 				return ec.fieldContext_PostgresInstanceAudit_enabled(ctx, field)
 			case "url":
 				return ec.fieldContext_PostgresInstanceAudit_url(ctx, field)
+			case "statementClasses":
+				return ec.fieldContext_PostgresInstanceAudit_statementClasses(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PostgresInstanceAudit", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresInstance_highAvailability(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstance) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PostgresInstance_highAvailability,
+		func(ctx context.Context) (any, error) {
+			return obj.HighAvailability, nil
+		},
+		nil,
+		ec.marshalNBoolean2bool,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_PostgresInstance_highAvailability(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresInstance",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresInstance_state(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstance) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PostgresInstance_state,
+		func(ctx context.Context) (any, error) {
+			return obj.State, nil
+		},
+		nil,
+		ec.marshalNPostgresInstanceState2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceState,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_PostgresInstance_state(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresInstance",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type PostgresInstanceState does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresInstance_maintenanceWindow(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstance) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PostgresInstance_maintenanceWindow,
+		func(ctx context.Context) (any, error) {
+			return obj.MaintenanceWindow, nil
+		},
+		nil,
+		ec.marshalOPostgresInstanceMaintenanceWindow2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceMaintenanceWindow,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_PostgresInstance_maintenanceWindow(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresInstance",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "day":
+				return ec.fieldContext_PostgresInstanceMaintenanceWindow_day(ctx, field)
+			case "hour":
+				return ec.fieldContext_PostgresInstanceMaintenanceWindow_hour(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PostgresInstanceMaintenanceWindow", field.Name)
 		},
 	}
 	return fc, nil
@@ -853,6 +948,35 @@ func (ec *executionContext) fieldContext_PostgresInstanceAudit_url(_ context.Con
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresInstanceAudit_statementClasses(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstanceAudit) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PostgresInstanceAudit_statementClasses,
+		func(ctx context.Context) (any, error) {
+			return obj.StatementClasses, nil
+		},
+		nil,
+		ec.marshalOString2ᚕstringᚄ,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_PostgresInstanceAudit_statementClasses(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresInstanceAudit",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
 		},
@@ -945,6 +1069,12 @@ func (ec *executionContext) fieldContext_PostgresInstanceConnection_nodes(_ cont
 				return ec.fieldContext_PostgresInstance_majorVersion(ctx, field)
 			case "audit":
 				return ec.fieldContext_PostgresInstance_audit(ctx, field)
+			case "highAvailability":
+				return ec.fieldContext_PostgresInstance_highAvailability(ctx, field)
+			case "state":
+				return ec.fieldContext_PostgresInstance_state(ctx, field)
+			case "maintenanceWindow":
+				return ec.fieldContext_PostgresInstance_maintenanceWindow(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PostgresInstance", field.Name)
 		},
@@ -1056,8 +1186,72 @@ func (ec *executionContext) fieldContext_PostgresInstanceEdge_node(_ context.Con
 				return ec.fieldContext_PostgresInstance_majorVersion(ctx, field)
 			case "audit":
 				return ec.fieldContext_PostgresInstance_audit(ctx, field)
+			case "highAvailability":
+				return ec.fieldContext_PostgresInstance_highAvailability(ctx, field)
+			case "state":
+				return ec.fieldContext_PostgresInstance_state(ctx, field)
+			case "maintenanceWindow":
+				return ec.fieldContext_PostgresInstance_maintenanceWindow(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PostgresInstance", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresInstanceMaintenanceWindow_day(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstanceMaintenanceWindow) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PostgresInstanceMaintenanceWindow_day,
+		func(ctx context.Context) (any, error) {
+			return obj.Day, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_PostgresInstanceMaintenanceWindow_day(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresInstanceMaintenanceWindow",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresInstanceMaintenanceWindow_hour(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstanceMaintenanceWindow) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PostgresInstanceMaintenanceWindow_hour,
+		func(ctx context.Context) (any, error) {
+			return obj.Hour, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_PostgresInstanceMaintenanceWindow_hour(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresInstanceMaintenanceWindow",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -1580,6 +1774,18 @@ func (ec *executionContext) _PostgresInstance(ctx context.Context, sel ast.Selec
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "highAvailability":
+			out.Values[i] = ec._PostgresInstance_highAvailability(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "state":
+			out.Values[i] = ec._PostgresInstance_state(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "maintenanceWindow":
+			out.Values[i] = ec._PostgresInstance_maintenanceWindow(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -1652,6 +1858,8 @@ func (ec *executionContext) _PostgresInstanceAudit(ctx context.Context, sel ast.
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "statementClasses":
+			out.Values[i] = ec._PostgresInstanceAudit_statementClasses(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -1742,6 +1950,50 @@ func (ec *executionContext) _PostgresInstanceEdge(ctx context.Context, sel ast.S
 			}
 		case "node":
 			out.Values[i] = ec._PostgresInstanceEdge_node(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var postgresInstanceMaintenanceWindowImplementors = []string{"PostgresInstanceMaintenanceWindow"}
+
+func (ec *executionContext) _PostgresInstanceMaintenanceWindow(ctx context.Context, sel ast.SelectionSet, obj *postgres.PostgresInstanceMaintenanceWindow) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, postgresInstanceMaintenanceWindowImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PostgresInstanceMaintenanceWindow")
+		case "day":
+			out.Values[i] = ec._PostgresInstanceMaintenanceWindow_day(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "hour":
+			out.Values[i] = ec._PostgresInstanceMaintenanceWindow_hour(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -2033,6 +2285,16 @@ func (ec *executionContext) marshalNPostgresInstanceResources2ᚖgithubᚗcomᚋ
 	return ec._PostgresInstanceResources(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNPostgresInstanceState2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceState(ctx context.Context, v any) (postgres.PostgresInstanceState, error) {
+	var res postgres.PostgresInstanceState
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNPostgresInstanceState2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceState(ctx context.Context, sel ast.SelectionSet, v postgres.PostgresInstanceState) graphql.Marshaler {
+	return v
+}
+
 func (ec *executionContext) marshalNTeamInventoryCountPostgresInstances2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐTeamInventoryCountPostgresInstances(ctx context.Context, sel ast.SelectionSet, v postgres.TeamInventoryCountPostgresInstances) graphql.Marshaler {
 	return ec._TeamInventoryCountPostgresInstances(ctx, sel, &v)
 }
@@ -2045,6 +2307,13 @@ func (ec *executionContext) marshalNTeamInventoryCountPostgresInstances2ᚖgithu
 		return graphql.Null
 	}
 	return ec._TeamInventoryCountPostgresInstances(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOPostgresInstanceMaintenanceWindow2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceMaintenanceWindow(ctx context.Context, sel ast.SelectionSet, v *postgres.PostgresInstanceMaintenanceWindow) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._PostgresInstanceMaintenanceWindow(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOPostgresInstanceOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceOrder(ctx context.Context, v any) (*postgres.PostgresInstanceOrder, error) {

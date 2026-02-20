@@ -1301,19 +1301,23 @@ type ComplexityRoot struct {
 	}
 
 	PostgresInstance struct {
-		Audit           func(childComplexity int) int
-		Environment     func(childComplexity int) int
-		ID              func(childComplexity int) int
-		MajorVersion    func(childComplexity int) int
-		Name            func(childComplexity int) int
-		Resources       func(childComplexity int) int
-		Team            func(childComplexity int) int
-		TeamEnvironment func(childComplexity int) int
+		Audit             func(childComplexity int) int
+		Environment       func(childComplexity int) int
+		HighAvailability  func(childComplexity int) int
+		ID                func(childComplexity int) int
+		MaintenanceWindow func(childComplexity int) int
+		MajorVersion      func(childComplexity int) int
+		Name              func(childComplexity int) int
+		Resources         func(childComplexity int) int
+		State             func(childComplexity int) int
+		Team              func(childComplexity int) int
+		TeamEnvironment   func(childComplexity int) int
 	}
 
 	PostgresInstanceAudit struct {
-		Enabled func(childComplexity int) int
-		URL     func(childComplexity int) int
+		Enabled          func(childComplexity int) int
+		StatementClasses func(childComplexity int) int
+		URL              func(childComplexity int) int
 	}
 
 	PostgresInstanceConnection struct {
@@ -1325,6 +1329,11 @@ type ComplexityRoot struct {
 	PostgresInstanceEdge struct {
 		Cursor func(childComplexity int) int
 		Node   func(childComplexity int) int
+	}
+
+	PostgresInstanceMaintenanceWindow struct {
+		Day  func(childComplexity int) int
+		Hour func(childComplexity int) int
 	}
 
 	PostgresInstanceResources struct {
@@ -7923,12 +7932,26 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.PostgresInstance.Environment(childComplexity), true
 
+	case "PostgresInstance.highAvailability":
+		if e.complexity.PostgresInstance.HighAvailability == nil {
+			break
+		}
+
+		return e.complexity.PostgresInstance.HighAvailability(childComplexity), true
+
 	case "PostgresInstance.id":
 		if e.complexity.PostgresInstance.ID == nil {
 			break
 		}
 
 		return e.complexity.PostgresInstance.ID(childComplexity), true
+
+	case "PostgresInstance.maintenanceWindow":
+		if e.complexity.PostgresInstance.MaintenanceWindow == nil {
+			break
+		}
+
+		return e.complexity.PostgresInstance.MaintenanceWindow(childComplexity), true
 
 	case "PostgresInstance.majorVersion":
 		if e.complexity.PostgresInstance.MajorVersion == nil {
@@ -7951,6 +7974,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.PostgresInstance.Resources(childComplexity), true
 
+	case "PostgresInstance.state":
+		if e.complexity.PostgresInstance.State == nil {
+			break
+		}
+
+		return e.complexity.PostgresInstance.State(childComplexity), true
+
 	case "PostgresInstance.team":
 		if e.complexity.PostgresInstance.Team == nil {
 			break
@@ -7971,6 +8001,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.PostgresInstanceAudit.Enabled(childComplexity), true
+
+	case "PostgresInstanceAudit.statementClasses":
+		if e.complexity.PostgresInstanceAudit.StatementClasses == nil {
+			break
+		}
+
+		return e.complexity.PostgresInstanceAudit.StatementClasses(childComplexity), true
 
 	case "PostgresInstanceAudit.url":
 		if e.complexity.PostgresInstanceAudit.URL == nil {
@@ -8013,6 +8050,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.PostgresInstanceEdge.Node(childComplexity), true
+
+	case "PostgresInstanceMaintenanceWindow.day":
+		if e.complexity.PostgresInstanceMaintenanceWindow.Day == nil {
+			break
+		}
+
+		return e.complexity.PostgresInstanceMaintenanceWindow.Day(childComplexity), true
+
+	case "PostgresInstanceMaintenanceWindow.hour":
+		if e.complexity.PostgresInstanceMaintenanceWindow.Hour == nil {
+			break
+		}
+
+		return e.complexity.PostgresInstanceMaintenanceWindow.Hour(childComplexity), true
 
 	case "PostgresInstanceResources.cpu":
 		if e.complexity.PostgresInstanceResources.CPU == nil {
@@ -19444,6 +19495,23 @@ type PostgresInstance implements Persistence & Node {
 	majorVersion: String!
 	"Audit logging configuration for the Postgres cluster."
 	audit: PostgresInstanceAudit!
+	"Indicates whether the Postgres cluster is configured for high availability."
+	highAvailability: Boolean!
+	"Current state of the Postgres cluster."
+	state: PostgresInstanceState!
+	"Maintenance window for the Postgres cluster, if configured."
+	maintenanceWindow: PostgresInstanceMaintenanceWindow
+}
+
+enum PostgresInstanceState {
+	AVAILABLE
+	PROGRESSING
+	DEGRADED
+}
+
+type PostgresInstanceMaintenanceWindow {
+	day: Int!
+	hour: Int!
 }
 
 type PostgresInstanceAudit {
@@ -19451,6 +19519,8 @@ type PostgresInstanceAudit {
 	enabled: Boolean!
 	"URL for accessing the audit logs."
 	url: String
+	"List of statement classes that are being logged, such as ` + "`" + `ddl` + "`" + `, ` + "`" + `dml` + "`" + `, and ` + "`" + `read` + "`" + `."
+	statementClasses: [String!]
 }
 
 type PostgresInstanceConnection {
