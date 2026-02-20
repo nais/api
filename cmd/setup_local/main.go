@@ -32,7 +32,6 @@ import (
 	"golang.org/x/text/unicode/norm"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"k8s.io/utils/ptr"
 )
 
 const (
@@ -319,10 +318,10 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 		}
 
 		references := &team.ExternalReferences{
-			GoogleGroupEmail: ptr.To("nais-team-devteam@" + cfg.Domain),
-			EntraIDGroupID:   ptr.To(uuid.MustParse("70c0541d-c079-4d10-9c50-164681e0b900")),
-			GithubTeamSlug:   ptr.To("devteam"),
-			GarRepository:    ptr.To("projects/some-project-123/locations/europe-north1/repositories/devteam"),
+			GoogleGroupEmail: new("nais-team-devteam@" + cfg.Domain),
+			EntraIDGroupID:   new(uuid.MustParse("70c0541d-c079-4d10-9c50-164681e0b900")),
+			GithubTeamSlug:   new("devteam"),
+			GarRepository:    new("projects/some-project-123/locations/europe-north1/repositories/devteam"),
 		}
 		if err := team.UpdateExternalReferences(ctx, devteam.Slug, references); err != nil {
 			return fmt.Errorf("update external references for devteam: %w", err)
@@ -335,8 +334,8 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 		input := &team.UpdateTeamEnvironmentInput{
 			Slug:               devteam.Slug,
 			EnvironmentName:    kindEnvironment,
-			SlackAlertsChannel: ptr.To("#kind"),
-			GCPProjectID:       ptr.To("kind-kind"),
+			SlackAlertsChannel: new("#kind"),
+			GCPProjectID:       new("kind-kind"),
 		}
 		if _, err := team.UpdateEnvironment(ctx, input, actor); err != nil {
 			return fmt.Errorf("update environment %q for devteam: %w", kindEnvironment, err)
@@ -345,8 +344,8 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 		input = &team.UpdateTeamEnvironmentInput{
 			Slug:               devteam.Slug,
 			EnvironmentName:    devEnvironment,
-			SlackAlertsChannel: ptr.To("#yolo"),
-			GCPProjectID:       ptr.To("nais-dev-2e7b"),
+			SlackAlertsChannel: new("#yolo"),
+			GCPProjectID:       new("nais-dev-2e7b"),
 		}
 		if _, err := team.UpdateEnvironment(ctx, input, actor); err != nil {
 			return fmt.Errorf("update environment %q for devteam: %w", devEnvironment, err)
@@ -355,8 +354,8 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 		input = &team.UpdateTeamEnvironmentInput{
 			Slug:               devteam.Slug,
 			EnvironmentName:    prodEnvironment,
-			SlackAlertsChannel: ptr.To("#yolo"),
-			GCPProjectID:       ptr.To("nais-dev-cdea"),
+			SlackAlertsChannel: new("#yolo"),
+			GCPProjectID:       new("nais-dev-cdea"),
 		}
 		if _, err := team.UpdateEnvironment(ctx, input, actor); err != nil {
 			return fmt.Errorf("update environment %q for devteam: %w", prodEnvironment, err)

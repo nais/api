@@ -46,7 +46,6 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/validation"
-	"k8s.io/utils/ptr"
 )
 
 func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName string, w workload.Workload, page *pagination.Pagination) (*SecretConnection, error) {
@@ -188,10 +187,10 @@ func Create(ctx context.Context, teamSlug slug.Slug, environment, name string) (
 	err = activitylog.Create(ctx, activitylog.CreateInput{
 		Action:          activitylog.ActivityLogEntryActionCreated,
 		Actor:           actor.User,
-		EnvironmentName: ptr.To(environment),
+		EnvironmentName: new(environment),
 		ResourceType:    activityLogEntryResourceTypeSecret,
 		ResourceName:    name,
-		TeamSlug:        ptr.To(teamSlug),
+		TeamSlug:        new(teamSlug),
 	})
 	if err != nil {
 		fromContext(ctx).log.WithError(err).Errorf("unable to create activity log entry")
@@ -262,10 +261,10 @@ func AddSecretValue(ctx context.Context, teamSlug slug.Slug, environment, secret
 	err = activitylog.Create(ctx, activitylog.CreateInput{
 		Action:          activityLogEntryActionAddSecretValue,
 		Actor:           actor.User,
-		EnvironmentName: ptr.To(environment),
+		EnvironmentName: new(environment),
 		ResourceType:    activityLogEntryResourceTypeSecret,
 		ResourceName:    secretName,
-		TeamSlug:        ptr.To(teamSlug),
+		TeamSlug:        new(teamSlug),
 		Data: &SecretValueAddedActivityLogEntryData{
 			ValueName: valueToAdd.Name,
 		},
@@ -331,10 +330,10 @@ func UpdateSecretValue(ctx context.Context, teamSlug slug.Slug, environment, sec
 	err = activitylog.Create(ctx, activitylog.CreateInput{
 		Action:          activityLogEntryActionUpdateSecretValue,
 		Actor:           actor.User,
-		EnvironmentName: ptr.To(environment),
+		EnvironmentName: new(environment),
 		ResourceType:    activityLogEntryResourceTypeSecret,
 		ResourceName:    secretName,
-		TeamSlug:        ptr.To(teamSlug),
+		TeamSlug:        new(teamSlug),
 		Data: &SecretValueUpdatedActivityLogEntryData{
 			ValueName: valueToUpdate.Name,
 		},
@@ -395,10 +394,10 @@ func RemoveSecretValue(ctx context.Context, teamSlug slug.Slug, environment, sec
 	err = activitylog.Create(ctx, activitylog.CreateInput{
 		Action:          activityLogEntryActionRemoveSecretValue,
 		Actor:           actor.User,
-		EnvironmentName: ptr.To(environment),
+		EnvironmentName: new(environment),
 		ResourceType:    activityLogEntryResourceTypeSecret,
 		ResourceName:    secretName,
-		TeamSlug:        ptr.To(teamSlug),
+		TeamSlug:        new(teamSlug),
 		Data: &SecretValueRemovedActivityLogEntryData{
 			ValueName: valueName,
 		},
@@ -437,10 +436,10 @@ func Delete(ctx context.Context, teamSlug slug.Slug, environment, name string) e
 	err = activitylog.Create(ctx, activitylog.CreateInput{
 		Action:          activitylog.ActivityLogEntryActionDeleted,
 		Actor:           authz.ActorFromContext(ctx).User,
-		EnvironmentName: ptr.To(environment),
+		EnvironmentName: new(environment),
 		ResourceType:    activityLogEntryResourceTypeSecret,
 		ResourceName:    name,
-		TeamSlug:        ptr.To(teamSlug),
+		TeamSlug:        new(teamSlug),
 	})
 	if err != nil {
 		fromContext(ctx).log.WithError(err).Errorf("unable to create activity log entry")
@@ -548,10 +547,10 @@ func ViewSecretValues(ctx context.Context, input ViewSecretValuesInput) (*ViewSe
 	err = activitylog.Create(ctx, activitylog.CreateInput{
 		Action:          activityLogEntryActionViewSecretValues,
 		Actor:           actor.User,
-		EnvironmentName: ptr.To(input.Environment),
+		EnvironmentName: new(input.Environment),
 		ResourceType:    activityLogEntryResourceTypeSecret,
 		ResourceName:    input.Name,
-		TeamSlug:        ptr.To(input.Team),
+		TeamSlug:        new(input.Team),
 		Data: &SecretValuesViewedActivityLogEntryData{
 			Reason:      input.Reason,
 			ElevationID: elevationID,
