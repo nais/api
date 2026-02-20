@@ -1309,6 +1309,7 @@ type ComplexityRoot struct {
 		MajorVersion      func(childComplexity int) int
 		Name              func(childComplexity int) int
 		Resources         func(childComplexity int) int
+		State             func(childComplexity int) int
 		Team              func(childComplexity int) int
 		TeamEnvironment   func(childComplexity int) int
 	}
@@ -7972,6 +7973,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.PostgresInstance.Resources(childComplexity), true
+
+	case "PostgresInstance.state":
+		if e.complexity.PostgresInstance.State == nil {
+			break
+		}
+
+		return e.complexity.PostgresInstance.State(childComplexity), true
 
 	case "PostgresInstance.team":
 		if e.complexity.PostgresInstance.Team == nil {
@@ -19489,22 +19497,17 @@ type PostgresInstance implements Persistence & Node {
 	audit: PostgresInstanceAudit!
 	"Indicates whether the Postgres cluster is configured for high availability."
 	highAvailability: Boolean!
-	# "Current state of the Postgres cluster."
-	# state: PostgresInstanceState!
+	"Current state of the Postgres cluster."
+	state: PostgresInstanceState!
 	"Maintenance window for the Postgres cluster, if configured."
 	maintenanceWindow: PostgresInstanceMaintenanceWindow
 }
 
-# enum PostgresInstanceState {
-# 	UNKNOWN
-# 	CREATING
-# 	UPDATING
-# 	UPDATE_FAILED
-# 	SYNC_FAILED
-# 	CREATE_FAILED
-# 	RUNNING
-# 	INVALID
-# }
+enum PostgresInstanceState {
+	AVAILABLE
+	PROGRESSING
+	DEGRADED
+}
 
 type PostgresInstanceMaintenanceWindow {
 	day: Int!

@@ -71,22 +71,17 @@ type PostgresInstance implements Persistence & Node {
 	audit: PostgresInstanceAudit!
 	"Indicates whether the Postgres cluster is configured for high availability."
 	highAvailability: Boolean!
-	# "Current state of the Postgres cluster."
-	# state: PostgresInstanceState!
+	"Current state of the Postgres cluster."
+	state: PostgresInstanceState!
 	"Maintenance window for the Postgres cluster, if configured."
 	maintenanceWindow: PostgresInstanceMaintenanceWindow
 }
 
-# enum PostgresInstanceState {
-# 	UNKNOWN
-# 	CREATING
-# 	UPDATING
-# 	UPDATE_FAILED
-# 	SYNC_FAILED
-# 	CREATE_FAILED
-# 	RUNNING
-# 	INVALID
-# }
+enum PostgresInstanceState {
+	AVAILABLE
+	PROGRESSING
+	DEGRADED
+}
 
 type PostgresInstanceMaintenanceWindow {
 	day: Int!

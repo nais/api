@@ -833,6 +833,35 @@ func (ec *executionContext) fieldContext_PostgresInstance_highAvailability(_ con
 	return fc, nil
 }
 
+func (ec *executionContext) _PostgresInstance_state(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstance) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PostgresInstance_state,
+		func(ctx context.Context) (any, error) {
+			return obj.State, nil
+		},
+		nil,
+		ec.marshalNPostgresInstanceState2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceState,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_PostgresInstance_state(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresInstance",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type PostgresInstanceState does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _PostgresInstance_maintenanceWindow(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstance) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -1042,6 +1071,8 @@ func (ec *executionContext) fieldContext_PostgresInstanceConnection_nodes(_ cont
 				return ec.fieldContext_PostgresInstance_audit(ctx, field)
 			case "highAvailability":
 				return ec.fieldContext_PostgresInstance_highAvailability(ctx, field)
+			case "state":
+				return ec.fieldContext_PostgresInstance_state(ctx, field)
 			case "maintenanceWindow":
 				return ec.fieldContext_PostgresInstance_maintenanceWindow(ctx, field)
 			}
@@ -1157,6 +1188,8 @@ func (ec *executionContext) fieldContext_PostgresInstanceEdge_node(_ context.Con
 				return ec.fieldContext_PostgresInstance_audit(ctx, field)
 			case "highAvailability":
 				return ec.fieldContext_PostgresInstance_highAvailability(ctx, field)
+			case "state":
+				return ec.fieldContext_PostgresInstance_state(ctx, field)
 			case "maintenanceWindow":
 				return ec.fieldContext_PostgresInstance_maintenanceWindow(ctx, field)
 			}
@@ -1746,6 +1779,11 @@ func (ec *executionContext) _PostgresInstance(ctx context.Context, sel ast.Selec
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "state":
+			out.Values[i] = ec._PostgresInstance_state(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		case "maintenanceWindow":
 			out.Values[i] = ec._PostgresInstance_maintenanceWindow(ctx, field, obj)
 		default:
@@ -2245,6 +2283,16 @@ func (ec *executionContext) marshalNPostgresInstanceResources2ᚖgithubᚗcomᚋ
 		return graphql.Null
 	}
 	return ec._PostgresInstanceResources(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNPostgresInstanceState2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceState(ctx context.Context, v any) (postgres.PostgresInstanceState, error) {
+	var res postgres.PostgresInstanceState
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNPostgresInstanceState2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceState(ctx context.Context, sel ast.SelectionSet, v postgres.PostgresInstanceState) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) marshalNTeamInventoryCountPostgresInstances2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐTeamInventoryCountPostgresInstances(ctx context.Context, sel ast.SelectionSet, v postgres.TeamInventoryCountPostgresInstances) graphql.Marshaler {
