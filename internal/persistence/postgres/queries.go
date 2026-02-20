@@ -22,7 +22,6 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
-	"k8s.io/utils/ptr"
 )
 
 func GetForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName, clusterName string) (*PostgresInstance, error) {
@@ -142,8 +141,8 @@ func GrantZalandoPostgresAccess(ctx context.Context, input GrantPostgresAccessIn
 		Actor:           authz.ActorFromContext(ctx).User,
 		ResourceType:    activityLogEntryResourceTypePostgres,
 		ResourceName:    input.ClusterName,
-		EnvironmentName: ptr.To(input.EnvironmentName),
-		TeamSlug:        ptr.To(input.TeamSlug),
+		EnvironmentName: new(input.EnvironmentName),
+		TeamSlug:        new(input.TeamSlug),
 		Data: PostgresGrantAccessActivityLogEntryData{
 			Grantee: input.Grantee,
 			Until:   until,

@@ -73,10 +73,7 @@ var (
 )
 
 func calculateRateWindow(stepSeconds int) string {
-	windowSeconds := max(stepSeconds*4, 60)
-	if windowSeconds > 3600 {
-		windowSeconds = 3600
-	}
+	windowSeconds := min(max(stepSeconds*4, 60), 3600)
 	return fmt.Sprintf("%ds", windowSeconds)
 }
 

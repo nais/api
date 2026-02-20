@@ -125,7 +125,6 @@ func combine(f *Field, parent ...string) (ret []Func) {
 func signature(t *types.Tuple) string {
 	var ret []string
 	for param := range t.Variables() {
-		param := param
 		ret = append(ret, param.Name()+" "+formatParam(param.Type()))
 	}
 	return strings.Join(ret, ", ")
@@ -158,7 +157,6 @@ func generateForStruct(name string, str *types.Struct) *Field {
 		Name: name,
 	}
 	for field := range str.Fields() {
-		field := field
 		switch f := field.Type().Underlying().(type) {
 		case *types.Struct:
 			s := generateForStruct(field.Name(), f)
@@ -172,7 +170,6 @@ func generateForStruct(name string, str *types.Struct) *Field {
 
 			var first, last *types.Var
 			for param := range f.Params().Variables() {
-				param := param
 				if param.Name() == "first" {
 					first = param
 				} else if param.Name() == "last" {
@@ -211,7 +208,6 @@ func importsForField(f *Field) []Import {
 	}
 
 	for param := range f.Params.Variables() {
-		param := param
 		ret = append(ret, importFromType(param.Type()))
 	}
 

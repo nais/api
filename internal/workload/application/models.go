@@ -17,7 +17,6 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/utils/ptr"
 )
 
 type (
@@ -286,21 +285,21 @@ func (a *Application) Resources() *ApplicationResources {
 	if resources := a.Spec.Resources; resources != nil {
 		if resources.Limits != nil {
 			if q, err := resource.ParseQuantity(resources.Limits.Cpu); err == nil {
-				ret.Limits.CPU = ptr.To(q.AsApproximateFloat64())
+				ret.Limits.CPU = new(q.AsApproximateFloat64())
 			}
 
 			if m, err := resource.ParseQuantity(resources.Limits.Memory); err == nil {
-				ret.Limits.Memory = ptr.To(m.Value())
+				ret.Limits.Memory = new(m.Value())
 			}
 		}
 
 		if resources.Requests != nil {
 			if q, err := resource.ParseQuantity(resources.Requests.Cpu); err == nil {
-				ret.Requests.CPU = ptr.To(q.AsApproximateFloat64())
+				ret.Requests.CPU = new(q.AsApproximateFloat64())
 			}
 
 			if m, err := resource.ParseQuantity(resources.Requests.Memory); err == nil {
-				ret.Requests.Memory = ptr.To(m.Value())
+				ret.Requests.Memory = new(m.Value())
 			}
 		}
 
@@ -371,7 +370,7 @@ func toGraphApplication(application *nais_io_v1alpha1.Application, environmentNa
 
 	var deletedAt *time.Time
 	if application.DeletionTimestamp != nil {
-		deletedAt = ptr.To(application.DeletionTimestamp.Time)
+		deletedAt = new(application.DeletionTimestamp.Time)
 	}
 
 	imageString := application.GetEffectiveImage()

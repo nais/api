@@ -16,7 +16,6 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/utils/ptr"
 )
 
 type (
@@ -156,7 +155,7 @@ func toBigQueryDatasetStatus(s bigquery_nais_io_v1.BigQueryDatasetStatus) *BigQu
 	}
 
 	if s.LastModifiedTime != 0 {
-		ret.LastModifiedTime = ptr.To(time.Unix(int64(s.LastModifiedTime), 0))
+		ret.LastModifiedTime = new(time.Unix(int64(s.LastModifiedTime), 0))
 	}
 
 	return ret

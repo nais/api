@@ -14,7 +14,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	v1 "k8s.io/client-go/kubernetes/typed/core/v1"
-	"k8s.io/utils/ptr"
 )
 
 type Streamer interface {
@@ -72,7 +71,7 @@ func (l *streamer) Logs(ctx context.Context, filter *WorkloadLogSubscriptionFilt
 				Container:  container,
 				Follow:     true,
 				Timestamps: true,
-				TailLines:  ptr.To[int64](int64(150 / len(pods))),
+				TailLines:  new(int64(150 / len(pods))),
 			}).Stream(ctx)
 			if err != nil {
 				l.log.WithError(err).Errorf("getting logs")

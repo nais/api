@@ -13,7 +13,6 @@ import (
 	"github.com/nais/api/pkg/apiclient/protoapi"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"k8s.io/utils/ptr"
 )
 
 type Server struct {
@@ -40,27 +39,27 @@ func (s *Server) CreateDeployment(ctx context.Context, req *protoapi.CreateDeplo
 
 	var repoName *string
 	if req.HasRepository() {
-		repoName = ptr.To(req.GetRepository())
+		repoName = new(req.GetRepository())
 	}
 
 	var externalID *string
 	if id := req.GetExternalId(); id != "" {
-		externalID = ptr.To(id)
+		externalID = new(id)
 	}
 
 	var commitSha *string
 	if sha := req.GetCommitSha(); sha != "" {
-		commitSha = ptr.To(sha)
+		commitSha = new(sha)
 	}
 
 	var deployerUsername *string
 	if username := req.GetDeployerUsername(); username != "" {
-		deployerUsername = ptr.To(username)
+		deployerUsername = new(username)
 	}
 
 	var triggerUrl *string
 	if url := req.GetTriggerUrl(); url != "" {
-		triggerUrl = ptr.To(url)
+		triggerUrl = new(url)
 	}
 
 	id, err := s.querier.CreateDeployment(ctx, grpcdeploymentsql.CreateDeploymentParams{
@@ -81,7 +80,7 @@ func (s *Server) CreateDeployment(ctx context.Context, req *protoapi.CreateDeplo
 	}
 
 	return protoapi.CreateDeploymentResponse_builder{
-		Id: ptr.To(id.String()),
+		Id: new(id.String()),
 	}.Build(), nil
 }
 
@@ -112,7 +111,7 @@ func (s *Server) CreateDeploymentK8SResource(ctx context.Context, req *protoapi.
 		if req.GetExternalDeploymentId() == "" {
 			return nil, status.Errorf(codes.InvalidArgument, "external deployment id cannot be empty")
 		}
-		externalID = ptr.To(req.GetExternalDeploymentId())
+		externalID = new(req.GetExternalDeploymentId())
 	default:
 		return nil, status.Errorf(codes.InvalidArgument, "reference is required")
 	}
@@ -131,7 +130,7 @@ func (s *Server) CreateDeploymentK8SResource(ctx context.Context, req *protoapi.
 	}
 
 	return protoapi.CreateDeploymentK8SResourceResponse_builder{
-		Id: ptr.To(id.String()),
+		Id: new(id.String()),
 	}.Build(), nil
 }
 
@@ -155,7 +154,7 @@ func (s *Server) CreateDeploymentStatus(ctx context.Context, req *protoapi.Creat
 		if req.GetExternalDeploymentId() == "" {
 			return nil, status.Errorf(codes.InvalidArgument, "external deployment id cannot be empty")
 		}
-		externalID = ptr.To(req.GetExternalDeploymentId())
+		externalID = new(req.GetExternalDeploymentId())
 	default:
 		return nil, status.Errorf(codes.InvalidArgument, "reference is required")
 	}
@@ -180,7 +179,7 @@ func (s *Server) CreateDeploymentStatus(ctx context.Context, req *protoapi.Creat
 	}
 
 	return protoapi.CreateDeploymentStatusResponse_builder{
-		Id: ptr.To(id.String()),
+		Id: new(id.String()),
 	}.Build(), nil
 }
 

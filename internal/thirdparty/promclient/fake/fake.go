@@ -18,7 +18,6 @@ import (
 	prom "github.com/prometheus/common/model"
 	"github.com/prometheus/prometheus/model/labels"
 	parser "github.com/prometheus/prometheus/promql/parser"
-	"k8s.io/utils/ptr"
 )
 
 const teamLabelKey = "namespace"
@@ -172,7 +171,7 @@ func (c *FakeClient) Query(ctx context.Context, environment string, query string
 			Value:     value(),
 		})
 	} else {
-		page, err := pagination.ParsePage(ptr.To(10000), nil, nil, nil)
+		page, err := pagination.ParsePage(new(10000), nil, nil, nil)
 		if err != nil {
 			return nil, err
 		}
@@ -280,7 +279,7 @@ func (c *FakeClient) selector(expr parser.Expr) (teamSlug slug.Slug, workload st
 }
 
 func (c *FakeClient) Rules(ctx context.Context, environment string, teamSlug slug.Slug) (promv1.RulesResult, error) {
-	page, err := pagination.ParsePage(ptr.To(10000), nil, nil, nil)
+	page, err := pagination.ParsePage(new(10000), nil, nil, nil)
 	if err != nil {
 		return promv1.RulesResult{}, err
 	}

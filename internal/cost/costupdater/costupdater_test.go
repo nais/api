@@ -16,7 +16,6 @@ import (
 	"github.com/nais/api/internal/slug"
 	logrustest "github.com/sirupsen/logrus/hooks/test"
 	"google.golang.org/api/option"
-	"k8s.io/utils/ptr"
 )
 
 const (
@@ -129,7 +128,7 @@ func TestUpdater_FetchBigQueryData(t *testing.T) {
 		}
 
 		want1 := costsql.CostUpsertParams{
-			Environment: ptr.To("dev"),
+			Environment: new("dev"),
 			AppLabel:    "team-1-app-1",
 			TeamSlug:    slug.Slug("team-1"),
 			Service:     "Cloud SQL",
@@ -153,7 +152,7 @@ func TestUpdater_FetchBigQueryData(t *testing.T) {
 			t.Fatal("expected channel to contain 43 items")
 		}
 		want2 := costsql.CostUpsertParams{
-			Environment: ptr.To("dev"),
+			Environment: new("dev"),
 			AppLabel:    "team-2-app-1",
 			TeamSlug:    slug.Slug("team-2"),
 			Service:     "Cloud SQL",

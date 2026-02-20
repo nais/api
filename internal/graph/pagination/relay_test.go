@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/nais/api/internal/graph/pagination"
-	"k8s.io/utils/ptr"
 )
 
 func TestParsePage(t *testing.T) {
@@ -30,8 +29,8 @@ func TestParsePage(t *testing.T) {
 
 		"first and last": {
 			args: args{
-				first: ptr.To(123),
-				last:  ptr.To(123),
+				first: new(123),
+				last:  new(123),
 			},
 			errMsg:     "last must be used with before",
 			wantOffset: 0,
@@ -40,7 +39,7 @@ func TestParsePage(t *testing.T) {
 
 		"first and before": {
 			args: args{
-				first: ptr.To(123),
+				first: new(123),
 				before: &pagination.Cursor{
 					Offset: 0,
 				},
@@ -52,7 +51,7 @@ func TestParsePage(t *testing.T) {
 
 		"last and after": {
 			args: args{
-				last: ptr.To(123),
+				last: new(123),
 				after: &pagination.Cursor{
 					Offset: 0,
 				},
@@ -64,7 +63,7 @@ func TestParsePage(t *testing.T) {
 
 		"invalid first": {
 			args: args{
-				first: ptr.To(0),
+				first: new(0),
 			},
 			errMsg:     "first must be greater than or equal to 1",
 			wantOffset: 0,
@@ -73,7 +72,7 @@ func TestParsePage(t *testing.T) {
 
 		"invalid last": {
 			args: args{
-				last: ptr.To(0),
+				last: new(0),
 				before: &pagination.Cursor{
 					Offset: 0,
 				},
@@ -85,7 +84,7 @@ func TestParsePage(t *testing.T) {
 
 		"valid first case": {
 			args: args{
-				first: ptr.To(10),
+				first: new(10),
 				after: &pagination.Cursor{
 					Offset: 10,
 				},
@@ -97,7 +96,7 @@ func TestParsePage(t *testing.T) {
 
 		"valid last case": {
 			args: args{
-				last: ptr.To(2),
+				last: new(2),
 				before: &pagination.Cursor{
 					Offset: 7,
 				},
@@ -109,7 +108,7 @@ func TestParsePage(t *testing.T) {
 
 		"negative offset": {
 			args: args{
-				last: ptr.To(5),
+				last: new(5),
 				before: &pagination.Cursor{
 					Offset: 2,
 				},

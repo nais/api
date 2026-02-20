@@ -57,10 +57,10 @@ func (f *WorkloadLogSubscriptionFilter) sanitize() {
 	}(f.Instances)
 
 	if f.Application != nil {
-		f.Application = ptr.To(strings.TrimSpace(*f.Application))
+		f.Application = new(strings.TrimSpace(*f.Application))
 	}
 
 	if f.Job != nil {
-		f.Job = ptr.To(strings.TrimSpace(*f.Job))
+		f.Job = new(strings.TrimSpace(*f.Job))
 	}
 }
