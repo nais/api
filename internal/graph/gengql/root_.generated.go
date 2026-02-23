@@ -2310,6 +2310,10 @@ type ComplexityRoot struct {
 		Total func(childComplexity int) int
 	}
 
+	TeamInventoryCountSecrets struct {
+		Total func(childComplexity int) int
+	}
+
 	TeamInventoryCountSqlInstances struct {
 		Total func(childComplexity int) int
 	}
@@ -2327,6 +2331,7 @@ type ComplexityRoot struct {
 		OpenSearches      func(childComplexity int) int
 		PostgresInstances func(childComplexity int) int
 		SQLInstances      func(childComplexity int) int
+		Secrets           func(childComplexity int) int
 		Valkeys           func(childComplexity int) int
 	}
 
@@ -12534,6 +12539,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.TeamInventoryCountPostgresInstances.Total(childComplexity), true
 
+	case "TeamInventoryCountSecrets.total":
+		if e.complexity.TeamInventoryCountSecrets.Total == nil {
+			break
+		}
+
+		return e.complexity.TeamInventoryCountSecrets.Total(childComplexity), true
+
 	case "TeamInventoryCountSqlInstances.total":
 		if e.complexity.TeamInventoryCountSqlInstances.Total == nil {
 			break
@@ -12603,6 +12615,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.TeamInventoryCounts.SQLInstances(childComplexity), true
+
+	case "TeamInventoryCounts.secrets":
+		if e.complexity.TeamInventoryCounts.Secrets == nil {
+			break
+		}
+
+		return e.complexity.TeamInventoryCounts.Secrets(childComplexity), true
 
 	case "TeamInventoryCounts.valkeys":
 		if e.complexity.TeamInventoryCounts.Valkeys == nil {
@@ -20571,6 +20590,23 @@ type Secret implements Node & ActivityLogger {
 		"Filter items."
 		filter: ActivityLogFilter
 	): ActivityLogEntryConnection!
+}
+
+extend type TeamInventoryCounts {
+	"""
+	Secret inventory count for a team.
+	"""
+	secrets: TeamInventoryCountSecrets!
+}
+
+"""
+Secret inventory count for a team.
+"""
+type TeamInventoryCountSecrets {
+	"""
+	Total number of secrets.
+	"""
+	total: Int!
 }
 
 input SecretValueInput {

@@ -81,6 +81,10 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 	return pagination.NewConnection(secrets, page, len(filtered)), nil
 }
 
+func CountForTeam(ctx context.Context, teamSlug slug.Slug) int {
+	return len(fromContext(ctx).Watcher().GetByNamespace(teamSlug.String()))
+}
+
 func Get(ctx context.Context, teamSlug slug.Slug, environment, name string) (*Secret, error) {
 	secret, err := fromContext(ctx).Watcher().Get(environment, teamSlug.String(), name)
 	if err != nil {

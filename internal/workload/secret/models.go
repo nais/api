@@ -241,3 +241,7 @@ type ViewSecretValuesPayload struct {
 
 // IsActivityLogger implements the ActivityLogger interface.
 func (Secret) IsActivityLogger() {}
+
+type TeamInventoryCountSecrets struct {
+	Total int `json:"total"`
+}
