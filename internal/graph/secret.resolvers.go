@@ -238,13 +238,8 @@ func (r *teamEnvironmentResolver) Secret(ctx context.Context, obj *team.TeamEnvi
 }
 
 func (r *teamInventoryCountsResolver) Secrets(ctx context.Context, obj *team.TeamInventoryCounts) (*secret.TeamInventoryCountSecrets, error) {
-	secrets, err := secret.ListForTeam(ctx, obj.TeamSlug, nil, nil, nil)
-	if err != nil {
-		return nil, err
-	}
-
 	return &secret.TeamInventoryCountSecrets{
-		Total: secrets.PageInfo.TotalCount,
+		Total: secret.CountForTeam(ctx, obj.TeamSlug),
 	}, nil
 }
 
