@@ -11,6 +11,7 @@ import (
 	"github.com/sirupsen/logrus"
 	batchv1 "k8s.io/api/batch/v1"
 	v1 "k8s.io/api/core/v1"
+	netv1 "k8s.io/api/networking/v1"
 )
 
 type NaisWorkload interface {
@@ -22,11 +23,12 @@ type NaisWorkload interface {
 }
 
 type Workload struct {
-	AppWatcher watcher.Watcher[*nais_io_v1alpha1.Application]
-	JobWatcher watcher.Watcher[*nais_io_v1.Naisjob]
-	PodWatcher watcher.Watcher[*v1.Pod]
-	RunWatcher watcher.Watcher[*batchv1.Job]
-	V13sClient V13sClient
+	AppWatcher     watcher.Watcher[*nais_io_v1alpha1.Application]
+	IngressWatcher watcher.Watcher[*netv1.Ingress]
+	JobWatcher     watcher.Watcher[*nais_io_v1.Naisjob]
+	PodWatcher     watcher.Watcher[*v1.Pod]
+	RunWatcher     watcher.Watcher[*batchv1.Job]
+	V13sClient     V13sClient
 
 	log logrus.FieldLogger
 }

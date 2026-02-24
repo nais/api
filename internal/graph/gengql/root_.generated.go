@@ -80,6 +80,7 @@ type ResolverRoot interface {
 	DeprecatedIngressIssue() DeprecatedIngressIssueResolver
 	DeprecatedRegistryIssue() DeprecatedRegistryIssueResolver
 	Environment() EnvironmentResolver
+	ExternalIngressCriticalVulnerabilityIssue() ExternalIngressCriticalVulnerabilityIssueResolver
 	FailedSynchronizationIssue() FailedSynchronizationIssueResolver
 	Ingress() IngressResolver
 	IngressMetrics() IngressMetricsResolver
@@ -665,6 +666,16 @@ type ComplexityRoot struct {
 	EnvironmentEdge struct {
 		Cursor func(childComplexity int) int
 		Node   func(childComplexity int) int
+	}
+
+	ExternalIngressCriticalVulnerabilityIssue struct {
+		CvssScore       func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Ingresses       func(childComplexity int) int
+		Message         func(childComplexity int) int
+		Severity        func(childComplexity int) int
+		TeamEnvironment func(childComplexity int) int
+		Workload        func(childComplexity int) int
 	}
 
 	ExternalNetworkPolicyHost struct {
@@ -4988,6 +4999,55 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.EnvironmentEdge.Node(childComplexity), true
+
+	case "ExternalIngressCriticalVulnerabilityIssue.cvssScore":
+		if e.complexity.ExternalIngressCriticalVulnerabilityIssue.CvssScore == nil {
+			break
+		}
+
+		return e.complexity.ExternalIngressCriticalVulnerabilityIssue.CvssScore(childComplexity), true
+
+	case "ExternalIngressCriticalVulnerabilityIssue.id":
+		if e.complexity.ExternalIngressCriticalVulnerabilityIssue.ID == nil {
+			break
+		}
+
+		return e.complexity.ExternalIngressCriticalVulnerabilityIssue.ID(childComplexity), true
+
+	case "ExternalIngressCriticalVulnerabilityIssue.ingresses":
+		if e.complexity.ExternalIngressCriticalVulnerabilityIssue.Ingresses == nil {
+			break
+		}
+
+		return e.complexity.ExternalIngressCriticalVulnerabilityIssue.Ingresses(childComplexity), true
+
+	case "ExternalIngressCriticalVulnerabilityIssue.message":
+		if e.complexity.ExternalIngressCriticalVulnerabilityIssue.Message == nil {
+			break
+		}
+
+		return e.complexity.ExternalIngressCriticalVulnerabilityIssue.Message(childComplexity), true
+
+	case "ExternalIngressCriticalVulnerabilityIssue.severity":
+		if e.complexity.ExternalIngressCriticalVulnerabilityIssue.Severity == nil {
+			break
+		}
+
+		return e.complexity.ExternalIngressCriticalVulnerabilityIssue.Severity(childComplexity), true
+
+	case "ExternalIngressCriticalVulnerabilityIssue.teamEnvironment":
+		if e.complexity.ExternalIngressCriticalVulnerabilityIssue.TeamEnvironment == nil {
+			break
+		}
+
+		return e.complexity.ExternalIngressCriticalVulnerabilityIssue.TeamEnvironment(childComplexity), true
+
+	case "ExternalIngressCriticalVulnerabilityIssue.workload":
+		if e.complexity.ExternalIngressCriticalVulnerabilityIssue.Workload == nil {
+			break
+		}
+
+		return e.complexity.ExternalIngressCriticalVulnerabilityIssue.Workload(childComplexity), true
 
 	case "ExternalNetworkPolicyHost.ports":
 		if e.complexity.ExternalNetworkPolicyHost.Ports == nil {
@@ -18065,6 +18125,7 @@ enum IssueType {
 	INVALID_SPEC
 	MISSING_SBOM
 	VULNERABLE_IMAGE
+	EXTERNAL_INGRESS_CRITICAL_VULNERABILITY
 	UNLEASH_RELEASE_CHANNEL
 }
 
@@ -18077,6 +18138,17 @@ type VulnerableImageIssue implements Issue & Node {
 	workload: Workload!
 	riskScore: Int!
 	critical: Int!
+}
+
+type ExternalIngressCriticalVulnerabilityIssue implements Issue & Node {
+	id: ID!
+	teamEnvironment: TeamEnvironment!
+	severity: Severity!
+	message: String!
+
+	workload: Workload!
+	cvssScore: Float!
+	ingresses: [String!]!
 }
 
 type MissingSbomIssue implements Issue & Node {

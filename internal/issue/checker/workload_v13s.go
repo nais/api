@@ -3,14 +3,25 @@ package checker
 import (
 	"context"
 	"fmt"
+	"net/url"
+	"strings"
 
 	"github.com/nais/api/internal/environmentmapper"
 	"github.com/nais/api/internal/issue"
+	"github.com/nais/api/internal/kubernetes/watcher"
+	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
 	"github.com/nais/v13s/pkg/api/vulnerabilities"
+	netv1 "k8s.io/api/networking/v1"
+	"k8s.io/apimachinery/pkg/labels"
+	"k8s.io/apimachinery/pkg/selection"
+	"k8s.io/utils/ptr"
 )
+
+const externalIngressClassName = "nais-ingress-external"
 
 type V13sClient interface {
 	ListVulnerabilitySummaries(ctx context.Context, opts ...vulnerabilities.Option) (*vulnerabilities.ListVulnerabilitySummariesResponse, error)
+	ListWorkloadsForVulnerability(ctx context.Context, vulnerabilityFilter vulnerabilities.VulnerabilityFilter, opts ...vulnerabilities.Option) (*vulnerabilities.ListWorkloadsForVulnerabilityResponse, error)
 }
 
 type fakeV13sClient struct{}
@@ -96,6 +107,10 @@ func (f fakeV13sClient) ListVulnerabilitySummaries(ctx context.Context, opts ...
 	}, nil
 }
 
+func (f fakeV13sClient) ListWorkloadsForVulnerability(ctx context.Context, vulnerabilityFilter vulnerabilities.VulnerabilityFilter, opts ...vulnerabilities.Option) (*vulnerabilities.ListWorkloadsForVulnerabilityResponse, error) {
+	return &vulnerabilities.ListWorkloadsForVulnerabilityResponse{}, nil
+}
+
 func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 	mapType := func(s string) (issue.ResourceType, bool) {
 		if s == "job" {
@@ -165,7 +180,123 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 		}
 	}
 
+	cvss := 10.0
+	workloadsForVulnerability, err := w.V13sClient.ListWorkloadsForVulnerability(
+		ctx,
+		vulnerabilities.VulnerabilityFilter{CvssScore: &cvss},
+		vulnerabilities.Limit(69000), // unlimited
+	)
+	if err != nil {
+		w.log.WithError(err).Error("fetch workloads for vulnerabilities with cvss score")
+		return ret
+	}
+
+	seen := map[string]struct{}{}
+	for _, node := range workloadsForVulnerability.GetNodes() {
+		workloadRef := node.GetWorkloadRef()
+		vulnerability := node.GetVulnerability()
+		if workloadRef == nil || vulnerability == nil {
+			continue
+		}
+
+		if vulnerability.GetCvssScore() != cvss {
+			continue
+		}
+
+		workloadType, ok := mapType(workloadRef.GetType())
+		if !ok || workloadType != issue.ResourceTypeApplication {
+			continue
+		}
+
+		env := environmentmapper.EnvironmentName(workloadRef.GetCluster())
+		app, err := w.AppWatcher.Get(env, workloadRef.GetNamespace(), workloadRef.GetName())
+		if err != nil || app == nil {
+			continue
+		}
+
+		externalIngresses := w.getExternalIngresses(app, env)
+		if len(externalIngresses) == 0 {
+			continue
+		}
+
+		key := fmt.Sprintf("%s/%s/%s", env, workloadRef.GetNamespace(), workloadRef.GetName())
+		if _, exists := seen[key]; exists {
+			continue
+		}
+		seen[key] = struct{}{}
+
+		ret = append(ret, &Issue{
+			IssueType:    issue.IssueTypeExternalIngressCriticalVulnerability,
+			ResourceType: workloadType,
+			ResourceName: workloadRef.GetName(),
+			Team:         workloadRef.GetNamespace(),
+			Env:          env,
+			Severity:     issue.SeverityCritical,
+			Message: fmt.Sprintf(
+				"Workload with external ingress(es) %s has vulnerability with CVSS score %.1f",
+				strings.Join(externalIngresses, ", "),
+				cvss,
+			),
+			IssueDetails: issue.ExternalIngressCriticalVulnerabilityIssueDetails{
+				CvssScore: cvss,
+				Ingresses: externalIngresses,
+			},
+		})
+	}
+
 	return ret
+}
+
+func (w Workload) getExternalIngresses(app *nais_io_v1alpha1.Application, env string) []string {
+	externalIngresses := make([]string, 0, len(app.Spec.Ingresses))
+
+	selector := labels.NewSelector()
+	req, err := labels.NewRequirement("app", selection.Equals, []string{app.Name})
+	if err != nil {
+		return externalIngresses
+	}
+	selector = selector.Add(*req)
+
+	ingresses := w.IngressWatcher.GetByNamespace(app.Namespace, watcher.WithLabels(selector), watcher.InCluster(env))
+
+	for _, ingress := range app.Spec.Ingresses {
+		ingressURL := string(ingress)
+
+		if strings.TrimSpace(ingressURL) == "" {
+			continue
+		}
+
+		uri, err := url.Parse(ingressURL)
+		if err != nil {
+			continue
+		}
+
+		if hasExternalIngressClass(ingresses, env, uri.Host) {
+			externalIngresses = append(externalIngresses, ingressURL)
+		}
+	}
+
+	return externalIngresses
+}
+
+func hasExternalIngressClass(ings []*watcher.EnvironmentWrapper[*netv1.Ingress], env, host string) bool {
+	for _, ing := range ings {
+		if ing.Cluster != env {
+			continue
+		}
+
+		for _, rule := range ing.Obj.Spec.Rules {
+			if rule.Host != host {
+				continue
+			}
+
+			if ptr.Deref(ing.Obj.Spec.IngressClassName, "") == externalIngressClassName {
+				return true
+			}
+		}
+	}
+
+	return false
 }
 
 func (w Workload) exists(node *vulnerabilities.WorkloadSummary, workloadType issue.ResourceType) bool {

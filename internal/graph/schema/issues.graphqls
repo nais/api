@@ -163,6 +163,7 @@ enum IssueType {
 	INVALID_SPEC
 	MISSING_SBOM
 	VULNERABLE_IMAGE
+	EXTERNAL_INGRESS_CRITICAL_VULNERABILITY
 	UNLEASH_RELEASE_CHANNEL
 }
 
@@ -175,6 +176,17 @@ type VulnerableImageIssue implements Issue & Node {
 	workload: Workload!
 	riskScore: Int!
 	critical: Int!
+}
+
+type ExternalIngressCriticalVulnerabilityIssue implements Issue & Node {
+	id: ID!
+	teamEnvironment: TeamEnvironment!
+	severity: Severity!
+	message: String!
+
+	workload: Workload!
+	cvssScore: Float!
+	ingresses: [String!]!
 }
 
 type MissingSbomIssue implements Issue & Node {
