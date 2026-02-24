@@ -127,7 +127,7 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 		return "", false
 	}
 
-	resp, err := w.V13sClient.ListVulnerabilitySummaries(ctx, vulnerabilities.Limit(v13sQueryLimit)) // unlimited
+	resp, err := w.V13sClient.ListVulnerabilitySummaries(ctx, vulnerabilities.Limit(v13sQueryLimit))
 	if err != nil {
 		w.log.WithError(err).Error("fetch image vulnerability summaries")
 		return nil
@@ -187,7 +187,7 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 	workloadsForVulnerability, err := w.V13sClient.ListWorkloadsForVulnerability(
 		ctx,
 		vulnerabilities.VulnerabilityFilter{CvssScore: &cvss},
-		vulnerabilities.Limit(v13sQueryLimit), // unlimited
+		vulnerabilities.Limit(v13sQueryLimit),
 	)
 	if err != nil {
 		w.log.WithError(err).Error("fetch workloads for vulnerabilities with cvss score")
