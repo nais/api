@@ -253,6 +253,7 @@ func (w Workload) getExternalIngresses(app *nais_io_v1alpha1.Application, env st
 	selector := labels.NewSelector()
 	req, err := labels.NewRequirement("app", selection.Equals, []string{app.Name})
 	if err != nil {
+		w.log.WithError(err).WithField("app", app.Name).WithField("namespace", app.Namespace).WithField("env", env).Error("create label requirement for ingress lookup")
 		return externalIngresses
 	}
 	selector = selector.Add(*req)
