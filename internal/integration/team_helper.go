@@ -75,6 +75,15 @@ func teamMetatable() *spec.Typemetatable {
 				},
 				Func: teamAddOwner,
 			},
+			{
+				Name: "setEnvironmentGCPProjectID",
+				Doc:  "Set GCP project ID for a team environment",
+				Args: []spec.Argument{
+					{Name: "environment", Type: []spec.ArgumentType{spec.ArgumentTypeString}, Doc: "Environment name"},
+					{Name: "gcpProjectID", Type: []spec.ArgumentType{spec.ArgumentTypeString}, Doc: "GCP project ID"},
+				},
+				Func: teamSetEnvironmentGCPProjectID,
+			},
 		},
 	}
 }
@@ -164,6 +173,26 @@ func teamAddMember(L *lua.LState) int {
 
 func teamAddOwner(L *lua.LState) int {
 	return addTeamRole(L, "Team owner")
+}
+
+func teamSetEnvironmentGCPProjectID(L *lua.LState) int {
+	t := checkTeam(L)
+	db := teamsql.New(L.Context().Value(databaseKey).(*pgxpool.Pool))
+
+	environment := L.CheckString(2)
+	gcpProjectID := L.CheckString(3)
+
+	err := db.UpsertEnvironment(L.Context(), teamsql.UpsertEnvironmentParams{
+		TeamSlug:     slug.Slug(t.Slug),
+		Environment:  environment,
+		GcpProjectID: ptr.To(gcpProjectID),
+	})
+	if err != nil {
+		L.RaiseError("failed to set environment GCP project ID: %s", err)
+		return 0
+	}
+
+	return 0
 }
 
 func checkTeam(L *lua.LState) *Team {

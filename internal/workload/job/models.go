@@ -205,7 +205,7 @@ func (e JobRunState) String() string {
 	}
 }
 
-func (e *JobRunState) UnmarshalGQL(v interface{}) error {
+func (e *JobRunState) UnmarshalGQL(v any) error {
 	panic("not implemented")
 }
 
@@ -232,7 +232,7 @@ func (e JobOrderField) String() string {
 	return string(e)
 }
 
-func (e *JobOrderField) UnmarshalGQL(v interface{}) error {
+func (e *JobOrderField) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -269,21 +269,21 @@ func (j *Job) Resources() *JobResources {
 
 	if resources.Limits != nil {
 		if q, err := resource.ParseQuantity(resources.Limits.Cpu); err == nil {
-			ret.Limits.CPU = ptr.To(q.AsApproximateFloat64())
+			ret.Limits.CPU = new(q.AsApproximateFloat64())
 		}
 
 		if m, err := resource.ParseQuantity(resources.Limits.Memory); err == nil {
-			ret.Limits.Memory = ptr.To(m.Value())
+			ret.Limits.Memory = new(m.Value())
 		}
 	}
 
 	if resources.Requests != nil {
 		if q, err := resource.ParseQuantity(resources.Requests.Cpu); err == nil {
-			ret.Requests.CPU = ptr.To(q.AsApproximateFloat64())
+			ret.Requests.CPU = new(q.AsApproximateFloat64())
 		}
 
 		if m, err := resource.ParseQuantity(resources.Requests.Memory); err == nil {
-			ret.Requests.Memory = ptr.To(m.Value())
+			ret.Requests.Memory = new(m.Value())
 		}
 	}
 
@@ -317,7 +317,7 @@ func toGraphJob(job *nais_io_v1.Naisjob, environmentName string) *Job {
 
 	var deletedAt *time.Time
 	if job.DeletionTimestamp != nil {
-		deletedAt = ptr.To(job.DeletionTimestamp.Time)
+		deletedAt = new(job.DeletionTimestamp.Time)
 	}
 
 	imageString := job.GetEffectiveImage()

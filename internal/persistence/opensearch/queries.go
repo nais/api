@@ -19,7 +19,6 @@ import (
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	"k8s.io/utils/ptr"
 )
 
 var (
@@ -123,7 +122,7 @@ func GetOpenSearchVersion(ctx context.Context, os *OpenSearch) (*OpenSearchVersi
 	var versionString *string
 	v, err := fromContext(ctx).versionLoader.Load(ctx, &key)
 	if err == nil {
-		versionString = ptr.To(v)
+		versionString = new(v)
 		if major == "" {
 			mv, err := OpenSearchMajorVersionFromAivenString(v)
 			if err != nil {
@@ -230,8 +229,8 @@ func Create(ctx context.Context, input CreateOpenSearchInput) (*CreateOpenSearch
 		Actor:           authz.ActorFromContext(ctx).User,
 		ResourceType:    ActivityLogEntryResourceTypeOpenSearch,
 		ResourceName:    input.Name,
-		EnvironmentName: ptr.To(input.EnvironmentName),
-		TeamSlug:        ptr.To(input.TeamSlug),
+		EnvironmentName: new(input.EnvironmentName),
+		TeamSlug:        new(input.TeamSlug),
 	})
 	if err != nil {
 		return nil, err
@@ -319,8 +318,8 @@ func Update(ctx context.Context, input UpdateOpenSearchInput) (*UpdateOpenSearch
 		Actor:           authz.ActorFromContext(ctx).User,
 		ResourceType:    ActivityLogEntryResourceTypeOpenSearch,
 		ResourceName:    input.Name,
-		EnvironmentName: ptr.To(input.EnvironmentName),
-		TeamSlug:        ptr.To(input.TeamSlug),
+		EnvironmentName: new(input.EnvironmentName),
+		TeamSlug:        new(input.TeamSlug),
 		Data: &OpenSearchUpdatedActivityLogEntryData{
 			UpdatedFields: changes,
 		},
@@ -368,16 +367,16 @@ func updatePlan(openSearch *unstructured.Unstructured, input UpdateOpenSearchInp
 	if input.Tier != oldMachine.Tier {
 		changes = append(changes, &OpenSearchUpdatedActivityLogEntryDataUpdatedField{
 			Field:    "tier",
-			OldValue: ptr.To(oldMachine.Tier.String()),
-			NewValue: ptr.To(input.Tier.String()),
+			OldValue: new(oldMachine.Tier.String()),
+			NewValue: new(input.Tier.String()),
 		})
 	}
 
 	if input.Memory != oldMachine.Memory {
 		changes = append(changes, &OpenSearchUpdatedActivityLogEntryDataUpdatedField{
 			Field:    "memory",
-			OldValue: ptr.To(oldMachine.Memory.String()),
-			NewValue: ptr.To(input.Memory.String()),
+			OldValue: new(oldMachine.Memory.String()),
+			NewValue: new(input.Memory.String()),
 		})
 	}
 
@@ -424,11 +423,11 @@ func updateVersion(ctx context.Context, openSearch *unstructured.Unstructured, i
 		Field: "version",
 		OldValue: func() *string {
 			if found {
-				return ptr.To(oldVersion)
+				return new(oldVersion)
 			}
 			return nil
 		}(),
-		NewValue: ptr.To(input.Version.String()),
+		NewValue: new(input.Version.String()),
 	})
 
 	version, err := input.Version.ToAivenString()
@@ -471,11 +470,11 @@ func updateStorage(openSearch *unstructured.Unstructured, input UpdateOpenSearch
 		Field: "storageGB",
 		OldValue: func() *string {
 			if found {
-				return ptr.To(oldStorageGB.String())
+				return new(oldStorageGB.String())
 			}
 			return nil
 		}(),
-		NewValue: ptr.To(input.StorageGB.String()),
+		NewValue: new(input.StorageGB.String()),
 	})
 
 	if err := unstructured.SetNestedField(openSearch.Object, input.StorageGB.ToAivenString(), specDiskSpace...); err != nil {
@@ -527,13 +526,13 @@ func Delete(ctx context.Context, input DeleteOpenSearchInput) (*DeleteOpenSearch
 		Actor:           authz.ActorFromContext(ctx).User,
 		ResourceType:    ActivityLogEntryResourceTypeOpenSearch,
 		ResourceName:    input.Name,
-		EnvironmentName: ptr.To(input.EnvironmentName),
-		TeamSlug:        ptr.To(input.TeamSlug),
+		EnvironmentName: new(input.EnvironmentName),
+		TeamSlug:        new(input.TeamSlug),
 	}); err != nil {
 		return nil, err
 	}
 
 	return &DeleteOpenSearchPayload{
-		OpenSearchDeleted: ptr.To(true),
+		OpenSearchDeleted: new(true),
 	}, nil
 }

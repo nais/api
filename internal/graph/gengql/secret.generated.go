@@ -462,6 +462,8 @@ func (ec *executionContext) fieldContext_Secret_environment(_ context.Context, f
 				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
 			case "openSearch":
 				return ec.fieldContext_TeamEnvironment_openSearch(ctx, field)
+			case "postgresInstance":
+				return ec.fieldContext_TeamEnvironment_postgresInstance(ctx, field)
 			case "secret":
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
@@ -529,6 +531,8 @@ func (ec *executionContext) fieldContext_Secret_teamEnvironment(_ context.Contex
 				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
 			case "openSearch":
 				return ec.fieldContext_TeamEnvironment_openSearch(ctx, field)
+			case "postgresInstance":
+				return ec.fieldContext_TeamEnvironment_postgresInstance(ctx, field)
 			case "secret":
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
@@ -622,6 +626,8 @@ func (ec *executionContext) fieldContext_Secret_team(_ context.Context, field gr
 				return ec.fieldContext_Team_kafkaTopics(ctx, field)
 			case "openSearches":
 				return ec.fieldContext_Team_openSearches(ctx, field)
+			case "postgresInstances":
+				return ec.fieldContext_Team_postgresInstances(ctx, field)
 			case "repositories":
 				return ec.fieldContext_Team_repositories(ctx, field)
 			case "secrets":
@@ -2867,6 +2873,35 @@ func (ec *executionContext) fieldContext_SecretValuesViewedActivityLogEntryData_
 	return fc, nil
 }
 
+func (ec *executionContext) _TeamInventoryCountSecrets_total(ctx context.Context, field graphql.CollectedField, obj *secret.TeamInventoryCountSecrets) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_TeamInventoryCountSecrets_total,
+		func(ctx context.Context) (any, error) {
+			return obj.Total, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_TeamInventoryCountSecrets_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamInventoryCountSecrets",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _UpdateSecretValuePayload_secret(ctx context.Context, field graphql.CollectedField, obj *secret.UpdateSecretValuePayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -4564,6 +4599,45 @@ func (ec *executionContext) _SecretValuesViewedActivityLogEntryData(ctx context.
 	return out
 }
 
+var teamInventoryCountSecretsImplementors = []string{"TeamInventoryCountSecrets"}
+
+func (ec *executionContext) _TeamInventoryCountSecrets(ctx context.Context, sel ast.SelectionSet, obj *secret.TeamInventoryCountSecrets) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamInventoryCountSecretsImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TeamInventoryCountSecrets")
+		case "total":
+			out.Values[i] = ec._TeamInventoryCountSecrets_total(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var updateSecretValuePayloadImplementors = []string{"UpdateSecretValuePayload"}
 
 func (ec *executionContext) _UpdateSecretValuePayload(ctx context.Context, sel ast.SelectionSet, obj *secret.UpdateSecretValuePayload) graphql.Marshaler {
@@ -4946,6 +5020,20 @@ func (ec *executionContext) marshalNSecretValuesViewedActivityLogEntryData2ᚖgi
 		return graphql.Null
 	}
 	return ec._SecretValuesViewedActivityLogEntryData(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNTeamInventoryCountSecrets2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐTeamInventoryCountSecrets(ctx context.Context, sel ast.SelectionSet, v secret.TeamInventoryCountSecrets) graphql.Marshaler {
+	return ec._TeamInventoryCountSecrets(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNTeamInventoryCountSecrets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐTeamInventoryCountSecrets(ctx context.Context, sel ast.SelectionSet, v *secret.TeamInventoryCountSecrets) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._TeamInventoryCountSecrets(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNUpdateSecretValueInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐUpdateSecretValueInput(ctx context.Context, v any) (secret.UpdateSecretValueInput, error) {

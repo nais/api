@@ -16,7 +16,6 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/utils/ptr"
 )
 
 type (
@@ -89,7 +88,7 @@ func (e BigQueryDatasetOrderField) String() string {
 	return string(e)
 }
 
-func (e *BigQueryDatasetOrderField) UnmarshalGQL(v interface{}) error {
+func (e *BigQueryDatasetOrderField) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -121,7 +120,7 @@ func (e BigQueryDatasetAccessOrderField) String() string {
 	return string(e)
 }
 
-func (e *BigQueryDatasetAccessOrderField) UnmarshalGQL(v interface{}) error {
+func (e *BigQueryDatasetAccessOrderField) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -156,7 +155,7 @@ func toBigQueryDatasetStatus(s bigquery_nais_io_v1.BigQueryDatasetStatus) *BigQu
 	}
 
 	if s.LastModifiedTime != 0 {
-		ret.LastModifiedTime = ptr.To(time.Unix(int64(s.LastModifiedTime), 0))
+		ret.LastModifiedTime = new(time.Unix(int64(s.LastModifiedTime), 0))
 	}
 
 	return ret

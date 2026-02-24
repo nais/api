@@ -10,7 +10,6 @@ import (
 	"github.com/grafana/loki/v3/pkg/loghttp"
 	"github.com/nais/api/internal/environment"
 	"github.com/nais/api/internal/validate"
-	"k8s.io/utils/ptr"
 )
 
 type LogLine struct {
@@ -37,7 +36,7 @@ type LogSubscriptionFilter struct {
 
 func (f *LogSubscriptionFilter) Validate(ctx context.Context) error {
 	if f.InitialBatch.Start == nil {
-		f.InitialBatch.Start = ptr.To(time.Now().Add(-time.Hour))
+		f.InitialBatch.Start = new(time.Now().Add(-time.Hour))
 	}
 
 	verr := validate.New()

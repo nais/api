@@ -13,6 +13,7 @@ import (
 	bucket "github.com/nais/api/internal/persistence/bucket"
 	kafkatopic "github.com/nais/api/internal/persistence/kafkatopic"
 	opensearch "github.com/nais/api/internal/persistence/opensearch"
+	postgres "github.com/nais/api/internal/persistence/postgres"
 	sqlinstance "github.com/nais/api/internal/persistence/sqlinstance"
 	valkey "github.com/nais/api/internal/persistence/valkey"
 	search "github.com/nais/api/internal/search"
@@ -103,7 +104,7 @@ func NewComplexityRoot() ComplexityRoot {
 	c.Query.Cves = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *vulnerability.CVEOrder) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
-	c.Query.Deployments = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *deployment.DeploymentFilter) int {
+	c.Query.Deployments = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *deployment.DeploymentOrder, filter *deployment.DeploymentFilter) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.Query.Reconcilers = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
@@ -191,6 +192,9 @@ func NewComplexityRoot() ComplexityRoot {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.Team.OpenSearches = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *opensearch.OpenSearchOrder) int {
+		return cursorComplexity(first, last) * childComplexity
+	}
+	c.Team.PostgresInstances = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *postgres.PostgresInstanceOrder) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.Team.Repositories = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *repository.RepositoryOrder, filter *repository.TeamRepositoryFilter) int {

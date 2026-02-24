@@ -1,0 +1,17 @@
+---
+apiVersion: data.nais.io/v1
+kind: Postgres
+metadata:
+  name: without-audit
+  namespace: someteamname
+spec:
+  cluster:
+    majorVersion: "15"
+    resources:
+      cpu: 100m
+      diskSize: 3Gi
+      memory: 1G
+    audit:
+      enabled: false
+  database:
+    collation: en_US

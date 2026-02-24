@@ -33,6 +33,8 @@ values:
   auditLog.location:
     displayName: NAIS audit log location
     description: The GCP location where audit log buckets are created
+    computed:
+      template: "europe-north1"
     config:
       type: string
 

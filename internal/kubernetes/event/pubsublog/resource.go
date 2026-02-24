@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/utils/ptr"
 )
 
 type Resource struct {
@@ -37,7 +36,7 @@ func parseResourceName(s string) (Resource, error) {
 	}
 
 	resource := Resource{
-		GVR:       ptr.To(gv.WithResource(parts[4])),
+		GVR:       new(gv.WithResource(parts[4])),
 		Namespace: parts[3],
 		Name:      parts[5],
 	}

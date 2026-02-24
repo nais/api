@@ -3,6 +3,7 @@ package job
 import (
 	"context"
 	"fmt"
+	"maps"
 	"slices"
 	"time"
 
@@ -303,9 +304,7 @@ func createJobFromCronJob(actor authz.AuthenticatedUser, name string, cronJob *u
 	}
 
 	if ok {
-		for k, v := range mp {
-			annotations[k] = v
-		}
+		maps.Copy(annotations, mp)
 	}
 
 	labels, _, err := unstructured.NestedStringMap(cronJob.Object, "spec", "jobTemplate", "metadata", "labels")

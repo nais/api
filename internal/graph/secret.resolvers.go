@@ -237,6 +237,12 @@ func (r *teamEnvironmentResolver) Secret(ctx context.Context, obj *team.TeamEnvi
 	return secret.Get(ctx, obj.TeamSlug, obj.EnvironmentName, name)
 }
 
+func (r *teamInventoryCountsResolver) Secrets(ctx context.Context, obj *team.TeamInventoryCounts) (*secret.TeamInventoryCountSecrets, error) {
+	return &secret.TeamInventoryCountSecrets{
+		Total: secret.CountForTeam(ctx, obj.TeamSlug),
+	}, nil
+}
+
 func (r *Resolver) Secret() gengql.SecretResolver { return &secretResolver{r} }
 
 type secretResolver struct{ *Resolver }

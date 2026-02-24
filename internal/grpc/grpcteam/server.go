@@ -14,7 +14,6 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	"k8s.io/utils/ptr"
 )
 
 type Server struct {
@@ -206,7 +205,7 @@ func (t *Server) IsRepositoryAuthorized(ctx context.Context, req *protoapi.IsRep
 func toProtoTeam(team *grpcteamsql.Team) *protoapi.Team {
 	var aID *string
 	if team.EntraIDGroupID != nil {
-		aID = ptr.To(team.EntraIDGroupID.String())
+		aID = new(team.EntraIDGroupID.String())
 	}
 
 	t := &protoapi.Team{

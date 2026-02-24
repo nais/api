@@ -85,7 +85,7 @@ func (e BucketOrderField) String() string {
 	return string(e)
 }
 
-func (e *BucketOrderField) UnmarshalGQL(v interface{}) error {
+func (e *BucketOrderField) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -127,13 +127,13 @@ func toBucketStatus(status storage_cnrm_cloud_google_com_v1beta1.StorageBucketSt
 			if !ready {
 				errors = append(errors, &BucketError{
 					Message: "Bucket is unhealthy",
-					Details: ptr.To(condition.Message),
+					Details: new(condition.Message),
 				})
 			}
 		default:
 			unknown = append(errors, &BucketError{
 				Message: fmt.Sprintf("Unknown state: %s", condition.Type),
-				Details: ptr.To(condition.Message),
+				Details: new(condition.Message),
 			})
 		}
 	}
@@ -214,7 +214,7 @@ func (e BucketState) String() string {
 	return string(e)
 }
 
-func (e *BucketState) UnmarshalGQL(v interface{}) error {
+func (e *BucketState) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")

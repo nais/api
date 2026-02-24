@@ -68,7 +68,7 @@ func (e KafkaTopicOrderField) String() string {
 	return string(e)
 }
 
-func (e *KafkaTopicOrderField) UnmarshalGQL(v interface{}) error {
+func (e *KafkaTopicOrderField) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -122,7 +122,7 @@ func (e KafkaTopicACLOrderField) String() string {
 	return string(e)
 }
 
-func (e *KafkaTopicACLOrderField) UnmarshalGQL(v interface{}) error {
+func (e *KafkaTopicACLOrderField) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")

@@ -16,14 +16,14 @@ import (
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	"github.com/nais/api/internal/workload"
-	"k8s.io/utils/ptr"
 )
 
-func List(ctx context.Context, page *pagination.Pagination, filter *DeploymentFilter) (*DeploymentConnection, error) {
+func List(ctx context.Context, page *pagination.Pagination, filter *DeploymentFilter, orderBy *DeploymentOrder) (*DeploymentConnection, error) {
 	q := db(ctx)
 	params := deploymentsql.ListParams{
-		Offset: page.Offset(),
-		Limit:  page.Limit(),
+		OrderBy: orderBy.String(),
+		Offset:  page.Offset(),
+		Limit:   page.Limit(),
 	}
 
 	if filter != nil {
@@ -164,7 +164,7 @@ func ChangeDeploymentKey(ctx context.Context, teamSlug slug.Slug) (*DeploymentKe
 		Actor:        authz.ActorFromContext(ctx).User,
 		ResourceType: deploymentactivity.ActivityLogEntryResourceTypeDeployKey,
 		ResourceName: "deploy-key",
-		TeamSlug:     ptr.To(teamSlug),
+		TeamSlug:     new(teamSlug),
 	})
 	if err != nil {
 		return nil, err

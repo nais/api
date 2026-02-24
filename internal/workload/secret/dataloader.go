@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"maps"
 	"slices"
+	"strings"
 
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/apierror"
@@ -73,14 +74,14 @@ func transformSecret(in any) (any, error) {
 	}
 
 	// Store keys as comma-separated list (empty string if no keys)
-	keyList := ""
+	var keyList strings.Builder
 	for i, k := range keys {
 		if i > 0 {
-			keyList += ","
+			keyList.WriteString(",")
 		}
-		keyList += k
+		keyList.WriteString(k)
 	}
-	annotations[annotationSecretKeys] = keyList
+	annotations[annotationSecretKeys] = keyList.String()
 	secret.SetAnnotations(annotations)
 
 	// Remove other unnecessary fields to reduce memory usage

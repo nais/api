@@ -8,6 +8,7 @@ import (
 	"github.com/nais/api/internal/persistence/bucket"
 	"github.com/nais/api/internal/persistence/kafkatopic"
 	"github.com/nais/api/internal/persistence/opensearch"
+	"github.com/nais/api/internal/persistence/postgres"
 	"github.com/nais/api/internal/persistence/sqlinstance"
 	"github.com/nais/api/internal/persistence/valkey"
 	"github.com/nais/api/internal/team"
@@ -24,41 +25,41 @@ import (
 )
 
 type (
-	AppWatcher         = watcher.Watcher[*nais_io_v1alpha1.Application]
-	JobWatcher         = watcher.Watcher[*nais_io_v1.Naisjob]
-	RunWatcher         = watcher.Watcher[*batchv1.Job]
-	BqWatcher          = watcher.Watcher[*bigquery.BigQueryDataset]
-	ValkeyWatcher      = watcher.Watcher[*valkey.Valkey]
-	OpenSearchWatcher  = watcher.Watcher[*opensearch.OpenSearch]
-	BucketWatcher      = watcher.Watcher[*bucket.Bucket]
-	SqlDatabaseWatcher = watcher.Watcher[*sqlinstance.SQLDatabase]
-	SqlInstanceWatcher = watcher.Watcher[*sqlinstance.SQLInstance]
-	PostgresWatcher    = watcher.Watcher[*sqlinstance.Postgres]
-	KafkaTopicWatcher  = watcher.Watcher[*kafkatopic.KafkaTopic]
-	PodWatcher         = watcher.Watcher[*v1.Pod]
-	IngressWatcher     = watcher.Watcher[*netv1.Ingress]
-	NamespaceWatcher   = watcher.Watcher[*v1.Namespace]
-	UnleashWatcher     = watcher.Watcher[*unleash.UnleashInstance]
-	SecretWatcher      = watcher.Watcher[*secret.Secret]
+	AppWatcher             = watcher.Watcher[*nais_io_v1alpha1.Application]
+	JobWatcher             = watcher.Watcher[*nais_io_v1.Naisjob]
+	RunWatcher             = watcher.Watcher[*batchv1.Job]
+	BqWatcher              = watcher.Watcher[*bigquery.BigQueryDataset]
+	ValkeyWatcher          = watcher.Watcher[*valkey.Valkey]
+	OpenSearchWatcher      = watcher.Watcher[*opensearch.OpenSearch]
+	BucketWatcher          = watcher.Watcher[*bucket.Bucket]
+	SqlDatabaseWatcher     = watcher.Watcher[*sqlinstance.SQLDatabase]
+	SqlInstanceWatcher     = watcher.Watcher[*sqlinstance.SQLInstance]
+	ZalandoPostgresWatcher = watcher.Watcher[*postgres.PostgresInstance]
+	KafkaTopicWatcher      = watcher.Watcher[*kafkatopic.KafkaTopic]
+	PodWatcher             = watcher.Watcher[*v1.Pod]
+	IngressWatcher         = watcher.Watcher[*netv1.Ingress]
+	NamespaceWatcher       = watcher.Watcher[*v1.Namespace]
+	UnleashWatcher         = watcher.Watcher[*unleash.UnleashInstance]
+	SecretWatcher          = watcher.Watcher[*secret.Secret]
 )
 
 type Watchers struct {
-	AppWatcher         *AppWatcher
-	JobWatcher         *JobWatcher
-	RunWatcher         *RunWatcher
-	BqWatcher          *BqWatcher
-	ValkeyWatcher      *ValkeyWatcher
-	OpenSearchWatcher  *OpenSearchWatcher
-	BucketWatcher      *BucketWatcher
-	SqlDatabaseWatcher *SqlDatabaseWatcher
-	SqlInstanceWatcher *SqlInstanceWatcher
-	PostgresWatcher    *PostgresWatcher
-	KafkaTopicWatcher  *KafkaTopicWatcher
-	PodWatcher         *PodWatcher
-	IngressWatcher     *IngressWatcher
-	NamespaceWatcher   *NamespaceWatcher
-	UnleashWatcher     *UnleashWatcher
-	SecretWatcher      *SecretWatcher
+	AppWatcher             *AppWatcher
+	JobWatcher             *JobWatcher
+	RunWatcher             *RunWatcher
+	BqWatcher              *BqWatcher
+	ValkeyWatcher          *ValkeyWatcher
+	OpenSearchWatcher      *OpenSearchWatcher
+	BucketWatcher          *BucketWatcher
+	SqlDatabaseWatcher     *SqlDatabaseWatcher
+	SqlInstanceWatcher     *SqlInstanceWatcher
+	ZalandoPostgresWatcher *ZalandoPostgresWatcher
+	KafkaTopicWatcher      *KafkaTopicWatcher
+	PodWatcher             *PodWatcher
+	IngressWatcher         *IngressWatcher
+	NamespaceWatcher       *NamespaceWatcher
+	UnleashWatcher         *UnleashWatcher
+	SecretWatcher          *SecretWatcher
 }
 
 func SetupWatchers(
@@ -67,21 +68,21 @@ func SetupWatchers(
 	mgmtWatcherMgr *watcher.Manager,
 ) *Watchers {
 	return &Watchers{
-		AppWatcher:         application.NewWatcher(ctx, watcherMgr),
-		JobWatcher:         job.NewWatcher(ctx, watcherMgr),
-		RunWatcher:         job.NewRunWatcher(ctx, watcherMgr),
-		BqWatcher:          bigquery.NewWatcher(ctx, watcherMgr),
-		ValkeyWatcher:      valkey.NewWatcher(ctx, watcherMgr),
-		OpenSearchWatcher:  opensearch.NewWatcher(ctx, watcherMgr),
-		BucketWatcher:      bucket.NewWatcher(ctx, watcherMgr),
-		SqlDatabaseWatcher: sqlinstance.NewDatabaseWatcher(ctx, watcherMgr),
-		SqlInstanceWatcher: sqlinstance.NewInstanceWatcher(ctx, watcherMgr),
-		PostgresWatcher:    sqlinstance.NewPostgresWatcher(ctx, watcherMgr),
-		KafkaTopicWatcher:  kafkatopic.NewWatcher(ctx, watcherMgr),
-		PodWatcher:         workload.NewWatcher(ctx, watcherMgr),
-		IngressWatcher:     application.NewIngressWatcher(ctx, watcherMgr),
-		NamespaceWatcher:   team.NewNamespaceWatcher(ctx, watcherMgr),
-		UnleashWatcher:     unleash.NewWatcher(ctx, mgmtWatcherMgr),
-		SecretWatcher:      secret.NewWatcher(ctx, watcherMgr),
+		AppWatcher:             application.NewWatcher(ctx, watcherMgr),
+		JobWatcher:             job.NewWatcher(ctx, watcherMgr),
+		RunWatcher:             job.NewRunWatcher(ctx, watcherMgr),
+		BqWatcher:              bigquery.NewWatcher(ctx, watcherMgr),
+		ValkeyWatcher:          valkey.NewWatcher(ctx, watcherMgr),
+		OpenSearchWatcher:      opensearch.NewWatcher(ctx, watcherMgr),
+		BucketWatcher:          bucket.NewWatcher(ctx, watcherMgr),
+		SqlDatabaseWatcher:     sqlinstance.NewDatabaseWatcher(ctx, watcherMgr),
+		SqlInstanceWatcher:     sqlinstance.NewInstanceWatcher(ctx, watcherMgr),
+		ZalandoPostgresWatcher: postgres.NewZalandoPostgresWatcher(ctx, watcherMgr),
+		KafkaTopicWatcher:      kafkatopic.NewWatcher(ctx, watcherMgr),
+		PodWatcher:             workload.NewWatcher(ctx, watcherMgr),
+		IngressWatcher:         application.NewIngressWatcher(ctx, watcherMgr),
+		NamespaceWatcher:       team.NewNamespaceWatcher(ctx, watcherMgr),
+		UnleashWatcher:         unleash.NewWatcher(ctx, mgmtWatcherMgr),
+		SecretWatcher:          secret.NewWatcher(ctx, watcherMgr),
 	}
 }

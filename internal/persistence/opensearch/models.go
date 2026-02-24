@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -21,6 +22,7 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/util/validation"
 )
 
 type (
@@ -101,7 +103,7 @@ func (e OpenSearchOrderField) String() string {
 	return string(e)
 }
 
-func (e *OpenSearchOrderField) UnmarshalGQL(v interface{}) error {
+func (e *OpenSearchOrderField) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -133,7 +135,7 @@ func (e OpenSearchAccessOrderField) String() string {
 	return string(e)
 }
 
-func (e *OpenSearchAccessOrderField) UnmarshalGQL(v interface{}) error {
+func (e *OpenSearchAccessOrderField) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -226,6 +228,9 @@ func (o *OpenSearchMetadataInput) ValidationErrors(ctx context.Context) *validat
 
 	if o.Name == "" {
 		verr.Add("name", "Name must not be empty.")
+	}
+	if errs := validation.IsDNS1123Subdomain(o.Name); len(errs) > 0 {
+		verr.Add("name", "Name must consist of lowercase letters, numbers, and hyphens only. It cannot start or end with a hyphen.")
 	}
 	if o.EnvironmentName == "" {
 		verr.Add("environmentName", "Environment name must not be empty.")
@@ -369,10 +374,8 @@ func (e OpenSearchMajorVersion) ValidateUpgradePath(other OpenSearchMajorVersion
 		return apierror.Errorf("Cannot change OpenSearch version from %v to %v. No further upgrades available.", other, e)
 	}
 
-	for _, v := range path {
-		if v == e {
-			return nil
-		}
+	if slices.Contains(path, e) {
+		return nil
 	}
 
 	return apierror.Errorf("Cannot change OpenSearch version from %v to %v. New version must be one of [%s]", other, e, path)

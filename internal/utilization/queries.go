@@ -63,7 +63,7 @@ const (
 		(hour() >= %d and hour() < %d and day_of_week() > 0 and day_of_week() < 6)
 	)`
 
-	minCPURequest         = 0.01             // 10m
+	minCPURequest         = 0.05             // 50m
 	minMemoryRequestBytes = 32 * 1024 * 1024 // 64 MiB
 )
 
@@ -71,6 +71,19 @@ var (
 	ignoredContainers = strings.Join([]string{"elector", "cloudsql-proxy", "secure-logs-fluentd", "secure-logs-configmap-reload", "secure-logs-fluentbit", "wonderwall", "vks-sidecar"}, "|") + "||" // Adding "||" to the query filters data without container
 	ignoredNamespaces = strings.Join([]string{"kube-system", "nais-system", "cnrm-system", "configconnector-operator-system", "gke-mcs", "gke-managed-system", "kyverno", "default", "kube-node-lease", "kube-public"}, "|")
 )
+
+func calculateRateWindow(stepSeconds int) string {
+	windowSeconds := min(max(stepSeconds*4, 60), 3600)
+	return fmt.Sprintf("%ds", windowSeconds)
+}
+
+func appCPUUsageWithWindow(rateWindow string) string {
+	return fmt.Sprintf(`irate(container_cpu_usage_seconds_total{k8s_cluster_name=%%q, namespace=%%q, container=%%q}[%s])`, rateWindow)
+}
+
+func appMemoryUsageWithWindow(rateWindow string) string {
+	return fmt.Sprintf(`last_over_time(container_memory_working_set_bytes{k8s_cluster_name=%%q, namespace=%%q, container=%%q}[%s])`, rateWindow)
+}
 
 func ForInstance(ctx context.Context, env string, teamSlug slug.Slug, workloadName string, instanceName string, resourceType UtilizationResourceType) (*ApplicationInstanceUtilization, error) {
 	usageQ := instanceMemoryUsage
@@ -244,7 +257,7 @@ func WorkloadResourceUsage(ctx context.Context, env string, teamSlug slug.Slug, 
 func queryPrometheusRange(ctx context.Context, env string, teamSlug slug.Slug, workloadName string, queryTemplate string, start time.Time, end time.Time, step int) ([]*UtilizationSample, error) {
 	c := fromContext(ctx).client
 
-	// Format the query
+	// Format the query - queryTemplate already contains the dynamic rate window
 	query := fmt.Sprintf(queryTemplate, env, teamSlug, workloadName)
 
 	// Perform the query
@@ -256,6 +269,7 @@ func queryPrometheusRange(ctx context.Context, env string, teamSlug slug.Slug, w
 		fromContext(ctx).log.WithFields(logrus.Fields{
 			"environment": env,
 			"warnings":    strings.Join(warnings, ", "),
+			"step":        step,
 		}).Warn("prometheus query warnings")
 	}
 
@@ -306,9 +320,14 @@ func WorkloadResourceRecommendations(ctx context.Context, env string, teamSlug s
 }
 
 func WorkloadResourceUsageRange(ctx context.Context, env string, teamSlug slug.Slug, workloadName string, resourceType UtilizationResourceType, start time.Time, end time.Time, step int) ([]*UtilizationSample, error) {
-	queryTemplate := AppMemoryUsage
+	// Calculate appropriate rate/lookback window based on step size
+	rateWindow := calculateRateWindow(step)
+
+	var queryTemplate string
 	if resourceType == UtilizationResourceTypeCPU {
-		queryTemplate = AppCPUUsage
+		queryTemplate = appCPUUsageWithWindow(rateWindow)
+	} else {
+		queryTemplate = appMemoryUsageWithWindow(rateWindow)
 	}
 	return queryPrometheusRange(ctx, env, teamSlug, workloadName, queryTemplate, start, end, step)
 }

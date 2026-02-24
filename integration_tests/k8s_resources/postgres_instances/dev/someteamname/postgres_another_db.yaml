@@ -1,0 +1,15 @@
+---
+apiVersion: data.nais.io/v1
+kind: Postgres
+metadata:
+  name: another-db
+  namespace: someteamname
+spec:
+  cluster:
+    majorVersion: "16"
+    resources:
+      cpu: 200m
+      diskSize: 10Gi
+      memory: 4G
+  database:
+    collation: en_US

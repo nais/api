@@ -3,6 +3,7 @@ package unleash
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"strings"
 	"time"
 
@@ -19,12 +20,21 @@ import (
 
 type ctxKey int
 
+type mimirRoundTrip struct {
+	HeaderValue string
+}
+
 const (
-	prometheusURL        = "https://nais-prometheus.%s.cloud.nais.io"
+	prometheusURL        = "http://mimir-query-frontend:8080/prometheus"
 	loadersKey    ctxKey = iota
 
 	FakeBifrostURL = "*fake*"
 )
+
+func (r mimirRoundTrip) RoundTrip(req *http.Request) (*http.Response, error) {
+	req.Header.Set("X-Scope-OrgID", r.HeaderValue)
+	return http.DefaultTransport.RoundTrip(req)
+}
 
 // NewLoaderContext creates a new context with a loaders value.
 // If *fake* is provided as bifrostAPIURL, a fake client will be used.
@@ -58,9 +68,7 @@ func newLoaders(tenantName string, appWatcher *watcher.Watcher[*UnleashInstance]
 		prometheus = NewFakePrometheusClient()
 	} else {
 		client = NewBifrostClient(bifrostAPIURL, log)
-		promClient, err := promapi.NewClient(promapi.Config{
-			Address: fmt.Sprintf(prometheusURL, tenantName),
-		})
+		promClient, err := promapi.NewClient(promapi.Config{Address: prometheusURL, RoundTripper: mimirRoundTrip{HeaderValue: "nais"}})
 		if err != nil {
 			panic(fmt.Errorf("failed to create prometheus client: %w", err))
 		}

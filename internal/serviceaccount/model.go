@@ -10,7 +10,6 @@ import (
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/serviceaccount/serviceaccountsql"
 	"github.com/nais/api/internal/slug"
-	"k8s.io/utils/ptr"
 )
 
 type (
@@ -104,7 +103,7 @@ type ServiceAccountToken struct {
 	Name             string       `json:"name"`
 	Description      string       `json:"description"`
 	CreatedAt        time.Time    `json:"createdAt"`
-	UpdatedAt        time.Time    `json:"updatedAt,omitempty"`
+	UpdatedAt        time.Time    `json:"updatedAt"`
 	LastUsedAt       *time.Time   `json:"lastUsedAt,omitempty"`
 	ExpiresAt        *scalar.Date `json:"expiresAt,omitempty"`
 	UUID             uuid.UUID    `json:"-"`
@@ -150,7 +149,7 @@ func toGraphServiceAccount(s *serviceaccountsql.ServiceAccount) *ServiceAccount 
 func toGraphServiceAccountToken(t *serviceaccountsql.ServiceAccountToken) *ServiceAccountToken {
 	var expiresAt *scalar.Date
 	if t.ExpiresAt.Valid {
-		expiresAt = ptr.To(scalar.NewDate(t.ExpiresAt.Time))
+		expiresAt = new(scalar.NewDate(t.ExpiresAt.Time))
 	}
 
 	var lastUsedAt *time.Time

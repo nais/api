@@ -20,15 +20,3 @@ func AddSearchSQLInstance(client search.Client, watcher *watcher.Watcher[*SQLIns
 
 	client.AddClient("SQL_INSTANCE", search.NewK8sSearch("SQL_INSTANCE", watcher, gbi, createIdent))
 }
-
-func AddSearchPostgres(client search.Client, watcher *watcher.Watcher[*Postgres]) {
-	createIdent := func(env string, obj *Postgres) ident.Ident {
-		return newPostgresIdent(slug.Slug(obj.GetNamespace()), env, obj.GetName())
-	}
-
-	gbi := func(ctx context.Context, id ident.Ident) (search.SearchNode, error) {
-		return GetPostgresByIdent(ctx, id)
-	}
-
-	client.AddClient("POSTGRES", search.NewK8sSearch("POSTGRES", watcher, gbi, createIdent))
-}

@@ -10,7 +10,6 @@ import (
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/serviceaccount"
 	"github.com/nais/api/internal/team"
-	"k8s.io/utils/ptr"
 )
 
 func (r *mutationResolver) CreateServiceAccount(ctx context.Context, input serviceaccount.CreateServiceAccountInput) (*serviceaccount.CreateServiceAccountPayload, error) {
@@ -37,7 +36,7 @@ func (r *mutationResolver) DeleteServiceAccount(ctx context.Context, input servi
 		return nil, err
 	}
 
-	return &serviceaccount.DeleteServiceAccountPayload{ServiceAccountDeleted: ptr.To(true)}, nil
+	return &serviceaccount.DeleteServiceAccountPayload{ServiceAccountDeleted: new(true)}, nil
 }
 
 func (r *mutationResolver) AssignRoleToServiceAccount(ctx context.Context, input serviceaccount.AssignRoleToServiceAccountInput) (*serviceaccount.AssignRoleToServiceAccountPayload, error) {
@@ -90,7 +89,7 @@ func (r *mutationResolver) DeleteServiceAccountToken(ctx context.Context, input 
 	}
 
 	return &serviceaccount.DeleteServiceAccountTokenPayload{
-		ServiceAccountTokenDeleted: ptr.To(true),
+		ServiceAccountTokenDeleted: new(true),
 		ServiceAccount:             sa,
 	}, nil
 }

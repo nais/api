@@ -19,7 +19,6 @@ import (
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	"k8s.io/utils/ptr"
 )
 
 var (
@@ -190,8 +189,8 @@ func Create(ctx context.Context, input CreateValkeyInput) (*CreateValkeyPayload,
 		Actor:           authz.ActorFromContext(ctx).User,
 		ResourceType:    ActivityLogEntryResourceTypeValkey,
 		ResourceName:    input.Name,
-		EnvironmentName: ptr.To(input.EnvironmentName),
-		TeamSlug:        ptr.To(input.TeamSlug),
+		EnvironmentName: new(input.EnvironmentName),
+		TeamSlug:        new(input.TeamSlug),
 	})
 	if err != nil {
 		return nil, err
@@ -278,8 +277,8 @@ func Update(ctx context.Context, input UpdateValkeyInput) (*UpdateValkeyPayload,
 		Actor:           authz.ActorFromContext(ctx).User,
 		ResourceType:    ActivityLogEntryResourceTypeValkey,
 		ResourceName:    input.Name,
-		EnvironmentName: ptr.To(input.EnvironmentName),
-		TeamSlug:        ptr.To(input.TeamSlug),
+		EnvironmentName: new(input.EnvironmentName),
+		TeamSlug:        new(input.TeamSlug),
 		Data: ValkeyUpdatedActivityLogEntryData{
 			UpdatedFields: changes,
 		},
@@ -327,16 +326,16 @@ func updatePlan(valkey *unstructured.Unstructured, input UpdateValkeyInput) ([]*
 	if input.Tier != oldMachine.Tier {
 		changes = append(changes, &ValkeyUpdatedActivityLogEntryDataUpdatedField{
 			Field:    "tier",
-			OldValue: ptr.To(oldMachine.Tier.String()),
-			NewValue: ptr.To(input.Tier.String()),
+			OldValue: new(oldMachine.Tier.String()),
+			NewValue: new(input.Tier.String()),
 		})
 	}
 
 	if input.Memory != oldMachine.Memory {
 		changes = append(changes, &ValkeyUpdatedActivityLogEntryDataUpdatedField{
 			Field:    "memory",
-			OldValue: ptr.To(oldMachine.Memory.String()),
-			NewValue: ptr.To(input.Memory.String()),
+			OldValue: new(oldMachine.Memory.String()),
+			NewValue: new(input.Memory.String()),
 		})
 	}
 
@@ -370,13 +369,13 @@ func updateMaxMemoryPolicy(valkey *unstructured.Unstructured, input UpdateValkey
 		if err != nil {
 			return nil, err
 		}
-		oldValue = ptr.To(oldPolicy.String())
+		oldValue = new(oldPolicy.String())
 	}
 
 	changes = append(changes, &ValkeyUpdatedActivityLogEntryDataUpdatedField{
 		Field:    "maxMemoryPolicy",
 		OldValue: oldValue,
-		NewValue: ptr.To(input.MaxMemoryPolicy.String()),
+		NewValue: new(input.MaxMemoryPolicy.String()),
 	})
 
 	maxMemoryPolicy := input.MaxMemoryPolicy.ToAivenString()
@@ -405,7 +404,7 @@ func updateNotifyKeyspaceEvents(valkey *unstructured.Unstructured, input UpdateV
 
 	var oldValPtr *string
 	if found {
-		oldValPtr = ptr.To(oldValue)
+		oldValPtr = new(oldValue)
 	}
 
 	changes = append(changes, &ValkeyUpdatedActivityLogEntryDataUpdatedField{
@@ -465,14 +464,14 @@ func Delete(ctx context.Context, input DeleteValkeyInput) (*DeleteValkeyPayload,
 		Actor:           authz.ActorFromContext(ctx).User,
 		ResourceType:    ActivityLogEntryResourceTypeValkey,
 		ResourceName:    input.Name,
-		EnvironmentName: ptr.To(input.EnvironmentName),
-		TeamSlug:        ptr.To(input.TeamSlug),
+		EnvironmentName: new(input.EnvironmentName),
+		TeamSlug:        new(input.TeamSlug),
 	}); err != nil {
 		return nil, err
 	}
 
 	return &DeleteValkeyPayload{
-		ValkeyDeleted: ptr.To(true),
+		ValkeyDeleted: new(true),
 	}, nil
 }
 

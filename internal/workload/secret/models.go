@@ -123,6 +123,21 @@ func toGraphSecret(o *unstructured.Unstructured, environmentName string) (*Secre
 	}, true
 }
 
+// secretFromAPIResponse converts a secret fetched directly from the K8s API into a
+// *Secret by running it through transformSecret (which extracts keys from data into
+// the cached annotation) and then toGraphSecret.
+func secretFromAPIResponse(o *unstructured.Unstructured, environmentName string) (*Secret, error) {
+	if _, err := transformSecret(o); err != nil {
+		return nil, err
+	}
+
+	s, ok := toGraphSecret(o, environmentName)
+	if !ok {
+		return nil, fmt.Errorf("failed to convert secret")
+	}
+	return s, nil
+}
+
 type SecretValue struct {
 	Name  string `json:"name"`
 	Value string `json:"value"`
@@ -191,7 +206,7 @@ func (e SecretOrderField) String() string {
 	return string(e)
 }
 
-func (e *SecretOrderField) UnmarshalGQL(v interface{}) error {
+func (e *SecretOrderField) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -226,3 +241,7 @@ type ViewSecretValuesPayload struct {
 
 // IsActivityLogger implements the ActivityLogger interface.
 func (Secret) IsActivityLogger() {}
+
+type TeamInventoryCountSecrets struct {
+	Total int `json:"total"`
+}

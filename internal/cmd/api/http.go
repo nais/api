@@ -34,6 +34,7 @@ import (
 	"github.com/nais/api/internal/persistence/bucket"
 	"github.com/nais/api/internal/persistence/kafkatopic"
 	"github.com/nais/api/internal/persistence/opensearch"
+	"github.com/nais/api/internal/persistence/postgres"
 	"github.com/nais/api/internal/persistence/sqlinstance"
 	"github.com/nais/api/internal/persistence/valkey"
 	"github.com/nais/api/internal/price"
@@ -63,7 +64,7 @@ import (
 	"github.com/rs/cors"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
-	semconv "go.opentelemetry.io/otel/semconv/v1.37.0"
+	semconv "go.opentelemetry.io/otel/semconv/v1.39.0"
 	"go.opentelemetry.io/otel/trace"
 	"golang.org/x/sync/errgroup"
 )
@@ -240,9 +241,7 @@ func ConfigureGraph(
 	kafkatopic.AddSearch(searcher, watchers.KafkaTopicWatcher)
 	opensearch.AddSearch(searcher, watchers.OpenSearchWatcher)
 	sqlinstance.AddSearchSQLInstance(searcher, watchers.SqlInstanceWatcher)
-	// Disabled until we actually return Postgres instances in the graph
-	// See: https://github.com/nais/system/pull/241
-	// sqlinstance.AddSearchPostgres(searcher, watchers.PostgresWatcher)
+	postgres.AddSearchZalandoPostgres(searcher, watchers.ZalandoPostgresWatcher)
 	valkey.AddSearch(searcher, watchers.ValkeyWatcher)
 	team.AddSearch(searcher, pool, notifier, log.WithField("subsystem", "team_search"))
 
@@ -321,7 +320,8 @@ func ConfigureGraph(
 		ctx = utilization.NewLoaderContext(ctx, prometheusClient, log)
 		ctx = alerts.NewLoaderContext(ctx, prometheusClient, log)
 		ctx = metrics.NewLoaderContext(ctx, prometheusClient, log)
-		ctx = sqlinstance.NewLoaderContext(ctx, sqlAdminService, watchers.SqlDatabaseWatcher, watchers.SqlInstanceWatcher, watchers.PostgresWatcher, auditLogProjectID, auditLogLocation)
+		ctx = sqlinstance.NewLoaderContext(ctx, sqlAdminService, watchers.SqlDatabaseWatcher, watchers.SqlInstanceWatcher, auditLogProjectID, auditLogLocation)
+		ctx = postgres.NewLoaderContext(ctx, watchers.ZalandoPostgresWatcher, auditLogProjectID, auditLogLocation)
 		ctx = database.NewLoaderContext(ctx, pool)
 		ctx = issue.NewContext(ctx, pool)
 		ctx = team.NewLoaderContext(ctx, pool, watchers.NamespaceWatcher)

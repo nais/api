@@ -24,54 +24,50 @@ func (f *FakeAivenClient) ProjectAlertsList(ctx context.Context, p string) ([]pr
 	if strings.HasSuffix(p, "dev") || strings.HasSuffix(p, "dev-gcp") {
 		return []project.AlertOut{
 			{
-				ServiceName: stringPtr("opensearch-myteam-name"),
-				ServiceType: stringPtr("opensearch"),
+				ServiceName: new("opensearch-myteam-name"),
+				ServiceType: new("opensearch"),
 				Severity:    "critical",
 				Event:       "error message from aiven",
 			},
 			{
-				ServiceName: stringPtr("opensearch-devteam-name"),
-				ServiceType: stringPtr("opensearch"),
+				ServiceName: new("opensearch-devteam-name"),
+				ServiceType: new("opensearch"),
 				Severity:    "critical",
 				Event:       "error message from aiven",
 			},
 			{
-				ServiceName: stringPtr("opensearch-sortteam-critical"),
-				ServiceType: stringPtr("opensearch"),
+				ServiceName: new("opensearch-sortteam-critical"),
+				ServiceType: new("opensearch"),
 				Severity:    "critical",
 				Event:       "error message from aiven",
 			},
 			{
-				ServiceName: stringPtr("valkey-devteam-name"),
-				ServiceType: stringPtr("valkey"),
+				ServiceName: new("valkey-devteam-name"),
+				ServiceType: new("valkey"),
 				Severity:    "critical",
 				Event:       "error message from aiven",
 			},
 			{
-				ServiceName: stringPtr("valkey-myteam-name"),
-				ServiceType: stringPtr("valkey"),
+				ServiceName: new("valkey-myteam-name"),
+				ServiceType: new("valkey"),
 				Severity:    "critical",
 				Event:       "error message from aiven",
 			},
 			{
-				ServiceName: stringPtr("valkey-sortteam-critical"),
-				ServiceType: stringPtr("valkey"),
+				ServiceName: new("valkey-sortteam-critical"),
+				ServiceType: new("valkey"),
 				Severity:    "critical",
 				Event:       "error message from aiven",
 			},
 			{
-				ServiceName: stringPtr("someservicetype-devteam-name"),
-				ServiceType: stringPtr("someservicetype"),
+				ServiceName: new("someservicetype-devteam-name"),
+				ServiceType: new("someservicetype"),
 				Severity:    "critical",
 				Event:       "someservicetype has issue in aiven",
 			},
 		}, nil
 	}
 	return []project.AlertOut{}, nil
-}
-
-func stringPtr(s string) *string {
-	return &s
 }
 
 // ServiceGet returns hardcoded example dataset

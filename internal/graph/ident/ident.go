@@ -97,7 +97,7 @@ func (i Ident) String() string {
 	return i.Type + "_" + base58.Encode([]byte(i.ID))
 }
 
-func (i *Ident) UnmarshalGQLContext(_ context.Context, v interface{}) error {
+func (i *Ident) UnmarshalGQLContext(_ context.Context, v any) error {
 	ident, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("ident must be a string")

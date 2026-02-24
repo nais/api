@@ -20,7 +20,6 @@ import (
 	"google.golang.org/api/googleapi"
 	"google.golang.org/api/impersonate"
 	"google.golang.org/api/option"
-	"k8s.io/utils/ptr"
 )
 
 type ZitadelWrapper struct {
@@ -102,11 +101,9 @@ func (s *Usersynchronizer) Sync(ctx context.Context) error {
 
 	if s.zitadelClient != nil {
 		wg := &sync.WaitGroup{}
-		wg.Add(1)
-		go func() {
+		wg.Go(func() {
 			s.zitadelUserSync(ctx, googleUsers)
-			wg.Done()
-		}()
+		})
 		defer wg.Wait()
 	}
 
@@ -290,7 +287,7 @@ func (s *Usersynchronizer) zitadelUserSync(ctx context.Context, googleUsers []*g
 			Profile: &zitadelgrpcuser.SetHumanProfile{
 				GivenName:   gu.Name.GivenName,
 				FamilyName:  gu.Name.FamilyName,
-				DisplayName: ptr.To(gu.Name.GivenName + " " + gu.Name.FamilyName),
+				DisplayName: new(gu.Name.GivenName + " " + gu.Name.FamilyName),
 			},
 			IdpLinks: []*zitadelgrpcuser.IDPLink{
 				{
@@ -378,7 +375,7 @@ func assignAdmins(ctx context.Context, querier usersyncsql.Querier, membersServi
 				UserID:    existingAdmin.ID,
 				UserName:  existingAdmin.Name,
 				UserEmail: existingAdmin.Email,
-				RoleName:  ptr.To("Admin"),
+				RoleName:  new("Admin"),
 			}); err != nil {
 				log.WithError(err).Errorf("create user sync log entry")
 			}
@@ -397,7 +394,7 @@ func assignAdmins(ctx context.Context, querier usersyncsql.Querier, membersServi
 				UserID:    admin.ID,
 				UserName:  admin.Name,
 				UserEmail: admin.Email,
-				RoleName:  ptr.To("Admin"),
+				RoleName:  new("Admin"),
 			}); err != nil {
 				log.WithError(err).Errorf("create user sync log entry")
 			}

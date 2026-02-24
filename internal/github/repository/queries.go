@@ -10,7 +10,6 @@ import (
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/slug"
-	"k8s.io/utils/ptr"
 )
 
 func getByIdent(_ context.Context, id ident.Ident) (*Repository, error) {
@@ -68,7 +67,7 @@ func AddToTeam(ctx context.Context, input AddRepositoryToTeamInput) (*Repository
 			Actor:        authz.ActorFromContext(ctx).User,
 			ResourceType: activityLogEntryResourceTypeRepository,
 			ResourceName: input.RepositoryName,
-			TeamSlug:     ptr.To(input.TeamSlug),
+			TeamSlug:     new(input.TeamSlug),
 		})
 	})
 	if err != nil {
@@ -93,7 +92,7 @@ func RemoveFromTeam(ctx context.Context, input RemoveRepositoryFromTeamInput) er
 			Actor:        authz.ActorFromContext(ctx).User,
 			ResourceType: activityLogEntryResourceTypeRepository,
 			ResourceName: input.RepositoryName,
-			TeamSlug:     ptr.To(input.TeamSlug),
+			TeamSlug:     new(input.TeamSlug),
 		})
 	})
 }

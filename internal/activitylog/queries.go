@@ -14,7 +14,6 @@ import (
 	"github.com/nais/api/internal/slug"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
-	"k8s.io/utils/ptr"
 )
 
 type CreateInput struct {
@@ -51,7 +50,7 @@ func Create(ctx context.Context, input CreateInput) error {
 
 	var environmentName *string
 	if input.EnvironmentName != nil {
-		environmentName = ptr.To(environmentmapper.EnvironmentName(*input.EnvironmentName))
+		environmentName = new(environmentmapper.EnvironmentName(*input.EnvironmentName))
 	}
 
 	return q.Create(ctx, activitylogsql.CreateParams{
@@ -81,7 +80,7 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 	q := db(ctx)
 
 	ret, err := q.ListForTeam(ctx, activitylogsql.ListForTeamParams{
-		TeamSlug: ptr.To(teamSlug),
+		TeamSlug: new(teamSlug),
 		Offset:   page.Offset(),
 		Limit:    page.Limit(),
 		Filter:   withFilters(filter),
@@ -128,8 +127,8 @@ func ListForResourceTeamAndEnvironment(ctx context.Context, resourceType Activit
 	ret, err := q.ListForResourceTeamAndEnvironment(ctx, activitylogsql.ListForResourceTeamAndEnvironmentParams{
 		ResourceType:    string(resourceType),
 		ResourceName:    resourceName,
-		EnvironmentName: ptr.To(environmentName),
-		TeamSlug:        ptr.To(teamSlug),
+		EnvironmentName: new(environmentName),
+		TeamSlug:        new(teamSlug),
 		Offset:          page.Offset(),
 		Limit:           page.Limit(),
 		Filter:          withFilters(filter),
