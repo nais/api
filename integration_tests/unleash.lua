@@ -316,11 +316,6 @@ Test.gql("Get release channels", function(t)
 					currentVersion = "6.5.2",
 					type = "sequential",
 				},
-				{
-					name = "legacy",
-					currentVersion = "5.10.2",
-					type = "sequential",
-				},
 			},
 		},
 	}

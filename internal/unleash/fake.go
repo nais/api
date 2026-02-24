@@ -143,7 +143,6 @@ func (f *FakeBifrostClient) ListChannels(_ context.Context) (*bifrostclient.List
 
 	stableTime := time.Date(2024, 3, 15, 10, 30, 0, 0, time.UTC)
 	regularTime := time.Date(2024, 3, 10, 8, 0, 0, 0, time.UTC)
-	legacyTime := time.Date(2024, 1, 5, 12, 0, 0, 0, time.UTC)
 
 	channels := []bifrostclient.ReleaseChannelResponse{
 		{
@@ -162,14 +161,6 @@ func (f *FakeBifrostClient) ListChannels(_ context.Context) (*bifrostclient.List
 			LastUpdated:    &regularTime,
 			CreatedAt:      regularTime,
 		},
-		{
-			Name:           "legacy",
-			Image:          "unleash:5.10.2",
-			CurrentVersion: "5.10.2",
-			Type:           &sequentialType,
-			LastUpdated:    &legacyTime,
-			CreatedAt:      legacyTime,
-		},
 	}
 
 	return &bifrostclient.ListChannelsResponse{
@@ -186,8 +177,6 @@ func (f *FakeBifrostClient) GetChannel(_ context.Context, name string) (*bifrost
 	switch name {
 	case "regular":
 		version = "6.5.2"
-	case "legacy":
-		version = "5.10.2"
 	}
 
 	return &bifrostclient.GetChannelResponse{
