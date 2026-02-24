@@ -17,7 +17,10 @@ import (
 	"k8s.io/utils/ptr"
 )
 
-const externalIngressClassName = "nais-ingress-external"
+const (
+	externalIngressClassName = "nais-ingress-external"
+	v13sQueryLimit           = 69000
+)
 
 type V13sClient interface {
 	ListVulnerabilitySummaries(ctx context.Context, opts ...vulnerabilities.Option) (*vulnerabilities.ListVulnerabilitySummariesResponse, error)
@@ -124,7 +127,7 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 		return "", false
 	}
 
-	resp, err := w.V13sClient.ListVulnerabilitySummaries(ctx, vulnerabilities.Limit(69000)) // unlimited
+	resp, err := w.V13sClient.ListVulnerabilitySummaries(ctx, vulnerabilities.Limit(v13sQueryLimit)) // unlimited
 	if err != nil {
 		w.log.WithError(err).Error("fetch image vulnerability summaries")
 		return nil
@@ -184,7 +187,7 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 	workloadsForVulnerability, err := w.V13sClient.ListWorkloadsForVulnerability(
 		ctx,
 		vulnerabilities.VulnerabilityFilter{CvssScore: &cvss},
-		vulnerabilities.Limit(69000), // unlimited
+		vulnerabilities.Limit(v13sQueryLimit), // unlimited
 	)
 	if err != nil {
 		w.log.WithError(err).Error("fetch workloads for vulnerabilities with cvss score")
@@ -269,6 +272,10 @@ func (w Workload) getExternalIngresses(app *nais_io_v1alpha1.Application, env st
 
 		uri, err := url.Parse(ingressURL)
 		if err != nil {
+			continue
+		}
+
+		if strings.TrimSpace(uri.Host) == "" {
 			continue
 		}
 
