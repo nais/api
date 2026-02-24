@@ -38,6 +38,7 @@ import (
 	"github.com/nais/api/internal/thirdparty/aiven"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	fakehookd "github.com/nais/api/internal/thirdparty/hookd/fake"
+	"github.com/nais/api/internal/unleash"
 	"github.com/nais/api/internal/vulnerability"
 	"github.com/sethvargo/go-envconfig"
 	"github.com/sirupsen/logrus"
@@ -358,6 +359,14 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		return fmt.Errorf("create SQL Admin service: %w", err)
 	}
 
+	// Create Bifrost client for Unleash issue checker
+	var bifrostClient unleash.BifrostClient
+	if cfg.Unleash.BifrostAPIURL == unleash.FakeBifrostURL {
+		bifrostClient = unleash.NewFakeBifrostClient(watchers.UnleashWatcher)
+	} else {
+		bifrostClient = unleash.NewBifrostClient(cfg.Unleash.BifrostAPIURL, log.WithField("subsystem", "bifrost_client"))
+	}
+
 	issueChecker, err := checker.New(
 		checker.Config{
 			AivenClient:    aivenClient,
@@ -365,6 +374,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 			V13sClient:     vulnMgr.Client,
 			Tenant:         cfg.Tenant,
 			Clusters:       cfg.K8s.AllClusterNames(),
+			BifrostClient:  bifrostClient,
 		},
 		pool,
 		watchers,
