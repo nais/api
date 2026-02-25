@@ -236,7 +236,7 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 			Env:          env,
 			Severity:     issue.SeverityCritical,
 			Message: fmt.Sprintf(
-				"Workload with external ingress(es) %s has vulnerability with CVSS score %.1f",
+				"Workload with external ingresses %s has a vulnerability with CVSS score %.1f",
 				strings.Join(externalIngresses, ", "),
 				cvss,
 			),
