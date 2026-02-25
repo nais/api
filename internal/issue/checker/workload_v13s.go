@@ -283,7 +283,8 @@ func (w Workload) externalIngressesByWorkload() map[string][]string {
 	externalHostsByWorkload := w.externalIngressHostsByWorkload()
 
 	for _, app := range w.AppWatcher.All() {
-		hosts := externalHostsByWorkload[workloadKey(app.Cluster, app.Obj.GetNamespace(), app.Obj.GetName())]
+		env := environmentmapper.EnvironmentName(app.Cluster)
+		hosts := externalHostsByWorkload[workloadKey(env, app.Obj.GetNamespace(), app.Obj.GetName())]
 		if len(hosts) == 0 {
 			continue
 		}
@@ -315,7 +316,7 @@ func (w Workload) externalIngressesByWorkload() map[string][]string {
 			continue
 		}
 
-		ret[workloadKey(app.Cluster, app.Obj.GetNamespace(), app.Obj.GetName())] = externalIngresses
+		ret[workloadKey(env, app.Obj.GetNamespace(), app.Obj.GetName())] = externalIngresses
 	}
 
 	return ret
@@ -334,7 +335,8 @@ func (w Workload) externalIngressHostsByWorkload() map[string]map[string]struct{
 			continue
 		}
 
-		key := workloadKey(ing.Cluster, ing.Obj.GetNamespace(), appName)
+		env := environmentmapper.EnvironmentName(ing.Cluster)
+		key := workloadKey(env, ing.Obj.GetNamespace(), appName)
 		hosts, ok := ret[key]
 		if !ok {
 			hosts = map[string]struct{}{}
