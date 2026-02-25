@@ -195,6 +195,8 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 		return ret
 	}
 
+	externalIngressesByWorkload := w.externalIngressesByWorkload()
+
 	seen := map[string]struct{}{}
 	for _, node := range workloadsForVulnerability.GetNodes() {
 		workloadRef := node.GetWorkloadRef()
@@ -219,12 +221,7 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 		}
 		seen[key] = struct{}{}
 
-		app, err := w.AppWatcher.Get(env, workloadRef.GetNamespace(), workloadRef.GetName())
-		if err != nil || app == nil {
-			continue
-		}
-
-		externalIngresses := w.getExternalIngresses(app, env)
+		externalIngresses := externalIngressesByWorkload[key]
 		if len(externalIngresses) == 0 {
 			continue
 		}
@@ -249,6 +246,25 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 	}
 
 	return ret
+}
+
+func (w Workload) externalIngressesByWorkload() map[string][]string {
+	ret := map[string][]string{}
+
+	for _, app := range w.AppWatcher.All() {
+		externalIngresses := w.getExternalIngresses(app.Obj, app.Cluster)
+		if len(externalIngresses) == 0 {
+			continue
+		}
+
+		ret[workloadKey(app.Cluster, app.Obj.GetNamespace(), app.Obj.GetName())] = externalIngresses
+	}
+
+	return ret
+}
+
+func workloadKey(env, namespace, name string) string {
+	return fmt.Sprintf("%s/%s/%s", env, namespace, name)
 }
 
 func (w Workload) getExternalIngresses(app *nais_io_v1alpha1.Application, env string) []string {
