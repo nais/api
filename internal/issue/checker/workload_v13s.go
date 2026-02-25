@@ -215,7 +215,7 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 		}
 
 		env := environmentmapper.EnvironmentName(workloadRef.GetCluster())
-		key := fmt.Sprintf("%s/%s/%s", env, workloadRef.GetNamespace(), workloadRef.GetName())
+		key := workloadKey(env, workloadRef.GetNamespace(), workloadRef.GetName())
 		if _, exists := seen[key]; exists {
 			continue
 		}
