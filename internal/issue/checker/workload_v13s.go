@@ -235,10 +235,6 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 			continue
 		}
 
-		if vulnerability.GetCvssScore() != cvss {
-			continue
-		}
-
 		workloadType, ok := mapType(workloadRef.GetType())
 		if !ok || workloadType != issue.ResourceTypeApplication {
 			continue
