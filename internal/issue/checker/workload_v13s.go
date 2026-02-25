@@ -188,6 +188,7 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 		ctx,
 		vulnerabilities.VulnerabilityFilter{CvssScore: &cvss},
 		vulnerabilities.Limit(v13sQueryLimit),
+		vulnerabilities.ExcludeClustersFilter("management"),
 	)
 	if err != nil {
 		w.log.WithError(err).Error("fetch workloads for vulnerabilities with cvss score")
