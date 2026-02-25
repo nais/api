@@ -249,12 +249,12 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 		if _, exists := seen[key]; exists {
 			continue
 		}
-		seen[key] = struct{}{}
 
 		externalIngresses := externalIngressesByWorkload[key]
 		if len(externalIngresses) == 0 {
 			continue
 		}
+		seen[key] = struct{}{}
 
 		ret = append(ret, &Issue{
 			IssueType:    issue.IssueTypeExternalIngressCriticalVulnerability,
