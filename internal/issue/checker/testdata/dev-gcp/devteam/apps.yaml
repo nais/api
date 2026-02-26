@@ -1,0 +1,51 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: ext-app
+spec:
+  image: ghcr.io/nais/ext-app:latest
+  ingresses:
+    - https://ext.example.com
+    - https://internal.example.com
+---
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: internal-only
+spec:
+  image: ghcr.io/nais/internal-only:latest
+  ingresses:
+    - https://internal-only.example.com
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ext-app-external
+  labels:
+    app: ext-app
+spec:
+  ingressClassName: nais-ingress-external
+  rules:
+    - host: ext.example.com
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ext-app-internal
+  labels:
+    app: ext-app
+spec:
+  ingressClassName: nais-ingress
+  rules:
+    - host: internal.example.com
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: internal-only-internal
+  labels:
+    app: internal-only
+spec:
+  ingressClassName: nais-ingress
+  rules:
+    - host: internal-only.example.com

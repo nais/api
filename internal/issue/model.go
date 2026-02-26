@@ -182,22 +182,28 @@ type VulnerableImageIssueDetails struct {
 	Critical  int `json:"critical"`
 }
 
+type ExternalIngressCriticalVulnerabilityIssueDetails struct {
+	CvssScore float64  `json:"cvssScore"`
+	Ingresses []string `json:"ingresses"`
+}
+
 type IssueType string
 
 const (
-	IssueTypeOpenSearch            IssueType = "OPENSEARCH"
-	IssueTypeValkey                IssueType = "VALKEY"
-	IssueTypeSqlInstanceState      IssueType = "SQLINSTANCE_STATE"
-	IssueTypeSqlInstanceVersion    IssueType = "SQLINSTANCE_VERSION"
-	IssueTypeDeprecatedIngress     IssueType = "DEPRECATED_INGRESS"
-	IssueTypeDeprecatedRegistry    IssueType = "DEPRECATED_REGISTRY"
-	IssueTypeNoRunningInstances    IssueType = "NO_RUNNING_INSTANCES"
-	IssueTypeLastRunFailed         IssueType = "LAST_RUN_FAILED"
-	IssueTypeFailedSynchronization IssueType = "FAILED_SYNCHRONIZATION"
-	IssueTypeInvalidSpec           IssueType = "INVALID_SPEC"
-	IssueTypeVulnerableImage       IssueType = "VULNERABLE_IMAGE"
-	IssueTypeMissingSBOM           IssueType = "MISSING_SBOM"
-	IssueTypeUnleashReleaseChannel IssueType = "UNLEASH_RELEASE_CHANNEL"
+	IssueTypeOpenSearch                           IssueType = "OPENSEARCH"
+	IssueTypeValkey                               IssueType = "VALKEY"
+	IssueTypeSqlInstanceState                     IssueType = "SQLINSTANCE_STATE"
+	IssueTypeSqlInstanceVersion                   IssueType = "SQLINSTANCE_VERSION"
+	IssueTypeDeprecatedIngress                    IssueType = "DEPRECATED_INGRESS"
+	IssueTypeDeprecatedRegistry                   IssueType = "DEPRECATED_REGISTRY"
+	IssueTypeNoRunningInstances                   IssueType = "NO_RUNNING_INSTANCES"
+	IssueTypeLastRunFailed                        IssueType = "LAST_RUN_FAILED"
+	IssueTypeFailedSynchronization                IssueType = "FAILED_SYNCHRONIZATION"
+	IssueTypeInvalidSpec                          IssueType = "INVALID_SPEC"
+	IssueTypeVulnerableImage                      IssueType = "VULNERABLE_IMAGE"
+	IssueTypeMissingSBOM                          IssueType = "MISSING_SBOM"
+	IssueTypeExternalIngressCriticalVulnerability IssueType = "EXTERNAL_INGRESS_CRITICAL_VULNERABILITY"
+	IssueTypeUnleashReleaseChannel                IssueType = "UNLEASH_RELEASE_CHANNEL"
 )
 
 var AllIssueType = []IssueType{
@@ -213,12 +219,13 @@ var AllIssueType = []IssueType{
 	IssueTypeFailedSynchronization,
 	IssueTypeVulnerableImage,
 	IssueTypeMissingSBOM,
+	IssueTypeExternalIngressCriticalVulnerability,
 	IssueTypeUnleashReleaseChannel,
 }
 
 func (e IssueType) IsValid() bool {
 	switch e {
-	case IssueTypeOpenSearch, IssueTypeValkey, IssueTypeSqlInstanceState, IssueTypeSqlInstanceVersion, IssueTypeDeprecatedIngress, IssueTypeDeprecatedRegistry, IssueTypeNoRunningInstances, IssueTypeLastRunFailed, IssueTypeInvalidSpec, IssueTypeFailedSynchronization, IssueTypeVulnerableImage, IssueTypeMissingSBOM, IssueTypeUnleashReleaseChannel:
+	case IssueTypeOpenSearch, IssueTypeValkey, IssueTypeSqlInstanceState, IssueTypeSqlInstanceVersion, IssueTypeDeprecatedIngress, IssueTypeDeprecatedRegistry, IssueTypeNoRunningInstances, IssueTypeLastRunFailed, IssueTypeInvalidSpec, IssueTypeFailedSynchronization, IssueTypeVulnerableImage, IssueTypeMissingSBOM, IssueTypeExternalIngressCriticalVulnerability, IssueTypeUnleashReleaseChannel:
 		return true
 	}
 	return false
@@ -373,6 +380,15 @@ type VulnerableImageIssue struct {
 func (VulnerableImageIssue) IsIssue() {}
 
 func (VulnerableImageIssue) IsNode() {}
+
+type ExternalIngressCriticalVulnerabilityIssue struct {
+	Base
+	ExternalIngressCriticalVulnerabilityIssueDetails
+}
+
+func (ExternalIngressCriticalVulnerabilityIssue) IsIssue() {}
+
+func (ExternalIngressCriticalVulnerabilityIssue) IsNode() {}
 
 type UnleashReleaseChannelIssueDetails struct {
 	ChannelName         string `json:"channelName"`
