@@ -3,6 +3,7 @@ package agent
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -12,6 +13,9 @@ import (
 	"github.com/nais/api/internal/agent/chat"
 	"github.com/nais/api/internal/database"
 )
+
+// ErrConversationNotFound is returned when a conversation does not exist or does not belong to the user.
+var ErrConversationNotFound = errors.New("conversation not found")
 
 // GetOrCreateConversation retrieves an existing conversation or creates a new one.
 func GetOrCreateConversation(ctx context.Context, userID uuid.UUID, conversationID string, firstMessage string) (uuid.UUID, error) {
@@ -29,7 +33,7 @@ func GetOrCreateConversation(ctx context.Context, userID uuid.UUID, conversation
 			return uuid.Nil, fmt.Errorf("failed to check conversation: %w", err)
 		}
 		if !exists {
-			return uuid.Nil, fmt.Errorf("conversation not found")
+			return uuid.Nil, ErrConversationNotFound
 		}
 
 		if err := db(ctx).TouchConversation(ctx, id); err != nil {
@@ -133,7 +137,7 @@ func GetConversation(ctx context.Context, userID uuid.UUID, conversationID uuid.
 	})
 	if err != nil {
 		if err == pgx.ErrNoRows {
-			return nil, fmt.Errorf("conversation not found")
+			return nil, ErrConversationNotFound
 		}
 		return nil, fmt.Errorf("failed to get conversation: %w", err)
 	}
@@ -195,7 +199,7 @@ func DeleteConversation(ctx context.Context, userID uuid.UUID, conversationID uu
 	}
 
 	if rowsAffected == 0 {
-		return fmt.Errorf("conversation not found")
+		return ErrConversationNotFound
 	}
 
 	return nil
@@ -291,8 +295,9 @@ func extractToolCallsFromBlocks(blocks []ContentBlock) []chat.ToolCall {
 	for _, block := range blocks {
 		if block.Type == ContentBlockTypeToolUse {
 			toolCalls = append(toolCalls, chat.ToolCall{
-				ID:   block.ToolCallID,
-				Name: block.ToolName,
+				ID:        block.ToolCallID,
+				Name:      block.ToolName,
+				Arguments: block.ToolArguments,
 			})
 		}
 	}

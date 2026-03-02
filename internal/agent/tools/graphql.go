@@ -30,15 +30,15 @@ type GraphQLClient interface {
 
 // UserInfo contains information about an authenticated user.
 type UserInfo struct {
-	Name    string
-	IsAdmin bool
+	Name    string `json:"name"`
+	IsAdmin bool   `json:"is_admin,omitempty"`
 }
 
 // TeamInfo contains information about a team the user belongs to.
 type TeamInfo struct {
-	Slug    string
-	Purpose string
-	Role    string
+	Slug    string `json:"slug"`
+	Purpose string `json:"purpose,omitempty"`
+	Role    string `json:"role"`
 }
 
 // GraphQLTools provides GraphQL execution functionality.
@@ -73,21 +73,9 @@ func (g *GraphQLTools) GetNaisContext(ctx context.Context) (GetNaisContextOutput
 		return GetNaisContextOutput{}, fmt.Errorf("failed to get user teams: %w", err)
 	}
 
-	// Build teams list
-	teamsList := make([]NaisTeamInfo, 0, len(teams))
-	for _, team := range teams {
-		teamsList = append(teamsList, NaisTeamInfo{
-			Slug:    team.Slug,
-			Purpose: team.Purpose,
-			Role:    team.Role,
-		})
-	}
-
 	return GetNaisContextOutput{
-		User: NaisUserInfo{
-			Name: user.Name,
-		},
-		Teams:              teamsList,
+		User:               *user,
+		Teams:              teams,
 		ConsoleBaseURL:     g.consoleBaseURL,
 		ConsoleURLPatterns: g.urlPatterns,
 	}, nil

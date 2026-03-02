@@ -16,7 +16,7 @@ func NewChartTools() *ChartTools {
 
 // RenderChart validates chart parameters and prepares the chart data.
 // Note: The actual rendering happens on the client side using the returned ChartData.
-func (t *ChartTools) RenderChart(ctx context.Context, input RenderChartInput) (*ChartData, error) {
+func (t *ChartTools) RenderChart(ctx context.Context, input ChartData) (*ChartData, error) {
 	// Validate required fields
 	if input.ChartType == "" {
 		return nil, fmt.Errorf("chart_type is required")
@@ -52,13 +52,5 @@ func (t *ChartTools) RenderChart(ctx context.Context, input RenderChartInput) (*
 		}
 	}
 
-	return &ChartData{
-		ChartType:     input.ChartType,
-		Title:         input.Title,
-		Environment:   input.Environment,
-		Query:         input.Query,
-		Interval:      input.Interval,
-		YFormat:       input.YFormat,
-		LabelTemplate: input.LabelTemplate,
-	}, nil
+	return &input, nil
 }

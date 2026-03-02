@@ -336,12 +336,13 @@ func (s *SchemaTools) Search(ctx context.Context, input SchemaSearchInput) (Sche
 	})
 
 	// Limit results
-	if len(results) > 50 {
+	totalMatches := len(results)
+	if totalMatches > 50 {
 		results = results[:50]
 	}
 
 	return SchemaSearchOutput{
-		TotalMatches: len(results),
+		TotalMatches: totalMatches,
 		Results:      results,
 	}, nil
 }
