@@ -4,6 +4,7 @@ package agent
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -341,7 +342,7 @@ func (h *Handler) GetConversation(w http.ResponseWriter, r *http.Request) {
 
 	conv, err := GetConversation(ctx, userID, conversationID)
 	if err != nil {
-		if strings.Contains(err.Error(), "not found") {
+		if errors.Is(err, ErrConversationNotFound) {
 			writeJSONError(w, http.StatusNotFound, "conversation not found")
 			return
 		}
@@ -378,7 +379,7 @@ func (h *Handler) DeleteConversation(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := DeleteConversation(ctx, userID, conversationID); err != nil {
-		if strings.Contains(err.Error(), "not found") {
+		if errors.Is(err, ErrConversationNotFound) {
 			writeJSONError(w, http.StatusNotFound, "conversation not found")
 			return
 		}

@@ -31,7 +31,6 @@ const (
 	OrchestratorEventThinking  OrchestratorEventType = "thinking"
 	OrchestratorEventChart     OrchestratorEventType = "chart"
 	OrchestratorEventError     OrchestratorEventType = "error"
-	OrchestratorEventUsage     OrchestratorEventType = "usage"
 	OrchestratorEventDone      OrchestratorEventType = "done"
 )
 
@@ -70,6 +69,9 @@ type ContentBlock struct {
 	ToolCallID string `json:"tool_call_id,omitempty"`
 	// ToolName is the name of the tool (for "tool_use" type blocks).
 	ToolName string `json:"tool_name,omitempty"`
+	// ToolArguments are the arguments passed to the tool (for "tool_use" type blocks).
+	// Stored so the full tool call can be reconstructed when replaying history to the LLM.
+	ToolArguments map[string]any `json:"tool_arguments,omitempty"`
 	// ToolSuccess indicates whether the tool execution succeeded (for "tool_use" type blocks).
 	ToolSuccess bool `json:"tool_success,omitempty"`
 	// ToolResult is the result returned by the tool (for "tool_use" type blocks).
@@ -265,11 +267,12 @@ func (cl *conversationLoop) executeToolCall(toolCall chat.ToolCall) toolExecutio
 // tool result message for the next LLM iteration.
 func (cl *conversationLoop) recordToolExecution(result toolExecutionResult) {
 	cl.blocks = append(cl.blocks, ContentBlock{
-		Type:        ContentBlockTypeToolUse,
-		ToolCallID:  result.ToolCall.ID,
-		ToolName:    result.ToolCall.Name,
-		ToolSuccess: result.Success,
-		ToolResult:  result.Result,
+		Type:          ContentBlockTypeToolUse,
+		ToolCallID:    result.ToolCall.ID,
+		ToolName:      result.ToolCall.Name,
+		ToolArguments: result.ToolCall.Arguments,
+		ToolSuccess:   result.Success,
+		ToolResult:    result.Result,
 	})
 
 	if result.ChartData != nil {

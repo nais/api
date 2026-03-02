@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log/slog"
-	"sync"
 
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -39,7 +38,6 @@ type Registry struct {
 	graphqlTools *GraphQLTools
 	chartTools   *ChartTools
 	logger       *slog.Logger
-	mu           sync.RWMutex
 }
 
 // RegistryConfig holds configuration for creating a Registry.
@@ -81,9 +79,6 @@ func NewRegistry(cfg RegistryConfig) *Registry {
 
 // register adds a tool to the registry.
 func (r *Registry) register(tool Tool) {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-
 	r.tools[tool.Name] = tool
 	r.toolOrder = append(r.toolOrder, tool.Name)
 }
@@ -233,10 +228,7 @@ Do NOT use this tool for:
 
 // Execute runs a tool by name with the given arguments.
 func (r *Registry) Execute(ctx context.Context, name string, args map[string]any) (any, error) {
-	r.mu.RLock()
 	tool, ok := r.tools[name]
-	r.mu.RUnlock()
-
 	if !ok {
 		return nil, fmt.Errorf("unknown tool: %s", name)
 	}
@@ -247,9 +239,6 @@ func (r *Registry) Execute(ctx context.Context, name string, args map[string]any
 
 // ListTools returns all registered tools.
 func (r *Registry) ListTools() []Tool {
-	r.mu.RLock()
-	defer r.mu.RUnlock()
-
 	result := make([]Tool, 0, len(r.toolOrder))
 	for _, name := range r.toolOrder {
 		if tool, ok := r.tools[name]; ok {
@@ -350,7 +339,7 @@ func (r *Registry) executeValidateGraphQL(ctx context.Context, args map[string]a
 // Tool handlers - Visualization tools
 
 func (r *Registry) executeRenderChart(ctx context.Context, args map[string]any) (any, error) {
-	input := RenderChartInput{
+	input := ChartData{
 		ChartType:     getString(args, "chart_type"),
 		Title:         getString(args, "title"),
 		Environment:   getString(args, "environment"),

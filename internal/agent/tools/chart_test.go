@@ -11,14 +11,14 @@ func TestRenderChart(t *testing.T) {
 
 	tests := []struct {
 		name        string
-		input       RenderChartInput
+		input       ChartData
 		wantErr     bool
 		errContains string
 		validate    func(*testing.T, *ChartData)
 	}{
 		{
 			name: "valid chart with all fields",
-			input: RenderChartInput{
+			input: ChartData{
 				ChartType:     "line",
 				Title:         "CPU Usage",
 				Environment:   "dev",
@@ -54,7 +54,7 @@ func TestRenderChart(t *testing.T) {
 		},
 		{
 			name: "valid chart with required fields only",
-			input: RenderChartInput{
+			input: ChartData{
 				ChartType:   "line",
 				Title:       "Memory Usage",
 				Environment: "prod",
@@ -78,49 +78,49 @@ func TestRenderChart(t *testing.T) {
 		},
 		{
 			name:        "missing chart_type",
-			input:       RenderChartInput{Title: "CPU Usage", Environment: "dev", Query: "some_query"},
+			input:       ChartData{Title: "CPU Usage", Environment: "dev", Query: "some_query"},
 			wantErr:     true,
 			errContains: "chart_type is required",
 		},
 		{
 			name:        "empty chart_type",
-			input:       RenderChartInput{ChartType: "", Title: "CPU Usage", Environment: "dev", Query: "some_query"},
+			input:       ChartData{ChartType: "", Title: "CPU Usage", Environment: "dev", Query: "some_query"},
 			wantErr:     true,
 			errContains: "chart_type is required",
 		},
 		{
 			name:        "unsupported chart_type",
-			input:       RenderChartInput{ChartType: "bar", Title: "CPU Usage", Environment: "dev", Query: "some_query"},
+			input:       ChartData{ChartType: "bar", Title: "CPU Usage", Environment: "dev", Query: "some_query"},
 			wantErr:     true,
 			errContains: "unsupported chart_type",
 		},
 		{
 			name:        "missing title",
-			input:       RenderChartInput{ChartType: "line", Environment: "dev", Query: "some_query"},
+			input:       ChartData{ChartType: "line", Environment: "dev", Query: "some_query"},
 			wantErr:     true,
 			errContains: "title is required",
 		},
 		{
 			name:        "missing environment",
-			input:       RenderChartInput{ChartType: "line", Title: "CPU Usage", Query: "some_query"},
+			input:       ChartData{ChartType: "line", Title: "CPU Usage", Query: "some_query"},
 			wantErr:     true,
 			errContains: "environment is required",
 		},
 		{
 			name:        "missing query",
-			input:       RenderChartInput{ChartType: "line", Title: "CPU Usage", Environment: "dev"},
+			input:       ChartData{ChartType: "line", Title: "CPU Usage", Environment: "dev"},
 			wantErr:     true,
 			errContains: "query is required",
 		},
 		{
 			name:        "invalid interval",
-			input:       RenderChartInput{ChartType: "line", Title: "CPU Usage", Environment: "dev", Query: "q", Interval: "2h"},
+			input:       ChartData{ChartType: "line", Title: "CPU Usage", Environment: "dev", Query: "q", Interval: "2h"},
 			wantErr:     true,
 			errContains: "invalid interval",
 		},
 		{
 			name:  "valid interval 6h",
-			input: RenderChartInput{ChartType: "line", Title: "CPU Usage", Environment: "dev", Query: "q", Interval: "6h"},
+			input: ChartData{ChartType: "line", Title: "CPU Usage", Environment: "dev", Query: "q", Interval: "6h"},
 			validate: func(t *testing.T, c *ChartData) {
 				if c.Interval != "6h" {
 					t.Errorf("expected interval '6h', got %q", c.Interval)
@@ -129,7 +129,7 @@ func TestRenderChart(t *testing.T) {
 		},
 		{
 			name:  "valid interval 1d",
-			input: RenderChartInput{ChartType: "line", Title: "CPU Usage", Environment: "dev", Query: "q", Interval: "1d"},
+			input: ChartData{ChartType: "line", Title: "CPU Usage", Environment: "dev", Query: "q", Interval: "1d"},
 			validate: func(t *testing.T, c *ChartData) {
 				if c.Interval != "1d" {
 					t.Errorf("expected interval '1d', got %q", c.Interval)
@@ -138,7 +138,7 @@ func TestRenderChart(t *testing.T) {
 		},
 		{
 			name:  "valid interval 7d",
-			input: RenderChartInput{ChartType: "line", Title: "CPU Usage", Environment: "dev", Query: "q", Interval: "7d"},
+			input: ChartData{ChartType: "line", Title: "CPU Usage", Environment: "dev", Query: "q", Interval: "7d"},
 			validate: func(t *testing.T, c *ChartData) {
 				if c.Interval != "7d" {
 					t.Errorf("expected interval '7d', got %q", c.Interval)
@@ -147,7 +147,7 @@ func TestRenderChart(t *testing.T) {
 		},
 		{
 			name:  "valid interval 30d",
-			input: RenderChartInput{ChartType: "line", Title: "CPU Usage", Environment: "dev", Query: "q", Interval: "30d"},
+			input: ChartData{ChartType: "line", Title: "CPU Usage", Environment: "dev", Query: "q", Interval: "30d"},
 			validate: func(t *testing.T, c *ChartData) {
 				if c.Interval != "30d" {
 					t.Errorf("expected interval '30d', got %q", c.Interval)
@@ -156,13 +156,13 @@ func TestRenderChart(t *testing.T) {
 		},
 		{
 			name:        "invalid y_format",
-			input:       RenderChartInput{ChartType: "line", Title: "CPU Usage", Environment: "dev", Query: "q", YFormat: "invalid"},
+			input:       ChartData{ChartType: "line", Title: "CPU Usage", Environment: "dev", Query: "q", YFormat: "invalid"},
 			wantErr:     true,
 			errContains: "invalid y_format",
 		},
 		{
 			name:  "valid y_format number",
-			input: RenderChartInput{ChartType: "line", Title: "CPU Usage", Environment: "dev", Query: "q", YFormat: "number"},
+			input: ChartData{ChartType: "line", Title: "CPU Usage", Environment: "dev", Query: "q", YFormat: "number"},
 			validate: func(t *testing.T, c *ChartData) {
 				if c.YFormat != "number" {
 					t.Errorf("expected y_format 'number', got %q", c.YFormat)
@@ -171,7 +171,7 @@ func TestRenderChart(t *testing.T) {
 		},
 		{
 			name:  "valid y_format percentage",
-			input: RenderChartInput{ChartType: "line", Title: "CPU Usage", Environment: "dev", Query: "q", YFormat: "percentage"},
+			input: ChartData{ChartType: "line", Title: "CPU Usage", Environment: "dev", Query: "q", YFormat: "percentage"},
 			validate: func(t *testing.T, c *ChartData) {
 				if c.YFormat != "percentage" {
 					t.Errorf("expected y_format 'percentage', got %q", c.YFormat)
@@ -180,7 +180,7 @@ func TestRenderChart(t *testing.T) {
 		},
 		{
 			name:  "valid y_format bytes",
-			input: RenderChartInput{ChartType: "line", Title: "CPU Usage", Environment: "dev", Query: "q", YFormat: "bytes"},
+			input: ChartData{ChartType: "line", Title: "CPU Usage", Environment: "dev", Query: "q", YFormat: "bytes"},
 			validate: func(t *testing.T, c *ChartData) {
 				if c.YFormat != "bytes" {
 					t.Errorf("expected y_format 'bytes', got %q", c.YFormat)
@@ -189,7 +189,7 @@ func TestRenderChart(t *testing.T) {
 		},
 		{
 			name:  "valid y_format cpu_cores",
-			input: RenderChartInput{ChartType: "line", Title: "CPU Usage", Environment: "dev", Query: "q", YFormat: "cpu_cores"},
+			input: ChartData{ChartType: "line", Title: "CPU Usage", Environment: "dev", Query: "q", YFormat: "cpu_cores"},
 			validate: func(t *testing.T, c *ChartData) {
 				if c.YFormat != "cpu_cores" {
 					t.Errorf("expected y_format 'cpu_cores', got %q", c.YFormat)
@@ -198,7 +198,7 @@ func TestRenderChart(t *testing.T) {
 		},
 		{
 			name:  "valid y_format duration",
-			input: RenderChartInput{ChartType: "line", Title: "CPU Usage", Environment: "dev", Query: "q", YFormat: "duration"},
+			input: ChartData{ChartType: "line", Title: "CPU Usage", Environment: "dev", Query: "q", YFormat: "duration"},
 			validate: func(t *testing.T, c *ChartData) {
 				if c.YFormat != "duration" {
 					t.Errorf("expected y_format 'duration', got %q", c.YFormat)

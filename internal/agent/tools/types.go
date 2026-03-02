@@ -169,22 +169,10 @@ type SchemaGetUnionTypesOutput struct {
 // GraphQL Tool Types
 // =============================================================================
 
-// NaisTeamInfo contains information about a team.
-type NaisTeamInfo struct {
-	Slug    string `json:"slug"`
-	Purpose string `json:"purpose,omitempty"`
-	Role    string `json:"role"`
-}
-
-// NaisUserInfo contains information about a user.
-type NaisUserInfo struct {
-	Name string `json:"name"`
-}
-
 // GetNaisContextOutput is the output for the get_nais_context tool.
 type GetNaisContextOutput struct {
-	User               NaisUserInfo      `json:"user"`
-	Teams              []NaisTeamInfo    `json:"teams"`
+	User               UserInfo          `json:"user"`
+	Teams              []TeamInfo        `json:"teams"`
 	ConsoleBaseURL     string            `json:"console_base_url"`
 	ConsoleURLPatterns map[string]string `json:"console_url_patterns"`
 }
@@ -224,17 +212,6 @@ type QueryValidationResult struct {
 
 // ChartData represents the data for a rendered chart.
 type ChartData struct {
-	ChartType     string `json:"chart_type"`
-	Title         string `json:"title"`
-	Environment   string `json:"environment"`
-	Query         string `json:"query"`
-	Interval      string `json:"interval,omitempty"`
-	YFormat       string `json:"y_format,omitempty"`
-	LabelTemplate string `json:"label_template,omitempty"`
-}
-
-// RenderChartInput is the input for the render_chart tool.
-type RenderChartInput struct {
 	ChartType     string `json:"chart_type"`
 	Title         string `json:"title"`
 	Environment   string `json:"environment"`
