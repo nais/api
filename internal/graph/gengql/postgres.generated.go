@@ -14,6 +14,7 @@ import (
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/persistence/postgres"
 	"github.com/nais/api/internal/team"
+	"github.com/nais/api/internal/workload"
 	"github.com/vektah/gqlparser/v2/ast"
 )
 
@@ -23,6 +24,7 @@ type PostgresInstanceResolver interface {
 	Team(ctx context.Context, obj *postgres.PostgresInstance) (*team.Team, error)
 	Environment(ctx context.Context, obj *postgres.PostgresInstance) (*team.TeamEnvironment, error)
 	TeamEnvironment(ctx context.Context, obj *postgres.PostgresInstance) (*team.TeamEnvironment, error)
+	Workloads(ctx context.Context, obj *postgres.PostgresInstance) ([]workload.Workload, error)
 }
 type PostgresInstanceAuditResolver interface {
 	URL(ctx context.Context, obj *postgres.PostgresInstanceAudit) (*string, error)
@@ -701,6 +703,35 @@ func (ec *executionContext) fieldContext_PostgresInstance_teamEnvironment(_ cont
 	return fc, nil
 }
 
+func (ec *executionContext) _PostgresInstance_workloads(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstance) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PostgresInstance_workloads,
+		func(ctx context.Context) (any, error) {
+			return ec.resolvers.PostgresInstance().Workloads(ctx, obj)
+		},
+		nil,
+		ec.marshalNWorkload2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkloadᚄ,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_PostgresInstance_workloads(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresInstance",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _PostgresInstance_resources(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstance) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -1063,6 +1094,8 @@ func (ec *executionContext) fieldContext_PostgresInstanceConnection_nodes(_ cont
 				return ec.fieldContext_PostgresInstance_environment(ctx, field)
 			case "teamEnvironment":
 				return ec.fieldContext_PostgresInstance_teamEnvironment(ctx, field)
+			case "workloads":
+				return ec.fieldContext_PostgresInstance_workloads(ctx, field)
 			case "resources":
 				return ec.fieldContext_PostgresInstance_resources(ctx, field)
 			case "majorVersion":
@@ -1180,6 +1213,8 @@ func (ec *executionContext) fieldContext_PostgresInstanceEdge_node(_ context.Con
 				return ec.fieldContext_PostgresInstance_environment(ctx, field)
 			case "teamEnvironment":
 				return ec.fieldContext_PostgresInstance_teamEnvironment(ctx, field)
+			case "workloads":
+				return ec.fieldContext_PostgresInstance_workloads(ctx, field)
 			case "resources":
 				return ec.fieldContext_PostgresInstance_resources(ctx, field)
 			case "majorVersion":
@@ -1733,6 +1768,42 @@ func (ec *executionContext) _PostgresInstance(ctx context.Context, sel ast.Selec
 					}
 				}()
 				res = ec._PostgresInstance_teamEnvironment(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "workloads":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._PostgresInstance_workloads(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}

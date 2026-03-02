@@ -12,6 +12,27 @@ spec:
 apiVersion: nais.io/v1alpha1
 kind: Application
 metadata:
+  name: app-with-postgres-2
+  namespace: someteamname
+spec:
+  image: ghcr.io/nais/testapp:latest
+  postgres:
+    clusterName: foobar
+---
+apiVersion: nais.io/v1
+kind: Naisjob
+metadata:
+  name: job-with-postgres
+  namespace: someteamname
+spec:
+  image: ghcr.io/nais/testapp:latest
+  schedule: "0 0 * * *"
+  postgres:
+    clusterName: foobar
+---
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
   name: app-without-postgres
   namespace: someteamname
 spec:

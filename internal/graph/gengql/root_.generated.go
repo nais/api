@@ -1324,6 +1324,7 @@ type ComplexityRoot struct {
 		State             func(childComplexity int) int
 		Team              func(childComplexity int) int
 		TeamEnvironment   func(childComplexity int) int
+		Workloads         func(childComplexity int) int
 	}
 
 	PostgresInstanceAudit struct {
@@ -8071,6 +8072,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.PostgresInstance.TeamEnvironment(childComplexity), true
+
+	case "PostgresInstance.workloads":
+		if e.complexity.PostgresInstance.Workloads == nil {
+			break
+		}
+
+		return e.complexity.PostgresInstance.Workloads(childComplexity), true
 
 	case "PostgresInstanceAudit.enabled":
 		if e.complexity.PostgresInstanceAudit.Enabled == nil {
@@ -19665,6 +19673,8 @@ type PostgresInstance implements Persistence & Node {
 	team: Team!
 	environment: TeamEnvironment! @deprecated(reason: "Use the ` + "`" + `teamEnvironment` + "`" + ` field instead.")
 	teamEnvironment: TeamEnvironment!
+	"Workloads that reference the Postgres instance."
+	workloads: [Workload!]!
 	"Resource allocation for the Postgres cluster."
 	resources: PostgresInstanceResources!
 	"Major version of PostgreSQL."
