@@ -1,9 +1,7 @@
 package graph
 
 import (
-	"cmp"
 	"context"
-	"slices"
 
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/gengql"
@@ -76,31 +74,7 @@ func (r *postgresInstanceResolver) TeamEnvironment(ctx context.Context, obj *pos
 }
 
 func (r *postgresInstanceResolver) Workloads(ctx context.Context, obj *postgres.PostgresInstance) ([]workload.Workload, error) {
-	apps := application.ListAllForTeamInEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
-	jobs := job.ListAllForTeamInEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
-
-	workloads := make([]workload.Workload, 0)
-	for _, app := range apps {
-		if app.Spec != nil && app.Spec.Postgres != nil && app.Spec.Postgres.ClusterName == obj.Name {
-			workloads = append(workloads, app)
-		}
-	}
-
-	for _, j := range jobs {
-		if j.Spec != nil && j.Spec.Postgres != nil && j.Spec.Postgres.ClusterName == obj.Name {
-			workloads = append(workloads, j)
-		}
-	}
-
-	slices.SortFunc(workloads, func(a, b workload.Workload) int {
-		if a.GetName() != b.GetName() {
-			return cmp.Compare(a.GetName(), b.GetName())
-		}
-
-		return cmp.Compare(a.GetType().String(), b.GetType().String())
-	})
-
-	return workloads, nil
+	return postgres.WorkloadsForInstance(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Name)
 }
 
 func (r *postgresInstanceAuditResolver) URL(ctx context.Context, obj *postgres.PostgresInstanceAudit) (*string, error) {

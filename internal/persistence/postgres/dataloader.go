@@ -2,8 +2,10 @@ package postgres
 
 import (
 	"context"
+	"sync"
 
 	"github.com/nais/api/internal/kubernetes/watcher"
+	"github.com/nais/api/internal/workload"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 )
@@ -25,6 +27,13 @@ type loaders struct {
 	zalandoPostgresWatcher *watcher.Watcher[*PostgresInstance]
 	auditLogProjectID      string
 	auditLogLocation       string
+	mutex                  sync.Mutex
+	workloadsByKey         map[string]*postgresWorkloadsEntry
+}
+
+type postgresWorkloadsEntry struct {
+	once      sync.Once
+	workloads map[string][]workload.Workload
 }
 
 func newLoaders(
@@ -36,6 +45,7 @@ func newLoaders(
 		zalandoPostgresWatcher: zalandoPostgresWatcher,
 		auditLogProjectID:      auditLogProjectID,
 		auditLogLocation:       auditLogLocation,
+		workloadsByKey:         map[string]*postgresWorkloadsEntry{},
 	}
 }
 
@@ -63,4 +73,21 @@ func NewZalandoPostgresWatcher(ctx context.Context, mgr *watcher.Manager) *watch
 
 func fromContext(ctx context.Context) *loaders {
 	return ctx.Value(loadersKey).(*loaders)
+}
+
+func (l *loaders) workloadsEntry(teamSlug, environmentName string) *postgresWorkloadsEntry {
+	key := teamSlug + "/" + environmentName
+
+	l.mutex.Lock()
+	defer l.mutex.Unlock()
+
+	entry, ok := l.workloadsByKey[key]
+	if ok {
+		return entry
+	}
+
+	entry = &postgresWorkloadsEntry{}
+	l.workloadsByKey[key] = entry
+
+	return entry
 }
