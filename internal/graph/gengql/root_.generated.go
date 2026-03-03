@@ -1324,6 +1324,7 @@ type ComplexityRoot struct {
 		State             func(childComplexity int) int
 		Team              func(childComplexity int) int
 		TeamEnvironment   func(childComplexity int) int
+		Workloads         func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 	}
 
 	PostgresInstanceAudit struct {
@@ -8071,6 +8072,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.PostgresInstance.TeamEnvironment(childComplexity), true
+
+	case "PostgresInstance.workloads":
+		if e.complexity.PostgresInstance.Workloads == nil {
+			break
+		}
+
+		args, err := ec.field_PostgresInstance_workloads_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.PostgresInstance.Workloads(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
 
 	case "PostgresInstanceAudit.enabled":
 		if e.complexity.PostgresInstanceAudit.Enabled == nil {
@@ -19665,6 +19678,20 @@ type PostgresInstance implements Persistence & Node {
 	team: Team!
 	environment: TeamEnvironment! @deprecated(reason: "Use the ` + "`" + `teamEnvironment` + "`" + ` field instead.")
 	teamEnvironment: TeamEnvironment!
+	"Workloads that reference the Postgres instance."
+	workloads(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+	): WorkloadConnection!
 	"Resource allocation for the Postgres cluster."
 	resources: PostgresInstanceResources!
 	"Major version of PostgreSQL."

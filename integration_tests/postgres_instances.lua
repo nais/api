@@ -260,6 +260,56 @@ Test.gql("Get postgres instance from application", function(t)
 	}
 end)
 
+Test.gql("Get workloads referencing postgres instance", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query [[
+		{
+		  team(slug: "someteamname") {
+		    environment(name: "dev") {
+		      postgresInstance(name: "foobar") {
+		        name
+		        workloads {
+		          nodes {
+		            __typename
+		            name
+		          }
+		        }
+		      }
+		    }
+		  }
+		}
+	]]
+
+	t.check {
+		data = {
+			team = {
+				environment = {
+					postgresInstance = {
+						name = "foobar",
+						workloads = {
+							nodes = {
+								{
+									__typename = "Application",
+									name = "app-with-postgres",
+								},
+								{
+									__typename = "Application",
+									name = "app-with-postgres-2",
+								},
+								{
+									__typename = "Job",
+									name = "job-with-postgres",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+end)
+
 Test.gql("Get empty postgres instances from application without postgres", function(t)
 	t.addHeader("x-user-email", user:email())
 

@@ -5363,6 +5363,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_postgresInstance(ctx co
 				return ec.fieldContext_PostgresInstance_environment(ctx, field)
 			case "teamEnvironment":
 				return ec.fieldContext_PostgresInstance_teamEnvironment(ctx, field)
+			case "workloads":
+				return ec.fieldContext_PostgresInstance_workloads(ctx, field)
 			case "resources":
 				return ec.fieldContext_PostgresInstance_resources(ctx, field)
 			case "majorVersion":
