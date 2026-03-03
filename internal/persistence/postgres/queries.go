@@ -284,7 +284,7 @@ func WorkloadsForInstance(ctx context.Context, teamSlug slug.Slug, environmentNa
 			return cmp.Compare(a.GetName(), b.GetName())
 		}
 
-		return cmp.Compare(a.GetType().String(), b.GetType().String())
+		return cmp.Compare(a.GetType(), b.GetType())
 	})
 
 	return ret
