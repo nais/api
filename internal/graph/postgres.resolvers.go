@@ -79,10 +79,7 @@ func (r *postgresInstanceResolver) Workloads(ctx context.Context, obj *postgres.
 		return nil, err
 	}
 
-	workloads, err := postgres.WorkloadsForInstance(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Name)
-	if err != nil {
-		return nil, err
-	}
+	workloads := postgres.WorkloadsForInstance(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Name)
 
 	return pagination.NewConnection(pagination.Slice(workloads, page), page, len(workloads)), nil
 }

@@ -262,7 +262,7 @@ func resourceNamer(teamSlug slug.Slug, grantee string, name string) (string, err
 	return fmt.Sprintf("pg-grant-%s", hashStr), nil
 }
 
-func WorkloadsForInstance(ctx context.Context, teamSlug slug.Slug, environmentName, clusterName string) ([]workload.Workload, error) {
+func WorkloadsForInstance(ctx context.Context, teamSlug slug.Slug, environmentName, clusterName string) []workload.Workload {
 	apps := application.ListAllForTeamInEnvironment(ctx, teamSlug, environmentName)
 	jobs := job.ListAllForTeamInEnvironment(ctx, teamSlug, environmentName)
 
@@ -287,9 +287,5 @@ func WorkloadsForInstance(ctx context.Context, teamSlug slug.Slug, environmentNa
 		return cmp.Compare(a.GetType().String(), b.GetType().String())
 	})
 
-	if ret == nil {
-		return []workload.Workload{}, nil
-	}
-
-	return ret, nil
+	return ret
 }
