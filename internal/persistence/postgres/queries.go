@@ -1,10 +1,12 @@
 package postgres
 
 import (
+	"cmp"
 	"context"
 	"fmt"
 	"hash/crc32"
 	"net/url"
+	"slices"
 	"strconv"
 	"time"
 
@@ -17,6 +19,9 @@ import (
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/team"
+	"github.com/nais/api/internal/workload"
+	"github.com/nais/api/internal/workload/application"
+	"github.com/nais/api/internal/workload/job"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -255,4 +260,36 @@ func resourceNamer(teamSlug slug.Slug, grantee string, name string) (string, err
 	}
 	hashStr := fmt.Sprintf("%08x", hasher.Sum32())
 	return fmt.Sprintf("pg-grant-%s", hashStr), nil
+}
+
+func WorkloadsForInstance(ctx context.Context, teamSlug slug.Slug, environmentName, clusterName string) ([]workload.Workload, error) {
+	apps := application.ListAllForTeamInEnvironment(ctx, teamSlug, environmentName)
+	jobs := job.ListAllForTeamInEnvironment(ctx, teamSlug, environmentName)
+
+	ret := make([]workload.Workload, 0)
+	for _, app := range apps {
+		if app.Spec != nil && app.Spec.Postgres != nil && app.Spec.Postgres.ClusterName == clusterName {
+			ret = append(ret, app)
+		}
+	}
+
+	for _, j := range jobs {
+		if j.Spec != nil && j.Spec.Postgres != nil && j.Spec.Postgres.ClusterName == clusterName {
+			ret = append(ret, j)
+		}
+	}
+
+	slices.SortFunc(ret, func(a, b workload.Workload) int {
+		if a.GetName() != b.GetName() {
+			return cmp.Compare(a.GetName(), b.GetName())
+		}
+
+		return cmp.Compare(a.GetType().String(), b.GetType().String())
+	})
+
+	if ret == nil {
+		return []workload.Workload{}, nil
+	}
+
+	return ret, nil
 }

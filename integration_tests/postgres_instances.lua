@@ -270,8 +270,10 @@ Test.gql("Get workloads referencing postgres instance", function(t)
 		      postgresInstance(name: "foobar") {
 		        name
 		        workloads {
-		          __typename
-		          name
+		          nodes {
+		            __typename
+		            name
+		          }
 		        }
 		      }
 		    }
@@ -286,17 +288,19 @@ Test.gql("Get workloads referencing postgres instance", function(t)
 					postgresInstance = {
 						name = "foobar",
 						workloads = {
-							{
-								__typename = "Application",
-								name = "app-with-postgres",
-							},
-							{
-								__typename = "Application",
-								name = "app-with-postgres-2",
-							},
-							{
-								__typename = "Job",
-								name = "job-with-postgres",
+							nodes = {
+								{
+									__typename = "Application",
+									name = "app-with-postgres",
+								},
+								{
+									__typename = "Application",
+									name = "app-with-postgres-2",
+								},
+								{
+									__typename = "Job",
+									name = "job-with-postgres",
+								},
 							},
 						},
 					},

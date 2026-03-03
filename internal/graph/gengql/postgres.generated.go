@@ -24,7 +24,7 @@ type PostgresInstanceResolver interface {
 	Team(ctx context.Context, obj *postgres.PostgresInstance) (*team.Team, error)
 	Environment(ctx context.Context, obj *postgres.PostgresInstance) (*team.TeamEnvironment, error)
 	TeamEnvironment(ctx context.Context, obj *postgres.PostgresInstance) (*team.TeamEnvironment, error)
-	Workloads(ctx context.Context, obj *postgres.PostgresInstance) ([]workload.Workload, error)
+	Workloads(ctx context.Context, obj *postgres.PostgresInstance, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[workload.Workload], error)
 }
 type PostgresInstanceAuditResolver interface {
 	URL(ctx context.Context, obj *postgres.PostgresInstanceAudit) (*string, error)
@@ -33,6 +33,32 @@ type PostgresInstanceAuditResolver interface {
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
+
+func (ec *executionContext) field_PostgresInstance_workloads_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first", ec.unmarshalOInt2ᚖint)
+	if err != nil {
+		return nil, err
+	}
+	args["first"] = arg0
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after", ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor)
+	if err != nil {
+		return nil, err
+	}
+	args["after"] = arg1
+	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last", ec.unmarshalOInt2ᚖint)
+	if err != nil {
+		return nil, err
+	}
+	args["last"] = arg2
+	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before", ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor)
+	if err != nil {
+		return nil, err
+	}
+	args["before"] = arg3
+	return args, nil
+}
 
 // endregion ***************************** args.gotpl *****************************
 
@@ -710,24 +736,44 @@ func (ec *executionContext) _PostgresInstance_workloads(ctx context.Context, fie
 		field,
 		ec.fieldContext_PostgresInstance_workloads,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.PostgresInstance().Workloads(ctx, obj)
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.PostgresInstance().Workloads(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
 		},
 		nil,
-		ec.marshalNWorkload2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkloadᚄ,
+		ec.marshalNWorkloadConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
 		true,
 		true,
 	)
 }
 
-func (ec *executionContext) fieldContext_PostgresInstance_workloads(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_PostgresInstance_workloads(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "PostgresInstance",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
+			switch field.Name {
+			case "pageInfo":
+				return ec.fieldContext_WorkloadConnection_pageInfo(ctx, field)
+			case "nodes":
+				return ec.fieldContext_WorkloadConnection_nodes(ctx, field)
+			case "edges":
+				return ec.fieldContext_WorkloadConnection_edges(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type WorkloadConnection", field.Name)
 		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_PostgresInstance_workloads_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
