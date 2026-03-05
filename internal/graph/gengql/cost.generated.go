@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
-	"sync"
 	"sync/atomic"
 
 	"github.com/99designs/gqlgen/graphql"
@@ -382,7 +381,7 @@ func (ec *executionContext) _TeamCost_daily(ctx context.Context, field graphql.C
 		ec.fieldContext_TeamCost_daily,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.TeamCost().Daily(ctx, obj, fc.Args["from"].(scalar.Date), fc.Args["to"].(scalar.Date), fc.Args["filter"].(*cost.TeamCostDailyFilter))
+			return ec.Resolvers.TeamCost().Daily(ctx, obj, fc.Args["from"].(scalar.Date), fc.Args["to"].(scalar.Date), fc.Args["filter"].(*cost.TeamCostDailyFilter))
 		},
 		nil,
 		ec.marshalNTeamCostPeriod2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamCostPeriod,
@@ -428,7 +427,7 @@ func (ec *executionContext) _TeamCost_monthlySummary(ctx context.Context, field 
 		field,
 		ec.fieldContext_TeamCost_monthlySummary,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.TeamCost().MonthlySummary(ctx, obj)
+			return ec.Resolvers.TeamCost().MonthlySummary(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeamCostMonthlySummary2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamCostMonthlySummary,
@@ -652,7 +651,7 @@ func (ec *executionContext) _TeamEnvironmentCost_daily(ctx context.Context, fiel
 		ec.fieldContext_TeamEnvironmentCost_daily,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.TeamEnvironmentCost().Daily(ctx, obj, fc.Args["from"].(scalar.Date), fc.Args["to"].(scalar.Date))
+			return ec.Resolvers.TeamEnvironmentCost().Daily(ctx, obj, fc.Args["from"].(scalar.Date), fc.Args["to"].(scalar.Date))
 		},
 		nil,
 		ec.marshalNTeamEnvironmentCostPeriod2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamEnvironmentCostPeriod,
@@ -794,7 +793,7 @@ func (ec *executionContext) _WorkloadCost_daily(ctx context.Context, field graph
 		ec.fieldContext_WorkloadCost_daily,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.WorkloadCost().Daily(ctx, obj, fc.Args["from"].(scalar.Date), fc.Args["to"].(scalar.Date))
+			return ec.Resolvers.WorkloadCost().Daily(ctx, obj, fc.Args["from"].(scalar.Date), fc.Args["to"].(scalar.Date))
 		},
 		nil,
 		ec.marshalNWorkloadCostPeriod2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCostPeriod,
@@ -840,7 +839,7 @@ func (ec *executionContext) _WorkloadCost_monthly(ctx context.Context, field gra
 		field,
 		ec.fieldContext_WorkloadCost_monthly,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.WorkloadCost().Monthly(ctx, obj)
+			return ec.Resolvers.WorkloadCost().Monthly(ctx, obj)
 		},
 		nil,
 		ec.marshalNWorkloadCostPeriod2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCostPeriod,
@@ -941,7 +940,7 @@ func (ec *executionContext) _WorkloadCostSample_workload(ctx context.Context, fi
 		field,
 		ec.fieldContext_WorkloadCostSample_workload,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.WorkloadCostSample().Workload(ctx, obj)
+			return ec.Resolvers.WorkloadCostSample().Workload(ctx, obj)
 		},
 		nil,
 		ec.marshalOWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload,
@@ -1143,7 +1142,6 @@ func (ec *executionContext) unmarshalInputTeamCostDailyFilter(ctx context.Contex
 			it.Services = data
 		}
 	}
-
 	return it, nil
 }
 
@@ -1180,10 +1178,10 @@ func (ec *executionContext) _BigQueryDatasetCost(ctx context.Context, sel ast.Se
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -1219,10 +1217,10 @@ func (ec *executionContext) _CostMonthlySummary(ctx context.Context, sel ast.Sel
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -1258,10 +1256,10 @@ func (ec *executionContext) _OpenSearchCost(ctx context.Context, sel ast.Selecti
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -1302,10 +1300,10 @@ func (ec *executionContext) _ServiceCostSample(ctx context.Context, sel ast.Sele
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -1351,10 +1349,10 @@ func (ec *executionContext) _ServiceCostSeries(ctx context.Context, sel ast.Sele
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -1390,10 +1388,10 @@ func (ec *executionContext) _SqlInstanceCost(ctx context.Context, sel ast.Select
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -1496,10 +1494,10 @@ func (ec *executionContext) _TeamCost(ctx context.Context, sel ast.SelectionSet,
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -1540,10 +1538,10 @@ func (ec *executionContext) _TeamCostMonthlySample(ctx context.Context, sel ast.
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -1584,10 +1582,10 @@ func (ec *executionContext) _TeamCostMonthlySummary(ctx context.Context, sel ast
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -1628,10 +1626,10 @@ func (ec *executionContext) _TeamCostPeriod(ctx context.Context, sel ast.Selecti
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -1698,10 +1696,10 @@ func (ec *executionContext) _TeamEnvironmentCost(ctx context.Context, sel ast.Se
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -1742,10 +1740,10 @@ func (ec *executionContext) _TeamEnvironmentCostPeriod(ctx context.Context, sel 
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -1781,10 +1779,10 @@ func (ec *executionContext) _ValkeyCost(ctx context.Context, sel ast.SelectionSe
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -1887,10 +1885,10 @@ func (ec *executionContext) _WorkloadCost(ctx context.Context, sel ast.Selection
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -1931,10 +1929,10 @@ func (ec *executionContext) _WorkloadCostPeriod(ctx context.Context, sel ast.Sel
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -2008,10 +2006,10 @@ func (ec *executionContext) _WorkloadCostSample(ctx context.Context, sel ast.Sel
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -2057,10 +2055,10 @@ func (ec *executionContext) _WorkloadCostSeries(ctx context.Context, sel ast.Sel
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -2118,39 +2116,11 @@ func (ec *executionContext) marshalNOpenSearchCost2ᚖgithubᚗcomᚋnaisᚋapi�
 }
 
 func (ec *executionContext) marshalNServiceCostSample2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐServiceCostSampleᚄ(ctx context.Context, sel ast.SelectionSet, v []*cost.ServiceCostSample) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNServiceCostSample2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐServiceCostSample(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNServiceCostSample2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐServiceCostSample(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -2172,39 +2142,11 @@ func (ec *executionContext) marshalNServiceCostSample2ᚖgithubᚗcomᚋnaisᚋa
 }
 
 func (ec *executionContext) marshalNServiceCostSeries2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐServiceCostSeriesᚄ(ctx context.Context, sel ast.SelectionSet, v []*cost.ServiceCostSeries) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNServiceCostSeries2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐServiceCostSeries(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNServiceCostSeries2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐServiceCostSeries(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -2254,39 +2196,11 @@ func (ec *executionContext) marshalNTeamCost2ᚖgithubᚗcomᚋnaisᚋapiᚋinte
 }
 
 func (ec *executionContext) marshalNTeamCostMonthlySample2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamCostMonthlySampleᚄ(ctx context.Context, sel ast.SelectionSet, v []*cost.TeamCostMonthlySample) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNTeamCostMonthlySample2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamCostMonthlySample(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNTeamCostMonthlySample2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamCostMonthlySample(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -2406,39 +2320,11 @@ func (ec *executionContext) marshalNWorkloadCostPeriod2ᚖgithubᚗcomᚋnaisᚋ
 }
 
 func (ec *executionContext) marshalNWorkloadCostSample2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCostSampleᚄ(ctx context.Context, sel ast.SelectionSet, v []*cost.WorkloadCostSample) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNWorkloadCostSample2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCostSample(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNWorkloadCostSample2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCostSample(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -2460,39 +2346,11 @@ func (ec *executionContext) marshalNWorkloadCostSample2ᚖgithubᚗcomᚋnaisᚋ
 }
 
 func (ec *executionContext) marshalNWorkloadCostSeries2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCostSeriesᚄ(ctx context.Context, sel ast.SelectionSet, v []*cost.WorkloadCostSeries) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNWorkloadCostSeries2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCostSeries(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNWorkloadCostSeries2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCostSeries(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {

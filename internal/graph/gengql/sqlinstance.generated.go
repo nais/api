@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
-	"sync"
 	"sync/atomic"
 
 	"github.com/99designs/gqlgen/graphql"
@@ -252,7 +251,7 @@ func (ec *executionContext) _SqlDatabase_team(ctx context.Context, field graphql
 		field,
 		ec.fieldContext_SqlDatabase_team,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.SqlDatabase().Team(ctx, obj)
+			return ec.Resolvers.SqlDatabase().Team(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam,
@@ -363,7 +362,7 @@ func (ec *executionContext) _SqlDatabase_environment(ctx context.Context, field 
 		field,
 		ec.fieldContext_SqlDatabase_environment,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.SqlDatabase().Environment(ctx, obj)
+			return ec.Resolvers.SqlDatabase().Environment(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment,
@@ -432,7 +431,7 @@ func (ec *executionContext) _SqlDatabase_teamEnvironment(ctx context.Context, fi
 		field,
 		ec.fieldContext_SqlDatabase_teamEnvironment,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.SqlDatabase().TeamEnvironment(ctx, obj)
+			return ec.Resolvers.SqlDatabase().TeamEnvironment(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment,
@@ -675,7 +674,7 @@ func (ec *executionContext) _SqlInstance_team(ctx context.Context, field graphql
 		field,
 		ec.fieldContext_SqlInstance_team,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.SqlInstance().Team(ctx, obj)
+			return ec.Resolvers.SqlInstance().Team(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam,
@@ -786,7 +785,7 @@ func (ec *executionContext) _SqlInstance_environment(ctx context.Context, field 
 		field,
 		ec.fieldContext_SqlInstance_environment,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.SqlInstance().Environment(ctx, obj)
+			return ec.Resolvers.SqlInstance().Environment(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment,
@@ -855,7 +854,7 @@ func (ec *executionContext) _SqlInstance_teamEnvironment(ctx context.Context, fi
 		field,
 		ec.fieldContext_SqlInstance_teamEnvironment,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.SqlInstance().TeamEnvironment(ctx, obj)
+			return ec.Resolvers.SqlInstance().TeamEnvironment(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment,
@@ -924,7 +923,7 @@ func (ec *executionContext) _SqlInstance_workload(ctx context.Context, field gra
 		field,
 		ec.fieldContext_SqlInstance_workload,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.SqlInstance().Workload(ctx, obj)
+			return ec.Resolvers.SqlInstance().Workload(ctx, obj)
 		},
 		nil,
 		ec.marshalOWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload,
@@ -1354,7 +1353,7 @@ func (ec *executionContext) _SqlInstance_database(ctx context.Context, field gra
 		field,
 		ec.fieldContext_SqlInstance_database,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.SqlInstance().Database(ctx, obj)
+			return ec.Resolvers.SqlInstance().Database(ctx, obj)
 		},
 		nil,
 		ec.marshalOSqlDatabase2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLDatabase,
@@ -1404,7 +1403,7 @@ func (ec *executionContext) _SqlInstance_flags(ctx context.Context, field graphq
 		ec.fieldContext_SqlInstance_flags,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.SqlInstance().Flags(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
+			return ec.Resolvers.SqlInstance().Flags(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
 		},
 		nil,
 		ec.marshalNSqlInstanceFlagConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -1453,7 +1452,7 @@ func (ec *executionContext) _SqlInstance_users(ctx context.Context, field graphq
 		ec.fieldContext_SqlInstance_users,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.SqlInstance().Users(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*sqlinstance.SQLInstanceUserOrder))
+			return ec.Resolvers.SqlInstance().Users(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*sqlinstance.SQLInstanceUserOrder))
 		},
 		nil,
 		ec.marshalNSqlInstanceUserConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -1501,7 +1500,7 @@ func (ec *executionContext) _SqlInstance_metrics(ctx context.Context, field grap
 		field,
 		ec.fieldContext_SqlInstance_metrics,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.SqlInstance().Metrics(ctx, obj)
+			return ec.Resolvers.SqlInstance().Metrics(ctx, obj)
 		},
 		nil,
 		ec.marshalNSqlInstanceMetrics2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceMetrics,
@@ -1538,7 +1537,7 @@ func (ec *executionContext) _SqlInstance_state(ctx context.Context, field graphq
 		field,
 		ec.fieldContext_SqlInstance_state,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.SqlInstance().State(ctx, obj)
+			return ec.Resolvers.SqlInstance().State(ctx, obj)
 		},
 		nil,
 		ec.marshalNSqlInstanceState2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceState,
@@ -1568,7 +1567,7 @@ func (ec *executionContext) _SqlInstance_issues(ctx context.Context, field graph
 		ec.fieldContext_SqlInstance_issues,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.SqlInstance().Issues(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*issue.IssueOrder), fc.Args["filter"].(*issue.ResourceIssueFilter))
+			return ec.Resolvers.SqlInstance().Issues(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*issue.IssueOrder), fc.Args["filter"].(*issue.ResourceIssueFilter))
 		},
 		nil,
 		ec.marshalNIssueConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -1616,7 +1615,7 @@ func (ec *executionContext) _SqlInstance_auditLog(ctx context.Context, field gra
 		field,
 		ec.fieldContext_SqlInstance_auditLog,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.SqlInstance().AuditLog(ctx, obj)
+			return ec.Resolvers.SqlInstance().AuditLog(ctx, obj)
 		},
 		nil,
 		ec.marshalOAuditLog2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐAuditLog,
@@ -1649,7 +1648,7 @@ func (ec *executionContext) _SqlInstance_cost(ctx context.Context, field graphql
 		field,
 		ec.fieldContext_SqlInstance_cost,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.SqlInstance().Cost(ctx, obj)
+			return ec.Resolvers.SqlInstance().Cost(ctx, obj)
 		},
 		nil,
 		ec.marshalNSqlInstanceCost2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐSQLInstanceCost,
@@ -2575,7 +2574,7 @@ func (ec *executionContext) _SqlInstanceMetrics_cpu(ctx context.Context, field g
 		field,
 		ec.fieldContext_SqlInstanceMetrics_cpu,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.SqlInstanceMetrics().CPU(ctx, obj)
+			return ec.Resolvers.SqlInstanceMetrics().CPU(ctx, obj)
 		},
 		nil,
 		ec.marshalNSqlInstanceCpu2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceCPU,
@@ -2610,7 +2609,7 @@ func (ec *executionContext) _SqlInstanceMetrics_memory(ctx context.Context, fiel
 		field,
 		ec.fieldContext_SqlInstanceMetrics_memory,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.SqlInstanceMetrics().Memory(ctx, obj)
+			return ec.Resolvers.SqlInstanceMetrics().Memory(ctx, obj)
 		},
 		nil,
 		ec.marshalNSqlInstanceMemory2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceMemory,
@@ -2645,7 +2644,7 @@ func (ec *executionContext) _SqlInstanceMetrics_disk(ctx context.Context, field 
 		field,
 		ec.fieldContext_SqlInstanceMetrics_disk,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.SqlInstanceMetrics().Disk(ctx, obj)
+			return ec.Resolvers.SqlInstanceMetrics().Disk(ctx, obj)
 		},
 		nil,
 		ec.marshalNSqlInstanceDisk2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceDisk,
@@ -3004,7 +3003,7 @@ func (ec *executionContext) _TeamServiceUtilizationSqlInstances_cpu(ctx context.
 		field,
 		ec.fieldContext_TeamServiceUtilizationSqlInstances_cpu,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.TeamServiceUtilizationSqlInstances().CPU(ctx, obj)
+			return ec.Resolvers.TeamServiceUtilizationSqlInstances().CPU(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeamServiceUtilizationSqlInstancesCPU2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐTeamServiceUtilizationSQLInstancesCPU,
@@ -3041,7 +3040,7 @@ func (ec *executionContext) _TeamServiceUtilizationSqlInstances_memory(ctx conte
 		field,
 		ec.fieldContext_TeamServiceUtilizationSqlInstances_memory,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.TeamServiceUtilizationSqlInstances().Memory(ctx, obj)
+			return ec.Resolvers.TeamServiceUtilizationSqlInstances().Memory(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeamServiceUtilizationSqlInstancesMemory2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐTeamServiceUtilizationSQLInstancesMemory,
@@ -3078,7 +3077,7 @@ func (ec *executionContext) _TeamServiceUtilizationSqlInstances_disk(ctx context
 		field,
 		ec.fieldContext_TeamServiceUtilizationSqlInstances_disk,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.TeamServiceUtilizationSqlInstances().Disk(ctx, obj)
+			return ec.Resolvers.TeamServiceUtilizationSqlInstances().Disk(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeamServiceUtilizationSqlInstancesDisk2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐTeamServiceUtilizationSQLInstancesDisk,
@@ -3403,7 +3402,6 @@ func (ec *executionContext) unmarshalInputSqlInstanceOrder(ctx context.Context, 
 			it.Direction = data
 		}
 	}
-
 	return it, nil
 }
 
@@ -3437,7 +3435,6 @@ func (ec *executionContext) unmarshalInputSqlInstanceUserOrder(ctx context.Conte
 			it.Direction = data
 		}
 	}
-
 	return it, nil
 }
 
@@ -3474,10 +3471,10 @@ func (ec *executionContext) _AuditLog(ctx context.Context, sel ast.SelectionSet,
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -3637,10 +3634,10 @@ func (ec *executionContext) _SqlDatabase(ctx context.Context, sel ast.SelectionS
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -4148,10 +4145,10 @@ func (ec *executionContext) _SqlInstance(ctx context.Context, sel ast.SelectionS
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -4192,10 +4189,10 @@ func (ec *executionContext) _SqlInstanceBackupConfiguration(ctx context.Context,
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -4241,10 +4238,10 @@ func (ec *executionContext) _SqlInstanceConnection(ctx context.Context, sel ast.
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -4285,10 +4282,10 @@ func (ec *executionContext) _SqlInstanceCpu(ctx context.Context, sel ast.Selecti
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -4329,10 +4326,10 @@ func (ec *executionContext) _SqlInstanceDisk(ctx context.Context, sel ast.Select
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -4373,10 +4370,10 @@ func (ec *executionContext) _SqlInstanceEdge(ctx context.Context, sel ast.Select
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -4417,10 +4414,10 @@ func (ec *executionContext) _SqlInstanceFlag(ctx context.Context, sel ast.Select
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -4466,10 +4463,10 @@ func (ec *executionContext) _SqlInstanceFlagConnection(ctx context.Context, sel 
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -4510,10 +4507,10 @@ func (ec *executionContext) _SqlInstanceFlagEdge(ctx context.Context, sel ast.Se
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -4554,10 +4551,10 @@ func (ec *executionContext) _SqlInstanceMaintenanceWindow(ctx context.Context, s
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -4598,10 +4595,10 @@ func (ec *executionContext) _SqlInstanceMemory(ctx context.Context, sel ast.Sele
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -4740,10 +4737,10 @@ func (ec *executionContext) _SqlInstanceMetrics(ctx context.Context, sel ast.Sel
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -4778,10 +4775,10 @@ func (ec *executionContext) _SqlInstanceStatus(ctx context.Context, sel ast.Sele
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -4822,10 +4819,10 @@ func (ec *executionContext) _SqlInstanceUser(ctx context.Context, sel ast.Select
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -4871,10 +4868,10 @@ func (ec *executionContext) _SqlInstanceUserConnection(ctx context.Context, sel 
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -4915,10 +4912,10 @@ func (ec *executionContext) _SqlInstanceUserEdge(ctx context.Context, sel ast.Se
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -4954,10 +4951,10 @@ func (ec *executionContext) _TeamInventoryCountSqlInstances(ctx context.Context,
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -5096,10 +5093,10 @@ func (ec *executionContext) _TeamServiceUtilizationSqlInstances(ctx context.Cont
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -5145,10 +5142,10 @@ func (ec *executionContext) _TeamServiceUtilizationSqlInstancesCPU(ctx context.C
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -5194,10 +5191,10 @@ func (ec *executionContext) _TeamServiceUtilizationSqlInstancesDisk(ctx context.
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -5243,10 +5240,10 @@ func (ec *executionContext) _TeamServiceUtilizationSqlInstancesMemory(ctx contex
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -5266,39 +5263,11 @@ func (ec *executionContext) marshalNSqlInstance2githubᚗcomᚋnaisᚋapiᚋinte
 }
 
 func (ec *executionContext) marshalNSqlInstance2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceᚄ(ctx context.Context, sel ast.SelectionSet, v []*sqlinstance.SQLInstance) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNSqlInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstance(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNSqlInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstance(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -5366,39 +5335,11 @@ func (ec *executionContext) marshalNSqlInstanceEdge2githubᚗcomᚋnaisᚋapiᚋ
 }
 
 func (ec *executionContext) marshalNSqlInstanceEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[*sqlinstance.SQLInstance]) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNSqlInstanceEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNSqlInstanceEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -5410,39 +5351,11 @@ func (ec *executionContext) marshalNSqlInstanceEdge2ᚕgithubᚗcomᚋnaisᚋapi
 }
 
 func (ec *executionContext) marshalNSqlInstanceFlag2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceFlagᚄ(ctx context.Context, sel ast.SelectionSet, v []*sqlinstance.SQLInstanceFlag) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNSqlInstanceFlag2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceFlag(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNSqlInstanceFlag2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceFlag(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -5482,39 +5395,11 @@ func (ec *executionContext) marshalNSqlInstanceFlagEdge2githubᚗcomᚋnaisᚋap
 }
 
 func (ec *executionContext) marshalNSqlInstanceFlagEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[*sqlinstance.SQLInstanceFlag]) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNSqlInstanceFlagEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNSqlInstanceFlagEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -5591,39 +5476,11 @@ func (ec *executionContext) marshalNSqlInstanceStatus2ᚖgithubᚗcomᚋnaisᚋa
 }
 
 func (ec *executionContext) marshalNSqlInstanceUser2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceUserᚄ(ctx context.Context, sel ast.SelectionSet, v []*sqlinstance.SQLInstanceUser) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNSqlInstanceUser2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceUser(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNSqlInstanceUser2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceUser(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -5663,39 +5520,11 @@ func (ec *executionContext) marshalNSqlInstanceUserEdge2githubᚗcomᚋnaisᚋap
 }
 
 func (ec *executionContext) marshalNSqlInstanceUserEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[*sqlinstance.SQLInstanceUser]) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNSqlInstanceUserEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNSqlInstanceUserEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {

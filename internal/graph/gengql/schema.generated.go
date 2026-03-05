@@ -1104,7 +1104,7 @@ func (ec *executionContext) _Mutation_deleteApplication(ctx context.Context, fie
 		ec.fieldContext_Mutation_deleteApplication,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().DeleteApplication(ctx, fc.Args["input"].(application.DeleteApplicationInput))
+			return ec.Resolvers.Mutation().DeleteApplication(ctx, fc.Args["input"].(application.DeleteApplicationInput))
 		},
 		nil,
 		ec.marshalNDeleteApplicationPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐDeleteApplicationPayload,
@@ -1151,7 +1151,7 @@ func (ec *executionContext) _Mutation_restartApplication(ctx context.Context, fi
 		ec.fieldContext_Mutation_restartApplication,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().RestartApplication(ctx, fc.Args["input"].(application.RestartApplicationInput))
+			return ec.Resolvers.Mutation().RestartApplication(ctx, fc.Args["input"].(application.RestartApplicationInput))
 		},
 		nil,
 		ec.marshalNRestartApplicationPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐRestartApplicationPayload,
@@ -1196,7 +1196,7 @@ func (ec *executionContext) _Mutation_changeDeploymentKey(ctx context.Context, f
 		ec.fieldContext_Mutation_changeDeploymentKey,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().ChangeDeploymentKey(ctx, fc.Args["input"].(deployment.ChangeDeploymentKeyInput))
+			return ec.Resolvers.Mutation().ChangeDeploymentKey(ctx, fc.Args["input"].(deployment.ChangeDeploymentKeyInput))
 		},
 		nil,
 		ec.marshalNChangeDeploymentKeyPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐChangeDeploymentKeyPayload,
@@ -1241,7 +1241,7 @@ func (ec *executionContext) _Mutation_deleteJob(ctx context.Context, field graph
 		ec.fieldContext_Mutation_deleteJob,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().DeleteJob(ctx, fc.Args["input"].(job.DeleteJobInput))
+			return ec.Resolvers.Mutation().DeleteJob(ctx, fc.Args["input"].(job.DeleteJobInput))
 		},
 		nil,
 		ec.marshalNDeleteJobPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐDeleteJobPayload,
@@ -1288,7 +1288,7 @@ func (ec *executionContext) _Mutation_triggerJob(ctx context.Context, field grap
 		ec.fieldContext_Mutation_triggerJob,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().TriggerJob(ctx, fc.Args["input"].(job.TriggerJobInput))
+			return ec.Resolvers.Mutation().TriggerJob(ctx, fc.Args["input"].(job.TriggerJobInput))
 		},
 		nil,
 		ec.marshalNTriggerJobPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐTriggerJobPayload,
@@ -1335,7 +1335,7 @@ func (ec *executionContext) _Mutation_createOpenSearch(ctx context.Context, fiel
 		ec.fieldContext_Mutation_createOpenSearch,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().CreateOpenSearch(ctx, fc.Args["input"].(opensearch.CreateOpenSearchInput))
+			return ec.Resolvers.Mutation().CreateOpenSearch(ctx, fc.Args["input"].(opensearch.CreateOpenSearchInput))
 		},
 		nil,
 		ec.marshalNCreateOpenSearchPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐCreateOpenSearchPayload,
@@ -1380,7 +1380,7 @@ func (ec *executionContext) _Mutation_updateOpenSearch(ctx context.Context, fiel
 		ec.fieldContext_Mutation_updateOpenSearch,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().UpdateOpenSearch(ctx, fc.Args["input"].(opensearch.UpdateOpenSearchInput))
+			return ec.Resolvers.Mutation().UpdateOpenSearch(ctx, fc.Args["input"].(opensearch.UpdateOpenSearchInput))
 		},
 		nil,
 		ec.marshalNUpdateOpenSearchPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐUpdateOpenSearchPayload,
@@ -1425,7 +1425,7 @@ func (ec *executionContext) _Mutation_deleteOpenSearch(ctx context.Context, fiel
 		ec.fieldContext_Mutation_deleteOpenSearch,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().DeleteOpenSearch(ctx, fc.Args["input"].(opensearch.DeleteOpenSearchInput))
+			return ec.Resolvers.Mutation().DeleteOpenSearch(ctx, fc.Args["input"].(opensearch.DeleteOpenSearchInput))
 		},
 		nil,
 		ec.marshalNDeleteOpenSearchPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐDeleteOpenSearchPayload,
@@ -1470,7 +1470,7 @@ func (ec *executionContext) _Mutation_grantPostgresAccess(ctx context.Context, f
 		ec.fieldContext_Mutation_grantPostgresAccess,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().GrantPostgresAccess(ctx, fc.Args["input"].(postgres.GrantPostgresAccessInput))
+			return ec.Resolvers.Mutation().GrantPostgresAccess(ctx, fc.Args["input"].(postgres.GrantPostgresAccessInput))
 		},
 		nil,
 		ec.marshalNGrantPostgresAccessPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐGrantPostgresAccessPayload,
@@ -1515,7 +1515,7 @@ func (ec *executionContext) _Mutation_enableReconciler(ctx context.Context, fiel
 		ec.fieldContext_Mutation_enableReconciler,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().EnableReconciler(ctx, fc.Args["input"].(reconciler.EnableReconcilerInput))
+			return ec.Resolvers.Mutation().EnableReconciler(ctx, fc.Args["input"].(reconciler.EnableReconcilerInput))
 		},
 		nil,
 		ec.marshalNReconciler2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋreconcilerᚐReconciler,
@@ -1576,7 +1576,7 @@ func (ec *executionContext) _Mutation_disableReconciler(ctx context.Context, fie
 		ec.fieldContext_Mutation_disableReconciler,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().DisableReconciler(ctx, fc.Args["input"].(reconciler.DisableReconcilerInput))
+			return ec.Resolvers.Mutation().DisableReconciler(ctx, fc.Args["input"].(reconciler.DisableReconcilerInput))
 		},
 		nil,
 		ec.marshalNReconciler2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋreconcilerᚐReconciler,
@@ -1637,7 +1637,7 @@ func (ec *executionContext) _Mutation_configureReconciler(ctx context.Context, f
 		ec.fieldContext_Mutation_configureReconciler,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().ConfigureReconciler(ctx, fc.Args["input"].(reconciler.ConfigureReconcilerInput))
+			return ec.Resolvers.Mutation().ConfigureReconciler(ctx, fc.Args["input"].(reconciler.ConfigureReconcilerInput))
 		},
 		nil,
 		ec.marshalNReconciler2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋreconcilerᚐReconciler,
@@ -1698,7 +1698,7 @@ func (ec *executionContext) _Mutation_addRepositoryToTeam(ctx context.Context, f
 		ec.fieldContext_Mutation_addRepositoryToTeam,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().AddRepositoryToTeam(ctx, fc.Args["input"].(repository.AddRepositoryToTeamInput))
+			return ec.Resolvers.Mutation().AddRepositoryToTeam(ctx, fc.Args["input"].(repository.AddRepositoryToTeamInput))
 		},
 		nil,
 		ec.marshalNAddRepositoryToTeamPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgithubᚋrepositoryᚐAddRepositoryToTeamPayload,
@@ -1743,7 +1743,7 @@ func (ec *executionContext) _Mutation_removeRepositoryFromTeam(ctx context.Conte
 		ec.fieldContext_Mutation_removeRepositoryFromTeam,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().RemoveRepositoryFromTeam(ctx, fc.Args["input"].(repository.RemoveRepositoryFromTeamInput))
+			return ec.Resolvers.Mutation().RemoveRepositoryFromTeam(ctx, fc.Args["input"].(repository.RemoveRepositoryFromTeamInput))
 		},
 		nil,
 		ec.marshalNRemoveRepositoryFromTeamPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgithubᚋrepositoryᚐRemoveRepositoryFromTeamPayload,
@@ -1788,7 +1788,7 @@ func (ec *executionContext) _Mutation_createSecret(ctx context.Context, field gr
 		ec.fieldContext_Mutation_createSecret,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().CreateSecret(ctx, fc.Args["input"].(secret.CreateSecretInput))
+			return ec.Resolvers.Mutation().CreateSecret(ctx, fc.Args["input"].(secret.CreateSecretInput))
 		},
 		nil,
 		ec.marshalNCreateSecretPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐCreateSecretPayload,
@@ -1833,7 +1833,7 @@ func (ec *executionContext) _Mutation_addSecretValue(ctx context.Context, field 
 		ec.fieldContext_Mutation_addSecretValue,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().AddSecretValue(ctx, fc.Args["input"].(secret.AddSecretValueInput))
+			return ec.Resolvers.Mutation().AddSecretValue(ctx, fc.Args["input"].(secret.AddSecretValueInput))
 		},
 		nil,
 		ec.marshalNAddSecretValuePayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐAddSecretValuePayload,
@@ -1878,7 +1878,7 @@ func (ec *executionContext) _Mutation_updateSecretValue(ctx context.Context, fie
 		ec.fieldContext_Mutation_updateSecretValue,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().UpdateSecretValue(ctx, fc.Args["input"].(secret.UpdateSecretValueInput))
+			return ec.Resolvers.Mutation().UpdateSecretValue(ctx, fc.Args["input"].(secret.UpdateSecretValueInput))
 		},
 		nil,
 		ec.marshalNUpdateSecretValuePayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐUpdateSecretValuePayload,
@@ -1923,7 +1923,7 @@ func (ec *executionContext) _Mutation_removeSecretValue(ctx context.Context, fie
 		ec.fieldContext_Mutation_removeSecretValue,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().RemoveSecretValue(ctx, fc.Args["input"].(secret.RemoveSecretValueInput))
+			return ec.Resolvers.Mutation().RemoveSecretValue(ctx, fc.Args["input"].(secret.RemoveSecretValueInput))
 		},
 		nil,
 		ec.marshalNRemoveSecretValuePayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐRemoveSecretValuePayload,
@@ -1968,7 +1968,7 @@ func (ec *executionContext) _Mutation_deleteSecret(ctx context.Context, field gr
 		ec.fieldContext_Mutation_deleteSecret,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().DeleteSecret(ctx, fc.Args["input"].(secret.DeleteSecretInput))
+			return ec.Resolvers.Mutation().DeleteSecret(ctx, fc.Args["input"].(secret.DeleteSecretInput))
 		},
 		nil,
 		ec.marshalNDeleteSecretPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐDeleteSecretPayload,
@@ -2013,7 +2013,7 @@ func (ec *executionContext) _Mutation_viewSecretValues(ctx context.Context, fiel
 		ec.fieldContext_Mutation_viewSecretValues,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().ViewSecretValues(ctx, fc.Args["input"].(secret.ViewSecretValuesInput))
+			return ec.Resolvers.Mutation().ViewSecretValues(ctx, fc.Args["input"].(secret.ViewSecretValuesInput))
 		},
 		nil,
 		ec.marshalNViewSecretValuesPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐViewSecretValuesPayload,
@@ -2058,7 +2058,7 @@ func (ec *executionContext) _Mutation_createServiceAccount(ctx context.Context, 
 		ec.fieldContext_Mutation_createServiceAccount,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().CreateServiceAccount(ctx, fc.Args["input"].(serviceaccount.CreateServiceAccountInput))
+			return ec.Resolvers.Mutation().CreateServiceAccount(ctx, fc.Args["input"].(serviceaccount.CreateServiceAccountInput))
 		},
 		nil,
 		ec.marshalNCreateServiceAccountPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐCreateServiceAccountPayload,
@@ -2103,7 +2103,7 @@ func (ec *executionContext) _Mutation_updateServiceAccount(ctx context.Context, 
 		ec.fieldContext_Mutation_updateServiceAccount,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().UpdateServiceAccount(ctx, fc.Args["input"].(serviceaccount.UpdateServiceAccountInput))
+			return ec.Resolvers.Mutation().UpdateServiceAccount(ctx, fc.Args["input"].(serviceaccount.UpdateServiceAccountInput))
 		},
 		nil,
 		ec.marshalNUpdateServiceAccountPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐUpdateServiceAccountPayload,
@@ -2148,7 +2148,7 @@ func (ec *executionContext) _Mutation_deleteServiceAccount(ctx context.Context, 
 		ec.fieldContext_Mutation_deleteServiceAccount,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().DeleteServiceAccount(ctx, fc.Args["input"].(serviceaccount.DeleteServiceAccountInput))
+			return ec.Resolvers.Mutation().DeleteServiceAccount(ctx, fc.Args["input"].(serviceaccount.DeleteServiceAccountInput))
 		},
 		nil,
 		ec.marshalNDeleteServiceAccountPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐDeleteServiceAccountPayload,
@@ -2193,7 +2193,7 @@ func (ec *executionContext) _Mutation_assignRoleToServiceAccount(ctx context.Con
 		ec.fieldContext_Mutation_assignRoleToServiceAccount,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().AssignRoleToServiceAccount(ctx, fc.Args["input"].(serviceaccount.AssignRoleToServiceAccountInput))
+			return ec.Resolvers.Mutation().AssignRoleToServiceAccount(ctx, fc.Args["input"].(serviceaccount.AssignRoleToServiceAccountInput))
 		},
 		nil,
 		ec.marshalNAssignRoleToServiceAccountPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐAssignRoleToServiceAccountPayload,
@@ -2238,7 +2238,7 @@ func (ec *executionContext) _Mutation_revokeRoleFromServiceAccount(ctx context.C
 		ec.fieldContext_Mutation_revokeRoleFromServiceAccount,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().RevokeRoleFromServiceAccount(ctx, fc.Args["input"].(serviceaccount.RevokeRoleFromServiceAccountInput))
+			return ec.Resolvers.Mutation().RevokeRoleFromServiceAccount(ctx, fc.Args["input"].(serviceaccount.RevokeRoleFromServiceAccountInput))
 		},
 		nil,
 		ec.marshalNRevokeRoleFromServiceAccountPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐRevokeRoleFromServiceAccountPayload,
@@ -2283,7 +2283,7 @@ func (ec *executionContext) _Mutation_createServiceAccountToken(ctx context.Cont
 		ec.fieldContext_Mutation_createServiceAccountToken,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().CreateServiceAccountToken(ctx, fc.Args["input"].(serviceaccount.CreateServiceAccountTokenInput))
+			return ec.Resolvers.Mutation().CreateServiceAccountToken(ctx, fc.Args["input"].(serviceaccount.CreateServiceAccountTokenInput))
 		},
 		nil,
 		ec.marshalNCreateServiceAccountTokenPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐCreateServiceAccountTokenPayload,
@@ -2332,7 +2332,7 @@ func (ec *executionContext) _Mutation_updateServiceAccountToken(ctx context.Cont
 		ec.fieldContext_Mutation_updateServiceAccountToken,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().UpdateServiceAccountToken(ctx, fc.Args["input"].(serviceaccount.UpdateServiceAccountTokenInput))
+			return ec.Resolvers.Mutation().UpdateServiceAccountToken(ctx, fc.Args["input"].(serviceaccount.UpdateServiceAccountTokenInput))
 		},
 		nil,
 		ec.marshalNUpdateServiceAccountTokenPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐUpdateServiceAccountTokenPayload,
@@ -2379,7 +2379,7 @@ func (ec *executionContext) _Mutation_deleteServiceAccountToken(ctx context.Cont
 		ec.fieldContext_Mutation_deleteServiceAccountToken,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().DeleteServiceAccountToken(ctx, fc.Args["input"].(serviceaccount.DeleteServiceAccountTokenInput))
+			return ec.Resolvers.Mutation().DeleteServiceAccountToken(ctx, fc.Args["input"].(serviceaccount.DeleteServiceAccountTokenInput))
 		},
 		nil,
 		ec.marshalNDeleteServiceAccountTokenPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐDeleteServiceAccountTokenPayload,
@@ -2426,7 +2426,7 @@ func (ec *executionContext) _Mutation_startValkeyMaintenance(ctx context.Context
 		ec.fieldContext_Mutation_startValkeyMaintenance,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().StartValkeyMaintenance(ctx, fc.Args["input"].(servicemaintenance.StartValkeyMaintenanceInput))
+			return ec.Resolvers.Mutation().StartValkeyMaintenance(ctx, fc.Args["input"].(servicemaintenance.StartValkeyMaintenanceInput))
 		},
 		nil,
 		ec.marshalOStartValkeyMaintenancePayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋservicemaintenanceᚐStartValkeyMaintenancePayload,
@@ -2471,7 +2471,7 @@ func (ec *executionContext) _Mutation_startOpenSearchMaintenance(ctx context.Con
 		ec.fieldContext_Mutation_startOpenSearchMaintenance,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().StartOpenSearchMaintenance(ctx, fc.Args["input"].(servicemaintenance.StartOpenSearchMaintenanceInput))
+			return ec.Resolvers.Mutation().StartOpenSearchMaintenance(ctx, fc.Args["input"].(servicemaintenance.StartOpenSearchMaintenanceInput))
 		},
 		nil,
 		ec.marshalOStartOpenSearchMaintenancePayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋservicemaintenanceᚐStartOpenSearchMaintenancePayload,
@@ -2516,7 +2516,7 @@ func (ec *executionContext) _Mutation_createTeam(ctx context.Context, field grap
 		ec.fieldContext_Mutation_createTeam,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().CreateTeam(ctx, fc.Args["input"].(team.CreateTeamInput))
+			return ec.Resolvers.Mutation().CreateTeam(ctx, fc.Args["input"].(team.CreateTeamInput))
 		},
 		nil,
 		ec.marshalNCreateTeamPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐCreateTeamPayload,
@@ -2561,7 +2561,7 @@ func (ec *executionContext) _Mutation_updateTeam(ctx context.Context, field grap
 		ec.fieldContext_Mutation_updateTeam,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().UpdateTeam(ctx, fc.Args["input"].(team.UpdateTeamInput))
+			return ec.Resolvers.Mutation().UpdateTeam(ctx, fc.Args["input"].(team.UpdateTeamInput))
 		},
 		nil,
 		ec.marshalNUpdateTeamPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐUpdateTeamPayload,
@@ -2606,7 +2606,7 @@ func (ec *executionContext) _Mutation_updateTeamEnvironment(ctx context.Context,
 		ec.fieldContext_Mutation_updateTeamEnvironment,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().UpdateTeamEnvironment(ctx, fc.Args["input"].(team.UpdateTeamEnvironmentInput))
+			return ec.Resolvers.Mutation().UpdateTeamEnvironment(ctx, fc.Args["input"].(team.UpdateTeamEnvironmentInput))
 		},
 		nil,
 		ec.marshalNUpdateTeamEnvironmentPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐUpdateTeamEnvironmentPayload,
@@ -2653,7 +2653,7 @@ func (ec *executionContext) _Mutation_requestTeamDeletion(ctx context.Context, f
 		ec.fieldContext_Mutation_requestTeamDeletion,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().RequestTeamDeletion(ctx, fc.Args["input"].(team.RequestTeamDeletionInput))
+			return ec.Resolvers.Mutation().RequestTeamDeletion(ctx, fc.Args["input"].(team.RequestTeamDeletionInput))
 		},
 		nil,
 		ec.marshalNRequestTeamDeletionPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐRequestTeamDeletionPayload,
@@ -2698,7 +2698,7 @@ func (ec *executionContext) _Mutation_confirmTeamDeletion(ctx context.Context, f
 		ec.fieldContext_Mutation_confirmTeamDeletion,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().ConfirmTeamDeletion(ctx, fc.Args["input"].(team.ConfirmTeamDeletionInput))
+			return ec.Resolvers.Mutation().ConfirmTeamDeletion(ctx, fc.Args["input"].(team.ConfirmTeamDeletionInput))
 		},
 		nil,
 		ec.marshalNConfirmTeamDeletionPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐConfirmTeamDeletionPayload,
@@ -2743,7 +2743,7 @@ func (ec *executionContext) _Mutation_addTeamMember(ctx context.Context, field g
 		ec.fieldContext_Mutation_addTeamMember,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().AddTeamMember(ctx, fc.Args["input"].(team.AddTeamMemberInput))
+			return ec.Resolvers.Mutation().AddTeamMember(ctx, fc.Args["input"].(team.AddTeamMemberInput))
 		},
 		nil,
 		ec.marshalNAddTeamMemberPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐAddTeamMemberPayload,
@@ -2788,7 +2788,7 @@ func (ec *executionContext) _Mutation_removeTeamMember(ctx context.Context, fiel
 		ec.fieldContext_Mutation_removeTeamMember,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().RemoveTeamMember(ctx, fc.Args["input"].(team.RemoveTeamMemberInput))
+			return ec.Resolvers.Mutation().RemoveTeamMember(ctx, fc.Args["input"].(team.RemoveTeamMemberInput))
 		},
 		nil,
 		ec.marshalNRemoveTeamMemberPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐRemoveTeamMemberPayload,
@@ -2835,7 +2835,7 @@ func (ec *executionContext) _Mutation_setTeamMemberRole(ctx context.Context, fie
 		ec.fieldContext_Mutation_setTeamMemberRole,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().SetTeamMemberRole(ctx, fc.Args["input"].(team.SetTeamMemberRoleInput))
+			return ec.Resolvers.Mutation().SetTeamMemberRole(ctx, fc.Args["input"].(team.SetTeamMemberRoleInput))
 		},
 		nil,
 		ec.marshalNSetTeamMemberRolePayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐSetTeamMemberRolePayload,
@@ -2880,7 +2880,7 @@ func (ec *executionContext) _Mutation_createUnleashForTeam(ctx context.Context, 
 		ec.fieldContext_Mutation_createUnleashForTeam,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().CreateUnleashForTeam(ctx, fc.Args["input"].(unleash.CreateUnleashForTeamInput))
+			return ec.Resolvers.Mutation().CreateUnleashForTeam(ctx, fc.Args["input"].(unleash.CreateUnleashForTeamInput))
 		},
 		nil,
 		ec.marshalNCreateUnleashForTeamPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐCreateUnleashForTeamPayload,
@@ -2925,7 +2925,7 @@ func (ec *executionContext) _Mutation_updateUnleashInstance(ctx context.Context,
 		ec.fieldContext_Mutation_updateUnleashInstance,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().UpdateUnleashInstance(ctx, fc.Args["input"].(unleash.UpdateUnleashInstanceInput))
+			return ec.Resolvers.Mutation().UpdateUnleashInstance(ctx, fc.Args["input"].(unleash.UpdateUnleashInstanceInput))
 		},
 		nil,
 		ec.marshalNUpdateUnleashInstancePayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐUpdateUnleashInstancePayload,
@@ -2970,7 +2970,7 @@ func (ec *executionContext) _Mutation_allowTeamAccessToUnleash(ctx context.Conte
 		ec.fieldContext_Mutation_allowTeamAccessToUnleash,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().AllowTeamAccessToUnleash(ctx, fc.Args["input"].(unleash.AllowTeamAccessToUnleashInput))
+			return ec.Resolvers.Mutation().AllowTeamAccessToUnleash(ctx, fc.Args["input"].(unleash.AllowTeamAccessToUnleashInput))
 		},
 		nil,
 		ec.marshalNAllowTeamAccessToUnleashPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐAllowTeamAccessToUnleashPayload,
@@ -3015,7 +3015,7 @@ func (ec *executionContext) _Mutation_revokeTeamAccessToUnleash(ctx context.Cont
 		ec.fieldContext_Mutation_revokeTeamAccessToUnleash,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().RevokeTeamAccessToUnleash(ctx, fc.Args["input"].(unleash.RevokeTeamAccessToUnleashInput))
+			return ec.Resolvers.Mutation().RevokeTeamAccessToUnleash(ctx, fc.Args["input"].(unleash.RevokeTeamAccessToUnleashInput))
 		},
 		nil,
 		ec.marshalNRevokeTeamAccessToUnleashPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐRevokeTeamAccessToUnleashPayload,
@@ -3060,7 +3060,7 @@ func (ec *executionContext) _Mutation_deleteUnleashInstance(ctx context.Context,
 		ec.fieldContext_Mutation_deleteUnleashInstance,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().DeleteUnleashInstance(ctx, fc.Args["input"].(unleash.DeleteUnleashInstanceInput))
+			return ec.Resolvers.Mutation().DeleteUnleashInstance(ctx, fc.Args["input"].(unleash.DeleteUnleashInstanceInput))
 		},
 		nil,
 		ec.marshalNDeleteUnleashInstancePayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐDeleteUnleashInstancePayload,
@@ -3105,7 +3105,7 @@ func (ec *executionContext) _Mutation_createValkey(ctx context.Context, field gr
 		ec.fieldContext_Mutation_createValkey,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().CreateValkey(ctx, fc.Args["input"].(valkey.CreateValkeyInput))
+			return ec.Resolvers.Mutation().CreateValkey(ctx, fc.Args["input"].(valkey.CreateValkeyInput))
 		},
 		nil,
 		ec.marshalNCreateValkeyPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐCreateValkeyPayload,
@@ -3150,7 +3150,7 @@ func (ec *executionContext) _Mutation_updateValkey(ctx context.Context, field gr
 		ec.fieldContext_Mutation_updateValkey,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().UpdateValkey(ctx, fc.Args["input"].(valkey.UpdateValkeyInput))
+			return ec.Resolvers.Mutation().UpdateValkey(ctx, fc.Args["input"].(valkey.UpdateValkeyInput))
 		},
 		nil,
 		ec.marshalNUpdateValkeyPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐUpdateValkeyPayload,
@@ -3195,7 +3195,7 @@ func (ec *executionContext) _Mutation_deleteValkey(ctx context.Context, field gr
 		ec.fieldContext_Mutation_deleteValkey,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().DeleteValkey(ctx, fc.Args["input"].(valkey.DeleteValkeyInput))
+			return ec.Resolvers.Mutation().DeleteValkey(ctx, fc.Args["input"].(valkey.DeleteValkeyInput))
 		},
 		nil,
 		ec.marshalNDeleteValkeyPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐDeleteValkeyPayload,
@@ -3240,7 +3240,7 @@ func (ec *executionContext) _Mutation_updateImageVulnerability(ctx context.Conte
 		ec.fieldContext_Mutation_updateImageVulnerability,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().UpdateImageVulnerability(ctx, fc.Args["input"].(vulnerability.UpdateImageVulnerabilityInput))
+			return ec.Resolvers.Mutation().UpdateImageVulnerability(ctx, fc.Args["input"].(vulnerability.UpdateImageVulnerabilityInput))
 		},
 		nil,
 		ec.marshalNUpdateImageVulnerabilityPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐUpdateImageVulnerabilityPayload,
@@ -3488,7 +3488,7 @@ func (ec *executionContext) _Query_node(ctx context.Context, field graphql.Colle
 		ec.fieldContext_Query_node,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().Node(ctx, fc.Args["id"].(ident.Ident))
+			return ec.Resolvers.Query().Node(ctx, fc.Args["id"].(ident.Ident))
 		},
 		nil,
 		ec.marshalONode2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐNode,
@@ -3529,7 +3529,7 @@ func (ec *executionContext) _Query_roles(ctx context.Context, field graphql.Coll
 		ec.fieldContext_Query_roles,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().Roles(ctx, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
+			return ec.Resolvers.Query().Roles(ctx, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
 		},
 		nil,
 		ec.marshalNRoleConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -3578,7 +3578,7 @@ func (ec *executionContext) _Query_costMonthlySummary(ctx context.Context, field
 		ec.fieldContext_Query_costMonthlySummary,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().CostMonthlySummary(ctx, fc.Args["from"].(scalar.Date), fc.Args["to"].(scalar.Date))
+			return ec.Resolvers.Query().CostMonthlySummary(ctx, fc.Args["from"].(scalar.Date), fc.Args["to"].(scalar.Date))
 		},
 		nil,
 		ec.marshalNCostMonthlySummary2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐCostMonthlySummary,
@@ -3623,7 +3623,7 @@ func (ec *executionContext) _Query_deployments(ctx context.Context, field graphq
 		ec.fieldContext_Query_deployments,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().Deployments(ctx, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*deployment.DeploymentOrder), fc.Args["filter"].(*deployment.DeploymentFilter))
+			return ec.Resolvers.Query().Deployments(ctx, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*deployment.DeploymentOrder), fc.Args["filter"].(*deployment.DeploymentFilter))
 		},
 		nil,
 		ec.marshalNDeploymentConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -3672,7 +3672,7 @@ func (ec *executionContext) _Query_environments(ctx context.Context, field graph
 		ec.fieldContext_Query_environments,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().Environments(ctx, fc.Args["orderBy"].(*environment.EnvironmentOrder))
+			return ec.Resolvers.Query().Environments(ctx, fc.Args["orderBy"].(*environment.EnvironmentOrder))
 		},
 		nil,
 		ec.marshalNEnvironmentConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -3721,7 +3721,7 @@ func (ec *executionContext) _Query_environment(ctx context.Context, field graphq
 		ec.fieldContext_Query_environment,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().Environment(ctx, fc.Args["name"].(string))
+			return ec.Resolvers.Query().Environment(ctx, fc.Args["name"].(string))
 		},
 		nil,
 		ec.marshalNEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋenvironmentᚐEnvironment,
@@ -3771,7 +3771,7 @@ func (ec *executionContext) _Query_features(ctx context.Context, field graphql.C
 		field,
 		ec.fieldContext_Query_features,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Query().Features(ctx)
+			return ec.Resolvers.Query().Features(ctx)
 		},
 		nil,
 		ec.marshalNFeatures2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋfeatureᚐFeatures,
@@ -3812,7 +3812,7 @@ func (ec *executionContext) _Query_currentUnitPrices(ctx context.Context, field 
 		field,
 		ec.fieldContext_Query_currentUnitPrices,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Query().CurrentUnitPrices(ctx)
+			return ec.Resolvers.Query().CurrentUnitPrices(ctx)
 		},
 		nil,
 		ec.marshalNCurrentUnitPrices2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpriceᚐCurrentUnitPrices,
@@ -3848,7 +3848,7 @@ func (ec *executionContext) _Query_reconcilers(ctx context.Context, field graphq
 		ec.fieldContext_Query_reconcilers,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().Reconcilers(ctx, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
+			return ec.Resolvers.Query().Reconcilers(ctx, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
 		},
 		nil,
 		ec.marshalNReconcilerConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -3897,7 +3897,7 @@ func (ec *executionContext) _Query_search(ctx context.Context, field graphql.Col
 		ec.fieldContext_Query_search,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().Search(ctx, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["filter"].(search.SearchFilter))
+			return ec.Resolvers.Query().Search(ctx, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["filter"].(search.SearchFilter))
 		},
 		nil,
 		ec.marshalNSearchNodeConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -3946,7 +3946,7 @@ func (ec *executionContext) _Query_serviceAccounts(ctx context.Context, field gr
 		ec.fieldContext_Query_serviceAccounts,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().ServiceAccounts(ctx, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
+			return ec.Resolvers.Query().ServiceAccounts(ctx, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
 		},
 		nil,
 		ec.marshalNServiceAccountConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -3995,7 +3995,7 @@ func (ec *executionContext) _Query_serviceAccount(ctx context.Context, field gra
 		ec.fieldContext_Query_serviceAccount,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().ServiceAccount(ctx, fc.Args["id"].(ident.Ident))
+			return ec.Resolvers.Query().ServiceAccount(ctx, fc.Args["id"].(ident.Ident))
 		},
 		nil,
 		ec.marshalNServiceAccount2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐServiceAccount,
@@ -4056,7 +4056,7 @@ func (ec *executionContext) _Query_teams(ctx context.Context, field graphql.Coll
 		ec.fieldContext_Query_teams,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().Teams(ctx, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*team.TeamOrder), fc.Args["filter"].(*team.TeamFilter))
+			return ec.Resolvers.Query().Teams(ctx, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*team.TeamOrder), fc.Args["filter"].(*team.TeamFilter))
 		},
 		nil,
 		ec.marshalNTeamConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -4105,7 +4105,7 @@ func (ec *executionContext) _Query_team(ctx context.Context, field graphql.Colle
 		ec.fieldContext_Query_team,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().Team(ctx, fc.Args["slug"].(slug.Slug))
+			return ec.Resolvers.Query().Team(ctx, fc.Args["slug"].(slug.Slug))
 		},
 		nil,
 		ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam,
@@ -4227,7 +4227,7 @@ func (ec *executionContext) _Query_unleashReleaseChannels(ctx context.Context, f
 		field,
 		ec.fieldContext_Query_unleashReleaseChannels,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Query().UnleashReleaseChannels(ctx)
+			return ec.Resolvers.Query().UnleashReleaseChannels(ctx)
 		},
 		nil,
 		ec.marshalNUnleashReleaseChannel2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐUnleashReleaseChannelᚄ,
@@ -4267,7 +4267,7 @@ func (ec *executionContext) _Query_users(ctx context.Context, field graphql.Coll
 		ec.fieldContext_Query_users,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().Users(ctx, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*user.UserOrder))
+			return ec.Resolvers.Query().Users(ctx, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*user.UserOrder))
 		},
 		nil,
 		ec.marshalNUserConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -4316,7 +4316,7 @@ func (ec *executionContext) _Query_user(ctx context.Context, field graphql.Colle
 		ec.fieldContext_Query_user,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().User(ctx, fc.Args["email"].(*string))
+			return ec.Resolvers.Query().User(ctx, fc.Args["email"].(*string))
 		},
 		nil,
 		ec.marshalNUser2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋuserᚐUser,
@@ -4370,7 +4370,7 @@ func (ec *executionContext) _Query_me(ctx context.Context, field graphql.Collect
 		field,
 		ec.fieldContext_Query_me,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Query().Me(ctx)
+			return ec.Resolvers.Query().Me(ctx)
 		},
 		nil,
 		ec.marshalNAuthenticatedUser2githubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋauthzᚐAuthenticatedUser,
@@ -4400,7 +4400,7 @@ func (ec *executionContext) _Query_userSyncLog(ctx context.Context, field graphq
 		ec.fieldContext_Query_userSyncLog,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().UserSyncLog(ctx, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
+			return ec.Resolvers.Query().UserSyncLog(ctx, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
 		},
 		nil,
 		ec.marshalNUserSyncLogEntryConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -4449,7 +4449,7 @@ func (ec *executionContext) _Query_teamsUtilization(ctx context.Context, field g
 		ec.fieldContext_Query_teamsUtilization,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().TeamsUtilization(ctx, fc.Args["resourceType"].(utilization.UtilizationResourceType))
+			return ec.Resolvers.Query().TeamsUtilization(ctx, fc.Args["resourceType"].(utilization.UtilizationResourceType))
 		},
 		nil,
 		ec.marshalNTeamUtilizationData2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐTeamUtilizationDataᚄ,
@@ -4502,7 +4502,7 @@ func (ec *executionContext) _Query_imageVulnerabilityHistory(ctx context.Context
 		ec.fieldContext_Query_imageVulnerabilityHistory,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().ImageVulnerabilityHistory(ctx, fc.Args["from"].(scalar.Date))
+			return ec.Resolvers.Query().ImageVulnerabilityHistory(ctx, fc.Args["from"].(scalar.Date))
 		},
 		nil,
 		ec.marshalNImageVulnerabilityHistory2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐImageVulnerabilityHistory,
@@ -4546,7 +4546,7 @@ func (ec *executionContext) _Query_vulnerabilitySummary(ctx context.Context, fie
 		field,
 		ec.fieldContext_Query_vulnerabilitySummary,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Query().VulnerabilitySummary(ctx)
+			return ec.Resolvers.Query().VulnerabilitySummary(ctx)
 		},
 		nil,
 		ec.marshalNTenantVulnerabilitySummary2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐTenantVulnerabilitySummary,
@@ -4596,7 +4596,7 @@ func (ec *executionContext) _Query_vulnerabilityFixHistory(ctx context.Context, 
 		ec.fieldContext_Query_vulnerabilityFixHistory,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().VulnerabilityFixHistory(ctx, fc.Args["from"].(scalar.Date))
+			return ec.Resolvers.Query().VulnerabilityFixHistory(ctx, fc.Args["from"].(scalar.Date))
 		},
 		nil,
 		ec.marshalNVulnerabilityFixHistory2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐVulnerabilityFixHistory,
@@ -4641,7 +4641,7 @@ func (ec *executionContext) _Query_cve(ctx context.Context, field graphql.Collec
 		ec.fieldContext_Query_cve,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().CVE(ctx, fc.Args["identifier"].(string))
+			return ec.Resolvers.Query().CVE(ctx, fc.Args["identifier"].(string))
 		},
 		nil,
 		ec.marshalNCVE2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐCVE,
@@ -4700,7 +4700,7 @@ func (ec *executionContext) _Query_cves(ctx context.Context, field graphql.Colle
 		ec.fieldContext_Query_cves,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().Cves(ctx, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*vulnerability.CVEOrder))
+			return ec.Resolvers.Query().Cves(ctx, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*vulnerability.CVEOrder))
 		},
 		nil,
 		ec.marshalNCVEConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -4749,7 +4749,7 @@ func (ec *executionContext) _Query___type(ctx context.Context, field graphql.Col
 		ec.fieldContext_Query___type,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.introspectType(fc.Args["name"].(string))
+			return ec.IntrospectType(fc.Args["name"].(string))
 		},
 		nil,
 		ec.marshalO__Type2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐType,
@@ -4813,7 +4813,7 @@ func (ec *executionContext) _Query___schema(ctx context.Context, field graphql.C
 		field,
 		ec.fieldContext_Query___schema,
 		func(ctx context.Context) (any, error) {
-			return ec.introspectSchema()
+			return ec.IntrospectSchema()
 		},
 		nil,
 		ec.marshalO__Schema2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐSchema,
@@ -4857,7 +4857,7 @@ func (ec *executionContext) _Subscription_log(ctx context.Context, field graphql
 		ec.fieldContext_Subscription_log,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Subscription().Log(ctx, fc.Args["filter"].(loki.LogSubscriptionFilter))
+			return ec.Resolvers.Subscription().Log(ctx, fc.Args["filter"].(loki.LogSubscriptionFilter))
 		},
 		nil,
 		ec.marshalNLogLine2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋlokiᚐLogLine,
@@ -4906,7 +4906,7 @@ func (ec *executionContext) _Subscription_workloadLog(ctx context.Context, field
 		ec.fieldContext_Subscription_workloadLog,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Subscription().WorkloadLog(ctx, fc.Args["filter"].(podlog.WorkloadLogSubscriptionFilter))
+			return ec.Resolvers.Subscription().WorkloadLog(ctx, fc.Args["filter"].(podlog.WorkloadLogSubscriptionFilter))
 		},
 		nil,
 		ec.marshalNWorkloadLogLine2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋpodlogᚐWorkloadLogLine,
@@ -5749,7 +5749,11 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 		}
 		return ec._ActivityLogEntry(ctx, sel, obj)
 	default:
-		panic(fmt.Errorf("unexpected type %T", obj))
+		if typedObj, ok := obj.(graphql.Marshaler); ok {
+			return typedObj
+		} else {
+			panic(fmt.Errorf("unexpected type %T; non-generated variants of Node must implement graphql.Marshaler", obj))
+		}
 	}
 }
 
@@ -6108,10 +6112,10 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -6171,10 +6175,10 @@ func (ec *executionContext) _PageInfo(ctx context.Context, sel ast.SelectionSet,
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -6768,10 +6772,10 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,

@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
-	"sync"
 	"sync/atomic"
 
 	"github.com/99designs/gqlgen/graphql"
@@ -417,7 +416,7 @@ func (ec *executionContext) _Secret_environment(ctx context.Context, field graph
 		field,
 		ec.fieldContext_Secret_environment,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Secret().Environment(ctx, obj)
+			return ec.Resolvers.Secret().Environment(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment,
@@ -486,7 +485,7 @@ func (ec *executionContext) _Secret_teamEnvironment(ctx context.Context, field g
 		field,
 		ec.fieldContext_Secret_teamEnvironment,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Secret().TeamEnvironment(ctx, obj)
+			return ec.Resolvers.Secret().TeamEnvironment(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment,
@@ -555,7 +554,7 @@ func (ec *executionContext) _Secret_team(ctx context.Context, field graphql.Coll
 		field,
 		ec.fieldContext_Secret_team,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Secret().Team(ctx, obj)
+			return ec.Resolvers.Secret().Team(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam,
@@ -696,7 +695,7 @@ func (ec *executionContext) _Secret_applications(ctx context.Context, field grap
 		ec.fieldContext_Secret_applications,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Secret().Applications(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
+			return ec.Resolvers.Secret().Applications(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
 		},
 		nil,
 		ec.marshalNApplicationConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -745,7 +744,7 @@ func (ec *executionContext) _Secret_jobs(ctx context.Context, field graphql.Coll
 		ec.fieldContext_Secret_jobs,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Secret().Jobs(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
+			return ec.Resolvers.Secret().Jobs(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
 		},
 		nil,
 		ec.marshalNJobConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -794,7 +793,7 @@ func (ec *executionContext) _Secret_workloads(ctx context.Context, field graphql
 		ec.fieldContext_Secret_workloads,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Secret().Workloads(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
+			return ec.Resolvers.Secret().Workloads(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
 		},
 		nil,
 		ec.marshalNWorkloadConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -871,7 +870,7 @@ func (ec *executionContext) _Secret_lastModifiedBy(ctx context.Context, field gr
 		field,
 		ec.fieldContext_Secret_lastModifiedBy,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Secret().LastModifiedBy(ctx, obj)
+			return ec.Resolvers.Secret().LastModifiedBy(ctx, obj)
 		},
 		nil,
 		ec.marshalOUser2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋuserᚐUser,
@@ -915,7 +914,7 @@ func (ec *executionContext) _Secret_activityLog(ctx context.Context, field graph
 		ec.fieldContext_Secret_activityLog,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Secret().ActivityLog(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["filter"].(*activitylog.ActivityLogFilter))
+			return ec.Resolvers.Secret().ActivityLog(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["filter"].(*activitylog.ActivityLogFilter))
 		},
 		nil,
 		ec.marshalNActivityLogEntryConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -3040,7 +3039,6 @@ func (ec *executionContext) unmarshalInputAddSecretValueInput(ctx context.Contex
 			it.Value = data
 		}
 	}
-
 	return it, nil
 }
 
@@ -3081,7 +3079,6 @@ func (ec *executionContext) unmarshalInputCreateSecretInput(ctx context.Context,
 			it.Team = data
 		}
 	}
-
 	return it, nil
 }
 
@@ -3122,7 +3119,6 @@ func (ec *executionContext) unmarshalInputDeleteSecretInput(ctx context.Context,
 			it.Team = data
 		}
 	}
-
 	return it, nil
 }
 
@@ -3170,7 +3166,6 @@ func (ec *executionContext) unmarshalInputRemoveSecretValueInput(ctx context.Con
 			it.ValueName = data
 		}
 	}
-
 	return it, nil
 }
 
@@ -3204,7 +3199,6 @@ func (ec *executionContext) unmarshalInputSecretFilter(ctx context.Context, obj 
 			it.InUse = data
 		}
 	}
-
 	return it, nil
 }
 
@@ -3238,7 +3232,6 @@ func (ec *executionContext) unmarshalInputSecretOrder(ctx context.Context, obj a
 			it.Direction = data
 		}
 	}
-
 	return it, nil
 }
 
@@ -3272,7 +3265,6 @@ func (ec *executionContext) unmarshalInputSecretValueInput(ctx context.Context, 
 			it.Value = data
 		}
 	}
-
 	return it, nil
 }
 
@@ -3320,7 +3312,6 @@ func (ec *executionContext) unmarshalInputUpdateSecretValueInput(ctx context.Con
 			it.Value = data
 		}
 	}
-
 	return it, nil
 }
 
@@ -3368,7 +3359,6 @@ func (ec *executionContext) unmarshalInputViewSecretValuesInput(ctx context.Cont
 			it.Reason = data
 		}
 	}
-
 	return it, nil
 }
 
@@ -3402,10 +3392,10 @@ func (ec *executionContext) _AddSecretValuePayload(ctx context.Context, sel ast.
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -3438,10 +3428,10 @@ func (ec *executionContext) _CreateSecretPayload(ctx context.Context, sel ast.Se
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -3474,10 +3464,10 @@ func (ec *executionContext) _DeleteSecretPayload(ctx context.Context, sel ast.Se
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -3510,10 +3500,10 @@ func (ec *executionContext) _RemoveSecretValuePayload(ctx context.Context, sel a
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -3846,10 +3836,10 @@ func (ec *executionContext) _Secret(ctx context.Context, sel ast.SelectionSet, o
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -3895,10 +3885,10 @@ func (ec *executionContext) _SecretConnection(ctx context.Context, sel ast.Selec
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -3966,10 +3956,10 @@ func (ec *executionContext) _SecretCreatedActivityLogEntry(ctx context.Context, 
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -4037,10 +4027,10 @@ func (ec *executionContext) _SecretDeletedActivityLogEntry(ctx context.Context, 
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -4081,10 +4071,10 @@ func (ec *executionContext) _SecretEdge(ctx context.Context, sel ast.SelectionSe
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -4125,10 +4115,10 @@ func (ec *executionContext) _SecretValue(ctx context.Context, sel ast.SelectionS
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -4201,10 +4191,10 @@ func (ec *executionContext) _SecretValueAddedActivityLogEntry(ctx context.Contex
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -4240,10 +4230,10 @@ func (ec *executionContext) _SecretValueAddedActivityLogEntryData(ctx context.Co
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -4316,10 +4306,10 @@ func (ec *executionContext) _SecretValueRemovedActivityLogEntry(ctx context.Cont
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -4355,10 +4345,10 @@ func (ec *executionContext) _SecretValueRemovedActivityLogEntryData(ctx context.
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -4431,10 +4421,10 @@ func (ec *executionContext) _SecretValueUpdatedActivityLogEntry(ctx context.Cont
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -4470,10 +4460,10 @@ func (ec *executionContext) _SecretValueUpdatedActivityLogEntryData(ctx context.
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -4546,10 +4536,10 @@ func (ec *executionContext) _SecretValuesViewedActivityLogEntry(ctx context.Cont
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -4585,10 +4575,10 @@ func (ec *executionContext) _SecretValuesViewedActivityLogEntryData(ctx context.
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -4624,10 +4614,10 @@ func (ec *executionContext) _TeamInventoryCountSecrets(ctx context.Context, sel 
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -4660,10 +4650,10 @@ func (ec *executionContext) _UpdateSecretValuePayload(ctx context.Context, sel a
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -4699,10 +4689,10 @@ func (ec *executionContext) _ViewSecretValuesPayload(ctx context.Context, sel as
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -4798,39 +4788,11 @@ func (ec *executionContext) marshalNSecret2githubᚗcomᚋnaisᚋapiᚋinternal�
 }
 
 func (ec *executionContext) marshalNSecret2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretᚄ(ctx context.Context, sel ast.SelectionSet, v []*secret.Secret) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNSecret2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecret(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNSecret2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecret(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -4870,39 +4832,11 @@ func (ec *executionContext) marshalNSecretEdge2githubᚗcomᚋnaisᚋapiᚋinter
 }
 
 func (ec *executionContext) marshalNSecretEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[*secret.Secret]) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNSecretEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNSecretEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -4924,39 +4858,11 @@ func (ec *executionContext) marshalNSecretOrderField2githubᚗcomᚋnaisᚋapi�
 }
 
 func (ec *executionContext) marshalNSecretValue2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueᚄ(ctx context.Context, sel ast.SelectionSet, v []*secret.SecretValue) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNSecretValue2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValue(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNSecretValue2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValue(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {

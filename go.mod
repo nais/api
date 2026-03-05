@@ -19,7 +19,7 @@ require (
 	cloud.google.com/go/cloudsqlconn v1.17.3
 	cloud.google.com/go/monitoring v1.24.3
 	cloud.google.com/go/pubsub v1.50.1
-	github.com/99designs/gqlgen v0.17.84
+	github.com/99designs/gqlgen v0.17.87
 	github.com/GoogleCloudPlatform/k8s-config-connector v1.128.0
 	github.com/aiven/go-client-codegen v0.106.0
 	github.com/blevesearch/bleve/v2 v2.5.0
@@ -64,15 +64,15 @@ require (
 	github.com/zitadel/oidc/v3 v3.33.1
 	github.com/zitadel/zitadel-go/v3 v3.4.3
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.64.0
-	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.64.0
-	go.opentelemetry.io/otel v1.40.0
+	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.66.0
+	go.opentelemetry.io/otel v1.41.0
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.39.0
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.39.0
 	go.opentelemetry.io/otel/exporters/prometheus v0.58.0
-	go.opentelemetry.io/otel/metric v1.40.0
-	go.opentelemetry.io/otel/sdk v1.40.0
-	go.opentelemetry.io/otel/sdk/metric v1.40.0
-	go.opentelemetry.io/otel/trace v1.40.0
+	go.opentelemetry.io/otel/metric v1.41.0
+	go.opentelemetry.io/otel/sdk v1.41.0
+	go.opentelemetry.io/otel/sdk/metric v1.41.0
+	go.opentelemetry.io/otel/trace v1.41.0
 	golang.org/x/exp v0.0.0-20250808145144-a408d31f581a
 	golang.org/x/oauth2 v0.34.0
 	golang.org/x/sync v0.19.0

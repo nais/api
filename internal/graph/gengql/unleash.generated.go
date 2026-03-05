@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
-	"sync"
 	"sync/atomic"
 
 	"github.com/99designs/gqlgen/graphql"
@@ -345,7 +344,7 @@ func (ec *executionContext) _UnleashInstance_allowedTeams(ctx context.Context, f
 		ec.fieldContext_UnleashInstance_allowedTeams,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.UnleashInstance().AllowedTeams(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
+			return ec.Resolvers.UnleashInstance().AllowedTeams(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
 		},
 		nil,
 		ec.marshalNTeamConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -1055,7 +1054,7 @@ func (ec *executionContext) _UnleashInstanceMetrics_toggles(ctx context.Context,
 		field,
 		ec.fieldContext_UnleashInstanceMetrics_toggles,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.UnleashInstanceMetrics().Toggles(ctx, obj)
+			return ec.Resolvers.UnleashInstanceMetrics().Toggles(ctx, obj)
 		},
 		nil,
 		ec.marshalNInt2int,
@@ -1084,7 +1083,7 @@ func (ec *executionContext) _UnleashInstanceMetrics_apiTokens(ctx context.Contex
 		field,
 		ec.fieldContext_UnleashInstanceMetrics_apiTokens,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.UnleashInstanceMetrics().APITokens(ctx, obj)
+			return ec.Resolvers.UnleashInstanceMetrics().APITokens(ctx, obj)
 		},
 		nil,
 		ec.marshalNInt2int,
@@ -1113,7 +1112,7 @@ func (ec *executionContext) _UnleashInstanceMetrics_cpuUtilization(ctx context.C
 		field,
 		ec.fieldContext_UnleashInstanceMetrics_cpuUtilization,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.UnleashInstanceMetrics().CPUUtilization(ctx, obj)
+			return ec.Resolvers.UnleashInstanceMetrics().CPUUtilization(ctx, obj)
 		},
 		nil,
 		ec.marshalNFloat2float64,
@@ -1171,7 +1170,7 @@ func (ec *executionContext) _UnleashInstanceMetrics_memoryUtilization(ctx contex
 		field,
 		ec.fieldContext_UnleashInstanceMetrics_memoryUtilization,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.UnleashInstanceMetrics().MemoryUtilization(ctx, obj)
+			return ec.Resolvers.UnleashInstanceMetrics().MemoryUtilization(ctx, obj)
 		},
 		nil,
 		ec.marshalNFloat2float64,
@@ -1779,7 +1778,6 @@ func (ec *executionContext) unmarshalInputAllowTeamAccessToUnleashInput(ctx cont
 			it.AllowedTeamSlug = data
 		}
 	}
-
 	return it, nil
 }
 
@@ -1813,7 +1811,6 @@ func (ec *executionContext) unmarshalInputCreateUnleashForTeamInput(ctx context.
 			it.ReleaseChannel = data
 		}
 	}
-
 	return it, nil
 }
 
@@ -1840,7 +1837,6 @@ func (ec *executionContext) unmarshalInputDeleteUnleashInstanceInput(ctx context
 			it.TeamSlug = data
 		}
 	}
-
 	return it, nil
 }
 
@@ -1874,7 +1870,6 @@ func (ec *executionContext) unmarshalInputRevokeTeamAccessToUnleashInput(ctx con
 			it.RevokedTeamSlug = data
 		}
 	}
-
 	return it, nil
 }
 
@@ -1908,7 +1903,6 @@ func (ec *executionContext) unmarshalInputUpdateUnleashInstanceInput(ctx context
 			it.ReleaseChannel = data
 		}
 	}
-
 	return it, nil
 }
 
@@ -1942,10 +1936,10 @@ func (ec *executionContext) _AllowTeamAccessToUnleashPayload(ctx context.Context
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -1978,10 +1972,10 @@ func (ec *executionContext) _CreateUnleashForTeamPayload(ctx context.Context, se
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -2014,10 +2008,10 @@ func (ec *executionContext) _DeleteUnleashInstancePayload(ctx context.Context, s
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -2050,10 +2044,10 @@ func (ec *executionContext) _RevokeTeamAccessToUnleashPayload(ctx context.Contex
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -2193,10 +2187,10 @@ func (ec *executionContext) _UnleashInstance(ctx context.Context, sel ast.Select
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -2264,10 +2258,10 @@ func (ec *executionContext) _UnleashInstanceCreatedActivityLogEntry(ctx context.
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -2335,10 +2329,10 @@ func (ec *executionContext) _UnleashInstanceDeletedActivityLogEntry(ctx context.
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -2523,10 +2517,10 @@ func (ec *executionContext) _UnleashInstanceMetrics(ctx context.Context, sel ast
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -2599,10 +2593,10 @@ func (ec *executionContext) _UnleashInstanceUpdatedActivityLogEntry(ctx context.
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -2639,10 +2633,10 @@ func (ec *executionContext) _UnleashInstanceUpdatedActivityLogEntryData(ctx cont
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -2690,10 +2684,10 @@ func (ec *executionContext) _UnleashReleaseChannel(ctx context.Context, sel ast.
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -2726,10 +2720,10 @@ func (ec *executionContext) _UpdateUnleashInstancePayload(ctx context.Context, s
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -2855,39 +2849,11 @@ func (ec *executionContext) marshalNUnleashInstanceUpdatedActivityLogEntryData2�
 }
 
 func (ec *executionContext) marshalNUnleashReleaseChannel2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐUnleashReleaseChannelᚄ(ctx context.Context, sel ast.SelectionSet, v []*unleash.UnleashReleaseChannel) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNUnleashReleaseChannel2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐUnleashReleaseChannel(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNUnleashReleaseChannel2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐUnleashReleaseChannel(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {

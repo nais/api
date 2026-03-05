@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
-	"sync"
 	"sync/atomic"
 
 	"github.com/99designs/gqlgen/graphql"
@@ -251,7 +250,7 @@ func (ec *executionContext) _Reconciler_config(ctx context.Context, field graphq
 		field,
 		ec.fieldContext_Reconciler_config,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Reconciler().Config(ctx, obj)
+			return ec.Resolvers.Reconciler().Config(ctx, obj)
 		},
 		nil,
 		ec.marshalNReconcilerConfig2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋreconcilerᚐReconcilerConfigᚄ,
@@ -294,7 +293,7 @@ func (ec *executionContext) _Reconciler_configured(ctx context.Context, field gr
 		field,
 		ec.fieldContext_Reconciler_configured,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Reconciler().Configured(ctx, obj)
+			return ec.Resolvers.Reconciler().Configured(ctx, obj)
 		},
 		nil,
 		ec.marshalNBoolean2bool,
@@ -324,7 +323,7 @@ func (ec *executionContext) _Reconciler_errors(ctx context.Context, field graphq
 		ec.fieldContext_Reconciler_errors,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Reconciler().Errors(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
+			return ec.Resolvers.Reconciler().Errors(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
 		},
 		nil,
 		ec.marshalNReconcilerErrorConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -373,7 +372,7 @@ func (ec *executionContext) _Reconciler_activityLog(ctx context.Context, field g
 		ec.fieldContext_Reconciler_activityLog,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Reconciler().ActivityLog(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["filter"].(*activitylog.ActivityLogFilter))
+			return ec.Resolvers.Reconciler().ActivityLog(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["filter"].(*activitylog.ActivityLogFilter))
 		},
 		nil,
 		ec.marshalNActivityLogEntryConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -1676,7 +1675,7 @@ func (ec *executionContext) _ReconcilerError_team(ctx context.Context, field gra
 		field,
 		ec.fieldContext_ReconcilerError_team,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.ReconcilerError().Team(ctx, obj)
+			return ec.Resolvers.ReconcilerError().Team(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam,
@@ -2005,7 +2004,6 @@ func (ec *executionContext) unmarshalInputConfigureReconcilerInput(ctx context.C
 			it.Config = data
 		}
 	}
-
 	return it, nil
 }
 
@@ -2032,7 +2030,6 @@ func (ec *executionContext) unmarshalInputDisableReconcilerInput(ctx context.Con
 			it.Name = data
 		}
 	}
-
 	return it, nil
 }
 
@@ -2059,7 +2056,6 @@ func (ec *executionContext) unmarshalInputEnableReconcilerInput(ctx context.Cont
 			it.Name = data
 		}
 	}
-
 	return it, nil
 }
 
@@ -2093,7 +2089,6 @@ func (ec *executionContext) unmarshalInputReconcilerConfigInput(ctx context.Cont
 			it.Value = data
 		}
 	}
-
 	return it, nil
 }
 
@@ -2294,10 +2289,10 @@ func (ec *executionContext) _Reconciler(ctx context.Context, sel ast.SelectionSe
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -2355,10 +2350,10 @@ func (ec *executionContext) _ReconcilerConfig(ctx context.Context, sel ast.Selec
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -2431,10 +2426,10 @@ func (ec *executionContext) _ReconcilerConfiguredActivityLogEntry(ctx context.Co
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -2470,10 +2465,10 @@ func (ec *executionContext) _ReconcilerConfiguredActivityLogEntryData(ctx contex
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -2519,10 +2514,10 @@ func (ec *executionContext) _ReconcilerConnection(ctx context.Context, sel ast.S
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -2590,10 +2585,10 @@ func (ec *executionContext) _ReconcilerDisabledActivityLogEntry(ctx context.Cont
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -2634,10 +2629,10 @@ func (ec *executionContext) _ReconcilerEdge(ctx context.Context, sel ast.Selecti
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -2705,10 +2700,10 @@ func (ec *executionContext) _ReconcilerEnabledActivityLogEntry(ctx context.Conte
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -2795,10 +2790,10 @@ func (ec *executionContext) _ReconcilerError(ctx context.Context, sel ast.Select
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -2844,10 +2839,10 @@ func (ec *executionContext) _ReconcilerErrorConnection(ctx context.Context, sel 
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -2888,10 +2883,10 @@ func (ec *executionContext) _ReconcilerErrorEdge(ctx context.Context, sel ast.Se
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -2926,39 +2921,11 @@ func (ec *executionContext) marshalNReconciler2githubᚗcomᚋnaisᚋapiᚋinter
 }
 
 func (ec *executionContext) marshalNReconciler2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋreconcilerᚐReconcilerᚄ(ctx context.Context, sel ast.SelectionSet, v []*reconciler.Reconciler) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNReconciler2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋreconcilerᚐReconciler(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNReconciler2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋreconcilerᚐReconciler(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -2980,39 +2947,11 @@ func (ec *executionContext) marshalNReconciler2ᚖgithubᚗcomᚋnaisᚋapiᚋin
 }
 
 func (ec *executionContext) marshalNReconcilerConfig2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋreconcilerᚐReconcilerConfigᚄ(ctx context.Context, sel ast.SelectionSet, v []*reconciler.ReconcilerConfig) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNReconcilerConfig2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋreconcilerᚐReconcilerConfig(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNReconcilerConfig2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋreconcilerᚐReconcilerConfig(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -3082,39 +3021,11 @@ func (ec *executionContext) marshalNReconcilerEdge2githubᚗcomᚋnaisᚋapiᚋi
 }
 
 func (ec *executionContext) marshalNReconcilerEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[*reconciler.Reconciler]) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNReconcilerEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNReconcilerEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -3126,39 +3037,11 @@ func (ec *executionContext) marshalNReconcilerEdge2ᚕgithubᚗcomᚋnaisᚋapi�
 }
 
 func (ec *executionContext) marshalNReconcilerError2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋreconcilerᚐReconcilerErrorᚄ(ctx context.Context, sel ast.SelectionSet, v []*reconciler.ReconcilerError) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNReconcilerError2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋreconcilerᚐReconcilerError(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNReconcilerError2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋreconcilerᚐReconcilerError(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -3198,39 +3081,11 @@ func (ec *executionContext) marshalNReconcilerErrorEdge2githubᚗcomᚋnaisᚋap
 }
 
 func (ec *executionContext) marshalNReconcilerErrorEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[*reconciler.ReconcilerError]) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNReconcilerErrorEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNReconcilerErrorEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {

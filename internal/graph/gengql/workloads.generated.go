@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
-	"sync"
 	"sync/atomic"
 
 	"github.com/99designs/gqlgen/graphql"
@@ -230,7 +229,7 @@ func (ec *executionContext) _ContainerImage_activityLog(ctx context.Context, fie
 		ec.fieldContext_ContainerImage_activityLog,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.ContainerImage().ActivityLog(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["filter"].(*activitylog.ActivityLogFilter))
+			return ec.Resolvers.ContainerImage().ActivityLog(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["filter"].(*activitylog.ActivityLogFilter))
 		},
 		nil,
 		ec.marshalNActivityLogEntryConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -278,7 +277,7 @@ func (ec *executionContext) _ContainerImage_hasSBOM(ctx context.Context, field g
 		field,
 		ec.fieldContext_ContainerImage_hasSBOM,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.ContainerImage().HasSbom(ctx, obj)
+			return ec.Resolvers.ContainerImage().HasSbom(ctx, obj)
 		},
 		nil,
 		ec.marshalNBoolean2bool,
@@ -308,7 +307,7 @@ func (ec *executionContext) _ContainerImage_vulnerabilities(ctx context.Context,
 		ec.fieldContext_ContainerImage_vulnerabilities,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.ContainerImage().Vulnerabilities(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["filter"].(*vulnerability.ImageVulnerabilityFilter), fc.Args["orderBy"].(*vulnerability.ImageVulnerabilityOrder))
+			return ec.Resolvers.ContainerImage().Vulnerabilities(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["filter"].(*vulnerability.ImageVulnerabilityFilter), fc.Args["orderBy"].(*vulnerability.ImageVulnerabilityOrder))
 		},
 		nil,
 		ec.marshalNImageVulnerabilityConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -356,7 +355,7 @@ func (ec *executionContext) _ContainerImage_vulnerabilitySummary(ctx context.Con
 		field,
 		ec.fieldContext_ContainerImage_vulnerabilitySummary,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.ContainerImage().VulnerabilitySummary(ctx, obj)
+			return ec.Resolvers.ContainerImage().VulnerabilitySummary(ctx, obj)
 		},
 		nil,
 		ec.marshalOImageVulnerabilitySummary2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐImageVulnerabilitySummary,
@@ -404,7 +403,7 @@ func (ec *executionContext) _ContainerImage_workloadReferences(ctx context.Conte
 		ec.fieldContext_ContainerImage_workloadReferences,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.ContainerImage().WorkloadReferences(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
+			return ec.Resolvers.ContainerImage().WorkloadReferences(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
 		},
 		nil,
 		ec.marshalNContainerImageWorkloadReferenceConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -820,7 +819,6 @@ func (ec *executionContext) unmarshalInputEnvironmentWorkloadOrder(ctx context.C
 			it.Direction = data
 		}
 	}
-
 	return it, nil
 }
 
@@ -847,7 +845,6 @@ func (ec *executionContext) unmarshalInputTeamWorkloadsFilter(ctx context.Contex
 			it.Environments = data
 		}
 	}
-
 	return it, nil
 }
 
@@ -881,7 +878,6 @@ func (ec *executionContext) unmarshalInputWorkloadOrder(ctx context.Context, obj
 			it.Direction = data
 		}
 	}
-
 	return it, nil
 }
 
@@ -922,7 +918,11 @@ func (ec *executionContext) _AuthIntegration(ctx context.Context, sel ast.Select
 		}
 		return ec._EntraIDAuthIntegration(ctx, sel, obj)
 	default:
-		panic(fmt.Errorf("unexpected type %T", obj))
+		if typedObj, ok := obj.(graphql.Marshaler); ok {
+			return typedObj
+		} else {
+			panic(fmt.Errorf("unexpected type %T; non-generated variants of AuthIntegration must implement graphql.Marshaler", obj))
+		}
 	}
 }
 
@@ -941,7 +941,11 @@ func (ec *executionContext) _Workload(ctx context.Context, sel ast.SelectionSet,
 		}
 		return ec._Application(ctx, sel, obj)
 	default:
-		panic(fmt.Errorf("unexpected type %T", obj))
+		if typedObj, ok := obj.(graphql.Marshaler); ok {
+			return typedObj
+		} else {
+			panic(fmt.Errorf("unexpected type %T; non-generated variants of Workload must implement graphql.Marshaler", obj))
+		}
 	}
 }
 
@@ -964,7 +968,11 @@ func (ec *executionContext) _WorkloadManifest(ctx context.Context, sel ast.Selec
 		}
 		return ec._ApplicationManifest(ctx, sel, obj)
 	default:
-		panic(fmt.Errorf("unexpected type %T", obj))
+		if typedObj, ok := obj.(graphql.Marshaler); ok {
+			return typedObj
+		} else {
+			panic(fmt.Errorf("unexpected type %T; non-generated variants of WorkloadManifest must implement graphql.Marshaler", obj))
+		}
 	}
 }
 
@@ -987,7 +995,11 @@ func (ec *executionContext) _WorkloadResources(ctx context.Context, sel ast.Sele
 		}
 		return ec._ApplicationResources(ctx, sel, obj)
 	default:
-		panic(fmt.Errorf("unexpected type %T", obj))
+		if typedObj, ok := obj.(graphql.Marshaler); ok {
+			return typedObj
+		} else {
+			panic(fmt.Errorf("unexpected type %T; non-generated variants of WorkloadResources must implement graphql.Marshaler", obj))
+		}
 	}
 }
 
@@ -1207,10 +1219,10 @@ func (ec *executionContext) _ContainerImage(ctx context.Context, sel ast.Selecti
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -1246,10 +1258,10 @@ func (ec *executionContext) _EntraIDAuthIntegration(ctx context.Context, sel ast
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -1285,10 +1297,10 @@ func (ec *executionContext) _IDPortenAuthIntegration(ctx context.Context, sel as
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -1324,10 +1336,10 @@ func (ec *executionContext) _MaskinportenAuthIntegration(ctx context.Context, se
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -1363,10 +1375,10 @@ func (ec *executionContext) _TokenXAuthIntegration(ctx context.Context, sel ast.
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -1412,10 +1424,10 @@ func (ec *executionContext) _WorkloadConnection(ctx context.Context, sel ast.Sel
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -1456,10 +1468,10 @@ func (ec *executionContext) _WorkloadEdge(ctx context.Context, sel ast.Selection
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -1494,10 +1506,10 @@ func (ec *executionContext) _WorkloadResourceQuantity(ctx context.Context, sel a
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -1543,39 +1555,11 @@ func (ec *executionContext) marshalNWorkload2githubᚗcomᚋnaisᚋapiᚋinterna
 }
 
 func (ec *executionContext) marshalNWorkload2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkloadᚄ(ctx context.Context, sel ast.SelectionSet, v []workload.Workload) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -1605,39 +1589,11 @@ func (ec *executionContext) marshalNWorkloadEdge2githubᚗcomᚋnaisᚋapiᚋint
 }
 
 func (ec *executionContext) marshalNWorkloadEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[workload.Workload]) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNWorkloadEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNWorkloadEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {

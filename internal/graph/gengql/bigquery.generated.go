@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
-	"sync"
 	"sync/atomic"
 
 	"github.com/99designs/gqlgen/graphql"
@@ -140,7 +139,7 @@ func (ec *executionContext) _BigQueryDataset_team(ctx context.Context, field gra
 		field,
 		ec.fieldContext_BigQueryDataset_team,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.BigQueryDataset().Team(ctx, obj)
+			return ec.Resolvers.BigQueryDataset().Team(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam,
@@ -251,7 +250,7 @@ func (ec *executionContext) _BigQueryDataset_environment(ctx context.Context, fi
 		field,
 		ec.fieldContext_BigQueryDataset_environment,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.BigQueryDataset().Environment(ctx, obj)
+			return ec.Resolvers.BigQueryDataset().Environment(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment,
@@ -320,7 +319,7 @@ func (ec *executionContext) _BigQueryDataset_teamEnvironment(ctx context.Context
 		field,
 		ec.fieldContext_BigQueryDataset_teamEnvironment,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.BigQueryDataset().TeamEnvironment(ctx, obj)
+			return ec.Resolvers.BigQueryDataset().TeamEnvironment(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment,
@@ -448,7 +447,7 @@ func (ec *executionContext) _BigQueryDataset_access(ctx context.Context, field g
 		ec.fieldContext_BigQueryDataset_access,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.BigQueryDataset().Access(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*bigquery.BigQueryDatasetAccessOrder))
+			return ec.Resolvers.BigQueryDataset().Access(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*bigquery.BigQueryDatasetAccessOrder))
 		},
 		nil,
 		ec.marshalNBigQueryDatasetAccessConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -531,7 +530,7 @@ func (ec *executionContext) _BigQueryDataset_workload(ctx context.Context, field
 		field,
 		ec.fieldContext_BigQueryDataset_workload,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.BigQueryDataset().Workload(ctx, obj)
+			return ec.Resolvers.BigQueryDataset().Workload(ctx, obj)
 		},
 		nil,
 		ec.marshalOWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload,
@@ -560,7 +559,7 @@ func (ec *executionContext) _BigQueryDataset_cost(ctx context.Context, field gra
 		field,
 		ec.fieldContext_BigQueryDataset_cost,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.BigQueryDataset().Cost(ctx, obj)
+			return ec.Resolvers.BigQueryDataset().Cost(ctx, obj)
 		},
 		nil,
 		ec.marshalNBigQueryDatasetCost2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐBigQueryDatasetCost,
@@ -1159,7 +1158,6 @@ func (ec *executionContext) unmarshalInputBigQueryDatasetAccessOrder(ctx context
 			it.Direction = data
 		}
 	}
-
 	return it, nil
 }
 
@@ -1193,7 +1191,6 @@ func (ec *executionContext) unmarshalInputBigQueryDatasetOrder(ctx context.Conte
 			it.Direction = data
 		}
 	}
-
 	return it, nil
 }
 
@@ -1460,10 +1457,10 @@ func (ec *executionContext) _BigQueryDataset(ctx context.Context, sel ast.Select
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -1504,10 +1501,10 @@ func (ec *executionContext) _BigQueryDatasetAccess(ctx context.Context, sel ast.
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -1553,10 +1550,10 @@ func (ec *executionContext) _BigQueryDatasetAccessConnection(ctx context.Context
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -1597,10 +1594,10 @@ func (ec *executionContext) _BigQueryDatasetAccessEdge(ctx context.Context, sel 
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -1646,10 +1643,10 @@ func (ec *executionContext) _BigQueryDatasetConnection(ctx context.Context, sel 
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -1690,10 +1687,10 @@ func (ec *executionContext) _BigQueryDatasetEdge(ctx context.Context, sel ast.Se
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -1731,10 +1728,10 @@ func (ec *executionContext) _BigQueryDatasetStatus(ctx context.Context, sel ast.
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -1770,10 +1767,10 @@ func (ec *executionContext) _TeamInventoryCountBigQueryDatasets(ctx context.Cont
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -1793,39 +1790,11 @@ func (ec *executionContext) marshalNBigQueryDataset2githubᚗcomᚋnaisᚋapiᚋ
 }
 
 func (ec *executionContext) marshalNBigQueryDataset2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDatasetᚄ(ctx context.Context, sel ast.SelectionSet, v []*bigquery.BigQueryDataset) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNBigQueryDataset2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDataset(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNBigQueryDataset2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDataset(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -1847,39 +1816,11 @@ func (ec *executionContext) marshalNBigQueryDataset2ᚖgithubᚗcomᚋnaisᚋapi
 }
 
 func (ec *executionContext) marshalNBigQueryDatasetAccess2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDatasetAccessᚄ(ctx context.Context, sel ast.SelectionSet, v []*bigquery.BigQueryDatasetAccess) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNBigQueryDatasetAccess2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDatasetAccess(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNBigQueryDatasetAccess2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDatasetAccess(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -1919,39 +1860,11 @@ func (ec *executionContext) marshalNBigQueryDatasetAccessEdge2githubᚗcomᚋnai
 }
 
 func (ec *executionContext) marshalNBigQueryDatasetAccessEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[*bigquery.BigQueryDatasetAccess]) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNBigQueryDatasetAccessEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNBigQueryDatasetAccessEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -1991,39 +1904,11 @@ func (ec *executionContext) marshalNBigQueryDatasetEdge2githubᚗcomᚋnaisᚋap
 }
 
 func (ec *executionContext) marshalNBigQueryDatasetEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[*bigquery.BigQueryDataset]) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNBigQueryDatasetEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNBigQueryDatasetEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {

@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
-	"sync"
 	"sync/atomic"
 
 	"github.com/99designs/gqlgen/graphql"
@@ -442,7 +441,7 @@ func (ec *executionContext) _PrometheusAlert_team(ctx context.Context, field gra
 		field,
 		ec.fieldContext_PrometheusAlert_team,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.PrometheusAlert().Team(ctx, obj)
+			return ec.Resolvers.PrometheusAlert().Team(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam,
@@ -553,7 +552,7 @@ func (ec *executionContext) _PrometheusAlert_teamEnvironment(ctx context.Context
 		field,
 		ec.fieldContext_PrometheusAlert_teamEnvironment,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.PrometheusAlert().TeamEnvironment(ctx, obj)
+			return ec.Resolvers.PrometheusAlert().TeamEnvironment(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment,
@@ -808,7 +807,6 @@ func (ec *executionContext) unmarshalInputAlertOrder(ctx context.Context, obj an
 			it.Direction = data
 		}
 	}
-
 	return it, nil
 }
 
@@ -849,7 +847,6 @@ func (ec *executionContext) unmarshalInputTeamAlertsFilter(ctx context.Context, 
 			it.States = data
 		}
 	}
-
 	return it, nil
 }
 
@@ -869,7 +866,11 @@ func (ec *executionContext) _Alert(ctx context.Context, sel ast.SelectionSet, ob
 		}
 		return ec._PrometheusAlert(ctx, sel, obj)
 	default:
-		panic(fmt.Errorf("unexpected type %T", obj))
+		if typedObj, ok := obj.(graphql.Marshaler); ok {
+			return typedObj
+		} else {
+			panic(fmt.Errorf("unexpected type %T; non-generated variants of Alert must implement graphql.Marshaler", obj))
+		}
 	}
 }
 
@@ -912,10 +913,10 @@ func (ec *executionContext) _AlertConnection(ctx context.Context, sel ast.Select
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -956,10 +957,10 @@ func (ec *executionContext) _AlertEdge(ctx context.Context, sel ast.SelectionSet
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -1020,10 +1021,10 @@ func (ec *executionContext) _PrometheusAlarm(ctx context.Context, sel ast.Select
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -1161,10 +1162,10 @@ func (ec *executionContext) _PrometheusAlert(ctx context.Context, sel ast.Select
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -1190,39 +1191,11 @@ func (ec *executionContext) marshalNAlert2githubᚗcomᚋnaisᚋapiᚋinternal�
 }
 
 func (ec *executionContext) marshalNAlert2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlertᚄ(ctx context.Context, sel ast.SelectionSet, v []alerts.Alert) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNAlert2githubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlert(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNAlert2githubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlert(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -1252,39 +1225,11 @@ func (ec *executionContext) marshalNAlertEdge2githubᚗcomᚋnaisᚋapiᚋintern
 }
 
 func (ec *executionContext) marshalNAlertEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[alerts.Alert]) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNAlertEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNAlertEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -1316,39 +1261,11 @@ func (ec *executionContext) marshalNAlertState2githubᚗcomᚋnaisᚋapiᚋinter
 }
 
 func (ec *executionContext) marshalNPrometheusAlarm2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐPrometheusAlarmᚄ(ctx context.Context, sel ast.SelectionSet, v []*alerts.PrometheusAlarm) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNPrometheusAlarm2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐPrometheusAlarm(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNPrometheusAlarm2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐPrometheusAlarm(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -1399,39 +1316,11 @@ func (ec *executionContext) marshalOAlertState2ᚕgithubᚗcomᚋnaisᚋapiᚋin
 	if v == nil {
 		return graphql.Null
 	}
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNAlertState2githubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlertState(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNAlertState2githubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlertState(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {

@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
-	"sync"
 	"sync/atomic"
 
 	"github.com/99designs/gqlgen/graphql"
@@ -156,7 +155,7 @@ func (ec *executionContext) _TeamServiceUtilization_sqlInstances(ctx context.Con
 		field,
 		ec.fieldContext_TeamServiceUtilization_sqlInstances,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.TeamServiceUtilization().SQLInstances(ctx, obj)
+			return ec.Resolvers.TeamServiceUtilization().SQLInstances(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeamServiceUtilizationSqlInstances2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐTeamServiceUtilizationSQLInstances,
@@ -193,7 +192,7 @@ func (ec *executionContext) _TeamUtilizationData_team(ctx context.Context, field
 		field,
 		ec.fieldContext_TeamUtilizationData_team,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.TeamUtilizationData().Team(ctx, obj)
+			return ec.Resolvers.TeamUtilizationData().Team(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam,
@@ -362,7 +361,7 @@ func (ec *executionContext) _TeamUtilizationData_environment(ctx context.Context
 		field,
 		ec.fieldContext_TeamUtilizationData_environment,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.TeamUtilizationData().Environment(ctx, obj)
+			return ec.Resolvers.TeamUtilizationData().Environment(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment,
@@ -431,7 +430,7 @@ func (ec *executionContext) _TeamUtilizationData_teamEnvironment(ctx context.Con
 		field,
 		ec.fieldContext_TeamUtilizationData_teamEnvironment,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.TeamUtilizationData().TeamEnvironment(ctx, obj)
+			return ec.Resolvers.TeamUtilizationData().TeamEnvironment(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment,
@@ -588,7 +587,7 @@ func (ec *executionContext) _WorkloadUtilization_current(ctx context.Context, fi
 		ec.fieldContext_WorkloadUtilization_current,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.WorkloadUtilization().Current(ctx, obj, fc.Args["resourceType"].(utilization.UtilizationResourceType))
+			return ec.Resolvers.WorkloadUtilization().Current(ctx, obj, fc.Args["resourceType"].(utilization.UtilizationResourceType))
 		},
 		nil,
 		ec.marshalNFloat2float64,
@@ -629,7 +628,7 @@ func (ec *executionContext) _WorkloadUtilization_requested(ctx context.Context, 
 		ec.fieldContext_WorkloadUtilization_requested,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.WorkloadUtilization().Requested(ctx, obj, fc.Args["resourceType"].(utilization.UtilizationResourceType))
+			return ec.Resolvers.WorkloadUtilization().Requested(ctx, obj, fc.Args["resourceType"].(utilization.UtilizationResourceType))
 		},
 		nil,
 		ec.marshalNFloat2float64,
@@ -670,7 +669,7 @@ func (ec *executionContext) _WorkloadUtilization_requestedSeries(ctx context.Con
 		ec.fieldContext_WorkloadUtilization_requestedSeries,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.WorkloadUtilization().RequestedSeries(ctx, obj, fc.Args["input"].(utilization.WorkloadUtilizationSeriesInput))
+			return ec.Resolvers.WorkloadUtilization().RequestedSeries(ctx, obj, fc.Args["input"].(utilization.WorkloadUtilizationSeriesInput))
 		},
 		nil,
 		ec.marshalNUtilizationSample2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐUtilizationSampleᚄ,
@@ -719,7 +718,7 @@ func (ec *executionContext) _WorkloadUtilization_limit(ctx context.Context, fiel
 		ec.fieldContext_WorkloadUtilization_limit,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.WorkloadUtilization().Limit(ctx, obj, fc.Args["resourceType"].(utilization.UtilizationResourceType))
+			return ec.Resolvers.WorkloadUtilization().Limit(ctx, obj, fc.Args["resourceType"].(utilization.UtilizationResourceType))
 		},
 		nil,
 		ec.marshalOFloat2ᚖfloat64,
@@ -760,7 +759,7 @@ func (ec *executionContext) _WorkloadUtilization_limitSeries(ctx context.Context
 		ec.fieldContext_WorkloadUtilization_limitSeries,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.WorkloadUtilization().LimitSeries(ctx, obj, fc.Args["input"].(utilization.WorkloadUtilizationSeriesInput))
+			return ec.Resolvers.WorkloadUtilization().LimitSeries(ctx, obj, fc.Args["input"].(utilization.WorkloadUtilizationSeriesInput))
 		},
 		nil,
 		ec.marshalNUtilizationSample2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐUtilizationSampleᚄ,
@@ -809,7 +808,7 @@ func (ec *executionContext) _WorkloadUtilization_series(ctx context.Context, fie
 		ec.fieldContext_WorkloadUtilization_series,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.WorkloadUtilization().Series(ctx, obj, fc.Args["input"].(utilization.WorkloadUtilizationSeriesInput))
+			return ec.Resolvers.WorkloadUtilization().Series(ctx, obj, fc.Args["input"].(utilization.WorkloadUtilizationSeriesInput))
 		},
 		nil,
 		ec.marshalNUtilizationSample2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐUtilizationSampleᚄ,
@@ -857,7 +856,7 @@ func (ec *executionContext) _WorkloadUtilization_recommendations(ctx context.Con
 		field,
 		ec.fieldContext_WorkloadUtilization_recommendations,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.WorkloadUtilization().Recommendations(ctx, obj)
+			return ec.Resolvers.WorkloadUtilization().Recommendations(ctx, obj)
 		},
 		nil,
 		ec.marshalNWorkloadUtilizationRecommendations2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐWorkloadUtilizationRecommendations,
@@ -894,7 +893,7 @@ func (ec *executionContext) _WorkloadUtilizationData_workload(ctx context.Contex
 		field,
 		ec.fieldContext_WorkloadUtilizationData_workload,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.WorkloadUtilizationData().Workload(ctx, obj)
+			return ec.Resolvers.WorkloadUtilizationData().Workload(ctx, obj)
 		},
 		nil,
 		ec.marshalNWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload,
@@ -1102,7 +1101,6 @@ func (ec *executionContext) unmarshalInputWorkloadUtilizationSeriesInput(ctx con
 			it.ResourceType = data
 		}
 	}
-
 	return it, nil
 }
 
@@ -1139,10 +1137,10 @@ func (ec *executionContext) _ApplicationInstanceUtilization(ctx context.Context,
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -1209,10 +1207,10 @@ func (ec *executionContext) _TeamServiceUtilization(ctx context.Context, sel ast
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -1361,10 +1359,10 @@ func (ec *executionContext) _TeamUtilizationData(ctx context.Context, sel ast.Se
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -1410,10 +1408,10 @@ func (ec *executionContext) _UtilizationSample(ctx context.Context, sel ast.Sele
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -1693,10 +1691,10 @@ func (ec *executionContext) _WorkloadUtilization(ctx context.Context, sel ast.Se
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -1773,10 +1771,10 @@ func (ec *executionContext) _WorkloadUtilizationData(ctx context.Context, sel as
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -1915,10 +1913,10 @@ func (ec *executionContext) _WorkloadUtilizationRecommendations(ctx context.Cont
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -1962,39 +1960,11 @@ func (ec *executionContext) marshalNTeamServiceUtilization2ᚖgithubᚗcomᚋnai
 }
 
 func (ec *executionContext) marshalNTeamUtilizationData2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐTeamUtilizationDataᚄ(ctx context.Context, sel ast.SelectionSet, v []*utilization.TeamUtilizationData) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNTeamUtilizationData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐTeamUtilizationData(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNTeamUtilizationData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐTeamUtilizationData(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -2026,39 +1996,11 @@ func (ec *executionContext) marshalNUtilizationResourceType2githubᚗcomᚋnais�
 }
 
 func (ec *executionContext) marshalNUtilizationSample2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐUtilizationSampleᚄ(ctx context.Context, sel ast.SelectionSet, v []*utilization.UtilizationSample) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNUtilizationSample2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐUtilizationSample(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNUtilizationSample2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐUtilizationSample(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -2094,39 +2036,11 @@ func (ec *executionContext) marshalNWorkloadUtilization2ᚖgithubᚗcomᚋnais�
 }
 
 func (ec *executionContext) marshalNWorkloadUtilizationData2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐWorkloadUtilizationData(ctx context.Context, sel ast.SelectionSet, v []*utilization.WorkloadUtilizationData) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalOWorkloadUtilizationData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐWorkloadUtilizationData(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalOWorkloadUtilizationData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐWorkloadUtilizationData(ctx, sel, v[i])
+	})
 
 	return ret
 }

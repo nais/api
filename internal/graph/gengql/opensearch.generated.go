@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
-	"sync"
 	"sync/atomic"
 
 	"github.com/99designs/gqlgen/graphql"
@@ -312,7 +311,7 @@ func (ec *executionContext) _OpenSearch_team(ctx context.Context, field graphql.
 		field,
 		ec.fieldContext_OpenSearch_team,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.OpenSearch().Team(ctx, obj)
+			return ec.Resolvers.OpenSearch().Team(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam,
@@ -423,7 +422,7 @@ func (ec *executionContext) _OpenSearch_environment(ctx context.Context, field g
 		field,
 		ec.fieldContext_OpenSearch_environment,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.OpenSearch().Environment(ctx, obj)
+			return ec.Resolvers.OpenSearch().Environment(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment,
@@ -492,7 +491,7 @@ func (ec *executionContext) _OpenSearch_teamEnvironment(ctx context.Context, fie
 		field,
 		ec.fieldContext_OpenSearch_teamEnvironment,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.OpenSearch().TeamEnvironment(ctx, obj)
+			return ec.Resolvers.OpenSearch().TeamEnvironment(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment,
@@ -590,7 +589,7 @@ func (ec *executionContext) _OpenSearch_state(ctx context.Context, field graphql
 		field,
 		ec.fieldContext_OpenSearch_state,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.OpenSearch().State(ctx, obj)
+			return ec.Resolvers.OpenSearch().State(ctx, obj)
 		},
 		nil,
 		ec.marshalNOpenSearchState2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchState,
@@ -619,7 +618,7 @@ func (ec *executionContext) _OpenSearch_workload(ctx context.Context, field grap
 		field,
 		ec.fieldContext_OpenSearch_workload,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.OpenSearch().Workload(ctx, obj)
+			return ec.Resolvers.OpenSearch().Workload(ctx, obj)
 		},
 		nil,
 		ec.marshalOWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload,
@@ -649,7 +648,7 @@ func (ec *executionContext) _OpenSearch_access(ctx context.Context, field graphq
 		ec.fieldContext_OpenSearch_access,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.OpenSearch().Access(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*opensearch.OpenSearchAccessOrder))
+			return ec.Resolvers.OpenSearch().Access(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*opensearch.OpenSearchAccessOrder))
 		},
 		nil,
 		ec.marshalNOpenSearchAccessConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -697,7 +696,7 @@ func (ec *executionContext) _OpenSearch_version(ctx context.Context, field graph
 		field,
 		ec.fieldContext_OpenSearch_version,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.OpenSearch().Version(ctx, obj)
+			return ec.Resolvers.OpenSearch().Version(ctx, obj)
 		},
 		nil,
 		ec.marshalNOpenSearchVersion2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchVersion,
@@ -820,7 +819,7 @@ func (ec *executionContext) _OpenSearch_issues(ctx context.Context, field graphq
 		ec.fieldContext_OpenSearch_issues,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.OpenSearch().Issues(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*issue.IssueOrder), fc.Args["filter"].(*issue.ResourceIssueFilter))
+			return ec.Resolvers.OpenSearch().Issues(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*issue.IssueOrder), fc.Args["filter"].(*issue.ResourceIssueFilter))
 		},
 		nil,
 		ec.marshalNIssueConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -869,7 +868,7 @@ func (ec *executionContext) _OpenSearch_activityLog(ctx context.Context, field g
 		ec.fieldContext_OpenSearch_activityLog,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.OpenSearch().ActivityLog(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["filter"].(*activitylog.ActivityLogFilter))
+			return ec.Resolvers.OpenSearch().ActivityLog(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["filter"].(*activitylog.ActivityLogFilter))
 		},
 		nil,
 		ec.marshalNActivityLogEntryConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -917,7 +916,7 @@ func (ec *executionContext) _OpenSearch_cost(ctx context.Context, field graphql.
 		field,
 		ec.fieldContext_OpenSearch_cost,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.OpenSearch().Cost(ctx, obj)
+			return ec.Resolvers.OpenSearch().Cost(ctx, obj)
 		},
 		nil,
 		ec.marshalNOpenSearchCost2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐOpenSearchCost,
@@ -950,7 +949,7 @@ func (ec *executionContext) _OpenSearch_maintenance(ctx context.Context, field g
 		field,
 		ec.fieldContext_OpenSearch_maintenance,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.OpenSearch().Maintenance(ctx, obj)
+			return ec.Resolvers.OpenSearch().Maintenance(ctx, obj)
 		},
 		nil,
 		ec.marshalNOpenSearchMaintenance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋservicemaintenanceᚐOpenSearchMaintenance,
@@ -985,7 +984,7 @@ func (ec *executionContext) _OpenSearchAccess_workload(ctx context.Context, fiel
 		field,
 		ec.fieldContext_OpenSearchAccess_workload,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.OpenSearchAccess().Workload(ctx, obj)
+			return ec.Resolvers.OpenSearchAccess().Workload(ctx, obj)
 		},
 		nil,
 		ec.marshalNWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload,
@@ -2528,7 +2527,6 @@ func (ec *executionContext) unmarshalInputCreateOpenSearchInput(ctx context.Cont
 			it.StorageGB = data
 		}
 	}
-
 	return it, nil
 }
 
@@ -2569,7 +2567,6 @@ func (ec *executionContext) unmarshalInputDeleteOpenSearchInput(ctx context.Cont
 			it.TeamSlug = data
 		}
 	}
-
 	return it, nil
 }
 
@@ -2603,7 +2600,6 @@ func (ec *executionContext) unmarshalInputOpenSearchAccessOrder(ctx context.Cont
 			it.Direction = data
 		}
 	}
-
 	return it, nil
 }
 
@@ -2637,7 +2633,6 @@ func (ec *executionContext) unmarshalInputOpenSearchOrder(ctx context.Context, o
 			it.Direction = data
 		}
 	}
-
 	return it, nil
 }
 
@@ -2706,7 +2701,6 @@ func (ec *executionContext) unmarshalInputUpdateOpenSearchInput(ctx context.Cont
 			it.StorageGB = data
 		}
 	}
-
 	return it, nil
 }
 
@@ -2743,10 +2737,10 @@ func (ec *executionContext) _CreateOpenSearchPayload(ctx context.Context, sel as
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -2779,10 +2773,10 @@ func (ec *executionContext) _DeleteOpenSearchPayload(ctx context.Context, sel as
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -3236,10 +3230,10 @@ func (ec *executionContext) _OpenSearch(ctx context.Context, sel ast.SelectionSe
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -3311,10 +3305,10 @@ func (ec *executionContext) _OpenSearchAccess(ctx context.Context, sel ast.Selec
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -3360,10 +3354,10 @@ func (ec *executionContext) _OpenSearchAccessConnection(ctx context.Context, sel
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -3404,10 +3398,10 @@ func (ec *executionContext) _OpenSearchAccessEdge(ctx context.Context, sel ast.S
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -3453,10 +3447,10 @@ func (ec *executionContext) _OpenSearchConnection(ctx context.Context, sel ast.S
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -3524,10 +3518,10 @@ func (ec *executionContext) _OpenSearchCreatedActivityLogEntry(ctx context.Conte
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -3595,10 +3589,10 @@ func (ec *executionContext) _OpenSearchDeletedActivityLogEntry(ctx context.Conte
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -3639,10 +3633,10 @@ func (ec *executionContext) _OpenSearchEdge(ctx context.Context, sel ast.Selecti
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -3715,10 +3709,10 @@ func (ec *executionContext) _OpenSearchUpdatedActivityLogEntry(ctx context.Conte
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -3754,10 +3748,10 @@ func (ec *executionContext) _OpenSearchUpdatedActivityLogEntryData(ctx context.C
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -3797,10 +3791,10 @@ func (ec *executionContext) _OpenSearchUpdatedActivityLogEntryDataUpdatedField(c
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -3838,10 +3832,10 @@ func (ec *executionContext) _OpenSearchVersion(ctx context.Context, sel ast.Sele
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -3877,10 +3871,10 @@ func (ec *executionContext) _TeamInventoryCountOpenSearches(ctx context.Context,
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -3916,10 +3910,10 @@ func (ec *executionContext) _UpdateOpenSearchPayload(ctx context.Context, sel as
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -3977,39 +3971,11 @@ func (ec *executionContext) marshalNOpenSearch2githubᚗcomᚋnaisᚋapiᚋinter
 }
 
 func (ec *executionContext) marshalNOpenSearch2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchᚄ(ctx context.Context, sel ast.SelectionSet, v []*opensearch.OpenSearch) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNOpenSearch2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearch(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNOpenSearch2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearch(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -4031,39 +3997,11 @@ func (ec *executionContext) marshalNOpenSearch2ᚖgithubᚗcomᚋnaisᚋapiᚋin
 }
 
 func (ec *executionContext) marshalNOpenSearchAccess2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchAccessᚄ(ctx context.Context, sel ast.SelectionSet, v []*opensearch.OpenSearchAccess) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNOpenSearchAccess2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchAccess(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNOpenSearchAccess2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchAccess(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -4103,39 +4041,11 @@ func (ec *executionContext) marshalNOpenSearchAccessEdge2githubᚗcomᚋnaisᚋa
 }
 
 func (ec *executionContext) marshalNOpenSearchAccessEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[*opensearch.OpenSearchAccess]) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNOpenSearchAccessEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNOpenSearchAccessEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -4175,39 +4085,11 @@ func (ec *executionContext) marshalNOpenSearchEdge2githubᚗcomᚋnaisᚋapiᚋi
 }
 
 func (ec *executionContext) marshalNOpenSearchEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[*opensearch.OpenSearch]) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNOpenSearchEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNOpenSearchEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -4279,39 +4161,11 @@ func (ec *executionContext) marshalNOpenSearchUpdatedActivityLogEntryData2ᚖgit
 }
 
 func (ec *executionContext) marshalNOpenSearchUpdatedActivityLogEntryDataUpdatedField2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchUpdatedActivityLogEntryDataUpdatedFieldᚄ(ctx context.Context, sel ast.SelectionSet, v []*opensearch.OpenSearchUpdatedActivityLogEntryDataUpdatedField) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNOpenSearchUpdatedActivityLogEntryDataUpdatedField2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchUpdatedActivityLogEntryDataUpdatedField(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNOpenSearchUpdatedActivityLogEntryDataUpdatedField2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchUpdatedActivityLogEntryDataUpdatedField(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
