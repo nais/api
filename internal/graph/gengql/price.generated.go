@@ -40,7 +40,7 @@ func (ec *executionContext) _CurrentUnitPrices_cpu(ctx context.Context, field gr
 		field,
 		ec.fieldContext_CurrentUnitPrices_cpu,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.CurrentUnitPrices().CPU(ctx, obj)
+			return ec.Resolvers.CurrentUnitPrices().CPU(ctx, obj)
 		},
 		nil,
 		ec.marshalNPrice2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpriceᚐPrice,
@@ -73,7 +73,7 @@ func (ec *executionContext) _CurrentUnitPrices_memory(ctx context.Context, field
 		field,
 		ec.fieldContext_CurrentUnitPrices_memory,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.CurrentUnitPrices().Memory(ctx, obj)
+			return ec.Resolvers.CurrentUnitPrices().Memory(ctx, obj)
 		},
 		nil,
 		ec.marshalNPrice2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpriceᚐPrice,
@@ -232,10 +232,10 @@ func (ec *executionContext) _CurrentUnitPrices(ctx context.Context, sel ast.Sele
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -271,10 +271,10 @@ func (ec *executionContext) _Price(ctx context.Context, sel ast.SelectionSet, ob
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,

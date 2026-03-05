@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
-	"sync"
 	"sync/atomic"
 
 	"github.com/99designs/gqlgen/graphql"
@@ -1145,7 +1144,7 @@ func (ec *executionContext) _RemoveTeamMemberPayload_user(ctx context.Context, f
 		field,
 		ec.fieldContext_RemoveTeamMemberPayload_user,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.RemoveTeamMemberPayload().User(ctx, obj)
+			return ec.Resolvers.RemoveTeamMemberPayload().User(ctx, obj)
 		},
 		nil,
 		ec.marshalOUser2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋuserᚐUser,
@@ -1188,7 +1187,7 @@ func (ec *executionContext) _RemoveTeamMemberPayload_team(ctx context.Context, f
 		field,
 		ec.fieldContext_RemoveTeamMemberPayload_team,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.RemoveTeamMemberPayload().Team(ctx, obj)
+			return ec.Resolvers.RemoveTeamMemberPayload().Team(ctx, obj)
 		},
 		nil,
 		ec.marshalOTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam,
@@ -1535,7 +1534,7 @@ func (ec *executionContext) _Team_member(ctx context.Context, field graphql.Coll
 		ec.fieldContext_Team_member,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Team().Member(ctx, obj, fc.Args["email"].(string))
+			return ec.Resolvers.Team().Member(ctx, obj, fc.Args["email"].(string))
 		},
 		nil,
 		ec.marshalNTeamMember2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMember,
@@ -1584,7 +1583,7 @@ func (ec *executionContext) _Team_members(ctx context.Context, field graphql.Col
 		ec.fieldContext_Team_members,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Team().Members(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*team.TeamMemberOrder))
+			return ec.Resolvers.Team().Members(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*team.TeamMemberOrder))
 		},
 		nil,
 		ec.marshalNTeamMemberConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -1690,7 +1689,7 @@ func (ec *executionContext) _Team_viewerIsOwner(ctx context.Context, field graph
 		field,
 		ec.fieldContext_Team_viewerIsOwner,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Team().ViewerIsOwner(ctx, obj)
+			return ec.Resolvers.Team().ViewerIsOwner(ctx, obj)
 		},
 		nil,
 		ec.marshalNBoolean2bool,
@@ -1719,7 +1718,7 @@ func (ec *executionContext) _Team_viewerIsMember(ctx context.Context, field grap
 		field,
 		ec.fieldContext_Team_viewerIsMember,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Team().ViewerIsMember(ctx, obj)
+			return ec.Resolvers.Team().ViewerIsMember(ctx, obj)
 		},
 		nil,
 		ec.marshalNBoolean2bool,
@@ -1748,7 +1747,7 @@ func (ec *executionContext) _Team_environments(ctx context.Context, field graphq
 		field,
 		ec.fieldContext_Team_environments,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Team().Environments(ctx, obj)
+			return ec.Resolvers.Team().Environments(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeamEnvironment2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironmentᚄ,
@@ -1818,7 +1817,7 @@ func (ec *executionContext) _Team_environment(ctx context.Context, field graphql
 		ec.fieldContext_Team_environment,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Team().Environment(ctx, obj, fc.Args["name"].(string))
+			return ec.Resolvers.Team().Environment(ctx, obj, fc.Args["name"].(string))
 		},
 		nil,
 		ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment,
@@ -1899,7 +1898,7 @@ func (ec *executionContext) _Team_deleteKey(ctx context.Context, field graphql.C
 		ec.fieldContext_Team_deleteKey,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Team().DeleteKey(ctx, obj, fc.Args["key"].(string))
+			return ec.Resolvers.Team().DeleteKey(ctx, obj, fc.Args["key"].(string))
 		},
 		nil,
 		ec.marshalNTeamDeleteKey2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamDeleteKey,
@@ -1951,7 +1950,7 @@ func (ec *executionContext) _Team_inventoryCounts(ctx context.Context, field gra
 		field,
 		ec.fieldContext_Team_inventoryCounts,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Team().InventoryCounts(ctx, obj)
+			return ec.Resolvers.Team().InventoryCounts(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeamInventoryCounts2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamInventoryCounts,
@@ -2003,7 +2002,7 @@ func (ec *executionContext) _Team_activityLog(ctx context.Context, field graphql
 		ec.fieldContext_Team_activityLog,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Team().ActivityLog(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["filter"].(*activitylog.ActivityLogFilter))
+			return ec.Resolvers.Team().ActivityLog(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["filter"].(*activitylog.ActivityLogFilter))
 		},
 		nil,
 		ec.marshalNActivityLogEntryConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -2052,7 +2051,7 @@ func (ec *executionContext) _Team_alerts(ctx context.Context, field graphql.Coll
 		ec.fieldContext_Team_alerts,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Team().Alerts(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*alerts.AlertOrder), fc.Args["filter"].(*alerts.TeamAlertsFilter))
+			return ec.Resolvers.Team().Alerts(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*alerts.AlertOrder), fc.Args["filter"].(*alerts.TeamAlertsFilter))
 		},
 		nil,
 		ec.marshalNAlertConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -2101,7 +2100,7 @@ func (ec *executionContext) _Team_applications(ctx context.Context, field graphq
 		ec.fieldContext_Team_applications,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Team().Applications(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*application.ApplicationOrder), fc.Args["filter"].(*application.TeamApplicationsFilter))
+			return ec.Resolvers.Team().Applications(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*application.ApplicationOrder), fc.Args["filter"].(*application.TeamApplicationsFilter))
 		},
 		nil,
 		ec.marshalNApplicationConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -2150,7 +2149,7 @@ func (ec *executionContext) _Team_bigQueryDatasets(ctx context.Context, field gr
 		ec.fieldContext_Team_bigQueryDatasets,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Team().BigQueryDatasets(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*bigquery.BigQueryDatasetOrder))
+			return ec.Resolvers.Team().BigQueryDatasets(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*bigquery.BigQueryDatasetOrder))
 		},
 		nil,
 		ec.marshalNBigQueryDatasetConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -2199,7 +2198,7 @@ func (ec *executionContext) _Team_buckets(ctx context.Context, field graphql.Col
 		ec.fieldContext_Team_buckets,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Team().Buckets(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*bucket.BucketOrder))
+			return ec.Resolvers.Team().Buckets(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*bucket.BucketOrder))
 		},
 		nil,
 		ec.marshalNBucketConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -2247,7 +2246,7 @@ func (ec *executionContext) _Team_cost(ctx context.Context, field graphql.Collec
 		field,
 		ec.fieldContext_Team_cost,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Team().Cost(ctx, obj)
+			return ec.Resolvers.Team().Cost(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeamCost2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamCost,
@@ -2282,7 +2281,7 @@ func (ec *executionContext) _Team_deploymentKey(ctx context.Context, field graph
 		field,
 		ec.fieldContext_Team_deploymentKey,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Team().DeploymentKey(ctx, obj)
+			return ec.Resolvers.Team().DeploymentKey(ctx, obj)
 		},
 		nil,
 		ec.marshalODeploymentKey2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentKey,
@@ -2322,7 +2321,7 @@ func (ec *executionContext) _Team_deployments(ctx context.Context, field graphql
 		ec.fieldContext_Team_deployments,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Team().Deployments(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
+			return ec.Resolvers.Team().Deployments(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
 		},
 		nil,
 		ec.marshalNDeploymentConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -2371,7 +2370,7 @@ func (ec *executionContext) _Team_issues(ctx context.Context, field graphql.Coll
 		ec.fieldContext_Team_issues,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Team().Issues(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*issue.IssueOrder), fc.Args["filter"].(*issue.IssueFilter))
+			return ec.Resolvers.Team().Issues(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*issue.IssueOrder), fc.Args["filter"].(*issue.IssueFilter))
 		},
 		nil,
 		ec.marshalNIssueConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -2420,7 +2419,7 @@ func (ec *executionContext) _Team_jobs(ctx context.Context, field graphql.Collec
 		ec.fieldContext_Team_jobs,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Team().Jobs(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*job.JobOrder), fc.Args["filter"].(*job.TeamJobsFilter))
+			return ec.Resolvers.Team().Jobs(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*job.JobOrder), fc.Args["filter"].(*job.TeamJobsFilter))
 		},
 		nil,
 		ec.marshalNJobConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -2469,7 +2468,7 @@ func (ec *executionContext) _Team_kafkaTopics(ctx context.Context, field graphql
 		ec.fieldContext_Team_kafkaTopics,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Team().KafkaTopics(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*kafkatopic.KafkaTopicOrder))
+			return ec.Resolvers.Team().KafkaTopics(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*kafkatopic.KafkaTopicOrder))
 		},
 		nil,
 		ec.marshalNKafkaTopicConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -2518,7 +2517,7 @@ func (ec *executionContext) _Team_openSearches(ctx context.Context, field graphq
 		ec.fieldContext_Team_openSearches,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Team().OpenSearches(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*opensearch.OpenSearchOrder))
+			return ec.Resolvers.Team().OpenSearches(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*opensearch.OpenSearchOrder))
 		},
 		nil,
 		ec.marshalNOpenSearchConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -2567,7 +2566,7 @@ func (ec *executionContext) _Team_postgresInstances(ctx context.Context, field g
 		ec.fieldContext_Team_postgresInstances,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Team().PostgresInstances(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*postgres.PostgresInstanceOrder))
+			return ec.Resolvers.Team().PostgresInstances(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*postgres.PostgresInstanceOrder))
 		},
 		nil,
 		ec.marshalNPostgresInstanceConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -2616,7 +2615,7 @@ func (ec *executionContext) _Team_repositories(ctx context.Context, field graphq
 		ec.fieldContext_Team_repositories,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Team().Repositories(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*repository.RepositoryOrder), fc.Args["filter"].(*repository.TeamRepositoryFilter))
+			return ec.Resolvers.Team().Repositories(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*repository.RepositoryOrder), fc.Args["filter"].(*repository.TeamRepositoryFilter))
 		},
 		nil,
 		ec.marshalNRepositoryConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -2665,7 +2664,7 @@ func (ec *executionContext) _Team_secrets(ctx context.Context, field graphql.Col
 		ec.fieldContext_Team_secrets,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Team().Secrets(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*secret.SecretOrder), fc.Args["filter"].(*secret.SecretFilter))
+			return ec.Resolvers.Team().Secrets(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*secret.SecretOrder), fc.Args["filter"].(*secret.SecretFilter))
 		},
 		nil,
 		ec.marshalNSecretConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -2714,7 +2713,7 @@ func (ec *executionContext) _Team_sqlInstances(ctx context.Context, field graphq
 		ec.fieldContext_Team_sqlInstances,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Team().SQLInstances(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*sqlinstance.SQLInstanceOrder))
+			return ec.Resolvers.Team().SQLInstances(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*sqlinstance.SQLInstanceOrder))
 		},
 		nil,
 		ec.marshalNSqlInstanceConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -2762,7 +2761,7 @@ func (ec *executionContext) _Team_unleash(ctx context.Context, field graphql.Col
 		field,
 		ec.fieldContext_Team_unleash,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Team().Unleash(ctx, obj)
+			return ec.Resolvers.Team().Unleash(ctx, obj)
 		},
 		nil,
 		ec.marshalOUnleashInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐUnleashInstance,
@@ -2814,7 +2813,7 @@ func (ec *executionContext) _Team_workloadUtilization(ctx context.Context, field
 		ec.fieldContext_Team_workloadUtilization,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Team().WorkloadUtilization(ctx, obj, fc.Args["resourceType"].(utilization.UtilizationResourceType))
+			return ec.Resolvers.Team().WorkloadUtilization(ctx, obj, fc.Args["resourceType"].(utilization.UtilizationResourceType))
 		},
 		nil,
 		ec.marshalNWorkloadUtilizationData2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐWorkloadUtilizationData,
@@ -2862,7 +2861,7 @@ func (ec *executionContext) _Team_serviceUtilization(ctx context.Context, field 
 		field,
 		ec.fieldContext_Team_serviceUtilization,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Team().ServiceUtilization(ctx, obj)
+			return ec.Resolvers.Team().ServiceUtilization(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeamServiceUtilization2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐTeamServiceUtilization,
@@ -2896,7 +2895,7 @@ func (ec *executionContext) _Team_valkeys(ctx context.Context, field graphql.Col
 		ec.fieldContext_Team_valkeys,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Team().Valkeys(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*valkey.ValkeyOrder))
+			return ec.Resolvers.Team().Valkeys(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*valkey.ValkeyOrder))
 		},
 		nil,
 		ec.marshalNValkeyConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -2945,7 +2944,7 @@ func (ec *executionContext) _Team_imageVulnerabilityHistory(ctx context.Context,
 		ec.fieldContext_Team_imageVulnerabilityHistory,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Team().ImageVulnerabilityHistory(ctx, obj, fc.Args["from"].(scalar.Date))
+			return ec.Resolvers.Team().ImageVulnerabilityHistory(ctx, obj, fc.Args["from"].(scalar.Date))
 		},
 		nil,
 		ec.marshalNImageVulnerabilityHistory2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐImageVulnerabilityHistory,
@@ -2990,7 +2989,7 @@ func (ec *executionContext) _Team_vulnerabilityFixHistory(ctx context.Context, f
 		ec.fieldContext_Team_vulnerabilityFixHistory,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Team().VulnerabilityFixHistory(ctx, obj, fc.Args["from"].(scalar.Date))
+			return ec.Resolvers.Team().VulnerabilityFixHistory(ctx, obj, fc.Args["from"].(scalar.Date))
 		},
 		nil,
 		ec.marshalNVulnerabilityFixHistory2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐVulnerabilityFixHistory,
@@ -3035,7 +3034,7 @@ func (ec *executionContext) _Team_vulnerabilitySummary(ctx context.Context, fiel
 		ec.fieldContext_Team_vulnerabilitySummary,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Team().VulnerabilitySummary(ctx, obj, fc.Args["filter"].(*vulnerability.TeamVulnerabilitySummaryFilter))
+			return ec.Resolvers.Team().VulnerabilitySummary(ctx, obj, fc.Args["filter"].(*vulnerability.TeamVulnerabilitySummaryFilter))
 		},
 		nil,
 		ec.marshalNTeamVulnerabilitySummary2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐTeamVulnerabilitySummary,
@@ -3098,7 +3097,7 @@ func (ec *executionContext) _Team_vulnerabilitySummaries(ctx context.Context, fi
 		ec.fieldContext_Team_vulnerabilitySummaries,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Team().VulnerabilitySummaries(ctx, obj, fc.Args["filter"].(*vulnerability.TeamVulnerabilitySummaryFilter), fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*vulnerability.VulnerabilitySummaryOrder))
+			return ec.Resolvers.Team().VulnerabilitySummaries(ctx, obj, fc.Args["filter"].(*vulnerability.TeamVulnerabilitySummaryFilter), fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*vulnerability.VulnerabilitySummaryOrder))
 		},
 		nil,
 		ec.marshalNWorkloadVulnerabilitySummaryConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -3147,7 +3146,7 @@ func (ec *executionContext) _Team_workloads(ctx context.Context, field graphql.C
 		ec.fieldContext_Team_workloads,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Team().Workloads(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*workload.WorkloadOrder), fc.Args["filter"].(*workload.TeamWorkloadsFilter))
+			return ec.Resolvers.Team().Workloads(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*workload.WorkloadOrder), fc.Args["filter"].(*workload.TeamWorkloadsFilter))
 		},
 		nil,
 		ec.marshalNWorkloadConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -4198,7 +4197,7 @@ func (ec *executionContext) _TeamDeleteKey_createdBy(ctx context.Context, field 
 		field,
 		ec.fieldContext_TeamDeleteKey_createdBy,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.TeamDeleteKey().CreatedBy(ctx, obj)
+			return ec.Resolvers.TeamDeleteKey().CreatedBy(ctx, obj)
 		},
 		nil,
 		ec.marshalNUser2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋuserᚐUser,
@@ -4241,7 +4240,7 @@ func (ec *executionContext) _TeamDeleteKey_team(ctx context.Context, field graph
 		field,
 		ec.fieldContext_TeamDeleteKey_team,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.TeamDeleteKey().Team(ctx, obj)
+			return ec.Resolvers.TeamDeleteKey().Team(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam,
@@ -4637,7 +4636,7 @@ func (ec *executionContext) _TeamEnvironment_team(ctx context.Context, field gra
 		field,
 		ec.fieldContext_TeamEnvironment_team,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.TeamEnvironment().Team(ctx, obj)
+			return ec.Resolvers.TeamEnvironment().Team(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam,
@@ -4749,7 +4748,7 @@ func (ec *executionContext) _TeamEnvironment_alerts(ctx context.Context, field g
 		ec.fieldContext_TeamEnvironment_alerts,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.TeamEnvironment().Alerts(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*alerts.AlertOrder), fc.Args["filter"].(*alerts.TeamAlertsFilter))
+			return ec.Resolvers.TeamEnvironment().Alerts(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*alerts.AlertOrder), fc.Args["filter"].(*alerts.TeamAlertsFilter))
 		},
 		nil,
 		ec.marshalNAlertConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -4798,7 +4797,7 @@ func (ec *executionContext) _TeamEnvironment_application(ctx context.Context, fi
 		ec.fieldContext_TeamEnvironment_application,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.TeamEnvironment().Application(ctx, obj, fc.Args["name"].(string))
+			return ec.Resolvers.TeamEnvironment().Application(ctx, obj, fc.Args["name"].(string))
 		},
 		nil,
 		ec.marshalNApplication2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplication,
@@ -4901,7 +4900,7 @@ func (ec *executionContext) _TeamEnvironment_bigQueryDataset(ctx context.Context
 		ec.fieldContext_TeamEnvironment_bigQueryDataset,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.TeamEnvironment().BigQueryDataset(ctx, obj, fc.Args["name"].(string))
+			return ec.Resolvers.TeamEnvironment().BigQueryDataset(ctx, obj, fc.Args["name"].(string))
 		},
 		nil,
 		ec.marshalNBigQueryDataset2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDataset,
@@ -4966,7 +4965,7 @@ func (ec *executionContext) _TeamEnvironment_bucket(ctx context.Context, field g
 		ec.fieldContext_TeamEnvironment_bucket,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.TeamEnvironment().Bucket(ctx, obj, fc.Args["name"].(string))
+			return ec.Resolvers.TeamEnvironment().Bucket(ctx, obj, fc.Args["name"].(string))
 		},
 		nil,
 		ec.marshalNBucket2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbucketᚐBucket,
@@ -5026,7 +5025,7 @@ func (ec *executionContext) _TeamEnvironment_cost(ctx context.Context, field gra
 		field,
 		ec.fieldContext_TeamEnvironment_cost,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.TeamEnvironment().Cost(ctx, obj)
+			return ec.Resolvers.TeamEnvironment().Cost(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeamEnvironmentCost2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamEnvironmentCost,
@@ -5059,7 +5058,7 @@ func (ec *executionContext) _TeamEnvironment_environment(ctx context.Context, fi
 		field,
 		ec.fieldContext_TeamEnvironment_environment,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.TeamEnvironment().Environment(ctx, obj)
+			return ec.Resolvers.TeamEnvironment().Environment(ctx, obj)
 		},
 		nil,
 		ec.marshalNEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋenvironmentᚐEnvironment,
@@ -5099,7 +5098,7 @@ func (ec *executionContext) _TeamEnvironment_job(ctx context.Context, field grap
 		ec.fieldContext_TeamEnvironment_job,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.TeamEnvironment().Job(ctx, obj, fc.Args["name"].(string))
+			return ec.Resolvers.TeamEnvironment().Job(ctx, obj, fc.Args["name"].(string))
 		},
 		nil,
 		ec.marshalNJob2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJob,
@@ -5200,7 +5199,7 @@ func (ec *executionContext) _TeamEnvironment_kafkaTopic(ctx context.Context, fie
 		ec.fieldContext_TeamEnvironment_kafkaTopic,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.TeamEnvironment().KafkaTopic(ctx, obj, fc.Args["name"].(string))
+			return ec.Resolvers.TeamEnvironment().KafkaTopic(ctx, obj, fc.Args["name"].(string))
 		},
 		nil,
 		ec.marshalNKafkaTopic2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopic,
@@ -5259,7 +5258,7 @@ func (ec *executionContext) _TeamEnvironment_openSearch(ctx context.Context, fie
 		ec.fieldContext_TeamEnvironment_openSearch,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.TeamEnvironment().OpenSearch(ctx, obj, fc.Args["name"].(string))
+			return ec.Resolvers.TeamEnvironment().OpenSearch(ctx, obj, fc.Args["name"].(string))
 		},
 		nil,
 		ec.marshalNOpenSearch2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearch,
@@ -5336,7 +5335,7 @@ func (ec *executionContext) _TeamEnvironment_postgresInstance(ctx context.Contex
 		ec.fieldContext_TeamEnvironment_postgresInstance,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.TeamEnvironment().PostgresInstance(ctx, obj, fc.Args["name"].(string))
+			return ec.Resolvers.TeamEnvironment().PostgresInstance(ctx, obj, fc.Args["name"].(string))
 		},
 		nil,
 		ec.marshalNPostgresInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstance,
@@ -5403,7 +5402,7 @@ func (ec *executionContext) _TeamEnvironment_secret(ctx context.Context, field g
 		ec.fieldContext_TeamEnvironment_secret,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.TeamEnvironment().Secret(ctx, obj, fc.Args["name"].(string))
+			return ec.Resolvers.TeamEnvironment().Secret(ctx, obj, fc.Args["name"].(string))
 		},
 		nil,
 		ec.marshalNSecret2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecret,
@@ -5470,7 +5469,7 @@ func (ec *executionContext) _TeamEnvironment_sqlInstance(ctx context.Context, fi
 		ec.fieldContext_TeamEnvironment_sqlInstance,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.TeamEnvironment().SQLInstance(ctx, obj, fc.Args["name"].(string))
+			return ec.Resolvers.TeamEnvironment().SQLInstance(ctx, obj, fc.Args["name"].(string))
 		},
 		nil,
 		ec.marshalNSqlInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstance,
@@ -5567,7 +5566,7 @@ func (ec *executionContext) _TeamEnvironment_valkey(ctx context.Context, field g
 		ec.fieldContext_TeamEnvironment_valkey,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.TeamEnvironment().Valkey(ctx, obj, fc.Args["name"].(string))
+			return ec.Resolvers.TeamEnvironment().Valkey(ctx, obj, fc.Args["name"].(string))
 		},
 		nil,
 		ec.marshalNValkey2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkey,
@@ -5644,7 +5643,7 @@ func (ec *executionContext) _TeamEnvironment_workload(ctx context.Context, field
 		ec.fieldContext_TeamEnvironment_workload,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.TeamEnvironment().Workload(ctx, obj, fc.Args["name"].(string))
+			return ec.Resolvers.TeamEnvironment().Workload(ctx, obj, fc.Args["name"].(string))
 		},
 		nil,
 		ec.marshalNWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload,
@@ -6325,7 +6324,7 @@ func (ec *executionContext) _TeamInventoryCounts_applications(ctx context.Contex
 		field,
 		ec.fieldContext_TeamInventoryCounts_applications,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.TeamInventoryCounts().Applications(ctx, obj)
+			return ec.Resolvers.TeamInventoryCounts().Applications(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeamInventoryCountApplications2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐTeamInventoryCountApplications,
@@ -6358,7 +6357,7 @@ func (ec *executionContext) _TeamInventoryCounts_bigQueryDatasets(ctx context.Co
 		field,
 		ec.fieldContext_TeamInventoryCounts_bigQueryDatasets,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.TeamInventoryCounts().BigQueryDatasets(ctx, obj)
+			return ec.Resolvers.TeamInventoryCounts().BigQueryDatasets(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeamInventoryCountBigQueryDatasets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐTeamInventoryCountBigQueryDatasets,
@@ -6391,7 +6390,7 @@ func (ec *executionContext) _TeamInventoryCounts_buckets(ctx context.Context, fi
 		field,
 		ec.fieldContext_TeamInventoryCounts_buckets,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.TeamInventoryCounts().Buckets(ctx, obj)
+			return ec.Resolvers.TeamInventoryCounts().Buckets(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeamInventoryCountBuckets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbucketᚐTeamInventoryCountBuckets,
@@ -6424,7 +6423,7 @@ func (ec *executionContext) _TeamInventoryCounts_jobs(ctx context.Context, field
 		field,
 		ec.fieldContext_TeamInventoryCounts_jobs,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.TeamInventoryCounts().Jobs(ctx, obj)
+			return ec.Resolvers.TeamInventoryCounts().Jobs(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeamInventoryCountJobs2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐTeamInventoryCountJobs,
@@ -6457,7 +6456,7 @@ func (ec *executionContext) _TeamInventoryCounts_kafkaTopics(ctx context.Context
 		field,
 		ec.fieldContext_TeamInventoryCounts_kafkaTopics,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.TeamInventoryCounts().KafkaTopics(ctx, obj)
+			return ec.Resolvers.TeamInventoryCounts().KafkaTopics(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeamInventoryCountKafkaTopics2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐTeamInventoryCountKafkaTopics,
@@ -6490,7 +6489,7 @@ func (ec *executionContext) _TeamInventoryCounts_openSearches(ctx context.Contex
 		field,
 		ec.fieldContext_TeamInventoryCounts_openSearches,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.TeamInventoryCounts().OpenSearches(ctx, obj)
+			return ec.Resolvers.TeamInventoryCounts().OpenSearches(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeamInventoryCountOpenSearches2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐTeamInventoryCountOpenSearches,
@@ -6523,7 +6522,7 @@ func (ec *executionContext) _TeamInventoryCounts_postgresInstances(ctx context.C
 		field,
 		ec.fieldContext_TeamInventoryCounts_postgresInstances,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.TeamInventoryCounts().PostgresInstances(ctx, obj)
+			return ec.Resolvers.TeamInventoryCounts().PostgresInstances(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeamInventoryCountPostgresInstances2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐTeamInventoryCountPostgresInstances,
@@ -6556,7 +6555,7 @@ func (ec *executionContext) _TeamInventoryCounts_secrets(ctx context.Context, fi
 		field,
 		ec.fieldContext_TeamInventoryCounts_secrets,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.TeamInventoryCounts().Secrets(ctx, obj)
+			return ec.Resolvers.TeamInventoryCounts().Secrets(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeamInventoryCountSecrets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐTeamInventoryCountSecrets,
@@ -6589,7 +6588,7 @@ func (ec *executionContext) _TeamInventoryCounts_sqlInstances(ctx context.Contex
 		field,
 		ec.fieldContext_TeamInventoryCounts_sqlInstances,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.TeamInventoryCounts().SQLInstances(ctx, obj)
+			return ec.Resolvers.TeamInventoryCounts().SQLInstances(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeamInventoryCountSqlInstances2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐTeamInventoryCountSQLInstances,
@@ -6622,7 +6621,7 @@ func (ec *executionContext) _TeamInventoryCounts_valkeys(ctx context.Context, fi
 		field,
 		ec.fieldContext_TeamInventoryCounts_valkeys,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.TeamInventoryCounts().Valkeys(ctx, obj)
+			return ec.Resolvers.TeamInventoryCounts().Valkeys(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeamInventoryCountValkeys2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐTeamInventoryCountValkeys,
@@ -6655,7 +6654,7 @@ func (ec *executionContext) _TeamMember_team(ctx context.Context, field graphql.
 		field,
 		ec.fieldContext_TeamMember_team,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.TeamMember().Team(ctx, obj)
+			return ec.Resolvers.TeamMember().Team(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam,
@@ -6766,7 +6765,7 @@ func (ec *executionContext) _TeamMember_user(ctx context.Context, field graphql.
 		field,
 		ec.fieldContext_TeamMember_user,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.TeamMember().User(ctx, obj)
+			return ec.Resolvers.TeamMember().User(ctx, obj)
 		},
 		nil,
 		ec.marshalNUser2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋuserᚐUser,
@@ -8447,7 +8446,7 @@ func (ec *executionContext) _UpdateTeamEnvironmentPayload_environment(ctx contex
 		field,
 		ec.fieldContext_UpdateTeamEnvironmentPayload_environment,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.UpdateTeamEnvironmentPayload().Environment(ctx, obj)
+			return ec.Resolvers.UpdateTeamEnvironmentPayload().Environment(ctx, obj)
 		},
 		nil,
 		ec.marshalOTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment,
@@ -8730,7 +8729,6 @@ func (ec *executionContext) unmarshalInputAddTeamMemberInput(ctx context.Context
 			it.Role = data
 		}
 	}
-
 	return it, nil
 }
 
@@ -8764,7 +8762,6 @@ func (ec *executionContext) unmarshalInputConfirmTeamDeletionInput(ctx context.C
 			it.Key = data
 		}
 	}
-
 	return it, nil
 }
 
@@ -8805,7 +8802,6 @@ func (ec *executionContext) unmarshalInputCreateTeamInput(ctx context.Context, o
 			it.SlackChannel = data
 		}
 	}
-
 	return it, nil
 }
 
@@ -8839,7 +8835,6 @@ func (ec *executionContext) unmarshalInputRemoveTeamMemberInput(ctx context.Cont
 			it.UserEmail = data
 		}
 	}
-
 	return it, nil
 }
 
@@ -8866,7 +8861,6 @@ func (ec *executionContext) unmarshalInputRequestTeamDeletionInput(ctx context.C
 			it.Slug = data
 		}
 	}
-
 	return it, nil
 }
 
@@ -8907,7 +8901,6 @@ func (ec *executionContext) unmarshalInputSetTeamMemberRoleInput(ctx context.Con
 			it.Role = data
 		}
 	}
-
 	return it, nil
 }
 
@@ -8934,7 +8927,6 @@ func (ec *executionContext) unmarshalInputTeamFilter(ctx context.Context, obj an
 			it.HasWorkloads = data
 		}
 	}
-
 	return it, nil
 }
 
@@ -8968,7 +8960,6 @@ func (ec *executionContext) unmarshalInputTeamMemberOrder(ctx context.Context, o
 			it.Direction = data
 		}
 	}
-
 	return it, nil
 }
 
@@ -9002,7 +8993,6 @@ func (ec *executionContext) unmarshalInputTeamOrder(ctx context.Context, obj any
 			it.Direction = data
 		}
 	}
-
 	return it, nil
 }
 
@@ -9043,7 +9033,6 @@ func (ec *executionContext) unmarshalInputUpdateTeamEnvironmentInput(ctx context
 			it.SlackAlertsChannel = data
 		}
 	}
-
 	return it, nil
 }
 
@@ -9084,7 +9073,6 @@ func (ec *executionContext) unmarshalInputUpdateTeamInput(ctx context.Context, o
 			it.SlackChannel = data
 		}
 	}
-
 	return it, nil
 }
 
@@ -9118,10 +9106,10 @@ func (ec *executionContext) _AddTeamMemberPayload(ctx context.Context, sel ast.S
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -9154,10 +9142,10 @@ func (ec *executionContext) _ConfirmTeamDeletionPayload(ctx context.Context, sel
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -9190,10 +9178,10 @@ func (ec *executionContext) _CreateTeamPayload(ctx context.Context, sel ast.Sele
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -9290,10 +9278,10 @@ func (ec *executionContext) _RemoveTeamMemberPayload(ctx context.Context, sel as
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -9326,10 +9314,10 @@ func (ec *executionContext) _RequestTeamDeletionPayload(ctx context.Context, sel
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -9362,10 +9350,10 @@ func (ec *executionContext) _SetTeamMemberRolePayload(ctx context.Context, sel a
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -10610,10 +10598,10 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -10649,10 +10637,10 @@ func (ec *executionContext) _TeamCDN(ctx context.Context, sel ast.SelectionSet, 
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -10720,10 +10708,10 @@ func (ec *executionContext) _TeamConfirmDeleteKeyActivityLogEntry(ctx context.Co
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -10769,10 +10757,10 @@ func (ec *executionContext) _TeamConnection(ctx context.Context, sel ast.Selecti
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -10840,10 +10828,10 @@ func (ec *executionContext) _TeamCreateDeleteKeyActivityLogEntry(ctx context.Con
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -10911,10 +10899,10 @@ func (ec *executionContext) _TeamCreatedActivityLogEntry(ctx context.Context, se
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -11032,10 +11020,10 @@ func (ec *executionContext) _TeamDeleteKey(ctx context.Context, sel ast.Selectio
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -11076,10 +11064,10 @@ func (ec *executionContext) _TeamEdge(ctx context.Context, sel ast.SelectionSet,
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -11115,10 +11103,10 @@ func (ec *executionContext) _TeamEntraIDGroup(ctx context.Context, sel ast.Selec
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -11706,10 +11694,10 @@ func (ec *executionContext) _TeamEnvironment(ctx context.Context, sel ast.Select
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -11782,10 +11770,10 @@ func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogEntry(ctx context.
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -11821,10 +11809,10 @@ func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogEntryData(ctx cont
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -11864,10 +11852,10 @@ func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogEntryDataUpdatedFi
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -11908,10 +11896,10 @@ func (ec *executionContext) _TeamExternalResources(ctx context.Context, sel ast.
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -11947,10 +11935,10 @@ func (ec *executionContext) _TeamGitHubTeam(ctx context.Context, sel ast.Selecti
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -11986,10 +11974,10 @@ func (ec *executionContext) _TeamGoogleArtifactRegistry(ctx context.Context, sel
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -12025,10 +12013,10 @@ func (ec *executionContext) _TeamGoogleGroup(ctx context.Context, sel ast.Select
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -12419,10 +12407,10 @@ func (ec *executionContext) _TeamInventoryCounts(ctx context.Context, sel ast.Se
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -12530,10 +12518,10 @@ func (ec *executionContext) _TeamMember(ctx context.Context, sel ast.SelectionSe
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -12606,10 +12594,10 @@ func (ec *executionContext) _TeamMemberAddedActivityLogEntry(ctx context.Context
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -12655,10 +12643,10 @@ func (ec *executionContext) _TeamMemberAddedActivityLogEntryData(ctx context.Con
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -12704,10 +12692,10 @@ func (ec *executionContext) _TeamMemberConnection(ctx context.Context, sel ast.S
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -12748,10 +12736,10 @@ func (ec *executionContext) _TeamMemberEdge(ctx context.Context, sel ast.Selecti
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -12824,10 +12812,10 @@ func (ec *executionContext) _TeamMemberRemovedActivityLogEntry(ctx context.Conte
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -12868,10 +12856,10 @@ func (ec *executionContext) _TeamMemberRemovedActivityLogEntryData(ctx context.C
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -12944,10 +12932,10 @@ func (ec *executionContext) _TeamMemberSetRoleActivityLogEntry(ctx context.Conte
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -12993,10 +12981,10 @@ func (ec *executionContext) _TeamMemberSetRoleActivityLogEntryData(ctx context.C
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -13069,10 +13057,10 @@ func (ec *executionContext) _TeamUpdatedActivityLogEntry(ctx context.Context, se
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -13108,10 +13096,10 @@ func (ec *executionContext) _TeamUpdatedActivityLogEntryData(ctx context.Context
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -13151,10 +13139,10 @@ func (ec *executionContext) _TeamUpdatedActivityLogEntryDataUpdatedField(ctx con
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -13220,10 +13208,10 @@ func (ec *executionContext) _UpdateTeamEnvironmentPayload(ctx context.Context, s
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -13256,10 +13244,10 @@ func (ec *executionContext) _UpdateTeamPayload(ctx context.Context, sel ast.Sele
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -13393,39 +13381,11 @@ func (ec *executionContext) marshalNTeam2githubᚗcomᚋnaisᚋapiᚋinternalᚋ
 }
 
 func (ec *executionContext) marshalNTeam2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamᚄ(ctx context.Context, sel ast.SelectionSet, v []*team.Team) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -13479,39 +13439,11 @@ func (ec *executionContext) marshalNTeamEdge2githubᚗcomᚋnaisᚋapiᚋinterna
 }
 
 func (ec *executionContext) marshalNTeamEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[*team.Team]) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNTeamEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNTeamEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -13527,39 +13459,11 @@ func (ec *executionContext) marshalNTeamEnvironment2githubᚗcomᚋnaisᚋapiᚋ
 }
 
 func (ec *executionContext) marshalNTeamEnvironment2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironmentᚄ(ctx context.Context, sel ast.SelectionSet, v []*team.TeamEnvironment) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -13591,39 +13495,11 @@ func (ec *executionContext) marshalNTeamEnvironmentUpdatedActivityLogEntryData2�
 }
 
 func (ec *executionContext) marshalNTeamEnvironmentUpdatedActivityLogEntryDataUpdatedField2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironmentUpdatedActivityLogEntryDataUpdatedFieldᚄ(ctx context.Context, sel ast.SelectionSet, v []*team.TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNTeamEnvironmentUpdatedActivityLogEntryDataUpdatedField2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironmentUpdatedActivityLogEntryDataUpdatedField(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNTeamEnvironmentUpdatedActivityLogEntryDataUpdatedField2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironmentUpdatedActivityLogEntryDataUpdatedField(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -13673,39 +13549,11 @@ func (ec *executionContext) marshalNTeamMember2githubᚗcomᚋnaisᚋapiᚋinter
 }
 
 func (ec *executionContext) marshalNTeamMember2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberᚄ(ctx context.Context, sel ast.SelectionSet, v []*team.TeamMember) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNTeamMember2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMember(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNTeamMember2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMember(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -13755,39 +13603,11 @@ func (ec *executionContext) marshalNTeamMemberEdge2githubᚗcomᚋnaisᚋapiᚋi
 }
 
 func (ec *executionContext) marshalNTeamMemberEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[*team.TeamMember]) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNTeamMemberEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNTeamMemberEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -13859,39 +13679,11 @@ func (ec *executionContext) marshalNTeamUpdatedActivityLogEntryData2ᚖgithubᚗ
 }
 
 func (ec *executionContext) marshalNTeamUpdatedActivityLogEntryDataUpdatedField2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamUpdatedActivityLogEntryDataUpdatedFieldᚄ(ctx context.Context, sel ast.SelectionSet, v []*team.TeamUpdatedActivityLogEntryDataUpdatedField) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNTeamUpdatedActivityLogEntryDataUpdatedField2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamUpdatedActivityLogEntryDataUpdatedField(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNTeamUpdatedActivityLogEntryDataUpdatedField2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamUpdatedActivityLogEntryDataUpdatedField(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {

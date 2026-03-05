@@ -101,7 +101,11 @@ func (ec *executionContext) _Persistence(ctx context.Context, sel ast.SelectionS
 		}
 		return ec._BigQueryDataset(ctx, sel, obj)
 	default:
-		panic(fmt.Errorf("unexpected type %T", obj))
+		if typedObj, ok := obj.(graphql.Marshaler); ok {
+			return typedObj
+		} else {
+			panic(fmt.Errorf("unexpected type %T; non-generated variants of Persistence must implement graphql.Marshaler", obj))
+		}
 	}
 }
 

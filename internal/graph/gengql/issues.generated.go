@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
-	"sync"
 	"sync/atomic"
 
 	"github.com/99designs/gqlgen/graphql"
@@ -145,7 +144,7 @@ func (ec *executionContext) _DeprecatedIngressIssue_teamEnvironment(ctx context.
 		field,
 		ec.fieldContext_DeprecatedIngressIssue_teamEnvironment,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.DeprecatedIngressIssue().TeamEnvironment(ctx, obj)
+			return ec.Resolvers.DeprecatedIngressIssue().TeamEnvironment(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment,
@@ -301,7 +300,7 @@ func (ec *executionContext) _DeprecatedIngressIssue_application(ctx context.Cont
 		field,
 		ec.fieldContext_DeprecatedIngressIssue_application,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.DeprecatedIngressIssue().Application(ctx, obj)
+			return ec.Resolvers.DeprecatedIngressIssue().Application(ctx, obj)
 		},
 		nil,
 		ec.marshalNApplication2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplication,
@@ -421,7 +420,7 @@ func (ec *executionContext) _DeprecatedRegistryIssue_teamEnvironment(ctx context
 		field,
 		ec.fieldContext_DeprecatedRegistryIssue_teamEnvironment,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.DeprecatedRegistryIssue().TeamEnvironment(ctx, obj)
+			return ec.Resolvers.DeprecatedRegistryIssue().TeamEnvironment(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment,
@@ -548,7 +547,7 @@ func (ec *executionContext) _DeprecatedRegistryIssue_workload(ctx context.Contex
 		field,
 		ec.fieldContext_DeprecatedRegistryIssue_workload,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.DeprecatedRegistryIssue().Workload(ctx, obj)
+			return ec.Resolvers.DeprecatedRegistryIssue().Workload(ctx, obj)
 		},
 		nil,
 		ec.marshalNWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload,
@@ -606,7 +605,7 @@ func (ec *executionContext) _ExternalIngressCriticalVulnerabilityIssue_teamEnvir
 		field,
 		ec.fieldContext_ExternalIngressCriticalVulnerabilityIssue_teamEnvironment,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.ExternalIngressCriticalVulnerabilityIssue().TeamEnvironment(ctx, obj)
+			return ec.Resolvers.ExternalIngressCriticalVulnerabilityIssue().TeamEnvironment(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment,
@@ -733,7 +732,7 @@ func (ec *executionContext) _ExternalIngressCriticalVulnerabilityIssue_workload(
 		field,
 		ec.fieldContext_ExternalIngressCriticalVulnerabilityIssue_workload,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.ExternalIngressCriticalVulnerabilityIssue().Workload(ctx, obj)
+			return ec.Resolvers.ExternalIngressCriticalVulnerabilityIssue().Workload(ctx, obj)
 		},
 		nil,
 		ec.marshalNWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload,
@@ -849,7 +848,7 @@ func (ec *executionContext) _FailedSynchronizationIssue_teamEnvironment(ctx cont
 		field,
 		ec.fieldContext_FailedSynchronizationIssue_teamEnvironment,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.FailedSynchronizationIssue().TeamEnvironment(ctx, obj)
+			return ec.Resolvers.FailedSynchronizationIssue().TeamEnvironment(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment,
@@ -976,7 +975,7 @@ func (ec *executionContext) _FailedSynchronizationIssue_workload(ctx context.Con
 		field,
 		ec.fieldContext_FailedSynchronizationIssue_workload,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.FailedSynchronizationIssue().Workload(ctx, obj)
+			return ec.Resolvers.FailedSynchronizationIssue().Workload(ctx, obj)
 		},
 		nil,
 		ec.marshalNWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload,
@@ -1034,7 +1033,7 @@ func (ec *executionContext) _InvalidSpecIssue_teamEnvironment(ctx context.Contex
 		field,
 		ec.fieldContext_InvalidSpecIssue_teamEnvironment,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.InvalidSpecIssue().TeamEnvironment(ctx, obj)
+			return ec.Resolvers.InvalidSpecIssue().TeamEnvironment(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment,
@@ -1161,7 +1160,7 @@ func (ec *executionContext) _InvalidSpecIssue_workload(ctx context.Context, fiel
 		field,
 		ec.fieldContext_InvalidSpecIssue_workload,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.InvalidSpecIssue().Workload(ctx, obj)
+			return ec.Resolvers.InvalidSpecIssue().Workload(ctx, obj)
 		},
 		nil,
 		ec.marshalNWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload,
@@ -1386,7 +1385,7 @@ func (ec *executionContext) _LastRunFailedIssue_teamEnvironment(ctx context.Cont
 		field,
 		ec.fieldContext_LastRunFailedIssue_teamEnvironment,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.LastRunFailedIssue().TeamEnvironment(ctx, obj)
+			return ec.Resolvers.LastRunFailedIssue().TeamEnvironment(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment,
@@ -1513,7 +1512,7 @@ func (ec *executionContext) _LastRunFailedIssue_job(ctx context.Context, field g
 		field,
 		ec.fieldContext_LastRunFailedIssue_job,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.LastRunFailedIssue().Job(ctx, obj)
+			return ec.Resolvers.LastRunFailedIssue().Job(ctx, obj)
 		},
 		nil,
 		ec.marshalNJob2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJob,
@@ -1631,7 +1630,7 @@ func (ec *executionContext) _MissingSbomIssue_teamEnvironment(ctx context.Contex
 		field,
 		ec.fieldContext_MissingSbomIssue_teamEnvironment,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.MissingSbomIssue().TeamEnvironment(ctx, obj)
+			return ec.Resolvers.MissingSbomIssue().TeamEnvironment(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment,
@@ -1758,7 +1757,7 @@ func (ec *executionContext) _MissingSbomIssue_workload(ctx context.Context, fiel
 		field,
 		ec.fieldContext_MissingSbomIssue_workload,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.MissingSbomIssue().Workload(ctx, obj)
+			return ec.Resolvers.MissingSbomIssue().Workload(ctx, obj)
 		},
 		nil,
 		ec.marshalNWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload,
@@ -1816,7 +1815,7 @@ func (ec *executionContext) _NoRunningInstancesIssue_teamEnvironment(ctx context
 		field,
 		ec.fieldContext_NoRunningInstancesIssue_teamEnvironment,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.NoRunningInstancesIssue().TeamEnvironment(ctx, obj)
+			return ec.Resolvers.NoRunningInstancesIssue().TeamEnvironment(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment,
@@ -1943,7 +1942,7 @@ func (ec *executionContext) _NoRunningInstancesIssue_workload(ctx context.Contex
 		field,
 		ec.fieldContext_NoRunningInstancesIssue_workload,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.NoRunningInstancesIssue().Workload(ctx, obj)
+			return ec.Resolvers.NoRunningInstancesIssue().Workload(ctx, obj)
 		},
 		nil,
 		ec.marshalNWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload,
@@ -2001,7 +2000,7 @@ func (ec *executionContext) _OpenSearchIssue_teamEnvironment(ctx context.Context
 		field,
 		ec.fieldContext_OpenSearchIssue_teamEnvironment,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.OpenSearchIssue().TeamEnvironment(ctx, obj)
+			return ec.Resolvers.OpenSearchIssue().TeamEnvironment(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment,
@@ -2128,7 +2127,7 @@ func (ec *executionContext) _OpenSearchIssue_openSearch(ctx context.Context, fie
 		field,
 		ec.fieldContext_OpenSearchIssue_openSearch,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.OpenSearchIssue().OpenSearch(ctx, obj)
+			return ec.Resolvers.OpenSearchIssue().OpenSearch(ctx, obj)
 		},
 		nil,
 		ec.marshalNOpenSearch2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearch,
@@ -2251,7 +2250,7 @@ func (ec *executionContext) _SqlInstanceStateIssue_teamEnvironment(ctx context.C
 		field,
 		ec.fieldContext_SqlInstanceStateIssue_teamEnvironment,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.SqlInstanceStateIssue().TeamEnvironment(ctx, obj)
+			return ec.Resolvers.SqlInstanceStateIssue().TeamEnvironment(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment,
@@ -2407,7 +2406,7 @@ func (ec *executionContext) _SqlInstanceStateIssue_sqlInstance(ctx context.Conte
 		field,
 		ec.fieldContext_SqlInstanceStateIssue_sqlInstance,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.SqlInstanceStateIssue().SQLInstance(ctx, obj)
+			return ec.Resolvers.SqlInstanceStateIssue().SQLInstance(ctx, obj)
 		},
 		nil,
 		ec.marshalNSqlInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstance,
@@ -2521,7 +2520,7 @@ func (ec *executionContext) _SqlInstanceVersionIssue_teamEnvironment(ctx context
 		field,
 		ec.fieldContext_SqlInstanceVersionIssue_teamEnvironment,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.SqlInstanceVersionIssue().TeamEnvironment(ctx, obj)
+			return ec.Resolvers.SqlInstanceVersionIssue().TeamEnvironment(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment,
@@ -2648,7 +2647,7 @@ func (ec *executionContext) _SqlInstanceVersionIssue_sqlInstance(ctx context.Con
 		field,
 		ec.fieldContext_SqlInstanceVersionIssue_sqlInstance,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.SqlInstanceVersionIssue().SQLInstance(ctx, obj)
+			return ec.Resolvers.SqlInstanceVersionIssue().SQLInstance(ctx, obj)
 		},
 		nil,
 		ec.marshalNSqlInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstance,
@@ -2762,7 +2761,7 @@ func (ec *executionContext) _UnleashReleaseChannelIssue_teamEnvironment(ctx cont
 		field,
 		ec.fieldContext_UnleashReleaseChannelIssue_teamEnvironment,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.UnleashReleaseChannelIssue().TeamEnvironment(ctx, obj)
+			return ec.Resolvers.UnleashReleaseChannelIssue().TeamEnvironment(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment,
@@ -2889,7 +2888,7 @@ func (ec *executionContext) _UnleashReleaseChannelIssue_unleash(ctx context.Cont
 		field,
 		ec.fieldContext_UnleashReleaseChannelIssue_unleash,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.UnleashReleaseChannelIssue().Unleash(ctx, obj)
+			return ec.Resolvers.UnleashReleaseChannelIssue().Unleash(ctx, obj)
 		},
 		nil,
 		ec.marshalNUnleashInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐUnleashInstance,
@@ -3056,7 +3055,7 @@ func (ec *executionContext) _ValkeyIssue_teamEnvironment(ctx context.Context, fi
 		field,
 		ec.fieldContext_ValkeyIssue_teamEnvironment,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.ValkeyIssue().TeamEnvironment(ctx, obj)
+			return ec.Resolvers.ValkeyIssue().TeamEnvironment(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment,
@@ -3183,7 +3182,7 @@ func (ec *executionContext) _ValkeyIssue_valkey(ctx context.Context, field graph
 		field,
 		ec.fieldContext_ValkeyIssue_valkey,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.ValkeyIssue().Valkey(ctx, obj)
+			return ec.Resolvers.ValkeyIssue().Valkey(ctx, obj)
 		},
 		nil,
 		ec.marshalNValkey2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkey,
@@ -3306,7 +3305,7 @@ func (ec *executionContext) _VulnerableImageIssue_teamEnvironment(ctx context.Co
 		field,
 		ec.fieldContext_VulnerableImageIssue_teamEnvironment,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.VulnerableImageIssue().TeamEnvironment(ctx, obj)
+			return ec.Resolvers.VulnerableImageIssue().TeamEnvironment(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment,
@@ -3433,7 +3432,7 @@ func (ec *executionContext) _VulnerableImageIssue_workload(ctx context.Context, 
 		field,
 		ec.fieldContext_VulnerableImageIssue_workload,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.VulnerableImageIssue().Workload(ctx, obj)
+			return ec.Resolvers.VulnerableImageIssue().Workload(ctx, obj)
 		},
 		nil,
 		ec.marshalNWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload,
@@ -3568,7 +3567,6 @@ func (ec *executionContext) unmarshalInputIssueFilter(ctx context.Context, obj a
 			it.IssueType = data
 		}
 	}
-
 	return it, nil
 }
 
@@ -3602,7 +3600,6 @@ func (ec *executionContext) unmarshalInputIssueOrder(ctx context.Context, obj an
 			it.Direction = data
 		}
 	}
-
 	return it, nil
 }
 
@@ -3636,7 +3633,6 @@ func (ec *executionContext) unmarshalInputResourceIssueFilter(ctx context.Contex
 			it.IssueType = data
 		}
 	}
-
 	return it, nil
 }
 
@@ -3747,7 +3743,11 @@ func (ec *executionContext) _Issue(ctx context.Context, sel ast.SelectionSet, ob
 		}
 		return ec._DeprecatedIngressIssue(ctx, sel, obj)
 	default:
-		panic(fmt.Errorf("unexpected type %T", obj))
+		if typedObj, ok := obj.(graphql.Marshaler); ok {
+			return typedObj
+		} else {
+			panic(fmt.Errorf("unexpected type %T; non-generated variants of Issue must implement graphql.Marshaler", obj))
+		}
 	}
 }
 
@@ -3867,10 +3867,10 @@ func (ec *executionContext) _DeprecatedIngressIssue(ctx context.Context, sel ast
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -3988,10 +3988,10 @@ func (ec *executionContext) _DeprecatedRegistryIssue(ctx context.Context, sel as
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -4119,10 +4119,10 @@ func (ec *executionContext) _ExternalIngressCriticalVulnerabilityIssue(ctx conte
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -4240,10 +4240,10 @@ func (ec *executionContext) _FailedSynchronizationIssue(ctx context.Context, sel
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -4361,10 +4361,10 @@ func (ec *executionContext) _InvalidSpecIssue(ctx context.Context, sel ast.Selec
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -4410,10 +4410,10 @@ func (ec *executionContext) _IssueConnection(ctx context.Context, sel ast.Select
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -4454,10 +4454,10 @@ func (ec *executionContext) _IssueEdge(ctx context.Context, sel ast.SelectionSet
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -4575,10 +4575,10 @@ func (ec *executionContext) _LastRunFailedIssue(ctx context.Context, sel ast.Sel
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -4696,10 +4696,10 @@ func (ec *executionContext) _MissingSbomIssue(ctx context.Context, sel ast.Selec
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -4817,10 +4817,10 @@ func (ec *executionContext) _NoRunningInstancesIssue(ctx context.Context, sel as
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -4943,10 +4943,10 @@ func (ec *executionContext) _OpenSearchIssue(ctx context.Context, sel ast.Select
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -5069,10 +5069,10 @@ func (ec *executionContext) _SqlInstanceStateIssue(ctx context.Context, sel ast.
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -5190,10 +5190,10 @@ func (ec *executionContext) _SqlInstanceVersionIssue(ctx context.Context, sel as
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -5326,10 +5326,10 @@ func (ec *executionContext) _UnleashReleaseChannelIssue(ctx context.Context, sel
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -5452,10 +5452,10 @@ func (ec *executionContext) _ValkeyIssue(ctx context.Context, sel ast.SelectionS
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -5583,10 +5583,10 @@ func (ec *executionContext) _VulnerableImageIssue(ctx context.Context, sel ast.S
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -5612,39 +5612,11 @@ func (ec *executionContext) marshalNIssue2githubᚗcomᚋnaisᚋapiᚋinternal�
 }
 
 func (ec *executionContext) marshalNIssue2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋissueᚐIssueᚄ(ctx context.Context, sel ast.SelectionSet, v []issue.Issue) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNIssue2githubᚗcomᚋnaisᚋapiᚋinternalᚋissueᚐIssue(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNIssue2githubᚗcomᚋnaisᚋapiᚋinternalᚋissueᚐIssue(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -5674,39 +5646,11 @@ func (ec *executionContext) marshalNIssueEdge2githubᚗcomᚋnaisᚋapiᚋintern
 }
 
 func (ec *executionContext) marshalNIssueEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[issue.Issue]) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNIssueEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNIssueEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {

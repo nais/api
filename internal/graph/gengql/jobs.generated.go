@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
-	"sync"
 	"sync/atomic"
 
 	"github.com/99designs/gqlgen/graphql"
@@ -353,7 +352,7 @@ func (ec *executionContext) _DeleteJobPayload_team(ctx context.Context, field gr
 		field,
 		ec.fieldContext_DeleteJobPayload_team,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.DeleteJobPayload().Team(ctx, obj)
+			return ec.Resolvers.DeleteJobPayload().Team(ctx, obj)
 		},
 		nil,
 		ec.marshalOTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam,
@@ -551,7 +550,7 @@ func (ec *executionContext) _Job_team(ctx context.Context, field graphql.Collect
 		field,
 		ec.fieldContext_Job_team,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Job().Team(ctx, obj)
+			return ec.Resolvers.Job().Team(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam,
@@ -662,7 +661,7 @@ func (ec *executionContext) _Job_environment(ctx context.Context, field graphql.
 		field,
 		ec.fieldContext_Job_environment,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Job().Environment(ctx, obj)
+			return ec.Resolvers.Job().Environment(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment,
@@ -731,7 +730,7 @@ func (ec *executionContext) _Job_teamEnvironment(ctx context.Context, field grap
 		field,
 		ec.fieldContext_Job_teamEnvironment,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Job().TeamEnvironment(ctx, obj)
+			return ec.Resolvers.Job().TeamEnvironment(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment,
@@ -882,7 +881,7 @@ func (ec *executionContext) _Job_authIntegrations(ctx context.Context, field gra
 		field,
 		ec.fieldContext_Job_authIntegrations,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Job().AuthIntegrations(ctx, obj)
+			return ec.Resolvers.Job().AuthIntegrations(ctx, obj)
 		},
 		nil,
 		ec.marshalNJobAuthIntegrations2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐJobAuthIntegrationsᚄ,
@@ -947,7 +946,7 @@ func (ec *executionContext) _Job_runs(ctx context.Context, field graphql.Collect
 		ec.fieldContext_Job_runs,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Job().Runs(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
+			return ec.Resolvers.Job().Runs(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
 		},
 		nil,
 		ec.marshalNJobRunConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -995,7 +994,7 @@ func (ec *executionContext) _Job_manifest(ctx context.Context, field graphql.Col
 		field,
 		ec.fieldContext_Job_manifest,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Job().Manifest(ctx, obj)
+			return ec.Resolvers.Job().Manifest(ctx, obj)
 		},
 		nil,
 		ec.marshalNJobManifest2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobManifest,
@@ -1058,7 +1057,7 @@ func (ec *executionContext) _Job_activityLog(ctx context.Context, field graphql.
 		ec.fieldContext_Job_activityLog,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Job().ActivityLog(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["filter"].(*activitylog.ActivityLogFilter))
+			return ec.Resolvers.Job().ActivityLog(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["filter"].(*activitylog.ActivityLogFilter))
 		},
 		nil,
 		ec.marshalNActivityLogEntryConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -1106,7 +1105,7 @@ func (ec *executionContext) _Job_state(ctx context.Context, field graphql.Collec
 		field,
 		ec.fieldContext_Job_state,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Job().State(ctx, obj)
+			return ec.Resolvers.Job().State(ctx, obj)
 		},
 		nil,
 		ec.marshalNJobState2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobState,
@@ -1136,7 +1135,7 @@ func (ec *executionContext) _Job_issues(ctx context.Context, field graphql.Colle
 		ec.fieldContext_Job_issues,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Job().Issues(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*issue.IssueOrder), fc.Args["filter"].(*issue.ResourceIssueFilter))
+			return ec.Resolvers.Job().Issues(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*issue.IssueOrder), fc.Args["filter"].(*issue.ResourceIssueFilter))
 		},
 		nil,
 		ec.marshalNIssueConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -1185,7 +1184,7 @@ func (ec *executionContext) _Job_bigQueryDatasets(ctx context.Context, field gra
 		ec.fieldContext_Job_bigQueryDatasets,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Job().BigQueryDatasets(ctx, obj, fc.Args["orderBy"].(*bigquery.BigQueryDatasetOrder))
+			return ec.Resolvers.Job().BigQueryDatasets(ctx, obj, fc.Args["orderBy"].(*bigquery.BigQueryDatasetOrder))
 		},
 		nil,
 		ec.marshalNBigQueryDatasetConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -1234,7 +1233,7 @@ func (ec *executionContext) _Job_buckets(ctx context.Context, field graphql.Coll
 		ec.fieldContext_Job_buckets,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Job().Buckets(ctx, obj, fc.Args["orderBy"].(*bucket.BucketOrder))
+			return ec.Resolvers.Job().Buckets(ctx, obj, fc.Args["orderBy"].(*bucket.BucketOrder))
 		},
 		nil,
 		ec.marshalNBucketConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -1282,7 +1281,7 @@ func (ec *executionContext) _Job_cost(ctx context.Context, field graphql.Collect
 		field,
 		ec.fieldContext_Job_cost,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Job().Cost(ctx, obj)
+			return ec.Resolvers.Job().Cost(ctx, obj)
 		},
 		nil,
 		ec.marshalNWorkloadCost2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCost,
@@ -1318,7 +1317,7 @@ func (ec *executionContext) _Job_deployments(ctx context.Context, field graphql.
 		ec.fieldContext_Job_deployments,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Job().Deployments(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
+			return ec.Resolvers.Job().Deployments(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
 		},
 		nil,
 		ec.marshalNDeploymentConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -1367,7 +1366,7 @@ func (ec *executionContext) _Job_kafkaTopicAcls(ctx context.Context, field graph
 		ec.fieldContext_Job_kafkaTopicAcls,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Job().KafkaTopicAcls(ctx, obj, fc.Args["orderBy"].(*kafkatopic.KafkaTopicACLOrder))
+			return ec.Resolvers.Job().KafkaTopicAcls(ctx, obj, fc.Args["orderBy"].(*kafkatopic.KafkaTopicACLOrder))
 		},
 		nil,
 		ec.marshalNKafkaTopicAclConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -1415,7 +1414,7 @@ func (ec *executionContext) _Job_logDestinations(ctx context.Context, field grap
 		field,
 		ec.fieldContext_Job_logDestinations,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Job().LogDestinations(ctx, obj)
+			return ec.Resolvers.Job().LogDestinations(ctx, obj)
 		},
 		nil,
 		ec.marshalNLogDestination2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋloggingᚐLogDestinationᚄ,
@@ -1444,7 +1443,7 @@ func (ec *executionContext) _Job_networkPolicy(ctx context.Context, field graphq
 		field,
 		ec.fieldContext_Job_networkPolicy,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Job().NetworkPolicy(ctx, obj)
+			return ec.Resolvers.Job().NetworkPolicy(ctx, obj)
 		},
 		nil,
 		ec.marshalNNetworkPolicy2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋnetpolᚐNetworkPolicy,
@@ -1479,7 +1478,7 @@ func (ec *executionContext) _Job_openSearch(ctx context.Context, field graphql.C
 		field,
 		ec.fieldContext_Job_openSearch,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Job().OpenSearch(ctx, obj)
+			return ec.Resolvers.Job().OpenSearch(ctx, obj)
 		},
 		nil,
 		ec.marshalOOpenSearch2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearch,
@@ -1545,7 +1544,7 @@ func (ec *executionContext) _Job_postgresInstances(ctx context.Context, field gr
 		ec.fieldContext_Job_postgresInstances,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Job().PostgresInstances(ctx, obj, fc.Args["orderBy"].(*postgres.PostgresInstanceOrder))
+			return ec.Resolvers.Job().PostgresInstances(ctx, obj, fc.Args["orderBy"].(*postgres.PostgresInstanceOrder))
 		},
 		nil,
 		ec.marshalNPostgresInstanceConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -1594,7 +1593,7 @@ func (ec *executionContext) _Job_secrets(ctx context.Context, field graphql.Coll
 		ec.fieldContext_Job_secrets,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Job().Secrets(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
+			return ec.Resolvers.Job().Secrets(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
 		},
 		nil,
 		ec.marshalNSecretConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -1643,7 +1642,7 @@ func (ec *executionContext) _Job_sqlInstances(ctx context.Context, field graphql
 		ec.fieldContext_Job_sqlInstances,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Job().SQLInstances(ctx, obj, fc.Args["orderBy"].(*sqlinstance.SQLInstanceOrder))
+			return ec.Resolvers.Job().SQLInstances(ctx, obj, fc.Args["orderBy"].(*sqlinstance.SQLInstanceOrder))
 		},
 		nil,
 		ec.marshalNSqlInstanceConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -1692,7 +1691,7 @@ func (ec *executionContext) _Job_valkeys(ctx context.Context, field graphql.Coll
 		ec.fieldContext_Job_valkeys,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Job().Valkeys(ctx, obj, fc.Args["orderBy"].(*valkey.ValkeyOrder))
+			return ec.Resolvers.Job().Valkeys(ctx, obj, fc.Args["orderBy"].(*valkey.ValkeyOrder))
 		},
 		nil,
 		ec.marshalNValkeyConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -1741,7 +1740,7 @@ func (ec *executionContext) _Job_imageVulnerabilityHistory(ctx context.Context, 
 		ec.fieldContext_Job_imageVulnerabilityHistory,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Job().ImageVulnerabilityHistory(ctx, obj, fc.Args["from"].(scalar.Date))
+			return ec.Resolvers.Job().ImageVulnerabilityHistory(ctx, obj, fc.Args["from"].(scalar.Date))
 		},
 		nil,
 		ec.marshalNImageVulnerabilityHistory2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐImageVulnerabilityHistory,
@@ -1786,7 +1785,7 @@ func (ec *executionContext) _Job_vulnerabilityFixHistory(ctx context.Context, fi
 		ec.fieldContext_Job_vulnerabilityFixHistory,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Job().VulnerabilityFixHistory(ctx, obj, fc.Args["from"].(scalar.Date))
+			return ec.Resolvers.Job().VulnerabilityFixHistory(ctx, obj, fc.Args["from"].(scalar.Date))
 		},
 		nil,
 		ec.marshalNVulnerabilityFixHistory2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐVulnerabilityFixHistory,
@@ -2646,7 +2645,7 @@ func (ec *executionContext) _JobRun_duration(ctx context.Context, field graphql.
 		field,
 		ec.fieldContext_JobRun_duration,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.JobRun().Duration(ctx, obj)
+			return ec.Resolvers.JobRun().Duration(ctx, obj)
 		},
 		nil,
 		ec.marshalNInt2int,
@@ -2676,7 +2675,7 @@ func (ec *executionContext) _JobRun_instances(ctx context.Context, field graphql
 		ec.fieldContext_JobRun_instances,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.JobRun().Instances(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
+			return ec.Resolvers.JobRun().Instances(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
 		},
 		nil,
 		ec.marshalNJobRunInstanceConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -3638,7 +3637,7 @@ func (ec *executionContext) _TriggerJobPayload_job(ctx context.Context, field gr
 		field,
 		ec.fieldContext_TriggerJobPayload_job,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.TriggerJobPayload().Job(ctx, obj)
+			return ec.Resolvers.TriggerJobPayload().Job(ctx, obj)
 		},
 		nil,
 		ec.marshalOJob2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJob,
@@ -3810,7 +3809,6 @@ func (ec *executionContext) unmarshalInputDeleteJobInput(ctx context.Context, ob
 			it.EnvironmentName = data
 		}
 	}
-
 	return it, nil
 }
 
@@ -3844,7 +3842,6 @@ func (ec *executionContext) unmarshalInputJobOrder(ctx context.Context, obj any)
 			it.Direction = data
 		}
 	}
-
 	return it, nil
 }
 
@@ -3878,7 +3875,6 @@ func (ec *executionContext) unmarshalInputTeamJobsFilter(ctx context.Context, ob
 			it.Environments = data
 		}
 	}
-
 	return it, nil
 }
 
@@ -3926,7 +3922,6 @@ func (ec *executionContext) unmarshalInputTriggerJobInput(ctx context.Context, o
 			it.RunName = data
 		}
 	}
-
 	return it, nil
 }
 
@@ -3953,7 +3948,11 @@ func (ec *executionContext) _JobAuthIntegrations(ctx context.Context, sel ast.Se
 		}
 		return ec._EntraIDAuthIntegration(ctx, sel, obj)
 	default:
-		panic(fmt.Errorf("unexpected type %T", obj))
+		if typedObj, ok := obj.(graphql.Marshaler); ok {
+			return typedObj
+		} else {
+			panic(fmt.Errorf("unexpected type %T; non-generated variants of JobAuthIntegrations must implement graphql.Marshaler", obj))
+		}
 	}
 }
 
@@ -4016,10 +4015,10 @@ func (ec *executionContext) _DeleteJobPayload(ctx context.Context, sel ast.Selec
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -4899,10 +4898,10 @@ func (ec *executionContext) _Job(ctx context.Context, sel ast.SelectionSet, obj 
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -4948,10 +4947,10 @@ func (ec *executionContext) _JobConnection(ctx context.Context, sel ast.Selectio
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -5019,10 +5018,10 @@ func (ec *executionContext) _JobDeletedActivityLogEntry(ctx context.Context, sel
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -5063,10 +5062,10 @@ func (ec *executionContext) _JobEdge(ctx context.Context, sel ast.SelectionSet, 
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -5102,10 +5101,10 @@ func (ec *executionContext) _JobManifest(ctx context.Context, sel ast.SelectionS
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -5146,10 +5145,10 @@ func (ec *executionContext) _JobResources(ctx context.Context, sel ast.Selection
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -5281,10 +5280,10 @@ func (ec *executionContext) _JobRun(ctx context.Context, sel ast.SelectionSet, o
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -5330,10 +5329,10 @@ func (ec *executionContext) _JobRunConnection(ctx context.Context, sel ast.Selec
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -5374,10 +5373,10 @@ func (ec *executionContext) _JobRunEdge(ctx context.Context, sel ast.SelectionSe
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -5418,10 +5417,10 @@ func (ec *executionContext) _JobRunInstance(ctx context.Context, sel ast.Selecti
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -5467,10 +5466,10 @@ func (ec *executionContext) _JobRunInstanceConnection(ctx context.Context, sel a
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -5511,10 +5510,10 @@ func (ec *executionContext) _JobRunInstanceEdge(ctx context.Context, sel ast.Sel
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -5555,10 +5554,10 @@ func (ec *executionContext) _JobRunStatus(ctx context.Context, sel ast.Selection
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -5596,10 +5595,10 @@ func (ec *executionContext) _JobRunTrigger(ctx context.Context, sel ast.Selectio
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -5640,10 +5639,10 @@ func (ec *executionContext) _JobSchedule(ctx context.Context, sel ast.SelectionS
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -5711,10 +5710,10 @@ func (ec *executionContext) _JobTriggeredActivityLogEntry(ctx context.Context, s
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -5750,10 +5749,10 @@ func (ec *executionContext) _TeamInventoryCountJobs(ctx context.Context, sel ast
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -5819,10 +5818,10 @@ func (ec *executionContext) _TriggerJobPayload(ctx context.Context, sel ast.Sele
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -5861,39 +5860,11 @@ func (ec *executionContext) marshalNJob2githubᚗcomᚋnaisᚋapiᚋinternalᚋw
 }
 
 func (ec *executionContext) marshalNJob2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobᚄ(ctx context.Context, sel ast.SelectionSet, v []*job.Job) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNJob2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJob(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNJob2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJob(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -5925,39 +5896,11 @@ func (ec *executionContext) marshalNJobAuthIntegrations2githubᚗcomᚋnaisᚋap
 }
 
 func (ec *executionContext) marshalNJobAuthIntegrations2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐJobAuthIntegrationsᚄ(ctx context.Context, sel ast.SelectionSet, v []workload.JobAuthIntegrations) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNJobAuthIntegrations2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐJobAuthIntegrations(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNJobAuthIntegrations2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐJobAuthIntegrations(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -5987,39 +5930,11 @@ func (ec *executionContext) marshalNJobEdge2githubᚗcomᚋnaisᚋapiᚋinternal
 }
 
 func (ec *executionContext) marshalNJobEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[*job.Job]) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNJobEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNJobEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -6065,39 +5980,11 @@ func (ec *executionContext) marshalNJobResources2ᚖgithubᚗcomᚋnaisᚋapiᚋ
 }
 
 func (ec *executionContext) marshalNJobRun2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRunᚄ(ctx context.Context, sel ast.SelectionSet, v []*job.JobRun) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNJobRun2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRun(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNJobRun2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRun(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -6137,39 +6024,11 @@ func (ec *executionContext) marshalNJobRunEdge2githubᚗcomᚋnaisᚋapiᚋinter
 }
 
 func (ec *executionContext) marshalNJobRunEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[*job.JobRun]) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNJobRunEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNJobRunEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -6181,39 +6040,11 @@ func (ec *executionContext) marshalNJobRunEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋin
 }
 
 func (ec *executionContext) marshalNJobRunInstance2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRunInstanceᚄ(ctx context.Context, sel ast.SelectionSet, v []*job.JobRunInstance) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNJobRunInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRunInstance(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNJobRunInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRunInstance(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -6253,39 +6084,11 @@ func (ec *executionContext) marshalNJobRunInstanceEdge2githubᚗcomᚋnaisᚋapi
 }
 
 func (ec *executionContext) marshalNJobRunInstanceEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[*job.JobRunInstance]) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNJobRunInstanceEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNJobRunInstanceEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {

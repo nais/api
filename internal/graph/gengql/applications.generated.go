@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
-	"sync"
 	"sync/atomic"
 
 	"github.com/99designs/gqlgen/graphql"
@@ -416,7 +415,7 @@ func (ec *executionContext) _Application_team(ctx context.Context, field graphql
 		field,
 		ec.fieldContext_Application_team,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Application().Team(ctx, obj)
+			return ec.Resolvers.Application().Team(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam,
@@ -527,7 +526,7 @@ func (ec *executionContext) _Application_environment(ctx context.Context, field 
 		field,
 		ec.fieldContext_Application_environment,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Application().Environment(ctx, obj)
+			return ec.Resolvers.Application().Environment(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment,
@@ -596,7 +595,7 @@ func (ec *executionContext) _Application_teamEnvironment(ctx context.Context, fi
 		field,
 		ec.fieldContext_Application_teamEnvironment,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Application().TeamEnvironment(ctx, obj)
+			return ec.Resolvers.Application().TeamEnvironment(ctx, obj)
 		},
 		nil,
 		ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment,
@@ -786,7 +785,7 @@ func (ec *executionContext) _Application_authIntegrations(ctx context.Context, f
 		field,
 		ec.fieldContext_Application_authIntegrations,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Application().AuthIntegrations(ctx, obj)
+			return ec.Resolvers.Application().AuthIntegrations(ctx, obj)
 		},
 		nil,
 		ec.marshalNApplicationAuthIntegrations2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐApplicationAuthIntegrationsᚄ,
@@ -815,7 +814,7 @@ func (ec *executionContext) _Application_manifest(ctx context.Context, field gra
 		field,
 		ec.fieldContext_Application_manifest,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Application().Manifest(ctx, obj)
+			return ec.Resolvers.Application().Manifest(ctx, obj)
 		},
 		nil,
 		ec.marshalNApplicationManifest2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplicationManifest,
@@ -849,7 +848,7 @@ func (ec *executionContext) _Application_instances(ctx context.Context, field gr
 		ec.fieldContext_Application_instances,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Application().Instances(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
+			return ec.Resolvers.Application().Instances(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
 		},
 		nil,
 		ec.marshalNApplicationInstanceConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -927,7 +926,7 @@ func (ec *executionContext) _Application_activityLog(ctx context.Context, field 
 		ec.fieldContext_Application_activityLog,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Application().ActivityLog(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["filter"].(*activitylog.ActivityLogFilter))
+			return ec.Resolvers.Application().ActivityLog(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["filter"].(*activitylog.ActivityLogFilter))
 		},
 		nil,
 		ec.marshalNActivityLogEntryConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -975,7 +974,7 @@ func (ec *executionContext) _Application_state(ctx context.Context, field graphq
 		field,
 		ec.fieldContext_Application_state,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Application().State(ctx, obj)
+			return ec.Resolvers.Application().State(ctx, obj)
 		},
 		nil,
 		ec.marshalNApplicationState2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplicationState,
@@ -1005,7 +1004,7 @@ func (ec *executionContext) _Application_issues(ctx context.Context, field graph
 		ec.fieldContext_Application_issues,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Application().Issues(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*issue.IssueOrder), fc.Args["filter"].(*issue.ResourceIssueFilter))
+			return ec.Resolvers.Application().Issues(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*issue.IssueOrder), fc.Args["filter"].(*issue.ResourceIssueFilter))
 		},
 		nil,
 		ec.marshalNIssueConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -1054,7 +1053,7 @@ func (ec *executionContext) _Application_bigQueryDatasets(ctx context.Context, f
 		ec.fieldContext_Application_bigQueryDatasets,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Application().BigQueryDatasets(ctx, obj, fc.Args["orderBy"].(*bigquery.BigQueryDatasetOrder))
+			return ec.Resolvers.Application().BigQueryDatasets(ctx, obj, fc.Args["orderBy"].(*bigquery.BigQueryDatasetOrder))
 		},
 		nil,
 		ec.marshalNBigQueryDatasetConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -1103,7 +1102,7 @@ func (ec *executionContext) _Application_buckets(ctx context.Context, field grap
 		ec.fieldContext_Application_buckets,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Application().Buckets(ctx, obj, fc.Args["orderBy"].(*bucket.BucketOrder))
+			return ec.Resolvers.Application().Buckets(ctx, obj, fc.Args["orderBy"].(*bucket.BucketOrder))
 		},
 		nil,
 		ec.marshalNBucketConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -1151,7 +1150,7 @@ func (ec *executionContext) _Application_cost(ctx context.Context, field graphql
 		field,
 		ec.fieldContext_Application_cost,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Application().Cost(ctx, obj)
+			return ec.Resolvers.Application().Cost(ctx, obj)
 		},
 		nil,
 		ec.marshalNWorkloadCost2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCost,
@@ -1187,7 +1186,7 @@ func (ec *executionContext) _Application_deployments(ctx context.Context, field 
 		ec.fieldContext_Application_deployments,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Application().Deployments(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
+			return ec.Resolvers.Application().Deployments(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
 		},
 		nil,
 		ec.marshalNDeploymentConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -1236,7 +1235,7 @@ func (ec *executionContext) _Application_kafkaTopicAcls(ctx context.Context, fie
 		ec.fieldContext_Application_kafkaTopicAcls,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Application().KafkaTopicAcls(ctx, obj, fc.Args["orderBy"].(*kafkatopic.KafkaTopicACLOrder))
+			return ec.Resolvers.Application().KafkaTopicAcls(ctx, obj, fc.Args["orderBy"].(*kafkatopic.KafkaTopicACLOrder))
 		},
 		nil,
 		ec.marshalNKafkaTopicAclConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -1284,7 +1283,7 @@ func (ec *executionContext) _Application_logDestinations(ctx context.Context, fi
 		field,
 		ec.fieldContext_Application_logDestinations,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Application().LogDestinations(ctx, obj)
+			return ec.Resolvers.Application().LogDestinations(ctx, obj)
 		},
 		nil,
 		ec.marshalNLogDestination2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋloggingᚐLogDestinationᚄ,
@@ -1313,7 +1312,7 @@ func (ec *executionContext) _Application_networkPolicy(ctx context.Context, fiel
 		field,
 		ec.fieldContext_Application_networkPolicy,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Application().NetworkPolicy(ctx, obj)
+			return ec.Resolvers.Application().NetworkPolicy(ctx, obj)
 		},
 		nil,
 		ec.marshalNNetworkPolicy2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋnetpolᚐNetworkPolicy,
@@ -1348,7 +1347,7 @@ func (ec *executionContext) _Application_openSearch(ctx context.Context, field g
 		field,
 		ec.fieldContext_Application_openSearch,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Application().OpenSearch(ctx, obj)
+			return ec.Resolvers.Application().OpenSearch(ctx, obj)
 		},
 		nil,
 		ec.marshalOOpenSearch2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearch,
@@ -1414,7 +1413,7 @@ func (ec *executionContext) _Application_postgresInstances(ctx context.Context, 
 		ec.fieldContext_Application_postgresInstances,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Application().PostgresInstances(ctx, obj, fc.Args["orderBy"].(*postgres.PostgresInstanceOrder))
+			return ec.Resolvers.Application().PostgresInstances(ctx, obj, fc.Args["orderBy"].(*postgres.PostgresInstanceOrder))
 		},
 		nil,
 		ec.marshalNPostgresInstanceConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -1463,7 +1462,7 @@ func (ec *executionContext) _Application_secrets(ctx context.Context, field grap
 		ec.fieldContext_Application_secrets,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Application().Secrets(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
+			return ec.Resolvers.Application().Secrets(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
 		},
 		nil,
 		ec.marshalNSecretConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -1512,7 +1511,7 @@ func (ec *executionContext) _Application_sqlInstances(ctx context.Context, field
 		ec.fieldContext_Application_sqlInstances,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Application().SQLInstances(ctx, obj, fc.Args["orderBy"].(*sqlinstance.SQLInstanceOrder))
+			return ec.Resolvers.Application().SQLInstances(ctx, obj, fc.Args["orderBy"].(*sqlinstance.SQLInstanceOrder))
 		},
 		nil,
 		ec.marshalNSqlInstanceConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -1560,7 +1559,7 @@ func (ec *executionContext) _Application_utilization(ctx context.Context, field 
 		field,
 		ec.fieldContext_Application_utilization,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Application().Utilization(ctx, obj)
+			return ec.Resolvers.Application().Utilization(ctx, obj)
 		},
 		nil,
 		ec.marshalNWorkloadUtilization2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐWorkloadUtilization,
@@ -1606,7 +1605,7 @@ func (ec *executionContext) _Application_valkeys(ctx context.Context, field grap
 		ec.fieldContext_Application_valkeys,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Application().Valkeys(ctx, obj, fc.Args["orderBy"].(*valkey.ValkeyOrder))
+			return ec.Resolvers.Application().Valkeys(ctx, obj, fc.Args["orderBy"].(*valkey.ValkeyOrder))
 		},
 		nil,
 		ec.marshalNValkeyConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -1655,7 +1654,7 @@ func (ec *executionContext) _Application_imageVulnerabilityHistory(ctx context.C
 		ec.fieldContext_Application_imageVulnerabilityHistory,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Application().ImageVulnerabilityHistory(ctx, obj, fc.Args["from"].(scalar.Date))
+			return ec.Resolvers.Application().ImageVulnerabilityHistory(ctx, obj, fc.Args["from"].(scalar.Date))
 		},
 		nil,
 		ec.marshalNImageVulnerabilityHistory2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐImageVulnerabilityHistory,
@@ -1700,7 +1699,7 @@ func (ec *executionContext) _Application_vulnerabilityFixHistory(ctx context.Con
 		ec.fieldContext_Application_vulnerabilityFixHistory,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Application().VulnerabilityFixHistory(ctx, obj, fc.Args["from"].(scalar.Date))
+			return ec.Resolvers.Application().VulnerabilityFixHistory(ctx, obj, fc.Args["from"].(scalar.Date))
 		},
 		nil,
 		ec.marshalNVulnerabilityFixHistory2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐVulnerabilityFixHistory,
@@ -2466,7 +2465,7 @@ func (ec *executionContext) _ApplicationInstance_instanceUtilization(ctx context
 		ec.fieldContext_ApplicationInstance_instanceUtilization,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.ApplicationInstance().InstanceUtilization(ctx, obj, fc.Args["resourceType"].(utilization.UtilizationResourceType))
+			return ec.Resolvers.ApplicationInstance().InstanceUtilization(ctx, obj, fc.Args["resourceType"].(utilization.UtilizationResourceType))
 		},
 		nil,
 		ec.marshalNApplicationInstanceUtilization2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐApplicationInstanceUtilization,
@@ -3576,7 +3575,7 @@ func (ec *executionContext) _DeleteApplicationPayload_team(ctx context.Context, 
 		field,
 		ec.fieldContext_DeleteApplicationPayload_team,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.DeleteApplicationPayload().Team(ctx, obj)
+			return ec.Resolvers.DeleteApplicationPayload().Team(ctx, obj)
 		},
 		nil,
 		ec.marshalOTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam,
@@ -3745,7 +3744,7 @@ func (ec *executionContext) _Ingress_type(ctx context.Context, field graphql.Col
 		field,
 		ec.fieldContext_Ingress_type,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Ingress().Type(ctx, obj)
+			return ec.Resolvers.Ingress().Type(ctx, obj)
 		},
 		nil,
 		ec.marshalNIngressType2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐIngressType,
@@ -3774,7 +3773,7 @@ func (ec *executionContext) _Ingress_metrics(ctx context.Context, field graphql.
 		field,
 		ec.fieldContext_Ingress_metrics,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Ingress().Metrics(ctx, obj)
+			return ec.Resolvers.Ingress().Metrics(ctx, obj)
 		},
 		nil,
 		ec.marshalNIngressMetrics2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐIngressMetrics,
@@ -3869,7 +3868,7 @@ func (ec *executionContext) _IngressMetrics_requestsPerSecond(ctx context.Contex
 		field,
 		ec.fieldContext_IngressMetrics_requestsPerSecond,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.IngressMetrics().RequestsPerSecond(ctx, obj)
+			return ec.Resolvers.IngressMetrics().RequestsPerSecond(ctx, obj)
 		},
 		nil,
 		ec.marshalNFloat2float64,
@@ -3898,7 +3897,7 @@ func (ec *executionContext) _IngressMetrics_errorsPerSecond(ctx context.Context,
 		field,
 		ec.fieldContext_IngressMetrics_errorsPerSecond,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.IngressMetrics().ErrorsPerSecond(ctx, obj)
+			return ec.Resolvers.IngressMetrics().ErrorsPerSecond(ctx, obj)
 		},
 		nil,
 		ec.marshalNFloat2float64,
@@ -3928,7 +3927,7 @@ func (ec *executionContext) _IngressMetrics_series(ctx context.Context, field gr
 		ec.fieldContext_IngressMetrics_series,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.IngressMetrics().Series(ctx, obj, fc.Args["input"].(application.IngressMetricsInput))
+			return ec.Resolvers.IngressMetrics().Series(ctx, obj, fc.Args["input"].(application.IngressMetricsInput))
 		},
 		nil,
 		ec.marshalNIngressMetricSample2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐIngressMetricSampleᚄ,
@@ -4061,7 +4060,7 @@ func (ec *executionContext) _RestartApplicationPayload_application(ctx context.C
 		field,
 		ec.fieldContext_RestartApplicationPayload_application,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.RestartApplicationPayload().Application(ctx, obj)
+			return ec.Resolvers.RestartApplicationPayload().Application(ctx, obj)
 		},
 		nil,
 		ec.marshalOApplication2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplication,
@@ -4208,7 +4207,6 @@ func (ec *executionContext) unmarshalInputApplicationOrder(ctx context.Context, 
 			it.Direction = data
 		}
 	}
-
 	return it, nil
 }
 
@@ -4249,7 +4247,6 @@ func (ec *executionContext) unmarshalInputDeleteApplicationInput(ctx context.Con
 			it.EnvironmentName = data
 		}
 	}
-
 	return it, nil
 }
 
@@ -4290,7 +4287,6 @@ func (ec *executionContext) unmarshalInputIngressMetricsInput(ctx context.Contex
 			it.Type = data
 		}
 	}
-
 	return it, nil
 }
 
@@ -4331,7 +4327,6 @@ func (ec *executionContext) unmarshalInputRestartApplicationInput(ctx context.Co
 			it.EnvironmentName = data
 		}
 	}
-
 	return it, nil
 }
 
@@ -4365,7 +4360,6 @@ func (ec *executionContext) unmarshalInputTeamApplicationsFilter(ctx context.Con
 			it.Environments = data
 		}
 	}
-
 	return it, nil
 }
 
@@ -4406,7 +4400,11 @@ func (ec *executionContext) _ApplicationAuthIntegrations(ctx context.Context, se
 		}
 		return ec._EntraIDAuthIntegration(ctx, sel, obj)
 	default:
-		panic(fmt.Errorf("unexpected type %T", obj))
+		if typedObj, ok := obj.(graphql.Marshaler); ok {
+			return typedObj
+		} else {
+			panic(fmt.Errorf("unexpected type %T; non-generated variants of ApplicationAuthIntegrations must implement graphql.Marshaler", obj))
+		}
 	}
 }
 
@@ -4429,7 +4427,11 @@ func (ec *executionContext) _ScalingStrategy(ctx context.Context, sel ast.Select
 		}
 		return ec._CPUScalingStrategy(ctx, sel, obj)
 	default:
-		panic(fmt.Errorf("unexpected type %T", obj))
+		if typedObj, ok := obj.(graphql.Marshaler); ok {
+			return typedObj
+		} else {
+			panic(fmt.Errorf("unexpected type %T; non-generated variants of ScalingStrategy must implement graphql.Marshaler", obj))
+		}
 	}
 }
 
@@ -5345,10 +5347,10 @@ func (ec *executionContext) _Application(ctx context.Context, sel ast.SelectionS
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -5394,10 +5396,10 @@ func (ec *executionContext) _ApplicationConnection(ctx context.Context, sel ast.
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -5465,10 +5467,10 @@ func (ec *executionContext) _ApplicationDeletedActivityLogEntry(ctx context.Cont
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -5509,10 +5511,10 @@ func (ec *executionContext) _ApplicationEdge(ctx context.Context, sel ast.Select
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -5609,10 +5611,10 @@ func (ec *executionContext) _ApplicationInstance(ctx context.Context, sel ast.Se
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -5658,10 +5660,10 @@ func (ec *executionContext) _ApplicationInstanceConnection(ctx context.Context, 
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -5702,10 +5704,10 @@ func (ec *executionContext) _ApplicationInstanceEdge(ctx context.Context, sel as
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -5746,10 +5748,10 @@ func (ec *executionContext) _ApplicationInstanceStatus(ctx context.Context, sel 
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -5785,10 +5787,10 @@ func (ec *executionContext) _ApplicationManifest(ctx context.Context, sel ast.Se
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -5834,10 +5836,10 @@ func (ec *executionContext) _ApplicationResources(ctx context.Context, sel ast.S
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -5905,10 +5907,10 @@ func (ec *executionContext) _ApplicationRestartedActivityLogEntry(ctx context.Co
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -5981,10 +5983,10 @@ func (ec *executionContext) _ApplicationScaledActivityLogEntry(ctx context.Conte
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -6025,10 +6027,10 @@ func (ec *executionContext) _ApplicationScaledActivityLogEntryData(ctx context.C
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -6074,10 +6076,10 @@ func (ec *executionContext) _ApplicationScaling(ctx context.Context, sel ast.Sel
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -6113,10 +6115,10 @@ func (ec *executionContext) _CPUScalingStrategy(ctx context.Context, sel ast.Sel
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -6182,10 +6184,10 @@ func (ec *executionContext) _DeleteApplicationPayload(ctx context.Context, sel a
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -6293,10 +6295,10 @@ func (ec *executionContext) _Ingress(ctx context.Context, sel ast.SelectionSet, 
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -6337,10 +6339,10 @@ func (ec *executionContext) _IngressMetricSample(ctx context.Context, sel ast.Se
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -6479,10 +6481,10 @@ func (ec *executionContext) _IngressMetrics(ctx context.Context, sel ast.Selecti
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -6528,10 +6530,10 @@ func (ec *executionContext) _KafkaLagScalingStrategy(ctx context.Context, sel as
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -6595,10 +6597,10 @@ func (ec *executionContext) _RestartApplicationPayload(ctx context.Context, sel 
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -6634,10 +6636,10 @@ func (ec *executionContext) _TeamInventoryCountApplications(ctx context.Context,
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -6657,39 +6659,11 @@ func (ec *executionContext) marshalNApplication2githubᚗcomᚋnaisᚋapiᚋinte
 }
 
 func (ec *executionContext) marshalNApplication2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplicationᚄ(ctx context.Context, sel ast.SelectionSet, v []*application.Application) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNApplication2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplication(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNApplication2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplication(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -6721,39 +6695,11 @@ func (ec *executionContext) marshalNApplicationAuthIntegrations2githubᚗcomᚋn
 }
 
 func (ec *executionContext) marshalNApplicationAuthIntegrations2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐApplicationAuthIntegrationsᚄ(ctx context.Context, sel ast.SelectionSet, v []workload.ApplicationAuthIntegrations) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNApplicationAuthIntegrations2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐApplicationAuthIntegrations(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNApplicationAuthIntegrations2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐApplicationAuthIntegrations(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -6783,39 +6729,11 @@ func (ec *executionContext) marshalNApplicationEdge2githubᚗcomᚋnaisᚋapiᚋ
 }
 
 func (ec *executionContext) marshalNApplicationEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[*application.Application]) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNApplicationEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNApplicationEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -6827,39 +6745,11 @@ func (ec *executionContext) marshalNApplicationEdge2ᚕgithubᚗcomᚋnaisᚋapi
 }
 
 func (ec *executionContext) marshalNApplicationInstance2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplicationInstanceᚄ(ctx context.Context, sel ast.SelectionSet, v []*application.ApplicationInstance) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNApplicationInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplicationInstance(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNApplicationInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplicationInstance(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -6899,39 +6789,11 @@ func (ec *executionContext) marshalNApplicationInstanceEdge2githubᚗcomᚋnais�
 }
 
 func (ec *executionContext) marshalNApplicationInstanceEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[*application.ApplicationInstance]) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNApplicationInstanceEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNApplicationInstanceEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -7046,39 +6908,11 @@ func (ec *executionContext) marshalNDeleteApplicationPayload2ᚖgithubᚗcomᚋn
 }
 
 func (ec *executionContext) marshalNIngress2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐIngressᚄ(ctx context.Context, sel ast.SelectionSet, v []*application.Ingress) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNIngress2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐIngress(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNIngress2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐIngress(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -7100,39 +6934,11 @@ func (ec *executionContext) marshalNIngress2ᚖgithubᚗcomᚋnaisᚋapiᚋinter
 }
 
 func (ec *executionContext) marshalNIngressMetricSample2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐIngressMetricSampleᚄ(ctx context.Context, sel ast.SelectionSet, v []*application.IngressMetricSample) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNIngressMetricSample2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐIngressMetricSample(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNIngressMetricSample2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐIngressMetricSample(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -7232,39 +7038,11 @@ func (ec *executionContext) marshalNScalingStrategy2githubᚗcomᚋnaisᚋapiᚋ
 }
 
 func (ec *executionContext) marshalNScalingStrategy2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐScalingStrategyᚄ(ctx context.Context, sel ast.SelectionSet, v []application.ScalingStrategy) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNScalingStrategy2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐScalingStrategy(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNScalingStrategy2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐScalingStrategy(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
