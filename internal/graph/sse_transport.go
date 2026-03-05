@@ -1,7 +1,12 @@
 package graph
 
-// This is just a copy of the gqlgen SSE transpor. The only change is to check if `c.f` is nil before flushing,
-// to avoid panics when the client disconnects and the flusher is set to nil.
+// This is a copy of the gqlgen SSE transport with a fix to prevent panics when
+// the client disconnects while the keepAlive goroutine is still running.
+//
+// When the HTTP handler (Do) returns, the underlying response writer becomes
+// invalid. If the keepAlive goroutine calls Flush() after that, we get a nil
+// pointer dereference panic. The fix is to wait for the keepAlive goroutine to
+// finish before returning from Do.
 
 import (
 	"context"
@@ -15,9 +20,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/vektah/gqlparser/v2/gqlerror"
-
 	"github.com/99designs/gqlgen/graphql"
+	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 
 type (
@@ -26,7 +30,6 @@ type (
 	}
 
 	sseConnection struct {
-		ctx             context.Context
 		mu              sync.Mutex
 		f               http.Flusher
 		keepAliveTicker *time.Ticker
@@ -55,8 +58,7 @@ func (t SSE) Do(w http.ResponseWriter, r *http.Request, exec graphql.GraphExecut
 	}
 
 	c := &sseConnection{
-		ctx: ctx,
-		f:   flusher,
+		f: flusher,
 	}
 
 	defer c.flush()
@@ -98,7 +100,6 @@ func (t SSE) Do(w http.ResponseWriter, r *http.Request, exec graphql.GraphExecut
 
 	rc, opErr := exec.CreateOperationContext(ctx, params)
 	ctx = graphql.WithOperationContext(ctx, rc)
-	c.ctx = ctx
 
 	w.Header().Set("Content-Type", "text/event-stream")
 	fmt.Fprint(w, ":\n\n")
@@ -109,7 +110,12 @@ func (t SSE) Do(w http.ResponseWriter, r *http.Request, exec graphql.GraphExecut
 		c.keepAliveTicker = time.NewTicker(t.KeepAlivePingInterval)
 		c.mu.Unlock()
 
-		go c.keepAlive(w)
+		done := make(chan struct{})
+		go func() {
+			defer close(done)
+			c.keepAlive(ctx, w)
+		}()
+		defer func() { <-done }()
 	}
 
 	if opErr != nil {
@@ -140,10 +146,10 @@ func (c *sseConnection) resetTicker(interval time.Duration) {
 	}
 }
 
-func (c *sseConnection) keepAlive(w io.Writer) {
+func (c *sseConnection) keepAlive(ctx context.Context, w io.Writer) {
 	for {
 		select {
-		case <-c.ctx.Done():
+		case <-ctx.Done():
 			c.keepAliveTicker.Stop()
 			return
 		case <-c.keepAliveTicker.C:
@@ -155,9 +161,7 @@ func (c *sseConnection) keepAlive(w io.Writer) {
 
 func (c *sseConnection) flush() {
 	c.mu.Lock()
-	if c.f != nil {
-		c.f.Flush()
-	}
+	c.f.Flush()
 	c.mu.Unlock()
 }
 
@@ -181,8 +185,7 @@ func getRequestBody(r *http.Request) (string, error) {
 }
 
 // SendError sends a best effort error to a raw response writer. It assumes the client can
-// understand the standard
-// json error response
+// understand the standard json error response.
 func SendError(w http.ResponseWriter, code int, errors ...*gqlerror.Error) {
 	w.WriteHeader(code)
 	b, err := json.Marshal(&graphql.Response{Errors: errors})
@@ -192,7 +195,7 @@ func SendError(w http.ResponseWriter, code int, errors ...*gqlerror.Error) {
 	_, _ = w.Write(b)
 }
 
-// SendErrorf wraps SendError to add formatted messages
+// SendErrorf wraps SendError to add formatted messages.
 func SendErrorf(w http.ResponseWriter, code int, format string, args ...any) {
 	SendError(w, code, &gqlerror.Error{Message: fmt.Sprintf(format, args...)})
 }
