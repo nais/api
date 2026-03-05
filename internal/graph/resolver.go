@@ -64,7 +64,7 @@ func NewHandler(config gengql.Config, log logrus.FieldLogger) (*handler.Server, 
 	schema := gengql.NewExecutableSchema(config)
 	graphHandler := handler.New(schema)
 	graphHandler.Use(metricsMiddleware)
-	graphHandler.AddTransport(transport.SSE{KeepAlivePingInterval: 10 * time.Second})
+	graphHandler.AddTransport(SSE{KeepAlivePingInterval: 10 * time.Second})
 	graphHandler.AddTransport(transport.Options{})
 	graphHandler.AddTransport(transport.POST{})
 	graphHandler.SetQueryCache(lru.New[*ast.QueryDocument](1000))
