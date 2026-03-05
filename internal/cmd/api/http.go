@@ -99,7 +99,7 @@ func runHTTPServer(
 ) error {
 	router := chi.NewRouter()
 	router.Method("GET", "/",
-		otelhttp.WithRouteTag("playground", otelhttp.NewHandler(playground.Handler("GraphQL playground", "/graphql"), "playground")),
+		otelhttp.NewHandler(playground.Handler("GraphQL playground", "/graphql"), "playground"),
 	)
 
 	graphMiddleware, err := ConfigureGraph(
@@ -159,12 +159,12 @@ func runHTTPServer(
 			middleware.RequireAuthenticatedUser(),
 			otelhttp.NewMiddleware(
 				"graphql",
-				otelhttp.WithPublicEndpoint(),
+				otelhttp.WithPublicEndpointFn(func(*http.Request) bool { return true }),
 				otelhttp.WithSpanOptions(trace.WithAttributes(semconv.ServiceName("http"))),
 			),
 		)
 		r.Use(middlewares...)
-		r.Method("POST", "/", otelhttp.WithRouteTag("query", graphHandler))
+		r.Method("POST", "/", graphHandler)
 	})
 
 	router.Route("/oauth2", func(r chi.Router) {
