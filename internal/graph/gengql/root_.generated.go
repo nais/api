@@ -16210,7 +16210,7 @@ type Application implements Node & Workload & ActivityLogger {
 	"The application state."
 	state: ApplicationState!
 
-	"Issues that affects the workload."
+	"Issues that affect the application."
 	issues(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
 		first: Int
@@ -17647,7 +17647,7 @@ extend enum ApplicationOrderField {
 }
 
 extend enum JobOrderField {
-	"Order applications by the deployment time."
+	"Order jobs by the deployment time."
 	DEPLOYMENT_TIME
 }
 
@@ -18383,7 +18383,7 @@ type Job implements Node & Workload & ActivityLogger {
 	"The state of the Job"
 	state: JobState!
 
-	"Issues that affects the workload."
+	"Issues that affect the job."
 	issues(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
 		first: Int
@@ -25509,7 +25509,7 @@ interface Workload implements Node & ActivityLogger {
 		filter: ActivityLogFilter
 	): ActivityLogEntryConnection!
 
-	"Issues that affects the workload."
+	"Issues that affect the workload."
 	issues(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
 		first: Int

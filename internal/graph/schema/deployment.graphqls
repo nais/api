@@ -362,7 +362,7 @@ extend enum ApplicationOrderField {
 }
 
 extend enum JobOrderField {
-	"Order applications by the deployment time."
+	"Order jobs by the deployment time."
 	DEPLOYMENT_TIME
 }
 
