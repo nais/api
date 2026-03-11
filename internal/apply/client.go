@@ -18,21 +18,21 @@ import (
 
 const fieldManager = "nais-api"
 
-// ImpersonatedClient creates a dynamic Kubernetes client for the given cluster
+// ImpersonatedClient creates a dynamic Kubernetes client for the given environment
 // that impersonates the authenticated user from the context. This creates a fresh
 // client per call — it does NOT reuse informers or watcher clients.
 func ImpersonatedClient(
 	ctx context.Context,
 	clusterConfigs kubernetes.ClusterConfigMap,
-	cluster string,
+	environment string,
 ) (dynamic.Interface, error) {
-	cfg, ok := clusterConfigs[cluster]
+	cfg, ok := clusterConfigs[environment]
 	if !ok {
-		return nil, fmt.Errorf("unknown cluster: %q", cluster)
+		return nil, fmt.Errorf("unknown environment: %q", environment)
 	}
 
 	if cfg == nil {
-		return nil, fmt.Errorf("no config available for cluster: %q", cluster)
+		return nil, fmt.Errorf("no config available for environment: %q", environment)
 	}
 
 	actor := authz.ActorFromContext(ctx)
@@ -53,7 +53,7 @@ func ImpersonatedClient(
 
 	client, err := dynamic.NewForConfig(impersonatedCfg)
 	if err != nil {
-		return nil, fmt.Errorf("creating dynamic client for cluster %q: %w", cluster, err)
+		return nil, fmt.Errorf("creating dynamic client for environment %q: %w", environment, err)
 	}
 
 	return client, nil

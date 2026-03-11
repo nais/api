@@ -330,7 +330,6 @@ type ComplexityRoot struct {
 	ApplyActivityLogEntryData struct {
 		APIVersion    func(childComplexity int) int
 		ChangedFields func(childComplexity int) int
-		Cluster       func(childComplexity int) int
 		Kind          func(childComplexity int) int
 	}
 
@@ -4053,13 +4052,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ApplyActivityLogEntryData.ChangedFields(childComplexity), true
-
-	case "ApplyActivityLogEntryData.cluster":
-		if e.ComplexityRoot.ApplyActivityLogEntryData.Cluster == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ApplyActivityLogEntryData.Cluster(childComplexity), true
 
 	case "ApplyActivityLogEntryData.kind":
 		if e.ComplexityRoot.ApplyActivityLogEntryData.Kind == nil {
@@ -18173,8 +18165,6 @@ type ApplyActivityLogEntry implements ActivityLogEntry & Node {
 Additional data associated with an apply activity log entry.
 """
 type ApplyActivityLogEntryData {
-	"The cluster the resource was applied to."
-	cluster: String!
 	"The apiVersion of the applied resource."
 	apiVersion: String!
 	"The kind of the applied resource."

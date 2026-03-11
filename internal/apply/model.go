@@ -13,8 +13,8 @@ type ResourceResult struct {
 	// Namespace is the target namespace (== team slug) of the resource.
 	Namespace string `json:"namespace"`
 
-	// Cluster is the target cluster the resource was applied to.
-	Cluster string `json:"cluster"`
+	// Environment is the target environment the resource was applied to.
+	Environment string `json:"environment"`
 
 	// Status is one of "created", "applied", or "error".
 	Status string `json:"status"`
@@ -32,3 +32,14 @@ const (
 	StatusApplied = "applied"
 	StatusError   = "error"
 )
+
+// ApplyChangedField is the GraphQL model for a single field that changed during an apply operation.
+// This is the canonical type used by both the resolver and the GraphQL schema.
+type ApplyChangedField struct {
+	// Field is the dot-separated path to the changed field, e.g. "spec.replicas".
+	Field string `json:"field"`
+	// OldValue is the value before the apply. Nil if the field was added.
+	OldValue *string `json:"oldValue,omitempty"`
+	// NewValue is the value after the apply. Nil if the field was removed.
+	NewValue *string `json:"newValue,omitempty"`
+}
