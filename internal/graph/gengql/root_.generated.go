@@ -58,7 +58,6 @@ type Config = graphql.Config[ResolverRoot, DirectiveRoot, ComplexityRoot]
 type ResolverRoot interface {
 	Application() ApplicationResolver
 	ApplicationInstance() ApplicationInstanceResolver
-	ApplyActivityLogEntry() ApplyActivityLogEntryResolver
 	ApplyActivityLogEntryData() ApplyActivityLogEntryDataResolver
 	BigQueryDataset() BigQueryDatasetResolver
 	Bucket() BucketResolver
@@ -224,6 +223,18 @@ type ComplexityRoot struct {
 		PageInfo func(childComplexity int) int
 	}
 
+	ApplicationCreatedActivityLogEntry struct {
+		Actor           func(childComplexity int) int
+		CreatedAt       func(childComplexity int) int
+		Data            func(childComplexity int) int
+		EnvironmentName func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Message         func(childComplexity int) int
+		ResourceName    func(childComplexity int) int
+		ResourceType    func(childComplexity int) int
+		TeamSlug        func(childComplexity int) int
+	}
+
 	ApplicationDeletedActivityLogEntry struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
@@ -314,8 +325,7 @@ type ComplexityRoot struct {
 		Strategies   func(childComplexity int) int
 	}
 
-	ApplyActivityLogEntry struct {
-		Action          func(childComplexity int) int
+	ApplicationUpdatedActivityLogEntry struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
 		Data            func(childComplexity int) int
@@ -1002,6 +1012,18 @@ type ComplexityRoot struct {
 		PageInfo func(childComplexity int) int
 	}
 
+	JobCreatedActivityLogEntry struct {
+		Actor           func(childComplexity int) int
+		CreatedAt       func(childComplexity int) int
+		Data            func(childComplexity int) int
+		EnvironmentName func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Message         func(childComplexity int) int
+		ResourceName    func(childComplexity int) int
+		ResourceType    func(childComplexity int) int
+		TeamSlug        func(childComplexity int) int
+	}
+
 	JobDeletedActivityLogEntry struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
@@ -1100,6 +1122,18 @@ type ComplexityRoot struct {
 	JobTriggeredActivityLogEntry struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
+		EnvironmentName func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Message         func(childComplexity int) int
+		ResourceName    func(childComplexity int) int
+		ResourceType    func(childComplexity int) int
+		TeamSlug        func(childComplexity int) int
+	}
+
+	JobUpdatedActivityLogEntry struct {
+		Actor           func(childComplexity int) int
+		CreatedAt       func(childComplexity int) int
+		Data            func(childComplexity int) int
 		EnvironmentName func(childComplexity int) int
 		ID              func(childComplexity int) int
 		Message         func(childComplexity int) int
@@ -3608,6 +3642,69 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ApplicationConnection.PageInfo(childComplexity), true
 
+	case "ApplicationCreatedActivityLogEntry.actor":
+		if e.ComplexityRoot.ApplicationCreatedActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationCreatedActivityLogEntry.Actor(childComplexity), true
+
+	case "ApplicationCreatedActivityLogEntry.createdAt":
+		if e.ComplexityRoot.ApplicationCreatedActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationCreatedActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "ApplicationCreatedActivityLogEntry.data":
+		if e.ComplexityRoot.ApplicationCreatedActivityLogEntry.Data == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationCreatedActivityLogEntry.Data(childComplexity), true
+
+	case "ApplicationCreatedActivityLogEntry.environmentName":
+		if e.ComplexityRoot.ApplicationCreatedActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationCreatedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "ApplicationCreatedActivityLogEntry.id":
+		if e.ComplexityRoot.ApplicationCreatedActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationCreatedActivityLogEntry.ID(childComplexity), true
+
+	case "ApplicationCreatedActivityLogEntry.message":
+		if e.ComplexityRoot.ApplicationCreatedActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationCreatedActivityLogEntry.Message(childComplexity), true
+
+	case "ApplicationCreatedActivityLogEntry.resourceName":
+		if e.ComplexityRoot.ApplicationCreatedActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationCreatedActivityLogEntry.ResourceName(childComplexity), true
+
+	case "ApplicationCreatedActivityLogEntry.resourceType":
+		if e.ComplexityRoot.ApplicationCreatedActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationCreatedActivityLogEntry.ResourceType(childComplexity), true
+
+	case "ApplicationCreatedActivityLogEntry.teamSlug":
+		if e.ComplexityRoot.ApplicationCreatedActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationCreatedActivityLogEntry.TeamSlug(childComplexity), true
+
 	case "ApplicationDeletedActivityLogEntry.actor":
 		if e.ComplexityRoot.ApplicationDeletedActivityLogEntry.Actor == nil {
 			break
@@ -3970,75 +4067,68 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ApplicationScaling.Strategies(childComplexity), true
 
-	case "ApplyActivityLogEntry.action":
-		if e.ComplexityRoot.ApplyActivityLogEntry.Action == nil {
+	case "ApplicationUpdatedActivityLogEntry.actor":
+		if e.ComplexityRoot.ApplicationUpdatedActivityLogEntry.Actor == nil {
 			break
 		}
 
-		return e.ComplexityRoot.ApplyActivityLogEntry.Action(childComplexity), true
+		return e.ComplexityRoot.ApplicationUpdatedActivityLogEntry.Actor(childComplexity), true
 
-	case "ApplyActivityLogEntry.actor":
-		if e.ComplexityRoot.ApplyActivityLogEntry.Actor == nil {
+	case "ApplicationUpdatedActivityLogEntry.createdAt":
+		if e.ComplexityRoot.ApplicationUpdatedActivityLogEntry.CreatedAt == nil {
 			break
 		}
 
-		return e.ComplexityRoot.ApplyActivityLogEntry.Actor(childComplexity), true
+		return e.ComplexityRoot.ApplicationUpdatedActivityLogEntry.CreatedAt(childComplexity), true
 
-	case "ApplyActivityLogEntry.createdAt":
-		if e.ComplexityRoot.ApplyActivityLogEntry.CreatedAt == nil {
+	case "ApplicationUpdatedActivityLogEntry.data":
+		if e.ComplexityRoot.ApplicationUpdatedActivityLogEntry.Data == nil {
 			break
 		}
 
-		return e.ComplexityRoot.ApplyActivityLogEntry.CreatedAt(childComplexity), true
+		return e.ComplexityRoot.ApplicationUpdatedActivityLogEntry.Data(childComplexity), true
 
-	case "ApplyActivityLogEntry.data":
-		if e.ComplexityRoot.ApplyActivityLogEntry.Data == nil {
+	case "ApplicationUpdatedActivityLogEntry.environmentName":
+		if e.ComplexityRoot.ApplicationUpdatedActivityLogEntry.EnvironmentName == nil {
 			break
 		}
 
-		return e.ComplexityRoot.ApplyActivityLogEntry.Data(childComplexity), true
+		return e.ComplexityRoot.ApplicationUpdatedActivityLogEntry.EnvironmentName(childComplexity), true
 
-	case "ApplyActivityLogEntry.environmentName":
-		if e.ComplexityRoot.ApplyActivityLogEntry.EnvironmentName == nil {
+	case "ApplicationUpdatedActivityLogEntry.id":
+		if e.ComplexityRoot.ApplicationUpdatedActivityLogEntry.ID == nil {
 			break
 		}
 
-		return e.ComplexityRoot.ApplyActivityLogEntry.EnvironmentName(childComplexity), true
+		return e.ComplexityRoot.ApplicationUpdatedActivityLogEntry.ID(childComplexity), true
 
-	case "ApplyActivityLogEntry.id":
-		if e.ComplexityRoot.ApplyActivityLogEntry.ID == nil {
+	case "ApplicationUpdatedActivityLogEntry.message":
+		if e.ComplexityRoot.ApplicationUpdatedActivityLogEntry.Message == nil {
 			break
 		}
 
-		return e.ComplexityRoot.ApplyActivityLogEntry.ID(childComplexity), true
+		return e.ComplexityRoot.ApplicationUpdatedActivityLogEntry.Message(childComplexity), true
 
-	case "ApplyActivityLogEntry.message":
-		if e.ComplexityRoot.ApplyActivityLogEntry.Message == nil {
+	case "ApplicationUpdatedActivityLogEntry.resourceName":
+		if e.ComplexityRoot.ApplicationUpdatedActivityLogEntry.ResourceName == nil {
 			break
 		}
 
-		return e.ComplexityRoot.ApplyActivityLogEntry.Message(childComplexity), true
+		return e.ComplexityRoot.ApplicationUpdatedActivityLogEntry.ResourceName(childComplexity), true
 
-	case "ApplyActivityLogEntry.resourceName":
-		if e.ComplexityRoot.ApplyActivityLogEntry.ResourceName == nil {
+	case "ApplicationUpdatedActivityLogEntry.resourceType":
+		if e.ComplexityRoot.ApplicationUpdatedActivityLogEntry.ResourceType == nil {
 			break
 		}
 
-		return e.ComplexityRoot.ApplyActivityLogEntry.ResourceName(childComplexity), true
+		return e.ComplexityRoot.ApplicationUpdatedActivityLogEntry.ResourceType(childComplexity), true
 
-	case "ApplyActivityLogEntry.resourceType":
-		if e.ComplexityRoot.ApplyActivityLogEntry.ResourceType == nil {
+	case "ApplicationUpdatedActivityLogEntry.teamSlug":
+		if e.ComplexityRoot.ApplicationUpdatedActivityLogEntry.TeamSlug == nil {
 			break
 		}
 
-		return e.ComplexityRoot.ApplyActivityLogEntry.ResourceType(childComplexity), true
-
-	case "ApplyActivityLogEntry.teamSlug":
-		if e.ComplexityRoot.ApplyActivityLogEntry.TeamSlug == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ApplyActivityLogEntry.TeamSlug(childComplexity), true
+		return e.ComplexityRoot.ApplicationUpdatedActivityLogEntry.TeamSlug(childComplexity), true
 
 	case "ApplyActivityLogEntryData.apiVersion":
 		if e.ComplexityRoot.ApplyActivityLogEntryData.APIVersion == nil {
@@ -6679,6 +6769,69 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.JobConnection.PageInfo(childComplexity), true
 
+	case "JobCreatedActivityLogEntry.actor":
+		if e.ComplexityRoot.JobCreatedActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobCreatedActivityLogEntry.Actor(childComplexity), true
+
+	case "JobCreatedActivityLogEntry.createdAt":
+		if e.ComplexityRoot.JobCreatedActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobCreatedActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "JobCreatedActivityLogEntry.data":
+		if e.ComplexityRoot.JobCreatedActivityLogEntry.Data == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobCreatedActivityLogEntry.Data(childComplexity), true
+
+	case "JobCreatedActivityLogEntry.environmentName":
+		if e.ComplexityRoot.JobCreatedActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobCreatedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "JobCreatedActivityLogEntry.id":
+		if e.ComplexityRoot.JobCreatedActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobCreatedActivityLogEntry.ID(childComplexity), true
+
+	case "JobCreatedActivityLogEntry.message":
+		if e.ComplexityRoot.JobCreatedActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobCreatedActivityLogEntry.Message(childComplexity), true
+
+	case "JobCreatedActivityLogEntry.resourceName":
+		if e.ComplexityRoot.JobCreatedActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobCreatedActivityLogEntry.ResourceName(childComplexity), true
+
+	case "JobCreatedActivityLogEntry.resourceType":
+		if e.ComplexityRoot.JobCreatedActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobCreatedActivityLogEntry.ResourceType(childComplexity), true
+
+	case "JobCreatedActivityLogEntry.teamSlug":
+		if e.ComplexityRoot.JobCreatedActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobCreatedActivityLogEntry.TeamSlug(childComplexity), true
+
 	case "JobDeletedActivityLogEntry.actor":
 		if e.ComplexityRoot.JobDeletedActivityLogEntry.Actor == nil {
 			break
@@ -7089,6 +7242,69 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.JobTriggeredActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "JobUpdatedActivityLogEntry.actor":
+		if e.ComplexityRoot.JobUpdatedActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobUpdatedActivityLogEntry.Actor(childComplexity), true
+
+	case "JobUpdatedActivityLogEntry.createdAt":
+		if e.ComplexityRoot.JobUpdatedActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobUpdatedActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "JobUpdatedActivityLogEntry.data":
+		if e.ComplexityRoot.JobUpdatedActivityLogEntry.Data == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobUpdatedActivityLogEntry.Data(childComplexity), true
+
+	case "JobUpdatedActivityLogEntry.environmentName":
+		if e.ComplexityRoot.JobUpdatedActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobUpdatedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "JobUpdatedActivityLogEntry.id":
+		if e.ComplexityRoot.JobUpdatedActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobUpdatedActivityLogEntry.ID(childComplexity), true
+
+	case "JobUpdatedActivityLogEntry.message":
+		if e.ComplexityRoot.JobUpdatedActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobUpdatedActivityLogEntry.Message(childComplexity), true
+
+	case "JobUpdatedActivityLogEntry.resourceName":
+		if e.ComplexityRoot.JobUpdatedActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobUpdatedActivityLogEntry.ResourceName(childComplexity), true
+
+	case "JobUpdatedActivityLogEntry.resourceType":
+		if e.ComplexityRoot.JobUpdatedActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobUpdatedActivityLogEntry.ResourceType(childComplexity), true
+
+	case "JobUpdatedActivityLogEntry.teamSlug":
+		if e.ComplexityRoot.JobUpdatedActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobUpdatedActivityLogEntry.TeamSlug(childComplexity), true
 
 	case "KafkaCredentials.accessCert":
 		if e.ComplexityRoot.KafkaCredentials.AccessCert == nil {
@@ -18112,6 +18328,64 @@ type ApplicationScaledActivityLogEntryData {
 	direction: ScalingDirection!
 }
 
+type ApplicationCreatedActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: ActivityLogEntryResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+
+	"Data associated with the creation."
+	data: ApplyActivityLogEntryData!
+}
+
+type ApplicationUpdatedActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: ActivityLogEntryResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+
+	"Data associated with the update."
+	data: ApplyActivityLogEntryData!
+}
+
 extend enum ActivityLogActivityType {
 	"""
 	An application was deleted.
@@ -18129,55 +18403,23 @@ extend enum ActivityLogActivityType {
 	APPLICATION_SCALED
 }
 `, BuiltIn: false},
-	{Name: "../schema/apply.graphqls", Input: `extend enum ActivityLogEntryResourceType {
-	"All activity log entries related to applying resources will use this resource type."
-	APPLY
-}
-
-extend enum ActivityLogActivityType {
-	"A resource was applied (updated)."
-	RESOURCE_APPLIED
+	{Name: "../schema/apply.graphqls", Input: `extend enum ActivityLogActivityType {
+	"A resource was updated via apply."
+	RESOURCE_UPDATED
 
 	"A resource was created via apply."
 	RESOURCE_CREATED
 }
 
 """
-Activity log entry for a resource that was applied.
-"""
-type ApplyActivityLogEntry implements ActivityLogEntry & Node {
-	"Unique identifier of the activity log entry."
-	id: ID!
-	"The action that was performed."
-	action: String!
-	"The identity of the actor that performed the action."
-	actor: String!
-	"The time the action was performed."
-	createdAt: Time!
-	"A human-readable message describing the action."
-	message: String!
-	"Type of the resource that was affected by the action."
-	resourceType: ActivityLogEntryResourceType!
-	"The name of the affected resource."
-	resourceName: String!
-	"The team that owns the affected resource."
-	teamSlug: Slug
-	"The environment the resource was applied in."
-	environmentName: String
-
-	"Additional data about the apply operation."
-	data: ApplyActivityLogEntryData!
-}
-
-"""
-Additional data associated with an apply activity log entry.
+Additional data associated with a resource created or updated via apply.
 """
 type ApplyActivityLogEntryData {
 	"The apiVersion of the applied resource."
 	apiVersion: String!
 	"The kind of the applied resource."
 	kind: String!
-	"The fields that changed during the apply."
+	"The fields that changed during the apply. Only populated for updates."
 	changedFields: [ApplyChangedField!]!
 }
 
@@ -20684,6 +20926,64 @@ type JobRunDeletedActivityLogEntry implements ActivityLogEntry & Node {
 type JobRunDeletedActivityLogEntryData {
 	"The name of the deleted job run."
 	runName: String!
+}
+
+type JobCreatedActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: ActivityLogEntryResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+
+	"Data associated with the creation."
+	data: ApplyActivityLogEntryData!
+}
+
+type JobUpdatedActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: ActivityLogEntryResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+
+	"Data associated with the update."
+	data: ApplyActivityLogEntryData!
 }
 
 extend enum ActivityLogActivityType {

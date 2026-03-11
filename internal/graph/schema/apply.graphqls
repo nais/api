@@ -1,52 +1,20 @@
-extend enum ActivityLogEntryResourceType {
-	"All activity log entries related to applying resources will use this resource type."
-	APPLY
-}
-
 extend enum ActivityLogActivityType {
-	"A resource was applied (updated)."
-	RESOURCE_APPLIED
+	"A resource was updated via apply."
+	RESOURCE_UPDATED
 
 	"A resource was created via apply."
 	RESOURCE_CREATED
 }
 
 """
-Activity log entry for a resource that was applied.
-"""
-type ApplyActivityLogEntry implements ActivityLogEntry & Node {
-	"Unique identifier of the activity log entry."
-	id: ID!
-	"The action that was performed."
-	action: String!
-	"The identity of the actor that performed the action."
-	actor: String!
-	"The time the action was performed."
-	createdAt: Time!
-	"A human-readable message describing the action."
-	message: String!
-	"Type of the resource that was affected by the action."
-	resourceType: ActivityLogEntryResourceType!
-	"The name of the affected resource."
-	resourceName: String!
-	"The team that owns the affected resource."
-	teamSlug: Slug
-	"The environment the resource was applied in."
-	environmentName: String
-
-	"Additional data about the apply operation."
-	data: ApplyActivityLogEntryData!
-}
-
-"""
-Additional data associated with an apply activity log entry.
+Additional data associated with a resource created or updated via apply.
 """
 type ApplyActivityLogEntryData {
 	"The apiVersion of the applied resource."
 	apiVersion: String!
 	"The kind of the applied resource."
 	kind: String!
-	"The fields that changed during the apply."
+	"The fields that changed during the apply. Only populated for updates."
 	changedFields: [ApplyChangedField!]!
 }
 

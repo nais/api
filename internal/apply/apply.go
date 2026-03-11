@@ -248,15 +248,23 @@ func applyOne(
 	}
 
 	// Write activity log entry.
-	action := ActivityLogEntryActionCreated
+	action := activitylog.ActivityLogEntryActionCreated
 	if !applyResult.Created {
-		action = ActivityLogEntryActionApplied
+		action = activitylog.ActivityLogEntryActionUpdated
 	}
 
-	if err := activitylog.Create(ctx, activitylog.CreateInput{
+	resourceType, ok := ResourceTypeForKind(kind)
+	if !ok {
+		log.WithFields(logrus.Fields{
+			"environment": environment,
+			"namespace":   namespace,
+			"name":        name,
+			"kind":        kind,
+		}).Warn("no activity log resource type for kind, skipping activity log entry")
+	} else if err := activitylog.Create(ctx, activitylog.CreateInput{
 		Action:          action,
 		Actor:           actor.User,
-		ResourceType:    ActivityLogEntryResourceTypeApply,
+		ResourceType:    resourceType,
 		ResourceName:    name,
 		TeamSlug:        &teamSlug,
 		EnvironmentName: &environment,
