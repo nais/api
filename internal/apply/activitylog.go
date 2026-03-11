@@ -49,9 +49,6 @@ func init() {
 
 // ApplyActivityLogEntryData contains the additional data stored with an apply activity log entry.
 type ApplyActivityLogEntryData struct {
-	// Cluster is the cluster the resource was applied to.
-	Cluster string `json:"cluster"`
-
 	// APIVersion is the apiVersion of the applied resource.
 	APIVersion string `json:"apiVersion"`
 

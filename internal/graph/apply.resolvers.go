@@ -6,17 +6,16 @@ import (
 
 	"github.com/nais/api/internal/apply"
 	"github.com/nais/api/internal/graph/gengql"
-	"github.com/nais/api/internal/graph/model/donotuse"
 )
 
 func (r *applyActivityLogEntryResolver) Action(ctx context.Context, obj *apply.ApplyActivityLogEntry) (string, error) {
 	return string(obj.GenericActivityLogEntry.Action), nil
 }
 
-func (r *applyActivityLogEntryDataResolver) ChangedFields(ctx context.Context, obj *apply.ApplyActivityLogEntryData) ([]*donotuse.ApplyChangedField, error) {
-	out := make([]*donotuse.ApplyChangedField, len(obj.ChangedFields))
+func (r *applyActivityLogEntryDataResolver) ChangedFields(ctx context.Context, obj *apply.ApplyActivityLogEntryData) ([]*apply.ApplyChangedField, error) {
+	out := make([]*apply.ApplyChangedField, len(obj.ChangedFields))
 	for i, c := range obj.ChangedFields {
-		field := &donotuse.ApplyChangedField{
+		field := &apply.ApplyChangedField{
 			Field: c.Field,
 		}
 		if c.OldValue != nil {

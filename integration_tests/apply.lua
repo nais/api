@@ -7,7 +7,7 @@ team:addMember(user)
 Test.rest("create application via apply", function(t)
 	t.addHeader("x-user-email", user:email())
 
-	t.send("POST", "/api/v1/apply?cluster=dev", [[
+	t.send("POST", "/api/v1/apply?environment=dev", [[
 		{
 			"resources": [
 				{
@@ -34,14 +34,14 @@ Test.rest("create application via apply", function(t)
 			{
 				resource = "Application/my-app",
 				namespace = "apply-team",
-				cluster = "dev",
+				environment = "dev",
 				status = "created",
 			},
 		},
 	})
 end)
 
-Test.k8s("verify resource was created in fake cluster", function(t)
+Test.k8s("verify resource was created in fake environment", function(t)
 	t.check("nais.io/v1alpha1", "applications", "dev", "apply-team", "my-app", {
 		apiVersion = "nais.io/v1alpha1",
 		kind = "Application",
@@ -62,7 +62,7 @@ end)
 Test.rest("update application via apply", function(t)
 	t.addHeader("x-user-email", user:email())
 
-	t.send("POST", "/api/v1/apply?cluster=dev", [[
+	t.send("POST", "/api/v1/apply?environment=dev", [[
 		{
 			"resources": [
 				{
@@ -89,7 +89,7 @@ Test.rest("update application via apply", function(t)
 			{
 				resource = "Application/my-app",
 				namespace = "apply-team",
-				cluster = "dev",
+				environment = "dev",
 				status = "applied",
 				changedFields = NotNull(),
 			},
@@ -97,7 +97,7 @@ Test.rest("update application via apply", function(t)
 	})
 end)
 
-Test.k8s("verify resource was updated in fake cluster", function(t)
+Test.k8s("verify resource was updated in fake environment", function(t)
 	t.check("nais.io/v1alpha1", "applications", "dev", "apply-team", "my-app", {
 		apiVersion = "nais.io/v1alpha1",
 		kind = "Application",
@@ -118,7 +118,7 @@ end)
 Test.rest("disallowed resource kind returns 400", function(t)
 	t.addHeader("x-user-email", user:email())
 
-	t.send("POST", "/api/v1/apply?cluster=dev", [[
+	t.send("POST", "/api/v1/apply?environment=dev", [[
 		{
 			"resources": [
 				{
@@ -142,7 +142,7 @@ end)
 Test.rest("non-member gets authorization error", function(t)
 	t.addHeader("x-user-email", nonMember:email())
 
-	t.send("POST", "/api/v1/apply?cluster=dev", [[
+	t.send("POST", "/api/v1/apply?environment=dev", [[
 		{
 			"resources": [
 				{
@@ -165,7 +165,7 @@ Test.rest("non-member gets authorization error", function(t)
 			{
 				resource = "Application/sneaky-app",
 				namespace = "apply-team",
-				cluster = "dev",
+				environment = "dev",
 				status = "error",
 				error = Contains("authorization failed"),
 			},
@@ -173,7 +173,7 @@ Test.rest("non-member gets authorization error", function(t)
 	})
 end)
 
-Test.rest("missing cluster parameter returns per-resource error", function(t)
+Test.rest("missing environment parameter returns per-resource error", function(t)
 	t.addHeader("x-user-email", user:email())
 
 	t.send("POST", "/api/v1/apply", [[
@@ -183,7 +183,7 @@ Test.rest("missing cluster parameter returns per-resource error", function(t)
 					"apiVersion": "nais.io/v1alpha1",
 					"kind": "Application",
 					"metadata": {
-						"name": "no-cluster-app",
+						"name": "no-environment-app",
 						"namespace": "apply-team"
 					},
 					"spec": {
@@ -197,11 +197,11 @@ Test.rest("missing cluster parameter returns per-resource error", function(t)
 	t.check(207, {
 		results = {
 			{
-				resource = "Application/no-cluster-app",
+				resource = "Application/no-environment-app",
 				namespace = "apply-team",
-				cluster = "",
+				environment = "",
 				status = "error",
-				error = Contains("no cluster specified"),
+				error = Contains("no environment specified"),
 			},
 		},
 	})
@@ -210,7 +210,7 @@ end)
 Test.rest("empty resources array returns 400", function(t)
 	t.addHeader("x-user-email", user:email())
 
-	t.send("POST", "/api/v1/apply?cluster=dev", [[
+	t.send("POST", "/api/v1/apply?environment=dev", [[
 		{
 			"resources": []
 		}
@@ -221,10 +221,10 @@ Test.rest("empty resources array returns 400", function(t)
 	})
 end)
 
-Test.rest("cluster annotation overrides query parameter", function(t)
+Test.rest("environment annotation overrides query parameter", function(t)
 	t.addHeader("x-user-email", user:email())
 
-	t.send("POST", "/api/v1/apply?cluster=dev", [[
+	t.send("POST", "/api/v1/apply?environment=dev", [[
 		{
 			"resources": [
 				{
@@ -234,7 +234,7 @@ Test.rest("cluster annotation overrides query parameter", function(t)
 						"name": "staging-app",
 						"namespace": "apply-team",
 						"annotations": {
-							"nais.io/cluster": "staging"
+							"nais.io/environment": "staging"
 						}
 					},
 					"spec": {
@@ -250,14 +250,14 @@ Test.rest("cluster annotation overrides query parameter", function(t)
 			{
 				resource = "Application/staging-app",
 				namespace = "apply-team",
-				cluster = "staging",
+				environment = "staging",
 				status = "created",
 			},
 		},
 	})
 end)
 
-Test.k8s("verify resource was created in staging cluster via annotation", function(t)
+Test.k8s("verify resource was created in staging environment via annotation", function(t)
 	t.check("nais.io/v1alpha1", "applications", "staging", "apply-team", "staging-app", {
 		apiVersion = "nais.io/v1alpha1",
 		kind = "Application",
@@ -265,7 +265,7 @@ Test.k8s("verify resource was created in staging cluster via annotation", functi
 			name = "staging-app",
 			namespace = "apply-team",
 			annotations = {
-				["nais.io/cluster"] = "staging",
+				["nais.io/environment"] = "staging",
 			},
 		},
 		spec = {
@@ -277,7 +277,7 @@ end)
 Test.rest("create naisjob via apply", function(t)
 	t.addHeader("x-user-email", user:email())
 
-	t.send("POST", "/api/v1/apply?cluster=dev", [[
+	t.send("POST", "/api/v1/apply?environment=dev", [[
 		{
 			"resources": [
 				{
@@ -301,7 +301,7 @@ Test.rest("create naisjob via apply", function(t)
 			{
 				resource = "Naisjob/my-job",
 				namespace = "apply-team",
-				cluster = "dev",
+				environment = "dev",
 				status = "created",
 			},
 		},
@@ -309,7 +309,7 @@ Test.rest("create naisjob via apply", function(t)
 end)
 
 Test.rest("unauthenticated request returns 401", function(t)
-	t.send("POST", "/api/v1/apply?cluster=dev", [[
+	t.send("POST", "/api/v1/apply?environment=dev", [[
 		{
 			"resources": [
 				{

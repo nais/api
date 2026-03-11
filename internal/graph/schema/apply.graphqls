@@ -42,8 +42,6 @@ type ApplyActivityLogEntry implements ActivityLogEntry & Node {
 Additional data associated with an apply activity log entry.
 """
 type ApplyActivityLogEntryData {
-	"The cluster the resource was applied to."
-	cluster: String!
 	"The apiVersion of the applied resource."
 	apiVersion: String!
 	"The kind of the applied resource."

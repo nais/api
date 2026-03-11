@@ -19,26 +19,26 @@ import (
 
 const maxBodySize = 5 * 1024 * 1024 // 5 MB
 
-// DynamicClientFactory creates a dynamic Kubernetes client for a given cluster.
-// In production this creates an impersonated client from cluster configs.
+// DynamicClientFactory creates a dynamic Kubernetes client for a given environment.
+// In production this creates an impersonated client from environment configs.
 // In tests this can return fake dynamic clients.
-type DynamicClientFactory func(ctx context.Context, cluster string) (dynamic.Interface, error)
+type DynamicClientFactory func(ctx context.Context, environment string) (dynamic.Interface, error)
 
 // NewImpersonatingClientFactory returns a DynamicClientFactory that creates
-// impersonated dynamic clients from the provided cluster config map.
+// impersonated dynamic clients from the provided environment config map.
 func NewImpersonatingClientFactory(clusterConfigs kubernetes.ClusterConfigMap) DynamicClientFactory {
-	return func(ctx context.Context, cluster string) (dynamic.Interface, error) {
-		return ImpersonatedClient(ctx, clusterConfigs, cluster)
+	return func(ctx context.Context, environment string) (dynamic.Interface, error) {
+		return ImpersonatedClient(ctx, clusterConfigs, environment)
 	}
 }
 
 // Handler returns an http.HandlerFunc that handles apply requests.
 // It validates the request body, checks authorization, applies resources
-// to Kubernetes clusters via server-side apply, diffs the results, and
+// to Kubernetes environments via server-side apply, diffs the results, and
 // writes activity log entries.
 //
-// The clusterConfigs map is used to validate that a cluster name exists.
-// The clientFactory is used to create dynamic Kubernetes clients per cluster.
+// The clusterConfigs map is used to validate that an environment name exists.
+// The clientFactory is used to create dynamic Kubernetes clients per environment.
 func Handler(clusterConfigs kubernetes.ClusterConfigMap, clientFactory DynamicClientFactory, log logrus.FieldLogger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -71,10 +71,10 @@ func Handler(clusterConfigs kubernetes.ClusterConfigMap, clientFactory DynamicCl
 			return
 		}
 
-		clusterParam := r.URL.Query().Get("cluster")
+		environmentParam := r.URL.Query().Get("environment")
 
 		// Phase 1: Validate all resources before applying any.
-		// Check that all resources are allowed kinds and have valid cluster targets.
+		// Check that all resources are allowed kinds and have valid environment targets.
 		var disallowed []string
 		for i, res := range req.Resources {
 			apiVersion := res.GetAPIVersion()
@@ -102,7 +102,7 @@ func Handler(clusterConfigs kubernetes.ClusterConfigMap, clientFactory DynamicCl
 		hasErrors := false
 
 		for _, res := range req.Resources {
-			result := applyOne(ctx, clusterConfigs, clientFactory, clusterParam, &res, actor, log)
+			result := applyOne(ctx, clusterConfigs, clientFactory, environmentParam, &res, actor, log)
 			if result.Status == StatusError {
 				hasErrors = true
 			}
@@ -121,12 +121,12 @@ func Handler(clusterConfigs kubernetes.ClusterConfigMap, clientFactory DynamicCl
 	}
 }
 
-// applyOne processes a single resource: resolves cluster, authorizes, applies, diffs, and logs.
+// applyOne processes a single resource: resolves environment, authorizes, applies, diffs, and logs.
 func applyOne(
 	ctx context.Context,
 	clusterConfigs kubernetes.ClusterConfigMap,
 	clientFactory DynamicClientFactory,
-	clusterParam string,
+	environmentParam string,
 	res *unstructured.Unstructured,
 	actor *authz.Actor,
 	log logrus.FieldLogger,
@@ -137,50 +137,50 @@ func applyOne(
 	namespace := res.GetNamespace()
 	resourceID := kind + "/" + name
 
-	// Resolve cluster: annotation takes precedence over query parameter.
-	cluster := clusterParam
+	// Resolve environment: annotation takes precedence over query parameter.
+	environment := environmentParam
 	if ann := res.GetAnnotations(); ann != nil {
-		if c, ok := ann["nais.io/cluster"]; ok && c != "" {
-			cluster = c
+		if e, ok := ann["nais.io/environment"]; ok && e != "" {
+			environment = e
 		}
 	}
 
-	if cluster == "" {
+	if environment == "" {
 		return ResourceResult{
 			Resource:  resourceID,
 			Namespace: namespace,
 			Status:    StatusError,
-			Error:     "no cluster specified (use ?cluster= query parameter or nais.io/cluster annotation)",
+			Error:     "no environment specified (use ?environment= query parameter or nais.io/environment annotation)",
 		}
 	}
 
-	// Validate cluster exists.
-	if _, ok := clusterConfigs[cluster]; !ok {
+	// Validate environment exists.
+	if _, ok := clusterConfigs[environment]; !ok {
 		return ResourceResult{
-			Resource:  resourceID,
-			Namespace: namespace,
-			Cluster:   cluster,
-			Status:    StatusError,
-			Error:     fmt.Sprintf("unknown cluster: %q", cluster),
+			Resource:    resourceID,
+			Namespace:   namespace,
+			Environment: environment,
+			Status:      StatusError,
+			Error:       fmt.Sprintf("unknown environment: %q", environment),
 		}
 	}
 
 	// Validate resource has name and namespace.
 	if name == "" {
 		return ResourceResult{
-			Resource:  resourceID,
-			Namespace: namespace,
-			Cluster:   cluster,
-			Status:    StatusError,
-			Error:     "resource must have metadata.name",
+			Resource:    resourceID,
+			Namespace:   namespace,
+			Environment: environment,
+			Status:      StatusError,
+			Error:       "resource must have metadata.name",
 		}
 	}
 	if namespace == "" {
 		return ResourceResult{
-			Resource: resourceID,
-			Cluster:  cluster,
-			Status:   StatusError,
-			Error:    "resource must have metadata.namespace",
+			Resource:    resourceID,
+			Environment: environment,
+			Status:      StatusError,
+			Error:       "resource must have metadata.namespace",
 		}
 	}
 
@@ -188,11 +188,11 @@ func applyOne(
 	teamSlug := slug.Slug(namespace)
 	if err := authorizeResource(ctx, kind, teamSlug); err != nil {
 		return ResourceResult{
-			Resource:  resourceID,
-			Namespace: namespace,
-			Cluster:   cluster,
-			Status:    StatusError,
-			Error:     fmt.Sprintf("authorization failed: %s", err),
+			Resource:    resourceID,
+			Namespace:   namespace,
+			Environment: environment,
+			Status:      StatusError,
+			Error:       fmt.Sprintf("authorization failed: %s", err),
 		}
 	}
 
@@ -200,24 +200,24 @@ func applyOne(
 	gvr, ok := GVRFor(apiVersion, kind)
 	if !ok {
 		return ResourceResult{
-			Resource:  resourceID,
-			Namespace: namespace,
-			Cluster:   cluster,
-			Status:    StatusError,
-			Error:     fmt.Sprintf("no GVR mapping for %s/%s", apiVersion, kind),
+			Resource:    resourceID,
+			Namespace:   namespace,
+			Environment: environment,
+			Status:      StatusError,
+			Error:       fmt.Sprintf("no GVR mapping for %s/%s", apiVersion, kind),
 		}
 	}
 
-	// Create dynamic client for cluster.
-	client, err := clientFactory(ctx, cluster)
+	// Create dynamic client for environment.
+	client, err := clientFactory(ctx, environment)
 	if err != nil {
-		log.WithError(err).WithField("cluster", cluster).Error("creating dynamic client")
+		log.WithError(err).WithField("environment", environment).Error("creating dynamic client")
 		return ResourceResult{
-			Resource:  resourceID,
-			Namespace: namespace,
-			Cluster:   cluster,
-			Status:    StatusError,
-			Error:     fmt.Sprintf("failed to create client for cluster %q: %s", cluster, err),
+			Resource:    resourceID,
+			Namespace:   namespace,
+			Environment: environment,
+			Status:      StatusError,
+			Error:       fmt.Sprintf("failed to create client for environment %q: %s", environment, err),
 		}
 	}
 
@@ -225,17 +225,17 @@ func applyOne(
 	applyResult, err := ApplyResource(ctx, client, gvr, res)
 	if err != nil {
 		log.WithError(err).WithFields(logrus.Fields{
-			"cluster":   cluster,
-			"namespace": namespace,
-			"name":      name,
-			"kind":      kind,
+			"environment": environment,
+			"namespace":   namespace,
+			"name":        name,
+			"kind":        kind,
 		}).Error("applying resource")
 		return ResourceResult{
-			Resource:  resourceID,
-			Namespace: namespace,
-			Cluster:   cluster,
-			Status:    StatusError,
-			Error:     fmt.Sprintf("apply failed: %s", err),
+			Resource:    resourceID,
+			Namespace:   namespace,
+			Environment: environment,
+			Status:      StatusError,
+			Error:       fmt.Sprintf("apply failed: %s", err),
 		}
 	}
 
@@ -259,19 +259,18 @@ func applyOne(
 		ResourceType:    ActivityLogEntryResourceTypeApply,
 		ResourceName:    name,
 		TeamSlug:        &teamSlug,
-		EnvironmentName: &cluster,
+		EnvironmentName: &environment,
 		Data: ApplyActivityLogEntryData{
-			Cluster:       cluster,
 			APIVersion:    apiVersion,
 			Kind:          kind,
 			ChangedFields: changes,
 		},
 	}); err != nil {
 		log.WithError(err).WithFields(logrus.Fields{
-			"cluster":   cluster,
-			"namespace": namespace,
-			"name":      name,
-			"kind":      kind,
+			"environment": environment,
+			"namespace":   namespace,
+			"name":        name,
+			"kind":        kind,
 		}).Error("creating activity log entry")
 		// Don't fail the apply because of a logging error.
 	}
@@ -279,7 +278,7 @@ func applyOne(
 	return ResourceResult{
 		Resource:      resourceID,
 		Namespace:     namespace,
-		Cluster:       cluster,
+		Environment:   environment,
 		Status:        status,
 		ChangedFields: changes,
 	}

@@ -11,7 +11,6 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/nais/api/internal/apply"
-	"github.com/nais/api/internal/graph/model/donotuse"
 	"github.com/vektah/gqlparser/v2/ast"
 )
 
@@ -21,7 +20,7 @@ type ApplyActivityLogEntryResolver interface {
 	Action(ctx context.Context, obj *apply.ApplyActivityLogEntry) (string, error)
 }
 type ApplyActivityLogEntryDataResolver interface {
-	ChangedFields(ctx context.Context, obj *apply.ApplyActivityLogEntryData) ([]*donotuse.ApplyChangedField, error)
+	ChangedFields(ctx context.Context, obj *apply.ApplyActivityLogEntryData) ([]*apply.ApplyChangedField, error)
 }
 
 // endregion ************************** generated!.gotpl **************************
@@ -321,8 +320,6 @@ func (ec *executionContext) fieldContext_ApplyActivityLogEntry_data(_ context.Co
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "cluster":
-				return ec.fieldContext_ApplyActivityLogEntryData_cluster(ctx, field)
 			case "apiVersion":
 				return ec.fieldContext_ApplyActivityLogEntryData_apiVersion(ctx, field)
 			case "kind":
@@ -331,35 +328,6 @@ func (ec *executionContext) fieldContext_ApplyActivityLogEntry_data(_ context.Co
 				return ec.fieldContext_ApplyActivityLogEntryData_changedFields(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ApplyActivityLogEntryData", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _ApplyActivityLogEntryData_cluster(ctx context.Context, field graphql.CollectedField, obj *apply.ApplyActivityLogEntryData) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_ApplyActivityLogEntryData_cluster,
-		func(ctx context.Context) (any, error) {
-			return obj.Cluster, nil
-		},
-		nil,
-		ec.marshalNString2string,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_ApplyActivityLogEntryData_cluster(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ApplyActivityLogEntryData",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -433,7 +401,7 @@ func (ec *executionContext) _ApplyActivityLogEntryData_changedFields(ctx context
 			return ec.Resolvers.ApplyActivityLogEntryData().ChangedFields(ctx, obj)
 		},
 		nil,
-		ec.marshalNApplyChangedField2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚋdonotuseᚐApplyChangedFieldᚄ,
+		ec.marshalNApplyChangedField2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋapplyᚐApplyChangedFieldᚄ,
 		true,
 		true,
 	)
@@ -460,7 +428,7 @@ func (ec *executionContext) fieldContext_ApplyActivityLogEntryData_changedFields
 	return fc, nil
 }
 
-func (ec *executionContext) _ApplyChangedField_field(ctx context.Context, field graphql.CollectedField, obj *donotuse.ApplyChangedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _ApplyChangedField_field(ctx context.Context, field graphql.CollectedField, obj *apply.ApplyChangedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -489,7 +457,7 @@ func (ec *executionContext) fieldContext_ApplyChangedField_field(_ context.Conte
 	return fc, nil
 }
 
-func (ec *executionContext) _ApplyChangedField_oldValue(ctx context.Context, field graphql.CollectedField, obj *donotuse.ApplyChangedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _ApplyChangedField_oldValue(ctx context.Context, field graphql.CollectedField, obj *apply.ApplyChangedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -518,7 +486,7 @@ func (ec *executionContext) fieldContext_ApplyChangedField_oldValue(_ context.Co
 	return fc, nil
 }
 
-func (ec *executionContext) _ApplyChangedField_newValue(ctx context.Context, field graphql.CollectedField, obj *donotuse.ApplyChangedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _ApplyChangedField_newValue(ctx context.Context, field graphql.CollectedField, obj *apply.ApplyChangedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -679,11 +647,6 @@ func (ec *executionContext) _ApplyActivityLogEntryData(ctx context.Context, sel 
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("ApplyActivityLogEntryData")
-		case "cluster":
-			out.Values[i] = ec._ApplyActivityLogEntryData_cluster(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
 		case "apiVersion":
 			out.Values[i] = ec._ApplyActivityLogEntryData_apiVersion(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -755,7 +718,7 @@ func (ec *executionContext) _ApplyActivityLogEntryData(ctx context.Context, sel 
 
 var applyChangedFieldImplementors = []string{"ApplyChangedField"}
 
-func (ec *executionContext) _ApplyChangedField(ctx context.Context, sel ast.SelectionSet, obj *donotuse.ApplyChangedField) graphql.Marshaler {
+func (ec *executionContext) _ApplyChangedField(ctx context.Context, sel ast.SelectionSet, obj *apply.ApplyChangedField) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, applyChangedFieldImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -810,11 +773,11 @@ func (ec *executionContext) marshalNApplyActivityLogEntryData2ᚖgithubᚗcomᚋ
 	return ec._ApplyActivityLogEntryData(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNApplyChangedField2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚋdonotuseᚐApplyChangedFieldᚄ(ctx context.Context, sel ast.SelectionSet, v []*donotuse.ApplyChangedField) graphql.Marshaler {
+func (ec *executionContext) marshalNApplyChangedField2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋapplyᚐApplyChangedFieldᚄ(ctx context.Context, sel ast.SelectionSet, v []*apply.ApplyChangedField) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNApplyChangedField2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚋdonotuseᚐApplyChangedField(ctx, sel, v[i])
+		return ec.marshalNApplyChangedField2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋapplyᚐApplyChangedField(ctx, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -826,7 +789,7 @@ func (ec *executionContext) marshalNApplyChangedField2ᚕᚖgithubᚗcomᚋnais�
 	return ret
 }
 
-func (ec *executionContext) marshalNApplyChangedField2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚋdonotuseᚐApplyChangedField(ctx context.Context, sel ast.SelectionSet, v *donotuse.ApplyChangedField) graphql.Marshaler {
+func (ec *executionContext) marshalNApplyChangedField2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋapplyᚐApplyChangedField(ctx context.Context, sel ast.SelectionSet, v *apply.ApplyChangedField) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
