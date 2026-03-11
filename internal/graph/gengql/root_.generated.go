@@ -24809,7 +24809,7 @@ extend type Team {
 
 	"Fetch vulnerability summaries for workloads in the team."
 	vulnerabilitySummaries(
-		"Filter the workloads by named environments."
+		"Filter vulnerability summaries by environment."
 		filter: TeamVulnerabilitySummaryFilter
 
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
@@ -24854,13 +24854,20 @@ extend enum ActivityLogEntryResourceType {
 }
 
 """
-Input for filtering team workloads.
+Input for filtering team vulnerability summaries.
 """
 input TeamVulnerabilitySummaryFilter {
 	"""
-	Only return workloads from the given named environments.
+	Only return vulnerability summaries for the given environment.
+	"""
+	environmentName: String
+
+	"""
+	Deprecated: use environmentName instead.
+	Only one environment is supported if this list is used.
 	"""
 	environments: [String!]
+		@deprecated(reason: "Use environmentName instead. Only one value is supported.")
 }
 
 """
