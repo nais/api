@@ -327,7 +327,18 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	})
 
 	wg.Go(func() error {
-		return restserver.Run(ctx, cfg.RestListenAddress, pool, cfg.RestPreSharedKey, log.WithField("subsystem", "rest"))
+		return restserver.Run(ctx, restserver.Config{
+			ListenAddress:  cfg.RestListenAddress,
+			Pool:           pool,
+			PreSharedKey:   cfg.RestPreSharedKey,
+			ClusterConfigs: clusterConfig,
+			JWTMiddleware:  jwtMiddleware,
+			AuthHandler:    authHandler,
+			Fakes: restserver.Fakes{
+				WithInsecureUserHeader: cfg.Fakes.WithInsecureUserHeader,
+			},
+			Log: log.WithField("subsystem", "rest"),
+		})
 	})
 
 	wg.Go(func() error {

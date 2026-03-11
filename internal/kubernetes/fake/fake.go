@@ -287,6 +287,72 @@ func NewDynamicClient(scheme *runtime.Scheme) *dynfake.FakeDynamicClient {
 		return true, modified, nil
 	})
 
+	// Add reactor for server-side apply (ApplyPatchType) support.
+	// This simulates SSA by treating the patch body as the full desired state,
+	// creating the object if it doesn't exist or replacing it if it does.
+	client.PrependReactor("patch", "*", func(action k8stesting.Action) (handled bool, ret runtime.Object, err error) {
+		patchAction, ok := action.(k8stesting.PatchAction)
+		if !ok {
+			return false, nil, nil
+		}
+
+		if patchAction.GetPatchType() != types.ApplyPatchType {
+			return false, nil, nil
+		}
+
+		gvr := patchAction.GetResource()
+		ns := patchAction.GetNamespace()
+		name := patchAction.GetName()
+
+		// Parse the patch body as the desired object state.
+		desired := &unstructured.Unstructured{}
+		if err := json.Unmarshal(patchAction.GetPatch(), &desired.Object); err != nil {
+			return true, nil, fmt.Errorf("unmarshaling apply patch: %w", err)
+		}
+
+		// Try to get the existing object.
+		existing, err := client.Tracker().Get(gvr, ns, name)
+		if err != nil {
+			// Object doesn't exist — create it.
+			if err := client.Tracker().Create(gvr, desired, ns); err != nil {
+				return true, nil, fmt.Errorf("creating object via apply: %w", err)
+			}
+			return true, desired, nil
+		}
+
+		// Object exists — merge: start from existing, overlay with desired fields.
+		existingUnstr, ok := existing.(*unstructured.Unstructured)
+		if !ok {
+			return true, nil, fmt.Errorf("expected *unstructured.Unstructured, got %T", existing)
+		}
+
+		merged := existingUnstr.DeepCopy()
+		// Overlay all top-level keys from desired onto merged.
+		for k, v := range desired.Object {
+			if k == "metadata" {
+				// Merge metadata rather than replacing it wholesale.
+				desiredMeta, ok1 := v.(map[string]interface{})
+				existingMeta, ok2 := merged.Object["metadata"].(map[string]interface{})
+				if ok1 && ok2 {
+					for mk, mv := range desiredMeta {
+						existingMeta[mk] = mv
+					}
+					merged.Object["metadata"] = existingMeta
+				} else {
+					merged.Object[k] = v
+				}
+			} else {
+				merged.Object[k] = v
+			}
+		}
+
+		if err := client.Tracker().Update(gvr, merged, ns); err != nil {
+			return true, nil, fmt.Errorf("updating object via apply: %w", err)
+		}
+
+		return true, merged, nil
+	})
+
 	return client
 }
 

@@ -36,6 +36,7 @@ go test -v -tags=integration_test -run "TestIntegration/<testnavn>" ./integratio
 
 1. **Før du endrer kode**: Les relevante filer for å forstå eksisterende mønstre
 2. **Etter endringer i `.graphqls`**: Kjør `mise run generate:graphql`
+   1. Hvis det havner modeller i `internal/graph/model/donotuse/models_gen.go`, flytt disse til riktig pakke/domene og generer på nytt
 3. **Etter endringer i `.sql`**: Kjør `mise run generate:sql`
 4. **Etter alle endringer**: Kjør `mise run test` og `mise run fmt`
 5. **Ved kompileringsfeil**: Sjekk at generert kode er oppdatert

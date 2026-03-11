@@ -11,6 +11,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/nais/api/internal/activitylog"
+	"github.com/nais/api/internal/apply"
 	"github.com/nais/api/internal/deployment/deploymentactivity"
 	"github.com/nais/api/internal/github/repository"
 	"github.com/nais/api/internal/graph/pagination"
@@ -595,6 +596,13 @@ func (ec *executionContext) _ActivityLogEntry(ctx context.Context, sel ast.Selec
 			return graphql.Null
 		}
 		return ec._ClusterAuditActivityLogEntry(ctx, sel, obj)
+	case apply.ApplyActivityLogEntry:
+		return ec._ApplyActivityLogEntry(ctx, sel, &obj)
+	case *apply.ApplyActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ApplyActivityLogEntry(ctx, sel, obj)
 	case application.ApplicationScaledActivityLogEntry:
 		return ec._ApplicationScaledActivityLogEntry(ctx, sel, &obj)
 	case *application.ApplicationScaledActivityLogEntry:

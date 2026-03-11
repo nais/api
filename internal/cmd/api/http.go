@@ -105,7 +105,7 @@ func runHTTPServer(
 		otelhttp.NewHandler(playground.Handler("GraphQL playground", "/graphql"), "playground"),
 	)
 
-	graphMiddleware, err := ConfigureGraph(
+	contextDependencies, err := ConfigureGraph(
 		ctx,
 		fakes,
 		watchers,
@@ -132,8 +132,6 @@ func runHTTPServer(
 	if err != nil {
 		return err
 	}
-
-	contextDependencies := graphMiddleware
 
 	router.Route("/graphql", func(r chi.Router) {
 		middlewares := []func(http.Handler) http.Handler{

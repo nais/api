@@ -12,6 +12,7 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	activitylog1 "github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/alerts"
+	"github.com/nais/api/internal/apply"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/cost"
 	"github.com/nais/api/internal/deployment"
@@ -6092,6 +6093,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._BigQueryDataset(ctx, sel, obj)
+	case apply.ApplyActivityLogEntry:
+		return ec._ApplyActivityLogEntry(ctx, sel, &obj)
+	case *apply.ApplyActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ApplyActivityLogEntry(ctx, sel, obj)
 	case application.ApplicationScaledActivityLogEntry:
 		return ec._ApplicationScaledActivityLogEntry(ctx, sel, &obj)
 	case *application.ApplicationScaledActivityLogEntry:

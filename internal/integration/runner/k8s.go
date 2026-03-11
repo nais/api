@@ -89,6 +89,20 @@ func (k *K8s) ClientCreator(cluster string) (dynamic.Interface, watcher.KindReso
 	return c, nil, nil, nil
 }
 
+// DynamicClient returns the fake dynamic client for the given cluster.
+// This is used by the apply handler's DynamicClientFactory in integration tests.
+func (k *K8s) DynamicClient(cluster string) (dynamic.Interface, error) {
+	k.lock.Lock()
+	defer k.lock.Unlock()
+
+	c, ok := k.clients[cluster]
+	if !ok {
+		return nil, fmt.Errorf("cluster %q not found", cluster)
+	}
+
+	return c, nil
+}
+
 func (k *K8s) check(L *lua.LState) int {
 	apiVersion := L.CheckString(1)
 	kind := L.CheckString(2)
