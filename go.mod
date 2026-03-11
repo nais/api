@@ -42,7 +42,7 @@ require (
 	github.com/nais/bifrost v0.0.0-20260106105449-911627ac2c61
 	github.com/nais/liberator v0.0.0-20260216142648-ee49a9372bc4
 	github.com/nais/pgrator/pkg/api v0.0.0-20260219115817-cf954d58c04e
-	github.com/nais/tester v0.1.0
+	github.com/nais/tester v0.1.1
 	github.com/nais/unleasherator v0.0.0-20251216221129-efebc54203fe
 	github.com/nais/v13s/pkg/api v0.0.0-20260313084546-caca6d4cd742
 	github.com/patrickmn/go-cache v2.1.0+incompatible
