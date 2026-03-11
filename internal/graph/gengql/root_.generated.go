@@ -24809,7 +24809,7 @@ extend type Team {
 
 	"Fetch vulnerability summaries for workloads in the team."
 	vulnerabilitySummaries(
-		"Filter the workloads by named environments."
+		"Filter the workloads by environment."
 		filter: TeamVulnerabilitySummaryFilter
 
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
@@ -24858,9 +24858,9 @@ Input for filtering team workloads.
 """
 input TeamVulnerabilitySummaryFilter {
 	"""
-	Only return workloads from the given named environments.
+	Only return workloads from the given environment.
 	"""
-	environments: [String!]
+	environment: String
 }
 
 """
