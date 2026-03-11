@@ -10,7 +10,6 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/extension"
 	"github.com/99designs/gqlgen/graphql/handler/lru"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
-	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/ravilushqa/otelgqlgen"
@@ -131,18 +130,7 @@ func (t deprecationTracer) processField(ctx context.Context, fieldCtx *graphql.F
 	name := fieldCtx.Field.ObjectDefinition.Name + "/" + fieldCtx.Field.Name
 	t.log.WithField("field", name).Debug("deprecated field used")
 
-	attrs := []attribute.KeyValue{
-		attribute.String("field", name),
-	}
-
-	usr := authz.ActorFromContext(ctx)
-	if usr != nil && usr.User.IsServiceAccount() {
-		attrs = append(attrs, attribute.String("service_account", usr.User.Identity()))
-	} else {
-		attrs = append(attrs, attribute.Bool("user", true))
-	}
-
-	t.stats.Add(ctx, 1, metric.WithAttributes(attrs...))
+	t.stats.Add(ctx, 1, metric.WithAttributes(attribute.String("field", name)))
 }
 
 func (t deprecationTracer) ExtensionName() string {
@@ -150,5 +138,18 @@ func (t deprecationTracer) ExtensionName() string {
 }
 
 func (t deprecationTracer) Validate(schema graphql.ExecutableSchema) error {
+	for _, typeDef := range schema.Schema().Types {
+		if typeDef.BuiltIn {
+			continue
+		}
+		for _, field := range typeDef.Fields {
+			if field.Directives.ForName("deprecated") == nil {
+				continue
+			}
+			name := typeDef.Name + "/" + field.Name
+			t.log.WithField("field", name).Debug("registering deprecated field in metrics")
+			t.stats.Add(context.Background(), 0, metric.WithAttributes(attribute.String("field", name)))
+		}
+	}
 	return nil
 }
