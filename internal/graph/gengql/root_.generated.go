@@ -24861,6 +24861,12 @@ input TeamVulnerabilitySummaryFilter {
 	Only return vulnerability summaries for the given environment.
 	"""
 	environment: String
+
+	"""
+	Deprecated: use environment instead.
+	Only one environment is supported if this list is used.
+	"""
+	environments: [String!] @deprecated(reason: "Use environment instead. Only one value is supported.")
 }
 
 """
