@@ -58,6 +58,8 @@ type Config = graphql.Config[ResolverRoot, DirectiveRoot, ComplexityRoot]
 type ResolverRoot interface {
 	Application() ApplicationResolver
 	ApplicationInstance() ApplicationInstanceResolver
+	ApplyActivityLogEntry() ApplyActivityLogEntryResolver
+	ApplyActivityLogEntryData() ApplyActivityLogEntryDataResolver
 	BigQueryDataset() BigQueryDatasetResolver
 	Bucket() BucketResolver
 	CVE() CVEResolver
@@ -310,6 +312,32 @@ type ComplexityRoot struct {
 		MaxInstances func(childComplexity int) int
 		MinInstances func(childComplexity int) int
 		Strategies   func(childComplexity int) int
+	}
+
+	ApplyActivityLogEntry struct {
+		Action          func(childComplexity int) int
+		Actor           func(childComplexity int) int
+		CreatedAt       func(childComplexity int) int
+		Data            func(childComplexity int) int
+		EnvironmentName func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Message         func(childComplexity int) int
+		ResourceName    func(childComplexity int) int
+		ResourceType    func(childComplexity int) int
+		TeamSlug        func(childComplexity int) int
+	}
+
+	ApplyActivityLogEntryData struct {
+		APIVersion    func(childComplexity int) int
+		ChangedFields func(childComplexity int) int
+		Cluster       func(childComplexity int) int
+		Kind          func(childComplexity int) int
+	}
+
+	ApplyChangedField struct {
+		Field    func(childComplexity int) int
+		NewValue func(childComplexity int) int
+		OldValue func(childComplexity int) int
 	}
 
 	AssignRoleToServiceAccountPayload struct {
@@ -3942,6 +3970,125 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ApplicationScaling.Strategies(childComplexity), true
+
+	case "ApplyActivityLogEntry.action":
+		if e.ComplexityRoot.ApplyActivityLogEntry.Action == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplyActivityLogEntry.Action(childComplexity), true
+
+	case "ApplyActivityLogEntry.actor":
+		if e.ComplexityRoot.ApplyActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplyActivityLogEntry.Actor(childComplexity), true
+
+	case "ApplyActivityLogEntry.createdAt":
+		if e.ComplexityRoot.ApplyActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplyActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "ApplyActivityLogEntry.data":
+		if e.ComplexityRoot.ApplyActivityLogEntry.Data == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplyActivityLogEntry.Data(childComplexity), true
+
+	case "ApplyActivityLogEntry.environmentName":
+		if e.ComplexityRoot.ApplyActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplyActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "ApplyActivityLogEntry.id":
+		if e.ComplexityRoot.ApplyActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplyActivityLogEntry.ID(childComplexity), true
+
+	case "ApplyActivityLogEntry.message":
+		if e.ComplexityRoot.ApplyActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplyActivityLogEntry.Message(childComplexity), true
+
+	case "ApplyActivityLogEntry.resourceName":
+		if e.ComplexityRoot.ApplyActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplyActivityLogEntry.ResourceName(childComplexity), true
+
+	case "ApplyActivityLogEntry.resourceType":
+		if e.ComplexityRoot.ApplyActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplyActivityLogEntry.ResourceType(childComplexity), true
+
+	case "ApplyActivityLogEntry.teamSlug":
+		if e.ComplexityRoot.ApplyActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplyActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "ApplyActivityLogEntryData.apiVersion":
+		if e.ComplexityRoot.ApplyActivityLogEntryData.APIVersion == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplyActivityLogEntryData.APIVersion(childComplexity), true
+
+	case "ApplyActivityLogEntryData.changedFields":
+		if e.ComplexityRoot.ApplyActivityLogEntryData.ChangedFields == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplyActivityLogEntryData.ChangedFields(childComplexity), true
+
+	case "ApplyActivityLogEntryData.cluster":
+		if e.ComplexityRoot.ApplyActivityLogEntryData.Cluster == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplyActivityLogEntryData.Cluster(childComplexity), true
+
+	case "ApplyActivityLogEntryData.kind":
+		if e.ComplexityRoot.ApplyActivityLogEntryData.Kind == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplyActivityLogEntryData.Kind(childComplexity), true
+
+	case "ApplyChangedField.field":
+		if e.ComplexityRoot.ApplyChangedField.Field == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplyChangedField.Field(childComplexity), true
+
+	case "ApplyChangedField.newValue":
+		if e.ComplexityRoot.ApplyChangedField.NewValue == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplyChangedField.NewValue(childComplexity), true
+
+	case "ApplyChangedField.oldValue":
+		if e.ComplexityRoot.ApplyChangedField.OldValue == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplyChangedField.OldValue(childComplexity), true
 
 	case "AssignRoleToServiceAccountPayload.serviceAccount":
 		if e.ComplexityRoot.AssignRoleToServiceAccountPayload.ServiceAccount == nil {
@@ -17988,6 +18135,72 @@ extend enum ActivityLogActivityType {
 	An application was scaled.
 	"""
 	APPLICATION_SCALED
+}
+`, BuiltIn: false},
+	{Name: "../schema/apply.graphqls", Input: `extend enum ActivityLogEntryResourceType {
+	"All activity log entries related to applying resources will use this resource type."
+	APPLY
+}
+
+extend enum ActivityLogActivityType {
+	"A resource was applied (updated)."
+	RESOURCE_APPLIED
+
+	"A resource was created via apply."
+	RESOURCE_CREATED
+}
+
+"""
+Activity log entry for a resource that was applied.
+"""
+type ApplyActivityLogEntry implements ActivityLogEntry & Node {
+	"Unique identifier of the activity log entry."
+	id: ID!
+	"The action that was performed."
+	action: String!
+	"The identity of the actor that performed the action."
+	actor: String!
+	"The time the action was performed."
+	createdAt: Time!
+	"A human-readable message describing the action."
+	message: String!
+	"Type of the resource that was affected by the action."
+	resourceType: ActivityLogEntryResourceType!
+	"The name of the affected resource."
+	resourceName: String!
+	"The team that owns the affected resource."
+	teamSlug: Slug
+	"The environment the resource was applied in."
+	environmentName: String
+
+	"Additional data about the apply operation."
+	data: ApplyActivityLogEntryData!
+}
+
+"""
+Additional data associated with an apply activity log entry.
+"""
+type ApplyActivityLogEntryData {
+	"The cluster the resource was applied to."
+	cluster: String!
+	"The apiVersion of the applied resource."
+	apiVersion: String!
+	"The kind of the applied resource."
+	kind: String!
+	"The fields that changed during the apply."
+	changedFields: [ApplyChangedField!]!
+}
+
+"""
+A single field that changed during an apply operation.
+"""
+type ApplyChangedField {
+	"The dot-separated path to the changed field, e.g. 'spec.replicas'."
+	field: String!
+	"The value before the apply. Null if the field was added."
+	oldValue: String
+	"The value after the apply. Null if the field was removed."
+	newValue: String
 }
 `, BuiltIn: false},
 	{Name: "../schema/authz.graphqls", Input: `type Role implements Node {

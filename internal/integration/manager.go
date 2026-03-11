@@ -43,6 +43,7 @@ import (
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/reflect/protoreflect"
+	"k8s.io/client-go/dynamic"
 )
 
 type ctxKey int
@@ -155,7 +156,7 @@ func newManager(_ context.Context, container *postgres.PostgresContainer, connSt
 			return ctx, nil, nil, err
 		}
 
-		restRunner, err := newRestRunner(ctx, pool, log)
+		restRunner, err := newRestRunner(ctx, pool, clusterConfig, k8sRunner, log)
 		if err != nil {
 			done()
 			return ctx, nil, nil, err
@@ -205,8 +206,16 @@ func newManager(_ context.Context, container *postgres.PostgresContainer, connSt
 	}
 }
 
-func newRestRunner(ctx context.Context, pool *pgxpool.Pool, logger logrus.FieldLogger) (spec.Runner, error) {
-	router := rest.MakeRouter(ctx, pool, logger)
+func newRestRunner(ctx context.Context, pool *pgxpool.Pool, clusterConfig kubernetes.ClusterConfigMap, k8sRunner *apiRunner.K8s, logger logrus.FieldLogger) (spec.Runner, error) {
+	router := rest.MakeRouter(ctx, rest.Config{
+		Pool:           pool,
+		ClusterConfigs: clusterConfig,
+		DynamicClientFactory: func(_ context.Context, cluster string) (dynamic.Interface, error) {
+			return k8sRunner.DynamicClient(cluster)
+		},
+		Fakes: rest.Fakes{WithInsecureUserHeader: true},
+		Log:   logger,
+	})
 
 	return runner.NewRestRunner(router), nil
 }
