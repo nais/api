@@ -91,7 +91,23 @@ Test.rest("update application via apply", function(t)
 				namespace = "apply-team",
 				environment = "dev",
 				status = "applied",
-				changedFields = NotNull(),
+				changedFields = {
+					{
+						field = "spec.image",
+						oldValue = "example.com/my-app:v1",
+						newValue = "example.com/my-app:v2",
+					},
+					{
+						field = "spec.replicas.max",
+						oldValue = 2,
+						newValue = 4,
+					},
+					{
+						field = "spec.replicas.min",
+						oldValue = 1,
+						newValue = 2,
+					},
+				},
 			},
 		},
 	})
@@ -329,6 +345,227 @@ Test.rest("unauthenticated request returns 401", function(t)
 		errors = {
 			{
 				message = "Unauthorized",
+			},
+		},
+	})
+end)
+
+Test.gql("activity log contains ApplicationCreatedActivityLogEntry after apply", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query(string.format(
+		[[
+		query {
+			team(slug: "%s") {
+				activityLog(
+					first: 20
+					filter: { activityTypes: [RESOURCE_CREATED] }
+				) {
+					nodes {
+						__typename
+						message
+						actor
+						resourceType
+						resourceName
+						environmentName
+						... on ApplicationCreatedActivityLogEntry {
+							data {
+								apiVersion
+								kind
+							}
+						}
+					}
+				}
+			}
+		}
+	]],
+		team:slug()
+	))
+
+	-- RESOURCE_CREATED is registered for both APP and JOB, so the job entry appears too.
+	t.check({
+		data = {
+			team = {
+				activityLog = {
+					nodes = {
+						{
+							__typename = "JobCreatedActivityLogEntry",
+							message = "Job my-job created",
+							actor = user:email(),
+							resourceType = "JOB",
+							resourceName = "my-job",
+							environmentName = "dev",
+						},
+						{
+							__typename = "ApplicationCreatedActivityLogEntry",
+							message = "Application staging-app created",
+							actor = user:email(),
+							resourceType = "APP",
+							resourceName = "staging-app",
+							environmentName = "staging",
+							data = {
+								apiVersion = "nais.io/v1alpha1",
+								kind = "Application",
+							},
+						},
+						{
+							__typename = "ApplicationCreatedActivityLogEntry",
+							message = "Application my-app created",
+							actor = user:email(),
+							resourceType = "APP",
+							resourceName = "my-app",
+							environmentName = "dev",
+							data = {
+								apiVersion = "nais.io/v1alpha1",
+								kind = "Application",
+							},
+						},
+					},
+				},
+			},
+		},
+	})
+end)
+
+Test.gql("activity log contains ApplicationUpdatedActivityLogEntry with changedFields after apply", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query(string.format(
+		[[
+		query {
+			team(slug: "%s") {
+				activityLog(
+					first: 20
+					filter: { activityTypes: [RESOURCE_UPDATED] }
+				) {
+					nodes {
+						__typename
+						message
+						actor
+						resourceType
+						resourceName
+						environmentName
+						... on ApplicationUpdatedActivityLogEntry {
+							data {
+								apiVersion
+								kind
+								changedFields {
+									field
+									oldValue
+									newValue
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	]],
+		team:slug()
+	))
+
+	t.check({
+		data = {
+			team = {
+				activityLog = {
+					nodes = {
+						{
+							__typename = "ApplicationUpdatedActivityLogEntry",
+							message = "Application my-app updated",
+							actor = user:email(),
+							resourceType = "APP",
+							resourceName = "my-app",
+							environmentName = "dev",
+							data = {
+								apiVersion = "nais.io/v1alpha1",
+								kind = "Application",
+								changedFields = {
+									{
+										field = "spec.image",
+										oldValue = "example.com/my-app:v1",
+										newValue = "example.com/my-app:v2",
+									},
+									{
+										field = "spec.replicas.max",
+										oldValue = "2",
+										newValue = "4",
+									},
+									{
+										field = "spec.replicas.min",
+										oldValue = "1",
+										newValue = "2",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	})
+end)
+
+Test.gql("activity log contains JobCreatedActivityLogEntry after apply", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query(string.format(
+		[[
+		query {
+			team(slug: "%s") {
+				activityLog(
+					first: 20
+					filter: { activityTypes: [RESOURCE_CREATED] }
+				) {
+					nodes {
+						__typename
+						resourceType
+						resourceName
+						environmentName
+						... on JobCreatedActivityLogEntry {
+							data {
+								apiVersion
+								kind
+							}
+						}
+					}
+				}
+			}
+		}
+	]],
+		team:slug()
+	))
+
+	-- RESOURCE_CREATED is registered for both JOB and APP, so application entries appear too.
+	-- We only assert on the first node which is the most-recently created job.
+	t.check({
+		data = {
+			team = {
+				activityLog = {
+					nodes = {
+						{
+							__typename = "JobCreatedActivityLogEntry",
+							resourceType = "JOB",
+							resourceName = "my-job",
+							environmentName = "dev",
+							data = {
+								apiVersion = "nais.io/v1",
+								kind = "Naisjob",
+							},
+						},
+						{
+							__typename = "ApplicationCreatedActivityLogEntry",
+							resourceType = "APP",
+							resourceName = "staging-app",
+							environmentName = "staging",
+						},
+						{
+							__typename = "ApplicationCreatedActivityLogEntry",
+							resourceType = "APP",
+							resourceName = "my-app",
+							environmentName = "dev",
+						},
+					},
+				},
 			},
 		},
 	})

@@ -4,18 +4,19 @@ import (
 	"fmt"
 
 	"github.com/nais/api/internal/activitylog"
+	"github.com/nais/api/internal/apply"
 	"github.com/nais/api/internal/deployment/deploymentactivity"
 )
 
 const (
-	activityLogEntryResourceTypeApplication activitylog.ActivityLogEntryResourceType = "APP"
+	ActivityLogEntryResourceTypeApplication activitylog.ActivityLogEntryResourceType = "APP"
 
 	activityLogEntryActionRestartApplication   activitylog.ActivityLogEntryAction = "RESTARTED"
 	activityLogEntryActionAutoScaleApplication activitylog.ActivityLogEntryAction = "AUTOSCALE"
 )
 
 func init() {
-	activitylog.RegisterTransformer(activityLogEntryResourceTypeApplication, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
+	activitylog.RegisterTransformer(ActivityLogEntryResourceTypeApplication, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
 		switch entry.Action {
 		case activityLogEntryActionRestartApplication:
 			if entry.TeamSlug == nil {
@@ -55,15 +56,35 @@ func init() {
 				GenericActivityLogEntry: entry.WithMessage("Application deployed"),
 				Data:                    data,
 			}, nil
+		case activitylog.ActivityLogEntryActionCreated:
+			data, err := activitylog.UnmarshalData[apply.ApplyActivityLogEntryData](entry)
+			if err != nil {
+				return nil, fmt.Errorf("transforming application created activity log entry data: %w", err)
+			}
+			return ApplicationCreatedActivityLogEntry{
+				GenericActivityLogEntry: entry.WithMessage(fmt.Sprintf("Application %s created", entry.ResourceName)),
+				Data:                    data,
+			}, nil
+		case activitylog.ActivityLogEntryActionUpdated:
+			data, err := activitylog.UnmarshalData[apply.ApplyActivityLogEntryData](entry)
+			if err != nil {
+				return nil, fmt.Errorf("transforming application updated activity log entry data: %w", err)
+			}
+			return ApplicationUpdatedActivityLogEntry{
+				GenericActivityLogEntry: entry.WithMessage(fmt.Sprintf("Application %s updated", entry.ResourceName)),
+				Data:                    data,
+			}, nil
 		default:
 			return nil, fmt.Errorf("unsupported application activity log entry action: %q", entry.Action)
 		}
 	})
 
-	activitylog.RegisterFilter("APPLICATION_DELETED", activitylog.ActivityLogEntryActionDeleted, activityLogEntryResourceTypeApplication)
-	activitylog.RegisterFilter("APPLICATION_RESTARTED", activityLogEntryActionRestartApplication, activityLogEntryResourceTypeApplication)
-	activitylog.RegisterFilter("APPLICATION_SCALED", activityLogEntryActionAutoScaleApplication, activityLogEntryResourceTypeApplication)
-	activitylog.RegisterFilter("DEPLOYMENT", deploymentactivity.ActivityLogEntryActionDeployment, activityLogEntryResourceTypeApplication)
+	activitylog.RegisterFilter("APPLICATION_DELETED", activitylog.ActivityLogEntryActionDeleted, ActivityLogEntryResourceTypeApplication)
+	activitylog.RegisterFilter("APPLICATION_RESTARTED", activityLogEntryActionRestartApplication, ActivityLogEntryResourceTypeApplication)
+	activitylog.RegisterFilter("APPLICATION_SCALED", activityLogEntryActionAutoScaleApplication, ActivityLogEntryResourceTypeApplication)
+	activitylog.RegisterFilter("DEPLOYMENT", deploymentactivity.ActivityLogEntryActionDeployment, ActivityLogEntryResourceTypeApplication)
+	activitylog.RegisterFilter("RESOURCE_CREATED", activitylog.ActivityLogEntryActionCreated, ActivityLogEntryResourceTypeApplication)
+	activitylog.RegisterFilter("RESOURCE_UPDATED", activitylog.ActivityLogEntryActionUpdated, ActivityLogEntryResourceTypeApplication)
 }
 
 type ApplicationRestartedActivityLogEntry struct {
@@ -83,4 +104,16 @@ type ApplicationScaledActivityLogEntry struct {
 type ApplicationScaledActivityLogEntryData struct {
 	NewSize   int              `json:"newSize,string"`
 	Direction ScalingDirection `json:"direction"`
+}
+
+type ApplicationCreatedActivityLogEntry struct {
+	activitylog.GenericActivityLogEntry
+
+	Data *apply.ApplyActivityLogEntryData `json:"data"`
+}
+
+type ApplicationUpdatedActivityLogEntry struct {
+	activitylog.GenericActivityLogEntry
+
+	Data *apply.ApplyActivityLogEntryData `json:"data"`
 }

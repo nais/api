@@ -12,7 +12,6 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	activitylog1 "github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/alerts"
-	"github.com/nais/api/internal/apply"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/cost"
 	"github.com/nais/api/internal/deployment"
@@ -5967,6 +5966,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._KafkaTopic(ctx, sel, obj)
+	case job.JobUpdatedActivityLogEntry:
+		return ec._JobUpdatedActivityLogEntry(ctx, sel, &obj)
+	case *job.JobUpdatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._JobUpdatedActivityLogEntry(ctx, sel, obj)
 	case job.JobTriggeredActivityLogEntry:
 		return ec._JobTriggeredActivityLogEntry(ctx, sel, &obj)
 	case *job.JobTriggeredActivityLogEntry:
@@ -5988,6 +5994,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._JobDeletedActivityLogEntry(ctx, sel, obj)
+	case job.JobCreatedActivityLogEntry:
+		return ec._JobCreatedActivityLogEntry(ctx, sel, &obj)
+	case *job.JobCreatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._JobCreatedActivityLogEntry(ctx, sel, obj)
 	case issue.InvalidSpecIssue:
 		return ec._InvalidSpecIssue(ctx, sel, &obj)
 	case *issue.InvalidSpecIssue:
@@ -6093,13 +6106,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._BigQueryDataset(ctx, sel, obj)
-	case apply.ApplyActivityLogEntry:
-		return ec._ApplyActivityLogEntry(ctx, sel, &obj)
-	case *apply.ApplyActivityLogEntry:
+	case application.ApplicationUpdatedActivityLogEntry:
+		return ec._ApplicationUpdatedActivityLogEntry(ctx, sel, &obj)
+	case *application.ApplicationUpdatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ApplyActivityLogEntry(ctx, sel, obj)
+		return ec._ApplicationUpdatedActivityLogEntry(ctx, sel, obj)
 	case application.ApplicationScaledActivityLogEntry:
 		return ec._ApplicationScaledActivityLogEntry(ctx, sel, &obj)
 	case *application.ApplicationScaledActivityLogEntry:
@@ -6121,6 +6134,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._ApplicationDeletedActivityLogEntry(ctx, sel, obj)
+	case application.ApplicationCreatedActivityLogEntry:
+		return ec._ApplicationCreatedActivityLogEntry(ctx, sel, &obj)
+	case *application.ApplicationCreatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ApplicationCreatedActivityLogEntry(ctx, sel, obj)
 	case vulnerability.WorkloadVulnerabilitySummary:
 		return ec._WorkloadVulnerabilitySummary(ctx, sel, &obj)
 	case *vulnerability.WorkloadVulnerabilitySummary:

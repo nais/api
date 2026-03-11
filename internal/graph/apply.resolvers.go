@@ -8,10 +8,6 @@ import (
 	"github.com/nais/api/internal/graph/gengql"
 )
 
-func (r *applyActivityLogEntryResolver) Action(ctx context.Context, obj *apply.ApplyActivityLogEntry) (string, error) {
-	return string(obj.GenericActivityLogEntry.Action), nil
-}
-
 func (r *applyActivityLogEntryDataResolver) ChangedFields(ctx context.Context, obj *apply.ApplyActivityLogEntryData) ([]*apply.ApplyChangedField, error) {
 	out := make([]*apply.ApplyChangedField, len(obj.ChangedFields))
 	for i, c := range obj.ChangedFields {
@@ -31,15 +27,8 @@ func (r *applyActivityLogEntryDataResolver) ChangedFields(ctx context.Context, o
 	return out, nil
 }
 
-func (r *Resolver) ApplyActivityLogEntry() gengql.ApplyActivityLogEntryResolver {
-	return &applyActivityLogEntryResolver{r}
-}
-
 func (r *Resolver) ApplyActivityLogEntryData() gengql.ApplyActivityLogEntryDataResolver {
 	return &applyActivityLogEntryDataResolver{r}
 }
 
-type (
-	applyActivityLogEntryResolver     struct{ *Resolver }
-	applyActivityLogEntryDataResolver struct{ *Resolver }
-)
+type applyActivityLogEntryDataResolver struct{ *Resolver }

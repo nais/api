@@ -4,17 +4,18 @@ import (
 	"fmt"
 
 	"github.com/nais/api/internal/activitylog"
+	"github.com/nais/api/internal/apply"
 	"github.com/nais/api/internal/deployment/deploymentactivity"
 )
 
 const (
-	activityLogEntryResourceTypeJob    activitylog.ActivityLogEntryResourceType = "JOB"
+	ActivityLogEntryResourceTypeJob    activitylog.ActivityLogEntryResourceType = "JOB"
 	activityLogEntryActionTriggerJob   activitylog.ActivityLogEntryAction       = "TRIGGER_JOB"
 	activityLogEntryActionDeleteJobRun activitylog.ActivityLogEntryAction       = "DELETE_JOB_RUN"
 )
 
 func init() {
-	activitylog.RegisterTransformer(activityLogEntryResourceTypeJob, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
+	activitylog.RegisterTransformer(ActivityLogEntryResourceTypeJob, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
 		switch entry.Action {
 		case activityLogEntryActionTriggerJob:
 			return JobTriggeredActivityLogEntry{
@@ -46,10 +47,28 @@ func init() {
 		case deploymentactivity.ActivityLogEntryActionDeployment:
 			data, err := activitylog.UnmarshalData[deploymentactivity.DeploymentActivityLogEntryData](entry)
 			if err != nil {
-				return nil, fmt.Errorf("transforming job scaled activity log entry data: %w", err)
+				return nil, fmt.Errorf("transforming job deployment activity log entry data: %w", err)
 			}
 			return deploymentactivity.DeploymentActivityLogEntry{
 				GenericActivityLogEntry: entry.WithMessage("Job deployed"),
+				Data:                    data,
+			}, nil
+		case activitylog.ActivityLogEntryActionCreated:
+			data, err := activitylog.UnmarshalData[apply.ApplyActivityLogEntryData](entry)
+			if err != nil {
+				return nil, fmt.Errorf("transforming job created activity log entry data: %w", err)
+			}
+			return JobCreatedActivityLogEntry{
+				GenericActivityLogEntry: entry.WithMessage(fmt.Sprintf("Job %s created", entry.ResourceName)),
+				Data:                    data,
+			}, nil
+		case activitylog.ActivityLogEntryActionUpdated:
+			data, err := activitylog.UnmarshalData[apply.ApplyActivityLogEntryData](entry)
+			if err != nil {
+				return nil, fmt.Errorf("transforming job updated activity log entry data: %w", err)
+			}
+			return JobUpdatedActivityLogEntry{
+				GenericActivityLogEntry: entry.WithMessage(fmt.Sprintf("Job %s updated", entry.ResourceName)),
 				Data:                    data,
 			}, nil
 		default:
@@ -57,10 +76,12 @@ func init() {
 		}
 	})
 
-	activitylog.RegisterFilter("JOB_DELETED", activitylog.ActivityLogEntryActionDeleted, activityLogEntryResourceTypeJob)
-	activitylog.RegisterFilter("JOB_RUN_DELETED", activityLogEntryActionDeleteJobRun, activityLogEntryResourceTypeJob)
-	activitylog.RegisterFilter("JOB_TRIGGERED", activityLogEntryActionTriggerJob, activityLogEntryResourceTypeJob)
-	activitylog.RegisterFilter("DEPLOYMENT", deploymentactivity.ActivityLogEntryActionDeployment, activityLogEntryResourceTypeJob)
+	activitylog.RegisterFilter("JOB_DELETED", activitylog.ActivityLogEntryActionDeleted, ActivityLogEntryResourceTypeJob)
+	activitylog.RegisterFilter("JOB_RUN_DELETED", activityLogEntryActionDeleteJobRun, ActivityLogEntryResourceTypeJob)
+	activitylog.RegisterFilter("JOB_TRIGGERED", activityLogEntryActionTriggerJob, ActivityLogEntryResourceTypeJob)
+	activitylog.RegisterFilter("DEPLOYMENT", deploymentactivity.ActivityLogEntryActionDeployment, ActivityLogEntryResourceTypeJob)
+	activitylog.RegisterFilter("RESOURCE_CREATED", activitylog.ActivityLogEntryActionCreated, ActivityLogEntryResourceTypeJob)
+	activitylog.RegisterFilter("RESOURCE_UPDATED", activitylog.ActivityLogEntryActionUpdated, ActivityLogEntryResourceTypeJob)
 }
 
 type JobTriggeredActivityLogEntry struct {
@@ -78,4 +99,16 @@ type JobRunDeletedActivityLogEntryData struct {
 type JobRunDeletedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
 	Data *JobRunDeletedActivityLogEntryData
+}
+
+type JobCreatedActivityLogEntry struct {
+	activitylog.GenericActivityLogEntry
+
+	Data *apply.ApplyActivityLogEntryData `json:"data"`
+}
+
+type JobUpdatedActivityLogEntry struct {
+	activitylog.GenericActivityLogEntry
+
+	Data *apply.ApplyActivityLogEntryData `json:"data"`
 }
