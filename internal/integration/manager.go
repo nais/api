@@ -150,13 +150,13 @@ func newManager(_ context.Context, container *postgres.PostgresContainer, connSt
 			return ctx, nil, nil, err
 		}
 
-		gqlRunner, gqlCleanup, err := newGQLRunner(ctx, config, pool, topic, watchers, watcherMgr, clusterConfig, fakeAivenClient, lokiClient)
+		gqlRunner, gqlCleanup, contextDependencies, err := newGQLRunner(ctx, config, pool, topic, watchers, watcherMgr, clusterConfig, fakeAivenClient, lokiClient)
 		if err != nil {
 			done()
 			return ctx, nil, nil, err
 		}
 
-		restRunner, err := newRestRunner(ctx, pool, clusterConfig, k8sRunner, log)
+		restRunner, err := newRestRunner(ctx, pool, clusterConfig, k8sRunner, contextDependencies, log)
 		if err != nil {
 			done()
 			return ctx, nil, nil, err
@@ -208,11 +208,12 @@ func newManager(_ context.Context, container *postgres.PostgresContainer, connSt
 
 const testPreSharedKey = "test-pre-shared-key"
 
-func newRestRunner(ctx context.Context, pool *pgxpool.Pool, clusterConfig kubernetes.ClusterConfigMap, k8sRunner *apiRunner.K8s, logger logrus.FieldLogger) (spec.Runner, error) {
+func newRestRunner(ctx context.Context, pool *pgxpool.Pool, clusterConfig kubernetes.ClusterConfigMap, k8sRunner *apiRunner.K8s, contextDependencies func(http.Handler) http.Handler, logger logrus.FieldLogger) (spec.Runner, error) {
 	router := rest.MakeRouter(ctx, rest.Config{
-		Pool:           pool,
-		PreSharedKey:   testPreSharedKey,
-		ClusterConfigs: clusterConfig,
+		Pool:              pool,
+		PreSharedKey:      testPreSharedKey,
+		ClusterConfigs:    clusterConfig,
+		ContextMiddleware: contextDependencies,
 		DynamicClientFactory: func(_ context.Context, cluster string) (dynamic.Interface, error) {
 			return k8sRunner.DynamicClient(cluster)
 		},
@@ -233,25 +234,25 @@ func newGQLRunner(
 	clusterConfig kubernetes.ClusterConfigMap,
 	fakeAivenClient *aiven.FakeAivenClient,
 	lokiClient loki.Client,
-) (spec.Runner, func(), error) {
+) (spec.Runner, func(), func(http.Handler) http.Handler, error) {
 	log := logrus.New()
 	log.Out = io.Discard
 
 	smMgr, err := servicemaintenance.NewManager(ctx, fakeAivenClient, log.WithField("subsystem", "service_maintenance"))
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 
 	vMgr, err := vulnerability.NewFakeManager(ctx, log.WithField("subsystem", "vulnerability"))
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 
 	notifierCtx, notifyCancel := context.WithCancel(ctx)
 	notifier := notify.New(pool, log, notify.WithRetries(0))
 	go notifier.Run(notifierCtx)
 
-	graphMiddleware, err := api.ConfigureGraph(
+	contextDependencies, err := api.ConfigureGraph(
 		ctx,
 		api.Fakes{
 			WithFakeKubernetes:     true,
@@ -292,7 +293,7 @@ func newGQLRunner(
 	)
 	if err != nil {
 		notifyCancel()
-		return nil, nil, fmt.Errorf("failed to configure graph: %w", err)
+		return nil, nil, nil, fmt.Errorf("failed to configure graph: %w", err)
 	}
 
 	resolver := graph.NewResolver(topic)
@@ -302,7 +303,7 @@ func newGQLRunner(
 		Resolvers: resolver,
 	}, hlog)
 	if err != nil {
-		panic(fmt.Sprintf("failed to create graph handler: %s", err))
+		return nil, nil, nil, fmt.Errorf("failed to create graph handler: %w", err)
 	}
 
 	authProxy := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -330,7 +331,7 @@ func newGQLRunner(
 		middleware.ApiKeyAuthentication()(middleware.RequireAuthenticatedUser()(srv)).ServeHTTP(w, r)
 	})
 
-	return runner.NewGQLRunner(graphMiddleware(authProxy)), notifyCancel, nil
+	return runner.NewGQLRunner(contextDependencies(authProxy)), notifyCancel, contextDependencies, nil
 }
 
 func startPostgresql(ctx context.Context) (*postgres.PostgresContainer, string, error) {
