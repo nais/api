@@ -2443,7 +2443,7 @@ func (ec *executionContext) _JobCreatedActivityLogEntry_data(ctx context.Context
 			return obj.Data, nil
 		},
 		nil,
-		ec.marshalNApplyActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋapplyᚐApplyActivityLogEntryData,
+		ec.marshalNResourceActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐResourceActivityLogEntryData,
 		true,
 		true,
 	)
@@ -2458,13 +2458,13 @@ func (ec *executionContext) fieldContext_JobCreatedActivityLogEntry_data(_ conte
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "apiVersion":
-				return ec.fieldContext_ApplyActivityLogEntryData_apiVersion(ctx, field)
+				return ec.fieldContext_ResourceActivityLogEntryData_apiVersion(ctx, field)
 			case "kind":
-				return ec.fieldContext_ApplyActivityLogEntryData_kind(ctx, field)
+				return ec.fieldContext_ResourceActivityLogEntryData_kind(ctx, field)
 			case "changedFields":
-				return ec.fieldContext_ApplyActivityLogEntryData_changedFields(ctx, field)
+				return ec.fieldContext_ResourceActivityLogEntryData_changedFields(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type ApplyActivityLogEntryData", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type ResourceActivityLogEntryData", field.Name)
 		},
 	}
 	return fc, nil
@@ -4618,7 +4618,7 @@ func (ec *executionContext) _JobUpdatedActivityLogEntry_data(ctx context.Context
 			return obj.Data, nil
 		},
 		nil,
-		ec.marshalNApplyActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋapplyᚐApplyActivityLogEntryData,
+		ec.marshalNResourceActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐResourceActivityLogEntryData,
 		true,
 		true,
 	)
@@ -4633,13 +4633,13 @@ func (ec *executionContext) fieldContext_JobUpdatedActivityLogEntry_data(_ conte
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "apiVersion":
-				return ec.fieldContext_ApplyActivityLogEntryData_apiVersion(ctx, field)
+				return ec.fieldContext_ResourceActivityLogEntryData_apiVersion(ctx, field)
 			case "kind":
-				return ec.fieldContext_ApplyActivityLogEntryData_kind(ctx, field)
+				return ec.fieldContext_ResourceActivityLogEntryData_kind(ctx, field)
 			case "changedFields":
-				return ec.fieldContext_ApplyActivityLogEntryData_changedFields(ctx, field)
+				return ec.fieldContext_ResourceActivityLogEntryData_changedFields(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type ApplyActivityLogEntryData", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type ResourceActivityLogEntryData", field.Name)
 		},
 	}
 	return fc, nil

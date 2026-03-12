@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/nais/api/internal/activitylog"
-	"github.com/nais/api/internal/apply"
 	"github.com/nais/api/internal/deployment/deploymentactivity"
 )
 
@@ -15,6 +14,7 @@ const (
 )
 
 func init() {
+	activitylog.RegisterKindResourceType("Naisjob", ActivityLogEntryResourceTypeJob)
 	activitylog.RegisterTransformer(ActivityLogEntryResourceTypeJob, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
 		switch entry.Action {
 		case activityLogEntryActionTriggerJob:
@@ -54,7 +54,7 @@ func init() {
 				Data:                    data,
 			}, nil
 		case activitylog.ActivityLogEntryActionCreated:
-			data, err := activitylog.UnmarshalData[apply.ApplyActivityLogEntryData](entry)
+			data, err := activitylog.UnmarshalData[activitylog.ResourceActivityLogEntryData](entry)
 			if err != nil {
 				return nil, fmt.Errorf("transforming job created activity log entry data: %w", err)
 			}
@@ -63,7 +63,7 @@ func init() {
 				Data:                    data,
 			}, nil
 		case activitylog.ActivityLogEntryActionUpdated:
-			data, err := activitylog.UnmarshalData[apply.ApplyActivityLogEntryData](entry)
+			data, err := activitylog.UnmarshalData[activitylog.ResourceActivityLogEntryData](entry)
 			if err != nil {
 				return nil, fmt.Errorf("transforming job updated activity log entry data: %w", err)
 			}
@@ -104,11 +104,11 @@ type JobRunDeletedActivityLogEntry struct {
 type JobCreatedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
 
-	Data *apply.ApplyActivityLogEntryData `json:"data"`
+	Data *activitylog.ResourceActivityLogEntryData `json:"data"`
 }
 
 type JobUpdatedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
 
-	Data *apply.ApplyActivityLogEntryData `json:"data"`
+	Data *activitylog.ResourceActivityLogEntryData `json:"data"`
 }

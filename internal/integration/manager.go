@@ -206,9 +206,12 @@ func newManager(_ context.Context, container *postgres.PostgresContainer, connSt
 	}
 }
 
+const testPreSharedKey = "test-pre-shared-key"
+
 func newRestRunner(ctx context.Context, pool *pgxpool.Pool, clusterConfig kubernetes.ClusterConfigMap, k8sRunner *apiRunner.K8s, logger logrus.FieldLogger) (spec.Runner, error) {
 	router := rest.MakeRouter(ctx, rest.Config{
 		Pool:           pool,
+		PreSharedKey:   testPreSharedKey,
 		ClusterConfigs: clusterConfig,
 		DynamicClientFactory: func(_ context.Context, cluster string) (dynamic.Interface, error) {
 			return k8sRunner.DynamicClient(cluster)

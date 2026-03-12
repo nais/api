@@ -10,15 +10,11 @@ import (
 	"sync/atomic"
 
 	"github.com/99designs/gqlgen/graphql"
-	"github.com/nais/api/internal/apply"
+	"github.com/nais/api/internal/activitylog"
 	"github.com/vektah/gqlparser/v2/ast"
 )
 
 // region    ************************** generated!.gotpl **************************
-
-type ApplyActivityLogEntryDataResolver interface {
-	ChangedFields(ctx context.Context, obj *apply.ApplyActivityLogEntryData) ([]*apply.ApplyChangedField, error)
-}
 
 // endregion ************************** generated!.gotpl **************************
 
@@ -32,12 +28,12 @@ type ApplyActivityLogEntryDataResolver interface {
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _ApplyActivityLogEntryData_apiVersion(ctx context.Context, field graphql.CollectedField, obj *apply.ApplyActivityLogEntryData) (ret graphql.Marshaler) {
+func (ec *executionContext) _ResourceActivityLogEntryData_apiVersion(ctx context.Context, field graphql.CollectedField, obj *activitylog.ResourceActivityLogEntryData) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ApplyActivityLogEntryData_apiVersion,
+		ec.fieldContext_ResourceActivityLogEntryData_apiVersion,
 		func(ctx context.Context) (any, error) {
 			return obj.APIVersion, nil
 		},
@@ -48,9 +44,9 @@ func (ec *executionContext) _ApplyActivityLogEntryData_apiVersion(ctx context.Co
 	)
 }
 
-func (ec *executionContext) fieldContext_ApplyActivityLogEntryData_apiVersion(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ResourceActivityLogEntryData_apiVersion(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ApplyActivityLogEntryData",
+		Object:     "ResourceActivityLogEntryData",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -61,12 +57,12 @@ func (ec *executionContext) fieldContext_ApplyActivityLogEntryData_apiVersion(_ 
 	return fc, nil
 }
 
-func (ec *executionContext) _ApplyActivityLogEntryData_kind(ctx context.Context, field graphql.CollectedField, obj *apply.ApplyActivityLogEntryData) (ret graphql.Marshaler) {
+func (ec *executionContext) _ResourceActivityLogEntryData_kind(ctx context.Context, field graphql.CollectedField, obj *activitylog.ResourceActivityLogEntryData) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ApplyActivityLogEntryData_kind,
+		ec.fieldContext_ResourceActivityLogEntryData_kind,
 		func(ctx context.Context) (any, error) {
 			return obj.Kind, nil
 		},
@@ -77,9 +73,9 @@ func (ec *executionContext) _ApplyActivityLogEntryData_kind(ctx context.Context,
 	)
 }
 
-func (ec *executionContext) fieldContext_ApplyActivityLogEntryData_kind(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ResourceActivityLogEntryData_kind(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ApplyActivityLogEntryData",
+		Object:     "ResourceActivityLogEntryData",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -90,49 +86,49 @@ func (ec *executionContext) fieldContext_ApplyActivityLogEntryData_kind(_ contex
 	return fc, nil
 }
 
-func (ec *executionContext) _ApplyActivityLogEntryData_changedFields(ctx context.Context, field graphql.CollectedField, obj *apply.ApplyActivityLogEntryData) (ret graphql.Marshaler) {
+func (ec *executionContext) _ResourceActivityLogEntryData_changedFields(ctx context.Context, field graphql.CollectedField, obj *activitylog.ResourceActivityLogEntryData) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ApplyActivityLogEntryData_changedFields,
+		ec.fieldContext_ResourceActivityLogEntryData_changedFields,
 		func(ctx context.Context) (any, error) {
-			return ec.Resolvers.ApplyActivityLogEntryData().ChangedFields(ctx, obj)
+			return obj.ChangedFields, nil
 		},
 		nil,
-		ec.marshalNApplyChangedField2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋapplyᚐApplyChangedFieldᚄ,
+		ec.marshalNResourceChangedField2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐResourceChangedFieldᚄ,
 		true,
 		true,
 	)
 }
 
-func (ec *executionContext) fieldContext_ApplyActivityLogEntryData_changedFields(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ResourceActivityLogEntryData_changedFields(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ApplyActivityLogEntryData",
+		Object:     "ResourceActivityLogEntryData",
 		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "field":
-				return ec.fieldContext_ApplyChangedField_field(ctx, field)
+				return ec.fieldContext_ResourceChangedField_field(ctx, field)
 			case "oldValue":
-				return ec.fieldContext_ApplyChangedField_oldValue(ctx, field)
+				return ec.fieldContext_ResourceChangedField_oldValue(ctx, field)
 			case "newValue":
-				return ec.fieldContext_ApplyChangedField_newValue(ctx, field)
+				return ec.fieldContext_ResourceChangedField_newValue(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type ApplyChangedField", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type ResourceChangedField", field.Name)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _ApplyChangedField_field(ctx context.Context, field graphql.CollectedField, obj *apply.ApplyChangedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _ResourceChangedField_field(ctx context.Context, field graphql.CollectedField, obj *activitylog.ResourceChangedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ApplyChangedField_field,
+		ec.fieldContext_ResourceChangedField_field,
 		func(ctx context.Context) (any, error) {
 			return obj.Field, nil
 		},
@@ -143,9 +139,9 @@ func (ec *executionContext) _ApplyChangedField_field(ctx context.Context, field 
 	)
 }
 
-func (ec *executionContext) fieldContext_ApplyChangedField_field(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ResourceChangedField_field(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ApplyChangedField",
+		Object:     "ResourceChangedField",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -156,12 +152,12 @@ func (ec *executionContext) fieldContext_ApplyChangedField_field(_ context.Conte
 	return fc, nil
 }
 
-func (ec *executionContext) _ApplyChangedField_oldValue(ctx context.Context, field graphql.CollectedField, obj *apply.ApplyChangedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _ResourceChangedField_oldValue(ctx context.Context, field graphql.CollectedField, obj *activitylog.ResourceChangedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ApplyChangedField_oldValue,
+		ec.fieldContext_ResourceChangedField_oldValue,
 		func(ctx context.Context) (any, error) {
 			return obj.OldValue, nil
 		},
@@ -172,9 +168,9 @@ func (ec *executionContext) _ApplyChangedField_oldValue(ctx context.Context, fie
 	)
 }
 
-func (ec *executionContext) fieldContext_ApplyChangedField_oldValue(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ResourceChangedField_oldValue(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ApplyChangedField",
+		Object:     "ResourceChangedField",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -185,12 +181,12 @@ func (ec *executionContext) fieldContext_ApplyChangedField_oldValue(_ context.Co
 	return fc, nil
 }
 
-func (ec *executionContext) _ApplyChangedField_newValue(ctx context.Context, field graphql.CollectedField, obj *apply.ApplyChangedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _ResourceChangedField_newValue(ctx context.Context, field graphql.CollectedField, obj *activitylog.ResourceChangedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ApplyChangedField_newValue,
+		ec.fieldContext_ResourceChangedField_newValue,
 		func(ctx context.Context) (any, error) {
 			return obj.NewValue, nil
 		},
@@ -201,14 +197,283 @@ func (ec *executionContext) _ApplyChangedField_newValue(ctx context.Context, fie
 	)
 }
 
-func (ec *executionContext) fieldContext_ApplyChangedField_newValue(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ResourceChangedField_newValue(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ApplyChangedField",
+		Object:     "ResourceChangedField",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UnsupportedResourceActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *activitylog.UnsupportedResourceActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_UnsupportedResourceActivityLogEntry_id,
+		func(ctx context.Context) (any, error) {
+			return obj.ID(), nil
+		},
+		nil,
+		ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_UnsupportedResourceActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UnsupportedResourceActivityLogEntry",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UnsupportedResourceActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *activitylog.UnsupportedResourceActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_UnsupportedResourceActivityLogEntry_actor,
+		func(ctx context.Context) (any, error) {
+			return obj.Actor, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_UnsupportedResourceActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UnsupportedResourceActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UnsupportedResourceActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *activitylog.UnsupportedResourceActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_UnsupportedResourceActivityLogEntry_createdAt,
+		func(ctx context.Context) (any, error) {
+			return obj.CreatedAt, nil
+		},
+		nil,
+		ec.marshalNTime2timeᚐTime,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_UnsupportedResourceActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UnsupportedResourceActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UnsupportedResourceActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *activitylog.UnsupportedResourceActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_UnsupportedResourceActivityLogEntry_message,
+		func(ctx context.Context) (any, error) {
+			return obj.Message, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_UnsupportedResourceActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UnsupportedResourceActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UnsupportedResourceActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *activitylog.UnsupportedResourceActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_UnsupportedResourceActivityLogEntry_resourceType,
+		func(ctx context.Context) (any, error) {
+			return obj.ResourceType, nil
+		},
+		nil,
+		ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_UnsupportedResourceActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UnsupportedResourceActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ActivityLogEntryResourceType does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UnsupportedResourceActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *activitylog.UnsupportedResourceActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_UnsupportedResourceActivityLogEntry_resourceName,
+		func(ctx context.Context) (any, error) {
+			return obj.ResourceName, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_UnsupportedResourceActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UnsupportedResourceActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UnsupportedResourceActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *activitylog.UnsupportedResourceActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_UnsupportedResourceActivityLogEntry_teamSlug,
+		func(ctx context.Context) (any, error) {
+			return obj.TeamSlug, nil
+		},
+		nil,
+		ec.marshalOSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_UnsupportedResourceActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UnsupportedResourceActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Slug does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UnsupportedResourceActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *activitylog.UnsupportedResourceActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_UnsupportedResourceActivityLogEntry_environmentName,
+		func(ctx context.Context) (any, error) {
+			return obj.EnvironmentName, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_UnsupportedResourceActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UnsupportedResourceActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UnsupportedResourceActivityLogEntry_data(ctx context.Context, field graphql.CollectedField, obj *activitylog.UnsupportedResourceActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_UnsupportedResourceActivityLogEntry_data,
+		func(ctx context.Context) (any, error) {
+			return obj.Data, nil
+		},
+		nil,
+		ec.marshalNResourceActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐResourceActivityLogEntryData,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_UnsupportedResourceActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UnsupportedResourceActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "apiVersion":
+				return ec.fieldContext_ResourceActivityLogEntryData_apiVersion(ctx, field)
+			case "kind":
+				return ec.fieldContext_ResourceActivityLogEntryData_kind(ctx, field)
+			case "changedFields":
+				return ec.fieldContext_ResourceActivityLogEntryData_changedFields(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ResourceActivityLogEntryData", field.Name)
 		},
 	}
 	return fc, nil
@@ -226,63 +491,32 @@ func (ec *executionContext) fieldContext_ApplyChangedField_newValue(_ context.Co
 
 // region    **************************** object.gotpl ****************************
 
-var applyActivityLogEntryDataImplementors = []string{"ApplyActivityLogEntryData"}
+var resourceActivityLogEntryDataImplementors = []string{"ResourceActivityLogEntryData"}
 
-func (ec *executionContext) _ApplyActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, obj *apply.ApplyActivityLogEntryData) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, applyActivityLogEntryDataImplementors)
+func (ec *executionContext) _ResourceActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, obj *activitylog.ResourceActivityLogEntryData) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, resourceActivityLogEntryDataImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("ApplyActivityLogEntryData")
+			out.Values[i] = graphql.MarshalString("ResourceActivityLogEntryData")
 		case "apiVersion":
-			out.Values[i] = ec._ApplyActivityLogEntryData_apiVersion(ctx, field, obj)
+			out.Values[i] = ec._ResourceActivityLogEntryData_apiVersion(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		case "kind":
-			out.Values[i] = ec._ApplyActivityLogEntryData_kind(ctx, field, obj)
+			out.Values[i] = ec._ResourceActivityLogEntryData_kind(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		case "changedFields":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._ApplyActivityLogEntryData_changedFields(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
+			out.Values[i] = ec._ResourceActivityLogEntryData_changedFields(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
 			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -306,26 +540,99 @@ func (ec *executionContext) _ApplyActivityLogEntryData(ctx context.Context, sel 
 	return out
 }
 
-var applyChangedFieldImplementors = []string{"ApplyChangedField"}
+var resourceChangedFieldImplementors = []string{"ResourceChangedField"}
 
-func (ec *executionContext) _ApplyChangedField(ctx context.Context, sel ast.SelectionSet, obj *apply.ApplyChangedField) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, applyChangedFieldImplementors)
+func (ec *executionContext) _ResourceChangedField(ctx context.Context, sel ast.SelectionSet, obj *activitylog.ResourceChangedField) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, resourceChangedFieldImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("ApplyChangedField")
+			out.Values[i] = graphql.MarshalString("ResourceChangedField")
 		case "field":
-			out.Values[i] = ec._ApplyChangedField_field(ctx, field, obj)
+			out.Values[i] = ec._ResourceChangedField_field(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "oldValue":
-			out.Values[i] = ec._ApplyChangedField_oldValue(ctx, field, obj)
+			out.Values[i] = ec._ResourceChangedField_oldValue(ctx, field, obj)
 		case "newValue":
-			out.Values[i] = ec._ApplyChangedField_newValue(ctx, field, obj)
+			out.Values[i] = ec._ResourceChangedField_newValue(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var unsupportedResourceActivityLogEntryImplementors = []string{"UnsupportedResourceActivityLogEntry", "ActivityLogEntry", "Node"}
+
+func (ec *executionContext) _UnsupportedResourceActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *activitylog.UnsupportedResourceActivityLogEntry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, unsupportedResourceActivityLogEntryImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("UnsupportedResourceActivityLogEntry")
+		case "id":
+			out.Values[i] = ec._UnsupportedResourceActivityLogEntry_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "actor":
+			out.Values[i] = ec._UnsupportedResourceActivityLogEntry_actor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "createdAt":
+			out.Values[i] = ec._UnsupportedResourceActivityLogEntry_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "message":
+			out.Values[i] = ec._UnsupportedResourceActivityLogEntry_message(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "resourceType":
+			out.Values[i] = ec._UnsupportedResourceActivityLogEntry_resourceType(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "resourceName":
+			out.Values[i] = ec._UnsupportedResourceActivityLogEntry_resourceName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "teamSlug":
+			out.Values[i] = ec._UnsupportedResourceActivityLogEntry_teamSlug(ctx, field, obj)
+		case "environmentName":
+			out.Values[i] = ec._UnsupportedResourceActivityLogEntry_environmentName(ctx, field, obj)
+		case "data":
+			out.Values[i] = ec._UnsupportedResourceActivityLogEntry_data(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -353,21 +660,25 @@ func (ec *executionContext) _ApplyChangedField(ctx context.Context, sel ast.Sele
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) marshalNApplyActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋapplyᚐApplyActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *apply.ApplyActivityLogEntryData) graphql.Marshaler {
+func (ec *executionContext) marshalNResourceActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐResourceActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *activitylog.ResourceActivityLogEntryData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._ApplyActivityLogEntryData(ctx, sel, v)
+	return ec._ResourceActivityLogEntryData(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNApplyChangedField2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋapplyᚐApplyChangedFieldᚄ(ctx context.Context, sel ast.SelectionSet, v []*apply.ApplyChangedField) graphql.Marshaler {
+func (ec *executionContext) marshalNResourceChangedField2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐResourceChangedField(ctx context.Context, sel ast.SelectionSet, v activitylog.ResourceChangedField) graphql.Marshaler {
+	return ec._ResourceChangedField(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNResourceChangedField2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐResourceChangedFieldᚄ(ctx context.Context, sel ast.SelectionSet, v []activitylog.ResourceChangedField) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNApplyChangedField2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋapplyᚐApplyChangedField(ctx, sel, v[i])
+		return ec.marshalNResourceChangedField2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐResourceChangedField(ctx, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -377,16 +688,6 @@ func (ec *executionContext) marshalNApplyChangedField2ᚕᚖgithubᚗcomᚋnais�
 	}
 
 	return ret
-}
-
-func (ec *executionContext) marshalNApplyChangedField2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋapplyᚐApplyChangedField(ctx context.Context, sel ast.SelectionSet, v *apply.ApplyChangedField) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._ApplyChangedField(ctx, sel, v)
 }
 
 // endregion ***************************** type.gotpl *****************************

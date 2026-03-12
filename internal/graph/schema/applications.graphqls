@@ -743,7 +743,7 @@ type ApplicationCreatedActivityLogEntry implements ActivityLogEntry & Node {
 	environmentName: String
 
 	"Data associated with the creation."
-	data: ApplyActivityLogEntryData!
+	data: ResourceActivityLogEntryData!
 }
 
 type ApplicationUpdatedActivityLogEntry implements ActivityLogEntry & Node {
@@ -772,7 +772,7 @@ type ApplicationUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 	environmentName: String
 
 	"Data associated with the update."
-	data: ApplyActivityLogEntryData!
+	data: ResourceActivityLogEntryData!
 }
 
 extend enum ActivityLogActivityType {

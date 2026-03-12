@@ -37,17 +37,17 @@ func NewImpersonatingClientFactory(clusterConfigs kubernetes.ClusterConfigMap) D
 // to Kubernetes environments via server-side apply, diffs the results, and
 // writes activity log entries.
 //
+// The team slug and environment are read from URL path parameters.
 // The clusterConfigs map is used to validate that an environment name exists.
 // The clientFactory is used to create dynamic Kubernetes clients per environment.
 func Handler(clusterConfigs kubernetes.ClusterConfigMap, clientFactory DynamicClientFactory, log logrus.FieldLogger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 
+		teamSlug := slug.Slug(r.PathValue("teamSlug"))
+		environment := r.PathValue("environment")
+
 		actor := authz.ActorFromContext(ctx)
-		if actor == nil {
-			writeError(w, http.StatusUnauthorized, "unauthorized")
-			return
-		}
 
 		// Read and parse request body.
 		body, err := io.ReadAll(io.LimitReader(r.Body, maxBodySize+1))
@@ -71,10 +71,7 @@ func Handler(clusterConfigs kubernetes.ClusterConfigMap, clientFactory DynamicCl
 			return
 		}
 
-		environmentParam := r.URL.Query().Get("environment")
-
 		// Phase 1: Validate all resources before applying any.
-		// Check that all resources are allowed kinds and have valid environment targets.
 		var disallowed []string
 		for i, res := range req.Resources {
 			apiVersion := res.GetAPIVersion()
@@ -84,49 +81,29 @@ func Handler(clusterConfigs kubernetes.ClusterConfigMap, clientFactory DynamicCl
 			}
 		}
 		if len(disallowed) > 0 {
-			allowed := AllowedKinds()
-			allowedStrs := make([]string, len(allowed))
-			for i, a := range allowed {
-				allowedStrs[i] = a.APIVersion + "/" + a.Kind
-			}
-			writeError(w, http.StatusBadRequest, fmt.Sprintf(
-				"disallowed resource types: %s. Allowed types: %s",
-				strings.Join(disallowed, "; "),
-				strings.Join(allowedStrs, ", "),
-			))
+			writeError(w, http.StatusBadRequest, fmt.Sprintf("disallowed resource types: %s", strings.Join(disallowed, "; ")))
 			return
 		}
 
 		// Phase 2: Apply each resource, collecting results.
 		results := make([]ResourceResult, 0, len(req.Resources))
-		hasErrors := false
 
 		for _, res := range req.Resources {
-			result := applyOne(ctx, clusterConfigs, clientFactory, environmentParam, &res, actor, log)
-			if result.Status == StatusError {
-				hasErrors = true
-			}
+			result := applyOne(ctx, clusterConfigs, clientFactory, teamSlug, environment, &res, actor, log)
 			results = append(results, result)
 		}
 
-		resp := Response{Results: results}
-
-		// Determine HTTP status code.
-		statusCode := http.StatusOK
-		if hasErrors {
-			statusCode = http.StatusMultiStatus
-		}
-
-		writeJSON(w, statusCode, resp)
+		writeJSON(w, http.StatusOK, Response{Results: results})
 	}
 }
 
-// applyOne processes a single resource: resolves environment, authorizes, applies, diffs, and logs.
+// applyOne processes a single resource: authorizes, applies, diffs, and logs.
 func applyOne(
 	ctx context.Context,
 	clusterConfigs kubernetes.ClusterConfigMap,
 	clientFactory DynamicClientFactory,
-	environmentParam string,
+	teamSlug slug.Slug,
+	environment string,
 	res *unstructured.Unstructured,
 	actor *authz.Actor,
 	log logrus.FieldLogger,
@@ -134,62 +111,39 @@ func applyOne(
 	apiVersion := res.GetAPIVersion()
 	kind := res.GetKind()
 	name := res.GetName()
-	namespace := res.GetNamespace()
 	resourceID := kind + "/" + name
 
-	// Resolve environment: annotation takes precedence over query parameter.
-	environment := environmentParam
-	if ann := res.GetAnnotations(); ann != nil {
-		if e, ok := ann["nais.io/environment"]; ok && e != "" {
-			environment = e
-		}
-	}
-
-	if environment == "" {
-		return ResourceResult{
-			Resource:  resourceID,
-			Namespace: namespace,
-			Status:    StatusError,
-			Error:     "no environment specified (use ?environment= query parameter or nais.io/environment annotation)",
-		}
-	}
+	log = log.WithFields(logrus.Fields{
+		"environment": environment,
+		"team":        teamSlug,
+		"name":        name,
+		"kind":        kind,
+	})
 
 	// Validate environment exists.
 	if _, ok := clusterConfigs[environment]; !ok {
 		return ResourceResult{
 			Resource:    resourceID,
-			Namespace:   namespace,
 			Environment: environment,
 			Status:      StatusError,
 			Error:       fmt.Sprintf("unknown environment: %q", environment),
 		}
 	}
 
-	// Validate resource has name and namespace.
+	// Validate resource has a name.
 	if name == "" {
 		return ResourceResult{
 			Resource:    resourceID,
-			Namespace:   namespace,
 			Environment: environment,
 			Status:      StatusError,
 			Error:       "resource must have metadata.name",
 		}
 	}
-	if namespace == "" {
-		return ResourceResult{
-			Resource:    resourceID,
-			Environment: environment,
-			Status:      StatusError,
-			Error:       "resource must have metadata.namespace",
-		}
-	}
 
-	// Authorize: derive team slug from namespace.
-	teamSlug := slug.Slug(namespace)
+	// Authorize the actor for this team and kind.
 	if err := authorizeResource(ctx, kind, teamSlug); err != nil {
 		return ResourceResult{
 			Resource:    resourceID,
-			Namespace:   namespace,
 			Environment: environment,
 			Status:      StatusError,
 			Error:       fmt.Sprintf("authorization failed: %s", err),
@@ -201,20 +155,21 @@ func applyOne(
 	if !ok {
 		return ResourceResult{
 			Resource:    resourceID,
-			Namespace:   namespace,
 			Environment: environment,
 			Status:      StatusError,
 			Error:       fmt.Sprintf("no GVR mapping for %s/%s", apiVersion, kind),
 		}
 	}
 
+	// Force the namespace to match the team slug from the URL.
+	res.SetNamespace(string(teamSlug))
+
 	// Create dynamic client for environment.
 	client, err := clientFactory(ctx, environment)
 	if err != nil {
-		log.WithError(err).WithField("environment", environment).Error("creating dynamic client")
+		log.WithError(err).Error("creating dynamic client")
 		return ResourceResult{
 			Resource:    resourceID,
-			Namespace:   namespace,
 			Environment: environment,
 			Status:      StatusError,
 			Error:       fmt.Sprintf("failed to create client for environment %q: %s", environment, err),
@@ -224,15 +179,9 @@ func applyOne(
 	// Apply the resource.
 	applyResult, err := ApplyResource(ctx, client, gvr, res)
 	if err != nil {
-		log.WithError(err).WithFields(logrus.Fields{
-			"environment": environment,
-			"namespace":   namespace,
-			"name":        name,
-			"kind":        kind,
-		}).Error("applying resource")
+		log.WithError(err).Error("applying resource")
 		return ResourceResult{
 			Resource:    resourceID,
-			Namespace:   namespace,
 			Environment: environment,
 			Status:      StatusError,
 			Error:       fmt.Sprintf("apply failed: %s", err),
@@ -240,7 +189,7 @@ func applyOne(
 	}
 
 	// Diff before and after.
-	var changes []FieldChange
+	var changes []activitylog.ResourceChangedField
 	status := StatusCreated
 	if !applyResult.Created {
 		status = StatusApplied
@@ -253,39 +202,26 @@ func applyOne(
 		action = activitylog.ActivityLogEntryActionUpdated
 	}
 
-	resourceType, ok := ResourceTypeForKind(kind)
-	if !ok {
-		log.WithFields(logrus.Fields{
-			"environment": environment,
-			"namespace":   namespace,
-			"name":        name,
-			"kind":        kind,
-		}).Warn("no activity log resource type for kind, skipping activity log entry")
-	} else if err := activitylog.Create(ctx, activitylog.CreateInput{
+	resourceType, _ := activitylog.ResourceTypeForKind(kind)
+	if err := activitylog.Create(ctx, activitylog.CreateInput{
 		Action:          action,
 		Actor:           actor.User,
 		ResourceType:    resourceType,
 		ResourceName:    name,
 		TeamSlug:        &teamSlug,
 		EnvironmentName: &environment,
-		Data: ApplyActivityLogEntryData{
+		Data: activitylog.ResourceActivityLogEntryData{
 			APIVersion:    apiVersion,
 			Kind:          kind,
 			ChangedFields: changes,
 		},
 	}); err != nil {
-		log.WithError(err).WithFields(logrus.Fields{
-			"environment": environment,
-			"namespace":   namespace,
-			"name":        name,
-			"kind":        kind,
-		}).Error("creating activity log entry")
+		log.WithError(err).Error("creating activity log entry")
 		// Don't fail the apply because of a logging error.
 	}
 
 	return ResourceResult{
 		Resource:      resourceID,
-		Namespace:     namespace,
 		Environment:   environment,
 		Status:        status,
 		ChangedFields: changes,
@@ -293,7 +229,7 @@ func applyOne(
 }
 
 // authorizeResource checks if the current actor is authorized to apply the given kind
-// to the team derived from the resource namespace.
+// to the team from the URL.
 func authorizeResource(ctx context.Context, kind string, teamSlug slug.Slug) error {
 	switch kind {
 	case "Application":

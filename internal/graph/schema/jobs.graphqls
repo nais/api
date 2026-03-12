@@ -538,7 +538,7 @@ type JobCreatedActivityLogEntry implements ActivityLogEntry & Node {
 	environmentName: String
 
 	"Data associated with the creation."
-	data: ApplyActivityLogEntryData!
+	data: ResourceActivityLogEntryData!
 }
 
 type JobUpdatedActivityLogEntry implements ActivityLogEntry & Node {
@@ -567,7 +567,7 @@ type JobUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 	environmentName: String
 
 	"Data associated with the update."
-	data: ApplyActivityLogEntryData!
+	data: ResourceActivityLogEntryData!
 }
 
 extend enum ActivityLogActivityType {

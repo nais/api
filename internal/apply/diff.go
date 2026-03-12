@@ -2,24 +2,12 @@ package apply
 
 import (
 	"fmt"
-	"reflect"
 	"slices"
 	"strings"
 
+	"github.com/nais/api/internal/activitylog"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
-
-// FieldChange represents a single field that changed between the before and after states.
-type FieldChange struct {
-	// Field is the dot-separated path to the changed field, e.g. "spec.replicas".
-	Field string `json:"field"`
-
-	// OldValue is the value before the apply. Nil if the field was added.
-	OldValue any `json:"oldValue,omitempty"`
-
-	// NewValue is the value after the apply. Nil if the field was removed.
-	NewValue any `json:"newValue,omitempty"`
-}
 
 // ignoredTopLevelFields are fields managed by the Kubernetes API server that
 // should be excluded from diffs as they are not user-controlled.
@@ -43,7 +31,7 @@ var ignoredMetadataFields = map[string]bool{
 // If before is nil, all fields in after are considered "added".
 // If after is nil, all fields in before are considered "removed".
 // Server-managed fields (status, metadata.resourceVersion, etc.) are excluded.
-func Diff(before, after *unstructured.Unstructured) []FieldChange {
+func Diff(before, after *unstructured.Unstructured) []activitylog.ResourceChangedField {
 	var beforeMap, afterMap map[string]any
 
 	if before != nil {
@@ -56,7 +44,7 @@ func Diff(before, after *unstructured.Unstructured) []FieldChange {
 	changes := diffMaps(beforeMap, afterMap, "")
 
 	// Sort for deterministic output
-	slices.SortFunc(changes, func(a, b FieldChange) int {
+	slices.SortFunc(changes, func(a, b activitylog.ResourceChangedField) int {
 		return strings.Compare(a.Field, b.Field)
 	})
 
@@ -64,8 +52,8 @@ func Diff(before, after *unstructured.Unstructured) []FieldChange {
 }
 
 // diffMaps recursively compares two maps and collects field changes.
-func diffMaps(before, after map[string]any, prefix string) []FieldChange {
-	var changes []FieldChange
+func diffMaps(before, after map[string]any, prefix string) []activitylog.ResourceChangedField {
+	var changes []activitylog.ResourceChangedField
 
 	// Collect all keys from both maps
 	allKeys := map[string]struct{}{}
@@ -103,7 +91,7 @@ func diffMaps(before, after map[string]any, prefix string) []FieldChange {
 }
 
 // diffValues compares two values at a given path and returns changes.
-func diffValues(path string, oldVal, newVal any) []FieldChange {
+func diffValues(path string, oldVal, newVal any) []activitylog.ResourceChangedField {
 	// If both are maps, recurse
 	oldMap, oldIsMap := toMap(oldVal)
 	newMap, newIsMap := toMap(newVal)
@@ -119,11 +107,13 @@ func diffValues(path string, oldVal, newVal any) []FieldChange {
 	}
 
 	// Scalar comparison
-	if !reflect.DeepEqual(oldVal, newVal) {
-		return []FieldChange{{
+	oldStr := stringify(oldVal)
+	newStr := stringify(newVal)
+	if oldStr != newStr {
+		return []activitylog.ResourceChangedField{{
 			Field:    path,
-			OldValue: oldVal,
-			NewValue: newVal,
+			OldValue: &oldStr,
+			NewValue: &newStr,
 		}}
 	}
 
@@ -132,8 +122,8 @@ func diffValues(path string, oldVal, newVal any) []FieldChange {
 
 // diffSlices compares two slices. If elements are maps, it compares element-by-element.
 // Otherwise it compares the slices as a whole.
-func diffSlices(path string, oldSlice, newSlice []any) []FieldChange {
-	var changes []FieldChange
+func diffSlices(path string, oldSlice, newSlice []any) []activitylog.ResourceChangedField {
+	var changes []activitylog.ResourceChangedField
 
 	maxLen := max(len(oldSlice), len(newSlice))
 	for i := range maxLen {
@@ -153,58 +143,64 @@ func diffSlices(path string, oldSlice, newSlice []any) []FieldChange {
 }
 
 // flattenAdded returns FieldChanges for a newly added value (possibly nested).
-func flattenAdded(path string, val any) []FieldChange {
+func flattenAdded(path string, val any) []activitylog.ResourceChangedField {
 	if m, ok := toMap(val); ok {
-		var changes []FieldChange
+		var changes []activitylog.ResourceChangedField
 		for k, v := range m {
 			changes = append(changes, flattenAdded(joinPath(path, k), v)...)
 		}
 		if len(changes) == 0 {
 			// Empty map added
-			return []FieldChange{{Field: path, NewValue: val}}
+			s := stringify(val)
+			return []activitylog.ResourceChangedField{{Field: path, NewValue: &s}}
 		}
 		return changes
 	}
 
 	if s, ok := toSlice(val); ok {
-		var changes []FieldChange
+		var changes []activitylog.ResourceChangedField
 		for i, v := range s {
 			changes = append(changes, flattenAdded(fmt.Sprintf("%s[%d]", path, i), v)...)
 		}
 		if len(changes) == 0 {
-			return []FieldChange{{Field: path, NewValue: val}}
+			s := stringify(val)
+			return []activitylog.ResourceChangedField{{Field: path, NewValue: &s}}
 		}
 		return changes
 	}
 
-	return []FieldChange{{Field: path, NewValue: val}}
+	s := stringify(val)
+	return []activitylog.ResourceChangedField{{Field: path, NewValue: &s}}
 }
 
 // flattenRemoved returns FieldChanges for a removed value (possibly nested).
-func flattenRemoved(path string, val any) []FieldChange {
+func flattenRemoved(path string, val any) []activitylog.ResourceChangedField {
 	if m, ok := toMap(val); ok {
-		var changes []FieldChange
+		var changes []activitylog.ResourceChangedField
 		for k, v := range m {
 			changes = append(changes, flattenRemoved(joinPath(path, k), v)...)
 		}
 		if len(changes) == 0 {
-			return []FieldChange{{Field: path, OldValue: val}}
+			s := stringify(val)
+			return []activitylog.ResourceChangedField{{Field: path, OldValue: &s}}
 		}
 		return changes
 	}
 
 	if s, ok := toSlice(val); ok {
-		var changes []FieldChange
+		var changes []activitylog.ResourceChangedField
 		for i, v := range s {
 			changes = append(changes, flattenRemoved(fmt.Sprintf("%s[%d]", path, i), v)...)
 		}
 		if len(changes) == 0 {
-			return []FieldChange{{Field: path, OldValue: val}}
+			s := stringify(val)
+			return []activitylog.ResourceChangedField{{Field: path, OldValue: &s}}
 		}
 		return changes
 	}
 
-	return []FieldChange{{Field: path, OldValue: val}}
+	s := stringify(val)
+	return []activitylog.ResourceChangedField{{Field: path, OldValue: &s}}
 }
 
 // shouldIgnoreField returns true if the field should be excluded from the diff.
@@ -238,4 +234,12 @@ func toMap(val any) (map[string]any, bool) {
 func toSlice(val any) ([]any, bool) {
 	s, ok := val.([]any)
 	return s, ok
+}
+
+// stringify converts any value to its string representation.
+func stringify(v any) string {
+	if v == nil {
+		return ""
+	}
+	return fmt.Sprintf("%v", v)
 }
