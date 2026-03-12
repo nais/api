@@ -1,8 +1,10 @@
 package apply
 
 import (
+	"fmt"
 	"testing"
 
+	"github.com/nais/api/internal/activitylog"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
@@ -162,8 +164,8 @@ func TestDiff_FieldAdded(t *testing.T) {
 	if c.OldValue != nil {
 		t.Errorf("expected OldValue to be nil, got %v", c.OldValue)
 	}
-	if c.NewValue != int64(2) {
-		t.Errorf("expected NewValue to be 2, got %v", c.NewValue)
+	if c.NewValue == nil || *c.NewValue != "2" {
+		t.Errorf("expected NewValue to be %q, got %v", "2", c.NewValue)
 	}
 }
 
@@ -193,8 +195,8 @@ func TestDiff_FieldRemoved(t *testing.T) {
 	}
 
 	c := fieldMap["spec.replicas"]
-	if c.OldValue != int64(2) {
-		t.Errorf("expected OldValue to be 2, got %v", c.OldValue)
+	if c.OldValue == nil || *c.OldValue != "2" {
+		t.Errorf("expected OldValue to be %q, got %v", "2", c.OldValue)
 	}
 	if c.NewValue != nil {
 		t.Errorf("expected NewValue to be nil, got %v", c.NewValue)
@@ -335,8 +337,8 @@ func TestDiff_SliceElementAdded(t *testing.T) {
 	if c.OldValue != nil {
 		t.Errorf("expected OldValue to be nil, got %v", c.OldValue)
 	}
-	if c.NewValue != "https://two.example.com" {
-		t.Errorf("expected NewValue to be 'https://two.example.com', got %v", c.NewValue)
+	if c.NewValue == nil || *c.NewValue != "https://two.example.com" {
+		t.Errorf("expected NewValue to be %q, got %v", "https://two.example.com", c.NewValue)
 	}
 }
 
@@ -370,8 +372,8 @@ func TestDiff_SliceElementRemoved(t *testing.T) {
 	}
 
 	c := fieldMap["spec.ingresses[1]"]
-	if c.OldValue != "https://two.example.com" {
-		t.Errorf("expected OldValue to be 'https://two.example.com', got %v", c.OldValue)
+	if c.OldValue == nil || *c.OldValue != "https://two.example.com" {
+		t.Errorf("expected OldValue to be %q, got %v", "https://two.example.com", c.OldValue)
 	}
 	if c.NewValue != nil {
 		t.Errorf("expected NewValue to be nil, got %v", c.NewValue)
@@ -761,22 +763,22 @@ func TestDiff_EmptySliceToPopulatedSlice(t *testing.T) {
 
 // --- Test helpers ---
 
-func toFieldMap(changes []FieldChange) map[string]FieldChange {
-	m := make(map[string]FieldChange, len(changes))
+func toFieldMap(changes []activitylog.ResourceChangedField) map[string]activitylog.ResourceChangedField {
+	m := make(map[string]activitylog.ResourceChangedField, len(changes))
 	for _, c := range changes {
 		m[c.Field] = c
 	}
 	return m
 }
 
-func assertFieldExists(t *testing.T, fieldMap map[string]FieldChange, field string) {
+func assertFieldExists(t *testing.T, fieldMap map[string]activitylog.ResourceChangedField, field string) {
 	t.Helper()
 	if _, ok := fieldMap[field]; !ok {
 		t.Errorf("expected field %q to be present in changes, but it was not. Fields present: %v", field, fieldMapKeys(fieldMap))
 	}
 }
 
-func assertFieldChange(t *testing.T, fieldMap map[string]FieldChange, field string, expectedOld, expectedNew any) {
+func assertFieldChange(t *testing.T, fieldMap map[string]activitylog.ResourceChangedField, field string, expectedOld, expectedNew any) {
 	t.Helper()
 	c, ok := fieldMap[field]
 	if !ok {
@@ -784,15 +786,26 @@ func assertFieldChange(t *testing.T, fieldMap map[string]FieldChange, field stri
 		return
 	}
 
-	if c.OldValue != expectedOld {
-		t.Errorf("field %q: expected OldValue %v (%T), got %v (%T)", field, expectedOld, expectedOld, c.OldValue, c.OldValue)
+	wantOld := fmt.Sprintf("%v", expectedOld)
+	wantNew := fmt.Sprintf("%v", expectedNew)
+
+	if c.OldValue == nil || *c.OldValue != wantOld {
+		got := "<nil>"
+		if c.OldValue != nil {
+			got = *c.OldValue
+		}
+		t.Errorf("field %q: expected OldValue %q, got %q", field, wantOld, got)
 	}
-	if c.NewValue != expectedNew {
-		t.Errorf("field %q: expected NewValue %v (%T), got %v (%T)", field, expectedNew, expectedNew, c.NewValue, c.NewValue)
+	if c.NewValue == nil || *c.NewValue != wantNew {
+		got := "<nil>"
+		if c.NewValue != nil {
+			got = *c.NewValue
+		}
+		t.Errorf("field %q: expected NewValue %q, got %q", field, wantNew, got)
 	}
 }
 
-func fieldMapKeys(m map[string]FieldChange) []string {
+func fieldMapKeys(m map[string]activitylog.ResourceChangedField) []string {
 	keys := make([]string, 0, len(m))
 	for k := range m {
 		keys = append(keys, k)

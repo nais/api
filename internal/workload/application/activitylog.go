@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/nais/api/internal/activitylog"
-	"github.com/nais/api/internal/apply"
 	"github.com/nais/api/internal/deployment/deploymentactivity"
 )
 
@@ -16,6 +15,7 @@ const (
 )
 
 func init() {
+	activitylog.RegisterKindResourceType("Application", ActivityLogEntryResourceTypeApplication)
 	activitylog.RegisterTransformer(ActivityLogEntryResourceTypeApplication, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
 		switch entry.Action {
 		case activityLogEntryActionRestartApplication:
@@ -57,7 +57,7 @@ func init() {
 				Data:                    data,
 			}, nil
 		case activitylog.ActivityLogEntryActionCreated:
-			data, err := activitylog.UnmarshalData[apply.ApplyActivityLogEntryData](entry)
+			data, err := activitylog.UnmarshalData[activitylog.ResourceActivityLogEntryData](entry)
 			if err != nil {
 				return nil, fmt.Errorf("transforming application created activity log entry data: %w", err)
 			}
@@ -66,7 +66,7 @@ func init() {
 				Data:                    data,
 			}, nil
 		case activitylog.ActivityLogEntryActionUpdated:
-			data, err := activitylog.UnmarshalData[apply.ApplyActivityLogEntryData](entry)
+			data, err := activitylog.UnmarshalData[activitylog.ResourceActivityLogEntryData](entry)
 			if err != nil {
 				return nil, fmt.Errorf("transforming application updated activity log entry data: %w", err)
 			}
@@ -109,11 +109,11 @@ type ApplicationScaledActivityLogEntryData struct {
 type ApplicationCreatedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
 
-	Data *apply.ApplyActivityLogEntryData `json:"data"`
+	Data *activitylog.ResourceActivityLogEntryData `json:"data"`
 }
 
 type ApplicationUpdatedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
 
-	Data *apply.ApplyActivityLogEntryData `json:"data"`
+	Data *activitylog.ResourceActivityLogEntryData `json:"data"`
 }

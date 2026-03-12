@@ -7,7 +7,7 @@ team:addMember(user)
 Test.rest("create application via apply", function(t)
 	t.addHeader("x-user-email", user:email())
 
-	t.send("POST", "/api/v1/apply?environment=dev", [[
+	t.send("POST", "/api/v1/teams/apply-team/environments/dev/apply", [[
 		{
 			"resources": [
 				{
@@ -33,7 +33,6 @@ Test.rest("create application via apply", function(t)
 		results = {
 			{
 				resource = "Application/my-app",
-				namespace = "apply-team",
 				environment = "dev",
 				status = "created",
 			},
@@ -62,7 +61,7 @@ end)
 Test.rest("update application via apply", function(t)
 	t.addHeader("x-user-email", user:email())
 
-	t.send("POST", "/api/v1/apply?environment=dev", [[
+	t.send("POST", "/api/v1/teams/apply-team/environments/dev/apply", [[
 		{
 			"resources": [
 				{
@@ -88,7 +87,6 @@ Test.rest("update application via apply", function(t)
 		results = {
 			{
 				resource = "Application/my-app",
-				namespace = "apply-team",
 				environment = "dev",
 				status = "applied",
 				changedFields = {
@@ -99,13 +97,13 @@ Test.rest("update application via apply", function(t)
 					},
 					{
 						field = "spec.replicas.max",
-						oldValue = 2,
-						newValue = 4,
+						oldValue = "2",
+						newValue = "4",
 					},
 					{
 						field = "spec.replicas.min",
-						oldValue = 1,
-						newValue = 2,
+						oldValue = "1",
+						newValue = "2",
 					},
 				},
 			},
@@ -134,7 +132,7 @@ end)
 Test.rest("disallowed resource kind returns 400", function(t)
 	t.addHeader("x-user-email", user:email())
 
-	t.send("POST", "/api/v1/apply?environment=dev", [[
+	t.send("POST", "/api/v1/teams/apply-team/environments/dev/apply", [[
 		{
 			"resources": [
 				{
@@ -158,7 +156,7 @@ end)
 Test.rest("non-member gets authorization error", function(t)
 	t.addHeader("x-user-email", nonMember:email())
 
-	t.send("POST", "/api/v1/apply?environment=dev", [[
+	t.send("POST", "/api/v1/teams/apply-team/environments/dev/apply", [[
 		{
 			"resources": [
 				{
@@ -176,11 +174,10 @@ Test.rest("non-member gets authorization error", function(t)
 		}
 	]])
 
-	t.check(207, {
+	t.check(200, {
 		results = {
 			{
 				resource = "Application/sneaky-app",
-				namespace = "apply-team",
 				environment = "dev",
 				status = "error",
 				error = Contains("authorization failed"),
@@ -189,44 +186,10 @@ Test.rest("non-member gets authorization error", function(t)
 	})
 end)
 
-Test.rest("missing environment parameter returns per-resource error", function(t)
-	t.addHeader("x-user-email", user:email())
-
-	t.send("POST", "/api/v1/apply", [[
-		{
-			"resources": [
-				{
-					"apiVersion": "nais.io/v1alpha1",
-					"kind": "Application",
-					"metadata": {
-						"name": "no-environment-app",
-						"namespace": "apply-team"
-					},
-					"spec": {
-						"image": "example.com/app:v1"
-					}
-				}
-			]
-		}
-	]])
-
-	t.check(207, {
-		results = {
-			{
-				resource = "Application/no-environment-app",
-				namespace = "apply-team",
-				environment = "",
-				status = "error",
-				error = Contains("no environment specified"),
-			},
-		},
-	})
-end)
-
 Test.rest("empty resources array returns 400", function(t)
 	t.addHeader("x-user-email", user:email())
 
-	t.send("POST", "/api/v1/apply?environment=dev", [[
+	t.send("POST", "/api/v1/teams/apply-team/environments/dev/apply", [[
 		{
 			"resources": []
 		}
@@ -237,63 +200,10 @@ Test.rest("empty resources array returns 400", function(t)
 	})
 end)
 
-Test.rest("environment annotation overrides query parameter", function(t)
-	t.addHeader("x-user-email", user:email())
-
-	t.send("POST", "/api/v1/apply?environment=dev", [[
-		{
-			"resources": [
-				{
-					"apiVersion": "nais.io/v1alpha1",
-					"kind": "Application",
-					"metadata": {
-						"name": "staging-app",
-						"namespace": "apply-team",
-						"annotations": {
-							"nais.io/environment": "staging"
-						}
-					},
-					"spec": {
-						"image": "example.com/staging-app:v1"
-					}
-				}
-			]
-		}
-	]])
-
-	t.check(200, {
-		results = {
-			{
-				resource = "Application/staging-app",
-				namespace = "apply-team",
-				environment = "staging",
-				status = "created",
-			},
-		},
-	})
-end)
-
-Test.k8s("verify resource was created in staging environment via annotation", function(t)
-	t.check("nais.io/v1alpha1", "applications", "staging", "apply-team", "staging-app", {
-		apiVersion = "nais.io/v1alpha1",
-		kind = "Application",
-		metadata = {
-			name = "staging-app",
-			namespace = "apply-team",
-			annotations = {
-				["nais.io/environment"] = "staging",
-			},
-		},
-		spec = {
-			image = "example.com/staging-app:v1",
-		},
-	})
-end)
-
 Test.rest("create naisjob via apply", function(t)
 	t.addHeader("x-user-email", user:email())
 
-	t.send("POST", "/api/v1/apply?environment=dev", [[
+	t.send("POST", "/api/v1/teams/apply-team/environments/dev/apply", [[
 		{
 			"resources": [
 				{
@@ -316,7 +226,6 @@ Test.rest("create naisjob via apply", function(t)
 		results = {
 			{
 				resource = "Naisjob/my-job",
-				namespace = "apply-team",
 				environment = "dev",
 				status = "created",
 			},
@@ -325,7 +234,7 @@ Test.rest("create naisjob via apply", function(t)
 end)
 
 Test.rest("unauthenticated request returns 401", function(t)
-	t.send("POST", "/api/v1/apply?environment=dev", [[
+	t.send("POST", "/api/v1/teams/apply-team/environments/dev/apply", [[
 		{
 			"resources": [
 				{
@@ -395,18 +304,6 @@ Test.gql("activity log contains ApplicationCreatedActivityLogEntry after apply",
 							resourceType = "JOB",
 							resourceName = "my-job",
 							environmentName = "dev",
-						},
-						{
-							__typename = "ApplicationCreatedActivityLogEntry",
-							message = "Application staging-app created",
-							actor = user:email(),
-							resourceType = "APP",
-							resourceName = "staging-app",
-							environmentName = "staging",
-							data = {
-								apiVersion = "nais.io/v1alpha1",
-								kind = "Application",
-							},
 						},
 						{
 							__typename = "ApplicationCreatedActivityLogEntry",
@@ -536,7 +433,6 @@ Test.gql("activity log contains JobCreatedActivityLogEntry after apply", functio
 	))
 
 	-- RESOURCE_CREATED is registered for both JOB and APP, so application entries appear too.
-	-- We only assert on the first node which is the most-recently created job.
 	t.check({
 		data = {
 			team = {
@@ -551,12 +447,6 @@ Test.gql("activity log contains JobCreatedActivityLogEntry after apply", functio
 								apiVersion = "nais.io/v1",
 								kind = "Naisjob",
 							},
-						},
-						{
-							__typename = "ApplicationCreatedActivityLogEntry",
-							resourceType = "APP",
-							resourceName = "staging-app",
-							environmentName = "staging",
 						},
 						{
 							__typename = "ApplicationCreatedActivityLogEntry",

@@ -280,6 +280,13 @@ func (ec *executionContext) _ActivityLogEntry(ctx context.Context, sel ast.Selec
 			return graphql.Null
 		}
 		return ec._ValkeyCreatedActivityLogEntry(ctx, sel, obj)
+	case activitylog.UnsupportedResourceActivityLogEntry:
+		return ec._UnsupportedResourceActivityLogEntry(ctx, sel, &obj)
+	case *activitylog.UnsupportedResourceActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._UnsupportedResourceActivityLogEntry(ctx, sel, obj)
 	case unleash.UnleashInstanceUpdatedActivityLogEntry:
 		return ec._UnleashInstanceUpdatedActivityLogEntry(ctx, sel, &obj)
 	case *unleash.UnleashInstanceUpdatedActivityLogEntry:

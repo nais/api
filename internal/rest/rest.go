@@ -84,11 +84,6 @@ func MakeRouter(ctx context.Context, cfg Config) *chi.Mux {
 			r.Use(middleware.PreSharedKeyAuthentication(cfg.PreSharedKey))
 			r.Get("/teams/{teamSlug}", restteamsapi.TeamsApiHandler(ctx, cfg.Pool, cfg.Log))
 		})
-	} else {
-		// In test mode there is no pre-shared key; mount without auth.
-		router.Group(func(r chi.Router) {
-			r.Get("/teams/{teamSlug}", restteamsapi.TeamsApiHandler(ctx, cfg.Pool, cfg.Log))
-		})
 	}
 
 	// Apply route with user authentication.
@@ -123,7 +118,7 @@ func MakeRouter(ctx context.Context, cfg Config) *chi.Mux {
 				clientFactory = apply.NewImpersonatingClientFactory(cfg.ClusterConfigs)
 			}
 
-			r.Post("/api/v1/apply", apply.Handler(cfg.ClusterConfigs, clientFactory, cfg.Log))
+			r.Post("/api/v1/teams/{teamSlug}/environments/{environment}/apply", apply.Handler(cfg.ClusterConfigs, clientFactory, cfg.Log))
 		})
 	}
 
