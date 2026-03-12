@@ -8,17 +8,11 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/apply"
 	"github.com/nais/api/internal/auth/authn"
-	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/auth/middleware"
-	"github.com/nais/api/internal/database"
-	"github.com/nais/api/internal/graph/loader"
 	"github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/rest/restteamsapi"
-	"github.com/nais/api/internal/serviceaccount"
-	"github.com/nais/api/internal/user"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
 )
@@ -35,10 +29,15 @@ type Config struct {
 	PreSharedKey         string
 	ClusterConfigs       kubernetes.ClusterConfigMap
 	DynamicClientFactory apply.DynamicClientFactory
-	JWTMiddleware        func(http.Handler) http.Handler
-	AuthHandler          authn.Handler
-	Fakes                Fakes
-	Log                  logrus.FieldLogger
+	// ContextMiddleware sets up the request context with all loaders and
+	// dependencies needed by the apply handler (authz, activitylog, etc.).
+	// In production this is the middleware returned by ConfigureGraph.
+	// In tests a minimal equivalent can be provided.
+	ContextMiddleware func(http.Handler) http.Handler
+	JWTMiddleware     func(http.Handler) http.Handler
+	AuthHandler       authn.Handler
+	Fakes             Fakes
+	Log               logrus.FieldLogger
 }
 
 func Run(ctx context.Context, cfg Config) error {
@@ -89,8 +88,9 @@ func MakeRouter(ctx context.Context, cfg Config) *chi.Mux {
 	// Apply route with user authentication.
 	if cfg.ClusterConfigs != nil {
 		router.Group(func(r chi.Router) {
-			// Context dependencies needed by authz and activitylog.
-			r.Use(applyContextDependencies(cfg.Pool))
+			if cfg.ContextMiddleware != nil {
+				r.Use(cfg.ContextMiddleware)
+			}
 
 			if cfg.Fakes.WithInsecureUserHeader {
 				r.Use(middleware.InsecureUserHeader())
@@ -123,20 +123,4 @@ func MakeRouter(ctx context.Context, cfg Config) *chi.Mux {
 	}
 
 	return router
-}
-
-// applyContextDependencies returns a middleware that sets up the context with
-// DB-backed loaders needed by the apply handler: database, authz, and activitylog.
-// This is a minimal subset of what ConfigureGraph sets up — only what the apply
-// handler actually needs.
-func applyContextDependencies(pool *pgxpool.Pool) func(http.Handler) http.Handler {
-	setupContext := func(ctx context.Context) context.Context {
-		ctx = database.NewLoaderContext(ctx, pool)
-		ctx = user.NewLoaderContext(ctx, pool)
-		ctx = serviceaccount.NewLoaderContext(ctx, pool)
-		ctx = authz.NewLoaderContext(ctx, pool)
-		ctx = activitylog.NewLoaderContext(ctx, pool)
-		return ctx
-	}
-	return loader.Middleware(setupContext)
 }

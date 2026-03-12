@@ -285,34 +285,44 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		return fmt.Errorf("create loki client: %w", err)
 	}
 
+	contextDependencies, err := ConfigureGraph(
+		ctx,
+		cfg.Fakes,
+		watchers,
+		watcherMgr,
+		pool,
+		clusterConfig,
+		serviceMaintenanceManager,
+		aivenClient,
+		cfg.Aiven.Projects,
+		vulnMgr,
+		cfg.Tenant,
+		cfg.K8s.AllClusterNames(),
+		hookdClient,
+		cfg.Unleash.BifrostAPIURL,
+		cfg.K8s.AllClusterNames(),
+		cfg.Logging.DefaultLogDestinations(),
+		notifier,
+		lokiClient,
+		cfg.AuditLog.ProjectID,
+		cfg.AuditLog.Location,
+		log.WithField("subsystem", "http"),
+	)
+	if err != nil {
+		return fmt.Errorf("configure graph: %w", err)
+	}
+
 	// HTTP server
 	wg.Go(func() error {
 		return runHTTPServer(
 			ctx,
 			cfg.Fakes,
 			cfg.ListenAddress,
-			cfg.Tenant,
-			cfg.K8s.AllClusterNames(),
-			pool,
-			clusterConfig,
-			watchers,
-			watcherMgr,
-			mgmtWatcher,
+
 			jwtMiddleware,
 			authHandler,
 			graphHandler,
-			serviceMaintenanceManager,
-			aivenClient,
-			cfg.Aiven.Projects,
-			vulnMgr,
-			hookdClient,
-			cfg.Unleash.BifrostAPIURL,
-			cfg.K8s.AllClusterNames(),
-			cfg.Logging.DefaultLogDestinations(),
-			notifier,
-			lokiClient,
-			cfg.AuditLog.ProjectID,
-			cfg.AuditLog.Location,
+			contextDependencies,
 			log.WithField("subsystem", "http"),
 		)
 	})
@@ -328,12 +338,13 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 
 	wg.Go(func() error {
 		return restserver.Run(ctx, restserver.Config{
-			ListenAddress:  cfg.RestListenAddress,
-			Pool:           pool,
-			PreSharedKey:   cfg.RestPreSharedKey,
-			ClusterConfigs: clusterConfig,
-			JWTMiddleware:  jwtMiddleware,
-			AuthHandler:    authHandler,
+			ListenAddress:     cfg.RestListenAddress,
+			Pool:              pool,
+			PreSharedKey:      cfg.RestPreSharedKey,
+			ClusterConfigs:    clusterConfig,
+			ContextMiddleware: contextDependencies,
+			JWTMiddleware:     jwtMiddleware,
+			AuthHandler:       authHandler,
 			Fakes: restserver.Fakes{
 				WithInsecureUserHeader: cfg.Fakes.WithInsecureUserHeader,
 			},
