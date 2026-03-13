@@ -54,7 +54,7 @@ func init() {
 				Data:                    data,
 			}, nil
 		case activitylog.ActivityLogEntryActionCreated:
-			data, err := activitylog.UnmarshalData[activitylog.ResourceActivityLogEntryData](entry)
+			data, err := activitylog.UnmarshalData[activitylog.GenericKubernetesResourceActivityLogEntryData](entry)
 			if err != nil {
 				return nil, fmt.Errorf("transforming job created activity log entry data: %w", err)
 			}
@@ -63,7 +63,7 @@ func init() {
 				Data:                    data,
 			}, nil
 		case activitylog.ActivityLogEntryActionUpdated:
-			data, err := activitylog.UnmarshalData[activitylog.ResourceActivityLogEntryData](entry)
+			data, err := activitylog.UnmarshalData[activitylog.GenericKubernetesResourceActivityLogEntryData](entry)
 			if err != nil {
 				return nil, fmt.Errorf("transforming job updated activity log entry data: %w", err)
 			}
@@ -80,8 +80,8 @@ func init() {
 	activitylog.RegisterFilter("JOB_RUN_DELETED", activityLogEntryActionDeleteJobRun, ActivityLogEntryResourceTypeJob)
 	activitylog.RegisterFilter("JOB_TRIGGERED", activityLogEntryActionTriggerJob, ActivityLogEntryResourceTypeJob)
 	activitylog.RegisterFilter("DEPLOYMENT", deploymentactivity.ActivityLogEntryActionDeployment, ActivityLogEntryResourceTypeJob)
-	activitylog.RegisterFilter("RESOURCE_CREATED", activitylog.ActivityLogEntryActionCreated, ActivityLogEntryResourceTypeJob)
-	activitylog.RegisterFilter("RESOURCE_UPDATED", activitylog.ActivityLogEntryActionUpdated, ActivityLogEntryResourceTypeJob)
+	activitylog.RegisterFilter("GENERIC_KUBERNETES_RESOURCE_CREATED", activitylog.ActivityLogEntryActionCreated, ActivityLogEntryResourceTypeJob)
+	activitylog.RegisterFilter("GENERIC_KUBERNETES_RESOURCE_UPDATED", activitylog.ActivityLogEntryActionUpdated, ActivityLogEntryResourceTypeJob)
 }
 
 type JobTriggeredActivityLogEntry struct {
@@ -104,11 +104,11 @@ type JobRunDeletedActivityLogEntry struct {
 type JobCreatedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
 
-	Data *activitylog.ResourceActivityLogEntryData `json:"data"`
+	Data *activitylog.GenericKubernetesResourceActivityLogEntryData `json:"data"`
 }
 
 type JobUpdatedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
 
-	Data *activitylog.ResourceActivityLogEntryData `json:"data"`
+	Data *activitylog.GenericKubernetesResourceActivityLogEntryData `json:"data"`
 }

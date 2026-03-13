@@ -268,7 +268,7 @@ Test.gql("activity log contains ApplicationCreatedActivityLogEntry after apply",
 			team(slug: "%s") {
 				activityLog(
 					first: 20
-					filter: { activityTypes: [RESOURCE_CREATED] }
+					filter: { activityTypes: [GENERIC_KUBERNETES_RESOURCE_CREATED] }
 				) {
 					nodes {
 						__typename
@@ -291,7 +291,7 @@ Test.gql("activity log contains ApplicationCreatedActivityLogEntry after apply",
 		team:slug()
 	))
 
-	-- RESOURCE_CREATED is registered for both APP and JOB, so the job entry appears too.
+	-- GENERIC_KUBERNETES_RESOURCE_CREATED is registered for both APP and JOB, so the job entry appears too.
 	t.check({
 		data = {
 			team = {
@@ -333,7 +333,7 @@ Test.gql("activity log contains ApplicationUpdatedActivityLogEntry with changedF
 			team(slug: "%s") {
 				activityLog(
 					first: 20
-					filter: { activityTypes: [RESOURCE_UPDATED] }
+					filter: { activityTypes: [GENERIC_KUBERNETES_RESOURCE_UPDATED] }
 				) {
 					nodes {
 						__typename
@@ -411,7 +411,7 @@ Test.gql("activity log contains JobCreatedActivityLogEntry after apply", functio
 			team(slug: "%s") {
 				activityLog(
 					first: 20
-					filter: { activityTypes: [RESOURCE_CREATED] }
+					filter: { activityTypes: [GENERIC_KUBERNETES_RESOURCE_CREATED] }
 				) {
 					nodes {
 						__typename
@@ -432,7 +432,7 @@ Test.gql("activity log contains JobCreatedActivityLogEntry after apply", functio
 		team:slug()
 	))
 
-	-- RESOURCE_CREATED is registered for both JOB and APP, so application entries appear too.
+	-- GENERIC_KUBERNETES_RESOURCE_CREATED is registered for both JOB and APP, so application entries appear too.
 	t.check({
 		data = {
 			team = {

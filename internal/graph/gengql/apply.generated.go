@@ -270,7 +270,7 @@ func (ec *executionContext) _GenericKubernetesResourceActivityLogEntry_data(ctx 
 			return obj.Data, nil
 		},
 		nil,
-		ec.marshalNResourceActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐResourceActivityLogEntryData,
+		ec.marshalNGenericKubernetesResourceActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐGenericKubernetesResourceActivityLogEntryData,
 		true,
 		true,
 	)
@@ -285,24 +285,24 @@ func (ec *executionContext) fieldContext_GenericKubernetesResourceActivityLogEnt
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "apiVersion":
-				return ec.fieldContext_ResourceActivityLogEntryData_apiVersion(ctx, field)
+				return ec.fieldContext_GenericKubernetesResourceActivityLogEntryData_apiVersion(ctx, field)
 			case "kind":
-				return ec.fieldContext_ResourceActivityLogEntryData_kind(ctx, field)
+				return ec.fieldContext_GenericKubernetesResourceActivityLogEntryData_kind(ctx, field)
 			case "changedFields":
-				return ec.fieldContext_ResourceActivityLogEntryData_changedFields(ctx, field)
+				return ec.fieldContext_GenericKubernetesResourceActivityLogEntryData_changedFields(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type ResourceActivityLogEntryData", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type GenericKubernetesResourceActivityLogEntryData", field.Name)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _ResourceActivityLogEntryData_apiVersion(ctx context.Context, field graphql.CollectedField, obj *activitylog.ResourceActivityLogEntryData) (ret graphql.Marshaler) {
+func (ec *executionContext) _GenericKubernetesResourceActivityLogEntryData_apiVersion(ctx context.Context, field graphql.CollectedField, obj *activitylog.GenericKubernetesResourceActivityLogEntryData) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ResourceActivityLogEntryData_apiVersion,
+		ec.fieldContext_GenericKubernetesResourceActivityLogEntryData_apiVersion,
 		func(ctx context.Context) (any, error) {
 			return obj.APIVersion, nil
 		},
@@ -313,9 +313,9 @@ func (ec *executionContext) _ResourceActivityLogEntryData_apiVersion(ctx context
 	)
 }
 
-func (ec *executionContext) fieldContext_ResourceActivityLogEntryData_apiVersion(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_GenericKubernetesResourceActivityLogEntryData_apiVersion(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ResourceActivityLogEntryData",
+		Object:     "GenericKubernetesResourceActivityLogEntryData",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -326,12 +326,12 @@ func (ec *executionContext) fieldContext_ResourceActivityLogEntryData_apiVersion
 	return fc, nil
 }
 
-func (ec *executionContext) _ResourceActivityLogEntryData_kind(ctx context.Context, field graphql.CollectedField, obj *activitylog.ResourceActivityLogEntryData) (ret graphql.Marshaler) {
+func (ec *executionContext) _GenericKubernetesResourceActivityLogEntryData_kind(ctx context.Context, field graphql.CollectedField, obj *activitylog.GenericKubernetesResourceActivityLogEntryData) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ResourceActivityLogEntryData_kind,
+		ec.fieldContext_GenericKubernetesResourceActivityLogEntryData_kind,
 		func(ctx context.Context) (any, error) {
 			return obj.Kind, nil
 		},
@@ -342,9 +342,9 @@ func (ec *executionContext) _ResourceActivityLogEntryData_kind(ctx context.Conte
 	)
 }
 
-func (ec *executionContext) fieldContext_ResourceActivityLogEntryData_kind(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_GenericKubernetesResourceActivityLogEntryData_kind(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ResourceActivityLogEntryData",
+		Object:     "GenericKubernetesResourceActivityLogEntryData",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -355,12 +355,12 @@ func (ec *executionContext) fieldContext_ResourceActivityLogEntryData_kind(_ con
 	return fc, nil
 }
 
-func (ec *executionContext) _ResourceActivityLogEntryData_changedFields(ctx context.Context, field graphql.CollectedField, obj *activitylog.ResourceActivityLogEntryData) (ret graphql.Marshaler) {
+func (ec *executionContext) _GenericKubernetesResourceActivityLogEntryData_changedFields(ctx context.Context, field graphql.CollectedField, obj *activitylog.GenericKubernetesResourceActivityLogEntryData) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ResourceActivityLogEntryData_changedFields,
+		ec.fieldContext_GenericKubernetesResourceActivityLogEntryData_changedFields,
 		func(ctx context.Context) (any, error) {
 			return obj.ChangedFields, nil
 		},
@@ -371,9 +371,9 @@ func (ec *executionContext) _ResourceActivityLogEntryData_changedFields(ctx cont
 	)
 }
 
-func (ec *executionContext) fieldContext_ResourceActivityLogEntryData_changedFields(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_GenericKubernetesResourceActivityLogEntryData_changedFields(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ResourceActivityLogEntryData",
+		Object:     "GenericKubernetesResourceActivityLogEntryData",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -564,29 +564,29 @@ func (ec *executionContext) _GenericKubernetesResourceActivityLogEntry(ctx conte
 	return out
 }
 
-var resourceActivityLogEntryDataImplementors = []string{"ResourceActivityLogEntryData"}
+var genericKubernetesResourceActivityLogEntryDataImplementors = []string{"GenericKubernetesResourceActivityLogEntryData"}
 
-func (ec *executionContext) _ResourceActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, obj *activitylog.ResourceActivityLogEntryData) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, resourceActivityLogEntryDataImplementors)
+func (ec *executionContext) _GenericKubernetesResourceActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, obj *activitylog.GenericKubernetesResourceActivityLogEntryData) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, genericKubernetesResourceActivityLogEntryDataImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("ResourceActivityLogEntryData")
+			out.Values[i] = graphql.MarshalString("GenericKubernetesResourceActivityLogEntryData")
 		case "apiVersion":
-			out.Values[i] = ec._ResourceActivityLogEntryData_apiVersion(ctx, field, obj)
+			out.Values[i] = ec._GenericKubernetesResourceActivityLogEntryData_apiVersion(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "kind":
-			out.Values[i] = ec._ResourceActivityLogEntryData_kind(ctx, field, obj)
+			out.Values[i] = ec._GenericKubernetesResourceActivityLogEntryData_kind(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "changedFields":
-			out.Values[i] = ec._ResourceActivityLogEntryData_changedFields(ctx, field, obj)
+			out.Values[i] = ec._GenericKubernetesResourceActivityLogEntryData_changedFields(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -660,14 +660,14 @@ func (ec *executionContext) _ResourceChangedField(ctx context.Context, sel ast.S
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) marshalNResourceActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐResourceActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *activitylog.ResourceActivityLogEntryData) graphql.Marshaler {
+func (ec *executionContext) marshalNGenericKubernetesResourceActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐGenericKubernetesResourceActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *activitylog.GenericKubernetesResourceActivityLogEntryData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._ResourceActivityLogEntryData(ctx, sel, v)
+	return ec._GenericKubernetesResourceActivityLogEntryData(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNResourceChangedField2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐResourceChangedField(ctx context.Context, sel ast.SelectionSet, v activitylog.ResourceChangedField) graphql.Marshaler {

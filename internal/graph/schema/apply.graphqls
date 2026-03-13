@@ -1,15 +1,15 @@
 extend enum ActivityLogActivityType {
-	"A resource was updated via apply."
-	RESOURCE_UPDATED
+	"A generic kubernetes resource was updated via apply."
+	GENERIC_KUBERNETES_RESOURCE_UPDATED
 
-	"A resource was created via apply."
-	RESOURCE_CREATED
+	"A generic kubernetes resource was created via apply."
+	GENERIC_KUBERNETES_RESOURCE_CREATED
 }
 
 """
 Additional data associated with a resource created or updated via apply.
 """
-type ResourceActivityLogEntryData {
+type GenericKubernetesResourceActivityLogEntryData {
 	"The apiVersion of the applied resource."
 	apiVersion: String!
 	"The kind of the applied resource."
@@ -19,14 +19,14 @@ type ResourceActivityLogEntryData {
 }
 
 """
-A single field that changed during an apply operation.
+A single field that changed.
 """
 type ResourceChangedField {
 	"The dot-separated path to the changed field, e.g. 'spec.replicas'."
 	field: String!
-	"The value before the apply. Null if the field was added."
+	"The value before the change. Null if the field was added."
 	oldValue: String
-	"The value after the apply. Null if the field was removed."
+	"The value after the change. Null if the field was removed."
 	newValue: String
 }
 
@@ -60,5 +60,5 @@ type GenericKubernetesResourceActivityLogEntry implements ActivityLogEntry & Nod
 	environmentName: String
 
 	"Data associated with the apply operation."
-	data: ResourceActivityLogEntryData!
+	data: GenericKubernetesResourceActivityLogEntryData!
 }

@@ -54,9 +54,9 @@ type ResourceChangedField struct {
 	NewValue *string `json:"newValue,omitempty"`
 }
 
-// ResourceActivityLogEntryData contains the additional data stored with a resource
+// GenericKubernetesResourceActivityLogEntryData contains the additional data stored with a resource
 // created or updated via apply.
-type ResourceActivityLogEntryData struct {
+type GenericKubernetesResourceActivityLogEntryData struct {
 	// APIVersion is the apiVersion of the applied resource.
 	APIVersion string `json:"apiVersion"`
 
@@ -74,7 +74,7 @@ type ResourceActivityLogEntryData struct {
 type GenericKubernetesResourceActivityLogEntry struct {
 	GenericActivityLogEntry
 
-	Data *ResourceActivityLogEntryData `json:"data"`
+	Data *GenericKubernetesResourceActivityLogEntryData `json:"data"`
 }
 
 var fallbackTransformer Transformer
@@ -91,7 +91,7 @@ func RegisterFallbackTransformer(t Transformer) {
 
 func init() {
 	RegisterFallbackTransformer(func(entry GenericActivityLogEntry) (ActivityLogEntry, error) {
-		data, err := UnmarshalData[ResourceActivityLogEntryData](entry)
+		data, err := UnmarshalData[GenericKubernetesResourceActivityLogEntryData](entry)
 		if err != nil {
 			return nil, fmt.Errorf("transforming unsupported resource activity log entry data: %w", err)
 		}

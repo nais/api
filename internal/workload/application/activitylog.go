@@ -57,7 +57,7 @@ func init() {
 				Data:                    data,
 			}, nil
 		case activitylog.ActivityLogEntryActionCreated:
-			data, err := activitylog.UnmarshalData[activitylog.ResourceActivityLogEntryData](entry)
+			data, err := activitylog.UnmarshalData[activitylog.GenericKubernetesResourceActivityLogEntryData](entry)
 			if err != nil {
 				return nil, fmt.Errorf("transforming application created activity log entry data: %w", err)
 			}
@@ -66,7 +66,7 @@ func init() {
 				Data:                    data,
 			}, nil
 		case activitylog.ActivityLogEntryActionUpdated:
-			data, err := activitylog.UnmarshalData[activitylog.ResourceActivityLogEntryData](entry)
+			data, err := activitylog.UnmarshalData[activitylog.GenericKubernetesResourceActivityLogEntryData](entry)
 			if err != nil {
 				return nil, fmt.Errorf("transforming application updated activity log entry data: %w", err)
 			}
@@ -83,8 +83,8 @@ func init() {
 	activitylog.RegisterFilter("APPLICATION_RESTARTED", activityLogEntryActionRestartApplication, ActivityLogEntryResourceTypeApplication)
 	activitylog.RegisterFilter("APPLICATION_SCALED", activityLogEntryActionAutoScaleApplication, ActivityLogEntryResourceTypeApplication)
 	activitylog.RegisterFilter("DEPLOYMENT", deploymentactivity.ActivityLogEntryActionDeployment, ActivityLogEntryResourceTypeApplication)
-	activitylog.RegisterFilter("RESOURCE_CREATED", activitylog.ActivityLogEntryActionCreated, ActivityLogEntryResourceTypeApplication)
-	activitylog.RegisterFilter("RESOURCE_UPDATED", activitylog.ActivityLogEntryActionUpdated, ActivityLogEntryResourceTypeApplication)
+	activitylog.RegisterFilter("GENERIC_KUBERNETES_RESOURCE_CREATED", activitylog.ActivityLogEntryActionCreated, ActivityLogEntryResourceTypeApplication)
+	activitylog.RegisterFilter("GENERIC_KUBERNETES_RESOURCE_UPDATED", activitylog.ActivityLogEntryActionUpdated, ActivityLogEntryResourceTypeApplication)
 }
 
 type ApplicationRestartedActivityLogEntry struct {
@@ -109,11 +109,11 @@ type ApplicationScaledActivityLogEntryData struct {
 type ApplicationCreatedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
 
-	Data *activitylog.ResourceActivityLogEntryData `json:"data"`
+	Data *activitylog.GenericKubernetesResourceActivityLogEntryData `json:"data"`
 }
 
 type ApplicationUpdatedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
 
-	Data *activitylog.ResourceActivityLogEntryData `json:"data"`
+	Data *activitylog.GenericKubernetesResourceActivityLogEntryData `json:"data"`
 }
