@@ -294,6 +294,8 @@ func ConfigureGraph(
 
 	dynamicClients := watcherMgr.GetDynamicClients()
 
+	aivencredentials.Register()
+
 	var costOpts []cost.Option
 	if fakes.WithFakeCostClient {
 		costOpts = append(costOpts, cost.WithClient(cost.NewFakeClient()))
@@ -323,7 +325,7 @@ func ConfigureGraph(
 		ctx = metrics.NewLoaderContext(ctx, prometheusClient, log)
 		ctx = sqlinstance.NewLoaderContext(ctx, sqlAdminService, watchers.SqlDatabaseWatcher, watchers.SqlInstanceWatcher, auditLogProjectID, auditLogLocation)
 		ctx = postgres.NewLoaderContext(ctx, watchers.ZalandoPostgresWatcher, auditLogProjectID, auditLogLocation)
-		ctx = aivencredentials.NewLoaderContext(ctx, dynamicClients, log)
+		ctx = aivencredentials.NewClientContext(ctx, dynamicClients, log)
 		ctx = database.NewLoaderContext(ctx, pool)
 		ctx = issue.NewContext(ctx, pool)
 		ctx = team.NewLoaderContext(ctx, pool, watchers.NamespaceWatcher)

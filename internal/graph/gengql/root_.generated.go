@@ -15940,13 +15940,6 @@ enum AivenPermission {
 	ADMIN
 }
 
-"Permission level for Kafka credentials."
-enum KafkaPermission {
-	READ
-	WRITE
-	READWRITE
-}
-
 input CreateOpenSearchCredentialsInput {
 	"The team that owns the OpenSearch instance."
 	teamSlug: Slug!

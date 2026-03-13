@@ -62,43 +62,6 @@ func (e AivenPermission) aivenAccess() string {
 	}
 }
 
-// KafkaPermission represents the permission level for Kafka credentials.
-type KafkaPermission string
-
-const (
-	KafkaPermissionRead      KafkaPermission = "READ"
-	KafkaPermissionWrite     KafkaPermission = "WRITE"
-	KafkaPermissionReadWrite KafkaPermission = "READWRITE"
-)
-
-func (e KafkaPermission) IsValid() bool {
-	switch e {
-	case KafkaPermissionRead, KafkaPermissionWrite, KafkaPermissionReadWrite:
-		return true
-	}
-	return false
-}
-
-func (e KafkaPermission) String() string {
-	return string(e)
-}
-
-func (e *KafkaPermission) UnmarshalGQL(v any) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-	*e = KafkaPermission(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid KafkaPermission", str)
-	}
-	return nil
-}
-
-func (e KafkaPermission) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
 // Input types
 
 type CreateOpenSearchCredentialsInput struct {

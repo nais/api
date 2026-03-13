@@ -12,6 +12,7 @@ import (
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/slug"
+	"github.com/sirupsen/logrus"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -37,28 +38,37 @@ const (
 	maxTTL       = 30 * 24 * time.Hour // 30 days
 )
 
-func CreateOpenSearchCredentials(ctx context.Context, input CreateOpenSearchCredentialsInput) (*CreateOpenSearchCredentialsPayload, error) {
-	ttl, err := parseTTL(input.TTL)
+// credentialRequest captures all the parameters needed to create credentials for any Aiven service.
+type credentialRequest struct {
+	teamSlug        slug.Slug
+	environmentName string
+	ttl             string
+	service         string // "opensearch", "valkey", "kafka"
+	instanceName    string // empty for kafka
+	permission      string // empty for kafka
+
+	// buildSpec returns the AivenApplication spec for this service type.
+	buildSpec func(namespace, secretName string, expiresAt time.Time) map[string]any
+
+	// extractCreds extracts typed credentials from the secret data.
+	extractCreds func(data map[string]string) any
+}
+
+// createCredentials is the shared implementation for all three credential types.
+func createCredentials(ctx context.Context, req credentialRequest) (any, error) {
+	ttl, err := parseTTL(req.ttl)
 	if err != nil {
 		return nil, err
 	}
 
 	actor := authz.ActorFromContext(ctx).User
-	namespace := input.TeamSlug.String()
-	secretName := generateSecretName(actor.Identity(), namespace, "opensearch")
-	appName := generateAppName(actor.Identity(), "opensearch")
+	namespace := req.teamSlug.String()
+	secretName := generateSecretName(actor.Identity(), namespace, req.service)
+	appName := generateAppName(actor.Identity(), req.service)
 
-	spec := map[string]any{
-		"protected": true,
-		"expiresAt": time.Now().Add(ttl).UTC().Format(time.RFC3339),
-		"openSearch": map[string]any{
-			"instance":   fmt.Sprintf("opensearch-%s-%s", namespace, input.InstanceName),
-			"access":     input.Permission.aivenAccess(),
-			"secretName": secretName,
-		},
-	}
+	spec := req.buildSpec(namespace, secretName, time.Now().Add(ttl).UTC())
 
-	client, err := getClient(ctx, input.EnvironmentName)
+	client, err := getClient(ctx, req.environmentName)
 	if err != nil {
 		return nil, err
 	}
@@ -72,129 +82,122 @@ func CreateOpenSearchCredentials(ctx context.Context, input CreateOpenSearchCred
 		return nil, fmt.Errorf("waiting for credentials: %w", err)
 	}
 
-	data := secretData(secret)
-	port, _ := strconv.Atoi(getSecretField(data, "OPEN_SEARCH_PORT"))
+	l := fromContext(ctx)
+	data := secretData(secret, l.log)
+	creds := req.extractCreds(data)
 
-	creds := &OpenSearchCredentials{
-		Username: getSecretField(data, "OPEN_SEARCH_USERNAME"),
-		Password: getSecretField(data, "OPEN_SEARCH_PASSWORD"),
-		Host:     getSecretField(data, "OPEN_SEARCH_HOST"),
-		Port:     port,
-		URI:      getSecretField(data, "OPEN_SEARCH_URI"),
+	if err := logCredentialCreation(ctx, req); err != nil {
+		l.log.WithError(err).Warn("failed to create activity log entry")
 	}
 
-	if err := logCredentialCreation(ctx, "OPENSEARCH", input.InstanceName, input.Permission.String(), input.TTL, input.EnvironmentName, input.TeamSlug); err != nil {
-		fromContext(ctx).log.WithError(err).Warn("failed to create activity log entry")
-	}
+	return creds, nil
+}
 
-	return &CreateOpenSearchCredentialsPayload{Credentials: creds}, nil
+func CreateOpenSearchCredentials(ctx context.Context, input CreateOpenSearchCredentialsInput) (*CreateOpenSearchCredentialsPayload, error) {
+	result, err := createCredentials(ctx, credentialRequest{
+		teamSlug:        input.TeamSlug,
+		environmentName: input.EnvironmentName,
+		ttl:             input.TTL,
+		service:         "opensearch",
+		instanceName:    input.InstanceName,
+		permission:      input.Permission.String(),
+		buildSpec: func(namespace, secretName string, expiresAt time.Time) map[string]any {
+			return map[string]any{
+				"protected": true,
+				"expiresAt": expiresAt.Format(time.RFC3339),
+				"openSearch": map[string]any{
+					"instance":   fmt.Sprintf("opensearch-%s-%s", namespace, input.InstanceName),
+					"access":     input.Permission.aivenAccess(),
+					"secretName": secretName,
+				},
+			}
+		},
+		extractCreds: func(data map[string]string) any {
+			port, _ := strconv.Atoi(data["OPEN_SEARCH_PORT"])
+			return &OpenSearchCredentials{
+				Username: data["OPEN_SEARCH_USERNAME"],
+				Password: data["OPEN_SEARCH_PASSWORD"],
+				Host:     data["OPEN_SEARCH_HOST"],
+				Port:     port,
+				URI:      data["OPEN_SEARCH_URI"],
+			}
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &CreateOpenSearchCredentialsPayload{Credentials: result.(*OpenSearchCredentials)}, nil
 }
 
 func CreateValkeyCredentials(ctx context.Context, input CreateValkeyCredentialsInput) (*CreateValkeyCredentialsPayload, error) {
-	ttl, err := parseTTL(input.TTL)
-	if err != nil {
-		return nil, err
-	}
-
-	actor := authz.ActorFromContext(ctx).User
-	namespace := input.TeamSlug.String()
-	secretName := generateSecretName(actor.Identity(), namespace, "valkey")
-	appName := generateAppName(actor.Identity(), "valkey")
-
-	spec := map[string]any{
-		"protected": true,
-		"expiresAt": time.Now().Add(ttl).UTC().Format(time.RFC3339),
-		"valkey": []any{
-			map[string]any{
-				"instance":   fmt.Sprintf("valkey-%s-%s", namespace, input.InstanceName),
-				"access":     input.Permission.aivenAccess(),
-				"secretName": secretName,
-			},
+	result, err := createCredentials(ctx, credentialRequest{
+		teamSlug:        input.TeamSlug,
+		environmentName: input.EnvironmentName,
+		ttl:             input.TTL,
+		service:         "valkey",
+		instanceName:    input.InstanceName,
+		permission:      input.Permission.String(),
+		buildSpec: func(namespace, secretName string, expiresAt time.Time) map[string]any {
+			return map[string]any{
+				"protected": true,
+				"expiresAt": expiresAt.Format(time.RFC3339),
+				"valkey": []any{
+					map[string]any{
+						"instance":   fmt.Sprintf("valkey-%s-%s", namespace, input.InstanceName),
+						"access":     input.Permission.aivenAccess(),
+						"secretName": secretName,
+					},
+				},
+			}
 		},
-	}
-
-	client, err := getClient(ctx, input.EnvironmentName)
+		extractCreds: func(data map[string]string) any {
+			port, _ := strconv.Atoi(data["VALKEY_PORT"])
+			return &ValkeyCredentials{
+				Username: data["VALKEY_USERNAME"],
+				Password: data["VALKEY_PASSWORD"],
+				Host:     data["VALKEY_HOST"],
+				Port:     port,
+				URI:      data["VALKEY_URI"],
+			}
+		},
+	})
 	if err != nil {
 		return nil, err
 	}
-
-	if err := createOrUpdateAivenApplication(ctx, client, appName, namespace, spec, actor); err != nil {
-		return nil, fmt.Errorf("creating AivenApplication: %w", err)
-	}
-
-	secret, err := waitForSecret(ctx, client, namespace, secretName)
-	if err != nil {
-		return nil, fmt.Errorf("waiting for credentials: %w", err)
-	}
-
-	data := secretData(secret)
-	port, _ := strconv.Atoi(getSecretField(data, "VALKEY_PORT"))
-
-	creds := &ValkeyCredentials{
-		Username: getSecretField(data, "VALKEY_USERNAME"),
-		Password: getSecretField(data, "VALKEY_PASSWORD"),
-		Host:     getSecretField(data, "VALKEY_HOST"),
-		Port:     port,
-		URI:      getSecretField(data, "VALKEY_URI"),
-	}
-
-	if err := logCredentialCreation(ctx, "VALKEY", input.InstanceName, input.Permission.String(), input.TTL, input.EnvironmentName, input.TeamSlug); err != nil {
-		fromContext(ctx).log.WithError(err).Warn("failed to create activity log entry")
-	}
-
-	return &CreateValkeyCredentialsPayload{Credentials: creds}, nil
+	return &CreateValkeyCredentialsPayload{Credentials: result.(*ValkeyCredentials)}, nil
 }
 
 func CreateKafkaCredentials(ctx context.Context, input CreateKafkaCredentialsInput) (*CreateKafkaCredentialsPayload, error) {
-	ttl, err := parseTTL(input.TTL)
-	if err != nil {
-		return nil, err
-	}
-
-	actor := authz.ActorFromContext(ctx).User
-	namespace := input.TeamSlug.String()
-	secretName := generateSecretName(actor.Identity(), namespace, "kafka")
-	appName := generateAppName(actor.Identity(), "kafka")
-
-	spec := map[string]any{
-		"protected": true,
-		"expiresAt": time.Now().Add(ttl).UTC().Format(time.RFC3339),
-		"kafka": map[string]any{
-			"pool":       "nav-" + input.EnvironmentName,
-			"secretName": secretName,
+	result, err := createCredentials(ctx, credentialRequest{
+		teamSlug:        input.TeamSlug,
+		environmentName: input.EnvironmentName,
+		ttl:             input.TTL,
+		service:         "kafka",
+		buildSpec: func(namespace, secretName string, expiresAt time.Time) map[string]any {
+			return map[string]any{
+				"protected": true,
+				"expiresAt": expiresAt.Format(time.RFC3339),
+				"kafka": map[string]any{
+					"pool":       "nav-" + input.EnvironmentName,
+					"secretName": secretName,
+				},
+			}
 		},
-	}
-
-	client, err := getClient(ctx, input.EnvironmentName)
+		extractCreds: func(data map[string]string) any {
+			return &KafkaCredentials{
+				Username:       data["KAFKA_SCHEMA_REGISTRY_USER"],
+				AccessCert:     data["KAFKA_CERTIFICATE"],
+				AccessKey:      data["KAFKA_PRIVATE_KEY"],
+				CaCert:         data["KAFKA_CA"],
+				Brokers:        data["KAFKA_BROKERS"],
+				SchemaRegistry: data["KAFKA_SCHEMA_REGISTRY"],
+			}
+		},
+	})
 	if err != nil {
 		return nil, err
 	}
-
-	if err := createOrUpdateAivenApplication(ctx, client, appName, namespace, spec, actor); err != nil {
-		return nil, fmt.Errorf("creating AivenApplication: %w", err)
-	}
-
-	secret, err := waitForSecret(ctx, client, namespace, secretName)
-	if err != nil {
-		return nil, fmt.Errorf("waiting for credentials: %w", err)
-	}
-
-	data := secretData(secret)
-
-	creds := &KafkaCredentials{
-		Username:       getSecretField(data, "KAFKA_SCHEMA_REGISTRY_USER"),
-		AccessCert:     getSecretField(data, "KAFKA_CERTIFICATE"),
-		AccessKey:      getSecretField(data, "KAFKA_PRIVATE_KEY"),
-		CaCert:         getSecretField(data, "KAFKA_CA"),
-		Brokers:        getSecretField(data, "KAFKA_BROKERS"),
-		SchemaRegistry: getSecretField(data, "KAFKA_SCHEMA_REGISTRY"),
-	}
-
-	if err := logCredentialCreation(ctx, "KAFKA", "", "", input.TTL, input.EnvironmentName, input.TeamSlug); err != nil {
-		fromContext(ctx).log.WithError(err).Warn("failed to create activity log entry")
-	}
-
-	return &CreateKafkaCredentialsPayload{Credentials: creds}, nil
+	return &CreateKafkaCredentialsPayload{Credentials: result.(*KafkaCredentials)}, nil
 }
 
 // getClient returns the dynamic client for the given environment (cluster).
@@ -268,26 +271,21 @@ func waitForSecret(ctx context.Context, client dynamic.Interface, namespace, sec
 	}
 }
 
-// secretData extracts the .data map from a Secret, base64-decoding the values.
-func secretData(secret *unstructured.Unstructured) map[string]string {
+// secretData extracts the .data map from a Secret, converting values to strings.
+func secretData(secret *unstructured.Unstructured, log logrus.FieldLogger) map[string]string {
 	result := make(map[string]string)
 	data, ok := secret.Object["data"].(map[string]any)
 	if !ok {
 		return result
 	}
 	for k, v := range data {
-		switch val := v.(type) {
-		case string:
-			// unstructured secrets have already-decoded string values
-			result[k] = val
+		if s, ok := v.(string); ok {
+			result[k] = s
+		} else {
+			log.WithField("key", k).WithField("type", fmt.Sprintf("%T", v)).Warn("unexpected non-string value in secret data")
 		}
 	}
 	return result
-}
-
-// getSecretField returns the value for a key, or empty string if missing.
-func getSecretField(data map[string]string, key string) string {
-	return data[key]
 }
 
 // generateSecretName creates a deterministic, short secret name.
@@ -299,8 +297,6 @@ func generateSecretName(username, namespace, service string) string {
 
 // generateAppName creates a deterministic AivenApplication name from the user identity.
 func generateAppName(username, service string) string {
-	name := strings.ReplaceAll(username, ".", "-")
-	name = strings.ReplaceAll(name, "@", "-")
 	hasher := crc32.NewIEEE()
 	fmt.Fprintf(hasher, "%s-%s", username, service)
 	return fmt.Sprintf("console-%s-%08x", service, hasher.Sum32())
@@ -310,51 +306,48 @@ func generateAppName(username, service string) string {
 func parseTTL(ttl string) (time.Duration, error) {
 	ttl = strings.TrimSpace(ttl)
 
+	var d time.Duration
 	// Support day notation
 	if strings.HasSuffix(ttl, "d") {
 		days, err := strconv.Atoi(strings.TrimSuffix(ttl, "d"))
 		if err != nil {
 			return 0, fmt.Errorf("invalid TTL: %s", ttl)
 		}
-		d := time.Duration(days) * 24 * time.Hour
-		if d > maxTTL {
-			return 0, fmt.Errorf("TTL exceeds maximum of 30 days")
+		d = time.Duration(days) * 24 * time.Hour
+	} else {
+		// Fall back to Go duration parsing (e.g. "24h", "168h")
+		var err error
+		d, err = time.ParseDuration(ttl)
+		if err != nil {
+			return 0, fmt.Errorf("invalid TTL: %s (use e.g. '1d', '7d', '24h')", ttl)
 		}
-		if d <= 0 {
-			return 0, fmt.Errorf("TTL must be positive")
-		}
-		return d, nil
 	}
 
-	// Fall back to Go duration parsing (e.g. "24h", "168h")
-	d, err := time.ParseDuration(ttl)
-	if err != nil {
-		return 0, fmt.Errorf("invalid TTL: %s (use e.g. '1d', '7d', '24h')", ttl)
+	if d <= 0 {
+		return 0, fmt.Errorf("TTL must be positive")
 	}
 	if d > maxTTL {
 		return 0, fmt.Errorf("TTL exceeds maximum of 30 days")
-	}
-	if d <= 0 {
-		return 0, fmt.Errorf("TTL must be positive")
 	}
 	return d, nil
 }
 
 // logCredentialCreation logs that credentials were created to the activity log.
-func logCredentialCreation(ctx context.Context, serviceType, instanceName, permission, ttl, environmentName string, teamSlug slug.Slug) error {
-	envName := environmentName
+func logCredentialCreation(ctx context.Context, req credentialRequest) error {
+	envName := req.environmentName
+	serviceType := strings.ToUpper(req.service)
 	return activitylog.Create(ctx, activitylog.CreateInput{
 		Action:          activityLogEntryActionCreateCredentials,
 		Actor:           authz.ActorFromContext(ctx).User,
 		ResourceType:    activityLogEntryResourceTypeAivenCredentials,
 		ResourceName:    serviceType,
 		EnvironmentName: &envName,
-		TeamSlug:        &teamSlug,
+		TeamSlug:        &req.teamSlug,
 		Data: AivenCredentialsActivityLogEntryData{
 			ServiceType:  serviceType,
-			InstanceName: instanceName,
-			Permission:   permission,
-			TTL:          ttl,
+			InstanceName: req.instanceName,
+			Permission:   req.permission,
+			TTL:          req.ttl,
 		},
 	})
 }

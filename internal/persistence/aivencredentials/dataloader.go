@@ -9,20 +9,20 @@ import (
 
 type ctxKey int
 
-const loadersKey ctxKey = iota
+const clientsKey ctxKey = iota
 
-func NewLoaderContext(ctx context.Context, dynamicClients map[string]dynamic.Interface, log logrus.FieldLogger) context.Context {
-	return context.WithValue(ctx, loadersKey, &loaders{
+func NewClientContext(ctx context.Context, dynamicClients map[string]dynamic.Interface, log logrus.FieldLogger) context.Context {
+	return context.WithValue(ctx, clientsKey, &clients{
 		dynamicClients: dynamicClients,
 		log:            log,
 	})
 }
 
-type loaders struct {
+type clients struct {
 	dynamicClients map[string]dynamic.Interface
 	log            logrus.FieldLogger
 }
 
-func fromContext(ctx context.Context) *loaders {
-	return ctx.Value(loadersKey).(*loaders)
+func fromContext(ctx context.Context) *clients {
+	return ctx.Value(clientsKey).(*clients)
 }
