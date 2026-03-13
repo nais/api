@@ -10,7 +10,7 @@ import (
 	"sync/atomic"
 
 	"github.com/99designs/gqlgen/graphql"
-	"github.com/nais/api/internal/activitylog"
+	activitylog1 "github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/alerts"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/cost"
@@ -40,7 +40,7 @@ import (
 	"github.com/nais/api/internal/search"
 	"github.com/nais/api/internal/serviceaccount"
 	"github.com/nais/api/internal/servicemaintenance"
-	activitylog1 "github.com/nais/api/internal/servicemaintenance/activitylog"
+	"github.com/nais/api/internal/servicemaintenance/activitylog"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/unleash"
@@ -5574,13 +5574,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._UserCreatedUserSyncLogEntry(ctx, sel, obj)
-	case activitylog.UnsupportedResourceActivityLogEntry:
-		return ec._UnsupportedResourceActivityLogEntry(ctx, sel, &obj)
-	case *activitylog.UnsupportedResourceActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._UnsupportedResourceActivityLogEntry(ctx, sel, obj)
 	case issue.UnleashReleaseChannelIssue:
 		return ec._UnleashReleaseChannelIssue(ctx, sel, &obj)
 	case *issue.UnleashReleaseChannelIssue:
@@ -5707,9 +5700,9 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._SqlDatabase(ctx, sel, obj)
-	case activitylog1.ServiceMaintenanceActivityLogEntry:
+	case activitylog.ServiceMaintenanceActivityLogEntry:
 		return ec._ServiceMaintenanceActivityLogEntry(ctx, sel, &obj)
-	case *activitylog1.ServiceMaintenanceActivityLogEntry:
+	case *activitylog.ServiceMaintenanceActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
@@ -6015,6 +6008,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._InvalidSpecIssue(ctx, sel, obj)
+	case activitylog1.GenericKubernetesResourceActivityLogEntry:
+		return ec._GenericKubernetesResourceActivityLogEntry(ctx, sel, &obj)
+	case *activitylog1.GenericKubernetesResourceActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._GenericKubernetesResourceActivityLogEntry(ctx, sel, obj)
 	case issue.FailedSynchronizationIssue:
 		return ec._FailedSynchronizationIssue(ctx, sel, &obj)
 	case *issue.FailedSynchronizationIssue:
@@ -6339,7 +6339,7 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Alert(ctx, sel, obj)
-	case activitylog.ActivityLogEntry:
+	case activitylog1.ActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}

@@ -12,8 +12,8 @@ type ResourceResult struct {
 	// Resource is a human-readable identifier for the resource, e.g. "Application/my-app".
 	Resource string `json:"resource"`
 
-	// Environment is the target environment the resource was applied to.
-	Environment string `json:"environment"`
+	// EnvironmentName is the target environment the resource was applied to.
+	EnvironmentName string `json:"environmentName"`
 
 	// Status is one of "created", "applied", or "error".
 	Status string `json:"status"`
