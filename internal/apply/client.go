@@ -113,7 +113,7 @@ func ApplyResource(
 		data,
 		metav1.PatchOptions{
 			FieldManager: fieldManager,
-			Force:        boolPtr(true),
+			Force:        new(true),
 		},
 	)
 	if err != nil {
@@ -125,8 +125,4 @@ func ApplyResource(
 		After:   after,
 		Created: before == nil,
 	}, nil
-}
-
-func boolPtr(b bool) *bool {
-	return &b
 }
