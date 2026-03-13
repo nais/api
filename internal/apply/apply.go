@@ -123,30 +123,30 @@ func applyOne(
 	// Validate environment exists.
 	if _, ok := clusterConfigs[environment]; !ok {
 		return ResourceResult{
-			Resource:    resourceID,
-			Environment: environment,
-			Status:      StatusError,
-			Error:       fmt.Sprintf("unknown environment: %q", environment),
+			Resource:        resourceID,
+			EnvironmentName: environment,
+			Status:          StatusError,
+			Error:           fmt.Sprintf("unknown environment: %q", environment),
 		}
 	}
 
 	// Validate resource has a name.
 	if name == "" {
 		return ResourceResult{
-			Resource:    resourceID,
-			Environment: environment,
-			Status:      StatusError,
-			Error:       "resource must have metadata.name",
+			Resource:        resourceID,
+			EnvironmentName: environment,
+			Status:          StatusError,
+			Error:           "resource must have metadata.name",
 		}
 	}
 
 	// Authorize the actor for this team and kind.
 	if err := authorizeResource(ctx, kind, teamSlug); err != nil {
 		return ResourceResult{
-			Resource:    resourceID,
-			Environment: environment,
-			Status:      StatusError,
-			Error:       fmt.Sprintf("authorization failed: %s", err),
+			Resource:        resourceID,
+			EnvironmentName: environment,
+			Status:          StatusError,
+			Error:           fmt.Sprintf("authorization failed: %s", err),
 		}
 	}
 
@@ -154,10 +154,10 @@ func applyOne(
 	gvr, ok := GVRFor(apiVersion, kind)
 	if !ok {
 		return ResourceResult{
-			Resource:    resourceID,
-			Environment: environment,
-			Status:      StatusError,
-			Error:       fmt.Sprintf("no GVR mapping for %s/%s", apiVersion, kind),
+			Resource:        resourceID,
+			EnvironmentName: environment,
+			Status:          StatusError,
+			Error:           fmt.Sprintf("no GVR mapping for %s/%s", apiVersion, kind),
 		}
 	}
 
@@ -169,10 +169,10 @@ func applyOne(
 	if err != nil {
 		log.WithError(err).Error("creating dynamic client")
 		return ResourceResult{
-			Resource:    resourceID,
-			Environment: environment,
-			Status:      StatusError,
-			Error:       fmt.Sprintf("failed to create client for environment %q: %s", environment, err),
+			Resource:        resourceID,
+			EnvironmentName: environment,
+			Status:          StatusError,
+			Error:           fmt.Sprintf("failed to create client for environment %q: %s", environment, err),
 		}
 	}
 
@@ -181,10 +181,10 @@ func applyOne(
 	if err != nil {
 		log.WithError(err).Error("applying resource")
 		return ResourceResult{
-			Resource:    resourceID,
-			Environment: environment,
-			Status:      StatusError,
-			Error:       fmt.Sprintf("apply failed: %s", err),
+			Resource:        resourceID,
+			EnvironmentName: environment,
+			Status:          StatusError,
+			Error:           fmt.Sprintf("apply failed: %s", err),
 		}
 	}
 
@@ -221,10 +221,10 @@ func applyOne(
 	}
 
 	return ResourceResult{
-		Resource:      resourceID,
-		Environment:   environment,
-		Status:        status,
-		ChangedFields: changes,
+		Resource:        resourceID,
+		EnvironmentName: environment,
+		Status:          status,
+		ChangedFields:   changes,
 	}
 }
 

@@ -33,7 +33,7 @@ Test.rest("create application via apply", function(t)
 		results = {
 			{
 				resource = "Application/my-app",
-				environment = "dev",
+				environmentName = "dev",
 				status = "created",
 			},
 		},
@@ -87,7 +87,7 @@ Test.rest("update application via apply", function(t)
 		results = {
 			{
 				resource = "Application/my-app",
-				environment = "dev",
+				environmentName = "dev",
 				status = "applied",
 				changedFields = {
 					{
@@ -178,7 +178,7 @@ Test.rest("non-member gets authorization error", function(t)
 		results = {
 			{
 				resource = "Application/sneaky-app",
-				environment = "dev",
+				environmentName = "dev",
 				status = "error",
 				error = Contains("authorization failed"),
 			},
@@ -226,7 +226,7 @@ Test.rest("create naisjob via apply", function(t)
 		results = {
 			{
 				resource = "Naisjob/my-job",
-				environment = "dev",
+				environmentName = "dev",
 				status = "created",
 			},
 		},

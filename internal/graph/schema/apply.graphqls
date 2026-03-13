@@ -34,7 +34,7 @@ type ResourceChangedField {
 Activity log entry for a resource kind that is not modelled in the GraphQL API.
 The resource type will be the uppercase Kubernetes kind, e.g. 'NAISJOB'.
 """
-type UnsupportedResourceActivityLogEntry implements ActivityLogEntry & Node {
+type GenericKubernetesResourceActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 

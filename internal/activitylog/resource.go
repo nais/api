@@ -68,10 +68,10 @@ type ResourceActivityLogEntryData struct {
 	ChangedFields []ResourceChangedField `json:"changedFields"`
 }
 
-// UnsupportedResourceActivityLogEntry is used for resource types that do not have
+// GenericKubernetesActivityLogEntry is used for resource types that do not have
 // a dedicated transformer registered — i.e. kinds that are not modelled in the
 // GraphQL API. The uppercase Kind string is used directly as the resource type.
-type UnsupportedResourceActivityLogEntry struct {
+type GenericKubernetesResourceActivityLogEntry struct {
 	GenericActivityLogEntry
 
 	Data *ResourceActivityLogEntryData `json:"data"`
@@ -95,7 +95,7 @@ func init() {
 		if err != nil {
 			return nil, fmt.Errorf("transforming unsupported resource activity log entry data: %w", err)
 		}
-		return UnsupportedResourceActivityLogEntry{
+		return GenericKubernetesResourceActivityLogEntry{
 			GenericActivityLogEntry: entry.WithMessage(
 				fmt.Sprintf("%s %s %s", entry.ResourceName, entry.Action, entry.ResourceType),
 			),

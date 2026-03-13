@@ -280,13 +280,6 @@ func (ec *executionContext) _ActivityLogEntry(ctx context.Context, sel ast.Selec
 			return graphql.Null
 		}
 		return ec._ValkeyCreatedActivityLogEntry(ctx, sel, obj)
-	case activitylog.UnsupportedResourceActivityLogEntry:
-		return ec._UnsupportedResourceActivityLogEntry(ctx, sel, &obj)
-	case *activitylog.UnsupportedResourceActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._UnsupportedResourceActivityLogEntry(ctx, sel, obj)
 	case unleash.UnleashInstanceUpdatedActivityLogEntry:
 		return ec._UnleashInstanceUpdatedActivityLogEntry(ctx, sel, &obj)
 	case *unleash.UnleashInstanceUpdatedActivityLogEntry:
@@ -574,6 +567,13 @@ func (ec *executionContext) _ActivityLogEntry(ctx context.Context, sel ast.Selec
 			return graphql.Null
 		}
 		return ec._JobCreatedActivityLogEntry(ctx, sel, obj)
+	case activitylog.GenericKubernetesResourceActivityLogEntry:
+		return ec._GenericKubernetesResourceActivityLogEntry(ctx, sel, &obj)
+	case *activitylog.GenericKubernetesResourceActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._GenericKubernetesResourceActivityLogEntry(ctx, sel, obj)
 	case deploymentactivity.DeploymentActivityLogEntry:
 		return ec._DeploymentActivityLogEntry(ctx, sel, &obj)
 	case *deploymentactivity.DeploymentActivityLogEntry:

@@ -755,6 +755,18 @@ type ComplexityRoot struct {
 		Valkey     func(childComplexity int) int
 	}
 
+	GenericKubernetesResourceActivityLogEntry struct {
+		Actor           func(childComplexity int) int
+		CreatedAt       func(childComplexity int) int
+		Data            func(childComplexity int) int
+		EnvironmentName func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Message         func(childComplexity int) int
+		ResourceName    func(childComplexity int) int
+		ResourceType    func(childComplexity int) int
+		TeamSlug        func(childComplexity int) int
+	}
+
 	GrantPostgresAccessPayload struct {
 		Error func(childComplexity int) int
 	}
@@ -2693,18 +2705,6 @@ type ComplexityRoot struct {
 		Severity            func(childComplexity int) int
 		TeamEnvironment     func(childComplexity int) int
 		Unleash             func(childComplexity int) int
-	}
-
-	UnsupportedResourceActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		Data            func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
 	}
 
 	UpdateImageVulnerabilityPayload struct {
@@ -5485,6 +5485,69 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Features.Valkey(childComplexity), true
+
+	case "GenericKubernetesResourceActivityLogEntry.actor":
+		if e.ComplexityRoot.GenericKubernetesResourceActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GenericKubernetesResourceActivityLogEntry.Actor(childComplexity), true
+
+	case "GenericKubernetesResourceActivityLogEntry.createdAt":
+		if e.ComplexityRoot.GenericKubernetesResourceActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GenericKubernetesResourceActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "GenericKubernetesResourceActivityLogEntry.data":
+		if e.ComplexityRoot.GenericKubernetesResourceActivityLogEntry.Data == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GenericKubernetesResourceActivityLogEntry.Data(childComplexity), true
+
+	case "GenericKubernetesResourceActivityLogEntry.environmentName":
+		if e.ComplexityRoot.GenericKubernetesResourceActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GenericKubernetesResourceActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "GenericKubernetesResourceActivityLogEntry.id":
+		if e.ComplexityRoot.GenericKubernetesResourceActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GenericKubernetesResourceActivityLogEntry.ID(childComplexity), true
+
+	case "GenericKubernetesResourceActivityLogEntry.message":
+		if e.ComplexityRoot.GenericKubernetesResourceActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GenericKubernetesResourceActivityLogEntry.Message(childComplexity), true
+
+	case "GenericKubernetesResourceActivityLogEntry.resourceName":
+		if e.ComplexityRoot.GenericKubernetesResourceActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GenericKubernetesResourceActivityLogEntry.ResourceName(childComplexity), true
+
+	case "GenericKubernetesResourceActivityLogEntry.resourceType":
+		if e.ComplexityRoot.GenericKubernetesResourceActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GenericKubernetesResourceActivityLogEntry.ResourceType(childComplexity), true
+
+	case "GenericKubernetesResourceActivityLogEntry.teamSlug":
+		if e.ComplexityRoot.GenericKubernetesResourceActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GenericKubernetesResourceActivityLogEntry.TeamSlug(childComplexity), true
 
 	case "GrantPostgresAccessPayload.error":
 		if e.ComplexityRoot.GrantPostgresAccessPayload.Error == nil {
@@ -14436,69 +14499,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.UnleashReleaseChannelIssue.Unleash(childComplexity), true
 
-	case "UnsupportedResourceActivityLogEntry.actor":
-		if e.ComplexityRoot.UnsupportedResourceActivityLogEntry.Actor == nil {
-			break
-		}
-
-		return e.ComplexityRoot.UnsupportedResourceActivityLogEntry.Actor(childComplexity), true
-
-	case "UnsupportedResourceActivityLogEntry.createdAt":
-		if e.ComplexityRoot.UnsupportedResourceActivityLogEntry.CreatedAt == nil {
-			break
-		}
-
-		return e.ComplexityRoot.UnsupportedResourceActivityLogEntry.CreatedAt(childComplexity), true
-
-	case "UnsupportedResourceActivityLogEntry.data":
-		if e.ComplexityRoot.UnsupportedResourceActivityLogEntry.Data == nil {
-			break
-		}
-
-		return e.ComplexityRoot.UnsupportedResourceActivityLogEntry.Data(childComplexity), true
-
-	case "UnsupportedResourceActivityLogEntry.environmentName":
-		if e.ComplexityRoot.UnsupportedResourceActivityLogEntry.EnvironmentName == nil {
-			break
-		}
-
-		return e.ComplexityRoot.UnsupportedResourceActivityLogEntry.EnvironmentName(childComplexity), true
-
-	case "UnsupportedResourceActivityLogEntry.id":
-		if e.ComplexityRoot.UnsupportedResourceActivityLogEntry.ID == nil {
-			break
-		}
-
-		return e.ComplexityRoot.UnsupportedResourceActivityLogEntry.ID(childComplexity), true
-
-	case "UnsupportedResourceActivityLogEntry.message":
-		if e.ComplexityRoot.UnsupportedResourceActivityLogEntry.Message == nil {
-			break
-		}
-
-		return e.ComplexityRoot.UnsupportedResourceActivityLogEntry.Message(childComplexity), true
-
-	case "UnsupportedResourceActivityLogEntry.resourceName":
-		if e.ComplexityRoot.UnsupportedResourceActivityLogEntry.ResourceName == nil {
-			break
-		}
-
-		return e.ComplexityRoot.UnsupportedResourceActivityLogEntry.ResourceName(childComplexity), true
-
-	case "UnsupportedResourceActivityLogEntry.resourceType":
-		if e.ComplexityRoot.UnsupportedResourceActivityLogEntry.ResourceType == nil {
-			break
-		}
-
-		return e.ComplexityRoot.UnsupportedResourceActivityLogEntry.ResourceType(childComplexity), true
-
-	case "UnsupportedResourceActivityLogEntry.teamSlug":
-		if e.ComplexityRoot.UnsupportedResourceActivityLogEntry.TeamSlug == nil {
-			break
-		}
-
-		return e.ComplexityRoot.UnsupportedResourceActivityLogEntry.TeamSlug(childComplexity), true
-
 	case "UpdateImageVulnerabilityPayload.vulnerability":
 		if e.ComplexityRoot.UpdateImageVulnerabilityPayload.Vulnerability == nil {
 			break
@@ -17721,7 +17721,7 @@ type ResourceChangedField {
 Activity log entry for a resource kind that is not modelled in the GraphQL API.
 The resource type will be the uppercase Kubernetes kind, e.g. 'NAISJOB'.
 """
-type UnsupportedResourceActivityLogEntry implements ActivityLogEntry & Node {
+type GenericKubernetesResourceActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 

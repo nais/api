@@ -28,6 +28,275 @@ import (
 
 // region    **************************** field.gotpl *****************************
 
+func (ec *executionContext) _GenericKubernetesResourceActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *activitylog.GenericKubernetesResourceActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_GenericKubernetesResourceActivityLogEntry_id,
+		func(ctx context.Context) (any, error) {
+			return obj.ID(), nil
+		},
+		nil,
+		ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_GenericKubernetesResourceActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GenericKubernetesResourceActivityLogEntry",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GenericKubernetesResourceActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *activitylog.GenericKubernetesResourceActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_GenericKubernetesResourceActivityLogEntry_actor,
+		func(ctx context.Context) (any, error) {
+			return obj.Actor, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_GenericKubernetesResourceActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GenericKubernetesResourceActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GenericKubernetesResourceActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *activitylog.GenericKubernetesResourceActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_GenericKubernetesResourceActivityLogEntry_createdAt,
+		func(ctx context.Context) (any, error) {
+			return obj.CreatedAt, nil
+		},
+		nil,
+		ec.marshalNTime2timeᚐTime,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_GenericKubernetesResourceActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GenericKubernetesResourceActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GenericKubernetesResourceActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *activitylog.GenericKubernetesResourceActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_GenericKubernetesResourceActivityLogEntry_message,
+		func(ctx context.Context) (any, error) {
+			return obj.Message, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_GenericKubernetesResourceActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GenericKubernetesResourceActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GenericKubernetesResourceActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *activitylog.GenericKubernetesResourceActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_GenericKubernetesResourceActivityLogEntry_resourceType,
+		func(ctx context.Context) (any, error) {
+			return obj.ResourceType, nil
+		},
+		nil,
+		ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_GenericKubernetesResourceActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GenericKubernetesResourceActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ActivityLogEntryResourceType does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GenericKubernetesResourceActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *activitylog.GenericKubernetesResourceActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_GenericKubernetesResourceActivityLogEntry_resourceName,
+		func(ctx context.Context) (any, error) {
+			return obj.ResourceName, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_GenericKubernetesResourceActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GenericKubernetesResourceActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GenericKubernetesResourceActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *activitylog.GenericKubernetesResourceActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_GenericKubernetesResourceActivityLogEntry_teamSlug,
+		func(ctx context.Context) (any, error) {
+			return obj.TeamSlug, nil
+		},
+		nil,
+		ec.marshalOSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_GenericKubernetesResourceActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GenericKubernetesResourceActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Slug does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GenericKubernetesResourceActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *activitylog.GenericKubernetesResourceActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_GenericKubernetesResourceActivityLogEntry_environmentName,
+		func(ctx context.Context) (any, error) {
+			return obj.EnvironmentName, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_GenericKubernetesResourceActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GenericKubernetesResourceActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GenericKubernetesResourceActivityLogEntry_data(ctx context.Context, field graphql.CollectedField, obj *activitylog.GenericKubernetesResourceActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_GenericKubernetesResourceActivityLogEntry_data,
+		func(ctx context.Context) (any, error) {
+			return obj.Data, nil
+		},
+		nil,
+		ec.marshalNResourceActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐResourceActivityLogEntryData,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_GenericKubernetesResourceActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GenericKubernetesResourceActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "apiVersion":
+				return ec.fieldContext_ResourceActivityLogEntryData_apiVersion(ctx, field)
+			case "kind":
+				return ec.fieldContext_ResourceActivityLogEntryData_kind(ctx, field)
+			case "changedFields":
+				return ec.fieldContext_ResourceActivityLogEntryData_changedFields(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ResourceActivityLogEntryData", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ResourceActivityLogEntryData_apiVersion(ctx context.Context, field graphql.CollectedField, obj *activitylog.ResourceActivityLogEntryData) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -210,275 +479,6 @@ func (ec *executionContext) fieldContext_ResourceChangedField_newValue(_ context
 	return fc, nil
 }
 
-func (ec *executionContext) _UnsupportedResourceActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *activitylog.UnsupportedResourceActivityLogEntry) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_UnsupportedResourceActivityLogEntry_id,
-		func(ctx context.Context) (any, error) {
-			return obj.ID(), nil
-		},
-		nil,
-		ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_UnsupportedResourceActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UnsupportedResourceActivityLogEntry",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _UnsupportedResourceActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *activitylog.UnsupportedResourceActivityLogEntry) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_UnsupportedResourceActivityLogEntry_actor,
-		func(ctx context.Context) (any, error) {
-			return obj.Actor, nil
-		},
-		nil,
-		ec.marshalNString2string,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_UnsupportedResourceActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UnsupportedResourceActivityLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _UnsupportedResourceActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *activitylog.UnsupportedResourceActivityLogEntry) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_UnsupportedResourceActivityLogEntry_createdAt,
-		func(ctx context.Context) (any, error) {
-			return obj.CreatedAt, nil
-		},
-		nil,
-		ec.marshalNTime2timeᚐTime,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_UnsupportedResourceActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UnsupportedResourceActivityLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _UnsupportedResourceActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *activitylog.UnsupportedResourceActivityLogEntry) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_UnsupportedResourceActivityLogEntry_message,
-		func(ctx context.Context) (any, error) {
-			return obj.Message, nil
-		},
-		nil,
-		ec.marshalNString2string,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_UnsupportedResourceActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UnsupportedResourceActivityLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _UnsupportedResourceActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *activitylog.UnsupportedResourceActivityLogEntry) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_UnsupportedResourceActivityLogEntry_resourceType,
-		func(ctx context.Context) (any, error) {
-			return obj.ResourceType, nil
-		},
-		nil,
-		ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_UnsupportedResourceActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UnsupportedResourceActivityLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ActivityLogEntryResourceType does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _UnsupportedResourceActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *activitylog.UnsupportedResourceActivityLogEntry) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_UnsupportedResourceActivityLogEntry_resourceName,
-		func(ctx context.Context) (any, error) {
-			return obj.ResourceName, nil
-		},
-		nil,
-		ec.marshalNString2string,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_UnsupportedResourceActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UnsupportedResourceActivityLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _UnsupportedResourceActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *activitylog.UnsupportedResourceActivityLogEntry) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_UnsupportedResourceActivityLogEntry_teamSlug,
-		func(ctx context.Context) (any, error) {
-			return obj.TeamSlug, nil
-		},
-		nil,
-		ec.marshalOSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug,
-		true,
-		false,
-	)
-}
-
-func (ec *executionContext) fieldContext_UnsupportedResourceActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UnsupportedResourceActivityLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Slug does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _UnsupportedResourceActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *activitylog.UnsupportedResourceActivityLogEntry) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_UnsupportedResourceActivityLogEntry_environmentName,
-		func(ctx context.Context) (any, error) {
-			return obj.EnvironmentName, nil
-		},
-		nil,
-		ec.marshalOString2ᚖstring,
-		true,
-		false,
-	)
-}
-
-func (ec *executionContext) fieldContext_UnsupportedResourceActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UnsupportedResourceActivityLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _UnsupportedResourceActivityLogEntry_data(ctx context.Context, field graphql.CollectedField, obj *activitylog.UnsupportedResourceActivityLogEntry) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_UnsupportedResourceActivityLogEntry_data,
-		func(ctx context.Context) (any, error) {
-			return obj.Data, nil
-		},
-		nil,
-		ec.marshalNResourceActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐResourceActivityLogEntryData,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_UnsupportedResourceActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UnsupportedResourceActivityLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "apiVersion":
-				return ec.fieldContext_ResourceActivityLogEntryData_apiVersion(ctx, field)
-			case "kind":
-				return ec.fieldContext_ResourceActivityLogEntryData_kind(ctx, field)
-			case "changedFields":
-				return ec.fieldContext_ResourceActivityLogEntryData_changedFields(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type ResourceActivityLogEntryData", field.Name)
-		},
-	}
-	return fc, nil
-}
-
 // endregion **************************** field.gotpl *****************************
 
 // region    **************************** input.gotpl *****************************
@@ -490,6 +490,79 @@ func (ec *executionContext) fieldContext_UnsupportedResourceActivityLogEntry_dat
 // endregion ************************** interface.gotpl ***************************
 
 // region    **************************** object.gotpl ****************************
+
+var genericKubernetesResourceActivityLogEntryImplementors = []string{"GenericKubernetesResourceActivityLogEntry", "ActivityLogEntry", "Node"}
+
+func (ec *executionContext) _GenericKubernetesResourceActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *activitylog.GenericKubernetesResourceActivityLogEntry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, genericKubernetesResourceActivityLogEntryImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("GenericKubernetesResourceActivityLogEntry")
+		case "id":
+			out.Values[i] = ec._GenericKubernetesResourceActivityLogEntry_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "actor":
+			out.Values[i] = ec._GenericKubernetesResourceActivityLogEntry_actor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "createdAt":
+			out.Values[i] = ec._GenericKubernetesResourceActivityLogEntry_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "message":
+			out.Values[i] = ec._GenericKubernetesResourceActivityLogEntry_message(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "resourceType":
+			out.Values[i] = ec._GenericKubernetesResourceActivityLogEntry_resourceType(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "resourceName":
+			out.Values[i] = ec._GenericKubernetesResourceActivityLogEntry_resourceName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "teamSlug":
+			out.Values[i] = ec._GenericKubernetesResourceActivityLogEntry_teamSlug(ctx, field, obj)
+		case "environmentName":
+			out.Values[i] = ec._GenericKubernetesResourceActivityLogEntry_environmentName(ctx, field, obj)
+		case "data":
+			out.Values[i] = ec._GenericKubernetesResourceActivityLogEntry_data(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
 
 var resourceActivityLogEntryDataImplementors = []string{"ResourceActivityLogEntryData"}
 
@@ -560,79 +633,6 @@ func (ec *executionContext) _ResourceChangedField(ctx context.Context, sel ast.S
 			out.Values[i] = ec._ResourceChangedField_oldValue(ctx, field, obj)
 		case "newValue":
 			out.Values[i] = ec._ResourceChangedField_newValue(ctx, field, obj)
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.ProcessDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var unsupportedResourceActivityLogEntryImplementors = []string{"UnsupportedResourceActivityLogEntry", "ActivityLogEntry", "Node"}
-
-func (ec *executionContext) _UnsupportedResourceActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *activitylog.UnsupportedResourceActivityLogEntry) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, unsupportedResourceActivityLogEntryImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("UnsupportedResourceActivityLogEntry")
-		case "id":
-			out.Values[i] = ec._UnsupportedResourceActivityLogEntry_id(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "actor":
-			out.Values[i] = ec._UnsupportedResourceActivityLogEntry_actor(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "createdAt":
-			out.Values[i] = ec._UnsupportedResourceActivityLogEntry_createdAt(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "message":
-			out.Values[i] = ec._UnsupportedResourceActivityLogEntry_message(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "resourceType":
-			out.Values[i] = ec._UnsupportedResourceActivityLogEntry_resourceType(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "resourceName":
-			out.Values[i] = ec._UnsupportedResourceActivityLogEntry_resourceName(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "teamSlug":
-			out.Values[i] = ec._UnsupportedResourceActivityLogEntry_teamSlug(ctx, field, obj)
-		case "environmentName":
-			out.Values[i] = ec._UnsupportedResourceActivityLogEntry_environmentName(ctx, field, obj)
-		case "data":
-			out.Values[i] = ec._UnsupportedResourceActivityLogEntry_data(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
