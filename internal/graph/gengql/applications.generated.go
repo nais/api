@@ -2234,7 +2234,7 @@ func (ec *executionContext) _ApplicationCreatedActivityLogEntry_data(ctx context
 			return obj.Data, nil
 		},
 		nil,
-		ec.marshalNResourceActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐResourceActivityLogEntryData,
+		ec.marshalNGenericKubernetesResourceActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐGenericKubernetesResourceActivityLogEntryData,
 		true,
 		true,
 	)
@@ -2249,13 +2249,13 @@ func (ec *executionContext) fieldContext_ApplicationCreatedActivityLogEntry_data
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "apiVersion":
-				return ec.fieldContext_ResourceActivityLogEntryData_apiVersion(ctx, field)
+				return ec.fieldContext_GenericKubernetesResourceActivityLogEntryData_apiVersion(ctx, field)
 			case "kind":
-				return ec.fieldContext_ResourceActivityLogEntryData_kind(ctx, field)
+				return ec.fieldContext_GenericKubernetesResourceActivityLogEntryData_kind(ctx, field)
 			case "changedFields":
-				return ec.fieldContext_ResourceActivityLogEntryData_changedFields(ctx, field)
+				return ec.fieldContext_GenericKubernetesResourceActivityLogEntryData_changedFields(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type ResourceActivityLogEntryData", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type GenericKubernetesResourceActivityLogEntryData", field.Name)
 		},
 	}
 	return fc, nil
@@ -4137,7 +4137,7 @@ func (ec *executionContext) _ApplicationUpdatedActivityLogEntry_data(ctx context
 			return obj.Data, nil
 		},
 		nil,
-		ec.marshalNResourceActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐResourceActivityLogEntryData,
+		ec.marshalNGenericKubernetesResourceActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐGenericKubernetesResourceActivityLogEntryData,
 		true,
 		true,
 	)
@@ -4152,13 +4152,13 @@ func (ec *executionContext) fieldContext_ApplicationUpdatedActivityLogEntry_data
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "apiVersion":
-				return ec.fieldContext_ResourceActivityLogEntryData_apiVersion(ctx, field)
+				return ec.fieldContext_GenericKubernetesResourceActivityLogEntryData_apiVersion(ctx, field)
 			case "kind":
-				return ec.fieldContext_ResourceActivityLogEntryData_kind(ctx, field)
+				return ec.fieldContext_GenericKubernetesResourceActivityLogEntryData_kind(ctx, field)
 			case "changedFields":
-				return ec.fieldContext_ResourceActivityLogEntryData_changedFields(ctx, field)
+				return ec.fieldContext_GenericKubernetesResourceActivityLogEntryData_changedFields(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type ResourceActivityLogEntryData", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type GenericKubernetesResourceActivityLogEntryData", field.Name)
 		},
 	}
 	return fc, nil

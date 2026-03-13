@@ -743,7 +743,7 @@ type ApplicationCreatedActivityLogEntry implements ActivityLogEntry & Node {
 	environmentName: String
 
 	"Data associated with the creation."
-	data: ResourceActivityLogEntryData!
+	data: GenericKubernetesResourceActivityLogEntryData!
 }
 
 type ApplicationUpdatedActivityLogEntry implements ActivityLogEntry & Node {
@@ -772,7 +772,7 @@ type ApplicationUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 	environmentName: String
 
 	"Data associated with the update."
-	data: ResourceActivityLogEntryData!
+	data: GenericKubernetesResourceActivityLogEntryData!
 }
 
 extend enum ActivityLogActivityType {

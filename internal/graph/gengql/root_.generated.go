@@ -767,6 +767,12 @@ type ComplexityRoot struct {
 		TeamSlug        func(childComplexity int) int
 	}
 
+	GenericKubernetesResourceActivityLogEntryData struct {
+		APIVersion    func(childComplexity int) int
+		ChangedFields func(childComplexity int) int
+		Kind          func(childComplexity int) int
+	}
+
 	GrantPostgresAccessPayload struct {
 		Error func(childComplexity int) int
 	}
@@ -1655,12 +1661,6 @@ type ComplexityRoot struct {
 
 	RequestTeamDeletionPayload struct {
 		Key func(childComplexity int) int
-	}
-
-	ResourceActivityLogEntryData struct {
-		APIVersion    func(childComplexity int) int
-		ChangedFields func(childComplexity int) int
-		Kind          func(childComplexity int) int
 	}
 
 	ResourceChangedField struct {
@@ -5548,6 +5548,27 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.GenericKubernetesResourceActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "GenericKubernetesResourceActivityLogEntryData.apiVersion":
+		if e.ComplexityRoot.GenericKubernetesResourceActivityLogEntryData.APIVersion == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GenericKubernetesResourceActivityLogEntryData.APIVersion(childComplexity), true
+
+	case "GenericKubernetesResourceActivityLogEntryData.changedFields":
+		if e.ComplexityRoot.GenericKubernetesResourceActivityLogEntryData.ChangedFields == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GenericKubernetesResourceActivityLogEntryData.ChangedFields(childComplexity), true
+
+	case "GenericKubernetesResourceActivityLogEntryData.kind":
+		if e.ComplexityRoot.GenericKubernetesResourceActivityLogEntryData.Kind == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GenericKubernetesResourceActivityLogEntryData.Kind(childComplexity), true
 
 	case "GrantPostgresAccessPayload.error":
 		if e.ComplexityRoot.GrantPostgresAccessPayload.Error == nil {
@@ -9833,27 +9854,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.RequestTeamDeletionPayload.Key(childComplexity), true
-
-	case "ResourceActivityLogEntryData.apiVersion":
-		if e.ComplexityRoot.ResourceActivityLogEntryData.APIVersion == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ResourceActivityLogEntryData.APIVersion(childComplexity), true
-
-	case "ResourceActivityLogEntryData.changedFields":
-		if e.ComplexityRoot.ResourceActivityLogEntryData.ChangedFields == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ResourceActivityLogEntryData.ChangedFields(childComplexity), true
-
-	case "ResourceActivityLogEntryData.kind":
-		if e.ComplexityRoot.ResourceActivityLogEntryData.Kind == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ResourceActivityLogEntryData.Kind(childComplexity), true
 
 	case "ResourceChangedField.field":
 		if e.ComplexityRoot.ResourceChangedField.Field == nil {
@@ -17636,7 +17636,7 @@ type ApplicationCreatedActivityLogEntry implements ActivityLogEntry & Node {
 	environmentName: String
 
 	"Data associated with the creation."
-	data: ResourceActivityLogEntryData!
+	data: GenericKubernetesResourceActivityLogEntryData!
 }
 
 type ApplicationUpdatedActivityLogEntry implements ActivityLogEntry & Node {
@@ -17665,7 +17665,7 @@ type ApplicationUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 	environmentName: String
 
 	"Data associated with the update."
-	data: ResourceActivityLogEntryData!
+	data: GenericKubernetesResourceActivityLogEntryData!
 }
 
 extend enum ActivityLogActivityType {
@@ -17686,17 +17686,17 @@ extend enum ActivityLogActivityType {
 }
 `, BuiltIn: false},
 	{Name: "../schema/apply.graphqls", Input: `extend enum ActivityLogActivityType {
-	"A resource was updated via apply."
-	RESOURCE_UPDATED
+	"A generic kubernetes resource was updated via apply."
+	GENERIC_KUBERNETES_RESOURCE_UPDATED
 
-	"A resource was created via apply."
-	RESOURCE_CREATED
+	"A generic kubernetes resource was created via apply."
+	GENERIC_KUBERNETES_RESOURCE_CREATED
 }
 
 """
 Additional data associated with a resource created or updated via apply.
 """
-type ResourceActivityLogEntryData {
+type GenericKubernetesResourceActivityLogEntryData {
 	"The apiVersion of the applied resource."
 	apiVersion: String!
 	"The kind of the applied resource."
@@ -17706,14 +17706,14 @@ type ResourceActivityLogEntryData {
 }
 
 """
-A single field that changed during an apply operation.
+A single field that changed.
 """
 type ResourceChangedField {
 	"The dot-separated path to the changed field, e.g. 'spec.replicas'."
 	field: String!
-	"The value before the apply. Null if the field was added."
+	"The value before the change. Null if the field was added."
 	oldValue: String
-	"The value after the apply. Null if the field was removed."
+	"The value after the change. Null if the field was removed."
 	newValue: String
 }
 
@@ -17747,7 +17747,7 @@ type GenericKubernetesResourceActivityLogEntry implements ActivityLogEntry & Nod
 	environmentName: String
 
 	"Data associated with the apply operation."
-	data: ResourceActivityLogEntryData!
+	data: GenericKubernetesResourceActivityLogEntryData!
 }
 `, BuiltIn: false},
 	{Name: "../schema/authz.graphqls", Input: `type Role implements Node {
@@ -19794,7 +19794,7 @@ type JobCreatedActivityLogEntry implements ActivityLogEntry & Node {
 	environmentName: String
 
 	"Data associated with the creation."
-	data: ResourceActivityLogEntryData!
+	data: GenericKubernetesResourceActivityLogEntryData!
 }
 
 type JobUpdatedActivityLogEntry implements ActivityLogEntry & Node {
@@ -19823,7 +19823,7 @@ type JobUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 	environmentName: String
 
 	"Data associated with the update."
-	data: ResourceActivityLogEntryData!
+	data: GenericKubernetesResourceActivityLogEntryData!
 }
 
 extend enum ActivityLogActivityType {

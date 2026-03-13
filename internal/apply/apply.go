@@ -210,7 +210,7 @@ func applyOne(
 		ResourceName:    name,
 		TeamSlug:        &teamSlug,
 		EnvironmentName: &environment,
-		Data: activitylog.ResourceActivityLogEntryData{
+		Data: activitylog.GenericKubernetesResourceActivityLogEntryData{
 			APIVersion:    apiVersion,
 			Kind:          kind,
 			ChangedFields: changes,
