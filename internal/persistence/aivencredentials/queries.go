@@ -2,6 +2,7 @@ package aivencredentials
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
 	"hash/crc32"
 	"strconv"
@@ -271,7 +272,8 @@ func waitForSecret(ctx context.Context, client dynamic.Interface, namespace, sec
 	}
 }
 
-// secretData extracts the .data map from a Secret, converting values to strings.
+// secretData extracts the .data map from a Secret, base64-decoding the values.
+// Kubernetes secrets store data as base64-encoded strings in the "data" field.
 func secretData(secret *unstructured.Unstructured, log logrus.FieldLogger) map[string]string {
 	result := make(map[string]string)
 	data, ok := secret.Object["data"].(map[string]any)
@@ -279,11 +281,18 @@ func secretData(secret *unstructured.Unstructured, log logrus.FieldLogger) map[s
 		return result
 	}
 	for k, v := range data {
-		if s, ok := v.(string); ok {
-			result[k] = s
-		} else {
+		s, ok := v.(string)
+		if !ok {
 			log.WithField("key", k).WithField("type", fmt.Sprintf("%T", v)).Warn("unexpected non-string value in secret data")
+			continue
 		}
+		decoded, err := base64.StdEncoding.DecodeString(s)
+		if err != nil {
+			log.WithField("key", k).WithError(err).Warn("failed to base64-decode secret value")
+			result[k] = s // use raw value as fallback
+			continue
+		}
+		result[k] = string(decoded)
 	}
 	return result
 }

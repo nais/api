@@ -294,8 +294,6 @@ func ConfigureGraph(
 
 	dynamicClients := watcherMgr.GetDynamicClients()
 
-	aivencredentials.Register()
-
 	var costOpts []cost.Option
 	if fakes.WithFakeCostClient {
 		costOpts = append(costOpts, cost.WithClient(cost.NewFakeClient()))

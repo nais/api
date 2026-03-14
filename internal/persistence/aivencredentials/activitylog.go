@@ -12,9 +12,7 @@ const (
 	activityLogEntryResourceTypeAivenCredentials activitylog.ActivityLogEntryResourceType = "AIVEN_CREDENTIALS"
 )
 
-// Register registers the activity log transformer and filter for aiven credentials.
-// Must be called during application startup (e.g. from wiring code).
-func Register() {
+func init() {
 	activitylog.RegisterTransformer(activityLogEntryResourceTypeAivenCredentials, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
 		switch entry.Action {
 		case activityLogEntryActionCreateCredentials:

@@ -2,6 +2,7 @@ package aivencredentials
 
 import (
 	"context"
+	"encoding/base64"
 	"testing"
 	"time"
 
@@ -154,8 +155,8 @@ func TestSecretData(t *testing.T) {
 			name: "extracts string values",
 			object: map[string]any{
 				"data": map[string]any{
-					"KEY1": "value1",
-					"KEY2": "value2",
+					"KEY1": base64.StdEncoding.EncodeToString([]byte("value1")),
+					"KEY2": base64.StdEncoding.EncodeToString([]byte("value2")),
 				},
 			},
 			want:     map[string]string{"KEY1": "value1", "KEY2": "value2"},
@@ -171,7 +172,7 @@ func TestSecretData(t *testing.T) {
 			name: "logs non-string values",
 			object: map[string]any{
 				"data": map[string]any{
-					"KEY1": "value1",
+					"KEY1": base64.StdEncoding.EncodeToString([]byte("value1")),
 					"KEY2": 42,
 				},
 			},
