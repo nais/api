@@ -879,7 +879,21 @@ type ComplexityRoot struct {
 	GenericKubernetesResourceActivityLogEntryData struct {
 		APIVersion    func(childComplexity int) int
 		ChangedFields func(childComplexity int) int
+		GitHubClaims  func(childComplexity int) int
 		Kind          func(childComplexity int) int
+	}
+
+	GitHubActorClaims struct {
+		Actor          func(childComplexity int) int
+		Environment    func(childComplexity int) int
+		EventName      func(childComplexity int) int
+		JobWorkflowRef func(childComplexity int) int
+		Ref            func(childComplexity int) int
+		Repository     func(childComplexity int) int
+		RepositoryID   func(childComplexity int) int
+		RunAttempt     func(childComplexity int) int
+		RunID          func(childComplexity int) int
+		Workflow       func(childComplexity int) int
 	}
 
 	GrantPostgresAccessPayload struct {
@@ -6173,12 +6187,89 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.GenericKubernetesResourceActivityLogEntryData.ChangedFields(childComplexity), true
 
+	case "GenericKubernetesResourceActivityLogEntryData.gitHubClaims":
+		if e.ComplexityRoot.GenericKubernetesResourceActivityLogEntryData.GitHubClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GenericKubernetesResourceActivityLogEntryData.GitHubClaims(childComplexity), true
+
 	case "GenericKubernetesResourceActivityLogEntryData.kind":
 		if e.ComplexityRoot.GenericKubernetesResourceActivityLogEntryData.Kind == nil {
 			break
 		}
 
 		return e.ComplexityRoot.GenericKubernetesResourceActivityLogEntryData.Kind(childComplexity), true
+
+	case "GitHubActorClaims.actor":
+		if e.ComplexityRoot.GitHubActorClaims.Actor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GitHubActorClaims.Actor(childComplexity), true
+
+	case "GitHubActorClaims.environment":
+		if e.ComplexityRoot.GitHubActorClaims.Environment == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GitHubActorClaims.Environment(childComplexity), true
+
+	case "GitHubActorClaims.eventName":
+		if e.ComplexityRoot.GitHubActorClaims.EventName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GitHubActorClaims.EventName(childComplexity), true
+
+	case "GitHubActorClaims.jobWorkflowRef":
+		if e.ComplexityRoot.GitHubActorClaims.JobWorkflowRef == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GitHubActorClaims.JobWorkflowRef(childComplexity), true
+
+	case "GitHubActorClaims.ref":
+		if e.ComplexityRoot.GitHubActorClaims.Ref == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GitHubActorClaims.Ref(childComplexity), true
+
+	case "GitHubActorClaims.repository":
+		if e.ComplexityRoot.GitHubActorClaims.Repository == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GitHubActorClaims.Repository(childComplexity), true
+
+	case "GitHubActorClaims.repositoryID":
+		if e.ComplexityRoot.GitHubActorClaims.RepositoryID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GitHubActorClaims.RepositoryID(childComplexity), true
+
+	case "GitHubActorClaims.runAttempt":
+		if e.ComplexityRoot.GitHubActorClaims.RunAttempt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GitHubActorClaims.RunAttempt(childComplexity), true
+
+	case "GitHubActorClaims.runID":
+		if e.ComplexityRoot.GitHubActorClaims.RunID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GitHubActorClaims.RunID(childComplexity), true
+
+	case "GitHubActorClaims.workflow":
+		if e.ComplexityRoot.GitHubActorClaims.Workflow == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GitHubActorClaims.Workflow(childComplexity), true
 
 	case "GrantPostgresAccessPayload.error":
 		if e.ComplexityRoot.GrantPostgresAccessPayload.Error == nil {
@@ -18495,6 +18586,34 @@ type GenericKubernetesResourceActivityLogEntryData {
 	kind: String!
 	"The fields that changed during the apply. Only populated for updates."
 	changedFields: [ResourceChangedField!]!
+	"GitHub Actions OIDC token claims at the time of the apply. Only present when the request was authenticated via a GitHub token."
+	gitHubClaims: GitHubActorClaims
+}
+
+"""
+GitHub Actions OIDC token claims captured at the time of an apply operation.
+"""
+type GitHubActorClaims {
+	"The git ref that triggered the workflow, e.g. 'refs/heads/main'."
+	ref: String!
+	"The repository name that triggered the workflow, e.g. 'org/repo'."
+	repository: String!
+	"The immutable numeric GitHub repository ID."
+	repositoryID: String!
+	"The unique identifier of the Actions workflow run. Links to https://github.com/<repo>/actions/runs/<runId>."
+	runID: String!
+	"The attempt number of the workflow run (1-indexed)."
+	runAttempt: String!
+	"The GitHub username that triggered the workflow."
+	actor: String!
+	"The path to the workflow file, e.g. '.github/workflows/deploy.yaml'."
+	workflow: String!
+	"The event that triggered the workflow, e.g. 'push' or 'workflow_dispatch'."
+	eventName: String!
+	"The GitHub deployment environment name, if the job targets one."
+	environment: String!
+	"The ref of the reusable workflow called by this job, if any. E.g. 'org/repo/.github/workflows/deploy.yaml@refs/heads/main'."
+	jobWorkflowRef: String!
 }
 
 """

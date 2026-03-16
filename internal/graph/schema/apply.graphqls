@@ -16,6 +16,34 @@ type GenericKubernetesResourceActivityLogEntryData {
 	kind: String!
 	"The fields that changed during the apply. Only populated for updates."
 	changedFields: [ResourceChangedField!]!
+	"GitHub Actions OIDC token claims at the time of the apply. Only present when the request was authenticated via a GitHub token."
+	gitHubClaims: GitHubActorClaims
+}
+
+"""
+GitHub Actions OIDC token claims captured at the time of an apply operation.
+"""
+type GitHubActorClaims {
+	"The git ref that triggered the workflow, e.g. 'refs/heads/main'."
+	ref: String!
+	"The repository name that triggered the workflow, e.g. 'org/repo'."
+	repository: String!
+	"The immutable numeric GitHub repository ID."
+	repositoryID: String!
+	"The unique identifier of the Actions workflow run. Links to https://github.com/<repo>/actions/runs/<runId>."
+	runID: String!
+	"The attempt number of the workflow run (1-indexed)."
+	runAttempt: String!
+	"The GitHub username that triggered the workflow."
+	actor: String!
+	"The path to the workflow file, e.g. '.github/workflows/deploy.yaml'."
+	workflow: String!
+	"The event that triggered the workflow, e.g. 'push' or 'workflow_dispatch'."
+	eventName: String!
+	"The GitHub deployment environment name, if the job targets one."
+	environment: String!
+	"The ref of the reusable workflow called by this job, if any. E.g. 'org/repo/.github/workflows/deploy.yaml@refs/heads/main'."
+	jobWorkflowRef: String!
 }
 
 """

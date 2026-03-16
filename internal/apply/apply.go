@@ -10,6 +10,7 @@ import (
 
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
+	"github.com/nais/api/internal/auth/middleware"
 	"github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/slug"
 	"github.com/sirupsen/logrus"
@@ -203,6 +204,17 @@ func applyOne(
 	}
 
 	resourceType, _ := activitylog.ResourceTypeForKind(kind)
+
+	logData := activitylog.GenericKubernetesResourceActivityLogEntryData{
+		APIVersion:    apiVersion,
+		Kind:          kind,
+		ChangedFields: changes,
+	}
+	if ghActor, ok := actor.User.(*middleware.GitHubRepoActor); ok {
+		claims := activitylog.GitHubActorClaims(ghActor.Claims)
+		logData.GitHubClaims = &claims
+	}
+
 	if err := activitylog.Create(ctx, activitylog.CreateInput{
 		Action:          action,
 		Actor:           actor.User,
@@ -210,11 +222,7 @@ func applyOne(
 		ResourceName:    name,
 		TeamSlug:        &teamSlug,
 		EnvironmentName: &environment,
-		Data: activitylog.GenericKubernetesResourceActivityLogEntryData{
-			APIVersion:    apiVersion,
-			Kind:          kind,
-			ChangedFields: changes,
-		},
+		Data:            logData,
 	}); err != nil {
 		log.WithError(err).Error("creating activity log entry")
 		// Don't fail the apply because of a logging error.
