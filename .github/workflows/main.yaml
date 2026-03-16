@@ -64,7 +64,7 @@ jobs:
           key: build
           restore-keys: test
       - run: mise run build:api
-      - uses: nais/platform-build-push-sign@docker_cache
+      - uses: nais/platform-build-push-sign@main # ratchet:exclude
         id: build-push-sign
         with:
           name: nais-api
