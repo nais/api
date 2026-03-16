@@ -140,8 +140,8 @@ func applyOne(
 		}
 	}
 
-	// Authorize the actor for this team and kind.
-	if err := authorizeResource(ctx, kind, teamSlug); err != nil {
+	// Authorize the actor for this team.
+	if err := authorizeResource(ctx, teamSlug); err != nil {
 		return ResourceResult{
 			Resource:        resourceID,
 			EnvironmentName: environment,
@@ -228,17 +228,10 @@ func applyOne(
 	}
 }
 
-// authorizeResource checks if the current actor is authorized to apply the given kind
-// to the team from the URL.
-func authorizeResource(ctx context.Context, kind string, teamSlug slug.Slug) error {
-	switch kind {
-	case "Application":
-		return authz.CanUpdateApplications(ctx, teamSlug)
-	case "Naisjob":
-		return authz.CanUpdateJobs(ctx, teamSlug)
-	default:
-		return fmt.Errorf("no authorization mapping for kind %q", kind)
-	}
+// authorizeResource checks if the current actor is authorized to apply kubernetes
+// resources to the given team.
+func authorizeResource(ctx context.Context, teamSlug slug.Slug) error {
+	return authz.CanApplyKubernetesResource(ctx, teamSlug)
 }
 
 // request is the incoming JSON request body.
