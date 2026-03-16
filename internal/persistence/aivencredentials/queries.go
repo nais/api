@@ -11,6 +11,7 @@ import (
 
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
+	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/slug"
 	"github.com/sirupsen/logrus"
@@ -320,7 +321,7 @@ func parseTTL(ttl string) (time.Duration, error) {
 	if strings.HasSuffix(ttl, "d") {
 		days, err := strconv.Atoi(strings.TrimSuffix(ttl, "d"))
 		if err != nil {
-			return 0, fmt.Errorf("invalid TTL: %s", ttl)
+			return 0, apierror.Errorf("invalid TTL: %s", ttl)
 		}
 		d = time.Duration(days) * 24 * time.Hour
 	} else {
@@ -328,15 +329,15 @@ func parseTTL(ttl string) (time.Duration, error) {
 		var err error
 		d, err = time.ParseDuration(ttl)
 		if err != nil {
-			return 0, fmt.Errorf("invalid TTL: %s (use e.g. '1d', '7d', '24h')", ttl)
+			return 0, apierror.Errorf("invalid TTL: %s (use e.g. '1d', '7d', '24h')", ttl)
 		}
 	}
 
 	if d <= 0 {
-		return 0, fmt.Errorf("TTL must be positive")
+		return 0, apierror.Errorf("TTL must be positive")
 	}
 	if d > maxTTL {
-		return 0, fmt.Errorf("TTL exceeds maximum of 30 days")
+		return 0, apierror.Errorf("TTL exceeds maximum of 30 days")
 	}
 	return d, nil
 }
