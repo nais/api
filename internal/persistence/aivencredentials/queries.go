@@ -11,6 +11,7 @@ import (
 
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
+	"github.com/nais/api/internal/environmentmapper"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/slug"
@@ -205,7 +206,8 @@ func CreateKafkaCredentials(ctx context.Context, input CreateKafkaCredentialsInp
 // getClient returns the dynamic client for the given environment (cluster).
 func getClient(ctx context.Context, environmentName string) (dynamic.Interface, error) {
 	l := fromContext(ctx)
-	client, ok := l.dynamicClients[environmentName]
+	clusterName := environmentmapper.ClusterName(environmentName)
+	client, ok := l.dynamicClients[clusterName]
 	if !ok {
 		return nil, fmt.Errorf("unknown environment: %s", environmentName)
 	}
