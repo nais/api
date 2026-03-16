@@ -66,6 +66,26 @@ type GenericKubernetesResourceActivityLogEntryData struct {
 	// ChangedFields lists the fields that changed during the apply.
 	// Only populated for updates.
 	ChangedFields []ResourceChangedField `json:"changedFields"`
+
+	// GitHubClaims holds the GitHub Actions OIDC token claims at the time of the
+	// apply. Only populated when the request was authenticated via a GitHub token.
+	GitHubClaims *GitHubActorClaims `json:"gitHubClaims,omitempty"`
+}
+
+// GitHubActorClaims holds the GitHub Actions OIDC token claims captured at the
+// time of an apply operation. Duplicated from the middleware package to avoid a
+// circular import; JSON tags must stay in sync.
+type GitHubActorClaims struct {
+	Ref            string `json:"ref"`
+	Repository     string `json:"repository"`
+	RepositoryID   string `json:"repositoryId"`
+	RunID          string `json:"runId"`
+	RunAttempt     string `json:"runAttempt"`
+	Actor          string `json:"actor"`
+	Workflow       string `json:"workflow"`
+	EventName      string `json:"eventName"`
+	Environment    string `json:"environment"`
+	JobWorkflowRef string `json:"jobWorkflowRef"`
 }
 
 // GenericKubernetesActivityLogEntry is used for resource types that do not have
