@@ -294,6 +294,10 @@ func CanGrantPostgresAccess(ctx context.Context, teamSlug slug.Slug) error {
 	return requireTeamAuthorization(ctx, teamSlug, "postgres:access:grant")
 }
 
+func CanCreateAivenCredentials(ctx context.Context, teamSlug slug.Slug) error {
+	return requireTeamAuthorization(ctx, teamSlug, "aiven:credentials:create")
+}
+
 func RequireGlobalAdmin(ctx context.Context) error {
 	if ActorFromContext(ctx).User.IsAdmin() {
 		return nil
