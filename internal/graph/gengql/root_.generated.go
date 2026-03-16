@@ -20,6 +20,7 @@ import (
 	"github.com/nais/api/internal/issue"
 	"github.com/nais/api/internal/loki"
 	"github.com/nais/api/internal/metrics"
+	"github.com/nais/api/internal/persistence/aivencredentials"
 	"github.com/nais/api/internal/persistence/bigquery"
 	"github.com/nais/api/internal/persistence/bucket"
 	"github.com/nais/api/internal/persistence/kafkatopic"
@@ -465,6 +466,14 @@ type ComplexityRoot struct {
 		Series func(childComplexity int) int
 	}
 
+	CreateKafkaCredentialsPayload struct {
+		Credentials func(childComplexity int) int
+	}
+
+	CreateOpenSearchCredentialsPayload struct {
+		Credentials func(childComplexity int) int
+	}
+
 	CreateOpenSearchPayload struct {
 		OpenSearch func(childComplexity int) int
 	}
@@ -489,6 +498,10 @@ type ComplexityRoot struct {
 
 	CreateUnleashForTeamPayload struct {
 		Unleash func(childComplexity int) int
+	}
+
+	CreateValkeyCredentialsPayload struct {
+		Credentials func(childComplexity int) int
 	}
 
 	CreateValkeyPayload struct {
@@ -936,6 +949,15 @@ type ComplexityRoot struct {
 		TeamSlug        func(childComplexity int) int
 	}
 
+	KafkaCredentials struct {
+		AccessCert     func(childComplexity int) int
+		AccessKey      func(childComplexity int) int
+		Brokers        func(childComplexity int) int
+		CaCert         func(childComplexity int) int
+		SchemaRegistry func(childComplexity int) int
+		Username       func(childComplexity int) int
+	}
+
 	KafkaLagScalingStrategy struct {
 		ConsumerGroup func(childComplexity int) int
 		Threshold     func(childComplexity int) int
@@ -1074,13 +1096,16 @@ type ComplexityRoot struct {
 		ChangeDeploymentKey          func(childComplexity int, input deployment.ChangeDeploymentKeyInput) int
 		ConfigureReconciler          func(childComplexity int, input reconciler.ConfigureReconcilerInput) int
 		ConfirmTeamDeletion          func(childComplexity int, input team.ConfirmTeamDeletionInput) int
+		CreateKafkaCredentials       func(childComplexity int, input aivencredentials.CreateKafkaCredentialsInput) int
 		CreateOpenSearch             func(childComplexity int, input opensearch.CreateOpenSearchInput) int
+		CreateOpenSearchCredentials  func(childComplexity int, input aivencredentials.CreateOpenSearchCredentialsInput) int
 		CreateSecret                 func(childComplexity int, input secret.CreateSecretInput) int
 		CreateServiceAccount         func(childComplexity int, input serviceaccount.CreateServiceAccountInput) int
 		CreateServiceAccountToken    func(childComplexity int, input serviceaccount.CreateServiceAccountTokenInput) int
 		CreateTeam                   func(childComplexity int, input team.CreateTeamInput) int
 		CreateUnleashForTeam         func(childComplexity int, input unleash.CreateUnleashForTeamInput) int
 		CreateValkey                 func(childComplexity int, input valkey.CreateValkeyInput) int
+		CreateValkeyCredentials      func(childComplexity int, input aivencredentials.CreateValkeyCredentialsInput) int
 		DeleteApplication            func(childComplexity int, input application.DeleteApplicationInput) int
 		DeleteJob                    func(childComplexity int, input job.DeleteJobInput) int
 		DeleteOpenSearch             func(childComplexity int, input opensearch.DeleteOpenSearchInput) int
@@ -1191,6 +1216,14 @@ type ComplexityRoot struct {
 		ResourceName    func(childComplexity int) int
 		ResourceType    func(childComplexity int) int
 		TeamSlug        func(childComplexity int) int
+	}
+
+	OpenSearchCredentials struct {
+		Host     func(childComplexity int) int
+		Password func(childComplexity int) int
+		Port     func(childComplexity int) int
+		URI      func(childComplexity int) int
+		Username func(childComplexity int) int
 	}
 
 	OpenSearchDeletedActivityLogEntry struct {
@@ -2737,6 +2770,14 @@ type ComplexityRoot struct {
 		ResourceName    func(childComplexity int) int
 		ResourceType    func(childComplexity int) int
 		TeamSlug        func(childComplexity int) int
+	}
+
+	ValkeyCredentials struct {
+		Host     func(childComplexity int) int
+		Password func(childComplexity int) int
+		Port     func(childComplexity int) int
+		URI      func(childComplexity int) int
+		Username func(childComplexity int) int
 	}
 
 	ValkeyDeletedActivityLogEntry struct {
@@ -4341,6 +4382,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.CostMonthlySummary.Series(childComplexity), true
 
+	case "CreateKafkaCredentialsPayload.credentials":
+		if e.ComplexityRoot.CreateKafkaCredentialsPayload.Credentials == nil {
+			break
+		}
+
+		return e.ComplexityRoot.CreateKafkaCredentialsPayload.Credentials(childComplexity), true
+
+	case "CreateOpenSearchCredentialsPayload.credentials":
+		if e.ComplexityRoot.CreateOpenSearchCredentialsPayload.Credentials == nil {
+			break
+		}
+
+		return e.ComplexityRoot.CreateOpenSearchCredentialsPayload.Credentials(childComplexity), true
+
 	case "CreateOpenSearchPayload.openSearch":
 		if e.ComplexityRoot.CreateOpenSearchPayload.OpenSearch == nil {
 			break
@@ -4396,6 +4451,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.CreateUnleashForTeamPayload.Unleash(childComplexity), true
+
+	case "CreateValkeyCredentialsPayload.credentials":
+		if e.ComplexityRoot.CreateValkeyCredentialsPayload.Credentials == nil {
+			break
+		}
+
+		return e.ComplexityRoot.CreateValkeyCredentialsPayload.Credentials(childComplexity), true
 
 	case "CreateValkeyPayload.valkey":
 		if e.ComplexityRoot.CreateValkeyPayload.Valkey == nil {
@@ -6158,6 +6220,48 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.JobTriggeredActivityLogEntry.TeamSlug(childComplexity), true
 
+	case "KafkaCredentials.accessCert":
+		if e.ComplexityRoot.KafkaCredentials.AccessCert == nil {
+			break
+		}
+
+		return e.ComplexityRoot.KafkaCredentials.AccessCert(childComplexity), true
+
+	case "KafkaCredentials.accessKey":
+		if e.ComplexityRoot.KafkaCredentials.AccessKey == nil {
+			break
+		}
+
+		return e.ComplexityRoot.KafkaCredentials.AccessKey(childComplexity), true
+
+	case "KafkaCredentials.brokers":
+		if e.ComplexityRoot.KafkaCredentials.Brokers == nil {
+			break
+		}
+
+		return e.ComplexityRoot.KafkaCredentials.Brokers(childComplexity), true
+
+	case "KafkaCredentials.caCert":
+		if e.ComplexityRoot.KafkaCredentials.CaCert == nil {
+			break
+		}
+
+		return e.ComplexityRoot.KafkaCredentials.CaCert(childComplexity), true
+
+	case "KafkaCredentials.schemaRegistry":
+		if e.ComplexityRoot.KafkaCredentials.SchemaRegistry == nil {
+			break
+		}
+
+		return e.ComplexityRoot.KafkaCredentials.SchemaRegistry(childComplexity), true
+
+	case "KafkaCredentials.username":
+		if e.ComplexityRoot.KafkaCredentials.Username == nil {
+			break
+		}
+
+		return e.ComplexityRoot.KafkaCredentials.Username(childComplexity), true
+
 	case "KafkaLagScalingStrategy.consumerGroup":
 		if e.ComplexityRoot.KafkaLagScalingStrategy.ConsumerGroup == nil {
 			break
@@ -6721,6 +6825,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Mutation.ConfirmTeamDeletion(childComplexity, args["input"].(team.ConfirmTeamDeletionInput)), true
 
+	case "Mutation.createKafkaCredentials":
+		if e.ComplexityRoot.Mutation.CreateKafkaCredentials == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createKafkaCredentials_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Mutation.CreateKafkaCredentials(childComplexity, args["input"].(aivencredentials.CreateKafkaCredentialsInput)), true
+
 	case "Mutation.createOpenSearch":
 		if e.ComplexityRoot.Mutation.CreateOpenSearch == nil {
 			break
@@ -6732,6 +6848,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Mutation.CreateOpenSearch(childComplexity, args["input"].(opensearch.CreateOpenSearchInput)), true
+
+	case "Mutation.createOpenSearchCredentials":
+		if e.ComplexityRoot.Mutation.CreateOpenSearchCredentials == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createOpenSearchCredentials_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Mutation.CreateOpenSearchCredentials(childComplexity, args["input"].(aivencredentials.CreateOpenSearchCredentialsInput)), true
 
 	case "Mutation.createSecret":
 		if e.ComplexityRoot.Mutation.CreateSecret == nil {
@@ -6804,6 +6932,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Mutation.CreateValkey(childComplexity, args["input"].(valkey.CreateValkeyInput)), true
+
+	case "Mutation.createValkeyCredentials":
+		if e.ComplexityRoot.Mutation.CreateValkeyCredentials == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createValkeyCredentials_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Mutation.CreateValkeyCredentials(childComplexity, args["input"].(aivencredentials.CreateValkeyCredentialsInput)), true
 
 	case "Mutation.deleteApplication":
 		if e.ComplexityRoot.Mutation.DeleteApplication == nil {
@@ -7539,6 +7679,41 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.OpenSearchCreatedActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "OpenSearchCredentials.host":
+		if e.ComplexityRoot.OpenSearchCredentials.Host == nil {
+			break
+		}
+
+		return e.ComplexityRoot.OpenSearchCredentials.Host(childComplexity), true
+
+	case "OpenSearchCredentials.password":
+		if e.ComplexityRoot.OpenSearchCredentials.Password == nil {
+			break
+		}
+
+		return e.ComplexityRoot.OpenSearchCredentials.Password(childComplexity), true
+
+	case "OpenSearchCredentials.port":
+		if e.ComplexityRoot.OpenSearchCredentials.Port == nil {
+			break
+		}
+
+		return e.ComplexityRoot.OpenSearchCredentials.Port(childComplexity), true
+
+	case "OpenSearchCredentials.uri":
+		if e.ComplexityRoot.OpenSearchCredentials.URI == nil {
+			break
+		}
+
+		return e.ComplexityRoot.OpenSearchCredentials.URI(childComplexity), true
+
+	case "OpenSearchCredentials.username":
+		if e.ComplexityRoot.OpenSearchCredentials.Username == nil {
+			break
+		}
+
+		return e.ComplexityRoot.OpenSearchCredentials.Username(childComplexity), true
 
 	case "OpenSearchDeletedActivityLogEntry.actor":
 		if e.ComplexityRoot.OpenSearchDeletedActivityLogEntry.Actor == nil {
@@ -14389,6 +14564,41 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ValkeyCreatedActivityLogEntry.TeamSlug(childComplexity), true
 
+	case "ValkeyCredentials.host":
+		if e.ComplexityRoot.ValkeyCredentials.Host == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ValkeyCredentials.Host(childComplexity), true
+
+	case "ValkeyCredentials.password":
+		if e.ComplexityRoot.ValkeyCredentials.Password == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ValkeyCredentials.Password(childComplexity), true
+
+	case "ValkeyCredentials.port":
+		if e.ComplexityRoot.ValkeyCredentials.Port == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ValkeyCredentials.Port(childComplexity), true
+
+	case "ValkeyCredentials.uri":
+		if e.ComplexityRoot.ValkeyCredentials.URI == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ValkeyCredentials.URI(childComplexity), true
+
+	case "ValkeyCredentials.username":
+		if e.ComplexityRoot.ValkeyCredentials.Username == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ValkeyCredentials.Username(childComplexity), true
+
 	case "ValkeyDeletedActivityLogEntry.actor":
 		if e.ComplexityRoot.ValkeyDeletedActivityLogEntry.Actor == nil {
 			break
@@ -15285,12 +15495,15 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputChangeDeploymentKeyInput,
 		ec.unmarshalInputConfigureReconcilerInput,
 		ec.unmarshalInputConfirmTeamDeletionInput,
+		ec.unmarshalInputCreateKafkaCredentialsInput,
+		ec.unmarshalInputCreateOpenSearchCredentialsInput,
 		ec.unmarshalInputCreateOpenSearchInput,
 		ec.unmarshalInputCreateSecretInput,
 		ec.unmarshalInputCreateServiceAccountInput,
 		ec.unmarshalInputCreateServiceAccountTokenInput,
 		ec.unmarshalInputCreateTeamInput,
 		ec.unmarshalInputCreateUnleashForTeamInput,
+		ec.unmarshalInputCreateValkeyCredentialsInput,
 		ec.unmarshalInputCreateValkeyInput,
 		ec.unmarshalInputDeleteApplicationInput,
 		ec.unmarshalInputDeleteJobInput,
@@ -15717,6 +15930,116 @@ type ActivityLogEntryEdge {
 	The log entry.
 	"""
 	node: ActivityLogEntry!
+}
+`, BuiltIn: false},
+	{Name: "../schema/aiven_credentials.graphqls", Input: `"Permission level for OpenSearch and Valkey credentials."
+enum AivenPermission {
+	READ
+	WRITE
+	READWRITE
+	ADMIN
+}
+
+input CreateOpenSearchCredentialsInput {
+	"The team that owns the OpenSearch instance."
+	teamSlug: Slug!
+	"The environment name that the OpenSearch instance belongs to."
+	environmentName: String!
+	"Name of the OpenSearch instance."
+	instanceName: String!
+	"Permission level for the credentials."
+	permission: AivenPermission!
+	"Time-to-live for the credentials (e.g. '1d', '7d'). Maximum 30 days."
+	ttl: String!
+}
+
+type OpenSearchCredentials {
+	"Username for the OpenSearch instance."
+	username: String!
+	"Password for the OpenSearch instance."
+	password: String!
+	"Hostname of the OpenSearch instance."
+	host: String!
+	"Port of the OpenSearch instance."
+	port: Int!
+	"Full connection URI for the OpenSearch instance."
+	uri: String!
+}
+
+type CreateOpenSearchCredentialsPayload {
+	"The generated credentials."
+	credentials: OpenSearchCredentials!
+}
+
+input CreateValkeyCredentialsInput {
+	"The team that owns the Valkey instance."
+	teamSlug: Slug!
+	"The environment name that the Valkey instance belongs to."
+	environmentName: String!
+	"Name of the Valkey instance."
+	instanceName: String!
+	"Permission level for the credentials."
+	permission: AivenPermission!
+	"Time-to-live for the credentials (e.g. '1d', '7d'). Maximum 30 days."
+	ttl: String!
+}
+
+type ValkeyCredentials {
+	"Username for the Valkey instance."
+	username: String!
+	"Password for the Valkey instance."
+	password: String!
+	"Hostname of the Valkey instance."
+	host: String!
+	"Port of the Valkey instance."
+	port: Int!
+	"Full connection URI for the Valkey instance."
+	uri: String!
+}
+
+type CreateValkeyCredentialsPayload {
+	"The generated credentials."
+	credentials: ValkeyCredentials!
+}
+
+input CreateKafkaCredentialsInput {
+	"The team that owns the Kafka topic."
+	teamSlug: Slug!
+	"The environment name that the Kafka topic belongs to."
+	environmentName: String!
+	"Time-to-live for the credentials (e.g. '1d', '7d'). Maximum 30 days."
+	ttl: String!
+}
+
+type KafkaCredentials {
+	"Username for the Kafka broker."
+	username: String!
+	"Client certificate in PEM format."
+	accessCert: String!
+	"Client private key in PEM format."
+	accessKey: String!
+	"CA certificate in PEM format."
+	caCert: String!
+	"Comma-separated list of broker addresses."
+	brokers: String!
+	"Schema registry URL."
+	schemaRegistry: String!
+}
+
+type CreateKafkaCredentialsPayload {
+	"The generated credentials."
+	credentials: KafkaCredentials!
+}
+
+extend type Mutation {
+	"Create temporary credentials for an OpenSearch instance."
+	createOpenSearchCredentials(
+		input: CreateOpenSearchCredentialsInput!
+	): CreateOpenSearchCredentialsPayload!
+	"Create temporary credentials for a Valkey instance."
+	createValkeyCredentials(input: CreateValkeyCredentialsInput!): CreateValkeyCredentialsPayload!
+	"Create temporary credentials for Kafka."
+	createKafkaCredentials(input: CreateKafkaCredentialsInput!): CreateKafkaCredentialsPayload!
 }
 `, BuiltIn: false},
 	{Name: "../schema/alerts.graphqls", Input: `extend type TeamEnvironment {

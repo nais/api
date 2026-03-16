@@ -30,6 +30,7 @@ import (
 	"github.com/nais/api/internal/kubernetes/watchers"
 	"github.com/nais/api/internal/loki"
 	"github.com/nais/api/internal/metrics"
+	"github.com/nais/api/internal/persistence/aivencredentials"
 	"github.com/nais/api/internal/persistence/bigquery"
 	"github.com/nais/api/internal/persistence/bucket"
 	"github.com/nais/api/internal/persistence/kafkatopic"
@@ -322,6 +323,7 @@ func ConfigureGraph(
 		ctx = metrics.NewLoaderContext(ctx, prometheusClient, log)
 		ctx = sqlinstance.NewLoaderContext(ctx, sqlAdminService, watchers.SqlDatabaseWatcher, watchers.SqlInstanceWatcher, auditLogProjectID, auditLogLocation)
 		ctx = postgres.NewLoaderContext(ctx, watchers.ZalandoPostgresWatcher, auditLogProjectID, auditLogLocation)
+		ctx = aivencredentials.NewClientContext(ctx, dynamicClients, log)
 		ctx = database.NewLoaderContext(ctx, pool)
 		ctx = issue.NewContext(ctx, pool)
 		ctx = team.NewLoaderContext(ctx, pool, watchers.NamespaceWatcher)
