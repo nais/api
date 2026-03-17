@@ -16043,7 +16043,7 @@ type ActivityLogEntryEdge {
 }
 `, BuiltIn: false},
 	{Name: "../schema/aiven_credentials.graphqls", Input: `"Permission level for OpenSearch and Valkey credentials."
-enum AivenPermission {
+enum CredentialPermission {
 	READ
 	WRITE
 	READWRITE
@@ -16058,7 +16058,7 @@ input CreateOpenSearchCredentialsInput {
 	"Name of the OpenSearch instance."
 	instanceName: String!
 	"Permission level for the credentials."
-	permission: AivenPermission!
+	permission: CredentialPermission!
 	"Time-to-live for the credentials (e.g. '1d', '7d'). Maximum 30 days."
 	ttl: String!
 }
@@ -16089,7 +16089,7 @@ input CreateValkeyCredentialsInput {
 	"Name of the Valkey instance."
 	instanceName: String!
 	"Permission level for the credentials."
-	permission: AivenPermission!
+	permission: CredentialPermission!
 	"Time-to-live for the credentials (e.g. '1d', '7d'). Maximum 30 days."
 	ttl: String!
 }

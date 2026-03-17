@@ -1085,7 +1085,7 @@ func (ec *executionContext) unmarshalInputCreateOpenSearchCredentialsInput(ctx c
 			it.InstanceName = data
 		case "permission":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("permission"))
-			data, err := ec.unmarshalNAivenPermission2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋaivencredentialsᚐAivenPermission(ctx, v)
+			data, err := ec.unmarshalNCredentialPermission2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋaivencredentialsᚐCredentialPermission(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -1139,7 +1139,7 @@ func (ec *executionContext) unmarshalInputCreateValkeyCredentialsInput(ctx conte
 			it.InstanceName = data
 		case "permission":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("permission"))
-			data, err := ec.unmarshalNAivenPermission2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋaivencredentialsᚐAivenPermission(ctx, v)
+			data, err := ec.unmarshalNCredentialPermission2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋaivencredentialsᚐCredentialPermission(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -1591,16 +1591,6 @@ func (ec *executionContext) _ValkeyCredentials(ctx context.Context, sel ast.Sele
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) unmarshalNAivenPermission2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋaivencredentialsᚐAivenPermission(ctx context.Context, v any) (aivencredentials.AivenPermission, error) {
-	var res aivencredentials.AivenPermission
-	err := res.UnmarshalGQL(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNAivenPermission2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋaivencredentialsᚐAivenPermission(ctx context.Context, sel ast.SelectionSet, v aivencredentials.AivenPermission) graphql.Marshaler {
-	return v
-}
-
 func (ec *executionContext) unmarshalNCreateKafkaCredentialsInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋaivencredentialsᚐCreateKafkaCredentialsInput(ctx context.Context, v any) (aivencredentials.CreateKafkaCredentialsInput, error) {
 	res, err := ec.unmarshalInputCreateKafkaCredentialsInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -1656,6 +1646,16 @@ func (ec *executionContext) marshalNCreateValkeyCredentialsPayload2ᚖgithubᚗc
 		return graphql.Null
 	}
 	return ec._CreateValkeyCredentialsPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNCredentialPermission2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋaivencredentialsᚐCredentialPermission(ctx context.Context, v any) (aivencredentials.CredentialPermission, error) {
+	var res aivencredentials.CredentialPermission
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNCredentialPermission2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋaivencredentialsᚐCredentialPermission(ctx context.Context, sel ast.SelectionSet, v aivencredentials.CredentialPermission) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) marshalNCredentialsActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋaivencredentialsᚐCredentialsActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *aivencredentials.CredentialsActivityLogEntryData) graphql.Marshaler {
