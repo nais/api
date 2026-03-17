@@ -20,176 +20,134 @@ import (
 
 const maxBodySize = 5 * 1024 * 1024 // 5 MB
 
-// DynamicClientFactory creates a dynamic Kubernetes client for a given environment.
-// In production this creates an impersonated client from environment configs.
-// In tests this can return fake dynamic clients.
-type DynamicClientFactory func(ctx context.Context, environment string) (dynamic.Interface, error)
+type Handler struct {
+	clusterConfigsMap kubernetes.ClusterConfigMap
+	log               logrus.FieldLogger
+}
 
-// NewImpersonatingClientFactory returns a DynamicClientFactory that creates
-// impersonated dynamic clients from the provided environment config map.
-func NewImpersonatingClientFactory(clusterConfigs kubernetes.ClusterConfigMap) DynamicClientFactory {
-	return func(ctx context.Context, environment string) (dynamic.Interface, error) {
-		return ImpersonatedClient(ctx, clusterConfigs, environment)
+func NewHandler(clusterConfigsMap kubernetes.ClusterConfigMap, log logrus.FieldLogger) *Handler {
+	return &Handler{
+		clusterConfigsMap: clusterConfigsMap,
+		log:               log,
 	}
 }
 
-// Handler returns an http.HandlerFunc that handles apply requests.
-// It validates the request body, checks authorization, applies resources
-// to Kubernetes environments via server-side apply, diffs the results, and
-// writes activity log entries.
-//
-// The team slug and environment are read from URL path parameters.
-// The clusterConfigs map is used to validate that an environment name exists.
-// The clientFactory is used to create dynamic Kubernetes clients per environment.
-func Handler(clusterConfigs kubernetes.ClusterConfigMap, clientFactory DynamicClientFactory, log logrus.FieldLogger) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		ctx := r.Context()
+func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 
-		teamSlug := slug.Slug(r.PathValue("teamSlug"))
-		environment := r.PathValue("environment")
+	teamSlug := slug.Slug(r.PathValue("teamSlug"))
+	environmentName := r.PathValue("environment")
 
-		actor := authz.ActorFromContext(ctx)
-
-		// Read and parse request body.
-		body, err := io.ReadAll(io.LimitReader(r.Body, maxBodySize+1))
-		if err != nil {
-			writeError(w, http.StatusBadRequest, "unable to read request body")
-			return
-		}
-		if len(body) > maxBodySize {
-			writeError(w, http.StatusBadRequest, fmt.Sprintf("request body too large (max %d bytes)", maxBodySize))
-			return
-		}
-
-		var req request
-		if err := json.Unmarshal(body, &req); err != nil {
-			writeError(w, http.StatusBadRequest, "invalid JSON: "+err.Error())
-			return
-		}
-
-		if len(req.Resources) == 0 {
-			writeError(w, http.StatusBadRequest, "no resources provided")
-			return
-		}
-
-		// Phase 1: Validate all resources before applying any.
-		var disallowed []string
-		for i, res := range req.Resources {
-			apiVersion := res.GetAPIVersion()
-			kind := res.GetKind()
-			if !IsAllowed(apiVersion, kind) {
-				disallowed = append(disallowed, fmt.Sprintf("resources[%d]: %s/%s is not an allowed resource type", i, apiVersion, kind))
-			}
-		}
-		if len(disallowed) > 0 {
-			writeError(w, http.StatusBadRequest, fmt.Sprintf("disallowed resource types: %s", strings.Join(disallowed, "; ")))
-			return
-		}
-
-		// Phase 2: Apply each resource, collecting results.
-		results := make([]ResourceResult, 0, len(req.Resources))
-
-		for _, res := range req.Resources {
-			result := applyOne(ctx, clusterConfigs, clientFactory, teamSlug, environment, &res, actor, log)
-			results = append(results, result)
-		}
-
-		writeJSON(w, http.StatusOK, Response{Results: results})
+	if err := authz.CanApplyKubernetesResource(ctx, teamSlug); err != nil {
+		writeError(w, http.StatusForbidden, fmt.Sprintf("authorization failed: %s", err))
+		return
 	}
+
+	body, err := io.ReadAll(io.LimitReader(r.Body, maxBodySize+1))
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "unable to read request body")
+		return
+	}
+	if len(body) > maxBodySize {
+		writeError(w, http.StatusBadRequest, fmt.Sprintf("request body too large (max %d bytes)", maxBodySize))
+		return
+	}
+
+	var req request
+	if err := json.Unmarshal(body, &req); err != nil {
+		writeError(w, http.StatusBadRequest, "invalid JSON: "+err.Error())
+		return
+	}
+
+	if len(req.Resources) == 0 {
+		writeError(w, http.StatusBadRequest, "no resources provided")
+		return
+	}
+
+	var disallowed []string
+	for i, res := range req.Resources {
+		if !IsAllowed(res) {
+			disallowed = append(disallowed, fmt.Sprintf("resources[%d]: %s/%s is not an allowed resource type", i, res.GetAPIVersion(), res.GetKind()))
+		}
+	}
+	if len(disallowed) > 0 {
+		writeError(w, http.StatusBadRequest, fmt.Sprintf("disallowed resource types: %s", strings.Join(disallowed, "; ")))
+		return
+	}
+
+	results := make([]ResourceResult, 0, len(req.Resources))
+
+	cfg, ok := h.clusterConfigsMap[environmentName]
+	if !ok {
+		writeError(w, http.StatusBadRequest, fmt.Sprintf("unknown environment: %q", environmentName))
+		return
+	}
+
+	client, err := impersonatedClient(cfg, teamSlug)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, fmt.Sprintf("failed to create client for environment %q: %s", environmentName, err))
+		return
+	}
+
+	for _, res := range req.Resources {
+		result := h.applyOne(ctx, client, teamSlug, environmentName, &res)
+		results = append(results, result)
+	}
+
+	writeJSON(w, http.StatusOK, Response{Results: results})
 }
 
-// applyOne processes a single resource: authorizes, applies, diffs, and logs.
-func applyOne(
+func (h *Handler) applyOne(
 	ctx context.Context,
-	clusterConfigs kubernetes.ClusterConfigMap,
-	clientFactory DynamicClientFactory,
+	client dynamic.Interface,
 	teamSlug slug.Slug,
-	environment string,
+	environmentName string,
 	res *unstructured.Unstructured,
-	actor *authz.Actor,
-	log logrus.FieldLogger,
 ) ResourceResult {
 	apiVersion := res.GetAPIVersion()
 	kind := res.GetKind()
 	name := res.GetName()
 	resourceID := kind + "/" + name
 
-	log = log.WithFields(logrus.Fields{
-		"environment": environment,
+	log := h.log.WithFields(logrus.Fields{
+		"environment": environmentName,
 		"team":        teamSlug,
 		"name":        name,
 		"kind":        kind,
 	})
 
-	// Validate environment exists.
-	if _, ok := clusterConfigs[environment]; !ok {
-		return ResourceResult{
-			Resource:        resourceID,
-			EnvironmentName: environment,
-			Status:          StatusError,
-			Error:           fmt.Sprintf("unknown environment: %q", environment),
-		}
-	}
-
-	// Validate resource has a name.
 	if name == "" {
 		return ResourceResult{
 			Resource:        resourceID,
-			EnvironmentName: environment,
+			EnvironmentName: environmentName,
 			Status:          StatusError,
 			Error:           "resource must have metadata.name",
 		}
 	}
 
-	// Authorize the actor for this team.
-	if err := authorizeResource(ctx, teamSlug); err != nil {
-		return ResourceResult{
-			Resource:        resourceID,
-			EnvironmentName: environment,
-			Status:          StatusError,
-			Error:           fmt.Sprintf("authorization failed: %s", err),
-		}
-	}
-
-	// Resolve GVR.
 	gvr, ok := GVRFor(apiVersion, kind)
 	if !ok {
 		return ResourceResult{
 			Resource:        resourceID,
-			EnvironmentName: environment,
+			EnvironmentName: environmentName,
 			Status:          StatusError,
 			Error:           fmt.Sprintf("no GVR mapping for %s/%s", apiVersion, kind),
 		}
 	}
 
-	// Force the namespace to match the team slug from the URL.
 	res.SetNamespace(string(teamSlug))
 
-	// Create dynamic client for environment.
-	client, err := clientFactory(ctx, environment)
-	if err != nil {
-		log.WithError(err).Error("creating dynamic client")
-		return ResourceResult{
-			Resource:        resourceID,
-			EnvironmentName: environment,
-			Status:          StatusError,
-			Error:           fmt.Sprintf("failed to create client for environment %q: %s", environment, err),
-		}
-	}
-
-	// Apply the resource.
 	applyResult, err := ApplyResource(ctx, client, gvr, res)
 	if err != nil {
 		log.WithError(err).Error("applying resource")
 		return ResourceResult{
 			Resource:        resourceID,
-			EnvironmentName: environment,
+			EnvironmentName: environmentName,
 			Status:          StatusError,
 			Error:           fmt.Sprintf("apply failed: %s", err),
 		}
 	}
 
-	// Diff before and after.
 	var changes []activitylog.ResourceChangedField
 	status := StatusCreated
 	if !applyResult.Created {
@@ -197,7 +155,6 @@ func applyOne(
 		changes = Diff(applyResult.Before, applyResult.After)
 	}
 
-	// Write activity log entry.
 	action := activitylog.ActivityLogEntryActionCreated
 	if !applyResult.Created {
 		action = activitylog.ActivityLogEntryActionUpdated
@@ -210,6 +167,8 @@ func applyOne(
 		Kind:          kind,
 		ChangedFields: changes,
 	}
+
+	actor := authz.ActorFromContext(ctx)
 	if ghActor, ok := actor.User.(*middleware.GitHubRepoActor); ok {
 		claims := activitylog.GitHubActorClaims(ghActor.Claims)
 		logData.GitHubClaims = &claims
@@ -221,28 +180,20 @@ func applyOne(
 		ResourceType:    resourceType,
 		ResourceName:    name,
 		TeamSlug:        &teamSlug,
-		EnvironmentName: &environment,
+		EnvironmentName: &environmentName,
 		Data:            logData,
 	}); err != nil {
 		log.WithError(err).Error("creating activity log entry")
-		// Don't fail the apply because of a logging error.
 	}
 
 	return ResourceResult{
 		Resource:        resourceID,
-		EnvironmentName: environment,
+		EnvironmentName: environmentName,
 		Status:          status,
 		ChangedFields:   changes,
 	}
 }
 
-// authorizeResource checks if the current actor is authorized to apply kubernetes
-// resources to the given team.
-func authorizeResource(ctx context.Context, teamSlug slug.Slug) error {
-	return authz.CanApplyKubernetesResource(ctx, teamSlug)
-}
-
-// request is the incoming JSON request body.
 type request struct {
 	Resources []unstructured.Unstructured `json:"resources"`
 }

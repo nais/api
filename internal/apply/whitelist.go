@@ -1,6 +1,9 @@
 package apply
 
-import "k8s.io/apimachinery/pkg/runtime/schema"
+import (
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+)
 
 // AllowedResource identifies a Kubernetes resource by its apiVersion and kind.
 type AllowedResource struct {
@@ -159,8 +162,8 @@ var allowedResources = map[AllowedResource]schema.GroupVersionResource{
 }
 
 // IsAllowed returns true if the given apiVersion and kind are in the whitelist.
-func IsAllowed(apiVersion, kind string) bool {
-	_, ok := allowedResources[AllowedResource{APIVersion: apiVersion, Kind: kind}]
+func IsAllowed(res unstructured.Unstructured) bool {
+	_, ok := allowedResources[AllowedResource{APIVersion: res.GetAPIVersion(), Kind: res.GetKind()}]
 	return ok
 }
 
@@ -169,14 +172,4 @@ func IsAllowed(apiVersion, kind string) bool {
 func GVRFor(apiVersion, kind string) (schema.GroupVersionResource, bool) {
 	gvr, ok := allowedResources[AllowedResource{APIVersion: apiVersion, Kind: kind}]
 	return gvr, ok
-}
-
-// AllowedKinds returns a list of all allowed apiVersion+kind combinations.
-// Useful for error messages.
-func AllowedKinds() []AllowedResource {
-	kinds := make([]AllowedResource, 0, len(allowedResources))
-	for k := range allowedResources {
-		kinds = append(kinds, k)
-	}
-	return kinds
 }

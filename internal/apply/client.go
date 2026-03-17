@@ -5,8 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/nais/api/internal/auth/authz"
-	"github.com/nais/api/internal/kubernetes"
+	"github.com/nais/api/internal/slug"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -18,42 +17,21 @@ import (
 
 const fieldManager = "nais-api"
 
-// ImpersonatedClient creates a dynamic Kubernetes client for the given environment
+// impersonatedClient creates a dynamic Kubernetes client for the given environment
 // that impersonates the authenticated user from the context. This creates a fresh
 // client per call — it does NOT reuse informers or watcher clients.
-func ImpersonatedClient(
-	ctx context.Context,
-	clusterConfigs kubernetes.ClusterConfigMap,
-	environment string,
+func impersonatedClient(
+	cfg *rest.Config,
+	teamSlug slug.Slug,
 ) (dynamic.Interface, error) {
-	cfg, ok := clusterConfigs[environment]
-	if !ok {
-		return nil, fmt.Errorf("unknown environment: %q", environment)
-	}
-
-	if cfg == nil {
-		return nil, fmt.Errorf("no config available for environment: %q", environment)
-	}
-
-	actor := authz.ActorFromContext(ctx)
-	if actor == nil {
-		return nil, fmt.Errorf("no authenticated user in context")
-	}
-
-	groups, err := actor.User.GCPTeamGroups(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("listing GCP groups for user: %w", err)
-	}
-
 	impersonatedCfg := rest.CopyConfig(cfg)
 	impersonatedCfg.Impersonate = rest.ImpersonationConfig{
-		UserName: actor.User.Identity(),
-		Groups:   groups,
+		UserName: fmt.Sprintf("system:serviceaccount:%[1]v:serviceuser-%[1]v", teamSlug),
 	}
 
 	client, err := dynamic.NewForConfig(impersonatedCfg)
 	if err != nil {
-		return nil, fmt.Errorf("creating dynamic client for environment %q: %w", environment, err)
+		return nil, fmt.Errorf("creating dynamic client for team %q: %w", teamSlug, err)
 	}
 
 	return client, nil

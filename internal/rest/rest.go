@@ -24,11 +24,10 @@ type Fakes struct {
 
 // Config holds all dependencies needed by the REST server.
 type Config struct {
-	ListenAddress        string
-	Pool                 *pgxpool.Pool
-	PreSharedKey         string
-	ClusterConfigs       kubernetes.ClusterConfigMap
-	DynamicClientFactory apply.DynamicClientFactory
+	ListenAddress  string
+	Pool           *pgxpool.Pool
+	PreSharedKey   string
+	ClusterConfigs kubernetes.ClusterConfigMap
 	// ContextMiddleware sets up the request context with all loaders and
 	// dependencies needed by the apply handler (authz, activitylog, etc.).
 	// In production this is the middleware returned by ConfigureGraph.
@@ -113,12 +112,8 @@ func MakeRouter(ctx context.Context, cfg Config) *chi.Mux {
 				middleware.RequireAuthenticatedUser(),
 			)
 
-			clientFactory := cfg.DynamicClientFactory
-			if clientFactory == nil {
-				clientFactory = apply.NewImpersonatingClientFactory(cfg.ClusterConfigs)
-			}
-
-			r.Post("/api/v1/teams/{teamSlug}/environments/{environment}/apply", apply.Handler(cfg.ClusterConfigs, clientFactory, cfg.Log))
+			handler := apply.NewHandler(cfg.ClusterConfigs, cfg.Log)
+			r.Post("/api/v1/teams/{teamSlug}/environments/{environment}/apply", handler.ServeHTTP)
 		})
 	}
 

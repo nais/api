@@ -43,7 +43,6 @@ import (
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/reflect/protoreflect"
-	"k8s.io/client-go/dynamic"
 )
 
 type ctxKey int
@@ -214,11 +213,8 @@ func newRestRunner(ctx context.Context, pool *pgxpool.Pool, clusterConfig kubern
 		PreSharedKey:      testPreSharedKey,
 		ClusterConfigs:    clusterConfig,
 		ContextMiddleware: contextDependencies,
-		DynamicClientFactory: func(_ context.Context, cluster string) (dynamic.Interface, error) {
-			return k8sRunner.DynamicClient(cluster)
-		},
-		Fakes: rest.Fakes{WithInsecureUserHeader: true},
-		Log:   logger,
+		Fakes:             rest.Fakes{WithInsecureUserHeader: true},
+		Log:               logger,
 	})
 
 	return runner.NewRestRunner(router), nil
