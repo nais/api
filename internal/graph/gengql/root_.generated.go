@@ -508,6 +508,25 @@ type ComplexityRoot struct {
 		Valkey func(childComplexity int) int
 	}
 
+	CredentialsActivityLogEntry struct {
+		Actor           func(childComplexity int) int
+		CreatedAt       func(childComplexity int) int
+		Data            func(childComplexity int) int
+		EnvironmentName func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Message         func(childComplexity int) int
+		ResourceName    func(childComplexity int) int
+		ResourceType    func(childComplexity int) int
+		TeamSlug        func(childComplexity int) int
+	}
+
+	CredentialsActivityLogEntryData struct {
+		InstanceName func(childComplexity int) int
+		Permission   func(childComplexity int) int
+		ServiceType  func(childComplexity int) int
+		TTL          func(childComplexity int) int
+	}
+
 	CurrentUnitPrices struct {
 		CPU    func(childComplexity int) int
 		Memory func(childComplexity int) int
@@ -4465,6 +4484,97 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.CreateValkeyPayload.Valkey(childComplexity), true
+
+	case "CredentialsActivityLogEntry.actor":
+		if e.ComplexityRoot.CredentialsActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.CredentialsActivityLogEntry.Actor(childComplexity), true
+
+	case "CredentialsActivityLogEntry.createdAt":
+		if e.ComplexityRoot.CredentialsActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.CredentialsActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "CredentialsActivityLogEntry.data":
+		if e.ComplexityRoot.CredentialsActivityLogEntry.Data == nil {
+			break
+		}
+
+		return e.ComplexityRoot.CredentialsActivityLogEntry.Data(childComplexity), true
+
+	case "CredentialsActivityLogEntry.environmentName":
+		if e.ComplexityRoot.CredentialsActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.CredentialsActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "CredentialsActivityLogEntry.id":
+		if e.ComplexityRoot.CredentialsActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.CredentialsActivityLogEntry.ID(childComplexity), true
+
+	case "CredentialsActivityLogEntry.message":
+		if e.ComplexityRoot.CredentialsActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.CredentialsActivityLogEntry.Message(childComplexity), true
+
+	case "CredentialsActivityLogEntry.resourceName":
+		if e.ComplexityRoot.CredentialsActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.CredentialsActivityLogEntry.ResourceName(childComplexity), true
+
+	case "CredentialsActivityLogEntry.resourceType":
+		if e.ComplexityRoot.CredentialsActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.CredentialsActivityLogEntry.ResourceType(childComplexity), true
+
+	case "CredentialsActivityLogEntry.teamSlug":
+		if e.ComplexityRoot.CredentialsActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.CredentialsActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "CredentialsActivityLogEntryData.instanceName":
+		if e.ComplexityRoot.CredentialsActivityLogEntryData.InstanceName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.CredentialsActivityLogEntryData.InstanceName(childComplexity), true
+
+	case "CredentialsActivityLogEntryData.permission":
+		if e.ComplexityRoot.CredentialsActivityLogEntryData.Permission == nil {
+			break
+		}
+
+		return e.ComplexityRoot.CredentialsActivityLogEntryData.Permission(childComplexity), true
+
+	case "CredentialsActivityLogEntryData.serviceType":
+		if e.ComplexityRoot.CredentialsActivityLogEntryData.ServiceType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.CredentialsActivityLogEntryData.ServiceType(childComplexity), true
+
+	case "CredentialsActivityLogEntryData.ttl":
+		if e.ComplexityRoot.CredentialsActivityLogEntryData.TTL == nil {
+			break
+		}
+
+		return e.ComplexityRoot.CredentialsActivityLogEntryData.TTL(childComplexity), true
 
 	case "CurrentUnitPrices.cpu":
 		if e.ComplexityRoot.CurrentUnitPrices.CPU == nil {
@@ -16029,6 +16139,56 @@ type KafkaCredentials {
 type CreateKafkaCredentialsPayload {
 	"The generated credentials."
 	credentials: KafkaCredentials!
+}
+
+extend enum ActivityLogEntryResourceType {
+	"All activity log entries related to credential creation will use this resource type."
+	CREDENTIALS
+}
+
+type CredentialsActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: ActivityLogEntryResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+
+	"Data associated with the credential creation."
+	data: CredentialsActivityLogEntryData!
+}
+
+type CredentialsActivityLogEntryData {
+	"The service type (OPENSEARCH, VALKEY, KAFKA)."
+	serviceType: String!
+	"The instance name, if applicable."
+	instanceName: String
+	"The permission level, if applicable."
+	permission: String
+	"The TTL that was requested for the credentials."
+	ttl: String!
+}
+
+extend enum ActivityLogActivityType {
+	"Filter for credential creation events."
+	CREDENTIALS_CREATE
 }
 
 extend type Mutation {
