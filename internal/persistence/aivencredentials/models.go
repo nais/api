@@ -8,54 +8,54 @@ import (
 	"github.com/nais/api/internal/slug"
 )
 
-// AivenPermission represents the permission level for OpenSearch and Valkey credentials.
-type AivenPermission string
+// CredentialPermission represents the permission level for OpenSearch and Valkey credentials.
+type CredentialPermission string
 
 const (
-	AivenPermissionRead      AivenPermission = "READ"
-	AivenPermissionWrite     AivenPermission = "WRITE"
-	AivenPermissionReadWrite AivenPermission = "READWRITE"
-	AivenPermissionAdmin     AivenPermission = "ADMIN"
+	CredentialPermissionRead      CredentialPermission = "READ"
+	CredentialPermissionWrite     CredentialPermission = "WRITE"
+	CredentialPermissionReadWrite CredentialPermission = "READWRITE"
+	CredentialPermissionAdmin     CredentialPermission = "ADMIN"
 )
 
-func (e AivenPermission) IsValid() bool {
+func (e CredentialPermission) IsValid() bool {
 	switch e {
-	case AivenPermissionRead, AivenPermissionWrite, AivenPermissionReadWrite, AivenPermissionAdmin:
+	case CredentialPermissionRead, CredentialPermissionWrite, CredentialPermissionReadWrite, CredentialPermissionAdmin:
 		return true
 	}
 	return false
 }
 
-func (e AivenPermission) String() string {
+func (e CredentialPermission) String() string {
 	return string(e)
 }
 
-func (e *AivenPermission) UnmarshalGQL(v any) error {
+func (e *CredentialPermission) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
 	}
-	*e = AivenPermission(str)
+	*e = CredentialPermission(str)
 	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid AivenPermission", str)
+		return fmt.Errorf("%s is not a valid CredentialPermission", str)
 	}
 	return nil
 }
 
-func (e AivenPermission) MarshalGQL(w io.Writer) {
+func (e CredentialPermission) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
 // aivenAccess converts the GraphQL enum to the string value expected by the AivenApplication CRD spec.
-func (e AivenPermission) aivenAccess() string {
+func (e CredentialPermission) aivenAccess() string {
 	switch e {
-	case AivenPermissionRead:
+	case CredentialPermissionRead:
 		return "read"
-	case AivenPermissionWrite:
+	case CredentialPermissionWrite:
 		return "write"
-	case AivenPermissionReadWrite:
+	case CredentialPermissionReadWrite:
 		return "readwrite"
-	case AivenPermissionAdmin:
+	case CredentialPermissionAdmin:
 		return "admin"
 	default:
 		return "read"
@@ -65,19 +65,19 @@ func (e AivenPermission) aivenAccess() string {
 // Input types
 
 type CreateOpenSearchCredentialsInput struct {
-	TeamSlug        slug.Slug       `json:"teamSlug"`
-	EnvironmentName string          `json:"environmentName"`
-	InstanceName    string          `json:"instanceName"`
-	Permission      AivenPermission `json:"permission"`
-	TTL             string          `json:"ttl"`
+	TeamSlug        slug.Slug            `json:"teamSlug"`
+	EnvironmentName string               `json:"environmentName"`
+	InstanceName    string               `json:"instanceName"`
+	Permission      CredentialPermission `json:"permission"`
+	TTL             string               `json:"ttl"`
 }
 
 type CreateValkeyCredentialsInput struct {
-	TeamSlug        slug.Slug       `json:"teamSlug"`
-	EnvironmentName string          `json:"environmentName"`
-	InstanceName    string          `json:"instanceName"`
-	Permission      AivenPermission `json:"permission"`
-	TTL             string          `json:"ttl"`
+	TeamSlug        slug.Slug            `json:"teamSlug"`
+	EnvironmentName string               `json:"environmentName"`
+	InstanceName    string               `json:"instanceName"`
+	Permission      CredentialPermission `json:"permission"`
+	TTL             string               `json:"ttl"`
 }
 
 type CreateKafkaCredentialsInput struct {

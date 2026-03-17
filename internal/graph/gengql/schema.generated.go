@@ -5675,6 +5675,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._DeploymentActivityLogEntry(ctx, sel, obj)
+	case aivencredentials.CredentialsActivityLogEntry:
+		return ec._CredentialsActivityLogEntry(ctx, sel, &obj)
+	case *aivencredentials.CredentialsActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._CredentialsActivityLogEntry(ctx, sel, obj)
 	case workload.ContainerImage:
 		return ec._ContainerImage(ctx, sel, &obj)
 	case *workload.ContainerImage:

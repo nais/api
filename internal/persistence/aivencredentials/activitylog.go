@@ -9,22 +9,22 @@ import (
 const (
 	activityLogEntryActionCreateCredentials activitylog.ActivityLogEntryAction = "CREATE_CREDENTIALS"
 
-	activityLogEntryResourceTypeAivenCredentials activitylog.ActivityLogEntryResourceType = "AIVEN_CREDENTIALS"
+	activityLogEntryResourceTypeCredentials activitylog.ActivityLogEntryResourceType = "CREDENTIALS"
 )
 
 func init() {
-	activitylog.RegisterTransformer(activityLogEntryResourceTypeAivenCredentials, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
+	activitylog.RegisterTransformer(activityLogEntryResourceTypeCredentials, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
 		switch entry.Action {
 		case activityLogEntryActionCreateCredentials:
 			if entry.TeamSlug == nil {
-				return nil, fmt.Errorf("missing team slug for aiven credentials activity log entry")
+				return nil, fmt.Errorf("missing team slug for credentials activity log entry")
 			}
 			if entry.EnvironmentName == nil {
-				return nil, fmt.Errorf("missing environment name for aiven credentials activity log entry")
+				return nil, fmt.Errorf("missing environment name for credentials activity log entry")
 			}
-			data, err := activitylog.UnmarshalData[AivenCredentialsActivityLogEntryData](entry)
+			data, err := activitylog.UnmarshalData[CredentialsActivityLogEntryData](entry)
 			if err != nil {
-				return nil, fmt.Errorf("transforming aiven credentials activity log entry data: %w", err)
+				return nil, fmt.Errorf("transforming credentials activity log entry data: %w", err)
 			}
 
 			msg := fmt.Sprintf("Created %s credentials", data.ServiceType)
@@ -36,25 +36,25 @@ func init() {
 			}
 			msg += fmt.Sprintf(" (TTL: %s)", data.TTL)
 
-			return AivenCredentialsActivityLogEntry{
+			return CredentialsActivityLogEntry{
 				GenericActivityLogEntry: entry.WithMessage(msg),
 				Data:                    data,
 			}, nil
 		default:
-			return nil, fmt.Errorf("unsupported aiven credentials activity log entry action: %q", entry.Action)
+			return nil, fmt.Errorf("unsupported credentials activity log entry action: %q", entry.Action)
 		}
 	})
 
-	activitylog.RegisterFilter("AIVEN_CREDENTIALS_CREATE", activityLogEntryActionCreateCredentials, activityLogEntryResourceTypeAivenCredentials)
+	activitylog.RegisterFilter("CREDENTIALS_CREATE", activityLogEntryActionCreateCredentials, activityLogEntryResourceTypeCredentials)
 }
 
-type AivenCredentialsActivityLogEntry struct {
+type CredentialsActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
 
-	Data *AivenCredentialsActivityLogEntryData `json:"data"`
+	Data *CredentialsActivityLogEntryData `json:"data"`
 }
 
-type AivenCredentialsActivityLogEntryData struct {
+type CredentialsActivityLogEntryData struct {
 	ServiceType  string `json:"serviceType"`
 	InstanceName string `json:"instanceName,omitempty"`
 	Permission   string `json:"permission,omitempty"`

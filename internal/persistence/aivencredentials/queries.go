@@ -357,11 +357,11 @@ func logCredentialCreation(ctx context.Context, req credentialRequest) error {
 	return activitylog.Create(ctx, activitylog.CreateInput{
 		Action:          activityLogEntryActionCreateCredentials,
 		Actor:           authz.ActorFromContext(ctx).User,
-		ResourceType:    activityLogEntryResourceTypeAivenCredentials,
+		ResourceType:    activityLogEntryResourceTypeCredentials,
 		ResourceName:    serviceType,
 		EnvironmentName: &envName,
 		TeamSlug:        &req.teamSlug,
-		Data: AivenCredentialsActivityLogEntryData{
+		Data: CredentialsActivityLogEntryData{
 			ServiceType:  serviceType,
 			InstanceName: req.instanceName,
 			Permission:   req.permission,

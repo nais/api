@@ -195,3 +195,81 @@ Test.gql("Zero TTL is rejected", function(t)
 		data = Null,
 	}
 end)
+
+-- Insert activity log entries directly via SQL (we can't run the full credential
+-- creation flow in integration tests since there's no Aivenator), then verify
+-- that the GraphQL activity log query returns them correctly. This is the test
+-- that would have panicked before adding the GraphQL schema types.
+Helper.SQLExec(string.format([[
+	INSERT INTO activity_log_entries (actor, action, resource_type, resource_name, team_slug, environment, data, created_at)
+	VALUES
+		('%s', 'CREATE_CREDENTIALS', 'CREDENTIALS', 'OPENSEARCH', '%s', 'dev', '{"serviceType":"OPENSEARCH","instanceName":"my-instance","permission":"READ","ttl":"1d"}', NOW() - INTERVAL '2 minutes'),
+		('%s', 'CREATE_CREDENTIALS', 'CREDENTIALS', 'KAFKA', '%s', 'dev', '{"serviceType":"KAFKA","ttl":"7d"}', NOW() - INTERVAL '1 minute')
+]], user:email(), team:slug(), user:email(), team:slug()))
+
+Test.gql("Activity log returns credentials entries without panic", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query(string.format([[
+		{
+		  team(slug: "%s") {
+		    activityLog(first: 10, filter: { activityTypes: [CREDENTIALS_CREATE] }) {
+		      nodes {
+		        __typename
+		        message
+		        actor
+		        resourceType
+		        resourceName
+		        environmentName
+		        ... on CredentialsActivityLogEntry {
+		          data {
+		            serviceType
+		            instanceName
+		            permission
+		            ttl
+		          }
+		        }
+		      }
+		    }
+		  }
+		}
+	]], team:slug()))
+
+	t.check {
+		data = {
+			team = {
+				activityLog = {
+					nodes = {
+						{
+							__typename = "CredentialsActivityLogEntry",
+							message = "Created KAFKA credentials (TTL: 7d)",
+							actor = user:email(),
+							resourceType = "CREDENTIALS",
+							resourceName = "KAFKA",
+							environmentName = "dev",
+							data = {
+								serviceType = "KAFKA",
+								instanceName = "",
+								permission = "",
+								ttl = "7d",
+							},
+						},
+						{
+							__typename = "CredentialsActivityLogEntry",
+							message = "Created OPENSEARCH credentials for my-instance with READ permission (TTL: 1d)",
+							actor = user:email(),
+							resourceType = "CREDENTIALS",
+							resourceName = "OPENSEARCH",
+							environmentName = "dev",
+							data = {
+								serviceType = "OPENSEARCH",
+								instanceName = "my-instance",
+								permission = "READ",
+								ttl = "1d",
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+end)
