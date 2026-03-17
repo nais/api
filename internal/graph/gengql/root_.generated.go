@@ -40,6 +40,7 @@ import (
 	"github.com/nais/api/internal/vulnerability"
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
+	"github.com/nais/api/internal/workload/configmap"
 	"github.com/nais/api/internal/workload/job"
 	"github.com/nais/api/internal/workload/podlog"
 	"github.com/nais/api/internal/workload/secret"
@@ -60,6 +61,7 @@ type ResolverRoot interface {
 	BigQueryDataset() BigQueryDatasetResolver
 	Bucket() BucketResolver
 	CVE() CVEResolver
+	Config() ConfigResolver
 	ContainerImage() ContainerImageResolver
 	ContainerImageWorkloadReference() ContainerImageWorkloadReferenceResolver
 	CurrentUnitPrices() CurrentUnitPricesResolver
@@ -148,6 +150,10 @@ type ComplexityRoot struct {
 		Node   func(childComplexity int) int
 	}
 
+	AddConfigValuePayload struct {
+		Config func(childComplexity int) int
+	}
+
 	AddRepositoryToTeamPayload struct {
 		Repository func(childComplexity int) int
 	}
@@ -180,6 +186,7 @@ type ComplexityRoot struct {
 		AuthIntegrations          func(childComplexity int) int
 		BigQueryDatasets          func(childComplexity int, orderBy *bigquery.BigQueryDatasetOrder) int
 		Buckets                   func(childComplexity int, orderBy *bucket.BucketOrder) int
+		Configs                   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		Cost                      func(childComplexity int) int
 		DeletionStartedAt         func(childComplexity int) int
 		Deployments               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
@@ -432,6 +439,106 @@ type ComplexityRoot struct {
 		ResourceKind func(childComplexity int) int
 	}
 
+	Config struct {
+		ActivityLog     func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int
+		Applications    func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		ID              func(childComplexity int) int
+		Jobs            func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		LastModifiedAt  func(childComplexity int) int
+		LastModifiedBy  func(childComplexity int) int
+		Name            func(childComplexity int) int
+		Team            func(childComplexity int) int
+		TeamEnvironment func(childComplexity int) int
+		Values          func(childComplexity int) int
+		Workloads       func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+	}
+
+	ConfigConnection struct {
+		Edges    func(childComplexity int) int
+		Nodes    func(childComplexity int) int
+		PageInfo func(childComplexity int) int
+	}
+
+	ConfigCreatedActivityLogEntry struct {
+		Actor           func(childComplexity int) int
+		CreatedAt       func(childComplexity int) int
+		EnvironmentName func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Message         func(childComplexity int) int
+		ResourceName    func(childComplexity int) int
+		ResourceType    func(childComplexity int) int
+		TeamSlug        func(childComplexity int) int
+	}
+
+	ConfigDeletedActivityLogEntry struct {
+		Actor           func(childComplexity int) int
+		CreatedAt       func(childComplexity int) int
+		EnvironmentName func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Message         func(childComplexity int) int
+		ResourceName    func(childComplexity int) int
+		ResourceType    func(childComplexity int) int
+		TeamSlug        func(childComplexity int) int
+	}
+
+	ConfigEdge struct {
+		Cursor func(childComplexity int) int
+		Node   func(childComplexity int) int
+	}
+
+	ConfigValue struct {
+		Name  func(childComplexity int) int
+		Value func(childComplexity int) int
+	}
+
+	ConfigValueAddedActivityLogEntry struct {
+		Actor           func(childComplexity int) int
+		CreatedAt       func(childComplexity int) int
+		Data            func(childComplexity int) int
+		EnvironmentName func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Message         func(childComplexity int) int
+		ResourceName    func(childComplexity int) int
+		ResourceType    func(childComplexity int) int
+		TeamSlug        func(childComplexity int) int
+	}
+
+	ConfigValueAddedActivityLogEntryData struct {
+		ValueName func(childComplexity int) int
+	}
+
+	ConfigValueRemovedActivityLogEntry struct {
+		Actor           func(childComplexity int) int
+		CreatedAt       func(childComplexity int) int
+		Data            func(childComplexity int) int
+		EnvironmentName func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Message         func(childComplexity int) int
+		ResourceName    func(childComplexity int) int
+		ResourceType    func(childComplexity int) int
+		TeamSlug        func(childComplexity int) int
+	}
+
+	ConfigValueRemovedActivityLogEntryData struct {
+		ValueName func(childComplexity int) int
+	}
+
+	ConfigValueUpdatedActivityLogEntry struct {
+		Actor           func(childComplexity int) int
+		CreatedAt       func(childComplexity int) int
+		Data            func(childComplexity int) int
+		EnvironmentName func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Message         func(childComplexity int) int
+		ResourceName    func(childComplexity int) int
+		ResourceType    func(childComplexity int) int
+		TeamSlug        func(childComplexity int) int
+	}
+
+	ConfigValueUpdatedActivityLogEntryData struct {
+		ValueName func(childComplexity int) int
+	}
+
 	ConfirmTeamDeletionPayload struct {
 		DeletionStarted func(childComplexity int) int
 	}
@@ -464,6 +571,10 @@ type ComplexityRoot struct {
 
 	CostMonthlySummary struct {
 		Series func(childComplexity int) int
+	}
+
+	CreateConfigPayload struct {
+		Config func(childComplexity int) int
 	}
 
 	CreateKafkaCredentialsPayload struct {
@@ -516,6 +627,10 @@ type ComplexityRoot struct {
 	DeleteApplicationPayload struct {
 		Success func(childComplexity int) int
 		Team    func(childComplexity int) int
+	}
+
+	DeleteConfigPayload struct {
+		ConfigDeleted func(childComplexity int) int
 	}
 
 	DeleteJobPayload struct {
@@ -826,6 +941,7 @@ type ComplexityRoot struct {
 		AuthIntegrations          func(childComplexity int) int
 		BigQueryDatasets          func(childComplexity int, orderBy *bigquery.BigQueryDatasetOrder) int
 		Buckets                   func(childComplexity int, orderBy *bucket.BucketOrder) int
+		Configs                   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		Cost                      func(childComplexity int) int
 		DeletionStartedAt         func(childComplexity int) int
 		Deployments               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
@@ -1088,6 +1204,7 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
+		AddConfigValue               func(childComplexity int, input configmap.AddConfigValueInput) int
 		AddRepositoryToTeam          func(childComplexity int, input repository.AddRepositoryToTeamInput) int
 		AddSecretValue               func(childComplexity int, input secret.AddSecretValueInput) int
 		AddTeamMember                func(childComplexity int, input team.AddTeamMemberInput) int
@@ -1096,6 +1213,7 @@ type ComplexityRoot struct {
 		ChangeDeploymentKey          func(childComplexity int, input deployment.ChangeDeploymentKeyInput) int
 		ConfigureReconciler          func(childComplexity int, input reconciler.ConfigureReconcilerInput) int
 		ConfirmTeamDeletion          func(childComplexity int, input team.ConfirmTeamDeletionInput) int
+		CreateConfig                 func(childComplexity int, input configmap.CreateConfigInput) int
 		CreateKafkaCredentials       func(childComplexity int, input aivencredentials.CreateKafkaCredentialsInput) int
 		CreateOpenSearch             func(childComplexity int, input opensearch.CreateOpenSearchInput) int
 		CreateOpenSearchCredentials  func(childComplexity int, input aivencredentials.CreateOpenSearchCredentialsInput) int
@@ -1107,6 +1225,7 @@ type ComplexityRoot struct {
 		CreateValkey                 func(childComplexity int, input valkey.CreateValkeyInput) int
 		CreateValkeyCredentials      func(childComplexity int, input aivencredentials.CreateValkeyCredentialsInput) int
 		DeleteApplication            func(childComplexity int, input application.DeleteApplicationInput) int
+		DeleteConfig                 func(childComplexity int, input configmap.DeleteConfigInput) int
 		DeleteJob                    func(childComplexity int, input job.DeleteJobInput) int
 		DeleteOpenSearch             func(childComplexity int, input opensearch.DeleteOpenSearchInput) int
 		DeleteSecret                 func(childComplexity int, input secret.DeleteSecretInput) int
@@ -1117,6 +1236,7 @@ type ComplexityRoot struct {
 		DisableReconciler            func(childComplexity int, input reconciler.DisableReconcilerInput) int
 		EnableReconciler             func(childComplexity int, input reconciler.EnableReconcilerInput) int
 		GrantPostgresAccess          func(childComplexity int, input postgres.GrantPostgresAccessInput) int
+		RemoveConfigValue            func(childComplexity int, input configmap.RemoveConfigValueInput) int
 		RemoveRepositoryFromTeam     func(childComplexity int, input repository.RemoveRepositoryFromTeamInput) int
 		RemoveSecretValue            func(childComplexity int, input secret.RemoveSecretValueInput) int
 		RemoveTeamMember             func(childComplexity int, input team.RemoveTeamMemberInput) int
@@ -1128,6 +1248,7 @@ type ComplexityRoot struct {
 		StartOpenSearchMaintenance   func(childComplexity int, input servicemaintenance.StartOpenSearchMaintenanceInput) int
 		StartValkeyMaintenance       func(childComplexity int, input servicemaintenance.StartValkeyMaintenanceInput) int
 		TriggerJob                   func(childComplexity int, input job.TriggerJobInput) int
+		UpdateConfigValue            func(childComplexity int, input configmap.UpdateConfigValueInput) int
 		UpdateImageVulnerability     func(childComplexity int, input vulnerability.UpdateImageVulnerabilityInput) int
 		UpdateOpenSearch             func(childComplexity int, input opensearch.UpdateOpenSearchInput) int
 		UpdateSecretValue            func(childComplexity int, input secret.UpdateSecretValueInput) int
@@ -1516,6 +1637,10 @@ type ComplexityRoot struct {
 	ReconcilerErrorEdge struct {
 		Cursor func(childComplexity int) int
 		Node   func(childComplexity int) int
+	}
+
+	RemoveConfigValuePayload struct {
+		Config func(childComplexity int) int
 	}
 
 	RemoveRepositoryFromTeamPayload struct {
@@ -2115,6 +2240,7 @@ type ComplexityRoot struct {
 		Applications              func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *application.ApplicationOrder, filter *application.TeamApplicationsFilter) int
 		BigQueryDatasets          func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bigquery.BigQueryDatasetOrder) int
 		Buckets                   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bucket.BucketOrder) int
+		Configs                   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *configmap.ConfigOrder, filter *configmap.ConfigFilter) int
 		Cost                      func(childComplexity int) int
 		DeleteKey                 func(childComplexity int, key string) int
 		DeletionInProgress        func(childComplexity int) int
@@ -2248,6 +2374,7 @@ type ComplexityRoot struct {
 		Application        func(childComplexity int, name string) int
 		BigQueryDataset    func(childComplexity int, name string) int
 		Bucket             func(childComplexity int, name string) int
+		Config             func(childComplexity int, name string) int
 		Cost               func(childComplexity int) int
 		Environment        func(childComplexity int) int
 		GCPProjectID       func(childComplexity int) int
@@ -2328,6 +2455,10 @@ type ComplexityRoot struct {
 		Total func(childComplexity int) int
 	}
 
+	TeamInventoryCountConfigs struct {
+		Total func(childComplexity int) int
+	}
+
 	TeamInventoryCountJobs struct {
 		Total func(childComplexity int) int
 	}
@@ -2360,6 +2491,7 @@ type ComplexityRoot struct {
 		Applications      func(childComplexity int) int
 		BigQueryDatasets  func(childComplexity int) int
 		Buckets           func(childComplexity int) int
+		Configs           func(childComplexity int) int
 		Jobs              func(childComplexity int) int
 		KafkaTopics       func(childComplexity int) int
 		OpenSearches      func(childComplexity int) int
@@ -2609,6 +2741,10 @@ type ComplexityRoot struct {
 		Severity            func(childComplexity int) int
 		TeamEnvironment     func(childComplexity int) int
 		Unleash             func(childComplexity int) int
+	}
+
+	UpdateConfigValuePayload struct {
+		Config func(childComplexity int) int
 	}
 
 	UpdateImageVulnerabilityPayload struct {
@@ -3048,6 +3184,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ActivityLogEntryEdge.Node(childComplexity), true
 
+	case "AddConfigValuePayload.config":
+		if e.ComplexityRoot.AddConfigValuePayload.Config == nil {
+			break
+		}
+
+		return e.ComplexityRoot.AddConfigValuePayload.Config(childComplexity), true
+
 	case "AddRepositoryToTeamPayload.repository":
 		if e.ComplexityRoot.AddRepositoryToTeamPayload.Repository == nil {
 			break
@@ -3153,6 +3296,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Application.Buckets(childComplexity, args["orderBy"].(*bucket.BucketOrder)), true
+
+	case "Application.configs":
+		if e.ComplexityRoot.Application.Configs == nil {
+			break
+		}
+
+		args, err := ec.field_Application_configs_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Application.Configs(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
 
 	case "Application.cost":
 		if e.ComplexityRoot.Application.Cost == nil {
@@ -4255,6 +4410,474 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ClusterAuditActivityLogEntryData.ResourceKind(childComplexity), true
 
+	case "Config.activityLog":
+		if e.ComplexityRoot.Config.ActivityLog == nil {
+			break
+		}
+
+		args, err := ec.field_Config_activityLog_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Config.ActivityLog(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["filter"].(*activitylog.ActivityLogFilter)), true
+
+	case "Config.applications":
+		if e.ComplexityRoot.Config.Applications == nil {
+			break
+		}
+
+		args, err := ec.field_Config_applications_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Config.Applications(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
+
+	case "Config.id":
+		if e.ComplexityRoot.Config.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Config.ID(childComplexity), true
+
+	case "Config.jobs":
+		if e.ComplexityRoot.Config.Jobs == nil {
+			break
+		}
+
+		args, err := ec.field_Config_jobs_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Config.Jobs(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
+
+	case "Config.lastModifiedAt":
+		if e.ComplexityRoot.Config.LastModifiedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Config.LastModifiedAt(childComplexity), true
+
+	case "Config.lastModifiedBy":
+		if e.ComplexityRoot.Config.LastModifiedBy == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Config.LastModifiedBy(childComplexity), true
+
+	case "Config.name":
+		if e.ComplexityRoot.Config.Name == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Config.Name(childComplexity), true
+
+	case "Config.team":
+		if e.ComplexityRoot.Config.Team == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Config.Team(childComplexity), true
+
+	case "Config.teamEnvironment":
+		if e.ComplexityRoot.Config.TeamEnvironment == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Config.TeamEnvironment(childComplexity), true
+
+	case "Config.values":
+		if e.ComplexityRoot.Config.Values == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Config.Values(childComplexity), true
+
+	case "Config.workloads":
+		if e.ComplexityRoot.Config.Workloads == nil {
+			break
+		}
+
+		args, err := ec.field_Config_workloads_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Config.Workloads(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
+
+	case "ConfigConnection.edges":
+		if e.ComplexityRoot.ConfigConnection.Edges == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigConnection.Edges(childComplexity), true
+
+	case "ConfigConnection.nodes":
+		if e.ComplexityRoot.ConfigConnection.Nodes == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigConnection.Nodes(childComplexity), true
+
+	case "ConfigConnection.pageInfo":
+		if e.ComplexityRoot.ConfigConnection.PageInfo == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigConnection.PageInfo(childComplexity), true
+
+	case "ConfigCreatedActivityLogEntry.actor":
+		if e.ComplexityRoot.ConfigCreatedActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigCreatedActivityLogEntry.Actor(childComplexity), true
+
+	case "ConfigCreatedActivityLogEntry.createdAt":
+		if e.ComplexityRoot.ConfigCreatedActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigCreatedActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "ConfigCreatedActivityLogEntry.environmentName":
+		if e.ComplexityRoot.ConfigCreatedActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigCreatedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "ConfigCreatedActivityLogEntry.id":
+		if e.ComplexityRoot.ConfigCreatedActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigCreatedActivityLogEntry.ID(childComplexity), true
+
+	case "ConfigCreatedActivityLogEntry.message":
+		if e.ComplexityRoot.ConfigCreatedActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigCreatedActivityLogEntry.Message(childComplexity), true
+
+	case "ConfigCreatedActivityLogEntry.resourceName":
+		if e.ComplexityRoot.ConfigCreatedActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigCreatedActivityLogEntry.ResourceName(childComplexity), true
+
+	case "ConfigCreatedActivityLogEntry.resourceType":
+		if e.ComplexityRoot.ConfigCreatedActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigCreatedActivityLogEntry.ResourceType(childComplexity), true
+
+	case "ConfigCreatedActivityLogEntry.teamSlug":
+		if e.ComplexityRoot.ConfigCreatedActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigCreatedActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "ConfigDeletedActivityLogEntry.actor":
+		if e.ComplexityRoot.ConfigDeletedActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigDeletedActivityLogEntry.Actor(childComplexity), true
+
+	case "ConfigDeletedActivityLogEntry.createdAt":
+		if e.ComplexityRoot.ConfigDeletedActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigDeletedActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "ConfigDeletedActivityLogEntry.environmentName":
+		if e.ComplexityRoot.ConfigDeletedActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigDeletedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "ConfigDeletedActivityLogEntry.id":
+		if e.ComplexityRoot.ConfigDeletedActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigDeletedActivityLogEntry.ID(childComplexity), true
+
+	case "ConfigDeletedActivityLogEntry.message":
+		if e.ComplexityRoot.ConfigDeletedActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigDeletedActivityLogEntry.Message(childComplexity), true
+
+	case "ConfigDeletedActivityLogEntry.resourceName":
+		if e.ComplexityRoot.ConfigDeletedActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigDeletedActivityLogEntry.ResourceName(childComplexity), true
+
+	case "ConfigDeletedActivityLogEntry.resourceType":
+		if e.ComplexityRoot.ConfigDeletedActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigDeletedActivityLogEntry.ResourceType(childComplexity), true
+
+	case "ConfigDeletedActivityLogEntry.teamSlug":
+		if e.ComplexityRoot.ConfigDeletedActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigDeletedActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "ConfigEdge.cursor":
+		if e.ComplexityRoot.ConfigEdge.Cursor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigEdge.Cursor(childComplexity), true
+
+	case "ConfigEdge.node":
+		if e.ComplexityRoot.ConfigEdge.Node == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigEdge.Node(childComplexity), true
+
+	case "ConfigValue.name":
+		if e.ComplexityRoot.ConfigValue.Name == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigValue.Name(childComplexity), true
+
+	case "ConfigValue.value":
+		if e.ComplexityRoot.ConfigValue.Value == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigValue.Value(childComplexity), true
+
+	case "ConfigValueAddedActivityLogEntry.actor":
+		if e.ComplexityRoot.ConfigValueAddedActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigValueAddedActivityLogEntry.Actor(childComplexity), true
+
+	case "ConfigValueAddedActivityLogEntry.createdAt":
+		if e.ComplexityRoot.ConfigValueAddedActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigValueAddedActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "ConfigValueAddedActivityLogEntry.data":
+		if e.ComplexityRoot.ConfigValueAddedActivityLogEntry.Data == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigValueAddedActivityLogEntry.Data(childComplexity), true
+
+	case "ConfigValueAddedActivityLogEntry.environmentName":
+		if e.ComplexityRoot.ConfigValueAddedActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigValueAddedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "ConfigValueAddedActivityLogEntry.id":
+		if e.ComplexityRoot.ConfigValueAddedActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigValueAddedActivityLogEntry.ID(childComplexity), true
+
+	case "ConfigValueAddedActivityLogEntry.message":
+		if e.ComplexityRoot.ConfigValueAddedActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigValueAddedActivityLogEntry.Message(childComplexity), true
+
+	case "ConfigValueAddedActivityLogEntry.resourceName":
+		if e.ComplexityRoot.ConfigValueAddedActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigValueAddedActivityLogEntry.ResourceName(childComplexity), true
+
+	case "ConfigValueAddedActivityLogEntry.resourceType":
+		if e.ComplexityRoot.ConfigValueAddedActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigValueAddedActivityLogEntry.ResourceType(childComplexity), true
+
+	case "ConfigValueAddedActivityLogEntry.teamSlug":
+		if e.ComplexityRoot.ConfigValueAddedActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigValueAddedActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "ConfigValueAddedActivityLogEntryData.valueName":
+		if e.ComplexityRoot.ConfigValueAddedActivityLogEntryData.ValueName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigValueAddedActivityLogEntryData.ValueName(childComplexity), true
+
+	case "ConfigValueRemovedActivityLogEntry.actor":
+		if e.ComplexityRoot.ConfigValueRemovedActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigValueRemovedActivityLogEntry.Actor(childComplexity), true
+
+	case "ConfigValueRemovedActivityLogEntry.createdAt":
+		if e.ComplexityRoot.ConfigValueRemovedActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigValueRemovedActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "ConfigValueRemovedActivityLogEntry.data":
+		if e.ComplexityRoot.ConfigValueRemovedActivityLogEntry.Data == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigValueRemovedActivityLogEntry.Data(childComplexity), true
+
+	case "ConfigValueRemovedActivityLogEntry.environmentName":
+		if e.ComplexityRoot.ConfigValueRemovedActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigValueRemovedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "ConfigValueRemovedActivityLogEntry.id":
+		if e.ComplexityRoot.ConfigValueRemovedActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigValueRemovedActivityLogEntry.ID(childComplexity), true
+
+	case "ConfigValueRemovedActivityLogEntry.message":
+		if e.ComplexityRoot.ConfigValueRemovedActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigValueRemovedActivityLogEntry.Message(childComplexity), true
+
+	case "ConfigValueRemovedActivityLogEntry.resourceName":
+		if e.ComplexityRoot.ConfigValueRemovedActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigValueRemovedActivityLogEntry.ResourceName(childComplexity), true
+
+	case "ConfigValueRemovedActivityLogEntry.resourceType":
+		if e.ComplexityRoot.ConfigValueRemovedActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigValueRemovedActivityLogEntry.ResourceType(childComplexity), true
+
+	case "ConfigValueRemovedActivityLogEntry.teamSlug":
+		if e.ComplexityRoot.ConfigValueRemovedActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigValueRemovedActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "ConfigValueRemovedActivityLogEntryData.valueName":
+		if e.ComplexityRoot.ConfigValueRemovedActivityLogEntryData.ValueName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigValueRemovedActivityLogEntryData.ValueName(childComplexity), true
+
+	case "ConfigValueUpdatedActivityLogEntry.actor":
+		if e.ComplexityRoot.ConfigValueUpdatedActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigValueUpdatedActivityLogEntry.Actor(childComplexity), true
+
+	case "ConfigValueUpdatedActivityLogEntry.createdAt":
+		if e.ComplexityRoot.ConfigValueUpdatedActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigValueUpdatedActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "ConfigValueUpdatedActivityLogEntry.data":
+		if e.ComplexityRoot.ConfigValueUpdatedActivityLogEntry.Data == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigValueUpdatedActivityLogEntry.Data(childComplexity), true
+
+	case "ConfigValueUpdatedActivityLogEntry.environmentName":
+		if e.ComplexityRoot.ConfigValueUpdatedActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigValueUpdatedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "ConfigValueUpdatedActivityLogEntry.id":
+		if e.ComplexityRoot.ConfigValueUpdatedActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigValueUpdatedActivityLogEntry.ID(childComplexity), true
+
+	case "ConfigValueUpdatedActivityLogEntry.message":
+		if e.ComplexityRoot.ConfigValueUpdatedActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigValueUpdatedActivityLogEntry.Message(childComplexity), true
+
+	case "ConfigValueUpdatedActivityLogEntry.resourceName":
+		if e.ComplexityRoot.ConfigValueUpdatedActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigValueUpdatedActivityLogEntry.ResourceName(childComplexity), true
+
+	case "ConfigValueUpdatedActivityLogEntry.resourceType":
+		if e.ComplexityRoot.ConfigValueUpdatedActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigValueUpdatedActivityLogEntry.ResourceType(childComplexity), true
+
+	case "ConfigValueUpdatedActivityLogEntry.teamSlug":
+		if e.ComplexityRoot.ConfigValueUpdatedActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigValueUpdatedActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "ConfigValueUpdatedActivityLogEntryData.valueName":
+		if e.ComplexityRoot.ConfigValueUpdatedActivityLogEntryData.ValueName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigValueUpdatedActivityLogEntryData.ValueName(childComplexity), true
+
 	case "ConfirmTeamDeletionPayload.deletionStarted":
 		if e.ComplexityRoot.ConfirmTeamDeletionPayload.DeletionStarted == nil {
 			break
@@ -4382,6 +5005,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.CostMonthlySummary.Series(childComplexity), true
 
+	case "CreateConfigPayload.config":
+		if e.ComplexityRoot.CreateConfigPayload.Config == nil {
+			break
+		}
+
+		return e.ComplexityRoot.CreateConfigPayload.Config(childComplexity), true
+
 	case "CreateKafkaCredentialsPayload.credentials":
 		if e.ComplexityRoot.CreateKafkaCredentialsPayload.Credentials == nil {
 			break
@@ -4493,6 +5123,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.DeleteApplicationPayload.Team(childComplexity), true
+
+	case "DeleteConfigPayload.configDeleted":
+		if e.ComplexityRoot.DeleteConfigPayload.ConfigDeleted == nil {
+			break
+		}
+
+		return e.ComplexityRoot.DeleteConfigPayload.ConfigDeleted(childComplexity), true
 
 	case "DeleteJobPayload.success":
 		if e.ComplexityRoot.DeleteJobPayload.Success == nil {
@@ -5633,6 +6270,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Job.Buckets(childComplexity, args["orderBy"].(*bucket.BucketOrder)), true
 
+	case "Job.configs":
+		if e.ComplexityRoot.Job.Configs == nil {
+			break
+		}
+
+		args, err := ec.field_Job_configs_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Job.Configs(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
+
 	case "Job.cost":
 		if e.ComplexityRoot.Job.Cost == nil {
 			break
@@ -6729,6 +7378,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.MissingSbomIssue.Workload(childComplexity), true
 
+	case "Mutation.addConfigValue":
+		if e.ComplexityRoot.Mutation.AddConfigValue == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_addConfigValue_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Mutation.AddConfigValue(childComplexity, args["input"].(configmap.AddConfigValueInput)), true
+
 	case "Mutation.addRepositoryToTeam":
 		if e.ComplexityRoot.Mutation.AddRepositoryToTeam == nil {
 			break
@@ -6824,6 +7485,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Mutation.ConfirmTeamDeletion(childComplexity, args["input"].(team.ConfirmTeamDeletionInput)), true
+
+	case "Mutation.createConfig":
+		if e.ComplexityRoot.Mutation.CreateConfig == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createConfig_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Mutation.CreateConfig(childComplexity, args["input"].(configmap.CreateConfigInput)), true
 
 	case "Mutation.createKafkaCredentials":
 		if e.ComplexityRoot.Mutation.CreateKafkaCredentials == nil {
@@ -6957,6 +7630,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Mutation.DeleteApplication(childComplexity, args["input"].(application.DeleteApplicationInput)), true
 
+	case "Mutation.deleteConfig":
+		if e.ComplexityRoot.Mutation.DeleteConfig == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deleteConfig_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Mutation.DeleteConfig(childComplexity, args["input"].(configmap.DeleteConfigInput)), true
+
 	case "Mutation.deleteJob":
 		if e.ComplexityRoot.Mutation.DeleteJob == nil {
 			break
@@ -7076,6 +7761,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Mutation.GrantPostgresAccess(childComplexity, args["input"].(postgres.GrantPostgresAccessInput)), true
+
+	case "Mutation.removeConfigValue":
+		if e.ComplexityRoot.Mutation.RemoveConfigValue == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_removeConfigValue_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Mutation.RemoveConfigValue(childComplexity, args["input"].(configmap.RemoveConfigValueInput)), true
 
 	case "Mutation.removeRepositoryFromTeam":
 		if e.ComplexityRoot.Mutation.RemoveRepositoryFromTeam == nil {
@@ -7208,6 +7905,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Mutation.TriggerJob(childComplexity, args["input"].(job.TriggerJobInput)), true
+
+	case "Mutation.updateConfigValue":
+		if e.ComplexityRoot.Mutation.UpdateConfigValue == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateConfigValue_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Mutation.UpdateConfigValue(childComplexity, args["input"].(configmap.UpdateConfigValueInput)), true
 
 	case "Mutation.updateImageVulnerability":
 		if e.ComplexityRoot.Mutation.UpdateImageVulnerability == nil {
@@ -9122,6 +9831,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ReconcilerErrorEdge.Node(childComplexity), true
+
+	case "RemoveConfigValuePayload.config":
+		if e.ComplexityRoot.RemoveConfigValuePayload.Config == nil {
+			break
+		}
+
+		return e.ComplexityRoot.RemoveConfigValuePayload.Config(childComplexity), true
 
 	case "RemoveRepositoryFromTeamPayload.success":
 		if e.ComplexityRoot.RemoveRepositoryFromTeamPayload.Success == nil {
@@ -11653,6 +12369,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Team.Buckets(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*bucket.BucketOrder)), true
 
+	case "Team.configs":
+		if e.ComplexityRoot.Team.Configs == nil {
+			break
+		}
+
+		args, err := ec.field_Team_configs_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Team.Configs(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*configmap.ConfigOrder), args["filter"].(*configmap.ConfigFilter)), true
+
 	case "Team.cost":
 		if e.ComplexityRoot.Team.Cost == nil {
 			break
@@ -12415,6 +13143,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.TeamEnvironment.Bucket(childComplexity, args["name"].(string)), true
 
+	case "TeamEnvironment.config":
+		if e.ComplexityRoot.TeamEnvironment.Config == nil {
+			break
+		}
+
+		args, err := ec.field_TeamEnvironment_config_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.TeamEnvironment.Config(childComplexity, args["name"].(string)), true
+
 	case "TeamEnvironment.cost":
 		if e.ComplexityRoot.TeamEnvironment.Cost == nil {
 			break
@@ -12754,6 +13494,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.TeamInventoryCountBuckets.Total(childComplexity), true
 
+	case "TeamInventoryCountConfigs.total":
+		if e.ComplexityRoot.TeamInventoryCountConfigs.Total == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TeamInventoryCountConfigs.Total(childComplexity), true
+
 	case "TeamInventoryCountJobs.total":
 		if e.ComplexityRoot.TeamInventoryCountJobs.Total == nil {
 			break
@@ -12823,6 +13570,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.TeamInventoryCounts.Buckets(childComplexity), true
+
+	case "TeamInventoryCounts.configs":
+		if e.ComplexityRoot.TeamInventoryCounts.Configs == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TeamInventoryCounts.Configs(childComplexity), true
 
 	case "TeamInventoryCounts.jobs":
 		if e.ComplexityRoot.TeamInventoryCounts.Jobs == nil {
@@ -13941,6 +14695,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.UnleashReleaseChannelIssue.Unleash(childComplexity), true
+
+	case "UpdateConfigValuePayload.config":
+		if e.ComplexityRoot.UpdateConfigValuePayload.Config == nil {
+			break
+		}
+
+		return e.ComplexityRoot.UpdateConfigValuePayload.Config(childComplexity), true
 
 	case "UpdateImageVulnerabilityPayload.vulnerability":
 		if e.ComplexityRoot.UpdateImageVulnerabilityPayload.Vulnerability == nil {
@@ -15481,6 +16242,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	ec := newExecutionContext(opCtx, e, make(chan graphql.DeferredResult))
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputActivityLogFilter,
+		ec.unmarshalInputAddConfigValueInput,
 		ec.unmarshalInputAddRepositoryToTeamInput,
 		ec.unmarshalInputAddSecretValueInput,
 		ec.unmarshalInputAddTeamMemberInput,
@@ -15493,8 +16255,12 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputBucketOrder,
 		ec.unmarshalInputCVEOrder,
 		ec.unmarshalInputChangeDeploymentKeyInput,
+		ec.unmarshalInputConfigFilter,
+		ec.unmarshalInputConfigOrder,
+		ec.unmarshalInputConfigValueInput,
 		ec.unmarshalInputConfigureReconcilerInput,
 		ec.unmarshalInputConfirmTeamDeletionInput,
+		ec.unmarshalInputCreateConfigInput,
 		ec.unmarshalInputCreateKafkaCredentialsInput,
 		ec.unmarshalInputCreateOpenSearchCredentialsInput,
 		ec.unmarshalInputCreateOpenSearchInput,
@@ -15506,6 +16272,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputCreateValkeyCredentialsInput,
 		ec.unmarshalInputCreateValkeyInput,
 		ec.unmarshalInputDeleteApplicationInput,
+		ec.unmarshalInputDeleteConfigInput,
 		ec.unmarshalInputDeleteJobInput,
 		ec.unmarshalInputDeleteOpenSearchInput,
 		ec.unmarshalInputDeleteSecretInput,
@@ -15537,6 +16304,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputOpenSearchOrder,
 		ec.unmarshalInputPostgresInstanceOrder,
 		ec.unmarshalInputReconcilerConfigInput,
+		ec.unmarshalInputRemoveConfigValueInput,
 		ec.unmarshalInputRemoveRepositoryFromTeamInput,
 		ec.unmarshalInputRemoveSecretValueInput,
 		ec.unmarshalInputRemoveTeamMemberInput,
@@ -15566,6 +16334,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputTeamVulnerabilitySummaryFilter,
 		ec.unmarshalInputTeamWorkloadsFilter,
 		ec.unmarshalInputTriggerJobInput,
+		ec.unmarshalInputUpdateConfigValueInput,
 		ec.unmarshalInputUpdateImageVulnerabilityInput,
 		ec.unmarshalInputUpdateOpenSearchInput,
 		ec.unmarshalInputUpdateSecretValueInput,
@@ -17400,6 +18169,536 @@ type ClusterAuditActivityLogEntryData {
 	action: String!
 	"The kind of resource that was affected by the action."
 	resourceKind: String!
+}
+`, BuiltIn: false},
+	{Name: "../schema/configmap.graphqls", Input: `extend type Mutation {
+	"Create a new config."
+	createConfig(input: CreateConfigInput!): CreateConfigPayload!
+
+	"Add a value to a config."
+	addConfigValue(input: AddConfigValueInput!): AddConfigValuePayload!
+
+	"Update a value within a config."
+	updateConfigValue(input: UpdateConfigValueInput!): UpdateConfigValuePayload!
+
+	"Remove a value from a config."
+	removeConfigValue(input: RemoveConfigValueInput!): RemoveConfigValuePayload!
+
+	"Delete a config, and the values it contains."
+	deleteConfig(input: DeleteConfigInput!): DeleteConfigPayload!
+}
+
+extend type Team {
+	"Configs owned by the team."
+	configs(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+
+		"Ordering options for items returned from the connection."
+		orderBy: ConfigOrder
+
+		"Filtering options for items returned from the connection."
+		filter: ConfigFilter
+	): ConfigConnection!
+}
+
+"""
+Input for filtering the configs of a team.
+"""
+input ConfigFilter {
+	"""
+	Filter by the name of the config.
+	"""
+	name: String
+
+	"""
+	Filter by usage of the config.
+	"""
+	inUse: Boolean
+}
+
+extend type TeamEnvironment {
+	"Get a config by name."
+	config(name: String!): Config!
+}
+
+extend interface Workload {
+	"Configs used by the workload."
+	configs(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+	): ConfigConnection!
+}
+
+extend type Application {
+	"Configs used by the application."
+	configs(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+	): ConfigConnection!
+}
+
+extend type Job {
+	"Configs used by the job."
+	configs(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+	): ConfigConnection!
+}
+
+"A config is a collection of key-value pairs."
+type Config implements Node & ActivityLogger {
+	"The globally unique ID of the config."
+	id: ID!
+
+	"The name of the config."
+	name: String!
+
+	"The environment the config exists in."
+	teamEnvironment: TeamEnvironment!
+
+	"The team that owns the config."
+	team: Team!
+
+	"The values stored in the config."
+	values: [ConfigValue!]!
+
+	"Applications that use the config."
+	applications(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+	): ApplicationConnection!
+
+	"Jobs that use the config."
+	jobs(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+	): JobConnection!
+
+	"Workloads that use the config."
+	workloads(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+	): WorkloadConnection!
+
+	"Last time the config was modified."
+	lastModifiedAt: Time
+
+	"User who last modified the config."
+	lastModifiedBy: User
+
+	"Activity log associated with the config."
+	activityLog(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+
+		"Filter items."
+		filter: ActivityLogFilter
+	): ActivityLogEntryConnection!
+}
+
+extend type TeamInventoryCounts {
+	"""
+	Config inventory count for a team.
+	"""
+	configs: TeamInventoryCountConfigs!
+}
+
+"""
+Config inventory count for a team.
+"""
+type TeamInventoryCountConfigs {
+	"""
+	Total number of configs.
+	"""
+	total: Int!
+}
+
+input ConfigValueInput {
+	"The name of the config value."
+	name: String!
+
+	"The value to set."
+	value: String!
+}
+
+input CreateConfigInput {
+	"The name of the config."
+	name: String!
+
+	"The environment the config exists in."
+	environment: String!
+
+	"The team that owns the config."
+	team: Slug!
+}
+
+input AddConfigValueInput {
+	"The name of the config."
+	name: String!
+
+	"The environment the config exists in."
+	environment: String!
+
+	"The team that owns the config."
+	team: Slug!
+
+	"The config value to add."
+	value: ConfigValueInput!
+}
+
+input UpdateConfigValueInput {
+	"The name of the config."
+	name: String!
+
+	"The environment the config exists in."
+	environment: String!
+
+	"The team that owns the config."
+	team: Slug!
+
+	"The config value to update."
+	value: ConfigValueInput!
+}
+
+input RemoveConfigValueInput {
+	"The name of the config."
+	configName: String!
+
+	"The environment the config exists in."
+	environment: String!
+
+	"The team that owns the config."
+	team: Slug!
+
+	"The config value to remove."
+	valueName: String!
+}
+
+input DeleteConfigInput {
+	"The name of the config."
+	name: String!
+
+	"The environment the config exists in."
+	environment: String!
+
+	"The team that owns the config."
+	team: Slug!
+}
+
+type CreateConfigPayload {
+	"The created config."
+	config: Config
+}
+
+input ConfigOrder {
+	"The field to order items by."
+	field: ConfigOrderField!
+
+	"The direction to order items by."
+	direction: OrderDirection!
+}
+
+enum ConfigOrderField {
+	"Order configs by name."
+	NAME
+
+	"Order configs by the name of the environment."
+	ENVIRONMENT
+
+	"Order configs by the last time it was modified."
+	LAST_MODIFIED_AT
+}
+
+type AddConfigValuePayload {
+	"The updated config."
+	config: Config
+}
+
+type UpdateConfigValuePayload {
+	"The updated config."
+	config: Config
+}
+
+type RemoveConfigValuePayload {
+	"The updated config."
+	config: Config
+}
+
+type DeleteConfigPayload {
+	"The deleted config."
+	configDeleted: Boolean
+}
+
+type ConfigConnection {
+	"Pagination information."
+	pageInfo: PageInfo!
+
+	"List of nodes."
+	nodes: [Config!]!
+
+	"List of edges."
+	edges: [ConfigEdge!]!
+}
+
+type ConfigEdge {
+	"Cursor for this edge that can be used for pagination."
+	cursor: Cursor!
+
+	"The Config."
+	node: Config!
+}
+
+type ConfigValue {
+	"The name of the config value."
+	name: String!
+
+	"The config value itself."
+	value: String!
+}
+
+extend enum ActivityLogEntryResourceType {
+	"All activity log entries related to configs will use this resource type."
+	CONFIG
+}
+
+type ConfigCreatedActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: ActivityLogEntryResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+}
+
+type ConfigValueAddedActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: ActivityLogEntryResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+
+	"Data associated with the entry."
+	data: ConfigValueAddedActivityLogEntryData!
+}
+
+type ConfigValueAddedActivityLogEntryData {
+	"The name of the added value."
+	valueName: String!
+}
+
+type ConfigValueUpdatedActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: ActivityLogEntryResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+
+	"Data associated with the entry."
+	data: ConfigValueUpdatedActivityLogEntryData!
+}
+
+type ConfigValueUpdatedActivityLogEntryData {
+	"The name of the updated value."
+	valueName: String!
+}
+
+type ConfigValueRemovedActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: ActivityLogEntryResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+
+	"Data associated with the entry."
+	data: ConfigValueRemovedActivityLogEntryData!
+}
+
+type ConfigValueRemovedActivityLogEntryData {
+	"The name of the removed value."
+	valueName: String!
+}
+
+type ConfigDeletedActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: ActivityLogEntryResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+}
+
+extend enum ActivityLogActivityType {
+	"Config was created."
+	CONFIG_CREATED
+	"Config value was added."
+	CONFIG_VALUE_ADDED
+	"Config value was updated."
+	CONFIG_VALUE_UPDATED
+	"Config value was removed."
+	CONFIG_VALUE_REMOVED
+	"Config was deleted."
+	CONFIG_DELETED
 }
 `, BuiltIn: false},
 	{Name: "../schema/cost.graphqls", Input: `extend type Team {

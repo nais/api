@@ -50,6 +50,7 @@ import (
 	"github.com/nais/api/internal/vulnerability"
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
+	"github.com/nais/api/internal/workload/configmap"
 	"github.com/nais/api/internal/workload/job"
 	"github.com/nais/api/internal/workload/logging"
 	"github.com/nais/api/internal/workload/podlog"
@@ -65,6 +66,11 @@ type MutationResolver interface {
 	CreateKafkaCredentials(ctx context.Context, input aivencredentials.CreateKafkaCredentialsInput) (*aivencredentials.CreateKafkaCredentialsPayload, error)
 	DeleteApplication(ctx context.Context, input application.DeleteApplicationInput) (*application.DeleteApplicationPayload, error)
 	RestartApplication(ctx context.Context, input application.RestartApplicationInput) (*application.RestartApplicationPayload, error)
+	CreateConfig(ctx context.Context, input configmap.CreateConfigInput) (*configmap.CreateConfigPayload, error)
+	AddConfigValue(ctx context.Context, input configmap.AddConfigValueInput) (*configmap.AddConfigValuePayload, error)
+	UpdateConfigValue(ctx context.Context, input configmap.UpdateConfigValueInput) (*configmap.UpdateConfigValuePayload, error)
+	RemoveConfigValue(ctx context.Context, input configmap.RemoveConfigValueInput) (*configmap.RemoveConfigValuePayload, error)
+	DeleteConfig(ctx context.Context, input configmap.DeleteConfigInput) (*configmap.DeleteConfigPayload, error)
 	ChangeDeploymentKey(ctx context.Context, input deployment.ChangeDeploymentKeyInput) (*deployment.ChangeDeploymentKeyPayload, error)
 	DeleteJob(ctx context.Context, input job.DeleteJobInput) (*job.DeleteJobPayload, error)
 	TriggerJob(ctx context.Context, input job.TriggerJobInput) (*job.TriggerJobPayload, error)
@@ -147,6 +153,17 @@ type SubscriptionResolver interface {
 
 // region    ***************************** args.gotpl *****************************
 
+func (ec *executionContext) field_Mutation_addConfigValue_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNAddConfigValueInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigmapᚐAddConfigValueInput)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_addRepositoryToTeam_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -228,6 +245,17 @@ func (ec *executionContext) field_Mutation_confirmTeamDeletion_args(ctx context.
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNConfirmTeamDeletionInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐConfirmTeamDeletionInput)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_createConfig_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNCreateConfigInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigmapᚐCreateConfigInput)
 	if err != nil {
 		return nil, err
 	}
@@ -356,6 +384,17 @@ func (ec *executionContext) field_Mutation_deleteApplication_args(ctx context.Co
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_deleteConfig_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNDeleteConfigInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigmapᚐDeleteConfigInput)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_deleteJob_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -459,6 +498,17 @@ func (ec *executionContext) field_Mutation_grantPostgresAccess_args(ctx context.
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNGrantPostgresAccessInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐGrantPostgresAccessInput)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_removeConfigValue_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNRemoveConfigValueInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigmapᚐRemoveConfigValueInput)
 	if err != nil {
 		return nil, err
 	}
@@ -580,6 +630,17 @@ func (ec *executionContext) field_Mutation_triggerJob_args(ctx context.Context, 
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNTriggerJobInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐTriggerJobInput)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_updateConfigValue_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNUpdateConfigValueInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigmapᚐUpdateConfigValueInput)
 	if err != nil {
 		return nil, err
 	}
@@ -1354,6 +1415,231 @@ func (ec *executionContext) fieldContext_Mutation_restartApplication(ctx context
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_restartApplication_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_createConfig(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Mutation_createConfig,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.Resolvers.Mutation().CreateConfig(ctx, fc.Args["input"].(configmap.CreateConfigInput))
+		},
+		nil,
+		ec.marshalNCreateConfigPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigmapᚐCreateConfigPayload,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Mutation_createConfig(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "config":
+				return ec.fieldContext_CreateConfigPayload_config(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type CreateConfigPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_createConfig_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_addConfigValue(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Mutation_addConfigValue,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.Resolvers.Mutation().AddConfigValue(ctx, fc.Args["input"].(configmap.AddConfigValueInput))
+		},
+		nil,
+		ec.marshalNAddConfigValuePayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigmapᚐAddConfigValuePayload,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Mutation_addConfigValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "config":
+				return ec.fieldContext_AddConfigValuePayload_config(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AddConfigValuePayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_addConfigValue_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_updateConfigValue(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Mutation_updateConfigValue,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.Resolvers.Mutation().UpdateConfigValue(ctx, fc.Args["input"].(configmap.UpdateConfigValueInput))
+		},
+		nil,
+		ec.marshalNUpdateConfigValuePayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigmapᚐUpdateConfigValuePayload,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Mutation_updateConfigValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "config":
+				return ec.fieldContext_UpdateConfigValuePayload_config(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type UpdateConfigValuePayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_updateConfigValue_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_removeConfigValue(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Mutation_removeConfigValue,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.Resolvers.Mutation().RemoveConfigValue(ctx, fc.Args["input"].(configmap.RemoveConfigValueInput))
+		},
+		nil,
+		ec.marshalNRemoveConfigValuePayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigmapᚐRemoveConfigValuePayload,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Mutation_removeConfigValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "config":
+				return ec.fieldContext_RemoveConfigValuePayload_config(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type RemoveConfigValuePayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_removeConfigValue_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_deleteConfig(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Mutation_deleteConfig,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.Resolvers.Mutation().DeleteConfig(ctx, fc.Args["input"].(configmap.DeleteConfigInput))
+		},
+		nil,
+		ec.marshalNDeleteConfigPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigmapᚐDeleteConfigPayload,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Mutation_deleteConfig(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "configDeleted":
+				return ec.fieldContext_DeleteConfigPayload_configDeleted(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type DeleteConfigPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_deleteConfig_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -4334,6 +4620,8 @@ func (ec *executionContext) fieldContext_Query_team(ctx context.Context, field g
 				return ec.fieldContext_Team_bigQueryDatasets(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Team_buckets(ctx, field)
+			case "configs":
+				return ec.fieldContext_Team_configs(ctx, field)
 			case "cost":
 				return ec.fieldContext_Team_cost(ctx, field)
 			case "deploymentKey":
@@ -5682,6 +5970,48 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._ContainerImage(ctx, sel, obj)
+	case configmap.ConfigValueUpdatedActivityLogEntry:
+		return ec._ConfigValueUpdatedActivityLogEntry(ctx, sel, &obj)
+	case *configmap.ConfigValueUpdatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ConfigValueUpdatedActivityLogEntry(ctx, sel, obj)
+	case configmap.ConfigValueRemovedActivityLogEntry:
+		return ec._ConfigValueRemovedActivityLogEntry(ctx, sel, &obj)
+	case *configmap.ConfigValueRemovedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ConfigValueRemovedActivityLogEntry(ctx, sel, obj)
+	case configmap.ConfigValueAddedActivityLogEntry:
+		return ec._ConfigValueAddedActivityLogEntry(ctx, sel, &obj)
+	case *configmap.ConfigValueAddedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ConfigValueAddedActivityLogEntry(ctx, sel, obj)
+	case configmap.ConfigDeletedActivityLogEntry:
+		return ec._ConfigDeletedActivityLogEntry(ctx, sel, &obj)
+	case *configmap.ConfigDeletedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ConfigDeletedActivityLogEntry(ctx, sel, obj)
+	case configmap.ConfigCreatedActivityLogEntry:
+		return ec._ConfigCreatedActivityLogEntry(ctx, sel, &obj)
+	case *configmap.ConfigCreatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ConfigCreatedActivityLogEntry(ctx, sel, obj)
+	case configmap.Config:
+		return ec._Config(ctx, sel, &obj)
+	case *configmap.Config:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Config(ctx, sel, obj)
 	case pubsublog.ClusterAuditActivityLogEntry:
 		return ec._ClusterAuditActivityLogEntry(ctx, sel, &obj)
 	case *pubsublog.ClusterAuditActivityLogEntry:
@@ -5983,6 +6313,41 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "restartApplication":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_restartApplication(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "createConfig":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_createConfig(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "addConfigValue":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_addConfigValue(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "updateConfigValue":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updateConfigValue(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "removeConfigValue":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_removeConfigValue(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "deleteConfig":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_deleteConfig(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++

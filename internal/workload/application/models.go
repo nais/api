@@ -52,6 +52,22 @@ func (a *Application) GetSecrets() []string {
 	return ret
 }
 
+// GetConfigs returns a list of configmap names used by the application
+func (a *Application) GetConfigs() []string {
+	ret := make([]string, 0)
+	for _, v := range a.Spec.EnvFrom {
+		if v.ConfigMap != "" {
+			ret = append(ret, v.ConfigMap)
+		}
+	}
+	for _, v := range a.Spec.FilesFrom {
+		if v.ConfigMap != "" {
+			ret = append(ret, v.ConfigMap)
+		}
+	}
+	return ret
+}
+
 type ApplicationInstance struct {
 	Name     string    `json:"name"`
 	Restarts int       `json:"restarts"`

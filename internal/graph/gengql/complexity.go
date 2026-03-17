@@ -22,6 +22,7 @@ import (
 	vulnerability "github.com/nais/api/internal/vulnerability"
 	workload "github.com/nais/api/internal/workload"
 	application "github.com/nais/api/internal/workload/application"
+	configmap "github.com/nais/api/internal/workload/configmap"
 	job "github.com/nais/api/internal/workload/job"
 	secret "github.com/nais/api/internal/workload/secret"
 )
@@ -30,6 +31,9 @@ func NewComplexityRoot() ComplexityRoot {
 	c := ComplexityRoot{}
 
 	c.Application.ActivityLog = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int {
+		return cursorComplexity(first, last) * childComplexity
+	}
+	c.Application.Configs = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.Application.Deployments = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
@@ -48,6 +52,18 @@ func NewComplexityRoot() ComplexityRoot {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.CVE.Workloads = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
+		return cursorComplexity(first, last) * childComplexity
+	}
+	c.Config.ActivityLog = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int {
+		return cursorComplexity(first, last) * childComplexity
+	}
+	c.Config.Applications = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
+		return cursorComplexity(first, last) * childComplexity
+	}
+	c.Config.Jobs = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
+		return cursorComplexity(first, last) * childComplexity
+	}
+	c.Config.Workloads = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.ContainerImage.ActivityLog = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int {
@@ -69,6 +85,9 @@ func NewComplexityRoot() ComplexityRoot {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.Job.ActivityLog = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int {
+		return cursorComplexity(first, last) * childComplexity
+	}
+	c.Job.Configs = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.Job.Deployments = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
@@ -177,6 +196,9 @@ func NewComplexityRoot() ComplexityRoot {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.Team.Buckets = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bucket.BucketOrder) int {
+		return cursorComplexity(first, last) * childComplexity
+	}
+	c.Team.Configs = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *configmap.ConfigOrder, filter *configmap.ConfigFilter) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.Team.Deployments = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {

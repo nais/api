@@ -33,6 +33,7 @@ import (
 	"github.com/nais/api/internal/vulnerability"
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
+	"github.com/nais/api/internal/workload/configmap"
 	"github.com/nais/api/internal/workload/job"
 	"github.com/nais/api/internal/workload/secret"
 	"github.com/vektah/gqlparser/v2/ast"
@@ -59,6 +60,7 @@ type TeamResolver interface {
 	Applications(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *application.ApplicationOrder, filter *application.TeamApplicationsFilter) (*pagination.Connection[*application.Application], error)
 	BigQueryDatasets(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bigquery.BigQueryDatasetOrder) (*pagination.Connection[*bigquery.BigQueryDataset], error)
 	Buckets(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bucket.BucketOrder) (*pagination.Connection[*bucket.Bucket], error)
+	Configs(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *configmap.ConfigOrder, filter *configmap.ConfigFilter) (*pagination.Connection[*configmap.Config], error)
 	Cost(ctx context.Context, obj *team.Team) (*cost.TeamCost, error)
 	DeploymentKey(ctx context.Context, obj *team.Team) (*deployment.DeploymentKey, error)
 	Deployments(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*deployment.Deployment], error)
@@ -90,6 +92,7 @@ type TeamEnvironmentResolver interface {
 	Application(ctx context.Context, obj *team.TeamEnvironment, name string) (*application.Application, error)
 	BigQueryDataset(ctx context.Context, obj *team.TeamEnvironment, name string) (*bigquery.BigQueryDataset, error)
 	Bucket(ctx context.Context, obj *team.TeamEnvironment, name string) (*bucket.Bucket, error)
+	Config(ctx context.Context, obj *team.TeamEnvironment, name string) (*configmap.Config, error)
 	Cost(ctx context.Context, obj *team.TeamEnvironment) (*cost.TeamEnvironmentCost, error)
 	Environment(ctx context.Context, obj *team.TeamEnvironment) (*environment.Environment, error)
 	Job(ctx context.Context, obj *team.TeamEnvironment, name string) (*job.Job, error)
@@ -105,6 +108,7 @@ type TeamInventoryCountsResolver interface {
 	Applications(ctx context.Context, obj *team.TeamInventoryCounts) (*application.TeamInventoryCountApplications, error)
 	BigQueryDatasets(ctx context.Context, obj *team.TeamInventoryCounts) (*bigquery.TeamInventoryCountBigQueryDatasets, error)
 	Buckets(ctx context.Context, obj *team.TeamInventoryCounts) (*bucket.TeamInventoryCountBuckets, error)
+	Configs(ctx context.Context, obj *team.TeamInventoryCounts) (*configmap.TeamInventoryCountConfigs, error)
 	Jobs(ctx context.Context, obj *team.TeamInventoryCounts) (*job.TeamInventoryCountJobs, error)
 	KafkaTopics(ctx context.Context, obj *team.TeamInventoryCounts) (*kafkatopic.TeamInventoryCountKafkaTopics, error)
 	OpenSearches(ctx context.Context, obj *team.TeamInventoryCounts) (*opensearch.TeamInventoryCountOpenSearches, error)
@@ -184,6 +188,17 @@ func (ec *executionContext) field_TeamEnvironment_bigQueryDataset_args(ctx conte
 }
 
 func (ec *executionContext) field_TeamEnvironment_bucket_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "name", ec.unmarshalNString2string)
+	if err != nil {
+		return nil, err
+	}
+	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_TeamEnvironment_config_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "name", ec.unmarshalNString2string)
@@ -444,6 +459,42 @@ func (ec *executionContext) field_Team_buckets_args(ctx context.Context, rawArgs
 		return nil, err
 	}
 	args["orderBy"] = arg4
+	return args, nil
+}
+
+func (ec *executionContext) field_Team_configs_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first", ec.unmarshalOInt2ᚖint)
+	if err != nil {
+		return nil, err
+	}
+	args["first"] = arg0
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after", ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor)
+	if err != nil {
+		return nil, err
+	}
+	args["after"] = arg1
+	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last", ec.unmarshalOInt2ᚖint)
+	if err != nil {
+		return nil, err
+	}
+	args["last"] = arg2
+	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before", ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor)
+	if err != nil {
+		return nil, err
+	}
+	args["before"] = arg3
+	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "orderBy", ec.unmarshalOConfigOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigmapᚐConfigOrder)
+	if err != nil {
+		return nil, err
+	}
+	args["orderBy"] = arg4
+	arg5, err := graphql.ProcessArgField(ctx, rawArgs, "filter", ec.unmarshalOConfigFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigmapᚐConfigFilter)
+	if err != nil {
+		return nil, err
+	}
+	args["filter"] = arg5
 	return args, nil
 }
 
@@ -1090,6 +1141,8 @@ func (ec *executionContext) fieldContext_CreateTeamPayload_team(_ context.Contex
 				return ec.fieldContext_Team_bigQueryDatasets(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Team_buckets(ctx, field)
+			case "configs":
+				return ec.fieldContext_Team_configs(ctx, field)
 			case "cost":
 				return ec.fieldContext_Team_cost(ctx, field)
 			case "deploymentKey":
@@ -1244,6 +1297,8 @@ func (ec *executionContext) fieldContext_RemoveTeamMemberPayload_team(_ context.
 				return ec.fieldContext_Team_bigQueryDatasets(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Team_buckets(ctx, field)
+			case "configs":
+				return ec.fieldContext_Team_configs(ctx, field)
 			case "cost":
 				return ec.fieldContext_Team_cost(ctx, field)
 			case "deploymentKey":
@@ -1782,6 +1837,8 @@ func (ec *executionContext) fieldContext_Team_environments(_ context.Context, fi
 				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
 			case "bucket":
 				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
+			case "config":
+				return ec.fieldContext_TeamEnvironment_config(ctx, field)
 			case "cost":
 				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
 			case "environment":
@@ -1852,6 +1909,8 @@ func (ec *executionContext) fieldContext_Team_environment(ctx context.Context, f
 				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
 			case "bucket":
 				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
+			case "config":
+				return ec.fieldContext_TeamEnvironment_config(ctx, field)
 			case "cost":
 				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
 			case "environment":
@@ -1973,6 +2032,8 @@ func (ec *executionContext) fieldContext_Team_inventoryCounts(_ context.Context,
 				return ec.fieldContext_TeamInventoryCounts_bigQueryDatasets(ctx, field)
 			case "buckets":
 				return ec.fieldContext_TeamInventoryCounts_buckets(ctx, field)
+			case "configs":
+				return ec.fieldContext_TeamInventoryCounts_configs(ctx, field)
 			case "jobs":
 				return ec.fieldContext_TeamInventoryCounts_jobs(ctx, field)
 			case "kafkaTopics":
@@ -2233,6 +2294,55 @@ func (ec *executionContext) fieldContext_Team_buckets(ctx context.Context, field
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Team_buckets_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Team_configs(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Team_configs,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.Resolvers.Team().Configs(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*configmap.ConfigOrder), fc.Args["filter"].(*configmap.ConfigFilter))
+		},
+		nil,
+		ec.marshalNConfigConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Team_configs(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Team",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "pageInfo":
+				return ec.fieldContext_ConfigConnection_pageInfo(ctx, field)
+			case "nodes":
+				return ec.fieldContext_ConfigConnection_nodes(ctx, field)
+			case "edges":
+				return ec.fieldContext_ConfigConnection_edges(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ConfigConnection", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Team_configs_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -3557,6 +3667,8 @@ func (ec *executionContext) fieldContext_TeamConnection_nodes(_ context.Context,
 				return ec.fieldContext_Team_bigQueryDatasets(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Team_buckets(ctx, field)
+			case "configs":
+				return ec.fieldContext_Team_configs(ctx, field)
 			case "cost":
 				return ec.fieldContext_Team_cost(ctx, field)
 			case "deploymentKey":
@@ -4297,6 +4409,8 @@ func (ec *executionContext) fieldContext_TeamDeleteKey_team(_ context.Context, f
 				return ec.fieldContext_Team_bigQueryDatasets(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Team_buckets(ctx, field)
+			case "configs":
+				return ec.fieldContext_Team_configs(ctx, field)
 			case "cost":
 				return ec.fieldContext_Team_cost(ctx, field)
 			case "deploymentKey":
@@ -4437,6 +4551,8 @@ func (ec *executionContext) fieldContext_TeamEdge_node(_ context.Context, field 
 				return ec.fieldContext_Team_bigQueryDatasets(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Team_buckets(ctx, field)
+			case "configs":
+				return ec.fieldContext_Team_configs(ctx, field)
 			case "cost":
 				return ec.fieldContext_Team_cost(ctx, field)
 			case "deploymentKey":
@@ -4693,6 +4809,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_team(_ context.Context,
 				return ec.fieldContext_Team_bigQueryDatasets(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Team_buckets(ctx, field)
+			case "configs":
+				return ec.fieldContext_Team_configs(ctx, field)
 			case "cost":
 				return ec.fieldContext_Team_cost(ctx, field)
 			case "deploymentKey":
@@ -4848,6 +4966,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_application(ctx context
 				return ec.fieldContext_Application_bigQueryDatasets(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Application_buckets(ctx, field)
+			case "configs":
+				return ec.fieldContext_Application_configs(ctx, field)
 			case "cost":
 				return ec.fieldContext_Application_cost(ctx, field)
 			case "deployments":
@@ -5018,6 +5138,71 @@ func (ec *executionContext) fieldContext_TeamEnvironment_bucket(ctx context.Cont
 	return fc, nil
 }
 
+func (ec *executionContext) _TeamEnvironment_config(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironment) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_TeamEnvironment_config,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.Resolvers.TeamEnvironment().Config(ctx, obj, fc.Args["name"].(string))
+		},
+		nil,
+		ec.marshalNConfig2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigmapᚐConfig,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_TeamEnvironment_config(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamEnvironment",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Config_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Config_name(ctx, field)
+			case "teamEnvironment":
+				return ec.fieldContext_Config_teamEnvironment(ctx, field)
+			case "team":
+				return ec.fieldContext_Config_team(ctx, field)
+			case "values":
+				return ec.fieldContext_Config_values(ctx, field)
+			case "applications":
+				return ec.fieldContext_Config_applications(ctx, field)
+			case "jobs":
+				return ec.fieldContext_Config_jobs(ctx, field)
+			case "workloads":
+				return ec.fieldContext_Config_workloads(ctx, field)
+			case "lastModifiedAt":
+				return ec.fieldContext_Config_lastModifiedAt(ctx, field)
+			case "lastModifiedBy":
+				return ec.fieldContext_Config_lastModifiedBy(ctx, field)
+			case "activityLog":
+				return ec.fieldContext_Config_activityLog(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Config", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_TeamEnvironment_config_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _TeamEnvironment_cost(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironment) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -5149,6 +5334,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_job(ctx context.Context
 				return ec.fieldContext_Job_bigQueryDatasets(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Job_buckets(ctx, field)
+			case "configs":
+				return ec.fieldContext_Job_configs(ctx, field)
 			case "cost":
 				return ec.fieldContext_Job_cost(ctx, field)
 			case "deployments":
@@ -6416,6 +6603,39 @@ func (ec *executionContext) fieldContext_TeamInventoryCounts_buckets(_ context.C
 	return fc, nil
 }
 
+func (ec *executionContext) _TeamInventoryCounts_configs(ctx context.Context, field graphql.CollectedField, obj *team.TeamInventoryCounts) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_TeamInventoryCounts_configs,
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.TeamInventoryCounts().Configs(ctx, obj)
+		},
+		nil,
+		ec.marshalNTeamInventoryCountConfigs2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigmapᚐTeamInventoryCountConfigs,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_TeamInventoryCounts_configs(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamInventoryCounts",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "total":
+				return ec.fieldContext_TeamInventoryCountConfigs_total(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TeamInventoryCountConfigs", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _TeamInventoryCounts_jobs(ctx context.Context, field graphql.CollectedField, obj *team.TeamInventoryCounts) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -6711,6 +6931,8 @@ func (ec *executionContext) fieldContext_TeamMember_team(_ context.Context, fiel
 				return ec.fieldContext_Team_bigQueryDatasets(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Team_buckets(ctx, field)
+			case "configs":
+				return ec.fieldContext_Team_configs(ctx, field)
 			case "cost":
 				return ec.fieldContext_Team_cost(ctx, field)
 			case "deploymentKey":
@@ -8481,6 +8703,8 @@ func (ec *executionContext) fieldContext_UpdateTeamEnvironmentPayload_environmen
 				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
 			case "bucket":
 				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
+			case "config":
+				return ec.fieldContext_TeamEnvironment_config(ctx, field)
 			case "cost":
 				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
 			case "environment":
@@ -8550,6 +8774,8 @@ func (ec *executionContext) fieldContext_UpdateTeamEnvironmentPayload_teamEnviro
 				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
 			case "bucket":
 				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
+			case "config":
+				return ec.fieldContext_TeamEnvironment_config(ctx, field)
 			case "cost":
 				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
 			case "environment":
@@ -8641,6 +8867,8 @@ func (ec *executionContext) fieldContext_UpdateTeamPayload_team(_ context.Contex
 				return ec.fieldContext_Team_bigQueryDatasets(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Team_buckets(ctx, field)
+			case "configs":
+				return ec.fieldContext_Team_configs(ctx, field)
 			case "cost":
 				return ec.fieldContext_Team_cost(ctx, field)
 			case "deploymentKey":
@@ -9849,6 +10077,42 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 					}
 				}()
 				res = ec._Team_buckets(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "configs":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Team_configs(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -11325,6 +11589,42 @@ func (ec *executionContext) _TeamEnvironment(ctx context.Context, sel ast.Select
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "config":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TeamEnvironment_config(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "cost":
 			field := field
 
@@ -12120,6 +12420,42 @@ func (ec *executionContext) _TeamInventoryCounts(ctx context.Context, sel ast.Se
 					}
 				}()
 				res = ec._TeamInventoryCounts_buckets(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "configs":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TeamInventoryCounts_configs(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
