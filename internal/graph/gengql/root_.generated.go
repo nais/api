@@ -486,57 +486,31 @@ type ComplexityRoot struct {
 		Node   func(childComplexity int) int
 	}
 
+	ConfigUpdatedActivityLogEntry struct {
+		Actor           func(childComplexity int) int
+		CreatedAt       func(childComplexity int) int
+		Data            func(childComplexity int) int
+		EnvironmentName func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Message         func(childComplexity int) int
+		ResourceName    func(childComplexity int) int
+		ResourceType    func(childComplexity int) int
+		TeamSlug        func(childComplexity int) int
+	}
+
+	ConfigUpdatedActivityLogEntryData struct {
+		UpdatedFields func(childComplexity int) int
+	}
+
+	ConfigUpdatedActivityLogEntryDataUpdatedField struct {
+		Field    func(childComplexity int) int
+		NewValue func(childComplexity int) int
+		OldValue func(childComplexity int) int
+	}
+
 	ConfigValue struct {
 		Name  func(childComplexity int) int
 		Value func(childComplexity int) int
-	}
-
-	ConfigValueAddedActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		Data            func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
-	}
-
-	ConfigValueAddedActivityLogEntryData struct {
-		ValueName func(childComplexity int) int
-	}
-
-	ConfigValueRemovedActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		Data            func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
-	}
-
-	ConfigValueRemovedActivityLogEntryData struct {
-		ValueName func(childComplexity int) int
-	}
-
-	ConfigValueUpdatedActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		Data            func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
-	}
-
-	ConfigValueUpdatedActivityLogEntryData struct {
-		ValueName func(childComplexity int) int
 	}
 
 	ConfirmTeamDeletionPayload struct {
@@ -4654,6 +4628,97 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ConfigEdge.Node(childComplexity), true
 
+	case "ConfigUpdatedActivityLogEntry.actor":
+		if e.ComplexityRoot.ConfigUpdatedActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigUpdatedActivityLogEntry.Actor(childComplexity), true
+
+	case "ConfigUpdatedActivityLogEntry.createdAt":
+		if e.ComplexityRoot.ConfigUpdatedActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigUpdatedActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "ConfigUpdatedActivityLogEntry.data":
+		if e.ComplexityRoot.ConfigUpdatedActivityLogEntry.Data == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigUpdatedActivityLogEntry.Data(childComplexity), true
+
+	case "ConfigUpdatedActivityLogEntry.environmentName":
+		if e.ComplexityRoot.ConfigUpdatedActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigUpdatedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "ConfigUpdatedActivityLogEntry.id":
+		if e.ComplexityRoot.ConfigUpdatedActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigUpdatedActivityLogEntry.ID(childComplexity), true
+
+	case "ConfigUpdatedActivityLogEntry.message":
+		if e.ComplexityRoot.ConfigUpdatedActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigUpdatedActivityLogEntry.Message(childComplexity), true
+
+	case "ConfigUpdatedActivityLogEntry.resourceName":
+		if e.ComplexityRoot.ConfigUpdatedActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigUpdatedActivityLogEntry.ResourceName(childComplexity), true
+
+	case "ConfigUpdatedActivityLogEntry.resourceType":
+		if e.ComplexityRoot.ConfigUpdatedActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigUpdatedActivityLogEntry.ResourceType(childComplexity), true
+
+	case "ConfigUpdatedActivityLogEntry.teamSlug":
+		if e.ComplexityRoot.ConfigUpdatedActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigUpdatedActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "ConfigUpdatedActivityLogEntryData.updatedFields":
+		if e.ComplexityRoot.ConfigUpdatedActivityLogEntryData.UpdatedFields == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigUpdatedActivityLogEntryData.UpdatedFields(childComplexity), true
+
+	case "ConfigUpdatedActivityLogEntryDataUpdatedField.field":
+		if e.ComplexityRoot.ConfigUpdatedActivityLogEntryDataUpdatedField.Field == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigUpdatedActivityLogEntryDataUpdatedField.Field(childComplexity), true
+
+	case "ConfigUpdatedActivityLogEntryDataUpdatedField.newValue":
+		if e.ComplexityRoot.ConfigUpdatedActivityLogEntryDataUpdatedField.NewValue == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigUpdatedActivityLogEntryDataUpdatedField.NewValue(childComplexity), true
+
+	case "ConfigUpdatedActivityLogEntryDataUpdatedField.oldValue":
+		if e.ComplexityRoot.ConfigUpdatedActivityLogEntryDataUpdatedField.OldValue == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigUpdatedActivityLogEntryDataUpdatedField.OldValue(childComplexity), true
+
 	case "ConfigValue.name":
 		if e.ComplexityRoot.ConfigValue.Name == nil {
 			break
@@ -4667,216 +4732,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ConfigValue.Value(childComplexity), true
-
-	case "ConfigValueAddedActivityLogEntry.actor":
-		if e.ComplexityRoot.ConfigValueAddedActivityLogEntry.Actor == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ConfigValueAddedActivityLogEntry.Actor(childComplexity), true
-
-	case "ConfigValueAddedActivityLogEntry.createdAt":
-		if e.ComplexityRoot.ConfigValueAddedActivityLogEntry.CreatedAt == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ConfigValueAddedActivityLogEntry.CreatedAt(childComplexity), true
-
-	case "ConfigValueAddedActivityLogEntry.data":
-		if e.ComplexityRoot.ConfigValueAddedActivityLogEntry.Data == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ConfigValueAddedActivityLogEntry.Data(childComplexity), true
-
-	case "ConfigValueAddedActivityLogEntry.environmentName":
-		if e.ComplexityRoot.ConfigValueAddedActivityLogEntry.EnvironmentName == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ConfigValueAddedActivityLogEntry.EnvironmentName(childComplexity), true
-
-	case "ConfigValueAddedActivityLogEntry.id":
-		if e.ComplexityRoot.ConfigValueAddedActivityLogEntry.ID == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ConfigValueAddedActivityLogEntry.ID(childComplexity), true
-
-	case "ConfigValueAddedActivityLogEntry.message":
-		if e.ComplexityRoot.ConfigValueAddedActivityLogEntry.Message == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ConfigValueAddedActivityLogEntry.Message(childComplexity), true
-
-	case "ConfigValueAddedActivityLogEntry.resourceName":
-		if e.ComplexityRoot.ConfigValueAddedActivityLogEntry.ResourceName == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ConfigValueAddedActivityLogEntry.ResourceName(childComplexity), true
-
-	case "ConfigValueAddedActivityLogEntry.resourceType":
-		if e.ComplexityRoot.ConfigValueAddedActivityLogEntry.ResourceType == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ConfigValueAddedActivityLogEntry.ResourceType(childComplexity), true
-
-	case "ConfigValueAddedActivityLogEntry.teamSlug":
-		if e.ComplexityRoot.ConfigValueAddedActivityLogEntry.TeamSlug == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ConfigValueAddedActivityLogEntry.TeamSlug(childComplexity), true
-
-	case "ConfigValueAddedActivityLogEntryData.valueName":
-		if e.ComplexityRoot.ConfigValueAddedActivityLogEntryData.ValueName == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ConfigValueAddedActivityLogEntryData.ValueName(childComplexity), true
-
-	case "ConfigValueRemovedActivityLogEntry.actor":
-		if e.ComplexityRoot.ConfigValueRemovedActivityLogEntry.Actor == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ConfigValueRemovedActivityLogEntry.Actor(childComplexity), true
-
-	case "ConfigValueRemovedActivityLogEntry.createdAt":
-		if e.ComplexityRoot.ConfigValueRemovedActivityLogEntry.CreatedAt == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ConfigValueRemovedActivityLogEntry.CreatedAt(childComplexity), true
-
-	case "ConfigValueRemovedActivityLogEntry.data":
-		if e.ComplexityRoot.ConfigValueRemovedActivityLogEntry.Data == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ConfigValueRemovedActivityLogEntry.Data(childComplexity), true
-
-	case "ConfigValueRemovedActivityLogEntry.environmentName":
-		if e.ComplexityRoot.ConfigValueRemovedActivityLogEntry.EnvironmentName == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ConfigValueRemovedActivityLogEntry.EnvironmentName(childComplexity), true
-
-	case "ConfigValueRemovedActivityLogEntry.id":
-		if e.ComplexityRoot.ConfigValueRemovedActivityLogEntry.ID == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ConfigValueRemovedActivityLogEntry.ID(childComplexity), true
-
-	case "ConfigValueRemovedActivityLogEntry.message":
-		if e.ComplexityRoot.ConfigValueRemovedActivityLogEntry.Message == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ConfigValueRemovedActivityLogEntry.Message(childComplexity), true
-
-	case "ConfigValueRemovedActivityLogEntry.resourceName":
-		if e.ComplexityRoot.ConfigValueRemovedActivityLogEntry.ResourceName == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ConfigValueRemovedActivityLogEntry.ResourceName(childComplexity), true
-
-	case "ConfigValueRemovedActivityLogEntry.resourceType":
-		if e.ComplexityRoot.ConfigValueRemovedActivityLogEntry.ResourceType == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ConfigValueRemovedActivityLogEntry.ResourceType(childComplexity), true
-
-	case "ConfigValueRemovedActivityLogEntry.teamSlug":
-		if e.ComplexityRoot.ConfigValueRemovedActivityLogEntry.TeamSlug == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ConfigValueRemovedActivityLogEntry.TeamSlug(childComplexity), true
-
-	case "ConfigValueRemovedActivityLogEntryData.valueName":
-		if e.ComplexityRoot.ConfigValueRemovedActivityLogEntryData.ValueName == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ConfigValueRemovedActivityLogEntryData.ValueName(childComplexity), true
-
-	case "ConfigValueUpdatedActivityLogEntry.actor":
-		if e.ComplexityRoot.ConfigValueUpdatedActivityLogEntry.Actor == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ConfigValueUpdatedActivityLogEntry.Actor(childComplexity), true
-
-	case "ConfigValueUpdatedActivityLogEntry.createdAt":
-		if e.ComplexityRoot.ConfigValueUpdatedActivityLogEntry.CreatedAt == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ConfigValueUpdatedActivityLogEntry.CreatedAt(childComplexity), true
-
-	case "ConfigValueUpdatedActivityLogEntry.data":
-		if e.ComplexityRoot.ConfigValueUpdatedActivityLogEntry.Data == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ConfigValueUpdatedActivityLogEntry.Data(childComplexity), true
-
-	case "ConfigValueUpdatedActivityLogEntry.environmentName":
-		if e.ComplexityRoot.ConfigValueUpdatedActivityLogEntry.EnvironmentName == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ConfigValueUpdatedActivityLogEntry.EnvironmentName(childComplexity), true
-
-	case "ConfigValueUpdatedActivityLogEntry.id":
-		if e.ComplexityRoot.ConfigValueUpdatedActivityLogEntry.ID == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ConfigValueUpdatedActivityLogEntry.ID(childComplexity), true
-
-	case "ConfigValueUpdatedActivityLogEntry.message":
-		if e.ComplexityRoot.ConfigValueUpdatedActivityLogEntry.Message == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ConfigValueUpdatedActivityLogEntry.Message(childComplexity), true
-
-	case "ConfigValueUpdatedActivityLogEntry.resourceName":
-		if e.ComplexityRoot.ConfigValueUpdatedActivityLogEntry.ResourceName == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ConfigValueUpdatedActivityLogEntry.ResourceName(childComplexity), true
-
-	case "ConfigValueUpdatedActivityLogEntry.resourceType":
-		if e.ComplexityRoot.ConfigValueUpdatedActivityLogEntry.ResourceType == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ConfigValueUpdatedActivityLogEntry.ResourceType(childComplexity), true
-
-	case "ConfigValueUpdatedActivityLogEntry.teamSlug":
-		if e.ComplexityRoot.ConfigValueUpdatedActivityLogEntry.TeamSlug == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ConfigValueUpdatedActivityLogEntry.TeamSlug(childComplexity), true
-
-	case "ConfigValueUpdatedActivityLogEntryData.valueName":
-		if e.ComplexityRoot.ConfigValueUpdatedActivityLogEntryData.ValueName == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ConfigValueUpdatedActivityLogEntryData.ValueName(childComplexity), true
 
 	case "ConfirmTeamDeletionPayload.deletionStarted":
 		if e.ComplexityRoot.ConfirmTeamDeletionPayload.DeletionStarted == nil {
@@ -18399,10 +18254,10 @@ input CreateConfigInput {
 	name: String!
 
 	"The environment the config exists in."
-	environment: String!
+	environmentName: String!
 
 	"The team that owns the config."
-	team: Slug!
+	teamSlug: Slug!
 }
 
 input AddConfigValueInput {
@@ -18410,10 +18265,10 @@ input AddConfigValueInput {
 	name: String!
 
 	"The environment the config exists in."
-	environment: String!
+	environmentName: String!
 
 	"The team that owns the config."
-	team: Slug!
+	teamSlug: Slug!
 
 	"The config value to add."
 	value: ConfigValueInput!
@@ -18424,10 +18279,10 @@ input UpdateConfigValueInput {
 	name: String!
 
 	"The environment the config exists in."
-	environment: String!
+	environmentName: String!
 
 	"The team that owns the config."
-	team: Slug!
+	teamSlug: Slug!
 
 	"The config value to update."
 	value: ConfigValueInput!
@@ -18438,10 +18293,10 @@ input RemoveConfigValueInput {
 	configName: String!
 
 	"The environment the config exists in."
-	environment: String!
+	environmentName: String!
 
 	"The team that owns the config."
-	team: Slug!
+	teamSlug: Slug!
 
 	"The config value to remove."
 	valueName: String!
@@ -18452,10 +18307,10 @@ input DeleteConfigInput {
 	name: String!
 
 	"The environment the config exists in."
-	environment: String!
+	environmentName: String!
 
 	"The team that owns the config."
-	team: Slug!
+	teamSlug: Slug!
 }
 
 type CreateConfigPayload {
@@ -18560,7 +18415,7 @@ type ConfigCreatedActivityLogEntry implements ActivityLogEntry & Node {
 	environmentName: String
 }
 
-type ConfigValueAddedActivityLogEntry implements ActivityLogEntry & Node {
+type ConfigUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -18586,80 +18441,23 @@ type ConfigValueAddedActivityLogEntry implements ActivityLogEntry & Node {
 	environmentName: String
 
 	"Data associated with the entry."
-	data: ConfigValueAddedActivityLogEntryData!
+	data: ConfigUpdatedActivityLogEntryData!
 }
 
-type ConfigValueAddedActivityLogEntryData {
-	"The name of the added value."
-	valueName: String!
+type ConfigUpdatedActivityLogEntryDataUpdatedField {
+	"The name of the field that was updated."
+	field: String!
+
+	"The old value of the field."
+	oldValue: String
+
+	"The new value of the field."
+	newValue: String
 }
 
-type ConfigValueUpdatedActivityLogEntry implements ActivityLogEntry & Node {
-	"ID of the entry."
-	id: ID!
-
-	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
-	actor: String!
-
-	"Creation time of the entry."
-	createdAt: Time!
-
-	"Message that summarizes the entry."
-	message: String!
-
-	"Type of the resource that was affected by the action."
-	resourceType: ActivityLogEntryResourceType!
-
-	"Name of the resource that was affected by the action."
-	resourceName: String!
-
-	"The team slug that the entry belongs to."
-	teamSlug: Slug!
-
-	"The environment name that the entry belongs to."
-	environmentName: String
-
-	"Data associated with the entry."
-	data: ConfigValueUpdatedActivityLogEntryData!
-}
-
-type ConfigValueUpdatedActivityLogEntryData {
-	"The name of the updated value."
-	valueName: String!
-}
-
-type ConfigValueRemovedActivityLogEntry implements ActivityLogEntry & Node {
-	"ID of the entry."
-	id: ID!
-
-	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
-	actor: String!
-
-	"Creation time of the entry."
-	createdAt: Time!
-
-	"Message that summarizes the entry."
-	message: String!
-
-	"Type of the resource that was affected by the action."
-	resourceType: ActivityLogEntryResourceType!
-
-	"Name of the resource that was affected by the action."
-	resourceName: String!
-
-	"The team slug that the entry belongs to."
-	teamSlug: Slug!
-
-	"The environment name that the entry belongs to."
-	environmentName: String
-
-	"Data associated with the entry."
-	data: ConfigValueRemovedActivityLogEntryData!
-}
-
-type ConfigValueRemovedActivityLogEntryData {
-	"The name of the removed value."
-	valueName: String!
+type ConfigUpdatedActivityLogEntryData {
+	"The fields that were updated."
+	updatedFields: [ConfigUpdatedActivityLogEntryDataUpdatedField!]!
 }
 
 type ConfigDeletedActivityLogEntry implements ActivityLogEntry & Node {
@@ -18691,12 +18489,8 @@ type ConfigDeletedActivityLogEntry implements ActivityLogEntry & Node {
 extend enum ActivityLogActivityType {
 	"Config was created."
 	CONFIG_CREATED
-	"Config value was added."
-	CONFIG_VALUE_ADDED
-	"Config value was updated."
-	CONFIG_VALUE_UPDATED
-	"Config value was removed."
-	CONFIG_VALUE_REMOVED
+	"Config was updated."
+	CONFIG_UPDATED
 	"Config was deleted."
 	CONFIG_DELETED
 }

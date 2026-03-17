@@ -1,0 +1,12 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: app-with-no-configs
+---
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: app-with-configs-via-envfrom
+spec:
+  envFrom:
+    - configmap: managed-config-in-dev

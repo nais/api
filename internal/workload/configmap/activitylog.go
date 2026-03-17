@@ -7,10 +7,7 @@ import (
 )
 
 const (
-	activityLogEntryResourceTypeConfig      activitylog.ActivityLogEntryResourceType = "CONFIG"
-	activityLogEntryActionAddConfigValue    activitylog.ActivityLogEntryAction       = "ADD_CONFIG_VALUE"
-	activityLogEntryActionUpdateConfigValue activitylog.ActivityLogEntryAction       = "UPDATE_CONFIG_VALUE"
-	activityLogEntryActionRemoveConfigValue activitylog.ActivityLogEntryAction       = "REMOVE_CONFIG_VALUE"
+	activityLogEntryResourceTypeConfig activitylog.ActivityLogEntryResourceType = "CONFIG"
 )
 
 func init() {
@@ -24,40 +21,14 @@ func init() {
 			return ConfigDeletedActivityLogEntry{
 				GenericActivityLogEntry: entry.WithMessage("Deleted config"),
 			}, nil
-		case activityLogEntryActionAddConfigValue:
-			data, err := activitylog.TransformData(entry, func(data *ConfigValueAddedActivityLogEntryData) *ConfigValueAddedActivityLogEntryData {
-				return data
-			})
+		case activitylog.ActivityLogEntryActionUpdated:
+			data, err := activitylog.UnmarshalData[ConfigUpdatedActivityLogEntryData](entry)
 			if err != nil {
-				return nil, err
+				return nil, fmt.Errorf("failed to unmarshal config updated activity log entry data: %w", err)
 			}
 
-			return ConfigValueAddedActivityLogEntry{
-				GenericActivityLogEntry: entry.WithMessage("Added config value"),
-				Data:                    data,
-			}, nil
-		case activityLogEntryActionUpdateConfigValue:
-			data, err := activitylog.TransformData(entry, func(data *ConfigValueUpdatedActivityLogEntryData) *ConfigValueUpdatedActivityLogEntryData {
-				return data
-			})
-			if err != nil {
-				return nil, err
-			}
-
-			return ConfigValueUpdatedActivityLogEntry{
-				GenericActivityLogEntry: entry.WithMessage("Updated config value"),
-				Data:                    data,
-			}, nil
-		case activityLogEntryActionRemoveConfigValue:
-			data, err := activitylog.TransformData(entry, func(data *ConfigValueRemovedActivityLogEntryData) *ConfigValueRemovedActivityLogEntryData {
-				return data
-			})
-			if err != nil {
-				return nil, err
-			}
-
-			return ConfigValueRemovedActivityLogEntry{
-				GenericActivityLogEntry: entry.WithMessage("Removed config value"),
+			return ConfigUpdatedActivityLogEntry{
+				GenericActivityLogEntry: entry.WithMessage("Updated config"),
 				Data:                    data,
 			}, nil
 		default:
@@ -66,41 +37,27 @@ func init() {
 	})
 
 	activitylog.RegisterFilter("CONFIG_CREATED", activitylog.ActivityLogEntryActionCreated, activityLogEntryResourceTypeConfig)
+	activitylog.RegisterFilter("CONFIG_UPDATED", activitylog.ActivityLogEntryActionUpdated, activityLogEntryResourceTypeConfig)
 	activitylog.RegisterFilter("CONFIG_DELETED", activitylog.ActivityLogEntryActionDeleted, activityLogEntryResourceTypeConfig)
-	activitylog.RegisterFilter("CONFIG_VALUE_ADDED", activityLogEntryActionAddConfigValue, activityLogEntryResourceTypeConfig)
-	activitylog.RegisterFilter("CONFIG_VALUE_UPDATED", activityLogEntryActionUpdateConfigValue, activityLogEntryResourceTypeConfig)
-	activitylog.RegisterFilter("CONFIG_VALUE_REMOVED", activityLogEntryActionRemoveConfigValue, activityLogEntryResourceTypeConfig)
 }
 
 type ConfigCreatedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
 }
 
-type ConfigValueAddedActivityLogEntry struct {
+type ConfigUpdatedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
-	Data *ConfigValueAddedActivityLogEntryData
+	Data *ConfigUpdatedActivityLogEntryData `json:"data"`
 }
 
-type ConfigValueAddedActivityLogEntryData struct {
-	ValueName string
+type ConfigUpdatedActivityLogEntryData struct {
+	UpdatedFields []*ConfigUpdatedActivityLogEntryDataUpdatedField `json:"updatedFields"`
 }
 
-type ConfigValueUpdatedActivityLogEntry struct {
-	activitylog.GenericActivityLogEntry
-	Data *ConfigValueUpdatedActivityLogEntryData
-}
-
-type ConfigValueUpdatedActivityLogEntryData struct {
-	ValueName string
-}
-
-type ConfigValueRemovedActivityLogEntry struct {
-	activitylog.GenericActivityLogEntry
-	Data *ConfigValueRemovedActivityLogEntryData
-}
-
-type ConfigValueRemovedActivityLogEntryData struct {
-	ValueName string
+type ConfigUpdatedActivityLogEntryDataUpdatedField struct {
+	Field    string  `json:"field"`
+	OldValue *string `json:"oldValue,omitempty"`
+	NewValue *string `json:"newValue,omitempty"`
 }
 
 type ConfigDeletedActivityLogEntry struct {

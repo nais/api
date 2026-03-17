@@ -9,15 +9,11 @@ import (
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
+	"github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/slug"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-)
-
-const (
-	configAnnotationLastModifiedAt = "console.nais.io/last-modified-at"
-	configAnnotationLastModifiedBy = "console.nais.io/last-modified-by"
 )
 
 type (
@@ -36,9 +32,9 @@ type Config struct {
 }
 
 type CreateConfigInput struct {
-	Name        string    `json:"name"`
-	Environment string    `json:"environment"`
-	Team        slug.Slug `json:"team"`
+	Name            string    `json:"name"`
+	EnvironmentName string    `json:"environmentName"`
+	TeamSlug        slug.Slug `json:"teamSlug"`
 }
 
 type CreateConfigPayload struct {
@@ -46,10 +42,10 @@ type CreateConfigPayload struct {
 }
 
 type UpdateConfigInput struct {
-	Name        string              `json:"name"`
-	Environment string              `json:"environment"`
-	Team        slug.Slug           `json:"team"`
-	Data        []*ConfigValueInput `json:"data"`
+	Name            string              `json:"name"`
+	EnvironmentName string              `json:"environmentName"`
+	TeamSlug        slug.Slug           `json:"teamSlug"`
+	Data            []*ConfigValueInput `json:"data"`
 }
 
 type UpdateConfigPayload struct {
@@ -93,7 +89,7 @@ func toGraphConfig(o *unstructured.Unstructured, environmentName string) (*Confi
 	}
 
 	var lastModifiedAt *time.Time
-	if t, ok := o.GetAnnotations()[configAnnotationLastModifiedAt]; ok {
+	if t, ok := o.GetAnnotations()[kubernetes.AnnotationLastModifiedAt]; ok {
 		tm, err := time.Parse(time.RFC3339, t)
 		if err == nil {
 			lastModifiedAt = &tm
@@ -101,7 +97,7 @@ func toGraphConfig(o *unstructured.Unstructured, environmentName string) (*Confi
 	}
 
 	var lastModifiedBy *string
-	if email, ok := o.GetAnnotations()[configAnnotationLastModifiedBy]; ok {
+	if email, ok := o.GetAnnotations()[kubernetes.AnnotationLastModifiedBy]; ok {
 		lastModifiedBy = &email
 	}
 
@@ -124,9 +120,9 @@ type ConfigValue struct {
 }
 
 type DeleteConfigInput struct {
-	Name        string    `json:"name"`
-	Environment string    `json:"environment"`
-	Team        slug.Slug `json:"team"`
+	Name            string    `json:"name"`
+	EnvironmentName string    `json:"environmentName"`
+	TeamSlug        slug.Slug `json:"teamSlug"`
 }
 
 type DeleteConfigPayload struct {
@@ -134,24 +130,24 @@ type DeleteConfigPayload struct {
 }
 
 type AddConfigValueInput struct {
-	Name        string            `json:"name"`
-	Environment string            `json:"environment"`
-	Team        slug.Slug         `json:"team"`
-	Value       *ConfigValueInput `json:"value"`
+	Name            string            `json:"name"`
+	EnvironmentName string            `json:"environmentName"`
+	TeamSlug        slug.Slug         `json:"teamSlug"`
+	Value           *ConfigValueInput `json:"value"`
 }
 
 type UpdateConfigValueInput struct {
-	Name        string            `json:"name"`
-	Environment string            `json:"environment"`
-	Team        slug.Slug         `json:"team"`
-	Value       *ConfigValueInput `json:"value"`
+	Name            string            `json:"name"`
+	EnvironmentName string            `json:"environmentName"`
+	TeamSlug        slug.Slug         `json:"teamSlug"`
+	Value           *ConfigValueInput `json:"value"`
 }
 
 type RemoveConfigValueInput struct {
-	ConfigName  string    `json:"configName"`
-	Environment string    `json:"environment"`
-	Team        slug.Slug `json:"team"`
-	ValueName   string    `json:"valueName"`
+	ConfigName      string    `json:"configName"`
+	EnvironmentName string    `json:"environmentName"`
+	TeamSlug        slug.Slug `json:"teamSlug"`
+	ValueName       string    `json:"valueName"`
 }
 
 type AddConfigValuePayload struct {

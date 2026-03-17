@@ -5970,27 +5970,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._ContainerImage(ctx, sel, obj)
-	case configmap.ConfigValueUpdatedActivityLogEntry:
-		return ec._ConfigValueUpdatedActivityLogEntry(ctx, sel, &obj)
-	case *configmap.ConfigValueUpdatedActivityLogEntry:
+	case configmap.ConfigUpdatedActivityLogEntry:
+		return ec._ConfigUpdatedActivityLogEntry(ctx, sel, &obj)
+	case *configmap.ConfigUpdatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ConfigValueUpdatedActivityLogEntry(ctx, sel, obj)
-	case configmap.ConfigValueRemovedActivityLogEntry:
-		return ec._ConfigValueRemovedActivityLogEntry(ctx, sel, &obj)
-	case *configmap.ConfigValueRemovedActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._ConfigValueRemovedActivityLogEntry(ctx, sel, obj)
-	case configmap.ConfigValueAddedActivityLogEntry:
-		return ec._ConfigValueAddedActivityLogEntry(ctx, sel, &obj)
-	case *configmap.ConfigValueAddedActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._ConfigValueAddedActivityLogEntry(ctx, sel, obj)
+		return ec._ConfigUpdatedActivityLogEntry(ctx, sel, obj)
 	case configmap.ConfigDeletedActivityLogEntry:
 		return ec._ConfigDeletedActivityLogEntry(ctx, sel, &obj)
 	case *configmap.ConfigDeletedActivityLogEntry:

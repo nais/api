@@ -211,14 +211,19 @@ func AddConfigValue(ctx context.Context, teamSlug slug.Slug, environment, config
 	}
 
 	err = activitylog.Create(ctx, activitylog.CreateInput{
-		Action:          activityLogEntryActionAddConfigValue,
+		Action:          activitylog.ActivityLogEntryActionUpdated,
 		Actor:           actor.User,
 		EnvironmentName: &environment,
 		ResourceType:    activityLogEntryResourceTypeConfig,
 		ResourceName:    configName,
 		TeamSlug:        &teamSlug,
-		Data: &ConfigValueAddedActivityLogEntryData{
-			ValueName: valueToAdd.Name,
+		Data: ConfigUpdatedActivityLogEntryData{
+			UpdatedFields: []*ConfigUpdatedActivityLogEntryDataUpdatedField{
+				{
+					Field:    valueToAdd.Name,
+					NewValue: &valueToAdd.Value,
+				},
+			},
 		},
 	})
 	if err != nil {
@@ -261,8 +266,14 @@ func UpdateConfigValue(ctx context.Context, teamSlug slug.Slug, environment, con
 
 	// Check if key exists
 	data, _, _ := unstructured.NestedMap(obj.Object, "data")
-	if _, exists := data[valueToUpdate.Name]; !exists {
+	oldValueRaw, exists := data[valueToUpdate.Name]
+	if !exists {
 		return nil, apierror.Errorf("The config does not contain a value with the name %q.", valueToUpdate.Name)
+	}
+
+	var oldValue *string
+	if s, ok := oldValueRaw.(string); ok {
+		oldValue = &s
 	}
 
 	// Use JSON Patch to update the key
@@ -284,14 +295,20 @@ func UpdateConfigValue(ctx context.Context, teamSlug slug.Slug, environment, con
 	}
 
 	err = activitylog.Create(ctx, activitylog.CreateInput{
-		Action:          activityLogEntryActionUpdateConfigValue,
+		Action:          activitylog.ActivityLogEntryActionUpdated,
 		Actor:           actor.User,
 		EnvironmentName: &environment,
 		ResourceType:    activityLogEntryResourceTypeConfig,
 		ResourceName:    configName,
 		TeamSlug:        &teamSlug,
-		Data: &ConfigValueUpdatedActivityLogEntryData{
-			ValueName: valueToUpdate.Name,
+		Data: ConfigUpdatedActivityLogEntryData{
+			UpdatedFields: []*ConfigUpdatedActivityLogEntryDataUpdatedField{
+				{
+					Field:    valueToUpdate.Name,
+					OldValue: oldValue,
+					NewValue: &valueToUpdate.Value,
+				},
+			},
 		},
 	})
 	if err != nil {
@@ -330,8 +347,14 @@ func RemoveConfigValue(ctx context.Context, teamSlug slug.Slug, environment, con
 
 	// Check if key exists
 	data, _, _ := unstructured.NestedMap(obj.Object, "data")
-	if _, exists := data[valueName]; !exists {
+	oldValueRaw, exists := data[valueName]
+	if !exists {
 		return nil, apierror.Errorf("The config does not contain a value with the name: %q.", valueName)
+	}
+
+	var oldValue *string
+	if s, ok := oldValueRaw.(string); ok {
+		oldValue = &s
 	}
 
 	// Use JSON Patch to remove the key
@@ -353,14 +376,19 @@ func RemoveConfigValue(ctx context.Context, teamSlug slug.Slug, environment, con
 	}
 
 	err = activitylog.Create(ctx, activitylog.CreateInput{
-		Action:          activityLogEntryActionRemoveConfigValue,
+		Action:          activitylog.ActivityLogEntryActionUpdated,
 		Actor:           actor.User,
 		EnvironmentName: &environment,
 		ResourceType:    activityLogEntryResourceTypeConfig,
 		ResourceName:    configName,
 		TeamSlug:        &teamSlug,
-		Data: &ConfigValueRemovedActivityLogEntryData{
-			ValueName: valueName,
+		Data: ConfigUpdatedActivityLogEntryData{
+			UpdatedFields: []*ConfigUpdatedActivityLogEntryDataUpdatedField{
+				{
+					Field:    valueName,
+					OldValue: oldValue,
+				},
+			},
 		},
 	})
 	if err != nil {
@@ -387,11 +415,16 @@ func Delete(ctx context.Context, teamSlug slug.Slug, environment, name string) e
 		return err
 	}
 
-	if _, err := client.Namespace(teamSlug.String()).Get(ctx, name, v1.GetOptions{}); err != nil {
+	obj, err := client.Namespace(teamSlug.String()).Get(ctx, name, v1.GetOptions{})
+	if err != nil {
 		if k8serrors.IsNotFound(err) {
 			return &watcher.ErrorNotFound{Cluster: environment, Namespace: teamSlug.String(), Name: name}
 		}
 		return err
+	}
+
+	if !configIsManagedByConsole(obj) {
+		return ErrUnmanaged
 	}
 
 	if err := client.Namespace(teamSlug.String()).Delete(ctx, name, v1.DeleteOptions{}); err != nil {

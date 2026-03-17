@@ -51,10 +51,14 @@ func (Job) IsActivityLogger() {}
 func (j *Job) GetSecrets() []string {
 	ret := make([]string, 0)
 	for _, v := range j.Spec.EnvFrom {
-		ret = append(ret, v.Secret)
+		if v.Secret != "" {
+			ret = append(ret, v.Secret)
+		}
 	}
 	for _, v := range j.Spec.FilesFrom {
-		ret = append(ret, v.Secret)
+		if v.Secret != "" {
+			ret = append(ret, v.Secret)
+		}
 	}
 	return ret
 }

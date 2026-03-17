@@ -226,10 +226,10 @@ input CreateConfigInput {
 	name: String!
 
 	"The environment the config exists in."
-	environment: String!
+	environmentName: String!
 
 	"The team that owns the config."
-	team: Slug!
+	teamSlug: Slug!
 }
 
 input AddConfigValueInput {
@@ -237,10 +237,10 @@ input AddConfigValueInput {
 	name: String!
 
 	"The environment the config exists in."
-	environment: String!
+	environmentName: String!
 
 	"The team that owns the config."
-	team: Slug!
+	teamSlug: Slug!
 
 	"The config value to add."
 	value: ConfigValueInput!
@@ -251,10 +251,10 @@ input UpdateConfigValueInput {
 	name: String!
 
 	"The environment the config exists in."
-	environment: String!
+	environmentName: String!
 
 	"The team that owns the config."
-	team: Slug!
+	teamSlug: Slug!
 
 	"The config value to update."
 	value: ConfigValueInput!
@@ -265,10 +265,10 @@ input RemoveConfigValueInput {
 	configName: String!
 
 	"The environment the config exists in."
-	environment: String!
+	environmentName: String!
 
 	"The team that owns the config."
-	team: Slug!
+	teamSlug: Slug!
 
 	"The config value to remove."
 	valueName: String!
@@ -279,10 +279,10 @@ input DeleteConfigInput {
 	name: String!
 
 	"The environment the config exists in."
-	environment: String!
+	environmentName: String!
 
 	"The team that owns the config."
-	team: Slug!
+	teamSlug: Slug!
 }
 
 type CreateConfigPayload {
@@ -387,7 +387,7 @@ type ConfigCreatedActivityLogEntry implements ActivityLogEntry & Node {
 	environmentName: String
 }
 
-type ConfigValueAddedActivityLogEntry implements ActivityLogEntry & Node {
+type ConfigUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -413,80 +413,23 @@ type ConfigValueAddedActivityLogEntry implements ActivityLogEntry & Node {
 	environmentName: String
 
 	"Data associated with the entry."
-	data: ConfigValueAddedActivityLogEntryData!
+	data: ConfigUpdatedActivityLogEntryData!
 }
 
-type ConfigValueAddedActivityLogEntryData {
-	"The name of the added value."
-	valueName: String!
+type ConfigUpdatedActivityLogEntryDataUpdatedField {
+	"The name of the field that was updated."
+	field: String!
+
+	"The old value of the field."
+	oldValue: String
+
+	"The new value of the field."
+	newValue: String
 }
 
-type ConfigValueUpdatedActivityLogEntry implements ActivityLogEntry & Node {
-	"ID of the entry."
-	id: ID!
-
-	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
-	actor: String!
-
-	"Creation time of the entry."
-	createdAt: Time!
-
-	"Message that summarizes the entry."
-	message: String!
-
-	"Type of the resource that was affected by the action."
-	resourceType: ActivityLogEntryResourceType!
-
-	"Name of the resource that was affected by the action."
-	resourceName: String!
-
-	"The team slug that the entry belongs to."
-	teamSlug: Slug!
-
-	"The environment name that the entry belongs to."
-	environmentName: String
-
-	"Data associated with the entry."
-	data: ConfigValueUpdatedActivityLogEntryData!
-}
-
-type ConfigValueUpdatedActivityLogEntryData {
-	"The name of the updated value."
-	valueName: String!
-}
-
-type ConfigValueRemovedActivityLogEntry implements ActivityLogEntry & Node {
-	"ID of the entry."
-	id: ID!
-
-	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
-	actor: String!
-
-	"Creation time of the entry."
-	createdAt: Time!
-
-	"Message that summarizes the entry."
-	message: String!
-
-	"Type of the resource that was affected by the action."
-	resourceType: ActivityLogEntryResourceType!
-
-	"Name of the resource that was affected by the action."
-	resourceName: String!
-
-	"The team slug that the entry belongs to."
-	teamSlug: Slug!
-
-	"The environment name that the entry belongs to."
-	environmentName: String
-
-	"Data associated with the entry."
-	data: ConfigValueRemovedActivityLogEntryData!
-}
-
-type ConfigValueRemovedActivityLogEntryData {
-	"The name of the removed value."
-	valueName: String!
+type ConfigUpdatedActivityLogEntryData {
+	"The fields that were updated."
+	updatedFields: [ConfigUpdatedActivityLogEntryDataUpdatedField!]!
 }
 
 type ConfigDeletedActivityLogEntry implements ActivityLogEntry & Node {
@@ -518,12 +461,8 @@ type ConfigDeletedActivityLogEntry implements ActivityLogEntry & Node {
 extend enum ActivityLogActivityType {
 	"Config was created."
 	CONFIG_CREATED
-	"Config value was added."
-	CONFIG_VALUE_ADDED
-	"Config value was updated."
-	CONFIG_VALUE_UPDATED
-	"Config value was removed."
-	CONFIG_VALUE_REMOVED
+	"Config was updated."
+	CONFIG_UPDATED
 	"Config was deleted."
 	CONFIG_DELETED
 }

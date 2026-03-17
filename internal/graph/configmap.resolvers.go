@@ -2,6 +2,7 @@ package graph
 
 import (
 	"context"
+	"errors"
 	"slices"
 
 	"github.com/nais/api/internal/activitylog"
@@ -45,7 +46,7 @@ func (r *configResolver) Applications(ctx context.Context, obj *configmap.Config
 		return nil, err
 	}
 
-	allApps := application.ListAllForTeam(ctx, obj.TeamSlug, nil, nil)
+	allApps := application.ListAllForTeamInEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 
 	ret := make([]*application.Application, 0)
 	for _, app := range allApps {
@@ -64,7 +65,7 @@ func (r *configResolver) Jobs(ctx context.Context, obj *configmap.Config, first 
 		return nil, err
 	}
 
-	allJobs := job.ListAllForTeam(ctx, obj.TeamSlug, nil, nil)
+	allJobs := job.ListAllForTeamInEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 
 	ret := make([]*job.Job, 0)
 	for _, j := range allJobs {
@@ -99,10 +100,10 @@ func (r *configResolver) Workloads(ctx context.Context, obj *configmap.Config, f
 		}
 	}
 
-	workloads := pagination.Slice(ret, page)
-	slices.SortStableFunc(workloads, func(a, b workload.Workload) int {
+	slices.SortStableFunc(ret, func(a, b workload.Workload) int {
 		return model.Compare(a.GetName(), b.GetName(), model.OrderDirectionAsc)
 	})
+	workloads := pagination.Slice(ret, page)
 	return pagination.NewConnection(workloads, page, len(ret)), nil
 }
 
@@ -111,7 +112,15 @@ func (r *configResolver) LastModifiedBy(ctx context.Context, obj *configmap.Conf
 		return nil, nil
 	}
 
-	return user.GetByEmail(ctx, *obj.ModifiedByUserEmail)
+	u, err := user.GetByEmail(ctx, *obj.ModifiedByUserEmail)
+	if err != nil {
+		var notFound user.ErrNotFound
+		if errors.As(err, &notFound) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return u, nil
 }
 
 func (r *configResolver) ActivityLog(ctx context.Context, obj *configmap.Config, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*pagination.Connection[activitylog.ActivityLogEntry], error) {
@@ -141,11 +150,11 @@ func (r *jobResolver) Configs(ctx context.Context, obj *job.Job, first *int, aft
 }
 
 func (r *mutationResolver) CreateConfig(ctx context.Context, input configmap.CreateConfigInput) (*configmap.CreateConfigPayload, error) {
-	if err := authz.CanCreateConfigs(ctx, input.Team); err != nil {
+	if err := authz.CanCreateConfigs(ctx, input.TeamSlug); err != nil {
 		return nil, err
 	}
 
-	c, err := configmap.Create(ctx, input.Team, input.Environment, input.Name)
+	c, err := configmap.Create(ctx, input.TeamSlug, input.EnvironmentName, input.Name)
 	if err != nil {
 		return nil, err
 	}
@@ -156,11 +165,11 @@ func (r *mutationResolver) CreateConfig(ctx context.Context, input configmap.Cre
 }
 
 func (r *mutationResolver) AddConfigValue(ctx context.Context, input configmap.AddConfigValueInput) (*configmap.AddConfigValuePayload, error) {
-	if err := authz.CanUpdateConfigs(ctx, input.Team); err != nil {
+	if err := authz.CanUpdateConfigs(ctx, input.TeamSlug); err != nil {
 		return nil, err
 	}
 
-	c, err := configmap.AddConfigValue(ctx, input.Team, input.Environment, input.Name, input.Value)
+	c, err := configmap.AddConfigValue(ctx, input.TeamSlug, input.EnvironmentName, input.Name, input.Value)
 	if err != nil {
 		return nil, err
 	}
@@ -171,11 +180,11 @@ func (r *mutationResolver) AddConfigValue(ctx context.Context, input configmap.A
 }
 
 func (r *mutationResolver) UpdateConfigValue(ctx context.Context, input configmap.UpdateConfigValueInput) (*configmap.UpdateConfigValuePayload, error) {
-	if err := authz.CanUpdateConfigs(ctx, input.Team); err != nil {
+	if err := authz.CanUpdateConfigs(ctx, input.TeamSlug); err != nil {
 		return nil, err
 	}
 
-	c, err := configmap.UpdateConfigValue(ctx, input.Team, input.Environment, input.Name, input.Value)
+	c, err := configmap.UpdateConfigValue(ctx, input.TeamSlug, input.EnvironmentName, input.Name, input.Value)
 	if err != nil {
 		return nil, err
 	}
@@ -186,11 +195,11 @@ func (r *mutationResolver) UpdateConfigValue(ctx context.Context, input configma
 }
 
 func (r *mutationResolver) RemoveConfigValue(ctx context.Context, input configmap.RemoveConfigValueInput) (*configmap.RemoveConfigValuePayload, error) {
-	if err := authz.CanUpdateConfigs(ctx, input.Team); err != nil {
+	if err := authz.CanUpdateConfigs(ctx, input.TeamSlug); err != nil {
 		return nil, err
 	}
 
-	c, err := configmap.RemoveConfigValue(ctx, input.Team, input.Environment, input.ConfigName, input.ValueName)
+	c, err := configmap.RemoveConfigValue(ctx, input.TeamSlug, input.EnvironmentName, input.ConfigName, input.ValueName)
 	if err != nil {
 		return nil, err
 	}
@@ -201,11 +210,11 @@ func (r *mutationResolver) RemoveConfigValue(ctx context.Context, input configma
 }
 
 func (r *mutationResolver) DeleteConfig(ctx context.Context, input configmap.DeleteConfigInput) (*configmap.DeleteConfigPayload, error) {
-	if err := authz.CanDeleteConfigs(ctx, input.Team); err != nil {
+	if err := authz.CanDeleteConfigs(ctx, input.TeamSlug); err != nil {
 		return nil, err
 	}
 
-	if err := configmap.Delete(ctx, input.Team, input.Environment, input.Name); err != nil {
+	if err := configmap.Delete(ctx, input.TeamSlug, input.EnvironmentName, input.Name); err != nil {
 		return nil, err
 	}
 

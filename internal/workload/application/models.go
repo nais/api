@@ -44,10 +44,14 @@ func (a Application) ID() ident.Ident {
 func (a *Application) GetSecrets() []string {
 	ret := make([]string, 0)
 	for _, v := range a.Spec.EnvFrom {
-		ret = append(ret, v.Secret)
+		if v.Secret != "" {
+			ret = append(ret, v.Secret)
+		}
 	}
 	for _, v := range a.Spec.FilesFrom {
-		ret = append(ret, v.Secret)
+		if v.Secret != "" {
+			ret = append(ret, v.Secret)
+		}
 	}
 	return ret
 }
