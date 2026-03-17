@@ -205,7 +205,7 @@ func writeJson(w io.Writer, response *graphql.Response) {
 	if err != nil {
 		panic(fmt.Errorf("unable to marshal %s: %w", string(response.Data), err))
 	}
-	w.Write(b)
+	_, _ = w.Write(b)
 }
 
 func jsonDecode(r io.Reader, val any) error {
