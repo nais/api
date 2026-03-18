@@ -14,10 +14,27 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-func runInternalHTTPServer(ctx context.Context, listenAddress string, reg prometheus.Gatherer, log logrus.FieldLogger) error {
+// ReadinessChecker is an interface for components that can report their readiness.
+type ReadinessChecker interface {
+	IsReady() bool
+}
+
+func runInternalHTTPServer(ctx context.Context, listenAddress string, reg prometheus.Gatherer, readinessCheckers []ReadinessChecker, log logrus.FieldLogger) error {
 	router := chi.NewRouter()
 	router.Handle("/metrics", promhttp.HandlerFor(reg, promhttp.HandlerOpts{}))
+
+	// Liveness probe: lightweight check that the process is alive.
 	router.Get("/healthz", func(_ http.ResponseWriter, _ *http.Request) {})
+
+	// Readiness probe: checks that all readiness checkers (e.g. informer caches) are ready.
+	router.Get("/readyz", func(w http.ResponseWriter, _ *http.Request) {
+		for _, checker := range readinessCheckers {
+			if !checker.IsReady() {
+				http.Error(w, "not ready", http.StatusServiceUnavailable)
+				return
+			}
+		}
+	})
 
 	router.HandleFunc("/pprof/*", pprof.Index)
 	router.HandleFunc("/pprof/profile", pprof.Profile)

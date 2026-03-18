@@ -297,6 +297,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 			clusterConfig,
 			watchers,
 			watcherMgr,
+			mgmtWatcher,
 			jwtMiddleware,
 			authHandler,
 			graphHandler,
@@ -320,6 +321,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 			ctx,
 			cfg.InternalListenAddress,
 			promReg,
+			[]ReadinessChecker{watcherMgr, mgmtWatcher},
 			log.WithField("subsystem", "internal_http"),
 		)
 	})

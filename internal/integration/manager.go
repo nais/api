@@ -253,6 +253,7 @@ func newGQLRunner(
 		},
 		watchers,
 		watcherMgr,
+		watcherMgr,
 		pool,
 		clusterConfig,
 		smMgr,
