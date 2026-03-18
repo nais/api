@@ -342,7 +342,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 			ListenAddress:     cfg.RestListenAddress,
 			Pool:              pool,
 			PreSharedKey:      cfg.RestPreSharedKey,
-			ClusterConfigs:    clusterConfig,
+			DynamicClient:     clusterConfig.TeamClient,
 			ContextMiddleware: contextDependencies,
 			JWTMiddleware:     jwtMiddleware,
 			AuthHandler:       authHandler,

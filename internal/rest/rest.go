@@ -11,7 +11,6 @@ import (
 	"github.com/nais/api/internal/apply"
 	"github.com/nais/api/internal/auth/authn"
 	"github.com/nais/api/internal/auth/middleware"
-	"github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/rest/restteamsapi"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
@@ -24,11 +23,10 @@ type Fakes struct {
 
 // Config holds all dependencies needed by the REST server.
 type Config struct {
-	ListenAddress  string
-	Pool           *pgxpool.Pool
-	PreSharedKey   string
-	ClusterConfigs kubernetes.ClusterConfigMap
-	DynamicClient  apply.DynamicClientFactory
+	ListenAddress string
+	Pool          *pgxpool.Pool
+	PreSharedKey  string
+	DynamicClient apply.DynamicClientFactory
 	// ContextMiddleware sets up the request context with all loaders and
 	// dependencies needed by the apply handler (authz, activitylog, etc.).
 	// In production this is the middleware returned by ConfigureGraph.
@@ -86,42 +84,35 @@ func MakeRouter(ctx context.Context, cfg Config) *chi.Mux {
 	}
 
 	// Apply route with user authentication.
-	if cfg.ClusterConfigs != nil {
-		router.Group(func(r chi.Router) {
-			if cfg.ContextMiddleware != nil {
-				r.Use(cfg.ContextMiddleware)
-			}
+	router.Group(func(r chi.Router) {
+		if cfg.ContextMiddleware != nil {
+			r.Use(cfg.ContextMiddleware)
+		}
 
-			if cfg.Fakes.WithInsecureUserHeader {
-				r.Use(middleware.InsecureUserHeader())
-			}
+		if cfg.Fakes.WithInsecureUserHeader {
+			r.Use(middleware.InsecureUserHeader())
+		}
 
-			if cfg.JWTMiddleware != nil {
-				r.Use(cfg.JWTMiddleware)
-			}
+		if cfg.JWTMiddleware != nil {
+			r.Use(cfg.JWTMiddleware)
+		}
 
-			r.Use(
-				middleware.ApiKeyAuthentication(),
-			)
+		r.Use(
+			middleware.ApiKeyAuthentication(),
+		)
 
-			if cfg.AuthHandler != nil {
-				r.Use(middleware.Oauth2Authentication(cfg.AuthHandler))
-			}
+		if cfg.AuthHandler != nil {
+			r.Use(middleware.Oauth2Authentication(cfg.AuthHandler))
+		}
 
-			r.Use(
-				middleware.GitHubOIDC(ctx, cfg.Log),
-				middleware.RequireAuthenticatedUser(),
-			)
+		r.Use(
+			middleware.GitHubOIDC(ctx, cfg.Log),
+			middleware.RequireAuthenticatedUser(),
+		)
 
-			opts := []apply.HandlerOpt{}
-			if cfg.DynamicClient != nil {
-				opts = append(opts, apply.WithClientFactory(cfg.DynamicClient))
-			}
-
-			handler := apply.NewHandler(cfg.ClusterConfigs, cfg.Log, opts...)
-			r.Post("/api/v1/teams/{teamSlug}/environments/{environment}/apply", handler.ServeHTTP)
-		})
-	}
+		handler := apply.NewHandler(cfg.DynamicClient, cfg.Log)
+		r.Post("/api/v1/teams/{teamSlug}/environments/{environment}/apply", handler.ServeHTTP)
+	})
 
 	return router
 }

@@ -213,7 +213,6 @@ func newRestRunner(ctx context.Context, pool *pgxpool.Pool, clusterConfig kubern
 	router := rest.MakeRouter(ctx, rest.Config{
 		Pool:              pool,
 		PreSharedKey:      testPreSharedKey,
-		ClusterConfigs:    clusterConfig,
 		ContextMiddleware: contextDependencies,
 		DynamicClient: func(cluster string, _ slug.Slug) (dynamic.Interface, error) {
 			return k8sRunner.DynamicClient(cluster)
