@@ -130,14 +130,14 @@ spec:
               protocol: TCP
           startupProbe:
             httpGet:
-              path: /healthz
+              path: /readyz
               port: metrics
             initialDelaySeconds: 5
             periodSeconds: 10
             failureThreshold: 10
           readinessProbe:
             httpGet:
-              path: /healthz
+              path: /readyz
               port: metrics
             failureThreshold: 3
           livenessProbe:
