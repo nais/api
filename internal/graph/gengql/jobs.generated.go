@@ -3324,6 +3324,68 @@ func (ec *executionContext) fieldContext_JobRunDeletedActivityLogEntry_environme
 	return fc, nil
 }
 
+func (ec *executionContext) _JobRunDeletedActivityLogEntry_data(ctx context.Context, field graphql.CollectedField, obj *job.JobRunDeletedActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_JobRunDeletedActivityLogEntry_data,
+		func(ctx context.Context) (any, error) {
+			return obj.Data, nil
+		},
+		nil,
+		ec.marshalOJobRunDeletedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRunDeletedActivityLogEntryData,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_JobRunDeletedActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "JobRunDeletedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "runName":
+				return ec.fieldContext_JobRunDeletedActivityLogEntryData_runName(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type JobRunDeletedActivityLogEntryData", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _JobRunDeletedActivityLogEntryData_runName(ctx context.Context, field graphql.CollectedField, obj *job.JobRunDeletedActivityLogEntryData) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_JobRunDeletedActivityLogEntryData_runName,
+		func(ctx context.Context) (any, error) {
+			return obj.RunName, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_JobRunDeletedActivityLogEntryData_runName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "JobRunDeletedActivityLogEntryData",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _JobRunEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*job.JobRun]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -5985,6 +6047,47 @@ func (ec *executionContext) _JobRunDeletedActivityLogEntry(ctx context.Context, 
 			}
 		case "environmentName":
 			out.Values[i] = ec._JobRunDeletedActivityLogEntry_environmentName(ctx, field, obj)
+		case "data":
+			out.Values[i] = ec._JobRunDeletedActivityLogEntry_data(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var jobRunDeletedActivityLogEntryDataImplementors = []string{"JobRunDeletedActivityLogEntryData"}
+
+func (ec *executionContext) _JobRunDeletedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, obj *job.JobRunDeletedActivityLogEntryData) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, jobRunDeletedActivityLogEntryDataImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("JobRunDeletedActivityLogEntryData")
+		case "runName":
+			out.Values[i] = ec._JobRunDeletedActivityLogEntryData_runName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -6886,6 +6989,13 @@ func (ec *executionContext) marshalOJobRun2ᚖgithubᚗcomᚋnaisᚋapiᚋintern
 		return graphql.Null
 	}
 	return ec._JobRun(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOJobRunDeletedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRunDeletedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *job.JobRunDeletedActivityLogEntryData) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._JobRunDeletedActivityLogEntryData(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOJobSchedule2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobSchedule(ctx context.Context, sel ast.SelectionSet, v *job.JobSchedule) graphql.Marshaler {

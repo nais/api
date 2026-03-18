@@ -1020,12 +1020,17 @@ type ComplexityRoot struct {
 	JobRunDeletedActivityLogEntry struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
+		Data            func(childComplexity int) int
 		EnvironmentName func(childComplexity int) int
 		ID              func(childComplexity int) int
 		Message         func(childComplexity int) int
 		ResourceName    func(childComplexity int) int
 		ResourceType    func(childComplexity int) int
 		TeamSlug        func(childComplexity int) int
+	}
+
+	JobRunDeletedActivityLogEntryData struct {
+		RunName func(childComplexity int) int
 	}
 
 	JobRunEdge struct {
@@ -6719,6 +6724,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.JobRunDeletedActivityLogEntry.CreatedAt(childComplexity), true
 
+	case "JobRunDeletedActivityLogEntry.data":
+		if e.ComplexityRoot.JobRunDeletedActivityLogEntry.Data == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobRunDeletedActivityLogEntry.Data(childComplexity), true
+
 	case "JobRunDeletedActivityLogEntry.environmentName":
 		if e.ComplexityRoot.JobRunDeletedActivityLogEntry.EnvironmentName == nil {
 			break
@@ -6760,6 +6772,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.JobRunDeletedActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "JobRunDeletedActivityLogEntryData.runName":
+		if e.ComplexityRoot.JobRunDeletedActivityLogEntryData.RunName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobRunDeletedActivityLogEntryData.RunName(childComplexity), true
 
 	case "JobRunEdge.cursor":
 		if e.ComplexityRoot.JobRunEdge.Cursor == nil {
@@ -20424,6 +20443,14 @@ type JobRunDeletedActivityLogEntry implements ActivityLogEntry & Node {
 
 	"The environment name that the entry belongs to."
 	environmentName: String
+
+	"Data associated with the entry."
+	data: JobRunDeletedActivityLogEntryData
+}
+
+type JobRunDeletedActivityLogEntryData {
+	"The name of the deleted job run."
+	runName: String!
 }
 
 extend enum ActivityLogActivityType {
