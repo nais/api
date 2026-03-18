@@ -174,15 +174,8 @@ Test.rest("non-member gets authorization error", function(t)
 		}
 	]])
 
-	t.check(200, {
-		results = {
-			{
-				resource = "Application/sneaky-app",
-				environmentName = "dev",
-				status = "error",
-				error = Contains("authorization failed"),
-			},
-		},
+	t.check(403, {
+		error = Contains("authorization failed"),
 	})
 end)
 
