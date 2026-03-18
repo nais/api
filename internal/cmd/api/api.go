@@ -156,13 +156,13 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	}
 	defer watcherMgr.Stop()
 
-	mgmtWatcher, err := watcher.NewManager(scheme, kubernetes.ClusterConfigMap{"management": nil}, log.WithField("subsystem", "k8s_watcher"), mgmtWatcherOpts...)
+	mgmtWatcherMgr, err := watcher.NewManager(scheme, kubernetes.ClusterConfigMap{"management": nil}, log.WithField("subsystem", "k8s_watcher"), mgmtWatcherOpts...)
 	if err != nil {
 		return fmt.Errorf("create k8s watcher manager for management: %w", err)
 	}
-	defer mgmtWatcher.Stop()
+	defer mgmtWatcherMgr.Stop()
 
-	watchers := watchers.SetupWatchers(ctx, watcherMgr, mgmtWatcher)
+	watchers := watchers.SetupWatchers(ctx, watcherMgr, mgmtWatcherMgr)
 
 	pubsubClient, err := pubsub.NewClient(ctx, cfg.GoogleManagementProjectID)
 	if err != nil {
@@ -290,6 +290,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		cfg.Fakes,
 		watchers,
 		watcherMgr,
+		mgmtWatcherMgr,
 		pool,
 		clusterConfig,
 		serviceMaintenanceManager,
@@ -331,7 +332,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 			ctx,
 			cfg.InternalListenAddress,
 			promReg,
-			[]ReadinessChecker{watcherMgr, mgmtWatcher},
+			[]ReadinessChecker{watcherMgr, mgmtWatcherMgr},
 			log.WithField("subsystem", "internal_http"),
 		)
 	})
