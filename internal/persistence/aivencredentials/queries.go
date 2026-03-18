@@ -69,14 +69,15 @@ func createCredentials(ctx context.Context, req credentialRequest) (any, error) 
 	secretName := generateSecretName(actor.Identity(), namespace, req.service)
 	appName := generateAppName(actor.Identity(), req.service)
 
-	spec := req.buildSpec(namespace, secretName, time.Now().Add(ttl).UTC())
+	expiresAt := time.Now().Add(ttl).UTC()
+	spec := req.buildSpec(namespace, secretName, expiresAt)
 
 	client, err := getClient(ctx, req.environmentName)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := createOrUpdateAivenApplication(ctx, client, appName, namespace, spec, actor); err != nil {
+	if err := createOrUpdateAivenApplication(ctx, client, appName, namespace, spec, actor, expiresAt); err != nil {
 		return nil, fmt.Errorf("creating AivenApplication: %w", err)
 	}
 
@@ -215,7 +216,9 @@ func getClient(ctx context.Context, environmentName string) (dynamic.Interface, 
 }
 
 // createOrUpdateAivenApplication creates or updates an AivenApplication CRD in the given namespace.
-func createOrUpdateAivenApplication(ctx context.Context, client dynamic.Interface, name, namespace string, spec map[string]any, actor authz.AuthenticatedUser) error {
+// expiresAt is used to set the euthanaisa.nais.io/kill-after label so that euthanaisa can clean up
+// expired AivenApplications automatically.
+func createOrUpdateAivenApplication(ctx context.Context, client dynamic.Interface, name, namespace string, spec map[string]any, actor authz.AuthenticatedUser, expiresAt time.Time) error {
 	res := &unstructured.Unstructured{}
 	res.SetAPIVersion("aiven.nais.io/v1")
 	res.SetKind("AivenApplication")
@@ -223,6 +226,9 @@ func createOrUpdateAivenApplication(ctx context.Context, client dynamic.Interfac
 	res.SetNamespace(namespace)
 	res.SetAnnotations(kubernetes.WithCommonAnnotations(nil, actor.Identity()))
 	kubernetes.SetManagedByConsoleLabel(res)
+	labels := res.GetLabels()
+	labels["euthanaisa.nais.io/kill-after"] = strconv.FormatInt(expiresAt.Unix(), 10)
+	res.SetLabels(labels)
 	res.Object["spec"] = spec
 
 	aivenClient := client.Resource(aivenApplicationGVR).Namespace(namespace)
@@ -351,11 +357,11 @@ func logCredentialCreation(ctx context.Context, req credentialRequest) error {
 	return activitylog.Create(ctx, activitylog.CreateInput{
 		Action:          activityLogEntryActionCreateCredentials,
 		Actor:           authz.ActorFromContext(ctx).User,
-		ResourceType:    activityLogEntryResourceTypeAivenCredentials,
+		ResourceType:    activityLogEntryResourceTypeCredentials,
 		ResourceName:    serviceType,
 		EnvironmentName: &envName,
 		TeamSlug:        &req.teamSlug,
-		Data: AivenCredentialsActivityLogEntryData{
+		Data: CredentialsActivityLogEntryData{
 			ServiceType:  serviceType,
 			InstanceName: req.instanceName,
 			Permission:   req.permission,

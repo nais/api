@@ -15,6 +15,7 @@ import (
 	"github.com/nais/api/internal/github/repository"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/kubernetes/event/pubsublog"
+	"github.com/nais/api/internal/persistence/aivencredentials"
 	"github.com/nais/api/internal/persistence/opensearch"
 	"github.com/nais/api/internal/persistence/postgres"
 	"github.com/nais/api/internal/persistence/valkey"
@@ -573,6 +574,13 @@ func (ec *executionContext) _ActivityLogEntry(ctx context.Context, sel ast.Selec
 			return graphql.Null
 		}
 		return ec._ConfigCreatedActivityLogEntry(ctx, sel, obj)
+	case aivencredentials.CredentialsActivityLogEntry:
+		return ec._CredentialsActivityLogEntry(ctx, sel, &obj)
+	case *aivencredentials.CredentialsActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._CredentialsActivityLogEntry(ctx, sel, obj)
 	case pubsublog.ClusterAuditActivityLogEntry:
 		return ec._ClusterAuditActivityLogEntry(ctx, sel, &obj)
 	case *pubsublog.ClusterAuditActivityLogEntry:

@@ -268,13 +268,14 @@ func TestCreateOrUpdateAivenApplication(t *testing.T) {
 		client := newFakeDynamicClient()
 		ctx := context.Background()
 
+		expiresAt := time.Date(2025, 1, 15, 12, 0, 0, 0, time.UTC)
 		spec := map[string]any{
 			"protected": true,
-			"expiresAt": "2025-01-01T00:00:00Z",
+			"expiresAt": expiresAt.Format(time.RFC3339),
 		}
 
 		actor := &fakeUser{identity: "test@example.com"}
-		err := createOrUpdateAivenApplication(ctx, client, "test-app", "my-team", spec, actor)
+		err := createOrUpdateAivenApplication(ctx, client, "test-app", "my-team", spec, actor, expiresAt)
 		if err != nil {
 			t.Fatalf("createOrUpdateAivenApplication() error = %v", err)
 		}
@@ -289,6 +290,13 @@ func TestCreateOrUpdateAivenApplication(t *testing.T) {
 		}
 		if got.GetNamespace() != "my-team" {
 			t.Errorf("namespace = %q, want %q", got.GetNamespace(), "my-team")
+		}
+
+		// Verify euthanaisa label is set with correct Unix timestamp
+		labels := got.GetLabels()
+		wantLabel := "1736942400" // 2025-01-15T12:00:00Z as Unix timestamp
+		if labels["euthanaisa.nais.io/kill-after"] != wantLabel {
+			t.Errorf("euthanaisa label = %q, want %q", labels["euthanaisa.nais.io/kill-after"], wantLabel)
 		}
 	})
 
@@ -310,13 +318,14 @@ func TestCreateOrUpdateAivenApplication(t *testing.T) {
 		client := newFakeDynamicClient(existing)
 		ctx := context.Background()
 
+		expiresAt := time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
 		newSpec := map[string]any{
 			"protected": true,
-			"expiresAt": "2026-01-01T00:00:00Z",
+			"expiresAt": expiresAt.Format(time.RFC3339),
 		}
 
 		actor := &fakeUser{identity: "test@example.com"}
-		err := createOrUpdateAivenApplication(ctx, client, "test-app", "my-team", newSpec, actor)
+		err := createOrUpdateAivenApplication(ctx, client, "test-app", "my-team", newSpec, actor, expiresAt)
 		if err != nil {
 			t.Fatalf("createOrUpdateAivenApplication() error = %v", err)
 		}
@@ -329,6 +338,13 @@ func TestCreateOrUpdateAivenApplication(t *testing.T) {
 		gotSpec, _, _ := unstructured.NestedMap(got.Object, "spec")
 		if gotSpec["expiresAt"] != "2026-01-01T00:00:00Z" {
 			t.Errorf("spec.expiresAt = %v, want %q", gotSpec["expiresAt"], "2026-01-01T00:00:00Z")
+		}
+
+		// Verify euthanaisa label is updated
+		labels := got.GetLabels()
+		wantLabel := "1767225600" // 2026-01-01T00:00:00Z as Unix timestamp
+		if labels["euthanaisa.nais.io/kill-after"] != wantLabel {
+			t.Errorf("euthanaisa label = %q, want %q", labels["euthanaisa.nais.io/kill-after"], wantLabel)
 		}
 	})
 
@@ -356,7 +372,7 @@ func TestCreateOrUpdateAivenApplication(t *testing.T) {
 		ctx := context.Background()
 
 		actor := &fakeUser{identity: "test@example.com"}
-		err := createOrUpdateAivenApplication(ctx, client, "test-app", "my-team", map[string]any{}, actor)
+		err := createOrUpdateAivenApplication(ctx, client, "test-app", "my-team", map[string]any{}, actor, time.Now())
 		if err == nil {
 			t.Fatal("createOrUpdateAivenApplication() expected error for owned resource")
 		}
