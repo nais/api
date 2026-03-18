@@ -38,6 +38,9 @@ type Workload interface {
 
 	// GetSecrets returns a list of secret names used by the workload
 	GetSecrets() []string
+
+	// GetConfigs returns a list of configmap names used by the workload
+	GetConfigs() []string
 	Image() *ContainerImage
 }
 

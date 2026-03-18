@@ -208,6 +208,18 @@ func CanDeleteRepositories(ctx context.Context, teamSlug slug.Slug) error {
 	return requireTeamAuthorization(ctx, teamSlug, "repositories:delete")
 }
 
+func CanCreateConfigs(ctx context.Context, teamSlug slug.Slug) error {
+	return requireTeamAuthorization(ctx, teamSlug, "teams:configs:create")
+}
+
+func CanUpdateConfigs(ctx context.Context, teamSlug slug.Slug) error {
+	return requireTeamAuthorization(ctx, teamSlug, "teams:configs:update")
+}
+
+func CanDeleteConfigs(ctx context.Context, teamSlug slug.Slug) error {
+	return requireTeamAuthorization(ctx, teamSlug, "teams:configs:delete")
+}
+
 func CanCreateSecrets(ctx context.Context, teamSlug slug.Slug) error {
 	return requireTeamAuthorization(ctx, teamSlug, "teams:secrets:create")
 }

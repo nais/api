@@ -1,0 +1,13 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: app-with-no-configs
+spec:
+---
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: app-with-configs-via-filesfrom
+spec:
+  filesFrom:
+    - configmap: managed-config-in-staging-used-with-filesfrom

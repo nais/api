@@ -1,0 +1,468 @@
+extend type Mutation {
+	"Create a new config."
+	createConfig(input: CreateConfigInput!): CreateConfigPayload!
+
+	"Add a value to a config."
+	addConfigValue(input: AddConfigValueInput!): AddConfigValuePayload!
+
+	"Update a value within a config."
+	updateConfigValue(input: UpdateConfigValueInput!): UpdateConfigValuePayload!
+
+	"Remove a value from a config."
+	removeConfigValue(input: RemoveConfigValueInput!): RemoveConfigValuePayload!
+
+	"Delete a config, and the values it contains."
+	deleteConfig(input: DeleteConfigInput!): DeleteConfigPayload!
+}
+
+extend type Team {
+	"Configs owned by the team."
+	configs(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+
+		"Ordering options for items returned from the connection."
+		orderBy: ConfigOrder
+
+		"Filtering options for items returned from the connection."
+		filter: ConfigFilter
+	): ConfigConnection!
+}
+
+"""
+Input for filtering the configs of a team.
+"""
+input ConfigFilter {
+	"""
+	Filter by the name of the config.
+	"""
+	name: String
+
+	"""
+	Filter by usage of the config.
+	"""
+	inUse: Boolean
+}
+
+extend type TeamEnvironment {
+	"Get a config by name."
+	config(name: String!): Config!
+}
+
+extend interface Workload {
+	"Configs used by the workload."
+	configs(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+	): ConfigConnection!
+}
+
+extend type Application {
+	"Configs used by the application."
+	configs(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+	): ConfigConnection!
+}
+
+extend type Job {
+	"Configs used by the job."
+	configs(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+	): ConfigConnection!
+}
+
+"A config is a collection of key-value pairs."
+type Config implements Node & ActivityLogger {
+	"The globally unique ID of the config."
+	id: ID!
+
+	"The name of the config."
+	name: String!
+
+	"The environment the config exists in."
+	teamEnvironment: TeamEnvironment!
+
+	"The team that owns the config."
+	team: Team!
+
+	"The values stored in the config."
+	values: [ConfigValue!]!
+
+	"Applications that use the config."
+	applications(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+	): ApplicationConnection!
+
+	"Jobs that use the config."
+	jobs(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+	): JobConnection!
+
+	"Workloads that use the config."
+	workloads(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+	): WorkloadConnection!
+
+	"Last time the config was modified."
+	lastModifiedAt: Time
+
+	"User who last modified the config."
+	lastModifiedBy: User
+
+	"Activity log associated with the config."
+	activityLog(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+
+		"Filter items."
+		filter: ActivityLogFilter
+	): ActivityLogEntryConnection!
+}
+
+extend type TeamInventoryCounts {
+	"""
+	Config inventory count for a team.
+	"""
+	configs: TeamInventoryCountConfigs!
+}
+
+"""
+Config inventory count for a team.
+"""
+type TeamInventoryCountConfigs {
+	"""
+	Total number of configs.
+	"""
+	total: Int!
+}
+
+input ConfigValueInput {
+	"The name of the config value."
+	name: String!
+
+	"The value to set."
+	value: String!
+}
+
+input CreateConfigInput {
+	"The name of the config."
+	name: String!
+
+	"The environment the config exists in."
+	environmentName: String!
+
+	"The team that owns the config."
+	teamSlug: Slug!
+}
+
+input AddConfigValueInput {
+	"The name of the config."
+	name: String!
+
+	"The environment the config exists in."
+	environmentName: String!
+
+	"The team that owns the config."
+	teamSlug: Slug!
+
+	"The config value to add."
+	value: ConfigValueInput!
+}
+
+input UpdateConfigValueInput {
+	"The name of the config."
+	name: String!
+
+	"The environment the config exists in."
+	environmentName: String!
+
+	"The team that owns the config."
+	teamSlug: Slug!
+
+	"The config value to update."
+	value: ConfigValueInput!
+}
+
+input RemoveConfigValueInput {
+	"The name of the config."
+	configName: String!
+
+	"The environment the config exists in."
+	environmentName: String!
+
+	"The team that owns the config."
+	teamSlug: Slug!
+
+	"The config value to remove."
+	valueName: String!
+}
+
+input DeleteConfigInput {
+	"The name of the config."
+	name: String!
+
+	"The environment the config exists in."
+	environmentName: String!
+
+	"The team that owns the config."
+	teamSlug: Slug!
+}
+
+type CreateConfigPayload {
+	"The created config."
+	config: Config
+}
+
+input ConfigOrder {
+	"The field to order items by."
+	field: ConfigOrderField!
+
+	"The direction to order items by."
+	direction: OrderDirection!
+}
+
+enum ConfigOrderField {
+	"Order configs by name."
+	NAME
+
+	"Order configs by the name of the environment."
+	ENVIRONMENT
+
+	"Order configs by the last time it was modified."
+	LAST_MODIFIED_AT
+}
+
+type AddConfigValuePayload {
+	"The updated config."
+	config: Config
+}
+
+type UpdateConfigValuePayload {
+	"The updated config."
+	config: Config
+}
+
+type RemoveConfigValuePayload {
+	"The updated config."
+	config: Config
+}
+
+type DeleteConfigPayload {
+	"The deleted config."
+	configDeleted: Boolean
+}
+
+type ConfigConnection {
+	"Pagination information."
+	pageInfo: PageInfo!
+
+	"List of nodes."
+	nodes: [Config!]!
+
+	"List of edges."
+	edges: [ConfigEdge!]!
+}
+
+type ConfigEdge {
+	"Cursor for this edge that can be used for pagination."
+	cursor: Cursor!
+
+	"The Config."
+	node: Config!
+}
+
+type ConfigValue {
+	"The name of the config value."
+	name: String!
+
+	"The config value itself."
+	value: String!
+}
+
+extend enum ActivityLogEntryResourceType {
+	"All activity log entries related to configs will use this resource type."
+	CONFIG
+}
+
+type ConfigCreatedActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: ActivityLogEntryResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+}
+
+type ConfigUpdatedActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: ActivityLogEntryResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+
+	"Data associated with the entry."
+	data: ConfigUpdatedActivityLogEntryData!
+}
+
+type ConfigUpdatedActivityLogEntryDataUpdatedField {
+	"The name of the field that was updated."
+	field: String!
+
+	"The old value of the field."
+	oldValue: String
+
+	"The new value of the field."
+	newValue: String
+}
+
+type ConfigUpdatedActivityLogEntryData {
+	"The fields that were updated."
+	updatedFields: [ConfigUpdatedActivityLogEntryDataUpdatedField!]!
+}
+
+type ConfigDeletedActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: ActivityLogEntryResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+}
+
+extend enum ActivityLogActivityType {
+	"Config was created."
+	CONFIG_CREATED
+	"Config was updated."
+	CONFIG_UPDATED
+	"Config was deleted."
+	CONFIG_DELETED
+}

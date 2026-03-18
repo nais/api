@@ -51,10 +51,30 @@ func (Job) IsActivityLogger() {}
 func (j *Job) GetSecrets() []string {
 	ret := make([]string, 0)
 	for _, v := range j.Spec.EnvFrom {
-		ret = append(ret, v.Secret)
+		if v.Secret != "" {
+			ret = append(ret, v.Secret)
+		}
 	}
 	for _, v := range j.Spec.FilesFrom {
-		ret = append(ret, v.Secret)
+		if v.Secret != "" {
+			ret = append(ret, v.Secret)
+		}
+	}
+	return ret
+}
+
+// GetConfigs returns a list of configmap names used by the job
+func (j *Job) GetConfigs() []string {
+	ret := make([]string, 0)
+	for _, v := range j.Spec.EnvFrom {
+		if v.ConfigMap != "" {
+			ret = append(ret, v.ConfigMap)
+		}
+	}
+	for _, v := range j.Spec.FilesFrom {
+		if v.ConfigMap != "" {
+			ret = append(ret, v.ConfigMap)
+		}
 	}
 	return ret
 }

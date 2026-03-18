@@ -26,6 +26,7 @@ import (
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/vulnerability"
 	"github.com/nais/api/internal/workload"
+	"github.com/nais/api/internal/workload/configmap"
 	"github.com/nais/api/internal/workload/job"
 	"github.com/nais/api/internal/workload/logging"
 	"github.com/nais/api/internal/workload/netpol"
@@ -56,6 +57,7 @@ type JobResolver interface {
 	Issues(ctx context.Context, obj *job.Job, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) (*pagination.Connection[issue.Issue], error)
 	BigQueryDatasets(ctx context.Context, obj *job.Job, orderBy *bigquery.BigQueryDatasetOrder) (*pagination.Connection[*bigquery.BigQueryDataset], error)
 	Buckets(ctx context.Context, obj *job.Job, orderBy *bucket.BucketOrder) (*pagination.Connection[*bucket.Bucket], error)
+	Configs(ctx context.Context, obj *job.Job, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*configmap.Config], error)
 	Cost(ctx context.Context, obj *job.Job) (*cost.WorkloadCost, error)
 	Deployments(ctx context.Context, obj *job.Job, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*deployment.Deployment], error)
 	KafkaTopicAcls(ctx context.Context, obj *job.Job, orderBy *kafkatopic.KafkaTopicACLOrder) (*pagination.Connection[*kafkatopic.KafkaTopicACL], error)
@@ -157,6 +159,32 @@ func (ec *executionContext) field_Job_buckets_args(ctx context.Context, rawArgs 
 		return nil, err
 	}
 	args["orderBy"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Job_configs_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first", ec.unmarshalOInt2ᚖint)
+	if err != nil {
+		return nil, err
+	}
+	args["first"] = arg0
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after", ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor)
+	if err != nil {
+		return nil, err
+	}
+	args["after"] = arg1
+	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last", ec.unmarshalOInt2ᚖint)
+	if err != nil {
+		return nil, err
+	}
+	args["last"] = arg2
+	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before", ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor)
+	if err != nil {
+		return nil, err
+	}
+	args["before"] = arg3
 	return args, nil
 }
 
@@ -412,6 +440,8 @@ func (ec *executionContext) fieldContext_DeleteJobPayload_team(_ context.Context
 				return ec.fieldContext_Team_bigQueryDatasets(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Team_buckets(ctx, field)
+			case "configs":
+				return ec.fieldContext_Team_configs(ctx, field)
 			case "cost":
 				return ec.fieldContext_Team_cost(ctx, field)
 			case "deploymentKey":
@@ -546,6 +576,8 @@ func (ec *executionContext) fieldContext_DeleteJobRunPayload_job(_ context.Conte
 				return ec.fieldContext_Job_bigQueryDatasets(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Job_buckets(ctx, field)
+			case "configs":
+				return ec.fieldContext_Job_configs(ctx, field)
 			case "cost":
 				return ec.fieldContext_Job_cost(ctx, field)
 			case "deployments":
@@ -728,6 +760,8 @@ func (ec *executionContext) fieldContext_Job_team(_ context.Context, field graph
 				return ec.fieldContext_Team_bigQueryDatasets(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Team_buckets(ctx, field)
+			case "configs":
+				return ec.fieldContext_Team_configs(ctx, field)
 			case "cost":
 				return ec.fieldContext_Team_cost(ctx, field)
 			case "deploymentKey":
@@ -817,6 +851,8 @@ func (ec *executionContext) fieldContext_Job_environment(_ context.Context, fiel
 				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
 			case "bucket":
 				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
+			case "config":
+				return ec.fieldContext_TeamEnvironment_config(ctx, field)
 			case "cost":
 				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
 			case "environment":
@@ -886,6 +922,8 @@ func (ec *executionContext) fieldContext_Job_teamEnvironment(_ context.Context, 
 				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
 			case "bucket":
 				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
+			case "config":
+				return ec.fieldContext_TeamEnvironment_config(ctx, field)
 			case "cost":
 				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
 			case "environment":
@@ -1389,6 +1427,55 @@ func (ec *executionContext) fieldContext_Job_buckets(ctx context.Context, field 
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Job_buckets_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Job_configs(ctx context.Context, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Job_configs,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.Resolvers.Job().Configs(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
+		},
+		nil,
+		ec.marshalNConfigConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Job_configs(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Job",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "pageInfo":
+				return ec.fieldContext_ConfigConnection_pageInfo(ctx, field)
+			case "nodes":
+				return ec.fieldContext_ConfigConnection_nodes(ctx, field)
+			case "edges":
+				return ec.fieldContext_ConfigConnection_edges(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ConfigConnection", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Job_configs_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -2046,6 +2133,8 @@ func (ec *executionContext) fieldContext_JobConnection_nodes(_ context.Context, 
 				return ec.fieldContext_Job_bigQueryDatasets(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Job_buckets(ctx, field)
+			case "configs":
+				return ec.fieldContext_Job_configs(ctx, field)
 			case "cost":
 				return ec.fieldContext_Job_cost(ctx, field)
 			case "deployments":
@@ -2431,6 +2520,8 @@ func (ec *executionContext) fieldContext_JobEdge_node(_ context.Context, field g
 				return ec.fieldContext_Job_bigQueryDatasets(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Job_buckets(ctx, field)
+			case "configs":
+				return ec.fieldContext_Job_configs(ctx, field)
 			case "cost":
 				return ec.fieldContext_Job_cost(ctx, field)
 			case "deployments":
@@ -4041,6 +4132,8 @@ func (ec *executionContext) fieldContext_TriggerJobPayload_job(_ context.Context
 				return ec.fieldContext_Job_bigQueryDatasets(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Job_buckets(ctx, field)
+			case "configs":
+				return ec.fieldContext_Job_configs(ctx, field)
 			case "cost":
 				return ec.fieldContext_Job_cost(ctx, field)
 			case "deployments":
@@ -4899,6 +4992,42 @@ func (ec *executionContext) _Job(ctx context.Context, sel ast.SelectionSet, obj 
 					}
 				}()
 				res = ec._Job_buckets(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "configs":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Job_configs(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
