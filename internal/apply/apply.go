@@ -11,7 +11,6 @@ import (
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/auth/middleware"
-	"github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/slug"
 	"github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -27,25 +26,13 @@ type Handler struct {
 
 type DynamicClientFactory func(environmentName string, teamSlug slug.Slug) (dynamic.Interface, error)
 
-type HandlerOpt func(*Handler)
-
-func NewHandler(clusterConfigsMap kubernetes.ClusterConfigMap, log logrus.FieldLogger, opts ...HandlerOpt) *Handler {
+func NewHandler(dynamicClientFn DynamicClientFactory, log logrus.FieldLogger) *Handler {
 	h := &Handler{
 		log:             log,
-		dynamicClientFn: clusterConfigsMap.TeamClient,
-	}
-
-	for _, opt := range opts {
-		opt(h)
+		dynamicClientFn: dynamicClientFn,
 	}
 
 	return h
-}
-
-func WithClientFactory(clientFactory DynamicClientFactory) HandlerOpt {
-	return func(h *Handler) {
-		h.dynamicClientFn = clientFactory
-	}
 }
 
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
