@@ -104,7 +104,7 @@ func GetConfigValues(ctx context.Context, teamSlug slug.Slug, environmentName, n
 
 func Create(ctx context.Context, teamSlug slug.Slug, environment, name string) (*Config, error) {
 	w := fromContext(ctx).Watcher()
-	client, err := w.SystemAuthenticatedClient(ctx, environment)
+	client, err := w.ImpersonatedClient(ctx, environment)
 	if err != nil {
 		return nil, err
 	}
@@ -163,7 +163,7 @@ func AddConfigValue(ctx context.Context, teamSlug slug.Slug, environment, config
 	}
 
 	w := fromContext(ctx).Watcher()
-	client, err := w.SystemAuthenticatedClient(ctx, environment)
+	client, err := w.ImpersonatedClient(ctx, environment)
 	if err != nil {
 		return nil, err
 	}
@@ -249,7 +249,7 @@ func UpdateConfigValue(ctx context.Context, teamSlug slug.Slug, environment, con
 	}
 
 	w := fromContext(ctx).Watcher()
-	client, err := w.SystemAuthenticatedClient(ctx, environment)
+	client, err := w.ImpersonatedClient(ctx, environment)
 	if err != nil {
 		return nil, err
 	}
@@ -330,7 +330,7 @@ func UpdateConfigValue(ctx context.Context, teamSlug slug.Slug, environment, con
 
 func RemoveConfigValue(ctx context.Context, teamSlug slug.Slug, environment, configName, valueName string) (*Config, error) {
 	w := fromContext(ctx).Watcher()
-	client, err := w.SystemAuthenticatedClient(ctx, environment)
+	client, err := w.ImpersonatedClient(ctx, environment)
 	if err != nil {
 		return nil, err
 	}
@@ -410,7 +410,7 @@ func RemoveConfigValue(ctx context.Context, teamSlug slug.Slug, environment, con
 
 func Delete(ctx context.Context, teamSlug slug.Slug, environment, name string) error {
 	w := fromContext(ctx).Watcher()
-	client, err := w.SystemAuthenticatedClient(ctx, environment)
+	client, err := w.ImpersonatedClient(ctx, environment)
 	if err != nil {
 		return err
 	}
