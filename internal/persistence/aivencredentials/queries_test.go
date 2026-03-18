@@ -224,8 +224,32 @@ func newFakeDynamicClient(objects ...runtime.Object) *dynfake.FakeDynamicClient 
 	return dynfake.NewSimpleDynamicClient(scheme, objects...)
 }
 
+func TestValkeyEnvVarSuffix(t *testing.T) {
+	tests := []struct {
+		name         string
+		instanceName string
+		want         string
+	}{
+		{name: "simple name", instanceName: "foo", want: "FOO"},
+		{name: "hyphenated name", instanceName: "my-cache", want: "MY_CACHE"},
+		{name: "multiple hyphens", instanceName: "my-valkey-instance", want: "MY_VALKEY_INSTANCE"},
+		{name: "already uppercase chars", instanceName: "MyCache", want: "_Y_ACHE"},
+		{name: "numbers", instanceName: "cache1", want: "CACHE1"},
+		{name: "mixed", instanceName: "my-cache-2", want: "MY_CACHE_2"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := valkeyEnvVarSuffix(tt.instanceName)
+			if got != tt.want {
+				t.Errorf("valkeyEnvVarSuffix(%q) = %q, want %q", tt.instanceName, got, tt.want)
+			}
+		})
+	}
+}
+
 func TestWaitForSecret(t *testing.T) {
-	t.Run("returns secret when it exists", func(t *testing.T) {
+	t.Run("returns secret when it exists with data", func(t *testing.T) {
 		secret := &unstructured.Unstructured{
 			Object: map[string]any{
 				"apiVersion": "v1",
@@ -248,6 +272,51 @@ func TestWaitForSecret(t *testing.T) {
 		}
 		if got.GetName() != "test-secret" {
 			t.Errorf("waitForSecret() name = %q, want %q", got.GetName(), "test-secret")
+		}
+	})
+
+	t.Run("keeps polling when secret exists but has no data", func(t *testing.T) {
+		// Create a secret without data — simulates the race condition where
+		// Aivenator has created the secret but not yet populated it.
+		emptySecret := &unstructured.Unstructured{
+			Object: map[string]any{
+				"apiVersion": "v1",
+				"kind":       "Secret",
+				"metadata": map[string]any{
+					"name":      "test-secret",
+					"namespace": "my-team",
+				},
+			},
+		}
+		client := newFakeDynamicClient(emptySecret)
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+
+		_, err := waitForSecret(ctx, client, "my-team", "test-secret")
+		if err == nil {
+			t.Fatal("waitForSecret() should not return successfully for a secret without data")
+		}
+	})
+
+	t.Run("keeps polling when secret has empty data map", func(t *testing.T) {
+		secretWithEmptyData := &unstructured.Unstructured{
+			Object: map[string]any{
+				"apiVersion": "v1",
+				"kind":       "Secret",
+				"metadata": map[string]any{
+					"name":      "test-secret",
+					"namespace": "my-team",
+				},
+				"data": map[string]any{},
+			},
+		}
+		client := newFakeDynamicClient(secretWithEmptyData)
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+
+		_, err := waitForSecret(ctx, client, "my-team", "test-secret")
+		if err == nil {
+			t.Fatal("waitForSecret() should not return successfully for a secret with empty data")
 		}
 	})
 
