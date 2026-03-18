@@ -203,7 +203,7 @@ func DeleteRun(ctx context.Context, teamSlug slug.Slug, environmentName, runName
 	if err := activitylog.Create(ctx, activitylog.CreateInput{
 		Action:          activityLogEntryActionDeleteJobRun,
 		Actor:           authz.ActorFromContext(ctx).User,
-		ResourceType:    activityLogEntryResourceTypeJob,
+		ResourceType:    ActivityLogEntryResourceTypeJob,
 		ResourceName:    jobName,
 		Data:            &JobRunDeletedActivityLogEntryData{RunName: runName},
 		EnvironmentName: &environmentName,
