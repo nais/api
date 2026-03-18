@@ -26,8 +26,21 @@ func init() {
 			}, nil
 
 		case activityLogEntryActionDeleteJobRun:
+			var data *JobRunDeletedActivityLogEntryData
+			if entry.Data != nil {
+				var err error
+				data, err = activitylog.UnmarshalData[JobRunDeletedActivityLogEntryData](entry)
+				if err != nil {
+					return nil, fmt.Errorf("transforming job run deleted activity log entry data: %w", err)
+				}
+			}
+			runName := entry.ResourceName
+			if data != nil && data.RunName != "" {
+				runName = data.RunName
+			}
 			return JobRunDeletedActivityLogEntry{
-				GenericActivityLogEntry: entry.WithMessage(fmt.Sprintf("Job run %s deleted", entry.ResourceName)),
+				GenericActivityLogEntry: entry.WithMessage(fmt.Sprintf("Job run %s deleted", runName)),
+				Data:                    data,
 			}, nil
 
 		case deploymentactivity.ActivityLogEntryActionDeployment:
@@ -58,6 +71,11 @@ type JobDeletedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
 }
 
+type JobRunDeletedActivityLogEntryData struct {
+	RunName string
+}
+
 type JobRunDeletedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
+	Data *JobRunDeletedActivityLogEntryData
 }

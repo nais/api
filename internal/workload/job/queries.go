@@ -204,7 +204,8 @@ func DeleteRun(ctx context.Context, teamSlug slug.Slug, environmentName, runName
 		Action:          activityLogEntryActionDeleteJobRun,
 		Actor:           authz.ActorFromContext(ctx).User,
 		ResourceType:    activityLogEntryResourceTypeJob,
-		ResourceName:    runName,
+		ResourceName:    jobName,
+		Data:            &JobRunDeletedActivityLogEntryData{RunName: runName},
 		EnvironmentName: &environmentName,
 		TeamSlug:        &teamSlug,
 	}); err != nil {

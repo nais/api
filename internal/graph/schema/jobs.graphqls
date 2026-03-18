@@ -502,6 +502,14 @@ type JobRunDeletedActivityLogEntry implements ActivityLogEntry & Node {
 
 	"The environment name that the entry belongs to."
 	environmentName: String
+
+	"Data associated with the entry."
+	data: JobRunDeletedActivityLogEntryData
+}
+
+type JobRunDeletedActivityLogEntryData {
+	"The name of the deleted job run."
+	runName: String!
 }
 
 extend enum ActivityLogActivityType {
