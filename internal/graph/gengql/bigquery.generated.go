@@ -196,6 +196,8 @@ func (ec *executionContext) fieldContext_BigQueryDataset_team(_ context.Context,
 				return ec.fieldContext_Team_bigQueryDatasets(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Team_buckets(ctx, field)
+			case "configs":
+				return ec.fieldContext_Team_configs(ctx, field)
 			case "cost":
 				return ec.fieldContext_Team_cost(ctx, field)
 			case "deploymentKey":
@@ -285,6 +287,8 @@ func (ec *executionContext) fieldContext_BigQueryDataset_environment(_ context.C
 				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
 			case "bucket":
 				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
+			case "config":
+				return ec.fieldContext_TeamEnvironment_config(ctx, field)
 			case "cost":
 				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
 			case "environment":
@@ -354,6 +358,8 @@ func (ec *executionContext) fieldContext_BigQueryDataset_teamEnvironment(_ conte
 				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
 			case "bucket":
 				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
+			case "config":
+				return ec.fieldContext_TeamEnvironment_config(ctx, field)
 			case "cost":
 				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
 			case "environment":

@@ -27,6 +27,7 @@ import (
 	"github.com/nais/api/internal/vulnerability"
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
+	"github.com/nais/api/internal/workload/configmap"
 	"github.com/nais/api/internal/workload/job"
 	"github.com/nais/api/internal/workload/secret"
 	"github.com/vektah/gqlparser/v2/ast"
@@ -559,6 +560,27 @@ func (ec *executionContext) _ActivityLogEntry(ctx context.Context, sel ast.Selec
 			return graphql.Null
 		}
 		return ec._CredentialsActivityLogEntry(ctx, sel, obj)
+	case configmap.ConfigUpdatedActivityLogEntry:
+		return ec._ConfigUpdatedActivityLogEntry(ctx, sel, &obj)
+	case *configmap.ConfigUpdatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ConfigUpdatedActivityLogEntry(ctx, sel, obj)
+	case configmap.ConfigDeletedActivityLogEntry:
+		return ec._ConfigDeletedActivityLogEntry(ctx, sel, &obj)
+	case *configmap.ConfigDeletedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ConfigDeletedActivityLogEntry(ctx, sel, obj)
+	case configmap.ConfigCreatedActivityLogEntry:
+		return ec._ConfigCreatedActivityLogEntry(ctx, sel, &obj)
+	case *configmap.ConfigCreatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ConfigCreatedActivityLogEntry(ctx, sel, obj)
 	case pubsublog.ClusterAuditActivityLogEntry:
 		return ec._ClusterAuditActivityLogEntry(ctx, sel, &obj)
 	case *pubsublog.ClusterAuditActivityLogEntry:
@@ -661,6 +683,13 @@ func (ec *executionContext) _ActivityLogger(ctx context.Context, sel ast.Selecti
 			return graphql.Null
 		}
 		return ec._ContainerImage(ctx, sel, obj)
+	case configmap.Config:
+		return ec._Config(ctx, sel, &obj)
+	case *configmap.Config:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Config(ctx, sel, obj)
 	default:
 		if typedObj, ok := obj.(graphql.Marshaler); ok {
 			return typedObj

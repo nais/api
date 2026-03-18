@@ -14,8 +14,8 @@ const (
 	labelManagedByVal           = "console"
 	labelKubernetesManagedByKey = "app.kubernetes.io/managed-by"
 
-	annotationLastModifiedAt = "console.nais.io/last-modified-at"
-	annotationLastModifiedBy = "console.nais.io/last-modified-by"
+	AnnotationLastModifiedAt = "console.nais.io/last-modified-at"
+	AnnotationLastModifiedBy = "console.nais.io/last-modified-by"
 )
 
 func NewClientSets(clusterConfig ClusterConfigMap) (map[string]kubernetes.Interface, error) {
@@ -74,9 +74,9 @@ func WithCommonAnnotations(mp map[string]string, user string) map[string]string 
 	if mp == nil {
 		mp = make(map[string]string)
 	}
-	mp[annotationLastModifiedAt] = time.Now().Format(time.RFC3339)
+	mp[AnnotationLastModifiedAt] = time.Now().Format(time.RFC3339)
 	if user != "" {
-		mp[annotationLastModifiedBy] = user
+		mp[AnnotationLastModifiedBy] = user
 	}
 
 	return mp

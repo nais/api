@@ -179,6 +179,8 @@ func (ec *executionContext) fieldContext_DeprecatedIngressIssue_teamEnvironment(
 				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
 			case "bucket":
 				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
+			case "config":
+				return ec.fieldContext_TeamEnvironment_config(ctx, field)
 			case "cost":
 				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
 			case "environment":
@@ -351,6 +353,8 @@ func (ec *executionContext) fieldContext_DeprecatedIngressIssue_application(_ co
 				return ec.fieldContext_Application_bigQueryDatasets(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Application_buckets(ctx, field)
+			case "configs":
+				return ec.fieldContext_Application_configs(ctx, field)
 			case "cost":
 				return ec.fieldContext_Application_cost(ctx, field)
 			case "deployments":
@@ -455,6 +459,8 @@ func (ec *executionContext) fieldContext_DeprecatedRegistryIssue_teamEnvironment
 				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
 			case "bucket":
 				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
+			case "config":
+				return ec.fieldContext_TeamEnvironment_config(ctx, field)
 			case "cost":
 				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
 			case "environment":
@@ -640,6 +646,8 @@ func (ec *executionContext) fieldContext_ExternalIngressCriticalVulnerabilityIss
 				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
 			case "bucket":
 				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
+			case "config":
+				return ec.fieldContext_TeamEnvironment_config(ctx, field)
 			case "cost":
 				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
 			case "environment":
@@ -883,6 +891,8 @@ func (ec *executionContext) fieldContext_FailedSynchronizationIssue_teamEnvironm
 				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
 			case "bucket":
 				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
+			case "config":
+				return ec.fieldContext_TeamEnvironment_config(ctx, field)
 			case "cost":
 				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
 			case "environment":
@@ -1068,6 +1078,8 @@ func (ec *executionContext) fieldContext_InvalidSpecIssue_teamEnvironment(_ cont
 				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
 			case "bucket":
 				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
+			case "config":
+				return ec.fieldContext_TeamEnvironment_config(ctx, field)
 			case "cost":
 				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
 			case "environment":
@@ -1420,6 +1432,8 @@ func (ec *executionContext) fieldContext_LastRunFailedIssue_teamEnvironment(_ co
 				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
 			case "bucket":
 				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
+			case "config":
+				return ec.fieldContext_TeamEnvironment_config(ctx, field)
 			case "cost":
 				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
 			case "environment":
@@ -1563,6 +1577,8 @@ func (ec *executionContext) fieldContext_LastRunFailedIssue_job(_ context.Contex
 				return ec.fieldContext_Job_bigQueryDatasets(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Job_buckets(ctx, field)
+			case "configs":
+				return ec.fieldContext_Job_configs(ctx, field)
 			case "cost":
 				return ec.fieldContext_Job_cost(ctx, field)
 			case "deployments":
@@ -1665,6 +1681,8 @@ func (ec *executionContext) fieldContext_MissingSbomIssue_teamEnvironment(_ cont
 				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
 			case "bucket":
 				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
+			case "config":
+				return ec.fieldContext_TeamEnvironment_config(ctx, field)
 			case "cost":
 				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
 			case "environment":
@@ -1850,6 +1868,8 @@ func (ec *executionContext) fieldContext_NoRunningInstancesIssue_teamEnvironment
 				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
 			case "bucket":
 				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
+			case "config":
+				return ec.fieldContext_TeamEnvironment_config(ctx, field)
 			case "cost":
 				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
 			case "environment":
@@ -2035,6 +2055,8 @@ func (ec *executionContext) fieldContext_OpenSearchIssue_teamEnvironment(_ conte
 				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
 			case "bucket":
 				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
+			case "config":
+				return ec.fieldContext_TeamEnvironment_config(ctx, field)
 			case "cost":
 				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
 			case "environment":
@@ -2285,6 +2307,8 @@ func (ec *executionContext) fieldContext_SqlInstanceStateIssue_teamEnvironment(_
 				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
 			case "bucket":
 				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
+			case "config":
+				return ec.fieldContext_TeamEnvironment_config(ctx, field)
 			case "cost":
 				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
 			case "environment":
@@ -2555,6 +2579,8 @@ func (ec *executionContext) fieldContext_SqlInstanceVersionIssue_teamEnvironment
 				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
 			case "bucket":
 				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
+			case "config":
+				return ec.fieldContext_TeamEnvironment_config(ctx, field)
 			case "cost":
 				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
 			case "environment":
@@ -2796,6 +2822,8 @@ func (ec *executionContext) fieldContext_UnleashReleaseChannelIssue_teamEnvironm
 				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
 			case "bucket":
 				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
+			case "config":
+				return ec.fieldContext_TeamEnvironment_config(ctx, field)
 			case "cost":
 				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
 			case "environment":
@@ -3090,6 +3118,8 @@ func (ec *executionContext) fieldContext_ValkeyIssue_teamEnvironment(_ context.C
 				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
 			case "bucket":
 				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
+			case "config":
+				return ec.fieldContext_TeamEnvironment_config(ctx, field)
 			case "cost":
 				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
 			case "environment":
@@ -3340,6 +3370,8 @@ func (ec *executionContext) fieldContext_VulnerableImageIssue_teamEnvironment(_ 
 				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
 			case "bucket":
 				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
+			case "config":
+				return ec.fieldContext_TeamEnvironment_config(ctx, field)
 			case "cost":
 				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
 			case "environment":
