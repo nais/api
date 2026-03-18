@@ -538,6 +538,13 @@ func (ec *executionContext) _ActivityLogEntry(ctx context.Context, sel ast.Selec
 			return graphql.Null
 		}
 		return ec._JobTriggeredActivityLogEntry(ctx, sel, obj)
+	case job.JobRunDeletedActivityLogEntry:
+		return ec._JobRunDeletedActivityLogEntry(ctx, sel, &obj)
+	case *job.JobRunDeletedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._JobRunDeletedActivityLogEntry(ctx, sel, obj)
 	case job.JobDeletedActivityLogEntry:
 		return ec._JobDeletedActivityLogEntry(ctx, sel, &obj)
 	case *job.JobDeletedActivityLogEntry:

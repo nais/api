@@ -184,6 +184,38 @@ func Delete(ctx context.Context, teamSlug slug.Slug, environmentName, name strin
 	}, nil
 }
 
+func DeleteRun(ctx context.Context, teamSlug slug.Slug, environmentName, runName string) (*DeleteJobRunPayload, error) {
+	// Find the run to determine which job it belongs to
+	run, err := fromContext(ctx).runWatcher.Get(environmentName, teamSlug.String(), runName)
+	if err != nil {
+		return nil, fmt.Errorf("getting job run: %w", err)
+	}
+
+	jobName := run.Labels["app"]
+
+	if err := fromContext(ctx).runWatcher.Delete(ctx, environmentName, teamSlug.String(), runName); err != nil {
+		return nil, fmt.Errorf("deleting job run: %w", err)
+	}
+
+	if err := activitylog.Create(ctx, activitylog.CreateInput{
+		Action:          activityLogEntryActionDeleteJobRun,
+		Actor:           authz.ActorFromContext(ctx).User,
+		ResourceType:    activityLogEntryResourceTypeJob,
+		ResourceName:    runName,
+		EnvironmentName: &environmentName,
+		TeamSlug:        &teamSlug,
+	}); err != nil {
+		return nil, err
+	}
+
+	return &DeleteJobRunPayload{
+		JobName:         jobName,
+		TeamSlug:        teamSlug,
+		EnvironmentName: environmentName,
+		Success:         true,
+	}, nil
+}
+
 func Trigger(ctx context.Context, teamSlug slug.Slug, environmentName, name, runName string) (*JobRun, error) {
 	w := fromContext(ctx).jobWatcher
 

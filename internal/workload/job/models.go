@@ -408,6 +408,19 @@ type DeleteJobPayload struct {
 	Success  bool       `json:"success"`
 }
 
+type DeleteJobRunInput struct {
+	TeamSlug        slug.Slug `json:"teamSlug"`
+	EnvironmentName string    `json:"environmentName"`
+	RunName         string    `json:"runName"`
+}
+
+type DeleteJobRunPayload struct {
+	JobName         string    `json:"-"`
+	TeamSlug        slug.Slug `json:"-"`
+	EnvironmentName string    `json:"-"`
+	Success         bool      `json:"success"`
+}
+
 type TriggerJobInput struct {
 	Name            string    `json:"name"`
 	TeamSlug        slug.Slug `json:"teamSlug"`
