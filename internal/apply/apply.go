@@ -21,14 +21,30 @@ import (
 const maxBodySize = 5 * 1024 * 1024 // 5 MB
 
 type Handler struct {
-	clusterConfigsMap kubernetes.ClusterConfigMap
-	log               logrus.FieldLogger
+	dynamicClientFn DynamicClientFactory
+	log             logrus.FieldLogger
 }
 
-func NewHandler(clusterConfigsMap kubernetes.ClusterConfigMap, log logrus.FieldLogger) *Handler {
-	return &Handler{
-		clusterConfigsMap: clusterConfigsMap,
-		log:               log,
+type DynamicClientFactory func(environmentName string, teamSlug slug.Slug) (dynamic.Interface, error)
+
+type HandlerOpt func(*Handler)
+
+func NewHandler(clusterConfigsMap kubernetes.ClusterConfigMap, log logrus.FieldLogger, opts ...HandlerOpt) *Handler {
+	h := &Handler{
+		log:             log,
+		dynamicClientFn: clusterConfigsMap.TeamClient,
+	}
+
+	for _, opt := range opts {
+		opt(h)
+	}
+
+	return h
+}
+
+func WithClientFactory(clientFactory DynamicClientFactory) HandlerOpt {
+	return func(h *Handler) {
+		h.dynamicClientFn = clientFactory
 	}
 }
 
@@ -77,13 +93,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	results := make([]ResourceResult, 0, len(req.Resources))
 
-	cfg, ok := h.clusterConfigsMap[environmentName]
-	if !ok {
-		writeError(w, http.StatusBadRequest, fmt.Sprintf("unknown environment: %q", environmentName))
-		return
-	}
-
-	client, err := impersonatedClient(cfg, teamSlug)
+	client, err := h.dynamicClientFn(environmentName, teamSlug)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, fmt.Sprintf("failed to create client for environment %q: %s", environmentName, err))
 		return

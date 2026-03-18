@@ -28,6 +28,7 @@ type Config struct {
 	Pool           *pgxpool.Pool
 	PreSharedKey   string
 	ClusterConfigs kubernetes.ClusterConfigMap
+	DynamicClient  apply.DynamicClientFactory
 	// ContextMiddleware sets up the request context with all loaders and
 	// dependencies needed by the apply handler (authz, activitylog, etc.).
 	// In production this is the middleware returned by ConfigureGraph.
@@ -112,7 +113,12 @@ func MakeRouter(ctx context.Context, cfg Config) *chi.Mux {
 				middleware.RequireAuthenticatedUser(),
 			)
 
-			handler := apply.NewHandler(cfg.ClusterConfigs, cfg.Log)
+			opts := []apply.HandlerOpt{}
+			if cfg.DynamicClient != nil {
+				opts = append(opts, apply.WithClientFactory(cfg.DynamicClient))
+			}
+
+			handler := apply.NewHandler(cfg.ClusterConfigs, cfg.Log, opts...)
 			r.Post("/api/v1/teams/{teamSlug}/environments/{environment}/apply", handler.ServeHTTP)
 		})
 	}

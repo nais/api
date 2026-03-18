@@ -5,37 +5,15 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/nais/api/internal/slug"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/dynamic"
-	"k8s.io/client-go/rest"
 )
 
 const fieldManager = "nais-api"
-
-// impersonatedClient creates a dynamic Kubernetes client for the given environment
-// that impersonates the authenticated user from the context. This creates a fresh
-// client per call — it does NOT reuse informers or watcher clients.
-func impersonatedClient(
-	cfg *rest.Config,
-	teamSlug slug.Slug,
-) (dynamic.Interface, error) {
-	impersonatedCfg := rest.CopyConfig(cfg)
-	impersonatedCfg.Impersonate = rest.ImpersonationConfig{
-		UserName: fmt.Sprintf("system:serviceaccount:%[1]v:serviceuser-%[1]v", teamSlug),
-	}
-
-	client, err := dynamic.NewForConfig(impersonatedCfg)
-	if err != nil {
-		return nil, fmt.Errorf("creating dynamic client for team %q: %w", teamSlug, err)
-	}
-
-	return client, nil
-}
 
 // ApplyResult holds the before and after states of a server-side apply operation.
 type ApplyResult struct {
