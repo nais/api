@@ -31,11 +31,12 @@ type Config struct {
 	// dependencies needed by the apply handler (authz, activitylog, etc.).
 	// In production this is the middleware returned by ConfigureGraph.
 	// In tests a minimal equivalent can be provided.
-	ContextMiddleware func(http.Handler) http.Handler
-	JWTMiddleware     func(http.Handler) http.Handler
-	AuthHandler       authn.Handler
-	Fakes             Fakes
-	Log               logrus.FieldLogger
+	ContextMiddleware    func(http.Handler) http.Handler
+	JWTMiddleware        func(http.Handler) http.Handler
+	GitHubOIDCMiddleware func(http.Handler) http.Handler
+	AuthHandler          authn.Handler
+	Fakes                Fakes
+	Log                  logrus.FieldLogger
 }
 
 func Run(ctx context.Context, cfg Config) error {
@@ -105,8 +106,11 @@ func MakeRouter(ctx context.Context, cfg Config) *chi.Mux {
 			r.Use(middleware.Oauth2Authentication(cfg.AuthHandler))
 		}
 
+		if cfg.GitHubOIDCMiddleware != nil {
+			r.Use(cfg.GitHubOIDCMiddleware)
+		}
+
 		r.Use(
-			middleware.GitHubOIDC(ctx, cfg.Log),
 			middleware.RequireAuthenticatedUser(),
 		)
 

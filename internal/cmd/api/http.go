@@ -78,6 +78,7 @@ func runHTTPServer(
 	listenAddress string,
 
 	jwtMiddleware func(http.Handler) http.Handler,
+	githubOIDCMiddleware func(http.Handler) http.Handler,
 	authHandler authn.Handler,
 	graphHandler *handler.Server,
 	contextDependencies func(http.Handler) http.Handler,
@@ -112,7 +113,14 @@ func runHTTPServer(
 			middlewares,
 			middleware.ApiKeyAuthentication(),
 			middleware.Oauth2Authentication(authHandler),
-			middleware.GitHubOIDC(ctx, log),
+		)
+
+		if githubOIDCMiddleware != nil {
+			middlewares = append(middlewares, githubOIDCMiddleware)
+		}
+
+		middlewares = append(
+			middlewares,
 			middleware.RequireAuthenticatedUser(),
 			otelhttp.NewMiddleware(
 				"graphql",

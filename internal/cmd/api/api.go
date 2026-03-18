@@ -275,6 +275,11 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		}
 	}
 
+	githubOIDCMiddleware, err := middleware.GitHubOIDC(ctx, middleware.GitHubOIDCIssuer, log.WithField("subsystem", "github_oidc"))
+	if err != nil {
+		return fmt.Errorf("failed to create GitHub OIDC middleware: %w", err)
+	}
+
 	var lokiClientOpts []loki.OptionFunc
 	if addr, ok := os.LookupEnv("LOGGING_LOKI_ADDRESS"); ok {
 		lokiClientOpts = append(lokiClientOpts, loki.WithLocalLoki(addr))
@@ -321,6 +326,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 			cfg.ListenAddress,
 
 			jwtMiddleware,
+			githubOIDCMiddleware,
 			authHandler,
 			graphHandler,
 			contextDependencies,
@@ -339,13 +345,14 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 
 	wg.Go(func() error {
 		return restserver.Run(ctx, restserver.Config{
-			ListenAddress:     cfg.RestListenAddress,
-			Pool:              pool,
-			PreSharedKey:      cfg.RestPreSharedKey,
-			DynamicClient:     clusterConfig.TeamClient,
-			ContextMiddleware: contextDependencies,
-			JWTMiddleware:     jwtMiddleware,
-			AuthHandler:       authHandler,
+			ListenAddress:        cfg.RestListenAddress,
+			Pool:                 pool,
+			PreSharedKey:         cfg.RestPreSharedKey,
+			DynamicClient:        clusterConfig.TeamClient,
+			ContextMiddleware:    contextDependencies,
+			JWTMiddleware:        jwtMiddleware,
+			GitHubOIDCMiddleware: githubOIDCMiddleware,
+			AuthHandler:          authHandler,
 			Fakes: restserver.Fakes{
 				WithInsecureUserHeader: cfg.Fakes.WithInsecureUserHeader,
 			},

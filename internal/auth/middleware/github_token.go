@@ -46,20 +46,23 @@ type GitHubActorClaims struct {
 	JobWorkflowRef string `json:"jobWorkflowRef"`
 }
 
-func GitHubOIDC(ctx context.Context, log logrus.FieldLogger) func(next http.Handler) http.Handler {
+const (
+	// GitHubOIDCIssuer is the OIDC issuer URL for GitHub Actions tokens.
+	GitHubOIDCIssuer = "https://token.actions.githubusercontent.com"
+
+	// GitHubOIDCAudience is the expected audience claim in GitHub OIDC tokens.
+	GitHubOIDCAudience = "api.nais.io"
+)
+
+func GitHubOIDC(ctx context.Context, issuer string, log logrus.FieldLogger) (func(next http.Handler) http.Handler, error) {
 	log = log.WithField("subsystem", "github_oidc")
-	provider, err := oidc.NewProvider(ctx, "https://token.actions.githubusercontent.com")
+	provider, err := oidc.NewProvider(ctx, issuer)
 	if err != nil {
-		log.WithError(err).Error("failed to initialize GitHub OIDC provider. Will not support GitHub OIDC authentication")
-		return func(sub http.Handler) http.Handler {
-			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				sub.ServeHTTP(w, r)
-			})
-		}
+		return nil, fmt.Errorf("initialize GitHub OIDC provider: %w", err)
 	}
 
 	verifier := provider.Verifier(&oidc.Config{
-		ClientID: "api.nais.io",
+		ClientID: GitHubOIDCAudience,
 	})
 
 	return func(next http.Handler) http.Handler {
@@ -133,7 +136,7 @@ func GitHubOIDC(ctx context.Context, log logrus.FieldLogger) func(next http.Hand
 			next.ServeHTTP(w, r.WithContext(authz.ContextWithActor(ctx, usr, roles)))
 		}
 		return http.HandlerFunc(fn)
-	}
+	}, nil
 }
 
 type GitHubRepoActor struct {
