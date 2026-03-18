@@ -454,12 +454,8 @@ func annotations(user string) map[string]string {
 }
 
 func validateConfigValue(value *ConfigValueInput) error {
-	if len(value.Name) > validation.DNS1123SubdomainMaxLength {
-		return fmt.Errorf("%q is too long: %d characters, max %d", value.Name, len(value.Name), validation.DNS1123SubdomainMaxLength)
-	}
-
-	if isEnvVarName := validation.IsEnvVarName(value.Name); len(isEnvVarName) > 0 {
-		return fmt.Errorf("%q: %s", value.Name, strings.Join(isEnvVarName, ", "))
+	if errs := validation.IsConfigMapKey(value.Name); len(errs) > 0 {
+		return fmt.Errorf("invalid config key %q: %s", value.Name, strings.Join(errs, ", "))
 	}
 
 	return nil
