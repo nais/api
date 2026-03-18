@@ -82,6 +82,7 @@ func runHTTPServer(
 	k8sClients apik8s.ClusterConfigMap,
 	watchers *watchers.Watchers,
 	watcherMgr *watcher.Manager,
+	mgmtWatcherMgr *watcher.Manager,
 	jwtMiddleware func(http.Handler) http.Handler,
 	authHandler authn.Handler,
 	graphHandler *handler.Server,
@@ -109,6 +110,7 @@ func runHTTPServer(
 		fakes,
 		watchers,
 		watcherMgr,
+		mgmtWatcherMgr,
 		pool,
 		k8sClients,
 		serviceMaintenanceManager,
@@ -212,6 +214,7 @@ func ConfigureGraph(
 	fakes Fakes,
 	watchers *watchers.Watchers,
 	watcherMgr *watcher.Manager,
+	mgmtWatcherMgr *watcher.Manager,
 	pool *pgxpool.Pool,
 	k8sClients apik8s.ClusterConfigMap,
 	serviceMaintenanceManager *servicemaintenance.Manager,
@@ -304,6 +307,9 @@ func ConfigureGraph(
 	defer cancelSync()
 	if !watcherMgr.WaitForReady(syncCtx) {
 		return nil, errors.New("timed out waiting for watchers to be ready")
+	}
+	if !mgmtWatcherMgr.WaitForReady(syncCtx) {
+		return nil, errors.New("timed out waiting for management watchers to be ready")
 	}
 
 	setupContext := func(ctx context.Context) context.Context {

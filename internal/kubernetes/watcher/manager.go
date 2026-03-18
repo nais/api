@@ -3,6 +3,7 @@ package watcher
 import (
 	"context"
 	"fmt"
+	"sync/atomic"
 
 	"github.com/nais/api/internal/kubernetes"
 	"github.com/sirupsen/logrus"
@@ -42,6 +43,7 @@ type Manager struct {
 	log      logrus.FieldLogger
 
 	cacheSyncs      []cache.InformerSynced
+	ready           atomic.Bool
 	resourceCounter metric.Int64UpDownCounter
 }
 
@@ -124,7 +126,17 @@ func (m *Manager) Stop() {
 }
 
 func (m *Manager) WaitForReady(ctx context.Context) bool {
-	return cache.WaitForCacheSync(ctx.Done(), m.cacheSyncs...)
+	ok := cache.WaitForCacheSync(ctx.Done(), m.cacheSyncs...)
+	if ok {
+		m.ready.Store(true)
+	}
+	return ok
+}
+
+// IsReady returns true if all informer caches have been synced.
+// This is a non-blocking check that returns the result of the last WaitForReady call.
+func (m *Manager) IsReady() bool {
+	return m.ready.Load()
 }
 
 func (m *Manager) GetDynamicClients() map[string]dynamic.Interface {
