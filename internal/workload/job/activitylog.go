@@ -8,8 +8,9 @@ import (
 )
 
 const (
-	activityLogEntryResourceTypeJob  activitylog.ActivityLogEntryResourceType = "JOB"
-	activityLogEntryActionTriggerJob activitylog.ActivityLogEntryAction       = "TRIGGER_JOB"
+	activityLogEntryResourceTypeJob    activitylog.ActivityLogEntryResourceType = "JOB"
+	activityLogEntryActionTriggerJob   activitylog.ActivityLogEntryAction       = "TRIGGER_JOB"
+	activityLogEntryActionDeleteJobRun activitylog.ActivityLogEntryAction       = "DELETE_JOB_RUN"
 )
 
 func init() {
@@ -22,6 +23,11 @@ func init() {
 		case activitylog.ActivityLogEntryActionDeleted:
 			return JobDeletedActivityLogEntry{
 				GenericActivityLogEntry: entry.WithMessage("Job deleted"),
+			}, nil
+
+		case activityLogEntryActionDeleteJobRun:
+			return JobRunDeletedActivityLogEntry{
+				GenericActivityLogEntry: entry.WithMessage(fmt.Sprintf("Job run %s deleted", entry.ResourceName)),
 			}, nil
 
 		case deploymentactivity.ActivityLogEntryActionDeployment:
@@ -39,6 +45,7 @@ func init() {
 	})
 
 	activitylog.RegisterFilter("JOB_DELETED", activitylog.ActivityLogEntryActionDeleted, activityLogEntryResourceTypeJob)
+	activitylog.RegisterFilter("JOB_RUN_DELETED", activityLogEntryActionDeleteJobRun, activityLogEntryResourceTypeJob)
 	activitylog.RegisterFilter("JOB_TRIGGERED", activityLogEntryActionTriggerJob, activityLogEntryResourceTypeJob)
 	activitylog.RegisterFilter("DEPLOYMENT", deploymentactivity.ActivityLogEntryActionDeployment, activityLogEntryResourceTypeJob)
 }
@@ -48,5 +55,9 @@ type JobTriggeredActivityLogEntry struct {
 }
 
 type JobDeletedActivityLogEntry struct {
+	activitylog.GenericActivityLogEntry
+}
+
+type JobRunDeletedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
 }

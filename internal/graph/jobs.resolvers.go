@@ -21,6 +21,10 @@ func (r *deleteJobPayloadResolver) Team(ctx context.Context, obj *job.DeleteJobP
 	return team.Get(ctx, *obj.TeamSlug)
 }
 
+func (r *deleteJobRunPayloadResolver) Job(ctx context.Context, obj *job.DeleteJobRunPayload) (*job.Job, error) {
+	return job.Get(ctx, obj.TeamSlug, obj.EnvironmentName, obj.JobName)
+}
+
 func (r *jobResolver) Team(ctx context.Context, obj *job.Job) (*team.Team, error) {
 	return team.Get(ctx, obj.TeamSlug)
 }
@@ -113,6 +117,14 @@ func (r *mutationResolver) DeleteJob(ctx context.Context, input job.DeleteJobInp
 	return job.Delete(ctx, input.TeamSlug, input.EnvironmentName, input.Name)
 }
 
+func (r *mutationResolver) DeleteJobRun(ctx context.Context, input job.DeleteJobRunInput) (*job.DeleteJobRunPayload, error) {
+	if err := authz.CanDeleteJobs(ctx, input.TeamSlug); err != nil {
+		return nil, err
+	}
+
+	return job.DeleteRun(ctx, input.TeamSlug, input.EnvironmentName, input.RunName)
+}
+
 func (r *mutationResolver) TriggerJob(ctx context.Context, input job.TriggerJobInput) (*job.TriggerJobPayload, error) {
 	if err := authz.CanUpdateJobs(ctx, input.TeamSlug); err != nil {
 		return nil, err
@@ -163,6 +175,10 @@ func (r *Resolver) DeleteJobPayload() gengql.DeleteJobPayloadResolver {
 	return &deleteJobPayloadResolver{r}
 }
 
+func (r *Resolver) DeleteJobRunPayload() gengql.DeleteJobRunPayloadResolver {
+	return &deleteJobRunPayloadResolver{r}
+}
+
 func (r *Resolver) Job() gengql.JobResolver { return &jobResolver{r} }
 
 func (r *Resolver) JobRun() gengql.JobRunResolver { return &jobRunResolver{r} }
@@ -172,8 +188,9 @@ func (r *Resolver) TriggerJobPayload() gengql.TriggerJobPayloadResolver {
 }
 
 type (
-	deleteJobPayloadResolver  struct{ *Resolver }
-	jobResolver               struct{ *Resolver }
-	jobRunResolver            struct{ *Resolver }
-	triggerJobPayloadResolver struct{ *Resolver }
+	deleteJobPayloadResolver    struct{ *Resolver }
+	deleteJobRunPayloadResolver struct{ *Resolver }
+	jobResolver                 struct{ *Resolver }
+	jobRunResolver              struct{ *Resolver }
+	triggerJobPayloadResolver   struct{ *Resolver }
 )

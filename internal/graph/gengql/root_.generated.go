@@ -67,6 +67,7 @@ type ResolverRoot interface {
 	CurrentUnitPrices() CurrentUnitPricesResolver
 	DeleteApplicationPayload() DeleteApplicationPayloadResolver
 	DeleteJobPayload() DeleteJobPayloadResolver
+	DeleteJobRunPayload() DeleteJobRunPayloadResolver
 	Deployment() DeploymentResolver
 	DeprecatedIngressIssue() DeprecatedIngressIssueResolver
 	DeprecatedRegistryIssue() DeprecatedRegistryIssueResolver
@@ -631,6 +632,11 @@ type ComplexityRoot struct {
 		Team    func(childComplexity int) int
 	}
 
+	DeleteJobRunPayload struct {
+		Job     func(childComplexity int) int
+		Success func(childComplexity int) int
+	}
+
 	DeleteOpenSearchPayload struct {
 		OpenSearchDeleted func(childComplexity int) int
 	}
@@ -1011,6 +1017,17 @@ type ComplexityRoot struct {
 		PageInfo func(childComplexity int) int
 	}
 
+	JobRunDeletedActivityLogEntry struct {
+		Actor           func(childComplexity int) int
+		CreatedAt       func(childComplexity int) int
+		EnvironmentName func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Message         func(childComplexity int) int
+		ResourceName    func(childComplexity int) int
+		ResourceType    func(childComplexity int) int
+		TeamSlug        func(childComplexity int) int
+	}
+
 	JobRunEdge struct {
 		Cursor func(childComplexity int) int
 		Node   func(childComplexity int) int
@@ -1220,6 +1237,7 @@ type ComplexityRoot struct {
 		DeleteApplication            func(childComplexity int, input application.DeleteApplicationInput) int
 		DeleteConfig                 func(childComplexity int, input configmap.DeleteConfigInput) int
 		DeleteJob                    func(childComplexity int, input job.DeleteJobInput) int
+		DeleteJobRun                 func(childComplexity int, input job.DeleteJobRunInput) int
 		DeleteOpenSearch             func(childComplexity int, input opensearch.DeleteOpenSearchInput) int
 		DeleteSecret                 func(childComplexity int, input secret.DeleteSecretInput) int
 		DeleteServiceAccount         func(childComplexity int, input serviceaccount.DeleteServiceAccountInput) int
@@ -5110,6 +5128,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.DeleteJobPayload.Team(childComplexity), true
 
+	case "DeleteJobRunPayload.job":
+		if e.ComplexityRoot.DeleteJobRunPayload.Job == nil {
+			break
+		}
+
+		return e.ComplexityRoot.DeleteJobRunPayload.Job(childComplexity), true
+
+	case "DeleteJobRunPayload.success":
+		if e.ComplexityRoot.DeleteJobRunPayload.Success == nil {
+			break
+		}
+
+		return e.ComplexityRoot.DeleteJobRunPayload.Success(childComplexity), true
+
 	case "DeleteOpenSearchPayload.openSearchDeleted":
 		if e.ComplexityRoot.DeleteOpenSearchPayload.OpenSearchDeleted == nil {
 			break
@@ -6673,6 +6705,62 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.JobRunConnection.PageInfo(childComplexity), true
 
+	case "JobRunDeletedActivityLogEntry.actor":
+		if e.ComplexityRoot.JobRunDeletedActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobRunDeletedActivityLogEntry.Actor(childComplexity), true
+
+	case "JobRunDeletedActivityLogEntry.createdAt":
+		if e.ComplexityRoot.JobRunDeletedActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobRunDeletedActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "JobRunDeletedActivityLogEntry.environmentName":
+		if e.ComplexityRoot.JobRunDeletedActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobRunDeletedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "JobRunDeletedActivityLogEntry.id":
+		if e.ComplexityRoot.JobRunDeletedActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobRunDeletedActivityLogEntry.ID(childComplexity), true
+
+	case "JobRunDeletedActivityLogEntry.message":
+		if e.ComplexityRoot.JobRunDeletedActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobRunDeletedActivityLogEntry.Message(childComplexity), true
+
+	case "JobRunDeletedActivityLogEntry.resourceName":
+		if e.ComplexityRoot.JobRunDeletedActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobRunDeletedActivityLogEntry.ResourceName(childComplexity), true
+
+	case "JobRunDeletedActivityLogEntry.resourceType":
+		if e.ComplexityRoot.JobRunDeletedActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobRunDeletedActivityLogEntry.ResourceType(childComplexity), true
+
+	case "JobRunDeletedActivityLogEntry.teamSlug":
+		if e.ComplexityRoot.JobRunDeletedActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobRunDeletedActivityLogEntry.TeamSlug(childComplexity), true
+
 	case "JobRunEdge.cursor":
 		if e.ComplexityRoot.JobRunEdge.Cursor == nil {
 			break
@@ -7618,6 +7706,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Mutation.DeleteJob(childComplexity, args["input"].(job.DeleteJobInput)), true
+
+	case "Mutation.deleteJobRun":
+		if e.ComplexityRoot.Mutation.DeleteJobRun == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deleteJobRun_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Mutation.DeleteJobRun(childComplexity, args["input"].(job.DeleteJobRunInput)), true
 
 	case "Mutation.deleteOpenSearch":
 		if e.ComplexityRoot.Mutation.DeleteOpenSearch == nil {
@@ -16239,6 +16339,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputDeleteApplicationInput,
 		ec.unmarshalInputDeleteConfigInput,
 		ec.unmarshalInputDeleteJobInput,
+		ec.unmarshalInputDeleteJobRunInput,
 		ec.unmarshalInputDeleteOpenSearchInput,
 		ec.unmarshalInputDeleteSecretInput,
 		ec.unmarshalInputDeleteServiceAccountInput,
@@ -19846,6 +19947,9 @@ extend type Mutation {
 	"Delete a job."
 	deleteJob(input: DeleteJobInput!): DeleteJobPayload!
 
+	"Delete a job run."
+	deleteJobRun(input: DeleteJobRunInput!): DeleteJobRunPayload!
+
 	"Trigger a job"
 	triggerJob(input: TriggerJobInput!): TriggerJobPayload!
 }
@@ -20277,9 +20381,57 @@ type JobTriggeredActivityLogEntry implements ActivityLogEntry & Node {
 	environmentName: String
 }
 
+input DeleteJobRunInput {
+	"Slug of the team that owns the job."
+	teamSlug: Slug!
+
+	"Name of the environment where the job runs."
+	environmentName: String!
+
+	"Name of the job run to delete."
+	runName: String!
+}
+
+type DeleteJobRunPayload {
+	"The job that the run belonged to."
+	job: Job
+
+	"Whether or not the run was deleted."
+	success: Boolean!
+}
+
+type JobRunDeletedActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: ActivityLogEntryResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+}
+
 extend enum ActivityLogActivityType {
 	"Activity log entries related to job deletion."
 	JOB_DELETED
+
+	"Activity log entries related to job run deletion."
+	JOB_RUN_DELETED
 
 	"Activity log entries related to job triggering."
 	JOB_TRIGGERED
