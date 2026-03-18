@@ -147,7 +147,7 @@ func CreateValkeyCredentials(ctx context.Context, input CreateValkeyCredentialsI
 				"expiresAt": expiresAt.Format(time.RFC3339),
 				"valkey": []any{
 					map[string]any{
-						"instance":   fmt.Sprintf("valkey-%s-%s", namespace, input.InstanceName),
+						"instance":   input.InstanceName,
 						"access":     input.Permission.aivenAccess(),
 						"secretName": secretName,
 					},
