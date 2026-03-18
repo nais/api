@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"hash/crc32"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -133,7 +134,18 @@ func CreateOpenSearchCredentials(ctx context.Context, input CreateOpenSearchCred
 	return &CreateOpenSearchCredentialsPayload{Credentials: result.(*OpenSearchCredentials)}, nil
 }
 
+// valkeyEnvVarName matches the Aivenator's key naming convention for Valkey secrets.
+// The Aivenator suffixes all Valkey secret keys with the uppercased instance name,
+// where non-alphanumeric characters are replaced with underscores.
+// For example, instance "my-cache" produces suffix "MY_CACHE", giving keys like "VALKEY_HOST_MY_CACHE".
+var valkeyNamePattern = regexp.MustCompile("[^a-z0-9]")
+
+func valkeyEnvVarSuffix(instanceName string) string {
+	return strings.ToUpper(valkeyNamePattern.ReplaceAllString(instanceName, "_"))
+}
+
 func CreateValkeyCredentials(ctx context.Context, input CreateValkeyCredentialsInput) (*CreateValkeyCredentialsPayload, error) {
+	suffix := valkeyEnvVarSuffix(input.InstanceName)
 	result, err := createCredentials(ctx, credentialRequest{
 		teamSlug:        input.TeamSlug,
 		environmentName: input.EnvironmentName,
@@ -155,13 +167,13 @@ func CreateValkeyCredentials(ctx context.Context, input CreateValkeyCredentialsI
 			}
 		},
 		extractCreds: func(data map[string]string) any {
-			port, _ := strconv.Atoi(data["VALKEY_PORT"])
+			port, _ := strconv.Atoi(data[fmt.Sprintf("VALKEY_PORT_%s", suffix)])
 			return &ValkeyCredentials{
-				Username: data["VALKEY_USERNAME"],
-				Password: data["VALKEY_PASSWORD"],
-				Host:     data["VALKEY_HOST"],
+				Username: data[fmt.Sprintf("VALKEY_USERNAME_%s", suffix)],
+				Password: data[fmt.Sprintf("VALKEY_PASSWORD_%s", suffix)],
+				Host:     data[fmt.Sprintf("VALKEY_HOST_%s", suffix)],
 				Port:     port,
-				URI:      data["VALKEY_URI"],
+				URI:      data[fmt.Sprintf("VALKEY_URI_%s", suffix)],
 			}
 		},
 	})
@@ -254,7 +266,9 @@ func createOrUpdateAivenApplication(ctx context.Context, client dynamic.Interfac
 	return err
 }
 
-// waitForSecret polls for a Kubernetes Secret to be created by the Aivenator.
+// waitForSecret polls for a Kubernetes Secret to be created and populated by the Aivenator.
+// It waits until the secret exists and has a non-empty "data" field, to avoid returning
+// before the Aivenator has finished writing credentials to the secret.
 func waitForSecret(ctx context.Context, client dynamic.Interface, namespace, secretName string) (*unstructured.Unstructured, error) {
 	secretClient := client.Resource(secretGVR).Namespace(namespace)
 
@@ -276,6 +290,14 @@ func waitForSecret(ctx context.Context, client dynamic.Interface, namespace, sec
 				}
 				return nil, fmt.Errorf("fetching secret: %w", err)
 			}
+
+			// The secret may exist before the Aivenator has populated it with data.
+			// Keep polling until the data field is present and non-empty.
+			data, ok := secret.Object["data"].(map[string]any)
+			if !ok || len(data) == 0 {
+				continue
+			}
+
 			return secret, nil
 		}
 	}
