@@ -553,6 +553,13 @@ func (ec *executionContext) _ActivityLogEntry(ctx context.Context, sel ast.Selec
 			return graphql.Null
 		}
 		return ec._DeploymentActivityLogEntry(ctx, sel, obj)
+	case aivencredentials.CredentialsActivityLogEntry:
+		return ec._CredentialsActivityLogEntry(ctx, sel, &obj)
+	case *aivencredentials.CredentialsActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._CredentialsActivityLogEntry(ctx, sel, obj)
 	case configmap.ConfigUpdatedActivityLogEntry:
 		return ec._ConfigUpdatedActivityLogEntry(ctx, sel, &obj)
 	case *configmap.ConfigUpdatedActivityLogEntry:
@@ -574,13 +581,6 @@ func (ec *executionContext) _ActivityLogEntry(ctx context.Context, sel ast.Selec
 			return graphql.Null
 		}
 		return ec._ConfigCreatedActivityLogEntry(ctx, sel, obj)
-	case aivencredentials.CredentialsActivityLogEntry:
-		return ec._CredentialsActivityLogEntry(ctx, sel, &obj)
-	case *aivencredentials.CredentialsActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._CredentialsActivityLogEntry(ctx, sel, obj)
 	case pubsublog.ClusterAuditActivityLogEntry:
 		return ec._ClusterAuditActivityLogEntry(ctx, sel, &obj)
 	case *pubsublog.ClusterAuditActivityLogEntry:
