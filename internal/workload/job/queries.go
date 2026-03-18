@@ -192,6 +192,9 @@ func DeleteRun(ctx context.Context, teamSlug slug.Slug, environmentName, runName
 	}
 
 	jobName := run.Labels["app"]
+	if jobName == "" {
+		return nil, fmt.Errorf("job run %q has no 'app' label; cannot determine parent job", runName)
+	}
 
 	if err := fromContext(ctx).runWatcher.Delete(ctx, environmentName, teamSlug.String(), runName); err != nil {
 		return nil, fmt.Errorf("deleting job run: %w", err)

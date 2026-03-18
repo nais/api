@@ -587,9 +587,9 @@ func (ec *executionContext) _DeleteJobRunPayload_success(ctx context.Context, fi
 			return obj.Success, nil
 		},
 		nil,
-		ec.marshalOBoolean2bool,
+		ec.marshalNBoolean2bool,
 		true,
-		false,
+		true,
 	)
 }
 
@@ -4468,6 +4468,9 @@ func (ec *executionContext) _DeleteJobRunPayload(ctx context.Context, sel ast.Se
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "success":
 			out.Values[i] = ec._DeleteJobRunPayload_success(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

@@ -27,7 +27,7 @@ func init() {
 
 		case activityLogEntryActionDeleteJobRun:
 			return JobRunDeletedActivityLogEntry{
-				GenericActivityLogEntry: entry.WithMessage("Job run deleted"),
+				GenericActivityLogEntry: entry.WithMessage(fmt.Sprintf("Job run %s deleted", entry.ResourceName)),
 			}, nil
 
 		case deploymentactivity.ActivityLogEntryActionDeployment:
