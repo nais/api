@@ -35,5 +35,5 @@ func PreSharedKeyAuthentication(preSharedKey string) func(next http.Handler) htt
 func handleError(w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusUnauthorized)
-	_, _ = fmt.Fprintln(w, `{"errors": [{"message": "Unauthorized"}]}`)
+	_, _ = fmt.Fprintln(w, `{"errors": [{"message": "No valid PSK provided"}]}`)
 }

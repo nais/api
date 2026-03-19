@@ -86,31 +86,30 @@ func MakeRouter(ctx context.Context, cfg Config) *chi.Mux {
 
 	// Apply route with user authentication.
 	router.Group(func(r chi.Router) {
-		if cfg.ContextMiddleware != nil {
-			r.Use(cfg.ContextMiddleware)
-		}
+		r.Use(cfg.ContextMiddleware)
 
 		if cfg.Fakes.WithInsecureUserHeader {
+			cfg.Log.Info("#### Middleware enabled: InsecureUserHeader (for testing only) ####")
 			r.Use(middleware.InsecureUserHeader())
 		}
 
 		if cfg.JWTMiddleware != nil {
+			cfg.Log.Info("#### Middleware enabled: JWT Authentication ####")
 			r.Use(cfg.JWTMiddleware)
 		}
 
-		r.Use(
-			middleware.ApiKeyAuthentication(),
-		)
-
 		if cfg.AuthHandler != nil {
+			cfg.Log.Info("#### Middleware enabled: OAuth2 Authentication ####")
 			r.Use(middleware.Oauth2Authentication(cfg.AuthHandler))
 		}
 
 		if cfg.GitHubOIDCMiddleware != nil {
+			cfg.Log.Info("#### Middleware enabled: GitHub OIDC Authentication ####")
 			r.Use(cfg.GitHubOIDCMiddleware)
 		}
 
 		r.Use(
+			middleware.ApiKeyAuthentication(),
 			middleware.RequireAuthenticatedUser(),
 		)
 
