@@ -2,9 +2,9 @@ package aivencredentials
 
 import (
 	"context"
+	"crypto/sha256"
 	"encoding/base64"
 	"fmt"
-	"hash/crc32"
 	"regexp"
 	"strconv"
 	"strings"
@@ -330,16 +330,14 @@ func secretData(secret *unstructured.Unstructured, log logrus.FieldLogger) map[s
 
 // generateSecretName creates a deterministic, short secret name.
 func generateSecretName(username, namespace, service string) string {
-	hasher := crc32.NewIEEE()
-	fmt.Fprintf(hasher, "%s-%s-%s", username, namespace, service)
-	return fmt.Sprintf("aiven-%s-%08x", service, hasher.Sum32())
+	hash := sha256.Sum256([]byte(fmt.Sprintf("%s-%s-%s", username, namespace, service)))
+	return fmt.Sprintf("tmp-%s-%x", service, hash[:3])
 }
 
 // generateAppName creates a deterministic AivenApplication name from the user identity.
 func generateAppName(username, service string) string {
-	hasher := crc32.NewIEEE()
-	fmt.Fprintf(hasher, "%s-%s", username, service)
-	return fmt.Sprintf("console-%s-%08x", service, hasher.Sum32())
+	hash := sha256.Sum256([]byte(fmt.Sprintf("%s-%s", username, service)))
+	return fmt.Sprintf("tmp-%s-%x", service, hash[:3])
 }
 
 // parseTTL parses a human-readable TTL string (e.g. "1d", "7d", "24h") into a time.Duration.
