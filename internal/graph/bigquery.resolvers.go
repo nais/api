@@ -20,7 +20,7 @@ func (r *applicationResolver) BigQueryDatasets(ctx context.Context, obj *applica
 		return pagination.EmptyConnection[*bigquery.BigQueryDataset](), nil
 	}
 
-	return bigquery.ListForWorkload(ctx, obj.TeamSlug, obj.Spec.GCP.BigQueryDatasets, orderBy)
+	return bigquery.ListForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Spec.GCP.BigQueryDatasets, orderBy)
 }
 
 func (r *bigQueryDatasetResolver) Team(ctx context.Context, obj *bigquery.BigQueryDataset) (*team.Team, error) {
@@ -70,7 +70,7 @@ func (r *jobResolver) BigQueryDatasets(ctx context.Context, obj *job.Job, orderB
 		return pagination.EmptyConnection[*bigquery.BigQueryDataset](), nil
 	}
 
-	return bigquery.ListForWorkload(ctx, obj.TeamSlug, obj.Spec.GCP.BigQueryDatasets, orderBy)
+	return bigquery.ListForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Spec.GCP.BigQueryDatasets, orderBy)
 }
 
 func (r *teamResolver) BigQueryDatasets(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bigquery.BigQueryDatasetOrder) (*pagination.Connection[*bigquery.BigQueryDataset], error) {
