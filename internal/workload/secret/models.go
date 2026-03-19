@@ -269,10 +269,12 @@ func (e *ValueEncoding) UnmarshalGQL(v any) error {
 		return fmt.Errorf("enums must be strings")
 	}
 
-	*e = ValueEncoding(str)
-	if !e.IsValid() {
+	tmp := ValueEncoding(str)
+	if !tmp.IsValid() {
 		return fmt.Errorf("%s is not a valid ValueEncoding", str)
 	}
+
+	*e = tmp
 	return nil
 }
 
