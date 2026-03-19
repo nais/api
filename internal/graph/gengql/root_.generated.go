@@ -3117,10 +3117,12 @@ type ComplexityRoot struct {
 	}
 
 	WorkloadVulnerabilitySummary struct {
-		HasSbom  func(childComplexity int) int
-		ID       func(childComplexity int) int
-		Summary  func(childComplexity int) int
-		Workload func(childComplexity int) int
+		HasSbom         func(childComplexity int) int
+		ID              func(childComplexity int) int
+		IsSummaryStale  func(childComplexity int) int
+		Summary         func(childComplexity int) int
+		SummaryStaleTag func(childComplexity int) int
+		Workload        func(childComplexity int) int
 	}
 
 	WorkloadVulnerabilitySummaryConnection struct {
@@ -16219,12 +16221,26 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.WorkloadVulnerabilitySummary.ID(childComplexity), true
 
+	case "WorkloadVulnerabilitySummary.isSummaryStale":
+		if e.ComplexityRoot.WorkloadVulnerabilitySummary.IsSummaryStale == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadVulnerabilitySummary.IsSummaryStale(childComplexity), true
+
 	case "WorkloadVulnerabilitySummary.summary":
 		if e.ComplexityRoot.WorkloadVulnerabilitySummary.Summary == nil {
 			break
 		}
 
 		return e.ComplexityRoot.WorkloadVulnerabilitySummary.Summary(childComplexity), true
+
+	case "WorkloadVulnerabilitySummary.summaryStaleTag":
+		if e.ComplexityRoot.WorkloadVulnerabilitySummary.SummaryStaleTag == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadVulnerabilitySummary.SummaryStaleTag(childComplexity), true
 
 	case "WorkloadVulnerabilitySummary.workload":
 		if e.ComplexityRoot.WorkloadVulnerabilitySummary.Workload == nil {
@@ -26871,6 +26887,12 @@ type WorkloadVulnerabilitySummary implements Node {
 
 	"The vulnerability summary for the workload."
 	summary: ImageVulnerabilitySummary!
+
+	"True if the vulnerability summary is stale."
+	isSummaryStale: Boolean!
+
+	"Is the tag the vulnerability data actually comes from. This field is only relevant if stale is true."
+	summaryStaleTag: String!
 }
 
 """
