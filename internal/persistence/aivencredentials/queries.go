@@ -348,8 +348,8 @@ func parseTTL(ttl string) (time.Duration, error) {
 
 	var d time.Duration
 	// Support day notation
-	if strings.HasSuffix(ttl, "d") {
-		days, err := strconv.Atoi(strings.TrimSuffix(ttl, "d"))
+	if before, ok := strings.CutSuffix(ttl, "d"); ok {
+		days, err := strconv.Atoi(before)
 		if err != nil {
 			return 0, apierror.Errorf("invalid TTL: %s", ttl)
 		}
