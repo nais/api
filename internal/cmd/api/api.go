@@ -14,6 +14,7 @@ import (
 	aiven_service "github.com/aiven/go-client-codegen"
 	"github.com/joho/godotenv"
 	"github.com/nais/api/internal/activitylog"
+	"github.com/nais/api/internal/apply"
 	"github.com/nais/api/internal/auth/authn"
 	"github.com/nais/api/internal/auth/middleware"
 	"github.com/nais/api/internal/database"
@@ -35,6 +36,7 @@ import (
 	"github.com/nais/api/internal/persistence/sqlinstance"
 	restserver "github.com/nais/api/internal/rest"
 	"github.com/nais/api/internal/servicemaintenance"
+	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/thirdparty/aiven"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	fakehookd "github.com/nais/api/internal/thirdparty/hookd/fake"
@@ -43,6 +45,7 @@ import (
 	"github.com/sethvargo/go-envconfig"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
+	"k8s.io/client-go/dynamic"
 	k8s "k8s.io/client-go/kubernetes"
 	k8sfake "k8s.io/client-go/kubernetes/fake"
 	"k8s.io/client-go/rest"
@@ -343,12 +346,26 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		)
 	})
 
+	var dynamicClientFactory apply.DynamicClientFactory
+	if cfg.Fakes.WithFakeKubernetes {
+		dynamicClients := watcherMgr.GetDynamicClients()
+		dynamicClientFactory = func(environmentName string, _ slug.Slug) (dynamic.Interface, error) {
+			client, ok := dynamicClients[environmentName]
+			if !ok {
+				return nil, fmt.Errorf("unknown environment: %q", environmentName)
+			}
+			return client, nil
+		}
+	} else {
+		dynamicClientFactory = clusterConfig.TeamClient
+	}
+
 	wg.Go(func() error {
 		return restserver.Run(ctx, restserver.Config{
 			ListenAddress:        cfg.RestListenAddress,
 			Pool:                 pool,
 			PreSharedKey:         cfg.RestPreSharedKey,
-			DynamicClient:        clusterConfig.TeamClient,
+			DynamicClient:        dynamicClientFactory,
 			ContextMiddleware:    contextDependencies,
 			JWTMiddleware:        jwtMiddleware,
 			GitHubOIDCMiddleware: githubOIDCMiddleware,
