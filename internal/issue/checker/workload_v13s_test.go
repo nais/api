@@ -13,7 +13,6 @@ import (
 	"github.com/nais/api/internal/workload/application"
 	"github.com/nais/v13s/pkg/api/vulnerabilities"
 	"github.com/sirupsen/logrus"
-	"k8s.io/utils/ptr"
 )
 
 type staticV13sClient struct {
@@ -62,19 +61,19 @@ func TestVulnerabilities_ExternalIngressCriticalIssue(t *testing.T) {
 		V13sClient: staticV13sClient{workloads: []*vulnerabilities.WorkloadForVulnerability{
 			{
 				WorkloadRef:   &vulnerabilities.Workload{Cluster: "dev-gcp", Namespace: "devteam", Type: "app", Name: "ext-app"},
-				Vulnerability: &vulnerabilities.Vulnerability{CvssScore: ptr.To(10.0)},
+				Vulnerability: &vulnerabilities.Vulnerability{CvssScore: new(10.0)},
 			},
 			{
 				WorkloadRef:   &vulnerabilities.Workload{Cluster: "dev-gcp", Namespace: "devteam", Type: "app", Name: "ext-app"},
-				Vulnerability: &vulnerabilities.Vulnerability{CvssScore: ptr.To(10.0)},
+				Vulnerability: &vulnerabilities.Vulnerability{CvssScore: new(10.0)},
 			},
 			{
 				WorkloadRef:   &vulnerabilities.Workload{Cluster: "dev-gcp", Namespace: "devteam", Type: "app", Name: "internal-only"},
-				Vulnerability: &vulnerabilities.Vulnerability{CvssScore: ptr.To(10.0)},
+				Vulnerability: &vulnerabilities.Vulnerability{CvssScore: new(10.0)},
 			},
 			{
 				WorkloadRef:   &vulnerabilities.Workload{Cluster: "dev-gcp", Namespace: "devteam", Type: "app", Name: "ext-app"},
-				Vulnerability: &vulnerabilities.Vulnerability{CvssScore: ptr.To(9.9)},
+				Vulnerability: &vulnerabilities.Vulnerability{CvssScore: new(9.9)},
 			},
 		}},
 		log: logrus.New(),
