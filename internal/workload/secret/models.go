@@ -139,8 +139,9 @@ func secretFromAPIResponse(o *unstructured.Unstructured, environmentName string)
 }
 
 type SecretValue struct {
-	Name  string `json:"name"`
-	Value string `json:"value"`
+	Name     string        `json:"name"`
+	Value    string        `json:"value"`
+	Encoding ValueEncoding `json:"encoding"`
 }
 
 type DeleteSecretInput struct {
@@ -154,8 +155,9 @@ type DeleteSecretPayload struct {
 }
 
 type SecretValueInput struct {
-	Name  string `json:"name"`
-	Value string `json:"value"`
+	Name     string         `json:"name"`
+	Value    string         `json:"value"`
+	Encoding *ValueEncoding `json:"encoding"`
 }
 
 type AddSecretValueInput struct {
@@ -241,6 +243,42 @@ type ViewSecretValuesPayload struct {
 
 // IsActivityLogger implements the ActivityLogger interface.
 func (Secret) IsActivityLogger() {}
+
+type ValueEncoding string
+
+const (
+	ValueEncodingPlainText ValueEncoding = "PLAIN_TEXT"
+	ValueEncodingBase64    ValueEncoding = "BASE64"
+)
+
+func (e ValueEncoding) IsValid() bool {
+	switch e {
+	case ValueEncodingPlainText, ValueEncodingBase64:
+		return true
+	}
+	return false
+}
+
+func (e ValueEncoding) String() string {
+	return string(e)
+}
+
+func (e *ValueEncoding) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ValueEncoding(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ValueEncoding", str)
+	}
+	return nil
+}
+
+func (e ValueEncoding) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
 
 type TeamInventoryCountSecrets struct {
 	Total int `json:"total"`

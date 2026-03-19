@@ -1856,8 +1856,9 @@ type ComplexityRoot struct {
 	}
 
 	SecretValue struct {
-		Name  func(childComplexity int) int
-		Value func(childComplexity int) int
+		Encoding func(childComplexity int) int
+		Name     func(childComplexity int) int
+		Value    func(childComplexity int) int
 	}
 
 	SecretValueAddedActivityLogEntry struct {
@@ -10726,6 +10727,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.SecretEdge.Node(childComplexity), true
+
+	case "SecretValue.encoding":
+		if e.ComplexityRoot.SecretValue.Encoding == nil {
+			break
+		}
+
+		return e.ComplexityRoot.SecretValue.Encoding(childComplexity), true
 
 	case "SecretValue.name":
 		if e.ComplexityRoot.SecretValue.Name == nil {
@@ -22509,12 +22517,26 @@ type TeamInventoryCountSecrets {
 	total: Int!
 }
 
+"""
+Encoding of a secret or config value.
+"""
+enum ValueEncoding {
+	"The value is plain text (UTF-8)."
+	PLAIN_TEXT
+
+	"The value is Base64-encoded binary data."
+	BASE64
+}
+
 input SecretValueInput {
 	"The name of the secret value."
 	name: String!
 
 	"The secret value to set."
 	value: String!
+
+	"Encoding of the value. Defaults to PLAIN_TEXT. Use BASE64 for binary data (certificates, keystores, etc.)."
+	encoding: ValueEncoding = PLAIN_TEXT
 }
 
 input CreateSecretInput {
@@ -22673,8 +22695,11 @@ type SecretValue {
 	"The name of the secret value."
 	name: String!
 
-	"The secret value itself."
+	"The secret value itself. When encoding is BASE64, the value is Base64-encoded binary data."
 	value: String!
+
+	"Encoding of the value. PLAIN_TEXT for UTF-8 text, BASE64 for binary data."
+	encoding: ValueEncoding!
 }
 
 extend enum ActivityLogEntryResourceType {
