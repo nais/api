@@ -200,6 +200,8 @@ func (ec *executionContext) fieldContext_CreateValkeyPayload_valkey(_ context.Co
 				return ec.fieldContext_Valkey_maxMemoryPolicy(ctx, field)
 			case "notifyKeyspaceEvents":
 				return ec.fieldContext_Valkey_notifyKeyspaceEvents(ctx, field)
+			case "databases":
+				return ec.fieldContext_Valkey_databases(ctx, field)
 			case "issues":
 				return ec.fieldContext_Valkey_issues(ctx, field)
 			case "activityLog":
@@ -323,6 +325,8 @@ func (ec *executionContext) fieldContext_UpdateValkeyPayload_valkey(_ context.Co
 				return ec.fieldContext_Valkey_maxMemoryPolicy(ctx, field)
 			case "notifyKeyspaceEvents":
 				return ec.fieldContext_Valkey_notifyKeyspaceEvents(ctx, field)
+			case "databases":
+				return ec.fieldContext_Valkey_databases(ctx, field)
 			case "issues":
 				return ec.fieldContext_Valkey_issues(ctx, field)
 			case "activityLog":
@@ -903,6 +907,35 @@ func (ec *executionContext) fieldContext_Valkey_notifyKeyspaceEvents(_ context.C
 	return fc, nil
 }
 
+func (ec *executionContext) _Valkey_databases(ctx context.Context, field graphql.CollectedField, obj *valkey.Valkey) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Valkey_databases,
+		func(ctx context.Context) (any, error) {
+			return obj.Databases, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Valkey_databases(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Valkey",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Valkey_issues(ctx context.Context, field graphql.CollectedField, obj *valkey.Valkey) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -1401,6 +1434,8 @@ func (ec *executionContext) fieldContext_ValkeyConnection_nodes(_ context.Contex
 				return ec.fieldContext_Valkey_maxMemoryPolicy(ctx, field)
 			case "notifyKeyspaceEvents":
 				return ec.fieldContext_Valkey_notifyKeyspaceEvents(ctx, field)
+			case "databases":
+				return ec.fieldContext_Valkey_databases(ctx, field)
 			case "issues":
 				return ec.fieldContext_Valkey_issues(ctx, field)
 			case "activityLog":
@@ -1994,6 +2029,8 @@ func (ec *executionContext) fieldContext_ValkeyEdge_node(_ context.Context, fiel
 				return ec.fieldContext_Valkey_maxMemoryPolicy(ctx, field)
 			case "notifyKeyspaceEvents":
 				return ec.fieldContext_Valkey_notifyKeyspaceEvents(ctx, field)
+			case "databases":
+				return ec.fieldContext_Valkey_databases(ctx, field)
 			case "issues":
 				return ec.fieldContext_Valkey_issues(ctx, field)
 			case "activityLog":
@@ -2409,7 +2446,7 @@ func (ec *executionContext) unmarshalInputCreateValkeyInput(ctx context.Context,
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "environmentName", "teamSlug", "tier", "memory", "maxMemoryPolicy", "notifyKeyspaceEvents"}
+	fieldsInOrder := [...]string{"name", "environmentName", "teamSlug", "tier", "memory", "maxMemoryPolicy", "notifyKeyspaceEvents", "databases"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -2465,6 +2502,13 @@ func (ec *executionContext) unmarshalInputCreateValkeyInput(ctx context.Context,
 				return it, err
 			}
 			it.NotifyKeyspaceEvents = data
+		case "databases":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("databases"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Databases = data
 		}
 	}
 	return it, nil
@@ -2517,7 +2561,7 @@ func (ec *executionContext) unmarshalInputUpdateValkeyInput(ctx context.Context,
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "environmentName", "teamSlug", "tier", "memory", "maxMemoryPolicy", "notifyKeyspaceEvents"}
+	fieldsInOrder := [...]string{"name", "environmentName", "teamSlug", "tier", "memory", "maxMemoryPolicy", "notifyKeyspaceEvents", "databases"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -2573,6 +2617,13 @@ func (ec *executionContext) unmarshalInputUpdateValkeyInput(ctx context.Context,
 				return it, err
 			}
 			it.NotifyKeyspaceEvents = data
+		case "databases":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("databases"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Databases = data
 		}
 	}
 	return it, nil
@@ -3058,6 +3109,11 @@ func (ec *executionContext) _Valkey(ctx context.Context, sel ast.SelectionSet, o
 			out.Values[i] = ec._Valkey_maxMemoryPolicy(ctx, field, obj)
 		case "notifyKeyspaceEvents":
 			out.Values[i] = ec._Valkey_notifyKeyspaceEvents(ctx, field, obj)
+		case "databases":
+			out.Values[i] = ec._Valkey_databases(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		case "issues":
 			field := field
 

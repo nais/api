@@ -5796,6 +5796,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_valkey(ctx context.Cont
 				return ec.fieldContext_Valkey_maxMemoryPolicy(ctx, field)
 			case "notifyKeyspaceEvents":
 				return ec.fieldContext_Valkey_notifyKeyspaceEvents(ctx, field)
+			case "databases":
+				return ec.fieldContext_Valkey_databases(ctx, field)
 			case "issues":
 				return ec.fieldContext_Valkey_issues(ctx, field)
 			case "activityLog":
