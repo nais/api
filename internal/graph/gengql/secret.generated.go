@@ -5014,16 +5014,6 @@ func (ec *executionContext) marshalNUpdateSecretValuePayload2ᚖgithubᚗcomᚋn
 	return ec._UpdateSecretValuePayload(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNValueEncoding2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐValueEncoding(ctx context.Context, v any) (secret.ValueEncoding, error) {
-	var res secret.ValueEncoding
-	err := res.UnmarshalGQL(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNValueEncoding2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐValueEncoding(ctx context.Context, sel ast.SelectionSet, v secret.ValueEncoding) graphql.Marshaler {
-	return v
-}
-
 func (ec *executionContext) unmarshalNViewSecretValuesInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐViewSecretValuesInput(ctx context.Context, v any) (secret.ViewSecretValuesInput, error) {
 	res, err := ec.unmarshalInputViewSecretValuesInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -5064,22 +5054,6 @@ func (ec *executionContext) unmarshalOSecretOrder2ᚖgithubᚗcomᚋnaisᚋapi�
 	}
 	res, err := ec.unmarshalInputSecretOrder(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) unmarshalOValueEncoding2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐValueEncoding(ctx context.Context, v any) (*secret.ValueEncoding, error) {
-	if v == nil {
-		return nil, nil
-	}
-	var res = new(secret.ValueEncoding)
-	err := res.UnmarshalGQL(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOValueEncoding2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐValueEncoding(ctx context.Context, sel ast.SelectionSet, v *secret.ValueEncoding) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return v
 }
 
 // endregion ***************************** type.gotpl *****************************

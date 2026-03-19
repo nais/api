@@ -22517,17 +22517,6 @@ type TeamInventoryCountSecrets {
 	total: Int!
 }
 
-"""
-Encoding of a secret or config value.
-"""
-enum ValueEncoding {
-	"The value is plain text (UTF-8)."
-	PLAIN_TEXT
-
-	"The value is Base64-encoded binary data."
-	BASE64
-}
-
 input SecretValueInput {
 	"The name of the secret value."
 	name: String!
@@ -27571,6 +27560,17 @@ enum EnvironmentWorkloadOrderField {
 	Order by the deployment time.
 	"""
 	DEPLOYMENT_TIME
+}
+
+"""
+Encoding of a secret or config value.
+"""
+enum ValueEncoding {
+	"The value is plain text (UTF-8)."
+	PLAIN_TEXT
+
+	"The value is Base64-encoded binary data."
+	BASE64
 }
 
 """
