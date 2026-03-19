@@ -123,7 +123,7 @@ func (f fakeV13sClient) ListWorkloadsForVulnerability(ctx context.Context, vulne
 					Cve: &vulnerabilities.Cve{
 						Id: "CVE-FAKE-0001",
 					},
-					CvssScore: ptr.To(10.0),
+					CvssScore: new(10.0),
 				},
 			},
 			{
@@ -137,7 +137,7 @@ func (f fakeV13sClient) ListWorkloadsForVulnerability(ctx context.Context, vulne
 					Cve: &vulnerabilities.Cve{
 						Id: "CVE-FAKE-0002",
 					},
-					CvssScore: ptr.To(10.0),
+					CvssScore: new(10.0),
 				},
 			},
 		},
