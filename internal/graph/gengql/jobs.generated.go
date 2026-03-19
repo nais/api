@@ -983,6 +983,10 @@ func (ec *executionContext) fieldContext_Job_image(_ context.Context, field grap
 				return ec.fieldContext_ContainerImage_tag(ctx, field)
 			case "activityLog":
 				return ec.fieldContext_ContainerImage_activityLog(ctx, field)
+			case "isSummaryStale":
+				return ec.fieldContext_ContainerImage_isSummaryStale(ctx, field)
+			case "summaryStaleTag":
+				return ec.fieldContext_ContainerImage_summaryStaleTag(ctx, field)
 			case "hasSBOM":
 				return ec.fieldContext_ContainerImage_hasSBOM(ctx, field)
 			case "vulnerabilities":
@@ -2835,6 +2839,10 @@ func (ec *executionContext) fieldContext_JobRun_image(_ context.Context, field g
 				return ec.fieldContext_ContainerImage_tag(ctx, field)
 			case "activityLog":
 				return ec.fieldContext_ContainerImage_activityLog(ctx, field)
+			case "isSummaryStale":
+				return ec.fieldContext_ContainerImage_isSummaryStale(ctx, field)
+			case "summaryStaleTag":
+				return ec.fieldContext_ContainerImage_summaryStaleTag(ctx, field)
 			case "hasSBOM":
 				return ec.fieldContext_ContainerImage_hasSBOM(ctx, field)
 			case "vulnerabilities":
