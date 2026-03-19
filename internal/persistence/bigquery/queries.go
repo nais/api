@@ -48,8 +48,8 @@ func ListAllForTeam(ctx context.Context, teamSlug slug.Slug) []*BigQueryDataset 
 	return watcher.Objects(all)
 }
 
-func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environment string, datasets []nais_io_v1.CloudBigQueryDataset, orderBy *BigQueryDatasetOrder) (*BigQueryDatasetConnection, error) {
-	all := fromContext(ctx).watcher.GetByNamespace(teamSlug.String(), watcher.InCluster(environment))
+func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName string, datasets []nais_io_v1.CloudBigQueryDataset, orderBy *BigQueryDatasetOrder) (*BigQueryDatasetConnection, error) {
+	all := fromContext(ctx).watcher.GetByNamespace(teamSlug.String(), watcher.InCluster(environmentName))
 	ret := make([]*BigQueryDataset, 0)
 
 	for _, dataset := range datasets {
