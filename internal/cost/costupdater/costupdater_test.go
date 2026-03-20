@@ -19,7 +19,7 @@ import (
 )
 
 const (
-	bigQueryHost = "0.0.0.0:9050"
+	bigQueryHost = "127.0.0.1:9050"
 	bigQueryUrl  = "http://" + bigQueryHost
 	projectID    = "nais-io"
 	tenant       = "test"

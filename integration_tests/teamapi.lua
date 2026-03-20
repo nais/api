@@ -14,6 +14,7 @@ otherTeam:addOwner(not_a_member)
 
 
 Test.rest("list team members", function(t)
+	t.addHeader("Authorization", "Bearer test-pre-shared-key")
 	t.send("GET", string.format("/teams/%s", teamName))
 	t.check(200, {
 		member = {
@@ -24,6 +25,7 @@ Test.rest("list team members", function(t)
 end)
 
 Test.rest("list unknown team", function(t)
+	t.addHeader("Authorization", "Bearer test-pre-shared-key")
 	t.send("GET", "/teams/no-such-team")
 	t.check(404, {
 		errorMessage = "team not found",
@@ -33,6 +35,7 @@ end)
 
 
 Test.rest("invalid team slug", function(t)
+	t.addHeader("Authorization", "Bearer test-pre-shared-key")
 	t.send("GET", "/teams/invalid-ø-slug")
 	t.check(400, {
 		errorMessage = "A team slug must match the following pattern: \"^[a-z](-?[a-z0-9]+)+$\".",
