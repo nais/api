@@ -1702,6 +1702,35 @@ func (ec *executionContext) fieldContext_SecretValue_value(_ context.Context, fi
 	return fc, nil
 }
 
+func (ec *executionContext) _SecretValue_encoding(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValue) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_SecretValue_encoding,
+		func(ctx context.Context) (any, error) {
+			return obj.Encoding, nil
+		},
+		nil,
+		ec.marshalNValueEncoding2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐValueEncoding,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_SecretValue_encoding(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SecretValue",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ValueEncoding does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _SecretValueAddedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueAddedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -2990,6 +3019,8 @@ func (ec *executionContext) fieldContext_ViewSecretValuesPayload_values(_ contex
 				return ec.fieldContext_SecretValue_name(ctx, field)
 			case "value":
 				return ec.fieldContext_SecretValue_value(ctx, field)
+			case "encoding":
+				return ec.fieldContext_SecretValue_encoding(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type SecretValue", field.Name)
 		},
@@ -3248,7 +3279,11 @@ func (ec *executionContext) unmarshalInputSecretValueInput(ctx context.Context, 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "value"}
+	if _, present := asMap["encoding"]; !present {
+		asMap["encoding"] = "PLAIN_TEXT"
+	}
+
+	fieldsInOrder := [...]string{"name", "value", "encoding"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -3269,6 +3304,13 @@ func (ec *executionContext) unmarshalInputSecretValueInput(ctx context.Context, 
 				return it, err
 			}
 			it.Value = data
+		case "encoding":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("encoding"))
+			data, err := ec.unmarshalOValueEncoding2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐValueEncoding(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Encoding = data
 		}
 	}
 	return it, nil
@@ -4109,6 +4151,11 @@ func (ec *executionContext) _SecretValue(ctx context.Context, sel ast.SelectionS
 			}
 		case "value":
 			out.Values[i] = ec._SecretValue_value(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "encoding":
+			out.Values[i] = ec._SecretValue_encoding(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
