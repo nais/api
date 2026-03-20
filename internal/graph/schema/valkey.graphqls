@@ -81,6 +81,8 @@ type Valkey implements Persistence & Node {
 	maxMemoryPolicy: ValkeyMaxMemoryPolicy
 	"Keyspace notifications for the Valkey instance. See https://valkey.io/topics/notifications/ for details."
 	notifyKeyspaceEvents: String
+	"Number of databases the Valkey instance is configured with. Default is 16. Minimum 1, maximum 128. Changing this will cause a restart of the Valkey service."
+	databases: Int!
 	"Issues that affects the instance."
 	issues(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
@@ -222,6 +224,8 @@ input CreateValkeyInput {
 	maxMemoryPolicy: ValkeyMaxMemoryPolicy
 	"Configure keyspace notifications for the Valkey instance. See https://valkey.io/topics/notifications/ for details."
 	notifyKeyspaceEvents: String
+	"Number of databases. Default is 16. Minimum 1, maximum 128. Changing this will cause a restart of the Valkey service."
+	databases: Int
 }
 
 type CreateValkeyPayload {
@@ -244,6 +248,8 @@ input UpdateValkeyInput {
 	maxMemoryPolicy: ValkeyMaxMemoryPolicy
 	"Configure keyspace notifications for the Valkey instance. See https://valkey.io/topics/notifications/ for details."
 	notifyKeyspaceEvents: String
+	"Number of databases. Default is 16. Minimum 1, maximum 128. Changing this will cause a restart of the Valkey service."
+	databases: Int
 }
 
 type UpdateValkeyPayload {

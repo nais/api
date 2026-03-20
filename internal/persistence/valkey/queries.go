@@ -3,6 +3,7 @@ package valkey
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/nais/api/internal/activitylog"
@@ -26,6 +27,7 @@ var (
 	specTerminationProtection = []string{"spec", "terminationProtection"}
 	specMaxMemoryPolicy       = []string{"spec", "userConfig", "valkey_maxmemory_policy"}
 	specNotifyKeyspaceEvents  = []string{"spec", "userConfig", "valkey_notify_keyspace_events"}
+	specNumberOfDatabases     = []string{"spec", "userConfig", "valkey_number_of_databases"}
 )
 
 func GetByIdent(ctx context.Context, id ident.Ident) (*Valkey, error) {
@@ -171,6 +173,14 @@ func Create(ctx context.Context, input CreateValkeyInput) (*CreateValkeyPayload,
 		}
 	}
 
+	if input.Databases != nil {
+		// Must be stored and read as float64 for the integration tests to work.
+		err := unstructured.SetNestedField(res.Object, float64(*input.Databases), specNumberOfDatabases...)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	ret, err := client.Create(ctx, res, metav1.CreateOptions{})
 	if err != nil {
 		if k8serrors.IsAlreadyExists(err) {
@@ -239,6 +249,12 @@ func Update(ctx context.Context, input UpdateValkeyInput) (*UpdateValkeyPayload,
 	changes = append(changes, res...)
 
 	res, err = updateNotifyKeyspaceEvents(valkey, input)
+	if err != nil {
+		return nil, err
+	}
+	changes = append(changes, res...)
+
+	res, err = updateDatabases(valkey, input)
 	if err != nil {
 		return nil, err
 	}
@@ -414,6 +430,38 @@ func updateNotifyKeyspaceEvents(valkey *unstructured.Unstructured, input UpdateV
 	})
 
 	if err := unstructured.SetNestedField(valkey.Object, *input.NotifyKeyspaceEvents, specNotifyKeyspaceEvents...); err != nil {
+		return nil, err
+	}
+
+	return changes, nil
+}
+
+func updateDatabases(valkey *unstructured.Unstructured, input UpdateValkeyInput) ([]*ValkeyUpdatedActivityLogEntryDataUpdatedField, error) {
+	changes := make([]*ValkeyUpdatedActivityLogEntryDataUpdatedField, 0)
+
+	if input.Databases == nil {
+		return changes, nil
+	}
+
+	oldValue, found, _ := unstructured.NestedNumberAsFloat64(valkey.Object, specNumberOfDatabases...)
+	if found && oldValue == float64(*input.Databases) {
+		return changes, nil
+	}
+
+	var oldValPtr *string
+	if found {
+		oldValPtr = new(strconv.FormatInt(int64(oldValue), 10))
+	}
+
+	newVal := strconv.Itoa(*input.Databases)
+	changes = append(changes, &ValkeyUpdatedActivityLogEntryDataUpdatedField{
+		Field:    "databases",
+		OldValue: oldValPtr,
+		NewValue: &newVal,
+	})
+
+	// Must be stored and read as float64 for the integration tests to work.
+	if err := unstructured.SetNestedField(valkey.Object, float64(*input.Databases), specNumberOfDatabases...); err != nil {
 		return nil, err
 	}
 

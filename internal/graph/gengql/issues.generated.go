@@ -3255,6 +3255,8 @@ func (ec *executionContext) fieldContext_ValkeyIssue_valkey(_ context.Context, f
 				return ec.fieldContext_Valkey_maxMemoryPolicy(ctx, field)
 			case "notifyKeyspaceEvents":
 				return ec.fieldContext_Valkey_notifyKeyspaceEvents(ctx, field)
+			case "databases":
+				return ec.fieldContext_Valkey_databases(ctx, field)
 			case "issues":
 				return ec.fieldContext_Valkey_issues(ctx, field)
 			case "activityLog":

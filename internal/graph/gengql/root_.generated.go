@@ -2872,6 +2872,7 @@ type ComplexityRoot struct {
 		Access                func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *valkey.ValkeyAccessOrder) int
 		ActivityLog           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int
 		Cost                  func(childComplexity int) int
+		Databases             func(childComplexity int) int
 		Environment           func(childComplexity int) int
 		ID                    func(childComplexity int) int
 		Issues                func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) int
@@ -15181,6 +15182,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Valkey.Cost(childComplexity), true
 
+	case "Valkey.databases":
+		if e.ComplexityRoot.Valkey.Databases == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Valkey.Databases(childComplexity), true
+
 	case "Valkey.environment":
 		if e.ComplexityRoot.Valkey.Environment == nil {
 			break
@@ -26091,6 +26099,8 @@ type Valkey implements Persistence & Node {
 	maxMemoryPolicy: ValkeyMaxMemoryPolicy
 	"Keyspace notifications for the Valkey instance. See https://valkey.io/topics/notifications/ for details."
 	notifyKeyspaceEvents: String
+	"Number of databases the Valkey instance is configured with. Default is 16. Minimum 1, maximum 128. Changing this will cause a restart of the Valkey service."
+	databases: Int!
 	"Issues that affects the instance."
 	issues(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
@@ -26232,6 +26242,8 @@ input CreateValkeyInput {
 	maxMemoryPolicy: ValkeyMaxMemoryPolicy
 	"Configure keyspace notifications for the Valkey instance. See https://valkey.io/topics/notifications/ for details."
 	notifyKeyspaceEvents: String
+	"Number of databases. Default is 16. Minimum 1, maximum 128. Changing this will cause a restart of the Valkey service."
+	databases: Int
 }
 
 type CreateValkeyPayload {
@@ -26254,6 +26266,8 @@ input UpdateValkeyInput {
 	maxMemoryPolicy: ValkeyMaxMemoryPolicy
 	"Configure keyspace notifications for the Valkey instance. See https://valkey.io/topics/notifications/ for details."
 	notifyKeyspaceEvents: String
+	"Number of databases. Default is 16. Minimum 1, maximum 128. Changing this will cause a restart of the Valkey service."
+	databases: Int
 }
 
 type UpdateValkeyPayload {
