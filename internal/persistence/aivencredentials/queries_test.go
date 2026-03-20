@@ -75,8 +75,8 @@ func TestGenerateSecretName(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got := generateSecretName(tt.username, tt.namespace, tt.service)
 
-			// Must start with "aiven-<service>-"
-			prefix := "aiven-" + tt.service + "-"
+			// Must start with "tmp-<service>-"
+			prefix := "tmp-" + tt.service + "-"
 			if len(got) < len(prefix) || got[:len(prefix)] != prefix {
 				t.Errorf("generateSecretName() = %q, want prefix %q", got, prefix)
 			}
@@ -112,8 +112,8 @@ func TestGenerateAppName(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got := generateAppName(tt.username, tt.service)
 
-			// Must start with "console-<service>-"
-			prefix := "console-" + tt.service + "-"
+			// Must start with "tmp-<service>-"
+			prefix := "tmp-" + tt.service + "-"
 			if len(got) < len(prefix) || got[:len(prefix)] != prefix {
 				t.Errorf("generateAppName() = %q, want prefix %q", got, prefix)
 			}
@@ -136,7 +136,7 @@ func TestGenerateAppName(t *testing.T) {
 	// Verify dead code was removed: generateAppName should NOT contain username
 	// (old bug had ReplaceAll on name but then didn't use it)
 	got := generateAppName("user.name@example.com", "opensearch")
-	prefix := "console-opensearch-"
+	prefix := "tmp-opensearch-"
 	if len(got) < len(prefix) || got[:len(prefix)] != prefix {
 		t.Errorf("generateAppName() = %q, want prefix %q", got, prefix)
 	}

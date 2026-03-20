@@ -2,9 +2,9 @@ package aivencredentials
 
 import (
 	"context"
+	"crypto/sha256"
 	"encoding/base64"
 	"fmt"
-	"hash/crc32"
 	"regexp"
 	"strconv"
 	"strings"
@@ -15,6 +15,8 @@ import (
 	"github.com/nais/api/internal/environmentmapper"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/kubernetes"
+	"github.com/nais/api/internal/persistence/opensearch"
+	"github.com/nais/api/internal/persistence/valkey"
 	"github.com/nais/api/internal/slug"
 	"github.com/sirupsen/logrus"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
@@ -99,19 +101,22 @@ func createCredentials(ctx context.Context, req credentialRequest) (any, error) 
 }
 
 func CreateOpenSearchCredentials(ctx context.Context, input CreateOpenSearchCredentialsInput) (*CreateOpenSearchCredentialsPayload, error) {
+	// Strip "opensearch-<team>-" prefix if the user provided the full Kubernetes resource name.
+	// The buildSpec already prepends "opensearch-<namespace>-" for the Aivenator.
+	instanceName := strings.TrimPrefix(input.InstanceName, opensearch.NamePrefix(input.TeamSlug))
 	result, err := createCredentials(ctx, credentialRequest{
 		teamSlug:        input.TeamSlug,
 		environmentName: input.EnvironmentName,
 		ttl:             input.TTL,
 		service:         "opensearch",
-		instanceName:    input.InstanceName,
+		instanceName:    instanceName,
 		permission:      input.Permission.String(),
 		buildSpec: func(namespace, secretName string, expiresAt time.Time) map[string]any {
 			return map[string]any{
 				"protected": true,
 				"expiresAt": expiresAt.Format(time.RFC3339),
 				"openSearch": map[string]any{
-					"instance":   fmt.Sprintf("opensearch-%s-%s", namespace, input.InstanceName),
+					"instance":   fmt.Sprintf("opensearch-%s-%s", namespace, instanceName),
 					"access":     input.Permission.aivenAccess(),
 					"secretName": secretName,
 				},
@@ -145,13 +150,16 @@ func valkeyEnvVarSuffix(instanceName string) string {
 }
 
 func CreateValkeyCredentials(ctx context.Context, input CreateValkeyCredentialsInput) (*CreateValkeyCredentialsPayload, error) {
-	suffix := valkeyEnvVarSuffix(input.InstanceName)
+	// Strip "valkey-<team>-" prefix if the user provided the full Kubernetes resource name.
+	// Aivenator expects the short instance name and prepends "valkey-<namespace>-" itself.
+	instanceName := strings.TrimPrefix(input.InstanceName, valkey.NamePrefix(input.TeamSlug))
+	suffix := valkeyEnvVarSuffix(instanceName)
 	result, err := createCredentials(ctx, credentialRequest{
 		teamSlug:        input.TeamSlug,
 		environmentName: input.EnvironmentName,
 		ttl:             input.TTL,
 		service:         "valkey",
-		instanceName:    input.InstanceName,
+		instanceName:    instanceName,
 		permission:      input.Permission.String(),
 		buildSpec: func(namespace, secretName string, expiresAt time.Time) map[string]any {
 			return map[string]any{
@@ -159,7 +167,7 @@ func CreateValkeyCredentials(ctx context.Context, input CreateValkeyCredentialsI
 				"expiresAt": expiresAt.Format(time.RFC3339),
 				"valkey": []any{
 					map[string]any{
-						"instance":   input.InstanceName,
+						"instance":   instanceName,
 						"access":     input.Permission.aivenAccess(),
 						"secretName": secretName,
 					},
@@ -330,16 +338,14 @@ func secretData(secret *unstructured.Unstructured, log logrus.FieldLogger) map[s
 
 // generateSecretName creates a deterministic, short secret name.
 func generateSecretName(username, namespace, service string) string {
-	hasher := crc32.NewIEEE()
-	fmt.Fprintf(hasher, "%s-%s-%s", username, namespace, service)
-	return fmt.Sprintf("aiven-%s-%08x", service, hasher.Sum32())
+	hash := sha256.Sum256([]byte(fmt.Sprintf("%s-%s-%s", username, namespace, service)))
+	return fmt.Sprintf("tmp-%s-%x", service, hash[:3])
 }
 
 // generateAppName creates a deterministic AivenApplication name from the user identity.
 func generateAppName(username, service string) string {
-	hasher := crc32.NewIEEE()
-	fmt.Fprintf(hasher, "%s-%s", username, service)
-	return fmt.Sprintf("console-%s-%08x", service, hasher.Sum32())
+	hash := sha256.Sum256([]byte(fmt.Sprintf("%s-%s", username, service)))
+	return fmt.Sprintf("tmp-%s-%x", service, hash[:3])
 }
 
 // parseTTL parses a human-readable TTL string (e.g. "1d", "7d", "24h") into a time.Duration.
