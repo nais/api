@@ -14,12 +14,14 @@ type client struct {
 	watcher *watcher.Watcher[*Valkey]
 }
 
-func namePrefix(teamSlug slug.Slug) string {
+// NamePrefix returns the Kubernetes resource name prefix for Valkey instances
+// belonging to the given team (e.g. "valkey-myteam-").
+func NamePrefix(teamSlug slug.Slug) string {
 	return "valkey-" + teamSlug.String() + "-"
 }
 
 func instanceNamer(teamSlug slug.Slug, instanceName string) string {
-	return namePrefix(teamSlug) + instanceName
+	return NamePrefix(teamSlug) + instanceName
 }
 
 func (c client) getAccessForApplications(ctx context.Context, environmentName, valkeyName string, teamSlug slug.Slug) ([]*ValkeyAccess, error) {

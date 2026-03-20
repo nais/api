@@ -15,10 +15,12 @@ type client struct {
 }
 
 func instanceNamer(teamSlug slug.Slug, instanceName string) string {
-	return namePrefix(teamSlug) + instanceName
+	return NamePrefix(teamSlug) + instanceName
 }
 
-func namePrefix(teamSlug slug.Slug) string {
+// NamePrefix returns the Kubernetes resource name prefix for OpenSearch instances
+// belonging to the given team (e.g. "opensearch-myteam-").
+func NamePrefix(teamSlug slug.Slug) string {
 	return "opensearch-" + teamSlug.String() + "-"
 }
 

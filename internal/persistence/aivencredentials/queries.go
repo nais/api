@@ -15,6 +15,8 @@ import (
 	"github.com/nais/api/internal/environmentmapper"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/kubernetes"
+	"github.com/nais/api/internal/persistence/opensearch"
+	"github.com/nais/api/internal/persistence/valkey"
 	"github.com/nais/api/internal/slug"
 	"github.com/sirupsen/logrus"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
@@ -101,7 +103,7 @@ func createCredentials(ctx context.Context, req credentialRequest) (any, error) 
 func CreateOpenSearchCredentials(ctx context.Context, input CreateOpenSearchCredentialsInput) (*CreateOpenSearchCredentialsPayload, error) {
 	// Strip "opensearch-<team>-" prefix if the user provided the full Kubernetes resource name.
 	// The buildSpec already prepends "opensearch-<namespace>-" for the Aivenator.
-	instanceName := strings.TrimPrefix(input.InstanceName, "opensearch-"+input.TeamSlug.String()+"-")
+	instanceName := strings.TrimPrefix(input.InstanceName, opensearch.NamePrefix(input.TeamSlug))
 	result, err := createCredentials(ctx, credentialRequest{
 		teamSlug:        input.TeamSlug,
 		environmentName: input.EnvironmentName,
@@ -150,7 +152,7 @@ func valkeyEnvVarSuffix(instanceName string) string {
 func CreateValkeyCredentials(ctx context.Context, input CreateValkeyCredentialsInput) (*CreateValkeyCredentialsPayload, error) {
 	// Strip "valkey-<team>-" prefix if the user provided the full Kubernetes resource name.
 	// Aivenator expects the short instance name and prepends "valkey-<namespace>-" itself.
-	instanceName := strings.TrimPrefix(input.InstanceName, "valkey-"+input.TeamSlug.String()+"-")
+	instanceName := strings.TrimPrefix(input.InstanceName, valkey.NamePrefix(input.TeamSlug))
 	suffix := valkeyEnvVarSuffix(instanceName)
 	result, err := createCredentials(ctx, credentialRequest{
 		teamSlug:        input.TeamSlug,
