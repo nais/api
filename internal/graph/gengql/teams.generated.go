@@ -33,7 +33,7 @@ import (
 	"github.com/nais/api/internal/vulnerability"
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
-	"github.com/nais/api/internal/workload/configmap"
+	"github.com/nais/api/internal/workload/config"
 	"github.com/nais/api/internal/workload/job"
 	"github.com/nais/api/internal/workload/secret"
 	"github.com/vektah/gqlparser/v2/ast"
@@ -60,7 +60,7 @@ type TeamResolver interface {
 	Applications(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *application.ApplicationOrder, filter *application.TeamApplicationsFilter) (*pagination.Connection[*application.Application], error)
 	BigQueryDatasets(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bigquery.BigQueryDatasetOrder) (*pagination.Connection[*bigquery.BigQueryDataset], error)
 	Buckets(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bucket.BucketOrder) (*pagination.Connection[*bucket.Bucket], error)
-	Configs(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *configmap.ConfigOrder, filter *configmap.ConfigFilter) (*pagination.Connection[*configmap.Config], error)
+	Configs(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *config.ConfigOrder, filter *config.ConfigFilter) (*pagination.Connection[*config.Config], error)
 	Cost(ctx context.Context, obj *team.Team) (*cost.TeamCost, error)
 	DeploymentKey(ctx context.Context, obj *team.Team) (*deployment.DeploymentKey, error)
 	Deployments(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*deployment.Deployment], error)
@@ -92,7 +92,7 @@ type TeamEnvironmentResolver interface {
 	Application(ctx context.Context, obj *team.TeamEnvironment, name string) (*application.Application, error)
 	BigQueryDataset(ctx context.Context, obj *team.TeamEnvironment, name string) (*bigquery.BigQueryDataset, error)
 	Bucket(ctx context.Context, obj *team.TeamEnvironment, name string) (*bucket.Bucket, error)
-	Config(ctx context.Context, obj *team.TeamEnvironment, name string) (*configmap.Config, error)
+	Config(ctx context.Context, obj *team.TeamEnvironment, name string) (*config.Config, error)
 	Cost(ctx context.Context, obj *team.TeamEnvironment) (*cost.TeamEnvironmentCost, error)
 	Environment(ctx context.Context, obj *team.TeamEnvironment) (*environment.Environment, error)
 	Job(ctx context.Context, obj *team.TeamEnvironment, name string) (*job.Job, error)
@@ -108,7 +108,7 @@ type TeamInventoryCountsResolver interface {
 	Applications(ctx context.Context, obj *team.TeamInventoryCounts) (*application.TeamInventoryCountApplications, error)
 	BigQueryDatasets(ctx context.Context, obj *team.TeamInventoryCounts) (*bigquery.TeamInventoryCountBigQueryDatasets, error)
 	Buckets(ctx context.Context, obj *team.TeamInventoryCounts) (*bucket.TeamInventoryCountBuckets, error)
-	Configs(ctx context.Context, obj *team.TeamInventoryCounts) (*configmap.TeamInventoryCountConfigs, error)
+	Configs(ctx context.Context, obj *team.TeamInventoryCounts) (*config.TeamInventoryCountConfigs, error)
 	Jobs(ctx context.Context, obj *team.TeamInventoryCounts) (*job.TeamInventoryCountJobs, error)
 	KafkaTopics(ctx context.Context, obj *team.TeamInventoryCounts) (*kafkatopic.TeamInventoryCountKafkaTopics, error)
 	OpenSearches(ctx context.Context, obj *team.TeamInventoryCounts) (*opensearch.TeamInventoryCountOpenSearches, error)
@@ -485,12 +485,12 @@ func (ec *executionContext) field_Team_configs_args(ctx context.Context, rawArgs
 		return nil, err
 	}
 	args["before"] = arg3
-	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "orderBy", ec.unmarshalOConfigOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigmapᚐConfigOrder)
+	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "orderBy", ec.unmarshalOConfigOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigOrder)
 	if err != nil {
 		return nil, err
 	}
 	args["orderBy"] = arg4
-	arg5, err := graphql.ProcessArgField(ctx, rawArgs, "filter", ec.unmarshalOConfigFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigmapᚐConfigFilter)
+	arg5, err := graphql.ProcessArgField(ctx, rawArgs, "filter", ec.unmarshalOConfigFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigFilter)
 	if err != nil {
 		return nil, err
 	}
@@ -2308,7 +2308,7 @@ func (ec *executionContext) _Team_configs(ctx context.Context, field graphql.Col
 		ec.fieldContext_Team_configs,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.Resolvers.Team().Configs(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*configmap.ConfigOrder), fc.Args["filter"].(*configmap.ConfigFilter))
+			return ec.Resolvers.Team().Configs(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*config.ConfigOrder), fc.Args["filter"].(*config.ConfigFilter))
 		},
 		nil,
 		ec.marshalNConfigConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
@@ -5149,7 +5149,7 @@ func (ec *executionContext) _TeamEnvironment_config(ctx context.Context, field g
 			return ec.Resolvers.TeamEnvironment().Config(ctx, obj, fc.Args["name"].(string))
 		},
 		nil,
-		ec.marshalNConfig2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigmapᚐConfig,
+		ec.marshalNConfig2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfig,
 		true,
 		true,
 	)
@@ -6615,7 +6615,7 @@ func (ec *executionContext) _TeamInventoryCounts_configs(ctx context.Context, fi
 			return ec.Resolvers.TeamInventoryCounts().Configs(ctx, obj)
 		},
 		nil,
-		ec.marshalNTeamInventoryCountConfigs2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigmapᚐTeamInventoryCountConfigs,
+		ec.marshalNTeamInventoryCountConfigs2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐTeamInventoryCountConfigs,
 		true,
 		true,
 	)
