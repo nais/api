@@ -56,7 +56,7 @@ func (a *Application) GetSecrets() []string {
 	return ret
 }
 
-// GetConfigs returns a list of configmap names used by the application
+// GetConfigs returns a list of config names used by the application
 func (a *Application) GetConfigs() []string {
 	ret := make([]string, 0)
 	for _, v := range a.Spec.EnvFrom {

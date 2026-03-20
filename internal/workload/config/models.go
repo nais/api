@@ -1,4 +1,4 @@
-package configmap
+package config
 
 import (
 	"fmt"
@@ -11,6 +11,7 @@ import (
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/workload/secret"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -26,6 +27,7 @@ type Config struct {
 	LastModifiedAt      *time.Time        `json:"lastModifiedAt"`
 	ModifiedByUserEmail *string           `json:"lastModifiedBy"`
 	Data                map[string]string `json:"-"` // ConfigMap data cached as-is (not sensitive)
+	Annotations         map[string]string `json:"-"` // Cached annotations for binary-keys lookup
 
 	TeamSlug        slug.Slug `json:"-"`
 	EnvironmentName string    `json:"-"`
@@ -53,8 +55,9 @@ type UpdateConfigPayload struct {
 }
 
 type ConfigValueInput struct {
-	Name  string `json:"name"`
-	Value string `json:"value"`
+	Name     string                `json:"name"`
+	Value    string                `json:"value"`
+	Encoding *secret.ValueEncoding `json:"encoding"`
 }
 
 func (c *Config) ID() ident.Ident {
@@ -111,12 +114,14 @@ func toGraphConfig(o *unstructured.Unstructured, environmentName string) (*Confi
 		LastModifiedAt:      lastModifiedAt,
 		ModifiedByUserEmail: lastModifiedBy,
 		Data:                data,
+		Annotations:         o.GetAnnotations(),
 	}, true
 }
 
 type ConfigValue struct {
-	Name  string `json:"name"`
-	Value string `json:"value"`
+	Name     string               `json:"name"`
+	Value    string               `json:"value"`
+	Encoding secret.ValueEncoding `json:"encoding"`
 }
 
 type DeleteConfigInput struct {

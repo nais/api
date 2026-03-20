@@ -50,7 +50,7 @@ import (
 	"github.com/nais/api/internal/vulnerability"
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
-	"github.com/nais/api/internal/workload/configmap"
+	"github.com/nais/api/internal/workload/config"
 	"github.com/nais/api/internal/workload/job"
 	"github.com/nais/api/internal/workload/logging"
 	"github.com/nais/api/internal/workload/podlog"
@@ -66,11 +66,11 @@ type MutationResolver interface {
 	CreateKafkaCredentials(ctx context.Context, input aivencredentials.CreateKafkaCredentialsInput) (*aivencredentials.CreateKafkaCredentialsPayload, error)
 	DeleteApplication(ctx context.Context, input application.DeleteApplicationInput) (*application.DeleteApplicationPayload, error)
 	RestartApplication(ctx context.Context, input application.RestartApplicationInput) (*application.RestartApplicationPayload, error)
-	CreateConfig(ctx context.Context, input configmap.CreateConfigInput) (*configmap.CreateConfigPayload, error)
-	AddConfigValue(ctx context.Context, input configmap.AddConfigValueInput) (*configmap.AddConfigValuePayload, error)
-	UpdateConfigValue(ctx context.Context, input configmap.UpdateConfigValueInput) (*configmap.UpdateConfigValuePayload, error)
-	RemoveConfigValue(ctx context.Context, input configmap.RemoveConfigValueInput) (*configmap.RemoveConfigValuePayload, error)
-	DeleteConfig(ctx context.Context, input configmap.DeleteConfigInput) (*configmap.DeleteConfigPayload, error)
+	CreateConfig(ctx context.Context, input config.CreateConfigInput) (*config.CreateConfigPayload, error)
+	AddConfigValue(ctx context.Context, input config.AddConfigValueInput) (*config.AddConfigValuePayload, error)
+	UpdateConfigValue(ctx context.Context, input config.UpdateConfigValueInput) (*config.UpdateConfigValuePayload, error)
+	RemoveConfigValue(ctx context.Context, input config.RemoveConfigValueInput) (*config.RemoveConfigValuePayload, error)
+	DeleteConfig(ctx context.Context, input config.DeleteConfigInput) (*config.DeleteConfigPayload, error)
 	ChangeDeploymentKey(ctx context.Context, input deployment.ChangeDeploymentKeyInput) (*deployment.ChangeDeploymentKeyPayload, error)
 	DeleteJob(ctx context.Context, input job.DeleteJobInput) (*job.DeleteJobPayload, error)
 	DeleteJobRun(ctx context.Context, input job.DeleteJobRunInput) (*job.DeleteJobRunPayload, error)
@@ -157,7 +157,7 @@ type SubscriptionResolver interface {
 func (ec *executionContext) field_Mutation_addConfigValue_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNAddConfigValueInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigmapᚐAddConfigValueInput)
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNAddConfigValueInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐAddConfigValueInput)
 	if err != nil {
 		return nil, err
 	}
@@ -256,7 +256,7 @@ func (ec *executionContext) field_Mutation_confirmTeamDeletion_args(ctx context.
 func (ec *executionContext) field_Mutation_createConfig_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNCreateConfigInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigmapᚐCreateConfigInput)
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNCreateConfigInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐCreateConfigInput)
 	if err != nil {
 		return nil, err
 	}
@@ -388,7 +388,7 @@ func (ec *executionContext) field_Mutation_deleteApplication_args(ctx context.Co
 func (ec *executionContext) field_Mutation_deleteConfig_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNDeleteConfigInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigmapᚐDeleteConfigInput)
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNDeleteConfigInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐDeleteConfigInput)
 	if err != nil {
 		return nil, err
 	}
@@ -520,7 +520,7 @@ func (ec *executionContext) field_Mutation_grantPostgresAccess_args(ctx context.
 func (ec *executionContext) field_Mutation_removeConfigValue_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNRemoveConfigValueInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigmapᚐRemoveConfigValueInput)
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNRemoveConfigValueInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐRemoveConfigValueInput)
 	if err != nil {
 		return nil, err
 	}
@@ -652,7 +652,7 @@ func (ec *executionContext) field_Mutation_triggerJob_args(ctx context.Context, 
 func (ec *executionContext) field_Mutation_updateConfigValue_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNUpdateConfigValueInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigmapᚐUpdateConfigValueInput)
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNUpdateConfigValueInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐUpdateConfigValueInput)
 	if err != nil {
 		return nil, err
 	}
@@ -1441,10 +1441,10 @@ func (ec *executionContext) _Mutation_createConfig(ctx context.Context, field gr
 		ec.fieldContext_Mutation_createConfig,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.Resolvers.Mutation().CreateConfig(ctx, fc.Args["input"].(configmap.CreateConfigInput))
+			return ec.Resolvers.Mutation().CreateConfig(ctx, fc.Args["input"].(config.CreateConfigInput))
 		},
 		nil,
-		ec.marshalNCreateConfigPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigmapᚐCreateConfigPayload,
+		ec.marshalNCreateConfigPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐCreateConfigPayload,
 		true,
 		true,
 	)
@@ -1486,10 +1486,10 @@ func (ec *executionContext) _Mutation_addConfigValue(ctx context.Context, field 
 		ec.fieldContext_Mutation_addConfigValue,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.Resolvers.Mutation().AddConfigValue(ctx, fc.Args["input"].(configmap.AddConfigValueInput))
+			return ec.Resolvers.Mutation().AddConfigValue(ctx, fc.Args["input"].(config.AddConfigValueInput))
 		},
 		nil,
-		ec.marshalNAddConfigValuePayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigmapᚐAddConfigValuePayload,
+		ec.marshalNAddConfigValuePayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐAddConfigValuePayload,
 		true,
 		true,
 	)
@@ -1531,10 +1531,10 @@ func (ec *executionContext) _Mutation_updateConfigValue(ctx context.Context, fie
 		ec.fieldContext_Mutation_updateConfigValue,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.Resolvers.Mutation().UpdateConfigValue(ctx, fc.Args["input"].(configmap.UpdateConfigValueInput))
+			return ec.Resolvers.Mutation().UpdateConfigValue(ctx, fc.Args["input"].(config.UpdateConfigValueInput))
 		},
 		nil,
-		ec.marshalNUpdateConfigValuePayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigmapᚐUpdateConfigValuePayload,
+		ec.marshalNUpdateConfigValuePayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐUpdateConfigValuePayload,
 		true,
 		true,
 	)
@@ -1576,10 +1576,10 @@ func (ec *executionContext) _Mutation_removeConfigValue(ctx context.Context, fie
 		ec.fieldContext_Mutation_removeConfigValue,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.Resolvers.Mutation().RemoveConfigValue(ctx, fc.Args["input"].(configmap.RemoveConfigValueInput))
+			return ec.Resolvers.Mutation().RemoveConfigValue(ctx, fc.Args["input"].(config.RemoveConfigValueInput))
 		},
 		nil,
-		ec.marshalNRemoveConfigValuePayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigmapᚐRemoveConfigValuePayload,
+		ec.marshalNRemoveConfigValuePayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐRemoveConfigValuePayload,
 		true,
 		true,
 	)
@@ -1621,10 +1621,10 @@ func (ec *executionContext) _Mutation_deleteConfig(ctx context.Context, field gr
 		ec.fieldContext_Mutation_deleteConfig,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.Resolvers.Mutation().DeleteConfig(ctx, fc.Args["input"].(configmap.DeleteConfigInput))
+			return ec.Resolvers.Mutation().DeleteConfig(ctx, fc.Args["input"].(config.DeleteConfigInput))
 		},
 		nil,
-		ec.marshalNDeleteConfigPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigmapᚐDeleteConfigPayload,
+		ec.marshalNDeleteConfigPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐDeleteConfigPayload,
 		true,
 		true,
 	)
@@ -6043,30 +6043,30 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._ContainerImage(ctx, sel, obj)
-	case configmap.ConfigUpdatedActivityLogEntry:
+	case config.ConfigUpdatedActivityLogEntry:
 		return ec._ConfigUpdatedActivityLogEntry(ctx, sel, &obj)
-	case *configmap.ConfigUpdatedActivityLogEntry:
+	case *config.ConfigUpdatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
 		return ec._ConfigUpdatedActivityLogEntry(ctx, sel, obj)
-	case configmap.ConfigDeletedActivityLogEntry:
+	case config.ConfigDeletedActivityLogEntry:
 		return ec._ConfigDeletedActivityLogEntry(ctx, sel, &obj)
-	case *configmap.ConfigDeletedActivityLogEntry:
+	case *config.ConfigDeletedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
 		return ec._ConfigDeletedActivityLogEntry(ctx, sel, obj)
-	case configmap.ConfigCreatedActivityLogEntry:
+	case config.ConfigCreatedActivityLogEntry:
 		return ec._ConfigCreatedActivityLogEntry(ctx, sel, &obj)
-	case *configmap.ConfigCreatedActivityLogEntry:
+	case *config.ConfigCreatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
 		return ec._ConfigCreatedActivityLogEntry(ctx, sel, obj)
-	case configmap.Config:
+	case config.Config:
 		return ec._Config(ctx, sel, &obj)
-	case *configmap.Config:
+	case *config.Config:
 		if obj == nil {
 			return graphql.Null
 		}
