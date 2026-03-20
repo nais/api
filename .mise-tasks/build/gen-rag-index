@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+#MISE description="Build gen_rag_index"
+
+set -e
+
+go build -o bin/gen_rag_index ./cmd/gen_rag_index
