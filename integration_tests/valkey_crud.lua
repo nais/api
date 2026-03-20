@@ -84,10 +84,12 @@ Test.gql("Create valkey as team member", function(t)
 		      teamSlug: "someteamname"
 		      tier: SINGLE_NODE
 		      memory: GB_14
+		      databases: 32
 		    }
 		  ) {
 		    valkey {
 		      name
+		      databases
 		    }
 		  }
 		}
@@ -98,6 +100,7 @@ Test.gql("Create valkey as team member", function(t)
 			createValkey = {
 				valkey = {
 					name = "foobar",
+					databases = 32,
 				},
 			},
 		},
@@ -137,6 +140,80 @@ Test.gql("Create valkey as team member with existing name", function(t)
 	}
 end)
 
+Test.gql("Create valkey with databases below minimum", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[
+		mutation CreateValkey {
+		  createValkey(
+		    input: {
+		      name: "foobar-invalid-db"
+		      environmentName: "dev"
+		      teamSlug: "someteamname"
+		      tier: SINGLE_NODE
+		      memory: GB_4
+		      databases: 0
+		    }
+		  ) {
+		    valkey {
+		      name
+		    }
+		  }
+		}
+	]]
+
+	t.check {
+		errors = {
+			{
+				extensions = {
+					field = "databases",
+				},
+				message = Contains("Number of databases must be between 1 and 128"),
+				path = {
+					"createValkey",
+				},
+			},
+		},
+		data = Null,
+	}
+end)
+
+Test.gql("Create valkey with databases above maximum", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[
+		mutation CreateValkey {
+		  createValkey(
+		    input: {
+		      name: "foobar-invalid-db"
+		      environmentName: "dev"
+		      teamSlug: "someteamname"
+		      tier: SINGLE_NODE
+		      memory: GB_4
+		      databases: 200
+		    }
+		  ) {
+		    valkey {
+		      name
+		    }
+		  }
+		}
+	]]
+
+	t.check {
+		errors = {
+			{
+				extensions = {
+					field = "databases",
+				},
+				message = Contains("Number of databases must be between 1 and 128"),
+				path = {
+					"createValkey",
+				},
+			},
+		},
+		data = Null,
+	}
+end)
+
 Test.k8s("Validate Valkey resource", function(t)
 	local resourceName = string.format("valkey-%s-foobar", mainTeam:slug())
 
@@ -161,6 +238,9 @@ Test.k8s("Validate Valkey resource", function(t)
 			plan = "startup-14",
 			cloudName = "google-europe-north1",
 			terminationProtection = true,
+			userConfig = {
+				valkey_number_of_databases = 32,
+			},
 			tags = {
 				environment = "dev",
 				team = mainTeam:slug(),
@@ -284,10 +364,12 @@ Test.gql("Update Valkey as team-member", function(t)
 		      memory: GB_4
 		      maxMemoryPolicy: ALLKEYS_RANDOM
 		      notifyKeyspaceEvents: "Exd"
+		      databases: 64
 		    }
 		  ) {
 		    valkey {
 		      name
+		      databases
 		    }
 		  }
 		}
@@ -298,6 +380,7 @@ Test.gql("Update Valkey as team-member", function(t)
 			updateValkey = {
 				valkey = {
 					name = "foobar",
+					databases = 64,
 				},
 			},
 		},
@@ -331,6 +414,7 @@ Test.k8s("Validate Valkey resource after update", function(t)
 			userConfig = {
 				valkey_maxmemory_policy = "allkeys-random",
 				valkey_notify_keyspace_events = "Exd",
+				valkey_number_of_databases = 64,
 			},
 			tags = {
 				environment = "dev",
@@ -453,6 +537,7 @@ Test.gql("List valkeys for team", function(t)
 		        memory
 		        maxMemoryPolicy
 		        notifyKeyspaceEvents
+		        databases
 		      }
 		    }
 		  }
@@ -470,6 +555,7 @@ Test.gql("List valkeys for team", function(t)
 							memory = "GB_4",
 							maxMemoryPolicy = "ALLKEYS_RANDOM",
 							notifyKeyspaceEvents = "Exd",
+							databases = 64,
 						},
 						{
 							name = "foobar-hobbyist",
@@ -477,6 +563,7 @@ Test.gql("List valkeys for team", function(t)
 							memory = "GB_1",
 							maxMemoryPolicy = "",
 							notifyKeyspaceEvents = "",
+							databases = 16,
 						},
 						{
 							name = "valkey-someteamname-hobbyist-not-managed",
@@ -484,6 +571,7 @@ Test.gql("List valkeys for team", function(t)
 							memory = "GB_1",
 							maxMemoryPolicy = "",
 							notifyKeyspaceEvents = "",
+							databases = 16,
 						},
 						{
 							name = "valkey-someteamname-not-managed",
@@ -491,6 +579,7 @@ Test.gql("List valkeys for team", function(t)
 							memory = "GB_4",
 							maxMemoryPolicy = "",
 							notifyKeyspaceEvents = "",
+							databases = 16,
 						},
 					},
 				},
@@ -594,6 +683,7 @@ Test.k8s("Validate hobbyist Valkey resource after update", function(t)
 			userConfig = {
 				valkey_maxmemory_policy = "allkeys-random",
 				valkey_notify_keyspace_events = "Exd",
+				valkey_number_of_databases = 64,
 			},
 			tags = {
 				environment = "dev",
@@ -870,6 +960,11 @@ Test.gql("Verify activity log for valkey operations", function(t)
 										field = "notifyKeyspaceEvents",
 										oldValue = Null,
 										newValue = "Exd",
+									},
+									{
+										field = "databases",
+										oldValue = "32",
+										newValue = "64",
 									},
 								},
 							},
