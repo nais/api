@@ -37,6 +37,7 @@ type Valkey struct {
 	Memory                ValkeyMemory          `json:"memory"`
 	MaxMemoryPolicy       ValkeyMaxMemoryPolicy `json:"maxMemoryPolicy,omitempty"`
 	NotifyKeyspaceEvents  string                `json:"notifyKeyspaceEvents,omitempty"`
+	Databases             int                   `json:"databases"`
 	TeamSlug              slug.Slug             `json:"-"`
 	EnvironmentName       string                `json:"-"`
 	WorkloadReference     *workload.Reference   `json:"-"`
@@ -167,6 +168,11 @@ func toValkey(u *unstructured.Unstructured, envName string) (*Valkey, error) {
 
 	notifyKeyspaceEvents, _, _ := unstructured.NestedString(u.Object, specNotifyKeyspaceEvents...)
 
+	numberOfDatabases, found, _ := unstructured.NestedNumberAsFloat64(u.Object, specNumberOfDatabases...)
+	if !found {
+		numberOfDatabases = 16
+	}
+
 	machine, err := machineTypeFromPlan(obj.Spec.Plan)
 	if err != nil {
 		return nil, fmt.Errorf("converting from plan: %w", err)
@@ -192,6 +198,7 @@ func toValkey(u *unstructured.Unstructured, envName string) (*Valkey, error) {
 		Memory:               machine.Memory,
 		MaxMemoryPolicy:      maxMemoryPolicy,
 		NotifyKeyspaceEvents: notifyKeyspaceEvents,
+		Databases:            int(numberOfDatabases),
 	}, nil
 }
 
@@ -236,6 +243,7 @@ type ValkeyInput struct {
 	Memory               ValkeyMemory           `json:"memory"`
 	MaxMemoryPolicy      *ValkeyMaxMemoryPolicy `json:"maxMemoryPolicy,omitempty"`
 	NotifyKeyspaceEvents *string                `json:"notifyKeyspaceEvents,omitempty"`
+	Databases            *int                   `json:"databases,omitempty"`
 }
 
 func (v *ValkeyInput) Validate(ctx context.Context) error {
@@ -250,6 +258,12 @@ func (v *ValkeyInput) Validate(ctx context.Context) error {
 	}
 	if v.MaxMemoryPolicy != nil && !v.MaxMemoryPolicy.IsValid() {
 		verr.Add("version", "Invalid Valkey max memory policy: %s.", v.MaxMemoryPolicy.String())
+	}
+
+	if v.Databases != nil {
+		if *v.Databases < 1 || *v.Databases > 128 {
+			verr.Add("databases", "Number of databases must be between 1 and 128.")
+		}
 	}
 
 	return verr.NilIfEmpty()

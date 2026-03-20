@@ -16,6 +16,7 @@ import (
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
 	"github.com/nais/api/internal/workload/job"
+	"github.com/nais/api/internal/workload/secret"
 	"github.com/vektah/gqlparser/v2/ast"
 )
 
@@ -1544,6 +1545,16 @@ func (ec *executionContext) marshalNEnvironmentWorkloadOrderField2githubᚗcom�
 	return v
 }
 
+func (ec *executionContext) unmarshalNValueEncoding2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐValueEncoding(ctx context.Context, v any) (secret.ValueEncoding, error) {
+	var res secret.ValueEncoding
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNValueEncoding2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐValueEncoding(ctx context.Context, sel ast.SelectionSet, v secret.ValueEncoding) graphql.Marshaler {
+	return v
+}
+
 func (ec *executionContext) marshalNWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload(ctx context.Context, sel ast.SelectionSet, v workload.Workload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -1638,6 +1649,22 @@ func (ec *executionContext) unmarshalOTeamWorkloadsFilter2ᚖgithubᚗcomᚋnais
 	}
 	res, err := ec.unmarshalInputTeamWorkloadsFilter(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOValueEncoding2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐValueEncoding(ctx context.Context, v any) (*secret.ValueEncoding, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(secret.ValueEncoding)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOValueEncoding2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐValueEncoding(ctx context.Context, sel ast.SelectionSet, v *secret.ValueEncoding) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
 }
 
 func (ec *executionContext) marshalOWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload(ctx context.Context, sel ast.SelectionSet, v workload.Workload) graphql.Marshaler {

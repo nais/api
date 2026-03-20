@@ -436,6 +436,17 @@ enum EnvironmentWorkloadOrderField {
 }
 
 """
+Encoding of a secret or config value.
+"""
+enum ValueEncoding {
+	"The value is plain text (UTF-8)."
+	PLAIN_TEXT
+
+	"The value is Base64-encoded binary data."
+	BASE64
+}
+
+"""
 Input for filtering team workloads.
 """
 input TeamWorkloadsFilter {

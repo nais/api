@@ -25,6 +25,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/activitylog"
@@ -131,6 +132,8 @@ func GetSecretValues(ctx context.Context, teamSlug slug.Slug, environmentName, n
 		return nil, err
 	}
 
+	binaryKeys := getBinaryKeys(u)
+
 	vars := make([]*SecretValue, 0, len(data))
 	for k, v := range data {
 		val, err := base64.StdEncoding.DecodeString(v)
@@ -138,10 +141,7 @@ func GetSecretValues(ctx context.Context, teamSlug slug.Slug, environmentName, n
 			return nil, err
 		}
 
-		vars = append(vars, &SecretValue{
-			Name:  k,
-			Value: string(val),
-		})
+		vars = append(vars, decodeValueFromStorage(k, val, binaryKeys))
 	}
 
 	slices.SortFunc(vars, func(a, b *SecretValue) int {
@@ -236,19 +236,29 @@ func AddSecretValue(ctx context.Context, teamSlug slug.Slug, environment, secret
 
 	// Use JSON Patch to add the new key without reading existing values
 	actor := authz.ActorFromContext(ctx)
-	encodedValue := base64.StdEncoding.EncodeToString([]byte(valueToAdd.Value))
+	encodedValue, err := encodeValueForStorage(valueToAdd)
+	if err != nil {
+		return nil, err
+	}
+
+	// Track binary encoding in annotation for round-trip fidelity
+	isBinary := valueToAdd.Encoding != nil && *valueToAdd.Encoding == ValueEncodingBase64
+	extra := map[string]string{
+		annotationBinaryKeys: updatedBinaryKeysAnnotation(obj, valueToAdd.Name, isBinary),
+	}
+	mergedAnnotations := mergeAnnotations(obj, actor.User.Identity(), extra)
 
 	var patch []map[string]any
 	if !dataExists || data == nil {
 		// If /data doesn't exist, we need to create it first
 		patch = []map[string]any{
 			{"op": "add", "path": "/data", "value": map[string]any{valueToAdd.Name: encodedValue}},
-			{"op": "replace", "path": "/metadata/annotations", "value": annotations(actor.User.Identity())},
+			{"op": "replace", "path": "/metadata/annotations", "value": mergedAnnotations},
 		}
 	} else {
 		patch = []map[string]any{
 			{"op": "add", "path": "/data/" + escapeJSONPointer(valueToAdd.Name), "value": encodedValue},
-			{"op": "replace", "path": "/metadata/annotations", "value": annotations(actor.User.Identity())},
+			{"op": "replace", "path": "/metadata/annotations", "value": mergedAnnotations},
 		}
 	}
 
@@ -314,11 +324,21 @@ func UpdateSecretValue(ctx context.Context, teamSlug slug.Slug, environment, sec
 
 	// Use JSON Patch to update the key without reading other values
 	actor := authz.ActorFromContext(ctx)
-	encodedValue := base64.StdEncoding.EncodeToString([]byte(valueToUpdate.Value))
+	encodedValue, err := encodeValueForStorage(valueToUpdate)
+	if err != nil {
+		return nil, err
+	}
+
+	// Track binary encoding in annotation for round-trip fidelity
+	isBinary := valueToUpdate.Encoding != nil && *valueToUpdate.Encoding == ValueEncodingBase64
+	extra := map[string]string{
+		annotationBinaryKeys: updatedBinaryKeysAnnotation(obj, valueToUpdate.Name, isBinary),
+	}
+	mergedAnnotations := mergeAnnotations(obj, actor.User.Identity(), extra)
 
 	patch := []map[string]any{
 		{"op": "replace", "path": "/data/" + escapeJSONPointer(valueToUpdate.Name), "value": encodedValue},
-		{"op": "replace", "path": "/metadata/annotations", "value": annotations(actor.User.Identity())},
+		{"op": "replace", "path": "/metadata/annotations", "value": mergedAnnotations},
 	}
 
 	patchBytes, err := json.Marshal(patch)
@@ -380,9 +400,15 @@ func RemoveSecretValue(ctx context.Context, teamSlug slug.Slug, environment, sec
 	// Use JSON Patch to remove the key without reading values
 	actor := authz.ActorFromContext(ctx)
 
+	// Remove the key from binary-keys annotation if present
+	extra := map[string]string{
+		annotationBinaryKeys: updatedBinaryKeysAnnotation(obj, valueName, false),
+	}
+	mergedAnnotations := mergeAnnotations(obj, actor.User.Identity(), extra)
+
 	patch := []map[string]any{
 		{"op": "remove", "path": "/data/" + escapeJSONPointer(valueName)},
-		{"op": "replace", "path": "/metadata/annotations", "value": annotations(actor.User.Identity())},
+		{"op": "replace", "path": "/metadata/annotations", "value": mergedAnnotations},
 	}
 
 	patchBytes, err := json.Marshal(patch)
@@ -471,6 +497,132 @@ func validateSecretValue(value *SecretValueInput) error {
 	return nil
 }
 
+const annotationBinaryKeys = "nais.io/binary-keys"
+
+// encodeValueForStorage prepares a secret value for storage in Kubernetes.
+// When encoding is BASE64, the input value is already base64-encoded by the client (e.g. CLI),
+// so we validate and pass it through directly (Kubernetes data field expects base64).
+// When encoding is PLAIN_TEXT (or unset), we base64-encode the string value for Kubernetes storage.
+func encodeValueForStorage(input *SecretValueInput) (string, error) {
+	encoding := ValueEncodingPlainText
+	if input.Encoding != nil {
+		encoding = *input.Encoding
+	}
+
+	switch encoding {
+	case ValueEncodingBase64:
+		// Validate that the value is valid base64
+		if _, err := base64.StdEncoding.DecodeString(input.Value); err != nil {
+			return "", fmt.Errorf("value is not valid base64: %w", err)
+		}
+		// The value is already base64-encoded, which is what Kubernetes data field expects
+		return input.Value, nil
+	case ValueEncodingPlainText:
+		return base64.StdEncoding.EncodeToString([]byte(input.Value)), nil
+	default:
+		return "", fmt.Errorf("unsupported encoding: %s", encoding)
+	}
+}
+
+// getBinaryKeys parses the nais.io/binary-keys annotation from a secret.
+// Returns a set of key names that are stored as binary (BASE64).
+func getBinaryKeys(obj *unstructured.Unstructured) map[string]bool {
+	ann := obj.GetAnnotations()
+	if ann == nil {
+		return nil
+	}
+	raw, ok := ann[annotationBinaryKeys]
+	if !ok || raw == "" {
+		return nil
+	}
+	var keys []string
+	if err := json.Unmarshal([]byte(raw), &keys); err != nil {
+		return nil
+	}
+	m := make(map[string]bool, len(keys))
+	for _, k := range keys {
+		m[k] = true
+	}
+	return m
+}
+
+// updatedBinaryKeysAnnotation returns the updated nais.io/binary-keys annotation value
+// after adding or removing a key. Returns empty string if no binary keys remain.
+func updatedBinaryKeysAnnotation(obj *unstructured.Unstructured, keyName string, isBinary bool) string {
+	existing := getBinaryKeys(obj)
+	if existing == nil {
+		existing = make(map[string]bool)
+	}
+
+	if isBinary {
+		existing[keyName] = true
+	} else {
+		delete(existing, keyName)
+	}
+
+	if len(existing) == 0 {
+		return ""
+	}
+
+	keys := make([]string, 0, len(existing))
+	for k := range existing {
+		keys = append(keys, k)
+	}
+	slices.Sort(keys)
+	b, _ := json.Marshal(keys)
+	return string(b)
+}
+
+// mergeAnnotations returns annotations for a JSON Patch that preserves existing annotations
+// (like nais.io/binary-keys) while updating the standard ones (last-modified-at, etc.).
+func mergeAnnotations(obj *unstructured.Unstructured, user string, extraAnnotations map[string]string) map[string]string {
+	merged := make(map[string]string)
+	// Start with existing annotations to preserve nais.io/binary-keys etc.
+	for k, v := range obj.GetAnnotations() {
+		merged[k] = v
+	}
+	// Apply standard annotations (overwrites last-modified-at, etc.)
+	for k, v := range annotations(user) {
+		merged[k] = v
+	}
+	// Apply extra annotations
+	for k, v := range extraAnnotations {
+		if v == "" {
+			delete(merged, k)
+		} else {
+			merged[k] = v
+		}
+	}
+	return merged
+}
+
+// decodeValueFromStorage converts raw bytes from a Kubernetes secret into a SecretValue.
+// If binaryKeys is non-nil, it is used to determine encoding authoritatively.
+// Otherwise falls back to utf8.Valid() heuristic for secrets not written through our API.
+func decodeValueFromStorage(name string, raw []byte, binaryKeys map[string]bool) *SecretValue {
+	isBinary := false
+	if binaryKeys != nil {
+		isBinary = binaryKeys[name]
+	} else {
+		// Fallback heuristic for secrets without the annotation
+		isBinary = !utf8.Valid(raw)
+	}
+
+	if isBinary {
+		return &SecretValue{
+			Name:     name,
+			Value:    base64.StdEncoding.EncodeToString(raw),
+			Encoding: ValueEncodingBase64,
+		}
+	}
+
+	return &SecretValue{
+		Name:     name,
+		Value:    string(raw),
+		Encoding: ValueEncodingPlainText,
+	}
+}
+
 func secretIsManagedByConsole(secret *unstructured.Unstructured) bool {
 	hasConsoleLabel := kubernetes.HasManagedByConsoleLabel(secret)
 
@@ -530,6 +682,8 @@ func ViewSecretValues(ctx context.Context, input ViewSecretValuesInput) (*ViewSe
 		return nil, err
 	}
 
+	binaryKeys := getBinaryKeys(u)
+
 	values := make([]*SecretValue, 0, len(data))
 	for k, v := range data {
 		val, err := base64.StdEncoding.DecodeString(v)
@@ -537,10 +691,7 @@ func ViewSecretValues(ctx context.Context, input ViewSecretValuesInput) (*ViewSe
 			return nil, err
 		}
 
-		values = append(values, &SecretValue{
-			Name:  k,
-			Value: string(val),
-		})
+		values = append(values, decodeValueFromStorage(k, val, binaryKeys))
 	}
 
 	slices.SortFunc(values, func(a, b *SecretValue) int {
