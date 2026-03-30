@@ -808,6 +808,10 @@ github.com/nais/v13s/pkg/api v0.0.0-20260327133339-9d3039601c67 h1:3H+A2jmY1c49E
 github.com/nais/v13s/pkg/api v0.0.0-20260327133339-9d3039601c67/go.mod h1:v8jZia+0omVnSTvcr7ua+DJMG1xTGdqQ+uGDXow/kGM=
 github.com/nais/v13s/pkg/api v0.0.0-20260330100955-184012927141 h1:7xYOmumhuJ5+xf3PFpdiJYZc+L4vCOYpsKsQWsNq+Iw=
 github.com/nais/v13s/pkg/api v0.0.0-20260330100955-184012927141/go.mod h1:v8jZia+0omVnSTvcr7ua+DJMG1xTGdqQ+uGDXow/kGM=
+github.com/nais/v13s/pkg/api v0.0.0-20260330111114-ce8a7d7f3bb6 h1:tCfQVBFN1G1YWj0Qy7TrtkjjEy1/jK/vvrcvK0SNhcE=
+github.com/nais/v13s/pkg/api v0.0.0-20260330111114-ce8a7d7f3bb6/go.mod h1:v8jZia+0omVnSTvcr7ua+DJMG1xTGdqQ+uGDXow/kGM=
+github.com/nais/v13s/pkg/api v0.0.0-20260330113742-de1876fb4ac1 h1:MJl2m0tjKTCkIwMHEyomA3RAFXE8v8wvrdjpn0JwqDo=
+github.com/nais/v13s/pkg/api v0.0.0-20260330113742-de1876fb4ac1/go.mod h1:v8jZia+0omVnSTvcr7ua+DJMG1xTGdqQ+uGDXow/kGM=
 github.com/ncruces/go-strftime v0.1.9 h1:bY0MQC28UADQmHmaF5dgpLmImcShSi2kHU9XLdhx/f4=
 github.com/ncruces/go-strftime v0.1.9/go.mod h1:Fwc5htZGVVkseilnfgOVb9mKy6w1naJmn9CehxcKcls=
 github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e/go.mod h1:zD1mROLANZcx1PVRCS0qkT7pwLkGfwJo4zjcN/Tysno=

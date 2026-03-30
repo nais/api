@@ -299,8 +299,6 @@ func (ec *executionContext) fieldContext_ContainerImage_staleness(_ context.Cont
 				return ec.fieldContext_VulnerabilityStaleness_severity(ctx, field)
 			case "reason":
 				return ec.fieldContext_VulnerabilityStaleness_reason(ctx, field)
-			case "tag":
-				return ec.fieldContext_VulnerabilityStaleness_tag(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type VulnerabilityStaleness", field.Name)
 		},
