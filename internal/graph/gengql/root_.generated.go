@@ -3032,7 +3032,6 @@ type ComplexityRoot struct {
 	VulnerabilityStaleness struct {
 		Reason   func(childComplexity int) int
 		Severity func(childComplexity int) int
-		Tag      func(childComplexity int) int
 	}
 
 	VulnerabilityUpdatedActivityLogEntry struct {
@@ -15856,13 +15855,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.VulnerabilityStaleness.Severity(childComplexity), true
 
-	case "VulnerabilityStaleness.tag":
-		if e.ComplexityRoot.VulnerabilityStaleness.Tag == nil {
-			break
-		}
-
-		return e.ComplexityRoot.VulnerabilityStaleness.Tag(childComplexity), true
-
 	case "VulnerabilityUpdatedActivityLogEntry.actor":
 		if e.ComplexityRoot.VulnerabilityUpdatedActivityLogEntry.Actor == nil {
 			break
@@ -27167,9 +27159,6 @@ type VulnerabilityStaleness {
 
 	"A human-readable explanation of why the vulnerability data is stale."
 	reason: String!
-
-	"The tag the vulnerability data actually comes from. Only relevant if severity is not STALE_NONE."
-	tag: String!
 }
 
 enum StaleSeverity {
