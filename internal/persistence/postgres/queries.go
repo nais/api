@@ -161,10 +161,11 @@ func createRoleBinding(ctx context.Context, input GrantPostgresAccessInput, name
 		Version:  "v1",
 		Resource: "rolebindings",
 	}
-	client, err := fromContext(ctx).zalandoPostgresWatcher.ImpersonatedClientWithNamespace(ctx, input.EnvironmentName, namespace, watcher.WithImpersonatedClientGVR(gvr))
+	client, err := fromContext(ctx).zalandoPostgresWatcher.SystemAuthenticatedClient(ctx, input.EnvironmentName, watcher.WithImpersonatedClientGVR(gvr))
 	if err != nil {
 		return err
 	}
+	namespacedClient := client.Namespace(namespace)
 
 	res := &unstructured.Unstructured{}
 	res.SetAPIVersion(gvr.GroupVersion().String())
@@ -188,7 +189,7 @@ func createRoleBinding(ctx context.Context, input GrantPostgresAccessInput, name
 		},
 	}
 
-	return createOrUpdateResource(ctx, res, client)
+	return createOrUpdateResource(ctx, res, namespacedClient)
 }
 
 func createRole(ctx context.Context, input GrantPostgresAccessInput, name string, namespace string, annotations map[string]string, labels map[string]string) error {
@@ -197,10 +198,12 @@ func createRole(ctx context.Context, input GrantPostgresAccessInput, name string
 		Version:  "v1",
 		Resource: "roles",
 	}
-	client, err := fromContext(ctx).zalandoPostgresWatcher.ImpersonatedClientWithNamespace(ctx, input.EnvironmentName, namespace, watcher.WithImpersonatedClientGVR(gvr))
+
+	client, err := fromContext(ctx).zalandoPostgresWatcher.SystemAuthenticatedClient(ctx, input.EnvironmentName, watcher.WithImpersonatedClientGVR(gvr))
 	if err != nil {
 		return err
 	}
+	namespacedClient := client.Namespace(namespace)
 
 	res := &unstructured.Unstructured{}
 	res.SetAPIVersion(gvr.GroupVersion().String())
@@ -234,7 +237,7 @@ func createRole(ctx context.Context, input GrantPostgresAccessInput, name string
 		},
 	}
 
-	return createOrUpdateResource(ctx, res, client)
+	return createOrUpdateResource(ctx, res, namespacedClient)
 }
 
 func createOrUpdateResource(ctx context.Context, res *unstructured.Unstructured, client dynamic.ResourceInterface) error {
