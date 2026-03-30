@@ -804,6 +804,10 @@ github.com/nais/unleasherator v0.0.0-20251216221129-efebc54203fe h1:CdRVopOihru4
 github.com/nais/unleasherator v0.0.0-20251216221129-efebc54203fe/go.mod h1:Tiz/1If3WgcfvNhmsO5DiQC+L+1XhBG3KWbIfbjx4EU=
 github.com/nais/v13s/pkg/api v0.0.0-20260319215817-af35f1c28c73 h1:NzsjRSXjaKM3xByDxevDWSWeEWhcFgWKQmVv0/W96As=
 github.com/nais/v13s/pkg/api v0.0.0-20260319215817-af35f1c28c73/go.mod h1:v8jZia+0omVnSTvcr7ua+DJMG1xTGdqQ+uGDXow/kGM=
+github.com/nais/v13s/pkg/api v0.0.0-20260327133339-9d3039601c67 h1:3H+A2jmY1c49EsStr/zORa66mvJKAPxDeddm1SQDAUY=
+github.com/nais/v13s/pkg/api v0.0.0-20260327133339-9d3039601c67/go.mod h1:v8jZia+0omVnSTvcr7ua+DJMG1xTGdqQ+uGDXow/kGM=
+github.com/nais/v13s/pkg/api v0.0.0-20260330100955-184012927141 h1:7xYOmumhuJ5+xf3PFpdiJYZc+L4vCOYpsKsQWsNq+Iw=
+github.com/nais/v13s/pkg/api v0.0.0-20260330100955-184012927141/go.mod h1:v8jZia+0omVnSTvcr7ua+DJMG1xTGdqQ+uGDXow/kGM=
 github.com/ncruces/go-strftime v0.1.9 h1:bY0MQC28UADQmHmaF5dgpLmImcShSi2kHU9XLdhx/f4=
 github.com/ncruces/go-strftime v0.1.9/go.mod h1:Fwc5htZGVVkseilnfgOVb9mKy6w1naJmn9CehxcKcls=
 github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e/go.mod h1:zD1mROLANZcx1PVRCS0qkT7pwLkGfwJo4zjcN/Tysno=

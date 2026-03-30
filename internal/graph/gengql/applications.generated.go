@@ -723,10 +723,8 @@ func (ec *executionContext) fieldContext_Application_image(_ context.Context, fi
 				return ec.fieldContext_ContainerImage_tag(ctx, field)
 			case "activityLog":
 				return ec.fieldContext_ContainerImage_activityLog(ctx, field)
-			case "isSummaryStale":
-				return ec.fieldContext_ContainerImage_isSummaryStale(ctx, field)
-			case "summaryStaleTag":
-				return ec.fieldContext_ContainerImage_summaryStaleTag(ctx, field)
+			case "staleness":
+				return ec.fieldContext_ContainerImage_staleness(ctx, field)
 			case "hasSBOM":
 				return ec.fieldContext_ContainerImage_hasSBOM(ctx, field)
 			case "vulnerabilities":
@@ -2440,10 +2438,8 @@ func (ec *executionContext) fieldContext_ApplicationInstance_image(_ context.Con
 				return ec.fieldContext_ContainerImage_tag(ctx, field)
 			case "activityLog":
 				return ec.fieldContext_ContainerImage_activityLog(ctx, field)
-			case "isSummaryStale":
-				return ec.fieldContext_ContainerImage_isSummaryStale(ctx, field)
-			case "summaryStaleTag":
-				return ec.fieldContext_ContainerImage_summaryStaleTag(ctx, field)
+			case "staleness":
+				return ec.fieldContext_ContainerImage_staleness(ctx, field)
 			case "hasSBOM":
 				return ec.fieldContext_ContainerImage_hasSBOM(ctx, field)
 			case "vulnerabilities":
