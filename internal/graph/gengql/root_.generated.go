@@ -522,9 +522,8 @@ type ComplexityRoot struct {
 		ActivityLog          func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int
 		HasSbom              func(childComplexity int) int
 		ID                   func(childComplexity int) int
-		IsSummaryStale       func(childComplexity int) int
 		Name                 func(childComplexity int) int
-		SummaryStaleTag      func(childComplexity int) int
+		Staleness            func(childComplexity int) int
 		Tag                  func(childComplexity int) int
 		Vulnerabilities      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *vulnerability.ImageVulnerabilityFilter, orderBy *vulnerability.ImageVulnerabilityOrder) int
 		VulnerabilitySummary func(childComplexity int) int
@@ -3030,6 +3029,12 @@ type ComplexityRoot struct {
 		TotalWorkloads func(childComplexity int) int
 	}
 
+	VulnerabilityStaleness struct {
+		Reason   func(childComplexity int) int
+		Severity func(childComplexity int) int
+		Tag      func(childComplexity int) int
+	}
+
 	VulnerabilityUpdatedActivityLogEntry struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
@@ -3119,12 +3124,11 @@ type ComplexityRoot struct {
 	}
 
 	WorkloadVulnerabilitySummary struct {
-		HasSbom         func(childComplexity int) int
-		ID              func(childComplexity int) int
-		IsSummaryStale  func(childComplexity int) int
-		Summary         func(childComplexity int) int
-		SummaryStaleTag func(childComplexity int) int
-		Workload        func(childComplexity int) int
+		HasSbom   func(childComplexity int) int
+		ID        func(childComplexity int) int
+		Staleness func(childComplexity int) int
+		Summary   func(childComplexity int) int
+		Workload  func(childComplexity int) int
 	}
 
 	WorkloadVulnerabilitySummaryConnection struct {
@@ -4812,13 +4816,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ContainerImage.ID(childComplexity), true
 
-	case "ContainerImage.isSummaryStale":
-		if e.ComplexityRoot.ContainerImage.IsSummaryStale == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ContainerImage.IsSummaryStale(childComplexity), true
-
 	case "ContainerImage.name":
 		if e.ComplexityRoot.ContainerImage.Name == nil {
 			break
@@ -4826,12 +4823,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ContainerImage.Name(childComplexity), true
 
-	case "ContainerImage.summaryStaleTag":
-		if e.ComplexityRoot.ContainerImage.SummaryStaleTag == nil {
+	case "ContainerImage.staleness":
+		if e.ComplexityRoot.ContainerImage.Staleness == nil {
 			break
 		}
 
-		return e.ComplexityRoot.ContainerImage.SummaryStaleTag(childComplexity), true
+		return e.ComplexityRoot.ContainerImage.Staleness(childComplexity), true
 
 	case "ContainerImage.tag":
 		if e.ComplexityRoot.ContainerImage.Tag == nil {
@@ -15845,6 +15842,27 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.VulnerabilityFixSample.TotalWorkloads(childComplexity), true
 
+	case "VulnerabilityStaleness.reason":
+		if e.ComplexityRoot.VulnerabilityStaleness.Reason == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityStaleness.Reason(childComplexity), true
+
+	case "VulnerabilityStaleness.severity":
+		if e.ComplexityRoot.VulnerabilityStaleness.Severity == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityStaleness.Severity(childComplexity), true
+
+	case "VulnerabilityStaleness.tag":
+		if e.ComplexityRoot.VulnerabilityStaleness.Tag == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityStaleness.Tag(childComplexity), true
+
 	case "VulnerabilityUpdatedActivityLogEntry.actor":
 		if e.ComplexityRoot.VulnerabilityUpdatedActivityLogEntry.Actor == nil {
 			break
@@ -16237,12 +16255,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.WorkloadVulnerabilitySummary.ID(childComplexity), true
 
-	case "WorkloadVulnerabilitySummary.isSummaryStale":
-		if e.ComplexityRoot.WorkloadVulnerabilitySummary.IsSummaryStale == nil {
+	case "WorkloadVulnerabilitySummary.staleness":
+		if e.ComplexityRoot.WorkloadVulnerabilitySummary.Staleness == nil {
 			break
 		}
 
-		return e.ComplexityRoot.WorkloadVulnerabilitySummary.IsSummaryStale(childComplexity), true
+		return e.ComplexityRoot.WorkloadVulnerabilitySummary.Staleness(childComplexity), true
 
 	case "WorkloadVulnerabilitySummary.summary":
 		if e.ComplexityRoot.WorkloadVulnerabilitySummary.Summary == nil {
@@ -16250,13 +16268,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.WorkloadVulnerabilitySummary.Summary(childComplexity), true
-
-	case "WorkloadVulnerabilitySummary.summaryStaleTag":
-		if e.ComplexityRoot.WorkloadVulnerabilitySummary.SummaryStaleTag == nil {
-			break
-		}
-
-		return e.ComplexityRoot.WorkloadVulnerabilitySummary.SummaryStaleTag(childComplexity), true
 
 	case "WorkloadVulnerabilitySummary.workload":
 		if e.ComplexityRoot.WorkloadVulnerabilitySummary.Workload == nil {
@@ -26548,11 +26559,9 @@ type ImageVulnerabilityHistory {
 }
 
 extend type ContainerImage {
-	"True if the vulnerability summary for this image is stale."
-	isSummaryStale: Boolean!
+	"Information about whether the vulnerability data is stale."
+	staleness: VulnerabilityStaleness!
 
-	"The tag the vulnerability data actually comes from. Only relevant if isSummaryStale is true."
-	summaryStaleTag: String!
 	"Whether the image has a software bill of materials (SBOM) attached to it."
 	hasSBOM: Boolean!
 
@@ -26909,11 +26918,8 @@ type WorkloadVulnerabilitySummary implements Node {
 	"The vulnerability summary for the workload."
 	summary: ImageVulnerabilitySummary!
 
-	"True if the vulnerability summary is stale."
-	isSummaryStale: Boolean!
-
-	"Is the tag the vulnerability data actually comes from. This field is only relevant if stale is true."
-	summaryStaleTag: String!
+	"Information about whether the vulnerability data is stale."
+	staleness: VulnerabilityStaleness!
 }
 
 """
@@ -27152,6 +27158,24 @@ type VulnerabilityFixSample {
 
 	"Total number of workloads with this severity of vulnerabilities."
 	totalWorkloads: Int!
+}
+
+"Information about whether vulnerability data is stale and why."
+type VulnerabilityStaleness {
+	"The severity of the staleness."
+	severity: StaleSeverity!
+
+	"A human-readable explanation of why the vulnerability data is stale."
+	reason: String!
+
+	"The tag the vulnerability data actually comes from. Only relevant if severity is not STALE_NONE."
+	tag: String!
+}
+
+enum StaleSeverity {
+	STALE_NONE
+	STALE_PROCESSING
+	STALE_PERMANENT
 }
 `, BuiltIn: false},
 	{Name: "../schema/workloads.graphqls", Input: `extend type Team {
