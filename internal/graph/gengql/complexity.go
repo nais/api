@@ -22,7 +22,7 @@ import (
 	vulnerability "github.com/nais/api/internal/vulnerability"
 	workload "github.com/nais/api/internal/workload"
 	application "github.com/nais/api/internal/workload/application"
-	configmap "github.com/nais/api/internal/workload/configmap"
+	config "github.com/nais/api/internal/workload/config"
 	job "github.com/nais/api/internal/workload/job"
 	secret "github.com/nais/api/internal/workload/secret"
 )
@@ -198,7 +198,7 @@ func NewComplexityRoot() ComplexityRoot {
 	c.Team.Buckets = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bucket.BucketOrder) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
-	c.Team.Configs = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *configmap.ConfigOrder, filter *configmap.ConfigFilter) int {
+	c.Team.Configs = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *config.ConfigOrder, filter *config.ConfigFilter) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.Team.Deployments = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {

@@ -63,7 +63,7 @@ func (j *Job) GetSecrets() []string {
 	return ret
 }
 
-// GetConfigs returns a list of configmap names used by the job
+// GetConfigs returns a list of config names used by the job
 func (j *Job) GetConfigs() []string {
 	ret := make([]string, 0)
 	for _, v := range j.Spec.EnvFrom {
