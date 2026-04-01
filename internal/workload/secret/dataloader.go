@@ -59,9 +59,14 @@ func transformSecret(in any) (any, error) {
 		return nil, fmt.Errorf("expected *unstructured.Unstructured, got %T", in)
 	}
 
-	// Extract key names from data before removing it
-	data, _, _ := unstructured.NestedMap(secret.Object, "data")
-	keys := slices.Sorted(maps.Keys(data))
+	// Extract key names from data before removing it.
+	// We must check whether the data/stringData fields actually exist because
+	// the WatchList code path in client-go can run the transformer twice on the
+	// same object (once in a temporary store, once in DeltaFIFO.Replace).
+	// On the second run the data fields are already removed, so we must preserve
+	// the annotation written by the first run.
+	data, dataFound, _ := unstructured.NestedMap(secret.Object, "data")
+	_, stringDataFound, _ := unstructured.NestedMap(secret.Object, "stringData")
 
 	// Remove the actual secret data
 	unstructured.RemoveNestedField(secret.Object, "data")
@@ -73,15 +78,20 @@ func transformSecret(in any) (any, error) {
 		annotations = make(map[string]string)
 	}
 
-	// Store keys as comma-separated list (empty string if no keys)
-	var keyList strings.Builder
-	for i, k := range keys {
-		if i > 0 {
-			keyList.WriteString(",")
+	// Only overwrite the annotation if we actually found data/stringData fields.
+	// If neither field existed, this is a second transform run and the annotation
+	// is already correct from the first run.
+	if dataFound || stringDataFound {
+		keys := slices.Sorted(maps.Keys(data))
+		var keyList strings.Builder
+		for i, k := range keys {
+			if i > 0 {
+				keyList.WriteString(",")
+			}
+			keyList.WriteString(k)
 		}
-		keyList.WriteString(k)
+		annotations[annotationSecretKeys] = keyList.String()
 	}
-	annotations[annotationSecretKeys] = keyList.String()
 	secret.SetAnnotations(annotations)
 
 	// Remove other unnecessary fields to reduce memory usage
