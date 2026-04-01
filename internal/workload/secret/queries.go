@@ -21,6 +21,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"maps"
 	"slices"
 	"strconv"
 	"strings"
@@ -578,13 +579,9 @@ func updatedBinaryKeysAnnotation(obj *unstructured.Unstructured, keyName string,
 func mergeAnnotations(obj *unstructured.Unstructured, user string, extraAnnotations map[string]string) map[string]string {
 	merged := make(map[string]string)
 	// Start with existing annotations to preserve nais.io/binary-keys etc.
-	for k, v := range obj.GetAnnotations() {
-		merged[k] = v
-	}
+	maps.Copy(merged, obj.GetAnnotations())
 	// Apply standard annotations (overwrites last-modified-at, etc.)
-	for k, v := range annotations(user) {
-		merged[k] = v
-	}
+	maps.Copy(merged, annotations(user))
 	// Apply extra annotations
 	for k, v := range extraAnnotations {
 		if v == "" {

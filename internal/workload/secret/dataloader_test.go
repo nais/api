@@ -14,22 +14,22 @@ import (
 // annotation with an empty string, causing keys to disappear.
 func TestTransformSecretIdempotent(t *testing.T) {
 	obj := &unstructured.Unstructured{
-		Object: map[string]interface{}{
+		Object: map[string]any{
 			"apiVersion": "v1",
 			"kind":       "Secret",
-			"metadata": map[string]interface{}{
+			"metadata": map[string]any{
 				"name":      "my-secret",
 				"namespace": "my-team",
-				"labels": map[string]interface{}{
+				"labels": map[string]any{
 					"nais.io/managed-by": "console",
 				},
-				"annotations": map[string]interface{}{
+				"annotations": map[string]any{
 					"console.nais.io/last-modified-at": "2024-10-18T12:44:57Z",
 					"console.nais.io/last-modified-by": "user@example.com",
 				},
 			},
 			"type": "Opaque",
-			"data": map[string]interface{}{
+			"data": map[string]any{
 				"DATABASE_URL": "cG9zdGdyZXM6Ly9sb2NhbGhvc3QvbXlkYg==",
 				"API_KEY":      "c2VjcmV0LWtleQ==",
 			},
@@ -83,18 +83,18 @@ func TestTransformSecretIdempotent(t *testing.T) {
 // is handled correctly through double-transform.
 func TestTransformSecretEmptyDataIdempotent(t *testing.T) {
 	obj := &unstructured.Unstructured{
-		Object: map[string]interface{}{
+		Object: map[string]any{
 			"apiVersion": "v1",
 			"kind":       "Secret",
-			"metadata": map[string]interface{}{
+			"metadata": map[string]any{
 				"name":      "empty-secret",
 				"namespace": "my-team",
-				"labels": map[string]interface{}{
+				"labels": map[string]any{
 					"nais.io/managed-by": "console",
 				},
 			},
 			"type": "Opaque",
-			"data": map[string]interface{}{},
+			"data": map[string]any{},
 		},
 	}
 
@@ -134,13 +134,13 @@ func TestTransformSecretEmptyDataIdempotent(t *testing.T) {
 // field at all (e.g. freshly created) is handled correctly.
 func TestTransformSecretNoDataFieldIdempotent(t *testing.T) {
 	obj := &unstructured.Unstructured{
-		Object: map[string]interface{}{
+		Object: map[string]any{
 			"apiVersion": "v1",
 			"kind":       "Secret",
-			"metadata": map[string]interface{}{
+			"metadata": map[string]any{
 				"name":      "new-secret",
 				"namespace": "my-team",
-				"labels": map[string]interface{}{
+				"labels": map[string]any{
 					"nais.io/managed-by": "console",
 				},
 			},
