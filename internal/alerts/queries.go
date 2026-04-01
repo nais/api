@@ -112,21 +112,21 @@ func extractAlarms(ar *promv1.AlertingRule) []*PrometheusAlarm {
 }
 
 func GetByIdent(ctx context.Context, id ident.Ident) (Alert, error) {
-	alertType, team, env, ruleGroup, alertName, err := parseIdent(id)
+	alertType, team, env, ruleGroup, alertName, qHash, err := parseIdent(id)
 	if err != nil {
 		return nil, err
 	}
-	return Get(ctx, alertType, team, env, ruleGroup, alertName)
+	return Get(ctx, alertType, team, env, ruleGroup, alertName, qHash)
 }
 
-func Get(ctx context.Context, alertType AlertType, teamSlug slug.Slug, environmentName, ruleGroup, alertName string) (Alert, error) {
+func Get(ctx context.Context, alertType AlertType, teamSlug slug.Slug, environmentName, ruleGroup, alertName, queryHash string) (Alert, error) {
 	if alertType != AlertTypePrometheus {
 		return nil, fmt.Errorf("unsupported alert type: %s", alertType)
 	}
-	return getPrometheusRule(ctx, environmentName, teamSlug, ruleGroup, alertName)
+	return getPrometheusRule(ctx, environmentName, teamSlug, ruleGroup, alertName, queryHash)
 }
 
-func getPrometheusRule(ctx context.Context, environmentName string, teamSlug slug.Slug, ruleGroup, ruleName string) (Alert, error) {
+func getPrometheusRule(ctx context.Context, environmentName string, teamSlug slug.Slug, ruleGroup, ruleName, qHash string) (Alert, error) {
 	c := fromContext(ctx).client
 
 	r, err := c.Rules(ctx, environmentmapper.ClusterName(environmentName), teamSlug)
@@ -141,11 +141,11 @@ func getPrometheusRule(ctx context.Context, environmentName string, teamSlug slu
 		for _, anyRule := range rg.Rules {
 			switch ar := anyRule.(type) {
 			case promv1.AlertingRule:
-				if ar.Name == ruleName {
+				if ar.Name == ruleName && QueryHash(ar.Query) == qHash {
 					return buildPromAlert(&ar, environmentName, teamSlug, rg.Name), nil
 				}
 			case *promv1.AlertingRule:
-				if ar.Name == ruleName {
+				if ar.Name == ruleName && QueryHash(ar.Query) == qHash {
 					return buildPromAlert(ar, environmentName, teamSlug, rg.Name), nil
 				}
 			}

@@ -1,6 +1,8 @@
 package alerts
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 	"io"
 	"strconv"
@@ -112,7 +114,14 @@ type PrometheusAlarm struct {
 }
 
 func (e PrometheusAlert) ID() ident.Ident {
-	return newIdent(AlertTypePrometheus, e.TeamSlug, e.EnvironmentName, e.RuleGroup, e.Name)
+	return newIdent(AlertTypePrometheus, e.TeamSlug, e.EnvironmentName, e.RuleGroup, e.Name, QueryHash(e.Query))
+}
+
+// QueryHash returns a short, deterministic hash of a Prometheus query string.
+// Used to disambiguate alerts with the same name but different queries.
+func QueryHash(query string) string {
+	h := sha256.Sum256([]byte(query))
+	return hex.EncodeToString(h[:6])
 }
 
 func (PrometheusAlert) IsNode() {}
