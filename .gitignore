@@ -14,3 +14,4 @@ hack/coverprofile.txt
 result*
 data/k8s/dev/tbd/
 data/k8s/prod-gcp/
+data/*.duckdb
