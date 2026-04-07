@@ -76,7 +76,7 @@ autobind:
   - "github.com/nais/api/internal/workload/logging"
   - "github.com/nais/api/internal/workload/netpol"
   - "github.com/nais/api/internal/workload/podlog"
-  - "github.com/nais/api/internal/workload/configmap"
+  - "github.com/nais/api/internal/workload/config"
   - "github.com/nais/api/internal/workload/instancegroup"
   - "github.com/nais/api/internal/workload/secret"
 

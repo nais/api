@@ -15,7 +15,7 @@ import (
 	"github.com/nais/api/internal/unleash"
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
-	"github.com/nais/api/internal/workload/configmap"
+	"github.com/nais/api/internal/workload/config"
 	"github.com/nais/api/internal/workload/instancegroup"
 	"github.com/nais/api/internal/workload/job"
 	"github.com/nais/api/internal/workload/secret"
@@ -44,7 +44,7 @@ type (
 	NamespaceWatcher       = watcher.Watcher[*v1.Namespace]
 	UnleashWatcher         = watcher.Watcher[*unleash.UnleashInstance]
 	SecretWatcher          = watcher.Watcher[*secret.Secret]
-	ConfigMapWatcher       = watcher.Watcher[*configmap.Config]
+	ConfigWatcher          = watcher.Watcher[*config.Config]
 	ReplicaSetWatcher      = watcher.Watcher[*appsv1.ReplicaSet]
 )
 
@@ -65,7 +65,7 @@ type Watchers struct {
 	NamespaceWatcher       *NamespaceWatcher
 	UnleashWatcher         *UnleashWatcher
 	SecretWatcher          *SecretWatcher
-	ConfigMapWatcher       *ConfigMapWatcher
+	ConfigWatcher          *ConfigWatcher
 	ReplicaSetWatcher      *ReplicaSetWatcher
 }
 
@@ -91,7 +91,7 @@ func SetupWatchers(
 		NamespaceWatcher:       team.NewNamespaceWatcher(ctx, watcherMgr),
 		UnleashWatcher:         unleash.NewWatcher(ctx, mgmtWatcherMgr),
 		SecretWatcher:          secret.NewWatcher(ctx, watcherMgr),
-		ConfigMapWatcher:       configmap.NewWatcher(ctx, watcherMgr),
+		ConfigWatcher:          config.NewWatcher(ctx, watcherMgr),
 		ReplicaSetWatcher:      instancegroup.NewWatcher(ctx, watcherMgr),
 	}
 }

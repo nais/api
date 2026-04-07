@@ -40,7 +40,7 @@ import (
 	"github.com/nais/api/internal/vulnerability"
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
-	"github.com/nais/api/internal/workload/configmap"
+	"github.com/nais/api/internal/workload/config"
 	"github.com/nais/api/internal/workload/job"
 	"github.com/nais/api/internal/workload/podlog"
 	"github.com/nais/api/internal/workload/secret"
@@ -512,8 +512,9 @@ type ComplexityRoot struct {
 	}
 
 	ConfigValue struct {
-		Name  func(childComplexity int) int
-		Value func(childComplexity int) int
+		Encoding func(childComplexity int) int
+		Name     func(childComplexity int) int
+		Value    func(childComplexity int) int
 	}
 
 	ConfirmTeamDeletionPayload struct {
@@ -1252,7 +1253,7 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		AddConfigValue               func(childComplexity int, input configmap.AddConfigValueInput) int
+		AddConfigValue               func(childComplexity int, input config.AddConfigValueInput) int
 		AddRepositoryToTeam          func(childComplexity int, input repository.AddRepositoryToTeamInput) int
 		AddSecretValue               func(childComplexity int, input secret.AddSecretValueInput) int
 		AddTeamMember                func(childComplexity int, input team.AddTeamMemberInput) int
@@ -1261,7 +1262,7 @@ type ComplexityRoot struct {
 		ChangeDeploymentKey          func(childComplexity int, input deployment.ChangeDeploymentKeyInput) int
 		ConfigureReconciler          func(childComplexity int, input reconciler.ConfigureReconcilerInput) int
 		ConfirmTeamDeletion          func(childComplexity int, input team.ConfirmTeamDeletionInput) int
-		CreateConfig                 func(childComplexity int, input configmap.CreateConfigInput) int
+		CreateConfig                 func(childComplexity int, input config.CreateConfigInput) int
 		CreateKafkaCredentials       func(childComplexity int, input aivencredentials.CreateKafkaCredentialsInput) int
 		CreateOpenSearch             func(childComplexity int, input opensearch.CreateOpenSearchInput) int
 		CreateOpenSearchCredentials  func(childComplexity int, input aivencredentials.CreateOpenSearchCredentialsInput) int
@@ -1273,7 +1274,7 @@ type ComplexityRoot struct {
 		CreateValkey                 func(childComplexity int, input valkey.CreateValkeyInput) int
 		CreateValkeyCredentials      func(childComplexity int, input aivencredentials.CreateValkeyCredentialsInput) int
 		DeleteApplication            func(childComplexity int, input application.DeleteApplicationInput) int
-		DeleteConfig                 func(childComplexity int, input configmap.DeleteConfigInput) int
+		DeleteConfig                 func(childComplexity int, input config.DeleteConfigInput) int
 		DeleteJob                    func(childComplexity int, input job.DeleteJobInput) int
 		DeleteJobRun                 func(childComplexity int, input job.DeleteJobRunInput) int
 		DeleteOpenSearch             func(childComplexity int, input opensearch.DeleteOpenSearchInput) int
@@ -1285,7 +1286,7 @@ type ComplexityRoot struct {
 		DisableReconciler            func(childComplexity int, input reconciler.DisableReconcilerInput) int
 		EnableReconciler             func(childComplexity int, input reconciler.EnableReconcilerInput) int
 		GrantPostgresAccess          func(childComplexity int, input postgres.GrantPostgresAccessInput) int
-		RemoveConfigValue            func(childComplexity int, input configmap.RemoveConfigValueInput) int
+		RemoveConfigValue            func(childComplexity int, input config.RemoveConfigValueInput) int
 		RemoveRepositoryFromTeam     func(childComplexity int, input repository.RemoveRepositoryFromTeamInput) int
 		RemoveSecretValue            func(childComplexity int, input secret.RemoveSecretValueInput) int
 		RemoveTeamMember             func(childComplexity int, input team.RemoveTeamMemberInput) int
@@ -1297,7 +1298,7 @@ type ComplexityRoot struct {
 		StartOpenSearchMaintenance   func(childComplexity int, input servicemaintenance.StartOpenSearchMaintenanceInput) int
 		StartValkeyMaintenance       func(childComplexity int, input servicemaintenance.StartValkeyMaintenanceInput) int
 		TriggerJob                   func(childComplexity int, input job.TriggerJobInput) int
-		UpdateConfigValue            func(childComplexity int, input configmap.UpdateConfigValueInput) int
+		UpdateConfigValue            func(childComplexity int, input config.UpdateConfigValueInput) int
 		UpdateImageVulnerability     func(childComplexity int, input vulnerability.UpdateImageVulnerabilityInput) int
 		UpdateOpenSearch             func(childComplexity int, input opensearch.UpdateOpenSearchInput) int
 		UpdateSecretValue            func(childComplexity int, input secret.UpdateSecretValueInput) int
@@ -2290,7 +2291,7 @@ type ComplexityRoot struct {
 		Applications              func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *application.ApplicationOrder, filter *application.TeamApplicationsFilter) int
 		BigQueryDatasets          func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bigquery.BigQueryDatasetOrder) int
 		Buckets                   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bucket.BucketOrder) int
-		Configs                   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *configmap.ConfigOrder, filter *configmap.ConfigFilter) int
+		Configs                   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *config.ConfigOrder, filter *config.ConfigFilter) int
 		Cost                      func(childComplexity int) int
 		DeleteKey                 func(childComplexity int, key string) int
 		DeletionInProgress        func(childComplexity int) int
@@ -4802,6 +4803,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ConfigUpdatedActivityLogEntryDataUpdatedField.OldValue(childComplexity), true
+
+	case "ConfigValue.encoding":
+		if e.ComplexityRoot.ConfigValue.Encoding == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigValue.Encoding(childComplexity), true
 
 	case "ConfigValue.name":
 		if e.ComplexityRoot.ConfigValue.Name == nil {
@@ -7635,7 +7643,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Mutation.AddConfigValue(childComplexity, args["input"].(configmap.AddConfigValueInput)), true
+		return e.ComplexityRoot.Mutation.AddConfigValue(childComplexity, args["input"].(config.AddConfigValueInput)), true
 
 	case "Mutation.addRepositoryToTeam":
 		if e.ComplexityRoot.Mutation.AddRepositoryToTeam == nil {
@@ -7743,7 +7751,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Mutation.CreateConfig(childComplexity, args["input"].(configmap.CreateConfigInput)), true
+		return e.ComplexityRoot.Mutation.CreateConfig(childComplexity, args["input"].(config.CreateConfigInput)), true
 
 	case "Mutation.createKafkaCredentials":
 		if e.ComplexityRoot.Mutation.CreateKafkaCredentials == nil {
@@ -7887,7 +7895,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Mutation.DeleteConfig(childComplexity, args["input"].(configmap.DeleteConfigInput)), true
+		return e.ComplexityRoot.Mutation.DeleteConfig(childComplexity, args["input"].(config.DeleteConfigInput)), true
 
 	case "Mutation.deleteJob":
 		if e.ComplexityRoot.Mutation.DeleteJob == nil {
@@ -8031,7 +8039,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Mutation.RemoveConfigValue(childComplexity, args["input"].(configmap.RemoveConfigValueInput)), true
+		return e.ComplexityRoot.Mutation.RemoveConfigValue(childComplexity, args["input"].(config.RemoveConfigValueInput)), true
 
 	case "Mutation.removeRepositoryFromTeam":
 		if e.ComplexityRoot.Mutation.RemoveRepositoryFromTeam == nil {
@@ -8175,7 +8183,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Mutation.UpdateConfigValue(childComplexity, args["input"].(configmap.UpdateConfigValueInput)), true
+		return e.ComplexityRoot.Mutation.UpdateConfigValue(childComplexity, args["input"].(config.UpdateConfigValueInput)), true
 
 	case "Mutation.updateImageVulnerability":
 		if e.ComplexityRoot.Mutation.UpdateImageVulnerability == nil {
@@ -12645,7 +12653,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Team.Configs(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*configmap.ConfigOrder), args["filter"].(*configmap.ConfigFilter)), true
+		return e.ComplexityRoot.Team.Configs(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*config.ConfigOrder), args["filter"].(*config.ConfigFilter)), true
 
 	case "Team.cost":
 		if e.ComplexityRoot.Team.Cost == nil {
@@ -18495,7 +18503,7 @@ type ClusterAuditActivityLogEntryData {
 	resourceKind: String!
 }
 `, BuiltIn: false},
-	{Name: "../schema/configmap.graphqls", Input: `extend type Mutation {
+	{Name: "../schema/config.graphqls", Input: `extend type Mutation {
 	"Create a new config."
 	createConfig(input: CreateConfigInput!): CreateConfigPayload!
 
@@ -18716,6 +18724,9 @@ input ConfigValueInput {
 
 	"The value to set."
 	value: String!
+
+	"Encoding of the value. Defaults to PLAIN_TEXT. Use BASE64 for binary data (certificates, keystores, etc.)."
+	encoding: ValueEncoding = PLAIN_TEXT
 }
 
 input CreateConfigInput {
@@ -18851,6 +18862,9 @@ type ConfigValue {
 
 	"The config value itself."
 	value: String!
+
+	"The encoding of the value. PLAIN_TEXT for UTF-8 text, BASE64 for binary data."
+	encoding: ValueEncoding!
 }
 
 extend enum ActivityLogEntryResourceType {

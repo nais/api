@@ -1,4 +1,4 @@
-package configmap
+package config
 
 import (
 	"context"
@@ -44,7 +44,7 @@ type loaders struct {
 	log     logrus.FieldLogger
 }
 
-// Watcher returns the configmap watcher
+// Watcher returns the config watcher
 func (l *loaders) Watcher() *watcher.Watcher[*Config] {
 	return l.watcher
 }
