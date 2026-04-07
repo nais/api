@@ -225,6 +225,14 @@ func AddConfigValue(ctx context.Context, teamSlug slug.Slug, environment, config
 		return nil, fmt.Errorf("patching config: %w", err)
 	}
 
+	// Don't log actual values for binary keys — they are meaningless base64 strings
+	addedField := &ConfigUpdatedActivityLogEntryDataUpdatedField{
+		Field: valueToAdd.Name,
+	}
+	if !isBinary {
+		addedField.NewValue = &valueToAdd.Value
+	}
+
 	err = activitylog.Create(ctx, activitylog.CreateInput{
 		Action:          activitylog.ActivityLogEntryActionUpdated,
 		Actor:           actor.User,
@@ -233,12 +241,7 @@ func AddConfigValue(ctx context.Context, teamSlug slug.Slug, environment, config
 		ResourceName:    configName,
 		TeamSlug:        &teamSlug,
 		Data: ConfigUpdatedActivityLogEntryData{
-			UpdatedFields: []*ConfigUpdatedActivityLogEntryDataUpdatedField{
-				{
-					Field:    valueToAdd.Name,
-					NewValue: &valueToAdd.Value,
-				},
-			},
+			UpdatedFields: []*ConfigUpdatedActivityLogEntryDataUpdatedField{addedField},
 		},
 	})
 	if err != nil {
@@ -322,6 +325,15 @@ func UpdateConfigValue(ctx context.Context, teamSlug slug.Slug, environment, con
 		return nil, fmt.Errorf("patching config: %w", err)
 	}
 
+	// Don't log actual values for binary keys — they are meaningless base64 strings
+	updatedField := &ConfigUpdatedActivityLogEntryDataUpdatedField{
+		Field: valueToUpdate.Name,
+	}
+	if !isBinary {
+		updatedField.OldValue = oldValue
+		updatedField.NewValue = &valueToUpdate.Value
+	}
+
 	err = activitylog.Create(ctx, activitylog.CreateInput{
 		Action:          activitylog.ActivityLogEntryActionUpdated,
 		Actor:           actor.User,
@@ -330,13 +342,7 @@ func UpdateConfigValue(ctx context.Context, teamSlug slug.Slug, environment, con
 		ResourceName:    configName,
 		TeamSlug:        &teamSlug,
 		Data: ConfigUpdatedActivityLogEntryData{
-			UpdatedFields: []*ConfigUpdatedActivityLogEntryDataUpdatedField{
-				{
-					Field:    valueToUpdate.Name,
-					OldValue: oldValue,
-					NewValue: &valueToUpdate.Value,
-				},
-			},
+			UpdatedFields: []*ConfigUpdatedActivityLogEntryDataUpdatedField{updatedField},
 		},
 	})
 	if err != nil {
@@ -380,9 +386,14 @@ func RemoveConfigValue(ctx context.Context, teamSlug slug.Slug, environment, con
 		return nil, apierror.Errorf("The config does not contain a value with the name: %q.", valueName)
 	}
 
+	// Check if the key being removed is binary
+	isBinary := getBinaryKeys(obj.GetAnnotations())[valueName]
+
 	var oldValue *string
-	if s, ok := oldValueRaw.(string); ok {
-		oldValue = &s
+	if !isBinary {
+		if s, ok := oldValueRaw.(string); ok {
+			oldValue = &s
+		}
 	}
 
 	// Use JSON Patch to remove the key
