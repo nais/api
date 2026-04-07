@@ -16,10 +16,12 @@ import (
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
 	"github.com/nais/api/internal/workload/configmap"
+	"github.com/nais/api/internal/workload/instancegroup"
 	"github.com/nais/api/internal/workload/job"
 	"github.com/nais/api/internal/workload/secret"
 	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
+	appsv1 "k8s.io/api/apps/v1"
 	batchv1 "k8s.io/api/batch/v1"
 	v1 "k8s.io/api/core/v1"
 	netv1 "k8s.io/api/networking/v1"
@@ -43,6 +45,7 @@ type (
 	UnleashWatcher         = watcher.Watcher[*unleash.UnleashInstance]
 	SecretWatcher          = watcher.Watcher[*secret.Secret]
 	ConfigMapWatcher       = watcher.Watcher[*configmap.Config]
+	ReplicaSetWatcher      = watcher.Watcher[*appsv1.ReplicaSet]
 )
 
 type Watchers struct {
@@ -63,6 +66,7 @@ type Watchers struct {
 	UnleashWatcher         *UnleashWatcher
 	SecretWatcher          *SecretWatcher
 	ConfigMapWatcher       *ConfigMapWatcher
+	ReplicaSetWatcher      *ReplicaSetWatcher
 }
 
 func SetupWatchers(
@@ -88,5 +92,6 @@ func SetupWatchers(
 		UnleashWatcher:         unleash.NewWatcher(ctx, mgmtWatcherMgr),
 		SecretWatcher:          secret.NewWatcher(ctx, watcherMgr),
 		ConfigMapWatcher:       configmap.NewWatcher(ctx, watcherMgr),
+		ReplicaSetWatcher:      instancegroup.NewWatcher(ctx, watcherMgr),
 	}
 }

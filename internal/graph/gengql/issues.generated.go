@@ -359,6 +359,8 @@ func (ec *executionContext) fieldContext_DeprecatedIngressIssue_application(_ co
 				return ec.fieldContext_Application_cost(ctx, field)
 			case "deployments":
 				return ec.fieldContext_Application_deployments(ctx, field)
+			case "instanceGroups":
+				return ec.fieldContext_Application_instanceGroups(ctx, field)
 			case "kafkaTopicAcls":
 				return ec.fieldContext_Application_kafkaTopicAcls(ctx, field)
 			case "logDestinations":

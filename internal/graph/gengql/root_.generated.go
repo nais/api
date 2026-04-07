@@ -76,6 +76,7 @@ type ResolverRoot interface {
 	FailedSynchronizationIssue() FailedSynchronizationIssueResolver
 	Ingress() IngressResolver
 	IngressMetrics() IngressMetricsResolver
+	InstanceGroup() InstanceGroupResolver
 	InvalidSpecIssue() InvalidSpecIssueResolver
 	Job() JobResolver
 	JobRun() JobRunResolver
@@ -196,6 +197,7 @@ type ComplexityRoot struct {
 		Image                     func(childComplexity int) int
 		ImageVulnerabilityHistory func(childComplexity int, from scalar.Date) int
 		Ingresses                 func(childComplexity int) int
+		InstanceGroups            func(childComplexity int) int
 		Instances                 func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		Issues                    func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) int
 		KafkaTopicAcls            func(childComplexity int, orderBy *kafkatopic.KafkaTopicACLOrder) int
@@ -914,6 +916,37 @@ type ComplexityRoot struct {
 		ErrorsPerSecond   func(childComplexity int) int
 		RequestsPerSecond func(childComplexity int) int
 		Series            func(childComplexity int, input application.IngressMetricsInput) int
+	}
+
+	InstanceGroup struct {
+		Created              func(childComplexity int) int
+		DesiredInstances     func(childComplexity int) int
+		EnvironmentVariables func(childComplexity int) int
+		ID                   func(childComplexity int) int
+		Image                func(childComplexity int) int
+		Instances            func(childComplexity int) int
+		MountedFiles         func(childComplexity int) int
+		Name                 func(childComplexity int) int
+		ReadyInstances       func(childComplexity int) int
+		Revision             func(childComplexity int) int
+	}
+
+	InstanceGroupEnvironmentVariable struct {
+		Name              func(childComplexity int) int
+		RequiresElevation func(childComplexity int) int
+		Source            func(childComplexity int) int
+		Value             func(childComplexity int) int
+	}
+
+	InstanceGroupMountedFile struct {
+		Path              func(childComplexity int) int
+		RequiresElevation func(childComplexity int) int
+		Source            func(childComplexity int) int
+	}
+
+	InstanceGroupValueSource struct {
+		Kind func(childComplexity int) int
+		Name func(childComplexity int) int
 	}
 
 	InvalidSpecIssue struct {
@@ -3392,6 +3425,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Application.Ingresses(childComplexity), true
+
+	case "Application.instanceGroups":
+		if e.ComplexityRoot.Application.InstanceGroups == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Application.InstanceGroups(childComplexity), true
 
 	case "Application.instances":
 		if e.ComplexityRoot.Application.Instances == nil {
@@ -6160,6 +6200,139 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.IngressMetrics.Series(childComplexity, args["input"].(application.IngressMetricsInput)), true
+
+	case "InstanceGroup.created":
+		if e.ComplexityRoot.InstanceGroup.Created == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroup.Created(childComplexity), true
+
+	case "InstanceGroup.desiredInstances":
+		if e.ComplexityRoot.InstanceGroup.DesiredInstances == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroup.DesiredInstances(childComplexity), true
+
+	case "InstanceGroup.environmentVariables":
+		if e.ComplexityRoot.InstanceGroup.EnvironmentVariables == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroup.EnvironmentVariables(childComplexity), true
+
+	case "InstanceGroup.id":
+		if e.ComplexityRoot.InstanceGroup.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroup.ID(childComplexity), true
+
+	case "InstanceGroup.image":
+		if e.ComplexityRoot.InstanceGroup.Image == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroup.Image(childComplexity), true
+
+	case "InstanceGroup.instances":
+		if e.ComplexityRoot.InstanceGroup.Instances == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroup.Instances(childComplexity), true
+
+	case "InstanceGroup.mountedFiles":
+		if e.ComplexityRoot.InstanceGroup.MountedFiles == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroup.MountedFiles(childComplexity), true
+
+	case "InstanceGroup.name":
+		if e.ComplexityRoot.InstanceGroup.Name == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroup.Name(childComplexity), true
+
+	case "InstanceGroup.readyInstances":
+		if e.ComplexityRoot.InstanceGroup.ReadyInstances == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroup.ReadyInstances(childComplexity), true
+
+	case "InstanceGroup.revision":
+		if e.ComplexityRoot.InstanceGroup.Revision == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroup.Revision(childComplexity), true
+
+	case "InstanceGroupEnvironmentVariable.name":
+		if e.ComplexityRoot.InstanceGroupEnvironmentVariable.Name == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroupEnvironmentVariable.Name(childComplexity), true
+
+	case "InstanceGroupEnvironmentVariable.requiresElevation":
+		if e.ComplexityRoot.InstanceGroupEnvironmentVariable.RequiresElevation == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroupEnvironmentVariable.RequiresElevation(childComplexity), true
+
+	case "InstanceGroupEnvironmentVariable.source":
+		if e.ComplexityRoot.InstanceGroupEnvironmentVariable.Source == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroupEnvironmentVariable.Source(childComplexity), true
+
+	case "InstanceGroupEnvironmentVariable.value":
+		if e.ComplexityRoot.InstanceGroupEnvironmentVariable.Value == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroupEnvironmentVariable.Value(childComplexity), true
+
+	case "InstanceGroupMountedFile.path":
+		if e.ComplexityRoot.InstanceGroupMountedFile.Path == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroupMountedFile.Path(childComplexity), true
+
+	case "InstanceGroupMountedFile.requiresElevation":
+		if e.ComplexityRoot.InstanceGroupMountedFile.RequiresElevation == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroupMountedFile.RequiresElevation(childComplexity), true
+
+	case "InstanceGroupMountedFile.source":
+		if e.ComplexityRoot.InstanceGroupMountedFile.Source == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroupMountedFile.Source(childComplexity), true
+
+	case "InstanceGroupValueSource.kind":
+		if e.ComplexityRoot.InstanceGroupValueSource.Kind == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroupValueSource.Kind(childComplexity), true
+
+	case "InstanceGroupValueSource.name":
+		if e.ComplexityRoot.InstanceGroupValueSource.Name == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroupValueSource.Name(childComplexity), true
 
 	case "InvalidSpecIssue.id":
 		if e.ComplexityRoot.InvalidSpecIssue.ID == nil {
@@ -19644,6 +19817,151 @@ type FeatureOpenSearch implements Node {
 	Wether OpenSearch is enabled or not.
 	"""
 	enabled: Boolean!
+}
+`, BuiltIn: false},
+	{Name: "../schema/instancegroup.graphqls", Input: `extend type Application {
+	"""
+	Instance groups for the application. An instance group represents a set of identical instances
+	backed by a Kubernetes ReplicaSet. All instances in a group share the same configuration.
+	"""
+	instanceGroups: [InstanceGroup!]!
+}
+
+"""
+An instance group represents a set of identical instances (backed by a Kubernetes ReplicaSet).
+All instances in the group share the same configuration (environment variables, mounted files, image).
+"""
+type InstanceGroup implements Node {
+	"""
+	The globally unique ID of the instance group.
+	"""
+	id: ID!
+
+	"""
+	The name of the instance group.
+	"""
+	name: String!
+
+	"""
+	The container image used by instances in this group.
+	"""
+	image: ContainerImage!
+
+	"""
+	The revision number of this instance group. Higher revision numbers are newer.
+	"""
+	revision: Int!
+
+	"""
+	When the instance group was created.
+	"""
+	created: Time!
+
+	"""
+	The number of instances that are ready.
+	"""
+	readyInstances: Int!
+
+	"""
+	The desired number of instances.
+	"""
+	desiredInstances: Int!
+
+	"""
+	Environment variables configured for instances in this group.
+	Variables from Secrets require elevation to view their values.
+	"""
+	environmentVariables: [InstanceGroupEnvironmentVariable!]!
+
+	"""
+	Files mounted into instances in this group from Secrets or ConfigMaps.
+	"""
+	mountedFiles: [InstanceGroupMountedFile!]!
+
+	"""
+	The application instances belonging to this instance group.
+	"""
+	instances: [ApplicationInstance!]!
+}
+
+"""
+An environment variable configured for an instance group.
+"""
+type InstanceGroupEnvironmentVariable {
+	"""
+	The name of the environment variable.
+	"""
+	name: String!
+
+	"""
+	The value of the environment variable. Null if the value requires elevation to view.
+	"""
+	value: String
+
+	"""
+	Whether viewing the value requires elevation (e.g. for Secret-backed variables).
+	"""
+	requiresElevation: Boolean!
+
+	"""
+	The source of the environment variable value.
+	"""
+	source: InstanceGroupValueSource!
+}
+
+"""
+A file mounted into an instance group from a Secret or ConfigMap.
+"""
+type InstanceGroupMountedFile {
+	"""
+	The mount path inside the container.
+	"""
+	path: String!
+
+	"""
+	Whether viewing the file content requires elevation (e.g. for Secret-backed files).
+	"""
+	requiresElevation: Boolean!
+
+	"""
+	The source of the mounted file.
+	"""
+	source: InstanceGroupValueSource!
+}
+
+"""
+Describes the source of a value (environment variable or mounted file).
+"""
+type InstanceGroupValueSource {
+	"""
+	The kind of source.
+	"""
+	kind: InstanceGroupValueSourceKind!
+
+	"""
+	The name of the source resource (e.g. Secret name, ConfigMap name).
+	"""
+	name: String!
+}
+
+"""
+The kind of source for an environment variable or mounted file.
+"""
+enum InstanceGroupValueSourceKind {
+	"""
+	The value comes from a Kubernetes Secret.
+	"""
+	SECRET
+
+	"""
+	The value comes from a Kubernetes ConfigMap.
+	"""
+	CONFIG_MAP
+
+	"""
+	The value comes from the workload spec itself (inline value, fieldRef, etc.).
+	"""
+	SPEC
 }
 `, BuiltIn: false},
 	{Name: "../schema/issues.graphqls", Input: `extend type Team {
