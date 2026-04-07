@@ -152,6 +152,15 @@ func (h *Handler) applyOne(
 		changes = Diff(applyResult.Before, applyResult.After)
 	}
 
+	if len(changes) == 0 && status == StatusApplied {
+		// No changes were made, so we can skip creating an activity log entry.
+		return ResourceResult{
+			Resource:        resourceID,
+			EnvironmentName: environmentName,
+			Status:          StatusApplied,
+		}
+	}
+
 	action := activitylog.ActivityLogEntryActionCreated
 	if !applyResult.Created {
 		action = activitylog.ActivityLogEntryActionUpdated
