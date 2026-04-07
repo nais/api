@@ -338,13 +338,13 @@ func secretData(secret *unstructured.Unstructured, log logrus.FieldLogger) map[s
 
 // generateSecretName creates a deterministic, short secret name.
 func generateSecretName(username, namespace, service string) string {
-	hash := sha256.Sum256([]byte(fmt.Sprintf("%s-%s-%s", username, namespace, service)))
+	hash := sha256.Sum256(fmt.Appendf(nil, "%s-%s-%s", username, namespace, service))
 	return fmt.Sprintf("tmp-%s-%x", service, hash[:3])
 }
 
 // generateAppName creates a deterministic AivenApplication name from the user identity.
 func generateAppName(username, service string) string {
-	hash := sha256.Sum256([]byte(fmt.Sprintf("%s-%s", username, service)))
+	hash := sha256.Sum256(fmt.Appendf(nil, "%s-%s", username, service))
 	return fmt.Sprintf("tmp-%s-%x", service, hash[:3])
 }
 

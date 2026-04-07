@@ -303,7 +303,7 @@ func CanDeleteOpenSearch(ctx context.Context, teamSlug slug.Slug) error {
 }
 
 func CanGrantPostgresAccess(ctx context.Context, teamSlug slug.Slug) error {
-	return requireTeamAuthorization(ctx, teamSlug, "postgres:access:grant")
+	return requireStrictTeamAuthorization(ctx, teamSlug, "postgres:access:grant")
 }
 
 func CanCreateAivenCredentials(ctx context.Context, teamSlug slug.Slug) error {
