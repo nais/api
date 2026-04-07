@@ -43,7 +43,6 @@ func transformPod(in any) (any, error) {
 		{"spec"},
 		{"status"},
 		{"metadata", "generateName"},
-		{"metadata", "ownerReferences"},
 		{"metadata", "annotations"},
 		{"metadata", "managedFields"},
 		{"status", "initContainerStatuses"},
