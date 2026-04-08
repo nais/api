@@ -377,18 +377,27 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 				return fmt.Errorf("create team %q: %w", name, err)
 			}
 
+			assignedUsers := make(map[uuid.UUID]struct{})
 			for o := 0; o < *cfg.NumOwnersPerTeam; o++ {
 				u := users[rand.IntN(len(users))]
+				if _, exists := assignedUsers[u.UUID]; exists {
+					continue
+				}
 				if err = authz.MakeUserTeamOwner(ctx, u.UUID, t.Slug); err != nil {
 					return fmt.Errorf("make user %q owner of team %q: %w", u.Email, t.Slug, err)
 				}
+				assignedUsers[u.UUID] = struct{}{}
 			}
 
 			for o := 0; o < *cfg.NumMembersPerTeam; o++ {
 				u := users[rand.IntN(len(users))]
+				if _, exists := assignedUsers[u.UUID]; exists {
+					continue
+				}
 				if err = authz.MakeUserTeamMember(ctx, u.UUID, t.Slug); err != nil {
 					return fmt.Errorf("make user %q member of team %q: %w", u.Email, t.Slug, err)
 				}
+				assignedUsers[u.UUID] = struct{}{}
 			}
 
 			log.Infof("%d/%d teams created", i, *cfg.NumTeams)
