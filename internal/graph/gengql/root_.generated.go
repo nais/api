@@ -3030,6 +3030,7 @@ type ComplexityRoot struct {
 	}
 
 	VulnerabilityStaleness struct {
+		Code     func(childComplexity int) int
 		Reason   func(childComplexity int) int
 		Severity func(childComplexity int) int
 	}
@@ -15841,6 +15842,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.VulnerabilityFixSample.TotalWorkloads(childComplexity), true
 
+	case "VulnerabilityStaleness.code":
+		if e.ComplexityRoot.VulnerabilityStaleness.Code == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityStaleness.Code(childComplexity), true
+
 	case "VulnerabilityStaleness.reason":
 		if e.ComplexityRoot.VulnerabilityStaleness.Reason == nil {
 			break
@@ -27159,12 +27167,25 @@ type VulnerabilityStaleness {
 
 	"A human-readable explanation of why the vulnerability data is stale."
 	reason: String!
+
+	"A machine-readable code identifying the reason for staleness."
+	code: StaleReasonCode!
 }
 
 enum StaleSeverity {
 	STALE_NONE
 	STALE_PROCESSING
 	STALE_PERMANENT
+}
+
+enum StaleReasonCode {
+	UNSPECIFIED
+	UP_TO_DATE
+	PROCESSING
+	PROCESSING_WITH_FALLBACK
+	NO_SBOM
+	SBOM_UPLOAD_FAILED
+	NO_ATTESTATION
 }
 `, BuiltIn: false},
 	{Name: "../schema/workloads.graphqls", Input: `extend type Team {
