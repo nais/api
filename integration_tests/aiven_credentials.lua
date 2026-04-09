@@ -171,14 +171,14 @@ Test.gql("Valkey TTL exceeding 30 days is rejected", function(t)
 end)
 
 -- Input validation: TTL exceeds maximum (Kafka)
-Test.gql("Kafka TTL exceeding 30 days is rejected", function(t)
+Test.gql("Kafka TTL exceeding 365 days is rejected", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query(string.format([[
 		mutation {
 		  createKafkaCredentials(input: {
 		    teamSlug: "%s"
 		    environmentName: "dev"
-		    ttl: "31d"
+		    ttl: "366d"
 		  }) {
 		    credentials { username }
 		  }
@@ -188,7 +188,7 @@ Test.gql("Kafka TTL exceeding 30 days is rejected", function(t)
 	t.check {
 		errors = {
 			{
-				message = Contains("TTL exceeds maximum of 30 days"),
+				message = Contains("TTL exceeds maximum of 365 days"),
 				path = { "createKafkaCredentials" },
 			},
 		},

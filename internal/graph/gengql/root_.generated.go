@@ -16885,7 +16885,7 @@ input CreateKafkaCredentialsInput {
 	teamSlug: Slug!
 	"The environment name that the Kafka topic belongs to."
 	environmentName: String!
-	"Time-to-live for the credentials (e.g. '1d', '7d'). Maximum 30 days."
+	"Time-to-live for the credentials (e.g. '1d', '7d'). Maximum 365 days."
 	ttl: String!
 }
 
