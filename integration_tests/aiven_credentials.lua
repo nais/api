@@ -4,6 +4,10 @@ local nonMember = User.new("nonmember", "other@user.com")
 local team = Team.new("credteam", "purpose", "#slack_channel")
 team:addMember(user)
 
+-- Load K8s fixtures so that instance existence checks pass for known instances.
+-- The fixtures provide opensearch-credteam-my-opensearch and valkey-credteam-my-valkey in the "dev" cluster.
+Helper.readK8sResources("k8s_resources/aiven_credentials")
+
 -- Authorization: non-member cannot create OpenSearch credentials
 Test.gql("Non-member cannot create OpenSearch credentials", function(t)
 	t.addHeader("x-user-email", nonMember:email())
@@ -108,6 +112,118 @@ Test.gql("Cannot create credentials for non-existing team", function(t)
 			{
 				message = Contains("you need the \"aiven:credentials:create\" authorization"),
 				path = { "createOpenSearchCredentials" },
+			},
+		},
+		data = Null,
+	}
+end)
+
+-- Instance not found: OpenSearch
+Test.gql("Cannot create OpenSearch credentials for non-existing instance", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query(string.format([[
+		mutation {
+		  createOpenSearchCredentials(input: {
+		    teamSlug: "%s"
+		    environmentName: "dev"
+		    instanceName: "does-not-exist"
+		    permission: READ
+		    ttl: "1d"
+		  }) {
+		    credentials { username }
+		  }
+		}
+	]], team:slug()))
+
+	t.check {
+		errors = {
+			{
+				message = Contains("not found"),
+				path = { "createOpenSearchCredentials" },
+			},
+		},
+		data = Null,
+	}
+end)
+
+-- Instance not found: Valkey
+Test.gql("Cannot create Valkey credentials for non-existing instance", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query(string.format([[
+		mutation {
+		  createValkeyCredentials(input: {
+		    teamSlug: "%s"
+		    environmentName: "dev"
+		    instanceName: "does-not-exist"
+		    permission: READ
+		    ttl: "1d"
+		  }) {
+		    credentials { username }
+		  }
+		}
+	]], team:slug()))
+
+	t.check {
+		errors = {
+			{
+				message = Contains("not found"),
+				path = { "createValkeyCredentials" },
+			},
+		},
+		data = Null,
+	}
+end)
+
+-- Instance not found: non-existing environment for OpenSearch
+Test.gql("Cannot create OpenSearch credentials in non-existing environment", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query(string.format([[
+		mutation {
+		  createOpenSearchCredentials(input: {
+		    teamSlug: "%s"
+		    environmentName: "prod"
+		    instanceName: "my-opensearch"
+		    permission: READ
+		    ttl: "1d"
+		  }) {
+		    credentials { username }
+		  }
+		}
+	]], team:slug()))
+
+	t.check {
+		errors = {
+			{
+				message = Contains("not found"),
+				path = { "createOpenSearchCredentials" },
+			},
+		},
+		data = Null,
+	}
+end)
+
+-- Instance not found: non-existing environment for Valkey
+Test.gql("Cannot create Valkey credentials in non-existing environment", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query(string.format([[
+		mutation {
+		  createValkeyCredentials(input: {
+		    teamSlug: "%s"
+		    environmentName: "prod"
+		    instanceName: "my-valkey"
+		    permission: READ
+		    ttl: "1d"
+		  }) {
+		    credentials { username }
+		  }
+		}
+	]], team:slug()))
+
+	t.check {
+		errors = {
+			{
+				message = Contains("not found"),
+				path = { "createValkeyCredentials" },
 			},
 		},
 		data = Null,
