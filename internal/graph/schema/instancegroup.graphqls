@@ -61,6 +61,12 @@ type InstanceGroup implements Node {
 	The application instances belonging to this instance group.
 	"""
 	instances: [ApplicationInstance!]!
+
+	"""
+	Recent Kubernetes events for this instance group and its instances,
+	translated into user-friendly messages. Sorted by timestamp, newest first.
+	"""
+	events: [InstanceGroupEvent!]!
 }
 
 """
@@ -131,4 +137,50 @@ enum InstanceGroupValueSourceKind {
 	The value comes from the workload spec itself (inline value, fieldRef, etc.).
 	"""
 	SPEC
+}
+
+"""
+A translated Kubernetes event providing debugging information in user-friendly language.
+"""
+type InstanceGroupEvent {
+	"""
+	When the event occurred.
+	"""
+	timestamp: Time!
+
+	"""
+	A user-friendly description of what happened.
+	"""
+	message: String!
+
+	"""
+	The severity of the event.
+	"""
+	severity: InstanceGroupEventSeverity!
+
+	"""
+	The name of the instance (pod) this event relates to, if applicable.
+	Null for events that relate to the instance group itself.
+	"""
+	sourceInstance: String
+}
+
+"""
+The severity of an instance group event.
+"""
+enum InstanceGroupEventSeverity {
+	"""
+	Informational event (normal operation).
+	"""
+	INFO
+
+	"""
+	Warning event (potential issue, may resolve on its own).
+	"""
+	WARNING
+
+	"""
+	Error event (requires attention).
+	"""
+	ERROR
 }

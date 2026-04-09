@@ -923,6 +923,7 @@ type ComplexityRoot struct {
 		Created              func(childComplexity int) int
 		DesiredInstances     func(childComplexity int) int
 		EnvironmentVariables func(childComplexity int) int
+		Events               func(childComplexity int) int
 		ID                   func(childComplexity int) int
 		Image                func(childComplexity int) int
 		Instances            func(childComplexity int) int
@@ -936,6 +937,13 @@ type ComplexityRoot struct {
 		Name   func(childComplexity int) int
 		Source func(childComplexity int) int
 		Value  func(childComplexity int) int
+	}
+
+	InstanceGroupEvent struct {
+		Message        func(childComplexity int) int
+		Severity       func(childComplexity int) int
+		SourceInstance func(childComplexity int) int
+		Timestamp      func(childComplexity int) int
 	}
 
 	InstanceGroupMountedFile struct {
@@ -6228,6 +6236,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.InstanceGroup.EnvironmentVariables(childComplexity), true
 
+	case "InstanceGroup.events":
+		if e.ComplexityRoot.InstanceGroup.Events == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroup.Events(childComplexity), true
+
 	case "InstanceGroup.id":
 		if e.ComplexityRoot.InstanceGroup.ID == nil {
 			break
@@ -6297,6 +6312,34 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.InstanceGroupEnvironmentVariable.Value(childComplexity), true
+
+	case "InstanceGroupEvent.message":
+		if e.ComplexityRoot.InstanceGroupEvent.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroupEvent.Message(childComplexity), true
+
+	case "InstanceGroupEvent.severity":
+		if e.ComplexityRoot.InstanceGroupEvent.Severity == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroupEvent.Severity(childComplexity), true
+
+	case "InstanceGroupEvent.sourceInstance":
+		if e.ComplexityRoot.InstanceGroupEvent.SourceInstance == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroupEvent.SourceInstance(childComplexity), true
+
+	case "InstanceGroupEvent.timestamp":
+		if e.ComplexityRoot.InstanceGroupEvent.Timestamp == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroupEvent.Timestamp(childComplexity), true
 
 	case "InstanceGroupMountedFile.path":
 		if e.ComplexityRoot.InstanceGroupMountedFile.Path == nil {
@@ -19880,6 +19923,12 @@ type InstanceGroup implements Node {
 	The application instances belonging to this instance group.
 	"""
 	instances: [ApplicationInstance!]!
+
+	"""
+	Recent Kubernetes events for this instance group and its instances,
+	translated into user-friendly messages. Sorted by timestamp, newest first.
+	"""
+	events: [InstanceGroupEvent!]!
 }
 
 """
@@ -19950,6 +19999,52 @@ enum InstanceGroupValueSourceKind {
 	The value comes from the workload spec itself (inline value, fieldRef, etc.).
 	"""
 	SPEC
+}
+
+"""
+A translated Kubernetes event providing debugging information in user-friendly language.
+"""
+type InstanceGroupEvent {
+	"""
+	When the event occurred.
+	"""
+	timestamp: Time!
+
+	"""
+	A user-friendly description of what happened.
+	"""
+	message: String!
+
+	"""
+	The severity of the event.
+	"""
+	severity: InstanceGroupEventSeverity!
+
+	"""
+	The name of the instance (pod) this event relates to, if applicable.
+	Null for events that relate to the instance group itself.
+	"""
+	sourceInstance: String
+}
+
+"""
+The severity of an instance group event.
+"""
+enum InstanceGroupEventSeverity {
+	"""
+	Informational event (normal operation).
+	"""
+	INFO
+
+	"""
+	Warning event (potential issue, may resolve on its own).
+	"""
+	WARNING
+
+	"""
+	Error event (requires attention).
+	"""
+	ERROR
 }
 `, BuiltIn: false},
 	{Name: "../schema/issues.graphqls", Input: `extend type Team {

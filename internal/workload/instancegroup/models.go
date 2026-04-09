@@ -111,9 +111,10 @@ func (e InstanceGroupValueSourceKind) MarshalGQL(w io.Writer) {
 
 // InstanceGroupEvent represents a translated Kubernetes event.
 type InstanceGroupEvent struct {
-	Timestamp time.Time                  `json:"timestamp"`
-	Message   string                     `json:"message"`
-	Severity  InstanceGroupEventSeverity `json:"severity"`
+	Timestamp      time.Time                  `json:"timestamp"`
+	Message        string                     `json:"message"`
+	Severity       InstanceGroupEventSeverity `json:"severity"`
+	SourceInstance *string                    `json:"sourceInstance"`
 }
 
 // InstanceGroupEventSeverity indicates the severity of an event.
