@@ -14,7 +14,6 @@ import (
 	"github.com/nais/api/internal/cost"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/issue"
-	"github.com/nais/api/internal/persistence/aivencredentials"
 	"github.com/nais/api/internal/persistence/valkey"
 	"github.com/nais/api/internal/servicemaintenance"
 	"github.com/nais/api/internal/team"
@@ -151,7 +150,7 @@ func (ec *executionContext) field_Valkey_issues_args(ctx context.Context, rawArg
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _CreateValkeyCredentialsPayload_credentials(ctx context.Context, field graphql.CollectedField, obj *aivencredentials.CreateValkeyCredentialsPayload) (ret graphql.Marshaler) {
+func (ec *executionContext) _CreateValkeyCredentialsPayload_credentials(ctx context.Context, field graphql.CollectedField, obj *valkey.CreateValkeyCredentialsPayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -161,7 +160,7 @@ func (ec *executionContext) _CreateValkeyCredentialsPayload_credentials(ctx cont
 			return obj.Credentials, nil
 		},
 		nil,
-		ec.marshalNValkeyCredentials2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋaivencredentialsᚐValkeyCredentials,
+		ec.marshalNValkeyCredentials2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyCredentials,
 		true,
 		true,
 	)
@@ -1760,7 +1759,7 @@ func (ec *executionContext) fieldContext_ValkeyCreatedActivityLogEntry_environme
 	return fc, nil
 }
 
-func (ec *executionContext) _ValkeyCredentials_username(ctx context.Context, field graphql.CollectedField, obj *aivencredentials.ValkeyCredentials) (ret graphql.Marshaler) {
+func (ec *executionContext) _ValkeyCredentials_username(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyCredentials) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -1789,7 +1788,7 @@ func (ec *executionContext) fieldContext_ValkeyCredentials_username(_ context.Co
 	return fc, nil
 }
 
-func (ec *executionContext) _ValkeyCredentials_password(ctx context.Context, field graphql.CollectedField, obj *aivencredentials.ValkeyCredentials) (ret graphql.Marshaler) {
+func (ec *executionContext) _ValkeyCredentials_password(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyCredentials) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -1818,7 +1817,7 @@ func (ec *executionContext) fieldContext_ValkeyCredentials_password(_ context.Co
 	return fc, nil
 }
 
-func (ec *executionContext) _ValkeyCredentials_host(ctx context.Context, field graphql.CollectedField, obj *aivencredentials.ValkeyCredentials) (ret graphql.Marshaler) {
+func (ec *executionContext) _ValkeyCredentials_host(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyCredentials) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -1847,7 +1846,7 @@ func (ec *executionContext) fieldContext_ValkeyCredentials_host(_ context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _ValkeyCredentials_port(ctx context.Context, field graphql.CollectedField, obj *aivencredentials.ValkeyCredentials) (ret graphql.Marshaler) {
+func (ec *executionContext) _ValkeyCredentials_port(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyCredentials) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -1876,7 +1875,7 @@ func (ec *executionContext) fieldContext_ValkeyCredentials_port(_ context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _ValkeyCredentials_uri(ctx context.Context, field graphql.CollectedField, obj *aivencredentials.ValkeyCredentials) (ret graphql.Marshaler) {
+func (ec *executionContext) _ValkeyCredentials_uri(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyCredentials) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -2626,8 +2625,8 @@ func (ec *executionContext) fieldContext_ValkeyUpdatedActivityLogEntryDataUpdate
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputCreateValkeyCredentialsInput(ctx context.Context, obj any) (aivencredentials.CreateValkeyCredentialsInput, error) {
-	var it aivencredentials.CreateValkeyCredentialsInput
+func (ec *executionContext) unmarshalInputCreateValkeyCredentialsInput(ctx context.Context, obj any) (valkey.CreateValkeyCredentialsInput, error) {
+	var it valkey.CreateValkeyCredentialsInput
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -2946,7 +2945,7 @@ func (ec *executionContext) unmarshalInputValkeyOrder(ctx context.Context, obj a
 
 var createValkeyCredentialsPayloadImplementors = []string{"CreateValkeyCredentialsPayload"}
 
-func (ec *executionContext) _CreateValkeyCredentialsPayload(ctx context.Context, sel ast.SelectionSet, obj *aivencredentials.CreateValkeyCredentialsPayload) graphql.Marshaler {
+func (ec *executionContext) _CreateValkeyCredentialsPayload(ctx context.Context, sel ast.SelectionSet, obj *valkey.CreateValkeyCredentialsPayload) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, createValkeyCredentialsPayloadImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -3851,7 +3850,7 @@ func (ec *executionContext) _ValkeyCreatedActivityLogEntry(ctx context.Context, 
 
 var valkeyCredentialsImplementors = []string{"ValkeyCredentials"}
 
-func (ec *executionContext) _ValkeyCredentials(ctx context.Context, sel ast.SelectionSet, obj *aivencredentials.ValkeyCredentials) graphql.Marshaler {
+func (ec *executionContext) _ValkeyCredentials(ctx context.Context, sel ast.SelectionSet, obj *valkey.ValkeyCredentials) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, valkeyCredentialsImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -4185,16 +4184,16 @@ func (ec *executionContext) _ValkeyUpdatedActivityLogEntryDataUpdatedField(ctx c
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) unmarshalNCreateValkeyCredentialsInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋaivencredentialsᚐCreateValkeyCredentialsInput(ctx context.Context, v any) (aivencredentials.CreateValkeyCredentialsInput, error) {
+func (ec *executionContext) unmarshalNCreateValkeyCredentialsInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐCreateValkeyCredentialsInput(ctx context.Context, v any) (valkey.CreateValkeyCredentialsInput, error) {
 	res, err := ec.unmarshalInputCreateValkeyCredentialsInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNCreateValkeyCredentialsPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋaivencredentialsᚐCreateValkeyCredentialsPayload(ctx context.Context, sel ast.SelectionSet, v aivencredentials.CreateValkeyCredentialsPayload) graphql.Marshaler {
+func (ec *executionContext) marshalNCreateValkeyCredentialsPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐCreateValkeyCredentialsPayload(ctx context.Context, sel ast.SelectionSet, v valkey.CreateValkeyCredentialsPayload) graphql.Marshaler {
 	return ec._CreateValkeyCredentialsPayload(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNCreateValkeyCredentialsPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋaivencredentialsᚐCreateValkeyCredentialsPayload(ctx context.Context, sel ast.SelectionSet, v *aivencredentials.CreateValkeyCredentialsPayload) graphql.Marshaler {
+func (ec *executionContext) marshalNCreateValkeyCredentialsPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐCreateValkeyCredentialsPayload(ctx context.Context, sel ast.SelectionSet, v *valkey.CreateValkeyCredentialsPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
@@ -4389,7 +4388,7 @@ func (ec *executionContext) marshalNValkeyConnection2ᚖgithubᚗcomᚋnaisᚋap
 	return ec._ValkeyConnection(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNValkeyCredentials2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋaivencredentialsᚐValkeyCredentials(ctx context.Context, sel ast.SelectionSet, v *aivencredentials.ValkeyCredentials) graphql.Marshaler {
+func (ec *executionContext) marshalNValkeyCredentials2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyCredentials(ctx context.Context, sel ast.SelectionSet, v *valkey.ValkeyCredentials) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")

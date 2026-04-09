@@ -11,7 +11,6 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/nais/api/internal/graph/pagination"
-	"github.com/nais/api/internal/persistence/aivencredentials"
 	"github.com/nais/api/internal/persistence/kafkatopic"
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/workload"
@@ -80,7 +79,7 @@ func (ec *executionContext) field_KafkaTopic_acl_args(ctx context.Context, rawAr
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _CreateKafkaCredentialsPayload_credentials(ctx context.Context, field graphql.CollectedField, obj *aivencredentials.CreateKafkaCredentialsPayload) (ret graphql.Marshaler) {
+func (ec *executionContext) _CreateKafkaCredentialsPayload_credentials(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.CreateKafkaCredentialsPayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -90,7 +89,7 @@ func (ec *executionContext) _CreateKafkaCredentialsPayload_credentials(ctx conte
 			return obj.Credentials, nil
 		},
 		nil,
-		ec.marshalNKafkaCredentials2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋaivencredentialsᚐKafkaCredentials,
+		ec.marshalNKafkaCredentials2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaCredentials,
 		true,
 		true,
 	)
@@ -123,7 +122,7 @@ func (ec *executionContext) fieldContext_CreateKafkaCredentialsPayload_credentia
 	return fc, nil
 }
 
-func (ec *executionContext) _KafkaCredentials_username(ctx context.Context, field graphql.CollectedField, obj *aivencredentials.KafkaCredentials) (ret graphql.Marshaler) {
+func (ec *executionContext) _KafkaCredentials_username(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaCredentials) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -152,7 +151,7 @@ func (ec *executionContext) fieldContext_KafkaCredentials_username(_ context.Con
 	return fc, nil
 }
 
-func (ec *executionContext) _KafkaCredentials_accessCert(ctx context.Context, field graphql.CollectedField, obj *aivencredentials.KafkaCredentials) (ret graphql.Marshaler) {
+func (ec *executionContext) _KafkaCredentials_accessCert(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaCredentials) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -181,7 +180,7 @@ func (ec *executionContext) fieldContext_KafkaCredentials_accessCert(_ context.C
 	return fc, nil
 }
 
-func (ec *executionContext) _KafkaCredentials_accessKey(ctx context.Context, field graphql.CollectedField, obj *aivencredentials.KafkaCredentials) (ret graphql.Marshaler) {
+func (ec *executionContext) _KafkaCredentials_accessKey(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaCredentials) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -210,7 +209,7 @@ func (ec *executionContext) fieldContext_KafkaCredentials_accessKey(_ context.Co
 	return fc, nil
 }
 
-func (ec *executionContext) _KafkaCredentials_caCert(ctx context.Context, field graphql.CollectedField, obj *aivencredentials.KafkaCredentials) (ret graphql.Marshaler) {
+func (ec *executionContext) _KafkaCredentials_caCert(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaCredentials) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -239,7 +238,7 @@ func (ec *executionContext) fieldContext_KafkaCredentials_caCert(_ context.Conte
 	return fc, nil
 }
 
-func (ec *executionContext) _KafkaCredentials_brokers(ctx context.Context, field graphql.CollectedField, obj *aivencredentials.KafkaCredentials) (ret graphql.Marshaler) {
+func (ec *executionContext) _KafkaCredentials_brokers(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaCredentials) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -268,7 +267,7 @@ func (ec *executionContext) fieldContext_KafkaCredentials_brokers(_ context.Cont
 	return fc, nil
 }
 
-func (ec *executionContext) _KafkaCredentials_schemaRegistry(ctx context.Context, field graphql.CollectedField, obj *aivencredentials.KafkaCredentials) (ret graphql.Marshaler) {
+func (ec *executionContext) _KafkaCredentials_schemaRegistry(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaCredentials) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -1674,8 +1673,8 @@ func (ec *executionContext) fieldContext_TeamInventoryCountKafkaTopics_total(_ c
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputCreateKafkaCredentialsInput(ctx context.Context, obj any) (aivencredentials.CreateKafkaCredentialsInput, error) {
-	var it aivencredentials.CreateKafkaCredentialsInput
+func (ec *executionContext) unmarshalInputCreateKafkaCredentialsInput(ctx context.Context, obj any) (kafkatopic.CreateKafkaCredentialsInput, error) {
+	var it kafkatopic.CreateKafkaCredentialsInput
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -1830,7 +1829,7 @@ func (ec *executionContext) unmarshalInputKafkaTopicOrder(ctx context.Context, o
 
 var createKafkaCredentialsPayloadImplementors = []string{"CreateKafkaCredentialsPayload"}
 
-func (ec *executionContext) _CreateKafkaCredentialsPayload(ctx context.Context, sel ast.SelectionSet, obj *aivencredentials.CreateKafkaCredentialsPayload) graphql.Marshaler {
+func (ec *executionContext) _CreateKafkaCredentialsPayload(ctx context.Context, sel ast.SelectionSet, obj *kafkatopic.CreateKafkaCredentialsPayload) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, createKafkaCredentialsPayloadImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1869,7 +1868,7 @@ func (ec *executionContext) _CreateKafkaCredentialsPayload(ctx context.Context, 
 
 var kafkaCredentialsImplementors = []string{"KafkaCredentials"}
 
-func (ec *executionContext) _KafkaCredentials(ctx context.Context, sel ast.SelectionSet, obj *aivencredentials.KafkaCredentials) graphql.Marshaler {
+func (ec *executionContext) _KafkaCredentials(ctx context.Context, sel ast.SelectionSet, obj *kafkatopic.KafkaCredentials) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, kafkaCredentialsImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -2556,16 +2555,16 @@ func (ec *executionContext) _TeamInventoryCountKafkaTopics(ctx context.Context, 
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) unmarshalNCreateKafkaCredentialsInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋaivencredentialsᚐCreateKafkaCredentialsInput(ctx context.Context, v any) (aivencredentials.CreateKafkaCredentialsInput, error) {
+func (ec *executionContext) unmarshalNCreateKafkaCredentialsInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐCreateKafkaCredentialsInput(ctx context.Context, v any) (kafkatopic.CreateKafkaCredentialsInput, error) {
 	res, err := ec.unmarshalInputCreateKafkaCredentialsInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNCreateKafkaCredentialsPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋaivencredentialsᚐCreateKafkaCredentialsPayload(ctx context.Context, sel ast.SelectionSet, v aivencredentials.CreateKafkaCredentialsPayload) graphql.Marshaler {
+func (ec *executionContext) marshalNCreateKafkaCredentialsPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐCreateKafkaCredentialsPayload(ctx context.Context, sel ast.SelectionSet, v kafkatopic.CreateKafkaCredentialsPayload) graphql.Marshaler {
 	return ec._CreateKafkaCredentialsPayload(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNCreateKafkaCredentialsPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋaivencredentialsᚐCreateKafkaCredentialsPayload(ctx context.Context, sel ast.SelectionSet, v *aivencredentials.CreateKafkaCredentialsPayload) graphql.Marshaler {
+func (ec *executionContext) marshalNCreateKafkaCredentialsPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐCreateKafkaCredentialsPayload(ctx context.Context, sel ast.SelectionSet, v *kafkatopic.CreateKafkaCredentialsPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
@@ -2575,7 +2574,7 @@ func (ec *executionContext) marshalNCreateKafkaCredentialsPayload2ᚖgithubᚗco
 	return ec._CreateKafkaCredentialsPayload(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNKafkaCredentials2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋaivencredentialsᚐKafkaCredentials(ctx context.Context, sel ast.SelectionSet, v *aivencredentials.KafkaCredentials) graphql.Marshaler {
+func (ec *executionContext) marshalNKafkaCredentials2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaCredentials(ctx context.Context, sel ast.SelectionSet, v *kafkatopic.KafkaCredentials) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")

@@ -20,7 +20,6 @@ import (
 	"github.com/nais/api/internal/issue"
 	"github.com/nais/api/internal/loki"
 	"github.com/nais/api/internal/metrics"
-	"github.com/nais/api/internal/persistence/aivencredentials"
 	"github.com/nais/api/internal/persistence/bigquery"
 	"github.com/nais/api/internal/persistence/bucket"
 	"github.com/nais/api/internal/persistence/kafkatopic"
@@ -64,6 +63,7 @@ type ResolverRoot interface {
 	Config() ConfigResolver
 	ContainerImage() ContainerImageResolver
 	ContainerImageWorkloadReference() ContainerImageWorkloadReferenceResolver
+	CredentialsActivityLogEntryData() CredentialsActivityLogEntryDataResolver
 	CurrentUnitPrices() CurrentUnitPricesResolver
 	DeleteApplicationPayload() DeleteApplicationPayloadResolver
 	DeleteJobPayload() DeleteJobPayloadResolver
@@ -1310,16 +1310,16 @@ type ComplexityRoot struct {
 		ConfigureReconciler          func(childComplexity int, input reconciler.ConfigureReconcilerInput) int
 		ConfirmTeamDeletion          func(childComplexity int, input team.ConfirmTeamDeletionInput) int
 		CreateConfig                 func(childComplexity int, input config.CreateConfigInput) int
-		CreateKafkaCredentials       func(childComplexity int, input aivencredentials.CreateKafkaCredentialsInput) int
+		CreateKafkaCredentials       func(childComplexity int, input kafkatopic.CreateKafkaCredentialsInput) int
 		CreateOpenSearch             func(childComplexity int, input opensearch.CreateOpenSearchInput) int
-		CreateOpenSearchCredentials  func(childComplexity int, input aivencredentials.CreateOpenSearchCredentialsInput) int
+		CreateOpenSearchCredentials  func(childComplexity int, input opensearch.CreateOpenSearchCredentialsInput) int
 		CreateSecret                 func(childComplexity int, input secret.CreateSecretInput) int
 		CreateServiceAccount         func(childComplexity int, input serviceaccount.CreateServiceAccountInput) int
 		CreateServiceAccountToken    func(childComplexity int, input serviceaccount.CreateServiceAccountTokenInput) int
 		CreateTeam                   func(childComplexity int, input team.CreateTeamInput) int
 		CreateUnleashForTeam         func(childComplexity int, input unleash.CreateUnleashForTeamInput) int
 		CreateValkey                 func(childComplexity int, input valkey.CreateValkeyInput) int
-		CreateValkeyCredentials      func(childComplexity int, input aivencredentials.CreateValkeyCredentialsInput) int
+		CreateValkeyCredentials      func(childComplexity int, input valkey.CreateValkeyCredentialsInput) int
 		DeleteApplication            func(childComplexity int, input application.DeleteApplicationInput) int
 		DeleteConfig                 func(childComplexity int, input config.DeleteConfigInput) int
 		DeleteJob                    func(childComplexity int, input job.DeleteJobInput) int
@@ -8089,7 +8089,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Mutation.CreateKafkaCredentials(childComplexity, args["input"].(aivencredentials.CreateKafkaCredentialsInput)), true
+		return e.ComplexityRoot.Mutation.CreateKafkaCredentials(childComplexity, args["input"].(kafkatopic.CreateKafkaCredentialsInput)), true
 
 	case "Mutation.createOpenSearch":
 		if e.ComplexityRoot.Mutation.CreateOpenSearch == nil {
@@ -8113,7 +8113,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Mutation.CreateOpenSearchCredentials(childComplexity, args["input"].(aivencredentials.CreateOpenSearchCredentialsInput)), true
+		return e.ComplexityRoot.Mutation.CreateOpenSearchCredentials(childComplexity, args["input"].(opensearch.CreateOpenSearchCredentialsInput)), true
 
 	case "Mutation.createSecret":
 		if e.ComplexityRoot.Mutation.CreateSecret == nil {
@@ -8197,7 +8197,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Mutation.CreateValkeyCredentials(childComplexity, args["input"].(aivencredentials.CreateValkeyCredentialsInput)), true
+		return e.ComplexityRoot.Mutation.CreateValkeyCredentials(childComplexity, args["input"].(valkey.CreateValkeyCredentialsInput)), true
 
 	case "Mutation.deleteApplication":
 		if e.ComplexityRoot.Mutation.DeleteApplication == nil {
@@ -17385,7 +17385,7 @@ type CredentialsActivityLogEntryData {
 
 extend enum ActivityLogActivityType {
 	"Filter for credential creation events."
-	CREDENTIALS_CREATE
+	CREDENTIALS_CREATED
 }
 `, BuiltIn: false},
 	{Name: "../schema/alerts.graphqls", Input: `extend type TeamEnvironment {
