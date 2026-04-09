@@ -24,22 +24,22 @@ func TestParseTTL(t *testing.T) {
 		want    time.Duration
 		wantErr bool
 	}{
-		{name: "1 day", input: "1d", maxTTL: MaxTTLDefault, want: 24 * time.Hour},
-		{name: "7 days", input: "7d", maxTTL: MaxTTLDefault, want: 7 * 24 * time.Hour},
-		{name: "30 days", input: "30d", maxTTL: MaxTTLDefault, want: 30 * 24 * time.Hour},
-		{name: "24 hours", input: "24h", maxTTL: MaxTTLDefault, want: 24 * time.Hour},
-		{name: "168 hours", input: "168h", maxTTL: MaxTTLDefault, want: 168 * time.Hour},
-		{name: "with whitespace", input: "  3d  ", maxTTL: MaxTTLDefault, want: 3 * 24 * time.Hour},
-		{name: "exceeds max", input: "31d", maxTTL: MaxTTLDefault, wantErr: true},
-		{name: "zero days", input: "0d", maxTTL: MaxTTLDefault, wantErr: true},
-		{name: "negative days", input: "-1d", maxTTL: MaxTTLDefault, wantErr: true},
-		{name: "zero hours", input: "0h", maxTTL: MaxTTLDefault, wantErr: true},
-		{name: "negative hours", input: "-1h", maxTTL: MaxTTLDefault, wantErr: true},
-		{name: "invalid format", input: "abc", maxTTL: MaxTTLDefault, wantErr: true},
-		{name: "empty string", input: "", maxTTL: MaxTTLDefault, wantErr: true},
-		{name: "exceeds max hours", input: "721h", maxTTL: MaxTTLDefault, wantErr: true},
-		{name: "365 days accepted with 365-day max", input: "365d", maxTTL: MaxTTLKafka, want: 365 * 24 * time.Hour},
-		{name: "366 days rejected with 365-day max", input: "366d", maxTTL: MaxTTLKafka, wantErr: true},
+		{name: "1 day", input: "1d", maxTTL: maxTTLDefault, want: 24 * time.Hour},
+		{name: "7 days", input: "7d", maxTTL: maxTTLDefault, want: 7 * 24 * time.Hour},
+		{name: "30 days", input: "30d", maxTTL: maxTTLDefault, want: 30 * 24 * time.Hour},
+		{name: "24 hours", input: "24h", maxTTL: maxTTLDefault, want: 24 * time.Hour},
+		{name: "168 hours", input: "168h", maxTTL: maxTTLDefault, want: 168 * time.Hour},
+		{name: "with whitespace", input: "  3d  ", maxTTL: maxTTLDefault, want: 3 * 24 * time.Hour},
+		{name: "exceeds max", input: "31d", maxTTL: maxTTLDefault, wantErr: true},
+		{name: "zero days", input: "0d", maxTTL: maxTTLDefault, wantErr: true},
+		{name: "negative days", input: "-1d", maxTTL: maxTTLDefault, wantErr: true},
+		{name: "zero hours", input: "0h", maxTTL: maxTTLDefault, wantErr: true},
+		{name: "negative hours", input: "-1h", maxTTL: maxTTLDefault, wantErr: true},
+		{name: "invalid format", input: "abc", maxTTL: maxTTLDefault, wantErr: true},
+		{name: "empty string", input: "", maxTTL: maxTTLDefault, wantErr: true},
+		{name: "exceeds max hours", input: "721h", maxTTL: maxTTLDefault, wantErr: true},
+		{name: "365 days accepted with 365-day max", input: "365d", maxTTL: maxTTLKafka, want: 365 * 24 * time.Hour},
+		{name: "366 days rejected with 365-day max", input: "366d", maxTTL: maxTTLKafka, wantErr: true},
 	}
 
 	for _, tt := range tests {

@@ -42,8 +42,8 @@ const (
 	pollInterval = 2 * time.Second
 	pollTimeout  = 60 * time.Second
 
-	MaxTTLDefault = 30 * 24 * time.Hour  // 30 days — used by OpenSearch and Valkey
-	MaxTTLKafka   = 365 * 24 * time.Hour // 365 days — used by Kafka
+	maxTTLDefault = 30 * 24 * time.Hour  // 30 days — used by OpenSearch and Valkey
+	maxTTLKafka   = 365 * 24 * time.Hour // 365 days — used by Kafka
 )
 
 // credentialRequest captures all the parameters needed to create credentials for any Aiven service.
@@ -114,7 +114,7 @@ func CreateOpenSearchCredentials(ctx context.Context, input CreateOpenSearchCred
 		service:         "opensearch",
 		instanceName:    instanceName,
 		permission:      input.Permission.String(),
-		maxTTL:          MaxTTLDefault,
+		maxTTL:          maxTTLDefault,
 		buildSpec: func(namespace, secretName string, expiresAt time.Time) map[string]any {
 			return map[string]any{
 				"protected": true,
@@ -165,7 +165,7 @@ func CreateValkeyCredentials(ctx context.Context, input CreateValkeyCredentialsI
 		service:         "valkey",
 		instanceName:    instanceName,
 		permission:      input.Permission.String(),
-		maxTTL:          MaxTTLDefault,
+		maxTTL:          maxTTLDefault,
 		buildSpec: func(namespace, secretName string, expiresAt time.Time) map[string]any {
 			return map[string]any{
 				"protected": true,
@@ -202,7 +202,7 @@ func CreateKafkaCredentials(ctx context.Context, input CreateKafkaCredentialsInp
 		environmentName: input.EnvironmentName,
 		ttl:             input.TTL,
 		service:         "kafka",
-		maxTTL:          MaxTTLKafka,
+		maxTTL:          maxTTLKafka,
 		buildSpec: func(namespace, secretName string, expiresAt time.Time) map[string]any {
 			return map[string]any{
 				"protected": true,
