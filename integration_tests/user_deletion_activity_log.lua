@@ -1,20 +1,18 @@
 -- Test the user deletion trigger that creates activity log entries
 
 local userToDelete = User.new("user_to_delete", "delete@example.com", "delete123")
-local teamWithSingleRole = Team.new("team-single-role", "purpose", "#channel")
-local teamWithMultipleRoles = Team.new("team-multiple-roles", "purpose", "#channel")
+local team1 = Team.new("team-deletion-log-1", "purpose", "#channel")
+local team2 = Team.new("team-deletion-log-2", "purpose", "#channel")
 local otherUser = User.new("other_user", "other@example.com", "other123")
 
--- Add user to first team with single role
-teamWithSingleRole:addMember(userToDelete)
-teamWithSingleRole:addOwner(otherUser)
+-- Add user to two teams with different roles
+team1:addMember(userToDelete)
+team1:addOwner(otherUser)
 
--- Add user to second team with multiple roles (to test deduplication)
-teamWithMultipleRoles:addMember(userToDelete)
-teamWithMultipleRoles:addOwner(userToDelete)
-teamWithMultipleRoles:addOwner(otherUser)
+team2:addOwner(userToDelete)
+team2:addOwner(otherUser)
 
-Test.gql("Check activity log before user deletion for team with single role", function(t)
+Test.gql("Check activity log before user deletion", function(t)
 	t.addHeader("x-user-email", otherUser:email())
 
 	t.query(string.format([[
@@ -28,7 +26,7 @@ Test.gql("Check activity log before user deletion for team with single role", fu
 				}
 			}
 		}
-	]], "team-single-role"))
+	]], "team-deletion-log-1"))
 
 	t.check {
 		data = {
@@ -44,7 +42,7 @@ end)
 -- Delete the user using SQL - this triggers the log_user_deletion() function
 Helper.SQLExec("DELETE FROM users WHERE id = $1", userToDelete:id())
 
-Test.gql("Check activity log after user deletion for team with single role", function(t)
+Test.gql("Check activity log after user deletion for first team", function(t)
 	t.addHeader("x-user-email", otherUser:email())
 
 	t.query(string.format([[
@@ -67,7 +65,7 @@ Test.gql("Check activity log after user deletion for team with single role", fun
 				}
 			}
 		}
-	]], "team-single-role"))
+	]], "team-deletion-log-1"))
 
 	t.check {
 		data = {
@@ -79,7 +77,7 @@ Test.gql("Check activity log after user deletion for team with single role", fun
 							message = "Remove member",
 							actor = "system",
 							resourceType = "TEAM",
-							resourceName = "team-single-role",
+							resourceName = "team-deletion-log-1",
 							data = {
 								userEmail = userToDelete:email(),
 								userID = NotNull(),
@@ -92,7 +90,7 @@ Test.gql("Check activity log after user deletion for team with single role", fun
 	}
 end)
 
-Test.gql("Check activity log after user deletion for team with multiple roles (deduplication)", function(t)
+Test.gql("Check activity log after user deletion for second team", function(t)
 	t.addHeader("x-user-email", otherUser:email())
 
 	t.query(string.format([[
@@ -115,7 +113,7 @@ Test.gql("Check activity log after user deletion for team with multiple roles (d
 				}
 			}
 		}
-	]], "team-multiple-roles"))
+	]], "team-deletion-log-2"))
 
 	t.check {
 		data = {
@@ -127,7 +125,7 @@ Test.gql("Check activity log after user deletion for team with multiple roles (d
 							message = "Remove member",
 							actor = "system",
 							resourceType = "TEAM",
-							resourceName = "team-multiple-roles",
+							resourceName = "team-deletion-log-2",
 							data = {
 								userEmail = userToDelete:email(),
 								userID = NotNull(),
