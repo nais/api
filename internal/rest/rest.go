@@ -109,7 +109,6 @@ func MakeRouter(ctx context.Context, cfg Config) *chi.Mux {
 		}
 
 		r.Use(
-			middleware.ApiKeyAuthentication(),
 			middleware.RequireAuthenticatedUser(),
 		)
 
