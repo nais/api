@@ -986,16 +986,14 @@ type ComplexityRoot struct {
 	}
 
 	InstanceGroupEnvironmentVariable struct {
-		Name              func(childComplexity int) int
-		RequiresElevation func(childComplexity int) int
-		Source            func(childComplexity int) int
-		Value             func(childComplexity int) int
+		Name   func(childComplexity int) int
+		Source func(childComplexity int) int
+		Value  func(childComplexity int) int
 	}
 
 	InstanceGroupMountedFile struct {
-		Path              func(childComplexity int) int
-		RequiresElevation func(childComplexity int) int
-		Source            func(childComplexity int) int
+		Path   func(childComplexity int) int
+		Source func(childComplexity int) int
 	}
 
 	InstanceGroupValueSource struct {
@@ -6642,13 +6640,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.InstanceGroupEnvironmentVariable.Name(childComplexity), true
 
-	case "InstanceGroupEnvironmentVariable.requiresElevation":
-		if e.ComplexityRoot.InstanceGroupEnvironmentVariable.RequiresElevation == nil {
-			break
-		}
-
-		return e.ComplexityRoot.InstanceGroupEnvironmentVariable.RequiresElevation(childComplexity), true
-
 	case "InstanceGroupEnvironmentVariable.source":
 		if e.ComplexityRoot.InstanceGroupEnvironmentVariable.Source == nil {
 			break
@@ -6669,13 +6660,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.InstanceGroupMountedFile.Path(childComplexity), true
-
-	case "InstanceGroupMountedFile.requiresElevation":
-		if e.ComplexityRoot.InstanceGroupMountedFile.RequiresElevation == nil {
-			break
-		}
-
-		return e.ComplexityRoot.InstanceGroupMountedFile.RequiresElevation(childComplexity), true
 
 	case "InstanceGroupMountedFile.source":
 		if e.ComplexityRoot.InstanceGroupMountedFile.Source == nil {
@@ -20451,14 +20435,9 @@ type InstanceGroupEnvironmentVariable {
 	name: String!
 
 	"""
-	The value of the environment variable. Null if the value requires elevation to view.
+	The value of the environment variable. Null if the value comes from a Secret (requires elevation to view).
 	"""
 	value: String
-
-	"""
-	Whether viewing the value requires elevation (e.g. for Secret-backed variables).
-	"""
-	requiresElevation: Boolean!
 
 	"""
 	The source of the environment variable value.
@@ -20471,14 +20450,9 @@ A file mounted into an instance group from a Secret or ConfigMap.
 """
 type InstanceGroupMountedFile {
 	"""
-	The mount path inside the container.
+	The file path inside the container.
 	"""
 	path: String!
-
-	"""
-	Whether viewing the file content requires elevation (e.g. for Secret-backed files).
-	"""
-	requiresElevation: Boolean!
 
 	"""
 	The source of the mounted file.

@@ -73,14 +73,9 @@ type InstanceGroupEnvironmentVariable {
 	name: String!
 
 	"""
-	The value of the environment variable. Null if the value requires elevation to view.
+	The value of the environment variable. Null if the value comes from a Secret (requires elevation to view).
 	"""
 	value: String
-
-	"""
-	Whether viewing the value requires elevation (e.g. for Secret-backed variables).
-	"""
-	requiresElevation: Boolean!
 
 	"""
 	The source of the environment variable value.
@@ -93,14 +88,9 @@ A file mounted into an instance group from a Secret or ConfigMap.
 """
 type InstanceGroupMountedFile {
 	"""
-	The mount path inside the container.
+	The file path inside the container.
 	"""
 	path: String!
-
-	"""
-	Whether viewing the file content requires elevation (e.g. for Secret-backed files).
-	"""
-	requiresElevation: Boolean!
 
 	"""
 	The source of the mounted file.

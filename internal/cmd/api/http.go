@@ -284,7 +284,7 @@ func ConfigureGraph(
 		ctx = workload.NewLoaderContext(ctx, watchers.PodWatcher)
 		ctx = secret.NewLoaderContext(ctx, watchers.SecretWatcher, secretClientCreator, dynamicClients, clusters, log)
 		ctx = config.NewLoaderContext(ctx, watchers.ConfigWatcher, log)
-		ctx = instancegroup.NewLoaderContext(ctx, watchers.ReplicaSetWatcher, watchers.PodWatcher, log)
+		ctx = instancegroup.NewLoaderContext(ctx, watchers.ReplicaSetWatcher, watchers.PodWatcher, dynamicClients, log)
 		ctx = aiven.NewLoaderContext(ctx, aivenProjects)
 		ctx = opensearch.NewLoaderContext(ctx, tenantName, watchers.OpenSearchWatcher, aivenClient, log)
 		ctx = valkey.NewLoaderContext(ctx, tenantName, watchers.ValkeyWatcher, aivenClient)
