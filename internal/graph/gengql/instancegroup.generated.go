@@ -21,6 +21,7 @@ type InstanceGroupResolver interface {
 	EnvironmentVariables(ctx context.Context, obj *instancegroup.InstanceGroup) ([]*instancegroup.InstanceGroupEnvironmentVariable, error)
 	MountedFiles(ctx context.Context, obj *instancegroup.InstanceGroup) ([]*instancegroup.InstanceGroupMountedFile, error)
 	Instances(ctx context.Context, obj *instancegroup.InstanceGroup) ([]*application.ApplicationInstance, error)
+	Events(ctx context.Context, obj *instancegroup.InstanceGroup) ([]*instancegroup.InstanceGroupEvent, error)
 }
 
 // endregion ************************** generated!.gotpl **************************
@@ -373,6 +374,45 @@ func (ec *executionContext) fieldContext_InstanceGroup_instances(_ context.Conte
 	return fc, nil
 }
 
+func (ec *executionContext) _InstanceGroup_events(ctx context.Context, field graphql.CollectedField, obj *instancegroup.InstanceGroup) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_InstanceGroup_events,
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.InstanceGroup().Events(ctx, obj)
+		},
+		nil,
+		ec.marshalNInstanceGroupEvent2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋinstancegroupᚐInstanceGroupEventᚄ,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_InstanceGroup_events(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "InstanceGroup",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "timestamp":
+				return ec.fieldContext_InstanceGroupEvent_timestamp(ctx, field)
+			case "message":
+				return ec.fieldContext_InstanceGroupEvent_message(ctx, field)
+			case "severity":
+				return ec.fieldContext_InstanceGroupEvent_severity(ctx, field)
+			case "sourceInstance":
+				return ec.fieldContext_InstanceGroupEvent_sourceInstance(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type InstanceGroupEvent", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _InstanceGroupEnvironmentVariable_name(ctx context.Context, field graphql.CollectedField, obj *instancegroup.InstanceGroupEnvironmentVariable) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -461,6 +501,122 @@ func (ec *executionContext) fieldContext_InstanceGroupEnvironmentVariable_source
 				return ec.fieldContext_InstanceGroupValueSource_name(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type InstanceGroupValueSource", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _InstanceGroupEvent_timestamp(ctx context.Context, field graphql.CollectedField, obj *instancegroup.InstanceGroupEvent) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_InstanceGroupEvent_timestamp,
+		func(ctx context.Context) (any, error) {
+			return obj.Timestamp, nil
+		},
+		nil,
+		ec.marshalNTime2timeᚐTime,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_InstanceGroupEvent_timestamp(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "InstanceGroupEvent",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _InstanceGroupEvent_message(ctx context.Context, field graphql.CollectedField, obj *instancegroup.InstanceGroupEvent) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_InstanceGroupEvent_message,
+		func(ctx context.Context) (any, error) {
+			return obj.Message, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_InstanceGroupEvent_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "InstanceGroupEvent",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _InstanceGroupEvent_severity(ctx context.Context, field graphql.CollectedField, obj *instancegroup.InstanceGroupEvent) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_InstanceGroupEvent_severity,
+		func(ctx context.Context) (any, error) {
+			return obj.Severity, nil
+		},
+		nil,
+		ec.marshalNInstanceGroupEventSeverity2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋinstancegroupᚐInstanceGroupEventSeverity,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_InstanceGroupEvent_severity(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "InstanceGroupEvent",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type InstanceGroupEventSeverity does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _InstanceGroupEvent_sourceInstance(ctx context.Context, field graphql.CollectedField, obj *instancegroup.InstanceGroupEvent) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_InstanceGroupEvent_sourceInstance,
+		func(ctx context.Context) (any, error) {
+			return obj.SourceInstance, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_InstanceGroupEvent_sourceInstance(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "InstanceGroupEvent",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -754,6 +910,42 @@ func (ec *executionContext) _InstanceGroup(ctx context.Context, sel ast.Selectio
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "events":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._InstanceGroup_events(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -800,6 +992,57 @@ func (ec *executionContext) _InstanceGroupEnvironmentVariable(ctx context.Contex
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var instanceGroupEventImplementors = []string{"InstanceGroupEvent"}
+
+func (ec *executionContext) _InstanceGroupEvent(ctx context.Context, sel ast.SelectionSet, obj *instancegroup.InstanceGroupEvent) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, instanceGroupEventImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("InstanceGroupEvent")
+		case "timestamp":
+			out.Values[i] = ec._InstanceGroupEvent_timestamp(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "message":
+			out.Values[i] = ec._InstanceGroupEvent_message(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "severity":
+			out.Values[i] = ec._InstanceGroupEvent_severity(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "sourceInstance":
+			out.Values[i] = ec._InstanceGroupEvent_sourceInstance(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -965,6 +1208,42 @@ func (ec *executionContext) marshalNInstanceGroupEnvironmentVariable2ᚖgithub�
 		return graphql.Null
 	}
 	return ec._InstanceGroupEnvironmentVariable(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNInstanceGroupEvent2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋinstancegroupᚐInstanceGroupEventᚄ(ctx context.Context, sel ast.SelectionSet, v []*instancegroup.InstanceGroupEvent) graphql.Marshaler {
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNInstanceGroupEvent2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋinstancegroupᚐInstanceGroupEvent(ctx, sel, v[i])
+	})
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNInstanceGroupEvent2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋinstancegroupᚐInstanceGroupEvent(ctx context.Context, sel ast.SelectionSet, v *instancegroup.InstanceGroupEvent) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._InstanceGroupEvent(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNInstanceGroupEventSeverity2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋinstancegroupᚐInstanceGroupEventSeverity(ctx context.Context, v any) (instancegroup.InstanceGroupEventSeverity, error) {
+	var res instancegroup.InstanceGroupEventSeverity
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNInstanceGroupEventSeverity2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋinstancegroupᚐInstanceGroupEventSeverity(ctx context.Context, sel ast.SelectionSet, v instancegroup.InstanceGroupEventSeverity) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) marshalNInstanceGroupMountedFile2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋinstancegroupᚐInstanceGroupMountedFileᚄ(ctx context.Context, sel ast.SelectionSet, v []*instancegroup.InstanceGroupMountedFile) graphql.Marshaler {
