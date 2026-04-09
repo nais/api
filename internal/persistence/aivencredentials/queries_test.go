@@ -20,28 +20,31 @@ func TestParseTTL(t *testing.T) {
 	tests := []struct {
 		name    string
 		input   string
+		maxTTL  time.Duration
 		want    time.Duration
 		wantErr bool
 	}{
-		{name: "1 day", input: "1d", want: 24 * time.Hour},
-		{name: "7 days", input: "7d", want: 7 * 24 * time.Hour},
-		{name: "30 days", input: "30d", want: 30 * 24 * time.Hour},
-		{name: "24 hours", input: "24h", want: 24 * time.Hour},
-		{name: "168 hours", input: "168h", want: 168 * time.Hour},
-		{name: "with whitespace", input: "  3d  ", want: 3 * 24 * time.Hour},
-		{name: "exceeds max", input: "31d", wantErr: true},
-		{name: "zero days", input: "0d", wantErr: true},
-		{name: "negative days", input: "-1d", wantErr: true},
-		{name: "zero hours", input: "0h", wantErr: true},
-		{name: "negative hours", input: "-1h", wantErr: true},
-		{name: "invalid format", input: "abc", wantErr: true},
-		{name: "empty string", input: "", wantErr: true},
-		{name: "exceeds max hours", input: "721h", wantErr: true},
+		{name: "1 day", input: "1d", maxTTL: maxTTLDefault, want: 24 * time.Hour},
+		{name: "7 days", input: "7d", maxTTL: maxTTLDefault, want: 7 * 24 * time.Hour},
+		{name: "30 days", input: "30d", maxTTL: maxTTLDefault, want: 30 * 24 * time.Hour},
+		{name: "24 hours", input: "24h", maxTTL: maxTTLDefault, want: 24 * time.Hour},
+		{name: "168 hours", input: "168h", maxTTL: maxTTLDefault, want: 168 * time.Hour},
+		{name: "with whitespace", input: "  3d  ", maxTTL: maxTTLDefault, want: 3 * 24 * time.Hour},
+		{name: "exceeds max", input: "31d", maxTTL: maxTTLDefault, wantErr: true},
+		{name: "zero days", input: "0d", maxTTL: maxTTLDefault, wantErr: true},
+		{name: "negative days", input: "-1d", maxTTL: maxTTLDefault, wantErr: true},
+		{name: "zero hours", input: "0h", maxTTL: maxTTLDefault, wantErr: true},
+		{name: "negative hours", input: "-1h", maxTTL: maxTTLDefault, wantErr: true},
+		{name: "invalid format", input: "abc", maxTTL: maxTTLDefault, wantErr: true},
+		{name: "empty string", input: "", maxTTL: maxTTLDefault, wantErr: true},
+		{name: "exceeds max hours", input: "721h", maxTTL: maxTTLDefault, wantErr: true},
+		{name: "365 days accepted with 365-day max", input: "365d", maxTTL: maxTTLKafka, want: 365 * 24 * time.Hour},
+		{name: "366 days rejected with 365-day max", input: "366d", maxTTL: maxTTLKafka, wantErr: true},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := parseTTL(tt.input)
+			got, err := parseTTL(tt.input, tt.maxTTL)
 			if tt.wantErr {
 				if err == nil {
 					t.Errorf("parseTTL(%q) = %v, want error", tt.input, got)

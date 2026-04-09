@@ -41,7 +41,9 @@ var secretGVR = schema.GroupVersionResource{
 const (
 	pollInterval = 2 * time.Second
 	pollTimeout  = 60 * time.Second
-	maxTTL       = 30 * 24 * time.Hour // 30 days
+
+	maxTTLDefault = 30 * 24 * time.Hour  // 30 days — used by OpenSearch and Valkey
+	maxTTLKafka   = 365 * 24 * time.Hour // 365 days — used by Kafka
 )
 
 // credentialRequest captures all the parameters needed to create credentials for any Aiven service.
@@ -52,6 +54,7 @@ type credentialRequest struct {
 	service         string // "opensearch", "valkey", "kafka"
 	instanceName    string // empty for kafka
 	permission      string // empty for kafka
+	maxTTL          time.Duration
 
 	// buildSpec returns the AivenApplication spec for this service type.
 	buildSpec func(namespace, secretName string, expiresAt time.Time) map[string]any
@@ -62,7 +65,7 @@ type credentialRequest struct {
 
 // createCredentials is the shared implementation for all three credential types.
 func createCredentials(ctx context.Context, req credentialRequest) (any, error) {
-	ttl, err := parseTTL(req.ttl)
+	ttl, err := parseTTL(req.ttl, req.maxTTL)
 	if err != nil {
 		return nil, err
 	}
@@ -111,6 +114,7 @@ func CreateOpenSearchCredentials(ctx context.Context, input CreateOpenSearchCred
 		service:         "opensearch",
 		instanceName:    instanceName,
 		permission:      input.Permission.String(),
+		maxTTL:          maxTTLDefault,
 		buildSpec: func(namespace, secretName string, expiresAt time.Time) map[string]any {
 			return map[string]any{
 				"protected": true,
@@ -161,6 +165,7 @@ func CreateValkeyCredentials(ctx context.Context, input CreateValkeyCredentialsI
 		service:         "valkey",
 		instanceName:    instanceName,
 		permission:      input.Permission.String(),
+		maxTTL:          maxTTLDefault,
 		buildSpec: func(namespace, secretName string, expiresAt time.Time) map[string]any {
 			return map[string]any{
 				"protected": true,
@@ -197,6 +202,7 @@ func CreateKafkaCredentials(ctx context.Context, input CreateKafkaCredentialsInp
 		environmentName: input.EnvironmentName,
 		ttl:             input.TTL,
 		service:         "kafka",
+		maxTTL:          maxTTLKafka,
 		buildSpec: func(namespace, secretName string, expiresAt time.Time) map[string]any {
 			return map[string]any{
 				"protected": true,
@@ -349,7 +355,7 @@ func generateAppName(username, service string) string {
 }
 
 // parseTTL parses a human-readable TTL string (e.g. "1d", "7d", "24h") into a time.Duration.
-func parseTTL(ttl string) (time.Duration, error) {
+func parseTTL(ttl string, maxTTL time.Duration) (time.Duration, error) {
 	ttl = strings.TrimSpace(ttl)
 
 	var d time.Duration
@@ -373,7 +379,8 @@ func parseTTL(ttl string) (time.Duration, error) {
 		return 0, apierror.Errorf("TTL must be positive")
 	}
 	if d > maxTTL {
-		return 0, apierror.Errorf("TTL exceeds maximum of 30 days")
+		maxDays := int(maxTTL.Hours() / 24)
+		return 0, apierror.Errorf("TTL exceeds maximum of %d days", maxDays)
 	}
 	return d, nil
 }
