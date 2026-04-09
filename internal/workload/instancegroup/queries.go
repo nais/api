@@ -2,6 +2,10 @@ package instancegroup
 
 import (
 	"context"
+	"fmt"
+	"maps"
+	"path"
+	"slices"
 	"sort"
 
 	"github.com/nais/api/internal/graph/ident"
@@ -9,8 +13,11 @@ import (
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/workload/application"
 	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/selection"
+	"k8s.io/client-go/dynamic"
 )
 
 // ListForApplication returns all instance groups for an application, sorted by revision (newest first).
@@ -64,13 +71,14 @@ func GetByIdent(ctx context.Context, id ident.Ident) (*InstanceGroup, error) {
 }
 
 // ListEnvironmentVariables extracts environment variables from the instance group's pod template.
-// Variables from Secrets are marked as requiring elevation; their values are not included.
-// Variables from ConfigMaps or directly from spec have their values included.
-func ListEnvironmentVariables(ctx context.Context, ig *InstanceGroup) []*InstanceGroupEnvironmentVariable {
+// For envFrom references, it resolves individual key names by querying the Kubernetes API.
+// Variables from Secrets have nil values (require elevation). Variables from ConfigMaps include values.
+func ListEnvironmentVariables(ctx context.Context, ig *InstanceGroup) ([]*InstanceGroupEnvironmentVariable, error) {
 	if len(ig.PodTemplateSpec.Spec.Containers) == 0 {
-		return nil
+		return nil, nil
 	}
 
+	l := fromContext(ctx)
 	container := ig.PodTemplateSpec.Spec.Containers[0]
 	var envVars []*InstanceGroupEnvironmentVariable
 
@@ -82,7 +90,6 @@ func ListEnvironmentVariables(ctx context.Context, ig *InstanceGroup) []*Instanc
 
 		switch {
 		case env.ValueFrom != nil && env.ValueFrom.SecretKeyRef != nil:
-			ev.RequiresElevation = true
 			ev.Source = InstanceGroupValueSource{
 				Kind: InstanceGroupValueSourceKindSecret,
 				Name: env.ValueFrom.SecretKeyRef.LocalObjectReference.Name,
@@ -120,37 +127,74 @@ func ListEnvironmentVariables(ctx context.Context, ig *InstanceGroup) []*Instanc
 		envVars = append(envVars, ev)
 	}
 
-	// envFrom sources (whole secret/configmap injected as env vars)
+	// envFrom sources - resolve individual key names from the referenced Secret/ConfigMap
 	for _, envFrom := range container.EnvFrom {
+		prefix := envFrom.Prefix
+
 		switch {
 		case envFrom.SecretRef != nil:
-			envVars = append(envVars, &InstanceGroupEnvironmentVariable{
-				Name:              "(all keys from " + envFrom.SecretRef.Name + ")",
-				RequiresElevation: true,
-				Source: InstanceGroupValueSource{
-					Kind: InstanceGroupValueSourceKindSecret,
-					Name: envFrom.SecretRef.Name,
-				},
-			})
+			secretName := envFrom.SecretRef.Name
+			keys, err := getSecretKeys(ctx, l, ig.EnvironmentName, ig.TeamSlug.String(), secretName)
+			if err != nil {
+				l.log.WithError(err).WithField("secret", secretName).Warn("failed to resolve secret keys for envFrom")
+				envVars = append(envVars, &InstanceGroupEnvironmentVariable{
+					Name: fmt.Sprintf("(unable to resolve keys from Secret %s)", secretName),
+					Source: InstanceGroupValueSource{
+						Kind: InstanceGroupValueSourceKindSecret,
+						Name: secretName,
+					},
+				})
+				continue
+			}
+			for _, key := range keys {
+				envVars = append(envVars, &InstanceGroupEnvironmentVariable{
+					Name: prefix + key,
+					Source: InstanceGroupValueSource{
+						Kind: InstanceGroupValueSourceKindSecret,
+						Name: secretName,
+					},
+				})
+			}
+
 		case envFrom.ConfigMapRef != nil:
-			envVars = append(envVars, &InstanceGroupEnvironmentVariable{
-				Name: "(all keys from " + envFrom.ConfigMapRef.Name + ")",
-				Source: InstanceGroupValueSource{
-					Kind: InstanceGroupValueSourceKindConfigMap,
-					Name: envFrom.ConfigMapRef.Name,
-				},
-			})
+			cmName := envFrom.ConfigMapRef.Name
+			data, err := getConfigMapData(ctx, l, ig.EnvironmentName, ig.TeamSlug.String(), cmName)
+			if err != nil {
+				l.log.WithError(err).WithField("configmap", cmName).Warn("failed to resolve configmap data for envFrom")
+				envVars = append(envVars, &InstanceGroupEnvironmentVariable{
+					Name: fmt.Sprintf("(unable to resolve keys from ConfigMap %s)", cmName),
+					Source: InstanceGroupValueSource{
+						Kind: InstanceGroupValueSourceKindConfigMap,
+						Name: cmName,
+					},
+				})
+				continue
+			}
+			for _, key := range slices.Sorted(maps.Keys(data)) {
+				value := data[key]
+				envVars = append(envVars, &InstanceGroupEnvironmentVariable{
+					Name:  prefix + key,
+					Value: &value,
+					Source: InstanceGroupValueSource{
+						Kind: InstanceGroupValueSourceKindConfigMap,
+						Name: cmName,
+					},
+				})
+			}
 		}
 	}
 
-	return envVars
+	return envVars, nil
 }
 
 // ListMountedFiles extracts mounted files (from Secrets/ConfigMaps) from the instance group's pod template.
-func ListMountedFiles(ctx context.Context, ig *InstanceGroup) []*InstanceGroupMountedFile {
+// Files are expanded to individual paths by resolving key names from the Kubernetes API.
+func ListMountedFiles(ctx context.Context, ig *InstanceGroup) ([]*InstanceGroupMountedFile, error) {
 	if len(ig.PodTemplateSpec.Spec.Containers) == 0 {
-		return nil
+		return nil, nil
 	}
+
+	l := fromContext(ctx)
 
 	// Build a map of volume name -> volume source for lookup
 	volumeMap := make(map[string]corev1.Volume)
@@ -167,51 +211,161 @@ func ListMountedFiles(ctx context.Context, ig *InstanceGroup) []*InstanceGroupMo
 			continue
 		}
 
-		file := &InstanceGroupMountedFile{
-			Path: mount.MountPath,
-		}
-
 		switch {
 		case vol.Secret != nil:
-			file.RequiresElevation = true
-			file.Source = InstanceGroupValueSource{
-				Kind: InstanceGroupValueSourceKindSecret,
-				Name: vol.Secret.SecretName,
-			}
+			expanded := expandSecretVolume(ctx, l, ig, mount, vol.Secret.SecretName, vol.Secret.Items)
+			files = append(files, expanded...)
+
 		case vol.ConfigMap != nil:
-			file.Source = InstanceGroupValueSource{
-				Kind: InstanceGroupValueSourceKindConfigMap,
-				Name: vol.ConfigMap.Name,
-			}
+			expanded := expandConfigMapVolume(ctx, l, ig, mount, vol.ConfigMap.Name, vol.ConfigMap.Items)
+			files = append(files, expanded...)
+
 		case vol.Projected != nil:
-			// Projected volumes can contain multiple sources. List first source as representative.
-			file.Source = InstanceGroupValueSource{
-				Kind: InstanceGroupValueSourceKindSpec,
-				Name: "projected",
-			}
-			for _, source := range vol.Projected.Sources {
-				if source.Secret != nil {
-					file.RequiresElevation = true
-					file.Source = InstanceGroupValueSource{
-						Kind: InstanceGroupValueSourceKindSecret,
-						Name: source.Secret.Name,
-					}
-					break
-				}
-				if source.ConfigMap != nil {
-					file.Source = InstanceGroupValueSource{
-						Kind: InstanceGroupValueSourceKindConfigMap,
-						Name: source.ConfigMap.Name,
-					}
-					break
-				}
-			}
+			expanded := expandProjectedVolume(ctx, l, ig, mount, vol.Projected)
+			files = append(files, expanded...)
+
 		default:
 			// Skip volumes that aren't from secrets/configmaps (emptyDir, hostPath, etc.)
 			continue
 		}
+	}
 
-		files = append(files, file)
+	return files, nil
+}
+
+// expandSecretVolume expands a secret volume mount into individual file entries.
+func expandSecretVolume(ctx context.Context, l *loaders, ig *InstanceGroup, mount corev1.VolumeMount, secretName string, items []corev1.KeyToPath) []*InstanceGroupMountedFile {
+	source := InstanceGroupValueSource{
+		Kind: InstanceGroupValueSourceKindSecret,
+		Name: secretName,
+	}
+
+	// subPath means a single key is mounted directly at mountPath
+	if mount.SubPath != "" {
+		return []*InstanceGroupMountedFile{{
+			Path:   mount.MountPath,
+			Source: source,
+		}}
+	}
+
+	// If items are specified, only those keys are mounted
+	if len(items) > 0 {
+		files := make([]*InstanceGroupMountedFile, 0, len(items))
+		for _, item := range items {
+			files = append(files, &InstanceGroupMountedFile{
+				Path:   path.Join(mount.MountPath, item.Path),
+				Source: source,
+			})
+		}
+		return files
+	}
+
+	// No items specified - all keys are mounted as files. Resolve from K8s API.
+	keys, err := getSecretKeys(ctx, l, ig.EnvironmentName, ig.TeamSlug.String(), secretName)
+	if err != nil {
+		l.log.WithError(err).WithField("secret", secretName).Warn("failed to resolve secret keys for volume mount")
+		return []*InstanceGroupMountedFile{{
+			Path:   mount.MountPath + fmt.Sprintf("/ (unable to resolve files from Secret %s)", secretName),
+			Source: source,
+		}}
+	}
+
+	files := make([]*InstanceGroupMountedFile, 0, len(keys))
+	for _, key := range keys {
+		files = append(files, &InstanceGroupMountedFile{
+			Path:   path.Join(mount.MountPath, key),
+			Source: source,
+		})
+	}
+	return files
+}
+
+// expandConfigMapVolume expands a configmap volume mount into individual file entries.
+func expandConfigMapVolume(ctx context.Context, l *loaders, ig *InstanceGroup, mount corev1.VolumeMount, cmName string, items []corev1.KeyToPath) []*InstanceGroupMountedFile {
+	source := InstanceGroupValueSource{
+		Kind: InstanceGroupValueSourceKindConfigMap,
+		Name: cmName,
+	}
+
+	// subPath means a single key is mounted directly at mountPath
+	if mount.SubPath != "" {
+		return []*InstanceGroupMountedFile{{
+			Path:   mount.MountPath,
+			Source: source,
+		}}
+	}
+
+	// If items are specified, only those keys are mounted
+	if len(items) > 0 {
+		files := make([]*InstanceGroupMountedFile, 0, len(items))
+		for _, item := range items {
+			files = append(files, &InstanceGroupMountedFile{
+				Path:   path.Join(mount.MountPath, item.Path),
+				Source: source,
+			})
+		}
+		return files
+	}
+
+	// No items specified - all keys are mounted as files. Resolve from K8s API.
+	data, err := getConfigMapData(ctx, l, ig.EnvironmentName, ig.TeamSlug.String(), cmName)
+	if err != nil {
+		l.log.WithError(err).WithField("configmap", cmName).Warn("failed to resolve configmap keys for volume mount")
+		return []*InstanceGroupMountedFile{{
+			Path:   mount.MountPath + fmt.Sprintf("/ (unable to resolve files from ConfigMap %s)", cmName),
+			Source: source,
+		}}
+	}
+
+	keys := slices.Sorted(maps.Keys(data))
+	files := make([]*InstanceGroupMountedFile, 0, len(keys))
+	for _, key := range keys {
+		files = append(files, &InstanceGroupMountedFile{
+			Path:   path.Join(mount.MountPath, key),
+			Source: source,
+		})
+	}
+	return files
+}
+
+// expandProjectedVolume expands a projected volume mount into individual file entries.
+func expandProjectedVolume(ctx context.Context, l *loaders, ig *InstanceGroup, mount corev1.VolumeMount, projected *corev1.ProjectedVolumeSource) []*InstanceGroupMountedFile {
+	// subPath means a single file is mounted directly at mountPath
+	if mount.SubPath != "" {
+		// For projected volumes with subPath, use the first source as representative
+		source := InstanceGroupValueSource{Kind: InstanceGroupValueSourceKindSpec, Name: "projected"}
+		for _, src := range projected.Sources {
+			if src.Secret != nil {
+				source = InstanceGroupValueSource{Kind: InstanceGroupValueSourceKindSecret, Name: src.Secret.Name}
+				break
+			}
+			if src.ConfigMap != nil {
+				source = InstanceGroupValueSource{Kind: InstanceGroupValueSourceKindConfigMap, Name: src.ConfigMap.Name}
+				break
+			}
+		}
+		return []*InstanceGroupMountedFile{{
+			Path:   mount.MountPath,
+			Source: source,
+		}}
+	}
+
+	var files []*InstanceGroupMountedFile
+
+	for _, src := range projected.Sources {
+		switch {
+		case src.Secret != nil:
+			expanded := expandSecretVolume(ctx, l, ig, corev1.VolumeMount{
+				MountPath: mount.MountPath,
+			}, src.Secret.Name, src.Secret.Items)
+			files = append(files, expanded...)
+
+		case src.ConfigMap != nil:
+			expanded := expandConfigMapVolume(ctx, l, ig, corev1.VolumeMount{
+				MountPath: mount.MountPath,
+			}, src.ConfigMap.Name, src.ConfigMap.Items)
+			files = append(files, expanded...)
+		}
 	}
 
 	return files
@@ -274,4 +428,50 @@ func toApplicationInstance(pod *corev1.Pod, teamSlug slug.Slug, environmentName,
 		ApplicationName:            applicationName,
 		ApplicationContainerStatus: containerStatus,
 	}
+}
+
+// getSecretKeys fetches the key names from a Secret in the given namespace via direct K8s API call.
+// Only key names are returned, not values.
+func getSecretKeys(ctx context.Context, l *loaders, environmentName, namespace, secretName string) ([]string, error) {
+	client, err := l.k8sClient(environmentName)
+	if err != nil {
+		return nil, err
+	}
+
+	obj, err := secretResource(client).Namespace(namespace).Get(ctx, secretName, metav1.GetOptions{})
+	if err != nil {
+		return nil, fmt.Errorf("get secret %s/%s: %w", namespace, secretName, err)
+	}
+
+	data, _, _ := unstructured.NestedMap(obj.Object, "data")
+	keys := make([]string, 0, len(data))
+	for k := range data {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	return keys, nil
+}
+
+// getConfigMapData fetches the key-value data from a ConfigMap in the given namespace via direct K8s API call.
+func getConfigMapData(ctx context.Context, l *loaders, environmentName, namespace, cmName string) (map[string]string, error) {
+	client, err := l.k8sClient(environmentName)
+	if err != nil {
+		return nil, err
+	}
+
+	obj, err := configMapResource(client).Namespace(namespace).Get(ctx, cmName, metav1.GetOptions{})
+	if err != nil {
+		return nil, fmt.Errorf("get configmap %s/%s: %w", namespace, cmName, err)
+	}
+
+	data, _, _ := unstructured.NestedStringMap(obj.Object, "data")
+	return data, nil
+}
+
+func secretResource(client dynamic.Interface) dynamic.NamespaceableResourceInterface {
+	return client.Resource(corev1.SchemeGroupVersion.WithResource("secrets"))
+}
+
+func configMapResource(client dynamic.Interface) dynamic.NamespaceableResourceInterface {
+	return client.Resource(corev1.SchemeGroupVersion.WithResource("configmaps"))
 }

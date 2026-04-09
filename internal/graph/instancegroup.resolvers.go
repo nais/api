@@ -13,11 +13,11 @@ func (r *applicationResolver) InstanceGroups(ctx context.Context, obj *applicati
 }
 
 func (r *instanceGroupResolver) EnvironmentVariables(ctx context.Context, obj *instancegroup.InstanceGroup) ([]*instancegroup.InstanceGroupEnvironmentVariable, error) {
-	return instancegroup.ListEnvironmentVariables(ctx, obj), nil
+	return instancegroup.ListEnvironmentVariables(ctx, obj)
 }
 
 func (r *instanceGroupResolver) MountedFiles(ctx context.Context, obj *instancegroup.InstanceGroup) ([]*instancegroup.InstanceGroupMountedFile, error) {
-	return instancegroup.ListMountedFiles(ctx, obj), nil
+	return instancegroup.ListMountedFiles(ctx, obj)
 }
 
 func (r *instanceGroupResolver) Instances(ctx context.Context, obj *instancegroup.InstanceGroup) ([]*application.ApplicationInstance, error) {

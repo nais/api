@@ -48,17 +48,15 @@ func (ig InstanceGroup) Image() *workload.ContainerImage {
 
 // InstanceGroupEnvironmentVariable represents an environment variable in an instance group.
 type InstanceGroupEnvironmentVariable struct {
-	Name              string                   `json:"name"`
-	Value             *string                  `json:"value"`
-	RequiresElevation bool                     `json:"requiresElevation"`
-	Source            InstanceGroupValueSource `json:"source"`
+	Name   string                   `json:"name"`
+	Value  *string                  `json:"value"`
+	Source InstanceGroupValueSource `json:"source"`
 }
 
 // InstanceGroupMountedFile represents a file mounted from a Secret or ConfigMap.
 type InstanceGroupMountedFile struct {
-	Path              string                   `json:"path"`
-	RequiresElevation bool                     `json:"requiresElevation"`
-	Source            InstanceGroupValueSource `json:"source"`
+	Path   string                   `json:"path"`
+	Source InstanceGroupValueSource `json:"source"`
 }
 
 // InstanceGroupValueSource describes where a value comes from.

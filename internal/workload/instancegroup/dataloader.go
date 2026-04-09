@@ -5,21 +5,24 @@ import (
 	"fmt"
 	"slices"
 
+	"github.com/nais/api/internal/environmentmapper"
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/sirupsen/logrus"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/client-go/dynamic"
 )
 
 type ctxKey int
 
 const loadersKey ctxKey = iota
 
-func NewLoaderContext(ctx context.Context, rsWatcher *watcher.Watcher[*appsv1.ReplicaSet], podWatcher *watcher.Watcher[*corev1.Pod], log logrus.FieldLogger) context.Context {
+func NewLoaderContext(ctx context.Context, rsWatcher *watcher.Watcher[*appsv1.ReplicaSet], podWatcher *watcher.Watcher[*corev1.Pod], k8sClients map[string]dynamic.Interface, log logrus.FieldLogger) context.Context {
 	return context.WithValue(ctx, loadersKey, &loaders{
 		rsWatcher:  rsWatcher,
 		podWatcher: podWatcher,
+		k8sClients: k8sClients,
 		log:        log,
 	})
 }
@@ -37,7 +40,18 @@ func fromContext(ctx context.Context) *loaders {
 type loaders struct {
 	rsWatcher  *watcher.Watcher[*appsv1.ReplicaSet]
 	podWatcher *watcher.Watcher[*corev1.Pod]
+	k8sClients map[string]dynamic.Interface
 	log        logrus.FieldLogger
+}
+
+// k8sClient returns a system-authenticated dynamic client for the given environment.
+func (l *loaders) k8sClient(environmentName string) (dynamic.Interface, error) {
+	clusterName := environmentmapper.ClusterName(environmentName)
+	client, ok := l.k8sClients[clusterName]
+	if !ok {
+		return nil, fmt.Errorf("unknown environment: %s", environmentName)
+	}
+	return client, nil
 }
 
 // transformReplicaSet strips unnecessary fields from ReplicaSets but keeps

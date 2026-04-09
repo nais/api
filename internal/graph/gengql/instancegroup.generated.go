@@ -284,8 +284,6 @@ func (ec *executionContext) fieldContext_InstanceGroup_environmentVariables(_ co
 				return ec.fieldContext_InstanceGroupEnvironmentVariable_name(ctx, field)
 			case "value":
 				return ec.fieldContext_InstanceGroupEnvironmentVariable_value(ctx, field)
-			case "requiresElevation":
-				return ec.fieldContext_InstanceGroupEnvironmentVariable_requiresElevation(ctx, field)
 			case "source":
 				return ec.fieldContext_InstanceGroupEnvironmentVariable_source(ctx, field)
 			}
@@ -321,8 +319,6 @@ func (ec *executionContext) fieldContext_InstanceGroup_mountedFiles(_ context.Co
 			switch field.Name {
 			case "path":
 				return ec.fieldContext_InstanceGroupMountedFile_path(ctx, field)
-			case "requiresElevation":
-				return ec.fieldContext_InstanceGroupMountedFile_requiresElevation(ctx, field)
 			case "source":
 				return ec.fieldContext_InstanceGroupMountedFile_source(ctx, field)
 			}
@@ -435,35 +431,6 @@ func (ec *executionContext) fieldContext_InstanceGroupEnvironmentVariable_value(
 	return fc, nil
 }
 
-func (ec *executionContext) _InstanceGroupEnvironmentVariable_requiresElevation(ctx context.Context, field graphql.CollectedField, obj *instancegroup.InstanceGroupEnvironmentVariable) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_InstanceGroupEnvironmentVariable_requiresElevation,
-		func(ctx context.Context) (any, error) {
-			return obj.RequiresElevation, nil
-		},
-		nil,
-		ec.marshalNBoolean2bool,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_InstanceGroupEnvironmentVariable_requiresElevation(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "InstanceGroupEnvironmentVariable",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _InstanceGroupEnvironmentVariable_source(ctx context.Context, field graphql.CollectedField, obj *instancegroup.InstanceGroupEnvironmentVariable) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -523,35 +490,6 @@ func (ec *executionContext) fieldContext_InstanceGroupMountedFile_path(_ context
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _InstanceGroupMountedFile_requiresElevation(ctx context.Context, field graphql.CollectedField, obj *instancegroup.InstanceGroupMountedFile) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_InstanceGroupMountedFile_requiresElevation,
-		func(ctx context.Context) (any, error) {
-			return obj.RequiresElevation, nil
-		},
-		nil,
-		ec.marshalNBoolean2bool,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_InstanceGroupMountedFile_requiresElevation(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "InstanceGroupMountedFile",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
 		},
 	}
 	return fc, nil
@@ -857,11 +795,6 @@ func (ec *executionContext) _InstanceGroupEnvironmentVariable(ctx context.Contex
 			}
 		case "value":
 			out.Values[i] = ec._InstanceGroupEnvironmentVariable_value(ctx, field, obj)
-		case "requiresElevation":
-			out.Values[i] = ec._InstanceGroupEnvironmentVariable_requiresElevation(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "source":
 			out.Values[i] = ec._InstanceGroupEnvironmentVariable_source(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -903,11 +836,6 @@ func (ec *executionContext) _InstanceGroupMountedFile(ctx context.Context, sel a
 			out.Values[i] = graphql.MarshalString("InstanceGroupMountedFile")
 		case "path":
 			out.Values[i] = ec._InstanceGroupMountedFile_path(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "requiresElevation":
-			out.Values[i] = ec._InstanceGroupMountedFile_requiresElevation(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
