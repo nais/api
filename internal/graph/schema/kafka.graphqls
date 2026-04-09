@@ -1,3 +1,8 @@
+extend type Mutation {
+	"Create temporary credentials for Kafka."
+	createKafkaCredentials(input: CreateKafkaCredentialsInput!): CreateKafkaCredentialsPayload!
+}
+
 extend type Team {
 	"Kafka topics owned by the team."
 	kafkaTopics(
@@ -148,4 +153,33 @@ extend union SearchNode = KafkaTopic
 
 extend enum SearchType {
 	KAFKA_TOPIC
+}
+
+input CreateKafkaCredentialsInput {
+	"The team that owns the Kafka topic."
+	teamSlug: Slug!
+	"The environment name that the Kafka topic belongs to."
+	environmentName: String!
+	"Time-to-live for the credentials (e.g. '1d', '7d'). Maximum 365 days."
+	ttl: String!
+}
+
+type KafkaCredentials {
+	"Username for the Kafka broker."
+	username: String!
+	"Client certificate in PEM format."
+	accessCert: String!
+	"Client private key in PEM format."
+	accessKey: String!
+	"CA certificate in PEM format."
+	caCert: String!
+	"Comma-separated list of broker addresses."
+	brokers: String!
+	"Schema registry URL."
+	schemaRegistry: String!
+}
+
+type CreateKafkaCredentialsPayload {
+	"The generated credentials."
+	credentials: KafkaCredentials!
 }

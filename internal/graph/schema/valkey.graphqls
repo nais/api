@@ -278,6 +278,8 @@ extend type Mutation {
 	updateValkey(input: UpdateValkeyInput!): UpdateValkeyPayload!
 	"Delete an existing Valkey instance."
 	deleteValkey(input: DeleteValkeyInput!): DeleteValkeyPayload!
+	"Create temporary credentials for a Valkey instance."
+	createValkeyCredentials(input: CreateValkeyCredentialsInput!): CreateValkeyCredentialsPayload!
 }
 
 extend enum ActivityLogEntryResourceType {
@@ -398,4 +400,35 @@ type ValkeyDeletedActivityLogEntry implements ActivityLogEntry & Node {
 
 	"The environment name that the entry belongs to."
 	environmentName: String
+}
+
+input CreateValkeyCredentialsInput {
+	"The team that owns the Valkey instance."
+	teamSlug: Slug!
+	"The environment name that the Valkey instance belongs to."
+	environmentName: String!
+	"Name of the Valkey instance."
+	instanceName: String!
+	"Permission level for the credentials."
+	permission: CredentialPermission!
+	"Time-to-live for the credentials (e.g. '1d', '7d'). Maximum 30 days."
+	ttl: String!
+}
+
+type ValkeyCredentials {
+	"Username for the Valkey instance."
+	username: String!
+	"Password for the Valkey instance."
+	password: String!
+	"Hostname of the Valkey instance."
+	host: String!
+	"Port of the Valkey instance."
+	port: Int!
+	"Full connection URI for the Valkey instance."
+	uri: String!
+}
+
+type CreateValkeyCredentialsPayload {
+	"The generated credentials."
+	credentials: ValkeyCredentials!
 }
