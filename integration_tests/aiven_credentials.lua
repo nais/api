@@ -114,7 +114,7 @@ Test.gql("Cannot create credentials for non-existing team", function(t)
 	}
 end)
 
--- Input validation: TTL exceeds maximum
+-- Input validation: TTL exceeds maximum (OpenSearch)
 Test.gql("TTL exceeding 30 days is rejected", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query(string.format([[
@@ -142,7 +142,61 @@ Test.gql("TTL exceeding 30 days is rejected", function(t)
 	}
 end)
 
--- Input validation: invalid TTL format
+-- Input validation: TTL exceeds maximum (Valkey)
+Test.gql("Valkey TTL exceeding 30 days is rejected", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query(string.format([[
+		mutation {
+		  createValkeyCredentials(input: {
+		    teamSlug: "%s"
+		    environmentName: "dev"
+		    instanceName: "my-valkey"
+		    permission: READ
+		    ttl: "31d"
+		  }) {
+		    credentials { username }
+		  }
+		}
+	]], team:slug()))
+
+	t.check {
+		errors = {
+			{
+				message = Contains("TTL exceeds maximum of 30 days"),
+				path = { "createValkeyCredentials" },
+			},
+		},
+		data = Null,
+	}
+end)
+
+-- Input validation: TTL exceeds maximum (Kafka)
+Test.gql("Kafka TTL exceeding 30 days is rejected", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query(string.format([[
+		mutation {
+		  createKafkaCredentials(input: {
+		    teamSlug: "%s"
+		    environmentName: "dev"
+		    ttl: "31d"
+		  }) {
+		    credentials { username }
+		  }
+		}
+	]], team:slug()))
+
+	t.check {
+		errors = {
+			{
+				message = Contains("TTL exceeds maximum of 30 days"),
+				path = { "createKafkaCredentials" },
+			},
+		},
+		data = Null,
+	}
+end)
+
+-- Input validation: invalid TTL format (Valkey)
 Test.gql("Invalid TTL format is rejected", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query(string.format([[
@@ -170,7 +224,61 @@ Test.gql("Invalid TTL format is rejected", function(t)
 	}
 end)
 
--- Input validation: zero TTL
+-- Input validation: invalid TTL format (OpenSearch)
+Test.gql("OpenSearch invalid TTL format is rejected", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query(string.format([[
+		mutation {
+		  createOpenSearchCredentials(input: {
+		    teamSlug: "%s"
+		    environmentName: "dev"
+		    instanceName: "my-opensearch"
+		    permission: READ
+		    ttl: "abc"
+		  }) {
+		    credentials { username }
+		  }
+		}
+	]], team:slug()))
+
+	t.check {
+		errors = {
+			{
+				message = Contains("invalid TTL"),
+				path = { "createOpenSearchCredentials" },
+			},
+		},
+		data = Null,
+	}
+end)
+
+-- Input validation: invalid TTL format (Kafka)
+Test.gql("Kafka invalid TTL format is rejected", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query(string.format([[
+		mutation {
+		  createKafkaCredentials(input: {
+		    teamSlug: "%s"
+		    environmentName: "dev"
+		    ttl: "abc"
+		  }) {
+		    credentials { username }
+		  }
+		}
+	]], team:slug()))
+
+	t.check {
+		errors = {
+			{
+				message = Contains("invalid TTL"),
+				path = { "createKafkaCredentials" },
+			},
+		},
+		data = Null,
+	}
+end)
+
+-- Input validation: zero TTL (Kafka)
 Test.gql("Zero TTL is rejected", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query(string.format([[
@@ -190,6 +298,62 @@ Test.gql("Zero TTL is rejected", function(t)
 			{
 				message = Contains("TTL must be positive"),
 				path = { "createKafkaCredentials" },
+			},
+		},
+		data = Null,
+	}
+end)
+
+-- Input validation: zero TTL (OpenSearch)
+Test.gql("OpenSearch zero TTL is rejected", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query(string.format([[
+		mutation {
+		  createOpenSearchCredentials(input: {
+		    teamSlug: "%s"
+		    environmentName: "dev"
+		    instanceName: "my-opensearch"
+		    permission: READ
+		    ttl: "0d"
+		  }) {
+		    credentials { username }
+		  }
+		}
+	]], team:slug()))
+
+	t.check {
+		errors = {
+			{
+				message = Contains("TTL must be positive"),
+				path = { "createOpenSearchCredentials" },
+			},
+		},
+		data = Null,
+	}
+end)
+
+-- Input validation: zero TTL (Valkey)
+Test.gql("Valkey zero TTL is rejected", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query(string.format([[
+		mutation {
+		  createValkeyCredentials(input: {
+		    teamSlug: "%s"
+		    environmentName: "dev"
+		    instanceName: "my-valkey"
+		    permission: READ
+		    ttl: "0d"
+		  }) {
+		    credentials { username }
+		  }
+		}
+	]], team:slug()))
+
+	t.check {
+		errors = {
+			{
+				message = Contains("TTL must be positive"),
+				path = { "createValkeyCredentials" },
 			},
 		},
 		data = Null,
