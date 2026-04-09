@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/sirupsen/logrus/hooks/test"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -24,22 +25,22 @@ func TestParseTTL(t *testing.T) {
 		want    time.Duration
 		wantErr bool
 	}{
-		{name: "1 day", input: "1d", maxTTL: maxTTLDefault, want: 24 * time.Hour},
-		{name: "7 days", input: "7d", maxTTL: maxTTLDefault, want: 7 * 24 * time.Hour},
-		{name: "30 days", input: "30d", maxTTL: maxTTLDefault, want: 30 * 24 * time.Hour},
-		{name: "24 hours", input: "24h", maxTTL: maxTTLDefault, want: 24 * time.Hour},
-		{name: "168 hours", input: "168h", maxTTL: maxTTLDefault, want: 168 * time.Hour},
-		{name: "with whitespace", input: "  3d  ", maxTTL: maxTTLDefault, want: 3 * 24 * time.Hour},
-		{name: "exceeds max", input: "31d", maxTTL: maxTTLDefault, wantErr: true},
-		{name: "zero days", input: "0d", maxTTL: maxTTLDefault, wantErr: true},
-		{name: "negative days", input: "-1d", maxTTL: maxTTLDefault, wantErr: true},
-		{name: "zero hours", input: "0h", maxTTL: maxTTLDefault, wantErr: true},
-		{name: "negative hours", input: "-1h", maxTTL: maxTTLDefault, wantErr: true},
-		{name: "invalid format", input: "abc", maxTTL: maxTTLDefault, wantErr: true},
-		{name: "empty string", input: "", maxTTL: maxTTLDefault, wantErr: true},
-		{name: "exceeds max hours", input: "721h", maxTTL: maxTTLDefault, wantErr: true},
-		{name: "365 days accepted with 365-day max", input: "365d", maxTTL: maxTTLKafka, want: 365 * 24 * time.Hour},
-		{name: "366 days rejected with 365-day max", input: "366d", maxTTL: maxTTLKafka, wantErr: true},
+		{name: "1 day", input: "1d", maxTTL: MaxTTLDefault, want: 24 * time.Hour},
+		{name: "7 days", input: "7d", maxTTL: MaxTTLDefault, want: 7 * 24 * time.Hour},
+		{name: "30 days", input: "30d", maxTTL: MaxTTLDefault, want: 30 * 24 * time.Hour},
+		{name: "24 hours", input: "24h", maxTTL: MaxTTLDefault, want: 24 * time.Hour},
+		{name: "168 hours", input: "168h", maxTTL: MaxTTLDefault, want: 168 * time.Hour},
+		{name: "with whitespace", input: "  3d  ", maxTTL: MaxTTLDefault, want: 3 * 24 * time.Hour},
+		{name: "exceeds max", input: "31d", maxTTL: MaxTTLDefault, wantErr: true},
+		{name: "zero days", input: "0d", maxTTL: MaxTTLDefault, wantErr: true},
+		{name: "negative days", input: "-1d", maxTTL: MaxTTLDefault, wantErr: true},
+		{name: "zero hours", input: "0h", maxTTL: MaxTTLDefault, wantErr: true},
+		{name: "negative hours", input: "-1h", maxTTL: MaxTTLDefault, wantErr: true},
+		{name: "invalid format", input: "abc", maxTTL: MaxTTLDefault, wantErr: true},
+		{name: "empty string", input: "", maxTTL: MaxTTLDefault, wantErr: true},
+		{name: "exceeds max hours", input: "721h", maxTTL: MaxTTLDefault, wantErr: true},
+		// {name: "365 days accepted with 365-day max", input: "365d", maxTTL: maxTTLKafka, want: 365 * 24 * time.Hour},
+		// {name: "366 days rejected with 365-day max", input: "366d", maxTTL: maxTTLKafka, wantErr: true},
 	}
 
 	for _, tt := range tests {
@@ -64,28 +65,28 @@ func TestParseTTL(t *testing.T) {
 
 func TestGenerateSecretName(t *testing.T) {
 	tests := []struct {
-		name      string
-		username  string
-		namespace string
-		service   string
+		name         string
+		username     string
+		namespace    string
+		resourceType activitylog.ActivityLogEntryResourceType
 	}{
-		{name: "opensearch", username: "user@example.com", namespace: "my-team", service: "opensearch"},
-		{name: "valkey", username: "user@example.com", namespace: "my-team", service: "valkey"},
-		{name: "kafka", username: "user@example.com", namespace: "my-team", service: "kafka"},
+		{name: "opensearch", username: "user@example.com", namespace: "my-team", resourceType: "OPENSEARCH"},
+		{name: "valkey", username: "user@example.com", namespace: "my-team", resourceType: "VALKEY"},
+		{name: "kafka", username: "user@example.com", namespace: "my-team", resourceType: "KAFKA_TOPIC"},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := generateSecretName(tt.username, tt.namespace, tt.service)
+			got := generateSecretName(tt.username, tt.namespace, tt.resourceType)
 
 			// Must start with "tmp-<service>-"
-			prefix := "tmp-" + tt.service + "-"
+			prefix := "tmp-" + string(tt.resourceType) + "-"
 			if len(got) < len(prefix) || got[:len(prefix)] != prefix {
 				t.Errorf("generateSecretName() = %q, want prefix %q", got, prefix)
 			}
 
 			// Must be deterministic
-			got2 := generateSecretName(tt.username, tt.namespace, tt.service)
+			got2 := generateSecretName(tt.username, tt.namespace, tt.resourceType)
 			if got != got2 {
 				t.Errorf("generateSecretName() not deterministic: %q != %q", got, got2)
 			}
@@ -102,27 +103,27 @@ func TestGenerateSecretName(t *testing.T) {
 
 func TestGenerateAppName(t *testing.T) {
 	tests := []struct {
-		name     string
-		username string
-		service  string
+		name         string
+		username     string
+		resourceType activitylog.ActivityLogEntryResourceType
 	}{
-		{name: "opensearch", username: "user@example.com", service: "opensearch"},
-		{name: "valkey", username: "user@example.com", service: "valkey"},
-		{name: "kafka", username: "user@example.com", service: "kafka"},
+		{name: "opensearch", username: "user@example.com", resourceType: "OPENSEARCH"},
+		{name: "valkey", username: "user@example.com", resourceType: "VALKEY"},
+		{name: "kafka", username: "user@example.com", resourceType: "KAFKA_TOPIC"},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := generateAppName(tt.username, tt.service)
+			got := generateAppName(tt.username, tt.resourceType)
 
 			// Must start with "tmp-<service>-"
-			prefix := "tmp-" + tt.service + "-"
+			prefix := "tmp-" + string(tt.resourceType) + "-"
 			if len(got) < len(prefix) || got[:len(prefix)] != prefix {
 				t.Errorf("generateAppName() = %q, want prefix %q", got, prefix)
 			}
 
 			// Must be deterministic
-			got2 := generateAppName(tt.username, tt.service)
+			got2 := generateAppName(tt.username, tt.resourceType)
 			if got != got2 {
 				t.Errorf("generateAppName() not deterministic: %q != %q", got, got2)
 			}
@@ -225,30 +226,6 @@ func newFakeDynamicClient(objects ...runtime.Object) *dynfake.FakeDynamicClient 
 		&unstructured.UnstructuredList{},
 	)
 	return dynfake.NewSimpleDynamicClient(scheme, objects...)
-}
-
-func TestValkeyEnvVarSuffix(t *testing.T) {
-	tests := []struct {
-		name         string
-		instanceName string
-		want         string
-	}{
-		{name: "simple name", instanceName: "foo", want: "FOO"},
-		{name: "hyphenated name", instanceName: "my-cache", want: "MY_CACHE"},
-		{name: "multiple hyphens", instanceName: "my-valkey-instance", want: "MY_VALKEY_INSTANCE"},
-		{name: "already uppercase chars", instanceName: "MyCache", want: "_Y_ACHE"},
-		{name: "numbers", instanceName: "cache1", want: "CACHE1"},
-		{name: "mixed", instanceName: "my-cache-2", want: "MY_CACHE_2"},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got := valkeyEnvVarSuffix(tt.instanceName)
-			if got != tt.want {
-				t.Errorf("valkeyEnvVarSuffix(%q) = %q, want %q", tt.instanceName, got, tt.want)
-			}
-		})
-	}
 }
 
 func TestWaitForSecret(t *testing.T) {

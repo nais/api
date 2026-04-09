@@ -72,11 +72,11 @@ type MutationResolver interface {
 	DeleteJob(ctx context.Context, input job.DeleteJobInput) (*job.DeleteJobPayload, error)
 	DeleteJobRun(ctx context.Context, input job.DeleteJobRunInput) (*job.DeleteJobRunPayload, error)
 	TriggerJob(ctx context.Context, input job.TriggerJobInput) (*job.TriggerJobPayload, error)
-	CreateKafkaCredentials(ctx context.Context, input aivencredentials.CreateKafkaCredentialsInput) (*aivencredentials.CreateKafkaCredentialsPayload, error)
+	CreateKafkaCredentials(ctx context.Context, input kafkatopic.CreateKafkaCredentialsInput) (*kafkatopic.CreateKafkaCredentialsPayload, error)
 	CreateOpenSearch(ctx context.Context, input opensearch.CreateOpenSearchInput) (*opensearch.CreateOpenSearchPayload, error)
 	UpdateOpenSearch(ctx context.Context, input opensearch.UpdateOpenSearchInput) (*opensearch.UpdateOpenSearchPayload, error)
 	DeleteOpenSearch(ctx context.Context, input opensearch.DeleteOpenSearchInput) (*opensearch.DeleteOpenSearchPayload, error)
-	CreateOpenSearchCredentials(ctx context.Context, input aivencredentials.CreateOpenSearchCredentialsInput) (*aivencredentials.CreateOpenSearchCredentialsPayload, error)
+	CreateOpenSearchCredentials(ctx context.Context, input opensearch.CreateOpenSearchCredentialsInput) (*opensearch.CreateOpenSearchCredentialsPayload, error)
 	GrantPostgresAccess(ctx context.Context, input postgres.GrantPostgresAccessInput) (*postgres.GrantPostgresAccessPayload, error)
 	EnableReconciler(ctx context.Context, input reconciler.EnableReconcilerInput) (*reconciler.Reconciler, error)
 	DisableReconciler(ctx context.Context, input reconciler.DisableReconcilerInput) (*reconciler.Reconciler, error)
@@ -115,7 +115,7 @@ type MutationResolver interface {
 	CreateValkey(ctx context.Context, input valkey.CreateValkeyInput) (*valkey.CreateValkeyPayload, error)
 	UpdateValkey(ctx context.Context, input valkey.UpdateValkeyInput) (*valkey.UpdateValkeyPayload, error)
 	DeleteValkey(ctx context.Context, input valkey.DeleteValkeyInput) (*valkey.DeleteValkeyPayload, error)
-	CreateValkeyCredentials(ctx context.Context, input aivencredentials.CreateValkeyCredentialsInput) (*aivencredentials.CreateValkeyCredentialsPayload, error)
+	CreateValkeyCredentials(ctx context.Context, input valkey.CreateValkeyCredentialsInput) (*valkey.CreateValkeyCredentialsPayload, error)
 	UpdateImageVulnerability(ctx context.Context, input vulnerability.UpdateImageVulnerabilityInput) (*vulnerability.UpdateImageVulnerabilityPayload, error)
 }
 type QueryResolver interface {
@@ -267,7 +267,7 @@ func (ec *executionContext) field_Mutation_createConfig_args(ctx context.Context
 func (ec *executionContext) field_Mutation_createKafkaCredentials_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNCreateKafkaCredentialsInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋaivencredentialsᚐCreateKafkaCredentialsInput)
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNCreateKafkaCredentialsInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐCreateKafkaCredentialsInput)
 	if err != nil {
 		return nil, err
 	}
@@ -278,7 +278,7 @@ func (ec *executionContext) field_Mutation_createKafkaCredentials_args(ctx conte
 func (ec *executionContext) field_Mutation_createOpenSearchCredentials_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNCreateOpenSearchCredentialsInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋaivencredentialsᚐCreateOpenSearchCredentialsInput)
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNCreateOpenSearchCredentialsInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐCreateOpenSearchCredentialsInput)
 	if err != nil {
 		return nil, err
 	}
@@ -355,7 +355,7 @@ func (ec *executionContext) field_Mutation_createUnleashForTeam_args(ctx context
 func (ec *executionContext) field_Mutation_createValkeyCredentials_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNCreateValkeyCredentialsInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋaivencredentialsᚐCreateValkeyCredentialsInput)
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNCreateValkeyCredentialsInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐCreateValkeyCredentialsInput)
 	if err != nil {
 		return nil, err
 	}
@@ -1717,10 +1717,10 @@ func (ec *executionContext) _Mutation_createKafkaCredentials(ctx context.Context
 		ec.fieldContext_Mutation_createKafkaCredentials,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.Resolvers.Mutation().CreateKafkaCredentials(ctx, fc.Args["input"].(aivencredentials.CreateKafkaCredentialsInput))
+			return ec.Resolvers.Mutation().CreateKafkaCredentials(ctx, fc.Args["input"].(kafkatopic.CreateKafkaCredentialsInput))
 		},
 		nil,
-		ec.marshalNCreateKafkaCredentialsPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋaivencredentialsᚐCreateKafkaCredentialsPayload,
+		ec.marshalNCreateKafkaCredentialsPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐCreateKafkaCredentialsPayload,
 		true,
 		true,
 	)
@@ -1897,10 +1897,10 @@ func (ec *executionContext) _Mutation_createOpenSearchCredentials(ctx context.Co
 		ec.fieldContext_Mutation_createOpenSearchCredentials,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.Resolvers.Mutation().CreateOpenSearchCredentials(ctx, fc.Args["input"].(aivencredentials.CreateOpenSearchCredentialsInput))
+			return ec.Resolvers.Mutation().CreateOpenSearchCredentials(ctx, fc.Args["input"].(opensearch.CreateOpenSearchCredentialsInput))
 		},
 		nil,
-		ec.marshalNCreateOpenSearchCredentialsPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋaivencredentialsᚐCreateOpenSearchCredentialsPayload,
+		ec.marshalNCreateOpenSearchCredentialsPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐCreateOpenSearchCredentialsPayload,
 		true,
 		true,
 	)
@@ -3712,10 +3712,10 @@ func (ec *executionContext) _Mutation_createValkeyCredentials(ctx context.Contex
 		ec.fieldContext_Mutation_createValkeyCredentials,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.Resolvers.Mutation().CreateValkeyCredentials(ctx, fc.Args["input"].(aivencredentials.CreateValkeyCredentialsInput))
+			return ec.Resolvers.Mutation().CreateValkeyCredentials(ctx, fc.Args["input"].(valkey.CreateValkeyCredentialsInput))
 		},
 		nil,
-		ec.marshalNCreateValkeyCredentialsPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋaivencredentialsᚐCreateValkeyCredentialsPayload,
+		ec.marshalNCreateValkeyCredentialsPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐCreateValkeyCredentialsPayload,
 		true,
 		true,
 	)

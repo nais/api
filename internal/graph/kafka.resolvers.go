@@ -9,7 +9,6 @@ import (
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/kubernetes/watcher"
-	"github.com/nais/api/internal/persistence/aivencredentials"
 	"github.com/nais/api/internal/persistence/kafkatopic"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/team"
@@ -89,11 +88,11 @@ func (r *kafkaTopicAclResolver) Topic(ctx context.Context, obj *kafkatopic.Kafka
 	return kafkatopic.Get(ctx, obj.TeamSlug, obj.EnvironmentName, obj.TopicName)
 }
 
-func (r *mutationResolver) CreateKafkaCredentials(ctx context.Context, input aivencredentials.CreateKafkaCredentialsInput) (*aivencredentials.CreateKafkaCredentialsPayload, error) {
+func (r *mutationResolver) CreateKafkaCredentials(ctx context.Context, input kafkatopic.CreateKafkaCredentialsInput) (*kafkatopic.CreateKafkaCredentialsPayload, error) {
 	if err := authz.CanCreateAivenCredentials(ctx, input.TeamSlug); err != nil {
 		return nil, err
 	}
-	return aivencredentials.CreateKafkaCredentials(ctx, input)
+	return kafkatopic.CreateKafkaCredentials(ctx, input)
 }
 
 func (r *teamResolver) KafkaTopics(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *kafkatopic.KafkaTopicOrder) (*pagination.Connection[*kafkatopic.KafkaTopic], error) {
