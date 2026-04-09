@@ -17338,97 +17338,6 @@ enum CredentialPermission {
 	ADMIN
 }
 
-input CreateOpenSearchCredentialsInput {
-	"The team that owns the OpenSearch instance."
-	teamSlug: Slug!
-	"The environment name that the OpenSearch instance belongs to."
-	environmentName: String!
-	"Name of the OpenSearch instance."
-	instanceName: String!
-	"Permission level for the credentials."
-	permission: CredentialPermission!
-	"Time-to-live for the credentials (e.g. '1d', '7d'). Maximum 30 days."
-	ttl: String!
-}
-
-type OpenSearchCredentials {
-	"Username for the OpenSearch instance."
-	username: String!
-	"Password for the OpenSearch instance."
-	password: String!
-	"Hostname of the OpenSearch instance."
-	host: String!
-	"Port of the OpenSearch instance."
-	port: Int!
-	"Full connection URI for the OpenSearch instance."
-	uri: String!
-}
-
-type CreateOpenSearchCredentialsPayload {
-	"The generated credentials."
-	credentials: OpenSearchCredentials!
-}
-
-input CreateValkeyCredentialsInput {
-	"The team that owns the Valkey instance."
-	teamSlug: Slug!
-	"The environment name that the Valkey instance belongs to."
-	environmentName: String!
-	"Name of the Valkey instance."
-	instanceName: String!
-	"Permission level for the credentials."
-	permission: CredentialPermission!
-	"Time-to-live for the credentials (e.g. '1d', '7d'). Maximum 30 days."
-	ttl: String!
-}
-
-type ValkeyCredentials {
-	"Username for the Valkey instance."
-	username: String!
-	"Password for the Valkey instance."
-	password: String!
-	"Hostname of the Valkey instance."
-	host: String!
-	"Port of the Valkey instance."
-	port: Int!
-	"Full connection URI for the Valkey instance."
-	uri: String!
-}
-
-type CreateValkeyCredentialsPayload {
-	"The generated credentials."
-	credentials: ValkeyCredentials!
-}
-
-input CreateKafkaCredentialsInput {
-	"The team that owns the Kafka topic."
-	teamSlug: Slug!
-	"The environment name that the Kafka topic belongs to."
-	environmentName: String!
-	"Time-to-live for the credentials (e.g. '1d', '7d'). Maximum 365 days."
-	ttl: String!
-}
-
-type KafkaCredentials {
-	"Username for the Kafka broker."
-	username: String!
-	"Client certificate in PEM format."
-	accessCert: String!
-	"Client private key in PEM format."
-	accessKey: String!
-	"CA certificate in PEM format."
-	caCert: String!
-	"Comma-separated list of broker addresses."
-	brokers: String!
-	"Schema registry URL."
-	schemaRegistry: String!
-}
-
-type CreateKafkaCredentialsPayload {
-	"The generated credentials."
-	credentials: KafkaCredentials!
-}
-
 extend enum ActivityLogEntryResourceType {
 	"All activity log entries related to credential creation will use this resource type."
 	CREDENTIALS
@@ -17477,17 +17386,6 @@ type CredentialsActivityLogEntryData {
 extend enum ActivityLogActivityType {
 	"Filter for credential creation events."
 	CREDENTIALS_CREATE
-}
-
-extend type Mutation {
-	"Create temporary credentials for an OpenSearch instance."
-	createOpenSearchCredentials(
-		input: CreateOpenSearchCredentialsInput!
-	): CreateOpenSearchCredentialsPayload!
-	"Create temporary credentials for a Valkey instance."
-	createValkeyCredentials(input: CreateValkeyCredentialsInput!): CreateValkeyCredentialsPayload!
-	"Create temporary credentials for Kafka."
-	createKafkaCredentials(input: CreateKafkaCredentialsInput!): CreateKafkaCredentialsPayload!
 }
 `, BuiltIn: false},
 	{Name: "../schema/alerts.graphqls", Input: `extend type TeamEnvironment {
@@ -21223,7 +21121,12 @@ extend enum ActivityLogActivityType {
 	JOB_TRIGGERED
 }
 `, BuiltIn: false},
-	{Name: "../schema/kafka.graphqls", Input: `extend type Team {
+	{Name: "../schema/kafka.graphqls", Input: `extend type Mutation {
+	"Create temporary credentials for Kafka."
+	createKafkaCredentials(input: CreateKafkaCredentialsInput!): CreateKafkaCredentialsPayload!
+}
+
+extend type Team {
 	"Kafka topics owned by the team."
 	kafkaTopics(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
@@ -21373,6 +21276,35 @@ extend union SearchNode = KafkaTopic
 
 extend enum SearchType {
 	KAFKA_TOPIC
+}
+
+input CreateKafkaCredentialsInput {
+	"The team that owns the Kafka topic."
+	teamSlug: Slug!
+	"The environment name that the Kafka topic belongs to."
+	environmentName: String!
+	"Time-to-live for the credentials (e.g. '1d', '7d'). Maximum 365 days."
+	ttl: String!
+}
+
+type KafkaCredentials {
+	"Username for the Kafka broker."
+	username: String!
+	"Client certificate in PEM format."
+	accessCert: String!
+	"Client private key in PEM format."
+	accessKey: String!
+	"CA certificate in PEM format."
+	caCert: String!
+	"Comma-separated list of broker addresses."
+	brokers: String!
+	"Schema registry URL."
+	schemaRegistry: String!
+}
+
+type CreateKafkaCredentialsPayload {
+	"The generated credentials."
+	credentials: KafkaCredentials!
 }
 `, BuiltIn: false},
 	{Name: "../schema/log.graphqls", Input: `extend type Subscription {
@@ -21919,6 +21851,10 @@ extend type Mutation {
 	updateOpenSearch(input: UpdateOpenSearchInput!): UpdateOpenSearchPayload!
 	"Delete an existing OpenSearch instance."
 	deleteOpenSearch(input: DeleteOpenSearchInput!): DeleteOpenSearchPayload!
+	"Create temporary credentials for an OpenSearch instance."
+	createOpenSearchCredentials(
+		input: CreateOpenSearchCredentialsInput!
+	): CreateOpenSearchCredentialsPayload!
 }
 
 extend enum ActivityLogEntryResourceType {
@@ -22039,6 +21975,37 @@ type OpenSearchDeletedActivityLogEntry implements ActivityLogEntry & Node {
 
 	"The environment name that the entry belongs to."
 	environmentName: String
+}
+
+input CreateOpenSearchCredentialsInput {
+	"The team that owns the OpenSearch instance."
+	teamSlug: Slug!
+	"The environment name that the OpenSearch instance belongs to."
+	environmentName: String!
+	"Name of the OpenSearch instance."
+	instanceName: String!
+	"Permission level for the credentials."
+	permission: CredentialPermission!
+	"Time-to-live for the credentials (e.g. '1d', '7d'). Maximum 30 days."
+	ttl: String!
+}
+
+type OpenSearchCredentials {
+	"Username for the OpenSearch instance."
+	username: String!
+	"Password for the OpenSearch instance."
+	password: String!
+	"Hostname of the OpenSearch instance."
+	host: String!
+	"Port of the OpenSearch instance."
+	port: Int!
+	"Full connection URI for the OpenSearch instance."
+	uri: String!
+}
+
+type CreateOpenSearchCredentialsPayload {
+	"The generated credentials."
+	credentials: OpenSearchCredentials!
 }
 `, BuiltIn: false},
 	{Name: "../schema/persistence.graphqls", Input: `interface Persistence implements Node {
@@ -27039,6 +27006,8 @@ extend type Mutation {
 	updateValkey(input: UpdateValkeyInput!): UpdateValkeyPayload!
 	"Delete an existing Valkey instance."
 	deleteValkey(input: DeleteValkeyInput!): DeleteValkeyPayload!
+	"Create temporary credentials for a Valkey instance."
+	createValkeyCredentials(input: CreateValkeyCredentialsInput!): CreateValkeyCredentialsPayload!
 }
 
 extend enum ActivityLogEntryResourceType {
@@ -27159,6 +27128,37 @@ type ValkeyDeletedActivityLogEntry implements ActivityLogEntry & Node {
 
 	"The environment name that the entry belongs to."
 	environmentName: String
+}
+
+input CreateValkeyCredentialsInput {
+	"The team that owns the Valkey instance."
+	teamSlug: Slug!
+	"The environment name that the Valkey instance belongs to."
+	environmentName: String!
+	"Name of the Valkey instance."
+	instanceName: String!
+	"Permission level for the credentials."
+	permission: CredentialPermission!
+	"Time-to-live for the credentials (e.g. '1d', '7d'). Maximum 30 days."
+	ttl: String!
+}
+
+type ValkeyCredentials {
+	"Username for the Valkey instance."
+	username: String!
+	"Password for the Valkey instance."
+	password: String!
+	"Hostname of the Valkey instance."
+	host: String!
+	"Port of the Valkey instance."
+	port: Int!
+	"Full connection URI for the Valkey instance."
+	uri: String!
+}
+
+type CreateValkeyCredentialsPayload {
+	"The generated credentials."
+	credentials: ValkeyCredentials!
 }
 `, BuiltIn: false},
 	{Name: "../schema/vulnerability.graphqls", Input: `extend type Mutation {

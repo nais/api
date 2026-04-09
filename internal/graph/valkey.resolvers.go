@@ -7,6 +7,7 @@ import (
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/issue"
+	"github.com/nais/api/internal/persistence/aivencredentials"
 	"github.com/nais/api/internal/persistence/valkey"
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/workload"
@@ -41,6 +42,13 @@ func (r *mutationResolver) DeleteValkey(ctx context.Context, input valkey.Delete
 		return nil, err
 	}
 	return valkey.Delete(ctx, input)
+}
+
+func (r *mutationResolver) CreateValkeyCredentials(ctx context.Context, input aivencredentials.CreateValkeyCredentialsInput) (*aivencredentials.CreateValkeyCredentialsPayload, error) {
+	if err := authz.CanCreateAivenCredentials(ctx, input.TeamSlug); err != nil {
+		return nil, err
+	}
+	return aivencredentials.CreateValkeyCredentials(ctx, input)
 }
 
 func (r *teamResolver) Valkeys(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *valkey.ValkeyOrder) (*pagination.Connection[*valkey.Valkey], error) {

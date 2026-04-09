@@ -7,6 +7,7 @@ import (
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/issue"
+	"github.com/nais/api/internal/persistence/aivencredentials"
 	"github.com/nais/api/internal/persistence/opensearch"
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/workload"
@@ -41,6 +42,13 @@ func (r *mutationResolver) DeleteOpenSearch(ctx context.Context, input opensearc
 		return nil, err
 	}
 	return opensearch.Delete(ctx, input)
+}
+
+func (r *mutationResolver) CreateOpenSearchCredentials(ctx context.Context, input aivencredentials.CreateOpenSearchCredentialsInput) (*aivencredentials.CreateOpenSearchCredentialsPayload, error) {
+	if err := authz.CanCreateAivenCredentials(ctx, input.TeamSlug); err != nil {
+		return nil, err
+	}
+	return aivencredentials.CreateOpenSearchCredentials(ctx, input)
 }
 
 func (r *openSearchResolver) Team(ctx context.Context, obj *opensearch.OpenSearch) (*team.Team, error) {
