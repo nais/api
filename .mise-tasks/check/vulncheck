@@ -3,5 +3,4 @@
 
 set -e
 
-# TODO: Remove || true when go.etcd.io/bbolt releases a fix for GO-2026-4923
-go tool golang.org/x/vuln/cmd/govulncheck ./... || true
+go tool golang.org/x/vuln/cmd/govulncheck -show verbose ./...
