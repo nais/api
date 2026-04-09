@@ -290,8 +290,8 @@ func (ec *executionContext) fieldContext_GenericKubernetesResourceActivityLogEnt
 				return ec.fieldContext_GenericKubernetesResourceActivityLogEntryData_kind(ctx, field)
 			case "changedFields":
 				return ec.fieldContext_GenericKubernetesResourceActivityLogEntryData_changedFields(ctx, field)
-			case "gitHubClaims":
-				return ec.fieldContext_GenericKubernetesResourceActivityLogEntryData_gitHubClaims(ctx, field)
+			case "gitHubActorClaims":
+				return ec.fieldContext_GenericKubernetesResourceActivityLogEntryData_gitHubActorClaims(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type GenericKubernetesResourceActivityLogEntryData", field.Name)
 		},
@@ -394,14 +394,14 @@ func (ec *executionContext) fieldContext_GenericKubernetesResourceActivityLogEnt
 	return fc, nil
 }
 
-func (ec *executionContext) _GenericKubernetesResourceActivityLogEntryData_gitHubClaims(ctx context.Context, field graphql.CollectedField, obj *activitylog.GenericKubernetesResourceActivityLogEntryData) (ret graphql.Marshaler) {
+func (ec *executionContext) _GenericKubernetesResourceActivityLogEntryData_gitHubActorClaims(ctx context.Context, field graphql.CollectedField, obj *activitylog.GenericKubernetesResourceActivityLogEntryData) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_GenericKubernetesResourceActivityLogEntryData_gitHubClaims,
+		ec.fieldContext_GenericKubernetesResourceActivityLogEntryData_gitHubActorClaims,
 		func(ctx context.Context) (any, error) {
-			return obj.GitHubClaims, nil
+			return obj.GitHubActorClaims, nil
 		},
 		nil,
 		ec.marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐGitHubActorClaims,
@@ -410,7 +410,7 @@ func (ec *executionContext) _GenericKubernetesResourceActivityLogEntryData_gitHu
 	)
 }
 
-func (ec *executionContext) fieldContext_GenericKubernetesResourceActivityLogEntryData_gitHubClaims(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_GenericKubernetesResourceActivityLogEntryData_gitHubActorClaims(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "GenericKubernetesResourceActivityLogEntryData",
 		Field:      field,
@@ -933,8 +933,8 @@ func (ec *executionContext) _GenericKubernetesResourceActivityLogEntryData(ctx c
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "gitHubClaims":
-			out.Values[i] = ec._GenericKubernetesResourceActivityLogEntryData_gitHubClaims(ctx, field, obj)
+		case "gitHubActorClaims":
+			out.Values[i] = ec._GenericKubernetesResourceActivityLogEntryData_gitHubActorClaims(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

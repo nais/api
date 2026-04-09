@@ -17,7 +17,7 @@ type GenericKubernetesResourceActivityLogEntryData {
 	"The fields that changed during the apply. Only populated for updates."
 	changedFields: [ResourceChangedField!]!
 	"GitHub Actions OIDC token claims at the time of the apply. Only present when the request was authenticated via a GitHub token."
-	gitHubClaims: GitHubActorClaims
+	gitHubActorClaims: GitHubActorClaims
 }
 
 """

@@ -877,10 +877,10 @@ type ComplexityRoot struct {
 	}
 
 	GenericKubernetesResourceActivityLogEntryData struct {
-		APIVersion    func(childComplexity int) int
-		ChangedFields func(childComplexity int) int
-		GitHubClaims  func(childComplexity int) int
-		Kind          func(childComplexity int) int
+		APIVersion        func(childComplexity int) int
+		ChangedFields     func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		Kind              func(childComplexity int) int
 	}
 
 	GitHubActorClaims struct {
@@ -6187,12 +6187,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.GenericKubernetesResourceActivityLogEntryData.ChangedFields(childComplexity), true
 
-	case "GenericKubernetesResourceActivityLogEntryData.gitHubClaims":
-		if e.ComplexityRoot.GenericKubernetesResourceActivityLogEntryData.GitHubClaims == nil {
+	case "GenericKubernetesResourceActivityLogEntryData.gitHubActorClaims":
+		if e.ComplexityRoot.GenericKubernetesResourceActivityLogEntryData.GitHubActorClaims == nil {
 			break
 		}
 
-		return e.ComplexityRoot.GenericKubernetesResourceActivityLogEntryData.GitHubClaims(childComplexity), true
+		return e.ComplexityRoot.GenericKubernetesResourceActivityLogEntryData.GitHubActorClaims(childComplexity), true
 
 	case "GenericKubernetesResourceActivityLogEntryData.kind":
 		if e.ComplexityRoot.GenericKubernetesResourceActivityLogEntryData.Kind == nil {
@@ -18587,7 +18587,7 @@ type GenericKubernetesResourceActivityLogEntryData {
 	"The fields that changed during the apply. Only populated for updates."
 	changedFields: [ResourceChangedField!]!
 	"GitHub Actions OIDC token claims at the time of the apply. Only present when the request was authenticated via a GitHub token."
-	gitHubClaims: GitHubActorClaims
+	gitHubActorClaims: GitHubActorClaims
 }
 
 """

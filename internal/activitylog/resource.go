@@ -67,9 +67,9 @@ type GenericKubernetesResourceActivityLogEntryData struct {
 	// Only populated for updates.
 	ChangedFields []ResourceChangedField `json:"changedFields"`
 
-	// GitHubClaims holds the GitHub Actions OIDC token claims at the time of the
+	// GitHubActorClaims holds the GitHub Actions OIDC token claims at the time of the
 	// apply. Only populated when the request was authenticated via a GitHub token.
-	GitHubClaims *GitHubActorClaims `json:"gitHubClaims,omitempty"`
+	GitHubActorClaims *GitHubActorClaims `json:"gitHubActorClaims,omitempty"`
 }
 
 // GitHubActorClaims holds the GitHub Actions OIDC token claims captured at the

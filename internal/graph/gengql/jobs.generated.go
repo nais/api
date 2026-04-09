@@ -2463,8 +2463,8 @@ func (ec *executionContext) fieldContext_JobCreatedActivityLogEntry_data(_ conte
 				return ec.fieldContext_GenericKubernetesResourceActivityLogEntryData_kind(ctx, field)
 			case "changedFields":
 				return ec.fieldContext_GenericKubernetesResourceActivityLogEntryData_changedFields(ctx, field)
-			case "gitHubClaims":
-				return ec.fieldContext_GenericKubernetesResourceActivityLogEntryData_gitHubClaims(ctx, field)
+			case "gitHubActorClaims":
+				return ec.fieldContext_GenericKubernetesResourceActivityLogEntryData_gitHubActorClaims(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type GenericKubernetesResourceActivityLogEntryData", field.Name)
 		},
@@ -4640,8 +4640,8 @@ func (ec *executionContext) fieldContext_JobUpdatedActivityLogEntry_data(_ conte
 				return ec.fieldContext_GenericKubernetesResourceActivityLogEntryData_kind(ctx, field)
 			case "changedFields":
 				return ec.fieldContext_GenericKubernetesResourceActivityLogEntryData_changedFields(ctx, field)
-			case "gitHubClaims":
-				return ec.fieldContext_GenericKubernetesResourceActivityLogEntryData_gitHubClaims(ctx, field)
+			case "gitHubActorClaims":
+				return ec.fieldContext_GenericKubernetesResourceActivityLogEntryData_gitHubActorClaims(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type GenericKubernetesResourceActivityLogEntryData", field.Name)
 		},
