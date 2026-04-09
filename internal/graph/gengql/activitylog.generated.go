@@ -532,6 +532,13 @@ func (ec *executionContext) _ActivityLogEntry(ctx context.Context, sel ast.Selec
 			return graphql.Null
 		}
 		return ec._OpenSearchCreatedActivityLogEntry(ctx, sel, obj)
+	case job.JobUpdatedActivityLogEntry:
+		return ec._JobUpdatedActivityLogEntry(ctx, sel, &obj)
+	case *job.JobUpdatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._JobUpdatedActivityLogEntry(ctx, sel, obj)
 	case job.JobTriggeredActivityLogEntry:
 		return ec._JobTriggeredActivityLogEntry(ctx, sel, &obj)
 	case *job.JobTriggeredActivityLogEntry:
@@ -553,6 +560,20 @@ func (ec *executionContext) _ActivityLogEntry(ctx context.Context, sel ast.Selec
 			return graphql.Null
 		}
 		return ec._JobDeletedActivityLogEntry(ctx, sel, obj)
+	case job.JobCreatedActivityLogEntry:
+		return ec._JobCreatedActivityLogEntry(ctx, sel, &obj)
+	case *job.JobCreatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._JobCreatedActivityLogEntry(ctx, sel, obj)
+	case activitylog.GenericKubernetesResourceActivityLogEntry:
+		return ec._GenericKubernetesResourceActivityLogEntry(ctx, sel, &obj)
+	case *activitylog.GenericKubernetesResourceActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._GenericKubernetesResourceActivityLogEntry(ctx, sel, obj)
 	case deploymentactivity.DeploymentActivityLogEntry:
 		return ec._DeploymentActivityLogEntry(ctx, sel, &obj)
 	case *deploymentactivity.DeploymentActivityLogEntry:
@@ -595,6 +616,13 @@ func (ec *executionContext) _ActivityLogEntry(ctx context.Context, sel ast.Selec
 			return graphql.Null
 		}
 		return ec._ClusterAuditActivityLogEntry(ctx, sel, obj)
+	case application.ApplicationUpdatedActivityLogEntry:
+		return ec._ApplicationUpdatedActivityLogEntry(ctx, sel, &obj)
+	case *application.ApplicationUpdatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ApplicationUpdatedActivityLogEntry(ctx, sel, obj)
 	case application.ApplicationScaledActivityLogEntry:
 		return ec._ApplicationScaledActivityLogEntry(ctx, sel, &obj)
 	case *application.ApplicationScaledActivityLogEntry:
@@ -616,6 +644,13 @@ func (ec *executionContext) _ActivityLogEntry(ctx context.Context, sel ast.Selec
 			return graphql.Null
 		}
 		return ec._ApplicationDeletedActivityLogEntry(ctx, sel, obj)
+	case application.ApplicationCreatedActivityLogEntry:
+		return ec._ApplicationCreatedActivityLogEntry(ctx, sel, &obj)
+	case *application.ApplicationCreatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ApplicationCreatedActivityLogEntry(ctx, sel, obj)
 	default:
 		if typedObj, ok := obj.(graphql.Marshaler); ok {
 			return typedObj

@@ -6,7 +6,9 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/nais/api/internal/slug"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd/api"
 )
@@ -88,4 +90,18 @@ func (c *StaticCluster) EnvDecode(value string) error {
 		Token: token,
 	}
 	return nil
+}
+
+func (c ClusterConfigMap) TeamClient(environmentName string, teamSlug slug.Slug) (dynamic.Interface, error) {
+	cfg, ok := c[environmentName]
+	if !ok {
+		return nil, fmt.Errorf("unknown environment: %q", environmentName)
+	}
+
+	impersonatedCfg := rest.CopyConfig(cfg)
+	impersonatedCfg.Impersonate = rest.ImpersonationConfig{
+		UserName: fmt.Sprintf("system:serviceaccount:%[1]v:serviceuser-%[1]v", teamSlug),
+	}
+
+	return dynamic.NewForConfig(impersonatedCfg)
 }

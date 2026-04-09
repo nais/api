@@ -200,6 +200,10 @@ func CanUpdateJobs(ctx context.Context, teamSlug slug.Slug) error {
 	return requireTeamAuthorization(ctx, teamSlug, "jobs:update")
 }
 
+func CanApplyKubernetesResource(ctx context.Context, teamSlug slug.Slug) error {
+	return requireStrictTeamAuthorization(ctx, teamSlug, "k8s_resources:apply")
+}
+
 func CanCreateRepositories(ctx context.Context, teamSlug slug.Slug) error {
 	return requireTeamAuthorization(ctx, teamSlug, "repositories:create")
 }

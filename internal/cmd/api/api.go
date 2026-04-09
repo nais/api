@@ -14,6 +14,7 @@ import (
 	aiven_service "github.com/aiven/go-client-codegen"
 	"github.com/joho/godotenv"
 	"github.com/nais/api/internal/activitylog"
+	"github.com/nais/api/internal/apply"
 	"github.com/nais/api/internal/auth/authn"
 	"github.com/nais/api/internal/auth/middleware"
 	"github.com/nais/api/internal/database"
@@ -35,6 +36,7 @@ import (
 	"github.com/nais/api/internal/persistence/sqlinstance"
 	restserver "github.com/nais/api/internal/rest"
 	"github.com/nais/api/internal/servicemaintenance"
+	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/thirdparty/aiven"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	fakehookd "github.com/nais/api/internal/thirdparty/hookd/fake"
@@ -43,6 +45,7 @@ import (
 	"github.com/sethvargo/go-envconfig"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
+	"k8s.io/client-go/dynamic"
 	k8s "k8s.io/client-go/kubernetes"
 	k8sfake "k8s.io/client-go/kubernetes/fake"
 	"k8s.io/client-go/rest"
@@ -156,13 +159,13 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	}
 	defer watcherMgr.Stop()
 
-	mgmtWatcher, err := watcher.NewManager(scheme, kubernetes.ClusterConfigMap{"management": nil}, log.WithField("subsystem", "k8s_watcher"), mgmtWatcherOpts...)
+	mgmtWatcherMgr, err := watcher.NewManager(scheme, kubernetes.ClusterConfigMap{"management": nil}, log.WithField("subsystem", "k8s_watcher"), mgmtWatcherOpts...)
 	if err != nil {
 		return fmt.Errorf("create k8s watcher manager for management: %w", err)
 	}
-	defer mgmtWatcher.Stop()
+	defer mgmtWatcherMgr.Stop()
 
-	watchers := watchers.SetupWatchers(ctx, watcherMgr, mgmtWatcher)
+	watchers := watchers.SetupWatchers(ctx, watcherMgr, mgmtWatcherMgr)
 
 	pubsubClient, err := pubsub.NewClient(ctx, cfg.GoogleManagementProjectID)
 	if err != nil {
@@ -275,6 +278,11 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		}
 	}
 
+	githubOIDCMiddleware, err := middleware.GitHubOIDC(ctx, middleware.GitHubOIDCIssuer, log.WithField("subsystem", "github_oidc"))
+	if err != nil {
+		return fmt.Errorf("failed to create GitHub OIDC middleware: %w", err)
+	}
+
 	var lokiClientOpts []loki.OptionFunc
 	if addr, ok := os.LookupEnv("LOGGING_LOKI_ADDRESS"); ok {
 		lokiClientOpts = append(lokiClientOpts, loki.WithLocalLoki(addr))
@@ -285,34 +293,46 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		return fmt.Errorf("create loki client: %w", err)
 	}
 
+	contextDependencies, err := ConfigureGraph(
+		ctx,
+		cfg.Fakes,
+		watchers,
+		watcherMgr,
+		mgmtWatcherMgr,
+		pool,
+		clusterConfig,
+		serviceMaintenanceManager,
+		aivenClient,
+		cfg.Aiven.Projects,
+		vulnMgr,
+		cfg.Tenant,
+		cfg.K8s.AllClusterNames(),
+		hookdClient,
+		cfg.Unleash.BifrostAPIURL,
+		cfg.K8s.AllClusterNames(),
+		cfg.Logging.DefaultLogDestinations(),
+		notifier,
+		lokiClient,
+		cfg.AuditLog.ProjectID,
+		cfg.AuditLog.Location,
+		log.WithField("subsystem", "http"),
+	)
+	if err != nil {
+		return fmt.Errorf("configure graph: %w", err)
+	}
+
 	// HTTP server
 	wg.Go(func() error {
 		return runHTTPServer(
 			ctx,
 			cfg.Fakes,
 			cfg.ListenAddress,
-			cfg.Tenant,
-			cfg.K8s.AllClusterNames(),
-			pool,
-			clusterConfig,
-			watchers,
-			watcherMgr,
-			mgmtWatcher,
+
 			jwtMiddleware,
+			githubOIDCMiddleware,
 			authHandler,
 			graphHandler,
-			serviceMaintenanceManager,
-			aivenClient,
-			cfg.Aiven.Projects,
-			vulnMgr,
-			hookdClient,
-			cfg.Unleash.BifrostAPIURL,
-			cfg.K8s.AllClusterNames(),
-			cfg.Logging.DefaultLogDestinations(),
-			notifier,
-			lokiClient,
-			cfg.AuditLog.ProjectID,
-			cfg.AuditLog.Location,
+			contextDependencies,
 			log.WithField("subsystem", "http"),
 		)
 	})
@@ -321,13 +341,40 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 			ctx,
 			cfg.InternalListenAddress,
 			promReg,
-			[]ReadinessChecker{watcherMgr, mgmtWatcher},
+			[]ReadinessChecker{watcherMgr, mgmtWatcherMgr},
 			log.WithField("subsystem", "internal_http"),
 		)
 	})
 
+	var dynamicClientFactory apply.DynamicClientFactory
+	if cfg.Fakes.WithFakeKubernetes {
+		dynamicClients := watcherMgr.GetDynamicClients()
+		dynamicClientFactory = func(environmentName string, _ slug.Slug) (dynamic.Interface, error) {
+			client, ok := dynamicClients[environmentName]
+			if !ok {
+				return nil, fmt.Errorf("unknown environment: %q", environmentName)
+			}
+			return client, nil
+		}
+	} else {
+		dynamicClientFactory = clusterConfig.TeamClient
+	}
+
 	wg.Go(func() error {
-		return restserver.Run(ctx, cfg.RestListenAddress, pool, cfg.RestPreSharedKey, log.WithField("subsystem", "rest"))
+		return restserver.Run(ctx, restserver.Config{
+			ListenAddress:        cfg.RestListenAddress,
+			Pool:                 pool,
+			PreSharedKey:         cfg.RestPreSharedKey,
+			DynamicClient:        dynamicClientFactory,
+			ContextMiddleware:    contextDependencies,
+			JWTMiddleware:        jwtMiddleware,
+			GitHubOIDCMiddleware: githubOIDCMiddleware,
+			AuthHandler:          authHandler,
+			Fakes: restserver.Fakes{
+				WithInsecureUserHeader: cfg.Fakes.WithInsecureUserHeader,
+			},
+			Log: log.WithField("subsystem", "rest"),
+		})
 	})
 
 	wg.Go(func() error {

@@ -36,3 +36,10 @@ spec:
                   name: rest
             path: /teams/
             pathType: Prefix
+          - backend:
+              service:
+                name: "{{ .Release.Name }}"
+                port:
+                  name: rest
+            path: /api/v1/
+            pathType: Prefix

@@ -16,42 +16,53 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// ghClaims represents the claims present in a GitHub OIDC token
+// ghClaims represents the claims present in a GitHub OIDC token.
 // See https://docs.github.com/en/actions/reference/security/oidc#oidc-token-claims.
 type ghClaims struct {
-	// Ref               string `json:"ref"`
-	Repository string `json:"repository"`
-	// RepositoryID      string `json:"repository_id"`
-	// RepositoryOwner   string `json:"repository_owner"`
-	// RepositoryOwnerID string `json:"repository_owner_id"`
-	// RunID             string `json:"run_id"`
-	// RunNumber         string `json:"run_number"`
-	// RunAttempt        string `json:"run_attempt"`
-	// Actor             string `json:"actor"`
-	// ActorID           string `json:"actor_id"`
-	// Workflow          string `json:"workflow"`
-	// HeadRef           string `json:"head_ref"`
-	// BaseRef           string `json:"base_ref"`
-	// EventName         string `json:"event_name"`
-	// RefType           string `json:"ref_type"`
-	// Environment       string `json:"environment"`
-	// JobWorkflowRef    string `json:"job_workflow_ref"`
+	Ref            string `json:"ref"`
+	Repository     string `json:"repository"`
+	RepositoryID   string `json:"repository_id"`
+	RunID          string `json:"run_id"`
+	RunAttempt     string `json:"run_attempt"`
+	Actor          string `json:"actor"`
+	Workflow       string `json:"workflow"`
+	EventName      string `json:"event_name"`
+	Environment    string `json:"environment"`
+	JobWorkflowRef string `json:"job_workflow_ref"`
 }
 
-func GitHubOIDC(ctx context.Context, log logrus.FieldLogger) func(next http.Handler) http.Handler {
+// GitHubActorClaims holds the subset of GitHub OIDC claims that are stored
+// alongside activity log entries for audit purposes.
+type GitHubActorClaims struct {
+	Ref            string `json:"ref"`
+	Repository     string `json:"repository"`
+	RepositoryID   string `json:"repositoryID"`
+	RunID          string `json:"runID"`
+	RunAttempt     string `json:"runAttempt"`
+	Actor          string `json:"actor"`
+	Workflow       string `json:"workflow"`
+	EventName      string `json:"eventName"`
+	Environment    string `json:"environment"`
+	JobWorkflowRef string `json:"jobWorkflowRef"`
+}
+
+const (
+	// GitHubOIDCIssuer is the OIDC issuer URL for GitHub Actions tokens.
+	GitHubOIDCIssuer = "https://token.actions.githubusercontent.com"
+
+	// GitHubOIDCAudience is the expected audience claim in GitHub OIDC tokens.
+	GitHubOIDCAudience = "api.nais.io"
+)
+
+func GitHubOIDC(ctx context.Context, issuer string, log logrus.FieldLogger) (func(next http.Handler) http.Handler, error) {
 	log = log.WithField("subsystem", "github_oidc")
-	provider, err := oidc.NewProvider(ctx, "https://token.actions.githubusercontent.com")
+	provider, err := oidc.NewProvider(ctx, issuer)
 	if err != nil {
-		log.WithError(err).Error("failed to initialize GitHub OIDC provider. Will not support GitHub OIDC authentication")
-		return func(sub http.Handler) http.Handler {
-			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				sub.ServeHTTP(w, r)
-			})
-		}
+		return nil, fmt.Errorf("initialize GitHub OIDC provider: %w", err)
 	}
 
 	verifier := provider.Verifier(&oidc.Config{
-		ClientID: "api.nais.io",
+		ClientID: GitHubOIDCAudience,
 	})
 
 	return func(next http.Handler) http.Handler {
@@ -108,17 +119,30 @@ func GitHubOIDC(ctx context.Context, log logrus.FieldLogger) func(next http.Hand
 			usr := &GitHubRepoActor{
 				RepositoryName: claims.Repository,
 				TeamSlugs:      slices.Collect(maps.Keys(slugs)),
+				Claims: GitHubActorClaims{
+					Ref:            claims.Ref,
+					Repository:     claims.Repository,
+					RepositoryID:   claims.RepositoryID,
+					RunID:          claims.RunID,
+					RunAttempt:     claims.RunAttempt,
+					Actor:          claims.Actor,
+					Workflow:       claims.Workflow,
+					EventName:      claims.EventName,
+					Environment:    claims.Environment,
+					JobWorkflowRef: claims.JobWorkflowRef,
+				},
 			}
 
 			next.ServeHTTP(w, r.WithContext(authz.ContextWithActor(ctx, usr, roles)))
 		}
 		return http.HandlerFunc(fn)
-	}
+	}, nil
 }
 
 type GitHubRepoActor struct {
 	RepositoryName string
 	TeamSlugs      []slug.Slug
+	Claims         GitHubActorClaims
 }
 
 func (g *GitHubRepoActor) GetID() uuid.UUID { return uuid.Nil }

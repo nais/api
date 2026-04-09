@@ -76,64 +76,18 @@ func runHTTPServer(
 	ctx context.Context,
 	fakes Fakes,
 	listenAddress string,
-	tenantName string,
-	clusters []string,
-	pool *pgxpool.Pool,
-	k8sClients apik8s.ClusterConfigMap,
-	watchers *watchers.Watchers,
-	watcherMgr *watcher.Manager,
-	mgmtWatcherMgr *watcher.Manager,
+
 	jwtMiddleware func(http.Handler) http.Handler,
+	githubOIDCMiddleware func(http.Handler) http.Handler,
 	authHandler authn.Handler,
 	graphHandler *handler.Server,
-	serviceMaintenanceManager *servicemaintenance.Manager,
-	aivenClient aiven.AivenClient,
-	aivenProjects aiven.Projects,
-	vulnMgr *vulnerability.Manager,
-	hookdClient hookd.Client,
-	bifrostAPIURL string,
-	allowedClusters []string,
-	defaultLogDestinations []logging.SupportedLogDestination,
-	notifier *notify.Notifier,
-	lokiClient loki.Client,
-	auditLogProjectID string,
-	auditLogLocation string,
+	contextDependencies func(http.Handler) http.Handler,
 	log logrus.FieldLogger,
 ) error {
 	router := chi.NewRouter()
 	router.Method("GET", "/",
 		otelhttp.NewHandler(playground.Handler("GraphQL playground", "/graphql"), "playground"),
 	)
-
-	graphMiddleware, err := ConfigureGraph(
-		ctx,
-		fakes,
-		watchers,
-		watcherMgr,
-		mgmtWatcherMgr,
-		pool,
-		k8sClients,
-		serviceMaintenanceManager,
-		aivenClient,
-		aivenProjects,
-		vulnMgr,
-		tenantName,
-		clusters,
-		hookdClient,
-		bifrostAPIURL,
-		allowedClusters,
-		defaultLogDestinations,
-		notifier,
-		lokiClient,
-		auditLogProjectID,
-		auditLogLocation,
-		log,
-	)
-	if err != nil {
-		return err
-	}
-
-	contextDependencies := graphMiddleware
 
 	router.Route("/graphql", func(r chi.Router) {
 		middlewares := []func(http.Handler) http.Handler{
@@ -159,7 +113,14 @@ func runHTTPServer(
 			middlewares,
 			middleware.ApiKeyAuthentication(),
 			middleware.Oauth2Authentication(authHandler),
-			middleware.GitHubOIDC(ctx, log),
+		)
+
+		if githubOIDCMiddleware != nil {
+			middlewares = append(middlewares, githubOIDCMiddleware)
+		}
+
+		middlewares = append(
+			middlewares,
 			middleware.RequireAuthenticatedUser(),
 			otelhttp.NewMiddleware(
 				"graphql",

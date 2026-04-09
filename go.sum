@@ -800,6 +800,8 @@ github.com/nais/pgrator/pkg/api v0.0.0-20260219115817-cf954d58c04e h1:FWPwIgFlNj
 github.com/nais/pgrator/pkg/api v0.0.0-20260219115817-cf954d58c04e/go.mod h1:iDLbi5Ss8Fs6L5+ot8jBLStR5/bdiPgblt7OsN06n50=
 github.com/nais/tester v0.1.0 h1:dojqSFT3RB8bPZ0Wv0QlBAa/MVPitftpkErC2awVHmU=
 github.com/nais/tester v0.1.0/go.mod h1:NCQMcgftHz/EXorob1XwDTOqkQmImDqr51YQ2Uea9Pc=
+github.com/nais/tester v0.1.1 h1:tpJ5HKpu3mEIWX/mec0Yj0xLHEpt+MwTAsj282n0Py0=
+github.com/nais/tester v0.1.1/go.mod h1:NCQMcgftHz/EXorob1XwDTOqkQmImDqr51YQ2Uea9Pc=
 github.com/nais/unleasherator v0.0.0-20251216221129-efebc54203fe h1:CdRVopOihru4tXVwKZjhg6C8SbPLCQYOhJKpjBZYhjg=
 github.com/nais/unleasherator v0.0.0-20251216221129-efebc54203fe/go.mod h1:Tiz/1If3WgcfvNhmsO5DiQC+L+1XhBG3KWbIfbjx4EU=
 github.com/nais/v13s/pkg/api v0.0.0-20260313084546-caca6d4cd742 h1:OQ3n3/UjTf7pO5GzxU+wWRGP3skyOqdoTruS3wm28N4=
