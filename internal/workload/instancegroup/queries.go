@@ -265,9 +265,11 @@ func expandSecretVolume(ctx context.Context, l *loaders, ig *InstanceGroup, moun
 	keys, err := getSecretKeys(ctx, l, ig.EnvironmentName, ig.TeamSlug.String(), secretName)
 	if err != nil {
 		l.log.WithError(err).WithField("secret", secretName).Warn("failed to resolve secret keys for volume mount")
+		errMsg := fmt.Sprintf("Secret '%s' could not be found or accessed. The application may fail to start until this is resolved.", secretName)
 		return []*InstanceGroupMountedFile{{
-			Path:   mount.MountPath + fmt.Sprintf("/ (unable to resolve files from Secret %s)", secretName),
+			Path:   mount.MountPath,
 			Source: source,
+			Error:  &errMsg,
 		}}
 	}
 
@@ -294,9 +296,11 @@ func expandConfigMapVolume(ctx context.Context, l *loaders, ig *InstanceGroup, m
 		contents, err := getConfigMapFileContents(ctx, l, ig.EnvironmentName, ig.TeamSlug.String(), cmName)
 		if err != nil {
 			l.log.WithError(err).WithField("configmap", cmName).Warn("failed to resolve configmap content for subPath mount")
+			errMsg := fmt.Sprintf("ConfigMap '%s' could not be found or accessed. The application may fail to start until this is resolved.", cmName)
 			return []*InstanceGroupMountedFile{{
 				Path:   mount.MountPath,
 				Source: source,
+				Error:  &errMsg,
 			}}
 		}
 		f := &InstanceGroupMountedFile{
@@ -314,9 +318,11 @@ func expandConfigMapVolume(ctx context.Context, l *loaders, ig *InstanceGroup, m
 	contents, err := getConfigMapFileContents(ctx, l, ig.EnvironmentName, ig.TeamSlug.String(), cmName)
 	if err != nil {
 		l.log.WithError(err).WithField("configmap", cmName).Warn("failed to resolve configmap content for volume mount")
+		errMsg := fmt.Sprintf("ConfigMap '%s' could not be found or accessed. The application may fail to start until this is resolved.", cmName)
 		return []*InstanceGroupMountedFile{{
-			Path:   mount.MountPath + fmt.Sprintf("/ (unable to resolve files from ConfigMap %s)", cmName),
+			Path:   mount.MountPath,
 			Source: source,
+			Error:  &errMsg,
 		}}
 	}
 

@@ -948,6 +948,7 @@ type ComplexityRoot struct {
 
 	InstanceGroupMountedFile struct {
 		Content  func(childComplexity int) int
+		Error    func(childComplexity int) int
 		IsBinary func(childComplexity int) int
 		Path     func(childComplexity int) int
 		Source   func(childComplexity int) int
@@ -6349,6 +6350,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.InstanceGroupMountedFile.Content(childComplexity), true
+
+	case "InstanceGroupMountedFile.error":
+		if e.ComplexityRoot.InstanceGroupMountedFile.Error == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroupMountedFile.Error(childComplexity), true
 
 	case "InstanceGroupMountedFile.isBinary":
 		if e.ComplexityRoot.InstanceGroupMountedFile.IsBinary == nil {
@@ -19982,7 +19990,8 @@ type InstanceGroupMountedFile {
 	source: InstanceGroupValueSource!
 
 	"""
-	The file content. Null for files from Secrets (requires elevation to view).
+	The file content. Null for files from Secrets (requires elevation to view)
+	or when the source could not be resolved (check the error field).
 	For ConfigMap files, this is the raw string content or base64-encoded binary content.
 	"""
 	content: String
@@ -19992,6 +20001,12 @@ type InstanceGroupMountedFile {
 	When true, the content field contains base64-encoded data that should be downloaded rather than displayed.
 	"""
 	isBinary: Boolean!
+
+	"""
+	Error message when the source Secret or ConfigMap could not be resolved.
+	When set, the file entry represents a failed mount rather than an actual file.
+	"""
+	error: String
 }
 
 """
