@@ -51,6 +51,7 @@ import (
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
 	"github.com/nais/api/internal/workload/config"
+	"github.com/nais/api/internal/workload/instancegroup"
 	"github.com/nais/api/internal/workload/job"
 	"github.com/nais/api/internal/workload/logging"
 	"github.com/nais/api/internal/workload/podlog"
@@ -6243,6 +6244,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Issue(ctx, sel, obj)
+	case instancegroup.InstanceGroup:
+		return ec._InstanceGroup(ctx, sel, &obj)
+	case *instancegroup.InstanceGroup:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._InstanceGroup(ctx, sel, obj)
 	case vulnerability.ImageVulnerability:
 		return ec._ImageVulnerability(ctx, sel, &obj)
 	case *vulnerability.ImageVulnerability:
