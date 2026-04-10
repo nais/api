@@ -183,7 +183,7 @@ func translateReasonAndNote(reason, note, eventType string) (string, InstanceGro
 			return "Failed to download container image. Check that the image exists and access is configured correctly.", InstanceGroupEventSeverityError
 		}
 		if strings.Contains(noteLower, "mount") || strings.Contains(noteLower, "volume") {
-			return "Failed to set up storage volume. Check that referenced Secrets and ConfigMaps exist.", InstanceGroupEventSeverityError
+			return classifyMountFailure(note), InstanceGroupEventSeverityError
 		}
 		return fmt.Sprintf("Operation failed: %s", note), InstanceGroupEventSeverityError
 
@@ -355,14 +355,42 @@ func classifyMountFailure(note string) string {
 
 	switch {
 	case strings.Contains(noteLower, "secret") && strings.Contains(noteLower, "not found"):
+		if name := extractResourceName(note, "secret"); name != "" {
+			return fmt.Sprintf("Failed to mount volume: secret `%s` does not exist. It may not have been created yet.", name)
+		}
 		return "Failed to mount volume: a referenced Secret does not exist. It may not have been created yet."
 	case strings.Contains(noteLower, "configmap") && strings.Contains(noteLower, "not found"):
+		if name := extractResourceName(note, "configmap"); name != "" {
+			return fmt.Sprintf("Failed to mount volume: configmap `%s` does not exist.", name)
+		}
 		return "Failed to mount volume: a referenced ConfigMap does not exist."
 	case strings.Contains(noteLower, "timeout"):
 		return "Timed out waiting for volume to be mounted. This is usually a transient issue."
 	default:
 		return fmt.Sprintf("Failed to mount volume: %s", note)
 	}
+}
+
+// extractResourceName extracts a quoted resource name following the given keyword from a K8s event note.
+// For example, from `secret "my-secret" not found` it extracts `my-secret`.
+func extractResourceName(note, keyword string) string {
+	noteLower := strings.ToLower(note)
+	idx := strings.Index(noteLower, keyword)
+	if idx == -1 {
+		return ""
+	}
+	// Find the first quote after the keyword
+	rest := note[idx+len(keyword):]
+	start := strings.IndexByte(rest, '"')
+	if start == -1 {
+		return ""
+	}
+	rest = rest[start+1:]
+	end := strings.IndexByte(rest, '"')
+	if end == -1 {
+		return ""
+	}
+	return rest[:end]
 }
 
 // classifyRescale provides a user-friendly message for autoscale events.
