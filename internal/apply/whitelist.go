@@ -37,6 +37,16 @@ var allowedResources = map[AllowedResource]schema.GroupVersionResource{
 		Group: "aiven.nais.io", Version: "v1", Resource: "aivenapplications",
 	},
 
+	// OpenSearch (NAIS)
+	{APIVersion: "nais.io/v1", Kind: "OpenSearch"}: {
+		Group: "nais.io", Version: "v1", Resource: "opensearches",
+	},
+
+	// Valkey (NAIS)
+	{APIVersion: "nais.io/v1", Kind: "Valkey"}: {
+		Group: "nais.io", Version: "v1", Resource: "valkeys",
+	},
+
 	// Autoscaling
 	{APIVersion: "autoscaling/v2", Kind: "HorizontalPodAutoscaler"}: {
 		Group: "autoscaling", Version: "v2", Resource: "horizontalpodautoscalers",
