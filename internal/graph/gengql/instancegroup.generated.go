@@ -326,6 +326,8 @@ func (ec *executionContext) fieldContext_InstanceGroup_mountedFiles(_ context.Co
 				return ec.fieldContext_InstanceGroupMountedFile_content(ctx, field)
 			case "isBinary":
 				return ec.fieldContext_InstanceGroupMountedFile_isBinary(ctx, field)
+			case "error":
+				return ec.fieldContext_InstanceGroupMountedFile_error(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type InstanceGroupMountedFile", field.Name)
 		},
@@ -748,6 +750,35 @@ func (ec *executionContext) fieldContext_InstanceGroupMountedFile_isBinary(_ con
 	return fc, nil
 }
 
+func (ec *executionContext) _InstanceGroupMountedFile_error(ctx context.Context, field graphql.CollectedField, obj *instancegroup.InstanceGroupMountedFile) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_InstanceGroupMountedFile_error,
+		func(ctx context.Context) (any, error) {
+			return obj.Error, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_InstanceGroupMountedFile_error(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "InstanceGroupMountedFile",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _InstanceGroupValueSource_kind(ctx context.Context, field graphql.CollectedField, obj *instancegroup.InstanceGroupValueSource) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -1156,6 +1187,8 @@ func (ec *executionContext) _InstanceGroupMountedFile(ctx context.Context, sel a
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "error":
+			out.Values[i] = ec._InstanceGroupMountedFile_error(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
