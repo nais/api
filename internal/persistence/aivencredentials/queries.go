@@ -5,7 +5,6 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"fmt"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -15,8 +14,6 @@ import (
 	"github.com/nais/api/internal/environmentmapper"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/kubernetes"
-	"github.com/nais/api/internal/persistence/opensearch"
-	"github.com/nais/api/internal/persistence/valkey"
 	"github.com/nais/api/internal/slug"
 	"github.com/sirupsen/logrus"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
@@ -42,43 +39,41 @@ const (
 	pollInterval = 2 * time.Second
 	pollTimeout  = 60 * time.Second
 
-	maxTTLDefault = 30 * 24 * time.Hour  // 30 days — used by OpenSearch and Valkey
-	maxTTLKafka   = 365 * 24 * time.Hour // 365 days — used by Kafka
+	MaxTTLDefault = 30 * 24 * time.Hour // 30 days — used by OpenSearch and Valkey
 )
 
-// credentialRequest captures all the parameters needed to create credentials for any Aiven service.
-type credentialRequest struct {
-	teamSlug        slug.Slug
-	environmentName string
-	ttl             string
-	service         string // "opensearch", "valkey", "kafka"
-	instanceName    string // empty for kafka
-	permission      string // empty for kafka
-	maxTTL          time.Duration
+// CredentialRequest captures all the parameters needed to create credentials for any Aiven service.
+type CredentialRequest struct {
+	TeamSlug        slug.Slug
+	EnvironmentName string
+	InstanceName    string
+	TTL             string
+	Permission      string // empty for kafka
+	MaxTTL          time.Duration
 
-	// buildSpec returns the AivenApplication spec for this service type.
-	buildSpec func(namespace, secretName string, expiresAt time.Time) map[string]any
+	// BuildSpec returns the AivenApplication spec for this service type.
+	BuildSpec func(namespace, secretName string, expiresAt time.Time) map[string]any
 
-	// extractCreds extracts typed credentials from the secret data.
-	extractCreds func(data map[string]string) any
+	// ExtractCreds extracts typed credentials from the secret data.
+	ExtractCreds func(data map[string]string) any
 }
 
-// createCredentials is the shared implementation for all three credential types.
-func createCredentials(ctx context.Context, req credentialRequest) (any, error) {
-	ttl, err := parseTTL(req.ttl, req.maxTTL)
+// CreateCredentials is the shared implementation for all three credential types.
+func CreateCredentials(ctx context.Context, resourceType activitylog.ActivityLogEntryResourceType, req CredentialRequest) (any, error) {
+	ttl, err := parseTTL(req.TTL, req.MaxTTL)
 	if err != nil {
 		return nil, err
 	}
 
 	actor := authz.ActorFromContext(ctx).User
-	namespace := req.teamSlug.String()
-	secretName := generateSecretName(actor.Identity(), namespace, req.service)
-	appName := generateAppName(actor.Identity(), req.service)
+	namespace := req.TeamSlug.String()
+	secretName := generateSecretName(actor.Identity(), namespace, resourceType)
+	appName := generateAppName(actor.Identity(), resourceType)
 
 	expiresAt := time.Now().Add(ttl).UTC()
-	spec := req.buildSpec(namespace, secretName, expiresAt)
+	spec := req.BuildSpec(namespace, secretName, expiresAt)
 
-	client, err := getClient(ctx, req.environmentName)
+	client, err := getClient(ctx, req.EnvironmentName)
 	if err != nil {
 		return nil, err
 	}
@@ -94,140 +89,9 @@ func createCredentials(ctx context.Context, req credentialRequest) (any, error) 
 
 	l := fromContext(ctx)
 	data := secretData(secret, l.log)
-	creds := req.extractCreds(data)
-
-	if err := logCredentialCreation(ctx, req); err != nil {
-		l.log.WithError(err).Warn("failed to create activity log entry")
-	}
+	creds := req.ExtractCreds(data)
 
 	return creds, nil
-}
-
-func CreateOpenSearchCredentials(ctx context.Context, input CreateOpenSearchCredentialsInput) (*CreateOpenSearchCredentialsPayload, error) {
-	// Strip "opensearch-<team>-" prefix if the user provided the full Kubernetes resource name.
-	// The buildSpec already prepends "opensearch-<namespace>-" for the Aivenator.
-	instanceName := strings.TrimPrefix(input.InstanceName, opensearch.NamePrefix(input.TeamSlug))
-	result, err := createCredentials(ctx, credentialRequest{
-		teamSlug:        input.TeamSlug,
-		environmentName: input.EnvironmentName,
-		ttl:             input.TTL,
-		service:         "opensearch",
-		instanceName:    instanceName,
-		permission:      input.Permission.String(),
-		maxTTL:          maxTTLDefault,
-		buildSpec: func(namespace, secretName string, expiresAt time.Time) map[string]any {
-			return map[string]any{
-				"protected": true,
-				"expiresAt": expiresAt.Format(time.RFC3339),
-				"openSearch": map[string]any{
-					"instance":   fmt.Sprintf("opensearch-%s-%s", namespace, instanceName),
-					"access":     input.Permission.aivenAccess(),
-					"secretName": secretName,
-				},
-			}
-		},
-		extractCreds: func(data map[string]string) any {
-			port, _ := strconv.Atoi(data["OPEN_SEARCH_PORT"])
-			return &OpenSearchCredentials{
-				Username: data["OPEN_SEARCH_USERNAME"],
-				Password: data["OPEN_SEARCH_PASSWORD"],
-				Host:     data["OPEN_SEARCH_HOST"],
-				Port:     port,
-				URI:      data["OPEN_SEARCH_URI"],
-			}
-		},
-	})
-	if err != nil {
-		return nil, err
-	}
-	return &CreateOpenSearchCredentialsPayload{Credentials: result.(*OpenSearchCredentials)}, nil
-}
-
-// valkeyEnvVarName matches the Aivenator's key naming convention for Valkey secrets.
-// The Aivenator suffixes all Valkey secret keys with the uppercased instance name,
-// where non-alphanumeric characters are replaced with underscores.
-// For example, instance "my-cache" produces suffix "MY_CACHE", giving keys like "VALKEY_HOST_MY_CACHE".
-var valkeyNamePattern = regexp.MustCompile("[^a-z0-9]")
-
-func valkeyEnvVarSuffix(instanceName string) string {
-	return strings.ToUpper(valkeyNamePattern.ReplaceAllString(instanceName, "_"))
-}
-
-func CreateValkeyCredentials(ctx context.Context, input CreateValkeyCredentialsInput) (*CreateValkeyCredentialsPayload, error) {
-	// Strip "valkey-<team>-" prefix if the user provided the full Kubernetes resource name.
-	// Aivenator expects the short instance name and prepends "valkey-<namespace>-" itself.
-	instanceName := strings.TrimPrefix(input.InstanceName, valkey.NamePrefix(input.TeamSlug))
-	suffix := valkeyEnvVarSuffix(instanceName)
-	result, err := createCredentials(ctx, credentialRequest{
-		teamSlug:        input.TeamSlug,
-		environmentName: input.EnvironmentName,
-		ttl:             input.TTL,
-		service:         "valkey",
-		instanceName:    instanceName,
-		permission:      input.Permission.String(),
-		maxTTL:          maxTTLDefault,
-		buildSpec: func(namespace, secretName string, expiresAt time.Time) map[string]any {
-			return map[string]any{
-				"protected": true,
-				"expiresAt": expiresAt.Format(time.RFC3339),
-				"valkey": []any{
-					map[string]any{
-						"instance":   instanceName,
-						"access":     input.Permission.aivenAccess(),
-						"secretName": secretName,
-					},
-				},
-			}
-		},
-		extractCreds: func(data map[string]string) any {
-			port, _ := strconv.Atoi(data[fmt.Sprintf("VALKEY_PORT_%s", suffix)])
-			return &ValkeyCredentials{
-				Username: data[fmt.Sprintf("VALKEY_USERNAME_%s", suffix)],
-				Password: data[fmt.Sprintf("VALKEY_PASSWORD_%s", suffix)],
-				Host:     data[fmt.Sprintf("VALKEY_HOST_%s", suffix)],
-				Port:     port,
-				URI:      data[fmt.Sprintf("VALKEY_URI_%s", suffix)],
-			}
-		},
-	})
-	if err != nil {
-		return nil, err
-	}
-	return &CreateValkeyCredentialsPayload{Credentials: result.(*ValkeyCredentials)}, nil
-}
-
-func CreateKafkaCredentials(ctx context.Context, input CreateKafkaCredentialsInput) (*CreateKafkaCredentialsPayload, error) {
-	result, err := createCredentials(ctx, credentialRequest{
-		teamSlug:        input.TeamSlug,
-		environmentName: input.EnvironmentName,
-		ttl:             input.TTL,
-		service:         "kafka",
-		maxTTL:          maxTTLKafka,
-		buildSpec: func(namespace, secretName string, expiresAt time.Time) map[string]any {
-			return map[string]any{
-				"protected": true,
-				"expiresAt": expiresAt.Format(time.RFC3339),
-				"kafka": map[string]any{
-					"pool":       "nav-" + input.EnvironmentName,
-					"secretName": secretName,
-				},
-			}
-		},
-		extractCreds: func(data map[string]string) any {
-			return &KafkaCredentials{
-				Username:       data["KAFKA_SCHEMA_REGISTRY_USER"],
-				AccessCert:     data["KAFKA_CERTIFICATE"],
-				AccessKey:      data["KAFKA_PRIVATE_KEY"],
-				CaCert:         data["KAFKA_CA"],
-				Brokers:        data["KAFKA_BROKERS"],
-				SchemaRegistry: data["KAFKA_SCHEMA_REGISTRY"],
-			}
-		},
-	})
-	if err != nil {
-		return nil, err
-	}
-	return &CreateKafkaCredentialsPayload{Credentials: result.(*KafkaCredentials)}, nil
 }
 
 // getClient returns the dynamic client for the given environment (cluster).
@@ -343,15 +207,15 @@ func secretData(secret *unstructured.Unstructured, log logrus.FieldLogger) map[s
 }
 
 // generateSecretName creates a deterministic, short secret name.
-func generateSecretName(username, namespace, service string) string {
-	hash := sha256.Sum256(fmt.Appendf(nil, "%s-%s-%s", username, namespace, service))
-	return fmt.Sprintf("tmp-%s-%x", service, hash[:3])
+func generateSecretName(username, namespace string, resourceType activitylog.ActivityLogEntryResourceType) string {
+	hash := sha256.Sum256(fmt.Appendf(nil, "%s-%s-%s", username, namespace, resourceType))
+	return fmt.Sprintf("tmp-%s-%x", resourceType, hash[:3])
 }
 
 // generateAppName creates a deterministic AivenApplication name from the user identity.
-func generateAppName(username, service string) string {
-	hash := sha256.Sum256(fmt.Appendf(nil, "%s-%s", username, service))
-	return fmt.Sprintf("tmp-%s-%x", service, hash[:3])
+func generateAppName(username string, resourceType activitylog.ActivityLogEntryResourceType) string {
+	hash := sha256.Sum256(fmt.Appendf(nil, "%s-%s", username, resourceType))
+	return fmt.Sprintf("tmp-%s-%x", resourceType, hash[:3])
 }
 
 // parseTTL parses a human-readable TTL string (e.g. "1d", "7d", "24h") into a time.Duration.
@@ -385,22 +249,21 @@ func parseTTL(ttl string, maxTTL time.Duration) (time.Duration, error) {
 	return d, nil
 }
 
-// logCredentialCreation logs that credentials were created to the activity log.
-func logCredentialCreation(ctx context.Context, req credentialRequest) error {
-	envName := req.environmentName
-	serviceType := strings.ToUpper(req.service)
-	return activitylog.Create(ctx, activitylog.CreateInput{
-		Action:          activityLogEntryActionCreateCredentials,
+// LogCredentialCreation logs that credentials were created to the activity log.
+func LogCredentialCreation(ctx context.Context, resourceType activitylog.ActivityLogEntryResourceType, req CredentialRequest) {
+	err := activitylog.Create(ctx, activitylog.CreateInput{
+		Action:          ActivityLogEntryActionCredentialsCreated,
 		Actor:           authz.ActorFromContext(ctx).User,
-		ResourceType:    activityLogEntryResourceTypeCredentials,
-		ResourceName:    serviceType,
-		EnvironmentName: &envName,
-		TeamSlug:        &req.teamSlug,
+		ResourceType:    resourceType,
+		ResourceName:    req.InstanceName,
+		EnvironmentName: &req.EnvironmentName,
+		TeamSlug:        &req.TeamSlug,
 		Data: CredentialsActivityLogEntryData{
-			ServiceType:  serviceType,
-			InstanceName: req.instanceName,
-			Permission:   req.permission,
-			TTL:          req.ttl,
+			Permission: req.Permission,
+			TTL:        req.TTL,
 		},
 	})
+	if err != nil {
+		fromContext(ctx).log.WithError(err).Warn("failed to create activity log entry")
+	}
 }

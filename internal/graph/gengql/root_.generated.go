@@ -20,7 +20,6 @@ import (
 	"github.com/nais/api/internal/issue"
 	"github.com/nais/api/internal/loki"
 	"github.com/nais/api/internal/metrics"
-	"github.com/nais/api/internal/persistence/aivencredentials"
 	"github.com/nais/api/internal/persistence/bigquery"
 	"github.com/nais/api/internal/persistence/bucket"
 	"github.com/nais/api/internal/persistence/kafkatopic"
@@ -64,6 +63,7 @@ type ResolverRoot interface {
 	Config() ConfigResolver
 	ContainerImage() ContainerImageResolver
 	ContainerImageWorkloadReference() ContainerImageWorkloadReferenceResolver
+	CredentialsActivityLogEntryData() CredentialsActivityLogEntryDataResolver
 	CurrentUnitPrices() CurrentUnitPricesResolver
 	DeleteApplicationPayload() DeleteApplicationPayloadResolver
 	DeleteJobPayload() DeleteJobPayloadResolver
@@ -1310,16 +1310,16 @@ type ComplexityRoot struct {
 		ConfigureReconciler          func(childComplexity int, input reconciler.ConfigureReconcilerInput) int
 		ConfirmTeamDeletion          func(childComplexity int, input team.ConfirmTeamDeletionInput) int
 		CreateConfig                 func(childComplexity int, input config.CreateConfigInput) int
-		CreateKafkaCredentials       func(childComplexity int, input aivencredentials.CreateKafkaCredentialsInput) int
+		CreateKafkaCredentials       func(childComplexity int, input kafkatopic.CreateKafkaCredentialsInput) int
 		CreateOpenSearch             func(childComplexity int, input opensearch.CreateOpenSearchInput) int
-		CreateOpenSearchCredentials  func(childComplexity int, input aivencredentials.CreateOpenSearchCredentialsInput) int
+		CreateOpenSearchCredentials  func(childComplexity int, input opensearch.CreateOpenSearchCredentialsInput) int
 		CreateSecret                 func(childComplexity int, input secret.CreateSecretInput) int
 		CreateServiceAccount         func(childComplexity int, input serviceaccount.CreateServiceAccountInput) int
 		CreateServiceAccountToken    func(childComplexity int, input serviceaccount.CreateServiceAccountTokenInput) int
 		CreateTeam                   func(childComplexity int, input team.CreateTeamInput) int
 		CreateUnleashForTeam         func(childComplexity int, input unleash.CreateUnleashForTeamInput) int
 		CreateValkey                 func(childComplexity int, input valkey.CreateValkeyInput) int
-		CreateValkeyCredentials      func(childComplexity int, input aivencredentials.CreateValkeyCredentialsInput) int
+		CreateValkeyCredentials      func(childComplexity int, input valkey.CreateValkeyCredentialsInput) int
 		DeleteApplication            func(childComplexity int, input application.DeleteApplicationInput) int
 		DeleteConfig                 func(childComplexity int, input config.DeleteConfigInput) int
 		DeleteJob                    func(childComplexity int, input job.DeleteJobInput) int
@@ -8089,7 +8089,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Mutation.CreateKafkaCredentials(childComplexity, args["input"].(aivencredentials.CreateKafkaCredentialsInput)), true
+		return e.ComplexityRoot.Mutation.CreateKafkaCredentials(childComplexity, args["input"].(kafkatopic.CreateKafkaCredentialsInput)), true
 
 	case "Mutation.createOpenSearch":
 		if e.ComplexityRoot.Mutation.CreateOpenSearch == nil {
@@ -8113,7 +8113,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Mutation.CreateOpenSearchCredentials(childComplexity, args["input"].(aivencredentials.CreateOpenSearchCredentialsInput)), true
+		return e.ComplexityRoot.Mutation.CreateOpenSearchCredentials(childComplexity, args["input"].(opensearch.CreateOpenSearchCredentialsInput)), true
 
 	case "Mutation.createSecret":
 		if e.ComplexityRoot.Mutation.CreateSecret == nil {
@@ -8197,7 +8197,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Mutation.CreateValkeyCredentials(childComplexity, args["input"].(aivencredentials.CreateValkeyCredentialsInput)), true
+		return e.ComplexityRoot.Mutation.CreateValkeyCredentials(childComplexity, args["input"].(valkey.CreateValkeyCredentialsInput)), true
 
 	case "Mutation.deleteApplication":
 		if e.ComplexityRoot.Mutation.DeleteApplication == nil {
@@ -17338,97 +17338,6 @@ enum CredentialPermission {
 	ADMIN
 }
 
-input CreateOpenSearchCredentialsInput {
-	"The team that owns the OpenSearch instance."
-	teamSlug: Slug!
-	"The environment name that the OpenSearch instance belongs to."
-	environmentName: String!
-	"Name of the OpenSearch instance."
-	instanceName: String!
-	"Permission level for the credentials."
-	permission: CredentialPermission!
-	"Time-to-live for the credentials (e.g. '1d', '7d'). Maximum 30 days."
-	ttl: String!
-}
-
-type OpenSearchCredentials {
-	"Username for the OpenSearch instance."
-	username: String!
-	"Password for the OpenSearch instance."
-	password: String!
-	"Hostname of the OpenSearch instance."
-	host: String!
-	"Port of the OpenSearch instance."
-	port: Int!
-	"Full connection URI for the OpenSearch instance."
-	uri: String!
-}
-
-type CreateOpenSearchCredentialsPayload {
-	"The generated credentials."
-	credentials: OpenSearchCredentials!
-}
-
-input CreateValkeyCredentialsInput {
-	"The team that owns the Valkey instance."
-	teamSlug: Slug!
-	"The environment name that the Valkey instance belongs to."
-	environmentName: String!
-	"Name of the Valkey instance."
-	instanceName: String!
-	"Permission level for the credentials."
-	permission: CredentialPermission!
-	"Time-to-live for the credentials (e.g. '1d', '7d'). Maximum 30 days."
-	ttl: String!
-}
-
-type ValkeyCredentials {
-	"Username for the Valkey instance."
-	username: String!
-	"Password for the Valkey instance."
-	password: String!
-	"Hostname of the Valkey instance."
-	host: String!
-	"Port of the Valkey instance."
-	port: Int!
-	"Full connection URI for the Valkey instance."
-	uri: String!
-}
-
-type CreateValkeyCredentialsPayload {
-	"The generated credentials."
-	credentials: ValkeyCredentials!
-}
-
-input CreateKafkaCredentialsInput {
-	"The team that owns the Kafka topic."
-	teamSlug: Slug!
-	"The environment name that the Kafka topic belongs to."
-	environmentName: String!
-	"Time-to-live for the credentials (e.g. '1d', '7d'). Maximum 365 days."
-	ttl: String!
-}
-
-type KafkaCredentials {
-	"Username for the Kafka broker."
-	username: String!
-	"Client certificate in PEM format."
-	accessCert: String!
-	"Client private key in PEM format."
-	accessKey: String!
-	"CA certificate in PEM format."
-	caCert: String!
-	"Comma-separated list of broker addresses."
-	brokers: String!
-	"Schema registry URL."
-	schemaRegistry: String!
-}
-
-type CreateKafkaCredentialsPayload {
-	"The generated credentials."
-	credentials: KafkaCredentials!
-}
-
 extend enum ActivityLogEntryResourceType {
 	"All activity log entries related to credential creation will use this resource type."
 	CREDENTIALS
@@ -17476,18 +17385,7 @@ type CredentialsActivityLogEntryData {
 
 extend enum ActivityLogActivityType {
 	"Filter for credential creation events."
-	CREDENTIALS_CREATE
-}
-
-extend type Mutation {
-	"Create temporary credentials for an OpenSearch instance."
-	createOpenSearchCredentials(
-		input: CreateOpenSearchCredentialsInput!
-	): CreateOpenSearchCredentialsPayload!
-	"Create temporary credentials for a Valkey instance."
-	createValkeyCredentials(input: CreateValkeyCredentialsInput!): CreateValkeyCredentialsPayload!
-	"Create temporary credentials for Kafka."
-	createKafkaCredentials(input: CreateKafkaCredentialsInput!): CreateKafkaCredentialsPayload!
+	CREDENTIALS_CREATED
 }
 `, BuiltIn: false},
 	{Name: "../schema/alerts.graphqls", Input: `extend type TeamEnvironment {
@@ -21223,7 +21121,12 @@ extend enum ActivityLogActivityType {
 	JOB_TRIGGERED
 }
 `, BuiltIn: false},
-	{Name: "../schema/kafka.graphqls", Input: `extend type Team {
+	{Name: "../schema/kafka.graphqls", Input: `extend type Mutation {
+	"Create temporary credentials for Kafka."
+	createKafkaCredentials(input: CreateKafkaCredentialsInput!): CreateKafkaCredentialsPayload!
+}
+
+extend type Team {
 	"Kafka topics owned by the team."
 	kafkaTopics(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
@@ -21373,6 +21276,35 @@ extend union SearchNode = KafkaTopic
 
 extend enum SearchType {
 	KAFKA_TOPIC
+}
+
+input CreateKafkaCredentialsInput {
+	"The team that owns the Kafka topic."
+	teamSlug: Slug!
+	"The environment name that the Kafka topic belongs to."
+	environmentName: String!
+	"Time-to-live for the credentials (e.g. '1d', '7d'). Maximum 365 days."
+	ttl: String!
+}
+
+type KafkaCredentials {
+	"Username for the Kafka broker."
+	username: String!
+	"Client certificate in PEM format."
+	accessCert: String!
+	"Client private key in PEM format."
+	accessKey: String!
+	"CA certificate in PEM format."
+	caCert: String!
+	"Comma-separated list of broker addresses."
+	brokers: String!
+	"Schema registry URL."
+	schemaRegistry: String!
+}
+
+type CreateKafkaCredentialsPayload {
+	"The generated credentials."
+	credentials: KafkaCredentials!
 }
 `, BuiltIn: false},
 	{Name: "../schema/log.graphqls", Input: `extend type Subscription {
@@ -21919,6 +21851,10 @@ extend type Mutation {
 	updateOpenSearch(input: UpdateOpenSearchInput!): UpdateOpenSearchPayload!
 	"Delete an existing OpenSearch instance."
 	deleteOpenSearch(input: DeleteOpenSearchInput!): DeleteOpenSearchPayload!
+	"Create temporary credentials for an OpenSearch instance."
+	createOpenSearchCredentials(
+		input: CreateOpenSearchCredentialsInput!
+	): CreateOpenSearchCredentialsPayload!
 }
 
 extend enum ActivityLogEntryResourceType {
@@ -22039,6 +21975,37 @@ type OpenSearchDeletedActivityLogEntry implements ActivityLogEntry & Node {
 
 	"The environment name that the entry belongs to."
 	environmentName: String
+}
+
+input CreateOpenSearchCredentialsInput {
+	"The team that owns the OpenSearch instance."
+	teamSlug: Slug!
+	"The environment name that the OpenSearch instance belongs to."
+	environmentName: String!
+	"Name of the OpenSearch instance."
+	instanceName: String!
+	"Permission level for the credentials."
+	permission: CredentialPermission!
+	"Time-to-live for the credentials (e.g. '1d', '7d'). Maximum 30 days."
+	ttl: String!
+}
+
+type OpenSearchCredentials {
+	"Username for the OpenSearch instance."
+	username: String!
+	"Password for the OpenSearch instance."
+	password: String!
+	"Hostname of the OpenSearch instance."
+	host: String!
+	"Port of the OpenSearch instance."
+	port: Int!
+	"Full connection URI for the OpenSearch instance."
+	uri: String!
+}
+
+type CreateOpenSearchCredentialsPayload {
+	"The generated credentials."
+	credentials: OpenSearchCredentials!
 }
 `, BuiltIn: false},
 	{Name: "../schema/persistence.graphqls", Input: `interface Persistence implements Node {
@@ -27039,6 +27006,8 @@ extend type Mutation {
 	updateValkey(input: UpdateValkeyInput!): UpdateValkeyPayload!
 	"Delete an existing Valkey instance."
 	deleteValkey(input: DeleteValkeyInput!): DeleteValkeyPayload!
+	"Create temporary credentials for a Valkey instance."
+	createValkeyCredentials(input: CreateValkeyCredentialsInput!): CreateValkeyCredentialsPayload!
 }
 
 extend enum ActivityLogEntryResourceType {
@@ -27159,6 +27128,37 @@ type ValkeyDeletedActivityLogEntry implements ActivityLogEntry & Node {
 
 	"The environment name that the entry belongs to."
 	environmentName: String
+}
+
+input CreateValkeyCredentialsInput {
+	"The team that owns the Valkey instance."
+	teamSlug: Slug!
+	"The environment name that the Valkey instance belongs to."
+	environmentName: String!
+	"Name of the Valkey instance."
+	instanceName: String!
+	"Permission level for the credentials."
+	permission: CredentialPermission!
+	"Time-to-live for the credentials (e.g. '1d', '7d'). Maximum 30 days."
+	ttl: String!
+}
+
+type ValkeyCredentials {
+	"Username for the Valkey instance."
+	username: String!
+	"Password for the Valkey instance."
+	password: String!
+	"Hostname of the Valkey instance."
+	host: String!
+	"Port of the Valkey instance."
+	port: Int!
+	"Full connection URI for the Valkey instance."
+	uri: String!
+}
+
+type CreateValkeyCredentialsPayload {
+	"The generated credentials."
+	credentials: ValkeyCredentials!
 }
 `, BuiltIn: false},
 	{Name: "../schema/vulnerability.graphqls", Input: `extend type Mutation {

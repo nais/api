@@ -253,6 +253,10 @@ extend type Mutation {
 	updateOpenSearch(input: UpdateOpenSearchInput!): UpdateOpenSearchPayload!
 	"Delete an existing OpenSearch instance."
 	deleteOpenSearch(input: DeleteOpenSearchInput!): DeleteOpenSearchPayload!
+	"Create temporary credentials for an OpenSearch instance."
+	createOpenSearchCredentials(
+		input: CreateOpenSearchCredentialsInput!
+	): CreateOpenSearchCredentialsPayload!
 }
 
 extend enum ActivityLogEntryResourceType {
@@ -373,4 +377,35 @@ type OpenSearchDeletedActivityLogEntry implements ActivityLogEntry & Node {
 
 	"The environment name that the entry belongs to."
 	environmentName: String
+}
+
+input CreateOpenSearchCredentialsInput {
+	"The team that owns the OpenSearch instance."
+	teamSlug: Slug!
+	"The environment name that the OpenSearch instance belongs to."
+	environmentName: String!
+	"Name of the OpenSearch instance."
+	instanceName: String!
+	"Permission level for the credentials."
+	permission: CredentialPermission!
+	"Time-to-live for the credentials (e.g. '1d', '7d'). Maximum 30 days."
+	ttl: String!
+}
+
+type OpenSearchCredentials {
+	"Username for the OpenSearch instance."
+	username: String!
+	"Password for the OpenSearch instance."
+	password: String!
+	"Hostname of the OpenSearch instance."
+	host: String!
+	"Port of the OpenSearch instance."
+	port: Int!
+	"Full connection URI for the OpenSearch instance."
+	uri: String!
+}
+
+type CreateOpenSearchCredentialsPayload {
+	"The generated credentials."
+	credentials: OpenSearchCredentials!
 }

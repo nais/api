@@ -150,6 +150,47 @@ func (ec *executionContext) field_Valkey_issues_args(ctx context.Context, rawArg
 
 // region    **************************** field.gotpl *****************************
 
+func (ec *executionContext) _CreateValkeyCredentialsPayload_credentials(ctx context.Context, field graphql.CollectedField, obj *valkey.CreateValkeyCredentialsPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_CreateValkeyCredentialsPayload_credentials,
+		func(ctx context.Context) (any, error) {
+			return obj.Credentials, nil
+		},
+		nil,
+		ec.marshalNValkeyCredentials2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyCredentials,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_CreateValkeyCredentialsPayload_credentials(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CreateValkeyCredentialsPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "username":
+				return ec.fieldContext_ValkeyCredentials_username(ctx, field)
+			case "password":
+				return ec.fieldContext_ValkeyCredentials_password(ctx, field)
+			case "host":
+				return ec.fieldContext_ValkeyCredentials_host(ctx, field)
+			case "port":
+				return ec.fieldContext_ValkeyCredentials_port(ctx, field)
+			case "uri":
+				return ec.fieldContext_ValkeyCredentials_uri(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ValkeyCredentials", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _CreateValkeyPayload_valkey(ctx context.Context, field graphql.CollectedField, obj *valkey.CreateValkeyPayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -1718,6 +1759,151 @@ func (ec *executionContext) fieldContext_ValkeyCreatedActivityLogEntry_environme
 	return fc, nil
 }
 
+func (ec *executionContext) _ValkeyCredentials_username(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyCredentials) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_ValkeyCredentials_username,
+		func(ctx context.Context) (any, error) {
+			return obj.Username, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_ValkeyCredentials_username(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ValkeyCredentials",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ValkeyCredentials_password(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyCredentials) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_ValkeyCredentials_password,
+		func(ctx context.Context) (any, error) {
+			return obj.Password, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_ValkeyCredentials_password(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ValkeyCredentials",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ValkeyCredentials_host(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyCredentials) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_ValkeyCredentials_host,
+		func(ctx context.Context) (any, error) {
+			return obj.Host, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_ValkeyCredentials_host(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ValkeyCredentials",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ValkeyCredentials_port(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyCredentials) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_ValkeyCredentials_port,
+		func(ctx context.Context) (any, error) {
+			return obj.Port, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_ValkeyCredentials_port(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ValkeyCredentials",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ValkeyCredentials_uri(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyCredentials) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_ValkeyCredentials_uri,
+		func(ctx context.Context) (any, error) {
+			return obj.URI, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_ValkeyCredentials_uri(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ValkeyCredentials",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ValkeyDeletedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyDeletedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -2439,6 +2625,60 @@ func (ec *executionContext) fieldContext_ValkeyUpdatedActivityLogEntryDataUpdate
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputCreateValkeyCredentialsInput(ctx context.Context, obj any) (valkey.CreateValkeyCredentialsInput, error) {
+	var it valkey.CreateValkeyCredentialsInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"teamSlug", "environmentName", "instanceName", "permission", "ttl"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "teamSlug":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamSlug"))
+			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TeamSlug = data
+		case "environmentName":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environmentName"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.EnvironmentName = data
+		case "instanceName":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("instanceName"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.InstanceName = data
+		case "permission":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("permission"))
+			data, err := ec.unmarshalNCredentialPermission2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋaivencredentialsᚐCredentialPermission(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Permission = data
+		case "ttl":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ttl"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TTL = data
+		}
+	}
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputCreateValkeyInput(ctx context.Context, obj any) (valkey.CreateValkeyInput, error) {
 	var it valkey.CreateValkeyInput
 	asMap := map[string]any{}
@@ -2702,6 +2942,45 @@ func (ec *executionContext) unmarshalInputValkeyOrder(ctx context.Context, obj a
 // endregion ************************** interface.gotpl ***************************
 
 // region    **************************** object.gotpl ****************************
+
+var createValkeyCredentialsPayloadImplementors = []string{"CreateValkeyCredentialsPayload"}
+
+func (ec *executionContext) _CreateValkeyCredentialsPayload(ctx context.Context, sel ast.SelectionSet, obj *valkey.CreateValkeyCredentialsPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, createValkeyCredentialsPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("CreateValkeyCredentialsPayload")
+		case "credentials":
+			out.Values[i] = ec._CreateValkeyCredentialsPayload_credentials(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
 
 var createValkeyPayloadImplementors = []string{"CreateValkeyPayload"}
 
@@ -3569,6 +3848,65 @@ func (ec *executionContext) _ValkeyCreatedActivityLogEntry(ctx context.Context, 
 	return out
 }
 
+var valkeyCredentialsImplementors = []string{"ValkeyCredentials"}
+
+func (ec *executionContext) _ValkeyCredentials(ctx context.Context, sel ast.SelectionSet, obj *valkey.ValkeyCredentials) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, valkeyCredentialsImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ValkeyCredentials")
+		case "username":
+			out.Values[i] = ec._ValkeyCredentials_username(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "password":
+			out.Values[i] = ec._ValkeyCredentials_password(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "host":
+			out.Values[i] = ec._ValkeyCredentials_host(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "port":
+			out.Values[i] = ec._ValkeyCredentials_port(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "uri":
+			out.Values[i] = ec._ValkeyCredentials_uri(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var valkeyDeletedActivityLogEntryImplementors = []string{"ValkeyDeletedActivityLogEntry", "ActivityLogEntry", "Node"}
 
 func (ec *executionContext) _ValkeyDeletedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *valkey.ValkeyDeletedActivityLogEntry) graphql.Marshaler {
@@ -3846,6 +4184,25 @@ func (ec *executionContext) _ValkeyUpdatedActivityLogEntryDataUpdatedField(ctx c
 
 // region    ***************************** type.gotpl *****************************
 
+func (ec *executionContext) unmarshalNCreateValkeyCredentialsInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐCreateValkeyCredentialsInput(ctx context.Context, v any) (valkey.CreateValkeyCredentialsInput, error) {
+	res, err := ec.unmarshalInputCreateValkeyCredentialsInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNCreateValkeyCredentialsPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐCreateValkeyCredentialsPayload(ctx context.Context, sel ast.SelectionSet, v valkey.CreateValkeyCredentialsPayload) graphql.Marshaler {
+	return ec._CreateValkeyCredentialsPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNCreateValkeyCredentialsPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐCreateValkeyCredentialsPayload(ctx context.Context, sel ast.SelectionSet, v *valkey.CreateValkeyCredentialsPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._CreateValkeyCredentialsPayload(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNCreateValkeyInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐCreateValkeyInput(ctx context.Context, v any) (valkey.CreateValkeyInput, error) {
 	res, err := ec.unmarshalInputCreateValkeyInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -4029,6 +4386,16 @@ func (ec *executionContext) marshalNValkeyConnection2ᚖgithubᚗcomᚋnaisᚋap
 		return graphql.Null
 	}
 	return ec._ValkeyConnection(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNValkeyCredentials2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyCredentials(ctx context.Context, sel ast.SelectionSet, v *valkey.ValkeyCredentials) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ValkeyCredentials(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNValkeyEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[*valkey.Valkey]) graphql.Marshaler {

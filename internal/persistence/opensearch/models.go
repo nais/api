@@ -14,6 +14,7 @@ import (
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/kubernetes"
+	"github.com/nais/api/internal/persistence/aivencredentials"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/validate"
 	"github.com/nais/api/internal/workload"
@@ -610,4 +611,24 @@ func (e *OpenSearchState) UnmarshalGQL(v any) error {
 
 func (e OpenSearchState) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type OpenSearchCredentials struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+	Host     string `json:"host"`
+	Port     int    `json:"port"`
+	URI      string `json:"uri"`
+}
+
+type CreateOpenSearchCredentialsPayload struct {
+	Credentials *OpenSearchCredentials `json:"credentials"`
+}
+
+type CreateOpenSearchCredentialsInput struct {
+	TeamSlug        slug.Slug                             `json:"teamSlug"`
+	EnvironmentName string                                `json:"environmentName"`
+	InstanceName    string                                `json:"instanceName"`
+	Permission      aivencredentials.CredentialPermission `json:"permission"`
+	TTL             string                                `json:"ttl"`
 }

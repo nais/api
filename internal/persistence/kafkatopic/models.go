@@ -199,3 +199,26 @@ func toKafkaTopic(u *unstructured.Unstructured, envName string) (*KafkaTopic, er
 type TeamInventoryCountKafkaTopics struct {
 	Total int
 }
+
+type CreateKafkaCredentialsInput struct {
+	TeamSlug        slug.Slug `json:"teamSlug"`
+	EnvironmentName string    `json:"environmentName"`
+	TTL             string    `json:"ttl"`
+}
+
+// Credential types
+
+type KafkaCredentials struct {
+	Username       string `json:"username"`
+	AccessCert     string `json:"accessCert"`
+	AccessKey      string `json:"accessKey"`
+	CaCert         string `json:"caCert"`
+	Brokers        string `json:"brokers"`
+	SchemaRegistry string `json:"schemaRegistry"`
+}
+
+// Payload types
+
+type CreateKafkaCredentialsPayload struct {
+	Credentials *KafkaCredentials `json:"credentials"`
+}

@@ -2,28 +2,22 @@ package graph
 
 import (
 	"context"
+	"fmt"
 
-	"github.com/nais/api/internal/auth/authz"
+	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/persistence/aivencredentials"
 )
 
-func (r *mutationResolver) CreateOpenSearchCredentials(ctx context.Context, input aivencredentials.CreateOpenSearchCredentialsInput) (*aivencredentials.CreateOpenSearchCredentialsPayload, error) {
-	if err := authz.CanCreateAivenCredentials(ctx, input.TeamSlug); err != nil {
-		return nil, err
-	}
-	return aivencredentials.CreateOpenSearchCredentials(ctx, input)
+func (r *credentialsActivityLogEntryDataResolver) ServiceType(ctx context.Context, obj *aivencredentials.CredentialsActivityLogEntryData) (string, error) {
+	panic(fmt.Errorf("not implemented: ServiceType - serviceType"))
 }
 
-func (r *mutationResolver) CreateValkeyCredentials(ctx context.Context, input aivencredentials.CreateValkeyCredentialsInput) (*aivencredentials.CreateValkeyCredentialsPayload, error) {
-	if err := authz.CanCreateAivenCredentials(ctx, input.TeamSlug); err != nil {
-		return nil, err
-	}
-	return aivencredentials.CreateValkeyCredentials(ctx, input)
+func (r *credentialsActivityLogEntryDataResolver) InstanceName(ctx context.Context, obj *aivencredentials.CredentialsActivityLogEntryData) (*string, error) {
+	panic(fmt.Errorf("not implemented: InstanceName - instanceName"))
 }
 
-func (r *mutationResolver) CreateKafkaCredentials(ctx context.Context, input aivencredentials.CreateKafkaCredentialsInput) (*aivencredentials.CreateKafkaCredentialsPayload, error) {
-	if err := authz.CanCreateAivenCredentials(ctx, input.TeamSlug); err != nil {
-		return nil, err
-	}
-	return aivencredentials.CreateKafkaCredentials(ctx, input)
+func (r *Resolver) CredentialsActivityLogEntryData() gengql.CredentialsActivityLogEntryDataResolver {
+	return &credentialsActivityLogEntryDataResolver{r}
 }
+
+type credentialsActivityLogEntryDataResolver struct{ *Resolver }
