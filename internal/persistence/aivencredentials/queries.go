@@ -104,6 +104,10 @@ func createCredentials(ctx context.Context, req credentialRequest) (any, error) 
 }
 
 func CreateOpenSearchCredentials(ctx context.Context, input CreateOpenSearchCredentialsInput) (*CreateOpenSearchCredentialsPayload, error) {
+	if _, err := opensearch.Get(ctx, input.TeamSlug, input.EnvironmentName, input.InstanceName); err != nil {
+		return nil, err
+	}
+
 	// Strip "opensearch-<team>-" prefix if the user provided the full Kubernetes resource name.
 	// The buildSpec already prepends "opensearch-<namespace>-" for the Aivenator.
 	instanceName := strings.TrimPrefix(input.InstanceName, opensearch.NamePrefix(input.TeamSlug))
@@ -154,6 +158,10 @@ func valkeyEnvVarSuffix(instanceName string) string {
 }
 
 func CreateValkeyCredentials(ctx context.Context, input CreateValkeyCredentialsInput) (*CreateValkeyCredentialsPayload, error) {
+	if _, err := valkey.Get(ctx, input.TeamSlug, input.EnvironmentName, input.InstanceName); err != nil {
+		return nil, err
+	}
+
 	// Strip "valkey-<team>-" prefix if the user provided the full Kubernetes resource name.
 	// Aivenator expects the short instance name and prepends "valkey-<namespace>-" itself.
 	instanceName := strings.TrimPrefix(input.InstanceName, valkey.NamePrefix(input.TeamSlug))
