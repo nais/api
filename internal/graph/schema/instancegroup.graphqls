@@ -102,6 +102,18 @@ type InstanceGroupMountedFile {
 	The source of the mounted file.
 	"""
 	source: InstanceGroupValueSource!
+
+	"""
+	The file content. Null for files from Secrets (requires elevation to view).
+	For ConfigMap files, this is the raw string content or base64-encoded binary content.
+	"""
+	content: String
+
+	"""
+	Whether the content is base64-encoded binary data.
+	When true, the content field contains base64-encoded data that should be downloaded rather than displayed.
+	"""
+	isBinary: Boolean!
 }
 
 """

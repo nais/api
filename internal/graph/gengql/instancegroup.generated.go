@@ -322,6 +322,10 @@ func (ec *executionContext) fieldContext_InstanceGroup_mountedFiles(_ context.Co
 				return ec.fieldContext_InstanceGroupMountedFile_path(ctx, field)
 			case "source":
 				return ec.fieldContext_InstanceGroupMountedFile_source(ctx, field)
+			case "content":
+				return ec.fieldContext_InstanceGroupMountedFile_content(ctx, field)
+			case "isBinary":
+				return ec.fieldContext_InstanceGroupMountedFile_isBinary(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type InstanceGroupMountedFile", field.Name)
 		},
@@ -681,6 +685,64 @@ func (ec *executionContext) fieldContext_InstanceGroupMountedFile_source(_ conte
 				return ec.fieldContext_InstanceGroupValueSource_name(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type InstanceGroupValueSource", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _InstanceGroupMountedFile_content(ctx context.Context, field graphql.CollectedField, obj *instancegroup.InstanceGroupMountedFile) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_InstanceGroupMountedFile_content,
+		func(ctx context.Context) (any, error) {
+			return obj.Content, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_InstanceGroupMountedFile_content(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "InstanceGroupMountedFile",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _InstanceGroupMountedFile_isBinary(ctx context.Context, field graphql.CollectedField, obj *instancegroup.InstanceGroupMountedFile) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_InstanceGroupMountedFile_isBinary,
+		func(ctx context.Context) (any, error) {
+			return obj.IsBinary, nil
+		},
+		nil,
+		ec.marshalNBoolean2bool,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_InstanceGroupMountedFile_isBinary(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "InstanceGroupMountedFile",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
 		},
 	}
 	return fc, nil
@@ -1084,6 +1146,13 @@ func (ec *executionContext) _InstanceGroupMountedFile(ctx context.Context, sel a
 			}
 		case "source":
 			out.Values[i] = ec._InstanceGroupMountedFile_source(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "content":
+			out.Values[i] = ec._InstanceGroupMountedFile_content(ctx, field, obj)
+		case "isBinary":
+			out.Values[i] = ec._InstanceGroupMountedFile_isBinary(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
