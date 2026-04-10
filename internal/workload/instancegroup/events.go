@@ -356,7 +356,7 @@ func classifyMountFailure(note string) string {
 	switch {
 	case strings.Contains(noteLower, "secret") && strings.Contains(noteLower, "not found"):
 		if name := extractResourceName(note, "secret"); name != "" {
-			return fmt.Sprintf("Failed to mount volume: secret `%s` does not exist. It may not have been created yet.", name)
+			return fmt.Sprintf("Failed to mount volume: secret %q does not exist. It may not have been created yet.", name)
 		}
 		return "Failed to mount volume: a referenced Secret does not exist. It may not have been created yet."
 	case strings.Contains(noteLower, "configmap") && strings.Contains(noteLower, "not found"):
