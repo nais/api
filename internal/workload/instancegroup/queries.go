@@ -234,6 +234,7 @@ func ListMountedFiles(ctx context.Context, ig *InstanceGroup) ([]*InstanceGroupM
 }
 
 // expandSecretVolume expands a secret volume mount into individual file entries.
+// Secret file content is not included (requires elevation to view).
 func expandSecretVolume(ctx context.Context, l *loaders, ig *InstanceGroup, mount corev1.VolumeMount, secretName string, items []corev1.KeyToPath) []*InstanceGroupMountedFile {
 	source := InstanceGroupValueSource{
 		Kind: InstanceGroupValueSourceKindSecret,
@@ -280,7 +281,7 @@ func expandSecretVolume(ctx context.Context, l *loaders, ig *InstanceGroup, moun
 	return files
 }
 
-// expandConfigMapVolume expands a configmap volume mount into individual file entries.
+// expandConfigMapVolume expands a configmap volume mount into individual file entries with content.
 func expandConfigMapVolume(ctx context.Context, l *loaders, ig *InstanceGroup, mount corev1.VolumeMount, cmName string, items []corev1.KeyToPath) []*InstanceGroupMountedFile {
 	source := InstanceGroupValueSource{
 		Kind: InstanceGroupValueSourceKindConfigMap,
@@ -289,8 +290,32 @@ func expandConfigMapVolume(ctx context.Context, l *loaders, ig *InstanceGroup, m
 
 	// subPath means a single key is mounted directly at mountPath
 	if mount.SubPath != "" {
-		return []*InstanceGroupMountedFile{{
+		// Fetch content for the specific key
+		contents, err := getConfigMapFileContents(ctx, l, ig.EnvironmentName, ig.TeamSlug.String(), cmName)
+		if err != nil {
+			l.log.WithError(err).WithField("configmap", cmName).Warn("failed to resolve configmap content for subPath mount")
+			return []*InstanceGroupMountedFile{{
+				Path:   mount.MountPath,
+				Source: source,
+			}}
+		}
+		f := &InstanceGroupMountedFile{
 			Path:   mount.MountPath,
+			Source: source,
+		}
+		if fc, ok := contents[mount.SubPath]; ok {
+			f.Content = &fc.content
+			f.IsBinary = fc.isBinary
+		}
+		return []*InstanceGroupMountedFile{f}
+	}
+
+	// Fetch all file contents from the ConfigMap
+	contents, err := getConfigMapFileContents(ctx, l, ig.EnvironmentName, ig.TeamSlug.String(), cmName)
+	if err != nil {
+		l.log.WithError(err).WithField("configmap", cmName).Warn("failed to resolve configmap content for volume mount")
+		return []*InstanceGroupMountedFile{{
+			Path:   mount.MountPath + fmt.Sprintf("/ (unable to resolve files from ConfigMap %s)", cmName),
 			Source: source,
 		}}
 	}
@@ -299,30 +324,30 @@ func expandConfigMapVolume(ctx context.Context, l *loaders, ig *InstanceGroup, m
 	if len(items) > 0 {
 		files := make([]*InstanceGroupMountedFile, 0, len(items))
 		for _, item := range items {
-			files = append(files, &InstanceGroupMountedFile{
+			f := &InstanceGroupMountedFile{
 				Path:   path.Join(mount.MountPath, item.Path),
 				Source: source,
-			})
+			}
+			if fc, ok := contents[item.Key]; ok {
+				f.Content = &fc.content
+				f.IsBinary = fc.isBinary
+			}
+			files = append(files, f)
 		}
 		return files
 	}
 
-	// No items specified - all keys are mounted as files. Resolve from K8s API.
-	data, err := getConfigMapData(ctx, l, ig.EnvironmentName, ig.TeamSlug.String(), cmName)
-	if err != nil {
-		l.log.WithError(err).WithField("configmap", cmName).Warn("failed to resolve configmap keys for volume mount")
-		return []*InstanceGroupMountedFile{{
-			Path:   mount.MountPath + fmt.Sprintf("/ (unable to resolve files from ConfigMap %s)", cmName),
-			Source: source,
-		}}
-	}
-
-	keys := slices.Sorted(maps.Keys(data))
+	// No items specified - all keys are mounted as files.
+	keys := slices.Sorted(maps.Keys(contents))
 	files := make([]*InstanceGroupMountedFile, 0, len(keys))
 	for _, key := range keys {
+		fc := contents[key]
+		content := fc.content
 		files = append(files, &InstanceGroupMountedFile{
-			Path:   path.Join(mount.MountPath, key),
-			Source: source,
+			Path:     path.Join(mount.MountPath, key),
+			Source:   source,
+			Content:  &content,
+			IsBinary: fc.isBinary,
 		})
 	}
 	return files
@@ -466,6 +491,44 @@ func getConfigMapData(ctx context.Context, l *loaders, environmentName, namespac
 
 	data, _, _ := unstructured.NestedStringMap(obj.Object, "data")
 	return data, nil
+}
+
+// configMapFileContent holds the content of a ConfigMap key with binary metadata.
+type configMapFileContent struct {
+	content  string
+	isBinary bool
+}
+
+// getConfigMapFileContents fetches all file contents from a ConfigMap, including binaryData entries.
+// String data values are returned as-is. Binary data values are returned as base64-encoded strings with isBinary=true.
+func getConfigMapFileContents(ctx context.Context, l *loaders, environmentName, namespace, cmName string) (map[string]configMapFileContent, error) {
+	client, err := l.k8sClient(environmentName)
+	if err != nil {
+		return nil, err
+	}
+
+	obj, err := configMapResource(client).Namespace(namespace).Get(ctx, cmName, metav1.GetOptions{})
+	if err != nil {
+		return nil, fmt.Errorf("get configmap %s/%s: %w", namespace, cmName, err)
+	}
+
+	result := make(map[string]configMapFileContent)
+
+	// String data
+	data, _, _ := unstructured.NestedStringMap(obj.Object, "data")
+	for k, v := range data {
+		result[k] = configMapFileContent{content: v, isBinary: false}
+	}
+
+	// Binary data (base64-encoded in the K8s API response)
+	binaryData, _, _ := unstructured.NestedMap(obj.Object, "binaryData")
+	for k, v := range binaryData {
+		if s, ok := v.(string); ok {
+			result[k] = configMapFileContent{content: s, isBinary: true}
+		}
+	}
+
+	return result, nil
 }
 
 func secretResource(client dynamic.Interface) dynamic.NamespaceableResourceInterface {

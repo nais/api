@@ -57,6 +57,11 @@ type InstanceGroupEnvironmentVariable struct {
 type InstanceGroupMountedFile struct {
 	Path   string                   `json:"path"`
 	Source InstanceGroupValueSource `json:"source"`
+	// Content is the file content. Null for files from Secrets (requires elevation to view).
+	// For ConfigMap files, this is the raw string content or base64-encoded binary content.
+	Content *string `json:"content"`
+	// IsBinary indicates whether the content is base64-encoded binary data.
+	IsBinary bool `json:"isBinary"`
 }
 
 // InstanceGroupValueSource describes where a value comes from.
