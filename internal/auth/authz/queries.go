@@ -314,6 +314,10 @@ func CanCreateAivenCredentials(ctx context.Context, teamSlug slug.Slug) error {
 	return requireTeamAuthorization(ctx, teamSlug, "aiven:credentials:create")
 }
 
+func CanCreateTunnel(ctx context.Context, teamSlug slug.Slug) error {
+	return requireTeamAuthorization(ctx, teamSlug, "tunnels:create")
+}
+
 func RequireGlobalAdmin(ctx context.Context) error {
 	if ActorFromContext(ctx).User.IsAdmin() {
 		return nil
