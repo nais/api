@@ -1921,6 +1921,22 @@ func (ec *executionContext) marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgr
 	return graphql.WrapContextMarshaler(ctx, v)
 }
 
+func (ec *executionContext) unmarshalNID2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx context.Context, v any) (*ident.Ident, error) {
+	var res = new(ident.Ident)
+	err := res.UnmarshalGQLContext(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNID2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx context.Context, sel ast.SelectionSet, v *ident.Ident) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return graphql.WrapContextMarshaler(ctx, v)
+}
+
 func (ec *executionContext) unmarshalNInt2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐStorageGB(ctx context.Context, v any) (opensearch.StorageGB, error) {
 	var res opensearch.StorageGB
 	err := res.UnmarshalGQL(v)
@@ -1939,6 +1955,22 @@ func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v any) (int, 
 func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.SelectionSet, v int) graphql.Marshaler {
 	_ = sel
 	res := graphql.MarshalInt(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
+}
+
+func (ec *executionContext) unmarshalNInt2int32(ctx context.Context, v any) (int32, error) {
+	res, err := graphql.UnmarshalInt32(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNInt2int32(ctx context.Context, sel ast.SelectionSet, v int32) graphql.Marshaler {
+	_ = sel
+	res := graphql.MarshalInt32(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
