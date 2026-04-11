@@ -652,6 +652,8 @@ func (ec *executionContext) fieldContext_PostgresInstance_environment(_ context.
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "tunnel":
+				return ec.fieldContext_TeamEnvironment_tunnel(ctx, field)
 			case "valkey":
 				return ec.fieldContext_TeamEnvironment_valkey(ctx, field)
 			case "workload":
@@ -723,6 +725,8 @@ func (ec *executionContext) fieldContext_PostgresInstance_teamEnvironment(_ cont
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "tunnel":
+				return ec.fieldContext_TeamEnvironment_tunnel(ctx, field)
 			case "valkey":
 				return ec.fieldContext_TeamEnvironment_valkey(ctx, field)
 			case "workload":
