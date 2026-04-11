@@ -31,6 +31,7 @@ import (
 	"github.com/nais/api/internal/serviceaccount"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/team"
+	"github.com/nais/api/internal/tunnel"
 	"github.com/nais/api/internal/unleash"
 	"github.com/nais/api/internal/user"
 	"github.com/nais/api/internal/utilization"
@@ -106,6 +107,7 @@ type TeamEnvironmentResolver interface {
 	PostgresInstance(ctx context.Context, obj *team.TeamEnvironment, name string) (*postgres.PostgresInstance, error)
 	Secret(ctx context.Context, obj *team.TeamEnvironment, name string) (*secret.Secret, error)
 	SQLInstance(ctx context.Context, obj *team.TeamEnvironment, name string) (*sqlinstance.SQLInstance, error)
+	Tunnel(ctx context.Context, obj *team.TeamEnvironment, id ident.Ident) (*tunnel.Tunnel, error)
 	Valkey(ctx context.Context, obj *team.TeamEnvironment, name string) (*valkey.Valkey, error)
 	Workload(ctx context.Context, obj *team.TeamEnvironment, name string) (workload.Workload, error)
 }
@@ -325,6 +327,20 @@ func (ec *executionContext) field_TeamEnvironment_sqlInstance_args(ctx context.C
 		return nil, err
 	}
 	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_TeamEnvironment_tunnel_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "id",
+		func(ctx context.Context, v any) (ident.Ident, error) {
+			return ec.unmarshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["id"] = arg0
 	return args, nil
 }
 
@@ -4797,6 +4813,50 @@ func (ec *executionContext) fieldContext_TeamEnvironment_sqlInstance(ctx context
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_TeamEnvironment_sqlInstance_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamEnvironment_tunnel(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironment) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_TeamEnvironment_tunnel(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.Resolvers.TeamEnvironment().Tunnel(ctx, obj, fc.Args["id"].(ident.Ident))
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *tunnel.Tunnel) graphql.Marshaler {
+			return ec.marshalOTunnel2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋtunnelᚐTunnel(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_TeamEnvironment_tunnel(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamEnvironment",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_Tunnel(ctx, field)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_TeamEnvironment_tunnel_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -10326,6 +10386,39 @@ func (ec *executionContext) _TeamEnvironment(ctx context.Context, sel ast.Select
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "tunnel":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TeamEnvironment_tunnel(ctx, field, obj)
 				return res
 			}
 
