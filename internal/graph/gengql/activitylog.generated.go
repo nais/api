@@ -23,6 +23,7 @@ import (
 	"github.com/nais/api/internal/serviceaccount"
 	activitylog1 "github.com/nais/api/internal/servicemaintenance/activitylog"
 	"github.com/nais/api/internal/team"
+	"github.com/nais/api/internal/tunnel"
 	"github.com/nais/api/internal/unleash"
 	"github.com/nais/api/internal/vulnerability"
 	"github.com/nais/api/internal/workload"
@@ -301,6 +302,20 @@ func (ec *executionContext) _ActivityLogEntry(ctx context.Context, sel ast.Selec
 			return graphql.Null
 		}
 		return ec._UnleashInstanceCreatedActivityLogEntry(ctx, sel, obj)
+	case tunnel.TunnelDeletedActivityLogEntry:
+		return ec._TunnelDeletedActivityLogEntry(ctx, sel, &obj)
+	case *tunnel.TunnelDeletedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TunnelDeletedActivityLogEntry(ctx, sel, obj)
+	case tunnel.TunnelCreatedActivityLogEntry:
+		return ec._TunnelCreatedActivityLogEntry(ctx, sel, &obj)
+	case *tunnel.TunnelCreatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TunnelCreatedActivityLogEntry(ctx, sel, obj)
 	case team.TeamUpdatedActivityLogEntry:
 		return ec._TeamUpdatedActivityLogEntry(ctx, sel, &obj)
 	case *team.TeamUpdatedActivityLogEntry:

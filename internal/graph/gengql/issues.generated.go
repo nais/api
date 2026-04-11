@@ -197,6 +197,8 @@ func (ec *executionContext) fieldContext_DeprecatedIngressIssue_teamEnvironment(
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "tunnel":
+				return ec.fieldContext_TeamEnvironment_tunnel(ctx, field)
 			case "valkey":
 				return ec.fieldContext_TeamEnvironment_valkey(ctx, field)
 			case "workload":
@@ -477,6 +479,8 @@ func (ec *executionContext) fieldContext_DeprecatedRegistryIssue_teamEnvironment
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "tunnel":
+				return ec.fieldContext_TeamEnvironment_tunnel(ctx, field)
 			case "valkey":
 				return ec.fieldContext_TeamEnvironment_valkey(ctx, field)
 			case "workload":
@@ -664,6 +668,8 @@ func (ec *executionContext) fieldContext_ExternalIngressCriticalVulnerabilityIss
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "tunnel":
+				return ec.fieldContext_TeamEnvironment_tunnel(ctx, field)
 			case "valkey":
 				return ec.fieldContext_TeamEnvironment_valkey(ctx, field)
 			case "workload":
@@ -909,6 +915,8 @@ func (ec *executionContext) fieldContext_FailedSynchronizationIssue_teamEnvironm
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "tunnel":
+				return ec.fieldContext_TeamEnvironment_tunnel(ctx, field)
 			case "valkey":
 				return ec.fieldContext_TeamEnvironment_valkey(ctx, field)
 			case "workload":
@@ -1096,6 +1104,8 @@ func (ec *executionContext) fieldContext_InvalidSpecIssue_teamEnvironment(_ cont
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "tunnel":
+				return ec.fieldContext_TeamEnvironment_tunnel(ctx, field)
 			case "valkey":
 				return ec.fieldContext_TeamEnvironment_valkey(ctx, field)
 			case "workload":
@@ -1450,6 +1460,8 @@ func (ec *executionContext) fieldContext_LastRunFailedIssue_teamEnvironment(_ co
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "tunnel":
+				return ec.fieldContext_TeamEnvironment_tunnel(ctx, field)
 			case "valkey":
 				return ec.fieldContext_TeamEnvironment_valkey(ctx, field)
 			case "workload":
@@ -1699,6 +1711,8 @@ func (ec *executionContext) fieldContext_MissingSbomIssue_teamEnvironment(_ cont
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "tunnel":
+				return ec.fieldContext_TeamEnvironment_tunnel(ctx, field)
 			case "valkey":
 				return ec.fieldContext_TeamEnvironment_valkey(ctx, field)
 			case "workload":
@@ -1886,6 +1900,8 @@ func (ec *executionContext) fieldContext_NoRunningInstancesIssue_teamEnvironment
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "tunnel":
+				return ec.fieldContext_TeamEnvironment_tunnel(ctx, field)
 			case "valkey":
 				return ec.fieldContext_TeamEnvironment_valkey(ctx, field)
 			case "workload":
@@ -2073,6 +2089,8 @@ func (ec *executionContext) fieldContext_OpenSearchIssue_teamEnvironment(_ conte
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "tunnel":
+				return ec.fieldContext_TeamEnvironment_tunnel(ctx, field)
 			case "valkey":
 				return ec.fieldContext_TeamEnvironment_valkey(ctx, field)
 			case "workload":
@@ -2325,6 +2343,8 @@ func (ec *executionContext) fieldContext_SqlInstanceStateIssue_teamEnvironment(_
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "tunnel":
+				return ec.fieldContext_TeamEnvironment_tunnel(ctx, field)
 			case "valkey":
 				return ec.fieldContext_TeamEnvironment_valkey(ctx, field)
 			case "workload":
@@ -2597,6 +2617,8 @@ func (ec *executionContext) fieldContext_SqlInstanceVersionIssue_teamEnvironment
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "tunnel":
+				return ec.fieldContext_TeamEnvironment_tunnel(ctx, field)
 			case "valkey":
 				return ec.fieldContext_TeamEnvironment_valkey(ctx, field)
 			case "workload":
@@ -2840,6 +2862,8 @@ func (ec *executionContext) fieldContext_UnleashReleaseChannelIssue_teamEnvironm
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "tunnel":
+				return ec.fieldContext_TeamEnvironment_tunnel(ctx, field)
 			case "valkey":
 				return ec.fieldContext_TeamEnvironment_valkey(ctx, field)
 			case "workload":
@@ -3136,6 +3160,8 @@ func (ec *executionContext) fieldContext_ValkeyIssue_teamEnvironment(_ context.C
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "tunnel":
+				return ec.fieldContext_TeamEnvironment_tunnel(ctx, field)
 			case "valkey":
 				return ec.fieldContext_TeamEnvironment_valkey(ctx, field)
 			case "workload":
@@ -3390,6 +3416,8 @@ func (ec *executionContext) fieldContext_VulnerableImageIssue_teamEnvironment(_ 
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "tunnel":
+				return ec.fieldContext_TeamEnvironment_tunnel(ctx, field)
 			case "valkey":
 				return ec.fieldContext_TeamEnvironment_valkey(ctx, field)
 			case "workload":
