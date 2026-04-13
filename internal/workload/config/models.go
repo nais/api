@@ -27,7 +27,7 @@ type Config struct {
 	LastModifiedAt      *time.Time        `json:"lastModifiedAt"`
 	ModifiedByUserEmail *string           `json:"lastModifiedBy"`
 	Data                map[string]string `json:"-"` // ConfigMap data cached as-is (not sensitive)
-	Annotations         map[string]string `json:"-"` // Cached annotations for binary-keys lookup
+	BinaryData          map[string]string `json:"-"` // ConfigMap binaryData cached as base64 strings
 
 	TeamSlug        slug.Slug `json:"-"`
 	EnvironmentName string    `json:"-"`
@@ -106,6 +106,7 @@ func toGraphConfig(o *unstructured.Unstructured, environmentName string) (*Confi
 
 	// ConfigMap data is not sensitive, so we keep it as-is
 	data, _, _ := unstructured.NestedStringMap(o.Object, "data")
+	binaryData, _, _ := unstructured.NestedStringMap(o.Object, "binaryData")
 
 	return &Config{
 		Name:                o.GetName(),
@@ -114,7 +115,7 @@ func toGraphConfig(o *unstructured.Unstructured, environmentName string) (*Confi
 		LastModifiedAt:      lastModifiedAt,
 		ModifiedByUserEmail: lastModifiedBy,
 		Data:                data,
-		Annotations:         o.GetAnnotations(),
+		BinaryData:          binaryData,
 	}, true
 }
 
