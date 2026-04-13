@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/nais/api/internal/graph/ident"
+	"github.com/nais/api/internal/slug"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 )
@@ -25,7 +26,6 @@ type Target struct {
 }
 
 type Tunnel struct {
-	TunnelID            string
 	Name                string
 	TeamSlug            string
 	Environment         string
@@ -43,10 +43,7 @@ type Tunnel struct {
 func (t Tunnel) IsNode() {}
 
 func (t Tunnel) ID() ident.Ident {
-	return ident.Ident{
-		ID:   t.TunnelID,
-		Type: "Tunnel",
-	}
+	return newTunnelIdent(slug.Slug(t.TeamSlug), t.Environment, t.Name)
 }
 
 func (t *Tunnel) GetName() string                  { return t.Name }
@@ -56,29 +53,22 @@ func (t *Tunnel) GetObjectKind() schema.ObjectKind { return schema.EmptyObjectKi
 func (t *Tunnel) DeepCopyObject() runtime.Object   { return t }
 
 type CreateTunnelInput struct {
-	TeamSlug        string
-	EnvironmentName string
-	InstanceName    string
-	TargetHost      string
-	TargetPort      int32
-	ClientPublicKey string
+	TeamSlug           string
+	EnvironmentName    string
+	TargetHost         string
+	TargetPort         int32
+	ClientPublicKey    string
+	ClientSTUNEndpoint string
 }
 
 type CreateTunnelPayload struct {
 	Tunnel *Tunnel
 }
 
-type UpdateTunnelSTUNEndpointInput struct {
-	TunnelID           string
-	ClientSTUNEndpoint string
-}
-
-type UpdateTunnelSTUNEndpointPayload struct {
-	Tunnel *Tunnel
-}
-
 type DeleteTunnelInput struct {
-	TunnelID string
+	TeamSlug        string
+	EnvironmentName string
+	TunnelName      string
 }
 
 type DeleteTunnelPayload struct {

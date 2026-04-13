@@ -16,7 +16,6 @@ import (
 	"github.com/nais/api/internal/deployment"
 	"github.com/nais/api/internal/environment"
 	"github.com/nais/api/internal/github/repository"
-	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/issue"
@@ -103,7 +102,7 @@ type TeamEnvironmentResolver interface {
 	PostgresInstance(ctx context.Context, obj *team.TeamEnvironment, name string) (*postgres.PostgresInstance, error)
 	Secret(ctx context.Context, obj *team.TeamEnvironment, name string) (*secret.Secret, error)
 	SQLInstance(ctx context.Context, obj *team.TeamEnvironment, name string) (*sqlinstance.SQLInstance, error)
-	Tunnel(ctx context.Context, obj *team.TeamEnvironment, id ident.Ident) (*tunnel.Tunnel, error)
+	Tunnel(ctx context.Context, obj *team.TeamEnvironment, name string) (*tunnel.Tunnel, error)
 	Valkey(ctx context.Context, obj *team.TeamEnvironment, name string) (*valkey.Valkey, error)
 	Workload(ctx context.Context, obj *team.TeamEnvironment, name string) (workload.Workload, error)
 }
@@ -281,11 +280,11 @@ func (ec *executionContext) field_TeamEnvironment_sqlInstance_args(ctx context.C
 func (ec *executionContext) field_TeamEnvironment_tunnel_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "id", ec.unmarshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent)
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "name", ec.unmarshalNString2string)
 	if err != nil {
 		return nil, err
 	}
-	args["id"] = arg0
+	args["name"] = arg0
 	return args, nil
 }
 
@@ -5771,7 +5770,7 @@ func (ec *executionContext) _TeamEnvironment_tunnel(ctx context.Context, field g
 		ec.fieldContext_TeamEnvironment_tunnel,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.Resolvers.TeamEnvironment().Tunnel(ctx, obj, fc.Args["id"].(ident.Ident))
+			return ec.Resolvers.TeamEnvironment().Tunnel(ctx, obj, fc.Args["name"].(string))
 		},
 		nil,
 		ec.marshalOTunnel2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋtunnelᚐTunnel,
@@ -5790,6 +5789,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_tunnel(ctx context.Cont
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Tunnel_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Tunnel_name(ctx, field)
 			case "phase":
 				return ec.fieldContext_Tunnel_phase(ctx, field)
 			case "gatewayPublicKey":

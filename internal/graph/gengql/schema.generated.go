@@ -110,7 +110,6 @@ type MutationResolver interface {
 	RemoveTeamMember(ctx context.Context, input team.RemoveTeamMemberInput) (*team.RemoveTeamMemberPayload, error)
 	SetTeamMemberRole(ctx context.Context, input team.SetTeamMemberRoleInput) (*team.SetTeamMemberRolePayload, error)
 	CreateTunnel(ctx context.Context, input tunnel.CreateTunnelInput) (*tunnel.CreateTunnelPayload, error)
-	UpdateTunnelSTUNEndpoint(ctx context.Context, input tunnel.UpdateTunnelSTUNEndpointInput) (*tunnel.UpdateTunnelSTUNEndpointPayload, error)
 	DeleteTunnel(ctx context.Context, input tunnel.DeleteTunnelInput) (*tunnel.DeleteTunnelPayload, error)
 	CreateUnleashForTeam(ctx context.Context, input unleash.CreateUnleashForTeamInput) (*unleash.CreateUnleashForTeamPayload, error)
 	UpdateUnleashInstance(ctx context.Context, input unleash.UpdateUnleashInstanceInput) (*unleash.UpdateUnleashInstancePayload, error)
@@ -756,17 +755,6 @@ func (ec *executionContext) field_Mutation_updateTeam_args(ctx context.Context, 
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNUpdateTeamInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐUpdateTeamInput)
-	if err != nil {
-		return nil, err
-	}
-	args["input"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Mutation_updateTunnelSTUNEndpoint_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
-	var err error
-	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNUpdateTunnelSTUNEndpointInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋtunnelᚐUpdateTunnelSTUNEndpointInput)
 	if err != nil {
 		return nil, err
 	}
@@ -3465,51 +3453,6 @@ func (ec *executionContext) fieldContext_Mutation_createTunnel(ctx context.Conte
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_createTunnel_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Mutation_updateTunnelSTUNEndpoint(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_Mutation_updateTunnelSTUNEndpoint,
-		func(ctx context.Context) (any, error) {
-			fc := graphql.GetFieldContext(ctx)
-			return ec.Resolvers.Mutation().UpdateTunnelSTUNEndpoint(ctx, fc.Args["input"].(tunnel.UpdateTunnelSTUNEndpointInput))
-		},
-		nil,
-		ec.marshalNUpdateTunnelSTUNEndpointPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋtunnelᚐUpdateTunnelSTUNEndpointPayload,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_Mutation_updateTunnelSTUNEndpoint(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "tunnel":
-				return ec.fieldContext_UpdateTunnelSTUNEndpointPayload_tunnel(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type UpdateTunnelSTUNEndpointPayload", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_updateTunnelSTUNEndpoint_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -6895,13 +6838,6 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "createTunnel":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createTunnel(ctx, field)
-			})
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "updateTunnelSTUNEndpoint":
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_updateTunnelSTUNEndpoint(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
