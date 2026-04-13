@@ -63,7 +63,6 @@ type ResolverRoot interface {
 	Config() ConfigResolver
 	ContainerImage() ContainerImageResolver
 	ContainerImageWorkloadReference() ContainerImageWorkloadReferenceResolver
-	CredentialsActivityLogEntryData() CredentialsActivityLogEntryDataResolver
 	CurrentUnitPrices() CurrentUnitPricesResolver
 	DeleteApplicationPayload() DeleteApplicationPayloadResolver
 	DeleteJobPayload() DeleteJobPayloadResolver
@@ -632,10 +631,8 @@ type ComplexityRoot struct {
 	}
 
 	CredentialsActivityLogEntryData struct {
-		InstanceName func(childComplexity int) int
-		Permission   func(childComplexity int) int
-		ServiceType  func(childComplexity int) int
-		TTL          func(childComplexity int) int
+		Permission func(childComplexity int) int
+		TTL        func(childComplexity int) int
 	}
 
 	CurrentUnitPrices struct {
@@ -5278,26 +5275,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.CredentialsActivityLogEntry.TeamSlug(childComplexity), true
 
-	case "CredentialsActivityLogEntryData.instanceName":
-		if e.ComplexityRoot.CredentialsActivityLogEntryData.InstanceName == nil {
-			break
-		}
-
-		return e.ComplexityRoot.CredentialsActivityLogEntryData.InstanceName(childComplexity), true
-
 	case "CredentialsActivityLogEntryData.permission":
 		if e.ComplexityRoot.CredentialsActivityLogEntryData.Permission == nil {
 			break
 		}
 
 		return e.ComplexityRoot.CredentialsActivityLogEntryData.Permission(childComplexity), true
-
-	case "CredentialsActivityLogEntryData.serviceType":
-		if e.ComplexityRoot.CredentialsActivityLogEntryData.ServiceType == nil {
-			break
-		}
-
-		return e.ComplexityRoot.CredentialsActivityLogEntryData.ServiceType(childComplexity), true
 
 	case "CredentialsActivityLogEntryData.ttl":
 		if e.ComplexityRoot.CredentialsActivityLogEntryData.TTL == nil {
@@ -17368,10 +17351,6 @@ type CredentialsActivityLogEntry implements ActivityLogEntry & Node {
 }
 
 type CredentialsActivityLogEntryData {
-	"The service type (OPENSEARCH, VALKEY, KAFKA)."
-	serviceType: String!
-	"The instance name, if applicable."
-	instanceName: String
 	"The permission level, if applicable."
 	permission: String
 	"The TTL that was requested for the credentials."
