@@ -49,9 +49,10 @@ func Create(ctx context.Context, input CreateTunnelInput) (*CreateTunnelPayload,
 	res.SetNamespace(namespace)
 
 	res.Object["spec"] = map[string]any{
-		"teamSlug":        input.TeamSlug,
-		"environment":     input.EnvironmentName,
-		"clientPublicKey": input.ClientPublicKey,
+		"teamSlug":           input.TeamSlug,
+		"environment":        input.EnvironmentName,
+		"clientPublicKey":    input.ClientPublicKey,
+		"clientSTUNEndpoint": input.ClientSTUNEndpoint,
 		"target": map[string]any{
 			"host":       input.TargetHost,
 			"port":       int64(input.TargetPort),
@@ -80,82 +81,29 @@ func Create(ctx context.Context, input CreateTunnelInput) (*CreateTunnelPayload,
 	return &CreateTunnelPayload{Tunnel: t}, nil
 }
 
-func Get(ctx context.Context, id string) (*Tunnel, error) {
+func Get(ctx context.Context, teamSlug, environment, name string) (*Tunnel, error) {
 	loaders := FromContext(ctx)
 	if loaders == nil {
 		return nil, fmt.Errorf("tunnel loaders not in context")
 	}
 	for _, wrapped := range loaders.tunnelWatcher.All() {
-		if wrapped.Obj.TunnelID == id {
+		if wrapped.Obj.TeamSlug == teamSlug && wrapped.Obj.Environment == environment && wrapped.Obj.Name == name {
 			return wrapped.Obj, nil
 		}
 	}
 	return nil, ErrTunnelNotFound
 }
 
-func UpdateSTUNEndpoint(ctx context.Context, id string, endpoint string) (*UpdateTunnelSTUNEndpointPayload, error) {
-	loaders := FromContext(ctx)
-	if loaders == nil {
-		return nil, fmt.Errorf("tunnel loaders not found in context")
-	}
-
-	var found *Tunnel
-	var envName string
-	for _, w := range loaders.tunnelWatcher.All() {
-		if w.Obj.TunnelID == id {
-			found = w.Obj
-			envName = w.Cluster
-			break
-		}
-	}
-	if found == nil {
-		return nil, ErrTunnelNotFound
-	}
-
-	if err := authz.CanCreateTunnel(ctx, slug.Slug(found.TeamSlug)); err != nil {
-		return nil, err
-	}
-
-	client, err := loaders.tunnelWatcher.ImpersonatedClientWithNamespace(ctx, envName, found.TeamSlug)
-	if err != nil {
-		return nil, err
-	}
-
-	existing, err := client.Get(ctx, found.Name, metav1.GetOptions{})
-	if err != nil {
-		return nil, err
-	}
-
-	if err := unstructured.SetNestedField(existing.Object, endpoint, "spec", "clientSTUNEndpoint"); err != nil {
-		return nil, err
-	}
-
-	updated, err := client.Update(ctx, existing, metav1.UpdateOptions{})
-	if err != nil {
-		return nil, err
-	}
-
-	t, err := converter(updated)
-	if err != nil {
-		return nil, err
-	}
-	t.Environment = envName
-
-	return &UpdateTunnelSTUNEndpointPayload{Tunnel: t}, nil
-}
-
-func Delete(ctx context.Context, id string) error {
+func Delete(ctx context.Context, teamSlug, environmentName, tunnelName string) error {
 	loaders := FromContext(ctx)
 	if loaders == nil {
 		return fmt.Errorf("tunnel loaders not found in context")
 	}
 
 	var found *Tunnel
-	var envName string
 	for _, w := range loaders.tunnelWatcher.All() {
-		if w.Obj.TunnelID == id {
+		if w.Obj.TeamSlug == teamSlug && w.Obj.Environment == environmentName && w.Obj.Name == tunnelName {
 			found = w.Obj
-			envName = w.Cluster
 			break
 		}
 	}
@@ -167,9 +115,9 @@ func Delete(ctx context.Context, id string) error {
 		return err
 	}
 
-	if err := loaders.tunnelWatcher.Delete(ctx, envName, found.TeamSlug, found.Name); err != nil {
+	if err := loaders.tunnelWatcher.Delete(ctx, environmentName, found.TeamSlug, found.Name); err != nil {
 		return err
 	}
 
-	return LogTunnelDeleted(ctx, id, found.TeamSlug)
+	return LogTunnelDeleted(ctx, tunnelName, found.TeamSlug)
 }

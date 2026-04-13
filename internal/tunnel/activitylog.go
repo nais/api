@@ -23,8 +23,7 @@ func init() {
 			}
 			return TunnelCreatedActivityLogEntry{
 				GenericActivityLogEntry: entry.WithMessage("Created Tunnel"),
-				TunnelID:                data.TunnelID,
-				TeamSlugForTunnel:       slug.Slug(data.TeamSlug),
+				TunnelName:              data.TunnelName,
 				TargetHost:              data.TargetHost,
 			}, nil
 		case activitylog.ActivityLogEntryActionDeleted:
@@ -34,8 +33,7 @@ func init() {
 			}
 			return TunnelDeletedActivityLogEntry{
 				GenericActivityLogEntry: entry.WithMessage("Deleted Tunnel"),
-				TunnelID:                data.TunnelID,
-				TeamSlugForTunnel:       slug.Slug(data.TeamSlug),
+				TunnelName:              data.TunnelName,
 			}, nil
 		default:
 			return nil, fmt.Errorf("unsupported tunnel activity log entry action: %q", entry.Action)
@@ -47,27 +45,25 @@ func init() {
 }
 
 type tunnelCreatedData struct {
-	TunnelID   string `json:"tunnelID"`
+	TunnelName string `json:"tunnelName"`
 	TeamSlug   string `json:"teamSlug"`
 	TargetHost string `json:"targetHost"`
 }
 
 type tunnelDeletedData struct {
-	TunnelID string `json:"tunnelID"`
-	TeamSlug string `json:"teamSlug"`
+	TunnelName string `json:"tunnelName"`
+	TeamSlug   string `json:"teamSlug"`
 }
 
 type TunnelCreatedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
-	TunnelID          string    `json:"tunnelID"`
-	TeamSlugForTunnel slug.Slug `json:"teamSlugForTunnel"`
-	TargetHost        string    `json:"targetHost"`
+	TunnelName string `json:"tunnelName"`
+	TargetHost string `json:"targetHost"`
 }
 
 type TunnelDeletedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
-	TunnelID          string    `json:"tunnelID"`
-	TeamSlugForTunnel slug.Slug `json:"teamSlugForTunnel"`
+	TunnelName string `json:"tunnelName"`
 }
 
 func LogTunnelCreated(ctx context.Context, t *Tunnel) error {
@@ -76,27 +72,27 @@ func LogTunnelCreated(ctx context.Context, t *Tunnel) error {
 		Action:       activitylog.ActivityLogEntryActionCreated,
 		Actor:        authz.ActorFromContext(ctx).User,
 		ResourceType: ActivityLogEntryResourceTypeTunnel,
-		ResourceName: t.TunnelID,
+		ResourceName: t.Name,
 		TeamSlug:     &teamSlug,
 		Data: tunnelCreatedData{
-			TunnelID:   t.TunnelID,
+			TunnelName: t.Name,
 			TeamSlug:   t.TeamSlug,
 			TargetHost: t.Target.Host,
 		},
 	})
 }
 
-func LogTunnelDeleted(ctx context.Context, tunnelID string, teamSlug string) error {
+func LogTunnelDeleted(ctx context.Context, tunnelName string, teamSlug string) error {
 	ts := slug.Slug(teamSlug)
 	return activitylog.Create(ctx, activitylog.CreateInput{
 		Action:       activitylog.ActivityLogEntryActionDeleted,
 		Actor:        authz.ActorFromContext(ctx).User,
 		ResourceType: ActivityLogEntryResourceTypeTunnel,
-		ResourceName: tunnelID,
+		ResourceName: tunnelName,
 		TeamSlug:     &ts,
 		Data: tunnelDeletedData{
-			TunnelID: tunnelID,
-			TeamSlug: teamSlug,
+			TunnelName: tunnelName,
+			TeamSlug:   teamSlug,
 		},
 	})
 }

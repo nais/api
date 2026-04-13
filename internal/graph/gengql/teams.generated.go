@@ -107,7 +107,7 @@ type TeamEnvironmentResolver interface {
 	PostgresInstance(ctx context.Context, obj *team.TeamEnvironment, name string) (*postgres.PostgresInstance, error)
 	Secret(ctx context.Context, obj *team.TeamEnvironment, name string) (*secret.Secret, error)
 	SQLInstance(ctx context.Context, obj *team.TeamEnvironment, name string) (*sqlinstance.SQLInstance, error)
-	Tunnel(ctx context.Context, obj *team.TeamEnvironment, id ident.Ident) (*tunnel.Tunnel, error)
+	Tunnel(ctx context.Context, obj *team.TeamEnvironment, name string) (*tunnel.Tunnel, error)
 	Valkey(ctx context.Context, obj *team.TeamEnvironment, name string) (*valkey.Valkey, error)
 	Workload(ctx context.Context, obj *team.TeamEnvironment, name string) (workload.Workload, error)
 }
@@ -333,14 +333,14 @@ func (ec *executionContext) field_TeamEnvironment_sqlInstance_args(ctx context.C
 func (ec *executionContext) field_TeamEnvironment_tunnel_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "id",
-		func(ctx context.Context, v any) (ident.Ident, error) {
-			return ec.unmarshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, v)
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "name",
+		func(ctx context.Context, v any) (string, error) {
+			return ec.unmarshalNString2string(ctx, v)
 		})
 	if err != nil {
 		return nil, err
 	}
-	args["id"] = arg0
+	args["name"] = arg0
 	return args, nil
 }
 
@@ -4829,7 +4829,7 @@ func (ec *executionContext) _TeamEnvironment_tunnel(ctx context.Context, field g
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.Resolvers.TeamEnvironment().Tunnel(ctx, obj, fc.Args["id"].(ident.Ident))
+			return ec.Resolvers.TeamEnvironment().Tunnel(ctx, obj, fc.Args["name"].(string))
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *tunnel.Tunnel) graphql.Marshaler {

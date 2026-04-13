@@ -53,7 +53,6 @@ func converter(u *unstructured.Unstructured) (*Tunnel, error) {
 	}
 
 	return &Tunnel{
-		TunnelID:            string(u.GetUID()),
 		Name:                u.GetName(),
 		TeamSlug:            teamSlug,
 		Environment:         environment,
