@@ -30,24 +30,6 @@ func (r *teamEnvironmentResolver) Tunnel(ctx context.Context, obj *team.TeamEnvi
 	return tunnel.Get(ctx, id.ID)
 }
 
-func (r *Resolver) Tunnel() gengql.TunnelResolver { return &tunnelResolver{r} }
-func (r *Resolver) TunnelCreatedActivityLogEntry() gengql.TunnelCreatedActivityLogEntryResolver {
-	return &tunnelCreatedActivityLogEntryResolver{r}
-}
-
-func (r *Resolver) TunnelDeletedActivityLogEntry() gengql.TunnelDeletedActivityLogEntryResolver {
-	return &tunnelDeletedActivityLogEntryResolver{r}
-}
-func (r *Resolver) CreateTunnelInput() gengql.CreateTunnelInputResolver {
-	return &createTunnelInputResolver{r}
-}
-func (r *Resolver) DeleteTunnelInput() gengql.DeleteTunnelInputResolver {
-	return &deleteTunnelInputResolver{r}
-}
-func (r *Resolver) UpdateTunnelSTUNEndpointInput() gengql.UpdateTunnelSTUNEndpointInputResolver {
-	return &updateTunnelSTUNEndpointInputResolver{r}
-}
-
 func (r *tunnelResolver) Phase(ctx context.Context, obj *tunnel.Tunnel) (donotuse.TunnelPhase, error) {
 	return donotuse.TunnelPhase(obj.Phase), nil
 }
@@ -84,6 +66,28 @@ func (r *updateTunnelSTUNEndpointInputResolver) TunnelID(ctx context.Context, ob
 		obj.TunnelID = data.ID
 	}
 	return nil
+}
+
+func (r *Resolver) Tunnel() gengql.TunnelResolver { return &tunnelResolver{r} }
+
+func (r *Resolver) TunnelCreatedActivityLogEntry() gengql.TunnelCreatedActivityLogEntryResolver {
+	return &tunnelCreatedActivityLogEntryResolver{r}
+}
+
+func (r *Resolver) TunnelDeletedActivityLogEntry() gengql.TunnelDeletedActivityLogEntryResolver {
+	return &tunnelDeletedActivityLogEntryResolver{r}
+}
+
+func (r *Resolver) CreateTunnelInput() gengql.CreateTunnelInputResolver {
+	return &createTunnelInputResolver{r}
+}
+
+func (r *Resolver) DeleteTunnelInput() gengql.DeleteTunnelInputResolver {
+	return &deleteTunnelInputResolver{r}
+}
+
+func (r *Resolver) UpdateTunnelSTUNEndpointInput() gengql.UpdateTunnelSTUNEndpointInputResolver {
+	return &updateTunnelSTUNEndpointInputResolver{r}
 }
 
 type (

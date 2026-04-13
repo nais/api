@@ -115,5 +115,7 @@ func (r *Resolver) PostgresInstanceAudit() gengql.PostgresInstanceAuditResolver 
 	return &postgresInstanceAuditResolver{r}
 }
 
-type postgresInstanceResolver struct{ *Resolver }
-type postgresInstanceAuditResolver struct{ *Resolver }
+type (
+	postgresInstanceResolver      struct{ *Resolver }
+	postgresInstanceAuditResolver struct{ *Resolver }
+)
