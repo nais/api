@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"slices"
 	"strings"
-	"unicode/utf8"
 
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
@@ -90,18 +89,34 @@ func GetConfigValues(ctx context.Context, teamSlug slug.Slug, environmentName, n
 		return nil, err
 	}
 
-	binaryKeys := getBinaryKeys(config.Annotations)
-
-	values := make([]*ConfigValue, 0, len(config.Data))
-	for k, v := range config.Data {
-		values = append(values, decodeValueFromStorage(k, v, binaryKeys))
-	}
+	values := configValuesFromConfig(config)
 
 	slices.SortFunc(values, func(a, b *ConfigValue) int {
 		return strings.Compare(a.Name, b.Name)
 	})
 
 	return values, nil
+}
+
+// configValuesFromConfig builds ConfigValue entries from a Config's Data and BinaryData fields.
+// Values in Data are plain text; values in BinaryData are base64-encoded binary.
+func configValuesFromConfig(config *Config) []*ConfigValue {
+	values := make([]*ConfigValue, 0, len(config.Data)+len(config.BinaryData))
+	for k, v := range config.Data {
+		values = append(values, &ConfigValue{
+			Name:     k,
+			Value:    v,
+			Encoding: secret.ValueEncodingPlainText,
+		})
+	}
+	for k, v := range config.BinaryData {
+		values = append(values, &ConfigValue{
+			Name:     k,
+			Value:    v,
+			Encoding: secret.ValueEncodingBase64,
+		})
+	}
+	return values
 }
 
 func Create(ctx context.Context, teamSlug slug.Slug, environment, name string) (*Config, error) {
@@ -180,9 +195,13 @@ func AddConfigValue(ctx context.Context, teamSlug slug.Slug, environment, config
 		return nil, ErrUnmanaged
 	}
 
-	// Check if key already exists
+	// Check if key already exists in either data or binaryData
 	data, dataExists, _ := unstructured.NestedMap(obj.Object, "data")
+	binaryData, binaryDataExists, _ := unstructured.NestedMap(obj.Object, "binaryData")
 	if _, exists := data[valueToAdd.Name]; exists {
+		return nil, apierror.Errorf("The config already contains a value with the name %q.", valueToAdd.Name)
+	}
+	if _, exists := binaryData[valueToAdd.Name]; exists {
 		return nil, apierror.Errorf("The config already contains a value with the name %q.", valueToAdd.Name)
 	}
 
@@ -195,23 +214,33 @@ func AddConfigValue(ctx context.Context, teamSlug slug.Slug, environment, config
 	// Use JSON Patch to add the new key
 	actor := authz.ActorFromContext(ctx)
 
-	// Track binary encoding in annotation for round-trip fidelity
 	isBinary := valueToAdd.Encoding != nil && *valueToAdd.Encoding == secret.ValueEncodingBase64
-	extra := map[string]string{
-		annotationBinaryKeys: updatedBinaryKeysAnnotation(obj.GetAnnotations(), valueToAdd.Name, isBinary),
-	}
-	mergedAnnotations := mergeAnnotations(obj.GetAnnotations(), actor.User.Identity(), extra)
+	mergedAnnotations := mergeAnnotations(obj.GetAnnotations(), actor.User.Identity(), nil)
 
 	var patch []map[string]any
-	if !dataExists || data == nil {
-		patch = []map[string]any{
-			{"op": "add", "path": "/data", "value": map[string]any{valueToAdd.Name: encodedValue}},
-			{"op": "replace", "path": "/metadata/annotations", "value": mergedAnnotations},
+	if isBinary {
+		if !binaryDataExists || binaryData == nil {
+			patch = []map[string]any{
+				{"op": "add", "path": "/binaryData", "value": map[string]any{valueToAdd.Name: encodedValue}},
+				{"op": "replace", "path": "/metadata/annotations", "value": mergedAnnotations},
+			}
+		} else {
+			patch = []map[string]any{
+				{"op": "add", "path": "/binaryData/" + escapeJSONPointer(valueToAdd.Name), "value": encodedValue},
+				{"op": "replace", "path": "/metadata/annotations", "value": mergedAnnotations},
+			}
 		}
 	} else {
-		patch = []map[string]any{
-			{"op": "add", "path": "/data/" + escapeJSONPointer(valueToAdd.Name), "value": encodedValue},
-			{"op": "replace", "path": "/metadata/annotations", "value": mergedAnnotations},
+		if !dataExists || data == nil {
+			patch = []map[string]any{
+				{"op": "add", "path": "/data", "value": map[string]any{valueToAdd.Name: encodedValue}},
+				{"op": "replace", "path": "/metadata/annotations", "value": mergedAnnotations},
+			}
+		} else {
+			patch = []map[string]any{
+				{"op": "add", "path": "/data/" + escapeJSONPointer(valueToAdd.Name), "value": encodedValue},
+				{"op": "replace", "path": "/metadata/annotations", "value": mergedAnnotations},
+			}
 		}
 	}
 
@@ -282,16 +311,23 @@ func UpdateConfigValue(ctx context.Context, teamSlug slug.Slug, environment, con
 		return nil, ErrUnmanaged
 	}
 
-	// Check if key exists
-	data, _, _ := unstructured.NestedMap(obj.Object, "data")
-	oldValueRaw, exists := data[valueToUpdate.Name]
-	if !exists {
+	// Check if key exists in data or binaryData
+	data, dataExists, _ := unstructured.NestedMap(obj.Object, "data")
+	binaryData, binaryDataExists, _ := unstructured.NestedMap(obj.Object, "binaryData")
+
+	oldValueRaw, existsInData := data[valueToUpdate.Name]
+	_, existsInBinaryData := binaryData[valueToUpdate.Name]
+	if !existsInData && !existsInBinaryData {
 		return nil, apierror.Errorf("The config does not contain a value with the name %q.", valueToUpdate.Name)
 	}
 
+	wasBinary := existsInBinaryData
+
 	var oldValue *string
-	if s, ok := oldValueRaw.(string); ok {
-		oldValue = &s
+	if !wasBinary {
+		if s, ok := oldValueRaw.(string); ok {
+			oldValue = &s
+		}
 	}
 
 	// Encode the value for storage
@@ -300,20 +336,46 @@ func UpdateConfigValue(ctx context.Context, teamSlug slug.Slug, environment, con
 		return nil, err
 	}
 
-	// Use JSON Patch to update the key
+	// Use JSON Patch to update the key, moving between data/binaryData if encoding changed
 	actor := authz.ActorFromContext(ctx)
 
-	// Track binary encoding in annotation for round-trip fidelity
 	isBinary := valueToUpdate.Encoding != nil && *valueToUpdate.Encoding == secret.ValueEncodingBase64
-	extra := map[string]string{
-		annotationBinaryKeys: updatedBinaryKeysAnnotation(obj.GetAnnotations(), valueToUpdate.Name, isBinary),
-	}
-	mergedAnnotations := mergeAnnotations(obj.GetAnnotations(), actor.User.Identity(), extra)
+	mergedAnnotations := mergeAnnotations(obj.GetAnnotations(), actor.User.Identity(), nil)
 
-	patch := []map[string]any{
-		{"op": "replace", "path": "/data/" + escapeJSONPointer(valueToUpdate.Name), "value": encodedValue},
-		{"op": "replace", "path": "/metadata/annotations", "value": mergedAnnotations},
+	escapedName := escapeJSONPointer(valueToUpdate.Name)
+	var patch []map[string]any
+	switch {
+	case wasBinary && !isBinary:
+		// Move from binaryData to data
+		patch = []map[string]any{
+			{"op": "remove", "path": "/binaryData/" + escapedName},
+		}
+		if !dataExists || data == nil {
+			patch = append(patch, map[string]any{"op": "add", "path": "/data", "value": map[string]any{valueToUpdate.Name: encodedValue}})
+		} else {
+			patch = append(patch, map[string]any{"op": "add", "path": "/data/" + escapedName, "value": encodedValue})
+		}
+	case !wasBinary && isBinary:
+		// Move from data to binaryData
+		patch = []map[string]any{
+			{"op": "remove", "path": "/data/" + escapedName},
+		}
+		if !binaryDataExists || binaryData == nil {
+			patch = append(patch, map[string]any{"op": "add", "path": "/binaryData", "value": map[string]any{valueToUpdate.Name: encodedValue}})
+		} else {
+			patch = append(patch, map[string]any{"op": "add", "path": "/binaryData/" + escapedName, "value": encodedValue})
+		}
+	default:
+		// Encoding unchanged — replace in the same field
+		field := "data"
+		if isBinary {
+			field = "binaryData"
+		}
+		patch = []map[string]any{
+			{"op": "replace", "path": "/" + field + "/" + escapedName, "value": encodedValue},
+		}
 	}
+	patch = append(patch, map[string]any{"op": "replace", "path": "/metadata/annotations", "value": mergedAnnotations})
 
 	patchBytes, err := json.Marshal(patch)
 	if err != nil {
@@ -329,7 +391,7 @@ func UpdateConfigValue(ctx context.Context, teamSlug slug.Slug, environment, con
 	updatedField := &ConfigUpdatedActivityLogEntryDataUpdatedField{
 		Field: valueToUpdate.Name,
 	}
-	if !isBinary {
+	if !isBinary && !wasBinary {
 		updatedField.OldValue = oldValue
 		updatedField.NewValue = &valueToUpdate.Value
 	}
@@ -379,15 +441,17 @@ func RemoveConfigValue(ctx context.Context, teamSlug slug.Slug, environment, con
 		return nil, ErrUnmanaged
 	}
 
-	// Check if key exists
+	// Check if key exists in data or binaryData
 	data, _, _ := unstructured.NestedMap(obj.Object, "data")
-	oldValueRaw, exists := data[valueName]
-	if !exists {
+	binaryData, _, _ := unstructured.NestedMap(obj.Object, "binaryData")
+
+	oldValueRaw, existsInData := data[valueName]
+	_, existsInBinaryData := binaryData[valueName]
+	if !existsInData && !existsInBinaryData {
 		return nil, apierror.Errorf("The config does not contain a value with the name: %q.", valueName)
 	}
 
-	// Check if the key being removed is binary
-	isBinary := getBinaryKeys(obj.GetAnnotations())[valueName]
+	isBinary := existsInBinaryData
 
 	var oldValue *string
 	if !isBinary {
@@ -396,17 +460,17 @@ func RemoveConfigValue(ctx context.Context, teamSlug slug.Slug, environment, con
 		}
 	}
 
-	// Use JSON Patch to remove the key
+	// Use JSON Patch to remove the key from the appropriate field
 	actor := authz.ActorFromContext(ctx)
 
-	// Remove the key from binary-keys annotation if present
-	extra := map[string]string{
-		annotationBinaryKeys: updatedBinaryKeysAnnotation(obj.GetAnnotations(), valueName, false),
-	}
-	mergedAnnotations := mergeAnnotations(obj.GetAnnotations(), actor.User.Identity(), extra)
+	mergedAnnotations := mergeAnnotations(obj.GetAnnotations(), actor.User.Identity(), nil)
 
+	field := "data"
+	if isBinary {
+		field = "binaryData"
+	}
 	patch := []map[string]any{
-		{"op": "remove", "path": "/data/" + escapeJSONPointer(valueName)},
+		{"op": "remove", "path": "/" + field + "/" + escapeJSONPointer(valueName)},
 		{"op": "replace", "path": "/metadata/annotations", "value": mergedAnnotations},
 	}
 
@@ -522,13 +586,10 @@ func escapeJSONPointer(s string) string {
 	return s
 }
 
-const annotationBinaryKeys = "nais.io/binary-keys"
-
 // encodeValueForStorage prepares a config value for storage in a Kubernetes ConfigMap.
-// ConfigMap data is stored as plain strings (unlike secrets which use base64).
-// When encoding is BASE64, the client sends base64-encoded binary data — we store it as-is
-// in the ConfigMap data field (the base64 string is valid UTF-8 and safe to store).
-// When encoding is PLAIN_TEXT (or unset), we store the value directly.
+// When encoding is BASE64, the client sends base64-encoded binary data which will be
+// stored in the binaryData field. We validate the base64 and return as-is.
+// When encoding is PLAIN_TEXT (or unset), the value is stored in the data field as-is.
 func encodeValueForStorage(input *ConfigValueInput) (string, error) {
 	encoding := secret.ValueEncodingPlainText
 	if input.Encoding != nil {
@@ -541,7 +602,7 @@ func encodeValueForStorage(input *ConfigValueInput) (string, error) {
 		if _, err := base64.StdEncoding.DecodeString(input.Value); err != nil {
 			return "", fmt.Errorf("value is not valid base64: %w", err)
 		}
-		// Store the base64 string as-is in the ConfigMap data field
+		// The value is already base64-encoded, which is what Kubernetes binaryData expects
 		return input.Value, nil
 	case secret.ValueEncodingPlainText:
 		return input.Value, nil
@@ -550,59 +611,11 @@ func encodeValueForStorage(input *ConfigValueInput) (string, error) {
 	}
 }
 
-// getBinaryKeys parses the nais.io/binary-keys annotation from a ConfigMap.
-// Returns a set of key names that are stored as binary (BASE64).
-func getBinaryKeys(annotations map[string]string) map[string]bool {
-	if annotations == nil {
-		return nil
-	}
-	raw, ok := annotations[annotationBinaryKeys]
-	if !ok || raw == "" {
-		return nil
-	}
-	var keys []string
-	if err := json.Unmarshal([]byte(raw), &keys); err != nil {
-		return nil
-	}
-	m := make(map[string]bool, len(keys))
-	for _, k := range keys {
-		m[k] = true
-	}
-	return m
-}
-
-// updatedBinaryKeysAnnotation returns the updated nais.io/binary-keys annotation value
-// after adding or removing a key. Returns empty string if no binary keys remain.
-func updatedBinaryKeysAnnotation(existingAnnotations map[string]string, keyName string, isBinary bool) string {
-	existing := getBinaryKeys(existingAnnotations)
-	if existing == nil {
-		existing = make(map[string]bool)
-	}
-
-	if isBinary {
-		existing[keyName] = true
-	} else {
-		delete(existing, keyName)
-	}
-
-	if len(existing) == 0 {
-		return ""
-	}
-
-	keys := make([]string, 0, len(existing))
-	for k := range existing {
-		keys = append(keys, k)
-	}
-	slices.Sort(keys)
-	b, _ := json.Marshal(keys)
-	return string(b)
-}
-
 // mergeAnnotations returns annotations for a JSON Patch that preserves existing annotations
-// (like nais.io/binary-keys) while updating the standard ones (last-modified-at, etc.).
+// while updating the standard ones (last-modified-at, etc.).
 func mergeAnnotations(existingAnnotations map[string]string, user string, extraAnnotations map[string]string) map[string]string {
 	merged := make(map[string]string)
-	// Start with existing annotations to preserve nais.io/binary-keys etc.
+	// Start with existing annotations
 	for k, v := range existingAnnotations {
 		merged[k] = v
 	}
@@ -619,36 +632,4 @@ func mergeAnnotations(existingAnnotations map[string]string, user string, extraA
 		}
 	}
 	return merged
-}
-
-// decodeValueFromStorage converts a value from a Kubernetes ConfigMap into a ConfigValue.
-// ConfigMap data is stored as plain strings. Binary values are base64-encoded strings.
-// If binaryKeys is non-nil, it is used to determine encoding authoritatively.
-// Otherwise falls back to utf8.Valid() heuristic for configs not written through our API.
-func decodeValueFromStorage(name, raw string, binaryKeys map[string]bool) *ConfigValue {
-	isBinary := false
-	if binaryKeys != nil {
-		isBinary = binaryKeys[name]
-	} else {
-		// Fallback heuristic: if the value looks like base64-encoded data and is not valid UTF-8
-		// when decoded, treat it as binary. For ConfigMaps, the stored value is always a string,
-		// so we check if it's a base64-encoded non-UTF-8 value.
-		if decoded, err := base64.StdEncoding.DecodeString(raw); err == nil {
-			isBinary = !utf8.Valid(decoded)
-		}
-	}
-
-	if isBinary {
-		return &ConfigValue{
-			Name:     name,
-			Value:    raw, // Already base64-encoded in the ConfigMap
-			Encoding: secret.ValueEncodingBase64,
-		}
-	}
-
-	return &ConfigValue{
-		Name:     name,
-		Value:    raw,
-		Encoding: secret.ValueEncodingPlainText,
-	}
 }
