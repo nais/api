@@ -17338,11 +17338,6 @@ enum CredentialPermission {
 	ADMIN
 }
 
-extend enum ActivityLogEntryResourceType {
-	"All activity log entries related to credential creation will use this resource type."
-	CREDENTIALS
-}
-
 type CredentialsActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
