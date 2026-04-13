@@ -183,21 +183,21 @@ func TestActivityLogResourceType(t *testing.T) {
 
 func TestConverterBasic(t *testing.T) {
 	u := &unstructured.Unstructured{
-		Object: map[string]interface{}{
-			"metadata": map[string]interface{}{
+		Object: map[string]any{
+			"metadata": map[string]any{
 				"name": "tunnel-xyz",
 				"uid":  "some-uid",
 			},
-			"spec": map[string]interface{}{
+			"spec": map[string]any{
 				"teamSlug":        "team-b",
 				"environment":     "prod",
 				"clientPublicKey": "client-key",
-				"target": map[string]interface{}{
+				"target": map[string]any{
 					"host": "redis.internal",
 					"port": float64(6379),
 				},
 			},
-			"status": map[string]interface{}{
+			"status": map[string]any{
 				"phase":               "Ready",
 				"gatewayPublicKey":    "gw-key",
 				"gatewaySTUNEndpoint": "10.0.0.1:9000",
@@ -239,8 +239,8 @@ func TestConverterBasic(t *testing.T) {
 
 func TestConverterEmptyObject(t *testing.T) {
 	u := &unstructured.Unstructured{
-		Object: map[string]interface{}{
-			"metadata": map[string]interface{}{
+		Object: map[string]any{
+			"metadata": map[string]any{
 				"name": "tunnel-empty",
 			},
 		},
