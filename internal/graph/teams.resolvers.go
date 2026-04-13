@@ -366,10 +366,12 @@ func (r *Resolver) UpdateTeamEnvironmentPayload() gengql.UpdateTeamEnvironmentPa
 	return &updateTeamEnvironmentPayloadResolver{r}
 }
 
-type removeTeamMemberPayloadResolver struct{ *Resolver }
-type teamResolver struct{ *Resolver }
-type teamDeleteKeyResolver struct{ *Resolver }
-type teamEnvironmentResolver struct{ *Resolver }
-type teamInventoryCountsResolver struct{ *Resolver }
-type teamMemberResolver struct{ *Resolver }
-type updateTeamEnvironmentPayloadResolver struct{ *Resolver }
+type (
+	removeTeamMemberPayloadResolver      struct{ *Resolver }
+	teamResolver                         struct{ *Resolver }
+	teamDeleteKeyResolver                struct{ *Resolver }
+	teamEnvironmentResolver              struct{ *Resolver }
+	teamInventoryCountsResolver          struct{ *Resolver }
+	teamMemberResolver                   struct{ *Resolver }
+	updateTeamEnvironmentPayloadResolver struct{ *Resolver }
+)

@@ -16,5 +16,12 @@ VALUES
 ;
 
 -- +goose Down
-DELETE FROM role_authorizations WHERE authorization_name = 'tunnels:create';
-DELETE FROM authorizations WHERE name = 'tunnels:create';
+DELETE FROM role_authorizations
+WHERE
+	authorization_name = 'tunnels:create'
+;
+
+DELETE FROM authorizations
+WHERE
+	name = 'tunnels:create'
+;

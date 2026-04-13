@@ -187,8 +187,10 @@ func (r *Resolver) TriggerJobPayload() gengql.TriggerJobPayloadResolver {
 	return &triggerJobPayloadResolver{r}
 }
 
-type deleteJobPayloadResolver struct{ *Resolver }
-type deleteJobRunPayloadResolver struct{ *Resolver }
-type jobResolver struct{ *Resolver }
-type jobRunResolver struct{ *Resolver }
-type triggerJobPayloadResolver struct{ *Resolver }
+type (
+	deleteJobPayloadResolver    struct{ *Resolver }
+	deleteJobRunPayloadResolver struct{ *Resolver }
+	jobResolver                 struct{ *Resolver }
+	jobRunResolver              struct{ *Resolver }
+	triggerJobPayloadResolver   struct{ *Resolver }
+)
