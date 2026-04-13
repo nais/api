@@ -121,8 +121,6 @@ type ResolverRoot interface {
 	TeamVulnerabilitySummary() TeamVulnerabilitySummaryResolver
 	TriggerJobPayload() TriggerJobPayloadResolver
 	Tunnel() TunnelResolver
-	TunnelCreatedActivityLogEntry() TunnelCreatedActivityLogEntryResolver
-	TunnelDeletedActivityLogEntry() TunnelDeletedActivityLogEntryResolver
 	UnleashInstance() UnleashInstanceResolver
 	UnleashInstanceMetrics() UnleashInstanceMetricsResolver
 	UnleashReleaseChannelIssue() UnleashReleaseChannelIssueResolver
@@ -140,7 +138,6 @@ type ResolverRoot interface {
 	WorkloadVulnerabilitySummary() WorkloadVulnerabilitySummaryResolver
 	CreateTunnelInput() CreateTunnelInputResolver
 	DeleteTunnelInput() DeleteTunnelInputResolver
-	UpdateTunnelSTUNEndpointInput() UpdateTunnelSTUNEndpointInputResolver
 }
 
 type DirectiveRoot struct {
@@ -1370,7 +1367,6 @@ type ComplexityRoot struct {
 		UpdateServiceAccountToken    func(childComplexity int, input serviceaccount.UpdateServiceAccountTokenInput) int
 		UpdateTeam                   func(childComplexity int, input team.UpdateTeamInput) int
 		UpdateTeamEnvironment        func(childComplexity int, input team.UpdateTeamEnvironmentInput) int
-		UpdateTunnelSTUNEndpoint     func(childComplexity int, input tunnel.UpdateTunnelSTUNEndpointInput) int
 		UpdateUnleashInstance        func(childComplexity int, input unleash.UpdateUnleashInstanceInput) int
 		UpdateValkey                 func(childComplexity int, input valkey.UpdateValkeyInput) int
 		ViewSecretValues             func(childComplexity int, input secret.ViewSecretValuesInput) int
@@ -2510,7 +2506,7 @@ type ComplexityRoot struct {
 		Secret             func(childComplexity int, name string) int
 		SlackAlertsChannel func(childComplexity int) int
 		Team               func(childComplexity int) int
-		Tunnel             func(childComplexity int, id ident.Ident) int
+		Tunnel             func(childComplexity int, name string) int
 		Valkey             func(childComplexity int, name string) int
 		Workload           func(childComplexity int, name string) int
 	}
@@ -2792,35 +2788,34 @@ type ComplexityRoot struct {
 		GatewaySTUNEndpoint func(childComplexity int) int
 		ID                  func(childComplexity int) int
 		Message             func(childComplexity int) int
+		Name                func(childComplexity int) int
 		Phase               func(childComplexity int) int
 		Target              func(childComplexity int) int
 	}
 
 	TunnelCreatedActivityLogEntry struct {
-		Actor             func(childComplexity int) int
-		CreatedAt         func(childComplexity int) int
-		EnvironmentName   func(childComplexity int) int
-		ID                func(childComplexity int) int
-		Message           func(childComplexity int) int
-		ResourceName      func(childComplexity int) int
-		ResourceType      func(childComplexity int) int
-		TargetHost        func(childComplexity int) int
-		TeamSlug          func(childComplexity int) int
-		TeamSlugForTunnel func(childComplexity int) int
-		TunnelID          func(childComplexity int) int
+		Actor           func(childComplexity int) int
+		CreatedAt       func(childComplexity int) int
+		EnvironmentName func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Message         func(childComplexity int) int
+		ResourceName    func(childComplexity int) int
+		ResourceType    func(childComplexity int) int
+		TargetHost      func(childComplexity int) int
+		TeamSlug        func(childComplexity int) int
+		TunnelName      func(childComplexity int) int
 	}
 
 	TunnelDeletedActivityLogEntry struct {
-		Actor             func(childComplexity int) int
-		CreatedAt         func(childComplexity int) int
-		EnvironmentName   func(childComplexity int) int
-		ID                func(childComplexity int) int
-		Message           func(childComplexity int) int
-		ResourceName      func(childComplexity int) int
-		ResourceType      func(childComplexity int) int
-		TeamSlug          func(childComplexity int) int
-		TeamSlugForTunnel func(childComplexity int) int
-		TunnelID          func(childComplexity int) int
+		Actor           func(childComplexity int) int
+		CreatedAt       func(childComplexity int) int
+		EnvironmentName func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Message         func(childComplexity int) int
+		ResourceName    func(childComplexity int) int
+		ResourceType    func(childComplexity int) int
+		TeamSlug        func(childComplexity int) int
+		TunnelName      func(childComplexity int) int
 	}
 
 	TunnelTarget struct {
@@ -2940,10 +2935,6 @@ type ComplexityRoot struct {
 
 	UpdateTeamPayload struct {
 		Team func(childComplexity int) int
-	}
-
-	UpdateTunnelSTUNEndpointPayload struct {
-		Tunnel func(childComplexity int) int
 	}
 
 	UpdateUnleashInstancePayload struct {
@@ -8698,18 +8689,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Mutation.UpdateTeamEnvironment(childComplexity, args["input"].(team.UpdateTeamEnvironmentInput)), true
 
-	case "Mutation.updateTunnelSTUNEndpoint":
-		if e.ComplexityRoot.Mutation.UpdateTunnelSTUNEndpoint == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_updateTunnelSTUNEndpoint_args(ctx, rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.ComplexityRoot.Mutation.UpdateTunnelSTUNEndpoint(childComplexity, args["input"].(tunnel.UpdateTunnelSTUNEndpointInput)), true
-
 	case "Mutation.updateUnleashInstance":
 		if e.ComplexityRoot.Mutation.UpdateUnleashInstance == nil {
 			break
@@ -14022,7 +14001,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.TeamEnvironment.Tunnel(childComplexity, args["id"].(ident.Ident)), true
+		return e.ComplexityRoot.TeamEnvironment.Tunnel(childComplexity, args["name"].(string)), true
 
 	case "TeamEnvironment.valkey":
 		if e.ComplexityRoot.TeamEnvironment.Valkey == nil {
@@ -15082,6 +15061,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Tunnel.Message(childComplexity), true
 
+	case "Tunnel.name":
+		if e.ComplexityRoot.Tunnel.Name == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Tunnel.Name(childComplexity), true
+
 	case "Tunnel.phase":
 		if e.ComplexityRoot.Tunnel.Phase == nil {
 			break
@@ -15159,19 +15145,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.TunnelCreatedActivityLogEntry.TeamSlug(childComplexity), true
 
-	case "TunnelCreatedActivityLogEntry.teamSlugForTunnel":
-		if e.ComplexityRoot.TunnelCreatedActivityLogEntry.TeamSlugForTunnel == nil {
+	case "TunnelCreatedActivityLogEntry.tunnelName":
+		if e.ComplexityRoot.TunnelCreatedActivityLogEntry.TunnelName == nil {
 			break
 		}
 
-		return e.ComplexityRoot.TunnelCreatedActivityLogEntry.TeamSlugForTunnel(childComplexity), true
-
-	case "TunnelCreatedActivityLogEntry.tunnelID":
-		if e.ComplexityRoot.TunnelCreatedActivityLogEntry.TunnelID == nil {
-			break
-		}
-
-		return e.ComplexityRoot.TunnelCreatedActivityLogEntry.TunnelID(childComplexity), true
+		return e.ComplexityRoot.TunnelCreatedActivityLogEntry.TunnelName(childComplexity), true
 
 	case "TunnelDeletedActivityLogEntry.actor":
 		if e.ComplexityRoot.TunnelDeletedActivityLogEntry.Actor == nil {
@@ -15229,19 +15208,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.TunnelDeletedActivityLogEntry.TeamSlug(childComplexity), true
 
-	case "TunnelDeletedActivityLogEntry.teamSlugForTunnel":
-		if e.ComplexityRoot.TunnelDeletedActivityLogEntry.TeamSlugForTunnel == nil {
+	case "TunnelDeletedActivityLogEntry.tunnelName":
+		if e.ComplexityRoot.TunnelDeletedActivityLogEntry.TunnelName == nil {
 			break
 		}
 
-		return e.ComplexityRoot.TunnelDeletedActivityLogEntry.TeamSlugForTunnel(childComplexity), true
-
-	case "TunnelDeletedActivityLogEntry.tunnelID":
-		if e.ComplexityRoot.TunnelDeletedActivityLogEntry.TunnelID == nil {
-			break
-		}
-
-		return e.ComplexityRoot.TunnelDeletedActivityLogEntry.TunnelID(childComplexity), true
+		return e.ComplexityRoot.TunnelDeletedActivityLogEntry.TunnelName(childComplexity), true
 
 	case "TunnelTarget.host":
 		if e.ComplexityRoot.TunnelTarget.Host == nil {
@@ -15723,13 +15695,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.UpdateTeamPayload.Team(childComplexity), true
-
-	case "UpdateTunnelSTUNEndpointPayload.tunnel":
-		if e.ComplexityRoot.UpdateTunnelSTUNEndpointPayload.Tunnel == nil {
-			break
-		}
-
-		return e.ComplexityRoot.UpdateTunnelSTUNEndpointPayload.Tunnel(childComplexity), true
 
 	case "UpdateUnleashInstancePayload.unleash":
 		if e.ComplexityRoot.UpdateUnleashInstancePayload.Unleash == nil {
@@ -17317,7 +17282,6 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputUpdateServiceAccountTokenInput,
 		ec.unmarshalInputUpdateTeamEnvironmentInput,
 		ec.unmarshalInputUpdateTeamInput,
-		ec.unmarshalInputUpdateTunnelSTUNEndpointInput,
 		ec.unmarshalInputUpdateUnleashInstanceInput,
 		ec.unmarshalInputUpdateValkeyInput,
 		ec.unmarshalInputUserOrder,
@@ -26254,6 +26218,11 @@ type Tunnel implements Node {
 	id: ID!
 
 	"""
+	The name of the tunnel.
+	"""
+	name: String!
+
+	"""
 	The current phase of the tunnel.
 	"""
 	phase: TunnelPhase!
@@ -26296,17 +26265,12 @@ input CreateTunnelInput {
 	environmentName: String!
 
 	"""
-	The Valkey instance name. Validated server-side to confirm ownership by the team.
-	"""
-	instanceName: String!
-
-	"""
-	The target host (FQDN of the destination from Valkey credentials).
+	The target host for the tunnel destination.
 	"""
 	targetHost: String!
 
 	"""
-	The target port (from Valkey credentials).
+	The target port for the tunnel destination.
 	"""
 	targetPort: Int!
 
@@ -26314,6 +26278,11 @@ input CreateTunnelInput {
 	The WireGuard public key generated by the CLI.
 	"""
 	clientPublicKey: String!
+
+	"""
+	The client's STUN endpoint for NAT traversal, discovered before tunnel creation.
+	"""
+	clientSTUNEndpoint: String!
 }
 
 type CreateTunnelPayload {
@@ -26323,30 +26292,19 @@ type CreateTunnelPayload {
 	tunnel: Tunnel!
 }
 
-input UpdateTunnelSTUNEndpointInput {
-	"""
-	The ID of the tunnel to update.
-	"""
-	tunnelID: ID!
-
-	"""
-	The client's STUN endpoint discovered via NAT traversal.
-	"""
-	clientSTUNEndpoint: String!
-}
-
-type UpdateTunnelSTUNEndpointPayload {
-	"""
-	The updated tunnel.
-	"""
-	tunnel: Tunnel!
-}
-
 input DeleteTunnelInput {
 	"""
-	The ID of the tunnel to delete.
+	The team that owns the tunnel.
 	"""
-	tunnelID: ID!
+	teamSlug: Slug!
+	"""
+	The environment where the tunnel exists.
+	"""
+	environmentName: String!
+	"""
+	The name of the tunnel to delete.
+	"""
+	tunnelName: String!
 }
 
 type DeleteTunnelPayload {
@@ -26358,16 +26316,9 @@ type DeleteTunnelPayload {
 
 extend type Mutation {
 	"""
-	Create a WireGuard tunnel to a Valkey instance.
-	The CLI provides the target host and port from Valkey credentials.
+	Create a WireGuard tunnel to a target host and port.
 	"""
 	createTunnel(input: CreateTunnelInput!): CreateTunnelPayload!
-
-	"""
-	Update the client's STUN endpoint after NAT discovery.
-	Called by CLI after performing STUN discovery.
-	"""
-	updateTunnelSTUNEndpoint(input: UpdateTunnelSTUNEndpointInput!): UpdateTunnelSTUNEndpointPayload!
 
 	"""
 	Delete a WireGuard tunnel and clean up the gateway pod.
@@ -26377,9 +26328,9 @@ extend type Mutation {
 
 extend type TeamEnvironment {
 	"""
-	Get a specific tunnel by ID. Used by CLI for polling tunnel status.
+	Get a specific tunnel by name.
 	"""
-	tunnel(id: ID!): Tunnel
+	tunnel(name: String!): Tunnel
 }
 
 extend enum ActivityLogEntryResourceType {
@@ -26443,14 +26394,9 @@ type TunnelCreatedActivityLogEntry implements ActivityLogEntry & Node {
 	environmentName: String
 
 	"""
-	The ID of the tunnel that was created.
+	The name of the tunnel that was created.
 	"""
-	tunnelID: ID!
-
-	"""
-	The team slug that owns the tunnel.
-	"""
-	teamSlugForTunnel: Slug!
+	tunnelName: String!
 
 	"""
 	The target host of the tunnel.
@@ -26500,14 +26446,9 @@ type TunnelDeletedActivityLogEntry implements ActivityLogEntry & Node {
 	environmentName: String
 
 	"""
-	The ID of the tunnel that was deleted.
+	The name of the tunnel that was deleted.
 	"""
-	tunnelID: ID!
-
-	"""
-	The team slug that owns the tunnel.
-	"""
-	teamSlugForTunnel: Slug!
+	tunnelName: String!
 }
 `, BuiltIn: false},
 	{Name: "../schema/unleash.graphqls", Input: `extend type Query {

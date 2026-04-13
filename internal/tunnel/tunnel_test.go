@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/nais/api/internal/activitylog"
-	"github.com/nais/api/internal/slug"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
@@ -82,7 +81,6 @@ func TestErrorMessages(t *testing.T) {
 func TestTunnelStructFields(t *testing.T) {
 	now := time.Now()
 	tun := Tunnel{
-		TunnelID:            "uid-123",
 		Name:                "tunnel-abc",
 		TeamSlug:            "my-team",
 		Environment:         "dev",
@@ -97,8 +95,8 @@ func TestTunnelStructFields(t *testing.T) {
 		CreatedAt:           now,
 	}
 
-	if tun.TunnelID != "uid-123" {
-		t.Errorf("TunnelID: got %q, want %q", tun.TunnelID, "uid-123")
+	if tun.Name != "tunnel-abc" {
+		t.Errorf("Name: got %q, want %q", tun.Name, "tunnel-abc")
 	}
 	if tun.Target.Host != "db.internal" {
 		t.Errorf("Target.Host: got %q, want %q", tun.Target.Host, "db.internal")
@@ -115,13 +113,13 @@ func TestTunnelStructFields(t *testing.T) {
 }
 
 func TestTunnelIDMethod(t *testing.T) {
-	tun := Tunnel{TunnelID: "my-uid"}
+	tun := Tunnel{TeamSlug: "my-team", Environment: "dev", Name: "my-tunnel"}
 	id := tun.ID()
-	if id.ID != "my-uid" {
-		t.Errorf("ID.ID: got %q, want %q", id.ID, "my-uid")
+	if id.Type != "TU" {
+		t.Errorf("ID.Type: got %q, want %q", id.Type, "TU")
 	}
-	if id.Type != "Tunnel" {
-		t.Errorf("ID.Type: got %q, want %q", id.Type, "Tunnel")
+	if id.ID == "" {
+		t.Errorf("ID.ID: expected non-empty ident string")
 	}
 }
 
@@ -149,15 +147,14 @@ func TestActivityLogEntryTypes(t *testing.T) {
 			ResourceType: ActivityLogEntryResourceTypeTunnel,
 			ResourceName: "tunnel-abc",
 		},
-		TunnelID:          "uid-123",
-		TeamSlugForTunnel: slug.Slug("my-team"),
-		TargetHost:        "db.internal",
+		TunnelName: "tunnel-abc",
+		TargetHost: "db.internal",
 	}
-	if created.TunnelID != "uid-123" {
-		t.Errorf("TunnelCreatedActivityLogEntry.TunnelID: got %q, want %q", created.TunnelID, "uid-123")
+	if created.TunnelName != "tunnel-abc" {
+		t.Errorf("TunnelCreatedActivityLogEntry.TunnelName: got %q, want %q", created.TunnelName, "tunnel-abc")
 	}
-	if string(created.TeamSlugForTunnel) != "my-team" {
-		t.Errorf("TunnelCreatedActivityLogEntry.TeamSlugForTunnel: got %q, want %q", created.TeamSlugForTunnel, "my-team")
+	if created.TargetHost != "db.internal" {
+		t.Errorf("TunnelCreatedActivityLogEntry.TargetHost: got %q, want %q", created.TargetHost, "db.internal")
 	}
 
 	deleted := TunnelDeletedActivityLogEntry{
@@ -167,11 +164,10 @@ func TestActivityLogEntryTypes(t *testing.T) {
 			ResourceType: ActivityLogEntryResourceTypeTunnel,
 			ResourceName: "tunnel-abc",
 		},
-		TunnelID:          "uid-456",
-		TeamSlugForTunnel: slug.Slug("another-team"),
+		TunnelName: "tunnel-abc",
 	}
-	if deleted.TunnelID != "uid-456" {
-		t.Errorf("TunnelDeletedActivityLogEntry.TunnelID: got %q, want %q", deleted.TunnelID, "uid-456")
+	if deleted.TunnelName != "tunnel-abc" {
+		t.Errorf("TunnelDeletedActivityLogEntry.TunnelName: got %q, want %q", deleted.TunnelName, "tunnel-abc")
 	}
 }
 
@@ -280,18 +276,21 @@ func TestWithLoaders(t *testing.T) {
 
 func TestCreateTunnelInputFields(t *testing.T) {
 	input := CreateTunnelInput{
-		TeamSlug:        "team-c",
-		EnvironmentName: "staging",
-		InstanceName:    "my-instance",
-		TargetHost:      "pg.internal",
-		TargetPort:      5432,
-		ClientPublicKey: "pub-key",
+		TeamSlug:           "team-c",
+		EnvironmentName:    "staging",
+		TargetHost:         "pg.internal",
+		TargetPort:         5432,
+		ClientPublicKey:    "pub-key",
+		ClientSTUNEndpoint: "1.2.3.4:9999",
 	}
 	if input.TeamSlug != "team-c" {
 		t.Errorf("TeamSlug: got %q, want %q", input.TeamSlug, "team-c")
 	}
 	if input.TargetPort != 5432 {
 		t.Errorf("TargetPort: got %d, want %d", input.TargetPort, 5432)
+	}
+	if input.ClientSTUNEndpoint != "1.2.3.4:9999" {
+		t.Errorf("ClientSTUNEndpoint: got %q, want %q", input.ClientSTUNEndpoint, "1.2.3.4:9999")
 	}
 }
 
