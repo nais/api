@@ -3,13 +3,17 @@ package kafkatopic
 import (
 	"context"
 	"strings"
+	"time"
 
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/kubernetes/watcher"
+	"github.com/nais/api/internal/persistence/aivencredentials"
 	"github.com/nais/api/internal/slug"
 )
+
+const maxTTLKafka = 365 * 24 * time.Hour // 365 days — used by Kafka
 
 func GetByIdent(ctx context.Context, id ident.Ident) (*KafkaTopic, error) {
 	teamSlug, environment, name, err := parseIdent(id)
@@ -53,6 +57,40 @@ func ListForWorkload(ctx context.Context, teamSlug slug.Slug, workloadName, pool
 	}
 	orderTopicACLs(ctx, ret, orderBy)
 	return pagination.NewConnectionWithoutPagination(ret), nil
+}
+
+func CreateKafkaCredentials(ctx context.Context, input CreateKafkaCredentialsInput) (*CreateKafkaCredentialsPayload, error) {
+	result, err := aivencredentials.CreateCredentials(ctx, ActivityLogEntryResourceTypeKafkaTopic, aivencredentials.CredentialRequest{
+		TeamSlug:        input.TeamSlug,
+		EnvironmentName: input.EnvironmentName,
+		TTL:             input.TTL,
+		MaxTTL:          maxTTLKafka,
+		BuildSpec: func(namespace, secretName string, expiresAt time.Time) map[string]any {
+			return map[string]any{
+				"protected": true,
+				"expiresAt": expiresAt.Format(time.RFC3339),
+				"kafka": map[string]any{
+					"pool":       "nav-" + input.EnvironmentName,
+					"secretName": secretName,
+				},
+			}
+		},
+		ExtractCreds: func(data map[string]string) any {
+			return &KafkaCredentials{
+				Username:       data["KAFKA_SCHEMA_REGISTRY_USER"],
+				AccessCert:     data["KAFKA_CERTIFICATE"],
+				AccessKey:      data["KAFKA_PRIVATE_KEY"],
+				CaCert:         data["KAFKA_CA"],
+				Brokers:        data["KAFKA_BROKERS"],
+				SchemaRegistry: data["KAFKA_SCHEMA_REGISTRY"],
+			}
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &CreateKafkaCredentialsPayload{Credentials: result.(*KafkaCredentials)}, nil
 }
 
 func stringMatch(s, pattern string) bool {

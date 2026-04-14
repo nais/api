@@ -43,6 +43,13 @@ func (r *mutationResolver) DeleteOpenSearch(ctx context.Context, input opensearc
 	return opensearch.Delete(ctx, input)
 }
 
+func (r *mutationResolver) CreateOpenSearchCredentials(ctx context.Context, input opensearch.CreateOpenSearchCredentialsInput) (*opensearch.CreateOpenSearchCredentialsPayload, error) {
+	if err := authz.CanCreateAivenCredentials(ctx, input.TeamSlug); err != nil {
+		return nil, err
+	}
+	return opensearch.CreateOpenSearchCredentials(ctx, input)
+}
+
 func (r *openSearchResolver) Team(ctx context.Context, obj *opensearch.OpenSearch) (*team.Team, error) {
 	return team.Get(ctx, obj.TeamSlug)
 }

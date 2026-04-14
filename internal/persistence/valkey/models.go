@@ -11,6 +11,7 @@ import (
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/kubernetes"
+	"github.com/nais/api/internal/persistence/aivencredentials"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/validate"
 	"github.com/nais/api/internal/workload"
@@ -533,4 +534,24 @@ func (e *ValkeyState) UnmarshalGQL(v any) error {
 
 func (e ValkeyState) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type CreateValkeyCredentialsInput struct {
+	TeamSlug        slug.Slug                             `json:"teamSlug"`
+	EnvironmentName string                                `json:"environmentName"`
+	InstanceName    string                                `json:"instanceName"`
+	Permission      aivencredentials.CredentialPermission `json:"permission"`
+	TTL             string                                `json:"ttl"`
+}
+
+type ValkeyCredentials struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+	Host     string `json:"host"`
+	Port     int    `json:"port"`
+	URI      string `json:"uri"`
+}
+
+type CreateValkeyCredentialsPayload struct {
+	Credentials *ValkeyCredentials `json:"credentials"`
 }
