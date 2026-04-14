@@ -13,7 +13,6 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/graph/ident"
-	"github.com/nais/api/internal/graph/model/donotuse"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/tunnel"
 	"github.com/vektah/gqlparser/v2/ast"
@@ -22,9 +21,9 @@ import (
 // region    ************************** generated!.gotpl **************************
 
 type TunnelResolver interface {
-	Phase(ctx context.Context, obj *tunnel.Tunnel) (donotuse.TunnelPhase, error)
+	Phase(ctx context.Context, obj *tunnel.Tunnel) (tunnel.TunnelPhase, error)
 
-	Target(ctx context.Context, obj *tunnel.Tunnel) (*donotuse.TunnelTarget, error)
+	Target(ctx context.Context, obj *tunnel.Tunnel) (*tunnel.TunnelTarget, error)
 }
 
 type CreateTunnelInputResolver interface {
@@ -159,8 +158,8 @@ func (ec *executionContext) _Tunnel_phase(ctx context.Context, field graphql.Col
 			return ec.Resolvers.Tunnel().Phase(ctx, obj)
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v donotuse.TunnelPhase) graphql.Marshaler {
-			return ec.marshalNTunnelPhase2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚋdonotuseᚐTunnelPhase(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v tunnel.TunnelPhase) graphql.Marshaler {
+			return ec.marshalNTunnelPhase2githubᚗcomᚋnaisᚋapiᚋinternalᚋtunnelᚐTunnelPhase(ctx, selections, v)
 		},
 		true,
 		true,
@@ -228,8 +227,8 @@ func (ec *executionContext) _Tunnel_target(ctx context.Context, field graphql.Co
 			return ec.Resolvers.Tunnel().Target(ctx, obj)
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *donotuse.TunnelTarget) graphql.Marshaler {
-			return ec.marshalNTunnelTarget2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚋdonotuseᚐTunnelTarget(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *tunnel.TunnelTarget) graphql.Marshaler {
+			return ec.marshalNTunnelTarget2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋtunnelᚐTunnelTarget(ctx, selections, v)
 		},
 		true,
 		true,
@@ -731,7 +730,7 @@ func (ec *executionContext) fieldContext_TunnelDeletedActivityLogEntry_tunnelNam
 	return graphql.NewScalarFieldContext("TunnelDeletedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TunnelTarget_host(ctx context.Context, field graphql.CollectedField, obj *donotuse.TunnelTarget) (ret graphql.Marshaler) {
+func (ec *executionContext) _TunnelTarget_host(ctx context.Context, field graphql.CollectedField, obj *tunnel.TunnelTarget) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -754,7 +753,7 @@ func (ec *executionContext) fieldContext_TunnelTarget_host(_ context.Context, fi
 	return graphql.NewScalarFieldContext("TunnelTarget", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TunnelTarget_port(ctx context.Context, field graphql.CollectedField, obj *donotuse.TunnelTarget) (ret graphql.Marshaler) {
+func (ec *executionContext) _TunnelTarget_port(ctx context.Context, field graphql.CollectedField, obj *tunnel.TunnelTarget) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -1269,7 +1268,7 @@ func (ec *executionContext) _TunnelDeletedActivityLogEntry(ctx context.Context, 
 
 var tunnelTargetImplementors = []string{"TunnelTarget"}
 
-func (ec *executionContext) _TunnelTarget(ctx context.Context, sel ast.SelectionSet, obj *donotuse.TunnelTarget) graphql.Marshaler {
+func (ec *executionContext) _TunnelTarget(ctx context.Context, sel ast.SelectionSet, obj *tunnel.TunnelTarget) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, tunnelTargetImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1363,21 +1362,21 @@ func (ec *executionContext) marshalNTunnel2ᚖgithubᚗcomᚋnaisᚋapiᚋintern
 	return ec._Tunnel(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNTunnelPhase2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚋdonotuseᚐTunnelPhase(ctx context.Context, v any) (donotuse.TunnelPhase, error) {
-	var res donotuse.TunnelPhase
+func (ec *executionContext) unmarshalNTunnelPhase2githubᚗcomᚋnaisᚋapiᚋinternalᚋtunnelᚐTunnelPhase(ctx context.Context, v any) (tunnel.TunnelPhase, error) {
+	var res tunnel.TunnelPhase
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNTunnelPhase2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚋdonotuseᚐTunnelPhase(ctx context.Context, sel ast.SelectionSet, v donotuse.TunnelPhase) graphql.Marshaler {
+func (ec *executionContext) marshalNTunnelPhase2githubᚗcomᚋnaisᚋapiᚋinternalᚋtunnelᚐTunnelPhase(ctx context.Context, sel ast.SelectionSet, v tunnel.TunnelPhase) graphql.Marshaler {
 	return v
 }
 
-func (ec *executionContext) marshalNTunnelTarget2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚋdonotuseᚐTunnelTarget(ctx context.Context, sel ast.SelectionSet, v donotuse.TunnelTarget) graphql.Marshaler {
+func (ec *executionContext) marshalNTunnelTarget2githubᚗcomᚋnaisᚋapiᚋinternalᚋtunnelᚐTunnelTarget(ctx context.Context, sel ast.SelectionSet, v tunnel.TunnelTarget) graphql.Marshaler {
 	return ec._TunnelTarget(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNTunnelTarget2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚋdonotuseᚐTunnelTarget(ctx context.Context, sel ast.SelectionSet, v *donotuse.TunnelTarget) graphql.Marshaler {
+func (ec *executionContext) marshalNTunnelTarget2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋtunnelᚐTunnelTarget(ctx context.Context, sel ast.SelectionSet, v *tunnel.TunnelTarget) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
