@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: myapp-config
+data:
+  db_host: "postgres.myteam.svc.cluster.local"
+  db_port: "5432"
+  log_level: "info"
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: myapp-envs
+data:
+  FEATURE_FLAG_A: "true"
+  FEATURE_FLAG_B: "false"
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: myapp-secret
+type: Opaque
+data:
+  api_key: c2VjcmV0LWtleS12YWx1ZQ==
+  db_password: c3VwZXItc2VjcmV0
