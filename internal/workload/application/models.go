@@ -104,7 +104,7 @@ var waitingMessages = map[string]string{
 	"CrashLoopBackOff":           "Instance is crash-looping — it keeps crashing shortly after starting. Check application logs for details.",
 	"ErrImagePull":               "Failed to download container image. Check that the image exists and is accessible.",
 	"ImagePullBackOff":           "Repeated failures downloading container image. Check that the image exists and is accessible.",
-	"CreateContainerConfigError": "Container configuration error: %s",
+	"CreateContainerConfigError": "Configuration error: %s",
 	"CreateContainerError":       "Failed to create the container: %s",
 	"RunContainerError":          "Failed to start the container: %s",
 	"InvalidImageName":           "Invalid container image name.",
