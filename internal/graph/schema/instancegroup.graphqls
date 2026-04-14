@@ -63,8 +63,8 @@ type InstanceGroup implements Node {
 	instances: [ApplicationInstance!]!
 
 	"""
-	Recent Kubernetes events for this instance group and its instances,
-	translated into user-friendly messages. Sorted by timestamp, newest first.
+	Recent Kubernetes events for this instance group and its instances.
+	Sorted by timestamp, newest first.
 	"""
 	events: [InstanceGroupEvent!]!
 }
@@ -159,7 +159,7 @@ enum InstanceGroupValueSourceKind {
 }
 
 """
-A translated Kubernetes event providing debugging information in user-friendly language.
+A Kubernetes event related to an instance group or one of its instances.
 """
 type InstanceGroupEvent {
 	"""
@@ -168,7 +168,12 @@ type InstanceGroupEvent {
 	timestamp: Time!
 
 	"""
-	A user-friendly description of what happened.
+	The Kubernetes event reason (e.g. "BackOff", "Unhealthy", "FailedScheduling").
+	"""
+	reason: String!
+
+	"""
+	The event message from Kubernetes.
 	"""
 	message: String!
 
@@ -197,9 +202,4 @@ enum InstanceGroupEventSeverity {
 	Warning event (potential issue, may resolve on its own).
 	"""
 	WARNING
-
-	"""
-	Error event (requires attention).
-	"""
-	ERROR
 }

@@ -117,9 +117,10 @@ func (e InstanceGroupValueSourceKind) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
-// InstanceGroupEvent represents a translated Kubernetes event.
+// InstanceGroupEvent represents a Kubernetes event.
 type InstanceGroupEvent struct {
 	Timestamp      time.Time                  `json:"timestamp"`
+	Reason         string                     `json:"reason"`
 	Message        string                     `json:"message"`
 	Severity       InstanceGroupEventSeverity `json:"severity"`
 	SourceInstance *string                    `json:"sourceInstance"`
@@ -131,18 +132,16 @@ type InstanceGroupEventSeverity string
 const (
 	InstanceGroupEventSeverityInfo    InstanceGroupEventSeverity = "INFO"
 	InstanceGroupEventSeverityWarning InstanceGroupEventSeverity = "WARNING"
-	InstanceGroupEventSeverityError   InstanceGroupEventSeverity = "ERROR"
 )
 
 var AllInstanceGroupEventSeverity = []InstanceGroupEventSeverity{
 	InstanceGroupEventSeverityInfo,
 	InstanceGroupEventSeverityWarning,
-	InstanceGroupEventSeverityError,
 }
 
 func (e InstanceGroupEventSeverity) IsValid() bool {
 	switch e {
-	case InstanceGroupEventSeverityInfo, InstanceGroupEventSeverityWarning, InstanceGroupEventSeverityError:
+	case InstanceGroupEventSeverityInfo, InstanceGroupEventSeverityWarning:
 		return true
 	}
 	return false

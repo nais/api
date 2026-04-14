@@ -997,6 +997,7 @@ type ComplexityRoot struct {
 
 	InstanceGroupEvent struct {
 		Message        func(childComplexity int) int
+		Reason         func(childComplexity int) int
 		Severity       func(childComplexity int) int
 		SourceInstance func(childComplexity int) int
 		Timestamp      func(childComplexity int) int
@@ -6702,6 +6703,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.InstanceGroupEvent.Message(childComplexity), true
+
+	case "InstanceGroupEvent.reason":
+		if e.ComplexityRoot.InstanceGroupEvent.Reason == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroupEvent.Reason(childComplexity), true
 
 	case "InstanceGroupEvent.severity":
 		if e.ComplexityRoot.InstanceGroupEvent.Severity == nil {
@@ -20534,8 +20542,8 @@ type InstanceGroup implements Node {
 	instances: [ApplicationInstance!]!
 
 	"""
-	Recent Kubernetes events for this instance group and its instances,
-	translated into user-friendly messages. Sorted by timestamp, newest first.
+	Recent Kubernetes events for this instance group and its instances.
+	Sorted by timestamp, newest first.
 	"""
 	events: [InstanceGroupEvent!]!
 }
@@ -20630,7 +20638,7 @@ enum InstanceGroupValueSourceKind {
 }
 
 """
-A translated Kubernetes event providing debugging information in user-friendly language.
+A Kubernetes event related to an instance group or one of its instances.
 """
 type InstanceGroupEvent {
 	"""
@@ -20639,7 +20647,12 @@ type InstanceGroupEvent {
 	timestamp: Time!
 
 	"""
-	A user-friendly description of what happened.
+	The Kubernetes event reason (e.g. "BackOff", "Unhealthy", "FailedScheduling").
+	"""
+	reason: String!
+
+	"""
+	The event message from Kubernetes.
 	"""
 	message: String!
 
@@ -20668,11 +20681,6 @@ enum InstanceGroupEventSeverity {
 	Warning event (potential issue, may resolve on its own).
 	"""
 	WARNING
-
-	"""
-	Error event (requires attention).
-	"""
-	ERROR
 }
 `, BuiltIn: false},
 	{Name: "../schema/issues.graphqls", Input: `extend type Team {

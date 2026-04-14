@@ -406,6 +406,8 @@ func (ec *executionContext) fieldContext_InstanceGroup_events(_ context.Context,
 			switch field.Name {
 			case "timestamp":
 				return ec.fieldContext_InstanceGroupEvent_timestamp(ctx, field)
+			case "reason":
+				return ec.fieldContext_InstanceGroupEvent_reason(ctx, field)
 			case "message":
 				return ec.fieldContext_InstanceGroupEvent_message(ctx, field)
 			case "severity":
@@ -536,6 +538,35 @@ func (ec *executionContext) fieldContext_InstanceGroupEvent_timestamp(_ context.
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _InstanceGroupEvent_reason(ctx context.Context, field graphql.CollectedField, obj *instancegroup.InstanceGroupEvent) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_InstanceGroupEvent_reason,
+		func(ctx context.Context) (any, error) {
+			return obj.Reason, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_InstanceGroupEvent_reason(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "InstanceGroupEvent",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -1121,6 +1152,11 @@ func (ec *executionContext) _InstanceGroupEvent(ctx context.Context, sel ast.Sel
 			out.Values[i] = graphql.MarshalString("InstanceGroupEvent")
 		case "timestamp":
 			out.Values[i] = ec._InstanceGroupEvent_timestamp(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "reason":
+			out.Values[i] = ec._InstanceGroupEvent_reason(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
