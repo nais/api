@@ -3,7 +3,7 @@ package instancegroup
 import (
 	"context"
 	"fmt"
-	"sort"
+	"slices"
 	"time"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -77,8 +77,8 @@ func ListEvents(ctx context.Context, ig *InstanceGroup) ([]*InstanceGroupEvent, 
 	}
 
 	// Sort by timestamp, newest first
-	sort.Slice(allEvents, func(i, j int) bool {
-		return allEvents[i].Timestamp.After(allEvents[j].Timestamp)
+	slices.SortFunc(allEvents, func(a, b *InstanceGroupEvent) int {
+		return b.Timestamp.Compare(a.Timestamp)
 	})
 
 	return allEvents, nil
@@ -104,8 +104,8 @@ func ListInstanceEvents(ctx context.Context, ig *InstanceGroup, instanceName str
 		}
 	}
 
-	sort.Slice(events, func(i, j int) bool {
-		return events[i].Timestamp.After(events[j].Timestamp)
+	slices.SortFunc(events, func(a, b *InstanceGroupEvent) int {
+		return b.Timestamp.Compare(a.Timestamp)
 	})
 
 	return events, nil

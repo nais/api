@@ -3,6 +3,7 @@ package instancegroup
 import (
 	"fmt"
 	"io"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -89,11 +90,7 @@ var AllInstanceGroupValueSourceKind = []InstanceGroupValueSourceKind{
 }
 
 func (e InstanceGroupValueSourceKind) IsValid() bool {
-	switch e {
-	case InstanceGroupValueSourceKindSecret, InstanceGroupValueSourceKindConfigMap, InstanceGroupValueSourceKindSpec:
-		return true
-	}
-	return false
+	return slices.Contains(AllInstanceGroupValueSourceKind, e)
 }
 
 func (e InstanceGroupValueSourceKind) String() string {
@@ -140,11 +137,7 @@ var AllInstanceGroupEventSeverity = []InstanceGroupEventSeverity{
 }
 
 func (e InstanceGroupEventSeverity) IsValid() bool {
-	switch e {
-	case InstanceGroupEventSeverityInfo, InstanceGroupEventSeverityWarning:
-		return true
-	}
-	return false
+	return slices.Contains(AllInstanceGroupEventSeverity, e)
 }
 
 func (e InstanceGroupEventSeverity) String() string {

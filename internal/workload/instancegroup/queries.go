@@ -6,7 +6,6 @@ import (
 	"maps"
 	"path"
 	"slices"
-	"sort"
 
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/kubernetes/watcher"
@@ -47,8 +46,8 @@ func ListForApplication(ctx context.Context, teamSlug slug.Slug, environmentName
 	}
 
 	// Sort by revision, newest first
-	sort.Slice(ret, func(i, j int) bool {
-		return ret[i].Revision > ret[j].Revision
+	slices.SortFunc(ret, func(a, b *InstanceGroup) int {
+		return b.Revision - a.Revision
 	})
 
 	return ret, nil
@@ -493,12 +492,7 @@ func getSecretKeys(ctx context.Context, l *loaders, environmentName, namespace, 
 	}
 
 	data, _, _ := unstructured.NestedMap(obj.Object, "data")
-	keys := make([]string, 0, len(data))
-	for k := range data {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
-	return keys, nil
+	return slices.Sorted(maps.Keys(data)), nil
 }
 
 // getConfigMapData fetches the key-value data from a ConfigMap in the given namespace via direct K8s API call.

@@ -3,6 +3,7 @@ package application
 import (
 	"fmt"
 	"io"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -90,17 +91,27 @@ func (i ApplicationInstance) ID() ident.Ident {
 	return newInstanceIdent(i.TeamSlug, i.EnvironmentName, i.ApplicationName, i.Name)
 }
 
-var benignWaiting = map[string]struct{}{
-	"":                  {},
-	"ContainerCreating": {},
-	"PodInitializing":   {},
-	"Pulling":           {},
-	"ImagePull":         {},
+// benignWaitingReasons are Kubernetes container waiting reasons that indicate
+// normal startup behavior rather than a problem.
+var benignWaitingReasons = []string{
+	"",
+	"ContainerCreating",
+	"PodInitializing",
+	"Pulling",
+	"ImagePull",
 }
 
-// waitingMessages maps Kubernetes container waiting reasons to user-friendly messages.
+// benignMessages maps benign waiting reasons to user-friendly messages.
+var benignMessages = map[string]string{
+	"ContainerCreating": "Container is being created.",
+	"PodInitializing":   "Waiting for init containers to complete.",
+	"Pulling":           "Downloading container image.",
+	"ImagePull":         "Downloading container image.",
+}
+
+// problemMessages maps Kubernetes container waiting reasons to user-friendly messages.
 // Use %s as a placeholder for the Kubernetes message when it provides useful detail.
-var waitingMessages = map[string]string{
+var problemMessages = map[string]string{
 	"CrashLoopBackOff":           "Instance is crash-looping — it keeps crashing shortly after starting. Check application logs for details.",
 	"ErrImagePull":               "Failed to download container image. Check that the image exists and is accessible.",
 	"ImagePullBackOff":           "Repeated failures downloading container image. Check that the image exists and is accessible.",
@@ -122,23 +133,14 @@ func classifyWaiting(w *corev1.ContainerStateWaiting) (kind string, msg string) 
 	}
 	reason := strings.TrimSpace(w.Reason)
 
-	if _, ok := benignWaiting[reason]; ok {
-		if m, ok := waitingMessages[reason]; ok {
+	if slices.Contains(benignWaitingReasons, reason) {
+		if m, ok := benignMessages[reason]; ok {
 			return "benign", m
 		}
-		switch reason {
-		case "ContainerCreating":
-			return "benign", "Container is being created."
-		case "PodInitializing":
-			return "benign", "Waiting for init containers to complete."
-		case "Pulling", "ImagePull":
-			return "benign", "Downloading container image."
-		default:
-			return "benign", "Starting."
-		}
+		return "benign", "Starting."
 	}
 
-	if m, ok := waitingMessages[reason]; ok {
+	if m, ok := problemMessages[reason]; ok {
 		if strings.Contains(m, "%s") {
 			detail := strings.TrimSpace(w.Message)
 			if detail == "" {
