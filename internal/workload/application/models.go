@@ -99,13 +99,14 @@ var benignWaiting = map[string]struct{}{
 }
 
 // waitingMessages maps Kubernetes container waiting reasons to user-friendly messages.
+// Use %s as a placeholder for the Kubernetes message when it provides useful detail.
 var waitingMessages = map[string]string{
 	"CrashLoopBackOff":           "Instance is crash-looping — it keeps crashing shortly after starting. Check application logs for details.",
 	"ErrImagePull":               "Failed to download container image. Check that the image exists and is accessible.",
 	"ImagePullBackOff":           "Repeated failures downloading container image. Check that the image exists and is accessible.",
-	"CreateContainerConfigError": "Waiting for configuration — a required Secret or ConfigMap does not exist yet.",
-	"CreateContainerError":       "Failed to create the container.",
-	"RunContainerError":          "Failed to start the container. Check application configuration.",
+	"CreateContainerConfigError": "Container configuration error: %s",
+	"CreateContainerError":       "Failed to create the container: %s",
+	"RunContainerError":          "Failed to start the container: %s",
 	"InvalidImageName":           "Invalid container image name.",
 }
 
@@ -138,6 +139,13 @@ func classifyWaiting(w *corev1.ContainerStateWaiting) (kind string, msg string) 
 	}
 
 	if m, ok := waitingMessages[reason]; ok {
+		if strings.Contains(m, "%s") {
+			detail := strings.TrimSpace(w.Message)
+			if detail == "" {
+				detail = reason
+			}
+			return "problem", fmt.Sprintf(m, detail)
+		}
 		return "problem", m
 	}
 
