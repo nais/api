@@ -208,14 +208,21 @@ func secretData(secret *unstructured.Unstructured, log logrus.FieldLogger) map[s
 
 // generateSecretName creates a deterministic, short secret name.
 func generateSecretName(username, namespace string, resourceType activitylog.ActivityLogEntryResourceType) string {
-	hash := sha256.Sum256(fmt.Appendf(nil, "%s-%s-%s", username, namespace, resourceType))
-	return fmt.Sprintf("tmp-%s-%x", resourceType, hash[:3])
+	typeName := makeTypeName(resourceType)
+	hash := sha256.Sum256(fmt.Appendf(nil, "%s-%s-%s", username, namespace, typeName))
+	return fmt.Sprintf("tmp-%s-%x", typeName, hash[:3])
 }
 
 // generateAppName creates a deterministic AivenApplication name from the user identity.
 func generateAppName(username string, resourceType activitylog.ActivityLogEntryResourceType) string {
-	hash := sha256.Sum256(fmt.Appendf(nil, "%s-%s", username, resourceType))
-	return fmt.Sprintf("tmp-%s-%x", resourceType, hash[:3])
+	typeName := makeTypeName(resourceType)
+	hash := sha256.Sum256(fmt.Appendf(nil, "%s-%s", username, typeName))
+	return fmt.Sprintf("tmp-%s-%x", typeName, hash[:3])
+}
+
+func makeTypeName(resourceType activitylog.ActivityLogEntryResourceType) string {
+	typeName := strings.ToLower(string(resourceType))
+	return strings.ReplaceAll(typeName, "_", "-")
 }
 
 // parseTTL parses a human-readable TTL string (e.g. "1d", "7d", "24h") into a time.Duration.
