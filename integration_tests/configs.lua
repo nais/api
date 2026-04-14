@@ -790,6 +790,428 @@ Test.gql("Unmanaged config not in list", function(t)
 	}
 end)
 
+-- Test that values like "true" are not misdetected as binary
+
+Test.gql("Config value true is returned as plain text", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query [[
+		mutation {
+			createConfig(input: {
+				name: "true-value-test"
+				environmentName: "dev"
+				teamSlug: "myteam"
+			}) {
+				config { name }
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			createConfig = {
+				config = { name = "true-value-test" },
+			},
+		},
+	}
+
+	t.query [[
+		mutation {
+			addConfigValue(input: {
+				name: "true-value-test"
+				environmentName: "dev"
+				teamSlug: "myteam"
+				value: {
+					name: "MY_FLAG",
+					value: "true"
+				}
+			}) {
+				config {
+					name
+					values {
+						name
+						value
+						encoding
+					}
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			addConfigValue = {
+				config = {
+					name = "true-value-test",
+					values = {
+						{
+							name = "MY_FLAG",
+							value = "true",
+							encoding = "PLAIN_TEXT",
+						},
+					},
+				},
+			},
+		},
+	}
+
+	-- Verify the value is also correct when read back via query
+	t.query [[
+		{
+			team(slug: "myteam") {
+				environment(name: "dev") {
+					config(name: "true-value-test") {
+						values {
+							name
+							value
+							encoding
+						}
+					}
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			team = {
+				environment = {
+					config = {
+						values = {
+							{
+								name = "MY_FLAG",
+								value = "true",
+								encoding = "PLAIN_TEXT",
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	-- Clean up
+	t.query [[
+		mutation {
+			deleteConfig(input: {
+				name: "true-value-test"
+				environmentName: "dev"
+				teamSlug: "myteam"
+			}) {
+				configDeleted
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			deleteConfig = {
+				configDeleted = true,
+			},
+		},
+	}
+end)
+
+-- Test binary data in configs using binaryData field
+
+Test.gql("Config binary data round-trip", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query [[
+		mutation {
+			createConfig(input: {
+				name: "binary-data-test"
+				environmentName: "dev"
+				teamSlug: "myteam"
+			}) {
+				config { name }
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			createConfig = {
+				config = { name = "binary-data-test" },
+			},
+		},
+	}
+
+	-- Add a binary value (BASE64 encoded)
+	t.query [[
+		mutation {
+			addConfigValue(input: {
+				name: "binary-data-test"
+				environmentName: "dev"
+				teamSlug: "myteam"
+				value: {
+					name: "tls.crt",
+					value: "AAEC/w==",
+					encoding: BASE64
+				}
+			}) {
+				config {
+					name
+					values {
+						name
+						value
+						encoding
+					}
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			addConfigValue = {
+				config = {
+					name = "binary-data-test",
+					values = {
+						{
+							name = "tls.crt",
+							value = "AAEC/w==",
+							encoding = "BASE64",
+						},
+					},
+				},
+			},
+		},
+	}
+
+	-- Add a plain text value alongside the binary one
+	t.query [[
+		mutation {
+			addConfigValue(input: {
+				name: "binary-data-test"
+				environmentName: "dev"
+				teamSlug: "myteam"
+				value: {
+					name: "log-level",
+					value: "info"
+				}
+			}) {
+				config {
+					name
+					values {
+						name
+						value
+						encoding
+					}
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			addConfigValue = {
+				config = {
+					name = "binary-data-test",
+					values = {
+						{
+							name = "log-level",
+							value = "info",
+							encoding = "PLAIN_TEXT",
+						},
+						{
+							name = "tls.crt",
+							value = "AAEC/w==",
+							encoding = "BASE64",
+						},
+					},
+				},
+			},
+		},
+	}
+
+	-- Read back via query to verify round-trip
+	t.query [[
+		{
+			team(slug: "myteam") {
+				environment(name: "dev") {
+					config(name: "binary-data-test") {
+						values {
+							name
+							value
+							encoding
+						}
+					}
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			team = {
+				environment = {
+					config = {
+						values = {
+							{
+								name = "log-level",
+								value = "info",
+								encoding = "PLAIN_TEXT",
+							},
+							{
+								name = "tls.crt",
+								value = "AAEC/w==",
+								encoding = "BASE64",
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	-- Update binary value to plain text (should move from binaryData to data)
+	t.query [[
+		mutation {
+			updateConfigValue(input: {
+				name: "binary-data-test"
+				environmentName: "dev"
+				teamSlug: "myteam"
+				value: {
+					name: "tls.crt",
+					value: "now-plain-text"
+				}
+			}) {
+				config {
+					values {
+						name
+						value
+						encoding
+					}
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			updateConfigValue = {
+				config = {
+					values = {
+						{
+							name = "log-level",
+							value = "info",
+							encoding = "PLAIN_TEXT",
+						},
+						{
+							name = "tls.crt",
+							value = "now-plain-text",
+							encoding = "PLAIN_TEXT",
+						},
+					},
+				},
+			},
+		},
+	}
+
+	-- Update plain text value to binary (should move from data to binaryData)
+	t.query [[
+		mutation {
+			updateConfigValue(input: {
+				name: "binary-data-test"
+				environmentName: "dev"
+				teamSlug: "myteam"
+				value: {
+					name: "tls.crt",
+					value: "AAEC/w==",
+					encoding: BASE64
+				}
+			}) {
+				config {
+					values {
+						name
+						value
+						encoding
+					}
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			updateConfigValue = {
+				config = {
+					values = {
+						{
+							name = "log-level",
+							value = "info",
+							encoding = "PLAIN_TEXT",
+						},
+						{
+							name = "tls.crt",
+							value = "AAEC/w==",
+							encoding = "BASE64",
+						},
+					},
+				},
+			},
+		},
+	}
+
+	-- Remove the binary value
+	t.query [[
+		mutation {
+			removeConfigValue(input: {
+				configName: "binary-data-test"
+				environmentName: "dev"
+				teamSlug: "myteam"
+				valueName: "tls.crt"
+			}) {
+				config {
+					values {
+						name
+						value
+						encoding
+					}
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			removeConfigValue = {
+				config = {
+					values = {
+						{
+							name = "log-level",
+							value = "info",
+							encoding = "PLAIN_TEXT",
+						},
+					},
+				},
+			},
+		},
+	}
+
+	-- Clean up
+	t.query [[
+		mutation {
+			deleteConfig(input: {
+				name: "binary-data-test"
+				environmentName: "dev"
+				teamSlug: "myteam"
+			}) {
+				configDeleted
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			deleteConfig = {
+				configDeleted = true,
+			},
+		},
+	}
+end)
+
 -- Activity log tests
 
 Test.gql("Config CRUD creates activity log entries", function(t)
