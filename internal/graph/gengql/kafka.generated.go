@@ -79,6 +79,223 @@ func (ec *executionContext) field_KafkaTopic_acl_args(ctx context.Context, rawAr
 
 // region    **************************** field.gotpl *****************************
 
+func (ec *executionContext) _CreateKafkaCredentialsPayload_credentials(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.CreateKafkaCredentialsPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_CreateKafkaCredentialsPayload_credentials,
+		func(ctx context.Context) (any, error) {
+			return obj.Credentials, nil
+		},
+		nil,
+		ec.marshalNKafkaCredentials2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaCredentials,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_CreateKafkaCredentialsPayload_credentials(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CreateKafkaCredentialsPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "username":
+				return ec.fieldContext_KafkaCredentials_username(ctx, field)
+			case "accessCert":
+				return ec.fieldContext_KafkaCredentials_accessCert(ctx, field)
+			case "accessKey":
+				return ec.fieldContext_KafkaCredentials_accessKey(ctx, field)
+			case "caCert":
+				return ec.fieldContext_KafkaCredentials_caCert(ctx, field)
+			case "brokers":
+				return ec.fieldContext_KafkaCredentials_brokers(ctx, field)
+			case "schemaRegistry":
+				return ec.fieldContext_KafkaCredentials_schemaRegistry(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type KafkaCredentials", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _KafkaCredentials_username(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaCredentials) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_KafkaCredentials_username,
+		func(ctx context.Context) (any, error) {
+			return obj.Username, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_KafkaCredentials_username(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "KafkaCredentials",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _KafkaCredentials_accessCert(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaCredentials) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_KafkaCredentials_accessCert,
+		func(ctx context.Context) (any, error) {
+			return obj.AccessCert, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_KafkaCredentials_accessCert(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "KafkaCredentials",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _KafkaCredentials_accessKey(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaCredentials) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_KafkaCredentials_accessKey,
+		func(ctx context.Context) (any, error) {
+			return obj.AccessKey, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_KafkaCredentials_accessKey(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "KafkaCredentials",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _KafkaCredentials_caCert(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaCredentials) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_KafkaCredentials_caCert,
+		func(ctx context.Context) (any, error) {
+			return obj.CaCert, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_KafkaCredentials_caCert(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "KafkaCredentials",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _KafkaCredentials_brokers(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaCredentials) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_KafkaCredentials_brokers,
+		func(ctx context.Context) (any, error) {
+			return obj.Brokers, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_KafkaCredentials_brokers(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "KafkaCredentials",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _KafkaCredentials_schemaRegistry(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaCredentials) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_KafkaCredentials_schemaRegistry,
+		func(ctx context.Context) (any, error) {
+			return obj.SchemaRegistry, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_KafkaCredentials_schemaRegistry(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "KafkaCredentials",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _KafkaTopic_id(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopic) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -1456,6 +1673,46 @@ func (ec *executionContext) fieldContext_TeamInventoryCountKafkaTopics_total(_ c
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputCreateKafkaCredentialsInput(ctx context.Context, obj any) (kafkatopic.CreateKafkaCredentialsInput, error) {
+	var it kafkatopic.CreateKafkaCredentialsInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"teamSlug", "environmentName", "ttl"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "teamSlug":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamSlug"))
+			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TeamSlug = data
+		case "environmentName":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environmentName"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.EnvironmentName = data
+		case "ttl":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ttl"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TTL = data
+		}
+	}
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputKafkaTopicAclFilter(ctx context.Context, obj any) (kafkatopic.KafkaTopicACLFilter, error) {
 	var it kafkatopic.KafkaTopicACLFilter
 	asMap := map[string]any{}
@@ -1569,6 +1826,109 @@ func (ec *executionContext) unmarshalInputKafkaTopicOrder(ctx context.Context, o
 // endregion ************************** interface.gotpl ***************************
 
 // region    **************************** object.gotpl ****************************
+
+var createKafkaCredentialsPayloadImplementors = []string{"CreateKafkaCredentialsPayload"}
+
+func (ec *executionContext) _CreateKafkaCredentialsPayload(ctx context.Context, sel ast.SelectionSet, obj *kafkatopic.CreateKafkaCredentialsPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, createKafkaCredentialsPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("CreateKafkaCredentialsPayload")
+		case "credentials":
+			out.Values[i] = ec._CreateKafkaCredentialsPayload_credentials(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var kafkaCredentialsImplementors = []string{"KafkaCredentials"}
+
+func (ec *executionContext) _KafkaCredentials(ctx context.Context, sel ast.SelectionSet, obj *kafkatopic.KafkaCredentials) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, kafkaCredentialsImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("KafkaCredentials")
+		case "username":
+			out.Values[i] = ec._KafkaCredentials_username(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "accessCert":
+			out.Values[i] = ec._KafkaCredentials_accessCert(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "accessKey":
+			out.Values[i] = ec._KafkaCredentials_accessKey(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "caCert":
+			out.Values[i] = ec._KafkaCredentials_caCert(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "brokers":
+			out.Values[i] = ec._KafkaCredentials_brokers(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "schemaRegistry":
+			out.Values[i] = ec._KafkaCredentials_schemaRegistry(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
 
 var kafkaTopicImplementors = []string{"KafkaTopic", "Persistence", "Node", "SearchNode"}
 
@@ -2194,6 +2554,35 @@ func (ec *executionContext) _TeamInventoryCountKafkaTopics(ctx context.Context, 
 // endregion **************************** object.gotpl ****************************
 
 // region    ***************************** type.gotpl *****************************
+
+func (ec *executionContext) unmarshalNCreateKafkaCredentialsInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐCreateKafkaCredentialsInput(ctx context.Context, v any) (kafkatopic.CreateKafkaCredentialsInput, error) {
+	res, err := ec.unmarshalInputCreateKafkaCredentialsInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNCreateKafkaCredentialsPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐCreateKafkaCredentialsPayload(ctx context.Context, sel ast.SelectionSet, v kafkatopic.CreateKafkaCredentialsPayload) graphql.Marshaler {
+	return ec._CreateKafkaCredentialsPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNCreateKafkaCredentialsPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐCreateKafkaCredentialsPayload(ctx context.Context, sel ast.SelectionSet, v *kafkatopic.CreateKafkaCredentialsPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._CreateKafkaCredentialsPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNKafkaCredentials2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaCredentials(ctx context.Context, sel ast.SelectionSet, v *kafkatopic.KafkaCredentials) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._KafkaCredentials(ctx, sel, v)
+}
 
 func (ec *executionContext) marshalNKafkaTopic2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopic(ctx context.Context, sel ast.SelectionSet, v kafkatopic.KafkaTopic) graphql.Marshaler {
 	return ec._KafkaTopic(ctx, sel, &v)

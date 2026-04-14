@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/nais/api/internal/activitylog"
+	"github.com/nais/api/internal/persistence/aivencredentials"
 	servicemaintenanceal "github.com/nais/api/internal/servicemaintenance/activitylog"
 )
 
@@ -36,6 +37,8 @@ func init() {
 			return servicemaintenanceal.ServiceMaintenanceActivityLogEntry{
 				GenericActivityLogEntry: entry.WithMessage("Started service maintenance"),
 			}, nil
+		case aivencredentials.ActivityLogEntryActionCredentialsCreated:
+			return aivencredentials.GetActivityLogEntry(entry)
 		default:
 			return nil, fmt.Errorf("unsupported valkey activity log entry action: %q", entry.Action)
 		}
@@ -45,6 +48,7 @@ func init() {
 	activitylog.RegisterFilter("VALKEY_UPDATED", activitylog.ActivityLogEntryActionUpdated, ActivityLogEntryResourceTypeValkey)
 	activitylog.RegisterFilter("VALKEY_DELETED", activitylog.ActivityLogEntryActionDeleted, ActivityLogEntryResourceTypeValkey)
 	activitylog.RegisterFilter("VALKEY_MAINTENANCE_STARTED", servicemaintenanceal.ActivityLogEntryActionMaintenanceStarted, ActivityLogEntryResourceTypeValkey)
+	activitylog.RegisterFilter(aivencredentials.ActivityLogActivityTypeCredentialsCreated, aivencredentials.ActivityLogEntryActionCredentialsCreated, ActivityLogEntryResourceTypeValkey)
 }
 
 type ValkeyCreatedActivityLogEntry struct {

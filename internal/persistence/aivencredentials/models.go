@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"io"
 	"strconv"
-
-	"github.com/nais/api/internal/slug"
 )
 
 // CredentialPermission represents the permission level for OpenSearch and Valkey credentials.
@@ -46,8 +44,8 @@ func (e CredentialPermission) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
-// aivenAccess converts the GraphQL enum to the string value expected by the AivenApplication CRD spec.
-func (e CredentialPermission) aivenAccess() string {
+// AivenAccess converts the GraphQL enum to the string value expected by the AivenApplication CRD spec.
+func (e CredentialPermission) AivenAccess() string {
 	switch e {
 	case CredentialPermissionRead:
 		return "read"
@@ -60,69 +58,4 @@ func (e CredentialPermission) aivenAccess() string {
 	default:
 		return "read"
 	}
-}
-
-// Input types
-
-type CreateOpenSearchCredentialsInput struct {
-	TeamSlug        slug.Slug            `json:"teamSlug"`
-	EnvironmentName string               `json:"environmentName"`
-	InstanceName    string               `json:"instanceName"`
-	Permission      CredentialPermission `json:"permission"`
-	TTL             string               `json:"ttl"`
-}
-
-type CreateValkeyCredentialsInput struct {
-	TeamSlug        slug.Slug            `json:"teamSlug"`
-	EnvironmentName string               `json:"environmentName"`
-	InstanceName    string               `json:"instanceName"`
-	Permission      CredentialPermission `json:"permission"`
-	TTL             string               `json:"ttl"`
-}
-
-type CreateKafkaCredentialsInput struct {
-	TeamSlug        slug.Slug `json:"teamSlug"`
-	EnvironmentName string    `json:"environmentName"`
-	TTL             string    `json:"ttl"`
-}
-
-// Credential types
-
-type OpenSearchCredentials struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-	Host     string `json:"host"`
-	Port     int    `json:"port"`
-	URI      string `json:"uri"`
-}
-
-type ValkeyCredentials struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-	Host     string `json:"host"`
-	Port     int    `json:"port"`
-	URI      string `json:"uri"`
-}
-
-type KafkaCredentials struct {
-	Username       string `json:"username"`
-	AccessCert     string `json:"accessCert"`
-	AccessKey      string `json:"accessKey"`
-	CaCert         string `json:"caCert"`
-	Brokers        string `json:"brokers"`
-	SchemaRegistry string `json:"schemaRegistry"`
-}
-
-// Payload types
-
-type CreateOpenSearchCredentialsPayload struct {
-	Credentials *OpenSearchCredentials `json:"credentials"`
-}
-
-type CreateValkeyCredentialsPayload struct {
-	Credentials *ValkeyCredentials `json:"credentials"`
-}
-
-type CreateKafkaCredentialsPayload struct {
-	Credentials *KafkaCredentials `json:"credentials"`
 }
