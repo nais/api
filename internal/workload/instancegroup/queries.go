@@ -95,11 +95,20 @@ func ListEnvironmentVariables(ctx context.Context, ig *InstanceGroup) ([]*Instan
 				Name: env.ValueFrom.SecretKeyRef.LocalObjectReference.Name,
 			}
 		case env.ValueFrom != nil && env.ValueFrom.ConfigMapKeyRef != nil:
-			value := env.Value // will be empty for valueFrom, but we try
-			ev.Value = &value
+			ref := env.ValueFrom.ConfigMapKeyRef
 			ev.Source = InstanceGroupValueSource{
 				Kind: InstanceGroupValueSourceKindConfigMap,
-				Name: env.ValueFrom.ConfigMapKeyRef.LocalObjectReference.Name,
+				Name: ref.LocalObjectReference.Name,
+			}
+			data, err := getConfigMapData(ctx, l, ig.EnvironmentName, ig.TeamSlug.String(), ref.LocalObjectReference.Name)
+			if err != nil {
+				if ref.Optional != nil && *ref.Optional {
+					l.log.WithError(err).WithField("configmap", ref.LocalObjectReference.Name).Debug("optional configmap key ref not found")
+				} else {
+					l.log.WithError(err).WithField("configmap", ref.LocalObjectReference.Name).Warn("failed to resolve configmap key ref")
+				}
+			} else if val, ok := data[ref.Key]; ok {
+				ev.Value = &val
 			}
 		case env.ValueFrom != nil && env.ValueFrom.FieldRef != nil:
 			value := "(" + env.ValueFrom.FieldRef.FieldPath + ")"
@@ -303,11 +312,20 @@ func expandConfigMapVolume(ctx context.Context, l *loaders, ig *InstanceGroup, m
 				Error:  &errMsg,
 			}}
 		}
+		// When items are specified, SubPath matches item.Path, not item.Key.
+		// Map SubPath back to the actual ConfigMap key via the items list.
+		key := mount.SubPath
+		for _, item := range items {
+			if item.Path == mount.SubPath {
+				key = item.Key
+				break
+			}
+		}
 		f := &InstanceGroupMountedFile{
 			Path:   mount.MountPath,
 			Source: source,
 		}
-		if fc, ok := contents[mount.SubPath]; ok {
+		if fc, ok := contents[key]; ok {
 			f.Content = &fc.content
 			f.IsBinary = fc.isBinary
 		}

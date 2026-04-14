@@ -151,7 +151,7 @@ func extractEventTimestamp(obj *unstructured.Unstructured) time.Time {
 
 	// Fall back to metadata.creationTimestamp
 	if ts, ok, _ := unstructured.NestedString(obj.Object, "metadata", "creationTimestamp"); ok && ts != "" {
-		if t, err := time.Parse(time.RFC3339, ts); err == nil {
+		if t, err := time.Parse(time.RFC3339Nano, ts); err == nil {
 			return t
 		}
 	}
