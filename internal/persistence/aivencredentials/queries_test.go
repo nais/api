@@ -14,6 +14,7 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/util/validation"
 	dynfake "k8s.io/client-go/dynamic/fake"
 )
 
@@ -69,10 +70,11 @@ func TestGenerateSecretName(t *testing.T) {
 		username     string
 		namespace    string
 		resourceType activitylog.ActivityLogEntryResourceType
+		typeName     string
 	}{
-		{name: "opensearch", username: "user@example.com", namespace: "my-team", resourceType: "OPENSEARCH"},
-		{name: "valkey", username: "user@example.com", namespace: "my-team", resourceType: "VALKEY"},
-		{name: "kafka", username: "user@example.com", namespace: "my-team", resourceType: "KAFKA_TOPIC"},
+		{name: "opensearch", username: "user@example.com", namespace: "my-team", resourceType: "OPENSEARCH", typeName: "opensearch"},
+		{name: "valkey", username: "user@example.com", namespace: "my-team", resourceType: "VALKEY", typeName: "valkey"},
+		{name: "kafka", username: "user@example.com", namespace: "my-team", resourceType: "KAFKA_TOPIC", typeName: "kafka-topic"},
 	}
 
 	for _, tt := range tests {
@@ -80,9 +82,15 @@ func TestGenerateSecretName(t *testing.T) {
 			got := generateSecretName(tt.username, tt.namespace, tt.resourceType)
 
 			// Must start with "tmp-<service>-"
-			prefix := "tmp-" + string(tt.resourceType) + "-"
+			prefix := "tmp-" + tt.typeName + "-"
 			if len(got) < len(prefix) || got[:len(prefix)] != prefix {
 				t.Errorf("generateSecretName() = %q, want prefix %q", got, prefix)
+			}
+
+			// Must be valid RFC 1123 subdomain
+			errs := validation.IsDNS1123Subdomain(got)
+			for _, err := range errs {
+				t.Errorf("generateSecretName() created an invalid name %q: %v", got, err)
 			}
 
 			// Must be deterministic
@@ -94,8 +102,8 @@ func TestGenerateSecretName(t *testing.T) {
 	}
 
 	// Different inputs must produce different names
-	a := generateSecretName("user1@example.com", "team-a", "opensearch")
-	b := generateSecretName("user2@example.com", "team-a", "opensearch")
+	a := generateSecretName("user1@example.com", "team-a", "OPENSEARCH")
+	b := generateSecretName("user2@example.com", "team-a", "OPENSEARCH")
 	if a == b {
 		t.Errorf("different users produced same secret name: %q", a)
 	}
@@ -106,10 +114,11 @@ func TestGenerateAppName(t *testing.T) {
 		name         string
 		username     string
 		resourceType activitylog.ActivityLogEntryResourceType
+		typeName     string
 	}{
-		{name: "opensearch", username: "user@example.com", resourceType: "OPENSEARCH"},
-		{name: "valkey", username: "user@example.com", resourceType: "VALKEY"},
-		{name: "kafka", username: "user@example.com", resourceType: "KAFKA_TOPIC"},
+		{name: "opensearch", username: "user@example.com", resourceType: "OPENSEARCH", typeName: "opensearch"},
+		{name: "valkey", username: "user@example.com", resourceType: "VALKEY", typeName: "valkey"},
+		{name: "kafka", username: "user@example.com", resourceType: "KAFKA_TOPIC", typeName: "kafka-topic"},
 	}
 
 	for _, tt := range tests {
@@ -117,9 +126,15 @@ func TestGenerateAppName(t *testing.T) {
 			got := generateAppName(tt.username, tt.resourceType)
 
 			// Must start with "tmp-<service>-"
-			prefix := "tmp-" + string(tt.resourceType) + "-"
+			prefix := "tmp-" + tt.typeName + "-"
 			if len(got) < len(prefix) || got[:len(prefix)] != prefix {
 				t.Errorf("generateAppName() = %q, want prefix %q", got, prefix)
+			}
+
+			// Must be valid RFC 1123 subdomain
+			errs := validation.IsDNS1123Subdomain(got)
+			for _, err := range errs {
+				t.Errorf("generateAppName() created an invalid name %q: %v", got, err)
 			}
 
 			// Must be deterministic
@@ -131,15 +146,15 @@ func TestGenerateAppName(t *testing.T) {
 	}
 
 	// Different inputs must produce different names
-	a := generateAppName("user1@example.com", "opensearch")
-	b := generateAppName("user2@example.com", "opensearch")
+	a := generateAppName("user1@example.com", "OPENSEARCH")
+	b := generateAppName("user2@example.com", "OPENSEARCH")
 	if a == b {
 		t.Errorf("different users produced same app name: %q", a)
 	}
 
 	// Verify dead code was removed: generateAppName should NOT contain username
 	// (old bug had ReplaceAll on name but then didn't use it)
-	got := generateAppName("user.name@example.com", "opensearch")
+	got := generateAppName("user.name@example.com", "OPENSEARCH")
 	prefix := "tmp-opensearch-"
 	if len(got) < len(prefix) || got[:len(prefix)] != prefix {
 		t.Errorf("generateAppName() = %q, want prefix %q", got, prefix)
