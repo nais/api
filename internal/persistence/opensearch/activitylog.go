@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/nais/api/internal/activitylog"
+	"github.com/nais/api/internal/persistence/aivencredentials"
 	servicemaintenanceal "github.com/nais/api/internal/servicemaintenance/activitylog"
 )
 
@@ -35,6 +36,8 @@ func init() {
 			return servicemaintenanceal.ServiceMaintenanceActivityLogEntry{
 				GenericActivityLogEntry: entry.WithMessage("Started service maintenance"),
 			}, nil
+		case aivencredentials.ActivityLogEntryActionCredentialsCreated:
+			return aivencredentials.GetActivityLogEntry(entry)
 		default:
 			return nil, fmt.Errorf("unsupported opensearch activity log entry action: %q", entry.Action)
 		}
@@ -44,6 +47,7 @@ func init() {
 	activitylog.RegisterFilter("OPENSEARCH_UPDATED", activitylog.ActivityLogEntryActionUpdated, ActivityLogEntryResourceTypeOpenSearch)
 	activitylog.RegisterFilter("OPENSEARCH_DELETED", activitylog.ActivityLogEntryActionDeleted, ActivityLogEntryResourceTypeOpenSearch)
 	activitylog.RegisterFilter("OPENSEARCH_MAINTENANCE_STARTED", servicemaintenanceal.ActivityLogEntryActionMaintenanceStarted, ActivityLogEntryResourceTypeOpenSearch)
+	activitylog.RegisterFilter(aivencredentials.ActivityLogActivityTypeCredentialsCreated, aivencredentials.ActivityLogEntryActionCredentialsCreated, ActivityLogEntryResourceTypeOpenSearch)
 }
 
 type OpenSearchCreatedActivityLogEntry struct {

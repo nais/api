@@ -3,8 +3,10 @@ package valkey
 import (
 	"context"
 	"fmt"
+	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
@@ -14,6 +16,7 @@ import (
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/kubernetes/watcher"
+	"github.com/nais/api/internal/persistence/aivencredentials"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/thirdparty/aiven"
 	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
@@ -311,6 +314,60 @@ func Update(ctx context.Context, input UpdateValkeyInput) (*UpdateValkeyPayload,
 	return &UpdateValkeyPayload{
 		Valkey: valkeyUpdated,
 	}, nil
+}
+
+func CreateValkeyCredentials(ctx context.Context, input CreateValkeyCredentialsInput) (*CreateValkeyCredentialsPayload, error) {
+	// Strip "valkey-<team>-" prefix if the user provided the full Kubernetes resource name.
+	// Aivenator expects the short instance name and prepends "valkey-<namespace>-" itself.
+	instanceName := strings.TrimPrefix(input.InstanceName, NamePrefix(input.TeamSlug))
+	suffix := valkeyEnvVarSuffix(instanceName)
+	req := aivencredentials.CredentialRequest{
+		TeamSlug:        input.TeamSlug,
+		EnvironmentName: input.EnvironmentName,
+		InstanceName:    instanceName,
+		TTL:             input.TTL,
+		Permission:      input.Permission.String(),
+		MaxTTL:          aivencredentials.MaxTTLDefault,
+		BuildSpec: func(namespace, secretName string, expiresAt time.Time) map[string]any {
+			return map[string]any{
+				"protected": true,
+				"expiresAt": expiresAt.Format(time.RFC3339),
+				"valkey": []any{
+					map[string]any{
+						"instance":   instanceName,
+						"access":     input.Permission.AivenAccess(),
+						"secretName": secretName,
+					},
+				},
+			}
+		},
+		ExtractCreds: func(data map[string]string) any {
+			port, _ := strconv.Atoi(data[fmt.Sprintf("VALKEY_PORT_%s", suffix)])
+			return &ValkeyCredentials{
+				Username: data[fmt.Sprintf("VALKEY_USERNAME_%s", suffix)],
+				Password: data[fmt.Sprintf("VALKEY_PASSWORD_%s", suffix)],
+				Host:     data[fmt.Sprintf("VALKEY_HOST_%s", suffix)],
+				Port:     port,
+				URI:      data[fmt.Sprintf("VALKEY_URI_%s", suffix)],
+			}
+		},
+	}
+	result, err := aivencredentials.CreateCredentials(ctx, ActivityLogEntryResourceTypeValkey, req)
+	if err != nil {
+		return nil, err
+	}
+	aivencredentials.LogCredentialCreation(ctx, ActivityLogEntryResourceTypeValkey, req)
+	return &CreateValkeyCredentialsPayload{Credentials: result.(*ValkeyCredentials)}, nil
+}
+
+// valkeyEnvVarName matches the Aivenator's key naming convention for Valkey secrets.
+// The Aivenator suffixes all Valkey secret keys with the uppercased instance name,
+// where non-alphanumeric characters are replaced with underscores.
+// For example, instance "my-cache" produces suffix "MY_CACHE", giving keys like "VALKEY_HOST_MY_CACHE".
+var valkeyNamePattern = regexp.MustCompile("[^a-z0-9]")
+
+func valkeyEnvVarSuffix(instanceName string) string {
+	return strings.ToUpper(valkeyNamePattern.ReplaceAllString(instanceName, "_"))
 }
 
 func updatePlan(valkey *unstructured.Unstructured, input UpdateValkeyInput) ([]*ValkeyUpdatedActivityLogEntryDataUpdatedField, error) {

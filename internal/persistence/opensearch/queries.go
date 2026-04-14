@@ -3,7 +3,9 @@ package opensearch
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
@@ -13,6 +15,7 @@ import (
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/kubernetes/watcher"
+	"github.com/nais/api/internal/persistence/aivencredentials"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/thirdparty/aiven"
 	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
@@ -336,6 +339,47 @@ func Update(ctx context.Context, input UpdateOpenSearchInput) (*UpdateOpenSearch
 	return &UpdateOpenSearchPayload{
 		OpenSearch: os,
 	}, nil
+}
+
+func CreateOpenSearchCredentials(ctx context.Context, input CreateOpenSearchCredentialsInput) (*CreateOpenSearchCredentialsPayload, error) {
+	// Strip "opensearch-<team>-" prefix if the user provided the full Kubernetes resource name.
+	// The buildSpec already prepends "opensearch-<namespace>-" for the Aivenator.
+	instanceName := strings.TrimPrefix(input.InstanceName, NamePrefix(input.TeamSlug))
+	req := aivencredentials.CredentialRequest{
+		TeamSlug:        input.TeamSlug,
+		EnvironmentName: input.EnvironmentName,
+		TTL:             input.TTL,
+		InstanceName:    instanceName,
+		Permission:      input.Permission.String(),
+		MaxTTL:          aivencredentials.MaxTTLDefault,
+		BuildSpec: func(namespace, secretName string, expiresAt time.Time) map[string]any {
+			return map[string]any{
+				"protected": true,
+				"expiresAt": expiresAt.Format(time.RFC3339),
+				"openSearch": map[string]any{
+					"instance":   fmt.Sprintf("opensearch-%s-%s", namespace, instanceName),
+					"access":     input.Permission.AivenAccess(),
+					"secretName": secretName,
+				},
+			}
+		},
+		ExtractCreds: func(data map[string]string) any {
+			port, _ := strconv.Atoi(data["OPEN_SEARCH_PORT"])
+			return &OpenSearchCredentials{
+				Username: data["OPEN_SEARCH_USERNAME"],
+				Password: data["OPEN_SEARCH_PASSWORD"],
+				Host:     data["OPEN_SEARCH_HOST"],
+				Port:     port,
+				URI:      data["OPEN_SEARCH_URI"],
+			}
+		},
+	}
+	result, err := aivencredentials.CreateCredentials(ctx, ActivityLogEntryResourceTypeOpenSearch, req)
+	if err != nil {
+		return nil, err
+	}
+	aivencredentials.LogCredentialCreation(ctx, ActivityLogEntryResourceTypeOpenSearch, req)
+	return &CreateOpenSearchCredentialsPayload{Credentials: result.(*OpenSearchCredentials)}, nil
 }
 
 func updatePlan(openSearch *unstructured.Unstructured, input UpdateOpenSearchInput) ([]*OpenSearchUpdatedActivityLogEntryDataUpdatedField, error) {

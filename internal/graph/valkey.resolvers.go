@@ -43,6 +43,13 @@ func (r *mutationResolver) DeleteValkey(ctx context.Context, input valkey.Delete
 	return valkey.Delete(ctx, input)
 }
 
+func (r *mutationResolver) CreateValkeyCredentials(ctx context.Context, input valkey.CreateValkeyCredentialsInput) (*valkey.CreateValkeyCredentialsPayload, error) {
+	if err := authz.CanCreateAivenCredentials(ctx, input.TeamSlug); err != nil {
+		return nil, err
+	}
+	return valkey.CreateValkeyCredentials(ctx, input)
+}
+
 func (r *teamResolver) Valkeys(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *valkey.ValkeyOrder) (*pagination.Connection[*valkey.Valkey], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
