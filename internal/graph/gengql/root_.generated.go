@@ -273,8 +273,11 @@ type ComplexityRoot struct {
 	}
 
 	ApplicationInstanceStatus struct {
-		Message func(childComplexity int) int
-		State   func(childComplexity int) int
+		LastExitCode   func(childComplexity int) int
+		LastExitReason func(childComplexity int) int
+		Message        func(childComplexity int) int
+		Ready          func(childComplexity int) int
+		State          func(childComplexity int) int
 	}
 
 	ApplicationInstanceUtilization struct {
@@ -3935,12 +3938,33 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ApplicationInstanceEdge.Node(childComplexity), true
 
+	case "ApplicationInstanceStatus.lastExitCode":
+		if e.ComplexityRoot.ApplicationInstanceStatus.LastExitCode == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationInstanceStatus.LastExitCode(childComplexity), true
+
+	case "ApplicationInstanceStatus.lastExitReason":
+		if e.ComplexityRoot.ApplicationInstanceStatus.LastExitReason == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationInstanceStatus.LastExitReason(childComplexity), true
+
 	case "ApplicationInstanceStatus.message":
 		if e.ComplexityRoot.ApplicationInstanceStatus.Message == nil {
 			break
 		}
 
 		return e.ComplexityRoot.ApplicationInstanceStatus.Message(childComplexity), true
+
+	case "ApplicationInstanceStatus.ready":
+		if e.ComplexityRoot.ApplicationInstanceStatus.Ready == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationInstanceStatus.Ready(childComplexity), true
 
 	case "ApplicationInstanceStatus.state":
 		if e.ComplexityRoot.ApplicationInstanceStatus.State == nil {
@@ -18445,13 +18469,31 @@ type ApplicationInstance implements Node {
 
 type ApplicationInstanceStatus {
 	state: ApplicationInstanceState!
+	"""
+	A user-friendly description of the current state.
+	"""
 	message: String!
+	"""
+	Whether the container is passing its readiness check and can receive traffic.
+	"""
+	ready: Boolean!
+	"""
+	The reason the container last terminated, if applicable.
+	This is populated even when the instance is currently running, to help debug restart loops.
+	Example values: "OOMKilled", "Error", "Completed".
+	"""
+	lastExitReason: String
+	"""
+	The exit code from the last container termination, if applicable.
+	"""
+	lastExitCode: Int
 }
 
 enum ApplicationInstanceState {
 	RUNNING
 	STARTING
 	FAILING
+	TERMINATED
 	UNKNOWN
 }
 

@@ -98,76 +98,146 @@ var benignWaiting = map[string]struct{}{
 	"ImagePull":         {},
 }
 
+// waitingMessages maps Kubernetes container waiting reasons to user-friendly messages.
+var waitingMessages = map[string]string{
+	"CrashLoopBackOff":           "Instance is crash-looping — it keeps crashing shortly after starting. Check application logs for details.",
+	"ErrImagePull":               "Failed to download container image. Check that the image exists and is accessible.",
+	"ImagePullBackOff":           "Repeated failures downloading container image. Check that the image exists and is accessible.",
+	"CreateContainerConfigError": "Waiting for configuration — a required Secret or ConfigMap does not exist yet.",
+	"CreateContainerError":       "Failed to create the container.",
+	"RunContainerError":          "Failed to start the container. Check application configuration.",
+	"InvalidImageName":           "Invalid container image name.",
+}
+
+// terminatedMessages maps Kubernetes container terminated reasons to user-friendly messages.
+var terminatedMessages = map[string]string{
+	"OOMKilled": "Instance ran out of memory. Consider increasing the memory limit.",
+	"Completed": "Completed successfully.",
+}
+
 func classifyWaiting(w *corev1.ContainerStateWaiting) (kind string, msg string) {
 	if w == nil {
 		return "ok", "not waiting"
 	}
 	reason := strings.TrimSpace(w.Reason)
-	message := strings.TrimSpace(w.Message)
 
+	if _, ok := benignWaiting[reason]; ok {
+		if m, ok := waitingMessages[reason]; ok {
+			return "benign", m
+		}
+		switch reason {
+		case "ContainerCreating":
+			return "benign", "Container is being created."
+		case "PodInitializing":
+			return "benign", "Waiting for init containers to complete."
+		case "Pulling", "ImagePull":
+			return "benign", "Downloading container image."
+		default:
+			return "benign", "Starting."
+		}
+	}
+
+	if m, ok := waitingMessages[reason]; ok {
+		return "problem", m
+	}
+
+	// Fallback: use the Kubernetes reason as-is
 	msg = reason
 	if msg == "" {
-		msg = message
+		msg = strings.TrimSpace(w.Message)
 	}
 	if msg == "" {
 		msg = "Waiting"
 	}
-
-	if _, ok := benignWaiting[reason]; ok {
-		return "benign", msg
-	}
 	return "problem", msg
 }
 
+func terminatedMessage(t *corev1.ContainerStateTerminated) string {
+	if m, ok := terminatedMessages[t.Reason]; ok {
+		return m
+	}
+	if t.Reason != "" {
+		return fmt.Sprintf("Instance terminated: %s.", t.Reason)
+	}
+	if t.Message != "" {
+		return t.Message
+	}
+	return fmt.Sprintf("Instance exited with code %d.", t.ExitCode)
+}
+
+func (i *ApplicationInstance) lastTerminationInfo() (*string, *int) {
+	last := i.ApplicationContainerStatus.LastTerminationState.Terminated
+	if last == nil {
+		return nil, nil
+	}
+	reason := last.Reason
+	exitCode := int(last.ExitCode)
+	if reason == "" {
+		reason = fmt.Sprintf("ExitCode:%d", exitCode)
+	}
+	return &reason, &exitCode
+}
+
 func (i *ApplicationInstance) Status() *ApplicationInstanceStatus {
+	lastExitReason, lastExitCode := i.lastTerminationInfo()
+	ready := i.ApplicationContainerStatus.Ready
+
 	switch {
 	case i.ApplicationContainerStatus.State.Running != nil:
+		msg := "Running and ready."
+		if !ready {
+			msg = "Running, but not passing readiness check."
+		}
 		return &ApplicationInstanceStatus{
-			State:   ApplicationInstanceStateRunning,
-			Message: "Running",
+			State:          ApplicationInstanceStateRunning,
+			Message:        msg,
+			Ready:          ready,
+			LastExitReason: lastExitReason,
+			LastExitCode:   lastExitCode,
 		}
 
 	case i.ApplicationContainerStatus.State.Terminated != nil:
 		t := i.ApplicationContainerStatus.State.Terminated
-		msg := t.Reason
-		if msg == "" {
-			if t.Message != "" {
-				msg = t.Message
-			} else {
-				msg = fmt.Sprintf("Exited (%d)", t.ExitCode)
-			}
+		msg := terminatedMessage(t)
+		state := ApplicationInstanceStateFailing
+		if t.ExitCode == 0 {
+			state = ApplicationInstanceStateTerminated
 		}
 		return &ApplicationInstanceStatus{
-			State:   ApplicationInstanceStateFailing,
-			Message: msg,
+			State:          state,
+			Message:        msg,
+			Ready:          false,
+			LastExitReason: lastExitReason,
+			LastExitCode:   lastExitCode,
 		}
 
 	case i.ApplicationContainerStatus.State.Waiting != nil:
 		kind, msg := classifyWaiting(i.ApplicationContainerStatus.State.Waiting)
-		switch kind {
-		case "problem":
-			return &ApplicationInstanceStatus{
-				State:   ApplicationInstanceStateFailing,
-				Message: msg,
-			}
-		case "benign":
-			return &ApplicationInstanceStatus{
-				State:   ApplicationInstanceStateStarting,
-				Message: msg,
-			}
-		default: // "unknown"
-			return &ApplicationInstanceStatus{
-				State:   ApplicationInstanceStateStarting,
-				Message: msg,
-			}
+		state := ApplicationInstanceStateFailing
+		if kind == "benign" {
+			state = ApplicationInstanceStateStarting
+		}
+		return &ApplicationInstanceStatus{
+			State:          state,
+			Message:        msg,
+			Ready:          false,
+			LastExitReason: lastExitReason,
+			LastExitCode:   lastExitCode,
 		}
 
 	default:
 		return &ApplicationInstanceStatus{
-			State:   ApplicationInstanceStateUnknown,
-			Message: "Unknown",
+			State:          ApplicationInstanceStateUnknown,
+			Message:        "Unknown state.",
+			Ready:          false,
+			LastExitReason: lastExitReason,
+			LastExitCode:   lastExitCode,
 		}
 	}
+}
+
+func (i *ApplicationInstance) State() ApplicationInstanceState {
+	return i.Status().State
 }
 
 func toGraphInstance(pod *corev1.Pod, teamSlug slug.Slug, environmentName string, applicationName string) *ApplicationInstance {
@@ -198,17 +268,6 @@ func (i ApplicationInstance) Image() *workload.ContainerImage {
 	return &workload.ContainerImage{
 		Name: name,
 		Tag:  tag,
-	}
-}
-
-func (i *ApplicationInstance) State() ApplicationInstanceState {
-	switch {
-	case i.ApplicationContainerStatus.State.Running != nil:
-		return ApplicationInstanceStateRunning
-	case i.ApplicationContainerStatus.State.Waiting != nil:
-		return ApplicationInstanceStateFailing
-	default:
-		return ApplicationInstanceStateUnknown
 	}
 }
 
@@ -442,22 +501,24 @@ type RestartApplicationPayload struct {
 type ApplicationInstanceState string
 
 const (
-	ApplicationInstanceStateRunning  ApplicationInstanceState = "RUNNING"
-	ApplicationInstanceStateStarting ApplicationInstanceState = "STARTING"
-	ApplicationInstanceStateFailing  ApplicationInstanceState = "FAILING"
-	ApplicationInstanceStateUnknown  ApplicationInstanceState = "UNKNOWN"
+	ApplicationInstanceStateRunning    ApplicationInstanceState = "RUNNING"
+	ApplicationInstanceStateStarting   ApplicationInstanceState = "STARTING"
+	ApplicationInstanceStateFailing    ApplicationInstanceState = "FAILING"
+	ApplicationInstanceStateTerminated ApplicationInstanceState = "TERMINATED"
+	ApplicationInstanceStateUnknown    ApplicationInstanceState = "UNKNOWN"
 )
 
 var AllApplicationInstanceState = []ApplicationInstanceState{
 	ApplicationInstanceStateRunning,
 	ApplicationInstanceStateStarting,
 	ApplicationInstanceStateFailing,
+	ApplicationInstanceStateTerminated,
 	ApplicationInstanceStateUnknown,
 }
 
 func (e ApplicationInstanceState) IsValid() bool {
 	switch e {
-	case ApplicationInstanceStateRunning, ApplicationInstanceStateStarting, ApplicationInstanceStateFailing, ApplicationInstanceStateUnknown:
+	case ApplicationInstanceStateRunning, ApplicationInstanceStateStarting, ApplicationInstanceStateFailing, ApplicationInstanceStateTerminated, ApplicationInstanceStateUnknown:
 		return true
 	}
 	return false
@@ -546,8 +607,11 @@ type IngressMetrics struct {
 }
 
 type ApplicationInstanceStatus struct {
-	State   ApplicationInstanceState `json:"state"`
-	Message string                   `json:"message"`
+	State          ApplicationInstanceState `json:"state"`
+	Message        string                   `json:"message"`
+	Ready          bool                     `json:"ready"`
+	LastExitReason *string                  `json:"lastExitReason,omitempty"`
+	LastExitCode   *int                     `json:"lastExitCode,omitempty"`
 }
 
 type TeamApplicationsFilter struct {

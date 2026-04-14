@@ -80,6 +80,9 @@ Test.gql("Instance group with instances", function(t)
 								status {
 									state
 									message
+									ready
+									lastExitReason
+									lastExitCode
 								}
 							}
 						}
@@ -107,7 +110,10 @@ Test.gql("Instance group with instances", function(t)
 											created = "2024-01-15T10:01:00Z",
 											status = {
 												state = "RUNNING",
-												message = "Running",
+												message = "Running and ready.",
+												ready = true,
+												lastExitReason = Null,
+												lastExitCode = Null,
 											},
 										},
 										{
@@ -117,7 +123,10 @@ Test.gql("Instance group with instances", function(t)
 											created = "2024-01-15T10:02:00Z",
 											status = {
 												state = "RUNNING",
-												message = "Running",
+												message = "Running and ready.",
+												ready = true,
+												lastExitReason = Null,
+												lastExitCode = Null,
 											},
 										},
 									},
@@ -324,4 +333,3 @@ Test.gql("Instance group with mounted files", function(t)
 		},
 	}
 end)
-

@@ -2867,6 +2867,12 @@ func (ec *executionContext) fieldContext_ApplicationInstance_status(_ context.Co
 				return ec.fieldContext_ApplicationInstanceStatus_state(ctx, field)
 			case "message":
 				return ec.fieldContext_ApplicationInstanceStatus_message(ctx, field)
+			case "ready":
+				return ec.fieldContext_ApplicationInstanceStatus_ready(ctx, field)
+			case "lastExitReason":
+				return ec.fieldContext_ApplicationInstanceStatus_lastExitReason(ctx, field)
+			case "lastExitCode":
+				return ec.fieldContext_ApplicationInstanceStatus_lastExitCode(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ApplicationInstanceStatus", field.Name)
 		},
@@ -3171,6 +3177,93 @@ func (ec *executionContext) fieldContext_ApplicationInstanceStatus_message(_ con
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ApplicationInstanceStatus_ready(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationInstanceStatus) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_ApplicationInstanceStatus_ready,
+		func(ctx context.Context) (any, error) {
+			return obj.Ready, nil
+		},
+		nil,
+		ec.marshalNBoolean2bool,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_ApplicationInstanceStatus_ready(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ApplicationInstanceStatus",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ApplicationInstanceStatus_lastExitReason(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationInstanceStatus) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_ApplicationInstanceStatus_lastExitReason,
+		func(ctx context.Context) (any, error) {
+			return obj.LastExitReason, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_ApplicationInstanceStatus_lastExitReason(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ApplicationInstanceStatus",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ApplicationInstanceStatus_lastExitCode(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationInstanceStatus) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_ApplicationInstanceStatus_lastExitCode,
+		func(ctx context.Context) (any, error) {
+			return obj.LastExitCode, nil
+		},
+		nil,
+		ec.marshalOInt2ᚖint,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_ApplicationInstanceStatus_lastExitCode(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ApplicationInstanceStatus",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -6581,6 +6674,15 @@ func (ec *executionContext) _ApplicationInstanceStatus(ctx context.Context, sel 
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "ready":
+			out.Values[i] = ec._ApplicationInstanceStatus_ready(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "lastExitReason":
+			out.Values[i] = ec._ApplicationInstanceStatus_lastExitReason(ctx, field, obj)
+		case "lastExitCode":
+			out.Values[i] = ec._ApplicationInstanceStatus_lastExitCode(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
