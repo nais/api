@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/nais/api/internal/graph/gengql"
-	"github.com/nais/api/internal/graph/model/donotuse"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/tunnel"
@@ -25,12 +24,12 @@ func (r *teamEnvironmentResolver) Tunnel(ctx context.Context, obj *team.TeamEnvi
 	return tunnel.Get(ctx, obj.TeamSlug.String(), obj.EnvironmentName, name)
 }
 
-func (r *tunnelResolver) Phase(ctx context.Context, obj *tunnel.Tunnel) (donotuse.TunnelPhase, error) {
-	return donotuse.TunnelPhase(obj.Phase), nil
+func (r *tunnelResolver) Phase(ctx context.Context, obj *tunnel.Tunnel) (tunnel.TunnelPhase, error) {
+	return tunnel.TunnelPhase(obj.Phase), nil
 }
 
-func (r *tunnelResolver) Target(ctx context.Context, obj *tunnel.Tunnel) (*donotuse.TunnelTarget, error) {
-	return &donotuse.TunnelTarget{
+func (r *tunnelResolver) Target(ctx context.Context, obj *tunnel.Tunnel) (*tunnel.TunnelTarget, error) {
+	return &tunnel.TunnelTarget{
 		Host: obj.Target.Host,
 		Port: int(obj.Target.Port),
 	}, nil
