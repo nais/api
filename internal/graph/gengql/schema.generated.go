@@ -43,6 +43,7 @@ import (
 	"github.com/nais/api/internal/servicemaintenance/activitylog"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/team"
+	"github.com/nais/api/internal/tunnel"
 	"github.com/nais/api/internal/unleash"
 	"github.com/nais/api/internal/user"
 	"github.com/nais/api/internal/usersync"
@@ -107,6 +108,8 @@ type MutationResolver interface {
 	AddTeamMember(ctx context.Context, input team.AddTeamMemberInput) (*team.AddTeamMemberPayload, error)
 	RemoveTeamMember(ctx context.Context, input team.RemoveTeamMemberInput) (*team.RemoveTeamMemberPayload, error)
 	SetTeamMemberRole(ctx context.Context, input team.SetTeamMemberRoleInput) (*team.SetTeamMemberRolePayload, error)
+	CreateTunnel(ctx context.Context, input tunnel.CreateTunnelInput) (*tunnel.CreateTunnelPayload, error)
+	DeleteTunnel(ctx context.Context, input tunnel.DeleteTunnelInput) (*tunnel.DeleteTunnelPayload, error)
 	CreateUnleashForTeam(ctx context.Context, input unleash.CreateUnleashForTeamInput) (*unleash.CreateUnleashForTeamPayload, error)
 	UpdateUnleashInstance(ctx context.Context, input unleash.UpdateUnleashInstanceInput) (*unleash.UpdateUnleashInstancePayload, error)
 	AllowTeamAccessToUnleash(ctx context.Context, input unleash.AllowTeamAccessToUnleashInput) (*unleash.AllowTeamAccessToUnleashPayload, error)
@@ -341,6 +344,17 @@ func (ec *executionContext) field_Mutation_createTeam_args(ctx context.Context, 
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_createTunnel_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNCreateTunnelInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋtunnelᚐCreateTunnelInput)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_createUnleashForTeam_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -455,6 +469,17 @@ func (ec *executionContext) field_Mutation_deleteServiceAccount_args(ctx context
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNDeleteServiceAccountInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐDeleteServiceAccountInput)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_deleteTunnel_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNDeleteTunnelInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋtunnelᚐDeleteTunnelInput)
 	if err != nil {
 		return nil, err
 	}
@@ -3344,6 +3369,96 @@ func (ec *executionContext) fieldContext_Mutation_setTeamMemberRole(ctx context.
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_createTunnel(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Mutation_createTunnel,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.Resolvers.Mutation().CreateTunnel(ctx, fc.Args["input"].(tunnel.CreateTunnelInput))
+		},
+		nil,
+		ec.marshalNCreateTunnelPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋtunnelᚐCreateTunnelPayload,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Mutation_createTunnel(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "tunnel":
+				return ec.fieldContext_CreateTunnelPayload_tunnel(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type CreateTunnelPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_createTunnel_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_deleteTunnel(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Mutation_deleteTunnel,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.Resolvers.Mutation().DeleteTunnel(ctx, fc.Args["input"].(tunnel.DeleteTunnelInput))
+		},
+		nil,
+		ec.marshalNDeleteTunnelPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋtunnelᚐDeleteTunnelPayload,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Mutation_deleteTunnel(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "success":
+				return ec.fieldContext_DeleteTunnelPayload_success(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type DeleteTunnelPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_deleteTunnel_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_createUnleashForTeam(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -5602,6 +5717,20 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._UnleashInstanceCreatedActivityLogEntry(ctx, sel, obj)
+	case tunnel.TunnelDeletedActivityLogEntry:
+		return ec._TunnelDeletedActivityLogEntry(ctx, sel, &obj)
+	case *tunnel.TunnelDeletedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TunnelDeletedActivityLogEntry(ctx, sel, obj)
+	case tunnel.TunnelCreatedActivityLogEntry:
+		return ec._TunnelCreatedActivityLogEntry(ctx, sel, &obj)
+	case *tunnel.TunnelCreatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TunnelCreatedActivityLogEntry(ctx, sel, obj)
 	case team.TeamUpdatedActivityLogEntry:
 		return ec._TeamUpdatedActivityLogEntry(ctx, sel, &obj)
 	case *team.TeamUpdatedActivityLogEntry:
@@ -6174,6 +6303,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._UnleashInstance(ctx, sel, obj)
+	case tunnel.Tunnel:
+		return ec._Tunnel(ctx, sel, &obj)
+	case *tunnel.Tunnel:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Tunnel(ctx, sel, obj)
 	case team.TeamEnvironment:
 		return ec._TeamEnvironment(ctx, sel, &obj)
 	case *team.TeamEnvironment:
@@ -6688,6 +6824,20 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "setTeamMemberRole":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_setTeamMemberRole(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "createTunnel":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_createTunnel(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "deleteTunnel":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_deleteTunnel(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++

@@ -33,6 +33,7 @@ import (
 	"github.com/nais/api/internal/servicemaintenance"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/team"
+	"github.com/nais/api/internal/tunnel"
 	"github.com/nais/api/internal/unleash"
 	"github.com/nais/api/internal/user"
 	"github.com/nais/api/internal/utilization"
@@ -118,6 +119,7 @@ type ResolverRoot interface {
 	TeamUtilizationData() TeamUtilizationDataResolver
 	TeamVulnerabilitySummary() TeamVulnerabilitySummaryResolver
 	TriggerJobPayload() TriggerJobPayloadResolver
+	Tunnel() TunnelResolver
 	UnleashInstance() UnleashInstanceResolver
 	UnleashInstanceMetrics() UnleashInstanceMetricsResolver
 	UnleashReleaseChannelIssue() UnleashReleaseChannelIssueResolver
@@ -133,6 +135,8 @@ type ResolverRoot interface {
 	WorkloadUtilization() WorkloadUtilizationResolver
 	WorkloadUtilizationData() WorkloadUtilizationDataResolver
 	WorkloadVulnerabilitySummary() WorkloadVulnerabilitySummaryResolver
+	CreateTunnelInput() CreateTunnelInputResolver
+	DeleteTunnelInput() DeleteTunnelInputResolver
 }
 
 type DirectiveRoot struct {
@@ -606,6 +610,10 @@ type ComplexityRoot struct {
 		Team func(childComplexity int) int
 	}
 
+	CreateTunnelPayload struct {
+		Tunnel func(childComplexity int) int
+	}
+
 	CreateUnleashForTeamPayload struct {
 		Unleash func(childComplexity int) int
 	}
@@ -674,6 +682,10 @@ type ComplexityRoot struct {
 	DeleteServiceAccountTokenPayload struct {
 		ServiceAccount             func(childComplexity int) int
 		ServiceAccountTokenDeleted func(childComplexity int) int
+	}
+
+	DeleteTunnelPayload struct {
+		Success func(childComplexity int) int
 	}
 
 	DeleteUnleashInstancePayload struct {
@@ -1314,6 +1326,7 @@ type ComplexityRoot struct {
 		CreateServiceAccount         func(childComplexity int, input serviceaccount.CreateServiceAccountInput) int
 		CreateServiceAccountToken    func(childComplexity int, input serviceaccount.CreateServiceAccountTokenInput) int
 		CreateTeam                   func(childComplexity int, input team.CreateTeamInput) int
+		CreateTunnel                 func(childComplexity int, input tunnel.CreateTunnelInput) int
 		CreateUnleashForTeam         func(childComplexity int, input unleash.CreateUnleashForTeamInput) int
 		CreateValkey                 func(childComplexity int, input valkey.CreateValkeyInput) int
 		CreateValkeyCredentials      func(childComplexity int, input valkey.CreateValkeyCredentialsInput) int
@@ -1325,6 +1338,7 @@ type ComplexityRoot struct {
 		DeleteSecret                 func(childComplexity int, input secret.DeleteSecretInput) int
 		DeleteServiceAccount         func(childComplexity int, input serviceaccount.DeleteServiceAccountInput) int
 		DeleteServiceAccountToken    func(childComplexity int, input serviceaccount.DeleteServiceAccountTokenInput) int
+		DeleteTunnel                 func(childComplexity int, input tunnel.DeleteTunnelInput) int
 		DeleteUnleashInstance        func(childComplexity int, input unleash.DeleteUnleashInstanceInput) int
 		DeleteValkey                 func(childComplexity int, input valkey.DeleteValkeyInput) int
 		DisableReconciler            func(childComplexity int, input reconciler.DisableReconcilerInput) int
@@ -2489,6 +2503,7 @@ type ComplexityRoot struct {
 		Secret             func(childComplexity int, name string) int
 		SlackAlertsChannel func(childComplexity int) int
 		Team               func(childComplexity int) int
+		Tunnel             func(childComplexity int, name string) int
 		Valkey             func(childComplexity int, name string) int
 		Workload           func(childComplexity int, name string) int
 	}
@@ -2762,6 +2777,47 @@ type ComplexityRoot struct {
 	TriggerJobPayload struct {
 		Job    func(childComplexity int) int
 		JobRun func(childComplexity int) int
+	}
+
+	Tunnel struct {
+		CreatedAt           func(childComplexity int) int
+		GatewayPublicKey    func(childComplexity int) int
+		GatewaySTUNEndpoint func(childComplexity int) int
+		ID                  func(childComplexity int) int
+		Message             func(childComplexity int) int
+		Name                func(childComplexity int) int
+		Phase               func(childComplexity int) int
+		Target              func(childComplexity int) int
+	}
+
+	TunnelCreatedActivityLogEntry struct {
+		Actor           func(childComplexity int) int
+		CreatedAt       func(childComplexity int) int
+		EnvironmentName func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Message         func(childComplexity int) int
+		ResourceName    func(childComplexity int) int
+		ResourceType    func(childComplexity int) int
+		TargetHost      func(childComplexity int) int
+		TeamSlug        func(childComplexity int) int
+		TunnelName      func(childComplexity int) int
+	}
+
+	TunnelDeletedActivityLogEntry struct {
+		Actor           func(childComplexity int) int
+		CreatedAt       func(childComplexity int) int
+		EnvironmentName func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Message         func(childComplexity int) int
+		ResourceName    func(childComplexity int) int
+		ResourceType    func(childComplexity int) int
+		TeamSlug        func(childComplexity int) int
+		TunnelName      func(childComplexity int) int
+	}
+
+	TunnelTarget struct {
+		Host func(childComplexity int) int
+		Port func(childComplexity int) int
 	}
 
 	UnleashInstance struct {
@@ -5191,6 +5247,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.CreateTeamPayload.Team(childComplexity), true
 
+	case "CreateTunnelPayload.tunnel":
+		if e.ComplexityRoot.CreateTunnelPayload.Tunnel == nil {
+			break
+		}
+
+		return e.ComplexityRoot.CreateTunnelPayload.Tunnel(childComplexity), true
+
 	case "CreateUnleashForTeamPayload.unleash":
 		if e.ComplexityRoot.CreateUnleashForTeamPayload.Unleash == nil {
 			break
@@ -5386,6 +5449,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.DeleteServiceAccountTokenPayload.ServiceAccountTokenDeleted(childComplexity), true
+
+	case "DeleteTunnelPayload.success":
+		if e.ComplexityRoot.DeleteTunnelPayload.Success == nil {
+			break
+		}
+
+		return e.ComplexityRoot.DeleteTunnelPayload.Success(childComplexity), true
 
 	case "DeleteUnleashInstancePayload.unleashDeleted":
 		if e.ComplexityRoot.DeleteUnleashInstancePayload.UnleashDeleted == nil {
@@ -8146,6 +8216,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Mutation.CreateTeam(childComplexity, args["input"].(team.CreateTeamInput)), true
 
+	case "Mutation.createTunnel":
+		if e.ComplexityRoot.Mutation.CreateTunnel == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createTunnel_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Mutation.CreateTunnel(childComplexity, args["input"].(tunnel.CreateTunnelInput)), true
+
 	case "Mutation.createUnleashForTeam":
 		if e.ComplexityRoot.Mutation.CreateUnleashForTeam == nil {
 			break
@@ -8277,6 +8359,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Mutation.DeleteServiceAccountToken(childComplexity, args["input"].(serviceaccount.DeleteServiceAccountTokenInput)), true
+
+	case "Mutation.deleteTunnel":
+		if e.ComplexityRoot.Mutation.DeleteTunnel == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deleteTunnel_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Mutation.DeleteTunnel(childComplexity, args["input"].(tunnel.DeleteTunnelInput)), true
 
 	case "Mutation.deleteUnleashInstance":
 		if e.ComplexityRoot.Mutation.DeleteUnleashInstance == nil {
@@ -13880,6 +13974,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.TeamEnvironment.Team(childComplexity), true
 
+	case "TeamEnvironment.tunnel":
+		if e.ComplexityRoot.TeamEnvironment.Tunnel == nil {
+			break
+		}
+
+		args, err := ec.field_TeamEnvironment_tunnel_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.TeamEnvironment.Tunnel(childComplexity, args["name"].(string)), true
+
 	case "TeamEnvironment.valkey":
 		if e.ComplexityRoot.TeamEnvironment.Valkey == nil {
 			break
@@ -14902,6 +15008,209 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.TriggerJobPayload.JobRun(childComplexity), true
+
+	case "Tunnel.createdAt":
+		if e.ComplexityRoot.Tunnel.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Tunnel.CreatedAt(childComplexity), true
+
+	case "Tunnel.gatewayPublicKey":
+		if e.ComplexityRoot.Tunnel.GatewayPublicKey == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Tunnel.GatewayPublicKey(childComplexity), true
+
+	case "Tunnel.gatewaySTUNEndpoint":
+		if e.ComplexityRoot.Tunnel.GatewaySTUNEndpoint == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Tunnel.GatewaySTUNEndpoint(childComplexity), true
+
+	case "Tunnel.id":
+		if e.ComplexityRoot.Tunnel.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Tunnel.ID(childComplexity), true
+
+	case "Tunnel.message":
+		if e.ComplexityRoot.Tunnel.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Tunnel.Message(childComplexity), true
+
+	case "Tunnel.name":
+		if e.ComplexityRoot.Tunnel.Name == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Tunnel.Name(childComplexity), true
+
+	case "Tunnel.phase":
+		if e.ComplexityRoot.Tunnel.Phase == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Tunnel.Phase(childComplexity), true
+
+	case "Tunnel.target":
+		if e.ComplexityRoot.Tunnel.Target == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Tunnel.Target(childComplexity), true
+
+	case "TunnelCreatedActivityLogEntry.actor":
+		if e.ComplexityRoot.TunnelCreatedActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TunnelCreatedActivityLogEntry.Actor(childComplexity), true
+
+	case "TunnelCreatedActivityLogEntry.createdAt":
+		if e.ComplexityRoot.TunnelCreatedActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TunnelCreatedActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "TunnelCreatedActivityLogEntry.environmentName":
+		if e.ComplexityRoot.TunnelCreatedActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TunnelCreatedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "TunnelCreatedActivityLogEntry.id":
+		if e.ComplexityRoot.TunnelCreatedActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TunnelCreatedActivityLogEntry.ID(childComplexity), true
+
+	case "TunnelCreatedActivityLogEntry.message":
+		if e.ComplexityRoot.TunnelCreatedActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TunnelCreatedActivityLogEntry.Message(childComplexity), true
+
+	case "TunnelCreatedActivityLogEntry.resourceName":
+		if e.ComplexityRoot.TunnelCreatedActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TunnelCreatedActivityLogEntry.ResourceName(childComplexity), true
+
+	case "TunnelCreatedActivityLogEntry.resourceType":
+		if e.ComplexityRoot.TunnelCreatedActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TunnelCreatedActivityLogEntry.ResourceType(childComplexity), true
+
+	case "TunnelCreatedActivityLogEntry.targetHost":
+		if e.ComplexityRoot.TunnelCreatedActivityLogEntry.TargetHost == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TunnelCreatedActivityLogEntry.TargetHost(childComplexity), true
+
+	case "TunnelCreatedActivityLogEntry.teamSlug":
+		if e.ComplexityRoot.TunnelCreatedActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TunnelCreatedActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "TunnelCreatedActivityLogEntry.tunnelName":
+		if e.ComplexityRoot.TunnelCreatedActivityLogEntry.TunnelName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TunnelCreatedActivityLogEntry.TunnelName(childComplexity), true
+
+	case "TunnelDeletedActivityLogEntry.actor":
+		if e.ComplexityRoot.TunnelDeletedActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TunnelDeletedActivityLogEntry.Actor(childComplexity), true
+
+	case "TunnelDeletedActivityLogEntry.createdAt":
+		if e.ComplexityRoot.TunnelDeletedActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TunnelDeletedActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "TunnelDeletedActivityLogEntry.environmentName":
+		if e.ComplexityRoot.TunnelDeletedActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TunnelDeletedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "TunnelDeletedActivityLogEntry.id":
+		if e.ComplexityRoot.TunnelDeletedActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TunnelDeletedActivityLogEntry.ID(childComplexity), true
+
+	case "TunnelDeletedActivityLogEntry.message":
+		if e.ComplexityRoot.TunnelDeletedActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TunnelDeletedActivityLogEntry.Message(childComplexity), true
+
+	case "TunnelDeletedActivityLogEntry.resourceName":
+		if e.ComplexityRoot.TunnelDeletedActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TunnelDeletedActivityLogEntry.ResourceName(childComplexity), true
+
+	case "TunnelDeletedActivityLogEntry.resourceType":
+		if e.ComplexityRoot.TunnelDeletedActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TunnelDeletedActivityLogEntry.ResourceType(childComplexity), true
+
+	case "TunnelDeletedActivityLogEntry.teamSlug":
+		if e.ComplexityRoot.TunnelDeletedActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TunnelDeletedActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "TunnelDeletedActivityLogEntry.tunnelName":
+		if e.ComplexityRoot.TunnelDeletedActivityLogEntry.TunnelName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TunnelDeletedActivityLogEntry.TunnelName(childComplexity), true
+
+	case "TunnelTarget.host":
+		if e.ComplexityRoot.TunnelTarget.Host == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TunnelTarget.Host(childComplexity), true
+
+	case "TunnelTarget.port":
+		if e.ComplexityRoot.TunnelTarget.Port == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TunnelTarget.Port(childComplexity), true
 
 	case "UnleashInstance.apiIngress":
 		if e.ComplexityRoot.UnleashInstance.APIIngress == nil {
@@ -16879,6 +17188,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputCreateServiceAccountInput,
 		ec.unmarshalInputCreateServiceAccountTokenInput,
 		ec.unmarshalInputCreateTeamInput,
+		ec.unmarshalInputCreateTunnelInput,
 		ec.unmarshalInputCreateUnleashForTeamInput,
 		ec.unmarshalInputCreateValkeyCredentialsInput,
 		ec.unmarshalInputCreateValkeyInput,
@@ -16890,6 +17200,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputDeleteSecretInput,
 		ec.unmarshalInputDeleteServiceAccountInput,
 		ec.unmarshalInputDeleteServiceAccountTokenInput,
+		ec.unmarshalInputDeleteTunnelInput,
 		ec.unmarshalInputDeleteUnleashInstanceInput,
 		ec.unmarshalInputDeleteValkeyInput,
 		ec.unmarshalInputDeploymentFilter,
@@ -25816,6 +26127,269 @@ extend enum ActivityLogActivityType {
 	TEAM_MEMBER_SET_ROLE
 	"Team environment was updated."
 	TEAM_ENVIRONMENT_UPDATED
+}
+`, BuiltIn: false},
+	{Name: "../schema/tunnel.graphqls", Input: `"""
+The lifecycle phase of a Tunnel.
+"""
+enum TunnelPhase {
+	PENDING
+	PROVISIONING
+	READY
+	CONNECTED
+	FAILED
+	TERMINATED
+}
+
+"""
+The target destination for a WireGuard tunnel.
+"""
+type TunnelTarget {
+	host: String!
+	port: Int!
+}
+
+"""
+A WireGuard tunnel between the CLI and an in-cluster gateway.
+"""
+type Tunnel implements Node {
+	"""
+	Globally unique ID of the tunnel.
+	"""
+	id: ID!
+
+	"""
+	The name of the tunnel.
+	"""
+	name: String!
+
+	"""
+	The current phase of the tunnel.
+	"""
+	phase: TunnelPhase!
+
+	"""
+	The WireGuard public key of the gateway.
+	"""
+	gatewayPublicKey: String!
+
+	"""
+	The STUN endpoint of the gateway for NAT traversal.
+	"""
+	gatewaySTUNEndpoint: String!
+
+	"""
+	The target destination (host and port) for the tunnel.
+	"""
+	target: TunnelTarget!
+
+	"""
+	Status message describing the tunnel state.
+	"""
+	message: String!
+
+	"""
+	Creation time of the tunnel.
+	"""
+	createdAt: Time!
+}
+
+input CreateTunnelInput {
+	"""
+	The team that owns the tunnel.
+	"""
+	teamSlug: Slug!
+
+	"""
+	The environment name where the tunnel will be created.
+	"""
+	environmentName: String!
+
+	"""
+	The target host for the tunnel destination.
+	"""
+	targetHost: String!
+
+	"""
+	The target port for the tunnel destination.
+	"""
+	targetPort: Int!
+
+	"""
+	The WireGuard public key generated by the CLI.
+	"""
+	clientPublicKey: String!
+
+	"""
+	The client's STUN endpoint for NAT traversal, discovered before tunnel creation.
+	"""
+	clientSTUNEndpoint: String!
+}
+
+type CreateTunnelPayload {
+	"""
+	The newly created tunnel.
+	"""
+	tunnel: Tunnel!
+}
+
+input DeleteTunnelInput {
+	"""
+	The team that owns the tunnel.
+	"""
+	teamSlug: Slug!
+	"""
+	The environment where the tunnel exists.
+	"""
+	environmentName: String!
+	"""
+	The name of the tunnel to delete.
+	"""
+	tunnelName: String!
+}
+
+type DeleteTunnelPayload {
+	"""
+	Whether the tunnel was successfully deleted.
+	"""
+	success: Boolean!
+}
+
+extend type Mutation {
+	"""
+	Create a WireGuard tunnel to a target host and port.
+	"""
+	createTunnel(input: CreateTunnelInput!): CreateTunnelPayload!
+
+	"""
+	Delete a WireGuard tunnel and clean up the gateway pod.
+	"""
+	deleteTunnel(input: DeleteTunnelInput!): DeleteTunnelPayload!
+}
+
+extend type TeamEnvironment {
+	"""
+	Get a specific tunnel by name.
+	"""
+	tunnel(name: String!): Tunnel
+}
+
+extend enum ActivityLogEntryResourceType {
+	"""
+	All activity log entries related to Tunnels will use this resource type.
+	"""
+	TUNNEL
+}
+
+extend enum ActivityLogActivityType {
+	"""
+	Tunnel was created.
+	"""
+	TUNNEL_CREATED
+
+	"""
+	Tunnel was deleted.
+	"""
+	TUNNEL_DELETED
+}
+
+type TunnelCreatedActivityLogEntry implements ActivityLogEntry & Node {
+	"""
+	ID of the entry.
+	"""
+	id: ID!
+
+	"""
+	The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user.
+	"""
+	actor: String!
+
+	"""
+	Creation time of the entry.
+	"""
+	createdAt: Time!
+
+	"""
+	Message that summarizes the entry.
+	"""
+	message: String!
+
+	"""
+	Type of the resource that was affected by the action.
+	"""
+	resourceType: ActivityLogEntryResourceType!
+
+	"""
+	Name of the resource that was affected by the action.
+	"""
+	resourceName: String!
+
+	"""
+	The team slug that the entry belongs to.
+	"""
+	teamSlug: Slug
+
+	"""
+	The environment name that the entry belongs to.
+	"""
+	environmentName: String
+
+	"""
+	The name of the tunnel that was created.
+	"""
+	tunnelName: String!
+
+	"""
+	The target host of the tunnel.
+	"""
+	targetHost: String!
+}
+
+type TunnelDeletedActivityLogEntry implements ActivityLogEntry & Node {
+	"""
+	ID of the entry.
+	"""
+	id: ID!
+
+	"""
+	The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user.
+	"""
+	actor: String!
+
+	"""
+	Creation time of the entry.
+	"""
+	createdAt: Time!
+
+	"""
+	Message that summarizes the entry.
+	"""
+	message: String!
+
+	"""
+	Type of the resource that was affected by the action.
+	"""
+	resourceType: ActivityLogEntryResourceType!
+
+	"""
+	Name of the resource that was affected by the action.
+	"""
+	resourceName: String!
+
+	"""
+	The team slug that the entry belongs to.
+	"""
+	teamSlug: Slug
+
+	"""
+	The environment name that the entry belongs to.
+	"""
+	environmentName: String
+
+	"""
+	The name of the tunnel that was deleted.
+	"""
+	tunnelName: String!
 }
 `, BuiltIn: false},
 	{Name: "../schema/unleash.graphqls", Input: `extend type Query {
