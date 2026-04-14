@@ -173,13 +173,22 @@ func translateReasonAndNote(reason, note, eventType string) (string, InstanceGro
 
 	// --- Image ---
 	case "Pulling":
+		if img := extractQuotedValue(note); img != "" {
+			return fmt.Sprintf("Downloading container image %s...", img), InstanceGroupEventSeverityInfo
+		}
 		return "Downloading container image...", InstanceGroupEventSeverityInfo
 
 	case "Pulled":
+		if img := extractQuotedValue(note); img != "" {
+			return fmt.Sprintf("Container image %s downloaded successfully.", img), InstanceGroupEventSeverityInfo
+		}
 		return "Container image downloaded successfully.", InstanceGroupEventSeverityInfo
 
 	case "Failed":
 		if strings.Contains(noteLower, "image") || strings.Contains(noteLower, "pull") || strings.Contains(noteLower, "errimagepull") {
+			if img := extractQuotedValue(note); img != "" {
+				return fmt.Sprintf("Failed to download container image %s. Check that the image exists and access is configured correctly.", img), InstanceGroupEventSeverityError
+			}
 			return "Failed to download container image. Check that the image exists and access is configured correctly.", InstanceGroupEventSeverityError
 		}
 		if strings.Contains(noteLower, "mount") || strings.Contains(noteLower, "volume") {
@@ -196,15 +205,24 @@ func translateReasonAndNote(reason, note, eventType string) (string, InstanceGro
 	// --- Image pull backoff ---
 	case "BackOff":
 		if strings.Contains(noteLower, "image") || strings.Contains(noteLower, "pull") {
+			if img := extractQuotedValue(note); img != "" {
+				return fmt.Sprintf("Repeated failures downloading container image %s. The image may not exist or the registry may be inaccessible.", img), InstanceGroupEventSeverityError
+			}
 			return "Repeated failures downloading container image. The image may not exist or the registry may be inaccessible.", InstanceGroupEventSeverityError
 		}
 		return "Instance is crash-looping — it keeps crashing shortly after starting. Check application logs for details.", InstanceGroupEventSeverityError
 
 	// --- Container lifecycle ---
 	case "Created":
+		if name := extractContainerName(note); name != "" {
+			return fmt.Sprintf("Container %s created.", name), InstanceGroupEventSeverityInfo
+		}
 		return "Container created.", InstanceGroupEventSeverityInfo
 
 	case "Started":
+		if name := extractContainerName(note); name != "" {
+			return fmt.Sprintf("Container %s started.", name), InstanceGroupEventSeverityInfo
+		}
 		return "Container started.", InstanceGroupEventSeverityInfo
 
 	case "Killing":
@@ -213,6 +231,9 @@ func translateReasonAndNote(reason, note, eventType string) (string, InstanceGro
 		}
 		if strings.Contains(noteLower, "preempt") {
 			return "Instance is being shut down to make room for higher-priority workloads.", InstanceGroupEventSeverityWarning
+		}
+		if name := extractContainerName(note); name != "" {
+			return fmt.Sprintf("Container %s is being terminated.", name), InstanceGroupEventSeverityInfo
 		}
 		return "Instance is being terminated.", InstanceGroupEventSeverityInfo
 
@@ -247,9 +268,15 @@ func translateReasonAndNote(reason, note, eventType string) (string, InstanceGro
 
 	// --- ReplicaSet ---
 	case "SuccessfulCreate":
+		if name := extractPodName(note); name != "" {
+			return fmt.Sprintf("New instance %s created.", name), InstanceGroupEventSeverityInfo
+		}
 		return "New instance created by the instance group.", InstanceGroupEventSeverityInfo
 
 	case "SuccessfulDelete":
+		if name := extractPodName(note); name != "" {
+			return fmt.Sprintf("Instance %s removed.", name), InstanceGroupEventSeverityInfo
+		}
 		return "Instance removed from the instance group.", InstanceGroupEventSeverityInfo
 
 	case "FailedCreate":
@@ -286,9 +313,9 @@ func classifySchedulingFailure(note string) string {
 
 	switch {
 	case strings.Contains(noteLower, "insufficient memory"):
-		return "Unable to start instance: not enough memory available in the cluster. Consider reducing the memory request in your nais.yaml."
+		return "Unable to start instance: not enough memory available in the cluster."
 	case strings.Contains(noteLower, "insufficient cpu"):
-		return "Unable to start instance: not enough CPU available in the cluster. Consider reducing the CPU request in your nais.yaml."
+		return "Unable to start instance: not enough CPU available in the cluster."
 	case strings.Contains(noteLower, "persistentvolumeclaim"):
 		return "Unable to start instance: a required storage volume is not available."
 	case strings.Contains(noteLower, "taint") || strings.Contains(noteLower, "toleration"):
@@ -394,15 +421,85 @@ func extractResourceName(note, keyword string) string {
 }
 
 // classifyRescale provides a user-friendly message for autoscale events.
+// K8s note format: "New size: 5; reason: cpu resource utilization (percentage of request) above target"
 func classifyRescale(note string) string {
 	noteLower := strings.ToLower(note)
+	size := extractRescaleSize(note)
 
 	switch {
 	case strings.Contains(noteLower, "above"):
+		if size != "" {
+			return fmt.Sprintf("Autoscaler scaled up to %s instances due to high resource usage.", size)
+		}
 		return "Autoscaler increased instance count due to high resource usage."
 	case strings.Contains(noteLower, "below"):
+		if size != "" {
+			return fmt.Sprintf("Autoscaler scaled down to %s instances due to low resource usage.", size)
+		}
 		return "Autoscaler decreased instance count due to low resource usage."
 	default:
 		return fmt.Sprintf("Autoscaler adjusted instance count: %s", note)
 	}
+}
+
+// extractQuotedValue extracts the first double-quoted value from a string.
+// For example, from `Pulling image "ghcr.io/navikt/myapp:v1.2.3"` it extracts `ghcr.io/navikt/myapp:v1.2.3`.
+func extractQuotedValue(s string) string {
+	start := strings.IndexByte(s, '"')
+	if start == -1 {
+		return ""
+	}
+	rest := s[start+1:]
+	end := strings.IndexByte(rest, '"')
+	if end == -1 {
+		return ""
+	}
+	return rest[:end]
+}
+
+// extractContainerName extracts a container name from K8s event notes.
+// Handles formats like "Created container myapp" and "Stopping container myapp".
+func extractContainerName(note string) string {
+	const prefix = "container "
+	noteLower := strings.ToLower(note)
+	idx := strings.LastIndex(noteLower, prefix)
+	if idx == -1 {
+		return ""
+	}
+	name := strings.TrimSpace(note[idx+len(prefix):])
+	if name == "" {
+		return ""
+	}
+	return name
+}
+
+// extractPodName extracts a pod name from K8s event notes.
+// Handles formats like "Created pod: myapp-abc123-xyz" and "Deleted pod: myapp-abc123-xyz".
+func extractPodName(note string) string {
+	const prefix = "pod: "
+	idx := strings.Index(strings.ToLower(note), prefix)
+	if idx == -1 {
+		return ""
+	}
+	name := strings.TrimSpace(note[idx+len(prefix):])
+	if name == "" {
+		return ""
+	}
+	return name
+}
+
+// extractRescaleSize extracts the new size from a rescale event note.
+// Handles format like "New size: 5; reason: ..."
+func extractRescaleSize(note string) string {
+	const prefix = "New size: "
+	idx := strings.Index(note, prefix)
+	if idx == -1 {
+		return ""
+	}
+	rest := note[idx+len(prefix):]
+	end := strings.IndexAny(rest, ";, ")
+	if end == -1 {
+		return strings.TrimSpace(rest)
+	}
+	return strings.TrimSpace(rest[:end])
 }
