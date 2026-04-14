@@ -3,4 +3,4 @@
 
 set -e
 
-go tool mvdan.cc/gofumpt -w ./
+gofumpt -w ./
