@@ -681,6 +681,10 @@ type ComplexityRoot struct {
 		OpenSearchDeleted func(childComplexity int) int
 	}
 
+	DeletePostgresPayload struct {
+		PostgresDeleted func(childComplexity int) int
+	}
+
 	DeleteSecretPayload struct {
 		SecretDeleted func(childComplexity int) int
 	}
@@ -1371,6 +1375,7 @@ type ComplexityRoot struct {
 		DeleteJob                    func(childComplexity int, input job.DeleteJobInput) int
 		DeleteJobRun                 func(childComplexity int, input job.DeleteJobRunInput) int
 		DeleteOpenSearch             func(childComplexity int, input opensearch.DeleteOpenSearchInput) int
+		DeletePostgres               func(childComplexity int, input postgres.DeletePostgresInput) int
 		DeleteSecret                 func(childComplexity int, input secret.DeleteSecretInput) int
 		DeleteServiceAccount         func(childComplexity int, input serviceaccount.DeleteServiceAccountInput) int
 		DeleteServiceAccountToken    func(childComplexity int, input serviceaccount.DeleteServiceAccountTokenInput) int
@@ -5499,6 +5504,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.DeleteOpenSearchPayload.OpenSearchDeleted(childComplexity), true
 
+	case "DeletePostgresPayload.postgresDeleted":
+		if e.ComplexityRoot.DeletePostgresPayload.PostgresDeleted == nil {
+			break
+		}
+
+		return e.ComplexityRoot.DeletePostgresPayload.PostgresDeleted(childComplexity), true
+
 	case "DeleteSecretPayload.secretDeleted":
 		if e.ComplexityRoot.DeleteSecretPayload.SecretDeleted == nil {
 			break
@@ -8514,6 +8526,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Mutation.DeleteOpenSearch(childComplexity, args["input"].(opensearch.DeleteOpenSearchInput)), true
+
+	case "Mutation.deletePostgres":
+		if e.ComplexityRoot.Mutation.DeletePostgres == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deletePostgres_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Mutation.DeletePostgres(childComplexity, args["input"].(postgres.DeletePostgresInput)), true
 
 	case "Mutation.deleteSecret":
 		if e.ComplexityRoot.Mutation.DeleteSecret == nil {
@@ -17160,6 +17184,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputDeleteJobInput,
 		ec.unmarshalInputDeleteJobRunInput,
 		ec.unmarshalInputDeleteOpenSearchInput,
+		ec.unmarshalInputDeletePostgresInput,
 		ec.unmarshalInputDeleteSecretInput,
 		ec.unmarshalInputDeleteServiceAccountInput,
 		ec.unmarshalInputDeleteServiceAccountTokenInput,
@@ -22684,6 +22709,8 @@ extend enum ActivityLogActivityType {
 extend type Mutation {
 	"Grant temporary access to a Postgres cluster."
 	grantPostgresAccess(input: GrantPostgresAccessInput!): GrantPostgresAccessPayload!
+	"Delete an existing Postgres instance."
+	deletePostgres(input: DeletePostgresInput!): DeletePostgresPayload!
 }
 
 type GrantPostgresAccessPayload {
@@ -22697,6 +22724,20 @@ input GrantPostgresAccessInput {
 	grantee: String!
 	"Duration of the access grant (maximum 4 hours)."
 	duration: String!
+}
+
+input DeletePostgresInput {
+	"Name of the Postgres instance."
+	name: String!
+	"The environment name that the Postgres instance belongs to."
+	environmentName: String!
+	"The team that owns the Postgres instance."
+	teamSlug: Slug!
+}
+
+type DeletePostgresPayload {
+	"Whether or not the Postgres instance was deleted."
+	postgresDeleted: Boolean
 }
 
 extend type TeamInventoryCounts {

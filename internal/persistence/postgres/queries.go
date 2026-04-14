@@ -29,6 +29,10 @@ import (
 	"k8s.io/client-go/dynamic"
 )
 
+func Delete(_ context.Context, _ DeletePostgresInput) (*DeletePostgresPayload, error) {
+	return nil, fmt.Errorf("deletePostgres not implemented")
+}
+
 func GetForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName, clusterName string) (*PostgresInstance, error) {
 	if clusterName == "" {
 		return nil, nil

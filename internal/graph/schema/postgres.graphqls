@@ -185,6 +185,8 @@ extend enum ActivityLogActivityType {
 extend type Mutation {
 	"Grant temporary access to a Postgres cluster."
 	grantPostgresAccess(input: GrantPostgresAccessInput!): GrantPostgresAccessPayload!
+	"Delete an existing Postgres instance."
+	deletePostgres(input: DeletePostgresInput!): DeletePostgresPayload!
 }
 
 type GrantPostgresAccessPayload {
@@ -198,6 +200,20 @@ input GrantPostgresAccessInput {
 	grantee: String!
 	"Duration of the access grant (maximum 4 hours)."
 	duration: String!
+}
+
+input DeletePostgresInput {
+	"Name of the Postgres instance."
+	name: String!
+	"The environment name that the Postgres instance belongs to."
+	environmentName: String!
+	"The team that owns the Postgres instance."
+	teamSlug: Slug!
+}
+
+type DeletePostgresPayload {
+	"Whether or not the Postgres instance was deleted."
+	postgresDeleted: Boolean
 }
 
 extend type TeamInventoryCounts {

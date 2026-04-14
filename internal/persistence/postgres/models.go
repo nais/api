@@ -129,6 +129,16 @@ type PostgresInstanceResources struct {
 	DiskSize string `json:"diskSize"`
 }
 
+type DeletePostgresInput struct {
+	Name            string    `json:"name"`
+	EnvironmentName string    `json:"environmentName"`
+	TeamSlug        slug.Slug `json:"teamSlug"`
+}
+
+type DeletePostgresPayload struct {
+	PostgresDeleted *bool `json:"postgresDeleted,omitempty"`
+}
+
 type GrantPostgresAccessInput struct {
 	ClusterName     string    `json:"clusterName"`
 	TeamSlug        slug.Slug `json:"teamSlug"`

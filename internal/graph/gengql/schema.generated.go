@@ -79,6 +79,7 @@ type MutationResolver interface {
 	DeleteOpenSearch(ctx context.Context, input opensearch.DeleteOpenSearchInput) (*opensearch.DeleteOpenSearchPayload, error)
 	CreateOpenSearchCredentials(ctx context.Context, input opensearch.CreateOpenSearchCredentialsInput) (*opensearch.CreateOpenSearchCredentialsPayload, error)
 	GrantPostgresAccess(ctx context.Context, input postgres.GrantPostgresAccessInput) (*postgres.GrantPostgresAccessPayload, error)
+	DeletePostgres(ctx context.Context, input postgres.DeletePostgresInput) (*postgres.DeletePostgresPayload, error)
 	EnableReconciler(ctx context.Context, input reconciler.EnableReconcilerInput) (*reconciler.Reconciler, error)
 	DisableReconciler(ctx context.Context, input reconciler.DisableReconcilerInput) (*reconciler.Reconciler, error)
 	ConfigureReconciler(ctx context.Context, input reconciler.ConfigureReconcilerInput) (*reconciler.Reconciler, error)
@@ -423,6 +424,17 @@ func (ec *executionContext) field_Mutation_deleteOpenSearch_args(ctx context.Con
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNDeleteOpenSearchInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐDeleteOpenSearchInput)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_deletePostgres_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNDeletePostgresInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐDeletePostgresInput)
 	if err != nil {
 		return nil, err
 	}
@@ -1974,6 +1986,51 @@ func (ec *executionContext) fieldContext_Mutation_grantPostgresAccess(ctx contex
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_grantPostgresAccess_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_deletePostgres(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Mutation_deletePostgres,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.Resolvers.Mutation().DeletePostgres(ctx, fc.Args["input"].(postgres.DeletePostgresInput))
+		},
+		nil,
+		ec.marshalNDeletePostgresPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐDeletePostgresPayload,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Mutation_deletePostgres(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "postgresDeleted":
+				return ec.fieldContext_DeletePostgresPayload_postgresDeleted(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type DeletePostgresPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_deletePostgres_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -6506,6 +6563,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "grantPostgresAccess":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_grantPostgresAccess(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "deletePostgres":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_deletePostgres(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++

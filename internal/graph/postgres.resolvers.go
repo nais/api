@@ -61,6 +61,13 @@ func (r *mutationResolver) GrantPostgresAccess(ctx context.Context, input postgr
 	}, nil
 }
 
+func (r *mutationResolver) DeletePostgres(ctx context.Context, input postgres.DeletePostgresInput) (*postgres.DeletePostgresPayload, error) {
+	if err := authz.CanDeletePostgres(ctx, input.TeamSlug); err != nil {
+		return nil, err
+	}
+	return postgres.Delete(ctx, input)
+}
+
 func (r *postgresInstanceResolver) Team(ctx context.Context, obj *postgres.PostgresInstance) (*team.Team, error) {
 	return team.Get(ctx, obj.TeamSlug)
 }
