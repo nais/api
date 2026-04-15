@@ -99,10 +99,11 @@ type InstanceGroupMountedFile {
 	content: String
 
 	"""
-	Whether the content is base64-encoded binary data.
-	When true, the content field contains base64-encoded data that should be downloaded rather than displayed.
+	The encoding of the content.
+	PLAIN_TEXT means the content can be displayed as-is.
+	BASE64 means the content is base64-encoded binary data that should be downloaded rather than displayed.
 	"""
-	isBinary: Boolean!
+	encoding: ValueEncoding!
 
 	"""
 	Error message when the source could not be resolved.

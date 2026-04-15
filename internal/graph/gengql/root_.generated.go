@@ -995,8 +995,8 @@ type ComplexityRoot struct {
 
 	InstanceGroupMountedFile struct {
 		Content  func(childComplexity int) int
+		Encoding func(childComplexity int) int
 		Error    func(childComplexity int) int
-		IsBinary func(childComplexity int) int
 		Path     func(childComplexity int) int
 		Source   func(childComplexity int) int
 	}
@@ -6680,19 +6680,19 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.InstanceGroupMountedFile.Content(childComplexity), true
 
+	case "InstanceGroupMountedFile.encoding":
+		if e.ComplexityRoot.InstanceGroupMountedFile.Encoding == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroupMountedFile.Encoding(childComplexity), true
+
 	case "InstanceGroupMountedFile.error":
 		if e.ComplexityRoot.InstanceGroupMountedFile.Error == nil {
 			break
 		}
 
 		return e.ComplexityRoot.InstanceGroupMountedFile.Error(childComplexity), true
-
-	case "InstanceGroupMountedFile.isBinary":
-		if e.ComplexityRoot.InstanceGroupMountedFile.IsBinary == nil {
-			break
-		}
-
-		return e.ComplexityRoot.InstanceGroupMountedFile.IsBinary(childComplexity), true
 
 	case "InstanceGroupMountedFile.path":
 		if e.ComplexityRoot.InstanceGroupMountedFile.Path == nil {
@@ -20420,14 +20420,14 @@ type FeatureOpenSearch implements Node {
 `, BuiltIn: false},
 	{Name: "../schema/instancegroup.graphqls", Input: `extend type Application {
 	"""
-	Instance groups for the application. An instance group represents a set of identical instances
-	backed by a Kubernetes ReplicaSet. All instances in a group share the same configuration.
+	Instance groups for the application. An instance group represents a set of identical instances.
+	All instances in a group share the same configuration.
 	"""
 	instanceGroups: [InstanceGroup!]!
 }
 
 """
-An instance group represents a set of identical instances (backed by a Kubernetes ReplicaSet).
+An instance group represents a set of identical instances.
 All instances in the group share the same configuration (environment variables, mounted files, image).
 """
 type InstanceGroup implements Node {
@@ -20468,7 +20468,7 @@ type InstanceGroup implements Node {
 	environmentVariables: [InstanceGroupEnvironmentVariable!]!
 
 	"""
-	Files mounted into instances in this group from Secrets or ConfigMaps.
+	Files mounted into instances in this group from Secrets or Configs.
 	"""
 	mountedFiles: [InstanceGroupMountedFile!]!
 
@@ -20476,7 +20476,6 @@ type InstanceGroup implements Node {
 	The application instances belonging to this instance group.
 	"""
 	instances: [ApplicationInstance!]!
-
 }
 
 """
@@ -20500,11 +20499,11 @@ type InstanceGroupEnvironmentVariable {
 }
 
 """
-A file mounted into an instance group from a Secret or ConfigMap.
+A file mounted into an instance group from a Secret or Config.
 """
 type InstanceGroupMountedFile {
 	"""
-	The file path inside the container.
+	The file path inside the instance.
 	"""
 	path: String!
 
@@ -20516,18 +20515,18 @@ type InstanceGroupMountedFile {
 	"""
 	The file content. Null for files from Secrets (requires elevation to view)
 	or when the source could not be resolved (check the error field).
-	For ConfigMap files, this is the raw string content or base64-encoded binary content.
 	"""
 	content: String
 
 	"""
-	Whether the content is base64-encoded binary data.
-	When true, the content field contains base64-encoded data that should be downloaded rather than displayed.
+	The encoding of the content.
+	PLAIN_TEXT means the content can be displayed as-is.
+	BASE64 means the content is base64-encoded binary data that should be downloaded rather than displayed.
 	"""
-	isBinary: Boolean!
+	encoding: ValueEncoding!
 
 	"""
-	Error message when the source Secret or ConfigMap could not be resolved.
+	Error message when the source could not be resolved.
 	When set, the file entry represents a failed mount rather than an actual file.
 	"""
 	error: String
@@ -20543,7 +20542,7 @@ type InstanceGroupValueSource {
 	kind: InstanceGroupValueSourceKind!
 
 	"""
-	The name of the source resource (e.g. Secret name, ConfigMap name).
+	The name of the source resource.
 	"""
 	name: String!
 }
@@ -20558,16 +20557,15 @@ enum InstanceGroupValueSourceKind {
 	SECRET
 
 	"""
-	The value comes from a ConfigMap.
+	The value comes from a Config.
 	"""
 	CONFIG
 
 	"""
-	The value comes from the workload spec itself (inline value, fieldRef, etc.).
+	The value is defined inline in the workload spec.
 	"""
 	SPEC
 }
-
 `, BuiltIn: false},
 	{Name: "../schema/issues.graphqls", Input: `extend type Team {
 	"Issues that affects the team."

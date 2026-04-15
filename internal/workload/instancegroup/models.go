@@ -11,6 +11,7 @@ import (
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/workload"
+	"github.com/nais/api/internal/workload/secret"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 )
@@ -60,8 +61,8 @@ type InstanceGroupMountedFile struct {
 	// Content is the file content. Null if the value comes from a Secret (requires elevation to view)
 	// or if the source could not be resolved.
 	Content *string `json:"content"`
-	// IsBinary indicates whether the content is base64-encoded binary data.
-	IsBinary bool `json:"isBinary"`
+	// Encoding indicates how the content is encoded.
+	Encoding secret.ValueEncoding `json:"encoding"`
 	// Error is set when the source Secret or ConfigMap could not be resolved.
 	// When set, the file entry represents a failed mount rather than an actual file.
 	Error *string `json:"error"`

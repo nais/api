@@ -294,8 +294,8 @@ func (ec *executionContext) fieldContext_InstanceGroup_mountedFiles(_ context.Co
 				return ec.fieldContext_InstanceGroupMountedFile_source(ctx, field)
 			case "content":
 				return ec.fieldContext_InstanceGroupMountedFile_content(ctx, field)
-			case "isBinary":
-				return ec.fieldContext_InstanceGroupMountedFile_isBinary(ctx, field)
+			case "encoding":
+				return ec.fieldContext_InstanceGroupMountedFile_encoding(ctx, field)
 			case "error":
 				return ec.fieldContext_InstanceGroupMountedFile_error(ctx, field)
 			}
@@ -536,30 +536,30 @@ func (ec *executionContext) fieldContext_InstanceGroupMountedFile_content(_ cont
 	return fc, nil
 }
 
-func (ec *executionContext) _InstanceGroupMountedFile_isBinary(ctx context.Context, field graphql.CollectedField, obj *instancegroup.InstanceGroupMountedFile) (ret graphql.Marshaler) {
+func (ec *executionContext) _InstanceGroupMountedFile_encoding(ctx context.Context, field graphql.CollectedField, obj *instancegroup.InstanceGroupMountedFile) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_InstanceGroupMountedFile_isBinary,
+		ec.fieldContext_InstanceGroupMountedFile_encoding,
 		func(ctx context.Context) (any, error) {
-			return obj.IsBinary, nil
+			return obj.Encoding, nil
 		},
 		nil,
-		ec.marshalNBoolean2bool,
+		ec.marshalNValueEncoding2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐValueEncoding,
 		true,
 		true,
 	)
 }
 
-func (ec *executionContext) fieldContext_InstanceGroupMountedFile_isBinary(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_InstanceGroupMountedFile_encoding(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "InstanceGroupMountedFile",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
+			return nil, errors.New("field of type ValueEncoding does not have child fields")
 		},
 	}
 	return fc, nil
@@ -905,8 +905,8 @@ func (ec *executionContext) _InstanceGroupMountedFile(ctx context.Context, sel a
 			}
 		case "content":
 			out.Values[i] = ec._InstanceGroupMountedFile_content(ctx, field, obj)
-		case "isBinary":
-			out.Values[i] = ec._InstanceGroupMountedFile_isBinary(ctx, field, obj)
+		case "encoding":
+			out.Values[i] = ec._InstanceGroupMountedFile_encoding(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}

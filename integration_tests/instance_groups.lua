@@ -241,10 +241,10 @@ Test.gql("Instance group with mounted files", function(t)
 						name
 						instanceGroups {
 							name
-							mountedFiles {
+						mountedFiles {
 								path
 								content
-								isBinary
+								encoding
 								error
 								source {
 									kind
@@ -273,7 +273,7 @@ Test.gql("Instance group with mounted files", function(t)
 										{
 											path = "/etc/config/db_host",
 											content = "postgres.myteam.svc.cluster.local",
-											isBinary = false,
+											encoding = "PLAIN_TEXT",
 											error = Null,
 											source = {
 												kind = "CONFIG",
@@ -283,7 +283,7 @@ Test.gql("Instance group with mounted files", function(t)
 										{
 											path = "/etc/config/db_port",
 											content = "5432",
-											isBinary = false,
+											encoding = "PLAIN_TEXT",
 											error = Null,
 											source = {
 												kind = "CONFIG",
@@ -293,7 +293,7 @@ Test.gql("Instance group with mounted files", function(t)
 										{
 											path = "/etc/config/log_level",
 											content = "info",
-											isBinary = false,
+											encoding = "PLAIN_TEXT",
 											error = Null,
 											source = {
 												kind = "CONFIG",
@@ -304,7 +304,7 @@ Test.gql("Instance group with mounted files", function(t)
 										{
 											path = "/etc/secret/api_key",
 											content = Null,
-											isBinary = false,
+											encoding = "PLAIN_TEXT",
 											error = Null,
 											source = {
 												kind = "SECRET",
@@ -314,7 +314,7 @@ Test.gql("Instance group with mounted files", function(t)
 										{
 											path = "/etc/secret/db_password",
 											content = Null,
-											isBinary = false,
+											encoding = "PLAIN_TEXT",
 											error = Null,
 											source = {
 												kind = "SECRET",
