@@ -15,7 +15,6 @@ Test.gql("Application with instance groups", function(t)
 						instanceGroups {
 							name
 							id
-							revision
 							image {
 								name
 								tag
@@ -43,7 +42,6 @@ Test.gql("Application with instance groups", function(t)
 								{
 									name = "myapp-abc123",
 									id = NotNull(),
-									revision = 2,
 									image = {
 										name = "ghcr.io/navikt/myapp",
 										tag = "v1.2.3",
@@ -191,7 +189,7 @@ Test.gql("Instance group with environment variables", function(t)
 											name = "DB_HOST",
 											value = "postgres.myteam.svc.cluster.local",
 											source = {
-												kind = "CONFIG_MAP",
+												kind = "CONFIG",
 												name = "myapp-config",
 											},
 										},
@@ -209,7 +207,7 @@ Test.gql("Instance group with environment variables", function(t)
 											name = "FEATURE_FLAG_A",
 											value = "true",
 											source = {
-												kind = "CONFIG_MAP",
+												kind = "CONFIG",
 												name = "myapp-envs",
 											},
 										},
@@ -217,7 +215,7 @@ Test.gql("Instance group with environment variables", function(t)
 											name = "FEATURE_FLAG_B",
 											value = "false",
 											source = {
-												kind = "CONFIG_MAP",
+												kind = "CONFIG",
 												name = "myapp-envs",
 											},
 										},
@@ -278,7 +276,7 @@ Test.gql("Instance group with mounted files", function(t)
 											isBinary = false,
 											error = Null,
 											source = {
-												kind = "CONFIG_MAP",
+												kind = "CONFIG",
 												name = "myapp-config",
 											},
 										},
@@ -288,7 +286,7 @@ Test.gql("Instance group with mounted files", function(t)
 											isBinary = false,
 											error = Null,
 											source = {
-												kind = "CONFIG_MAP",
+												kind = "CONFIG",
 												name = "myapp-config",
 											},
 										},
@@ -298,7 +296,7 @@ Test.gql("Instance group with mounted files", function(t)
 											isBinary = false,
 											error = Null,
 											source = {
-												kind = "CONFIG_MAP",
+												kind = "CONFIG",
 												name = "myapp-config",
 											},
 										},

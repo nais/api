@@ -1342,8 +1342,6 @@ func (ec *executionContext) fieldContext_Application_instanceGroups(_ context.Co
 				return ec.fieldContext_InstanceGroup_name(ctx, field)
 			case "image":
 				return ec.fieldContext_InstanceGroup_image(ctx, field)
-			case "revision":
-				return ec.fieldContext_InstanceGroup_revision(ctx, field)
 			case "created":
 				return ec.fieldContext_InstanceGroup_created(ctx, field)
 			case "readyInstances":

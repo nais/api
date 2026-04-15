@@ -141,35 +141,6 @@ func (ec *executionContext) fieldContext_InstanceGroup_image(_ context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _InstanceGroup_revision(ctx context.Context, field graphql.CollectedField, obj *instancegroup.InstanceGroup) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_InstanceGroup_revision,
-		func(ctx context.Context) (any, error) {
-			return obj.Revision, nil
-		},
-		nil,
-		ec.marshalNInt2int,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_InstanceGroup_revision(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "InstanceGroup",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _InstanceGroup_created(ctx context.Context, field graphql.CollectedField, obj *instancegroup.InstanceGroup) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -903,11 +874,6 @@ func (ec *executionContext) _InstanceGroup(ctx context.Context, sel ast.Selectio
 			}
 		case "image":
 			out.Values[i] = ec._InstanceGroup_image(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "revision":
-			out.Values[i] = ec._InstanceGroup_revision(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}

@@ -45,9 +45,9 @@ func ListForApplication(ctx context.Context, teamSlug slug.Slug, environmentName
 		}
 	}
 
-	// Sort by revision, newest first
+	// Sort by creation time, newest first
 	slices.SortFunc(ret, func(a, b *InstanceGroup) int {
-		return b.Revision - a.Revision
+		return b.Created.Compare(a.Created)
 	})
 
 	return ret, nil
@@ -96,7 +96,7 @@ func ListEnvironmentVariables(ctx context.Context, ig *InstanceGroup) ([]*Instan
 		case env.ValueFrom != nil && env.ValueFrom.ConfigMapKeyRef != nil:
 			ref := env.ValueFrom.ConfigMapKeyRef
 			ev.Source = InstanceGroupValueSource{
-				Kind: InstanceGroupValueSourceKindConfigMap,
+				Kind: InstanceGroupValueSourceKindConfig,
 				Name: ref.LocalObjectReference.Name,
 			}
 			data, err := getConfigMapData(ctx, l, ig.EnvironmentName, ig.TeamSlug.String(), ref.LocalObjectReference.Name)
@@ -172,7 +172,7 @@ func ListEnvironmentVariables(ctx context.Context, ig *InstanceGroup) ([]*Instan
 				envVars = append(envVars, &InstanceGroupEnvironmentVariable{
 					Name: fmt.Sprintf("(unable to resolve keys from ConfigMap %s)", cmName),
 					Source: InstanceGroupValueSource{
-						Kind: InstanceGroupValueSourceKindConfigMap,
+						Kind: InstanceGroupValueSourceKindConfig,
 						Name: cmName,
 					},
 				})
@@ -184,7 +184,7 @@ func ListEnvironmentVariables(ctx context.Context, ig *InstanceGroup) ([]*Instan
 					Name:  prefix + key,
 					Value: &value,
 					Source: InstanceGroupValueSource{
-						Kind: InstanceGroupValueSourceKindConfigMap,
+						Kind: InstanceGroupValueSourceKindConfig,
 						Name: cmName,
 					},
 				})
@@ -294,7 +294,7 @@ func expandSecretVolume(ctx context.Context, l *loaders, ig *InstanceGroup, moun
 // expandConfigMapVolume expands a configmap volume mount into individual file entries with content.
 func expandConfigMapVolume(ctx context.Context, l *loaders, ig *InstanceGroup, mount corev1.VolumeMount, cmName string, items []corev1.KeyToPath) []*InstanceGroupMountedFile {
 	source := InstanceGroupValueSource{
-		Kind: InstanceGroupValueSourceKindConfigMap,
+		Kind: InstanceGroupValueSourceKindConfig,
 		Name: cmName,
 	}
 
@@ -388,7 +388,7 @@ func expandProjectedVolume(ctx context.Context, l *loaders, ig *InstanceGroup, m
 				break
 			}
 			if src.ConfigMap != nil {
-				source = InstanceGroupValueSource{Kind: InstanceGroupValueSourceKindConfigMap, Name: src.ConfigMap.Name}
+				source = InstanceGroupValueSource{Kind: InstanceGroupValueSourceKindConfig, Name: src.ConfigMap.Name}
 				break
 			}
 		}

@@ -19,7 +19,6 @@ import (
 // All instances in the group share the same configuration (env vars, mounts, image).
 type InstanceGroup struct {
 	Name             string    `json:"name"`
-	Revision         int       `json:"revision"`
 	Created          time.Time `json:"created"`
 	ReadyInstances   int       `json:"readyInstances"`
 	DesiredInstances int       `json:"desiredInstances"`
@@ -78,14 +77,14 @@ type InstanceGroupValueSource struct {
 type InstanceGroupValueSourceKind string
 
 const (
-	InstanceGroupValueSourceKindSecret    InstanceGroupValueSourceKind = "SECRET"
-	InstanceGroupValueSourceKindConfigMap InstanceGroupValueSourceKind = "CONFIG_MAP"
-	InstanceGroupValueSourceKindSpec      InstanceGroupValueSourceKind = "SPEC"
+	InstanceGroupValueSourceKindSecret InstanceGroupValueSourceKind = "SECRET"
+	InstanceGroupValueSourceKindConfig InstanceGroupValueSourceKind = "CONFIG"
+	InstanceGroupValueSourceKindSpec   InstanceGroupValueSourceKind = "SPEC"
 )
 
 var AllInstanceGroupValueSourceKind = []InstanceGroupValueSourceKind{
 	InstanceGroupValueSourceKindSecret,
-	InstanceGroupValueSourceKindConfigMap,
+	InstanceGroupValueSourceKindConfig,
 	InstanceGroupValueSourceKindSpec,
 }
 
@@ -162,13 +161,6 @@ func (e InstanceGroupEventSeverity) MarshalGQL(w io.Writer) {
 }
 
 func toGraphInstanceGroup(rs *appsv1.ReplicaSet, environmentName string) *InstanceGroup {
-	revision := 0
-	if v, ok := rs.Annotations["deployment.kubernetes.io/revision"]; ok {
-		if parsed, err := strconv.Atoi(v); err == nil {
-			revision = parsed
-		}
-	}
-
 	var desiredInstances int
 	if rs.Spec.Replicas != nil {
 		desiredInstances = int(*rs.Spec.Replicas)
@@ -183,7 +175,6 @@ func toGraphInstanceGroup(rs *appsv1.ReplicaSet, environmentName string) *Instan
 
 	return &InstanceGroup{
 		Name:             rs.Name,
-		Revision:         revision,
 		Created:          rs.CreationTimestamp.Time,
 		ReadyInstances:   int(rs.Status.ReadyReplicas),
 		DesiredInstances: desiredInstances,

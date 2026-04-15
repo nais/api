@@ -986,7 +986,6 @@ type ComplexityRoot struct {
 		MountedFiles         func(childComplexity int) int
 		Name                 func(childComplexity int) int
 		ReadyInstances       func(childComplexity int) int
-		Revision             func(childComplexity int) int
 	}
 
 	InstanceGroupEnvironmentVariable struct {
@@ -6668,13 +6667,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.InstanceGroup.ReadyInstances(childComplexity), true
-
-	case "InstanceGroup.revision":
-		if e.ComplexityRoot.InstanceGroup.Revision == nil {
-			break
-		}
-
-		return e.ComplexityRoot.InstanceGroup.Revision(childComplexity), true
 
 	case "InstanceGroupEnvironmentVariable.name":
 		if e.ComplexityRoot.InstanceGroupEnvironmentVariable.Name == nil {
@@ -20506,11 +20498,6 @@ type InstanceGroup implements Node {
 	image: ContainerImage!
 
 	"""
-	The revision number of this instance group. Higher revision numbers are newer.
-	"""
-	revision: Int!
-
-	"""
 	When the instance group was created.
 	"""
 	created: Time!
@@ -20622,14 +20609,14 @@ The kind of source for an environment variable or mounted file.
 """
 enum InstanceGroupValueSourceKind {
 	"""
-	The value comes from a Kubernetes Secret.
+	The value comes from a Secret.
 	"""
 	SECRET
 
 	"""
-	The value comes from a Kubernetes ConfigMap.
+	The value comes from a ConfigMap.
 	"""
-	CONFIG_MAP
+	CONFIG
 
 	"""
 	The value comes from the workload spec itself (inline value, fieldRef, etc.).
@@ -20638,7 +20625,7 @@ enum InstanceGroupValueSourceKind {
 }
 
 """
-A Kubernetes event related to an instance group or one of its instances.
+An event related to an instance group or one of its instances.
 """
 type InstanceGroupEvent {
 	"""
