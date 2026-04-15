@@ -573,13 +573,31 @@ type ApplicationInstance implements Node {
 
 type ApplicationInstanceStatus {
 	state: ApplicationInstanceState!
+	"""
+	A user-friendly description of the current state.
+	"""
 	message: String!
+	"""
+	Whether the container is passing its readiness check and can receive traffic.
+	"""
+	ready: Boolean!
+	"""
+	The reason the container last terminated, if applicable.
+	This is populated even when the instance is currently running, to help debug restart loops.
+	Example values: "OOMKilled", "Error", "Completed".
+	"""
+	lastExitReason: String
+	"""
+	The exit code from the last container termination, if applicable.
+	"""
+	lastExitCode: Int
 }
 
 enum ApplicationInstanceState {
 	RUNNING
 	STARTING
 	FAILING
+	TERMINATED
 	UNKNOWN
 }
 

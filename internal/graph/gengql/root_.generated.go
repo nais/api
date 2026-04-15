@@ -75,6 +75,7 @@ type ResolverRoot interface {
 	FailedSynchronizationIssue() FailedSynchronizationIssueResolver
 	Ingress() IngressResolver
 	IngressMetrics() IngressMetricsResolver
+	InstanceGroup() InstanceGroupResolver
 	InvalidSpecIssue() InvalidSpecIssueResolver
 	Job() JobResolver
 	JobRun() JobRunResolver
@@ -195,6 +196,7 @@ type ComplexityRoot struct {
 		Image                     func(childComplexity int) int
 		ImageVulnerabilityHistory func(childComplexity int, from scalar.Date) int
 		Ingresses                 func(childComplexity int) int
+		InstanceGroups            func(childComplexity int) int
 		Instances                 func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		Issues                    func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) int
 		KafkaTopicAcls            func(childComplexity int, orderBy *kafkatopic.KafkaTopicACLOrder) int
@@ -271,8 +273,11 @@ type ComplexityRoot struct {
 	}
 
 	ApplicationInstanceStatus struct {
-		Message func(childComplexity int) int
-		State   func(childComplexity int) int
+		LastExitCode   func(childComplexity int) int
+		LastExitReason func(childComplexity int) int
+		Message        func(childComplexity int) int
+		Ready          func(childComplexity int) int
+		State          func(childComplexity int) int
 	}
 
 	ApplicationInstanceUtilization struct {
@@ -968,6 +973,37 @@ type ComplexityRoot struct {
 		ErrorsPerSecond   func(childComplexity int) int
 		RequestsPerSecond func(childComplexity int) int
 		Series            func(childComplexity int, input application.IngressMetricsInput) int
+	}
+
+	InstanceGroup struct {
+		Created              func(childComplexity int) int
+		DesiredInstances     func(childComplexity int) int
+		EnvironmentVariables func(childComplexity int) int
+		ID                   func(childComplexity int) int
+		Image                func(childComplexity int) int
+		Instances            func(childComplexity int) int
+		MountedFiles         func(childComplexity int) int
+		Name                 func(childComplexity int) int
+		ReadyInstances       func(childComplexity int) int
+	}
+
+	InstanceGroupEnvironmentVariable struct {
+		Name   func(childComplexity int) int
+		Source func(childComplexity int) int
+		Value  func(childComplexity int) int
+	}
+
+	InstanceGroupMountedFile struct {
+		Content  func(childComplexity int) int
+		Encoding func(childComplexity int) int
+		Error    func(childComplexity int) int
+		Path     func(childComplexity int) int
+		Source   func(childComplexity int) int
+	}
+
+	InstanceGroupValueSource struct {
+		Kind func(childComplexity int) int
+		Name func(childComplexity int) int
 	}
 
 	InvalidSpecIssue struct {
@@ -3477,6 +3513,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Application.Ingresses(childComplexity), true
 
+	case "Application.instanceGroups":
+		if e.ComplexityRoot.Application.InstanceGroups == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Application.InstanceGroups(childComplexity), true
+
 	case "Application.instances":
 		if e.ComplexityRoot.Application.Instances == nil {
 			break
@@ -3886,12 +3929,33 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ApplicationInstanceEdge.Node(childComplexity), true
 
+	case "ApplicationInstanceStatus.lastExitCode":
+		if e.ComplexityRoot.ApplicationInstanceStatus.LastExitCode == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationInstanceStatus.LastExitCode(childComplexity), true
+
+	case "ApplicationInstanceStatus.lastExitReason":
+		if e.ComplexityRoot.ApplicationInstanceStatus.LastExitReason == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationInstanceStatus.LastExitReason(childComplexity), true
+
 	case "ApplicationInstanceStatus.message":
 		if e.ComplexityRoot.ApplicationInstanceStatus.Message == nil {
 			break
 		}
 
 		return e.ComplexityRoot.ApplicationInstanceStatus.Message(childComplexity), true
+
+	case "ApplicationInstanceStatus.ready":
+		if e.ComplexityRoot.ApplicationInstanceStatus.Ready == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationInstanceStatus.Ready(childComplexity), true
 
 	case "ApplicationInstanceStatus.state":
 		if e.ComplexityRoot.ApplicationInstanceStatus.State == nil {
@@ -6524,6 +6588,139 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.IngressMetrics.Series(childComplexity, args["input"].(application.IngressMetricsInput)), true
+
+	case "InstanceGroup.created":
+		if e.ComplexityRoot.InstanceGroup.Created == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroup.Created(childComplexity), true
+
+	case "InstanceGroup.desiredInstances":
+		if e.ComplexityRoot.InstanceGroup.DesiredInstances == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroup.DesiredInstances(childComplexity), true
+
+	case "InstanceGroup.environmentVariables":
+		if e.ComplexityRoot.InstanceGroup.EnvironmentVariables == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroup.EnvironmentVariables(childComplexity), true
+
+	case "InstanceGroup.id":
+		if e.ComplexityRoot.InstanceGroup.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroup.ID(childComplexity), true
+
+	case "InstanceGroup.image":
+		if e.ComplexityRoot.InstanceGroup.Image == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroup.Image(childComplexity), true
+
+	case "InstanceGroup.instances":
+		if e.ComplexityRoot.InstanceGroup.Instances == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroup.Instances(childComplexity), true
+
+	case "InstanceGroup.mountedFiles":
+		if e.ComplexityRoot.InstanceGroup.MountedFiles == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroup.MountedFiles(childComplexity), true
+
+	case "InstanceGroup.name":
+		if e.ComplexityRoot.InstanceGroup.Name == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroup.Name(childComplexity), true
+
+	case "InstanceGroup.readyInstances":
+		if e.ComplexityRoot.InstanceGroup.ReadyInstances == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroup.ReadyInstances(childComplexity), true
+
+	case "InstanceGroupEnvironmentVariable.name":
+		if e.ComplexityRoot.InstanceGroupEnvironmentVariable.Name == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroupEnvironmentVariable.Name(childComplexity), true
+
+	case "InstanceGroupEnvironmentVariable.source":
+		if e.ComplexityRoot.InstanceGroupEnvironmentVariable.Source == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroupEnvironmentVariable.Source(childComplexity), true
+
+	case "InstanceGroupEnvironmentVariable.value":
+		if e.ComplexityRoot.InstanceGroupEnvironmentVariable.Value == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroupEnvironmentVariable.Value(childComplexity), true
+
+	case "InstanceGroupMountedFile.content":
+		if e.ComplexityRoot.InstanceGroupMountedFile.Content == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroupMountedFile.Content(childComplexity), true
+
+	case "InstanceGroupMountedFile.encoding":
+		if e.ComplexityRoot.InstanceGroupMountedFile.Encoding == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroupMountedFile.Encoding(childComplexity), true
+
+	case "InstanceGroupMountedFile.error":
+		if e.ComplexityRoot.InstanceGroupMountedFile.Error == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroupMountedFile.Error(childComplexity), true
+
+	case "InstanceGroupMountedFile.path":
+		if e.ComplexityRoot.InstanceGroupMountedFile.Path == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroupMountedFile.Path(childComplexity), true
+
+	case "InstanceGroupMountedFile.source":
+		if e.ComplexityRoot.InstanceGroupMountedFile.Source == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroupMountedFile.Source(childComplexity), true
+
+	case "InstanceGroupValueSource.kind":
+		if e.ComplexityRoot.InstanceGroupValueSource.Kind == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroupValueSource.Kind(childComplexity), true
+
+	case "InstanceGroupValueSource.name":
+		if e.ComplexityRoot.InstanceGroupValueSource.Name == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroupValueSource.Name(childComplexity), true
 
 	case "InvalidSpecIssue.id":
 		if e.ComplexityRoot.InvalidSpecIssue.ID == nil {
@@ -18221,13 +18418,31 @@ type ApplicationInstance implements Node {
 
 type ApplicationInstanceStatus {
 	state: ApplicationInstanceState!
+	"""
+	A user-friendly description of the current state.
+	"""
 	message: String!
+	"""
+	Whether the container is passing its readiness check and can receive traffic.
+	"""
+	ready: Boolean!
+	"""
+	The reason the container last terminated, if applicable.
+	This is populated even when the instance is currently running, to help debug restart loops.
+	Example values: "OOMKilled", "Error", "Completed".
+	"""
+	lastExitReason: String
+	"""
+	The exit code from the last container termination, if applicable.
+	"""
+	lastExitCode: Int
 }
 
 enum ApplicationInstanceState {
 	RUNNING
 	STARTING
 	FAILING
+	TERMINATED
 	UNKNOWN
 }
 
@@ -20201,6 +20416,155 @@ type FeatureOpenSearch implements Node {
 	Wether OpenSearch is enabled or not.
 	"""
 	enabled: Boolean!
+}
+`, BuiltIn: false},
+	{Name: "../schema/instancegroup.graphqls", Input: `extend type Application {
+	"""
+	Instance groups for the application. An instance group represents a set of identical instances.
+	All instances in a group share the same configuration.
+	"""
+	instanceGroups: [InstanceGroup!]!
+}
+
+"""
+An instance group represents a set of identical instances.
+All instances in the group share the same configuration (environment variables, mounted files, image).
+"""
+type InstanceGroup implements Node {
+	"""
+	The globally unique ID of the instance group.
+	"""
+	id: ID!
+
+	"""
+	The name of the instance group.
+	"""
+	name: String!
+
+	"""
+	The container image used by instances in this group.
+	"""
+	image: ContainerImage!
+
+	"""
+	When the instance group was created.
+	"""
+	created: Time!
+
+	"""
+	The number of instances that are ready.
+	"""
+	readyInstances: Int!
+
+	"""
+	The desired number of instances.
+	"""
+	desiredInstances: Int!
+
+	"""
+	Environment variables configured for instances in this group.
+	Variables from Secrets require elevation to view their values.
+	"""
+	environmentVariables: [InstanceGroupEnvironmentVariable!]!
+
+	"""
+	Files mounted into instances in this group from Secrets or Configs.
+	"""
+	mountedFiles: [InstanceGroupMountedFile!]!
+
+	"""
+	The application instances belonging to this instance group.
+	"""
+	instances: [ApplicationInstance!]!
+}
+
+"""
+An environment variable configured for an instance group.
+"""
+type InstanceGroupEnvironmentVariable {
+	"""
+	The name of the environment variable.
+	"""
+	name: String!
+
+	"""
+	The value of the environment variable. Null if the value comes from a Secret (requires elevation to view).
+	"""
+	value: String
+
+	"""
+	The source of the environment variable value.
+	"""
+	source: InstanceGroupValueSource!
+}
+
+"""
+A file mounted into an instance group from a Secret or Config.
+"""
+type InstanceGroupMountedFile {
+	"""
+	The file path inside the instance.
+	"""
+	path: String!
+
+	"""
+	The source of the mounted file.
+	"""
+	source: InstanceGroupValueSource!
+
+	"""
+	The file content. Null for files from Secrets (requires elevation to view)
+	or when the source could not be resolved (check the error field).
+	"""
+	content: String
+
+	"""
+	The encoding of the content.
+	PLAIN_TEXT means the content can be displayed as-is.
+	BASE64 means the content is base64-encoded binary data that should be downloaded rather than displayed.
+	"""
+	encoding: ValueEncoding!
+
+	"""
+	Error message when the source could not be resolved.
+	When set, the file entry represents a failed mount rather than an actual file.
+	"""
+	error: String
+}
+
+"""
+Describes the source of a value (environment variable or mounted file).
+"""
+type InstanceGroupValueSource {
+	"""
+	The kind of source.
+	"""
+	kind: InstanceGroupValueSourceKind!
+
+	"""
+	The name of the source resource.
+	"""
+	name: String!
+}
+
+"""
+The kind of source for an environment variable or mounted file.
+"""
+enum InstanceGroupValueSourceKind {
+	"""
+	The value comes from a Secret.
+	"""
+	SECRET
+
+	"""
+	The value comes from a Config.
+	"""
+	CONFIG
+
+	"""
+	The value is defined inline in the workload spec.
+	"""
+	SPEC
 }
 `, BuiltIn: false},
 	{Name: "../schema/issues.graphqls", Input: `extend type Team {

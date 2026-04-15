@@ -190,7 +190,7 @@ Test.gql("Team with multiple applications and instances", function(t)
 										name = "another-app-23422-2sdf",
 										restarts = 0,
 										status = {
-											message = "Unknown",
+											message = "Unknown state.",
 											state = "UNKNOWN",
 										},
 									},
@@ -207,7 +207,7 @@ Test.gql("Team with multiple applications and instances", function(t)
 										name = "app-name-23422-2sdf",
 										restarts = 0,
 										status = {
-											message = "Running",
+											message = "Running and ready.",
 											state = "RUNNING",
 										},
 									},

@@ -29,6 +29,7 @@ import (
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
 	"github.com/nais/api/internal/workload/config"
+	"github.com/nais/api/internal/workload/instancegroup"
 	"github.com/nais/api/internal/workload/logging"
 	"github.com/nais/api/internal/workload/netpol"
 	"github.com/nais/api/internal/workload/secret"
@@ -54,6 +55,7 @@ type ApplicationResolver interface {
 	Configs(ctx context.Context, obj *application.Application, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*config.Config], error)
 	Cost(ctx context.Context, obj *application.Application) (*cost.WorkloadCost, error)
 	Deployments(ctx context.Context, obj *application.Application, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*deployment.Deployment], error)
+	InstanceGroups(ctx context.Context, obj *application.Application) ([]*instancegroup.InstanceGroup, error)
 	KafkaTopicAcls(ctx context.Context, obj *application.Application, orderBy *kafkatopic.KafkaTopicACLOrder) (*pagination.Connection[*kafkatopic.KafkaTopicACL], error)
 	LogDestinations(ctx context.Context, obj *application.Application) ([]logging.LogDestination, error)
 	NetworkPolicy(ctx context.Context, obj *application.Application) (*netpol.NetworkPolicy, error)
@@ -1310,6 +1312,55 @@ func (ec *executionContext) fieldContext_Application_deployments(ctx context.Con
 	return fc, nil
 }
 
+func (ec *executionContext) _Application_instanceGroups(ctx context.Context, field graphql.CollectedField, obj *application.Application) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Application_instanceGroups,
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.Application().InstanceGroups(ctx, obj)
+		},
+		nil,
+		ec.marshalNInstanceGroup2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋinstancegroupᚐInstanceGroupᚄ,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Application_instanceGroups(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Application",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_InstanceGroup_id(ctx, field)
+			case "name":
+				return ec.fieldContext_InstanceGroup_name(ctx, field)
+			case "image":
+				return ec.fieldContext_InstanceGroup_image(ctx, field)
+			case "created":
+				return ec.fieldContext_InstanceGroup_created(ctx, field)
+			case "readyInstances":
+				return ec.fieldContext_InstanceGroup_readyInstances(ctx, field)
+			case "desiredInstances":
+				return ec.fieldContext_InstanceGroup_desiredInstances(ctx, field)
+			case "environmentVariables":
+				return ec.fieldContext_InstanceGroup_environmentVariables(ctx, field)
+			case "mountedFiles":
+				return ec.fieldContext_InstanceGroup_mountedFiles(ctx, field)
+			case "instances":
+				return ec.fieldContext_InstanceGroup_instances(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type InstanceGroup", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Application_kafkaTopicAcls(ctx context.Context, field graphql.CollectedField, obj *application.Application) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -1928,6 +1979,8 @@ func (ec *executionContext) fieldContext_ApplicationConnection_nodes(_ context.C
 				return ec.fieldContext_Application_cost(ctx, field)
 			case "deployments":
 				return ec.fieldContext_Application_deployments(ctx, field)
+			case "instanceGroups":
+				return ec.fieldContext_Application_instanceGroups(ctx, field)
 			case "kafkaTopicAcls":
 				return ec.fieldContext_Application_kafkaTopicAcls(ctx, field)
 			case "logDestinations":
@@ -2588,6 +2641,8 @@ func (ec *executionContext) fieldContext_ApplicationEdge_node(_ context.Context,
 				return ec.fieldContext_Application_cost(ctx, field)
 			case "deployments":
 				return ec.fieldContext_Application_deployments(ctx, field)
+			case "instanceGroups":
+				return ec.fieldContext_Application_instanceGroups(ctx, field)
 			case "kafkaTopicAcls":
 				return ec.fieldContext_Application_kafkaTopicAcls(ctx, field)
 			case "logDestinations":
@@ -2808,6 +2863,12 @@ func (ec *executionContext) fieldContext_ApplicationInstance_status(_ context.Co
 				return ec.fieldContext_ApplicationInstanceStatus_state(ctx, field)
 			case "message":
 				return ec.fieldContext_ApplicationInstanceStatus_message(ctx, field)
+			case "ready":
+				return ec.fieldContext_ApplicationInstanceStatus_ready(ctx, field)
+			case "lastExitReason":
+				return ec.fieldContext_ApplicationInstanceStatus_lastExitReason(ctx, field)
+			case "lastExitCode":
+				return ec.fieldContext_ApplicationInstanceStatus_lastExitCode(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ApplicationInstanceStatus", field.Name)
 		},
@@ -3112,6 +3173,93 @@ func (ec *executionContext) fieldContext_ApplicationInstanceStatus_message(_ con
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ApplicationInstanceStatus_ready(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationInstanceStatus) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_ApplicationInstanceStatus_ready,
+		func(ctx context.Context) (any, error) {
+			return obj.Ready, nil
+		},
+		nil,
+		ec.marshalNBoolean2bool,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_ApplicationInstanceStatus_ready(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ApplicationInstanceStatus",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ApplicationInstanceStatus_lastExitReason(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationInstanceStatus) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_ApplicationInstanceStatus_lastExitReason,
+		func(ctx context.Context) (any, error) {
+			return obj.LastExitReason, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_ApplicationInstanceStatus_lastExitReason(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ApplicationInstanceStatus",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ApplicationInstanceStatus_lastExitCode(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationInstanceStatus) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_ApplicationInstanceStatus_lastExitCode,
+		func(ctx context.Context) (any, error) {
+			return obj.LastExitCode, nil
+		},
+		nil,
+		ec.marshalOInt2ᚖint,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_ApplicationInstanceStatus_lastExitCode(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ApplicationInstanceStatus",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -4748,6 +4896,8 @@ func (ec *executionContext) fieldContext_RestartApplicationPayload_application(_
 				return ec.fieldContext_Application_cost(ctx, field)
 			case "deployments":
 				return ec.fieldContext_Application_deployments(ctx, field)
+			case "instanceGroups":
+				return ec.fieldContext_Application_instanceGroups(ctx, field)
 			case "kafkaTopicAcls":
 				return ec.fieldContext_Application_kafkaTopicAcls(ctx, field)
 			case "logDestinations":
@@ -5588,6 +5738,42 @@ func (ec *executionContext) _Application(ctx context.Context, sel ast.SelectionS
 					}
 				}()
 				res = ec._Application_deployments(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "instanceGroups":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Application_instanceGroups(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -6484,6 +6670,15 @@ func (ec *executionContext) _ApplicationInstanceStatus(ctx context.Context, sel 
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "ready":
+			out.Values[i] = ec._ApplicationInstanceStatus_ready(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "lastExitReason":
+			out.Values[i] = ec._ApplicationInstanceStatus_lastExitReason(ctx, field, obj)
+		case "lastExitCode":
+			out.Values[i] = ec._ApplicationInstanceStatus_lastExitCode(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

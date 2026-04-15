@@ -1,0 +1,178 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: myapp
+spec:
+  image: ghcr.io/navikt/myapp:v1.2.3
+  replicas:
+    min: 2
+    max: 4
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp
+  labels:
+    app: myapp
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      labels:
+        app: myapp
+    spec:
+      containers:
+        - name: myapp
+          image: ghcr.io/navikt/myapp:v1.2.3
+
+---
+# Current ReplicaSet (revision 2) - fully rolled out
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: myapp-abc123
+  labels:
+    app: myapp
+  annotations:
+    deployment.kubernetes.io/revision: "2"
+  creationTimestamp: "2024-01-15T10:00:00Z"
+  ownerReferences:
+    - apiVersion: apps/v1
+      kind: Deployment
+      name: myapp
+      uid: deploy-uid-1
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      labels:
+        app: myapp
+    spec:
+      containers:
+        - name: myapp
+          image: ghcr.io/navikt/myapp:v1.2.3
+          env:
+            - name: APP_ENV
+              value: production
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: myapp-config
+                  key: db_host
+            - name: API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: myapp-secret
+                  key: api_key
+          envFrom:
+            - configMapRef:
+                name: myapp-envs
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/config
+            - name: secret-volume
+              mountPath: /etc/secret
+      volumes:
+        - name: config-volume
+          configMap:
+            name: myapp-config
+        - name: secret-volume
+          secret:
+            secretName: myapp-secret
+status:
+  replicas: 2
+  readyReplicas: 2
+
+---
+# Previous ReplicaSet (revision 1) - scaled down to 0
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: myapp-def456
+  labels:
+    app: myapp
+  annotations:
+    deployment.kubernetes.io/revision: "1"
+  creationTimestamp: "2024-01-10T08:00:00Z"
+  ownerReferences:
+    - apiVersion: apps/v1
+      kind: Deployment
+      name: myapp
+      uid: deploy-uid-1
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      labels:
+        app: myapp
+    spec:
+      containers:
+        - name: myapp
+          image: ghcr.io/navikt/myapp:v1.0.0
+status:
+  replicas: 0
+  readyReplicas: 0
+
+---
+# Pod 1 - owned by current ReplicaSet
+apiVersion: v1
+kind: Pod
+metadata:
+  name: myapp-abc123-pod1
+  labels:
+    app: myapp
+  creationTimestamp: "2024-01-15T10:01:00Z"
+  ownerReferences:
+    - apiVersion: apps/v1
+      kind: ReplicaSet
+      name: myapp-abc123
+      uid: rs-uid-1
+spec:
+  containers:
+    - name: myapp
+      image: ghcr.io/navikt/myapp:v1.2.3
+status:
+  containerStatuses:
+    - name: myapp
+      ready: true
+      restartCount: 0
+      state:
+        running:
+          startedAt: "2024-01-15T10:01:00Z"
+
+---
+# Pod 2 - owned by current ReplicaSet
+apiVersion: v1
+kind: Pod
+metadata:
+  name: myapp-abc123-pod2
+  labels:
+    app: myapp
+  creationTimestamp: "2024-01-15T10:02:00Z"
+  ownerReferences:
+    - apiVersion: apps/v1
+      kind: ReplicaSet
+      name: myapp-abc123
+      uid: rs-uid-1
+spec:
+  containers:
+    - name: myapp
+      image: ghcr.io/navikt/myapp:v1.2.3
+status:
+  containerStatuses:
+    - name: myapp
+      ready: true
+      restartCount: 2
+      state:
+        running:
+          startedAt: "2024-01-15T10:02:00Z"

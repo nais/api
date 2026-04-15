@@ -3,6 +3,7 @@ package application
 import (
 	"fmt"
 	"io"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -90,12 +91,40 @@ func (i ApplicationInstance) ID() ident.Ident {
 	return newInstanceIdent(i.TeamSlug, i.EnvironmentName, i.ApplicationName, i.Name)
 }
 
-var benignWaiting = map[string]struct{}{
-	"":                  {},
-	"ContainerCreating": {},
-	"PodInitializing":   {},
-	"Pulling":           {},
-	"ImagePull":         {},
+// benignWaitingReasons are Kubernetes container waiting reasons that indicate
+// normal startup behavior rather than a problem.
+var benignWaitingReasons = []string{
+	"",
+	"ContainerCreating",
+	"PodInitializing",
+	"Pulling",
+	"ImagePull",
+}
+
+// benignMessages maps benign waiting reasons to user-friendly messages.
+var benignMessages = map[string]string{
+	"ContainerCreating": "Container is being created.",
+	"PodInitializing":   "Waiting for init containers to complete.",
+	"Pulling":           "Downloading container image.",
+	"ImagePull":         "Downloading container image.",
+}
+
+// problemMessages maps Kubernetes container waiting reasons to user-friendly messages.
+// Use %s as a placeholder for the Kubernetes message when it provides useful detail.
+var problemMessages = map[string]string{
+	"CrashLoopBackOff":           "Instance is crash-looping — it keeps crashing shortly after starting. Check application logs for details.",
+	"ErrImagePull":               "Failed to download container image. Check that the image exists and is accessible.",
+	"ImagePullBackOff":           "Repeated failures downloading container image. Check that the image exists and is accessible.",
+	"CreateContainerConfigError": "Configuration error: %s",
+	"CreateContainerError":       "Failed to create the container: %s",
+	"RunContainerError":          "Failed to start the container: %s",
+	"InvalidImageName":           "Invalid container image name.",
+}
+
+// terminatedMessages maps Kubernetes container terminated reasons to user-friendly messages.
+var terminatedMessages = map[string]string{
+	"OOMKilled": "Instance ran out of memory. Consider increasing the memory limit.",
+	"Completed": "Completed successfully.",
 }
 
 func classifyWaiting(w *corev1.ContainerStateWaiting) (kind string, msg string) {
@@ -103,71 +132,122 @@ func classifyWaiting(w *corev1.ContainerStateWaiting) (kind string, msg string) 
 		return "ok", "not waiting"
 	}
 	reason := strings.TrimSpace(w.Reason)
-	message := strings.TrimSpace(w.Message)
 
+	if slices.Contains(benignWaitingReasons, reason) {
+		if m, ok := benignMessages[reason]; ok {
+			return "benign", m
+		}
+		return "benign", "Starting."
+	}
+
+	if m, ok := problemMessages[reason]; ok {
+		if strings.Contains(m, "%s") {
+			detail := strings.TrimSpace(w.Message)
+			if detail == "" {
+				detail = reason
+			}
+			return "problem", fmt.Sprintf(m, detail)
+		}
+		return "problem", m
+	}
+
+	// Fallback: use the Kubernetes reason as-is
 	msg = reason
 	if msg == "" {
-		msg = message
+		msg = strings.TrimSpace(w.Message)
 	}
 	if msg == "" {
 		msg = "Waiting"
 	}
-
-	if _, ok := benignWaiting[reason]; ok {
-		return "benign", msg
-	}
 	return "problem", msg
 }
 
+func terminatedMessage(t *corev1.ContainerStateTerminated) string {
+	if m, ok := terminatedMessages[t.Reason]; ok {
+		return m
+	}
+	if t.Reason != "" {
+		return fmt.Sprintf("Instance terminated: %s.", t.Reason)
+	}
+	if t.Message != "" {
+		return t.Message
+	}
+	return fmt.Sprintf("Instance exited with code %d.", t.ExitCode)
+}
+
+func (i *ApplicationInstance) lastTerminationInfo() (*string, *int) {
+	last := i.ApplicationContainerStatus.LastTerminationState.Terminated
+	if last == nil {
+		return nil, nil
+	}
+	reason := last.Reason
+	exitCode := int(last.ExitCode)
+	if reason == "" {
+		reason = fmt.Sprintf("ExitCode:%d", exitCode)
+	}
+	return &reason, &exitCode
+}
+
 func (i *ApplicationInstance) Status() *ApplicationInstanceStatus {
+	lastExitReason, lastExitCode := i.lastTerminationInfo()
+	ready := i.ApplicationContainerStatus.Ready
+
 	switch {
 	case i.ApplicationContainerStatus.State.Running != nil:
+		msg := "Running and ready."
+		if !ready {
+			msg = "Running, but not passing readiness check."
+		}
 		return &ApplicationInstanceStatus{
-			State:   ApplicationInstanceStateRunning,
-			Message: "Running",
+			State:          ApplicationInstanceStateRunning,
+			Message:        msg,
+			Ready:          ready,
+			LastExitReason: lastExitReason,
+			LastExitCode:   lastExitCode,
 		}
 
 	case i.ApplicationContainerStatus.State.Terminated != nil:
 		t := i.ApplicationContainerStatus.State.Terminated
-		msg := t.Reason
-		if msg == "" {
-			if t.Message != "" {
-				msg = t.Message
-			} else {
-				msg = fmt.Sprintf("Exited (%d)", t.ExitCode)
-			}
+		msg := terminatedMessage(t)
+		state := ApplicationInstanceStateFailing
+		if t.ExitCode == 0 {
+			state = ApplicationInstanceStateTerminated
 		}
 		return &ApplicationInstanceStatus{
-			State:   ApplicationInstanceStateFailing,
-			Message: msg,
+			State:          state,
+			Message:        msg,
+			Ready:          false,
+			LastExitReason: lastExitReason,
+			LastExitCode:   lastExitCode,
 		}
 
 	case i.ApplicationContainerStatus.State.Waiting != nil:
 		kind, msg := classifyWaiting(i.ApplicationContainerStatus.State.Waiting)
-		switch kind {
-		case "problem":
-			return &ApplicationInstanceStatus{
-				State:   ApplicationInstanceStateFailing,
-				Message: msg,
-			}
-		case "benign":
-			return &ApplicationInstanceStatus{
-				State:   ApplicationInstanceStateStarting,
-				Message: msg,
-			}
-		default: // "unknown"
-			return &ApplicationInstanceStatus{
-				State:   ApplicationInstanceStateStarting,
-				Message: msg,
-			}
+		state := ApplicationInstanceStateFailing
+		if kind == "benign" {
+			state = ApplicationInstanceStateStarting
+		}
+		return &ApplicationInstanceStatus{
+			State:          state,
+			Message:        msg,
+			Ready:          false,
+			LastExitReason: lastExitReason,
+			LastExitCode:   lastExitCode,
 		}
 
 	default:
 		return &ApplicationInstanceStatus{
-			State:   ApplicationInstanceStateUnknown,
-			Message: "Unknown",
+			State:          ApplicationInstanceStateUnknown,
+			Message:        "Unknown state.",
+			Ready:          false,
+			LastExitReason: lastExitReason,
+			LastExitCode:   lastExitCode,
 		}
 	}
+}
+
+func (i *ApplicationInstance) State() ApplicationInstanceState {
+	return i.Status().State
 }
 
 func toGraphInstance(pod *corev1.Pod, teamSlug slug.Slug, environmentName string, applicationName string) *ApplicationInstance {
@@ -198,17 +278,6 @@ func (i ApplicationInstance) Image() *workload.ContainerImage {
 	return &workload.ContainerImage{
 		Name: name,
 		Tag:  tag,
-	}
-}
-
-func (i *ApplicationInstance) State() ApplicationInstanceState {
-	switch {
-	case i.ApplicationContainerStatus.State.Running != nil:
-		return ApplicationInstanceStateRunning
-	case i.ApplicationContainerStatus.State.Waiting != nil:
-		return ApplicationInstanceStateFailing
-	default:
-		return ApplicationInstanceStateUnknown
 	}
 }
 
@@ -442,22 +511,24 @@ type RestartApplicationPayload struct {
 type ApplicationInstanceState string
 
 const (
-	ApplicationInstanceStateRunning  ApplicationInstanceState = "RUNNING"
-	ApplicationInstanceStateStarting ApplicationInstanceState = "STARTING"
-	ApplicationInstanceStateFailing  ApplicationInstanceState = "FAILING"
-	ApplicationInstanceStateUnknown  ApplicationInstanceState = "UNKNOWN"
+	ApplicationInstanceStateRunning    ApplicationInstanceState = "RUNNING"
+	ApplicationInstanceStateStarting   ApplicationInstanceState = "STARTING"
+	ApplicationInstanceStateFailing    ApplicationInstanceState = "FAILING"
+	ApplicationInstanceStateTerminated ApplicationInstanceState = "TERMINATED"
+	ApplicationInstanceStateUnknown    ApplicationInstanceState = "UNKNOWN"
 )
 
 var AllApplicationInstanceState = []ApplicationInstanceState{
 	ApplicationInstanceStateRunning,
 	ApplicationInstanceStateStarting,
 	ApplicationInstanceStateFailing,
+	ApplicationInstanceStateTerminated,
 	ApplicationInstanceStateUnknown,
 }
 
 func (e ApplicationInstanceState) IsValid() bool {
 	switch e {
-	case ApplicationInstanceStateRunning, ApplicationInstanceStateStarting, ApplicationInstanceStateFailing, ApplicationInstanceStateUnknown:
+	case ApplicationInstanceStateRunning, ApplicationInstanceStateStarting, ApplicationInstanceStateFailing, ApplicationInstanceStateTerminated, ApplicationInstanceStateUnknown:
 		return true
 	}
 	return false
@@ -546,8 +617,11 @@ type IngressMetrics struct {
 }
 
 type ApplicationInstanceStatus struct {
-	State   ApplicationInstanceState `json:"state"`
-	Message string                   `json:"message"`
+	State          ApplicationInstanceState `json:"state"`
+	Message        string                   `json:"message"`
+	Ready          bool                     `json:"ready"`
+	LastExitReason *string                  `json:"lastExitReason,omitempty"`
+	LastExitCode   *int                     `json:"lastExitCode,omitempty"`
 }
 
 type TeamApplicationsFilter struct {

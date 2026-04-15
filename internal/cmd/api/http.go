@@ -58,6 +58,7 @@ import (
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
 	"github.com/nais/api/internal/workload/config"
+	"github.com/nais/api/internal/workload/instancegroup"
 	"github.com/nais/api/internal/workload/job"
 	"github.com/nais/api/internal/workload/logging"
 	"github.com/nais/api/internal/workload/podlog"
@@ -283,6 +284,7 @@ func ConfigureGraph(
 		ctx = workload.NewLoaderContext(ctx, watchers.PodWatcher)
 		ctx = secret.NewLoaderContext(ctx, watchers.SecretWatcher, secretClientCreator, dynamicClients, clusters, log)
 		ctx = config.NewLoaderContext(ctx, watchers.ConfigWatcher, log)
+		ctx = instancegroup.NewLoaderContext(ctx, watchers.ReplicaSetWatcher, watchers.PodWatcher, dynamicClients, log)
 		ctx = aiven.NewLoaderContext(ctx, aivenProjects)
 		ctx = opensearch.NewLoaderContext(ctx, tenantName, watchers.OpenSearchWatcher, aivenClient, log)
 		ctx = valkey.NewLoaderContext(ctx, tenantName, watchers.ValkeyWatcher, aivenClient)
