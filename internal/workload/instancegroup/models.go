@@ -113,53 +113,6 @@ func (e InstanceGroupValueSourceKind) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
-// InstanceGroupEvent represents a Kubernetes event.
-type InstanceGroupEvent struct {
-	Timestamp      time.Time                  `json:"timestamp"`
-	Reason         string                     `json:"reason"`
-	Message        string                     `json:"message"`
-	Severity       InstanceGroupEventSeverity `json:"severity"`
-	SourceInstance *string                    `json:"sourceInstance"`
-}
-
-// InstanceGroupEventSeverity indicates the severity of an event.
-type InstanceGroupEventSeverity string
-
-const (
-	InstanceGroupEventSeverityInfo    InstanceGroupEventSeverity = "INFO"
-	InstanceGroupEventSeverityWarning InstanceGroupEventSeverity = "WARNING"
-)
-
-var AllInstanceGroupEventSeverity = []InstanceGroupEventSeverity{
-	InstanceGroupEventSeverityInfo,
-	InstanceGroupEventSeverityWarning,
-}
-
-func (e InstanceGroupEventSeverity) IsValid() bool {
-	return slices.Contains(AllInstanceGroupEventSeverity, e)
-}
-
-func (e InstanceGroupEventSeverity) String() string {
-	return string(e)
-}
-
-func (e *InstanceGroupEventSeverity) UnmarshalGQL(v any) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = InstanceGroupEventSeverity(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid InstanceGroupEventSeverity", str)
-	}
-	return nil
-}
-
-func (e InstanceGroupEventSeverity) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
 func toGraphInstanceGroup(rs *appsv1.ReplicaSet, environmentName string) *InstanceGroup {
 	var desiredInstances int
 	if rs.Spec.Replicas != nil {

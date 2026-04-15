@@ -1354,8 +1354,6 @@ func (ec *executionContext) fieldContext_Application_instanceGroups(_ context.Co
 				return ec.fieldContext_InstanceGroup_mountedFiles(ctx, field)
 			case "instances":
 				return ec.fieldContext_InstanceGroup_instances(ctx, field)
-			case "events":
-				return ec.fieldContext_InstanceGroup_events(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type InstanceGroup", field.Name)
 		},

@@ -24,10 +24,6 @@ func (r *instanceGroupResolver) Instances(ctx context.Context, obj *instancegrou
 	return instancegroup.ListInstances(ctx, obj)
 }
 
-func (r *instanceGroupResolver) Events(ctx context.Context, obj *instancegroup.InstanceGroup) ([]*instancegroup.InstanceGroupEvent, error) {
-	return instancegroup.ListEvents(ctx, obj)
-}
-
 func (r *Resolver) InstanceGroup() gengql.InstanceGroupResolver { return &instanceGroupResolver{r} }
 
 type instanceGroupResolver struct{ *Resolver }
