@@ -1,13 +1,13 @@
 extend type Application {
 	"""
-	Instance groups for the application. An instance group represents a set of identical instances
-	backed by a Kubernetes ReplicaSet. All instances in a group share the same configuration.
+	Instance groups for the application. An instance group represents a set of identical instances.
+	All instances in a group share the same configuration.
 	"""
 	instanceGroups: [InstanceGroup!]!
 }
 
 """
-An instance group represents a set of identical instances (backed by a Kubernetes ReplicaSet).
+An instance group represents a set of identical instances.
 All instances in the group share the same configuration (environment variables, mounted files, image).
 """
 type InstanceGroup implements Node {
@@ -48,7 +48,7 @@ type InstanceGroup implements Node {
 	environmentVariables: [InstanceGroupEnvironmentVariable!]!
 
 	"""
-	Files mounted into instances in this group from Secrets or ConfigMaps.
+	Files mounted into instances in this group from Secrets or Configs.
 	"""
 	mountedFiles: [InstanceGroupMountedFile!]!
 
@@ -80,11 +80,11 @@ type InstanceGroupEnvironmentVariable {
 }
 
 """
-A file mounted into an instance group from a Secret or ConfigMap.
+A file mounted into an instance group from a Secret or Config.
 """
 type InstanceGroupMountedFile {
 	"""
-	The file path inside the container.
+	The file path inside the instance.
 	"""
 	path: String!
 
@@ -96,7 +96,6 @@ type InstanceGroupMountedFile {
 	"""
 	The file content. Null for files from Secrets (requires elevation to view)
 	or when the source could not be resolved (check the error field).
-	For ConfigMap files, this is the raw string content or base64-encoded binary content.
 	"""
 	content: String
 
@@ -107,7 +106,7 @@ type InstanceGroupMountedFile {
 	isBinary: Boolean!
 
 	"""
-	Error message when the source Secret or ConfigMap could not be resolved.
+	Error message when the source could not be resolved.
 	When set, the file entry represents a failed mount rather than an actual file.
 	"""
 	error: String
@@ -123,7 +122,7 @@ type InstanceGroupValueSource {
 	kind: InstanceGroupValueSourceKind!
 
 	"""
-	The name of the source resource (e.g. Secret name, ConfigMap name).
+	The name of the source resource.
 	"""
 	name: String!
 }
@@ -138,13 +137,12 @@ enum InstanceGroupValueSourceKind {
 	SECRET
 
 	"""
-	The value comes from a ConfigMap.
+	The value comes from a Config.
 	"""
 	CONFIG
 
 	"""
-	The value comes from the workload spec itself (inline value, fieldRef, etc.).
+	The value is defined inline in the workload spec.
 	"""
 	SPEC
 }
-
