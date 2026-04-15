@@ -56,7 +56,6 @@ type InstanceGroup implements Node {
 	The application instances belonging to this instance group.
 	"""
 	instances: [ApplicationInstance!]!
-
 }
 
 """
