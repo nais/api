@@ -165,6 +165,7 @@ enum IssueType {
 	VULNERABLE_IMAGE
 	EXTERNAL_INGRESS_CRITICAL_VULNERABILITY
 	UNLEASH_RELEASE_CHANNEL
+	RESTART_LOOP
 }
 
 type VulnerableImageIssue implements Issue & Node {
@@ -305,4 +306,19 @@ type UnleashReleaseChannelIssue implements Issue & Node {
 	majorVersion: Int!
 	"The current major version of Unleash available."
 	currentMajorVersion: Int!
+}
+
+type RestartLoopIssue implements Issue & Node {
+	id: ID!
+	teamEnvironment: TeamEnvironment!
+	severity: Severity!
+	message: String!
+
+	workload: Workload!
+	"The number of container restarts."
+	restartCount: Int!
+	"The reason for the last container exit."
+	lastExitReason: String!
+	"The timestamp of the last container exit."
+	lastExitTimestamp: Time!
 }

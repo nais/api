@@ -46,6 +46,7 @@ func (w Workload) Run(ctx context.Context) ([]Issue, error) {
 		ret = appendIssues(ret, deprecatedIngress(app.Obj, env))
 		ret = appendIssues(ret, deprecatedRegistry(image, app.Obj.GetName(), app.Obj.GetNamespace(), env, issue.ResourceTypeApplication))
 		ret = appendIssues(ret, w.noRunningInstances(app.Obj, app.Obj.GetNamespace(), env))
+		ret = appendIssues(ret, w.restartLoop(app.Obj, app.Obj.GetNamespace(), env))
 		ret = appendIssues(ret, w.specErrors(app.Obj, env, issue.ResourceTypeApplication))
 	}
 
