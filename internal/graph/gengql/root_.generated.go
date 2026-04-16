@@ -22766,17 +22766,6 @@ type PostgresGrantAccessActivityLogEntryData {
 	until: Time!
 }
 
-extend enum ActivityLogActivityType {
-	"""
-	A user was granted access to a Postgres cluster
-	"""
-	POSTGRES_GRANT_ACCESS
-	"""
-	A Postgres instance was deleted
-	"""
-	POSTGRES_DELETED
-}
-
 type PostgresDeletedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
@@ -22801,6 +22790,17 @@ type PostgresDeletedActivityLogEntry implements ActivityLogEntry & Node {
 
 	"The environment name that the entry belongs to."
 	environmentName: String
+}
+
+extend enum ActivityLogActivityType {
+	"""
+	A user was granted access to a Postgres cluster
+	"""
+	POSTGRES_GRANT_ACCESS
+	"""
+	A Postgres instance was deleted
+	"""
+	POSTGRES_DELETED
 }
 
 extend type Mutation {
