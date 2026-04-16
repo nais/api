@@ -103,7 +103,7 @@ func (w Workload) restartLoop(app *nais_io_v1alpha1.Application, pods []*v1.Pod,
 		Env:          env,
 		Severity:     best.severity,
 		Message:      message,
-		IssueDetails: issue.RestartLoopIssueDetails{
+		IssueDetails: issue.ApplicationRestartLoopIssueDetails{
 			RestartCount:      int(best.restartCount),
 			LastExitReason:    best.lastExitReason,
 			LastExitTimestamp: best.lastExitTimestamp,

@@ -310,7 +310,7 @@ type UnleashReleaseChannelIssue implements Issue & Node {
 }
 
 "An issue raised when an application keeps restarting repeatedly."
-type RestartLoopIssue implements Issue & Node {
+type ApplicationRestartLoopIssue implements Issue & Node {
 	"Unique identifier for this issue."
 	id: ID!
 	"The team environment where the issue was detected."

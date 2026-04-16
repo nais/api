@@ -136,9 +136,9 @@ func TestRestartLoop(t *testing.T) {
 			if got.Severity != tc.wantSeverity {
 				t.Errorf("severity: want %v, got %v", tc.wantSeverity, got.Severity)
 			}
-			details, ok := got.IssueDetails.(issue.RestartLoopIssueDetails)
+			details, ok := got.IssueDetails.(issue.ApplicationRestartLoopIssueDetails)
 			if !ok {
-				t.Fatalf("expected RestartLoopIssueDetails, got %T", got.IssueDetails)
+				t.Fatalf("expected ApplicationRestartLoopIssueDetails, got %T", got.IssueDetails)
 			}
 			if details.LastExitReason != tc.wantReason {
 				t.Errorf("lastExitReason: want %q, got %q", tc.wantReason, details.LastExitReason)

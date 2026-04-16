@@ -426,19 +426,19 @@ type IssueFilter struct {
 	ResourceIssueFilter
 }
 
-// RestartLoopIssueDetails holds details about a restart loop issue.
-type RestartLoopIssueDetails struct {
+// ApplicationRestartLoopIssueDetails holds details about a restart loop issue.
+type ApplicationRestartLoopIssueDetails struct {
 	RestartCount      int       `json:"restartCount"`
 	LastExitReason    string    `json:"lastExitReason"`
 	LastExitTimestamp time.Time `json:"lastExitTimestamp"`
 }
 
-// RestartLoopIssue is an issue raised when an application is stuck in a restart loop.
-type RestartLoopIssue struct {
+// ApplicationRestartLoopIssue is an issue raised when an application is stuck in a restart loop.
+type ApplicationRestartLoopIssue struct {
 	Base
-	RestartLoopIssueDetails
+	ApplicationRestartLoopIssueDetails
 }
 
-func (RestartLoopIssue) IsIssue() {}
+func (ApplicationRestartLoopIssue) IsIssue() {}
 
-func (RestartLoopIssue) IsNode() {}
+func (ApplicationRestartLoopIssue) IsNode() {}

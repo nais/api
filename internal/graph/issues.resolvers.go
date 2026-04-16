@@ -2,6 +2,7 @@ package graph
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/pagination"
@@ -15,6 +16,14 @@ import (
 	"github.com/nais/api/internal/workload/application"
 	"github.com/nais/api/internal/workload/job"
 )
+
+func (r *applicationRestartLoopIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.ApplicationRestartLoopIssue) (*team.TeamEnvironment, error) {
+	panic(fmt.Errorf("not implemented: TeamEnvironment - teamEnvironment"))
+}
+
+func (r *applicationRestartLoopIssueResolver) Workload(ctx context.Context, obj *issue.ApplicationRestartLoopIssue) (workload.Workload, error) {
+	panic(fmt.Errorf("not implemented: Workload - workload"))
+}
 
 func (r *deprecatedIngressIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.DeprecatedIngressIssue) (*team.TeamEnvironment, error) {
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
@@ -88,14 +97,6 @@ func (r *openSearchIssueResolver) OpenSearch(ctx context.Context, obj *issue.Ope
 	return opensearch.Get(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ResourceName)
 }
 
-func (r *restartLoopIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.RestartLoopIssue) (*team.TeamEnvironment, error) {
-	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
-}
-
-func (r *restartLoopIssueResolver) Workload(ctx context.Context, obj *issue.RestartLoopIssue) (workload.Workload, error) {
-	return getWorkloadByResourceType(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ResourceName, obj.ResourceType)
-}
-
 func (r *sqlInstanceStateIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.SqlInstanceStateIssue) (*team.TeamEnvironment, error) {
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
@@ -145,6 +146,10 @@ func (r *vulnerableImageIssueResolver) Workload(ctx context.Context, obj *issue.
 	return getWorkloadByResourceType(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ResourceName, obj.ResourceType)
 }
 
+func (r *Resolver) ApplicationRestartLoopIssue() gengql.ApplicationRestartLoopIssueResolver {
+	return &applicationRestartLoopIssueResolver{r}
+}
+
 func (r *Resolver) DeprecatedIngressIssue() gengql.DeprecatedIngressIssueResolver {
 	return &deprecatedIngressIssueResolver{r}
 }
@@ -181,10 +186,6 @@ func (r *Resolver) OpenSearchIssue() gengql.OpenSearchIssueResolver {
 	return &openSearchIssueResolver{r}
 }
 
-func (r *Resolver) RestartLoopIssue() gengql.RestartLoopIssueResolver {
-	return &restartLoopIssueResolver{r}
-}
-
 func (r *Resolver) SqlInstanceStateIssue() gengql.SqlInstanceStateIssueResolver {
 	return &sqlInstanceStateIssueResolver{r}
 }
@@ -204,6 +205,7 @@ func (r *Resolver) VulnerableImageIssue() gengql.VulnerableImageIssueResolver {
 }
 
 type (
+	applicationRestartLoopIssueResolver               struct{ *Resolver }
 	deprecatedIngressIssueResolver                    struct{ *Resolver }
 	deprecatedRegistryIssueResolver                   struct{ *Resolver }
 	externalIngressCriticalVulnerabilityIssueResolver struct{ *Resolver }
@@ -213,10 +215,24 @@ type (
 	missingSbomIssueResolver                          struct{ *Resolver }
 	noRunningInstancesIssueResolver                   struct{ *Resolver }
 	openSearchIssueResolver                           struct{ *Resolver }
-	restartLoopIssueResolver                          struct{ *Resolver }
 	sqlInstanceStateIssueResolver                     struct{ *Resolver }
 	sqlInstanceVersionIssueResolver                   struct{ *Resolver }
 	unleashReleaseChannelIssueResolver                struct{ *Resolver }
 	valkeyIssueResolver                               struct{ *Resolver }
 	vulnerableImageIssueResolver                      struct{ *Resolver }
 )
+
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//    it when you're done.
+//  - You have helper methods in this file. Move them out to keep these resolver files clean.
+/*
+	func (r *restartLoopIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.ApplicationRestartLoopIssue) (*team.TeamEnvironment, error) {
+	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
+}
+func (r *restartLoopIssueResolver) Workload(ctx context.Context, obj *issue.ApplicationRestartLoopIssue) (workload.Workload, error) {
+	return getWorkloadByResourceType(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ResourceName, obj.ResourceType)
+}
+*/

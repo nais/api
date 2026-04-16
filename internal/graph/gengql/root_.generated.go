@@ -57,6 +57,7 @@ type Config = graphql.Config[ResolverRoot, DirectiveRoot, ComplexityRoot]
 type ResolverRoot interface {
 	Application() ApplicationResolver
 	ApplicationInstance() ApplicationInstanceResolver
+	ApplicationRestartLoopIssue() ApplicationRestartLoopIssueResolver
 	BigQueryDataset() BigQueryDatasetResolver
 	Bucket() BucketResolver
 	CVE() CVEResolver
@@ -99,7 +100,6 @@ type ResolverRoot interface {
 	RemoveTeamMemberPayload() RemoveTeamMemberPayloadResolver
 	Repository() RepositoryResolver
 	RestartApplicationPayload() RestartApplicationPayloadResolver
-	RestartLoopIssue() RestartLoopIssueResolver
 	Secret() SecretResolver
 	ServiceAccount() ServiceAccountResolver
 	SqlDatabase() SqlDatabaseResolver
@@ -294,6 +294,17 @@ type ComplexityRoot struct {
 		Limits   func(childComplexity int) int
 		Requests func(childComplexity int) int
 		Scaling  func(childComplexity int) int
+	}
+
+	ApplicationRestartLoopIssue struct {
+		ID                func(childComplexity int) int
+		LastExitReason    func(childComplexity int) int
+		LastExitTimestamp func(childComplexity int) int
+		Message           func(childComplexity int) int
+		RestartCount      func(childComplexity int) int
+		Severity          func(childComplexity int) int
+		TeamEnvironment   func(childComplexity int) int
+		Workload          func(childComplexity int) int
 	}
 
 	ApplicationRestartedActivityLogEntry struct {
@@ -1839,17 +1850,6 @@ type ComplexityRoot struct {
 
 	RestartApplicationPayload struct {
 		Application func(childComplexity int) int
-	}
-
-	RestartLoopIssue struct {
-		ID                func(childComplexity int) int
-		LastExitReason    func(childComplexity int) int
-		LastExitTimestamp func(childComplexity int) int
-		Message           func(childComplexity int) int
-		RestartCount      func(childComplexity int) int
-		Severity          func(childComplexity int) int
-		TeamEnvironment   func(childComplexity int) int
-		Workload          func(childComplexity int) int
 	}
 
 	RevokeRoleFromServiceAccountPayload struct {
@@ -4018,6 +4018,62 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ApplicationResources.Scaling(childComplexity), true
+
+	case "ApplicationRestartLoopIssue.id":
+		if e.ComplexityRoot.ApplicationRestartLoopIssue.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationRestartLoopIssue.ID(childComplexity), true
+
+	case "ApplicationRestartLoopIssue.lastExitReason":
+		if e.ComplexityRoot.ApplicationRestartLoopIssue.LastExitReason == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationRestartLoopIssue.LastExitReason(childComplexity), true
+
+	case "ApplicationRestartLoopIssue.lastExitTimestamp":
+		if e.ComplexityRoot.ApplicationRestartLoopIssue.LastExitTimestamp == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationRestartLoopIssue.LastExitTimestamp(childComplexity), true
+
+	case "ApplicationRestartLoopIssue.message":
+		if e.ComplexityRoot.ApplicationRestartLoopIssue.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationRestartLoopIssue.Message(childComplexity), true
+
+	case "ApplicationRestartLoopIssue.restartCount":
+		if e.ComplexityRoot.ApplicationRestartLoopIssue.RestartCount == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationRestartLoopIssue.RestartCount(childComplexity), true
+
+	case "ApplicationRestartLoopIssue.severity":
+		if e.ComplexityRoot.ApplicationRestartLoopIssue.Severity == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationRestartLoopIssue.Severity(childComplexity), true
+
+	case "ApplicationRestartLoopIssue.teamEnvironment":
+		if e.ComplexityRoot.ApplicationRestartLoopIssue.TeamEnvironment == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationRestartLoopIssue.TeamEnvironment(childComplexity), true
+
+	case "ApplicationRestartLoopIssue.workload":
+		if e.ComplexityRoot.ApplicationRestartLoopIssue.Workload == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationRestartLoopIssue.Workload(childComplexity), true
 
 	case "ApplicationRestartedActivityLogEntry.actor":
 		if e.ComplexityRoot.ApplicationRestartedActivityLogEntry.Actor == nil {
@@ -10862,62 +10918,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.RestartApplicationPayload.Application(childComplexity), true
-
-	case "RestartLoopIssue.id":
-		if e.ComplexityRoot.RestartLoopIssue.ID == nil {
-			break
-		}
-
-		return e.ComplexityRoot.RestartLoopIssue.ID(childComplexity), true
-
-	case "RestartLoopIssue.lastExitReason":
-		if e.ComplexityRoot.RestartLoopIssue.LastExitReason == nil {
-			break
-		}
-
-		return e.ComplexityRoot.RestartLoopIssue.LastExitReason(childComplexity), true
-
-	case "RestartLoopIssue.lastExitTimestamp":
-		if e.ComplexityRoot.RestartLoopIssue.LastExitTimestamp == nil {
-			break
-		}
-
-		return e.ComplexityRoot.RestartLoopIssue.LastExitTimestamp(childComplexity), true
-
-	case "RestartLoopIssue.message":
-		if e.ComplexityRoot.RestartLoopIssue.Message == nil {
-			break
-		}
-
-		return e.ComplexityRoot.RestartLoopIssue.Message(childComplexity), true
-
-	case "RestartLoopIssue.restartCount":
-		if e.ComplexityRoot.RestartLoopIssue.RestartCount == nil {
-			break
-		}
-
-		return e.ComplexityRoot.RestartLoopIssue.RestartCount(childComplexity), true
-
-	case "RestartLoopIssue.severity":
-		if e.ComplexityRoot.RestartLoopIssue.Severity == nil {
-			break
-		}
-
-		return e.ComplexityRoot.RestartLoopIssue.Severity(childComplexity), true
-
-	case "RestartLoopIssue.teamEnvironment":
-		if e.ComplexityRoot.RestartLoopIssue.TeamEnvironment == nil {
-			break
-		}
-
-		return e.ComplexityRoot.RestartLoopIssue.TeamEnvironment(childComplexity), true
-
-	case "RestartLoopIssue.workload":
-		if e.ComplexityRoot.RestartLoopIssue.Workload == nil {
-			break
-		}
-
-		return e.ComplexityRoot.RestartLoopIssue.Workload(childComplexity), true
 
 	case "RevokeRoleFromServiceAccountPayload.serviceAccount":
 		if e.ComplexityRoot.RevokeRoleFromServiceAccountPayload.ServiceAccount == nil {
@@ -20960,7 +20960,7 @@ type UnleashReleaseChannelIssue implements Issue & Node {
 }
 
 "An issue raised when an application keeps restarting repeatedly."
-type RestartLoopIssue implements Issue & Node {
+type ApplicationRestartLoopIssue implements Issue & Node {
 	"Unique identifier for this issue."
 	id: ID!
 	"The team environment where the issue was detected."
