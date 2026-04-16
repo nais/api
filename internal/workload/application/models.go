@@ -175,21 +175,22 @@ func terminatedMessage(t *corev1.ContainerStateTerminated) string {
 	return fmt.Sprintf("Instance exited with code %d.", t.ExitCode)
 }
 
-func (i *ApplicationInstance) lastTerminationInfo() (*string, *int) {
+func (i *ApplicationInstance) lastTerminationInfo() (*string, *int, *time.Time) {
 	last := i.ApplicationContainerStatus.LastTerminationState.Terminated
 	if last == nil {
-		return nil, nil
+		return nil, nil, nil
 	}
 	reason := last.Reason
 	exitCode := int(last.ExitCode)
 	if reason == "" {
 		reason = fmt.Sprintf("ExitCode:%d", exitCode)
 	}
-	return &reason, &exitCode
+	finishedAt := last.FinishedAt.Time
+	return &reason, &exitCode, &finishedAt
 }
 
 func (i *ApplicationInstance) Status() *ApplicationInstanceStatus {
-	lastExitReason, lastExitCode := i.lastTerminationInfo()
+	lastExitReason, lastExitCode, lastExitTimestamp := i.lastTerminationInfo()
 	ready := i.ApplicationContainerStatus.Ready
 
 	switch {
@@ -199,11 +200,12 @@ func (i *ApplicationInstance) Status() *ApplicationInstanceStatus {
 			msg = "Running, but not passing readiness check."
 		}
 		return &ApplicationInstanceStatus{
-			State:          ApplicationInstanceStateRunning,
-			Message:        msg,
-			Ready:          ready,
-			LastExitReason: lastExitReason,
-			LastExitCode:   lastExitCode,
+			State:             ApplicationInstanceStateRunning,
+			Message:           msg,
+			Ready:             ready,
+			LastExitReason:    lastExitReason,
+			LastExitCode:      lastExitCode,
+			LastExitTimestamp: lastExitTimestamp,
 		}
 
 	case i.ApplicationContainerStatus.State.Terminated != nil:
@@ -214,11 +216,12 @@ func (i *ApplicationInstance) Status() *ApplicationInstanceStatus {
 			state = ApplicationInstanceStateTerminated
 		}
 		return &ApplicationInstanceStatus{
-			State:          state,
-			Message:        msg,
-			Ready:          false,
-			LastExitReason: lastExitReason,
-			LastExitCode:   lastExitCode,
+			State:             state,
+			Message:           msg,
+			Ready:             false,
+			LastExitReason:    lastExitReason,
+			LastExitCode:      lastExitCode,
+			LastExitTimestamp: lastExitTimestamp,
 		}
 
 	case i.ApplicationContainerStatus.State.Waiting != nil:
@@ -228,20 +231,22 @@ func (i *ApplicationInstance) Status() *ApplicationInstanceStatus {
 			state = ApplicationInstanceStateStarting
 		}
 		return &ApplicationInstanceStatus{
-			State:          state,
-			Message:        msg,
-			Ready:          false,
-			LastExitReason: lastExitReason,
-			LastExitCode:   lastExitCode,
+			State:             state,
+			Message:           msg,
+			Ready:             false,
+			LastExitReason:    lastExitReason,
+			LastExitCode:      lastExitCode,
+			LastExitTimestamp: lastExitTimestamp,
 		}
 
 	default:
 		return &ApplicationInstanceStatus{
-			State:          ApplicationInstanceStateUnknown,
-			Message:        "Unknown state.",
-			Ready:          false,
-			LastExitReason: lastExitReason,
-			LastExitCode:   lastExitCode,
+			State:             ApplicationInstanceStateUnknown,
+			Message:           "Unknown state.",
+			Ready:             false,
+			LastExitReason:    lastExitReason,
+			LastExitCode:      lastExitCode,
+			LastExitTimestamp: lastExitTimestamp,
 		}
 	}
 }
@@ -617,11 +622,12 @@ type IngressMetrics struct {
 }
 
 type ApplicationInstanceStatus struct {
-	State          ApplicationInstanceState `json:"state"`
-	Message        string                   `json:"message"`
-	Ready          bool                     `json:"ready"`
-	LastExitReason *string                  `json:"lastExitReason,omitempty"`
-	LastExitCode   *int                     `json:"lastExitCode,omitempty"`
+	State             ApplicationInstanceState `json:"state"`
+	Message           string                   `json:"message"`
+	Ready             bool                     `json:"ready"`
+	LastExitReason    *string                  `json:"lastExitReason,omitempty"`
+	LastExitCode      *int                     `json:"lastExitCode,omitempty"`
+	LastExitTimestamp *time.Time               `json:"lastExitTimestamp,omitempty"`
 }
 
 type TeamApplicationsFilter struct {
