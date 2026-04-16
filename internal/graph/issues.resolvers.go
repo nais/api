@@ -2,6 +2,7 @@ package graph
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/pagination"
@@ -15,6 +16,14 @@ import (
 	"github.com/nais/api/internal/workload/application"
 	"github.com/nais/api/internal/workload/job"
 )
+
+func (r *applicationRestartLoopIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.ApplicationRestartLoopIssue) (*team.TeamEnvironment, error) {
+	panic(fmt.Errorf("not implemented: TeamEnvironment - teamEnvironment"))
+}
+
+func (r *applicationRestartLoopIssueResolver) Workload(ctx context.Context, obj *issue.ApplicationRestartLoopIssue) (workload.Workload, error) {
+	panic(fmt.Errorf("not implemented: Workload - workload"))
+}
 
 func (r *deprecatedIngressIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.DeprecatedIngressIssue) (*team.TeamEnvironment, error) {
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
@@ -137,6 +146,10 @@ func (r *vulnerableImageIssueResolver) Workload(ctx context.Context, obj *issue.
 	return getWorkloadByResourceType(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ResourceName, obj.ResourceType)
 }
 
+func (r *Resolver) ApplicationRestartLoopIssue() gengql.ApplicationRestartLoopIssueResolver {
+	return &applicationRestartLoopIssueResolver{r}
+}
+
 func (r *Resolver) DeprecatedIngressIssue() gengql.DeprecatedIngressIssueResolver {
 	return &deprecatedIngressIssueResolver{r}
 }
@@ -192,6 +205,7 @@ func (r *Resolver) VulnerableImageIssue() gengql.VulnerableImageIssueResolver {
 }
 
 type (
+	applicationRestartLoopIssueResolver               struct{ *Resolver }
 	deprecatedIngressIssueResolver                    struct{ *Resolver }
 	deprecatedRegistryIssueResolver                   struct{ *Resolver }
 	externalIngressCriticalVulnerabilityIssueResolver struct{ *Resolver }

@@ -12,6 +12,8 @@ import (
 	batchv1 "k8s.io/api/batch/v1"
 	v1 "k8s.io/api/core/v1"
 	netv1 "k8s.io/api/networking/v1"
+	"k8s.io/apimachinery/pkg/labels"
+	"k8s.io/apimachinery/pkg/selection"
 )
 
 type NaisWorkload interface {
@@ -43,9 +45,13 @@ func (w Workload) Run(ctx context.Context) ([]Issue, error) {
 			continue
 		}
 		env := environmentmapper.EnvironmentName(app.Cluster)
+
+		pods := w.appPods(app.Obj, app.Obj.GetNamespace(), env)
+
 		ret = appendIssues(ret, deprecatedIngress(app.Obj, env))
 		ret = appendIssues(ret, deprecatedRegistry(image, app.Obj.GetName(), app.Obj.GetNamespace(), env, issue.ResourceTypeApplication))
-		ret = appendIssues(ret, w.noRunningInstances(app.Obj, app.Obj.GetNamespace(), env))
+		ret = appendIssues(ret, w.noRunningInstances(app.Obj, watcher.Objects(pods), app.Obj.GetNamespace(), env))
+		ret = appendIssues(ret, w.restartLoop(app.Obj, watcher.Objects(pods), app.Obj.GetNamespace(), env))
 		ret = appendIssues(ret, w.specErrors(app.Obj, env, issue.ResourceTypeApplication))
 	}
 
@@ -64,6 +70,20 @@ func (w Workload) Run(ctx context.Context) ([]Issue, error) {
 	ret = appendIssues(ret, w.vulnerabilities(ctx)...)
 
 	return ret, nil
+}
+
+// appPods fetches pods for the given application in the given namespace and environment.
+func (w Workload) appPods(app *nais_io_v1alpha1.Application, team, env string) []*watcher.EnvironmentWrapper[*v1.Pod] {
+	nameReq, err := labels.NewRequirement("app", selection.Equals, []string{app.Name})
+	if err != nil {
+		w.log.WithError(err).Error("create label requirement")
+		return nil
+	}
+	return w.PodWatcher.GetByNamespace(
+		team,
+		watcher.WithLabels(labels.NewSelector().Add(*nameReq)),
+		watcher.InCluster(env),
+	)
 }
 
 // appendIssues appends issues to a slice, handling nil slices.

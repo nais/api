@@ -5,6 +5,7 @@ import (
 	"io"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/model"
@@ -204,6 +205,7 @@ const (
 	IssueTypeMissingSBOM                          IssueType = "MISSING_SBOM"
 	IssueTypeExternalIngressCriticalVulnerability IssueType = "EXTERNAL_INGRESS_CRITICAL_VULNERABILITY"
 	IssueTypeUnleashReleaseChannel                IssueType = "UNLEASH_RELEASE_CHANNEL"
+	IssueTypeApplicationRestartLoop               IssueType = "APPLICATION_RESTART_LOOP"
 )
 
 var AllIssueType = []IssueType{
@@ -221,11 +223,12 @@ var AllIssueType = []IssueType{
 	IssueTypeMissingSBOM,
 	IssueTypeExternalIngressCriticalVulnerability,
 	IssueTypeUnleashReleaseChannel,
+	IssueTypeApplicationRestartLoop,
 }
 
 func (e IssueType) IsValid() bool {
 	switch e {
-	case IssueTypeOpenSearch, IssueTypeValkey, IssueTypeSqlInstanceState, IssueTypeSqlInstanceVersion, IssueTypeDeprecatedIngress, IssueTypeDeprecatedRegistry, IssueTypeNoRunningInstances, IssueTypeLastRunFailed, IssueTypeInvalidSpec, IssueTypeFailedSynchronization, IssueTypeVulnerableImage, IssueTypeMissingSBOM, IssueTypeExternalIngressCriticalVulnerability, IssueTypeUnleashReleaseChannel:
+	case IssueTypeOpenSearch, IssueTypeValkey, IssueTypeSqlInstanceState, IssueTypeSqlInstanceVersion, IssueTypeDeprecatedIngress, IssueTypeDeprecatedRegistry, IssueTypeNoRunningInstances, IssueTypeLastRunFailed, IssueTypeInvalidSpec, IssueTypeFailedSynchronization, IssueTypeVulnerableImage, IssueTypeMissingSBOM, IssueTypeExternalIngressCriticalVulnerability, IssueTypeUnleashReleaseChannel, IssueTypeApplicationRestartLoop:
 		return true
 	}
 	return false
@@ -422,3 +425,20 @@ type IssueFilter struct {
 
 	ResourceIssueFilter
 }
+
+// ApplicationRestartLoopIssueDetails holds details about a restart loop issue.
+type ApplicationRestartLoopIssueDetails struct {
+	RestartCount      int       `json:"restartCount"`
+	LastExitReason    string    `json:"lastExitReason"`
+	LastExitTimestamp time.Time `json:"lastExitTimestamp"`
+}
+
+// ApplicationRestartLoopIssue is an issue raised when an application is stuck in a restart loop.
+type ApplicationRestartLoopIssue struct {
+	Base
+	ApplicationRestartLoopIssueDetails
+}
+
+func (ApplicationRestartLoopIssue) IsIssue() {}
+
+func (ApplicationRestartLoopIssue) IsNode() {}

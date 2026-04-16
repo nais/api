@@ -2869,6 +2869,8 @@ func (ec *executionContext) fieldContext_ApplicationInstance_status(_ context.Co
 				return ec.fieldContext_ApplicationInstanceStatus_lastExitReason(ctx, field)
 			case "lastExitCode":
 				return ec.fieldContext_ApplicationInstanceStatus_lastExitCode(ctx, field)
+			case "lastExitTimestamp":
+				return ec.fieldContext_ApplicationInstanceStatus_lastExitTimestamp(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ApplicationInstanceStatus", field.Name)
 		},
@@ -3260,6 +3262,35 @@ func (ec *executionContext) fieldContext_ApplicationInstanceStatus_lastExitCode(
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ApplicationInstanceStatus_lastExitTimestamp(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationInstanceStatus) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_ApplicationInstanceStatus_lastExitTimestamp,
+		func(ctx context.Context) (any, error) {
+			return obj.LastExitTimestamp, nil
+		},
+		nil,
+		ec.marshalOTime2ᚖtimeᚐTime,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_ApplicationInstanceStatus_lastExitTimestamp(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ApplicationInstanceStatus",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
 		},
 	}
 	return fc, nil
@@ -6679,6 +6710,8 @@ func (ec *executionContext) _ApplicationInstanceStatus(ctx context.Context, sel 
 			out.Values[i] = ec._ApplicationInstanceStatus_lastExitReason(ctx, field, obj)
 		case "lastExitCode":
 			out.Values[i] = ec._ApplicationInstanceStatus_lastExitCode(ctx, field, obj)
+		case "lastExitTimestamp":
+			out.Values[i] = ec._ApplicationInstanceStatus_lastExitTimestamp(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

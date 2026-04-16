@@ -6135,6 +6135,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._ApplicationRestartedActivityLogEntry(ctx, sel, obj)
+	case issue.ApplicationRestartLoopIssue:
+		return ec._ApplicationRestartLoopIssue(ctx, sel, &obj)
+	case *issue.ApplicationRestartLoopIssue:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ApplicationRestartLoopIssue(ctx, sel, obj)
 	case application.ApplicationDeletedActivityLogEntry:
 		return ec._ApplicationDeletedActivityLogEntry(ctx, sel, &obj)
 	case *application.ApplicationDeletedActivityLogEntry:

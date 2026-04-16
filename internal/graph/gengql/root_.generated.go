@@ -57,6 +57,7 @@ type Config = graphql.Config[ResolverRoot, DirectiveRoot, ComplexityRoot]
 type ResolverRoot interface {
 	Application() ApplicationResolver
 	ApplicationInstance() ApplicationInstanceResolver
+	ApplicationRestartLoopIssue() ApplicationRestartLoopIssueResolver
 	BigQueryDataset() BigQueryDatasetResolver
 	Bucket() BucketResolver
 	CVE() CVEResolver
@@ -273,11 +274,12 @@ type ComplexityRoot struct {
 	}
 
 	ApplicationInstanceStatus struct {
-		LastExitCode   func(childComplexity int) int
-		LastExitReason func(childComplexity int) int
-		Message        func(childComplexity int) int
-		Ready          func(childComplexity int) int
-		State          func(childComplexity int) int
+		LastExitCode      func(childComplexity int) int
+		LastExitReason    func(childComplexity int) int
+		LastExitTimestamp func(childComplexity int) int
+		Message           func(childComplexity int) int
+		Ready             func(childComplexity int) int
+		State             func(childComplexity int) int
 	}
 
 	ApplicationInstanceUtilization struct {
@@ -292,6 +294,17 @@ type ComplexityRoot struct {
 		Limits   func(childComplexity int) int
 		Requests func(childComplexity int) int
 		Scaling  func(childComplexity int) int
+	}
+
+	ApplicationRestartLoopIssue struct {
+		ID                func(childComplexity int) int
+		LastExitReason    func(childComplexity int) int
+		LastExitTimestamp func(childComplexity int) int
+		Message           func(childComplexity int) int
+		RestartCount      func(childComplexity int) int
+		Severity          func(childComplexity int) int
+		TeamEnvironment   func(childComplexity int) int
+		Workload          func(childComplexity int) int
 	}
 
 	ApplicationRestartedActivityLogEntry struct {
@@ -3943,6 +3956,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ApplicationInstanceStatus.LastExitReason(childComplexity), true
 
+	case "ApplicationInstanceStatus.lastExitTimestamp":
+		if e.ComplexityRoot.ApplicationInstanceStatus.LastExitTimestamp == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationInstanceStatus.LastExitTimestamp(childComplexity), true
+
 	case "ApplicationInstanceStatus.message":
 		if e.ComplexityRoot.ApplicationInstanceStatus.Message == nil {
 			break
@@ -3998,6 +4018,62 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ApplicationResources.Scaling(childComplexity), true
+
+	case "ApplicationRestartLoopIssue.id":
+		if e.ComplexityRoot.ApplicationRestartLoopIssue.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationRestartLoopIssue.ID(childComplexity), true
+
+	case "ApplicationRestartLoopIssue.lastExitReason":
+		if e.ComplexityRoot.ApplicationRestartLoopIssue.LastExitReason == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationRestartLoopIssue.LastExitReason(childComplexity), true
+
+	case "ApplicationRestartLoopIssue.lastExitTimestamp":
+		if e.ComplexityRoot.ApplicationRestartLoopIssue.LastExitTimestamp == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationRestartLoopIssue.LastExitTimestamp(childComplexity), true
+
+	case "ApplicationRestartLoopIssue.message":
+		if e.ComplexityRoot.ApplicationRestartLoopIssue.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationRestartLoopIssue.Message(childComplexity), true
+
+	case "ApplicationRestartLoopIssue.restartCount":
+		if e.ComplexityRoot.ApplicationRestartLoopIssue.RestartCount == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationRestartLoopIssue.RestartCount(childComplexity), true
+
+	case "ApplicationRestartLoopIssue.severity":
+		if e.ComplexityRoot.ApplicationRestartLoopIssue.Severity == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationRestartLoopIssue.Severity(childComplexity), true
+
+	case "ApplicationRestartLoopIssue.teamEnvironment":
+		if e.ComplexityRoot.ApplicationRestartLoopIssue.TeamEnvironment == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationRestartLoopIssue.TeamEnvironment(childComplexity), true
+
+	case "ApplicationRestartLoopIssue.workload":
+		if e.ComplexityRoot.ApplicationRestartLoopIssue.Workload == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationRestartLoopIssue.Workload(childComplexity), true
 
 	case "ApplicationRestartedActivityLogEntry.actor":
 		if e.ComplexityRoot.ApplicationRestartedActivityLogEntry.Actor == nil {
@@ -18436,6 +18512,11 @@ type ApplicationInstanceStatus {
 	The exit code from the last container termination, if applicable.
 	"""
 	lastExitCode: Int
+	"""
+	The timestamp of the last container termination, if applicable.
+	This is populated even when the instance is currently running, to help debug restart loops.
+	"""
+	lastExitTimestamp: Time
 }
 
 enum ApplicationInstanceState {
@@ -20734,6 +20815,8 @@ enum IssueType {
 	VULNERABLE_IMAGE
 	EXTERNAL_INGRESS_CRITICAL_VULNERABILITY
 	UNLEASH_RELEASE_CHANNEL
+	"Raised when an application is stuck in a restart loop."
+	APPLICATION_RESTART_LOOP
 }
 
 type VulnerableImageIssue implements Issue & Node {
@@ -20874,6 +20957,27 @@ type UnleashReleaseChannelIssue implements Issue & Node {
 	majorVersion: Int!
 	"The current major version of Unleash available."
 	currentMajorVersion: Int!
+}
+
+"An issue raised when an application keeps restarting repeatedly."
+type ApplicationRestartLoopIssue implements Issue & Node {
+	"Unique identifier for this issue."
+	id: ID!
+	"The team environment where the issue was detected."
+	teamEnvironment: TeamEnvironment!
+	"The severity of the issue."
+	severity: Severity!
+	"A human-readable description of the issue."
+	message: String!
+
+	"The workload that is stuck in a restart loop."
+	workload: Workload!
+	"The number of container restarts."
+	restartCount: Int!
+	"The reason for the last container exit."
+	lastExitReason: String!
+	"The timestamp of the last container exit."
+	lastExitTimestamp: Time!
 }
 `, BuiltIn: false},
 	{Name: "../schema/jobs.graphqls", Input: `extend type Team {
