@@ -2,27 +2,14 @@ package checker
 
 import (
 	"github.com/nais/api/internal/issue"
-	"github.com/nais/api/internal/kubernetes/watcher"
 	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
 	v1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/labels"
-	"k8s.io/apimachinery/pkg/selection"
 )
 
-func (w Workload) noRunningInstances(app *nais_io_v1alpha1.Application, team, env string) *Issue {
-	nameReq, err := labels.NewRequirement("app", selection.Equals, []string{app.Name})
-	if err != nil {
-		w.log.WithError(err).Error("create label requirement")
-		return nil
-	}
-
-	pods := w.PodWatcher.GetByNamespace(
-		team,
-		watcher.WithLabels(labels.NewSelector().Add(*nameReq)),
-		watcher.InCluster(env),
-	)
-
-	failing := failingPods(watcher.Objects(pods), app.Name)
+// noRunningInstances checks whether an application has no running instances.
+// pods must already be fetched by the caller (e.g. Run).
+func (w Workload) noRunningInstances(app *nais_io_v1alpha1.Application, pods []*v1.Pod, team, env string) *Issue {
+	failing := failingPods(pods, app.Name)
 
 	hasReplicas := app.Spec.Replicas == nil || (app.Spec.Replicas.Min != nil && *app.Spec.Replicas.Min > 0 &&
 		app.Spec.Replicas.Max != nil && *app.Spec.Replicas.Max > 0)

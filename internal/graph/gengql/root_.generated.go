@@ -20815,6 +20815,7 @@ enum IssueType {
 	VULNERABLE_IMAGE
 	EXTERNAL_INGRESS_CRITICAL_VULNERABILITY
 	UNLEASH_RELEASE_CHANNEL
+	"Raised when an application is stuck in a restart loop."
 	RESTART_LOOP
 }
 
@@ -20958,12 +20959,18 @@ type UnleashReleaseChannelIssue implements Issue & Node {
 	currentMajorVersion: Int!
 }
 
+"An issue raised when an application keeps restarting repeatedly."
 type RestartLoopIssue implements Issue & Node {
+	"Unique identifier for this issue."
 	id: ID!
+	"The team environment where the issue was detected."
 	teamEnvironment: TeamEnvironment!
+	"The severity of the issue."
 	severity: Severity!
+	"A human-readable description of the issue."
 	message: String!
 
+	"The workload that is stuck in a restart loop."
 	workload: Workload!
 	"The number of container restarts."
 	restartCount: Int!

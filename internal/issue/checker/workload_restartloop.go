@@ -5,10 +5,8 @@ import (
 	"time"
 
 	"github.com/nais/api/internal/issue"
-	"github.com/nais/api/internal/kubernetes/watcher"
 	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
-	"k8s.io/apimachinery/pkg/labels"
-	"k8s.io/apimachinery/pkg/selection"
+	v1 "k8s.io/api/core/v1"
 )
 
 const (
@@ -21,19 +19,8 @@ const (
 // restartLoop checks whether an application is stuck in a restart loop.
 // It returns a Warning issue if any pod has restarted ≥3 times within the last 30 minutes,
 // or a Critical issue if any pod has restarted ≥10 times within the last 10 minutes.
-func (w Workload) restartLoop(app *nais_io_v1alpha1.Application, team, env string) *Issue {
-	nameReq, err := labels.NewRequirement("app", selection.Equals, []string{app.Name})
-	if err != nil {
-		w.log.WithError(err).Error("create label requirement")
-		return nil
-	}
-
-	pods := w.PodWatcher.GetByNamespace(
-		team,
-		watcher.WithLabels(labels.NewSelector().Add(*nameReq)),
-		watcher.InCluster(env),
-	)
-
+// pods must already be fetched by the caller (e.g. Run).
+func (w Workload) restartLoop(app *nais_io_v1alpha1.Application, pods []*v1.Pod, team, env string) *Issue {
 	now := time.Now()
 
 	type candidate struct {
@@ -45,7 +32,7 @@ func (w Workload) restartLoop(app *nais_io_v1alpha1.Application, team, env strin
 
 	var best *candidate
 
-	for _, pod := range watcher.Objects(pods) {
+	for _, pod := range pods {
 		for _, cs := range pod.Status.ContainerStatuses {
 			if cs.Name != app.Name {
 				continue
@@ -67,14 +54,23 @@ func (w Workload) restartLoop(app *nais_io_v1alpha1.Application, team, env strin
 				continue
 			}
 
+			reason := cs.LastTerminationState.Terminated.Reason
+			if reason == "" {
+				reason = fmt.Sprintf("ExitCode:%d", cs.LastTerminationState.Terminated.ExitCode)
+			}
+
 			c := &candidate{
 				restartCount:      cs.RestartCount,
-				lastExitReason:    cs.LastTerminationState.Terminated.Reason,
+				lastExitReason:    reason,
 				lastExitTimestamp: finishedAt,
 				severity:          sev,
 			}
 
-			if best == nil || c.restartCount > best.restartCount || (c.severity == issue.SeverityCritical && best.severity != issue.SeverityCritical) {
+			if best == nil {
+				best = c
+			} else if c.severity == issue.SeverityCritical && best.severity != issue.SeverityCritical {
+				best = c
+			} else if c.severity == best.severity && c.restartCount > best.restartCount {
 				best = c
 			}
 		}
