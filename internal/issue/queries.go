@@ -191,6 +191,15 @@ func convert(issue *issuesql.Issue) (Issue, error) {
 			Base:                              base,
 			UnleashReleaseChannelIssueDetails: *d,
 		}, nil
+	case IssueTypeRestartLoop:
+		d, err := unmarshal[RestartLoopIssueDetails](issue.IssueDetails)
+		if err != nil {
+			return nil, err
+		}
+		return &RestartLoopIssue{
+			Base:                    base,
+			RestartLoopIssueDetails: *d,
+		}, nil
 	}
 
 	return nil, fmt.Errorf("unknown issue type: %s", issue.IssueType)

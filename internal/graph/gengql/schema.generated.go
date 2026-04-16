@@ -5827,6 +5827,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._RoleAssignedToServiceAccountActivityLogEntry(ctx, sel, obj)
+	case issue.RestartLoopIssue:
+		return ec._RestartLoopIssue(ctx, sel, &obj)
+	case *issue.RestartLoopIssue:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._RestartLoopIssue(ctx, sel, obj)
 	case repository.RepositoryRemovedActivityLogEntry:
 		return ec._RepositoryRemovedActivityLogEntry(ctx, sel, &obj)
 	case *repository.RepositoryRemovedActivityLogEntry:

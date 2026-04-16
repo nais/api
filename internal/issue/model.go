@@ -5,6 +5,7 @@ import (
 	"io"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/model"
@@ -204,6 +205,7 @@ const (
 	IssueTypeMissingSBOM                          IssueType = "MISSING_SBOM"
 	IssueTypeExternalIngressCriticalVulnerability IssueType = "EXTERNAL_INGRESS_CRITICAL_VULNERABILITY"
 	IssueTypeUnleashReleaseChannel                IssueType = "UNLEASH_RELEASE_CHANNEL"
+	IssueTypeRestartLoop                          IssueType = "RESTART_LOOP"
 )
 
 var AllIssueType = []IssueType{
@@ -221,11 +223,12 @@ var AllIssueType = []IssueType{
 	IssueTypeMissingSBOM,
 	IssueTypeExternalIngressCriticalVulnerability,
 	IssueTypeUnleashReleaseChannel,
+	IssueTypeRestartLoop,
 }
 
 func (e IssueType) IsValid() bool {
 	switch e {
-	case IssueTypeOpenSearch, IssueTypeValkey, IssueTypeSqlInstanceState, IssueTypeSqlInstanceVersion, IssueTypeDeprecatedIngress, IssueTypeDeprecatedRegistry, IssueTypeNoRunningInstances, IssueTypeLastRunFailed, IssueTypeInvalidSpec, IssueTypeFailedSynchronization, IssueTypeVulnerableImage, IssueTypeMissingSBOM, IssueTypeExternalIngressCriticalVulnerability, IssueTypeUnleashReleaseChannel:
+	case IssueTypeOpenSearch, IssueTypeValkey, IssueTypeSqlInstanceState, IssueTypeSqlInstanceVersion, IssueTypeDeprecatedIngress, IssueTypeDeprecatedRegistry, IssueTypeNoRunningInstances, IssueTypeLastRunFailed, IssueTypeInvalidSpec, IssueTypeFailedSynchronization, IssueTypeVulnerableImage, IssueTypeMissingSBOM, IssueTypeExternalIngressCriticalVulnerability, IssueTypeUnleashReleaseChannel, IssueTypeRestartLoop:
 		return true
 	}
 	return false
@@ -422,3 +425,20 @@ type IssueFilter struct {
 
 	ResourceIssueFilter
 }
+
+// RestartLoopIssueDetails holds details about a restart loop issue.
+type RestartLoopIssueDetails struct {
+	RestartCount      int       `json:"restartCount"`
+	LastExitReason    string    `json:"lastExitReason"`
+	LastExitTimestamp time.Time `json:"lastExitTimestamp"`
+}
+
+// RestartLoopIssue is an issue raised when an application is stuck in a restart loop.
+type RestartLoopIssue struct {
+	Base
+	RestartLoopIssueDetails
+}
+
+func (RestartLoopIssue) IsIssue() {}
+
+func (RestartLoopIssue) IsNode() {}

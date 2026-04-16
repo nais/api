@@ -88,6 +88,14 @@ func (r *openSearchIssueResolver) OpenSearch(ctx context.Context, obj *issue.Ope
 	return opensearch.Get(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ResourceName)
 }
 
+func (r *restartLoopIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.RestartLoopIssue) (*team.TeamEnvironment, error) {
+	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
+}
+
+func (r *restartLoopIssueResolver) Workload(ctx context.Context, obj *issue.RestartLoopIssue) (workload.Workload, error) {
+	return getWorkloadByResourceType(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ResourceName, obj.ResourceType)
+}
+
 func (r *sqlInstanceStateIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.SqlInstanceStateIssue) (*team.TeamEnvironment, error) {
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
@@ -173,6 +181,10 @@ func (r *Resolver) OpenSearchIssue() gengql.OpenSearchIssueResolver {
 	return &openSearchIssueResolver{r}
 }
 
+func (r *Resolver) RestartLoopIssue() gengql.RestartLoopIssueResolver {
+	return &restartLoopIssueResolver{r}
+}
+
 func (r *Resolver) SqlInstanceStateIssue() gengql.SqlInstanceStateIssueResolver {
 	return &sqlInstanceStateIssueResolver{r}
 }
@@ -201,6 +213,7 @@ type (
 	missingSbomIssueResolver                          struct{ *Resolver }
 	noRunningInstancesIssueResolver                   struct{ *Resolver }
 	openSearchIssueResolver                           struct{ *Resolver }
+	restartLoopIssueResolver                          struct{ *Resolver }
 	sqlInstanceStateIssueResolver                     struct{ *Resolver }
 	sqlInstanceVersionIssueResolver                   struct{ *Resolver }
 	unleashReleaseChannelIssueResolver                struct{ *Resolver }
