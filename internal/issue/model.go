@@ -205,7 +205,7 @@ const (
 	IssueTypeMissingSBOM                          IssueType = "MISSING_SBOM"
 	IssueTypeExternalIngressCriticalVulnerability IssueType = "EXTERNAL_INGRESS_CRITICAL_VULNERABILITY"
 	IssueTypeUnleashReleaseChannel                IssueType = "UNLEASH_RELEASE_CHANNEL"
-	IssueTypeRestartLoop                          IssueType = "RESTART_LOOP"
+	IssueTypeApplicationRestartLoop               IssueType = "APPLICATION_RESTART_LOOP"
 )
 
 var AllIssueType = []IssueType{
@@ -223,12 +223,12 @@ var AllIssueType = []IssueType{
 	IssueTypeMissingSBOM,
 	IssueTypeExternalIngressCriticalVulnerability,
 	IssueTypeUnleashReleaseChannel,
-	IssueTypeRestartLoop,
+	IssueTypeApplicationRestartLoop,
 }
 
 func (e IssueType) IsValid() bool {
 	switch e {
-	case IssueTypeOpenSearch, IssueTypeValkey, IssueTypeSqlInstanceState, IssueTypeSqlInstanceVersion, IssueTypeDeprecatedIngress, IssueTypeDeprecatedRegistry, IssueTypeNoRunningInstances, IssueTypeLastRunFailed, IssueTypeInvalidSpec, IssueTypeFailedSynchronization, IssueTypeVulnerableImage, IssueTypeMissingSBOM, IssueTypeExternalIngressCriticalVulnerability, IssueTypeUnleashReleaseChannel, IssueTypeRestartLoop:
+	case IssueTypeOpenSearch, IssueTypeValkey, IssueTypeSqlInstanceState, IssueTypeSqlInstanceVersion, IssueTypeDeprecatedIngress, IssueTypeDeprecatedRegistry, IssueTypeNoRunningInstances, IssueTypeLastRunFailed, IssueTypeInvalidSpec, IssueTypeFailedSynchronization, IssueTypeVulnerableImage, IssueTypeMissingSBOM, IssueTypeExternalIngressCriticalVulnerability, IssueTypeUnleashReleaseChannel, IssueTypeApplicationRestartLoop:
 		return true
 	}
 	return false

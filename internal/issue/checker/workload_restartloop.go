@@ -96,7 +96,7 @@ func (w Workload) restartLoop(app *nais_io_v1alpha1.Application, pods []*v1.Pod,
 	message := fmt.Sprintf("Application has restarted %d times, most recently %s (%s)", best.restartCount, timeDesc, best.lastExitReason)
 
 	return &Issue{
-		IssueType:    issue.IssueTypeRestartLoop,
+		IssueType:    issue.IssueTypeApplicationRestartLoop,
 		ResourceName: app.Name,
 		ResourceType: issue.ResourceTypeApplication,
 		Team:         team,

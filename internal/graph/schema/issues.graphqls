@@ -166,7 +166,7 @@ enum IssueType {
 	EXTERNAL_INGRESS_CRITICAL_VULNERABILITY
 	UNLEASH_RELEASE_CHANNEL
 	"Raised when an application is stuck in a restart loop."
-	RESTART_LOOP
+	APPLICATION_RESTART_LOOP
 }
 
 type VulnerableImageIssue implements Issue & Node {

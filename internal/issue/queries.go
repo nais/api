@@ -191,7 +191,7 @@ func convert(issue *issuesql.Issue) (Issue, error) {
 			Base:                              base,
 			UnleashReleaseChannelIssueDetails: *d,
 		}, nil
-	case IssueTypeRestartLoop:
+	case IssueTypeApplicationRestartLoop:
 		d, err := unmarshal[RestartLoopIssueDetails](issue.IssueDetails)
 		if err != nil {
 			return nil, err
