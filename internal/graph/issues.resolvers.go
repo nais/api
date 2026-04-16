@@ -2,7 +2,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/pagination"
@@ -18,11 +17,11 @@ import (
 )
 
 func (r *applicationRestartLoopIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.ApplicationRestartLoopIssue) (*team.TeamEnvironment, error) {
-	panic(fmt.Errorf("not implemented: TeamEnvironment - teamEnvironment"))
+	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
 
 func (r *applicationRestartLoopIssueResolver) Workload(ctx context.Context, obj *issue.ApplicationRestartLoopIssue) (workload.Workload, error) {
-	panic(fmt.Errorf("not implemented: Workload - workload"))
+	return getWorkloadByResourceType(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ResourceName, obj.ResourceType)
 }
 
 func (r *deprecatedIngressIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.DeprecatedIngressIssue) (*team.TeamEnvironment, error) {
