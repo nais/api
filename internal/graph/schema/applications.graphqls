@@ -591,6 +591,11 @@ type ApplicationInstanceStatus {
 	The exit code from the last container termination, if applicable.
 	"""
 	lastExitCode: Int
+	"""
+	The timestamp of the last container termination, if applicable.
+	This is populated even when the instance is currently running, to help debug restart loops.
+	"""
+	lastExitTimestamp: Time
 }
 
 enum ApplicationInstanceState {
