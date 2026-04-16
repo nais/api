@@ -67,6 +67,35 @@ func (ec *executionContext) field_PostgresInstance_workloads_args(ctx context.Co
 
 // region    **************************** field.gotpl *****************************
 
+func (ec *executionContext) _DeletePostgresPayload_postgresDeleted(ctx context.Context, field graphql.CollectedField, obj *postgres.DeletePostgresPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_DeletePostgresPayload_postgresDeleted,
+		func(ctx context.Context) (any, error) {
+			return obj.PostgresDeleted, nil
+		},
+		nil,
+		ec.marshalOBoolean2ᚖbool,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_DeletePostgresPayload_postgresDeleted(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DeletePostgresPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _GrantPostgresAccessPayload_error(ctx context.Context, field graphql.CollectedField, obj *postgres.GrantPostgresAccessPayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -86,6 +115,238 @@ func (ec *executionContext) _GrantPostgresAccessPayload_error(ctx context.Contex
 func (ec *executionContext) fieldContext_GrantPostgresAccessPayload_error(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "GrantPostgresAccessPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresDeletedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresDeletedActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PostgresDeletedActivityLogEntry_id,
+		func(ctx context.Context) (any, error) {
+			return obj.ID(), nil
+		},
+		nil,
+		ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_PostgresDeletedActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresDeletedActivityLogEntry",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresDeletedActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresDeletedActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PostgresDeletedActivityLogEntry_actor,
+		func(ctx context.Context) (any, error) {
+			return obj.Actor, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_PostgresDeletedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresDeletedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresDeletedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresDeletedActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PostgresDeletedActivityLogEntry_createdAt,
+		func(ctx context.Context) (any, error) {
+			return obj.CreatedAt, nil
+		},
+		nil,
+		ec.marshalNTime2timeᚐTime,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_PostgresDeletedActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresDeletedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresDeletedActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresDeletedActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PostgresDeletedActivityLogEntry_message,
+		func(ctx context.Context) (any, error) {
+			return obj.Message, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_PostgresDeletedActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresDeletedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresDeletedActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresDeletedActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PostgresDeletedActivityLogEntry_resourceType,
+		func(ctx context.Context) (any, error) {
+			return obj.ResourceType, nil
+		},
+		nil,
+		ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_PostgresDeletedActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresDeletedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ActivityLogEntryResourceType does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresDeletedActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresDeletedActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PostgresDeletedActivityLogEntry_resourceName,
+		func(ctx context.Context) (any, error) {
+			return obj.ResourceName, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_PostgresDeletedActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresDeletedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresDeletedActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresDeletedActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PostgresDeletedActivityLogEntry_teamSlug,
+		func(ctx context.Context) (any, error) {
+			return obj.TeamSlug, nil
+		},
+		nil,
+		ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_PostgresDeletedActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresDeletedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Slug does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresDeletedActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresDeletedActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PostgresDeletedActivityLogEntry_environmentName,
+		func(ctx context.Context) (any, error) {
+			return obj.EnvironmentName, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_PostgresDeletedActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresDeletedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -1463,6 +1724,46 @@ func (ec *executionContext) fieldContext_TeamInventoryCountPostgresInstances_tot
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputDeletePostgresInput(ctx context.Context, obj any) (postgres.DeletePostgresInput, error) {
+	var it postgres.DeletePostgresInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"name", "environmentName", "teamSlug"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "environmentName":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environmentName"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.EnvironmentName = data
+		case "teamSlug":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamSlug"))
+			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TeamSlug = data
+		}
+	}
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputGrantPostgresAccessInput(ctx context.Context, obj any) (postgres.GrantPostgresAccessInput, error) {
 	var it postgres.GrantPostgresAccessInput
 	asMap := map[string]any{}
@@ -1558,6 +1859,42 @@ func (ec *executionContext) unmarshalInputPostgresInstanceOrder(ctx context.Cont
 
 // region    **************************** object.gotpl ****************************
 
+var deletePostgresPayloadImplementors = []string{"DeletePostgresPayload"}
+
+func (ec *executionContext) _DeletePostgresPayload(ctx context.Context, sel ast.SelectionSet, obj *postgres.DeletePostgresPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, deletePostgresPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("DeletePostgresPayload")
+		case "postgresDeleted":
+			out.Values[i] = ec._DeletePostgresPayload_postgresDeleted(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var grantPostgresAccessPayloadImplementors = []string{"GrantPostgresAccessPayload"}
 
 func (ec *executionContext) _GrantPostgresAccessPayload(ctx context.Context, sel ast.SelectionSet, obj *postgres.GrantPostgresAccessPayload) graphql.Marshaler {
@@ -1571,6 +1908,77 @@ func (ec *executionContext) _GrantPostgresAccessPayload(ctx context.Context, sel
 			out.Values[i] = graphql.MarshalString("GrantPostgresAccessPayload")
 		case "error":
 			out.Values[i] = ec._GrantPostgresAccessPayload_error(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var postgresDeletedActivityLogEntryImplementors = []string{"PostgresDeletedActivityLogEntry", "ActivityLogEntry", "Node"}
+
+func (ec *executionContext) _PostgresDeletedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *postgres.PostgresDeletedActivityLogEntry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, postgresDeletedActivityLogEntryImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PostgresDeletedActivityLogEntry")
+		case "id":
+			out.Values[i] = ec._PostgresDeletedActivityLogEntry_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "actor":
+			out.Values[i] = ec._PostgresDeletedActivityLogEntry_actor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "createdAt":
+			out.Values[i] = ec._PostgresDeletedActivityLogEntry_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "message":
+			out.Values[i] = ec._PostgresDeletedActivityLogEntry_message(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "resourceType":
+			out.Values[i] = ec._PostgresDeletedActivityLogEntry_resourceType(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "resourceName":
+			out.Values[i] = ec._PostgresDeletedActivityLogEntry_resourceName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "teamSlug":
+			out.Values[i] = ec._PostgresDeletedActivityLogEntry_teamSlug(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "environmentName":
+			out.Values[i] = ec._PostgresDeletedActivityLogEntry_environmentName(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -2231,6 +2639,25 @@ func (ec *executionContext) _TeamInventoryCountPostgresInstances(ctx context.Con
 // endregion **************************** object.gotpl ****************************
 
 // region    ***************************** type.gotpl *****************************
+
+func (ec *executionContext) unmarshalNDeletePostgresInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐDeletePostgresInput(ctx context.Context, v any) (postgres.DeletePostgresInput, error) {
+	res, err := ec.unmarshalInputDeletePostgresInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNDeletePostgresPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐDeletePostgresPayload(ctx context.Context, sel ast.SelectionSet, v postgres.DeletePostgresPayload) graphql.Marshaler {
+	return ec._DeletePostgresPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNDeletePostgresPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐDeletePostgresPayload(ctx context.Context, sel ast.SelectionSet, v *postgres.DeletePostgresPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._DeletePostgresPayload(ctx, sel, v)
+}
 
 func (ec *executionContext) unmarshalNGrantPostgresAccessInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐGrantPostgresAccessInput(ctx context.Context, v any) (postgres.GrantPostgresAccessInput, error) {
 	res, err := ec.unmarshalInputGrantPostgresAccessInput(ctx, v)

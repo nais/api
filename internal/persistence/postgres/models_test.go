@@ -1,9 +1,11 @@
 package postgres
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
+	"github.com/nais/api/internal/slug"
 	data_nais_io_v1 "github.com/nais/pgrator/pkg/api/datav1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -232,6 +234,84 @@ func newPostgresTestObject(maintenance *data_nais_io_v1.Maintenance, conditions 
 	}
 
 	return obj
+}
+
+func TestDeletePostgresInput_ValidationErrors(t *testing.T) {
+	tests := []struct {
+		name          string
+		input         DeletePostgresInput
+		wantErrFields []string
+	}{
+		{
+			name: "all fields valid",
+			input: DeletePostgresInput{
+				Name:            "my-db",
+				EnvironmentName: "dev",
+				TeamSlug:        slug.Slug("my-team"),
+			},
+			wantErrFields: nil,
+		},
+		{
+			name: "empty name",
+			input: DeletePostgresInput{
+				Name:            "",
+				EnvironmentName: "dev",
+				TeamSlug:        slug.Slug("my-team"),
+			},
+			wantErrFields: []string{"name"},
+		},
+		{
+			name: "empty environmentName",
+			input: DeletePostgresInput{
+				Name:            "my-db",
+				EnvironmentName: "",
+				TeamSlug:        slug.Slug("my-team"),
+			},
+			wantErrFields: []string{"environmentName"},
+		},
+		{
+			name: "empty teamSlug",
+			input: DeletePostgresInput{
+				Name:            "my-db",
+				EnvironmentName: "dev",
+				TeamSlug:        slug.Slug(""),
+			},
+			wantErrFields: []string{"teamSlug"},
+		},
+		{
+			name: "all fields empty",
+			input: DeletePostgresInput{
+				Name:            "",
+				EnvironmentName: "",
+				TeamSlug:        slug.Slug(""),
+			},
+			wantErrFields: []string{"name", "environmentName", "teamSlug"},
+		},
+		{
+			name: "whitespace-only name treated as empty",
+			input: DeletePostgresInput{
+				Name:            "   ",
+				EnvironmentName: "dev",
+				TeamSlug:        slug.Slug("my-team"),
+			},
+			wantErrFields: []string{"name"},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			verr := tt.input.ValidationErrors(context.Background())
+			var gotFields []string
+			for _, e := range verr.Errors {
+				if e.GraphQLField != nil {
+					gotFields = append(gotFields, *e.GraphQLField)
+				}
+			}
+			if !reflect.DeepEqual(gotFields, tt.wantErrFields) {
+				t.Errorf("ValidationErrors() fields = %v, want %v", gotFields, tt.wantErrFields)
+			}
+		})
+	}
 }
 
 func toPostgresFromCRD(t *testing.T, obj *data_nais_io_v1.Postgres) *PostgresInstance {

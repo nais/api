@@ -29,6 +29,52 @@ import (
 	"k8s.io/client-go/dynamic"
 )
 
+func Delete(ctx context.Context, input DeletePostgresInput) (*DeletePostgresPayload, error) {
+	if err := input.Validate(ctx); err != nil {
+		return nil, err
+	}
+
+	client, err := fromContext(ctx).zalandoPostgresWatcher.ImpersonatedClientWithNamespace(ctx, input.EnvironmentName, input.TeamSlug.String())
+	if err != nil {
+		return nil, err
+	}
+
+	obj, err := client.Get(ctx, input.Name, metav1.GetOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	allowDeletion, _, err := unstructured.NestedBool(obj.Object, "spec", "cluster", "allowDeletion")
+	if err != nil {
+		return nil, err
+	}
+	if !allowDeletion {
+		if err := unstructured.SetNestedField(obj.Object, true, "spec", "cluster", "allowDeletion"); err != nil {
+			return nil, err
+		}
+		if _, err = client.Update(ctx, obj, metav1.UpdateOptions{}); err != nil {
+			return nil, fmt.Errorf("enabling deletion: %w", err)
+		}
+	}
+
+	if err := fromContext(ctx).zalandoPostgresWatcher.Delete(ctx, input.EnvironmentName, input.TeamSlug.String(), input.Name); err != nil {
+		return nil, err
+	}
+
+	if err = activitylog.Create(ctx, activitylog.CreateInput{
+		Action:          activitylog.ActivityLogEntryActionDeleted,
+		Actor:           authz.ActorFromContext(ctx).User,
+		ResourceType:    activityLogEntryResourceTypePostgres,
+		ResourceName:    input.Name,
+		EnvironmentName: new(input.EnvironmentName),
+		TeamSlug:        new(input.TeamSlug),
+	}); err != nil {
+		return nil, err
+	}
+
+	return &DeletePostgresPayload{PostgresDeleted: new(true)}, nil
+}
+
 func GetForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName, clusterName string) (*PostgresInstance, error) {
 	if clusterName == "" {
 		return nil, nil
