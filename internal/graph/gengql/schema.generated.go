@@ -5947,6 +5947,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._PostgresGrantAccessActivityLogEntry(ctx, sel, obj)
+	case postgres.PostgresDeletedActivityLogEntry:
+		return ec._PostgresDeletedActivityLogEntry(ctx, sel, &obj)
+	case *postgres.PostgresDeletedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._PostgresDeletedActivityLogEntry(ctx, sel, obj)
 	case opensearch.OpenSearchUpdatedActivityLogEntry:
 		return ec._OpenSearchUpdatedActivityLogEntry(ctx, sel, &obj)
 	case *opensearch.OpenSearchUpdatedActivityLogEntry:

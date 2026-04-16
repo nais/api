@@ -17,7 +17,9 @@ func init() {
 	activitylog.RegisterTransformer(activityLogEntryResourceTypePostgres, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
 		switch entry.Action {
 		case activitylog.ActivityLogEntryActionDeleted:
-			return entry.WithMessage(fmt.Sprintf("Deleted postgres instance %s", entry.ResourceName)), nil
+			return PostgresDeletedActivityLogEntry{
+				GenericActivityLogEntry: entry.WithMessage("Deleted Postgres"),
+			}, nil
 		case activityLogEntryActionGrantAccess:
 			if entry.TeamSlug == nil {
 				return nil, fmt.Errorf("missing team slug for postgres grant access activity log entry")
@@ -40,6 +42,10 @@ func init() {
 
 	activitylog.RegisterFilter("POSTGRES_GRANT_ACCESS", activityLogEntryActionGrantAccess, activityLogEntryResourceTypePostgres)
 	activitylog.RegisterFilter("POSTGRES_DELETED", activitylog.ActivityLogEntryActionDeleted, activityLogEntryResourceTypePostgres)
+}
+
+type PostgresDeletedActivityLogEntry struct {
+	activitylog.GenericActivityLogEntry
 }
 
 type PostgresGrantAccessActivityLogEntry struct {

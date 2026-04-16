@@ -1585,6 +1585,17 @@ type ComplexityRoot struct {
 		TotalCount      func(childComplexity int) int
 	}
 
+	PostgresDeletedActivityLogEntry struct {
+		Actor           func(childComplexity int) int
+		CreatedAt       func(childComplexity int) int
+		EnvironmentName func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Message         func(childComplexity int) int
+		ResourceName    func(childComplexity int) int
+		ResourceType    func(childComplexity int) int
+		TeamSlug        func(childComplexity int) int
+	}
+
 	PostgresGrantAccessActivityLogEntry struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
@@ -9658,6 +9669,62 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.PageInfo.TotalCount(childComplexity), true
+
+	case "PostgresDeletedActivityLogEntry.actor":
+		if e.ComplexityRoot.PostgresDeletedActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresDeletedActivityLogEntry.Actor(childComplexity), true
+
+	case "PostgresDeletedActivityLogEntry.createdAt":
+		if e.ComplexityRoot.PostgresDeletedActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresDeletedActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "PostgresDeletedActivityLogEntry.environmentName":
+		if e.ComplexityRoot.PostgresDeletedActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresDeletedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "PostgresDeletedActivityLogEntry.id":
+		if e.ComplexityRoot.PostgresDeletedActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresDeletedActivityLogEntry.ID(childComplexity), true
+
+	case "PostgresDeletedActivityLogEntry.message":
+		if e.ComplexityRoot.PostgresDeletedActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresDeletedActivityLogEntry.Message(childComplexity), true
+
+	case "PostgresDeletedActivityLogEntry.resourceName":
+		if e.ComplexityRoot.PostgresDeletedActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresDeletedActivityLogEntry.ResourceName(childComplexity), true
+
+	case "PostgresDeletedActivityLogEntry.resourceType":
+		if e.ComplexityRoot.PostgresDeletedActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresDeletedActivityLogEntry.ResourceType(childComplexity), true
+
+	case "PostgresDeletedActivityLogEntry.teamSlug":
+		if e.ComplexityRoot.PostgresDeletedActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresDeletedActivityLogEntry.TeamSlug(childComplexity), true
 
 	case "PostgresGrantAccessActivityLogEntry.actor":
 		if e.ComplexityRoot.PostgresGrantAccessActivityLogEntry.Actor == nil {
@@ -22704,6 +22771,36 @@ extend enum ActivityLogActivityType {
 	A user was granted access to a Postgres cluster
 	"""
 	POSTGRES_GRANT_ACCESS
+	"""
+	A Postgres instance was deleted
+	"""
+	POSTGRES_DELETED
+}
+
+type PostgresDeletedActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: ActivityLogEntryResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
 }
 
 extend type Mutation {
