@@ -11,6 +11,7 @@ import (
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/auth/middleware"
+	"github.com/nais/api/internal/environmentmapper"
 	"github.com/nais/api/internal/slug"
 	"github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -80,7 +81,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	results := make([]ResourceResult, 0, len(req.Resources))
 
-	client, err := h.dynamicClientFn(environmentName, teamSlug)
+	client, err := h.dynamicClientFn(environmentmapper.ClusterName(environmentName), teamSlug)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, fmt.Sprintf("failed to create client for environment %q: %s", environmentName, err))
 		return
