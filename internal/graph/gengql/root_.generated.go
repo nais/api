@@ -20643,9 +20643,14 @@ enum InstanceGroupValueSourceKind {
 	CONFIG
 
 	"""
-	The value is defined inline in the workload spec.
+	The value is defined inline in the workload spec (user-defined in nais.yaml).
 	"""
 	SPEC
+
+	"""
+	The value was injected by the Nais platform (naiserator), not defined by the user.
+	"""
+	NAIS
 }
 `, BuiltIn: false},
 	{Name: "../schema/issues.graphqls", Input: `extend type Team {

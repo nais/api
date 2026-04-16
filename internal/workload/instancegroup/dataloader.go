@@ -7,6 +7,7 @@ import (
 
 	"github.com/nais/api/internal/environmentmapper"
 	"github.com/nais/api/internal/kubernetes/watcher"
+	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
 	"github.com/sirupsen/logrus"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -18,10 +19,11 @@ type ctxKey int
 
 const loadersKey ctxKey = iota
 
-func NewLoaderContext(ctx context.Context, rsWatcher *watcher.Watcher[*appsv1.ReplicaSet], podWatcher *watcher.Watcher[*corev1.Pod], k8sClients map[string]dynamic.Interface, log logrus.FieldLogger) context.Context {
+func NewLoaderContext(ctx context.Context, rsWatcher *watcher.Watcher[*appsv1.ReplicaSet], podWatcher *watcher.Watcher[*corev1.Pod], appWatcher *watcher.Watcher[*nais_io_v1alpha1.Application], k8sClients map[string]dynamic.Interface, log logrus.FieldLogger) context.Context {
 	return context.WithValue(ctx, loadersKey, &loaders{
 		rsWatcher:  rsWatcher,
 		podWatcher: podWatcher,
+		appWatcher: appWatcher,
 		k8sClients: k8sClients,
 		log:        log,
 	})
@@ -40,6 +42,7 @@ func fromContext(ctx context.Context) *loaders {
 type loaders struct {
 	rsWatcher  *watcher.Watcher[*appsv1.ReplicaSet]
 	podWatcher *watcher.Watcher[*corev1.Pod]
+	appWatcher *watcher.Watcher[*nais_io_v1alpha1.Application]
 	k8sClients map[string]dynamic.Interface
 	log        logrus.FieldLogger
 }
