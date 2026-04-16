@@ -135,6 +135,28 @@ type DeletePostgresInput struct {
 	TeamSlug        slug.Slug `json:"teamSlug"`
 }
 
+func (i *DeletePostgresInput) Validate(ctx context.Context) error {
+	return i.ValidationErrors(ctx).NilIfEmpty()
+}
+
+func (i *DeletePostgresInput) ValidationErrors(_ context.Context) *validate.ValidationErrors {
+	verr := validate.New()
+	i.Name = strings.TrimSpace(i.Name)
+	i.EnvironmentName = strings.TrimSpace(i.EnvironmentName)
+
+	if i.Name == "" {
+		verr.Add("name", "Name must not be empty.")
+	}
+	if i.EnvironmentName == "" {
+		verr.Add("environmentName", "Environment name must not be empty.")
+	}
+	if i.TeamSlug == "" {
+		verr.Add("teamSlug", "Team slug must not be empty.")
+	}
+
+	return verr
+}
+
 type DeletePostgresPayload struct {
 	PostgresDeleted *bool `json:"postgresDeleted,omitempty"`
 }
