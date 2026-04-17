@@ -55,7 +55,6 @@ func TestErrorsAreNonNil(t *testing.T) {
 		if err == nil {
 			t.Errorf("expected non-nil error, got nil")
 		}
-		// errors.Is with itself must return true
 		if !errors.Is(err, err) {
 			t.Errorf("error %v does not satisfy errors.Is with itself", err)
 		}
