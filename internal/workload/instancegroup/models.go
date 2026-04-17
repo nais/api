@@ -81,12 +81,14 @@ const (
 	InstanceGroupValueSourceKindSecret InstanceGroupValueSourceKind = "SECRET"
 	InstanceGroupValueSourceKindConfig InstanceGroupValueSourceKind = "CONFIG"
 	InstanceGroupValueSourceKindSpec   InstanceGroupValueSourceKind = "SPEC"
+	InstanceGroupValueSourceKindNais   InstanceGroupValueSourceKind = "NAIS"
 )
 
 var AllInstanceGroupValueSourceKind = []InstanceGroupValueSourceKind{
 	InstanceGroupValueSourceKindSecret,
 	InstanceGroupValueSourceKindConfig,
 	InstanceGroupValueSourceKindSpec,
+	InstanceGroupValueSourceKindNais,
 }
 
 func (e InstanceGroupValueSourceKind) IsValid() bool {

@@ -12,6 +12,7 @@ import (
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/workload/application"
 	"github.com/nais/api/internal/workload/secret"
+	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -82,6 +83,9 @@ func ListEnvironmentVariables(ctx context.Context, ig *InstanceGroup) ([]*Instan
 	container := ig.PodTemplateSpec.Spec.Containers[0]
 	var envVars []*InstanceGroupEnvironmentVariable
 
+	app := getApplicationSpec(l, ig)
+	userEnvNames := userDefinedEnvNames(app)
+
 	// Direct env vars
 	for _, env := range container.Env {
 		ev := &InstanceGroupEnvironmentVariable{
@@ -114,21 +118,21 @@ func ListEnvironmentVariables(ctx context.Context, ig *InstanceGroup) ([]*Instan
 			value := "(" + env.ValueFrom.FieldRef.FieldPath + ")"
 			ev.Value = &value
 			ev.Source = InstanceGroupValueSource{
-				Kind: InstanceGroupValueSourceKindSpec,
+				Kind: InstanceGroupValueSourceKindNais,
 				Name: "fieldRef",
 			}
 		case env.ValueFrom != nil && env.ValueFrom.ResourceFieldRef != nil:
 			value := "(" + env.ValueFrom.ResourceFieldRef.Resource + ")"
 			ev.Value = &value
 			ev.Source = InstanceGroupValueSource{
-				Kind: InstanceGroupValueSourceKindSpec,
+				Kind: InstanceGroupValueSourceKindNais,
 				Name: "resourceFieldRef",
 			}
 		default:
 			value := env.Value
 			ev.Value = &value
 			ev.Source = InstanceGroupValueSource{
-				Kind: InstanceGroupValueSourceKindSpec,
+				Kind: specOrNais(env.Name, userEnvNames),
 				Name: ig.ApplicationName,
 			}
 		}
@@ -390,7 +394,7 @@ func expandProjectedVolume(ctx context.Context, l *loaders, ig *InstanceGroup, m
 	// subPath means a single file is mounted directly at mountPath
 	if mount.SubPath != "" {
 		// For projected volumes with subPath, use the first source as representative
-		source := InstanceGroupValueSource{Kind: InstanceGroupValueSourceKindSpec, Name: "projected"}
+		source := InstanceGroupValueSource{Kind: InstanceGroupValueSourceKindNais, Name: "projected"}
 		for _, src := range projected.Sources {
 			if src.Secret != nil {
 				source = InstanceGroupValueSource{Kind: InstanceGroupValueSourceKindSecret, Name: src.Secret.Name}
@@ -557,6 +561,43 @@ func getConfigMapFileContents(ctx context.Context, l *loaders, environmentName, 
 	}
 
 	return result, nil
+}
+
+// getApplicationSpec fetches the Application CRD for the given instance group, returning nil if not found.
+func getApplicationSpec(l *loaders, ig *InstanceGroup) *nais_io_v1alpha1.Application {
+	if l.appWatcher == nil {
+		return nil
+	}
+	app, err := l.appWatcher.Get(ig.EnvironmentName, ig.TeamSlug.String(), ig.ApplicationName)
+	if err != nil {
+		return nil
+	}
+	return app
+}
+
+// userDefinedEnvNames returns a set of env var names defined by the user in the Application CRD spec.
+func userDefinedEnvNames(app *nais_io_v1alpha1.Application) map[string]struct{} {
+	if app == nil {
+		return nil
+	}
+	names := make(map[string]struct{}, len(app.Spec.Env))
+	for _, e := range app.Spec.Env {
+		names[e.Name] = struct{}{}
+	}
+	return names
+}
+
+// specOrNais returns SPEC if the name is in the user-defined set, otherwise NAIS.
+// If the user-defined set is nil (Application CRD not found), returns NAIS — we cannot
+// confirm the user defined it, so we default to the platform-injected classification.
+func specOrNais(name string, userDefined map[string]struct{}) InstanceGroupValueSourceKind {
+	if userDefined == nil {
+		return InstanceGroupValueSourceKindNais
+	}
+	if _, ok := userDefined[name]; ok {
+		return InstanceGroupValueSourceKindSpec
+	}
+	return InstanceGroupValueSourceKindNais
 }
 
 func secretResource(client dynamic.Interface) dynamic.NamespaceableResourceInterface {

@@ -175,12 +175,21 @@ Test.gql("Instance group with environment variables", function(t)
 								{
 									name = "myapp-abc123",
 									environmentVariables = {
-										-- Direct env var
+										-- Direct env var defined in Application CRD spec.env → SPEC
 										{
 											name = "APP_ENV",
 											value = "production",
 											source = {
 												kind = "SPEC",
+												name = "myapp",
+											},
+										},
+										-- Platform-injected env var (in pod spec but not in Application CRD spec.env) → NAIS
+										{
+											name = "NAIS_APP_NAME",
+											value = "myapp",
+											source = {
+												kind = "NAIS",
 												name = "myapp",
 											},
 										},

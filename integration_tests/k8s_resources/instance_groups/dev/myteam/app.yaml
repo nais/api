@@ -7,6 +7,9 @@ spec:
   replicas:
     min: 2
     max: 4
+  env:
+    - name: APP_ENV
+      value: production
 
 ---
 apiVersion: apps/v1
@@ -61,6 +64,8 @@ spec:
           env:
             - name: APP_ENV
               value: production
+            - name: NAIS_APP_NAME
+              value: myapp
             - name: DB_HOST
               valueFrom:
                 configMapKeyRef:
