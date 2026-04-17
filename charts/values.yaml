@@ -18,6 +18,10 @@ image:
 
 host: ""
 
+ingressClassName: external-haproxy
+additionalIngressClassNames:
+  - nais-ingress-external
+
 rest:
   psk: ""
 
