@@ -74,8 +74,8 @@ func (ec *executionContext) fieldContext_CreateTunnelPayload_tunnel(_ context.Co
 				return ec.fieldContext_Tunnel_phase(ctx, field)
 			case "gatewayPublicKey":
 				return ec.fieldContext_Tunnel_gatewayPublicKey(ctx, field)
-			case "gatewaySTUNEndpoint":
-				return ec.fieldContext_Tunnel_gatewaySTUNEndpoint(ctx, field)
+			case "forwarderEndpoint":
+				return ec.fieldContext_Tunnel_forwarderEndpoint(ctx, field)
 			case "target":
 				return ec.fieldContext_Tunnel_target(ctx, field)
 			case "message":
@@ -234,14 +234,14 @@ func (ec *executionContext) fieldContext_Tunnel_gatewayPublicKey(_ context.Conte
 	return fc, nil
 }
 
-func (ec *executionContext) _Tunnel_gatewaySTUNEndpoint(ctx context.Context, field graphql.CollectedField, obj *tunnel.Tunnel) (ret graphql.Marshaler) {
+func (ec *executionContext) _Tunnel_forwarderEndpoint(ctx context.Context, field graphql.CollectedField, obj *tunnel.Tunnel) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Tunnel_gatewaySTUNEndpoint,
+		ec.fieldContext_Tunnel_forwarderEndpoint,
 		func(ctx context.Context) (any, error) {
-			return obj.GatewaySTUNEndpoint, nil
+			return obj.ForwarderEndpoint, nil
 		},
 		nil,
 		ec.marshalNString2string,
@@ -250,7 +250,7 @@ func (ec *executionContext) _Tunnel_gatewaySTUNEndpoint(ctx context.Context, fie
 	)
 }
 
-func (ec *executionContext) fieldContext_Tunnel_gatewaySTUNEndpoint(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Tunnel_forwarderEndpoint(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Tunnel",
 		Field:      field,
@@ -976,7 +976,7 @@ func (ec *executionContext) unmarshalInputCreateTunnelInput(ctx context.Context,
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"teamSlug", "environmentName", "targetHost", "targetPort", "clientPublicKey", "clientSTUNEndpoint"}
+	fieldsInOrder := [...]string{"teamSlug", "environmentName", "targetHost", "targetPort", "clientPublicKey"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -1020,13 +1020,6 @@ func (ec *executionContext) unmarshalInputCreateTunnelInput(ctx context.Context,
 				return it, err
 			}
 			it.ClientPublicKey = data
-		case "clientSTUNEndpoint":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("clientSTUNEndpoint"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.ClientSTUNEndpoint = data
 		}
 	}
 	return it, nil
@@ -1222,8 +1215,8 @@ func (ec *executionContext) _Tunnel(ctx context.Context, sel ast.SelectionSet, o
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "gatewaySTUNEndpoint":
-			out.Values[i] = ec._Tunnel_gatewaySTUNEndpoint(ctx, field, obj)
+		case "forwarderEndpoint":
+			out.Values[i] = ec._Tunnel_forwarderEndpoint(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}

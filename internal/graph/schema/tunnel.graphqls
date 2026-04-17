@@ -43,9 +43,9 @@ type Tunnel implements Node {
 	gatewayPublicKey: String!
 
 	"""
-	The STUN endpoint of the gateway for NAT traversal.
+	The forwarder endpoint used by the client to reach the gateway.
 	"""
-	gatewaySTUNEndpoint: String!
+	forwarderEndpoint: String!
 
 	"""
 	The target destination (host and port) for the tunnel.
@@ -89,10 +89,6 @@ input CreateTunnelInput {
 	"""
 	clientPublicKey: String!
 
-	"""
-	The client's STUN endpoint for NAT traversal, discovered before tunnel creation.
-	"""
-	clientSTUNEndpoint: String!
 }
 
 type CreateTunnelPayload {

@@ -81,18 +81,17 @@ func TestErrorMessages(t *testing.T) {
 func TestTunnelStructFields(t *testing.T) {
 	now := time.Now()
 	tun := Tunnel{
-		Name:                "tunnel-abc",
-		TeamSlug:            "my-team",
-		Environment:         "dev",
-		Target:              Target{Host: "db.internal", Port: 5432},
-		ClientPublicKey:     "client-pub-key",
-		ClientSTUNEndpoint:  "1.2.3.4:12345",
-		GatewayPublicKey:    "gw-pub-key",
-		GatewaySTUNEndpoint: "5.6.7.8:54321",
-		GatewayPodName:      "gateway-pod-0",
-		Phase:               PhaseReady,
-		Message:             "all good",
-		CreatedAt:           now,
+		Name:              "tunnel-abc",
+		TeamSlug:          "my-team",
+		Environment:       "dev",
+		Target:            Target{Host: "db.internal", Port: 5432},
+		ClientPublicKey:   "client-pub-key",
+		GatewayPublicKey:  "gw-pub-key",
+		ForwarderEndpoint: "5.6.7.8:54321",
+		GatewayPodName:    "gateway-pod-0",
+		Phase:             PhaseReady,
+		Message:           "all good",
+		CreatedAt:         now,
 	}
 
 	if tun.Name != "tunnel-abc" {
@@ -194,11 +193,11 @@ func TestConverterBasic(t *testing.T) {
 				},
 			},
 			"status": map[string]any{
-				"phase":               "Ready",
-				"gatewayPublicKey":    "gw-key",
-				"gatewaySTUNEndpoint": "10.0.0.1:9000",
-				"gatewayPodName":      "gateway-0",
-				"message":             "connected",
+				"phase":             "Ready",
+				"gatewayPublicKey":  "gw-key",
+				"forwarderEndpoint": "10.0.0.1:9000",
+				"gatewayPodName":    "gateway-0",
+				"message":           "connected",
 			},
 		},
 	}
@@ -224,6 +223,9 @@ func TestConverterBasic(t *testing.T) {
 	}
 	if tun.GatewayPublicKey != "gw-key" {
 		t.Errorf("GatewayPublicKey: got %q, want %q", tun.GatewayPublicKey, "gw-key")
+	}
+	if tun.ForwarderEndpoint != "10.0.0.1:9000" {
+		t.Errorf("ForwarderEndpoint: got %q, want %q", tun.ForwarderEndpoint, "10.0.0.1:9000")
 	}
 	if tun.GatewayPodName != "gateway-0" {
 		t.Errorf("GatewayPodName: got %q, want %q", tun.GatewayPodName, "gateway-0")
@@ -276,12 +278,11 @@ func TestWithLoaders(t *testing.T) {
 
 func TestCreateTunnelInputFields(t *testing.T) {
 	input := CreateTunnelInput{
-		TeamSlug:           "team-c",
-		EnvironmentName:    "staging",
-		TargetHost:         "pg.internal",
-		TargetPort:         5432,
-		ClientPublicKey:    "pub-key",
-		ClientSTUNEndpoint: "1.2.3.4:9999",
+		TeamSlug:        "team-c",
+		EnvironmentName: "staging",
+		TargetHost:      "pg.internal",
+		TargetPort:      5432,
+		ClientPublicKey: "pub-key",
 	}
 	if input.TeamSlug != "team-c" {
 		t.Errorf("TeamSlug: got %q, want %q", input.TeamSlug, "team-c")
@@ -289,8 +290,8 @@ func TestCreateTunnelInputFields(t *testing.T) {
 	if input.TargetPort != 5432 {
 		t.Errorf("TargetPort: got %d, want %d", input.TargetPort, 5432)
 	}
-	if input.ClientSTUNEndpoint != "1.2.3.4:9999" {
-		t.Errorf("ClientSTUNEndpoint: got %q, want %q", input.ClientSTUNEndpoint, "1.2.3.4:9999")
+	if input.ClientPublicKey != "pub-key" {
+		t.Errorf("ClientPublicKey: got %q, want %q", input.ClientPublicKey, "pub-key")
 	}
 }
 

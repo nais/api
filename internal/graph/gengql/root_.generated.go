@@ -2780,14 +2780,14 @@ type ComplexityRoot struct {
 	}
 
 	Tunnel struct {
-		CreatedAt           func(childComplexity int) int
-		GatewayPublicKey    func(childComplexity int) int
-		GatewaySTUNEndpoint func(childComplexity int) int
-		ID                  func(childComplexity int) int
-		Message             func(childComplexity int) int
-		Name                func(childComplexity int) int
-		Phase               func(childComplexity int) int
-		Target              func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		GatewayPublicKey  func(childComplexity int) int
+		ForwarderEndpoint func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		Name              func(childComplexity int) int
+		Phase             func(childComplexity int) int
+		Target            func(childComplexity int) int
 	}
 
 	TunnelCreatedActivityLogEntry struct {
@@ -15023,12 +15023,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Tunnel.GatewayPublicKey(childComplexity), true
 
-	case "Tunnel.gatewaySTUNEndpoint":
-		if e.ComplexityRoot.Tunnel.GatewaySTUNEndpoint == nil {
+	case "Tunnel.forwarderEndpoint":
+		if e.ComplexityRoot.Tunnel.ForwarderEndpoint == nil {
 			break
 		}
 
-		return e.ComplexityRoot.Tunnel.GatewaySTUNEndpoint(childComplexity), true
+		return e.ComplexityRoot.Tunnel.ForwarderEndpoint(childComplexity), true
 
 	case "Tunnel.id":
 		if e.ComplexityRoot.Tunnel.ID == nil {
@@ -26174,9 +26174,9 @@ type Tunnel implements Node {
 	gatewayPublicKey: String!
 
 	"""
-	The STUN endpoint of the gateway for NAT traversal.
+	The forwarder endpoint used by the client to reach the gateway.
 	"""
-	gatewaySTUNEndpoint: String!
+	forwarderEndpoint: String!
 
 	"""
 	The target destination (host and port) for the tunnel.
@@ -26220,10 +26220,6 @@ input CreateTunnelInput {
 	"""
 	clientPublicKey: String!
 
-	"""
-	The client's STUN endpoint for NAT traversal, discovered before tunnel creation.
-	"""
-	clientSTUNEndpoint: String!
 }
 
 type CreateTunnelPayload {

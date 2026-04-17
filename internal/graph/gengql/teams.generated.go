@@ -5795,8 +5795,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_tunnel(ctx context.Cont
 				return ec.fieldContext_Tunnel_phase(ctx, field)
 			case "gatewayPublicKey":
 				return ec.fieldContext_Tunnel_gatewayPublicKey(ctx, field)
-			case "gatewaySTUNEndpoint":
-				return ec.fieldContext_Tunnel_gatewaySTUNEndpoint(ctx, field)
+			case "forwarderEndpoint":
+				return ec.fieldContext_Tunnel_forwarderEndpoint(ctx, field)
 			case "target":
 				return ec.fieldContext_Tunnel_target(ctx, field)
 			case "message":

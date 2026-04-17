@@ -26,18 +26,17 @@ type Target struct {
 }
 
 type Tunnel struct {
-	Name                string
-	TeamSlug            string
-	Environment         string
-	Target              Target
-	ClientPublicKey     string
-	ClientSTUNEndpoint  string
-	GatewayPublicKey    string
-	GatewaySTUNEndpoint string
-	GatewayPodName      string
-	Phase               Phase
-	Message             string
-	CreatedAt           time.Time
+	Name              string
+	TeamSlug          string
+	Environment       string
+	Target            Target
+	ClientPublicKey   string
+	GatewayPublicKey  string
+	ForwarderEndpoint string
+	GatewayPodName    string
+	Phase             Phase
+	Message           string
+	CreatedAt         time.Time
 }
 
 func (t Tunnel) IsNode() {}
@@ -53,12 +52,11 @@ func (t *Tunnel) GetObjectKind() schema.ObjectKind { return schema.EmptyObjectKi
 func (t *Tunnel) DeepCopyObject() runtime.Object   { return t }
 
 type CreateTunnelInput struct {
-	TeamSlug           string
-	EnvironmentName    string
-	TargetHost         string
-	TargetPort         int32
-	ClientPublicKey    string
-	ClientSTUNEndpoint string
+	TeamSlug        string
+	EnvironmentName string
+	TargetHost      string
+	TargetPort      int32
+	ClientPublicKey string
 }
 
 type CreateTunnelPayload struct {
