@@ -3010,14 +3010,14 @@ type ComplexityRoot struct {
 	}
 
 	Tunnel struct {
-		CreatedAt           func(childComplexity int) int
-		GatewayPublicKey    func(childComplexity int) int
-		GatewaySTUNEndpoint func(childComplexity int) int
-		ID                  func(childComplexity int) int
-		Message             func(childComplexity int) int
-		Name                func(childComplexity int) int
-		Phase               func(childComplexity int) int
-		Target              func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		ForwarderEndpoint func(childComplexity int) int
+		GatewayPublicKey  func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		Name              func(childComplexity int) int
+		Phase             func(childComplexity int) int
+		Target            func(childComplexity int) int
 	}
 
 	TunnelCreatedActivityLogEntry struct {
@@ -16214,19 +16214,19 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Tunnel.CreatedAt(childComplexity), true
 
+	case "Tunnel.forwarderEndpoint":
+		if e.ComplexityRoot.Tunnel.ForwarderEndpoint == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Tunnel.ForwarderEndpoint(childComplexity), true
+
 	case "Tunnel.gatewayPublicKey":
 		if e.ComplexityRoot.Tunnel.GatewayPublicKey == nil {
 			break
 		}
 
 		return e.ComplexityRoot.Tunnel.GatewayPublicKey(childComplexity), true
-
-	case "Tunnel.gatewaySTUNEndpoint":
-		if e.ComplexityRoot.Tunnel.GatewaySTUNEndpoint == nil {
-			break
-		}
-
-		return e.ComplexityRoot.Tunnel.GatewaySTUNEndpoint(childComplexity), true
 
 	case "Tunnel.id":
 		if e.ComplexityRoot.Tunnel.ID == nil {
@@ -28389,9 +28389,9 @@ type Tunnel implements Node {
 	gatewayPublicKey: String!
 
 	"""
-	The STUN endpoint of the gateway for NAT traversal.
+	The forwarder endpoint used by the client to reach the gateway.
 	"""
-	gatewaySTUNEndpoint: String!
+	forwarderEndpoint: String!
 
 	"""
 	The target destination (host and port) for the tunnel.
@@ -28435,10 +28435,6 @@ input CreateTunnelInput {
 	"""
 	clientPublicKey: String!
 
-	"""
-	The client's STUN endpoint for NAT traversal, discovered before tunnel creation.
-	"""
-	clientSTUNEndpoint: String!
 }
 
 type CreateTunnelPayload {
@@ -35110,8 +35106,8 @@ func (ec *executionContext) childFields_Tunnel(ctx context.Context, field graphq
 		return ec.fieldContext_Tunnel_phase(ctx, field)
 	case "gatewayPublicKey":
 		return ec.fieldContext_Tunnel_gatewayPublicKey(ctx, field)
-	case "gatewaySTUNEndpoint":
-		return ec.fieldContext_Tunnel_gatewaySTUNEndpoint(ctx, field)
+	case "forwarderEndpoint":
+		return ec.fieldContext_Tunnel_forwarderEndpoint(ctx, field)
 	case "target":
 		return ec.fieldContext_Tunnel_target(ctx, field)
 	case "message":

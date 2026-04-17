@@ -49,10 +49,9 @@ func Create(ctx context.Context, input CreateTunnelInput) (*CreateTunnelPayload,
 	res.SetNamespace(namespace)
 
 	res.Object["spec"] = map[string]any{
-		"teamSlug":           input.TeamSlug,
-		"environment":        input.EnvironmentName,
-		"clientPublicKey":    input.ClientPublicKey,
-		"clientSTUNEndpoint": input.ClientSTUNEndpoint,
+		"teamSlug":        input.TeamSlug,
+		"environment":     input.EnvironmentName,
+		"clientPublicKey": input.ClientPublicKey,
 		"target": map[string]any{
 			"host":       input.TargetHost,
 			"port":       int64(input.TargetPort),

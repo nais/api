@@ -38,14 +38,13 @@ func converter(u *unstructured.Unstructured) (*Tunnel, error) {
 
 	phase, _, _ := unstructured.NestedString(status, "phase")
 	gatewayPublicKey, _, _ := unstructured.NestedString(status, "gatewayPublicKey")
-	gatewaySTUNEndpoint, _, _ := unstructured.NestedString(status, "gatewaySTUNEndpoint")
+	forwarderEndpoint, _, _ := unstructured.NestedString(status, "forwarderEndpoint")
 	gatewayPodName, _, _ := unstructured.NestedString(status, "gatewayPodName")
 	message, _, _ := unstructured.NestedString(status, "message")
 
 	teamSlug, _, _ := unstructured.NestedString(spec, "teamSlug")
 	environment, _, _ := unstructured.NestedString(spec, "environment")
 	clientPublicKey, _, _ := unstructured.NestedString(spec, "clientPublicKey")
-	clientSTUNEndpoint, _, _ := unstructured.NestedString(spec, "clientSTUNEndpoint")
 
 	createdAt := u.GetCreationTimestamp().Time
 	if createdAt.IsZero() {
@@ -53,17 +52,16 @@ func converter(u *unstructured.Unstructured) (*Tunnel, error) {
 	}
 
 	return &Tunnel{
-		Name:                u.GetName(),
-		TeamSlug:            teamSlug,
-		Environment:         environment,
-		Target:              Target{Host: host, Port: int32(portFloat)},
-		ClientPublicKey:     clientPublicKey,
-		ClientSTUNEndpoint:  clientSTUNEndpoint,
-		GatewayPublicKey:    gatewayPublicKey,
-		GatewaySTUNEndpoint: gatewaySTUNEndpoint,
-		GatewayPodName:      gatewayPodName,
-		Phase:               Phase(phase),
-		Message:             message,
-		CreatedAt:           createdAt,
+		Name:              u.GetName(),
+		TeamSlug:          teamSlug,
+		Environment:       environment,
+		Target:            Target{Host: host, Port: int32(portFloat)},
+		ClientPublicKey:   clientPublicKey,
+		GatewayPublicKey:  gatewayPublicKey,
+		ForwarderEndpoint: forwarderEndpoint,
+		GatewayPodName:    gatewayPodName,
+		Phase:             Phase(phase),
+		Message:           message,
+		CreatedAt:         createdAt,
 	}, nil
 }
