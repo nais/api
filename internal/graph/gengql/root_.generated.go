@@ -20643,7 +20643,7 @@ enum InstanceGroupValueSourceKind {
 	CONFIG
 
 	"""
-	The value is defined inline in the workload spec (user-defined in nais.yaml).
+	The value is defined inline in the workload's application manifest (user-defined).
 	"""
 	SPEC
 
