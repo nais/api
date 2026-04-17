@@ -7,6 +7,9 @@ on:
       - charts/console-backend-rbac/**
       - .github/workflows/console-backend-rbac-chart.yaml
 
+permissions:
+  contents: read
+
 env:
   NAME: console-backend-rbac
   IMAGE_REPOSITORY: oci://europe-north1-docker.pkg.dev/nais-io/nais
@@ -14,8 +17,6 @@ env:
 jobs:
   lint:
     name: Lint
-    permissions:
-      contents: read
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
