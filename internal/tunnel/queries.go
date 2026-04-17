@@ -8,6 +8,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/slug"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/metric"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -77,6 +79,14 @@ func Create(ctx context.Context, input CreateTunnelInput) (*CreateTunnelPayload,
 		return nil, err
 	}
 
+	tunnelOperationsTotal.Add(ctx, 1,
+		metric.WithAttributes(
+			attribute.String("operation", "create"),
+			attribute.String("team", input.TeamSlug),
+			attribute.String("environment", input.EnvironmentName),
+		),
+	)
+
 	return &CreateTunnelPayload{Tunnel: t}, nil
 }
 
@@ -118,5 +128,17 @@ func Delete(ctx context.Context, teamSlug, environmentName, tunnelName string) e
 		return err
 	}
 
-	return LogTunnelDeleted(ctx, tunnelName, found.TeamSlug)
+	if err := LogTunnelDeleted(ctx, tunnelName, found.TeamSlug); err != nil {
+		return err
+	}
+
+	tunnelOperationsTotal.Add(ctx, 1,
+		metric.WithAttributes(
+			attribute.String("operation", "delete"),
+			attribute.String("team", found.TeamSlug),
+			attribute.String("environment", environmentName),
+		),
+	)
+
+	return nil
 }
