@@ -1,4 +1,5 @@
 local user = User.new("user", "user@usersen.com")
+local nonMemberUser = User.new("nonmember", "other@user.com")
 
 local mainTeam = Team.new("someteamname", "purpose", "#slack_channel")
 mainTeam:addMember(user)
@@ -502,6 +503,132 @@ Test.gql("Postgres instance with explicit audit disabled", function(t)
 						audit = {
 							enabled = false,
 							url = Null,
+						},
+					},
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("Delete Postgres in non-existing team", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[
+		mutation DeletePostgres {
+		  deletePostgres(
+		    input: {
+		      name: "foobar"
+		      environmentName: "dev"
+		      teamSlug: "devteam"
+		    }
+		  ) {
+				postgresDeleted
+		  }
+		}
+	]]
+
+	t.check {
+		errors = {
+			{
+				message = Contains("you need the \"postgres:delete\" authorization."),
+				path = {
+					"deletePostgres",
+				},
+			},
+		},
+		data = Null,
+	}
+end)
+
+Test.gql("Delete Postgres as non-team-member", function(t)
+	t.addHeader("x-user-email", nonMemberUser:email())
+	t.query [[
+		mutation DeletePostgres {
+		  deletePostgres(
+		    input: {
+		      name: "foobar"
+		      environmentName: "dev"
+		      teamSlug: "someteamname"
+		    }
+		  ) {
+				postgresDeleted
+		  }
+		}
+	]]
+
+	t.check {
+		errors = {
+			{
+				message = Contains("You are authenticated"),
+				path = {
+					"deletePostgres",
+				},
+			},
+		},
+		data = Null,
+	}
+end)
+
+Test.gql("Delete Postgres as team-member", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[
+		mutation DeletePostgres {
+		  deletePostgres(
+		    input: {
+		      name: "foobar"
+		      environmentName: "dev"
+		      teamSlug: "someteamname"
+		    }
+		  ) {
+				postgresDeleted
+		  }
+		}
+	]]
+
+	t.check {
+		data = {
+			deletePostgres = {
+				postgresDeleted = true,
+			},
+		},
+	}
+end)
+
+Test.gql("Verify activity log for postgres delete", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query(string.format([[
+		{
+		  team(slug: "%s") {
+		    activityLog(first: 50, filter: { activityTypes: [POSTGRES_DELETED] }) {
+		      nodes {
+		        __typename
+		        message
+		        actor
+		        createdAt
+		        resourceType
+		        resourceName
+		        environmentName
+		        teamSlug
+		      }
+		    }
+		  }
+		}
+	]], mainTeam:slug()))
+
+	t.check {
+		data = {
+			team = {
+				activityLog = {
+					nodes = {
+						{
+							__typename = "PostgresDeletedActivityLogEntry",
+							message = "Deleted Postgres",
+							actor = user:email(),
+							createdAt = NotNull(),
+							resourceType = "POSTGRES",
+							resourceName = "foobar",
+							environmentName = "dev",
+							teamSlug = mainTeam:slug(),
 						},
 					},
 				},

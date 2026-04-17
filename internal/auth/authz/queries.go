@@ -310,6 +310,10 @@ func CanGrantPostgresAccess(ctx context.Context, teamSlug slug.Slug) error {
 	return requireStrictTeamAuthorization(ctx, teamSlug, "postgres:access:grant")
 }
 
+func CanDeletePostgres(ctx context.Context, teamSlug slug.Slug) error {
+	return requireTeamAuthorization(ctx, teamSlug, "postgres:delete")
+}
+
 func CanCreateAivenCredentials(ctx context.Context, teamSlug slug.Slug) error {
 	return requireTeamAuthorization(ctx, teamSlug, "aiven:credentials:create")
 }

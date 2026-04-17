@@ -175,16 +175,48 @@ type PostgresGrantAccessActivityLogEntryData {
 	until: Time!
 }
 
+type PostgresDeletedActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: ActivityLogEntryResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+}
+
 extend enum ActivityLogActivityType {
 	"""
 	A user was granted access to a Postgres cluster
 	"""
 	POSTGRES_GRANT_ACCESS
+	"""
+	A Postgres instance was deleted
+	"""
+	POSTGRES_DELETED
 }
 
 extend type Mutation {
 	"Grant temporary access to a Postgres cluster."
 	grantPostgresAccess(input: GrantPostgresAccessInput!): GrantPostgresAccessPayload!
+	"Delete an existing Postgres instance."
+	deletePostgres(input: DeletePostgresInput!): DeletePostgresPayload!
 }
 
 type GrantPostgresAccessPayload {
@@ -198,6 +230,20 @@ input GrantPostgresAccessInput {
 	grantee: String!
 	"Duration of the access grant (maximum 4 hours)."
 	duration: String!
+}
+
+input DeletePostgresInput {
+	"Name of the Postgres instance."
+	name: String!
+	"The environment name that the Postgres instance belongs to."
+	environmentName: String!
+	"The team that owns the Postgres instance."
+	teamSlug: Slug!
+}
+
+type DeletePostgresPayload {
+	"Whether or not the Postgres instance was deleted."
+	postgresDeleted: Boolean
 }
 
 extend type TeamInventoryCounts {
