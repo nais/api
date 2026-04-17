@@ -4,4 +4,4 @@ description: The all mighty Nais API
 type: application
 version: 1.0.0
 sources:
-  - https://github.com/nais/api/tree/main/charts
+  - https://github.com/nais/api/tree/main/charts/nais-api

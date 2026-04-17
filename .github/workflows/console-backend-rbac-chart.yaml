@@ -1,0 +1,69 @@
+name: Build and push chart console-backend-rbac
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - charts/console-backend-rbac/**
+      - .github/workflows/console-backend-rbac-chart.yaml
+
+env:
+  NAME: console-backend-rbac
+  IMAGE_REPOSITORY: oci://europe-north1-docker.pkg.dev/nais-io/nais
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: jdx/mise-action@v4
+      - run: helm lint --strict charts/console-backend-rbac
+
+  build_push:
+    needs:
+      - lint
+    permissions:
+      contents: read
+      id-token: write
+    if: github.triggering_actor != 'dependabot[bot]'
+    name: Build and push
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: jdx/mise-action@v4
+      - name: Generate version
+        id: version
+        run: echo "version=$(TZ='Europe/Oslo' date +'%Y-%m-%d-%H%M%S')-$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+      - name: Authenticate to Google Cloud
+        id: auth
+        uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ secrets.NAIS_IO_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: gh-api@nais-io.iam.gserviceaccount.com
+          token_format: access_token
+      - name: Login to Google Artifact Registry
+        run: echo "${{ steps.auth.outputs.access_token }}" | helm registry login europe-north1-docker.pkg.dev --username oauth2accesstoken --password-stdin
+      - name: Build Chart
+        run: |-
+          sed -i "s/^version: .*/version: ${{ steps.version.outputs.version }}/g" charts/console-backend-rbac/Chart.yaml
+          cat charts/console-backend-rbac/Chart.yaml
+          helm package charts/console-backend-rbac
+      - name: Push Chart
+        run: helm push ${{ env.NAME }}*.tgz ${{ env.IMAGE_REPOSITORY }}
+
+  rollout:
+    needs:
+      - lint
+      - build_push
+    runs-on: fasit-deploy
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      id-token: write
+    steps:
+      - uses: nais/fasit-deploy@v2 # ratchet:exclude
+        with:
+          chart: ${{ env.IMAGE_REPOSITORY }}/${{ env.NAME }}
+          version: ${{ needs.build_push.outputs.version }}

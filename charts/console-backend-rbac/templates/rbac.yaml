@@ -1,0 +1,292 @@
+{{- if eq .Values.fasit.env.kind "tenant" }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: "{{ .Release.Name }}"
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+      - pods/log
+      - configmaps
+    verbs:
+      - list
+      - get
+      - watch
+  - apiGroups:
+      - "apps"
+    resources:
+      - replicasets
+    verbs:
+      - list
+      - get
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - users
+      - groups
+      - serviceaccounts
+    verbs:
+      - impersonate
+  - apiGroups:
+      - sql.cnrm.cloud.google.com
+    resources:
+      - sqlinstances
+      - sqldatabases
+    verbs:
+      - list
+      - watch
+  # These (and most other resources) are already granted through the GKE IAM roles (roles/container.viewer)
+  - apiGroups:
+      - aiven.io
+    resources:
+      - opensearches
+      - valkeys
+    verbs:
+      - list
+      - watch
+  - apiGroups:
+      - rbac.authorization.k8s.io
+    resources:
+      - roles
+      - rolebindings
+    verbs:
+      - get
+      - list
+      - watch
+      - update
+      - patch
+      - create
+  # Elevation: nais-api must hold the permissions it grants to users
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - patch
+      - delete
+  - apiGroups:
+      - ""
+    resources:
+      - pods/exec
+      - pods/portforward
+    verbs:
+      - create
+  - apiGroups:
+      - ""
+    resources:
+      - pods/ephemeralcontainers
+    verbs:
+      - patch
+  - apiGroups:
+      - "nais.io"
+    resources:
+      - valkeys
+      - opensearches
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - patch
+      - delete
+  - apiGroups:
+      - "aiven.nais.io"
+    resources:
+      - aivenapplications
+    verbs:
+      - get
+      - create
+      - update
+      - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: "{{ .Release.Name }}"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: "{{ .Release.Name }}"
+subjects:
+  - kind: User
+    name: "console-backend@{{ .Values.managementProjectID }}.iam.gserviceaccount.com"
+  - kind: User
+    name: "nais-api@{{ .Values.managementProjectID }}.iam.gserviceaccount.com"
+{{- end }}
+
+{{- if eq .Values.fasit.env.kind "onprem" }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: console-backend
+  namespace: nais-system
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: nais-api
+  namespace: nais-system
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: "{{ .Release.Name }}"
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - namespaces
+      - configmaps
+      - pods
+      - pods/log
+    verbs:
+      - list
+      - get
+      - watch
+  - apiGroups:
+      - "apps"
+    resources:
+      - replicasets
+    verbs:
+      - list
+      - get
+      - watch
+  - apiGroups:
+      - "batch"
+    resources:
+      - jobs
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - "kafka.nais.io"
+    resources:
+      - topics
+      - streams
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - "nais.io"
+    resources:
+      - naisjobs
+      - applications
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - users
+      - groups
+      - serviceaccounts
+    verbs:
+      - impersonate
+  - apiGroups:
+      - unleash.nais.io
+    resources:
+      - remoteunleashes
+    verbs:
+      - "*"
+  - apiGroups:
+      - "networking.k8s.io"
+    resources:
+      - ingresses
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - "google.nais.io"
+    resources:
+      - bigquerydatasets
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - "events.k8s.io"
+    resources:
+      - events
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - "data.nais.io"
+    resources:
+      - postgres
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - patch
+      - delete
+  - apiGroups:
+      - rbac.authorization.k8s.io
+    resources:
+      - roles
+      - rolebindings
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - delete
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: {{ .Release.Name }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ .Release.Name }}
+subjects:
+  - kind: ServiceAccount
+    name: console-backend
+    namespace: nais-system
+  - kind: ServiceAccount
+    name: nais-api
+    namespace: nais-system
+---
+kind: Secret
+apiVersion: v1
+metadata:
+  name: console-backend
+  namespace: nais-system
+  annotations:
+    "kubernetes.io/service-account.name": console-backend
+type: kubernetes.io/service-account-token
+---
+kind: Secret
+apiVersion: v1
+metadata:
+  name: nais-api
+  namespace: nais-system
+  annotations:
+    "kubernetes.io/service-account.name": nais-api
+type: kubernetes.io/service-account-token
+{{- end }}

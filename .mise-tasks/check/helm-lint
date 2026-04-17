@@ -3,4 +3,4 @@
 
 set -e
 
-helm lint --strict ./charts
+helm lint --strict ./charts/*
