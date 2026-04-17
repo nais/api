@@ -1,0 +1,7 @@
+apiVersion: v2
+name: console-backend-rbac
+description: ClusterRole and ClusterRoleBinding for console-backend
+type: application
+version: 0.1.1
+sources:
+  - https://github.com/nais/api/tree/main/charts/console-backend-rbac

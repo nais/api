@@ -1,0 +1,8 @@
+environmentKinds:
+  - tenant
+  - onprem
+values:
+  managementProjectID:
+    displayName: Management Project ID
+    computed:
+      template: "{{ .Management.project_id }}"
