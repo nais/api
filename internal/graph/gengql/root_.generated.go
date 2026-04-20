@@ -522,8 +522,9 @@ type ComplexityRoot struct {
 		ActivityLog          func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int
 		HasSbom              func(childComplexity int) int
 		ID                   func(childComplexity int) int
+		ImageUpdatedAt       func(childComplexity int) int
 		Name                 func(childComplexity int) int
-		Staleness            func(childComplexity int) int
+		SbomStatus           func(childComplexity int) int
 		Tag                  func(childComplexity int) int
 		Vulnerabilities      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *vulnerability.ImageVulnerabilityFilter, orderBy *vulnerability.ImageVulnerabilityOrder) int
 		VulnerabilitySummary func(childComplexity int) int
@@ -3029,12 +3030,6 @@ type ComplexityRoot struct {
 		TotalWorkloads func(childComplexity int) int
 	}
 
-	VulnerabilityStaleness struct {
-		Code     func(childComplexity int) int
-		Reason   func(childComplexity int) int
-		Severity func(childComplexity int) int
-	}
-
 	VulnerabilityUpdatedActivityLogEntry struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
@@ -3124,11 +3119,12 @@ type ComplexityRoot struct {
 	}
 
 	WorkloadVulnerabilitySummary struct {
-		HasSbom   func(childComplexity int) int
-		ID        func(childComplexity int) int
-		Staleness func(childComplexity int) int
-		Summary   func(childComplexity int) int
-		Workload  func(childComplexity int) int
+		HasSbom        func(childComplexity int) int
+		ID             func(childComplexity int) int
+		ImageUpdatedAt func(childComplexity int) int
+		SbomStatus     func(childComplexity int) int
+		Summary        func(childComplexity int) int
+		Workload       func(childComplexity int) int
 	}
 
 	WorkloadVulnerabilitySummaryConnection struct {
@@ -4816,6 +4812,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ContainerImage.ID(childComplexity), true
 
+	case "ContainerImage.imageUpdatedAt":
+		if e.ComplexityRoot.ContainerImage.ImageUpdatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ContainerImage.ImageUpdatedAt(childComplexity), true
+
 	case "ContainerImage.name":
 		if e.ComplexityRoot.ContainerImage.Name == nil {
 			break
@@ -4823,12 +4826,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ContainerImage.Name(childComplexity), true
 
-	case "ContainerImage.staleness":
-		if e.ComplexityRoot.ContainerImage.Staleness == nil {
+	case "ContainerImage.sbomStatus":
+		if e.ComplexityRoot.ContainerImage.SbomStatus == nil {
 			break
 		}
 
-		return e.ComplexityRoot.ContainerImage.Staleness(childComplexity), true
+		return e.ComplexityRoot.ContainerImage.SbomStatus(childComplexity), true
 
 	case "ContainerImage.tag":
 		if e.ComplexityRoot.ContainerImage.Tag == nil {
@@ -15842,27 +15845,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.VulnerabilityFixSample.TotalWorkloads(childComplexity), true
 
-	case "VulnerabilityStaleness.code":
-		if e.ComplexityRoot.VulnerabilityStaleness.Code == nil {
-			break
-		}
-
-		return e.ComplexityRoot.VulnerabilityStaleness.Code(childComplexity), true
-
-	case "VulnerabilityStaleness.reason":
-		if e.ComplexityRoot.VulnerabilityStaleness.Reason == nil {
-			break
-		}
-
-		return e.ComplexityRoot.VulnerabilityStaleness.Reason(childComplexity), true
-
-	case "VulnerabilityStaleness.severity":
-		if e.ComplexityRoot.VulnerabilityStaleness.Severity == nil {
-			break
-		}
-
-		return e.ComplexityRoot.VulnerabilityStaleness.Severity(childComplexity), true
-
 	case "VulnerabilityUpdatedActivityLogEntry.actor":
 		if e.ComplexityRoot.VulnerabilityUpdatedActivityLogEntry.Actor == nil {
 			break
@@ -16255,12 +16237,19 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.WorkloadVulnerabilitySummary.ID(childComplexity), true
 
-	case "WorkloadVulnerabilitySummary.staleness":
-		if e.ComplexityRoot.WorkloadVulnerabilitySummary.Staleness == nil {
+	case "WorkloadVulnerabilitySummary.imageUpdatedAt":
+		if e.ComplexityRoot.WorkloadVulnerabilitySummary.ImageUpdatedAt == nil {
 			break
 		}
 
-		return e.ComplexityRoot.WorkloadVulnerabilitySummary.Staleness(childComplexity), true
+		return e.ComplexityRoot.WorkloadVulnerabilitySummary.ImageUpdatedAt(childComplexity), true
+
+	case "WorkloadVulnerabilitySummary.sbomStatus":
+		if e.ComplexityRoot.WorkloadVulnerabilitySummary.SbomStatus == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadVulnerabilitySummary.SbomStatus(childComplexity), true
 
 	case "WorkloadVulnerabilitySummary.summary":
 		if e.ComplexityRoot.WorkloadVulnerabilitySummary.Summary == nil {
@@ -26559,11 +26548,17 @@ type ImageVulnerabilityHistory {
 }
 
 extend type ContainerImage {
-	"Information about whether the vulnerability data is stale."
-	staleness: VulnerabilityStaleness!
+	"The SBOM pipeline status for this image."
+	sbomStatus: SbomStatus!
 
 	"Whether the image has a software bill of materials (SBOM) attached to it."
 	hasSBOM: Boolean!
+
+	"""
+	The timestamp when the image reference was last updated by a workload.
+	Useful as a progress indicator when status is PROCESSING.
+	"""
+	imageUpdatedAt: Time
 
 	"Get the vulnerabilities of the image."
 	vulnerabilities(
@@ -26918,8 +26913,11 @@ type WorkloadVulnerabilitySummary implements Node {
 	"The vulnerability summary for the workload."
 	summary: ImageVulnerabilitySummary!
 
-	"Information about whether the vulnerability data is stale."
-	staleness: VulnerabilityStaleness!
+	"The SBOM pipeline status for this workload."
+	sbomStatus: SbomStatus!
+
+	"The timestamp when the workload's image reference was last updated. Useful as a progress indicator when status is PROCESSING."
+	imageUpdatedAt: Time
 }
 
 """
@@ -27160,32 +27158,12 @@ type VulnerabilityFixSample {
 	totalWorkloads: Int!
 }
 
-"Information about whether vulnerability data is stale and why."
-type VulnerabilityStaleness {
-	"The severity of the staleness."
-	severity: StaleSeverity!
-
-	"A human-readable explanation of why the vulnerability data is stale."
-	reason: String!
-
-	"A machine-readable code identifying the reason for staleness."
-	code: StaleReasonCode!
-}
-
-enum StaleSeverity {
-	STALE_NONE
-	STALE_PROCESSING
-	STALE_PERMANENT
-}
-
-enum StaleReasonCode {
-	UNSPECIFIED
-	UP_TO_DATE
+"The SBOM pipeline status for an image or workload."
+enum SbomStatus {
 	PROCESSING
-	PROCESSING_WITH_FALLBACK
+	READY
 	NO_SBOM
-	SBOM_UPLOAD_FAILED
-	NO_ATTESTATION
+	FAILED
 }
 `, BuiltIn: false},
 	{Name: "../schema/workloads.graphqls", Input: `extend type Team {

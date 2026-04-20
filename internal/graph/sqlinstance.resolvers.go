@@ -286,9 +286,7 @@ func (r *Resolver) TeamServiceUtilizationSqlInstances() gengql.TeamServiceUtiliz
 	return &teamServiceUtilizationSqlInstancesResolver{r}
 }
 
-type (
-	sqlDatabaseResolver                        struct{ *Resolver }
-	sqlInstanceResolver                        struct{ *Resolver }
-	sqlInstanceMetricsResolver                 struct{ *Resolver }
-	teamServiceUtilizationSqlInstancesResolver struct{ *Resolver }
-)
+type sqlDatabaseResolver struct{ *Resolver }
+type sqlInstanceResolver struct{ *Resolver }
+type sqlInstanceMetricsResolver struct{ *Resolver }
+type teamServiceUtilizationSqlInstancesResolver struct{ *Resolver }
