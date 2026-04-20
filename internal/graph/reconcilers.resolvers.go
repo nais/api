@@ -106,7 +106,5 @@ func (r *Resolver) ReconcilerError() gengql.ReconcilerErrorResolver {
 	return &reconcilerErrorResolver{r}
 }
 
-type (
-	reconcilerResolver      struct{ *Resolver }
-	reconcilerErrorResolver struct{ *Resolver }
-)
+type reconcilerResolver struct{ *Resolver }
+type reconcilerErrorResolver struct{ *Resolver }

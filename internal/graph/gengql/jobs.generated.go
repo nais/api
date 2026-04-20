@@ -983,10 +983,12 @@ func (ec *executionContext) fieldContext_Job_image(_ context.Context, field grap
 				return ec.fieldContext_ContainerImage_tag(ctx, field)
 			case "activityLog":
 				return ec.fieldContext_ContainerImage_activityLog(ctx, field)
-			case "staleness":
-				return ec.fieldContext_ContainerImage_staleness(ctx, field)
+			case "sbomStatus":
+				return ec.fieldContext_ContainerImage_sbomStatus(ctx, field)
 			case "hasSBOM":
 				return ec.fieldContext_ContainerImage_hasSBOM(ctx, field)
+			case "imageUpdatedAt":
+				return ec.fieldContext_ContainerImage_imageUpdatedAt(ctx, field)
 			case "vulnerabilities":
 				return ec.fieldContext_ContainerImage_vulnerabilities(ctx, field)
 			case "vulnerabilitySummary":
@@ -3108,10 +3110,12 @@ func (ec *executionContext) fieldContext_JobRun_image(_ context.Context, field g
 				return ec.fieldContext_ContainerImage_tag(ctx, field)
 			case "activityLog":
 				return ec.fieldContext_ContainerImage_activityLog(ctx, field)
-			case "staleness":
-				return ec.fieldContext_ContainerImage_staleness(ctx, field)
+			case "sbomStatus":
+				return ec.fieldContext_ContainerImage_sbomStatus(ctx, field)
 			case "hasSBOM":
 				return ec.fieldContext_ContainerImage_hasSBOM(ctx, field)
+			case "imageUpdatedAt":
+				return ec.fieldContext_ContainerImage_imageUpdatedAt(ctx, field)
 			case "vulnerabilities":
 				return ec.fieldContext_ContainerImage_vulnerabilities(ctx, field)
 			case "vulnerabilitySummary":
