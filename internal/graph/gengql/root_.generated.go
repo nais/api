@@ -519,16 +519,16 @@ type ComplexityRoot struct {
 	}
 
 	ContainerImage struct {
-		ActivityLog          func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int
-		HasSbom              func(childComplexity int) int
-		ID                   func(childComplexity int) int
-		ImageUpdatedAt       func(childComplexity int) int
-		Name                 func(childComplexity int) int
-		SbomStatus           func(childComplexity int) int
-		Tag                  func(childComplexity int) int
-		Vulnerabilities      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *vulnerability.ImageVulnerabilityFilter, orderBy *vulnerability.ImageVulnerabilityOrder) int
-		VulnerabilitySummary func(childComplexity int) int
-		WorkloadReferences   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		ActivityLog             func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int
+		HasSbom                 func(childComplexity int) int
+		ID                      func(childComplexity int) int
+		Name                    func(childComplexity int) int
+		SbomProcessingStartedAt func(childComplexity int) int
+		SbomStatus              func(childComplexity int) int
+		Tag                     func(childComplexity int) int
+		Vulnerabilities         func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *vulnerability.ImageVulnerabilityFilter, orderBy *vulnerability.ImageVulnerabilityOrder) int
+		VulnerabilitySummary    func(childComplexity int) int
+		WorkloadReferences      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 	}
 
 	ContainerImageWorkloadReference struct {
@@ -3119,12 +3119,12 @@ type ComplexityRoot struct {
 	}
 
 	WorkloadVulnerabilitySummary struct {
-		HasSbom        func(childComplexity int) int
-		ID             func(childComplexity int) int
-		ImageUpdatedAt func(childComplexity int) int
-		SbomStatus     func(childComplexity int) int
-		Summary        func(childComplexity int) int
-		Workload       func(childComplexity int) int
+		HasSbom                 func(childComplexity int) int
+		ID                      func(childComplexity int) int
+		SbomProcessingStartedAt func(childComplexity int) int
+		SbomStatus              func(childComplexity int) int
+		Summary                 func(childComplexity int) int
+		Workload                func(childComplexity int) int
 	}
 
 	WorkloadVulnerabilitySummaryConnection struct {
@@ -4812,19 +4812,19 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ContainerImage.ID(childComplexity), true
 
-	case "ContainerImage.imageUpdatedAt":
-		if e.ComplexityRoot.ContainerImage.ImageUpdatedAt == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ContainerImage.ImageUpdatedAt(childComplexity), true
-
 	case "ContainerImage.name":
 		if e.ComplexityRoot.ContainerImage.Name == nil {
 			break
 		}
 
 		return e.ComplexityRoot.ContainerImage.Name(childComplexity), true
+
+	case "ContainerImage.sbomProcessingStartedAt":
+		if e.ComplexityRoot.ContainerImage.SbomProcessingStartedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ContainerImage.SbomProcessingStartedAt(childComplexity), true
 
 	case "ContainerImage.sbomStatus":
 		if e.ComplexityRoot.ContainerImage.SbomStatus == nil {
@@ -16237,12 +16237,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.WorkloadVulnerabilitySummary.ID(childComplexity), true
 
-	case "WorkloadVulnerabilitySummary.imageUpdatedAt":
-		if e.ComplexityRoot.WorkloadVulnerabilitySummary.ImageUpdatedAt == nil {
+	case "WorkloadVulnerabilitySummary.sbomProcessingStartedAt":
+		if e.ComplexityRoot.WorkloadVulnerabilitySummary.SbomProcessingStartedAt == nil {
 			break
 		}
 
-		return e.ComplexityRoot.WorkloadVulnerabilitySummary.ImageUpdatedAt(childComplexity), true
+		return e.ComplexityRoot.WorkloadVulnerabilitySummary.SbomProcessingStartedAt(childComplexity), true
 
 	case "WorkloadVulnerabilitySummary.sbomStatus":
 		if e.ComplexityRoot.WorkloadVulnerabilitySummary.SbomStatus == nil {
@@ -26558,7 +26558,7 @@ extend type ContainerImage {
 	The timestamp when the image reference was last updated by a workload.
 	Useful as a progress indicator when status is PROCESSING.
 	"""
-	imageUpdatedAt: Time
+	sbomProcessingStartedAt: Time
 
 	"Get the vulnerabilities of the image."
 	vulnerabilities(
@@ -26917,7 +26917,7 @@ type WorkloadVulnerabilitySummary implements Node {
 	sbomStatus: SbomStatus!
 
 	"The timestamp when the workload's image reference was last updated. Useful as a progress indicator when status is PROCESSING."
-	imageUpdatedAt: Time
+	sbomProcessingStartedAt: Time
 }
 
 """

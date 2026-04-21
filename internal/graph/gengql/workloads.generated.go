@@ -27,7 +27,7 @@ type ContainerImageResolver interface {
 	ActivityLog(ctx context.Context, obj *workload.ContainerImage, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*pagination.Connection[activitylog.ActivityLogEntry], error)
 	SbomStatus(ctx context.Context, obj *workload.ContainerImage) (vulnerability.SbomStatus, error)
 	HasSbom(ctx context.Context, obj *workload.ContainerImage) (bool, error)
-	ImageUpdatedAt(ctx context.Context, obj *workload.ContainerImage) (*time.Time, error)
+	SbomProcessingStartedAt(ctx context.Context, obj *workload.ContainerImage) (*time.Time, error)
 	Vulnerabilities(ctx context.Context, obj *workload.ContainerImage, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *vulnerability.ImageVulnerabilityFilter, orderBy *vulnerability.ImageVulnerabilityOrder) (*pagination.Connection[*vulnerability.ImageVulnerability], error)
 	VulnerabilitySummary(ctx context.Context, obj *workload.ContainerImage) (*vulnerability.ImageVulnerabilitySummary, error)
 	WorkloadReferences(ctx context.Context, obj *workload.ContainerImage, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*vulnerability.ContainerImageWorkloadReference], error)
@@ -332,14 +332,14 @@ func (ec *executionContext) fieldContext_ContainerImage_hasSBOM(_ context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _ContainerImage_imageUpdatedAt(ctx context.Context, field graphql.CollectedField, obj *workload.ContainerImage) (ret graphql.Marshaler) {
+func (ec *executionContext) _ContainerImage_sbomProcessingStartedAt(ctx context.Context, field graphql.CollectedField, obj *workload.ContainerImage) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ContainerImage_imageUpdatedAt,
+		ec.fieldContext_ContainerImage_sbomProcessingStartedAt,
 		func(ctx context.Context) (any, error) {
-			return ec.Resolvers.ContainerImage().ImageUpdatedAt(ctx, obj)
+			return ec.Resolvers.ContainerImage().SbomProcessingStartedAt(ctx, obj)
 		},
 		nil,
 		ec.marshalOTime2ᚖtimeᚐTime,
@@ -348,7 +348,7 @@ func (ec *executionContext) _ContainerImage_imageUpdatedAt(ctx context.Context, 
 	)
 }
 
-func (ec *executionContext) fieldContext_ContainerImage_imageUpdatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ContainerImage_sbomProcessingStartedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ContainerImage",
 		Field:      field,
@@ -1203,7 +1203,7 @@ func (ec *executionContext) _ContainerImage(ctx context.Context, sel ast.Selecti
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "imageUpdatedAt":
+		case "sbomProcessingStartedAt":
 			field := field
 
 			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
@@ -1212,7 +1212,7 @@ func (ec *executionContext) _ContainerImage(ctx context.Context, sel ast.Selecti
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._ContainerImage_imageUpdatedAt(ctx, field, obj)
+				res = ec._ContainerImage_sbomProcessingStartedAt(ctx, field, obj)
 				return res
 			}
 
