@@ -2,7 +2,6 @@ package tunnel
 
 import (
 	"context"
-	"time"
 
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -46,11 +45,6 @@ func converter(u *unstructured.Unstructured) (*Tunnel, error) {
 	environment, _, _ := unstructured.NestedString(spec, "environment")
 	clientPublicKey, _, _ := unstructured.NestedString(spec, "clientPublicKey")
 
-	createdAt := u.GetCreationTimestamp().Time
-	if createdAt.IsZero() {
-		createdAt = time.Now()
-	}
-
 	return &Tunnel{
 		Name:              u.GetName(),
 		TeamSlug:          teamSlug,
@@ -62,6 +56,6 @@ func converter(u *unstructured.Unstructured) (*Tunnel, error) {
 		GatewayPodName:    gatewayPodName,
 		Phase:             Phase(phase),
 		Message:           message,
-		CreatedAt:         createdAt,
+		CreatedAt:         u.GetCreationTimestamp().Time,
 	}, nil
 }

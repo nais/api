@@ -49,7 +49,6 @@ func (f *FakeKindsResolver) KindsFor(resource schema.GroupVersionResource) ([]sc
 		gvr, _ := meta.UnsafeGuessKindToResource(resource.GroupVersion().WithKind(v))
 		gvr.Resource = depluralized(gvr.Resource)
 		if gvr.Group == resource.Group && gvr.Version == resource.Version && gvr.Resource == resource.Resource {
-			// This is a match
 			gvk := resource.GroupVersion().WithKind(v)
 			return []schema.GroupVersionKind{gvk}, nil
 		}
@@ -94,7 +93,6 @@ func Clients(dir fs.FS) func(cluster string) (dynamic.Interface, watcher.KindRes
 		if !ok {
 			fmt.Println("no fake client for cluster", cluster)
 			return newDynamicClient(scheme), restMapper, nil, nil
-			// return nil, fmt.Errorf("no fake client for cluster %s", cluster)
 		}
 
 		return c.Dynamic, restMapper, nil, nil
@@ -204,8 +202,6 @@ func NewDynamicClient(scheme *runtime.Scheme) *dynfake.FakeDynamicClient {
 		if newScheme.Recognizes(gvk) {
 			continue
 		}
-		// Ensure we are always supporting unstructured objects
-		// This to prevent various problems with the fake client
 		if strings.HasSuffix(gvk.Kind, "List") {
 			newScheme.AddKnownTypeWithName(gvk, &unstructured.UnstructuredList{})
 			continue
@@ -223,19 +219,16 @@ func NewDynamicClient(scheme *runtime.Scheme) *dynfake.FakeDynamicClient {
 			nais_io_v1alpha1.GroupVersion.WithResource("tunnels"):                 "TunnelList",
 		})
 
-	// Add reactor for JSON Patch support
 	client.PrependReactor("patch", "*", func(action k8stesting.Action) (handled bool, ret runtime.Object, err error) {
 		patchAction, ok := action.(k8stesting.PatchAction)
 		if !ok {
 			return false, nil, nil
 		}
 
-		// Only handle JSON Patch type
 		if patchAction.GetPatchType() != types.JSONPatchType {
 			return false, nil, nil
 		}
 
-		// Get the existing object from the tracker
 		gvr := patchAction.GetResource()
 		ns := patchAction.GetNamespace()
 		name := patchAction.GetName()
@@ -245,19 +238,16 @@ func NewDynamicClient(scheme *runtime.Scheme) *dynfake.FakeDynamicClient {
 			return true, nil, err
 		}
 
-		// Get the original object as unstructured to preserve apiVersion/kind
 		original, ok := obj.(*unstructured.Unstructured)
 		if !ok {
 			return true, nil, fmt.Errorf("expected *unstructured.Unstructured, got %T", obj)
 		}
 
-		// Convert to JSON
 		objJSON, err := json.Marshal(obj)
 		if err != nil {
 			return true, nil, fmt.Errorf("marshaling object: %w", err)
 		}
 
-		// Apply the JSON patch
 		patch, err := jsonpatch.DecodePatch(patchAction.GetPatch())
 		if err != nil {
 			return true, nil, fmt.Errorf("decoding patch: %w", err)
@@ -268,13 +258,11 @@ func NewDynamicClient(scheme *runtime.Scheme) *dynfake.FakeDynamicClient {
 			return true, nil, fmt.Errorf("applying patch: %w", err)
 		}
 
-		// Convert back to unstructured
 		modified := &unstructured.Unstructured{}
 		if err := json.Unmarshal(modifiedJSON, &modified.Object); err != nil {
 			return true, nil, fmt.Errorf("unmarshaling modified object: %w", err)
 		}
 
-		// Preserve apiVersion and kind from original object (JSON patch may not include them)
 		if modified.GetAPIVersion() == "" {
 			modified.SetAPIVersion(original.GetAPIVersion())
 		}
@@ -282,7 +270,6 @@ func NewDynamicClient(scheme *runtime.Scheme) *dynfake.FakeDynamicClient {
 			modified.SetKind(original.GetKind())
 		}
 
-		// Update the object in the tracker
 		if err := client.Tracker().Update(gvr, modified, ns); err != nil {
 			return true, nil, fmt.Errorf("updating object: %w", err)
 		}
@@ -290,9 +277,6 @@ func NewDynamicClient(scheme *runtime.Scheme) *dynfake.FakeDynamicClient {
 		return true, modified, nil
 	})
 
-	// Add reactor for server-side apply (ApplyPatchType) support.
-	// This simulates SSA by treating the patch body as the full desired state,
-	// creating the object if it doesn't exist or replacing it if it does.
 	client.PrependReactor("patch", "*", func(action k8stesting.Action) (handled bool, ret runtime.Object, err error) {
 		patchAction, ok := action.(k8stesting.PatchAction)
 		if !ok {
@@ -307,30 +291,25 @@ func NewDynamicClient(scheme *runtime.Scheme) *dynfake.FakeDynamicClient {
 		ns := patchAction.GetNamespace()
 		name := patchAction.GetName()
 
-		// Parse the patch body as the desired object state.
 		desired := &unstructured.Unstructured{}
 		if err := json.Unmarshal(patchAction.GetPatch(), &desired.Object); err != nil {
 			return true, nil, fmt.Errorf("unmarshaling apply patch: %w", err)
 		}
 
-		// Try to get the existing object.
 		existing, err := client.Tracker().Get(gvr, ns, name)
 		if err != nil {
-			// Object doesn't exist — create it.
 			if err := client.Tracker().Create(gvr, desired, ns); err != nil {
 				return true, nil, fmt.Errorf("creating object via apply: %w", err)
 			}
 			return true, desired, nil
 		}
 
-		// Object exists — merge: start from existing, overlay with desired fields.
 		existingUnstr, ok := existing.(*unstructured.Unstructured)
 		if !ok {
 			return true, nil, fmt.Errorf("expected *unstructured.Unstructured, got %T", existing)
 		}
 
 		merged := existingUnstr.DeepCopy()
-		// Overlay all top-level keys from desired onto merged.
 		for k, v := range desired.Object {
 			if k == "metadata" {
 				// Merge metadata rather than replacing it wholesale.
@@ -387,7 +366,6 @@ func AddObjectToDynamicClient(scheme *runtime.Scheme, fc *dynfake.FakeDynamicCli
 			gvr, _ := meta.UnsafeGuessKindToResource(gvk)
 
 			gvr.Resource = depluralized(gvr.Resource)
-			// Get namespace from object
 			ns := obj.(namespaced).GetNamespace()
 			if err := fc.Tracker().Create(gvr, obj, ns); err != nil {
 				panic(err)

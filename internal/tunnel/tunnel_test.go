@@ -2,7 +2,6 @@ package tunnel
 
 import (
 	"context"
-	"errors"
 	"testing"
 	"time"
 
@@ -55,9 +54,6 @@ func TestErrorsAreNonNil(t *testing.T) {
 		if err == nil {
 			t.Errorf("expected non-nil error, got nil")
 		}
-		if !errors.Is(err, err) {
-			t.Errorf("error %v does not satisfy errors.Is with itself", err)
-		}
 	}
 }
 
@@ -96,14 +92,35 @@ func TestTunnelStructFields(t *testing.T) {
 	if tun.Name != "tunnel-abc" {
 		t.Errorf("Name: got %q, want %q", tun.Name, "tunnel-abc")
 	}
+	if tun.TeamSlug != "my-team" {
+		t.Errorf("TeamSlug: got %q, want %q", tun.TeamSlug, "my-team")
+	}
+	if tun.Environment != "dev" {
+		t.Errorf("Environment: got %q, want %q", tun.Environment, "dev")
+	}
 	if tun.Target.Host != "db.internal" {
 		t.Errorf("Target.Host: got %q, want %q", tun.Target.Host, "db.internal")
 	}
 	if tun.Target.Port != 5432 {
 		t.Errorf("Target.Port: got %d, want %d", tun.Target.Port, 5432)
 	}
+	if tun.ClientPublicKey != "client-pub-key" {
+		t.Errorf("ClientPublicKey: got %q, want %q", tun.ClientPublicKey, "client-pub-key")
+	}
+	if tun.GatewayPublicKey != "gw-pub-key" {
+		t.Errorf("GatewayPublicKey: got %q, want %q", tun.GatewayPublicKey, "gw-pub-key")
+	}
+	if tun.ForwarderEndpoint != "5.6.7.8:54321" {
+		t.Errorf("ForwarderEndpoint: got %q, want %q", tun.ForwarderEndpoint, "5.6.7.8:54321")
+	}
+	if tun.GatewayPodName != "gateway-pod-0" {
+		t.Errorf("GatewayPodName: got %q, want %q", tun.GatewayPodName, "gateway-pod-0")
+	}
 	if tun.Phase != PhaseReady {
 		t.Errorf("Phase: got %q, want %q", tun.Phase, PhaseReady)
+	}
+	if tun.Message != "all good" {
+		t.Errorf("Message: got %q, want %q", tun.Message, "all good")
 	}
 	if !tun.CreatedAt.Equal(now) {
 		t.Errorf("CreatedAt mismatch")
@@ -249,7 +266,6 @@ func TestConverterEmptyObject(t *testing.T) {
 	if tun.Name != "tunnel-empty" {
 		t.Errorf("Name: got %q, want %q", tun.Name, "tunnel-empty")
 	}
-	// Fields not in spec/status should be zero values
 	if tun.Target.Host != "" {
 		t.Errorf("Target.Host: expected empty, got %q", tun.Target.Host)
 	}
@@ -285,6 +301,12 @@ func TestCreateTunnelInputFields(t *testing.T) {
 	}
 	if input.TeamSlug != "team-c" {
 		t.Errorf("TeamSlug: got %q, want %q", input.TeamSlug, "team-c")
+	}
+	if input.EnvironmentName != "staging" {
+		t.Errorf("EnvironmentName: got %q, want %q", input.EnvironmentName, "staging")
+	}
+	if input.TargetHost != "pg.internal" {
+		t.Errorf("TargetHost: got %q, want %q", input.TargetHost, "pg.internal")
 	}
 	if input.TargetPort != 5432 {
 		t.Errorf("TargetPort: got %d, want %d", input.TargetPort, 5432)
