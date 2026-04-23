@@ -27911,7 +27911,7 @@ extend type ContainerImage {
 	hasSBOM: Boolean!
 
 	"""
-	The timestamp when the image reference was last updated by a workload.
+	The timestamp when SBOM processing started for this image.
 	Useful as a progress indicator when status is PROCESSING.
 	"""
 	sbomProcessingStartedAt: Time
@@ -28272,7 +28272,7 @@ type WorkloadVulnerabilitySummary implements Node {
 	"The SBOM pipeline status for this workload."
 	sbomStatus: SbomStatus!
 
-	"The timestamp when the workload's image reference was last updated. Useful as a progress indicator when status is PROCESSING."
+	"The timestamp when SBOM processing started for this workload. Useful as a progress indicator when status is PROCESSING."
 	sbomProcessingStartedAt: Time
 }
 
@@ -28516,9 +28516,16 @@ type VulnerabilityFixSample {
 
 "The SBOM pipeline status for an image or workload."
 enum SbomStatus {
+	"SBOM generation is in progress."
 	PROCESSING
+
+	"SBOM data is available."
 	READY
+
+	"No SBOM is available for this image or workload."
 	NO_SBOM
+
+	"SBOM generation failed."
 	FAILED
 }
 `, BuiltIn: false},
