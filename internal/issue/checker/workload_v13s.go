@@ -175,7 +175,7 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 			continue
 		}
 
-		if node.VulnerabilitySummary.Critical > 0 || node.VulnerabilitySummary.RiskScore > 100 {
+		if node.VulnerabilitySummary != nil && (node.VulnerabilitySummary.Critical > 0 || node.VulnerabilitySummary.RiskScore > 100) {
 			ret = append(ret, &Issue{
 				IssueType:    issue.IssueTypeVulnerableImage,
 				ResourceType: workloadType,
@@ -196,7 +196,7 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 			})
 		}
 
-		if !node.VulnerabilitySummary.HasSbom {
+		if node.VulnerabilitySummary == nil || !node.VulnerabilitySummary.HasSbom {
 			ret = append(ret, &Issue{
 				IssueType:    issue.IssueTypeMissingSBOM,
 				ResourceType: workloadType,
