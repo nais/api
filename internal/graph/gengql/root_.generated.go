@@ -20,7 +20,6 @@ import (
 	"github.com/nais/api/internal/issue"
 	"github.com/nais/api/internal/loki"
 	"github.com/nais/api/internal/metrics"
-	"github.com/nais/api/internal/persistence/aivencredentials"
 	"github.com/nais/api/internal/persistence/bigquery"
 	"github.com/nais/api/internal/persistence/bucket"
 	"github.com/nais/api/internal/persistence/kafkatopic"
@@ -40,7 +39,7 @@ import (
 	"github.com/nais/api/internal/vulnerability"
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
-	"github.com/nais/api/internal/workload/configmap"
+	"github.com/nais/api/internal/workload/config"
 	"github.com/nais/api/internal/workload/job"
 	"github.com/nais/api/internal/workload/podlog"
 	"github.com/nais/api/internal/workload/secret"
@@ -58,6 +57,7 @@ type Config = graphql.Config[ResolverRoot, DirectiveRoot, ComplexityRoot]
 type ResolverRoot interface {
 	Application() ApplicationResolver
 	ApplicationInstance() ApplicationInstanceResolver
+	ApplicationRestartLoopIssue() ApplicationRestartLoopIssueResolver
 	BigQueryDataset() BigQueryDatasetResolver
 	Bucket() BucketResolver
 	CVE() CVEResolver
@@ -76,6 +76,7 @@ type ResolverRoot interface {
 	FailedSynchronizationIssue() FailedSynchronizationIssueResolver
 	Ingress() IngressResolver
 	IngressMetrics() IngressMetricsResolver
+	InstanceGroup() InstanceGroupResolver
 	InvalidSpecIssue() InvalidSpecIssueResolver
 	Job() JobResolver
 	JobRun() JobRunResolver
@@ -196,6 +197,7 @@ type ComplexityRoot struct {
 		Image                     func(childComplexity int) int
 		ImageVulnerabilityHistory func(childComplexity int, from scalar.Date) int
 		Ingresses                 func(childComplexity int) int
+		InstanceGroups            func(childComplexity int) int
 		Instances                 func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		Issues                    func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) int
 		KafkaTopicAcls            func(childComplexity int, orderBy *kafkatopic.KafkaTopicACLOrder) int
@@ -220,6 +222,18 @@ type ComplexityRoot struct {
 		Edges    func(childComplexity int) int
 		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
+	}
+
+	ApplicationCreatedActivityLogEntry struct {
+		Actor           func(childComplexity int) int
+		CreatedAt       func(childComplexity int) int
+		Data            func(childComplexity int) int
+		EnvironmentName func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Message         func(childComplexity int) int
+		ResourceName    func(childComplexity int) int
+		ResourceType    func(childComplexity int) int
+		TeamSlug        func(childComplexity int) int
 	}
 
 	ApplicationDeletedActivityLogEntry struct {
@@ -260,8 +274,12 @@ type ComplexityRoot struct {
 	}
 
 	ApplicationInstanceStatus struct {
-		Message func(childComplexity int) int
-		State   func(childComplexity int) int
+		LastExitCode      func(childComplexity int) int
+		LastExitReason    func(childComplexity int) int
+		LastExitTimestamp func(childComplexity int) int
+		Message           func(childComplexity int) int
+		Ready             func(childComplexity int) int
+		State             func(childComplexity int) int
 	}
 
 	ApplicationInstanceUtilization struct {
@@ -276,6 +294,17 @@ type ComplexityRoot struct {
 		Limits   func(childComplexity int) int
 		Requests func(childComplexity int) int
 		Scaling  func(childComplexity int) int
+	}
+
+	ApplicationRestartLoopIssue struct {
+		ID                func(childComplexity int) int
+		LastExitReason    func(childComplexity int) int
+		LastExitTimestamp func(childComplexity int) int
+		Message           func(childComplexity int) int
+		RestartCount      func(childComplexity int) int
+		Severity          func(childComplexity int) int
+		TeamEnvironment   func(childComplexity int) int
+		Workload          func(childComplexity int) int
 	}
 
 	ApplicationRestartedActivityLogEntry struct {
@@ -310,6 +339,18 @@ type ComplexityRoot struct {
 		MaxInstances func(childComplexity int) int
 		MinInstances func(childComplexity int) int
 		Strategies   func(childComplexity int) int
+	}
+
+	ApplicationUpdatedActivityLogEntry struct {
+		Actor           func(childComplexity int) int
+		CreatedAt       func(childComplexity int) int
+		Data            func(childComplexity int) int
+		EnvironmentName func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Message         func(childComplexity int) int
+		ResourceName    func(childComplexity int) int
+		ResourceType    func(childComplexity int) int
+		TeamSlug        func(childComplexity int) int
 	}
 
 	AssignRoleToServiceAccountPayload struct {
@@ -510,8 +551,9 @@ type ComplexityRoot struct {
 	}
 
 	ConfigValue struct {
-		Name  func(childComplexity int) int
-		Value func(childComplexity int) int
+		Encoding func(childComplexity int) int
+		Name     func(childComplexity int) int
+		Value    func(childComplexity int) int
 	}
 
 	ConfirmTeamDeletionPayload struct {
@@ -609,10 +651,8 @@ type ComplexityRoot struct {
 	}
 
 	CredentialsActivityLogEntryData struct {
-		InstanceName func(childComplexity int) int
-		Permission   func(childComplexity int) int
-		ServiceType  func(childComplexity int) int
-		TTL          func(childComplexity int) int
+		Permission func(childComplexity int) int
+		TTL        func(childComplexity int) int
 	}
 
 	CurrentUnitPrices struct {
@@ -641,6 +681,10 @@ type ComplexityRoot struct {
 
 	DeleteOpenSearchPayload struct {
 		OpenSearchDeleted func(childComplexity int) int
+	}
+
+	DeletePostgresPayload struct {
+		PostgresDeleted func(childComplexity int) int
 	}
 
 	DeleteSecretPayload struct {
@@ -841,6 +885,38 @@ type ComplexityRoot struct {
 		Valkey     func(childComplexity int) int
 	}
 
+	GenericKubernetesResourceActivityLogEntry struct {
+		Actor           func(childComplexity int) int
+		CreatedAt       func(childComplexity int) int
+		Data            func(childComplexity int) int
+		EnvironmentName func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Message         func(childComplexity int) int
+		ResourceName    func(childComplexity int) int
+		ResourceType    func(childComplexity int) int
+		TeamSlug        func(childComplexity int) int
+	}
+
+	GenericKubernetesResourceActivityLogEntryData struct {
+		APIVersion        func(childComplexity int) int
+		ChangedFields     func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		Kind              func(childComplexity int) int
+	}
+
+	GitHubActorClaims struct {
+		Actor          func(childComplexity int) int
+		Environment    func(childComplexity int) int
+		EventName      func(childComplexity int) int
+		JobWorkflowRef func(childComplexity int) int
+		Ref            func(childComplexity int) int
+		Repository     func(childComplexity int) int
+		RepositoryID   func(childComplexity int) int
+		RunAttempt     func(childComplexity int) int
+		RunID          func(childComplexity int) int
+		Workflow       func(childComplexity int) int
+	}
+
 	GrantPostgresAccessPayload struct {
 		Error func(childComplexity int) int
 	}
@@ -918,6 +994,37 @@ type ComplexityRoot struct {
 		Series            func(childComplexity int, input application.IngressMetricsInput) int
 	}
 
+	InstanceGroup struct {
+		Created              func(childComplexity int) int
+		DesiredInstances     func(childComplexity int) int
+		EnvironmentVariables func(childComplexity int) int
+		ID                   func(childComplexity int) int
+		Image                func(childComplexity int) int
+		Instances            func(childComplexity int) int
+		MountedFiles         func(childComplexity int) int
+		Name                 func(childComplexity int) int
+		ReadyInstances       func(childComplexity int) int
+	}
+
+	InstanceGroupEnvironmentVariable struct {
+		Name   func(childComplexity int) int
+		Source func(childComplexity int) int
+		Value  func(childComplexity int) int
+	}
+
+	InstanceGroupMountedFile struct {
+		Content  func(childComplexity int) int
+		Encoding func(childComplexity int) int
+		Error    func(childComplexity int) int
+		Path     func(childComplexity int) int
+		Source   func(childComplexity int) int
+	}
+
+	InstanceGroupValueSource struct {
+		Kind func(childComplexity int) int
+		Name func(childComplexity int) int
+	}
+
 	InvalidSpecIssue struct {
 		ID              func(childComplexity int) int
 		Message         func(childComplexity int) int
@@ -974,6 +1081,18 @@ type ComplexityRoot struct {
 		Edges    func(childComplexity int) int
 		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
+	}
+
+	JobCreatedActivityLogEntry struct {
+		Actor           func(childComplexity int) int
+		CreatedAt       func(childComplexity int) int
+		Data            func(childComplexity int) int
+		EnvironmentName func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Message         func(childComplexity int) int
+		ResourceName    func(childComplexity int) int
+		ResourceType    func(childComplexity int) int
+		TeamSlug        func(childComplexity int) int
 	}
 
 	JobDeletedActivityLogEntry struct {
@@ -1074,6 +1193,18 @@ type ComplexityRoot struct {
 	JobTriggeredActivityLogEntry struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
+		EnvironmentName func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Message         func(childComplexity int) int
+		ResourceName    func(childComplexity int) int
+		ResourceType    func(childComplexity int) int
+		TeamSlug        func(childComplexity int) int
+	}
+
+	JobUpdatedActivityLogEntry struct {
+		Actor           func(childComplexity int) int
+		CreatedAt       func(childComplexity int) int
+		Data            func(childComplexity int) int
 		EnvironmentName func(childComplexity int) int
 		ID              func(childComplexity int) int
 		Message         func(childComplexity int) int
@@ -1221,7 +1352,7 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		AddConfigValue               func(childComplexity int, input configmap.AddConfigValueInput) int
+		AddConfigValue               func(childComplexity int, input config.AddConfigValueInput) int
 		AddRepositoryToTeam          func(childComplexity int, input repository.AddRepositoryToTeamInput) int
 		AddSecretValue               func(childComplexity int, input secret.AddSecretValueInput) int
 		AddTeamMember                func(childComplexity int, input team.AddTeamMemberInput) int
@@ -1230,22 +1361,23 @@ type ComplexityRoot struct {
 		ChangeDeploymentKey          func(childComplexity int, input deployment.ChangeDeploymentKeyInput) int
 		ConfigureReconciler          func(childComplexity int, input reconciler.ConfigureReconcilerInput) int
 		ConfirmTeamDeletion          func(childComplexity int, input team.ConfirmTeamDeletionInput) int
-		CreateConfig                 func(childComplexity int, input configmap.CreateConfigInput) int
-		CreateKafkaCredentials       func(childComplexity int, input aivencredentials.CreateKafkaCredentialsInput) int
+		CreateConfig                 func(childComplexity int, input config.CreateConfigInput) int
+		CreateKafkaCredentials       func(childComplexity int, input kafkatopic.CreateKafkaCredentialsInput) int
 		CreateOpenSearch             func(childComplexity int, input opensearch.CreateOpenSearchInput) int
-		CreateOpenSearchCredentials  func(childComplexity int, input aivencredentials.CreateOpenSearchCredentialsInput) int
+		CreateOpenSearchCredentials  func(childComplexity int, input opensearch.CreateOpenSearchCredentialsInput) int
 		CreateSecret                 func(childComplexity int, input secret.CreateSecretInput) int
 		CreateServiceAccount         func(childComplexity int, input serviceaccount.CreateServiceAccountInput) int
 		CreateServiceAccountToken    func(childComplexity int, input serviceaccount.CreateServiceAccountTokenInput) int
 		CreateTeam                   func(childComplexity int, input team.CreateTeamInput) int
 		CreateUnleashForTeam         func(childComplexity int, input unleash.CreateUnleashForTeamInput) int
 		CreateValkey                 func(childComplexity int, input valkey.CreateValkeyInput) int
-		CreateValkeyCredentials      func(childComplexity int, input aivencredentials.CreateValkeyCredentialsInput) int
+		CreateValkeyCredentials      func(childComplexity int, input valkey.CreateValkeyCredentialsInput) int
 		DeleteApplication            func(childComplexity int, input application.DeleteApplicationInput) int
-		DeleteConfig                 func(childComplexity int, input configmap.DeleteConfigInput) int
+		DeleteConfig                 func(childComplexity int, input config.DeleteConfigInput) int
 		DeleteJob                    func(childComplexity int, input job.DeleteJobInput) int
 		DeleteJobRun                 func(childComplexity int, input job.DeleteJobRunInput) int
 		DeleteOpenSearch             func(childComplexity int, input opensearch.DeleteOpenSearchInput) int
+		DeletePostgres               func(childComplexity int, input postgres.DeletePostgresInput) int
 		DeleteSecret                 func(childComplexity int, input secret.DeleteSecretInput) int
 		DeleteServiceAccount         func(childComplexity int, input serviceaccount.DeleteServiceAccountInput) int
 		DeleteServiceAccountToken    func(childComplexity int, input serviceaccount.DeleteServiceAccountTokenInput) int
@@ -1254,7 +1386,7 @@ type ComplexityRoot struct {
 		DisableReconciler            func(childComplexity int, input reconciler.DisableReconcilerInput) int
 		EnableReconciler             func(childComplexity int, input reconciler.EnableReconcilerInput) int
 		GrantPostgresAccess          func(childComplexity int, input postgres.GrantPostgresAccessInput) int
-		RemoveConfigValue            func(childComplexity int, input configmap.RemoveConfigValueInput) int
+		RemoveConfigValue            func(childComplexity int, input config.RemoveConfigValueInput) int
 		RemoveRepositoryFromTeam     func(childComplexity int, input repository.RemoveRepositoryFromTeamInput) int
 		RemoveSecretValue            func(childComplexity int, input secret.RemoveSecretValueInput) int
 		RemoveTeamMember             func(childComplexity int, input team.RemoveTeamMemberInput) int
@@ -1266,7 +1398,7 @@ type ComplexityRoot struct {
 		StartOpenSearchMaintenance   func(childComplexity int, input servicemaintenance.StartOpenSearchMaintenanceInput) int
 		StartValkeyMaintenance       func(childComplexity int, input servicemaintenance.StartValkeyMaintenanceInput) int
 		TriggerJob                   func(childComplexity int, input job.TriggerJobInput) int
-		UpdateConfigValue            func(childComplexity int, input configmap.UpdateConfigValueInput) int
+		UpdateConfigValue            func(childComplexity int, input config.UpdateConfigValueInput) int
 		UpdateImageVulnerability     func(childComplexity int, input vulnerability.UpdateImageVulnerabilityInput) int
 		UpdateOpenSearch             func(childComplexity int, input opensearch.UpdateOpenSearchInput) int
 		UpdateSecretValue            func(childComplexity int, input secret.UpdateSecretValueInput) int
@@ -1453,6 +1585,17 @@ type ComplexityRoot struct {
 		PageStart       func(childComplexity int) int
 		StartCursor     func(childComplexity int) int
 		TotalCount      func(childComplexity int) int
+	}
+
+	PostgresDeletedActivityLogEntry struct {
+		Actor           func(childComplexity int) int
+		CreatedAt       func(childComplexity int) int
+		EnvironmentName func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Message         func(childComplexity int) int
+		ResourceName    func(childComplexity int) int
+		ResourceType    func(childComplexity int) int
+		TeamSlug        func(childComplexity int) int
 	}
 
 	PostgresGrantAccessActivityLogEntry struct {
@@ -1717,6 +1860,12 @@ type ComplexityRoot struct {
 		Key func(childComplexity int) int
 	}
 
+	ResourceChangedField struct {
+		Field    func(childComplexity int) int
+		NewValue func(childComplexity int) int
+		OldValue func(childComplexity int) int
+	}
+
 	RestartApplicationPayload struct {
 		Application func(childComplexity int) int
 	}
@@ -1858,8 +2007,9 @@ type ComplexityRoot struct {
 	}
 
 	SecretValue struct {
-		Name  func(childComplexity int) int
-		Value func(childComplexity int) int
+		Encoding func(childComplexity int) int
+		Name     func(childComplexity int) int
+		Value    func(childComplexity int) int
 	}
 
 	SecretValueAddedActivityLogEntry struct {
@@ -2258,7 +2408,7 @@ type ComplexityRoot struct {
 		Applications              func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *application.ApplicationOrder, filter *application.TeamApplicationsFilter) int
 		BigQueryDatasets          func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bigquery.BigQueryDatasetOrder) int
 		Buckets                   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bucket.BucketOrder) int
-		Configs                   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *configmap.ConfigOrder, filter *configmap.ConfigFilter) int
+		Configs                   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *config.ConfigOrder, filter *config.ConfigFilter) int
 		Cost                      func(childComplexity int) int
 		DeleteKey                 func(childComplexity int, key string) int
 		DeletionInProgress        func(childComplexity int) int
@@ -2873,6 +3023,7 @@ type ComplexityRoot struct {
 		Access                func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *valkey.ValkeyAccessOrder) int
 		ActivityLog           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int
 		Cost                  func(childComplexity int) int
+		Databases             func(childComplexity int) int
 		Environment           func(childComplexity int) int
 		ID                    func(childComplexity int) int
 		Issues                func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) int
@@ -3395,6 +3546,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Application.Ingresses(childComplexity), true
 
+	case "Application.instanceGroups":
+		if e.ComplexityRoot.Application.InstanceGroups == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Application.InstanceGroups(childComplexity), true
+
 	case "Application.instances":
 		if e.ComplexityRoot.Application.Instances == nil {
 			break
@@ -3582,6 +3740,69 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ApplicationConnection.PageInfo(childComplexity), true
 
+	case "ApplicationCreatedActivityLogEntry.actor":
+		if e.ComplexityRoot.ApplicationCreatedActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationCreatedActivityLogEntry.Actor(childComplexity), true
+
+	case "ApplicationCreatedActivityLogEntry.createdAt":
+		if e.ComplexityRoot.ApplicationCreatedActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationCreatedActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "ApplicationCreatedActivityLogEntry.data":
+		if e.ComplexityRoot.ApplicationCreatedActivityLogEntry.Data == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationCreatedActivityLogEntry.Data(childComplexity), true
+
+	case "ApplicationCreatedActivityLogEntry.environmentName":
+		if e.ComplexityRoot.ApplicationCreatedActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationCreatedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "ApplicationCreatedActivityLogEntry.id":
+		if e.ComplexityRoot.ApplicationCreatedActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationCreatedActivityLogEntry.ID(childComplexity), true
+
+	case "ApplicationCreatedActivityLogEntry.message":
+		if e.ComplexityRoot.ApplicationCreatedActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationCreatedActivityLogEntry.Message(childComplexity), true
+
+	case "ApplicationCreatedActivityLogEntry.resourceName":
+		if e.ComplexityRoot.ApplicationCreatedActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationCreatedActivityLogEntry.ResourceName(childComplexity), true
+
+	case "ApplicationCreatedActivityLogEntry.resourceType":
+		if e.ComplexityRoot.ApplicationCreatedActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationCreatedActivityLogEntry.ResourceType(childComplexity), true
+
+	case "ApplicationCreatedActivityLogEntry.teamSlug":
+		if e.ComplexityRoot.ApplicationCreatedActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationCreatedActivityLogEntry.TeamSlug(childComplexity), true
+
 	case "ApplicationDeletedActivityLogEntry.actor":
 		if e.ComplexityRoot.ApplicationDeletedActivityLogEntry.Actor == nil {
 			break
@@ -3741,12 +3962,40 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ApplicationInstanceEdge.Node(childComplexity), true
 
+	case "ApplicationInstanceStatus.lastExitCode":
+		if e.ComplexityRoot.ApplicationInstanceStatus.LastExitCode == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationInstanceStatus.LastExitCode(childComplexity), true
+
+	case "ApplicationInstanceStatus.lastExitReason":
+		if e.ComplexityRoot.ApplicationInstanceStatus.LastExitReason == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationInstanceStatus.LastExitReason(childComplexity), true
+
+	case "ApplicationInstanceStatus.lastExitTimestamp":
+		if e.ComplexityRoot.ApplicationInstanceStatus.LastExitTimestamp == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationInstanceStatus.LastExitTimestamp(childComplexity), true
+
 	case "ApplicationInstanceStatus.message":
 		if e.ComplexityRoot.ApplicationInstanceStatus.Message == nil {
 			break
 		}
 
 		return e.ComplexityRoot.ApplicationInstanceStatus.Message(childComplexity), true
+
+	case "ApplicationInstanceStatus.ready":
+		if e.ComplexityRoot.ApplicationInstanceStatus.Ready == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationInstanceStatus.Ready(childComplexity), true
 
 	case "ApplicationInstanceStatus.state":
 		if e.ComplexityRoot.ApplicationInstanceStatus.State == nil {
@@ -3789,6 +4038,62 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ApplicationResources.Scaling(childComplexity), true
+
+	case "ApplicationRestartLoopIssue.id":
+		if e.ComplexityRoot.ApplicationRestartLoopIssue.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationRestartLoopIssue.ID(childComplexity), true
+
+	case "ApplicationRestartLoopIssue.lastExitReason":
+		if e.ComplexityRoot.ApplicationRestartLoopIssue.LastExitReason == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationRestartLoopIssue.LastExitReason(childComplexity), true
+
+	case "ApplicationRestartLoopIssue.lastExitTimestamp":
+		if e.ComplexityRoot.ApplicationRestartLoopIssue.LastExitTimestamp == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationRestartLoopIssue.LastExitTimestamp(childComplexity), true
+
+	case "ApplicationRestartLoopIssue.message":
+		if e.ComplexityRoot.ApplicationRestartLoopIssue.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationRestartLoopIssue.Message(childComplexity), true
+
+	case "ApplicationRestartLoopIssue.restartCount":
+		if e.ComplexityRoot.ApplicationRestartLoopIssue.RestartCount == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationRestartLoopIssue.RestartCount(childComplexity), true
+
+	case "ApplicationRestartLoopIssue.severity":
+		if e.ComplexityRoot.ApplicationRestartLoopIssue.Severity == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationRestartLoopIssue.Severity(childComplexity), true
+
+	case "ApplicationRestartLoopIssue.teamEnvironment":
+		if e.ComplexityRoot.ApplicationRestartLoopIssue.TeamEnvironment == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationRestartLoopIssue.TeamEnvironment(childComplexity), true
+
+	case "ApplicationRestartLoopIssue.workload":
+		if e.ComplexityRoot.ApplicationRestartLoopIssue.Workload == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationRestartLoopIssue.Workload(childComplexity), true
 
 	case "ApplicationRestartedActivityLogEntry.actor":
 		if e.ComplexityRoot.ApplicationRestartedActivityLogEntry.Actor == nil {
@@ -3943,6 +4248,69 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ApplicationScaling.Strategies(childComplexity), true
+
+	case "ApplicationUpdatedActivityLogEntry.actor":
+		if e.ComplexityRoot.ApplicationUpdatedActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationUpdatedActivityLogEntry.Actor(childComplexity), true
+
+	case "ApplicationUpdatedActivityLogEntry.createdAt":
+		if e.ComplexityRoot.ApplicationUpdatedActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationUpdatedActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "ApplicationUpdatedActivityLogEntry.data":
+		if e.ComplexityRoot.ApplicationUpdatedActivityLogEntry.Data == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationUpdatedActivityLogEntry.Data(childComplexity), true
+
+	case "ApplicationUpdatedActivityLogEntry.environmentName":
+		if e.ComplexityRoot.ApplicationUpdatedActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationUpdatedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "ApplicationUpdatedActivityLogEntry.id":
+		if e.ComplexityRoot.ApplicationUpdatedActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationUpdatedActivityLogEntry.ID(childComplexity), true
+
+	case "ApplicationUpdatedActivityLogEntry.message":
+		if e.ComplexityRoot.ApplicationUpdatedActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationUpdatedActivityLogEntry.Message(childComplexity), true
+
+	case "ApplicationUpdatedActivityLogEntry.resourceName":
+		if e.ComplexityRoot.ApplicationUpdatedActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationUpdatedActivityLogEntry.ResourceName(childComplexity), true
+
+	case "ApplicationUpdatedActivityLogEntry.resourceType":
+		if e.ComplexityRoot.ApplicationUpdatedActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationUpdatedActivityLogEntry.ResourceType(childComplexity), true
+
+	case "ApplicationUpdatedActivityLogEntry.teamSlug":
+		if e.ComplexityRoot.ApplicationUpdatedActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationUpdatedActivityLogEntry.TeamSlug(childComplexity), true
 
 	case "AssignRoleToServiceAccountPayload.serviceAccount":
 		if e.ComplexityRoot.AssignRoleToServiceAccountPayload.ServiceAccount == nil {
@@ -4765,6 +5133,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ConfigUpdatedActivityLogEntryDataUpdatedField.OldValue(childComplexity), true
 
+	case "ConfigValue.encoding":
+		if e.ComplexityRoot.ConfigValue.Encoding == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigValue.Encoding(childComplexity), true
+
 	case "ConfigValue.name":
 		if e.ComplexityRoot.ConfigValue.Name == nil {
 			break
@@ -5074,26 +5449,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.CredentialsActivityLogEntry.TeamSlug(childComplexity), true
 
-	case "CredentialsActivityLogEntryData.instanceName":
-		if e.ComplexityRoot.CredentialsActivityLogEntryData.InstanceName == nil {
-			break
-		}
-
-		return e.ComplexityRoot.CredentialsActivityLogEntryData.InstanceName(childComplexity), true
-
 	case "CredentialsActivityLogEntryData.permission":
 		if e.ComplexityRoot.CredentialsActivityLogEntryData.Permission == nil {
 			break
 		}
 
 		return e.ComplexityRoot.CredentialsActivityLogEntryData.Permission(childComplexity), true
-
-	case "CredentialsActivityLogEntryData.serviceType":
-		if e.ComplexityRoot.CredentialsActivityLogEntryData.ServiceType == nil {
-			break
-		}
-
-		return e.ComplexityRoot.CredentialsActivityLogEntryData.ServiceType(childComplexity), true
 
 	case "CredentialsActivityLogEntryData.ttl":
 		if e.ComplexityRoot.CredentialsActivityLogEntryData.TTL == nil {
@@ -5171,6 +5532,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.DeleteOpenSearchPayload.OpenSearchDeleted(childComplexity), true
+
+	case "DeletePostgresPayload.postgresDeleted":
+		if e.ComplexityRoot.DeletePostgresPayload.PostgresDeleted == nil {
+			break
+		}
+
+		return e.ComplexityRoot.DeletePostgresPayload.PostgresDeleted(childComplexity), true
 
 	case "DeleteSecretPayload.secretDeleted":
 		if e.ComplexityRoot.DeleteSecretPayload.SecretDeleted == nil {
@@ -5906,6 +6274,167 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Features.Valkey(childComplexity), true
 
+	case "GenericKubernetesResourceActivityLogEntry.actor":
+		if e.ComplexityRoot.GenericKubernetesResourceActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GenericKubernetesResourceActivityLogEntry.Actor(childComplexity), true
+
+	case "GenericKubernetesResourceActivityLogEntry.createdAt":
+		if e.ComplexityRoot.GenericKubernetesResourceActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GenericKubernetesResourceActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "GenericKubernetesResourceActivityLogEntry.data":
+		if e.ComplexityRoot.GenericKubernetesResourceActivityLogEntry.Data == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GenericKubernetesResourceActivityLogEntry.Data(childComplexity), true
+
+	case "GenericKubernetesResourceActivityLogEntry.environmentName":
+		if e.ComplexityRoot.GenericKubernetesResourceActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GenericKubernetesResourceActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "GenericKubernetesResourceActivityLogEntry.id":
+		if e.ComplexityRoot.GenericKubernetesResourceActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GenericKubernetesResourceActivityLogEntry.ID(childComplexity), true
+
+	case "GenericKubernetesResourceActivityLogEntry.message":
+		if e.ComplexityRoot.GenericKubernetesResourceActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GenericKubernetesResourceActivityLogEntry.Message(childComplexity), true
+
+	case "GenericKubernetesResourceActivityLogEntry.resourceName":
+		if e.ComplexityRoot.GenericKubernetesResourceActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GenericKubernetesResourceActivityLogEntry.ResourceName(childComplexity), true
+
+	case "GenericKubernetesResourceActivityLogEntry.resourceType":
+		if e.ComplexityRoot.GenericKubernetesResourceActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GenericKubernetesResourceActivityLogEntry.ResourceType(childComplexity), true
+
+	case "GenericKubernetesResourceActivityLogEntry.teamSlug":
+		if e.ComplexityRoot.GenericKubernetesResourceActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GenericKubernetesResourceActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "GenericKubernetesResourceActivityLogEntryData.apiVersion":
+		if e.ComplexityRoot.GenericKubernetesResourceActivityLogEntryData.APIVersion == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GenericKubernetesResourceActivityLogEntryData.APIVersion(childComplexity), true
+
+	case "GenericKubernetesResourceActivityLogEntryData.changedFields":
+		if e.ComplexityRoot.GenericKubernetesResourceActivityLogEntryData.ChangedFields == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GenericKubernetesResourceActivityLogEntryData.ChangedFields(childComplexity), true
+
+	case "GenericKubernetesResourceActivityLogEntryData.gitHubActorClaims":
+		if e.ComplexityRoot.GenericKubernetesResourceActivityLogEntryData.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GenericKubernetesResourceActivityLogEntryData.GitHubActorClaims(childComplexity), true
+
+	case "GenericKubernetesResourceActivityLogEntryData.kind":
+		if e.ComplexityRoot.GenericKubernetesResourceActivityLogEntryData.Kind == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GenericKubernetesResourceActivityLogEntryData.Kind(childComplexity), true
+
+	case "GitHubActorClaims.actor":
+		if e.ComplexityRoot.GitHubActorClaims.Actor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GitHubActorClaims.Actor(childComplexity), true
+
+	case "GitHubActorClaims.environment":
+		if e.ComplexityRoot.GitHubActorClaims.Environment == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GitHubActorClaims.Environment(childComplexity), true
+
+	case "GitHubActorClaims.eventName":
+		if e.ComplexityRoot.GitHubActorClaims.EventName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GitHubActorClaims.EventName(childComplexity), true
+
+	case "GitHubActorClaims.jobWorkflowRef":
+		if e.ComplexityRoot.GitHubActorClaims.JobWorkflowRef == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GitHubActorClaims.JobWorkflowRef(childComplexity), true
+
+	case "GitHubActorClaims.ref":
+		if e.ComplexityRoot.GitHubActorClaims.Ref == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GitHubActorClaims.Ref(childComplexity), true
+
+	case "GitHubActorClaims.repository":
+		if e.ComplexityRoot.GitHubActorClaims.Repository == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GitHubActorClaims.Repository(childComplexity), true
+
+	case "GitHubActorClaims.repositoryID":
+		if e.ComplexityRoot.GitHubActorClaims.RepositoryID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GitHubActorClaims.RepositoryID(childComplexity), true
+
+	case "GitHubActorClaims.runAttempt":
+		if e.ComplexityRoot.GitHubActorClaims.RunAttempt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GitHubActorClaims.RunAttempt(childComplexity), true
+
+	case "GitHubActorClaims.runID":
+		if e.ComplexityRoot.GitHubActorClaims.RunID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GitHubActorClaims.RunID(childComplexity), true
+
+	case "GitHubActorClaims.workflow":
+		if e.ComplexityRoot.GitHubActorClaims.Workflow == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GitHubActorClaims.Workflow(childComplexity), true
+
 	case "GrantPostgresAccessPayload.error":
 		if e.ComplexityRoot.GrantPostgresAccessPayload.Error == nil {
 			break
@@ -6176,6 +6705,139 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.IngressMetrics.Series(childComplexity, args["input"].(application.IngressMetricsInput)), true
+
+	case "InstanceGroup.created":
+		if e.ComplexityRoot.InstanceGroup.Created == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroup.Created(childComplexity), true
+
+	case "InstanceGroup.desiredInstances":
+		if e.ComplexityRoot.InstanceGroup.DesiredInstances == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroup.DesiredInstances(childComplexity), true
+
+	case "InstanceGroup.environmentVariables":
+		if e.ComplexityRoot.InstanceGroup.EnvironmentVariables == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroup.EnvironmentVariables(childComplexity), true
+
+	case "InstanceGroup.id":
+		if e.ComplexityRoot.InstanceGroup.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroup.ID(childComplexity), true
+
+	case "InstanceGroup.image":
+		if e.ComplexityRoot.InstanceGroup.Image == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroup.Image(childComplexity), true
+
+	case "InstanceGroup.instances":
+		if e.ComplexityRoot.InstanceGroup.Instances == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroup.Instances(childComplexity), true
+
+	case "InstanceGroup.mountedFiles":
+		if e.ComplexityRoot.InstanceGroup.MountedFiles == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroup.MountedFiles(childComplexity), true
+
+	case "InstanceGroup.name":
+		if e.ComplexityRoot.InstanceGroup.Name == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroup.Name(childComplexity), true
+
+	case "InstanceGroup.readyInstances":
+		if e.ComplexityRoot.InstanceGroup.ReadyInstances == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroup.ReadyInstances(childComplexity), true
+
+	case "InstanceGroupEnvironmentVariable.name":
+		if e.ComplexityRoot.InstanceGroupEnvironmentVariable.Name == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroupEnvironmentVariable.Name(childComplexity), true
+
+	case "InstanceGroupEnvironmentVariable.source":
+		if e.ComplexityRoot.InstanceGroupEnvironmentVariable.Source == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroupEnvironmentVariable.Source(childComplexity), true
+
+	case "InstanceGroupEnvironmentVariable.value":
+		if e.ComplexityRoot.InstanceGroupEnvironmentVariable.Value == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroupEnvironmentVariable.Value(childComplexity), true
+
+	case "InstanceGroupMountedFile.content":
+		if e.ComplexityRoot.InstanceGroupMountedFile.Content == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroupMountedFile.Content(childComplexity), true
+
+	case "InstanceGroupMountedFile.encoding":
+		if e.ComplexityRoot.InstanceGroupMountedFile.Encoding == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroupMountedFile.Encoding(childComplexity), true
+
+	case "InstanceGroupMountedFile.error":
+		if e.ComplexityRoot.InstanceGroupMountedFile.Error == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroupMountedFile.Error(childComplexity), true
+
+	case "InstanceGroupMountedFile.path":
+		if e.ComplexityRoot.InstanceGroupMountedFile.Path == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroupMountedFile.Path(childComplexity), true
+
+	case "InstanceGroupMountedFile.source":
+		if e.ComplexityRoot.InstanceGroupMountedFile.Source == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroupMountedFile.Source(childComplexity), true
+
+	case "InstanceGroupValueSource.kind":
+		if e.ComplexityRoot.InstanceGroupValueSource.Kind == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroupValueSource.Kind(childComplexity), true
+
+	case "InstanceGroupValueSource.name":
+		if e.ComplexityRoot.InstanceGroupValueSource.Name == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroupValueSource.Name(childComplexity), true
 
 	case "InvalidSpecIssue.id":
 		if e.ComplexityRoot.InvalidSpecIssue.ID == nil {
@@ -6547,6 +7209,69 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.JobConnection.PageInfo(childComplexity), true
+
+	case "JobCreatedActivityLogEntry.actor":
+		if e.ComplexityRoot.JobCreatedActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobCreatedActivityLogEntry.Actor(childComplexity), true
+
+	case "JobCreatedActivityLogEntry.createdAt":
+		if e.ComplexityRoot.JobCreatedActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobCreatedActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "JobCreatedActivityLogEntry.data":
+		if e.ComplexityRoot.JobCreatedActivityLogEntry.Data == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobCreatedActivityLogEntry.Data(childComplexity), true
+
+	case "JobCreatedActivityLogEntry.environmentName":
+		if e.ComplexityRoot.JobCreatedActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobCreatedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "JobCreatedActivityLogEntry.id":
+		if e.ComplexityRoot.JobCreatedActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobCreatedActivityLogEntry.ID(childComplexity), true
+
+	case "JobCreatedActivityLogEntry.message":
+		if e.ComplexityRoot.JobCreatedActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobCreatedActivityLogEntry.Message(childComplexity), true
+
+	case "JobCreatedActivityLogEntry.resourceName":
+		if e.ComplexityRoot.JobCreatedActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobCreatedActivityLogEntry.ResourceName(childComplexity), true
+
+	case "JobCreatedActivityLogEntry.resourceType":
+		if e.ComplexityRoot.JobCreatedActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobCreatedActivityLogEntry.ResourceType(childComplexity), true
+
+	case "JobCreatedActivityLogEntry.teamSlug":
+		if e.ComplexityRoot.JobCreatedActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobCreatedActivityLogEntry.TeamSlug(childComplexity), true
 
 	case "JobDeletedActivityLogEntry.actor":
 		if e.ComplexityRoot.JobDeletedActivityLogEntry.Actor == nil {
@@ -6958,6 +7683,69 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.JobTriggeredActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "JobUpdatedActivityLogEntry.actor":
+		if e.ComplexityRoot.JobUpdatedActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobUpdatedActivityLogEntry.Actor(childComplexity), true
+
+	case "JobUpdatedActivityLogEntry.createdAt":
+		if e.ComplexityRoot.JobUpdatedActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobUpdatedActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "JobUpdatedActivityLogEntry.data":
+		if e.ComplexityRoot.JobUpdatedActivityLogEntry.Data == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobUpdatedActivityLogEntry.Data(childComplexity), true
+
+	case "JobUpdatedActivityLogEntry.environmentName":
+		if e.ComplexityRoot.JobUpdatedActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobUpdatedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "JobUpdatedActivityLogEntry.id":
+		if e.ComplexityRoot.JobUpdatedActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobUpdatedActivityLogEntry.ID(childComplexity), true
+
+	case "JobUpdatedActivityLogEntry.message":
+		if e.ComplexityRoot.JobUpdatedActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobUpdatedActivityLogEntry.Message(childComplexity), true
+
+	case "JobUpdatedActivityLogEntry.resourceName":
+		if e.ComplexityRoot.JobUpdatedActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobUpdatedActivityLogEntry.ResourceName(childComplexity), true
+
+	case "JobUpdatedActivityLogEntry.resourceType":
+		if e.ComplexityRoot.JobUpdatedActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobUpdatedActivityLogEntry.ResourceType(childComplexity), true
+
+	case "JobUpdatedActivityLogEntry.teamSlug":
+		if e.ComplexityRoot.JobUpdatedActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobUpdatedActivityLogEntry.TeamSlug(childComplexity), true
 
 	case "KafkaCredentials.accessCert":
 		if e.ComplexityRoot.KafkaCredentials.AccessCert == nil {
@@ -7478,7 +8266,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Mutation.AddConfigValue(childComplexity, args["input"].(configmap.AddConfigValueInput)), true
+		return e.ComplexityRoot.Mutation.AddConfigValue(childComplexity, args["input"].(config.AddConfigValueInput)), true
 
 	case "Mutation.addRepositoryToTeam":
 		if e.ComplexityRoot.Mutation.AddRepositoryToTeam == nil {
@@ -7586,7 +8374,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Mutation.CreateConfig(childComplexity, args["input"].(configmap.CreateConfigInput)), true
+		return e.ComplexityRoot.Mutation.CreateConfig(childComplexity, args["input"].(config.CreateConfigInput)), true
 
 	case "Mutation.createKafkaCredentials":
 		if e.ComplexityRoot.Mutation.CreateKafkaCredentials == nil {
@@ -7598,7 +8386,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Mutation.CreateKafkaCredentials(childComplexity, args["input"].(aivencredentials.CreateKafkaCredentialsInput)), true
+		return e.ComplexityRoot.Mutation.CreateKafkaCredentials(childComplexity, args["input"].(kafkatopic.CreateKafkaCredentialsInput)), true
 
 	case "Mutation.createOpenSearch":
 		if e.ComplexityRoot.Mutation.CreateOpenSearch == nil {
@@ -7622,7 +8410,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Mutation.CreateOpenSearchCredentials(childComplexity, args["input"].(aivencredentials.CreateOpenSearchCredentialsInput)), true
+		return e.ComplexityRoot.Mutation.CreateOpenSearchCredentials(childComplexity, args["input"].(opensearch.CreateOpenSearchCredentialsInput)), true
 
 	case "Mutation.createSecret":
 		if e.ComplexityRoot.Mutation.CreateSecret == nil {
@@ -7706,7 +8494,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Mutation.CreateValkeyCredentials(childComplexity, args["input"].(aivencredentials.CreateValkeyCredentialsInput)), true
+		return e.ComplexityRoot.Mutation.CreateValkeyCredentials(childComplexity, args["input"].(valkey.CreateValkeyCredentialsInput)), true
 
 	case "Mutation.deleteApplication":
 		if e.ComplexityRoot.Mutation.DeleteApplication == nil {
@@ -7730,7 +8518,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Mutation.DeleteConfig(childComplexity, args["input"].(configmap.DeleteConfigInput)), true
+		return e.ComplexityRoot.Mutation.DeleteConfig(childComplexity, args["input"].(config.DeleteConfigInput)), true
 
 	case "Mutation.deleteJob":
 		if e.ComplexityRoot.Mutation.DeleteJob == nil {
@@ -7767,6 +8555,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Mutation.DeleteOpenSearch(childComplexity, args["input"].(opensearch.DeleteOpenSearchInput)), true
+
+	case "Mutation.deletePostgres":
+		if e.ComplexityRoot.Mutation.DeletePostgres == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deletePostgres_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Mutation.DeletePostgres(childComplexity, args["input"].(postgres.DeletePostgresInput)), true
 
 	case "Mutation.deleteSecret":
 		if e.ComplexityRoot.Mutation.DeleteSecret == nil {
@@ -7874,7 +8674,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Mutation.RemoveConfigValue(childComplexity, args["input"].(configmap.RemoveConfigValueInput)), true
+		return e.ComplexityRoot.Mutation.RemoveConfigValue(childComplexity, args["input"].(config.RemoveConfigValueInput)), true
 
 	case "Mutation.removeRepositoryFromTeam":
 		if e.ComplexityRoot.Mutation.RemoveRepositoryFromTeam == nil {
@@ -8018,7 +8818,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Mutation.UpdateConfigValue(childComplexity, args["input"].(configmap.UpdateConfigValueInput)), true
+		return e.ComplexityRoot.Mutation.UpdateConfigValue(childComplexity, args["input"].(config.UpdateConfigValueInput)), true
 
 	case "Mutation.updateImageVulnerability":
 		if e.ComplexityRoot.Mutation.UpdateImageVulnerability == nil {
@@ -8887,6 +9687,62 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.PageInfo.TotalCount(childComplexity), true
+
+	case "PostgresDeletedActivityLogEntry.actor":
+		if e.ComplexityRoot.PostgresDeletedActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresDeletedActivityLogEntry.Actor(childComplexity), true
+
+	case "PostgresDeletedActivityLogEntry.createdAt":
+		if e.ComplexityRoot.PostgresDeletedActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresDeletedActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "PostgresDeletedActivityLogEntry.environmentName":
+		if e.ComplexityRoot.PostgresDeletedActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresDeletedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "PostgresDeletedActivityLogEntry.id":
+		if e.ComplexityRoot.PostgresDeletedActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresDeletedActivityLogEntry.ID(childComplexity), true
+
+	case "PostgresDeletedActivityLogEntry.message":
+		if e.ComplexityRoot.PostgresDeletedActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresDeletedActivityLogEntry.Message(childComplexity), true
+
+	case "PostgresDeletedActivityLogEntry.resourceName":
+		if e.ComplexityRoot.PostgresDeletedActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresDeletedActivityLogEntry.ResourceName(childComplexity), true
+
+	case "PostgresDeletedActivityLogEntry.resourceType":
+		if e.ComplexityRoot.PostgresDeletedActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresDeletedActivityLogEntry.ResourceType(childComplexity), true
+
+	case "PostgresDeletedActivityLogEntry.teamSlug":
+		if e.ComplexityRoot.PostgresDeletedActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresDeletedActivityLogEntry.TeamSlug(childComplexity), true
 
 	case "PostgresGrantAccessActivityLogEntry.actor":
 		if e.ComplexityRoot.PostgresGrantAccessActivityLogEntry.Actor == nil {
@@ -10144,6 +11000,27 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.RequestTeamDeletionPayload.Key(childComplexity), true
 
+	case "ResourceChangedField.field":
+		if e.ComplexityRoot.ResourceChangedField.Field == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ResourceChangedField.Field(childComplexity), true
+
+	case "ResourceChangedField.newValue":
+		if e.ComplexityRoot.ResourceChangedField.NewValue == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ResourceChangedField.NewValue(childComplexity), true
+
+	case "ResourceChangedField.oldValue":
+		if e.ComplexityRoot.ResourceChangedField.OldValue == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ResourceChangedField.OldValue(childComplexity), true
+
 	case "RestartApplicationPayload.application":
 		if e.ComplexityRoot.RestartApplicationPayload.Application == nil {
 			break
@@ -10744,6 +11621,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.SecretEdge.Node(childComplexity), true
+
+	case "SecretValue.encoding":
+		if e.ComplexityRoot.SecretValue.Encoding == nil {
+			break
+		}
+
+		return e.ComplexityRoot.SecretValue.Encoding(childComplexity), true
 
 	case "SecretValue.name":
 		if e.ComplexityRoot.SecretValue.Name == nil {
@@ -12481,7 +13365,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Team.Configs(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*configmap.ConfigOrder), args["filter"].(*configmap.ConfigFilter)), true
+		return e.ComplexityRoot.Team.Configs(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*config.ConfigOrder), args["filter"].(*config.ConfigFilter)), true
 
 	case "Team.cost":
 		if e.ComplexityRoot.Team.Cost == nil {
@@ -15191,6 +16075,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Valkey.Cost(childComplexity), true
 
+	case "Valkey.databases":
+		if e.ComplexityRoot.Valkey.Databases == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Valkey.Databases(childComplexity), true
+
 	case "Valkey.environment":
 		if e.ComplexityRoot.Valkey.Environment == nil {
 			break
@@ -16392,6 +17283,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputDeleteJobInput,
 		ec.unmarshalInputDeleteJobRunInput,
 		ec.unmarshalInputDeleteOpenSearchInput,
+		ec.unmarshalInputDeletePostgresInput,
 		ec.unmarshalInputDeleteSecretInput,
 		ec.unmarshalInputDeleteServiceAccountInput,
 		ec.unmarshalInputDeleteServiceAccountTokenInput,
@@ -16826,102 +17718,6 @@ enum CredentialPermission {
 	ADMIN
 }
 
-input CreateOpenSearchCredentialsInput {
-	"The team that owns the OpenSearch instance."
-	teamSlug: Slug!
-	"The environment name that the OpenSearch instance belongs to."
-	environmentName: String!
-	"Name of the OpenSearch instance."
-	instanceName: String!
-	"Permission level for the credentials."
-	permission: CredentialPermission!
-	"Time-to-live for the credentials (e.g. '1d', '7d'). Maximum 30 days."
-	ttl: String!
-}
-
-type OpenSearchCredentials {
-	"Username for the OpenSearch instance."
-	username: String!
-	"Password for the OpenSearch instance."
-	password: String!
-	"Hostname of the OpenSearch instance."
-	host: String!
-	"Port of the OpenSearch instance."
-	port: Int!
-	"Full connection URI for the OpenSearch instance."
-	uri: String!
-}
-
-type CreateOpenSearchCredentialsPayload {
-	"The generated credentials."
-	credentials: OpenSearchCredentials!
-}
-
-input CreateValkeyCredentialsInput {
-	"The team that owns the Valkey instance."
-	teamSlug: Slug!
-	"The environment name that the Valkey instance belongs to."
-	environmentName: String!
-	"Name of the Valkey instance."
-	instanceName: String!
-	"Permission level for the credentials."
-	permission: CredentialPermission!
-	"Time-to-live for the credentials (e.g. '1d', '7d'). Maximum 30 days."
-	ttl: String!
-}
-
-type ValkeyCredentials {
-	"Username for the Valkey instance."
-	username: String!
-	"Password for the Valkey instance."
-	password: String!
-	"Hostname of the Valkey instance."
-	host: String!
-	"Port of the Valkey instance."
-	port: Int!
-	"Full connection URI for the Valkey instance."
-	uri: String!
-}
-
-type CreateValkeyCredentialsPayload {
-	"The generated credentials."
-	credentials: ValkeyCredentials!
-}
-
-input CreateKafkaCredentialsInput {
-	"The team that owns the Kafka topic."
-	teamSlug: Slug!
-	"The environment name that the Kafka topic belongs to."
-	environmentName: String!
-	"Time-to-live for the credentials (e.g. '1d', '7d'). Maximum 30 days."
-	ttl: String!
-}
-
-type KafkaCredentials {
-	"Username for the Kafka broker."
-	username: String!
-	"Client certificate in PEM format."
-	accessCert: String!
-	"Client private key in PEM format."
-	accessKey: String!
-	"CA certificate in PEM format."
-	caCert: String!
-	"Comma-separated list of broker addresses."
-	brokers: String!
-	"Schema registry URL."
-	schemaRegistry: String!
-}
-
-type CreateKafkaCredentialsPayload {
-	"The generated credentials."
-	credentials: KafkaCredentials!
-}
-
-extend enum ActivityLogEntryResourceType {
-	"All activity log entries related to credential creation will use this resource type."
-	CREDENTIALS
-}
-
 type CredentialsActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
@@ -16952,10 +17748,6 @@ type CredentialsActivityLogEntry implements ActivityLogEntry & Node {
 }
 
 type CredentialsActivityLogEntryData {
-	"The service type (OPENSEARCH, VALKEY, KAFKA)."
-	serviceType: String!
-	"The instance name, if applicable."
-	instanceName: String
 	"The permission level, if applicable."
 	permission: String
 	"The TTL that was requested for the credentials."
@@ -16964,18 +17756,7 @@ type CredentialsActivityLogEntryData {
 
 extend enum ActivityLogActivityType {
 	"Filter for credential creation events."
-	CREDENTIALS_CREATE
-}
-
-extend type Mutation {
-	"Create temporary credentials for an OpenSearch instance."
-	createOpenSearchCredentials(
-		input: CreateOpenSearchCredentialsInput!
-	): CreateOpenSearchCredentialsPayload!
-	"Create temporary credentials for a Valkey instance."
-	createValkeyCredentials(input: CreateValkeyCredentialsInput!): CreateValkeyCredentialsPayload!
-	"Create temporary credentials for Kafka."
-	createKafkaCredentials(input: CreateKafkaCredentialsInput!): CreateKafkaCredentialsPayload!
+	CREDENTIALS_CREATED
 }
 `, BuiltIn: false},
 	{Name: "../schema/alerts.graphqls", Input: `extend type TeamEnvironment {
@@ -17837,13 +18618,36 @@ type ApplicationInstance implements Node {
 
 type ApplicationInstanceStatus {
 	state: ApplicationInstanceState!
+	"""
+	A user-friendly description of the current state.
+	"""
 	message: String!
+	"""
+	Whether the container is passing its readiness check and can receive traffic.
+	"""
+	ready: Boolean!
+	"""
+	The reason the container last terminated, if applicable.
+	This is populated even when the instance is currently running, to help debug restart loops.
+	Example values: "OOMKilled", "Error", "Completed".
+	"""
+	lastExitReason: String
+	"""
+	The exit code from the last container termination, if applicable.
+	"""
+	lastExitCode: Int
+	"""
+	The timestamp of the last container termination, if applicable.
+	This is populated even when the instance is currently running, to help debug restart loops.
+	"""
+	lastExitTimestamp: Time
 }
 
 enum ApplicationInstanceState {
 	RUNNING
 	STARTING
 	FAILING
+	TERMINATED
 	UNKNOWN
 }
 
@@ -17981,6 +18785,64 @@ type ApplicationScaledActivityLogEntryData {
 	direction: ScalingDirection!
 }
 
+type ApplicationCreatedActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: ActivityLogEntryResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+
+	"Data associated with the creation."
+	data: GenericKubernetesResourceActivityLogEntryData!
+}
+
+type ApplicationUpdatedActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: ActivityLogEntryResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+
+	"Data associated with the update."
+	data: GenericKubernetesResourceActivityLogEntryData!
+}
+
 extend enum ActivityLogActivityType {
 	"""
 	An application was deleted.
@@ -17996,6 +18858,99 @@ extend enum ActivityLogActivityType {
 	An application was scaled.
 	"""
 	APPLICATION_SCALED
+}
+`, BuiltIn: false},
+	{Name: "../schema/apply.graphqls", Input: `extend enum ActivityLogActivityType {
+	"A generic kubernetes resource was updated via apply."
+	GENERIC_KUBERNETES_RESOURCE_UPDATED
+
+	"A generic kubernetes resource was created via apply."
+	GENERIC_KUBERNETES_RESOURCE_CREATED
+}
+
+"""
+Additional data associated with a resource created or updated via apply.
+"""
+type GenericKubernetesResourceActivityLogEntryData {
+	"The apiVersion of the applied resource."
+	apiVersion: String!
+	"The kind of the applied resource."
+	kind: String!
+	"The fields that changed during the apply. Only populated for updates."
+	changedFields: [ResourceChangedField!]!
+	"GitHub Actions OIDC token claims at the time of the apply. Only present when the request was authenticated via a GitHub token."
+	gitHubActorClaims: GitHubActorClaims
+}
+
+"""
+GitHub Actions OIDC token claims captured at the time of an apply operation.
+"""
+type GitHubActorClaims {
+	"The git ref that triggered the workflow, e.g. 'refs/heads/main'."
+	ref: String!
+	"The repository name that triggered the workflow, e.g. 'org/repo'."
+	repository: String!
+	"The immutable numeric GitHub repository ID."
+	repositoryID: String!
+	"The unique identifier of the Actions workflow run. Links to https://github.com/<repo>/actions/runs/<runId>."
+	runID: String!
+	"The attempt number of the workflow run (1-indexed)."
+	runAttempt: String!
+	"The GitHub username that triggered the workflow."
+	actor: String!
+	"The path to the workflow file, e.g. '.github/workflows/deploy.yaml'."
+	workflow: String!
+	"The event that triggered the workflow, e.g. 'push' or 'workflow_dispatch'."
+	eventName: String!
+	"The GitHub deployment environment name, if the job targets one."
+	environment: String!
+	"The ref of the reusable workflow called by this job, if any. E.g. 'org/repo/.github/workflows/deploy.yaml@refs/heads/main'."
+	jobWorkflowRef: String!
+}
+
+"""
+A single field that changed.
+"""
+type ResourceChangedField {
+	"The dot-separated path to the changed field, e.g. 'spec.replicas'."
+	field: String!
+	"The value before the change. Null if the field was added."
+	oldValue: String
+	"The value after the change. Null if the field was removed."
+	newValue: String
+}
+
+"""
+Activity log entry for a resource kind that is not modelled in the GraphQL API.
+The resource type will be the uppercase Kubernetes kind, e.g. 'NAISJOB'.
+"""
+type GenericKubernetesResourceActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: ActivityLogEntryResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+
+	"Data associated with the apply operation."
+	data: GenericKubernetesResourceActivityLogEntryData!
 }
 `, BuiltIn: false},
 	{Name: "../schema/authz.graphqls", Input: `type Role implements Node {
@@ -18338,7 +19293,7 @@ type ClusterAuditActivityLogEntryData {
 	resourceKind: String!
 }
 `, BuiltIn: false},
-	{Name: "../schema/configmap.graphqls", Input: `extend type Mutation {
+	{Name: "../schema/config.graphqls", Input: `extend type Mutation {
 	"Create a new config."
 	createConfig(input: CreateConfigInput!): CreateConfigPayload!
 
@@ -18559,6 +19514,9 @@ input ConfigValueInput {
 
 	"The value to set."
 	value: String!
+
+	"Encoding of the value. Defaults to PLAIN_TEXT. Use BASE64 for binary data (certificates, keystores, etc.)."
+	encoding: ValueEncoding = PLAIN_TEXT
 }
 
 input CreateConfigInput {
@@ -18694,6 +19652,9 @@ type ConfigValue {
 
 	"The config value itself."
 	value: String!
+
+	"The encoding of the value. PLAIN_TEXT for UTF-8 text, BASE64 for binary data."
+	encoding: ValueEncoding!
 }
 
 extend enum ActivityLogEntryResourceType {
@@ -19662,6 +20623,160 @@ type FeatureOpenSearch implements Node {
 	enabled: Boolean!
 }
 `, BuiltIn: false},
+	{Name: "../schema/instancegroup.graphqls", Input: `extend type Application {
+	"""
+	Instance groups for the application. An instance group represents a set of identical instances.
+	All instances in a group share the same configuration.
+	"""
+	instanceGroups: [InstanceGroup!]!
+}
+
+"""
+An instance group represents a set of identical instances.
+All instances in the group share the same configuration (environment variables, mounted files, image).
+"""
+type InstanceGroup implements Node {
+	"""
+	The globally unique ID of the instance group.
+	"""
+	id: ID!
+
+	"""
+	The name of the instance group.
+	"""
+	name: String!
+
+	"""
+	The container image used by instances in this group.
+	"""
+	image: ContainerImage!
+
+	"""
+	When the instance group was created.
+	"""
+	created: Time!
+
+	"""
+	The number of instances that are ready.
+	"""
+	readyInstances: Int!
+
+	"""
+	The desired number of instances.
+	"""
+	desiredInstances: Int!
+
+	"""
+	Environment variables configured for instances in this group.
+	Variables from Secrets require elevation to view their values.
+	"""
+	environmentVariables: [InstanceGroupEnvironmentVariable!]!
+
+	"""
+	Files mounted into instances in this group from Secrets or Configs.
+	"""
+	mountedFiles: [InstanceGroupMountedFile!]!
+
+	"""
+	The application instances belonging to this instance group.
+	"""
+	instances: [ApplicationInstance!]!
+}
+
+"""
+An environment variable configured for an instance group.
+"""
+type InstanceGroupEnvironmentVariable {
+	"""
+	The name of the environment variable.
+	"""
+	name: String!
+
+	"""
+	The value of the environment variable. Null if the value comes from a Secret (requires elevation to view).
+	"""
+	value: String
+
+	"""
+	The source of the environment variable value.
+	"""
+	source: InstanceGroupValueSource!
+}
+
+"""
+A file mounted into an instance group from a Secret or Config.
+"""
+type InstanceGroupMountedFile {
+	"""
+	The file path inside the instance.
+	"""
+	path: String!
+
+	"""
+	The source of the mounted file.
+	"""
+	source: InstanceGroupValueSource!
+
+	"""
+	The file content. Null for files from Secrets (requires elevation to view)
+	or when the source could not be resolved (check the error field).
+	"""
+	content: String
+
+	"""
+	The encoding of the content.
+	PLAIN_TEXT means the content can be displayed as-is.
+	BASE64 means the content is base64-encoded binary data that should be downloaded rather than displayed.
+	"""
+	encoding: ValueEncoding!
+
+	"""
+	Error message when the source could not be resolved.
+	When set, the file entry represents a failed mount rather than an actual file.
+	"""
+	error: String
+}
+
+"""
+Describes the source of a value (environment variable or mounted file).
+"""
+type InstanceGroupValueSource {
+	"""
+	The kind of source.
+	"""
+	kind: InstanceGroupValueSourceKind!
+
+	"""
+	The name of the source resource.
+	"""
+	name: String!
+}
+
+"""
+The kind of source for an environment variable or mounted file.
+"""
+enum InstanceGroupValueSourceKind {
+	"""
+	The value comes from a Secret.
+	"""
+	SECRET
+
+	"""
+	The value comes from a Config.
+	"""
+	CONFIG
+
+	"""
+	The value is defined inline in the workload's application manifest (user-defined).
+	"""
+	SPEC
+
+	"""
+	The value was injected by the Nais platform (naiserator), not defined by the user.
+	"""
+	NAIS
+}
+`, BuiltIn: false},
 	{Name: "../schema/issues.graphqls", Input: `extend type Team {
 	"Issues that affects the team."
 	issues(
@@ -19829,6 +20944,8 @@ enum IssueType {
 	VULNERABLE_IMAGE
 	EXTERNAL_INGRESS_CRITICAL_VULNERABILITY
 	UNLEASH_RELEASE_CHANNEL
+	"Raised when an application is stuck in a restart loop."
+	APPLICATION_RESTART_LOOP
 }
 
 type VulnerableImageIssue implements Issue & Node {
@@ -19969,6 +21086,27 @@ type UnleashReleaseChannelIssue implements Issue & Node {
 	majorVersion: Int!
 	"The current major version of Unleash available."
 	currentMajorVersion: Int!
+}
+
+"An issue raised when an application keeps restarting repeatedly."
+type ApplicationRestartLoopIssue implements Issue & Node {
+	"Unique identifier for this issue."
+	id: ID!
+	"The team environment where the issue was detected."
+	teamEnvironment: TeamEnvironment!
+	"The severity of the issue."
+	severity: Severity!
+	"A human-readable description of the issue."
+	message: String!
+
+	"The workload that is stuck in a restart loop."
+	workload: Workload!
+	"The number of container restarts."
+	restartCount: Int!
+	"The reason for the last container exit."
+	lastExitReason: String!
+	"The timestamp of the last container exit."
+	lastExitTimestamp: Time!
 }
 `, BuiltIn: false},
 	{Name: "../schema/jobs.graphqls", Input: `extend type Team {
@@ -20485,6 +21623,64 @@ type JobRunDeletedActivityLogEntryData {
 	runName: String!
 }
 
+type JobCreatedActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: ActivityLogEntryResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+
+	"Data associated with the creation."
+	data: GenericKubernetesResourceActivityLogEntryData!
+}
+
+type JobUpdatedActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: ActivityLogEntryResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+
+	"Data associated with the update."
+	data: GenericKubernetesResourceActivityLogEntryData!
+}
+
 extend enum ActivityLogActivityType {
 	"Activity log entries related to job deletion."
 	JOB_DELETED
@@ -20496,7 +21692,12 @@ extend enum ActivityLogActivityType {
 	JOB_TRIGGERED
 }
 `, BuiltIn: false},
-	{Name: "../schema/kafka.graphqls", Input: `extend type Team {
+	{Name: "../schema/kafka.graphqls", Input: `extend type Mutation {
+	"Create temporary credentials for Kafka."
+	createKafkaCredentials(input: CreateKafkaCredentialsInput!): CreateKafkaCredentialsPayload!
+}
+
+extend type Team {
 	"Kafka topics owned by the team."
 	kafkaTopics(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
@@ -20646,6 +21847,35 @@ extend union SearchNode = KafkaTopic
 
 extend enum SearchType {
 	KAFKA_TOPIC
+}
+
+input CreateKafkaCredentialsInput {
+	"The team that owns the Kafka topic."
+	teamSlug: Slug!
+	"The environment name that the Kafka topic belongs to."
+	environmentName: String!
+	"Time-to-live for the credentials (e.g. '1d', '7d'). Maximum 365 days."
+	ttl: String!
+}
+
+type KafkaCredentials {
+	"Username for the Kafka broker."
+	username: String!
+	"Client certificate in PEM format."
+	accessCert: String!
+	"Client private key in PEM format."
+	accessKey: String!
+	"CA certificate in PEM format."
+	caCert: String!
+	"Comma-separated list of broker addresses."
+	brokers: String!
+	"Schema registry URL."
+	schemaRegistry: String!
+}
+
+type CreateKafkaCredentialsPayload {
+	"The generated credentials."
+	credentials: KafkaCredentials!
 }
 `, BuiltIn: false},
 	{Name: "../schema/log.graphqls", Input: `extend type Subscription {
@@ -21192,6 +22422,10 @@ extend type Mutation {
 	updateOpenSearch(input: UpdateOpenSearchInput!): UpdateOpenSearchPayload!
 	"Delete an existing OpenSearch instance."
 	deleteOpenSearch(input: DeleteOpenSearchInput!): DeleteOpenSearchPayload!
+	"Create temporary credentials for an OpenSearch instance."
+	createOpenSearchCredentials(
+		input: CreateOpenSearchCredentialsInput!
+	): CreateOpenSearchCredentialsPayload!
 }
 
 extend enum ActivityLogEntryResourceType {
@@ -21312,6 +22546,37 @@ type OpenSearchDeletedActivityLogEntry implements ActivityLogEntry & Node {
 
 	"The environment name that the entry belongs to."
 	environmentName: String
+}
+
+input CreateOpenSearchCredentialsInput {
+	"The team that owns the OpenSearch instance."
+	teamSlug: Slug!
+	"The environment name that the OpenSearch instance belongs to."
+	environmentName: String!
+	"Name of the OpenSearch instance."
+	instanceName: String!
+	"Permission level for the credentials."
+	permission: CredentialPermission!
+	"Time-to-live for the credentials (e.g. '1d', '7d'). Maximum 30 days."
+	ttl: String!
+}
+
+type OpenSearchCredentials {
+	"Username for the OpenSearch instance."
+	username: String!
+	"Password for the OpenSearch instance."
+	password: String!
+	"Hostname of the OpenSearch instance."
+	host: String!
+	"Port of the OpenSearch instance."
+	port: Int!
+	"Full connection URI for the OpenSearch instance."
+	uri: String!
+}
+
+type CreateOpenSearchCredentialsPayload {
+	"The generated credentials."
+	credentials: OpenSearchCredentials!
 }
 `, BuiltIn: false},
 	{Name: "../schema/persistence.graphqls", Input: `interface Persistence implements Node {
@@ -21538,16 +22803,48 @@ type PostgresGrantAccessActivityLogEntryData {
 	until: Time!
 }
 
+type PostgresDeletedActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: ActivityLogEntryResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+}
+
 extend enum ActivityLogActivityType {
 	"""
 	A user was granted access to a Postgres cluster
 	"""
 	POSTGRES_GRANT_ACCESS
+	"""
+	A Postgres instance was deleted
+	"""
+	POSTGRES_DELETED
 }
 
 extend type Mutation {
 	"Grant temporary access to a Postgres cluster."
 	grantPostgresAccess(input: GrantPostgresAccessInput!): GrantPostgresAccessPayload!
+	"Delete an existing Postgres instance."
+	deletePostgres(input: DeletePostgresInput!): DeletePostgresPayload!
 }
 
 type GrantPostgresAccessPayload {
@@ -21561,6 +22858,20 @@ input GrantPostgresAccessInput {
 	grantee: String!
 	"Duration of the access grant (maximum 4 hours)."
 	duration: String!
+}
+
+input DeletePostgresInput {
+	"Name of the Postgres instance."
+	name: String!
+	"The environment name that the Postgres instance belongs to."
+	environmentName: String!
+	"The team that owns the Postgres instance."
+	teamSlug: Slug!
+}
+
+type DeletePostgresPayload {
+	"Whether or not the Postgres instance was deleted."
+	postgresDeleted: Boolean
 }
 
 extend type TeamInventoryCounts {
@@ -22547,6 +23858,9 @@ input SecretValueInput {
 
 	"The secret value to set."
 	value: String!
+
+	"Encoding of the value. Defaults to PLAIN_TEXT. Use BASE64 for binary data (certificates, keystores, etc.)."
+	encoding: ValueEncoding = PLAIN_TEXT
 }
 
 input CreateSecretInput {
@@ -22705,8 +24019,11 @@ type SecretValue {
 	"The name of the secret value."
 	name: String!
 
-	"The secret value itself."
+	"The secret value itself. When encoding is BASE64, the value is Base64-encoded binary data."
 	value: String!
+
+	"Encoding of the value. PLAIN_TEXT for UTF-8 text, BASE64 for binary data."
+	encoding: ValueEncoding!
 }
 
 extend enum ActivityLogEntryResourceType {
@@ -26109,6 +27426,8 @@ type Valkey implements Persistence & Node {
 	maxMemoryPolicy: ValkeyMaxMemoryPolicy
 	"Keyspace notifications for the Valkey instance. See https://valkey.io/topics/notifications/ for details."
 	notifyKeyspaceEvents: String
+	"Number of databases the Valkey instance is configured with. Default is 16. Minimum 1, maximum 128. Changing this will cause a restart of the Valkey service."
+	databases: Int!
 	"Issues that affects the instance."
 	issues(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
@@ -26250,6 +27569,8 @@ input CreateValkeyInput {
 	maxMemoryPolicy: ValkeyMaxMemoryPolicy
 	"Configure keyspace notifications for the Valkey instance. See https://valkey.io/topics/notifications/ for details."
 	notifyKeyspaceEvents: String
+	"Number of databases. Default is 16. Minimum 1, maximum 128. Changing this will cause a restart of the Valkey service."
+	databases: Int
 }
 
 type CreateValkeyPayload {
@@ -26272,6 +27593,8 @@ input UpdateValkeyInput {
 	maxMemoryPolicy: ValkeyMaxMemoryPolicy
 	"Configure keyspace notifications for the Valkey instance. See https://valkey.io/topics/notifications/ for details."
 	notifyKeyspaceEvents: String
+	"Number of databases. Default is 16. Minimum 1, maximum 128. Changing this will cause a restart of the Valkey service."
+	databases: Int
 }
 
 type UpdateValkeyPayload {
@@ -26300,6 +27623,8 @@ extend type Mutation {
 	updateValkey(input: UpdateValkeyInput!): UpdateValkeyPayload!
 	"Delete an existing Valkey instance."
 	deleteValkey(input: DeleteValkeyInput!): DeleteValkeyPayload!
+	"Create temporary credentials for a Valkey instance."
+	createValkeyCredentials(input: CreateValkeyCredentialsInput!): CreateValkeyCredentialsPayload!
 }
 
 extend enum ActivityLogEntryResourceType {
@@ -26420,6 +27745,37 @@ type ValkeyDeletedActivityLogEntry implements ActivityLogEntry & Node {
 
 	"The environment name that the entry belongs to."
 	environmentName: String
+}
+
+input CreateValkeyCredentialsInput {
+	"The team that owns the Valkey instance."
+	teamSlug: Slug!
+	"The environment name that the Valkey instance belongs to."
+	environmentName: String!
+	"Name of the Valkey instance."
+	instanceName: String!
+	"Permission level for the credentials."
+	permission: CredentialPermission!
+	"Time-to-live for the credentials (e.g. '1d', '7d'). Maximum 30 days."
+	ttl: String!
+}
+
+type ValkeyCredentials {
+	"Username for the Valkey instance."
+	username: String!
+	"Password for the Valkey instance."
+	password: String!
+	"Hostname of the Valkey instance."
+	host: String!
+	"Port of the Valkey instance."
+	port: Int!
+	"Full connection URI for the Valkey instance."
+	uri: String!
+}
+
+type CreateValkeyCredentialsPayload {
+	"The generated credentials."
+	credentials: ValkeyCredentials!
 }
 `, BuiltIn: false},
 	{Name: "../schema/vulnerability.graphqls", Input: `extend type Mutation {
@@ -27601,6 +28957,17 @@ enum EnvironmentWorkloadOrderField {
 	Order by the deployment time.
 	"""
 	DEPLOYMENT_TIME
+}
+
+"""
+Encoding of a secret or config value.
+"""
+enum ValueEncoding {
+	"The value is plain text (UTF-8)."
+	PLAIN_TEXT
+
+	"The value is Base64-encoded binary data."
+	BASE64
 }
 
 """
