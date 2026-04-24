@@ -6399,6 +6399,11 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Deployment(ctx, sel, obj)
+	case *vulnerability.ContainerImageSbom:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ContainerImageSbom(ctx, sel, obj)
 	case vulnerability.CVE:
 		return ec._CVE(ctx, sel, &obj)
 	case *vulnerability.CVE:
