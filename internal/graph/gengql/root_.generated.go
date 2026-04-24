@@ -27925,12 +27925,7 @@ type ImageVulnerabilityHistory {
 
 """
 SBOM metadata for a container image, including pipeline status and processing
-information. This type is accessed through ContainerImage.sbom and groups
-related fields together for a cleaner API surface.
-
-Query this type directly via the Node interface (using its id) only when you
-already have the id and need to refresh SBOM status without re-fetching the
-full ContainerImage.
+information. This type is accessed through ContainerImage.sbom.
 """
 type ContainerImageSbom implements Node {
 	"The globally unique ID of the container image SBOM node."
