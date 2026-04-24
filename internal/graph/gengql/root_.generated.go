@@ -3253,6 +3253,12 @@ type ComplexityRoot struct {
 		Memory func(childComplexity int) int
 	}
 
+	WorkloadSbomSummary struct {
+		HasSbom             func(childComplexity int) int
+		ProcessingStartedAt func(childComplexity int) int
+		Status              func(childComplexity int) int
+	}
+
 	WorkloadUtilization struct {
 		Current         func(childComplexity int, resourceType utilization.UtilizationResourceType) int
 		Limit           func(childComplexity int, resourceType utilization.UtilizationResourceType) int
@@ -3276,12 +3282,10 @@ type ComplexityRoot struct {
 	}
 
 	WorkloadVulnerabilitySummary struct {
-		HasSbom                 func(childComplexity int) int
-		ID                      func(childComplexity int) int
-		SbomProcessingStartedAt func(childComplexity int) int
-		SbomStatus              func(childComplexity int) int
-		Summary                 func(childComplexity int) int
-		Workload                func(childComplexity int) int
+		ID       func(childComplexity int) int
+		Sbom     func(childComplexity int) int
+		Summary  func(childComplexity int) int
+		Workload func(childComplexity int) int
 	}
 
 	WorkloadVulnerabilitySummaryConnection struct {
@@ -17013,6 +17017,27 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.WorkloadResourceQuantity.Memory(childComplexity), true
 
+	case "WorkloadSbomSummary.hasSbom":
+		if e.ComplexityRoot.WorkloadSbomSummary.HasSbom == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadSbomSummary.HasSbom(childComplexity), true
+
+	case "WorkloadSbomSummary.processingStartedAt":
+		if e.ComplexityRoot.WorkloadSbomSummary.ProcessingStartedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadSbomSummary.ProcessingStartedAt(childComplexity), true
+
+	case "WorkloadSbomSummary.status":
+		if e.ComplexityRoot.WorkloadSbomSummary.Status == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadSbomSummary.Status(childComplexity), true
+
 	case "WorkloadUtilization.current":
 		if e.ComplexityRoot.WorkloadUtilization.Current == nil {
 			break
@@ -17134,13 +17159,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.WorkloadUtilizationRecommendations.MemoryRequestBytes(childComplexity), true
 
-	case "WorkloadVulnerabilitySummary.hasSbom":
-		if e.ComplexityRoot.WorkloadVulnerabilitySummary.HasSbom == nil {
-			break
-		}
-
-		return e.ComplexityRoot.WorkloadVulnerabilitySummary.HasSbom(childComplexity), true
-
 	case "WorkloadVulnerabilitySummary.id":
 		if e.ComplexityRoot.WorkloadVulnerabilitySummary.ID == nil {
 			break
@@ -17148,19 +17166,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.WorkloadVulnerabilitySummary.ID(childComplexity), true
 
-	case "WorkloadVulnerabilitySummary.sbomProcessingStartedAt":
-		if e.ComplexityRoot.WorkloadVulnerabilitySummary.SbomProcessingStartedAt == nil {
+	case "WorkloadVulnerabilitySummary.sbom":
+		if e.ComplexityRoot.WorkloadVulnerabilitySummary.Sbom == nil {
 			break
 		}
 
-		return e.ComplexityRoot.WorkloadVulnerabilitySummary.SbomProcessingStartedAt(childComplexity), true
-
-	case "WorkloadVulnerabilitySummary.sbomStatus":
-		if e.ComplexityRoot.WorkloadVulnerabilitySummary.SbomStatus == nil {
-			break
-		}
-
-		return e.ComplexityRoot.WorkloadVulnerabilitySummary.SbomStatus(childComplexity), true
+		return e.ComplexityRoot.WorkloadVulnerabilitySummary.Sbom(childComplexity), true
 
 	case "WorkloadVulnerabilitySummary.summary":
 		if e.ComplexityRoot.WorkloadVulnerabilitySummary.Summary == nil {
@@ -28288,6 +28299,21 @@ enum ImageVulnerabilityOrderField {
 	SUPPRESSED
 }
 
+"""
+SBOM metadata for a workload, including pipeline status and processing
+information. Accessed through WorkloadVulnerabilitySummary.
+"""
+type WorkloadSbomSummary {
+	"The SBOM pipeline status for this workload."
+	status: SbomStatus!
+
+	"Whether the workload has a software bill of materials (SBOM) attached."
+	hasSbom: Boolean!
+
+	"The timestamp when SBOM processing started for this workload. Useful as a progress indicator when status is PROCESSING."
+	processingStartedAt: Time
+}
+
 type WorkloadVulnerabilitySummary implements Node {
 	"The globally unique ID of the workload vulnerability summary node."
 	id: ID!
@@ -28295,17 +28321,11 @@ type WorkloadVulnerabilitySummary implements Node {
 	"The workload"
 	workload: Workload!
 
-	"True if the workload has a software bill of materials (SBOM) attached."
-	hasSbom: Boolean!
+	"SBOM metadata for this workload, including pipeline status and processing information."
+	sbom: WorkloadSbomSummary!
 
 	"The vulnerability summary for the workload."
 	summary: ImageVulnerabilitySummary!
-
-	"The SBOM pipeline status for this workload."
-	sbomStatus: SbomStatus!
-
-	"The timestamp when SBOM processing started for this workload. Useful as a progress indicator when status is PROCESSING."
-	sbomProcessingStartedAt: Time
 }
 
 """

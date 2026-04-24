@@ -56,6 +56,8 @@ Test.gql("List vulnerability summaries for team", function(t)
 					  name
 					  sbom {
 						hasSbom
+						status
+						processingStartedAt
 					  }
 					  vulnerabilitySummary{
 						total
@@ -83,6 +85,8 @@ Test.gql("List vulnerability summaries for team", function(t)
 								name = "europe-north1-docker.pkg.dev/nais/navikt/app-name",
 								sbom = {
 									hasSbom = true,
+									status = "READY",
+									processingStartedAt = Null,
 								},
 								vulnerabilitySummary = {
 									total = NotNull(),
@@ -164,6 +168,43 @@ Test.gql("Get vulnerability summary for team", function(t)
 					unassigned = NotNull(),
 					riskScore = NotNull(),
 					coverage = NotNull(),
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("List workload vulnerability summaries with sbom sub-type", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query(string.format([[
+		{
+			team(slug: "%s") {
+				vulnerabilitySummaries(first: 1) {
+					nodes {
+						sbom {
+							hasSbom
+							status
+							processingStartedAt
+						}
+					}
+				}
+			}
+		}
+	]], team:slug()))
+
+	t.check {
+		data = {
+			team = {
+				vulnerabilitySummaries = {
+					nodes = {
+						{
+							sbom = {
+								hasSbom = NotNull(),
+								status = NotNull(),
+								processingStartedAt = Null,
+							},
+						},
+					},
 				},
 			},
 		},
