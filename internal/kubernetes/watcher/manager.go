@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"sync/atomic"
+	"time"
 
 	"github.com/nais/api/internal/kubernetes"
 	"github.com/sirupsen/logrus"
@@ -20,6 +21,12 @@ import (
 	"k8s.io/client-go/restmapper"
 	"k8s.io/client-go/tools/cache"
 )
+
+type cacheSyncEntry struct {
+	cluster string
+	gvr     string
+	synced  cache.InformerSynced
+}
 
 type settings struct {
 	clientCreator func(cluster string) (dynamic.Interface, KindResolver, *rest.Config, error)
@@ -43,6 +50,7 @@ type Manager struct {
 	log      logrus.FieldLogger
 
 	cacheSyncs      []cache.InformerSynced
+	cacheSyncInfo   []cacheSyncEntry
 	ready           atomic.Bool
 	resourceCounter metric.Int64UpDownCounter
 }
@@ -126,17 +134,56 @@ func (m *Manager) Stop() {
 }
 
 func (m *Manager) WaitForReady(ctx context.Context) bool {
-	ok := cache.WaitForCacheSync(ctx.Done(), m.cacheSyncs...)
-	if ok {
-		m.ready.Store(true)
+	doneCh := make(chan bool, 1)
+	go func() {
+		doneCh <- cache.WaitForCacheSync(ctx.Done(), m.cacheSyncs...)
+	}()
+
+	ticker := time.NewTicker(10 * time.Second)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case ok := <-doneCh:
+			if ok {
+				m.ready.Store(true)
+			} else {
+				m.logUnsynced("cache sync failed/cancelled, still unsynced")
+			}
+			return ok
+		case <-ticker.C:
+			m.logUnsynced("still waiting for cache sync")
+		}
 	}
-	return ok
+}
+
+func (m *Manager) logUnsynced(msg string) {
+	for _, e := range m.cacheSyncInfo {
+		if !e.synced() {
+			m.log.WithFields(logrus.Fields{
+				"cluster": e.cluster,
+				"gvr":     e.gvr,
+			}).Warn(msg)
+		}
+	}
 }
 
 // IsReady returns true if all informer caches have been synced.
-// This is a non-blocking check that returns the result of the last WaitForReady call.
+// This is a non-blocking check that inspects the current state of every
+// registered informer, so it will start reporting true as soon as the last
+// outstanding cache finishes syncing — even if the initial WaitForReady call
+// timed out.
 func (m *Manager) IsReady() bool {
-	return m.ready.Load()
+	if m.ready.Load() {
+		return true
+	}
+	for _, e := range m.cacheSyncInfo {
+		if !e.synced() {
+			return false
+		}
+	}
+	m.ready.Store(true)
+	return true
 }
 
 func (m *Manager) GetDynamicClients() map[string]dynamic.Interface {
@@ -157,8 +204,13 @@ func (m *Manager) ResourceMappers() map[string]KindResolver {
 	return clients
 }
 
-func (m *Manager) addCacheSync(sync cache.InformerSynced) {
+func (m *Manager) addCacheSync(cluster, gvr string, sync cache.InformerSynced) {
 	m.cacheSyncs = append(m.cacheSyncs, sync)
+	m.cacheSyncInfo = append(m.cacheSyncInfo, cacheSyncEntry{
+		cluster: cluster,
+		gvr:     gvr,
+		synced:  sync,
+	})
 }
 
 func Watch[T Object](mgr *Manager, obj T, opts ...WatchOption) *Watcher[T] {

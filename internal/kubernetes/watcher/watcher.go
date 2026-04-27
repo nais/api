@@ -77,7 +77,7 @@ func newWatcher[T Object](mgr *Manager, obj T, settings *watcherSettings, log lo
 		w.watchedType = gvr.String()
 
 		w.watchers = append(w.watchers, watcher)
-		mgr.addCacheSync(watcher.informer.Informer().HasSynced)
+		mgr.addCacheSync(cluster, gvr.String(), watcher.informer.Informer().HasSynced)
 	}
 	return w
 }
