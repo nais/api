@@ -804,6 +804,8 @@ github.com/nais/unleasherator v0.0.0-20251216221129-efebc54203fe h1:CdRVopOihru4
 github.com/nais/unleasherator v0.0.0-20251216221129-efebc54203fe/go.mod h1:Tiz/1If3WgcfvNhmsO5DiQC+L+1XhBG3KWbIfbjx4EU=
 github.com/nais/v13s/pkg/api v0.0.0-20260423094708-7b1b2a097ac2 h1:tJxf5Rip6YKeFM/eCTVBf3POAq0X6ffk5suIBbHcXLk=
 github.com/nais/v13s/pkg/api v0.0.0-20260423094708-7b1b2a097ac2/go.mod h1:umVDYG5L61B8YQgmUIlWiEbUyhtiUkz4lHiB3xVEbKw=
+github.com/nais/v13s/pkg/api v0.0.0-20260427071332-3021adeabe7d h1:HuSweTgKFDRUeQCPcyBWzUpS8sFMr63p24qqapPnLhE=
+github.com/nais/v13s/pkg/api v0.0.0-20260427071332-3021adeabe7d/go.mod h1:umVDYG5L61B8YQgmUIlWiEbUyhtiUkz4lHiB3xVEbKw=
 github.com/ncruces/go-strftime v0.1.9 h1:bY0MQC28UADQmHmaF5dgpLmImcShSi2kHU9XLdhx/f4=
 github.com/ncruces/go-strftime v0.1.9/go.mod h1:Fwc5htZGVVkseilnfgOVb9mKy6w1naJmn9CehxcKcls=
 github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e/go.mod h1:zD1mROLANZcx1PVRCS0qkT7pwLkGfwJo4zjcN/Tysno=
