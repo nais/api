@@ -23,6 +23,24 @@ rules:
       - get
       - watch
   - apiGroups:
+      - "apps"
+    resources:
+      - deployments
+    verbs:
+      - patch
+  - apiGroups:
+      - "batch"
+    resources:
+      - cronjobs
+    verbs:
+      - get
+  - apiGroups:
+      - "batch"
+    resources:
+      - jobs
+    verbs:
+      - create
+  - apiGroups:
       - ""
     resources:
       - users
@@ -160,6 +178,12 @@ rules:
       - get
       - watch
   - apiGroups:
+      - "apps"
+    resources:
+      - deployments
+    verbs:
+      - patch
+  - apiGroups:
       - "batch"
     resources:
       - jobs
@@ -167,6 +191,13 @@ rules:
       - get
       - list
       - watch
+      - create
+  - apiGroups:
+      - "batch"
+    resources:
+      - cronjobs
+    verbs:
+      - get
   - apiGroups:
       - "kafka.nais.io"
     resources:

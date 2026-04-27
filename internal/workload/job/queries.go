@@ -223,7 +223,7 @@ func DeleteRun(ctx context.Context, teamSlug slug.Slug, environmentName, runName
 func Trigger(ctx context.Context, teamSlug slug.Slug, environmentName, name, runName string) (*JobRun, error) {
 	w := fromContext(ctx).jobWatcher
 
-	cjClient, err := w.ImpersonatedClient(ctx, environmentName, watcher.WithImpersonatedClientGVR(batchv1.SchemeGroupVersion.WithResource("cronjobs")))
+	cjClient, err := w.SystemAuthenticatedClient(ctx, environmentName, watcher.WithImpersonatedClientGVR(batchv1.SchemeGroupVersion.WithResource("cronjobs")))
 	if err != nil {
 		return nil, fmt.Errorf("creating cronjob client: %w", err)
 	}
@@ -238,7 +238,7 @@ func Trigger(ctx context.Context, teamSlug slug.Slug, environmentName, name, run
 		return nil, fmt.Errorf("creating job from cronjob: %w", err)
 	}
 
-	jobClient, err := w.ImpersonatedClient(ctx, environmentName, watcher.WithImpersonatedClientGVR(batchv1.SchemeGroupVersion.WithResource("jobs")))
+	jobClient, err := w.SystemAuthenticatedClient(ctx, environmentName, watcher.WithImpersonatedClientGVR(batchv1.SchemeGroupVersion.WithResource("jobs")))
 	if err != nil {
 		return nil, fmt.Errorf("creating job client: %w", err)
 	}
