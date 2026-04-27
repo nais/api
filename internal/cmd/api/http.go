@@ -316,24 +316,20 @@ func ConfigureGraph(
 		costOpts = append(costOpts, cost.WithClient(cost.NewFakeClient()))
 	}
 
-	syncCtx, cancelSync := context.WithTimeout(ctx, 20*time.Second)
+	syncCtx, cancelSync := context.WithTimeout(ctx, 2*time.Minute)
 	defer cancelSync()
-	if err := logStep("watcherMgr.WaitForReady", func() error {
+	_ = logStep("watcherMgr.WaitForReady", func() error {
 		if !watcherMgr.WaitForReady(syncCtx) {
-			return errors.New("timed out waiting for watchers to be ready")
+			log.Warn("timed out waiting for watchers to be ready; continuing startup, /readyz will report not-ready until caches sync")
 		}
 		return nil
-	}); err != nil {
-		return nil, err
-	}
-	if err := logStep("mgmtWatcherMgr.WaitForReady", func() error {
+	})
+	_ = logStep("mgmtWatcherMgr.WaitForReady", func() error {
 		if !mgmtWatcherMgr.WaitForReady(syncCtx) {
-			return errors.New("timed out waiting for management watchers to be ready")
+			log.Warn("timed out waiting for management watchers to be ready; continuing startup, /readyz will report not-ready until caches sync")
 		}
 		return nil
-	}); err != nil {
-		return nil, err
-	}
+	})
 
 	setupContext := func(ctx context.Context) context.Context {
 		ctx = podlog.NewLoaderContext(ctx, podLogStreamer)
