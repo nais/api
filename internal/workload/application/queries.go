@@ -139,7 +139,7 @@ func Restart(ctx context.Context, teamSlug slug.Slug, environmentName, name stri
 			Resource: "deployments",
 		}),
 	}
-	client, err := fromContext(ctx).appWatcher.ImpersonatedClient(ctx, environmentName, opts...)
+	client, err := fromContext(ctx).appWatcher.SystemAuthenticatedClient(ctx, environmentName, opts...)
 	if err != nil {
 		return fmt.Errorf("impersonated client: %w", err)
 	}
