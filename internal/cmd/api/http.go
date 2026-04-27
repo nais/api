@@ -195,67 +195,118 @@ func ConfigureGraph(
 	auditLogLocation string,
 	log logrus.FieldLogger,
 ) (func(http.Handler) http.Handler, error) {
-	searcher, err := search.New(ctx, pool, log.WithField("subsystem", "search_bleve"))
-	if err != nil {
-		return nil, fmt.Errorf("init bleve: %w", err)
+	logStep := func(name string, fn func() error) error {
+		log.WithField("step", name).Info("starting setup step")
+		start := time.Now()
+		if err := fn(); err != nil {
+			log.WithField("step", name).WithField("duration", time.Since(start).String()).WithError(err).Error("setup step failed")
+			return err
+		}
+		log.WithField("step", name).WithField("duration", time.Since(start).String()).Info("setup step completed")
+		return nil
+	}
+
+	var searcher search.Client
+	if err := logStep("search.New", func() error {
+		var err error
+		searcher, err = search.New(ctx, pool, log.WithField("subsystem", "search_bleve"))
+		if err != nil {
+			return fmt.Errorf("init bleve: %w", err)
+		}
+		return nil
+	}); err != nil {
+		return nil, err
 	}
 
 	// Searchers searchers
-	application.AddSearch(searcher, watchers.AppWatcher)
-	job.AddSearch(searcher, watchers.JobWatcher)
-	bigquery.AddSearch(searcher, watchers.BqWatcher)
-	bucket.AddSearch(searcher, watchers.BucketWatcher)
-	kafkatopic.AddSearch(searcher, watchers.KafkaTopicWatcher)
-	opensearch.AddSearch(searcher, watchers.OpenSearchWatcher)
-	sqlinstance.AddSearchSQLInstance(searcher, watchers.SqlInstanceWatcher)
-	postgres.AddSearchZalandoPostgres(searcher, watchers.ZalandoPostgresWatcher)
-	valkey.AddSearch(searcher, watchers.ValkeyWatcher)
-	team.AddSearch(searcher, pool, notifier, log.WithField("subsystem", "team_search"))
-
-	// Re-index all to initialize the search index
-	if err := searcher.ReIndex(ctx); err != nil {
-		return nil, fmt.Errorf("reindex all: %w", err)
+	if err := logStep("register searchers", func() error {
+		application.AddSearch(searcher, watchers.AppWatcher)
+		job.AddSearch(searcher, watchers.JobWatcher)
+		bigquery.AddSearch(searcher, watchers.BqWatcher)
+		bucket.AddSearch(searcher, watchers.BucketWatcher)
+		kafkatopic.AddSearch(searcher, watchers.KafkaTopicWatcher)
+		opensearch.AddSearch(searcher, watchers.OpenSearchWatcher)
+		sqlinstance.AddSearchSQLInstance(searcher, watchers.SqlInstanceWatcher)
+		postgres.AddSearchZalandoPostgres(searcher, watchers.ZalandoPostgresWatcher)
+		valkey.AddSearch(searcher, watchers.ValkeyWatcher)
+		team.AddSearch(searcher, pool, notifier, log.WithField("subsystem", "team_search"))
+		return nil
+	}); err != nil {
+		return nil, err
 	}
 
-	sqlAdminService, err := sqlinstance.NewClient(ctx, log, sqlinstance.WithFakeClients(fakes.WithFakeCloudSQL), sqlinstance.WithInstanceWatcher(watchers.SqlInstanceWatcher))
-	if err != nil {
-		return nil, fmt.Errorf("create SQL Admin service: %w", err)
+	// Re-index all to initialize the search index
+	if err := logStep("searcher.ReIndex", func() error {
+		if err := searcher.ReIndex(ctx); err != nil {
+			return fmt.Errorf("reindex all: %w", err)
+		}
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+
+	var sqlAdminService *sqlinstance.Client
+	if err := logStep("sqlinstance.NewClient", func() error {
+		var err error
+		sqlAdminService, err = sqlinstance.NewClient(ctx, log, sqlinstance.WithFakeClients(fakes.WithFakeCloudSQL), sqlinstance.WithInstanceWatcher(watchers.SqlInstanceWatcher))
+		if err != nil {
+			return fmt.Errorf("create SQL Admin service: %w", err)
+		}
+		return nil
+	}); err != nil {
+		return nil, err
 	}
 
 	var priceRetriever price.Retriever
-	if fakes.WithFakePriceClient {
-		priceRetriever = fakeprice.NewClient()
-		log.Warn("Using fake price retriever")
-	} else {
+	if err := logStep("price.NewClient", func() error {
+		if fakes.WithFakePriceClient {
+			priceRetriever = fakeprice.NewClient()
+			log.Warn("Using fake price retriever")
+			return nil
+		}
+		var err error
 		priceRetriever, err = price.NewClient(ctx, log)
 		if err != nil {
-			return nil, fmt.Errorf("create price service: %w", err)
+			return fmt.Errorf("create price service: %w", err)
 		}
+		return nil
+	}); err != nil {
+		return nil, err
 	}
 
 	var prometheusClient promclient.Client
-	if fakes.WithFakePrometheus {
-		prometheusClient = promfake.NewFakeClient(nil, nil)
-	} else {
+	if err := logStep("promclient.New", func() error {
+		if fakes.WithFakePrometheus {
+			prometheusClient = promfake.NewFakeClient(nil, nil)
+			return nil
+		}
 		var err error
 		prometheusClient, err = promclient.New(tenantName, log)
 		if err != nil {
-			return nil, fmt.Errorf("create utilization client: %w", err)
+			return fmt.Errorf("create utilization client: %w", err)
 		}
+		return nil
+	}); err != nil {
+		return nil, err
 	}
 
 	var podLogStreamer podlog.Streamer
 	var secretClientCreator secret.ClientCreator
-	if fakes.WithFakeKubernetes {
-		podLogStreamer = fakepodlog.NewLogStreamer()
-		secretClientCreator = secret.CreatorFromClients(watcherMgr.GetDynamicClients())
-	} else {
+	if err := logStep("podlog/secret client setup", func() error {
+		if fakes.WithFakeKubernetes {
+			podLogStreamer = fakepodlog.NewLogStreamer()
+			secretClientCreator = secret.CreatorFromClients(watcherMgr.GetDynamicClients())
+			return nil
+		}
 		clients, err := apik8s.NewClientSets(k8sClients)
 		if err != nil {
-			return nil, fmt.Errorf("create k8s client sets: %w", err)
+			return fmt.Errorf("create k8s client sets: %w", err)
 		}
 		podLogStreamer = podlog.NewLogStreamer(clients, log)
 		secretClientCreator = secret.CreatorFromConfig(ctx, k8sClients)
+		return nil
+	}); err != nil {
+		return nil, err
 	}
 
 	dynamicClients := watcherMgr.GetDynamicClients()
@@ -267,11 +318,21 @@ func ConfigureGraph(
 
 	syncCtx, cancelSync := context.WithTimeout(ctx, 20*time.Second)
 	defer cancelSync()
-	if !watcherMgr.WaitForReady(syncCtx) {
-		return nil, errors.New("timed out waiting for watchers to be ready")
+	if err := logStep("watcherMgr.WaitForReady", func() error {
+		if !watcherMgr.WaitForReady(syncCtx) {
+			return errors.New("timed out waiting for watchers to be ready")
+		}
+		return nil
+	}); err != nil {
+		return nil, err
 	}
-	if !mgmtWatcherMgr.WaitForReady(syncCtx) {
-		return nil, errors.New("timed out waiting for management watchers to be ready")
+	if err := logStep("mgmtWatcherMgr.WaitForReady", func() error {
+		if !mgmtWatcherMgr.WaitForReady(syncCtx) {
+			return errors.New("timed out waiting for management watchers to be ready")
+		}
+		return nil
+	}); err != nil {
+		return nil, err
 	}
 
 	setupContext := func(ctx context.Context) context.Context {
