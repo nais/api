@@ -3,6 +3,7 @@ package instancegroup
 import (
 	"context"
 	"fmt"
+	"slices"
 
 	"github.com/nais/api/internal/environmentmapper"
 	"github.com/nais/api/internal/kubernetes/watcher"
@@ -61,110 +62,100 @@ func (l *loaders) k8sClient(environmentName string) (dynamic.Interface, error) {
 // (containers with env/envFrom/volumeMounts/image, volumes).
 func transformReplicaSet(in any) (any, error) {
 	rs := in.(*unstructured.Unstructured)
-	src := rs.Object
 
-	// metadata
-	srcMeta, _ := src["metadata"].(map[string]any)
-	newMeta := map[string]any{}
-	if srcMeta != nil {
-		for _, k := range []string{"name", "namespace", "uid", "resourceVersion", "creationTimestamp"} {
-			if v, ok := srcMeta[k]; ok {
-				newMeta[k] = v
-			}
-		}
-	}
-
-	// metadata.labels - keep only "app" and "team"
-	if labels, _, _ := unstructured.NestedStringMap(src, "metadata", "labels"); len(labels) > 0 {
-		kept := map[string]any{}
-		for _, k := range []string{"app", "team"} {
-			if v, ok := labels[k]; ok {
-				kept[k] = v
-			}
-		}
-		if len(kept) > 0 {
-			newMeta["labels"] = kept
-		}
-	}
+	// --- Extract data we want to keep ---
 
 	// metadata.annotations - keep only deployment.kubernetes.io/revision
-	if annotations, _, _ := unstructured.NestedStringMap(src, "metadata", "annotations"); len(annotations) > 0 {
-		if v, ok := annotations["deployment.kubernetes.io/revision"]; ok {
-			newMeta["annotations"] = map[string]any{
-				"deployment.kubernetes.io/revision": v,
-			}
+	annotations := rs.GetAnnotations()
+	newAnnotations := map[string]string{}
+	if v, ok := annotations["deployment.kubernetes.io/revision"]; ok {
+		newAnnotations["deployment.kubernetes.io/revision"] = v
+	}
+
+	// metadata.labels - keep app and team
+	labelsToKeep := []string{"app", "team"}
+	labels := rs.GetLabels()
+	for k := range labels {
+		if !slices.Contains(labelsToKeep, k) {
+			delete(labels, k)
 		}
 	}
 
-	// metadata.ownerReferences - kept verbatim (links to Deployment/Application).
-	// NestedSlice already deep-copies, so we can store the result directly.
-	if ownerRefs, _, _ := unstructured.NestedSlice(src, "metadata", "ownerReferences"); len(ownerRefs) > 0 {
-		newMeta["ownerReferences"] = ownerRefs
-	}
+	// spec.replicas
+	replicas, _, _ := unstructured.NestedInt64(rs.Object, "spec", "replicas")
 
-	// spec
-	newSpec := map[string]any{}
-	if replicas, found, _ := unstructured.NestedInt64(src, "spec", "replicas"); found {
-		newSpec["replicas"] = replicas
-	}
-
-	// spec.template.spec.containers - keep name, image, env, envFrom, volumeMounts
-	containers, _, _ := unstructured.NestedSlice(src, "spec", "template", "spec", "containers")
+	// spec.template.spec.containers (keep name, image, env, envFrom, volumeMounts)
+	containers, _, _ := unstructured.NestedSlice(rs.Object, "spec", "template", "spec", "containers")
 	newContainers := make([]any, 0, len(containers))
 	for _, container := range containers {
 		c, ok := container.(map[string]any)
 		if !ok {
 			return nil, fmt.Errorf("container is not a map[string]any")
 		}
-		newC := map[string]any{}
-		for _, k := range []string{"name", "image", "env", "envFrom", "volumeMounts"} {
-			if v, ok := c[k]; ok {
-				newC[k] = v
-			}
+		newC := map[string]any{
+			"name": c["name"],
+		}
+		if img, ok := c["image"]; ok {
+			newC["image"] = img
+		}
+		if env, ok := c["env"]; ok {
+			newC["env"] = env
+		}
+		if envFrom, ok := c["envFrom"]; ok {
+			newC["envFrom"] = envFrom
+		}
+		if vm, ok := c["volumeMounts"]; ok {
+			newC["volumeMounts"] = vm
 		}
 		newContainers = append(newContainers, newC)
 	}
 
-	templateSpec := map[string]any{
-		"containers": newContainers,
+	// spec.template.spec.volumes
+	volumes, _, _ := unstructured.NestedSlice(rs.Object, "spec", "template", "spec", "volumes")
+
+	// status.replicas and status.readyReplicas
+	statusReplicas, _, _ := unstructured.NestedInt64(rs.Object, "status", "replicas")
+	readyReplicas, _, _ := unstructured.NestedInt64(rs.Object, "status", "readyReplicas")
+
+	// spec.template.metadata.labels (for pod matching)
+	templateLabels, _, _ := unstructured.NestedStringMap(rs.Object, "spec", "template", "metadata", "labels")
+
+	// metadata.ownerReferences (to link to Deployment/Application)
+	ownerRefs, _, _ := unstructured.NestedSlice(rs.Object, "metadata", "ownerReferences")
+
+	// --- Remove everything ---
+	fieldsToRemove := [][]string{
+		{"spec"},
+		{"status"},
+		{"metadata", "managedFields"},
+		{"metadata", "generateName"},
 	}
-	if volumes, _, _ := unstructured.NestedSlice(src, "spec", "template", "spec", "volumes"); len(volumes) > 0 {
-		templateSpec["volumes"] = volumes
+	for _, field := range fieldsToRemove {
+		unstructured.RemoveNestedField(rs.Object, field...)
 	}
 
-	templateMeta := map[string]any{}
-	if templateLabels, _, _ := unstructured.NestedStringMap(src, "spec", "template", "metadata", "labels"); len(templateLabels) > 0 {
-		labelsAny := make(map[string]any, len(templateLabels))
+	// --- Add back only what we need ---
+	rs.SetLabels(labels)
+	rs.SetAnnotations(newAnnotations)
+
+	_ = unstructured.SetNestedField(rs.Object, replicas, "spec", "replicas")
+	_ = unstructured.SetNestedSlice(rs.Object, newContainers, "spec", "template", "spec", "containers")
+	if len(volumes) > 0 {
+		_ = unstructured.SetNestedSlice(rs.Object, volumes, "spec", "template", "spec", "volumes")
+	}
+	if len(templateLabels) > 0 {
+		templateLabelsAny := make(map[string]any, len(templateLabels))
 		for k, v := range templateLabels {
-			labelsAny[k] = v
+			templateLabelsAny[k] = v
 		}
-		templateMeta["labels"] = labelsAny
+		_ = unstructured.SetNestedMap(rs.Object, templateLabelsAny, "spec", "template", "metadata", "labels")
+	}
+	if len(ownerRefs) > 0 {
+		_ = unstructured.SetNestedSlice(rs.Object, ownerRefs, "metadata", "ownerReferences")
 	}
 
-	template := map[string]any{
-		"spec": templateSpec,
-	}
-	if len(templateMeta) > 0 {
-		template["metadata"] = templateMeta
-	}
-	newSpec["template"] = template
+	_ = unstructured.SetNestedField(rs.Object, statusReplicas, "status", "replicas")
+	_ = unstructured.SetNestedField(rs.Object, readyReplicas, "status", "readyReplicas")
 
-	// status - just the replica counters
-	newStatus := map[string]any{}
-	if v, found, _ := unstructured.NestedInt64(src, "status", "replicas"); found {
-		newStatus["replicas"] = v
-	}
-	if v, found, _ := unstructured.NestedInt64(src, "status", "readyReplicas"); found {
-		newStatus["readyReplicas"] = v
-	}
-
-	newObj := map[string]any{
-		"apiVersion": src["apiVersion"],
-		"kind":       src["kind"],
-		"metadata":   newMeta,
-		"spec":       newSpec,
-		"status":     newStatus,
-	}
-	rs.Object = newObj
 	return rs, nil
 }

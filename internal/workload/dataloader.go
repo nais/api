@@ -3,6 +3,7 @@ package workload
 import (
 	"context"
 	"fmt"
+	"slices"
 
 	"github.com/nais/api/internal/kubernetes/watcher"
 	corev1 "k8s.io/api/core/v1"
@@ -38,82 +39,66 @@ func newLoaders(podWatcher *watcher.Watcher[*corev1.Pod]) *loaders {
 }
 
 func transformPod(in any) (any, error) {
+	fieldsToRemove := [][]string{
+		{"spec"},
+		{"status"},
+		{"metadata", "generateName"},
+		{"metadata", "annotations"},
+		{"metadata", "managedFields"},
+		{"status", "initContainerStatuses"},
+	}
+
+	labelsToKeep := []string{
+		"app",
+		"team",
+		"job-name",
+	}
+
 	pod := in.(*unstructured.Unstructured)
-	src := pod.Object
 
-	// metadata
-	srcMeta, _ := src["metadata"].(map[string]any)
-	newMeta := map[string]any{}
-	if srcMeta != nil {
-		for _, k := range []string{"name", "namespace", "uid", "resourceVersion", "creationTimestamp"} {
-			if v, ok := srcMeta[k]; ok {
-				newMeta[k] = v
-			}
-		}
-	}
-
-	// metadata.labels - keep only "app", "team", "job-name"
-	if labels, _, _ := unstructured.NestedStringMap(src, "metadata", "labels"); len(labels) > 0 {
-		kept := map[string]any{}
-		for _, k := range []string{"app", "team", "job-name"} {
-			if v, ok := labels[k]; ok {
-				kept[k] = v
-			}
-		}
-		if len(kept) > 0 {
-			newMeta["labels"] = kept
-		}
-	}
-
-	// metadata.ownerReferences - kept verbatim (links pods to their ReplicaSet
-	// for instance group matching). NestedSlice already deep-copies.
-	if ownerRefs, _, _ := unstructured.NestedSlice(src, "metadata", "ownerReferences"); len(ownerRefs) > 0 {
-		newMeta["ownerReferences"] = ownerRefs
-	}
-
-	// spec.containers - keep name + image only
-	containers, _, err := unstructured.NestedSlice(src, "spec", "containers")
+	// Getting data to keep
+	containers, _, err := unstructured.NestedSlice(pod.Object, "spec", "containers")
 	if err != nil {
 		return nil, err
 	}
-	newContainers := make([]any, 0, len(containers))
+
+	newContainers := []any{}
 	for _, container := range containers {
 		c, ok := container.(map[string]any)
 		if !ok {
 			return nil, fmt.Errorf("container is not a map[string]any")
 		}
-		newC := map[string]any{}
-		if v, ok := c["name"]; ok {
-			newC["name"] = v
+		img, _, err := unstructured.NestedString(c, "image")
+		if err != nil {
+			return nil, err
 		}
-		if v, ok := c["image"]; ok {
-			newC["image"] = v
-		}
-		newContainers = append(newContainers, newC)
+		newContainers = append(newContainers, map[string]any{
+			"name":  c["name"],
+			"image": img,
+		})
 	}
 
-	// status.containerStatuses - kept verbatim. NestedSlice already deep-copies.
-	containerStatuses, _, err := unstructured.NestedSlice(src, "status", "containerStatuses")
+	containerStatuses, _, err := unstructured.NestedSlice(pod.Object, "status", "containerStatuses")
 	if err != nil {
 		return nil, err
 	}
 
-	newSpec := map[string]any{
-		"containers": newContainers,
+	// Removing data
+	for _, field := range fieldsToRemove {
+		unstructured.RemoveNestedField(pod.Object, field...)
 	}
 
-	newStatus := map[string]any{}
-	if len(containerStatuses) > 0 {
-		newStatus["containerStatuses"] = containerStatuses
+	labels := pod.GetLabels()
+	for k := range labels {
+		if !slices.Contains(labelsToKeep, k) {
+			delete(labels, k)
+		}
 	}
+	pod.SetLabels(labels)
 
-	newObj := map[string]any{
-		"apiVersion": src["apiVersion"],
-		"kind":       src["kind"],
-		"metadata":   newMeta,
-		"spec":       newSpec,
-		"status":     newStatus,
-	}
-	pod.Object = newObj
+	// Adding data back
+	_ = unstructured.SetNestedSlice(pod.Object, newContainers, "spec", "containers")
+	_ = unstructured.SetNestedSlice(pod.Object, containerStatuses, "status", "containerStatuses")
+
 	return pod, nil
 }

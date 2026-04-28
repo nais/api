@@ -3,7 +3,6 @@ package watcher
 import (
 	"context"
 	"fmt"
-	"iter"
 	"slices"
 	"strings"
 
@@ -139,31 +138,27 @@ func (w *Watcher[T]) update(cluster string, obj T) {
 	}).Debug("Updating object")
 }
 
-// All yields every object across every cluster. Iteration order matches the
-// order of the underlying informer listers and is not stable across calls.
-func (w *Watcher[T]) All() iter.Seq[*EnvironmentWrapper[T]] {
-	return func(yield func(*EnvironmentWrapper[T]) bool) {
-		for _, wat := range w.watchers {
-			objs, err := wat.informer.Lister().List(labels.Everything())
-			if err != nil {
-				w.log.WithError(err).Error("listing objects")
-				continue
-			}
+func (w *Watcher[T]) All() []*EnvironmentWrapper[T] {
+	ret := make([]*EnvironmentWrapper[T], 0)
+	for _, wat := range w.watchers {
+		objs, err := wat.informer.Lister().List(labels.Everything())
+		if err != nil {
+			w.log.WithError(err).Error("listing objects")
+			continue
+		}
 
-			for _, obj := range objs {
-				o, ok := wat.convert(obj.(*unstructured.Unstructured))
-				if !ok {
-					continue
-				}
-				if !yield(&EnvironmentWrapper[T]{
+		for _, obj := range objs {
+			if o, ok := wat.convert(obj.(*unstructured.Unstructured)); ok {
+				ret = append(ret, &EnvironmentWrapper[T]{
 					Obj:     o,
 					Cluster: wat.cluster,
-				}) {
-					return
-				}
+				})
 			}
 		}
+
 	}
+
+	return ret
 }
 
 func (w *Watcher[T]) Get(cluster, namespace, name string) (T, error) {
@@ -197,22 +192,7 @@ func (w *Watcher[T]) Get(cluster, namespace, name string) (T, error) {
 	}
 }
 
-// GetByCluster returns every object in the given cluster matching the
-// provided filters as a freshly allocated, name-sorted slice.
-//
-// Prefer IterByCluster for hot paths.
 func (w *Watcher[T]) GetByCluster(cluster string, filter ...Filter) []*EnvironmentWrapper[T] {
-	ret := slices.Collect(w.IterByCluster(cluster, filter...))
-	slices.SortFunc(ret, func(i, j *EnvironmentWrapper[T]) int {
-		return strings.Compare(i.GetName(), j.GetName())
-	})
-	return ret
-}
-
-// IterByCluster yields every object in the given cluster matching the
-// provided filters. Iteration order is unspecified; callers that need
-// deterministic ordering should sort the collected result themselves.
-func (w *Watcher[T]) IterByCluster(cluster string, filter ...Filter) iter.Seq[*EnvironmentWrapper[T]] {
 	opts := &filterOptions{
 		labels: labels.Everything(),
 	}
@@ -220,54 +200,41 @@ func (w *Watcher[T]) IterByCluster(cluster string, filter ...Filter) iter.Seq[*E
 		f(opts)
 	}
 
-	return func(yield func(*EnvironmentWrapper[T]) bool) {
-		for _, wat := range w.watchers {
-			if wat.cluster != cluster {
-				continue
-			}
+	// return w.datastore.GetByCluster(cluster, filter...)
+	ret := make([]*EnvironmentWrapper[T], 0)
+	for _, wat := range w.watchers {
+		if wat.cluster != cluster {
+			continue
+		}
 
-			objs, err := wat.informer.Lister().List(opts.labels)
-			if err != nil {
-				w.log.WithError(err).Error("listing objects")
-				continue
-			}
+		objs, err := wat.informer.Lister().List(opts.labels)
+		if err != nil {
+			w.log.WithError(err).Error("listing objects")
+			continue
+		}
 
-			for _, obj := range objs {
-				uo := obj.(*unstructured.Unstructured)
+		for _, obj := range objs {
+			uo := obj.(*unstructured.Unstructured)
+			if o, ok := wat.convert(uo); ok {
 				if opts.withoutDeleted && uo.GetDeletionTimestamp() != nil {
 					continue
 				}
-				o, ok := wat.convert(uo)
-				if !ok {
-					continue
-				}
-				if !yield(&EnvironmentWrapper[T]{
+				ret = append(ret, &EnvironmentWrapper[T]{
 					Obj:     o,
 					Cluster: wat.cluster,
-				}) {
-					return
-				}
+				})
 			}
 		}
 	}
+
+	slices.SortFunc(ret, func(i, j *EnvironmentWrapper[T]) int {
+		return strings.Compare(i.GetName(), j.GetName())
+	})
+
+	return ret
 }
 
-// GetByNamespace returns every object in the given namespace (across the
-// clusters allowed by the filter) as a freshly allocated, name-sorted slice.
-//
-// Prefer IterByNamespace for hot paths.
 func (w *Watcher[T]) GetByNamespace(namespace string, filter ...Filter) []*EnvironmentWrapper[T] {
-	ret := slices.Collect(w.IterByNamespace(namespace, filter...))
-	slices.SortFunc(ret, func(i, j *EnvironmentWrapper[T]) int {
-		return strings.Compare(i.GetName(), j.GetName())
-	})
-	return ret
-}
-
-// IterByNamespace yields every object in the given namespace matching the
-// provided filters. Iteration order is unspecified; callers that need
-// deterministic ordering should sort the collected result themselves.
-func (w *Watcher[T]) IterByNamespace(namespace string, filter ...Filter) iter.Seq[*EnvironmentWrapper[T]] {
 	opts := &filterOptions{
 		labels: labels.Everything(),
 	}
@@ -275,36 +242,38 @@ func (w *Watcher[T]) IterByNamespace(namespace string, filter ...Filter) iter.Se
 		f(opts)
 	}
 
-	return func(yield func(*EnvironmentWrapper[T]) bool) {
-		for _, wat := range w.watchers {
-			if len(opts.clusters) > 0 && !slices.Contains(opts.clusters, wat.cluster) {
-				continue
-			}
+	// return w.datastore.GetByNamespace(namespace, filter...)
+	ret := make([]*EnvironmentWrapper[T], 0)
+	for _, wat := range w.watchers {
+		if len(opts.clusters) > 0 && !slices.Contains(opts.clusters, wat.cluster) {
+			continue
+		}
 
-			objs, err := wat.informer.Lister().ByNamespace(namespace).List(opts.labels)
-			if err != nil {
-				w.log.WithError(err).Error("listing objects")
-				continue
-			}
+		objs, err := wat.informer.Lister().ByNamespace(namespace).List(opts.labels)
+		if err != nil {
+			w.log.WithError(err).Error("listing objects")
+			continue
+		}
 
-			for _, obj := range objs {
-				uo := obj.(*unstructured.Unstructured)
+		for _, obj := range objs {
+			uo := obj.(*unstructured.Unstructured)
+			if o, ok := wat.convert(uo); ok {
 				if opts.withoutDeleted && uo.GetDeletionTimestamp() != nil {
 					continue
 				}
-				o, ok := wat.convert(uo)
-				if !ok {
-					continue
-				}
-				if !yield(&EnvironmentWrapper[T]{
+				ret = append(ret, &EnvironmentWrapper[T]{
 					Obj:     o,
 					Cluster: wat.cluster,
-				}) {
-					return
-				}
+				})
 			}
 		}
 	}
+
+	slices.SortFunc(ret, func(i, j *EnvironmentWrapper[T]) int {
+		return strings.Compare(i.GetName(), j.GetName())
+	})
+
+	return ret
 }
 
 func (w *Watcher[T]) Delete(ctx context.Context, cluster, namespace string, name string) error {
