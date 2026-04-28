@@ -63,7 +63,7 @@ type ResolverRoot interface {
 	CVE() CVEResolver
 	Config() ConfigResolver
 	ContainerImage() ContainerImageResolver
-	ContainerImageSbom() ContainerImageSbomResolver
+	ContainerImageSBOM() ContainerImageSBOMResolver
 	ContainerImageWorkloadReference() ContainerImageWorkloadReferenceResolver
 	CurrentUnitPrices() CurrentUnitPricesResolver
 	DeleteApplicationPayload() DeleteApplicationPayloadResolver
@@ -572,8 +572,7 @@ type ComplexityRoot struct {
 		WorkloadReferences   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 	}
 
-	ContainerImageSbom struct {
-		HasSbom             func(childComplexity int) int
+	ContainerImageSBOM struct {
 		ID                  func(childComplexity int) int
 		ProcessingStartedAt func(childComplexity int) int
 		Status              func(childComplexity int) int
@@ -3253,12 +3252,6 @@ type ComplexityRoot struct {
 		Memory func(childComplexity int) int
 	}
 
-	WorkloadSbomSummary struct {
-		HasSbom             func(childComplexity int) int
-		ProcessingStartedAt func(childComplexity int) int
-		Status              func(childComplexity int) int
-	}
-
 	WorkloadUtilization struct {
 		Current         func(childComplexity int, resourceType utilization.UtilizationResourceType) int
 		Limit           func(childComplexity int, resourceType utilization.UtilizationResourceType) int
@@ -3282,8 +3275,8 @@ type ComplexityRoot struct {
 	}
 
 	WorkloadVulnerabilitySummary struct {
+		HasSbom  func(childComplexity int) int
 		ID       func(childComplexity int) int
-		Sbom     func(childComplexity int) int
 		Summary  func(childComplexity int) int
 		Workload func(childComplexity int) int
 	}
@@ -5242,33 +5235,26 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ContainerImage.WorkloadReferences(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
 
-	case "ContainerImageSbom.hasSbom":
-		if e.ComplexityRoot.ContainerImageSbom.HasSbom == nil {
+	case "ContainerImageSBOM.id":
+		if e.ComplexityRoot.ContainerImageSBOM.ID == nil {
 			break
 		}
 
-		return e.ComplexityRoot.ContainerImageSbom.HasSbom(childComplexity), true
+		return e.ComplexityRoot.ContainerImageSBOM.ID(childComplexity), true
 
-	case "ContainerImageSbom.id":
-		if e.ComplexityRoot.ContainerImageSbom.ID == nil {
+	case "ContainerImageSBOM.processingStartedAt":
+		if e.ComplexityRoot.ContainerImageSBOM.ProcessingStartedAt == nil {
 			break
 		}
 
-		return e.ComplexityRoot.ContainerImageSbom.ID(childComplexity), true
+		return e.ComplexityRoot.ContainerImageSBOM.ProcessingStartedAt(childComplexity), true
 
-	case "ContainerImageSbom.processingStartedAt":
-		if e.ComplexityRoot.ContainerImageSbom.ProcessingStartedAt == nil {
+	case "ContainerImageSBOM.status":
+		if e.ComplexityRoot.ContainerImageSBOM.Status == nil {
 			break
 		}
 
-		return e.ComplexityRoot.ContainerImageSbom.ProcessingStartedAt(childComplexity), true
-
-	case "ContainerImageSbom.status":
-		if e.ComplexityRoot.ContainerImageSbom.Status == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ContainerImageSbom.Status(childComplexity), true
+		return e.ComplexityRoot.ContainerImageSBOM.Status(childComplexity), true
 
 	case "ContainerImageWorkloadReference.workload":
 		if e.ComplexityRoot.ContainerImageWorkloadReference.Workload == nil {
@@ -17017,27 +17003,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.WorkloadResourceQuantity.Memory(childComplexity), true
 
-	case "WorkloadSbomSummary.hasSbom":
-		if e.ComplexityRoot.WorkloadSbomSummary.HasSbom == nil {
-			break
-		}
-
-		return e.ComplexityRoot.WorkloadSbomSummary.HasSbom(childComplexity), true
-
-	case "WorkloadSbomSummary.processingStartedAt":
-		if e.ComplexityRoot.WorkloadSbomSummary.ProcessingStartedAt == nil {
-			break
-		}
-
-		return e.ComplexityRoot.WorkloadSbomSummary.ProcessingStartedAt(childComplexity), true
-
-	case "WorkloadSbomSummary.status":
-		if e.ComplexityRoot.WorkloadSbomSummary.Status == nil {
-			break
-		}
-
-		return e.ComplexityRoot.WorkloadSbomSummary.Status(childComplexity), true
-
 	case "WorkloadUtilization.current":
 		if e.ComplexityRoot.WorkloadUtilization.Current == nil {
 			break
@@ -17159,19 +17124,19 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.WorkloadUtilizationRecommendations.MemoryRequestBytes(childComplexity), true
 
+	case "WorkloadVulnerabilitySummary.hasSBOM":
+		if e.ComplexityRoot.WorkloadVulnerabilitySummary.HasSbom == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadVulnerabilitySummary.HasSbom(childComplexity), true
+
 	case "WorkloadVulnerabilitySummary.id":
 		if e.ComplexityRoot.WorkloadVulnerabilitySummary.ID == nil {
 			break
 		}
 
 		return e.ComplexityRoot.WorkloadVulnerabilitySummary.ID(childComplexity), true
-
-	case "WorkloadVulnerabilitySummary.sbom":
-		if e.ComplexityRoot.WorkloadVulnerabilitySummary.Sbom == nil {
-			break
-		}
-
-		return e.ComplexityRoot.WorkloadVulnerabilitySummary.Sbom(childComplexity), true
 
 	case "WorkloadVulnerabilitySummary.summary":
 		if e.ComplexityRoot.WorkloadVulnerabilitySummary.Summary == nil {
@@ -27938,15 +27903,12 @@ type ImageVulnerabilityHistory {
 SBOM metadata for a container image, including pipeline status and processing
 information. This type is accessed through ContainerImage.sbom.
 """
-type ContainerImageSbom implements Node {
+type ContainerImageSBOM implements Node {
 	"The globally unique ID of the container image SBOM node."
 	id: ID!
 
 	"The SBOM pipeline status."
-	status: SbomStatus!
-
-	"Whether the image has a software bill of materials (SBOM) attached to it."
-	hasSbom: Boolean!
+	status: SBOMStatus!
 
 	"""
 	The timestamp when SBOM processing started for this image.
@@ -27957,7 +27919,7 @@ type ContainerImageSbom implements Node {
 
 extend type ContainerImage {
 	"SBOM pipeline status and processing information for this image."
-	sbom: ContainerImageSbom!
+	sbom: ContainerImageSBOM!
 
 	"Get the vulnerabilities of the image."
 	vulnerabilities(
@@ -28303,17 +28265,6 @@ enum ImageVulnerabilityOrderField {
 SBOM metadata for a workload, including pipeline status and processing
 information. Accessed through WorkloadVulnerabilitySummary.
 """
-type WorkloadSbomSummary {
-	"The SBOM pipeline status for this workload."
-	status: SbomStatus!
-
-	"Whether the workload has a software bill of materials (SBOM) attached."
-	hasSbom: Boolean!
-
-	"The timestamp when SBOM processing started for this workload. Useful as a progress indicator when status is PROCESSING."
-	processingStartedAt: Time
-}
-
 type WorkloadVulnerabilitySummary implements Node {
 	"The globally unique ID of the workload vulnerability summary node."
 	id: ID!
@@ -28321,11 +28272,12 @@ type WorkloadVulnerabilitySummary implements Node {
 	"The workload"
 	workload: Workload!
 
-	"SBOM metadata for this workload, including pipeline status and processing information."
-	sbom: WorkloadSbomSummary!
+	"True if the workload has a software bill of materials (SBOM) attached."
+	hasSBOM: Boolean!
+		@deprecated(reason: "Use workload { image { sbom { status } } } to check SBOM status.")
 
-	"The vulnerability summary for the workload. Null when SBOM status is not READY (e.g. PROCESSING, NO_SBOM, FAILED)."
-	summary: ImageVulnerabilitySummary
+	"The vulnerability summary for the workload."
+	summary: ImageVulnerabilitySummary!
 }
 
 """
@@ -28567,7 +28519,7 @@ type VulnerabilityFixSample {
 }
 
 "The SBOM pipeline status for an image or workload."
-enum SbomStatus {
+enum SBOMStatus {
 	"SBOM generation is in progress."
 	PROCESSING
 
