@@ -51,14 +51,6 @@ func newLoaders(appWatcher *watcher.Watcher[*nais_io_v1alpha1.Application], ingr
 	}
 }
 
-// transformIngress strips unnecessary fields from Ingresses, keeping only
-// what the API actually reads: identity metadata, app/team labels,
-// spec.ingressClassName and the host of each rule.
-//
-// The transform builds a fresh, minimal map[string]any and assigns it to
-// ingress.Object directly. This avoids the double deep-copy that
-// SetNestedField/SetNestedSlice perform via DeepCopyJSONValue on top of the
-// deep copy that NestedSlice already returned.
 func transformIngress(in any) (any, error) {
 	ingress := in.(*unstructured.Unstructured)
 	src := ingress.Object

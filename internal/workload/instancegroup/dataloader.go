@@ -59,11 +59,6 @@ func (l *loaders) k8sClient(environmentName string) (dynamic.Interface, error) {
 // transformReplicaSet strips unnecessary fields from ReplicaSets but keeps
 // the data we need: labels, annotations (revision), replicas, pod template
 // (containers with env/envFrom/volumeMounts/image, volumes).
-//
-// The transform builds a fresh, minimal map[string]any and assigns it to
-// rs.Object directly. This avoids the double deep-copy that
-// SetNestedField/SetNestedSlice/SetNestedMap perform via DeepCopyJSONValue
-// on top of the deep copy that NestedSlice/NestedStringMap already returned.
 func transformReplicaSet(in any) (any, error) {
 	rs := in.(*unstructured.Unstructured)
 	src := rs.Object
