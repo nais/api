@@ -50,7 +50,7 @@ func transformJob(in any) (any, error) {
 	srcMeta, _ := src["metadata"].(map[string]any)
 	newMeta := map[string]any{}
 	if srcMeta != nil {
-		for _, k := range []string{"name", "namespace", "uid", "resourceVersion"} {
+		for _, k := range []string{"name", "namespace", "uid", "resourceVersion", "creationTimestamp"} {
 			if v, ok := srcMeta[k]; ok {
 				newMeta[k] = v
 			}
@@ -70,8 +70,22 @@ func transformJob(in any) (any, error) {
 		}
 	}
 
-	// spec.containers - keep name + image only
-	containers, _, err := unstructured.NestedSlice(src, "spec", "containers")
+	// metadata.annotations - keep only annotations needed by JobRun.trigger()
+	// to detect manual triggers and the actor that started them.
+	if annotations, _, _ := unstructured.NestedStringMap(src, "metadata", "annotations"); len(annotations) > 0 {
+		kept := map[string]any{}
+		for _, k := range []string{"cronjob.kubernetes.io/instantiate", "nais.io/instantiated-by"} {
+			if v, ok := annotations[k]; ok {
+				kept[k] = v
+			}
+		}
+		if len(kept) > 0 {
+			newMeta["annotations"] = kept
+		}
+	}
+
+	// spec.template.spec.containers - keep name + image only.
+	containers, _, err := unstructured.NestedSlice(src, "spec", "template", "spec", "containers")
 	if err != nil {
 		return nil, err
 	}
@@ -91,13 +105,26 @@ func transformJob(in any) (any, error) {
 		newContainers = append(newContainers, newC)
 	}
 
+	newSpec := map[string]any{
+		"template": map[string]any{
+			"spec": map[string]any{
+				"containers": newContainers,
+			},
+		},
+	}
+
+	if v, found, _ := unstructured.NestedInt64(src, "spec", "completions"); found {
+		newSpec["completions"] = v
+	}
+	if v, found, _ := unstructured.NestedInt64(src, "spec", "parallelism"); found {
+		newSpec["parallelism"] = v
+	}
+
 	newObj := map[string]any{
 		"apiVersion": src["apiVersion"],
 		"kind":       src["kind"],
 		"metadata":   newMeta,
-		"spec": map[string]any{
-			"containers": newContainers,
-		},
+		"spec":       newSpec,
 	}
 	// status is read whole by JobRun resolvers - preserve it as-is.
 	if status, ok := src["status"]; ok {
