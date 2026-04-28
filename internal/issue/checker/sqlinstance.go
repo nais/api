@@ -73,7 +73,7 @@ func (s SQLInstance) instances(ctx context.Context) map[*sqlinstance.SQLInstance
 	var mu sync.Mutex
 	sem := make(chan struct{}, runtime.NumCPU())
 
-	for _, instance := range s.SQLInstanceWatcher.All() {
+	for instance := range s.SQLInstanceWatcher.All() {
 		wg.Add(1)
 		go func(instance *sqlinstance.SQLInstance) {
 			defer wg.Done()

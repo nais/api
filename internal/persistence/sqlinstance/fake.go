@@ -57,10 +57,8 @@ func (f FakeGoogleAPI) ListTimeSeries(_ context.Context, request *monitoringpb.L
 		return f.aggregatedTimeSeries(request)
 	}
 
-	instances := f.instances.All()
-
 	timeSeries := make([]*monitoringpb.TimeSeries, 0)
-	for _, instance := range instances {
+	for instance := range f.instances.All() {
 		ts := &monitoringpb.TimeSeries{
 			Metric:    &metric.Metric{},
 			Points:    make([]*monitoringpb.Point, 0),
@@ -187,9 +185,8 @@ func (f FakeGoogleAPI) sqlAdminAPI() RoundTripFunc {
 
 		case "instances":
 			instances := make([]*sqladmin.DatabaseInstance, 0)
-			inst := f.instances.All()
 
-			for _, i := range inst {
+			for i := range f.instances.All() {
 				instances = append(instances, &sqladmin.DatabaseInstance{Name: i.Obj.Name, State: "RUNNABLE", Project: projectID})
 			}
 			resp = &sqladmin.InstancesListResponse{

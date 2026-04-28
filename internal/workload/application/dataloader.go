@@ -3,7 +3,6 @@ package application
 import (
 	"context"
 	"fmt"
-	"slices"
 
 	"github.com/nais/api/internal/kubernetes/watcher"
 	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
@@ -53,60 +52,62 @@ func newLoaders(appWatcher *watcher.Watcher[*nais_io_v1alpha1.Application], ingr
 }
 
 func transformIngress(in any) (any, error) {
-	fieldsToRemove := [][]string{
-		{"spec"},
-		{"status"},
-		{"metadata", "creationTimestamp"},
-		{"metadata", "generateName"},
-		{"metadata", "ownerReferences"},
-		{"metadata", "annotations"},
-		{"metadata", "managedFields"},
-		{"status", "initContainerStatuses"},
-	}
-
-	labelsToKeep := []string{
-		"app",
-		"team",
-	}
-
 	ingress := in.(*unstructured.Unstructured)
-	// Getting data to keep
-	rules, _, err := unstructured.NestedSlice(ingress.Object, "spec", "rules")
+	src := ingress.Object
+
+	// metadata
+	srcMeta, _ := src["metadata"].(map[string]any)
+	newMeta := map[string]any{}
+	if srcMeta != nil {
+		for _, k := range []string{"name", "namespace", "uid", "resourceVersion"} {
+			if v, ok := srcMeta[k]; ok {
+				newMeta[k] = v
+			}
+		}
+	}
+
+	// metadata.labels - keep only "app" and "team"
+	if labels, _, _ := unstructured.NestedStringMap(src, "metadata", "labels"); len(labels) > 0 {
+		kept := map[string]any{}
+		for _, k := range []string{"app", "team"} {
+			if v, ok := labels[k]; ok {
+				kept[k] = v
+			}
+		}
+		if len(kept) > 0 {
+			newMeta["labels"] = kept
+		}
+	}
+
+	// spec.rules - keep only the Host field of each rule.
+	rules, _, err := unstructured.NestedSlice(src, "spec", "rules")
 	if err != nil {
 		return nil, err
 	}
-
-	ingressClassName, _, _ := unstructured.NestedString(ingress.Object, "spec", "ingressClassName")
-
-	// We only need to keep Host
-	newRules := []any{}
+	newRules := make([]any, 0, len(rules))
 	for _, rule := range rules {
 		r, ok := rule.(map[string]any)
 		if !ok {
 			return nil, fmt.Errorf("rule is not a map[string]any")
 		}
-		newRule := map[string]any{
+		newRules = append(newRules, map[string]any{
 			"host": r["host"],
-		}
-		newRules = append(newRules, newRule)
+		})
 	}
 
-	// Removing data
-	for _, field := range fieldsToRemove {
-		unstructured.RemoveNestedField(ingress.Object, field...)
+	newSpec := map[string]any{
+		"rules": newRules,
+	}
+	if ingressClassName, found, _ := unstructured.NestedString(src, "spec", "ingressClassName"); found {
+		newSpec["ingressClassName"] = ingressClassName
 	}
 
-	labels := ingress.GetLabels()
-	for k := range labels {
-		if !slices.Contains(labelsToKeep, k) {
-			delete(labels, k)
-		}
+	newObj := map[string]any{
+		"apiVersion": src["apiVersion"],
+		"kind":       src["kind"],
+		"metadata":   newMeta,
+		"spec":       newSpec,
 	}
-	ingress.SetLabels(labels)
-
-	// Adding data back
-	_ = unstructured.SetNestedSlice(ingress.Object, newRules, "spec", "rules")
-	_ = unstructured.SetNestedField(ingress.Object, ingressClassName, "spec", "ingressClassName")
-
+	ingress.Object = newObj
 	return ingress, nil
 }

@@ -43,9 +43,8 @@ func (k K8sSearch[T]) Convert(ctx context.Context, ids ...ident.Ident) ([]Search
 }
 
 func (k K8sSearch[T]) ReIndex(ctx context.Context) []Document {
-	objs := k.watcher.All()
-	docs := make([]Document, 0, len(objs))
-	for _, obj := range objs {
+	var docs []Document
+	for obj := range k.watcher.All() {
 		team := slug.Slug(obj.GetNamespace())
 
 		docs = append(docs, Document{

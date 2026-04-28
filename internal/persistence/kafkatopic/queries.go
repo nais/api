@@ -42,9 +42,9 @@ func ListAllForTeam(ctx context.Context, teamSlug slug.Slug) []*KafkaTopic {
 }
 
 func ListForWorkload(ctx context.Context, teamSlug slug.Slug, workloadName, poolName string, orderBy *KafkaTopicACLOrder) (*KafkaTopicACLConnection, error) {
-	topics := fromContext(ctx).watcher.All()
 	ret := make([]*KafkaTopicACL, 0)
-	for _, t := range watcher.Objects(topics) {
+	for topic := range fromContext(ctx).watcher.All() {
+		t := topic.Obj
 		if t.Pool != poolName {
 			continue
 		}
