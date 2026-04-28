@@ -24,7 +24,7 @@ import (
 
 type ContainerImageResolver interface {
 	ActivityLog(ctx context.Context, obj *workload.ContainerImage, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*pagination.Connection[activitylog.ActivityLogEntry], error)
-	Sbom(ctx context.Context, obj *workload.ContainerImage) (*vulnerability.ContainerImageSbom, error)
+	Sbom(ctx context.Context, obj *workload.ContainerImage) (*vulnerability.ContainerImageSBOM, error)
 	Vulnerabilities(ctx context.Context, obj *workload.ContainerImage, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *vulnerability.ImageVulnerabilityFilter, orderBy *vulnerability.ImageVulnerabilityOrder) (*pagination.Connection[*vulnerability.ImageVulnerability], error)
 	VulnerabilitySummary(ctx context.Context, obj *workload.ContainerImage) (*vulnerability.ImageVulnerabilitySummary, error)
 	WorkloadReferences(ctx context.Context, obj *workload.ContainerImage, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*vulnerability.ContainerImageWorkloadReference], error)
@@ -281,7 +281,7 @@ func (ec *executionContext) _ContainerImage_sbom(ctx context.Context, field grap
 			return ec.Resolvers.ContainerImage().Sbom(ctx, obj)
 		},
 		nil,
-		ec.marshalNContainerImageSbom2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐContainerImageSbom,
+		ec.marshalNContainerImageSBOM2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐContainerImageSBOM,
 		true,
 		true,
 	)
@@ -296,15 +296,13 @@ func (ec *executionContext) fieldContext_ContainerImage_sbom(_ context.Context, 
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
-				return ec.fieldContext_ContainerImageSbom_id(ctx, field)
+				return ec.fieldContext_ContainerImageSBOM_id(ctx, field)
 			case "status":
-				return ec.fieldContext_ContainerImageSbom_status(ctx, field)
-			case "hasSbom":
-				return ec.fieldContext_ContainerImageSbom_hasSbom(ctx, field)
+				return ec.fieldContext_ContainerImageSBOM_status(ctx, field)
 			case "processingStartedAt":
-				return ec.fieldContext_ContainerImageSbom_processingStartedAt(ctx, field)
+				return ec.fieldContext_ContainerImageSBOM_processingStartedAt(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type ContainerImageSbom", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type ContainerImageSBOM", field.Name)
 		},
 	}
 	return fc, nil
