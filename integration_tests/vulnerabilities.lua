@@ -54,10 +54,11 @@ Test.gql("List vulnerability summaries for team", function(t)
 				  nodes{
 					image{
 					  name
-				  sbom {
-					status
-					processingStartedAt
-				  }
+			  sbom {
+				status
+				processingStartedAt
+				hasSBOM
+			  }
 					  vulnerabilitySummary{
 						total
 						critical
@@ -82,10 +83,11 @@ Test.gql("List vulnerability summaries for team", function(t)
 						{
 							image = {
 								name = "europe-north1-docker.pkg.dev/nais/navikt/app-name",
-								sbom = {
-									status = "READY",
-									processingStartedAt = Null,
-								},
+							sbom = {
+								status = "READY",
+								processingStartedAt = Null,
+								hasSBOM = true,
+							},
 								vulnerabilitySummary = {
 									total = NotNull(),
 									critical = NotNull(),
@@ -181,10 +183,11 @@ Test.gql("List workload vulnerability summaries with sbom sub-type", function(t)
 					nodes {
 						workload {
 							image {
-								sbom {
-									status
-									processingStartedAt
-								}
+							sbom {
+								status
+								processingStartedAt
+								hasSBOM
+							}
 							}
 						}
 					}
@@ -201,10 +204,11 @@ Test.gql("List workload vulnerability summaries with sbom sub-type", function(t)
 						{
 							workload = {
 								image = {
-									sbom = {
-										status = NotNull(),
-										processingStartedAt = Null,
-									},
+								sbom = {
+									status = NotNull(),
+									processingStartedAt = Null,
+									hasSBOM = NotNull(),
+								},
 								},
 							},
 						},

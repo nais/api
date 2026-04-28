@@ -299,6 +299,8 @@ func (ec *executionContext) fieldContext_ContainerImage_sbom(_ context.Context, 
 				return ec.fieldContext_ContainerImageSBOM_id(ctx, field)
 			case "status":
 				return ec.fieldContext_ContainerImageSBOM_status(ctx, field)
+			case "hasSBOM":
+				return ec.fieldContext_ContainerImageSBOM_hasSBOM(ctx, field)
 			case "processingStartedAt":
 				return ec.fieldContext_ContainerImageSBOM_processingStartedAt(ctx, field)
 			}

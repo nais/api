@@ -573,6 +573,7 @@ type ComplexityRoot struct {
 	}
 
 	ContainerImageSBOM struct {
+		HasSbom             func(childComplexity int) int
 		ID                  func(childComplexity int) int
 		ProcessingStartedAt func(childComplexity int) int
 		Status              func(childComplexity int) int
@@ -5234,6 +5235,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ContainerImage.WorkloadReferences(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
+
+	case "ContainerImageSBOM.hasSBOM":
+		if e.ComplexityRoot.ContainerImageSBOM.HasSbom == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ContainerImageSBOM.HasSbom(childComplexity), true
 
 	case "ContainerImageSBOM.id":
 		if e.ComplexityRoot.ContainerImageSBOM.ID == nil {
@@ -27909,6 +27917,12 @@ type ContainerImageSBOM implements Node {
 
 	"The SBOM pipeline status."
 	status: SBOMStatus!
+
+	"""
+	Whether the image has a software bill of materials (SBOM) attached to it.
+	"""
+	hasSBOM: Boolean!
+		@deprecated(reason: "Use status == READY to check if an SBOM is attached.")
 
 	"""
 	The timestamp when SBOM processing started for this image.
