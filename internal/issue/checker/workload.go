@@ -37,8 +37,7 @@ type Workload struct {
 
 func (w Workload) Run(ctx context.Context) ([]Issue, error) {
 	var ret []Issue
-	w.AppWatcher.All()
-	for _, app := range w.AppWatcher.All() {
+	for app := range w.AppWatcher.All() {
 		image, ok := image(app.Obj)
 		if !ok {
 			w.log.WithField("application", app.Obj.GetName()).WithField("namespace", app.Obj.GetNamespace()).Warn("application has no image")
@@ -50,12 +49,12 @@ func (w Workload) Run(ctx context.Context) ([]Issue, error) {
 
 		ret = appendIssues(ret, deprecatedIngress(app.Obj, env))
 		ret = appendIssues(ret, deprecatedRegistry(image, app.Obj.GetName(), app.Obj.GetNamespace(), env, issue.ResourceTypeApplication))
-		ret = appendIssues(ret, w.noRunningInstances(app.Obj, watcher.Objects(pods), app.Obj.GetNamespace(), env))
-		ret = appendIssues(ret, w.restartLoop(app.Obj, watcher.Objects(pods), app.Obj.GetNamespace(), env))
+		ret = appendIssues(ret, w.noRunningInstances(app.Obj, pods, app.Obj.GetNamespace(), env))
+		ret = appendIssues(ret, w.restartLoop(app.Obj, pods, app.Obj.GetNamespace(), env))
 		ret = appendIssues(ret, w.specErrors(app.Obj, env, issue.ResourceTypeApplication))
 	}
 
-	for _, job := range w.JobWatcher.All() {
+	for job := range w.JobWatcher.All() {
 		image, ok := image(job.Obj)
 		if !ok {
 			w.log.WithField("job", job.Obj.GetName()).WithField("namespace", job.Obj.GetNamespace()).Warn("job has no image")
@@ -72,18 +71,22 @@ func (w Workload) Run(ctx context.Context) ([]Issue, error) {
 	return ret, nil
 }
 
-// appPods fetches pods for the given application in the given namespace and environment.
-func (w Workload) appPods(app *nais_io_v1alpha1.Application, team, env string) []*watcher.EnvironmentWrapper[*v1.Pod] {
+func (w Workload) appPods(app *nais_io_v1alpha1.Application, team, env string) []*v1.Pod {
 	nameReq, err := labels.NewRequirement("app", selection.Equals, []string{app.Name})
 	if err != nil {
 		w.log.WithError(err).Error("create label requirement")
 		return nil
 	}
-	return w.PodWatcher.GetByNamespace(
+	podObjs := w.PodWatcher.GetByNamespace(
 		team,
 		watcher.WithLabels(labels.NewSelector().Add(*nameReq)),
 		watcher.InCluster(env),
 	)
+	pods := make([]*v1.Pod, len(podObjs))
+	for i, podObj := range podObjs {
+		pods[i] = podObj.Obj
+	}
+	return pods
 }
 
 // appendIssues appends issues to a slice, handling nil slices.

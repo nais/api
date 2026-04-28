@@ -565,7 +565,7 @@ func ListAllSlugs(ctx context.Context) ([]slug.Slug, error) {
 func NamespaceExists(ctx context.Context, teamSlug slug.Slug) bool {
 	watcher := fromContext(ctx).namespaceWatcher
 
-	for _, r := range watcher.All() {
+	for r := range watcher.All() {
 		if r.Obj.Name == teamSlug.String() {
 			return true
 		}

@@ -68,7 +68,7 @@ func (u Unleash) Run(ctx context.Context) ([]Issue, error) {
 
 	ret := make([]Issue, 0)
 
-	for _, instance := range u.UnleashWatcher.All() {
+	for instance := range u.UnleashWatcher.All() {
 		channelName := instance.Obj.ReleaseChannelName()
 
 		// Skip instances without a release channel (should not happen after migration)
