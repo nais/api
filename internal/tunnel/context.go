@@ -28,12 +28,6 @@ type Loaders struct {
 	tunnelWatcher *watcher.Watcher[*Tunnel]
 }
 
-func NewLoaderContext(ctx context.Context, tunnelWatcher *watcher.Watcher[*Tunnel]) context.Context {
-	return context.WithValue(ctx, loadersKey, &Loaders{
-		tunnelWatcher: tunnelWatcher,
-	})
-}
-
 func NewLoaders(tunnelWatcher *watcher.Watcher[*Tunnel]) *Loaders {
 	return &Loaders{
 		tunnelWatcher: tunnelWatcher,
