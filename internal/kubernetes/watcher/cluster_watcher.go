@@ -3,7 +3,6 @@ package watcher
 import (
 	"context"
 	"fmt"
-	"sync"
 
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/sirupsen/logrus"
@@ -34,19 +33,6 @@ type clusterWatcher[T Object] struct {
 	log           logrus.FieldLogger
 	converterFunc func(o *unstructured.Unstructured, environmentName string) (obj any, ok bool)
 	gvr           schema.GroupVersionResource
-
-	// convertCache memoizes the result of converting an unstructured object
-	// into the typed value T, keyed by "namespace/name". The entry stores
-	// the resourceVersion seen when the conversion was performed so we can
-	// invalidate stale entries when the object is updated. We don't use
-	// UID as the key because test fixtures may share UIDs across objects.
-	// Entries are removed in OnDelete.
-	convertCache sync.Map // map[string]*convertCacheEntry[T]
-}
-
-type convertCacheEntry[T Object] struct {
-	resourceVersion string
-	v               T
 }
 
 func newClusterWatcher[T Object](mgr *clusterManager, cluster string, watcher *Watcher[T], obj T, settings *watcherSettings, log logrus.FieldLogger) (*clusterWatcher[T], schema.GroupVersionResource) {
@@ -95,41 +81,6 @@ func (w *clusterWatcher[T]) convert(obj *unstructured.Unstructured) (T, bool) {
 		var def T
 		return def, false
 	}
-
-	key := obj.GetNamespace() + "/" + obj.GetName()
-	rv := obj.GetResourceVersion()
-
-	// Fast path: a previously converted value matching the current
-	// resourceVersion is still cached.
-	if key != "/" {
-		if raw, ok := w.convertCache.Load(key); ok {
-			entry := raw.(*convertCacheEntry[T])
-			if entry.resourceVersion == rv {
-				return entry.v, true
-			}
-		}
-	}
-
-	t, ok := w.convertOnce(obj)
-	if !ok {
-		// Drop any stale entry to avoid keeping bogus state around.
-		if key != "/" {
-			w.convertCache.Delete(key)
-		}
-		return t, false
-	}
-
-	if key != "/" {
-		w.convertCache.Store(key, &convertCacheEntry[T]{
-			resourceVersion: rv,
-			v:               t,
-		})
-	}
-	return t, true
-}
-
-// convertOnce performs the actual conversion without consulting the cache.
-func (w *clusterWatcher[T]) convertOnce(obj *unstructured.Unstructured) (T, bool) {
 	if w.converterFunc != nil {
 		o, ok := w.converterFunc(obj, w.cluster)
 		if !ok {
@@ -150,20 +101,6 @@ func (w *clusterWatcher[T]) convertOnce(obj *unstructured.Unstructured) (T, bool
 	return t, true
 }
 
-// evictConvertCache removes any cached conversion for the given object.
-// Called when an object is removed from the informer cache so the entry
-// doesn't linger.
-func (w *clusterWatcher[T]) evictConvertCache(obj *unstructured.Unstructured) {
-	if obj == nil {
-		return
-	}
-	key := obj.GetNamespace() + "/" + obj.GetName()
-	if key == "/" {
-		return
-	}
-	w.convertCache.Delete(key)
-}
-
 func (w *clusterWatcher[T]) OnAdd(obj any, isInInitialList bool) {
 	t, ok := w.convert(obj.(*unstructured.Unstructured))
 	if !ok {
@@ -173,12 +110,7 @@ func (w *clusterWatcher[T]) OnAdd(obj any, isInInitialList bool) {
 }
 
 func (w *clusterWatcher[T]) OnUpdate(oldObj, newObj any) {
-	u := newObj.(*unstructured.Unstructured)
-	// Always evict the cache on update: some clients (notably the fake
-	// dynamic client used in tests) don't bump resourceVersion on update,
-	// so we can't rely on the rv check in convert() to detect staleness.
-	w.evictConvertCache(u)
-	t, ok := w.convert(u)
+	t, ok := w.convert(newObj.(*unstructured.Unstructured))
 	if !ok {
 		return
 	}
@@ -198,10 +130,8 @@ func (w *clusterWatcher[T]) OnDelete(obj any) {
 	}
 	t, ok := w.convert(u)
 	if !ok {
-		w.evictConvertCache(u)
 		return
 	}
-	w.evictConvertCache(u)
 	w.watcher.remove(w.cluster, t)
 }
 

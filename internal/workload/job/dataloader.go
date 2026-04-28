@@ -3,6 +3,7 @@ package job
 import (
 	"context"
 	"fmt"
+	"slices"
 
 	"github.com/nais/api/internal/kubernetes/watcher"
 	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
@@ -43,93 +44,58 @@ type loaders struct {
 }
 
 func transformJob(in any) (any, error) {
+	fieldsToRemove := [][]string{
+		{"spec"},
+		{"metadata", "creationTimestamp"},
+		{"metadata", "generateName"},
+		{"metadata", "ownerReferences"},
+		{"metadata", "managedFields"},
+		{"status", "initContainerStatuses"},
+	}
+	labelsToKeep := []string{
+		"app",
+		"team",
+	}
+
 	job := in.(*unstructured.Unstructured)
-	src := job.Object
 
-	// metadata
-	srcMeta, _ := src["metadata"].(map[string]any)
-	newMeta := map[string]any{}
-	if srcMeta != nil {
-		for _, k := range []string{"name", "namespace", "uid", "resourceVersion", "creationTimestamp"} {
-			if v, ok := srcMeta[k]; ok {
-				newMeta[k] = v
-			}
-		}
-	}
-
-	// metadata.labels - keep only "app" and "team"
-	if labels, _, _ := unstructured.NestedStringMap(src, "metadata", "labels"); len(labels) > 0 {
-		kept := map[string]any{}
-		for _, k := range []string{"app", "team"} {
-			if v, ok := labels[k]; ok {
-				kept[k] = v
-			}
-		}
-		if len(kept) > 0 {
-			newMeta["labels"] = kept
-		}
-	}
-
-	// metadata.annotations - keep only annotations needed by JobRun.trigger()
-	// to detect manual triggers and the actor that started them.
-	if annotations, _, _ := unstructured.NestedStringMap(src, "metadata", "annotations"); len(annotations) > 0 {
-		kept := map[string]any{}
-		for _, k := range []string{"cronjob.kubernetes.io/instantiate", "nais.io/instantiated-by"} {
-			if v, ok := annotations[k]; ok {
-				kept[k] = v
-			}
-		}
-		if len(kept) > 0 {
-			newMeta["annotations"] = kept
-		}
-	}
-
-	// spec.template.spec.containers - keep name + image only.
-	containers, _, err := unstructured.NestedSlice(src, "spec", "template", "spec", "containers")
+	// Getting data to keep
+	containers, _, err := unstructured.NestedSlice(job.Object, "spec", "containers")
 	if err != nil {
 		return nil, err
 	}
-	newContainers := make([]any, 0, len(containers))
+
+	newContainers := []any{}
 	for _, container := range containers {
 		c, ok := container.(map[string]any)
 		if !ok {
 			return nil, fmt.Errorf("container is not a map[string]any")
 		}
-		newC := map[string]any{}
-		if v, ok := c["name"]; ok {
-			newC["name"] = v
+		img, _, err := unstructured.NestedString(c, "image")
+		if err != nil {
+			return nil, err
 		}
-		if v, ok := c["image"]; ok {
-			newC["image"] = v
+		newContainers = append(newContainers, map[string]any{
+			"name":  c["name"],
+			"image": img,
+		})
+	}
+
+	// Removing fields
+	for _, path := range fieldsToRemove {
+		unstructured.RemoveNestedField(job.Object, path...)
+	}
+
+	labels := job.GetLabels()
+	for k := range labels {
+		if !slices.Contains(labelsToKeep, k) {
+			delete(labels, k)
 		}
-		newContainers = append(newContainers, newC)
 	}
+	job.SetLabels(labels)
 
-	newSpec := map[string]any{
-		"template": map[string]any{
-			"spec": map[string]any{
-				"containers": newContainers,
-			},
-		},
-	}
+	// Adding data back
+	_ = unstructured.SetNestedSlice(job.Object, newContainers, "spec", "containers")
 
-	if v, found, _ := unstructured.NestedInt64(src, "spec", "completions"); found {
-		newSpec["completions"] = v
-	}
-	if v, found, _ := unstructured.NestedInt64(src, "spec", "parallelism"); found {
-		newSpec["parallelism"] = v
-	}
-
-	newObj := map[string]any{
-		"apiVersion": src["apiVersion"],
-		"kind":       src["kind"],
-		"metadata":   newMeta,
-		"spec":       newSpec,
-	}
-	// status is read whole by JobRun resolvers - preserve it as-is.
-	if status, ok := src["status"]; ok {
-		newObj["status"] = status
-	}
-	job.Object = newObj
 	return job, nil
 }
