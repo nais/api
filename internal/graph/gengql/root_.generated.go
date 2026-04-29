@@ -27932,7 +27932,8 @@ extend type ContainerImage {
 	"""
 	Whether the image has a software bill of materials (SBOM) attached to it.
 	"""
-	hasSBOM: Boolean! @deprecated(reason: "Use sbom { status } == READY to check if an SBOM is attached.")
+	hasSBOM: Boolean!
+		@deprecated(reason: "Use sbom { status } == READY to check if an SBOM is attached.")
 
 	"Get the vulnerabilities of the image."
 	vulnerabilities(
