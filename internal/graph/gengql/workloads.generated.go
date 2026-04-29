@@ -25,6 +25,7 @@ import (
 type ContainerImageResolver interface {
 	ActivityLog(ctx context.Context, obj *workload.ContainerImage, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*pagination.Connection[activitylog.ActivityLogEntry], error)
 	Sbom(ctx context.Context, obj *workload.ContainerImage) (*vulnerability.ContainerImageSBOM, error)
+	HasSbom(ctx context.Context, obj *workload.ContainerImage) (bool, error)
 	Vulnerabilities(ctx context.Context, obj *workload.ContainerImage, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *vulnerability.ImageVulnerabilityFilter, orderBy *vulnerability.ImageVulnerabilityOrder) (*pagination.Connection[*vulnerability.ImageVulnerability], error)
 	VulnerabilitySummary(ctx context.Context, obj *workload.ContainerImage) (*vulnerability.ImageVulnerabilitySummary, error)
 	WorkloadReferences(ctx context.Context, obj *workload.ContainerImage, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*vulnerability.ContainerImageWorkloadReference], error)
@@ -299,12 +300,39 @@ func (ec *executionContext) fieldContext_ContainerImage_sbom(_ context.Context, 
 				return ec.fieldContext_ContainerImageSBOM_id(ctx, field)
 			case "status":
 				return ec.fieldContext_ContainerImageSBOM_status(ctx, field)
-			case "hasSBOM":
-				return ec.fieldContext_ContainerImageSBOM_hasSBOM(ctx, field)
 			case "processingStartedAt":
 				return ec.fieldContext_ContainerImageSBOM_processingStartedAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ContainerImageSBOM", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ContainerImage_hasSBOM(ctx context.Context, field graphql.CollectedField, obj *workload.ContainerImage) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_ContainerImage_hasSBOM,
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.ContainerImage().HasSbom(ctx, obj)
+		},
+		nil,
+		ec.marshalNBoolean2bool,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_ContainerImage_hasSBOM(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ContainerImage",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
 		},
 	}
 	return fc, nil
@@ -1090,6 +1118,42 @@ func (ec *executionContext) _ContainerImage(ctx context.Context, sel ast.Selecti
 					}
 				}()
 				res = ec._ContainerImage_sbom(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "hasSBOM":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ContainerImage_hasSBOM(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}

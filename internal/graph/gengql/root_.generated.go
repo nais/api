@@ -563,6 +563,7 @@ type ComplexityRoot struct {
 
 	ContainerImage struct {
 		ActivityLog          func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int
+		HasSbom              func(childComplexity int) int
 		ID                   func(childComplexity int) int
 		Name                 func(childComplexity int) int
 		Sbom                 func(childComplexity int) int
@@ -573,7 +574,6 @@ type ComplexityRoot struct {
 	}
 
 	ContainerImageSBOM struct {
-		HasSbom             func(childComplexity int) int
 		ID                  func(childComplexity int) int
 		ProcessingStartedAt func(childComplexity int) int
 		Status              func(childComplexity int) int
@@ -5177,6 +5177,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ContainerImage.ActivityLog(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["filter"].(*activitylog.ActivityLogFilter)), true
 
+	case "ContainerImage.hasSBOM":
+		if e.ComplexityRoot.ContainerImage.HasSbom == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ContainerImage.HasSbom(childComplexity), true
+
 	case "ContainerImage.id":
 		if e.ComplexityRoot.ContainerImage.ID == nil {
 			break
@@ -5235,13 +5242,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ContainerImage.WorkloadReferences(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
-
-	case "ContainerImageSBOM.hasSBOM":
-		if e.ComplexityRoot.ContainerImageSBOM.HasSbom == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ContainerImageSBOM.HasSbom(childComplexity), true
 
 	case "ContainerImageSBOM.id":
 		if e.ComplexityRoot.ContainerImageSBOM.ID == nil {
@@ -27919,12 +27919,6 @@ type ContainerImageSBOM implements Node {
 	status: SBOMStatus!
 
 	"""
-	Whether the image has a software bill of materials (SBOM) attached to it.
-	"""
-	hasSBOM: Boolean!
-		@deprecated(reason: "Use status == READY to check if an SBOM is attached.")
-
-	"""
 	The timestamp when SBOM processing started for this image.
 	Useful as a progress indicator when status is PROCESSING.
 	"""
@@ -27934,6 +27928,11 @@ type ContainerImageSBOM implements Node {
 extend type ContainerImage {
 	"SBOM pipeline status and processing information for this image."
 	sbom: ContainerImageSBOM!
+
+	"""
+	Whether the image has a software bill of materials (SBOM) attached to it.
+	"""
+	hasSBOM: Boolean! @deprecated(reason: "Use sbom { status } == READY to check if an SBOM is attached.")
 
 	"Get the vulnerabilities of the image."
 	vulnerabilities(

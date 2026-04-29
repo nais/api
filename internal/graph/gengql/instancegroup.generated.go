@@ -127,6 +127,8 @@ func (ec *executionContext) fieldContext_InstanceGroup_image(_ context.Context, 
 				return ec.fieldContext_ContainerImage_activityLog(ctx, field)
 			case "sbom":
 				return ec.fieldContext_ContainerImage_sbom(ctx, field)
+			case "hasSBOM":
+				return ec.fieldContext_ContainerImage_hasSBOM(ctx, field)
 			case "vulnerabilities":
 				return ec.fieldContext_ContainerImage_vulnerabilities(ctx, field)
 			case "vulnerabilitySummary":
