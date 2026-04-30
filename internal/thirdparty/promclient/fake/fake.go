@@ -66,7 +66,8 @@ func (c *FakeClient) Query(ctx context.Context, environment string, query string
 		o(&opt)
 	}
 
-	expr, err := parser.ParseExpr(query)
+	p := parser.NewParser(parser.Options{})
+	expr, err := p.ParseExpr(query)
 	if err != nil {
 		return nil, err
 	}
