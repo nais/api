@@ -30,6 +30,7 @@ Test.gql("Create valkey in non-existing team", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("you need the \"valkeys:create\" authorization."),
 				path = {
 					"createValkey",
@@ -63,6 +64,7 @@ Test.gql("Create valkey as non-team member", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("You are authenticated"),
 				path = {
 					"createValkey",
@@ -130,6 +132,7 @@ Test.gql("Create valkey as team member with existing name", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = "Resource already exists.",
 				path = {
 					"createValkey",
@@ -308,6 +311,7 @@ Test.gql("Update Valkey in non-existing team", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("you need the \"valkeys:update\" authorization."),
 				path = {
 					"updateValkey",
@@ -341,6 +345,7 @@ Test.gql("Update Valkey as non-team-member", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("you need the \"valkeys:update\" authorization."),
 				path = {
 					"updateValkey",
@@ -613,6 +618,7 @@ Test.gql("Update non-console managed Valkey as team-member", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = "Valkey someteamname/not-managed is not managed by Console",
 				path = {
 					"updateValkey",
@@ -713,6 +719,7 @@ Test.gql("Delete Valkey in non-existing team", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("you need the \"valkeys:delete\" authorization."),
 				path = {
 					"deleteValkey",
@@ -742,6 +749,7 @@ Test.gql("Delete Valkey as non-team-member", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("You are authenticated"),
 				path = {
 					"deleteValkey",
@@ -841,6 +849,7 @@ Test.gql("Delete non-managed valkey as team-member", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = "Valkey someteamname/not-managed is not managed by Console",
 				path = {
 					"deleteValkey",

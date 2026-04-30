@@ -31,6 +31,7 @@ Test.gql("Create opensearch in non-existing team", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("you need the \"opensearches:create\" authorization."),
 				path = {
 					"createOpenSearch",
@@ -66,6 +67,7 @@ Test.gql("Create opensearch as non-team member", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("You are authenticated"),
 				path = {
 					"createOpenSearch",
@@ -134,6 +136,7 @@ Test.gql("Create opensearch as team member with existing name", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = "Resource already exists.",
 				path = {
 					"createOpenSearch",
@@ -460,6 +463,7 @@ Test.gql("Update OpenSearch in non-existing team", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("you need the \"opensearches:update\" authorization."),
 				path = {
 					"updateOpenSearch",
@@ -495,6 +499,7 @@ Test.gql("Update OpenSearch as non-team-member", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("you need the \"opensearches:update\" authorization."),
 				path = {
 					"updateOpenSearch",
@@ -654,6 +659,7 @@ Test.gql("Downgrade OpenSearch as team-member", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = "Cannot change OpenSearch version from V2 to V1. New version must be one of [V2_19]",
 				path = {
 					"updateOpenSearch",
@@ -689,6 +695,7 @@ Test.gql("Downgrade OpenSearch without explicit version set", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = "Cannot change OpenSearch version from V2 to V1. New version must be one of [V2_19]",
 				path = {
 					"updateOpenSearch",
@@ -724,6 +731,7 @@ Test.gql("Update non-console managed OpenSearch as team-member", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = "OpenSearch someteamname/not-managed is not managed by Console",
 				path = {
 					"updateOpenSearch",
@@ -823,6 +831,7 @@ Test.gql("Delete OpenSearch in non-existing team", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("you need the \"opensearches:delete\" authorization."),
 				path = {
 					"deleteOpenSearch",
@@ -932,6 +941,7 @@ Test.gql("Delete OpenSearch as non-team-member", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("You are authenticated"),
 				path = {
 					"deleteOpenSearch",
@@ -1116,6 +1126,7 @@ Test.gql("Delete non-managed opensearch as team-member", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = "OpenSearch someteamname/not-managed is not managed by Console",
 				path = {
 					"deleteOpenSearch",

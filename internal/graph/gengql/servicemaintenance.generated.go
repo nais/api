@@ -6,13 +6,19 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"math"
 	"strconv"
 	"sync/atomic"
+	"time"
 
 	"github.com/99designs/gqlgen/graphql"
+	activitylog1 "github.com/nais/api/internal/activitylog"
+	"github.com/nais/api/internal/graph/ident"
+	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/servicemaintenance"
 	"github.com/nais/api/internal/servicemaintenance/activitylog"
+	"github.com/nais/api/internal/slug"
 	"github.com/vektah/gqlparser/v2/ast"
 )
 
@@ -34,22 +40,34 @@ type ValkeyMaintenanceResolver interface {
 func (ec *executionContext) field_OpenSearchMaintenance_updates_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first", ec.unmarshalOInt2ᚖint)
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
+		func(ctx context.Context, v any) (*int, error) {
+			return ec.unmarshalOInt2ᚖint(ctx, v)
+		})
 	if err != nil {
 		return nil, err
 	}
 	args["first"] = arg0
-	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after", ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor)
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
+		func(ctx context.Context, v any) (*pagination.Cursor, error) {
+			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+		})
 	if err != nil {
 		return nil, err
 	}
 	args["after"] = arg1
-	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last", ec.unmarshalOInt2ᚖint)
+	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
+		func(ctx context.Context, v any) (*int, error) {
+			return ec.unmarshalOInt2ᚖint(ctx, v)
+		})
 	if err != nil {
 		return nil, err
 	}
 	args["last"] = arg2
-	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before", ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor)
+	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
+		func(ctx context.Context, v any) (*pagination.Cursor, error) {
+			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+		})
 	if err != nil {
 		return nil, err
 	}
@@ -60,22 +78,34 @@ func (ec *executionContext) field_OpenSearchMaintenance_updates_args(ctx context
 func (ec *executionContext) field_ValkeyMaintenance_updates_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first", ec.unmarshalOInt2ᚖint)
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
+		func(ctx context.Context, v any) (*int, error) {
+			return ec.unmarshalOInt2ᚖint(ctx, v)
+		})
 	if err != nil {
 		return nil, err
 	}
 	args["first"] = arg0
-	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after", ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor)
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
+		func(ctx context.Context, v any) (*pagination.Cursor, error) {
+			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+		})
 	if err != nil {
 		return nil, err
 	}
 	args["after"] = arg1
-	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last", ec.unmarshalOInt2ᚖint)
+	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
+		func(ctx context.Context, v any) (*int, error) {
+			return ec.unmarshalOInt2ᚖint(ctx, v)
+		})
 	if err != nil {
 		return nil, err
 	}
 	args["last"] = arg2
-	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before", ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor)
+	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
+		func(ctx context.Context, v any) (*pagination.Cursor, error) {
+			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+		})
 	if err != nil {
 		return nil, err
 	}
@@ -96,28 +126,22 @@ func (ec *executionContext) _MaintenanceWindow_dayOfWeek(ctx context.Context, fi
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_MaintenanceWindow_dayOfWeek,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_MaintenanceWindow_dayOfWeek(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.DayOfWeek, nil
 		},
 		nil,
-		ec.marshalNWeekday2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐWeekday,
+		func(ctx context.Context, selections ast.SelectionSet, v model.Weekday) graphql.Marshaler {
+			return ec.marshalNWeekday2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐWeekday(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_MaintenanceWindow_dayOfWeek(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "MaintenanceWindow",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Weekday does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("MaintenanceWindow", field, false, false, errors.New("field of type Weekday does not have child fields"))
 }
 
 func (ec *executionContext) _MaintenanceWindow_timeOfDay(ctx context.Context, field graphql.CollectedField, obj *servicemaintenance.MaintenanceWindow) (ret graphql.Marshaler) {
@@ -125,28 +149,22 @@ func (ec *executionContext) _MaintenanceWindow_timeOfDay(ctx context.Context, fi
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_MaintenanceWindow_timeOfDay,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_MaintenanceWindow_timeOfDay(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.TimeOfDay, nil
 		},
 		nil,
-		ec.marshalNTimeOfDay2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNTimeOfDay2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_MaintenanceWindow_timeOfDay(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "MaintenanceWindow",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type TimeOfDay does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("MaintenanceWindow", field, false, false, errors.New("field of type TimeOfDay does not have child fields"))
 }
 
 func (ec *executionContext) _OpenSearchMaintenance_window(ctx context.Context, field graphql.CollectedField, obj *servicemaintenance.OpenSearchMaintenance) (ret graphql.Marshaler) {
@@ -154,17 +172,20 @@ func (ec *executionContext) _OpenSearchMaintenance_window(ctx context.Context, f
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_OpenSearchMaintenance_window,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_OpenSearchMaintenance_window(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.OpenSearchMaintenance().Window(ctx, obj)
 		},
 		nil,
-		ec.marshalOMaintenanceWindow2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋservicemaintenanceᚐMaintenanceWindow,
+		func(ctx context.Context, selections ast.SelectionSet, v *servicemaintenance.MaintenanceWindow) graphql.Marshaler {
+			return ec.marshalOMaintenanceWindow2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋservicemaintenanceᚐMaintenanceWindow(ctx, selections, v)
+		},
 		true,
 		false,
 	)
 }
-
 func (ec *executionContext) fieldContext_OpenSearchMaintenance_window(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "OpenSearchMaintenance",
@@ -172,13 +193,7 @@ func (ec *executionContext) fieldContext_OpenSearchMaintenance_window(_ context.
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "dayOfWeek":
-				return ec.fieldContext_MaintenanceWindow_dayOfWeek(ctx, field)
-			case "timeOfDay":
-				return ec.fieldContext_MaintenanceWindow_timeOfDay(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type MaintenanceWindow", field.Name)
+			return ec.childFields_MaintenanceWindow(ctx, field)
 		},
 	}
 	return fc, nil
@@ -189,18 +204,21 @@ func (ec *executionContext) _OpenSearchMaintenance_updates(ctx context.Context, 
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_OpenSearchMaintenance_updates,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_OpenSearchMaintenance_updates(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
 			return ec.Resolvers.OpenSearchMaintenance().Updates(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
 		},
 		nil,
-		ec.marshalNOpenSearchMaintenanceUpdateConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
+		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[*servicemaintenance.OpenSearchMaintenanceUpdate]) graphql.Marshaler {
+			return ec.marshalNOpenSearchMaintenanceUpdateConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_OpenSearchMaintenance_updates(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "OpenSearchMaintenance",
@@ -208,15 +226,7 @@ func (ec *executionContext) fieldContext_OpenSearchMaintenance_updates(ctx conte
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "pageInfo":
-				return ec.fieldContext_OpenSearchMaintenanceUpdateConnection_pageInfo(ctx, field)
-			case "nodes":
-				return ec.fieldContext_OpenSearchMaintenanceUpdateConnection_nodes(ctx, field)
-			case "edges":
-				return ec.fieldContext_OpenSearchMaintenanceUpdateConnection_edges(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type OpenSearchMaintenanceUpdateConnection", field.Name)
+			return ec.childFields_OpenSearchMaintenanceUpdateConnection(ctx, field)
 		},
 	}
 	defer func() {
@@ -238,28 +248,22 @@ func (ec *executionContext) _OpenSearchMaintenanceUpdate_title(ctx context.Conte
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_OpenSearchMaintenanceUpdate_title,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_OpenSearchMaintenanceUpdate_title(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Title, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_OpenSearchMaintenanceUpdate_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "OpenSearchMaintenanceUpdate",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("OpenSearchMaintenanceUpdate", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _OpenSearchMaintenanceUpdate_description(ctx context.Context, field graphql.CollectedField, obj *servicemaintenance.OpenSearchMaintenanceUpdate) (ret graphql.Marshaler) {
@@ -267,28 +271,22 @@ func (ec *executionContext) _OpenSearchMaintenanceUpdate_description(ctx context
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_OpenSearchMaintenanceUpdate_description,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_OpenSearchMaintenanceUpdate_description(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Description, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_OpenSearchMaintenanceUpdate_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "OpenSearchMaintenanceUpdate",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("OpenSearchMaintenanceUpdate", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _OpenSearchMaintenanceUpdate_deadline(ctx context.Context, field graphql.CollectedField, obj *servicemaintenance.OpenSearchMaintenanceUpdate) (ret graphql.Marshaler) {
@@ -296,28 +294,22 @@ func (ec *executionContext) _OpenSearchMaintenanceUpdate_deadline(ctx context.Co
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_OpenSearchMaintenanceUpdate_deadline,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_OpenSearchMaintenanceUpdate_deadline(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Deadline, nil
 		},
 		nil,
-		ec.marshalOTime2ᚖtimeᚐTime,
+		func(ctx context.Context, selections ast.SelectionSet, v *time.Time) graphql.Marshaler {
+			return ec.marshalOTime2ᚖtimeᚐTime(ctx, selections, v)
+		},
 		true,
 		false,
 	)
 }
-
 func (ec *executionContext) fieldContext_OpenSearchMaintenanceUpdate_deadline(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "OpenSearchMaintenanceUpdate",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("OpenSearchMaintenanceUpdate", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
 func (ec *executionContext) _OpenSearchMaintenanceUpdate_startAt(ctx context.Context, field graphql.CollectedField, obj *servicemaintenance.OpenSearchMaintenanceUpdate) (ret graphql.Marshaler) {
@@ -325,28 +317,22 @@ func (ec *executionContext) _OpenSearchMaintenanceUpdate_startAt(ctx context.Con
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_OpenSearchMaintenanceUpdate_startAt,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_OpenSearchMaintenanceUpdate_startAt(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.StartAt, nil
 		},
 		nil,
-		ec.marshalOTime2ᚖtimeᚐTime,
+		func(ctx context.Context, selections ast.SelectionSet, v *time.Time) graphql.Marshaler {
+			return ec.marshalOTime2ᚖtimeᚐTime(ctx, selections, v)
+		},
 		true,
 		false,
 	)
 }
-
 func (ec *executionContext) fieldContext_OpenSearchMaintenanceUpdate_startAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "OpenSearchMaintenanceUpdate",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("OpenSearchMaintenanceUpdate", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
 func (ec *executionContext) _OpenSearchMaintenanceUpdateConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*servicemaintenance.OpenSearchMaintenanceUpdate]) (ret graphql.Marshaler) {
@@ -354,17 +340,20 @@ func (ec *executionContext) _OpenSearchMaintenanceUpdateConnection_pageInfo(ctx 
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_OpenSearchMaintenanceUpdateConnection_pageInfo,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_OpenSearchMaintenanceUpdateConnection_pageInfo(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.PageInfo, nil
 		},
 		nil,
-		ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo,
+		func(ctx context.Context, selections ast.SelectionSet, v pagination.PageInfo) graphql.Marshaler {
+			return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_OpenSearchMaintenanceUpdateConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "OpenSearchMaintenanceUpdateConnection",
@@ -372,23 +361,7 @@ func (ec *executionContext) fieldContext_OpenSearchMaintenanceUpdateConnection_p
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "hasNextPage":
-				return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
-			case "endCursor":
-				return ec.fieldContext_PageInfo_endCursor(ctx, field)
-			case "hasPreviousPage":
-				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
-			case "startCursor":
-				return ec.fieldContext_PageInfo_startCursor(ctx, field)
-			case "totalCount":
-				return ec.fieldContext_PageInfo_totalCount(ctx, field)
-			case "pageStart":
-				return ec.fieldContext_PageInfo_pageStart(ctx, field)
-			case "pageEnd":
-				return ec.fieldContext_PageInfo_pageEnd(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
+			return ec.childFields_PageInfo(ctx, field)
 		},
 	}
 	return fc, nil
@@ -399,17 +372,20 @@ func (ec *executionContext) _OpenSearchMaintenanceUpdateConnection_nodes(ctx con
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_OpenSearchMaintenanceUpdateConnection_nodes,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_OpenSearchMaintenanceUpdateConnection_nodes(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Nodes(), nil
 		},
 		nil,
-		ec.marshalNOpenSearchMaintenanceUpdate2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋservicemaintenanceᚐOpenSearchMaintenanceUpdateᚄ,
+		func(ctx context.Context, selections ast.SelectionSet, v []*servicemaintenance.OpenSearchMaintenanceUpdate) graphql.Marshaler {
+			return ec.marshalNOpenSearchMaintenanceUpdate2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋservicemaintenanceᚐOpenSearchMaintenanceUpdateᚄ(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_OpenSearchMaintenanceUpdateConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "OpenSearchMaintenanceUpdateConnection",
@@ -417,17 +393,7 @@ func (ec *executionContext) fieldContext_OpenSearchMaintenanceUpdateConnection_n
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "title":
-				return ec.fieldContext_OpenSearchMaintenanceUpdate_title(ctx, field)
-			case "description":
-				return ec.fieldContext_OpenSearchMaintenanceUpdate_description(ctx, field)
-			case "deadline":
-				return ec.fieldContext_OpenSearchMaintenanceUpdate_deadline(ctx, field)
-			case "startAt":
-				return ec.fieldContext_OpenSearchMaintenanceUpdate_startAt(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type OpenSearchMaintenanceUpdate", field.Name)
+			return ec.childFields_OpenSearchMaintenanceUpdate(ctx, field)
 		},
 	}
 	return fc, nil
@@ -438,17 +404,20 @@ func (ec *executionContext) _OpenSearchMaintenanceUpdateConnection_edges(ctx con
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_OpenSearchMaintenanceUpdateConnection_edges,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_OpenSearchMaintenanceUpdateConnection_edges(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Edges, nil
 		},
 		nil,
-		ec.marshalNOpenSearchMaintenanceUpdateEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ,
+		func(ctx context.Context, selections ast.SelectionSet, v []pagination.Edge[*servicemaintenance.OpenSearchMaintenanceUpdate]) graphql.Marshaler {
+			return ec.marshalNOpenSearchMaintenanceUpdateEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_OpenSearchMaintenanceUpdateConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "OpenSearchMaintenanceUpdateConnection",
@@ -456,13 +425,7 @@ func (ec *executionContext) fieldContext_OpenSearchMaintenanceUpdateConnection_e
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "cursor":
-				return ec.fieldContext_OpenSearchMaintenanceUpdateEdge_cursor(ctx, field)
-			case "node":
-				return ec.fieldContext_OpenSearchMaintenanceUpdateEdge_node(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type OpenSearchMaintenanceUpdateEdge", field.Name)
+			return ec.childFields_OpenSearchMaintenanceUpdateEdge(ctx, field)
 		},
 	}
 	return fc, nil
@@ -473,28 +436,22 @@ func (ec *executionContext) _OpenSearchMaintenanceUpdateEdge_cursor(ctx context.
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_OpenSearchMaintenanceUpdateEdge_cursor,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_OpenSearchMaintenanceUpdateEdge_cursor(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Cursor, nil
 		},
 		nil,
-		ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor,
+		func(ctx context.Context, selections ast.SelectionSet, v pagination.Cursor) graphql.Marshaler {
+			return ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_OpenSearchMaintenanceUpdateEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "OpenSearchMaintenanceUpdateEdge",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Cursor does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("OpenSearchMaintenanceUpdateEdge", field, false, false, errors.New("field of type Cursor does not have child fields"))
 }
 
 func (ec *executionContext) _OpenSearchMaintenanceUpdateEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*servicemaintenance.OpenSearchMaintenanceUpdate]) (ret graphql.Marshaler) {
@@ -502,17 +459,20 @@ func (ec *executionContext) _OpenSearchMaintenanceUpdateEdge_node(ctx context.Co
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_OpenSearchMaintenanceUpdateEdge_node,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_OpenSearchMaintenanceUpdateEdge_node(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Node, nil
 		},
 		nil,
-		ec.marshalNOpenSearchMaintenanceUpdate2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋservicemaintenanceᚐOpenSearchMaintenanceUpdate,
+		func(ctx context.Context, selections ast.SelectionSet, v *servicemaintenance.OpenSearchMaintenanceUpdate) graphql.Marshaler {
+			return ec.marshalNOpenSearchMaintenanceUpdate2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋservicemaintenanceᚐOpenSearchMaintenanceUpdate(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_OpenSearchMaintenanceUpdateEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "OpenSearchMaintenanceUpdateEdge",
@@ -520,17 +480,7 @@ func (ec *executionContext) fieldContext_OpenSearchMaintenanceUpdateEdge_node(_ 
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "title":
-				return ec.fieldContext_OpenSearchMaintenanceUpdate_title(ctx, field)
-			case "description":
-				return ec.fieldContext_OpenSearchMaintenanceUpdate_description(ctx, field)
-			case "deadline":
-				return ec.fieldContext_OpenSearchMaintenanceUpdate_deadline(ctx, field)
-			case "startAt":
-				return ec.fieldContext_OpenSearchMaintenanceUpdate_startAt(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type OpenSearchMaintenanceUpdate", field.Name)
+			return ec.childFields_OpenSearchMaintenanceUpdate(ctx, field)
 		},
 	}
 	return fc, nil
@@ -541,28 +491,22 @@ func (ec *executionContext) _ServiceMaintenanceActivityLogEntry_id(ctx context.C
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ServiceMaintenanceActivityLogEntry_id,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ServiceMaintenanceActivityLogEntry_id(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
-		ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent,
+		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
+			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ServiceMaintenanceActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ServiceMaintenanceActivityLogEntry",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ServiceMaintenanceActivityLogEntry", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
 func (ec *executionContext) _ServiceMaintenanceActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *activitylog.ServiceMaintenanceActivityLogEntry) (ret graphql.Marshaler) {
@@ -570,28 +514,22 @@ func (ec *executionContext) _ServiceMaintenanceActivityLogEntry_actor(ctx contex
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ServiceMaintenanceActivityLogEntry_actor,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ServiceMaintenanceActivityLogEntry_actor(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Actor, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ServiceMaintenanceActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ServiceMaintenanceActivityLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ServiceMaintenanceActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _ServiceMaintenanceActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *activitylog.ServiceMaintenanceActivityLogEntry) (ret graphql.Marshaler) {
@@ -599,28 +537,22 @@ func (ec *executionContext) _ServiceMaintenanceActivityLogEntry_createdAt(ctx co
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ServiceMaintenanceActivityLogEntry_createdAt,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ServiceMaintenanceActivityLogEntry_createdAt(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.CreatedAt, nil
 		},
 		nil,
-		ec.marshalNTime2timeᚐTime,
+		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
+			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ServiceMaintenanceActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ServiceMaintenanceActivityLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ServiceMaintenanceActivityLogEntry", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
 func (ec *executionContext) _ServiceMaintenanceActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *activitylog.ServiceMaintenanceActivityLogEntry) (ret graphql.Marshaler) {
@@ -628,28 +560,22 @@ func (ec *executionContext) _ServiceMaintenanceActivityLogEntry_message(ctx cont
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ServiceMaintenanceActivityLogEntry_message,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ServiceMaintenanceActivityLogEntry_message(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Message, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ServiceMaintenanceActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ServiceMaintenanceActivityLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ServiceMaintenanceActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _ServiceMaintenanceActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *activitylog.ServiceMaintenanceActivityLogEntry) (ret graphql.Marshaler) {
@@ -657,28 +583,22 @@ func (ec *executionContext) _ServiceMaintenanceActivityLogEntry_resourceType(ctx
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ServiceMaintenanceActivityLogEntry_resourceType,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ServiceMaintenanceActivityLogEntry_resourceType(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceType, nil
 		},
 		nil,
-		ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType,
+		func(ctx context.Context, selections ast.SelectionSet, v activitylog1.ActivityLogEntryResourceType) graphql.Marshaler {
+			return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ServiceMaintenanceActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ServiceMaintenanceActivityLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ActivityLogEntryResourceType does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ServiceMaintenanceActivityLogEntry", field, false, false, errors.New("field of type ActivityLogEntryResourceType does not have child fields"))
 }
 
 func (ec *executionContext) _ServiceMaintenanceActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *activitylog.ServiceMaintenanceActivityLogEntry) (ret graphql.Marshaler) {
@@ -686,28 +606,22 @@ func (ec *executionContext) _ServiceMaintenanceActivityLogEntry_resourceName(ctx
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ServiceMaintenanceActivityLogEntry_resourceName,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ServiceMaintenanceActivityLogEntry_resourceName(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceName, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ServiceMaintenanceActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ServiceMaintenanceActivityLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ServiceMaintenanceActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _ServiceMaintenanceActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *activitylog.ServiceMaintenanceActivityLogEntry) (ret graphql.Marshaler) {
@@ -715,28 +629,22 @@ func (ec *executionContext) _ServiceMaintenanceActivityLogEntry_teamSlug(ctx con
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ServiceMaintenanceActivityLogEntry_teamSlug,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ServiceMaintenanceActivityLogEntry_teamSlug(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.TeamSlug, nil
 		},
 		nil,
-		ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug,
+		func(ctx context.Context, selections ast.SelectionSet, v *slug.Slug) graphql.Marshaler {
+			return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ServiceMaintenanceActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ServiceMaintenanceActivityLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Slug does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ServiceMaintenanceActivityLogEntry", field, false, false, errors.New("field of type Slug does not have child fields"))
 }
 
 func (ec *executionContext) _ServiceMaintenanceActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *activitylog.ServiceMaintenanceActivityLogEntry) (ret graphql.Marshaler) {
@@ -744,28 +652,22 @@ func (ec *executionContext) _ServiceMaintenanceActivityLogEntry_environmentName(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ServiceMaintenanceActivityLogEntry_environmentName,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ServiceMaintenanceActivityLogEntry_environmentName(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.EnvironmentName, nil
 		},
 		nil,
-		ec.marshalOString2ᚖstring,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
+		},
 		true,
 		false,
 	)
 }
-
 func (ec *executionContext) fieldContext_ServiceMaintenanceActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ServiceMaintenanceActivityLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ServiceMaintenanceActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _StartOpenSearchMaintenancePayload_error(ctx context.Context, field graphql.CollectedField, obj *servicemaintenance.StartOpenSearchMaintenancePayload) (ret graphql.Marshaler) {
@@ -773,28 +675,22 @@ func (ec *executionContext) _StartOpenSearchMaintenancePayload_error(ctx context
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_StartOpenSearchMaintenancePayload_error,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_StartOpenSearchMaintenancePayload_error(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Error, nil
 		},
 		nil,
-		ec.marshalOString2ᚖstring,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
+		},
 		true,
 		false,
 	)
 }
-
 func (ec *executionContext) fieldContext_StartOpenSearchMaintenancePayload_error(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "StartOpenSearchMaintenancePayload",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("StartOpenSearchMaintenancePayload", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _StartValkeyMaintenancePayload_error(ctx context.Context, field graphql.CollectedField, obj *servicemaintenance.StartValkeyMaintenancePayload) (ret graphql.Marshaler) {
@@ -802,28 +698,22 @@ func (ec *executionContext) _StartValkeyMaintenancePayload_error(ctx context.Con
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_StartValkeyMaintenancePayload_error,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_StartValkeyMaintenancePayload_error(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Error, nil
 		},
 		nil,
-		ec.marshalOString2ᚖstring,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
+		},
 		true,
 		false,
 	)
 }
-
 func (ec *executionContext) fieldContext_StartValkeyMaintenancePayload_error(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "StartValkeyMaintenancePayload",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("StartValkeyMaintenancePayload", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _ValkeyMaintenance_window(ctx context.Context, field graphql.CollectedField, obj *servicemaintenance.ValkeyMaintenance) (ret graphql.Marshaler) {
@@ -831,17 +721,20 @@ func (ec *executionContext) _ValkeyMaintenance_window(ctx context.Context, field
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ValkeyMaintenance_window,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyMaintenance_window(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.ValkeyMaintenance().Window(ctx, obj)
 		},
 		nil,
-		ec.marshalOMaintenanceWindow2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋservicemaintenanceᚐMaintenanceWindow,
+		func(ctx context.Context, selections ast.SelectionSet, v *servicemaintenance.MaintenanceWindow) graphql.Marshaler {
+			return ec.marshalOMaintenanceWindow2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋservicemaintenanceᚐMaintenanceWindow(ctx, selections, v)
+		},
 		true,
 		false,
 	)
 }
-
 func (ec *executionContext) fieldContext_ValkeyMaintenance_window(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ValkeyMaintenance",
@@ -849,13 +742,7 @@ func (ec *executionContext) fieldContext_ValkeyMaintenance_window(_ context.Cont
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "dayOfWeek":
-				return ec.fieldContext_MaintenanceWindow_dayOfWeek(ctx, field)
-			case "timeOfDay":
-				return ec.fieldContext_MaintenanceWindow_timeOfDay(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type MaintenanceWindow", field.Name)
+			return ec.childFields_MaintenanceWindow(ctx, field)
 		},
 	}
 	return fc, nil
@@ -866,18 +753,21 @@ func (ec *executionContext) _ValkeyMaintenance_updates(ctx context.Context, fiel
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ValkeyMaintenance_updates,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyMaintenance_updates(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
 			return ec.Resolvers.ValkeyMaintenance().Updates(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
 		},
 		nil,
-		ec.marshalNValkeyMaintenanceUpdateConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
+		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[*servicemaintenance.ValkeyMaintenanceUpdate]) graphql.Marshaler {
+			return ec.marshalNValkeyMaintenanceUpdateConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ValkeyMaintenance_updates(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ValkeyMaintenance",
@@ -885,15 +775,7 @@ func (ec *executionContext) fieldContext_ValkeyMaintenance_updates(ctx context.C
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "pageInfo":
-				return ec.fieldContext_ValkeyMaintenanceUpdateConnection_pageInfo(ctx, field)
-			case "nodes":
-				return ec.fieldContext_ValkeyMaintenanceUpdateConnection_nodes(ctx, field)
-			case "edges":
-				return ec.fieldContext_ValkeyMaintenanceUpdateConnection_edges(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type ValkeyMaintenanceUpdateConnection", field.Name)
+			return ec.childFields_ValkeyMaintenanceUpdateConnection(ctx, field)
 		},
 	}
 	defer func() {
@@ -915,28 +797,22 @@ func (ec *executionContext) _ValkeyMaintenanceUpdate_title(ctx context.Context, 
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ValkeyMaintenanceUpdate_title,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyMaintenanceUpdate_title(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Title, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ValkeyMaintenanceUpdate_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ValkeyMaintenanceUpdate",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ValkeyMaintenanceUpdate", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _ValkeyMaintenanceUpdate_description(ctx context.Context, field graphql.CollectedField, obj *servicemaintenance.ValkeyMaintenanceUpdate) (ret graphql.Marshaler) {
@@ -944,28 +820,22 @@ func (ec *executionContext) _ValkeyMaintenanceUpdate_description(ctx context.Con
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ValkeyMaintenanceUpdate_description,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyMaintenanceUpdate_description(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Description, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ValkeyMaintenanceUpdate_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ValkeyMaintenanceUpdate",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ValkeyMaintenanceUpdate", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _ValkeyMaintenanceUpdate_deadline(ctx context.Context, field graphql.CollectedField, obj *servicemaintenance.ValkeyMaintenanceUpdate) (ret graphql.Marshaler) {
@@ -973,28 +843,22 @@ func (ec *executionContext) _ValkeyMaintenanceUpdate_deadline(ctx context.Contex
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ValkeyMaintenanceUpdate_deadline,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyMaintenanceUpdate_deadline(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Deadline, nil
 		},
 		nil,
-		ec.marshalOTime2ᚖtimeᚐTime,
+		func(ctx context.Context, selections ast.SelectionSet, v *time.Time) graphql.Marshaler {
+			return ec.marshalOTime2ᚖtimeᚐTime(ctx, selections, v)
+		},
 		true,
 		false,
 	)
 }
-
 func (ec *executionContext) fieldContext_ValkeyMaintenanceUpdate_deadline(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ValkeyMaintenanceUpdate",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ValkeyMaintenanceUpdate", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
 func (ec *executionContext) _ValkeyMaintenanceUpdate_startAt(ctx context.Context, field graphql.CollectedField, obj *servicemaintenance.ValkeyMaintenanceUpdate) (ret graphql.Marshaler) {
@@ -1002,28 +866,22 @@ func (ec *executionContext) _ValkeyMaintenanceUpdate_startAt(ctx context.Context
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ValkeyMaintenanceUpdate_startAt,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyMaintenanceUpdate_startAt(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.StartAt, nil
 		},
 		nil,
-		ec.marshalOTime2ᚖtimeᚐTime,
+		func(ctx context.Context, selections ast.SelectionSet, v *time.Time) graphql.Marshaler {
+			return ec.marshalOTime2ᚖtimeᚐTime(ctx, selections, v)
+		},
 		true,
 		false,
 	)
 }
-
 func (ec *executionContext) fieldContext_ValkeyMaintenanceUpdate_startAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ValkeyMaintenanceUpdate",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ValkeyMaintenanceUpdate", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
 func (ec *executionContext) _ValkeyMaintenanceUpdateConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*servicemaintenance.ValkeyMaintenanceUpdate]) (ret graphql.Marshaler) {
@@ -1031,17 +889,20 @@ func (ec *executionContext) _ValkeyMaintenanceUpdateConnection_pageInfo(ctx cont
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ValkeyMaintenanceUpdateConnection_pageInfo,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyMaintenanceUpdateConnection_pageInfo(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.PageInfo, nil
 		},
 		nil,
-		ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo,
+		func(ctx context.Context, selections ast.SelectionSet, v pagination.PageInfo) graphql.Marshaler {
+			return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ValkeyMaintenanceUpdateConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ValkeyMaintenanceUpdateConnection",
@@ -1049,23 +910,7 @@ func (ec *executionContext) fieldContext_ValkeyMaintenanceUpdateConnection_pageI
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "hasNextPage":
-				return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
-			case "endCursor":
-				return ec.fieldContext_PageInfo_endCursor(ctx, field)
-			case "hasPreviousPage":
-				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
-			case "startCursor":
-				return ec.fieldContext_PageInfo_startCursor(ctx, field)
-			case "totalCount":
-				return ec.fieldContext_PageInfo_totalCount(ctx, field)
-			case "pageStart":
-				return ec.fieldContext_PageInfo_pageStart(ctx, field)
-			case "pageEnd":
-				return ec.fieldContext_PageInfo_pageEnd(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
+			return ec.childFields_PageInfo(ctx, field)
 		},
 	}
 	return fc, nil
@@ -1076,17 +921,20 @@ func (ec *executionContext) _ValkeyMaintenanceUpdateConnection_nodes(ctx context
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ValkeyMaintenanceUpdateConnection_nodes,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyMaintenanceUpdateConnection_nodes(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Nodes(), nil
 		},
 		nil,
-		ec.marshalNValkeyMaintenanceUpdate2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋservicemaintenanceᚐValkeyMaintenanceUpdateᚄ,
+		func(ctx context.Context, selections ast.SelectionSet, v []*servicemaintenance.ValkeyMaintenanceUpdate) graphql.Marshaler {
+			return ec.marshalNValkeyMaintenanceUpdate2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋservicemaintenanceᚐValkeyMaintenanceUpdateᚄ(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ValkeyMaintenanceUpdateConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ValkeyMaintenanceUpdateConnection",
@@ -1094,17 +942,7 @@ func (ec *executionContext) fieldContext_ValkeyMaintenanceUpdateConnection_nodes
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "title":
-				return ec.fieldContext_ValkeyMaintenanceUpdate_title(ctx, field)
-			case "description":
-				return ec.fieldContext_ValkeyMaintenanceUpdate_description(ctx, field)
-			case "deadline":
-				return ec.fieldContext_ValkeyMaintenanceUpdate_deadline(ctx, field)
-			case "startAt":
-				return ec.fieldContext_ValkeyMaintenanceUpdate_startAt(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type ValkeyMaintenanceUpdate", field.Name)
+			return ec.childFields_ValkeyMaintenanceUpdate(ctx, field)
 		},
 	}
 	return fc, nil
@@ -1115,17 +953,20 @@ func (ec *executionContext) _ValkeyMaintenanceUpdateConnection_edges(ctx context
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ValkeyMaintenanceUpdateConnection_edges,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyMaintenanceUpdateConnection_edges(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Edges, nil
 		},
 		nil,
-		ec.marshalNValkeyMaintenanceUpdateEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ,
+		func(ctx context.Context, selections ast.SelectionSet, v []pagination.Edge[*servicemaintenance.ValkeyMaintenanceUpdate]) graphql.Marshaler {
+			return ec.marshalNValkeyMaintenanceUpdateEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ValkeyMaintenanceUpdateConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ValkeyMaintenanceUpdateConnection",
@@ -1133,13 +974,7 @@ func (ec *executionContext) fieldContext_ValkeyMaintenanceUpdateConnection_edges
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "cursor":
-				return ec.fieldContext_ValkeyMaintenanceUpdateEdge_cursor(ctx, field)
-			case "node":
-				return ec.fieldContext_ValkeyMaintenanceUpdateEdge_node(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type ValkeyMaintenanceUpdateEdge", field.Name)
+			return ec.childFields_ValkeyMaintenanceUpdateEdge(ctx, field)
 		},
 	}
 	return fc, nil
@@ -1150,28 +985,22 @@ func (ec *executionContext) _ValkeyMaintenanceUpdateEdge_cursor(ctx context.Cont
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ValkeyMaintenanceUpdateEdge_cursor,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyMaintenanceUpdateEdge_cursor(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Cursor, nil
 		},
 		nil,
-		ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor,
+		func(ctx context.Context, selections ast.SelectionSet, v pagination.Cursor) graphql.Marshaler {
+			return ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ValkeyMaintenanceUpdateEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ValkeyMaintenanceUpdateEdge",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Cursor does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ValkeyMaintenanceUpdateEdge", field, false, false, errors.New("field of type Cursor does not have child fields"))
 }
 
 func (ec *executionContext) _ValkeyMaintenanceUpdateEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*servicemaintenance.ValkeyMaintenanceUpdate]) (ret graphql.Marshaler) {
@@ -1179,17 +1008,20 @@ func (ec *executionContext) _ValkeyMaintenanceUpdateEdge_node(ctx context.Contex
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ValkeyMaintenanceUpdateEdge_node,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyMaintenanceUpdateEdge_node(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Node, nil
 		},
 		nil,
-		ec.marshalNValkeyMaintenanceUpdate2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋservicemaintenanceᚐValkeyMaintenanceUpdate,
+		func(ctx context.Context, selections ast.SelectionSet, v *servicemaintenance.ValkeyMaintenanceUpdate) graphql.Marshaler {
+			return ec.marshalNValkeyMaintenanceUpdate2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋservicemaintenanceᚐValkeyMaintenanceUpdate(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ValkeyMaintenanceUpdateEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ValkeyMaintenanceUpdateEdge",
@@ -1197,17 +1029,7 @@ func (ec *executionContext) fieldContext_ValkeyMaintenanceUpdateEdge_node(_ cont
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "title":
-				return ec.fieldContext_ValkeyMaintenanceUpdate_title(ctx, field)
-			case "description":
-				return ec.fieldContext_ValkeyMaintenanceUpdate_description(ctx, field)
-			case "deadline":
-				return ec.fieldContext_ValkeyMaintenanceUpdate_deadline(ctx, field)
-			case "startAt":
-				return ec.fieldContext_ValkeyMaintenanceUpdate_startAt(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type ValkeyMaintenanceUpdate", field.Name)
+			return ec.childFields_ValkeyMaintenanceUpdate(ctx, field)
 		},
 	}
 	return fc, nil
@@ -1219,6 +1041,10 @@ func (ec *executionContext) fieldContext_ValkeyMaintenanceUpdateEdge_node(_ cont
 
 func (ec *executionContext) unmarshalInputStartOpenSearchMaintenanceInput(ctx context.Context, obj any) (servicemaintenance.StartOpenSearchMaintenanceInput, error) {
 	var it servicemaintenance.StartOpenSearchMaintenanceInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -1259,6 +1085,10 @@ func (ec *executionContext) unmarshalInputStartOpenSearchMaintenanceInput(ctx co
 
 func (ec *executionContext) unmarshalInputStartValkeyMaintenanceInput(ctx context.Context, obj any) (servicemaintenance.StartValkeyMaintenanceInput, error) {
 	var it servicemaintenance.StartValkeyMaintenanceInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -1362,7 +1192,7 @@ func (ec *executionContext) _MaintenanceWindow(ctx context.Context, sel ast.Sele
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -1465,7 +1295,7 @@ func (ec *executionContext) _OpenSearchMaintenance(ctx context.Context, sel ast.
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -1513,7 +1343,7 @@ func (ec *executionContext) _OpenSearchMaintenanceUpdate(ctx context.Context, se
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -1562,7 +1392,7 @@ func (ec *executionContext) _OpenSearchMaintenanceUpdateConnection(ctx context.C
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -1606,7 +1436,7 @@ func (ec *executionContext) _OpenSearchMaintenanceUpdateEdge(ctx context.Context
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -1677,7 +1507,7 @@ func (ec *executionContext) _ServiceMaintenanceActivityLogEntry(ctx context.Cont
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -1713,7 +1543,7 @@ func (ec *executionContext) _StartOpenSearchMaintenancePayload(ctx context.Conte
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -1749,7 +1579,7 @@ func (ec *executionContext) _StartValkeyMaintenancePayload(ctx context.Context, 
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -1852,7 +1682,7 @@ func (ec *executionContext) _ValkeyMaintenance(ctx context.Context, sel ast.Sele
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -1900,7 +1730,7 @@ func (ec *executionContext) _ValkeyMaintenanceUpdate(ctx context.Context, sel as
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -1949,7 +1779,7 @@ func (ec *executionContext) _ValkeyMaintenanceUpdateConnection(ctx context.Conte
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -1993,7 +1823,7 @@ func (ec *executionContext) _ValkeyMaintenanceUpdateEdge(ctx context.Context, se
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{

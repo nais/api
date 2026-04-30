@@ -78,6 +78,7 @@ Test.gql("Add repository to non-existing-team as admin", function(t)
 		data = Null,
 		errors = {
 			{
+				locations = NotNull(),
 				message = "The specified team was not found.",
 				path = { "addRepositoryToTeam" },
 			},
@@ -102,6 +103,7 @@ Test.gql("Add repository to team as non-team member", function(t)
 		data = Null,
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("you need the \"repositories:create\""),
 				path = { "addRepositoryToTeam" },
 			},
@@ -174,6 +176,7 @@ Test.gql("Remove repository from team as non-team member", function(t)
 		data = Null,
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("you need the \"repositories:delete\""),
 				path = { "removeRepositoryFromTeam" },
 			},

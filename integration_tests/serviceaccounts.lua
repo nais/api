@@ -26,6 +26,7 @@ Test.gql("Create global service account as non-admin", function(t)
 		data = Null,
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("Specifically, you need the \"service_accounts:create\" authorization."),
 				path = {
 					"createServiceAccount",
@@ -136,6 +137,7 @@ Test.gql("Update service account as non-admin", function(t)
 		data = Null,
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("Specifically, you need the \"service_accounts:update\" authorization."),
 				path = {
 					"updateServiceAccount",
@@ -198,6 +200,7 @@ Test.gql("Assign role to service account as non-admin", function(t)
 		data = Null,
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("Specifically, you need the \"service_accounts:update\" authorization."),
 				path = {
 					"assignRoleToServiceAccount",
@@ -274,6 +277,7 @@ Test.gql("Assign duplicate role to service account as admin", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("has already been assigned the \"Team owner\" role"),
 				path = {
 					"assignRoleToServiceAccount",
@@ -350,6 +354,7 @@ Test.gql("Revoke role from service account as non-admin", function(t)
 		data = Null,
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("Specifically, you need the \"service_accounts:update\" authorization."),
 				path = {
 					"revokeRoleFromServiceAccount",
@@ -427,6 +432,7 @@ Test.gql("Revoke unassigned role from service account as admin", function(t)
 		data = Null,
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("does not have the \"Deploy key viewer\" role assigned"),
 				path = {
 					"revokeRoleFromServiceAccount",
@@ -455,6 +461,7 @@ Test.gql("Delete service account as non-admin", function(t)
 		data = Null,
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("Specifically, you need the \"service_accounts:delete\" authorization."),
 				path = {
 					"deleteServiceAccount",

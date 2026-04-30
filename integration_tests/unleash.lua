@@ -462,6 +462,7 @@ Test.gql("Attempt to delete unleash instance as non-member", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("You are authenticated"),
 				path = {
 					"deleteUnleashInstance",

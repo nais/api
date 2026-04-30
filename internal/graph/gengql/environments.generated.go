@@ -5,12 +5,13 @@ package gengql
 import (
 	"context"
 	"errors"
-	"fmt"
+	"math"
 	"strconv"
 	"sync/atomic"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/nais/api/internal/environment"
+	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/metrics"
 	"github.com/nais/api/internal/workload"
@@ -31,7 +32,10 @@ type EnvironmentResolver interface {
 func (ec *executionContext) field_Environment_metrics_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNMetricsQueryInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricsQueryInput)
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input",
+		func(ctx context.Context, v any) (metrics.MetricsQueryInput, error) {
+			return ec.unmarshalNMetricsQueryInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricsQueryInput(ctx, v)
+		})
 	if err != nil {
 		return nil, err
 	}
@@ -42,27 +46,42 @@ func (ec *executionContext) field_Environment_metrics_args(ctx context.Context, 
 func (ec *executionContext) field_Environment_workloads_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first", ec.unmarshalOInt2ᚖint)
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
+		func(ctx context.Context, v any) (*int, error) {
+			return ec.unmarshalOInt2ᚖint(ctx, v)
+		})
 	if err != nil {
 		return nil, err
 	}
 	args["first"] = arg0
-	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after", ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor)
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
+		func(ctx context.Context, v any) (*pagination.Cursor, error) {
+			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+		})
 	if err != nil {
 		return nil, err
 	}
 	args["after"] = arg1
-	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last", ec.unmarshalOInt2ᚖint)
+	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
+		func(ctx context.Context, v any) (*int, error) {
+			return ec.unmarshalOInt2ᚖint(ctx, v)
+		})
 	if err != nil {
 		return nil, err
 	}
 	args["last"] = arg2
-	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before", ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor)
+	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
+		func(ctx context.Context, v any) (*pagination.Cursor, error) {
+			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+		})
 	if err != nil {
 		return nil, err
 	}
 	args["before"] = arg3
-	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "orderBy", ec.unmarshalOEnvironmentWorkloadOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐEnvironmentWorkloadOrder)
+	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "orderBy",
+		func(ctx context.Context, v any) (*workload.EnvironmentWorkloadOrder, error) {
+			return ec.unmarshalOEnvironmentWorkloadOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐEnvironmentWorkloadOrder(ctx, v)
+		})
 	if err != nil {
 		return nil, err
 	}
@@ -83,28 +102,22 @@ func (ec *executionContext) _Environment_id(ctx context.Context, field graphql.C
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Environment_id,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Environment_id(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
-		ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent,
+		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
+			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_Environment_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Environment",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("Environment", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
 func (ec *executionContext) _Environment_name(ctx context.Context, field graphql.CollectedField, obj *environment.Environment) (ret graphql.Marshaler) {
@@ -112,28 +125,22 @@ func (ec *executionContext) _Environment_name(ctx context.Context, field graphql
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Environment_name,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Environment_name(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Name, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_Environment_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Environment",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("Environment", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _Environment_metrics(ctx context.Context, field graphql.CollectedField, obj *environment.Environment) (ret graphql.Marshaler) {
@@ -141,18 +148,21 @@ func (ec *executionContext) _Environment_metrics(ctx context.Context, field grap
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Environment_metrics,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Environment_metrics(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
 			return ec.Resolvers.Environment().Metrics(ctx, obj, fc.Args["input"].(metrics.MetricsQueryInput))
 		},
 		nil,
-		ec.marshalNMetricsQueryResult2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricsQueryResult,
+		func(ctx context.Context, selections ast.SelectionSet, v *metrics.MetricsQueryResult) graphql.Marshaler {
+			return ec.marshalNMetricsQueryResult2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricsQueryResult(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_Environment_metrics(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Environment",
@@ -160,13 +170,7 @@ func (ec *executionContext) fieldContext_Environment_metrics(ctx context.Context
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "series":
-				return ec.fieldContext_MetricsQueryResult_series(ctx, field)
-			case "warnings":
-				return ec.fieldContext_MetricsQueryResult_warnings(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type MetricsQueryResult", field.Name)
+			return ec.childFields_MetricsQueryResult(ctx, field)
 		},
 	}
 	defer func() {
@@ -188,18 +192,21 @@ func (ec *executionContext) _Environment_workloads(ctx context.Context, field gr
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Environment_workloads,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Environment_workloads(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
 			return ec.Resolvers.Environment().Workloads(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*workload.EnvironmentWorkloadOrder))
 		},
 		nil,
-		ec.marshalNWorkloadConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
+		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[workload.Workload]) graphql.Marshaler {
+			return ec.marshalNWorkloadConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_Environment_workloads(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Environment",
@@ -207,15 +214,7 @@ func (ec *executionContext) fieldContext_Environment_workloads(ctx context.Conte
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "pageInfo":
-				return ec.fieldContext_WorkloadConnection_pageInfo(ctx, field)
-			case "nodes":
-				return ec.fieldContext_WorkloadConnection_nodes(ctx, field)
-			case "edges":
-				return ec.fieldContext_WorkloadConnection_edges(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type WorkloadConnection", field.Name)
+			return ec.childFields_WorkloadConnection(ctx, field)
 		},
 	}
 	defer func() {
@@ -237,17 +236,20 @@ func (ec *executionContext) _EnvironmentConnection_pageInfo(ctx context.Context,
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_EnvironmentConnection_pageInfo,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_EnvironmentConnection_pageInfo(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.PageInfo, nil
 		},
 		nil,
-		ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo,
+		func(ctx context.Context, selections ast.SelectionSet, v pagination.PageInfo) graphql.Marshaler {
+			return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_EnvironmentConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "EnvironmentConnection",
@@ -255,23 +257,7 @@ func (ec *executionContext) fieldContext_EnvironmentConnection_pageInfo(_ contex
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "hasNextPage":
-				return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
-			case "endCursor":
-				return ec.fieldContext_PageInfo_endCursor(ctx, field)
-			case "hasPreviousPage":
-				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
-			case "startCursor":
-				return ec.fieldContext_PageInfo_startCursor(ctx, field)
-			case "totalCount":
-				return ec.fieldContext_PageInfo_totalCount(ctx, field)
-			case "pageStart":
-				return ec.fieldContext_PageInfo_pageStart(ctx, field)
-			case "pageEnd":
-				return ec.fieldContext_PageInfo_pageEnd(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
+			return ec.childFields_PageInfo(ctx, field)
 		},
 	}
 	return fc, nil
@@ -282,17 +268,20 @@ func (ec *executionContext) _EnvironmentConnection_nodes(ctx context.Context, fi
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_EnvironmentConnection_nodes,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_EnvironmentConnection_nodes(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Nodes(), nil
 		},
 		nil,
-		ec.marshalNEnvironment2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋenvironmentᚐEnvironmentᚄ,
+		func(ctx context.Context, selections ast.SelectionSet, v []*environment.Environment) graphql.Marshaler {
+			return ec.marshalNEnvironment2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋenvironmentᚐEnvironmentᚄ(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_EnvironmentConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "EnvironmentConnection",
@@ -300,17 +289,7 @@ func (ec *executionContext) fieldContext_EnvironmentConnection_nodes(_ context.C
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Environment_id(ctx, field)
-			case "name":
-				return ec.fieldContext_Environment_name(ctx, field)
-			case "metrics":
-				return ec.fieldContext_Environment_metrics(ctx, field)
-			case "workloads":
-				return ec.fieldContext_Environment_workloads(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Environment", field.Name)
+			return ec.childFields_Environment(ctx, field)
 		},
 	}
 	return fc, nil
@@ -321,17 +300,20 @@ func (ec *executionContext) _EnvironmentConnection_edges(ctx context.Context, fi
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_EnvironmentConnection_edges,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_EnvironmentConnection_edges(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Edges, nil
 		},
 		nil,
-		ec.marshalNEnvironmentEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ,
+		func(ctx context.Context, selections ast.SelectionSet, v []pagination.Edge[*environment.Environment]) graphql.Marshaler {
+			return ec.marshalNEnvironmentEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_EnvironmentConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "EnvironmentConnection",
@@ -339,13 +321,7 @@ func (ec *executionContext) fieldContext_EnvironmentConnection_edges(_ context.C
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "cursor":
-				return ec.fieldContext_EnvironmentEdge_cursor(ctx, field)
-			case "node":
-				return ec.fieldContext_EnvironmentEdge_node(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type EnvironmentEdge", field.Name)
+			return ec.childFields_EnvironmentEdge(ctx, field)
 		},
 	}
 	return fc, nil
@@ -356,28 +332,22 @@ func (ec *executionContext) _EnvironmentEdge_cursor(ctx context.Context, field g
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_EnvironmentEdge_cursor,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_EnvironmentEdge_cursor(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Cursor, nil
 		},
 		nil,
-		ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor,
+		func(ctx context.Context, selections ast.SelectionSet, v pagination.Cursor) graphql.Marshaler {
+			return ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_EnvironmentEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "EnvironmentEdge",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Cursor does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("EnvironmentEdge", field, false, false, errors.New("field of type Cursor does not have child fields"))
 }
 
 func (ec *executionContext) _EnvironmentEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*environment.Environment]) (ret graphql.Marshaler) {
@@ -385,17 +355,20 @@ func (ec *executionContext) _EnvironmentEdge_node(ctx context.Context, field gra
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_EnvironmentEdge_node,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_EnvironmentEdge_node(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Node, nil
 		},
 		nil,
-		ec.marshalNEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋenvironmentᚐEnvironment,
+		func(ctx context.Context, selections ast.SelectionSet, v *environment.Environment) graphql.Marshaler {
+			return ec.marshalNEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋenvironmentᚐEnvironment(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_EnvironmentEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "EnvironmentEdge",
@@ -403,17 +376,7 @@ func (ec *executionContext) fieldContext_EnvironmentEdge_node(_ context.Context,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Environment_id(ctx, field)
-			case "name":
-				return ec.fieldContext_Environment_name(ctx, field)
-			case "metrics":
-				return ec.fieldContext_Environment_metrics(ctx, field)
-			case "workloads":
-				return ec.fieldContext_Environment_workloads(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Environment", field.Name)
+			return ec.childFields_Environment(ctx, field)
 		},
 	}
 	return fc, nil
@@ -425,6 +388,10 @@ func (ec *executionContext) fieldContext_EnvironmentEdge_node(_ context.Context,
 
 func (ec *executionContext) unmarshalInputEnvironmentOrder(ctx context.Context, obj any) (environment.EnvironmentOrder, error) {
 	var it environment.EnvironmentOrder
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -566,7 +533,7 @@ func (ec *executionContext) _Environment(ctx context.Context, sel ast.SelectionS
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -615,7 +582,7 @@ func (ec *executionContext) _EnvironmentConnection(ctx context.Context, sel ast.
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -659,7 +626,7 @@ func (ec *executionContext) _EnvironmentEdge(ctx context.Context, sel ast.Select
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{

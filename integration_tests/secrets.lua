@@ -26,6 +26,7 @@ Test.gql("Create secret for team that does not exist", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("You are authenticated"),
 				path = {
 					"createSecret",
@@ -56,6 +57,7 @@ Test.gql("Create secret that already exists", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = "A secret with this name already exists.",
 				path = {
 					"createSecret",
@@ -154,6 +156,7 @@ Test.gql("Add secret value that already exists", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = "The secret already contains a secret value with the name \"value-name\".",
 				path = {
 					"addSecretValue",
@@ -222,6 +225,7 @@ Test.gql("Update secret value that does not exist", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = "The secret does not contain a secret value with the name \"does-not-exist\".",
 				path = {
 					"updateSecretValue",
@@ -254,6 +258,7 @@ Test.gql("Remove secret value that does not exist", function(t)
 		data = Null,
 		errors = {
 			{
+				locations = NotNull(),
 				message = "The secret does not contain a secret value with the name: \"foobar\".",
 				path = {
 					"removeSecretValue",
@@ -343,6 +348,7 @@ Test.gql("Delete secret that does not exist", function(t)
 		data = Null,
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("Resource not found"),
 				path = {
 					"deleteSecret",
@@ -398,6 +404,7 @@ Test.gql("Create secret as non-team member", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("You are authenticated"),
 				path = {
 					"createSecret",
@@ -432,6 +439,7 @@ Test.gql("Update secret as non-team member", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("You are authenticated"),
 				path = {
 					"updateSecretValue",
@@ -460,6 +468,7 @@ Test.gql("Delete secret as non-team member", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("You are authenticated"),
 				path = {
 					"deleteSecret",
@@ -616,6 +625,7 @@ Test.gql("Admin can manage secrets but CANNOT read values without team membershi
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("You are authenticated"),
 				path = { "viewSecretValues" },
 			},
@@ -730,6 +740,7 @@ Test.gql("viewSecretValues - fails with reason too short", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("at least 10 characters"),
 				path = { "viewSecretValues" },
 			},
@@ -760,6 +771,7 @@ Test.gql("viewSecretValues - fails for non-team member", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("You are authenticated"),
 				path = { "viewSecretValues" },
 			},
@@ -793,6 +805,7 @@ Test.gql("viewSecretValues - admin cannot bypass team membership", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("You are authenticated"),
 				path = { "viewSecretValues" },
 			},

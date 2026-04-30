@@ -6,10 +6,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"math"
 	"strconv"
 	"sync/atomic"
+	"time"
 
 	"github.com/99designs/gqlgen/graphql"
+	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/usersync"
 	"github.com/vektah/gqlparser/v2/ast"
@@ -34,28 +37,22 @@ func (ec *executionContext) _RoleAssignedUserSyncLogEntry_id(ctx context.Context
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_RoleAssignedUserSyncLogEntry_id,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_RoleAssignedUserSyncLogEntry_id(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
-		ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent,
+		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
+			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_RoleAssignedUserSyncLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "RoleAssignedUserSyncLogEntry",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("RoleAssignedUserSyncLogEntry", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
 func (ec *executionContext) _RoleAssignedUserSyncLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *usersync.RoleAssignedUserSyncLogEntry) (ret graphql.Marshaler) {
@@ -63,28 +60,22 @@ func (ec *executionContext) _RoleAssignedUserSyncLogEntry_createdAt(ctx context.
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_RoleAssignedUserSyncLogEntry_createdAt,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_RoleAssignedUserSyncLogEntry_createdAt(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.CreatedAt, nil
 		},
 		nil,
-		ec.marshalNTime2timeᚐTime,
+		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
+			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_RoleAssignedUserSyncLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "RoleAssignedUserSyncLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("RoleAssignedUserSyncLogEntry", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
 func (ec *executionContext) _RoleAssignedUserSyncLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *usersync.RoleAssignedUserSyncLogEntry) (ret graphql.Marshaler) {
@@ -92,28 +83,22 @@ func (ec *executionContext) _RoleAssignedUserSyncLogEntry_message(ctx context.Co
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_RoleAssignedUserSyncLogEntry_message,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_RoleAssignedUserSyncLogEntry_message(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Message, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_RoleAssignedUserSyncLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "RoleAssignedUserSyncLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("RoleAssignedUserSyncLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _RoleAssignedUserSyncLogEntry_userID(ctx context.Context, field graphql.CollectedField, obj *usersync.RoleAssignedUserSyncLogEntry) (ret graphql.Marshaler) {
@@ -121,28 +106,22 @@ func (ec *executionContext) _RoleAssignedUserSyncLogEntry_userID(ctx context.Con
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_RoleAssignedUserSyncLogEntry_userID,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_RoleAssignedUserSyncLogEntry_userID(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.UserID, nil
 		},
 		nil,
-		ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent,
+		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
+			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_RoleAssignedUserSyncLogEntry_userID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "RoleAssignedUserSyncLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("RoleAssignedUserSyncLogEntry", field, false, false, errors.New("field of type ID does not have child fields"))
 }
 
 func (ec *executionContext) _RoleAssignedUserSyncLogEntry_userName(ctx context.Context, field graphql.CollectedField, obj *usersync.RoleAssignedUserSyncLogEntry) (ret graphql.Marshaler) {
@@ -150,28 +129,22 @@ func (ec *executionContext) _RoleAssignedUserSyncLogEntry_userName(ctx context.C
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_RoleAssignedUserSyncLogEntry_userName,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_RoleAssignedUserSyncLogEntry_userName(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.UserName, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_RoleAssignedUserSyncLogEntry_userName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "RoleAssignedUserSyncLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("RoleAssignedUserSyncLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _RoleAssignedUserSyncLogEntry_userEmail(ctx context.Context, field graphql.CollectedField, obj *usersync.RoleAssignedUserSyncLogEntry) (ret graphql.Marshaler) {
@@ -179,28 +152,22 @@ func (ec *executionContext) _RoleAssignedUserSyncLogEntry_userEmail(ctx context.
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_RoleAssignedUserSyncLogEntry_userEmail,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_RoleAssignedUserSyncLogEntry_userEmail(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.UserEmail, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_RoleAssignedUserSyncLogEntry_userEmail(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "RoleAssignedUserSyncLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("RoleAssignedUserSyncLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _RoleAssignedUserSyncLogEntry_roleName(ctx context.Context, field graphql.CollectedField, obj *usersync.RoleAssignedUserSyncLogEntry) (ret graphql.Marshaler) {
@@ -208,28 +175,22 @@ func (ec *executionContext) _RoleAssignedUserSyncLogEntry_roleName(ctx context.C
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_RoleAssignedUserSyncLogEntry_roleName,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_RoleAssignedUserSyncLogEntry_roleName(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.RoleName, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_RoleAssignedUserSyncLogEntry_roleName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "RoleAssignedUserSyncLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("RoleAssignedUserSyncLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _RoleRevokedUserSyncLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *usersync.RoleRevokedUserSyncLogEntry) (ret graphql.Marshaler) {
@@ -237,28 +198,22 @@ func (ec *executionContext) _RoleRevokedUserSyncLogEntry_id(ctx context.Context,
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_RoleRevokedUserSyncLogEntry_id,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_RoleRevokedUserSyncLogEntry_id(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
-		ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent,
+		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
+			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_RoleRevokedUserSyncLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "RoleRevokedUserSyncLogEntry",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("RoleRevokedUserSyncLogEntry", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
 func (ec *executionContext) _RoleRevokedUserSyncLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *usersync.RoleRevokedUserSyncLogEntry) (ret graphql.Marshaler) {
@@ -266,28 +221,22 @@ func (ec *executionContext) _RoleRevokedUserSyncLogEntry_createdAt(ctx context.C
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_RoleRevokedUserSyncLogEntry_createdAt,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_RoleRevokedUserSyncLogEntry_createdAt(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.CreatedAt, nil
 		},
 		nil,
-		ec.marshalNTime2timeᚐTime,
+		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
+			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_RoleRevokedUserSyncLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "RoleRevokedUserSyncLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("RoleRevokedUserSyncLogEntry", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
 func (ec *executionContext) _RoleRevokedUserSyncLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *usersync.RoleRevokedUserSyncLogEntry) (ret graphql.Marshaler) {
@@ -295,28 +244,22 @@ func (ec *executionContext) _RoleRevokedUserSyncLogEntry_message(ctx context.Con
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_RoleRevokedUserSyncLogEntry_message,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_RoleRevokedUserSyncLogEntry_message(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Message, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_RoleRevokedUserSyncLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "RoleRevokedUserSyncLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("RoleRevokedUserSyncLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _RoleRevokedUserSyncLogEntry_userID(ctx context.Context, field graphql.CollectedField, obj *usersync.RoleRevokedUserSyncLogEntry) (ret graphql.Marshaler) {
@@ -324,28 +267,22 @@ func (ec *executionContext) _RoleRevokedUserSyncLogEntry_userID(ctx context.Cont
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_RoleRevokedUserSyncLogEntry_userID,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_RoleRevokedUserSyncLogEntry_userID(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.UserID, nil
 		},
 		nil,
-		ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent,
+		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
+			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_RoleRevokedUserSyncLogEntry_userID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "RoleRevokedUserSyncLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("RoleRevokedUserSyncLogEntry", field, false, false, errors.New("field of type ID does not have child fields"))
 }
 
 func (ec *executionContext) _RoleRevokedUserSyncLogEntry_userName(ctx context.Context, field graphql.CollectedField, obj *usersync.RoleRevokedUserSyncLogEntry) (ret graphql.Marshaler) {
@@ -353,28 +290,22 @@ func (ec *executionContext) _RoleRevokedUserSyncLogEntry_userName(ctx context.Co
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_RoleRevokedUserSyncLogEntry_userName,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_RoleRevokedUserSyncLogEntry_userName(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.UserName, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_RoleRevokedUserSyncLogEntry_userName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "RoleRevokedUserSyncLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("RoleRevokedUserSyncLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _RoleRevokedUserSyncLogEntry_userEmail(ctx context.Context, field graphql.CollectedField, obj *usersync.RoleRevokedUserSyncLogEntry) (ret graphql.Marshaler) {
@@ -382,28 +313,22 @@ func (ec *executionContext) _RoleRevokedUserSyncLogEntry_userEmail(ctx context.C
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_RoleRevokedUserSyncLogEntry_userEmail,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_RoleRevokedUserSyncLogEntry_userEmail(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.UserEmail, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_RoleRevokedUserSyncLogEntry_userEmail(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "RoleRevokedUserSyncLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("RoleRevokedUserSyncLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _RoleRevokedUserSyncLogEntry_roleName(ctx context.Context, field graphql.CollectedField, obj *usersync.RoleRevokedUserSyncLogEntry) (ret graphql.Marshaler) {
@@ -411,28 +336,22 @@ func (ec *executionContext) _RoleRevokedUserSyncLogEntry_roleName(ctx context.Co
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_RoleRevokedUserSyncLogEntry_roleName,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_RoleRevokedUserSyncLogEntry_roleName(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.RoleName, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_RoleRevokedUserSyncLogEntry_roleName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "RoleRevokedUserSyncLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("RoleRevokedUserSyncLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _UserCreatedUserSyncLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *usersync.UserCreatedUserSyncLogEntry) (ret graphql.Marshaler) {
@@ -440,28 +359,22 @@ func (ec *executionContext) _UserCreatedUserSyncLogEntry_id(ctx context.Context,
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_UserCreatedUserSyncLogEntry_id,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_UserCreatedUserSyncLogEntry_id(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
-		ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent,
+		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
+			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_UserCreatedUserSyncLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UserCreatedUserSyncLogEntry",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("UserCreatedUserSyncLogEntry", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
 func (ec *executionContext) _UserCreatedUserSyncLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *usersync.UserCreatedUserSyncLogEntry) (ret graphql.Marshaler) {
@@ -469,28 +382,22 @@ func (ec *executionContext) _UserCreatedUserSyncLogEntry_createdAt(ctx context.C
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_UserCreatedUserSyncLogEntry_createdAt,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_UserCreatedUserSyncLogEntry_createdAt(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.CreatedAt, nil
 		},
 		nil,
-		ec.marshalNTime2timeᚐTime,
+		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
+			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_UserCreatedUserSyncLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UserCreatedUserSyncLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("UserCreatedUserSyncLogEntry", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
 func (ec *executionContext) _UserCreatedUserSyncLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *usersync.UserCreatedUserSyncLogEntry) (ret graphql.Marshaler) {
@@ -498,28 +405,22 @@ func (ec *executionContext) _UserCreatedUserSyncLogEntry_message(ctx context.Con
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_UserCreatedUserSyncLogEntry_message,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_UserCreatedUserSyncLogEntry_message(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Message, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_UserCreatedUserSyncLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UserCreatedUserSyncLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("UserCreatedUserSyncLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _UserCreatedUserSyncLogEntry_userID(ctx context.Context, field graphql.CollectedField, obj *usersync.UserCreatedUserSyncLogEntry) (ret graphql.Marshaler) {
@@ -527,28 +428,22 @@ func (ec *executionContext) _UserCreatedUserSyncLogEntry_userID(ctx context.Cont
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_UserCreatedUserSyncLogEntry_userID,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_UserCreatedUserSyncLogEntry_userID(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.UserID, nil
 		},
 		nil,
-		ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent,
+		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
+			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_UserCreatedUserSyncLogEntry_userID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UserCreatedUserSyncLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("UserCreatedUserSyncLogEntry", field, false, false, errors.New("field of type ID does not have child fields"))
 }
 
 func (ec *executionContext) _UserCreatedUserSyncLogEntry_userName(ctx context.Context, field graphql.CollectedField, obj *usersync.UserCreatedUserSyncLogEntry) (ret graphql.Marshaler) {
@@ -556,28 +451,22 @@ func (ec *executionContext) _UserCreatedUserSyncLogEntry_userName(ctx context.Co
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_UserCreatedUserSyncLogEntry_userName,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_UserCreatedUserSyncLogEntry_userName(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.UserName, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_UserCreatedUserSyncLogEntry_userName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UserCreatedUserSyncLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("UserCreatedUserSyncLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _UserCreatedUserSyncLogEntry_userEmail(ctx context.Context, field graphql.CollectedField, obj *usersync.UserCreatedUserSyncLogEntry) (ret graphql.Marshaler) {
@@ -585,28 +474,22 @@ func (ec *executionContext) _UserCreatedUserSyncLogEntry_userEmail(ctx context.C
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_UserCreatedUserSyncLogEntry_userEmail,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_UserCreatedUserSyncLogEntry_userEmail(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.UserEmail, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_UserCreatedUserSyncLogEntry_userEmail(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UserCreatedUserSyncLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("UserCreatedUserSyncLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _UserDeletedUserSyncLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *usersync.UserDeletedUserSyncLogEntry) (ret graphql.Marshaler) {
@@ -614,28 +497,22 @@ func (ec *executionContext) _UserDeletedUserSyncLogEntry_id(ctx context.Context,
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_UserDeletedUserSyncLogEntry_id,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_UserDeletedUserSyncLogEntry_id(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
-		ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent,
+		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
+			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_UserDeletedUserSyncLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UserDeletedUserSyncLogEntry",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("UserDeletedUserSyncLogEntry", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
 func (ec *executionContext) _UserDeletedUserSyncLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *usersync.UserDeletedUserSyncLogEntry) (ret graphql.Marshaler) {
@@ -643,28 +520,22 @@ func (ec *executionContext) _UserDeletedUserSyncLogEntry_createdAt(ctx context.C
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_UserDeletedUserSyncLogEntry_createdAt,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_UserDeletedUserSyncLogEntry_createdAt(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.CreatedAt, nil
 		},
 		nil,
-		ec.marshalNTime2timeᚐTime,
+		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
+			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_UserDeletedUserSyncLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UserDeletedUserSyncLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("UserDeletedUserSyncLogEntry", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
 func (ec *executionContext) _UserDeletedUserSyncLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *usersync.UserDeletedUserSyncLogEntry) (ret graphql.Marshaler) {
@@ -672,28 +543,22 @@ func (ec *executionContext) _UserDeletedUserSyncLogEntry_message(ctx context.Con
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_UserDeletedUserSyncLogEntry_message,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_UserDeletedUserSyncLogEntry_message(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Message, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_UserDeletedUserSyncLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UserDeletedUserSyncLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("UserDeletedUserSyncLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _UserDeletedUserSyncLogEntry_userID(ctx context.Context, field graphql.CollectedField, obj *usersync.UserDeletedUserSyncLogEntry) (ret graphql.Marshaler) {
@@ -701,28 +566,22 @@ func (ec *executionContext) _UserDeletedUserSyncLogEntry_userID(ctx context.Cont
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_UserDeletedUserSyncLogEntry_userID,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_UserDeletedUserSyncLogEntry_userID(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.UserID, nil
 		},
 		nil,
-		ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent,
+		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
+			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_UserDeletedUserSyncLogEntry_userID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UserDeletedUserSyncLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("UserDeletedUserSyncLogEntry", field, false, false, errors.New("field of type ID does not have child fields"))
 }
 
 func (ec *executionContext) _UserDeletedUserSyncLogEntry_userName(ctx context.Context, field graphql.CollectedField, obj *usersync.UserDeletedUserSyncLogEntry) (ret graphql.Marshaler) {
@@ -730,28 +589,22 @@ func (ec *executionContext) _UserDeletedUserSyncLogEntry_userName(ctx context.Co
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_UserDeletedUserSyncLogEntry_userName,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_UserDeletedUserSyncLogEntry_userName(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.UserName, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_UserDeletedUserSyncLogEntry_userName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UserDeletedUserSyncLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("UserDeletedUserSyncLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _UserDeletedUserSyncLogEntry_userEmail(ctx context.Context, field graphql.CollectedField, obj *usersync.UserDeletedUserSyncLogEntry) (ret graphql.Marshaler) {
@@ -759,28 +612,22 @@ func (ec *executionContext) _UserDeletedUserSyncLogEntry_userEmail(ctx context.C
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_UserDeletedUserSyncLogEntry_userEmail,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_UserDeletedUserSyncLogEntry_userEmail(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.UserEmail, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_UserDeletedUserSyncLogEntry_userEmail(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UserDeletedUserSyncLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("UserDeletedUserSyncLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _UserSyncLogEntryConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[usersync.UserSyncLogEntry]) (ret graphql.Marshaler) {
@@ -788,17 +635,20 @@ func (ec *executionContext) _UserSyncLogEntryConnection_pageInfo(ctx context.Con
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_UserSyncLogEntryConnection_pageInfo,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_UserSyncLogEntryConnection_pageInfo(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.PageInfo, nil
 		},
 		nil,
-		ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo,
+		func(ctx context.Context, selections ast.SelectionSet, v pagination.PageInfo) graphql.Marshaler {
+			return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_UserSyncLogEntryConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "UserSyncLogEntryConnection",
@@ -806,23 +656,7 @@ func (ec *executionContext) fieldContext_UserSyncLogEntryConnection_pageInfo(_ c
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "hasNextPage":
-				return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
-			case "endCursor":
-				return ec.fieldContext_PageInfo_endCursor(ctx, field)
-			case "hasPreviousPage":
-				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
-			case "startCursor":
-				return ec.fieldContext_PageInfo_startCursor(ctx, field)
-			case "totalCount":
-				return ec.fieldContext_PageInfo_totalCount(ctx, field)
-			case "pageStart":
-				return ec.fieldContext_PageInfo_pageStart(ctx, field)
-			case "pageEnd":
-				return ec.fieldContext_PageInfo_pageEnd(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
+			return ec.childFields_PageInfo(ctx, field)
 		},
 	}
 	return fc, nil
@@ -833,17 +667,20 @@ func (ec *executionContext) _UserSyncLogEntryConnection_nodes(ctx context.Contex
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_UserSyncLogEntryConnection_nodes,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_UserSyncLogEntryConnection_nodes(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Nodes(), nil
 		},
 		nil,
-		ec.marshalNUserSyncLogEntry2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋusersyncᚐUserSyncLogEntryᚄ,
+		func(ctx context.Context, selections ast.SelectionSet, v []usersync.UserSyncLogEntry) graphql.Marshaler {
+			return ec.marshalNUserSyncLogEntry2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋusersyncᚐUserSyncLogEntryᚄ(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_UserSyncLogEntryConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "UserSyncLogEntryConnection",
@@ -862,17 +699,20 @@ func (ec *executionContext) _UserSyncLogEntryConnection_edges(ctx context.Contex
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_UserSyncLogEntryConnection_edges,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_UserSyncLogEntryConnection_edges(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Edges, nil
 		},
 		nil,
-		ec.marshalNUserSyncLogEntryEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ,
+		func(ctx context.Context, selections ast.SelectionSet, v []pagination.Edge[usersync.UserSyncLogEntry]) graphql.Marshaler {
+			return ec.marshalNUserSyncLogEntryEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_UserSyncLogEntryConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "UserSyncLogEntryConnection",
@@ -880,13 +720,7 @@ func (ec *executionContext) fieldContext_UserSyncLogEntryConnection_edges(_ cont
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "cursor":
-				return ec.fieldContext_UserSyncLogEntryEdge_cursor(ctx, field)
-			case "node":
-				return ec.fieldContext_UserSyncLogEntryEdge_node(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type UserSyncLogEntryEdge", field.Name)
+			return ec.childFields_UserSyncLogEntryEdge(ctx, field)
 		},
 	}
 	return fc, nil
@@ -897,28 +731,22 @@ func (ec *executionContext) _UserSyncLogEntryEdge_cursor(ctx context.Context, fi
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_UserSyncLogEntryEdge_cursor,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_UserSyncLogEntryEdge_cursor(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Cursor, nil
 		},
 		nil,
-		ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor,
+		func(ctx context.Context, selections ast.SelectionSet, v pagination.Cursor) graphql.Marshaler {
+			return ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_UserSyncLogEntryEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UserSyncLogEntryEdge",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Cursor does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("UserSyncLogEntryEdge", field, false, false, errors.New("field of type Cursor does not have child fields"))
 }
 
 func (ec *executionContext) _UserSyncLogEntryEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[usersync.UserSyncLogEntry]) (ret graphql.Marshaler) {
@@ -926,17 +754,20 @@ func (ec *executionContext) _UserSyncLogEntryEdge_node(ctx context.Context, fiel
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_UserSyncLogEntryEdge_node,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_UserSyncLogEntryEdge_node(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Node, nil
 		},
 		nil,
-		ec.marshalNUserSyncLogEntry2githubᚗcomᚋnaisᚋapiᚋinternalᚋusersyncᚐUserSyncLogEntry,
+		func(ctx context.Context, selections ast.SelectionSet, v usersync.UserSyncLogEntry) graphql.Marshaler {
+			return ec.marshalNUserSyncLogEntry2githubᚗcomᚋnaisᚋapiᚋinternalᚋusersyncᚐUserSyncLogEntry(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_UserSyncLogEntryEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "UserSyncLogEntryEdge",
@@ -955,28 +786,22 @@ func (ec *executionContext) _UserUpdatedUserSyncLogEntry_id(ctx context.Context,
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_UserUpdatedUserSyncLogEntry_id,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_UserUpdatedUserSyncLogEntry_id(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
-		ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent,
+		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
+			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_UserUpdatedUserSyncLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UserUpdatedUserSyncLogEntry",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("UserUpdatedUserSyncLogEntry", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
 func (ec *executionContext) _UserUpdatedUserSyncLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *usersync.UserUpdatedUserSyncLogEntry) (ret graphql.Marshaler) {
@@ -984,28 +809,22 @@ func (ec *executionContext) _UserUpdatedUserSyncLogEntry_createdAt(ctx context.C
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_UserUpdatedUserSyncLogEntry_createdAt,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_UserUpdatedUserSyncLogEntry_createdAt(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.CreatedAt, nil
 		},
 		nil,
-		ec.marshalNTime2timeᚐTime,
+		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
+			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_UserUpdatedUserSyncLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UserUpdatedUserSyncLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("UserUpdatedUserSyncLogEntry", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
 func (ec *executionContext) _UserUpdatedUserSyncLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *usersync.UserUpdatedUserSyncLogEntry) (ret graphql.Marshaler) {
@@ -1013,28 +832,22 @@ func (ec *executionContext) _UserUpdatedUserSyncLogEntry_message(ctx context.Con
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_UserUpdatedUserSyncLogEntry_message,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_UserUpdatedUserSyncLogEntry_message(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Message, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_UserUpdatedUserSyncLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UserUpdatedUserSyncLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("UserUpdatedUserSyncLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _UserUpdatedUserSyncLogEntry_userID(ctx context.Context, field graphql.CollectedField, obj *usersync.UserUpdatedUserSyncLogEntry) (ret graphql.Marshaler) {
@@ -1042,28 +855,22 @@ func (ec *executionContext) _UserUpdatedUserSyncLogEntry_userID(ctx context.Cont
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_UserUpdatedUserSyncLogEntry_userID,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_UserUpdatedUserSyncLogEntry_userID(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.UserID, nil
 		},
 		nil,
-		ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent,
+		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
+			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_UserUpdatedUserSyncLogEntry_userID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UserUpdatedUserSyncLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("UserUpdatedUserSyncLogEntry", field, false, false, errors.New("field of type ID does not have child fields"))
 }
 
 func (ec *executionContext) _UserUpdatedUserSyncLogEntry_userName(ctx context.Context, field graphql.CollectedField, obj *usersync.UserUpdatedUserSyncLogEntry) (ret graphql.Marshaler) {
@@ -1071,28 +878,22 @@ func (ec *executionContext) _UserUpdatedUserSyncLogEntry_userName(ctx context.Co
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_UserUpdatedUserSyncLogEntry_userName,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_UserUpdatedUserSyncLogEntry_userName(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.UserName, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_UserUpdatedUserSyncLogEntry_userName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UserUpdatedUserSyncLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("UserUpdatedUserSyncLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _UserUpdatedUserSyncLogEntry_userEmail(ctx context.Context, field graphql.CollectedField, obj *usersync.UserUpdatedUserSyncLogEntry) (ret graphql.Marshaler) {
@@ -1100,28 +901,22 @@ func (ec *executionContext) _UserUpdatedUserSyncLogEntry_userEmail(ctx context.C
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_UserUpdatedUserSyncLogEntry_userEmail,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_UserUpdatedUserSyncLogEntry_userEmail(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.UserEmail, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_UserUpdatedUserSyncLogEntry_userEmail(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UserUpdatedUserSyncLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("UserUpdatedUserSyncLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _UserUpdatedUserSyncLogEntry_oldUserName(ctx context.Context, field graphql.CollectedField, obj *usersync.UserUpdatedUserSyncLogEntry) (ret graphql.Marshaler) {
@@ -1129,28 +924,22 @@ func (ec *executionContext) _UserUpdatedUserSyncLogEntry_oldUserName(ctx context
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_UserUpdatedUserSyncLogEntry_oldUserName,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_UserUpdatedUserSyncLogEntry_oldUserName(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.OldUserName, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_UserUpdatedUserSyncLogEntry_oldUserName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UserUpdatedUserSyncLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("UserUpdatedUserSyncLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _UserUpdatedUserSyncLogEntry_oldUserEmail(ctx context.Context, field graphql.CollectedField, obj *usersync.UserUpdatedUserSyncLogEntry) (ret graphql.Marshaler) {
@@ -1158,28 +947,22 @@ func (ec *executionContext) _UserUpdatedUserSyncLogEntry_oldUserEmail(ctx contex
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_UserUpdatedUserSyncLogEntry_oldUserEmail,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_UserUpdatedUserSyncLogEntry_oldUserEmail(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.OldUserEmail, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_UserUpdatedUserSyncLogEntry_oldUserEmail(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UserUpdatedUserSyncLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("UserUpdatedUserSyncLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 // endregion **************************** field.gotpl *****************************
@@ -1287,7 +1070,7 @@ func (ec *executionContext) _RoleAssignedUserSyncLogEntry(ctx context.Context, s
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -1356,7 +1139,7 @@ func (ec *executionContext) _RoleRevokedUserSyncLogEntry(ctx context.Context, se
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -1420,7 +1203,7 @@ func (ec *executionContext) _UserCreatedUserSyncLogEntry(ctx context.Context, se
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -1484,7 +1267,7 @@ func (ec *executionContext) _UserDeletedUserSyncLogEntry(ctx context.Context, se
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -1533,7 +1316,7 @@ func (ec *executionContext) _UserSyncLogEntryConnection(ctx context.Context, sel
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -1577,7 +1360,7 @@ func (ec *executionContext) _UserSyncLogEntryEdge(ctx context.Context, sel ast.S
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -1651,7 +1434,7 @@ func (ec *executionContext) _UserUpdatedUserSyncLogEntry(ctx context.Context, se
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{

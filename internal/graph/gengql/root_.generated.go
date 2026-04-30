@@ -5,6 +5,7 @@ package gengql
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"sync/atomic"
 
 	"github.com/99designs/gqlgen/graphql"
@@ -17410,8 +17411,8 @@ func newExecutionContext(
 	opCtx *graphql.OperationContext,
 	execSchema *executableSchema,
 	deferredResults chan graphql.DeferredResult,
-) executionContext {
-	return executionContext{
+) *executionContext {
+	return &executionContext{
 		ExecutionContextState: graphql.NewExecutionContextState[ResolverRoot, DirectiveRoot, ComplexityRoot](
 			opCtx,
 			(*graphql.ExecutableSchemaState[ResolverRoot, DirectiveRoot, ComplexityRoot])(execSchema),
@@ -28927,3 +28928,4423 @@ input TeamWorkloadsFilter {
 `, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
+
+// childFields_* functions provide shared child field context lookups.
+// Each function is generated once per unique object type, deduplicating the
+// switch statements that were previously inlined in every fieldContext_* function.
+
+func (ec *executionContext) childFields_ActivityLogEntryConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pageInfo":
+		return ec.fieldContext_ActivityLogEntryConnection_pageInfo(ctx, field)
+	case "nodes":
+		return ec.fieldContext_ActivityLogEntryConnection_nodes(ctx, field)
+	case "edges":
+		return ec.fieldContext_ActivityLogEntryConnection_edges(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ActivityLogEntryConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_ActivityLogEntryEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_ActivityLogEntryEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_ActivityLogEntryEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ActivityLogEntryEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_AddConfigValuePayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "config":
+		return ec.fieldContext_AddConfigValuePayload_config(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type AddConfigValuePayload", field.Name)
+}
+
+func (ec *executionContext) childFields_AddRepositoryToTeamPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "repository":
+		return ec.fieldContext_AddRepositoryToTeamPayload_repository(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type AddRepositoryToTeamPayload", field.Name)
+}
+
+func (ec *executionContext) childFields_AddSecretValuePayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "secret":
+		return ec.fieldContext_AddSecretValuePayload_secret(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type AddSecretValuePayload", field.Name)
+}
+
+func (ec *executionContext) childFields_AddTeamMemberPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "member":
+		return ec.fieldContext_AddTeamMemberPayload_member(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type AddTeamMemberPayload", field.Name)
+}
+
+func (ec *executionContext) childFields_AlertConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pageInfo":
+		return ec.fieldContext_AlertConnection_pageInfo(ctx, field)
+	case "nodes":
+		return ec.fieldContext_AlertConnection_nodes(ctx, field)
+	case "edges":
+		return ec.fieldContext_AlertConnection_edges(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type AlertConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_AlertEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_AlertEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_AlertEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type AlertEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_AllowTeamAccessToUnleashPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "unleash":
+		return ec.fieldContext_AllowTeamAccessToUnleashPayload_unleash(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type AllowTeamAccessToUnleashPayload", field.Name)
+}
+
+func (ec *executionContext) childFields_Application(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_Application_id(ctx, field)
+	case "name":
+		return ec.fieldContext_Application_name(ctx, field)
+	case "team":
+		return ec.fieldContext_Application_team(ctx, field)
+	case "environment":
+		return ec.fieldContext_Application_environment(ctx, field)
+	case "teamEnvironment":
+		return ec.fieldContext_Application_teamEnvironment(ctx, field)
+	case "image":
+		return ec.fieldContext_Application_image(ctx, field)
+	case "resources":
+		return ec.fieldContext_Application_resources(ctx, field)
+	case "ingresses":
+		return ec.fieldContext_Application_ingresses(ctx, field)
+	case "authIntegrations":
+		return ec.fieldContext_Application_authIntegrations(ctx, field)
+	case "manifest":
+		return ec.fieldContext_Application_manifest(ctx, field)
+	case "instances":
+		return ec.fieldContext_Application_instances(ctx, field)
+	case "deletionStartedAt":
+		return ec.fieldContext_Application_deletionStartedAt(ctx, field)
+	case "activityLog":
+		return ec.fieldContext_Application_activityLog(ctx, field)
+	case "state":
+		return ec.fieldContext_Application_state(ctx, field)
+	case "issues":
+		return ec.fieldContext_Application_issues(ctx, field)
+	case "bigQueryDatasets":
+		return ec.fieldContext_Application_bigQueryDatasets(ctx, field)
+	case "buckets":
+		return ec.fieldContext_Application_buckets(ctx, field)
+	case "configs":
+		return ec.fieldContext_Application_configs(ctx, field)
+	case "cost":
+		return ec.fieldContext_Application_cost(ctx, field)
+	case "deployments":
+		return ec.fieldContext_Application_deployments(ctx, field)
+	case "instanceGroups":
+		return ec.fieldContext_Application_instanceGroups(ctx, field)
+	case "kafkaTopicAcls":
+		return ec.fieldContext_Application_kafkaTopicAcls(ctx, field)
+	case "logDestinations":
+		return ec.fieldContext_Application_logDestinations(ctx, field)
+	case "networkPolicy":
+		return ec.fieldContext_Application_networkPolicy(ctx, field)
+	case "openSearch":
+		return ec.fieldContext_Application_openSearch(ctx, field)
+	case "postgresInstances":
+		return ec.fieldContext_Application_postgresInstances(ctx, field)
+	case "secrets":
+		return ec.fieldContext_Application_secrets(ctx, field)
+	case "sqlInstances":
+		return ec.fieldContext_Application_sqlInstances(ctx, field)
+	case "utilization":
+		return ec.fieldContext_Application_utilization(ctx, field)
+	case "valkeys":
+		return ec.fieldContext_Application_valkeys(ctx, field)
+	case "imageVulnerabilityHistory":
+		return ec.fieldContext_Application_imageVulnerabilityHistory(ctx, field)
+	case "vulnerabilityFixHistory":
+		return ec.fieldContext_Application_vulnerabilityFixHistory(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type Application", field.Name)
+}
+
+func (ec *executionContext) childFields_ApplicationConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pageInfo":
+		return ec.fieldContext_ApplicationConnection_pageInfo(ctx, field)
+	case "nodes":
+		return ec.fieldContext_ApplicationConnection_nodes(ctx, field)
+	case "edges":
+		return ec.fieldContext_ApplicationConnection_edges(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ApplicationConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_ApplicationEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_ApplicationEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_ApplicationEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ApplicationEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_ApplicationInstance(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_ApplicationInstance_id(ctx, field)
+	case "name":
+		return ec.fieldContext_ApplicationInstance_name(ctx, field)
+	case "image":
+		return ec.fieldContext_ApplicationInstance_image(ctx, field)
+	case "restarts":
+		return ec.fieldContext_ApplicationInstance_restarts(ctx, field)
+	case "created":
+		return ec.fieldContext_ApplicationInstance_created(ctx, field)
+	case "status":
+		return ec.fieldContext_ApplicationInstance_status(ctx, field)
+	case "instanceUtilization":
+		return ec.fieldContext_ApplicationInstance_instanceUtilization(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ApplicationInstance", field.Name)
+}
+
+func (ec *executionContext) childFields_ApplicationInstanceConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pageInfo":
+		return ec.fieldContext_ApplicationInstanceConnection_pageInfo(ctx, field)
+	case "nodes":
+		return ec.fieldContext_ApplicationInstanceConnection_nodes(ctx, field)
+	case "edges":
+		return ec.fieldContext_ApplicationInstanceConnection_edges(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ApplicationInstanceConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_ApplicationInstanceEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_ApplicationInstanceEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_ApplicationInstanceEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ApplicationInstanceEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_ApplicationInstanceStatus(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "state":
+		return ec.fieldContext_ApplicationInstanceStatus_state(ctx, field)
+	case "message":
+		return ec.fieldContext_ApplicationInstanceStatus_message(ctx, field)
+	case "ready":
+		return ec.fieldContext_ApplicationInstanceStatus_ready(ctx, field)
+	case "lastExitReason":
+		return ec.fieldContext_ApplicationInstanceStatus_lastExitReason(ctx, field)
+	case "lastExitCode":
+		return ec.fieldContext_ApplicationInstanceStatus_lastExitCode(ctx, field)
+	case "lastExitTimestamp":
+		return ec.fieldContext_ApplicationInstanceStatus_lastExitTimestamp(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ApplicationInstanceStatus", field.Name)
+}
+
+func (ec *executionContext) childFields_ApplicationInstanceUtilization(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "current":
+		return ec.fieldContext_ApplicationInstanceUtilization_current(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ApplicationInstanceUtilization", field.Name)
+}
+
+func (ec *executionContext) childFields_ApplicationManifest(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "content":
+		return ec.fieldContext_ApplicationManifest_content(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ApplicationManifest", field.Name)
+}
+
+func (ec *executionContext) childFields_ApplicationResources(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "limits":
+		return ec.fieldContext_ApplicationResources_limits(ctx, field)
+	case "requests":
+		return ec.fieldContext_ApplicationResources_requests(ctx, field)
+	case "scaling":
+		return ec.fieldContext_ApplicationResources_scaling(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ApplicationResources", field.Name)
+}
+
+func (ec *executionContext) childFields_ApplicationScaledActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "newSize":
+		return ec.fieldContext_ApplicationScaledActivityLogEntryData_newSize(ctx, field)
+	case "direction":
+		return ec.fieldContext_ApplicationScaledActivityLogEntryData_direction(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ApplicationScaledActivityLogEntryData", field.Name)
+}
+
+func (ec *executionContext) childFields_ApplicationScaling(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "minInstances":
+		return ec.fieldContext_ApplicationScaling_minInstances(ctx, field)
+	case "maxInstances":
+		return ec.fieldContext_ApplicationScaling_maxInstances(ctx, field)
+	case "strategies":
+		return ec.fieldContext_ApplicationScaling_strategies(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ApplicationScaling", field.Name)
+}
+
+func (ec *executionContext) childFields_AssignRoleToServiceAccountPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "serviceAccount":
+		return ec.fieldContext_AssignRoleToServiceAccountPayload_serviceAccount(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type AssignRoleToServiceAccountPayload", field.Name)
+}
+
+func (ec *executionContext) childFields_AuditLog(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "logUrl":
+		return ec.fieldContext_AuditLog_logUrl(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type AuditLog", field.Name)
+}
+
+func (ec *executionContext) childFields_BigQueryDataset(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_BigQueryDataset_id(ctx, field)
+	case "name":
+		return ec.fieldContext_BigQueryDataset_name(ctx, field)
+	case "team":
+		return ec.fieldContext_BigQueryDataset_team(ctx, field)
+	case "environment":
+		return ec.fieldContext_BigQueryDataset_environment(ctx, field)
+	case "teamEnvironment":
+		return ec.fieldContext_BigQueryDataset_teamEnvironment(ctx, field)
+	case "cascadingDelete":
+		return ec.fieldContext_BigQueryDataset_cascadingDelete(ctx, field)
+	case "description":
+		return ec.fieldContext_BigQueryDataset_description(ctx, field)
+	case "access":
+		return ec.fieldContext_BigQueryDataset_access(ctx, field)
+	case "status":
+		return ec.fieldContext_BigQueryDataset_status(ctx, field)
+	case "workload":
+		return ec.fieldContext_BigQueryDataset_workload(ctx, field)
+	case "cost":
+		return ec.fieldContext_BigQueryDataset_cost(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type BigQueryDataset", field.Name)
+}
+
+func (ec *executionContext) childFields_BigQueryDatasetAccess(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "role":
+		return ec.fieldContext_BigQueryDatasetAccess_role(ctx, field)
+	case "email":
+		return ec.fieldContext_BigQueryDatasetAccess_email(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type BigQueryDatasetAccess", field.Name)
+}
+
+func (ec *executionContext) childFields_BigQueryDatasetAccessConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pageInfo":
+		return ec.fieldContext_BigQueryDatasetAccessConnection_pageInfo(ctx, field)
+	case "nodes":
+		return ec.fieldContext_BigQueryDatasetAccessConnection_nodes(ctx, field)
+	case "edges":
+		return ec.fieldContext_BigQueryDatasetAccessConnection_edges(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type BigQueryDatasetAccessConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_BigQueryDatasetAccessEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_BigQueryDatasetAccessEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_BigQueryDatasetAccessEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type BigQueryDatasetAccessEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_BigQueryDatasetConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pageInfo":
+		return ec.fieldContext_BigQueryDatasetConnection_pageInfo(ctx, field)
+	case "nodes":
+		return ec.fieldContext_BigQueryDatasetConnection_nodes(ctx, field)
+	case "edges":
+		return ec.fieldContext_BigQueryDatasetConnection_edges(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type BigQueryDatasetConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_BigQueryDatasetCost(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "sum":
+		return ec.fieldContext_BigQueryDatasetCost_sum(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type BigQueryDatasetCost", field.Name)
+}
+
+func (ec *executionContext) childFields_BigQueryDatasetEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_BigQueryDatasetEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_BigQueryDatasetEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type BigQueryDatasetEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_BigQueryDatasetStatus(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "creationTime":
+		return ec.fieldContext_BigQueryDatasetStatus_creationTime(ctx, field)
+	case "lastModifiedTime":
+		return ec.fieldContext_BigQueryDatasetStatus_lastModifiedTime(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type BigQueryDatasetStatus", field.Name)
+}
+
+func (ec *executionContext) childFields_Bucket(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_Bucket_id(ctx, field)
+	case "name":
+		return ec.fieldContext_Bucket_name(ctx, field)
+	case "team":
+		return ec.fieldContext_Bucket_team(ctx, field)
+	case "environment":
+		return ec.fieldContext_Bucket_environment(ctx, field)
+	case "teamEnvironment":
+		return ec.fieldContext_Bucket_teamEnvironment(ctx, field)
+	case "cascadingDelete":
+		return ec.fieldContext_Bucket_cascadingDelete(ctx, field)
+	case "publicAccessPrevention":
+		return ec.fieldContext_Bucket_publicAccessPrevention(ctx, field)
+	case "uniformBucketLevelAccess":
+		return ec.fieldContext_Bucket_uniformBucketLevelAccess(ctx, field)
+	case "workload":
+		return ec.fieldContext_Bucket_workload(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type Bucket", field.Name)
+}
+
+func (ec *executionContext) childFields_BucketConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pageInfo":
+		return ec.fieldContext_BucketConnection_pageInfo(ctx, field)
+	case "nodes":
+		return ec.fieldContext_BucketConnection_nodes(ctx, field)
+	case "edges":
+		return ec.fieldContext_BucketConnection_edges(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type BucketConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_BucketEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_BucketEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_BucketEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type BucketEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_CVE(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_CVE_id(ctx, field)
+	case "identifier":
+		return ec.fieldContext_CVE_identifier(ctx, field)
+	case "severity":
+		return ec.fieldContext_CVE_severity(ctx, field)
+	case "title":
+		return ec.fieldContext_CVE_title(ctx, field)
+	case "description":
+		return ec.fieldContext_CVE_description(ctx, field)
+	case "detailsLink":
+		return ec.fieldContext_CVE_detailsLink(ctx, field)
+	case "cvssScore":
+		return ec.fieldContext_CVE_cvssScore(ctx, field)
+	case "workloads":
+		return ec.fieldContext_CVE_workloads(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type CVE", field.Name)
+}
+
+func (ec *executionContext) childFields_CVEConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pageInfo":
+		return ec.fieldContext_CVEConnection_pageInfo(ctx, field)
+	case "edges":
+		return ec.fieldContext_CVEConnection_edges(ctx, field)
+	case "nodes":
+		return ec.fieldContext_CVEConnection_nodes(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type CVEConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_CVEEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_CVEEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_CVEEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type CVEEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_ChangeDeploymentKeyPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "deploymentKey":
+		return ec.fieldContext_ChangeDeploymentKeyPayload_deploymentKey(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ChangeDeploymentKeyPayload", field.Name)
+}
+
+func (ec *executionContext) childFields_ClusterAuditActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "action":
+		return ec.fieldContext_ClusterAuditActivityLogEntryData_action(ctx, field)
+	case "resourceKind":
+		return ec.fieldContext_ClusterAuditActivityLogEntryData_resourceKind(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ClusterAuditActivityLogEntryData", field.Name)
+}
+
+func (ec *executionContext) childFields_Config(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_Config_id(ctx, field)
+	case "name":
+		return ec.fieldContext_Config_name(ctx, field)
+	case "teamEnvironment":
+		return ec.fieldContext_Config_teamEnvironment(ctx, field)
+	case "team":
+		return ec.fieldContext_Config_team(ctx, field)
+	case "values":
+		return ec.fieldContext_Config_values(ctx, field)
+	case "applications":
+		return ec.fieldContext_Config_applications(ctx, field)
+	case "jobs":
+		return ec.fieldContext_Config_jobs(ctx, field)
+	case "workloads":
+		return ec.fieldContext_Config_workloads(ctx, field)
+	case "lastModifiedAt":
+		return ec.fieldContext_Config_lastModifiedAt(ctx, field)
+	case "lastModifiedBy":
+		return ec.fieldContext_Config_lastModifiedBy(ctx, field)
+	case "activityLog":
+		return ec.fieldContext_Config_activityLog(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type Config", field.Name)
+}
+
+func (ec *executionContext) childFields_ConfigConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pageInfo":
+		return ec.fieldContext_ConfigConnection_pageInfo(ctx, field)
+	case "nodes":
+		return ec.fieldContext_ConfigConnection_nodes(ctx, field)
+	case "edges":
+		return ec.fieldContext_ConfigConnection_edges(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ConfigConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_ConfigEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_ConfigEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_ConfigEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ConfigEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_ConfigUpdatedActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "updatedFields":
+		return ec.fieldContext_ConfigUpdatedActivityLogEntryData_updatedFields(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ConfigUpdatedActivityLogEntryData", field.Name)
+}
+
+func (ec *executionContext) childFields_ConfigUpdatedActivityLogEntryDataUpdatedField(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "field":
+		return ec.fieldContext_ConfigUpdatedActivityLogEntryDataUpdatedField_field(ctx, field)
+	case "oldValue":
+		return ec.fieldContext_ConfigUpdatedActivityLogEntryDataUpdatedField_oldValue(ctx, field)
+	case "newValue":
+		return ec.fieldContext_ConfigUpdatedActivityLogEntryDataUpdatedField_newValue(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ConfigUpdatedActivityLogEntryDataUpdatedField", field.Name)
+}
+
+func (ec *executionContext) childFields_ConfigValue(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "name":
+		return ec.fieldContext_ConfigValue_name(ctx, field)
+	case "value":
+		return ec.fieldContext_ConfigValue_value(ctx, field)
+	case "encoding":
+		return ec.fieldContext_ConfigValue_encoding(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ConfigValue", field.Name)
+}
+
+func (ec *executionContext) childFields_ConfirmTeamDeletionPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "deletionStarted":
+		return ec.fieldContext_ConfirmTeamDeletionPayload_deletionStarted(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ConfirmTeamDeletionPayload", field.Name)
+}
+
+func (ec *executionContext) childFields_ContainerImage(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_ContainerImage_id(ctx, field)
+	case "name":
+		return ec.fieldContext_ContainerImage_name(ctx, field)
+	case "tag":
+		return ec.fieldContext_ContainerImage_tag(ctx, field)
+	case "activityLog":
+		return ec.fieldContext_ContainerImage_activityLog(ctx, field)
+	case "hasSBOM":
+		return ec.fieldContext_ContainerImage_hasSBOM(ctx, field)
+	case "vulnerabilities":
+		return ec.fieldContext_ContainerImage_vulnerabilities(ctx, field)
+	case "vulnerabilitySummary":
+		return ec.fieldContext_ContainerImage_vulnerabilitySummary(ctx, field)
+	case "workloadReferences":
+		return ec.fieldContext_ContainerImage_workloadReferences(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ContainerImage", field.Name)
+}
+
+func (ec *executionContext) childFields_ContainerImageWorkloadReference(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "workload":
+		return ec.fieldContext_ContainerImageWorkloadReference_workload(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ContainerImageWorkloadReference", field.Name)
+}
+
+func (ec *executionContext) childFields_ContainerImageWorkloadReferenceConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pageInfo":
+		return ec.fieldContext_ContainerImageWorkloadReferenceConnection_pageInfo(ctx, field)
+	case "edges":
+		return ec.fieldContext_ContainerImageWorkloadReferenceConnection_edges(ctx, field)
+	case "nodes":
+		return ec.fieldContext_ContainerImageWorkloadReferenceConnection_nodes(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ContainerImageWorkloadReferenceConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_ContainerImageWorkloadReferenceEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_ContainerImageWorkloadReferenceEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_ContainerImageWorkloadReferenceEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ContainerImageWorkloadReferenceEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_CostMonthlySummary(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "series":
+		return ec.fieldContext_CostMonthlySummary_series(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type CostMonthlySummary", field.Name)
+}
+
+func (ec *executionContext) childFields_CreateConfigPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "config":
+		return ec.fieldContext_CreateConfigPayload_config(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type CreateConfigPayload", field.Name)
+}
+
+func (ec *executionContext) childFields_CreateKafkaCredentialsPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "credentials":
+		return ec.fieldContext_CreateKafkaCredentialsPayload_credentials(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type CreateKafkaCredentialsPayload", field.Name)
+}
+
+func (ec *executionContext) childFields_CreateOpenSearchCredentialsPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "credentials":
+		return ec.fieldContext_CreateOpenSearchCredentialsPayload_credentials(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type CreateOpenSearchCredentialsPayload", field.Name)
+}
+
+func (ec *executionContext) childFields_CreateOpenSearchPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "openSearch":
+		return ec.fieldContext_CreateOpenSearchPayload_openSearch(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type CreateOpenSearchPayload", field.Name)
+}
+
+func (ec *executionContext) childFields_CreateSecretPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "secret":
+		return ec.fieldContext_CreateSecretPayload_secret(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type CreateSecretPayload", field.Name)
+}
+
+func (ec *executionContext) childFields_CreateServiceAccountPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "serviceAccount":
+		return ec.fieldContext_CreateServiceAccountPayload_serviceAccount(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type CreateServiceAccountPayload", field.Name)
+}
+
+func (ec *executionContext) childFields_CreateServiceAccountTokenPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "serviceAccount":
+		return ec.fieldContext_CreateServiceAccountTokenPayload_serviceAccount(ctx, field)
+	case "serviceAccountToken":
+		return ec.fieldContext_CreateServiceAccountTokenPayload_serviceAccountToken(ctx, field)
+	case "secret":
+		return ec.fieldContext_CreateServiceAccountTokenPayload_secret(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type CreateServiceAccountTokenPayload", field.Name)
+}
+
+func (ec *executionContext) childFields_CreateTeamPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "team":
+		return ec.fieldContext_CreateTeamPayload_team(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type CreateTeamPayload", field.Name)
+}
+
+func (ec *executionContext) childFields_CreateUnleashForTeamPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "unleash":
+		return ec.fieldContext_CreateUnleashForTeamPayload_unleash(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type CreateUnleashForTeamPayload", field.Name)
+}
+
+func (ec *executionContext) childFields_CreateValkeyCredentialsPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "credentials":
+		return ec.fieldContext_CreateValkeyCredentialsPayload_credentials(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type CreateValkeyCredentialsPayload", field.Name)
+}
+
+func (ec *executionContext) childFields_CreateValkeyPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "valkey":
+		return ec.fieldContext_CreateValkeyPayload_valkey(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type CreateValkeyPayload", field.Name)
+}
+
+func (ec *executionContext) childFields_CredentialsActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "permission":
+		return ec.fieldContext_CredentialsActivityLogEntryData_permission(ctx, field)
+	case "ttl":
+		return ec.fieldContext_CredentialsActivityLogEntryData_ttl(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type CredentialsActivityLogEntryData", field.Name)
+}
+
+func (ec *executionContext) childFields_CurrentUnitPrices(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cpu":
+		return ec.fieldContext_CurrentUnitPrices_cpu(ctx, field)
+	case "memory":
+		return ec.fieldContext_CurrentUnitPrices_memory(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type CurrentUnitPrices", field.Name)
+}
+
+func (ec *executionContext) childFields_DeleteApplicationPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "team":
+		return ec.fieldContext_DeleteApplicationPayload_team(ctx, field)
+	case "success":
+		return ec.fieldContext_DeleteApplicationPayload_success(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type DeleteApplicationPayload", field.Name)
+}
+
+func (ec *executionContext) childFields_DeleteConfigPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "configDeleted":
+		return ec.fieldContext_DeleteConfigPayload_configDeleted(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type DeleteConfigPayload", field.Name)
+}
+
+func (ec *executionContext) childFields_DeleteJobPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "team":
+		return ec.fieldContext_DeleteJobPayload_team(ctx, field)
+	case "success":
+		return ec.fieldContext_DeleteJobPayload_success(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type DeleteJobPayload", field.Name)
+}
+
+func (ec *executionContext) childFields_DeleteJobRunPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "job":
+		return ec.fieldContext_DeleteJobRunPayload_job(ctx, field)
+	case "success":
+		return ec.fieldContext_DeleteJobRunPayload_success(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type DeleteJobRunPayload", field.Name)
+}
+
+func (ec *executionContext) childFields_DeleteOpenSearchPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "openSearchDeleted":
+		return ec.fieldContext_DeleteOpenSearchPayload_openSearchDeleted(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type DeleteOpenSearchPayload", field.Name)
+}
+
+func (ec *executionContext) childFields_DeletePostgresPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "postgresDeleted":
+		return ec.fieldContext_DeletePostgresPayload_postgresDeleted(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type DeletePostgresPayload", field.Name)
+}
+
+func (ec *executionContext) childFields_DeleteSecretPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "secretDeleted":
+		return ec.fieldContext_DeleteSecretPayload_secretDeleted(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type DeleteSecretPayload", field.Name)
+}
+
+func (ec *executionContext) childFields_DeleteServiceAccountPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "serviceAccountDeleted":
+		return ec.fieldContext_DeleteServiceAccountPayload_serviceAccountDeleted(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type DeleteServiceAccountPayload", field.Name)
+}
+
+func (ec *executionContext) childFields_DeleteServiceAccountTokenPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "serviceAccount":
+		return ec.fieldContext_DeleteServiceAccountTokenPayload_serviceAccount(ctx, field)
+	case "serviceAccountTokenDeleted":
+		return ec.fieldContext_DeleteServiceAccountTokenPayload_serviceAccountTokenDeleted(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type DeleteServiceAccountTokenPayload", field.Name)
+}
+
+func (ec *executionContext) childFields_DeleteUnleashInstancePayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "unleashDeleted":
+		return ec.fieldContext_DeleteUnleashInstancePayload_unleashDeleted(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type DeleteUnleashInstancePayload", field.Name)
+}
+
+func (ec *executionContext) childFields_DeleteValkeyPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "valkeyDeleted":
+		return ec.fieldContext_DeleteValkeyPayload_valkeyDeleted(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type DeleteValkeyPayload", field.Name)
+}
+
+func (ec *executionContext) childFields_Deployment(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_Deployment_id(ctx, field)
+	case "createdAt":
+		return ec.fieldContext_Deployment_createdAt(ctx, field)
+	case "teamSlug":
+		return ec.fieldContext_Deployment_teamSlug(ctx, field)
+	case "environmentName":
+		return ec.fieldContext_Deployment_environmentName(ctx, field)
+	case "repository":
+		return ec.fieldContext_Deployment_repository(ctx, field)
+	case "deployerUsername":
+		return ec.fieldContext_Deployment_deployerUsername(ctx, field)
+	case "commitSha":
+		return ec.fieldContext_Deployment_commitSha(ctx, field)
+	case "triggerUrl":
+		return ec.fieldContext_Deployment_triggerUrl(ctx, field)
+	case "resources":
+		return ec.fieldContext_Deployment_resources(ctx, field)
+	case "statuses":
+		return ec.fieldContext_Deployment_statuses(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type Deployment", field.Name)
+}
+
+func (ec *executionContext) childFields_DeploymentActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "triggerURL":
+		return ec.fieldContext_DeploymentActivityLogEntryData_triggerURL(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type DeploymentActivityLogEntryData", field.Name)
+}
+
+func (ec *executionContext) childFields_DeploymentConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pageInfo":
+		return ec.fieldContext_DeploymentConnection_pageInfo(ctx, field)
+	case "nodes":
+		return ec.fieldContext_DeploymentConnection_nodes(ctx, field)
+	case "edges":
+		return ec.fieldContext_DeploymentConnection_edges(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type DeploymentConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_DeploymentEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_DeploymentEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_DeploymentEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type DeploymentEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_DeploymentKey(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_DeploymentKey_id(ctx, field)
+	case "key":
+		return ec.fieldContext_DeploymentKey_key(ctx, field)
+	case "created":
+		return ec.fieldContext_DeploymentKey_created(ctx, field)
+	case "expires":
+		return ec.fieldContext_DeploymentKey_expires(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type DeploymentKey", field.Name)
+}
+
+func (ec *executionContext) childFields_DeploymentResource(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_DeploymentResource_id(ctx, field)
+	case "kind":
+		return ec.fieldContext_DeploymentResource_kind(ctx, field)
+	case "name":
+		return ec.fieldContext_DeploymentResource_name(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type DeploymentResource", field.Name)
+}
+
+func (ec *executionContext) childFields_DeploymentResourceConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pageInfo":
+		return ec.fieldContext_DeploymentResourceConnection_pageInfo(ctx, field)
+	case "nodes":
+		return ec.fieldContext_DeploymentResourceConnection_nodes(ctx, field)
+	case "edges":
+		return ec.fieldContext_DeploymentResourceConnection_edges(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type DeploymentResourceConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_DeploymentResourceEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_DeploymentResourceEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_DeploymentResourceEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type DeploymentResourceEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_DeploymentStatus(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_DeploymentStatus_id(ctx, field)
+	case "createdAt":
+		return ec.fieldContext_DeploymentStatus_createdAt(ctx, field)
+	case "state":
+		return ec.fieldContext_DeploymentStatus_state(ctx, field)
+	case "message":
+		return ec.fieldContext_DeploymentStatus_message(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type DeploymentStatus", field.Name)
+}
+
+func (ec *executionContext) childFields_DeploymentStatusConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pageInfo":
+		return ec.fieldContext_DeploymentStatusConnection_pageInfo(ctx, field)
+	case "nodes":
+		return ec.fieldContext_DeploymentStatusConnection_nodes(ctx, field)
+	case "edges":
+		return ec.fieldContext_DeploymentStatusConnection_edges(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type DeploymentStatusConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_DeploymentStatusEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_DeploymentStatusEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_DeploymentStatusEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type DeploymentStatusEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_Environment(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_Environment_id(ctx, field)
+	case "name":
+		return ec.fieldContext_Environment_name(ctx, field)
+	case "metrics":
+		return ec.fieldContext_Environment_metrics(ctx, field)
+	case "workloads":
+		return ec.fieldContext_Environment_workloads(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type Environment", field.Name)
+}
+
+func (ec *executionContext) childFields_EnvironmentConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pageInfo":
+		return ec.fieldContext_EnvironmentConnection_pageInfo(ctx, field)
+	case "nodes":
+		return ec.fieldContext_EnvironmentConnection_nodes(ctx, field)
+	case "edges":
+		return ec.fieldContext_EnvironmentConnection_edges(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type EnvironmentConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_EnvironmentEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_EnvironmentEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_EnvironmentEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type EnvironmentEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_FeatureKafka(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_FeatureKafka_id(ctx, field)
+	case "enabled":
+		return ec.fieldContext_FeatureKafka_enabled(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type FeatureKafka", field.Name)
+}
+
+func (ec *executionContext) childFields_FeatureOpenSearch(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_FeatureOpenSearch_id(ctx, field)
+	case "enabled":
+		return ec.fieldContext_FeatureOpenSearch_enabled(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type FeatureOpenSearch", field.Name)
+}
+
+func (ec *executionContext) childFields_FeatureUnleash(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_FeatureUnleash_id(ctx, field)
+	case "enabled":
+		return ec.fieldContext_FeatureUnleash_enabled(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type FeatureUnleash", field.Name)
+}
+
+func (ec *executionContext) childFields_FeatureValkey(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_FeatureValkey_id(ctx, field)
+	case "enabled":
+		return ec.fieldContext_FeatureValkey_enabled(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type FeatureValkey", field.Name)
+}
+
+func (ec *executionContext) childFields_Features(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_Features_id(ctx, field)
+	case "unleash":
+		return ec.fieldContext_Features_unleash(ctx, field)
+	case "valkey":
+		return ec.fieldContext_Features_valkey(ctx, field)
+	case "kafka":
+		return ec.fieldContext_Features_kafka(ctx, field)
+	case "openSearch":
+		return ec.fieldContext_Features_openSearch(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type Features", field.Name)
+}
+
+func (ec *executionContext) childFields_GenericKubernetesResourceActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "apiVersion":
+		return ec.fieldContext_GenericKubernetesResourceActivityLogEntryData_apiVersion(ctx, field)
+	case "kind":
+		return ec.fieldContext_GenericKubernetesResourceActivityLogEntryData_kind(ctx, field)
+	case "changedFields":
+		return ec.fieldContext_GenericKubernetesResourceActivityLogEntryData_changedFields(ctx, field)
+	case "gitHubActorClaims":
+		return ec.fieldContext_GenericKubernetesResourceActivityLogEntryData_gitHubActorClaims(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type GenericKubernetesResourceActivityLogEntryData", field.Name)
+}
+
+func (ec *executionContext) childFields_GitHubActorClaims(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "ref":
+		return ec.fieldContext_GitHubActorClaims_ref(ctx, field)
+	case "repository":
+		return ec.fieldContext_GitHubActorClaims_repository(ctx, field)
+	case "repositoryID":
+		return ec.fieldContext_GitHubActorClaims_repositoryID(ctx, field)
+	case "runID":
+		return ec.fieldContext_GitHubActorClaims_runID(ctx, field)
+	case "runAttempt":
+		return ec.fieldContext_GitHubActorClaims_runAttempt(ctx, field)
+	case "actor":
+		return ec.fieldContext_GitHubActorClaims_actor(ctx, field)
+	case "workflow":
+		return ec.fieldContext_GitHubActorClaims_workflow(ctx, field)
+	case "eventName":
+		return ec.fieldContext_GitHubActorClaims_eventName(ctx, field)
+	case "environment":
+		return ec.fieldContext_GitHubActorClaims_environment(ctx, field)
+	case "jobWorkflowRef":
+		return ec.fieldContext_GitHubActorClaims_jobWorkflowRef(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type GitHubActorClaims", field.Name)
+}
+
+func (ec *executionContext) childFields_GrantPostgresAccessPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "error":
+		return ec.fieldContext_GrantPostgresAccessPayload_error(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type GrantPostgresAccessPayload", field.Name)
+}
+
+func (ec *executionContext) childFields_ImageVulnerability(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_ImageVulnerability_id(ctx, field)
+	case "identifier":
+		return ec.fieldContext_ImageVulnerability_identifier(ctx, field)
+	case "severity":
+		return ec.fieldContext_ImageVulnerability_severity(ctx, field)
+	case "description":
+		return ec.fieldContext_ImageVulnerability_description(ctx, field)
+	case "package":
+		return ec.fieldContext_ImageVulnerability_package(ctx, field)
+	case "suppression":
+		return ec.fieldContext_ImageVulnerability_suppression(ctx, field)
+	case "severitySince":
+		return ec.fieldContext_ImageVulnerability_severitySince(ctx, field)
+	case "vulnerabilityDetailsLink":
+		return ec.fieldContext_ImageVulnerability_vulnerabilityDetailsLink(ctx, field)
+	case "cvssScore":
+		return ec.fieldContext_ImageVulnerability_cvssScore(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ImageVulnerability", field.Name)
+}
+
+func (ec *executionContext) childFields_ImageVulnerabilityConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pageInfo":
+		return ec.fieldContext_ImageVulnerabilityConnection_pageInfo(ctx, field)
+	case "edges":
+		return ec.fieldContext_ImageVulnerabilityConnection_edges(ctx, field)
+	case "nodes":
+		return ec.fieldContext_ImageVulnerabilityConnection_nodes(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ImageVulnerabilityConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_ImageVulnerabilityEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_ImageVulnerabilityEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_ImageVulnerabilityEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ImageVulnerabilityEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_ImageVulnerabilityHistory(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "samples":
+		return ec.fieldContext_ImageVulnerabilityHistory_samples(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ImageVulnerabilityHistory", field.Name)
+}
+
+func (ec *executionContext) childFields_ImageVulnerabilitySample(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "summary":
+		return ec.fieldContext_ImageVulnerabilitySample_summary(ctx, field)
+	case "date":
+		return ec.fieldContext_ImageVulnerabilitySample_date(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ImageVulnerabilitySample", field.Name)
+}
+
+func (ec *executionContext) childFields_ImageVulnerabilitySummary(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "total":
+		return ec.fieldContext_ImageVulnerabilitySummary_total(ctx, field)
+	case "riskScore":
+		return ec.fieldContext_ImageVulnerabilitySummary_riskScore(ctx, field)
+	case "low":
+		return ec.fieldContext_ImageVulnerabilitySummary_low(ctx, field)
+	case "medium":
+		return ec.fieldContext_ImageVulnerabilitySummary_medium(ctx, field)
+	case "high":
+		return ec.fieldContext_ImageVulnerabilitySummary_high(ctx, field)
+	case "critical":
+		return ec.fieldContext_ImageVulnerabilitySummary_critical(ctx, field)
+	case "unassigned":
+		return ec.fieldContext_ImageVulnerabilitySummary_unassigned(ctx, field)
+	case "lastUpdated":
+		return ec.fieldContext_ImageVulnerabilitySummary_lastUpdated(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ImageVulnerabilitySummary", field.Name)
+}
+
+func (ec *executionContext) childFields_ImageVulnerabilitySuppression(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "state":
+		return ec.fieldContext_ImageVulnerabilitySuppression_state(ctx, field)
+	case "reason":
+		return ec.fieldContext_ImageVulnerabilitySuppression_reason(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ImageVulnerabilitySuppression", field.Name)
+}
+
+func (ec *executionContext) childFields_InboundNetworkPolicy(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "rules":
+		return ec.fieldContext_InboundNetworkPolicy_rules(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type InboundNetworkPolicy", field.Name)
+}
+
+func (ec *executionContext) childFields_Ingress(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "url":
+		return ec.fieldContext_Ingress_url(ctx, field)
+	case "type":
+		return ec.fieldContext_Ingress_type(ctx, field)
+	case "metrics":
+		return ec.fieldContext_Ingress_metrics(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type Ingress", field.Name)
+}
+
+func (ec *executionContext) childFields_IngressMetricSample(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "timestamp":
+		return ec.fieldContext_IngressMetricSample_timestamp(ctx, field)
+	case "value":
+		return ec.fieldContext_IngressMetricSample_value(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type IngressMetricSample", field.Name)
+}
+
+func (ec *executionContext) childFields_IngressMetrics(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "requestsPerSecond":
+		return ec.fieldContext_IngressMetrics_requestsPerSecond(ctx, field)
+	case "errorsPerSecond":
+		return ec.fieldContext_IngressMetrics_errorsPerSecond(ctx, field)
+	case "series":
+		return ec.fieldContext_IngressMetrics_series(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type IngressMetrics", field.Name)
+}
+
+func (ec *executionContext) childFields_InstanceGroup(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_InstanceGroup_id(ctx, field)
+	case "name":
+		return ec.fieldContext_InstanceGroup_name(ctx, field)
+	case "image":
+		return ec.fieldContext_InstanceGroup_image(ctx, field)
+	case "created":
+		return ec.fieldContext_InstanceGroup_created(ctx, field)
+	case "readyInstances":
+		return ec.fieldContext_InstanceGroup_readyInstances(ctx, field)
+	case "desiredInstances":
+		return ec.fieldContext_InstanceGroup_desiredInstances(ctx, field)
+	case "environmentVariables":
+		return ec.fieldContext_InstanceGroup_environmentVariables(ctx, field)
+	case "mountedFiles":
+		return ec.fieldContext_InstanceGroup_mountedFiles(ctx, field)
+	case "instances":
+		return ec.fieldContext_InstanceGroup_instances(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type InstanceGroup", field.Name)
+}
+
+func (ec *executionContext) childFields_InstanceGroupEnvironmentVariable(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "name":
+		return ec.fieldContext_InstanceGroupEnvironmentVariable_name(ctx, field)
+	case "value":
+		return ec.fieldContext_InstanceGroupEnvironmentVariable_value(ctx, field)
+	case "source":
+		return ec.fieldContext_InstanceGroupEnvironmentVariable_source(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type InstanceGroupEnvironmentVariable", field.Name)
+}
+
+func (ec *executionContext) childFields_InstanceGroupMountedFile(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "path":
+		return ec.fieldContext_InstanceGroupMountedFile_path(ctx, field)
+	case "source":
+		return ec.fieldContext_InstanceGroupMountedFile_source(ctx, field)
+	case "content":
+		return ec.fieldContext_InstanceGroupMountedFile_content(ctx, field)
+	case "encoding":
+		return ec.fieldContext_InstanceGroupMountedFile_encoding(ctx, field)
+	case "error":
+		return ec.fieldContext_InstanceGroupMountedFile_error(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type InstanceGroupMountedFile", field.Name)
+}
+
+func (ec *executionContext) childFields_InstanceGroupValueSource(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "kind":
+		return ec.fieldContext_InstanceGroupValueSource_kind(ctx, field)
+	case "name":
+		return ec.fieldContext_InstanceGroupValueSource_name(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type InstanceGroupValueSource", field.Name)
+}
+
+func (ec *executionContext) childFields_IssueConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pageInfo":
+		return ec.fieldContext_IssueConnection_pageInfo(ctx, field)
+	case "nodes":
+		return ec.fieldContext_IssueConnection_nodes(ctx, field)
+	case "edges":
+		return ec.fieldContext_IssueConnection_edges(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type IssueConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_IssueEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_IssueEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_IssueEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type IssueEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_Job(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_Job_id(ctx, field)
+	case "name":
+		return ec.fieldContext_Job_name(ctx, field)
+	case "team":
+		return ec.fieldContext_Job_team(ctx, field)
+	case "environment":
+		return ec.fieldContext_Job_environment(ctx, field)
+	case "teamEnvironment":
+		return ec.fieldContext_Job_teamEnvironment(ctx, field)
+	case "image":
+		return ec.fieldContext_Job_image(ctx, field)
+	case "resources":
+		return ec.fieldContext_Job_resources(ctx, field)
+	case "authIntegrations":
+		return ec.fieldContext_Job_authIntegrations(ctx, field)
+	case "schedule":
+		return ec.fieldContext_Job_schedule(ctx, field)
+	case "runs":
+		return ec.fieldContext_Job_runs(ctx, field)
+	case "manifest":
+		return ec.fieldContext_Job_manifest(ctx, field)
+	case "deletionStartedAt":
+		return ec.fieldContext_Job_deletionStartedAt(ctx, field)
+	case "activityLog":
+		return ec.fieldContext_Job_activityLog(ctx, field)
+	case "state":
+		return ec.fieldContext_Job_state(ctx, field)
+	case "issues":
+		return ec.fieldContext_Job_issues(ctx, field)
+	case "bigQueryDatasets":
+		return ec.fieldContext_Job_bigQueryDatasets(ctx, field)
+	case "buckets":
+		return ec.fieldContext_Job_buckets(ctx, field)
+	case "configs":
+		return ec.fieldContext_Job_configs(ctx, field)
+	case "cost":
+		return ec.fieldContext_Job_cost(ctx, field)
+	case "deployments":
+		return ec.fieldContext_Job_deployments(ctx, field)
+	case "kafkaTopicAcls":
+		return ec.fieldContext_Job_kafkaTopicAcls(ctx, field)
+	case "logDestinations":
+		return ec.fieldContext_Job_logDestinations(ctx, field)
+	case "networkPolicy":
+		return ec.fieldContext_Job_networkPolicy(ctx, field)
+	case "openSearch":
+		return ec.fieldContext_Job_openSearch(ctx, field)
+	case "postgresInstances":
+		return ec.fieldContext_Job_postgresInstances(ctx, field)
+	case "secrets":
+		return ec.fieldContext_Job_secrets(ctx, field)
+	case "sqlInstances":
+		return ec.fieldContext_Job_sqlInstances(ctx, field)
+	case "valkeys":
+		return ec.fieldContext_Job_valkeys(ctx, field)
+	case "imageVulnerabilityHistory":
+		return ec.fieldContext_Job_imageVulnerabilityHistory(ctx, field)
+	case "vulnerabilityFixHistory":
+		return ec.fieldContext_Job_vulnerabilityFixHistory(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type Job", field.Name)
+}
+
+func (ec *executionContext) childFields_JobConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pageInfo":
+		return ec.fieldContext_JobConnection_pageInfo(ctx, field)
+	case "nodes":
+		return ec.fieldContext_JobConnection_nodes(ctx, field)
+	case "edges":
+		return ec.fieldContext_JobConnection_edges(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type JobConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_JobEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_JobEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_JobEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type JobEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_JobManifest(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "content":
+		return ec.fieldContext_JobManifest_content(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type JobManifest", field.Name)
+}
+
+func (ec *executionContext) childFields_JobResources(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "limits":
+		return ec.fieldContext_JobResources_limits(ctx, field)
+	case "requests":
+		return ec.fieldContext_JobResources_requests(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type JobResources", field.Name)
+}
+
+func (ec *executionContext) childFields_JobRun(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_JobRun_id(ctx, field)
+	case "name":
+		return ec.fieldContext_JobRun_name(ctx, field)
+	case "startTime":
+		return ec.fieldContext_JobRun_startTime(ctx, field)
+	case "completionTime":
+		return ec.fieldContext_JobRun_completionTime(ctx, field)
+	case "status":
+		return ec.fieldContext_JobRun_status(ctx, field)
+	case "image":
+		return ec.fieldContext_JobRun_image(ctx, field)
+	case "duration":
+		return ec.fieldContext_JobRun_duration(ctx, field)
+	case "instances":
+		return ec.fieldContext_JobRun_instances(ctx, field)
+	case "trigger":
+		return ec.fieldContext_JobRun_trigger(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type JobRun", field.Name)
+}
+
+func (ec *executionContext) childFields_JobRunConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pageInfo":
+		return ec.fieldContext_JobRunConnection_pageInfo(ctx, field)
+	case "nodes":
+		return ec.fieldContext_JobRunConnection_nodes(ctx, field)
+	case "edges":
+		return ec.fieldContext_JobRunConnection_edges(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type JobRunConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_JobRunDeletedActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "runName":
+		return ec.fieldContext_JobRunDeletedActivityLogEntryData_runName(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type JobRunDeletedActivityLogEntryData", field.Name)
+}
+
+func (ec *executionContext) childFields_JobRunEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_JobRunEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_JobRunEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type JobRunEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_JobRunInstance(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_JobRunInstance_id(ctx, field)
+	case "name":
+		return ec.fieldContext_JobRunInstance_name(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type JobRunInstance", field.Name)
+}
+
+func (ec *executionContext) childFields_JobRunInstanceConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pageInfo":
+		return ec.fieldContext_JobRunInstanceConnection_pageInfo(ctx, field)
+	case "nodes":
+		return ec.fieldContext_JobRunInstanceConnection_nodes(ctx, field)
+	case "edges":
+		return ec.fieldContext_JobRunInstanceConnection_edges(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type JobRunInstanceConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_JobRunInstanceEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_JobRunInstanceEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_JobRunInstanceEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type JobRunInstanceEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_JobRunStatus(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "state":
+		return ec.fieldContext_JobRunStatus_state(ctx, field)
+	case "message":
+		return ec.fieldContext_JobRunStatus_message(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type JobRunStatus", field.Name)
+}
+
+func (ec *executionContext) childFields_JobRunTrigger(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "type":
+		return ec.fieldContext_JobRunTrigger_type(ctx, field)
+	case "actor":
+		return ec.fieldContext_JobRunTrigger_actor(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type JobRunTrigger", field.Name)
+}
+
+func (ec *executionContext) childFields_JobSchedule(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "expression":
+		return ec.fieldContext_JobSchedule_expression(ctx, field)
+	case "timeZone":
+		return ec.fieldContext_JobSchedule_timeZone(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type JobSchedule", field.Name)
+}
+
+func (ec *executionContext) childFields_KafkaCredentials(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "username":
+		return ec.fieldContext_KafkaCredentials_username(ctx, field)
+	case "accessCert":
+		return ec.fieldContext_KafkaCredentials_accessCert(ctx, field)
+	case "accessKey":
+		return ec.fieldContext_KafkaCredentials_accessKey(ctx, field)
+	case "caCert":
+		return ec.fieldContext_KafkaCredentials_caCert(ctx, field)
+	case "brokers":
+		return ec.fieldContext_KafkaCredentials_brokers(ctx, field)
+	case "schemaRegistry":
+		return ec.fieldContext_KafkaCredentials_schemaRegistry(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type KafkaCredentials", field.Name)
+}
+
+func (ec *executionContext) childFields_KafkaTopic(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_KafkaTopic_id(ctx, field)
+	case "name":
+		return ec.fieldContext_KafkaTopic_name(ctx, field)
+	case "team":
+		return ec.fieldContext_KafkaTopic_team(ctx, field)
+	case "environment":
+		return ec.fieldContext_KafkaTopic_environment(ctx, field)
+	case "teamEnvironment":
+		return ec.fieldContext_KafkaTopic_teamEnvironment(ctx, field)
+	case "acl":
+		return ec.fieldContext_KafkaTopic_acl(ctx, field)
+	case "configuration":
+		return ec.fieldContext_KafkaTopic_configuration(ctx, field)
+	case "pool":
+		return ec.fieldContext_KafkaTopic_pool(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type KafkaTopic", field.Name)
+}
+
+func (ec *executionContext) childFields_KafkaTopicAcl(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "access":
+		return ec.fieldContext_KafkaTopicAcl_access(ctx, field)
+	case "workloadName":
+		return ec.fieldContext_KafkaTopicAcl_workloadName(ctx, field)
+	case "teamName":
+		return ec.fieldContext_KafkaTopicAcl_teamName(ctx, field)
+	case "team":
+		return ec.fieldContext_KafkaTopicAcl_team(ctx, field)
+	case "workload":
+		return ec.fieldContext_KafkaTopicAcl_workload(ctx, field)
+	case "topic":
+		return ec.fieldContext_KafkaTopicAcl_topic(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type KafkaTopicAcl", field.Name)
+}
+
+func (ec *executionContext) childFields_KafkaTopicAclConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pageInfo":
+		return ec.fieldContext_KafkaTopicAclConnection_pageInfo(ctx, field)
+	case "nodes":
+		return ec.fieldContext_KafkaTopicAclConnection_nodes(ctx, field)
+	case "edges":
+		return ec.fieldContext_KafkaTopicAclConnection_edges(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type KafkaTopicAclConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_KafkaTopicAclEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_KafkaTopicAclEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_KafkaTopicAclEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type KafkaTopicAclEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_KafkaTopicConfiguration(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cleanupPolicy":
+		return ec.fieldContext_KafkaTopicConfiguration_cleanupPolicy(ctx, field)
+	case "maxMessageBytes":
+		return ec.fieldContext_KafkaTopicConfiguration_maxMessageBytes(ctx, field)
+	case "minimumInSyncReplicas":
+		return ec.fieldContext_KafkaTopicConfiguration_minimumInSyncReplicas(ctx, field)
+	case "partitions":
+		return ec.fieldContext_KafkaTopicConfiguration_partitions(ctx, field)
+	case "replication":
+		return ec.fieldContext_KafkaTopicConfiguration_replication(ctx, field)
+	case "retentionBytes":
+		return ec.fieldContext_KafkaTopicConfiguration_retentionBytes(ctx, field)
+	case "retentionHours":
+		return ec.fieldContext_KafkaTopicConfiguration_retentionHours(ctx, field)
+	case "segmentHours":
+		return ec.fieldContext_KafkaTopicConfiguration_segmentHours(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type KafkaTopicConfiguration", field.Name)
+}
+
+func (ec *executionContext) childFields_KafkaTopicConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pageInfo":
+		return ec.fieldContext_KafkaTopicConnection_pageInfo(ctx, field)
+	case "nodes":
+		return ec.fieldContext_KafkaTopicConnection_nodes(ctx, field)
+	case "edges":
+		return ec.fieldContext_KafkaTopicConnection_edges(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type KafkaTopicConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_KafkaTopicEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_KafkaTopicEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_KafkaTopicEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type KafkaTopicEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_LogLine(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "time":
+		return ec.fieldContext_LogLine_time(ctx, field)
+	case "message":
+		return ec.fieldContext_LogLine_message(ctx, field)
+	case "labels":
+		return ec.fieldContext_LogLine_labels(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type LogLine", field.Name)
+}
+
+func (ec *executionContext) childFields_LogLineLabel(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "key":
+		return ec.fieldContext_LogLineLabel_key(ctx, field)
+	case "value":
+		return ec.fieldContext_LogLineLabel_value(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type LogLineLabel", field.Name)
+}
+
+func (ec *executionContext) childFields_MaintenanceWindow(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "dayOfWeek":
+		return ec.fieldContext_MaintenanceWindow_dayOfWeek(ctx, field)
+	case "timeOfDay":
+		return ec.fieldContext_MaintenanceWindow_timeOfDay(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type MaintenanceWindow", field.Name)
+}
+
+func (ec *executionContext) childFields_MetricLabel(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "name":
+		return ec.fieldContext_MetricLabel_name(ctx, field)
+	case "value":
+		return ec.fieldContext_MetricLabel_value(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type MetricLabel", field.Name)
+}
+
+func (ec *executionContext) childFields_MetricSeries(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "labels":
+		return ec.fieldContext_MetricSeries_labels(ctx, field)
+	case "values":
+		return ec.fieldContext_MetricSeries_values(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type MetricSeries", field.Name)
+}
+
+func (ec *executionContext) childFields_MetricValue(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "timestamp":
+		return ec.fieldContext_MetricValue_timestamp(ctx, field)
+	case "value":
+		return ec.fieldContext_MetricValue_value(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type MetricValue", field.Name)
+}
+
+func (ec *executionContext) childFields_MetricsQueryResult(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "series":
+		return ec.fieldContext_MetricsQueryResult_series(ctx, field)
+	case "warnings":
+		return ec.fieldContext_MetricsQueryResult_warnings(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type MetricsQueryResult", field.Name)
+}
+
+func (ec *executionContext) childFields_NetworkPolicy(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "inbound":
+		return ec.fieldContext_NetworkPolicy_inbound(ctx, field)
+	case "outbound":
+		return ec.fieldContext_NetworkPolicy_outbound(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type NetworkPolicy", field.Name)
+}
+
+func (ec *executionContext) childFields_NetworkPolicyRule(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "targetWorkloadName":
+		return ec.fieldContext_NetworkPolicyRule_targetWorkloadName(ctx, field)
+	case "targetWorkload":
+		return ec.fieldContext_NetworkPolicyRule_targetWorkload(ctx, field)
+	case "targetTeamSlug":
+		return ec.fieldContext_NetworkPolicyRule_targetTeamSlug(ctx, field)
+	case "targetTeam":
+		return ec.fieldContext_NetworkPolicyRule_targetTeam(ctx, field)
+	case "mutual":
+		return ec.fieldContext_NetworkPolicyRule_mutual(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type NetworkPolicyRule", field.Name)
+}
+
+func (ec *executionContext) childFields_OpenSearch(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_OpenSearch_id(ctx, field)
+	case "name":
+		return ec.fieldContext_OpenSearch_name(ctx, field)
+	case "team":
+		return ec.fieldContext_OpenSearch_team(ctx, field)
+	case "environment":
+		return ec.fieldContext_OpenSearch_environment(ctx, field)
+	case "teamEnvironment":
+		return ec.fieldContext_OpenSearch_teamEnvironment(ctx, field)
+	case "terminationProtection":
+		return ec.fieldContext_OpenSearch_terminationProtection(ctx, field)
+	case "state":
+		return ec.fieldContext_OpenSearch_state(ctx, field)
+	case "workload":
+		return ec.fieldContext_OpenSearch_workload(ctx, field)
+	case "access":
+		return ec.fieldContext_OpenSearch_access(ctx, field)
+	case "version":
+		return ec.fieldContext_OpenSearch_version(ctx, field)
+	case "tier":
+		return ec.fieldContext_OpenSearch_tier(ctx, field)
+	case "memory":
+		return ec.fieldContext_OpenSearch_memory(ctx, field)
+	case "storageGB":
+		return ec.fieldContext_OpenSearch_storageGB(ctx, field)
+	case "issues":
+		return ec.fieldContext_OpenSearch_issues(ctx, field)
+	case "activityLog":
+		return ec.fieldContext_OpenSearch_activityLog(ctx, field)
+	case "cost":
+		return ec.fieldContext_OpenSearch_cost(ctx, field)
+	case "maintenance":
+		return ec.fieldContext_OpenSearch_maintenance(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type OpenSearch", field.Name)
+}
+
+func (ec *executionContext) childFields_OpenSearchAccess(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "workload":
+		return ec.fieldContext_OpenSearchAccess_workload(ctx, field)
+	case "access":
+		return ec.fieldContext_OpenSearchAccess_access(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type OpenSearchAccess", field.Name)
+}
+
+func (ec *executionContext) childFields_OpenSearchAccessConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pageInfo":
+		return ec.fieldContext_OpenSearchAccessConnection_pageInfo(ctx, field)
+	case "nodes":
+		return ec.fieldContext_OpenSearchAccessConnection_nodes(ctx, field)
+	case "edges":
+		return ec.fieldContext_OpenSearchAccessConnection_edges(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type OpenSearchAccessConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_OpenSearchAccessEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_OpenSearchAccessEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_OpenSearchAccessEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type OpenSearchAccessEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_OpenSearchConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pageInfo":
+		return ec.fieldContext_OpenSearchConnection_pageInfo(ctx, field)
+	case "nodes":
+		return ec.fieldContext_OpenSearchConnection_nodes(ctx, field)
+	case "edges":
+		return ec.fieldContext_OpenSearchConnection_edges(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type OpenSearchConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_OpenSearchCost(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "sum":
+		return ec.fieldContext_OpenSearchCost_sum(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type OpenSearchCost", field.Name)
+}
+
+func (ec *executionContext) childFields_OpenSearchCredentials(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "username":
+		return ec.fieldContext_OpenSearchCredentials_username(ctx, field)
+	case "password":
+		return ec.fieldContext_OpenSearchCredentials_password(ctx, field)
+	case "host":
+		return ec.fieldContext_OpenSearchCredentials_host(ctx, field)
+	case "port":
+		return ec.fieldContext_OpenSearchCredentials_port(ctx, field)
+	case "uri":
+		return ec.fieldContext_OpenSearchCredentials_uri(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type OpenSearchCredentials", field.Name)
+}
+
+func (ec *executionContext) childFields_OpenSearchEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_OpenSearchEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_OpenSearchEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type OpenSearchEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_OpenSearchMaintenance(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "window":
+		return ec.fieldContext_OpenSearchMaintenance_window(ctx, field)
+	case "updates":
+		return ec.fieldContext_OpenSearchMaintenance_updates(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type OpenSearchMaintenance", field.Name)
+}
+
+func (ec *executionContext) childFields_OpenSearchMaintenanceUpdate(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "title":
+		return ec.fieldContext_OpenSearchMaintenanceUpdate_title(ctx, field)
+	case "description":
+		return ec.fieldContext_OpenSearchMaintenanceUpdate_description(ctx, field)
+	case "deadline":
+		return ec.fieldContext_OpenSearchMaintenanceUpdate_deadline(ctx, field)
+	case "startAt":
+		return ec.fieldContext_OpenSearchMaintenanceUpdate_startAt(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type OpenSearchMaintenanceUpdate", field.Name)
+}
+
+func (ec *executionContext) childFields_OpenSearchMaintenanceUpdateConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pageInfo":
+		return ec.fieldContext_OpenSearchMaintenanceUpdateConnection_pageInfo(ctx, field)
+	case "nodes":
+		return ec.fieldContext_OpenSearchMaintenanceUpdateConnection_nodes(ctx, field)
+	case "edges":
+		return ec.fieldContext_OpenSearchMaintenanceUpdateConnection_edges(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type OpenSearchMaintenanceUpdateConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_OpenSearchMaintenanceUpdateEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_OpenSearchMaintenanceUpdateEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_OpenSearchMaintenanceUpdateEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type OpenSearchMaintenanceUpdateEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_OpenSearchUpdatedActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "updatedFields":
+		return ec.fieldContext_OpenSearchUpdatedActivityLogEntryData_updatedFields(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type OpenSearchUpdatedActivityLogEntryData", field.Name)
+}
+
+func (ec *executionContext) childFields_OpenSearchUpdatedActivityLogEntryDataUpdatedField(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "field":
+		return ec.fieldContext_OpenSearchUpdatedActivityLogEntryDataUpdatedField_field(ctx, field)
+	case "oldValue":
+		return ec.fieldContext_OpenSearchUpdatedActivityLogEntryDataUpdatedField_oldValue(ctx, field)
+	case "newValue":
+		return ec.fieldContext_OpenSearchUpdatedActivityLogEntryDataUpdatedField_newValue(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type OpenSearchUpdatedActivityLogEntryDataUpdatedField", field.Name)
+}
+
+func (ec *executionContext) childFields_OpenSearchVersion(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "actual":
+		return ec.fieldContext_OpenSearchVersion_actual(ctx, field)
+	case "desiredMajor":
+		return ec.fieldContext_OpenSearchVersion_desiredMajor(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type OpenSearchVersion", field.Name)
+}
+
+func (ec *executionContext) childFields_OutboundNetworkPolicy(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "rules":
+		return ec.fieldContext_OutboundNetworkPolicy_rules(ctx, field)
+	case "external":
+		return ec.fieldContext_OutboundNetworkPolicy_external(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type OutboundNetworkPolicy", field.Name)
+}
+
+func (ec *executionContext) childFields_PageInfo(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "hasNextPage":
+		return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
+	case "endCursor":
+		return ec.fieldContext_PageInfo_endCursor(ctx, field)
+	case "hasPreviousPage":
+		return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
+	case "startCursor":
+		return ec.fieldContext_PageInfo_startCursor(ctx, field)
+	case "totalCount":
+		return ec.fieldContext_PageInfo_totalCount(ctx, field)
+	case "pageStart":
+		return ec.fieldContext_PageInfo_pageStart(ctx, field)
+	case "pageEnd":
+		return ec.fieldContext_PageInfo_pageEnd(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
+}
+
+func (ec *executionContext) childFields_PostgresGrantAccessActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "grantee":
+		return ec.fieldContext_PostgresGrantAccessActivityLogEntryData_grantee(ctx, field)
+	case "until":
+		return ec.fieldContext_PostgresGrantAccessActivityLogEntryData_until(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostgresGrantAccessActivityLogEntryData", field.Name)
+}
+
+func (ec *executionContext) childFields_PostgresInstance(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_PostgresInstance_id(ctx, field)
+	case "name":
+		return ec.fieldContext_PostgresInstance_name(ctx, field)
+	case "team":
+		return ec.fieldContext_PostgresInstance_team(ctx, field)
+	case "environment":
+		return ec.fieldContext_PostgresInstance_environment(ctx, field)
+	case "teamEnvironment":
+		return ec.fieldContext_PostgresInstance_teamEnvironment(ctx, field)
+	case "workloads":
+		return ec.fieldContext_PostgresInstance_workloads(ctx, field)
+	case "resources":
+		return ec.fieldContext_PostgresInstance_resources(ctx, field)
+	case "majorVersion":
+		return ec.fieldContext_PostgresInstance_majorVersion(ctx, field)
+	case "audit":
+		return ec.fieldContext_PostgresInstance_audit(ctx, field)
+	case "highAvailability":
+		return ec.fieldContext_PostgresInstance_highAvailability(ctx, field)
+	case "state":
+		return ec.fieldContext_PostgresInstance_state(ctx, field)
+	case "maintenanceWindow":
+		return ec.fieldContext_PostgresInstance_maintenanceWindow(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostgresInstance", field.Name)
+}
+
+func (ec *executionContext) childFields_PostgresInstanceAudit(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "enabled":
+		return ec.fieldContext_PostgresInstanceAudit_enabled(ctx, field)
+	case "url":
+		return ec.fieldContext_PostgresInstanceAudit_url(ctx, field)
+	case "statementClasses":
+		return ec.fieldContext_PostgresInstanceAudit_statementClasses(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostgresInstanceAudit", field.Name)
+}
+
+func (ec *executionContext) childFields_PostgresInstanceConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pageInfo":
+		return ec.fieldContext_PostgresInstanceConnection_pageInfo(ctx, field)
+	case "nodes":
+		return ec.fieldContext_PostgresInstanceConnection_nodes(ctx, field)
+	case "edges":
+		return ec.fieldContext_PostgresInstanceConnection_edges(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostgresInstanceConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_PostgresInstanceEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_PostgresInstanceEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_PostgresInstanceEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostgresInstanceEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_PostgresInstanceMaintenanceWindow(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "day":
+		return ec.fieldContext_PostgresInstanceMaintenanceWindow_day(ctx, field)
+	case "hour":
+		return ec.fieldContext_PostgresInstanceMaintenanceWindow_hour(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostgresInstanceMaintenanceWindow", field.Name)
+}
+
+func (ec *executionContext) childFields_PostgresInstanceResources(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cpu":
+		return ec.fieldContext_PostgresInstanceResources_cpu(ctx, field)
+	case "memory":
+		return ec.fieldContext_PostgresInstanceResources_memory(ctx, field)
+	case "diskSize":
+		return ec.fieldContext_PostgresInstanceResources_diskSize(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostgresInstanceResources", field.Name)
+}
+
+func (ec *executionContext) childFields_Price(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "value":
+		return ec.fieldContext_Price_value(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type Price", field.Name)
+}
+
+func (ec *executionContext) childFields_PrometheusAlarm(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "action":
+		return ec.fieldContext_PrometheusAlarm_action(ctx, field)
+	case "consequence":
+		return ec.fieldContext_PrometheusAlarm_consequence(ctx, field)
+	case "summary":
+		return ec.fieldContext_PrometheusAlarm_summary(ctx, field)
+	case "state":
+		return ec.fieldContext_PrometheusAlarm_state(ctx, field)
+	case "value":
+		return ec.fieldContext_PrometheusAlarm_value(ctx, field)
+	case "since":
+		return ec.fieldContext_PrometheusAlarm_since(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PrometheusAlarm", field.Name)
+}
+
+func (ec *executionContext) childFields_Reconciler(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_Reconciler_id(ctx, field)
+	case "name":
+		return ec.fieldContext_Reconciler_name(ctx, field)
+	case "displayName":
+		return ec.fieldContext_Reconciler_displayName(ctx, field)
+	case "description":
+		return ec.fieldContext_Reconciler_description(ctx, field)
+	case "enabled":
+		return ec.fieldContext_Reconciler_enabled(ctx, field)
+	case "config":
+		return ec.fieldContext_Reconciler_config(ctx, field)
+	case "configured":
+		return ec.fieldContext_Reconciler_configured(ctx, field)
+	case "errors":
+		return ec.fieldContext_Reconciler_errors(ctx, field)
+	case "activityLog":
+		return ec.fieldContext_Reconciler_activityLog(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type Reconciler", field.Name)
+}
+
+func (ec *executionContext) childFields_ReconcilerConfig(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "key":
+		return ec.fieldContext_ReconcilerConfig_key(ctx, field)
+	case "displayName":
+		return ec.fieldContext_ReconcilerConfig_displayName(ctx, field)
+	case "description":
+		return ec.fieldContext_ReconcilerConfig_description(ctx, field)
+	case "configured":
+		return ec.fieldContext_ReconcilerConfig_configured(ctx, field)
+	case "secret":
+		return ec.fieldContext_ReconcilerConfig_secret(ctx, field)
+	case "value":
+		return ec.fieldContext_ReconcilerConfig_value(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ReconcilerConfig", field.Name)
+}
+
+func (ec *executionContext) childFields_ReconcilerConfiguredActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "updatedKeys":
+		return ec.fieldContext_ReconcilerConfiguredActivityLogEntryData_updatedKeys(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ReconcilerConfiguredActivityLogEntryData", field.Name)
+}
+
+func (ec *executionContext) childFields_ReconcilerConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pageInfo":
+		return ec.fieldContext_ReconcilerConnection_pageInfo(ctx, field)
+	case "nodes":
+		return ec.fieldContext_ReconcilerConnection_nodes(ctx, field)
+	case "edges":
+		return ec.fieldContext_ReconcilerConnection_edges(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ReconcilerConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_ReconcilerEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_ReconcilerEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_ReconcilerEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ReconcilerEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_ReconcilerError(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_ReconcilerError_id(ctx, field)
+	case "correlationID":
+		return ec.fieldContext_ReconcilerError_correlationID(ctx, field)
+	case "createdAt":
+		return ec.fieldContext_ReconcilerError_createdAt(ctx, field)
+	case "message":
+		return ec.fieldContext_ReconcilerError_message(ctx, field)
+	case "team":
+		return ec.fieldContext_ReconcilerError_team(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ReconcilerError", field.Name)
+}
+
+func (ec *executionContext) childFields_ReconcilerErrorConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pageInfo":
+		return ec.fieldContext_ReconcilerErrorConnection_pageInfo(ctx, field)
+	case "nodes":
+		return ec.fieldContext_ReconcilerErrorConnection_nodes(ctx, field)
+	case "edges":
+		return ec.fieldContext_ReconcilerErrorConnection_edges(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ReconcilerErrorConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_ReconcilerErrorEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_ReconcilerErrorEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_ReconcilerErrorEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ReconcilerErrorEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_RemoveConfigValuePayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "config":
+		return ec.fieldContext_RemoveConfigValuePayload_config(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type RemoveConfigValuePayload", field.Name)
+}
+
+func (ec *executionContext) childFields_RemoveRepositoryFromTeamPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "success":
+		return ec.fieldContext_RemoveRepositoryFromTeamPayload_success(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type RemoveRepositoryFromTeamPayload", field.Name)
+}
+
+func (ec *executionContext) childFields_RemoveSecretValuePayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "secret":
+		return ec.fieldContext_RemoveSecretValuePayload_secret(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type RemoveSecretValuePayload", field.Name)
+}
+
+func (ec *executionContext) childFields_RemoveTeamMemberPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "user":
+		return ec.fieldContext_RemoveTeamMemberPayload_user(ctx, field)
+	case "team":
+		return ec.fieldContext_RemoveTeamMemberPayload_team(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type RemoveTeamMemberPayload", field.Name)
+}
+
+func (ec *executionContext) childFields_Repository(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_Repository_id(ctx, field)
+	case "name":
+		return ec.fieldContext_Repository_name(ctx, field)
+	case "team":
+		return ec.fieldContext_Repository_team(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type Repository", field.Name)
+}
+
+func (ec *executionContext) childFields_RepositoryConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pageInfo":
+		return ec.fieldContext_RepositoryConnection_pageInfo(ctx, field)
+	case "nodes":
+		return ec.fieldContext_RepositoryConnection_nodes(ctx, field)
+	case "edges":
+		return ec.fieldContext_RepositoryConnection_edges(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type RepositoryConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_RepositoryEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_RepositoryEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_RepositoryEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type RepositoryEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_RequestTeamDeletionPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "key":
+		return ec.fieldContext_RequestTeamDeletionPayload_key(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type RequestTeamDeletionPayload", field.Name)
+}
+
+func (ec *executionContext) childFields_ResourceChangedField(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "field":
+		return ec.fieldContext_ResourceChangedField_field(ctx, field)
+	case "oldValue":
+		return ec.fieldContext_ResourceChangedField_oldValue(ctx, field)
+	case "newValue":
+		return ec.fieldContext_ResourceChangedField_newValue(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ResourceChangedField", field.Name)
+}
+
+func (ec *executionContext) childFields_RestartApplicationPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "application":
+		return ec.fieldContext_RestartApplicationPayload_application(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type RestartApplicationPayload", field.Name)
+}
+
+func (ec *executionContext) childFields_RevokeRoleFromServiceAccountPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "serviceAccount":
+		return ec.fieldContext_RevokeRoleFromServiceAccountPayload_serviceAccount(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type RevokeRoleFromServiceAccountPayload", field.Name)
+}
+
+func (ec *executionContext) childFields_RevokeTeamAccessToUnleashPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "unleash":
+		return ec.fieldContext_RevokeTeamAccessToUnleashPayload_unleash(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type RevokeTeamAccessToUnleashPayload", field.Name)
+}
+
+func (ec *executionContext) childFields_Role(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_Role_id(ctx, field)
+	case "name":
+		return ec.fieldContext_Role_name(ctx, field)
+	case "description":
+		return ec.fieldContext_Role_description(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type Role", field.Name)
+}
+
+func (ec *executionContext) childFields_RoleAssignedToServiceAccountActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "roleName":
+		return ec.fieldContext_RoleAssignedToServiceAccountActivityLogEntryData_roleName(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type RoleAssignedToServiceAccountActivityLogEntryData", field.Name)
+}
+
+func (ec *executionContext) childFields_RoleConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "nodes":
+		return ec.fieldContext_RoleConnection_nodes(ctx, field)
+	case "edges":
+		return ec.fieldContext_RoleConnection_edges(ctx, field)
+	case "pageInfo":
+		return ec.fieldContext_RoleConnection_pageInfo(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type RoleConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_RoleEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "node":
+		return ec.fieldContext_RoleEdge_node(ctx, field)
+	case "cursor":
+		return ec.fieldContext_RoleEdge_cursor(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type RoleEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_RoleRevokedFromServiceAccountActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "roleName":
+		return ec.fieldContext_RoleRevokedFromServiceAccountActivityLogEntryData_roleName(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type RoleRevokedFromServiceAccountActivityLogEntryData", field.Name)
+}
+
+func (ec *executionContext) childFields_SearchNodeConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pageInfo":
+		return ec.fieldContext_SearchNodeConnection_pageInfo(ctx, field)
+	case "nodes":
+		return ec.fieldContext_SearchNodeConnection_nodes(ctx, field)
+	case "edges":
+		return ec.fieldContext_SearchNodeConnection_edges(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type SearchNodeConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_SearchNodeEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_SearchNodeEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_SearchNodeEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type SearchNodeEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_Secret(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_Secret_id(ctx, field)
+	case "name":
+		return ec.fieldContext_Secret_name(ctx, field)
+	case "environment":
+		return ec.fieldContext_Secret_environment(ctx, field)
+	case "teamEnvironment":
+		return ec.fieldContext_Secret_teamEnvironment(ctx, field)
+	case "team":
+		return ec.fieldContext_Secret_team(ctx, field)
+	case "keys":
+		return ec.fieldContext_Secret_keys(ctx, field)
+	case "applications":
+		return ec.fieldContext_Secret_applications(ctx, field)
+	case "jobs":
+		return ec.fieldContext_Secret_jobs(ctx, field)
+	case "workloads":
+		return ec.fieldContext_Secret_workloads(ctx, field)
+	case "lastModifiedAt":
+		return ec.fieldContext_Secret_lastModifiedAt(ctx, field)
+	case "lastModifiedBy":
+		return ec.fieldContext_Secret_lastModifiedBy(ctx, field)
+	case "activityLog":
+		return ec.fieldContext_Secret_activityLog(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type Secret", field.Name)
+}
+
+func (ec *executionContext) childFields_SecretConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pageInfo":
+		return ec.fieldContext_SecretConnection_pageInfo(ctx, field)
+	case "nodes":
+		return ec.fieldContext_SecretConnection_nodes(ctx, field)
+	case "edges":
+		return ec.fieldContext_SecretConnection_edges(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type SecretConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_SecretEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_SecretEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_SecretEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type SecretEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_SecretValue(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "name":
+		return ec.fieldContext_SecretValue_name(ctx, field)
+	case "value":
+		return ec.fieldContext_SecretValue_value(ctx, field)
+	case "encoding":
+		return ec.fieldContext_SecretValue_encoding(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type SecretValue", field.Name)
+}
+
+func (ec *executionContext) childFields_SecretValueAddedActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "valueName":
+		return ec.fieldContext_SecretValueAddedActivityLogEntryData_valueName(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type SecretValueAddedActivityLogEntryData", field.Name)
+}
+
+func (ec *executionContext) childFields_SecretValueRemovedActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "valueName":
+		return ec.fieldContext_SecretValueRemovedActivityLogEntryData_valueName(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type SecretValueRemovedActivityLogEntryData", field.Name)
+}
+
+func (ec *executionContext) childFields_SecretValueUpdatedActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "valueName":
+		return ec.fieldContext_SecretValueUpdatedActivityLogEntryData_valueName(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type SecretValueUpdatedActivityLogEntryData", field.Name)
+}
+
+func (ec *executionContext) childFields_SecretValuesViewedActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "reason":
+		return ec.fieldContext_SecretValuesViewedActivityLogEntryData_reason(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type SecretValuesViewedActivityLogEntryData", field.Name)
+}
+
+func (ec *executionContext) childFields_ServiceAccount(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_ServiceAccount_id(ctx, field)
+	case "name":
+		return ec.fieldContext_ServiceAccount_name(ctx, field)
+	case "description":
+		return ec.fieldContext_ServiceAccount_description(ctx, field)
+	case "createdAt":
+		return ec.fieldContext_ServiceAccount_createdAt(ctx, field)
+	case "updatedAt":
+		return ec.fieldContext_ServiceAccount_updatedAt(ctx, field)
+	case "lastUsedAt":
+		return ec.fieldContext_ServiceAccount_lastUsedAt(ctx, field)
+	case "team":
+		return ec.fieldContext_ServiceAccount_team(ctx, field)
+	case "roles":
+		return ec.fieldContext_ServiceAccount_roles(ctx, field)
+	case "tokens":
+		return ec.fieldContext_ServiceAccount_tokens(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ServiceAccount", field.Name)
+}
+
+func (ec *executionContext) childFields_ServiceAccountConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "nodes":
+		return ec.fieldContext_ServiceAccountConnection_nodes(ctx, field)
+	case "edges":
+		return ec.fieldContext_ServiceAccountConnection_edges(ctx, field)
+	case "pageInfo":
+		return ec.fieldContext_ServiceAccountConnection_pageInfo(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ServiceAccountConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_ServiceAccountEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "node":
+		return ec.fieldContext_ServiceAccountEdge_node(ctx, field)
+	case "cursor":
+		return ec.fieldContext_ServiceAccountEdge_cursor(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ServiceAccountEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_ServiceAccountToken(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_ServiceAccountToken_id(ctx, field)
+	case "name":
+		return ec.fieldContext_ServiceAccountToken_name(ctx, field)
+	case "description":
+		return ec.fieldContext_ServiceAccountToken_description(ctx, field)
+	case "createdAt":
+		return ec.fieldContext_ServiceAccountToken_createdAt(ctx, field)
+	case "updatedAt":
+		return ec.fieldContext_ServiceAccountToken_updatedAt(ctx, field)
+	case "lastUsedAt":
+		return ec.fieldContext_ServiceAccountToken_lastUsedAt(ctx, field)
+	case "expiresAt":
+		return ec.fieldContext_ServiceAccountToken_expiresAt(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ServiceAccountToken", field.Name)
+}
+
+func (ec *executionContext) childFields_ServiceAccountTokenConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "nodes":
+		return ec.fieldContext_ServiceAccountTokenConnection_nodes(ctx, field)
+	case "edges":
+		return ec.fieldContext_ServiceAccountTokenConnection_edges(ctx, field)
+	case "pageInfo":
+		return ec.fieldContext_ServiceAccountTokenConnection_pageInfo(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ServiceAccountTokenConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_ServiceAccountTokenCreatedActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "tokenName":
+		return ec.fieldContext_ServiceAccountTokenCreatedActivityLogEntryData_tokenName(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ServiceAccountTokenCreatedActivityLogEntryData", field.Name)
+}
+
+func (ec *executionContext) childFields_ServiceAccountTokenDeletedActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "tokenName":
+		return ec.fieldContext_ServiceAccountTokenDeletedActivityLogEntryData_tokenName(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ServiceAccountTokenDeletedActivityLogEntryData", field.Name)
+}
+
+func (ec *executionContext) childFields_ServiceAccountTokenEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "node":
+		return ec.fieldContext_ServiceAccountTokenEdge_node(ctx, field)
+	case "cursor":
+		return ec.fieldContext_ServiceAccountTokenEdge_cursor(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ServiceAccountTokenEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_ServiceAccountTokenUpdatedActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "updatedFields":
+		return ec.fieldContext_ServiceAccountTokenUpdatedActivityLogEntryData_updatedFields(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ServiceAccountTokenUpdatedActivityLogEntryData", field.Name)
+}
+
+func (ec *executionContext) childFields_ServiceAccountTokenUpdatedActivityLogEntryDataUpdatedField(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "field":
+		return ec.fieldContext_ServiceAccountTokenUpdatedActivityLogEntryDataUpdatedField_field(ctx, field)
+	case "oldValue":
+		return ec.fieldContext_ServiceAccountTokenUpdatedActivityLogEntryDataUpdatedField_oldValue(ctx, field)
+	case "newValue":
+		return ec.fieldContext_ServiceAccountTokenUpdatedActivityLogEntryDataUpdatedField_newValue(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ServiceAccountTokenUpdatedActivityLogEntryDataUpdatedField", field.Name)
+}
+
+func (ec *executionContext) childFields_ServiceAccountUpdatedActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "updatedFields":
+		return ec.fieldContext_ServiceAccountUpdatedActivityLogEntryData_updatedFields(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ServiceAccountUpdatedActivityLogEntryData", field.Name)
+}
+
+func (ec *executionContext) childFields_ServiceAccountUpdatedActivityLogEntryDataUpdatedField(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "field":
+		return ec.fieldContext_ServiceAccountUpdatedActivityLogEntryDataUpdatedField_field(ctx, field)
+	case "oldValue":
+		return ec.fieldContext_ServiceAccountUpdatedActivityLogEntryDataUpdatedField_oldValue(ctx, field)
+	case "newValue":
+		return ec.fieldContext_ServiceAccountUpdatedActivityLogEntryDataUpdatedField_newValue(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ServiceAccountUpdatedActivityLogEntryDataUpdatedField", field.Name)
+}
+
+func (ec *executionContext) childFields_ServiceCostSample(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "service":
+		return ec.fieldContext_ServiceCostSample_service(ctx, field)
+	case "cost":
+		return ec.fieldContext_ServiceCostSample_cost(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ServiceCostSample", field.Name)
+}
+
+func (ec *executionContext) childFields_ServiceCostSeries(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "date":
+		return ec.fieldContext_ServiceCostSeries_date(ctx, field)
+	case "sum":
+		return ec.fieldContext_ServiceCostSeries_sum(ctx, field)
+	case "services":
+		return ec.fieldContext_ServiceCostSeries_services(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ServiceCostSeries", field.Name)
+}
+
+func (ec *executionContext) childFields_SetTeamMemberRolePayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "member":
+		return ec.fieldContext_SetTeamMemberRolePayload_member(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type SetTeamMemberRolePayload", field.Name)
+}
+
+func (ec *executionContext) childFields_SqlDatabase(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_SqlDatabase_id(ctx, field)
+	case "name":
+		return ec.fieldContext_SqlDatabase_name(ctx, field)
+	case "team":
+		return ec.fieldContext_SqlDatabase_team(ctx, field)
+	case "environment":
+		return ec.fieldContext_SqlDatabase_environment(ctx, field)
+	case "teamEnvironment":
+		return ec.fieldContext_SqlDatabase_teamEnvironment(ctx, field)
+	case "charset":
+		return ec.fieldContext_SqlDatabase_charset(ctx, field)
+	case "collation":
+		return ec.fieldContext_SqlDatabase_collation(ctx, field)
+	case "deletionPolicy":
+		return ec.fieldContext_SqlDatabase_deletionPolicy(ctx, field)
+	case "healthy":
+		return ec.fieldContext_SqlDatabase_healthy(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type SqlDatabase", field.Name)
+}
+
+func (ec *executionContext) childFields_SqlInstance(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_SqlInstance_id(ctx, field)
+	case "name":
+		return ec.fieldContext_SqlInstance_name(ctx, field)
+	case "team":
+		return ec.fieldContext_SqlInstance_team(ctx, field)
+	case "environment":
+		return ec.fieldContext_SqlInstance_environment(ctx, field)
+	case "teamEnvironment":
+		return ec.fieldContext_SqlInstance_teamEnvironment(ctx, field)
+	case "workload":
+		return ec.fieldContext_SqlInstance_workload(ctx, field)
+	case "cascadingDelete":
+		return ec.fieldContext_SqlInstance_cascadingDelete(ctx, field)
+	case "connectionName":
+		return ec.fieldContext_SqlInstance_connectionName(ctx, field)
+	case "diskAutoresize":
+		return ec.fieldContext_SqlInstance_diskAutoresize(ctx, field)
+	case "diskAutoresizeLimit":
+		return ec.fieldContext_SqlInstance_diskAutoresizeLimit(ctx, field)
+	case "highAvailability":
+		return ec.fieldContext_SqlInstance_highAvailability(ctx, field)
+	case "healthy":
+		return ec.fieldContext_SqlInstance_healthy(ctx, field)
+	case "maintenanceVersion":
+		return ec.fieldContext_SqlInstance_maintenanceVersion(ctx, field)
+	case "maintenanceWindow":
+		return ec.fieldContext_SqlInstance_maintenanceWindow(ctx, field)
+	case "backupConfiguration":
+		return ec.fieldContext_SqlInstance_backupConfiguration(ctx, field)
+	case "projectID":
+		return ec.fieldContext_SqlInstance_projectID(ctx, field)
+	case "tier":
+		return ec.fieldContext_SqlInstance_tier(ctx, field)
+	case "version":
+		return ec.fieldContext_SqlInstance_version(ctx, field)
+	case "status":
+		return ec.fieldContext_SqlInstance_status(ctx, field)
+	case "database":
+		return ec.fieldContext_SqlInstance_database(ctx, field)
+	case "flags":
+		return ec.fieldContext_SqlInstance_flags(ctx, field)
+	case "users":
+		return ec.fieldContext_SqlInstance_users(ctx, field)
+	case "metrics":
+		return ec.fieldContext_SqlInstance_metrics(ctx, field)
+	case "state":
+		return ec.fieldContext_SqlInstance_state(ctx, field)
+	case "issues":
+		return ec.fieldContext_SqlInstance_issues(ctx, field)
+	case "auditLog":
+		return ec.fieldContext_SqlInstance_auditLog(ctx, field)
+	case "cost":
+		return ec.fieldContext_SqlInstance_cost(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type SqlInstance", field.Name)
+}
+
+func (ec *executionContext) childFields_SqlInstanceBackupConfiguration(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "enabled":
+		return ec.fieldContext_SqlInstanceBackupConfiguration_enabled(ctx, field)
+	case "startTime":
+		return ec.fieldContext_SqlInstanceBackupConfiguration_startTime(ctx, field)
+	case "retainedBackups":
+		return ec.fieldContext_SqlInstanceBackupConfiguration_retainedBackups(ctx, field)
+	case "pointInTimeRecovery":
+		return ec.fieldContext_SqlInstanceBackupConfiguration_pointInTimeRecovery(ctx, field)
+	case "transactionLogRetentionDays":
+		return ec.fieldContext_SqlInstanceBackupConfiguration_transactionLogRetentionDays(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type SqlInstanceBackupConfiguration", field.Name)
+}
+
+func (ec *executionContext) childFields_SqlInstanceConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pageInfo":
+		return ec.fieldContext_SqlInstanceConnection_pageInfo(ctx, field)
+	case "nodes":
+		return ec.fieldContext_SqlInstanceConnection_nodes(ctx, field)
+	case "edges":
+		return ec.fieldContext_SqlInstanceConnection_edges(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type SqlInstanceConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_SqlInstanceCost(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "sum":
+		return ec.fieldContext_SqlInstanceCost_sum(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type SqlInstanceCost", field.Name)
+}
+
+func (ec *executionContext) childFields_SqlInstanceCpu(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cores":
+		return ec.fieldContext_SqlInstanceCpu_cores(ctx, field)
+	case "utilization":
+		return ec.fieldContext_SqlInstanceCpu_utilization(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type SqlInstanceCpu", field.Name)
+}
+
+func (ec *executionContext) childFields_SqlInstanceDisk(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "quotaBytes":
+		return ec.fieldContext_SqlInstanceDisk_quotaBytes(ctx, field)
+	case "utilization":
+		return ec.fieldContext_SqlInstanceDisk_utilization(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type SqlInstanceDisk", field.Name)
+}
+
+func (ec *executionContext) childFields_SqlInstanceEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_SqlInstanceEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_SqlInstanceEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type SqlInstanceEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_SqlInstanceFlag(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "name":
+		return ec.fieldContext_SqlInstanceFlag_name(ctx, field)
+	case "value":
+		return ec.fieldContext_SqlInstanceFlag_value(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type SqlInstanceFlag", field.Name)
+}
+
+func (ec *executionContext) childFields_SqlInstanceFlagConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pageInfo":
+		return ec.fieldContext_SqlInstanceFlagConnection_pageInfo(ctx, field)
+	case "nodes":
+		return ec.fieldContext_SqlInstanceFlagConnection_nodes(ctx, field)
+	case "edges":
+		return ec.fieldContext_SqlInstanceFlagConnection_edges(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type SqlInstanceFlagConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_SqlInstanceFlagEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_SqlInstanceFlagEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_SqlInstanceFlagEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type SqlInstanceFlagEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_SqlInstanceMaintenanceWindow(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "day":
+		return ec.fieldContext_SqlInstanceMaintenanceWindow_day(ctx, field)
+	case "hour":
+		return ec.fieldContext_SqlInstanceMaintenanceWindow_hour(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type SqlInstanceMaintenanceWindow", field.Name)
+}
+
+func (ec *executionContext) childFields_SqlInstanceMemory(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "quotaBytes":
+		return ec.fieldContext_SqlInstanceMemory_quotaBytes(ctx, field)
+	case "utilization":
+		return ec.fieldContext_SqlInstanceMemory_utilization(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type SqlInstanceMemory", field.Name)
+}
+
+func (ec *executionContext) childFields_SqlInstanceMetrics(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cpu":
+		return ec.fieldContext_SqlInstanceMetrics_cpu(ctx, field)
+	case "memory":
+		return ec.fieldContext_SqlInstanceMetrics_memory(ctx, field)
+	case "disk":
+		return ec.fieldContext_SqlInstanceMetrics_disk(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type SqlInstanceMetrics", field.Name)
+}
+
+func (ec *executionContext) childFields_SqlInstanceStatus(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "publicIpAddress":
+		return ec.fieldContext_SqlInstanceStatus_publicIpAddress(ctx, field)
+	case "privateIpAddress":
+		return ec.fieldContext_SqlInstanceStatus_privateIpAddress(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type SqlInstanceStatus", field.Name)
+}
+
+func (ec *executionContext) childFields_SqlInstanceUser(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "name":
+		return ec.fieldContext_SqlInstanceUser_name(ctx, field)
+	case "authentication":
+		return ec.fieldContext_SqlInstanceUser_authentication(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type SqlInstanceUser", field.Name)
+}
+
+func (ec *executionContext) childFields_SqlInstanceUserConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pageInfo":
+		return ec.fieldContext_SqlInstanceUserConnection_pageInfo(ctx, field)
+	case "nodes":
+		return ec.fieldContext_SqlInstanceUserConnection_nodes(ctx, field)
+	case "edges":
+		return ec.fieldContext_SqlInstanceUserConnection_edges(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type SqlInstanceUserConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_SqlInstanceUserEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_SqlInstanceUserEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_SqlInstanceUserEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type SqlInstanceUserEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_StartOpenSearchMaintenancePayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "error":
+		return ec.fieldContext_StartOpenSearchMaintenancePayload_error(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type StartOpenSearchMaintenancePayload", field.Name)
+}
+
+func (ec *executionContext) childFields_StartValkeyMaintenancePayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "error":
+		return ec.fieldContext_StartValkeyMaintenancePayload_error(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type StartValkeyMaintenancePayload", field.Name)
+}
+
+func (ec *executionContext) childFields_Team(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_Team_id(ctx, field)
+	case "slug":
+		return ec.fieldContext_Team_slug(ctx, field)
+	case "slackChannel":
+		return ec.fieldContext_Team_slackChannel(ctx, field)
+	case "purpose":
+		return ec.fieldContext_Team_purpose(ctx, field)
+	case "externalResources":
+		return ec.fieldContext_Team_externalResources(ctx, field)
+	case "member":
+		return ec.fieldContext_Team_member(ctx, field)
+	case "members":
+		return ec.fieldContext_Team_members(ctx, field)
+	case "lastSuccessfulSync":
+		return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+	case "deletionInProgress":
+		return ec.fieldContext_Team_deletionInProgress(ctx, field)
+	case "viewerIsOwner":
+		return ec.fieldContext_Team_viewerIsOwner(ctx, field)
+	case "viewerIsMember":
+		return ec.fieldContext_Team_viewerIsMember(ctx, field)
+	case "environments":
+		return ec.fieldContext_Team_environments(ctx, field)
+	case "environment":
+		return ec.fieldContext_Team_environment(ctx, field)
+	case "deleteKey":
+		return ec.fieldContext_Team_deleteKey(ctx, field)
+	case "inventoryCounts":
+		return ec.fieldContext_Team_inventoryCounts(ctx, field)
+	case "activityLog":
+		return ec.fieldContext_Team_activityLog(ctx, field)
+	case "alerts":
+		return ec.fieldContext_Team_alerts(ctx, field)
+	case "applications":
+		return ec.fieldContext_Team_applications(ctx, field)
+	case "bigQueryDatasets":
+		return ec.fieldContext_Team_bigQueryDatasets(ctx, field)
+	case "buckets":
+		return ec.fieldContext_Team_buckets(ctx, field)
+	case "configs":
+		return ec.fieldContext_Team_configs(ctx, field)
+	case "cost":
+		return ec.fieldContext_Team_cost(ctx, field)
+	case "deploymentKey":
+		return ec.fieldContext_Team_deploymentKey(ctx, field)
+	case "deployments":
+		return ec.fieldContext_Team_deployments(ctx, field)
+	case "issues":
+		return ec.fieldContext_Team_issues(ctx, field)
+	case "jobs":
+		return ec.fieldContext_Team_jobs(ctx, field)
+	case "kafkaTopics":
+		return ec.fieldContext_Team_kafkaTopics(ctx, field)
+	case "openSearches":
+		return ec.fieldContext_Team_openSearches(ctx, field)
+	case "postgresInstances":
+		return ec.fieldContext_Team_postgresInstances(ctx, field)
+	case "repositories":
+		return ec.fieldContext_Team_repositories(ctx, field)
+	case "secrets":
+		return ec.fieldContext_Team_secrets(ctx, field)
+	case "sqlInstances":
+		return ec.fieldContext_Team_sqlInstances(ctx, field)
+	case "unleash":
+		return ec.fieldContext_Team_unleash(ctx, field)
+	case "workloadUtilization":
+		return ec.fieldContext_Team_workloadUtilization(ctx, field)
+	case "serviceUtilization":
+		return ec.fieldContext_Team_serviceUtilization(ctx, field)
+	case "valkeys":
+		return ec.fieldContext_Team_valkeys(ctx, field)
+	case "imageVulnerabilityHistory":
+		return ec.fieldContext_Team_imageVulnerabilityHistory(ctx, field)
+	case "vulnerabilityFixHistory":
+		return ec.fieldContext_Team_vulnerabilityFixHistory(ctx, field)
+	case "vulnerabilitySummary":
+		return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
+	case "vulnerabilitySummaries":
+		return ec.fieldContext_Team_vulnerabilitySummaries(ctx, field)
+	case "workloads":
+		return ec.fieldContext_Team_workloads(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
+}
+
+func (ec *executionContext) childFields_TeamCDN(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "bucket":
+		return ec.fieldContext_TeamCDN_bucket(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TeamCDN", field.Name)
+}
+
+func (ec *executionContext) childFields_TeamConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pageInfo":
+		return ec.fieldContext_TeamConnection_pageInfo(ctx, field)
+	case "nodes":
+		return ec.fieldContext_TeamConnection_nodes(ctx, field)
+	case "edges":
+		return ec.fieldContext_TeamConnection_edges(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TeamConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_TeamCost(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "daily":
+		return ec.fieldContext_TeamCost_daily(ctx, field)
+	case "monthlySummary":
+		return ec.fieldContext_TeamCost_monthlySummary(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TeamCost", field.Name)
+}
+
+func (ec *executionContext) childFields_TeamCostMonthlySample(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "date":
+		return ec.fieldContext_TeamCostMonthlySample_date(ctx, field)
+	case "cost":
+		return ec.fieldContext_TeamCostMonthlySample_cost(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TeamCostMonthlySample", field.Name)
+}
+
+func (ec *executionContext) childFields_TeamCostMonthlySummary(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "sum":
+		return ec.fieldContext_TeamCostMonthlySummary_sum(ctx, field)
+	case "series":
+		return ec.fieldContext_TeamCostMonthlySummary_series(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TeamCostMonthlySummary", field.Name)
+}
+
+func (ec *executionContext) childFields_TeamCostPeriod(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "sum":
+		return ec.fieldContext_TeamCostPeriod_sum(ctx, field)
+	case "series":
+		return ec.fieldContext_TeamCostPeriod_series(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TeamCostPeriod", field.Name)
+}
+
+func (ec *executionContext) childFields_TeamDeleteKey(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "key":
+		return ec.fieldContext_TeamDeleteKey_key(ctx, field)
+	case "createdAt":
+		return ec.fieldContext_TeamDeleteKey_createdAt(ctx, field)
+	case "expires":
+		return ec.fieldContext_TeamDeleteKey_expires(ctx, field)
+	case "createdBy":
+		return ec.fieldContext_TeamDeleteKey_createdBy(ctx, field)
+	case "team":
+		return ec.fieldContext_TeamDeleteKey_team(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TeamDeleteKey", field.Name)
+}
+
+func (ec *executionContext) childFields_TeamEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_TeamEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_TeamEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TeamEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_TeamEntraIDGroup(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "groupID":
+		return ec.fieldContext_TeamEntraIDGroup_groupID(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TeamEntraIDGroup", field.Name)
+}
+
+func (ec *executionContext) childFields_TeamEnvironment(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_TeamEnvironment_id(ctx, field)
+	case "name":
+		return ec.fieldContext_TeamEnvironment_name(ctx, field)
+	case "gcpProjectID":
+		return ec.fieldContext_TeamEnvironment_gcpProjectID(ctx, field)
+	case "slackAlertsChannel":
+		return ec.fieldContext_TeamEnvironment_slackAlertsChannel(ctx, field)
+	case "team":
+		return ec.fieldContext_TeamEnvironment_team(ctx, field)
+	case "alerts":
+		return ec.fieldContext_TeamEnvironment_alerts(ctx, field)
+	case "application":
+		return ec.fieldContext_TeamEnvironment_application(ctx, field)
+	case "bigQueryDataset":
+		return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
+	case "bucket":
+		return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
+	case "config":
+		return ec.fieldContext_TeamEnvironment_config(ctx, field)
+	case "cost":
+		return ec.fieldContext_TeamEnvironment_cost(ctx, field)
+	case "environment":
+		return ec.fieldContext_TeamEnvironment_environment(ctx, field)
+	case "job":
+		return ec.fieldContext_TeamEnvironment_job(ctx, field)
+	case "kafkaTopic":
+		return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
+	case "openSearch":
+		return ec.fieldContext_TeamEnvironment_openSearch(ctx, field)
+	case "postgresInstance":
+		return ec.fieldContext_TeamEnvironment_postgresInstance(ctx, field)
+	case "secret":
+		return ec.fieldContext_TeamEnvironment_secret(ctx, field)
+	case "sqlInstance":
+		return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+	case "valkey":
+		return ec.fieldContext_TeamEnvironment_valkey(ctx, field)
+	case "workload":
+		return ec.fieldContext_TeamEnvironment_workload(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
+}
+
+func (ec *executionContext) childFields_TeamEnvironmentCost(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "daily":
+		return ec.fieldContext_TeamEnvironmentCost_daily(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TeamEnvironmentCost", field.Name)
+}
+
+func (ec *executionContext) childFields_TeamEnvironmentCostPeriod(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "sum":
+		return ec.fieldContext_TeamEnvironmentCostPeriod_sum(ctx, field)
+	case "series":
+		return ec.fieldContext_TeamEnvironmentCostPeriod_series(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TeamEnvironmentCostPeriod", field.Name)
+}
+
+func (ec *executionContext) childFields_TeamEnvironmentUpdatedActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "updatedFields":
+		return ec.fieldContext_TeamEnvironmentUpdatedActivityLogEntryData_updatedFields(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TeamEnvironmentUpdatedActivityLogEntryData", field.Name)
+}
+
+func (ec *executionContext) childFields_TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "field":
+		return ec.fieldContext_TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField_field(ctx, field)
+	case "oldValue":
+		return ec.fieldContext_TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField_oldValue(ctx, field)
+	case "newValue":
+		return ec.fieldContext_TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField_newValue(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField", field.Name)
+}
+
+func (ec *executionContext) childFields_TeamExternalResources(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "entraIDGroup":
+		return ec.fieldContext_TeamExternalResources_entraIDGroup(ctx, field)
+	case "gitHubTeam":
+		return ec.fieldContext_TeamExternalResources_gitHubTeam(ctx, field)
+	case "googleGroup":
+		return ec.fieldContext_TeamExternalResources_googleGroup(ctx, field)
+	case "googleArtifactRegistry":
+		return ec.fieldContext_TeamExternalResources_googleArtifactRegistry(ctx, field)
+	case "cdn":
+		return ec.fieldContext_TeamExternalResources_cdn(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TeamExternalResources", field.Name)
+}
+
+func (ec *executionContext) childFields_TeamGitHubTeam(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "slug":
+		return ec.fieldContext_TeamGitHubTeam_slug(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TeamGitHubTeam", field.Name)
+}
+
+func (ec *executionContext) childFields_TeamGoogleArtifactRegistry(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "repository":
+		return ec.fieldContext_TeamGoogleArtifactRegistry_repository(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TeamGoogleArtifactRegistry", field.Name)
+}
+
+func (ec *executionContext) childFields_TeamGoogleGroup(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "email":
+		return ec.fieldContext_TeamGoogleGroup_email(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TeamGoogleGroup", field.Name)
+}
+
+func (ec *executionContext) childFields_TeamInventoryCountApplications(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "total":
+		return ec.fieldContext_TeamInventoryCountApplications_total(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TeamInventoryCountApplications", field.Name)
+}
+
+func (ec *executionContext) childFields_TeamInventoryCountBigQueryDatasets(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "total":
+		return ec.fieldContext_TeamInventoryCountBigQueryDatasets_total(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TeamInventoryCountBigQueryDatasets", field.Name)
+}
+
+func (ec *executionContext) childFields_TeamInventoryCountBuckets(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "total":
+		return ec.fieldContext_TeamInventoryCountBuckets_total(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TeamInventoryCountBuckets", field.Name)
+}
+
+func (ec *executionContext) childFields_TeamInventoryCountConfigs(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "total":
+		return ec.fieldContext_TeamInventoryCountConfigs_total(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TeamInventoryCountConfigs", field.Name)
+}
+
+func (ec *executionContext) childFields_TeamInventoryCountJobs(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "total":
+		return ec.fieldContext_TeamInventoryCountJobs_total(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TeamInventoryCountJobs", field.Name)
+}
+
+func (ec *executionContext) childFields_TeamInventoryCountKafkaTopics(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "total":
+		return ec.fieldContext_TeamInventoryCountKafkaTopics_total(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TeamInventoryCountKafkaTopics", field.Name)
+}
+
+func (ec *executionContext) childFields_TeamInventoryCountOpenSearches(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "total":
+		return ec.fieldContext_TeamInventoryCountOpenSearches_total(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TeamInventoryCountOpenSearches", field.Name)
+}
+
+func (ec *executionContext) childFields_TeamInventoryCountPostgresInstances(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "total":
+		return ec.fieldContext_TeamInventoryCountPostgresInstances_total(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TeamInventoryCountPostgresInstances", field.Name)
+}
+
+func (ec *executionContext) childFields_TeamInventoryCountSecrets(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "total":
+		return ec.fieldContext_TeamInventoryCountSecrets_total(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TeamInventoryCountSecrets", field.Name)
+}
+
+func (ec *executionContext) childFields_TeamInventoryCountSqlInstances(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "total":
+		return ec.fieldContext_TeamInventoryCountSqlInstances_total(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TeamInventoryCountSqlInstances", field.Name)
+}
+
+func (ec *executionContext) childFields_TeamInventoryCountValkeys(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "total":
+		return ec.fieldContext_TeamInventoryCountValkeys_total(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TeamInventoryCountValkeys", field.Name)
+}
+
+func (ec *executionContext) childFields_TeamInventoryCounts(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "applications":
+		return ec.fieldContext_TeamInventoryCounts_applications(ctx, field)
+	case "bigQueryDatasets":
+		return ec.fieldContext_TeamInventoryCounts_bigQueryDatasets(ctx, field)
+	case "buckets":
+		return ec.fieldContext_TeamInventoryCounts_buckets(ctx, field)
+	case "configs":
+		return ec.fieldContext_TeamInventoryCounts_configs(ctx, field)
+	case "jobs":
+		return ec.fieldContext_TeamInventoryCounts_jobs(ctx, field)
+	case "kafkaTopics":
+		return ec.fieldContext_TeamInventoryCounts_kafkaTopics(ctx, field)
+	case "openSearches":
+		return ec.fieldContext_TeamInventoryCounts_openSearches(ctx, field)
+	case "postgresInstances":
+		return ec.fieldContext_TeamInventoryCounts_postgresInstances(ctx, field)
+	case "secrets":
+		return ec.fieldContext_TeamInventoryCounts_secrets(ctx, field)
+	case "sqlInstances":
+		return ec.fieldContext_TeamInventoryCounts_sqlInstances(ctx, field)
+	case "valkeys":
+		return ec.fieldContext_TeamInventoryCounts_valkeys(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TeamInventoryCounts", field.Name)
+}
+
+func (ec *executionContext) childFields_TeamMember(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "team":
+		return ec.fieldContext_TeamMember_team(ctx, field)
+	case "user":
+		return ec.fieldContext_TeamMember_user(ctx, field)
+	case "role":
+		return ec.fieldContext_TeamMember_role(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TeamMember", field.Name)
+}
+
+func (ec *executionContext) childFields_TeamMemberAddedActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "role":
+		return ec.fieldContext_TeamMemberAddedActivityLogEntryData_role(ctx, field)
+	case "userID":
+		return ec.fieldContext_TeamMemberAddedActivityLogEntryData_userID(ctx, field)
+	case "userEmail":
+		return ec.fieldContext_TeamMemberAddedActivityLogEntryData_userEmail(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TeamMemberAddedActivityLogEntryData", field.Name)
+}
+
+func (ec *executionContext) childFields_TeamMemberConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pageInfo":
+		return ec.fieldContext_TeamMemberConnection_pageInfo(ctx, field)
+	case "nodes":
+		return ec.fieldContext_TeamMemberConnection_nodes(ctx, field)
+	case "edges":
+		return ec.fieldContext_TeamMemberConnection_edges(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TeamMemberConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_TeamMemberEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_TeamMemberEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_TeamMemberEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TeamMemberEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_TeamMemberRemovedActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "userID":
+		return ec.fieldContext_TeamMemberRemovedActivityLogEntryData_userID(ctx, field)
+	case "userEmail":
+		return ec.fieldContext_TeamMemberRemovedActivityLogEntryData_userEmail(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TeamMemberRemovedActivityLogEntryData", field.Name)
+}
+
+func (ec *executionContext) childFields_TeamMemberSetRoleActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "role":
+		return ec.fieldContext_TeamMemberSetRoleActivityLogEntryData_role(ctx, field)
+	case "userID":
+		return ec.fieldContext_TeamMemberSetRoleActivityLogEntryData_userID(ctx, field)
+	case "userEmail":
+		return ec.fieldContext_TeamMemberSetRoleActivityLogEntryData_userEmail(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TeamMemberSetRoleActivityLogEntryData", field.Name)
+}
+
+func (ec *executionContext) childFields_TeamServiceUtilization(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "sqlInstances":
+		return ec.fieldContext_TeamServiceUtilization_sqlInstances(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TeamServiceUtilization", field.Name)
+}
+
+func (ec *executionContext) childFields_TeamServiceUtilizationSqlInstances(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cpu":
+		return ec.fieldContext_TeamServiceUtilizationSqlInstances_cpu(ctx, field)
+	case "memory":
+		return ec.fieldContext_TeamServiceUtilizationSqlInstances_memory(ctx, field)
+	case "disk":
+		return ec.fieldContext_TeamServiceUtilizationSqlInstances_disk(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TeamServiceUtilizationSqlInstances", field.Name)
+}
+
+func (ec *executionContext) childFields_TeamServiceUtilizationSqlInstancesCPU(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "used":
+		return ec.fieldContext_TeamServiceUtilizationSqlInstancesCPU_used(ctx, field)
+	case "requested":
+		return ec.fieldContext_TeamServiceUtilizationSqlInstancesCPU_requested(ctx, field)
+	case "utilization":
+		return ec.fieldContext_TeamServiceUtilizationSqlInstancesCPU_utilization(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TeamServiceUtilizationSqlInstancesCPU", field.Name)
+}
+
+func (ec *executionContext) childFields_TeamServiceUtilizationSqlInstancesDisk(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "used":
+		return ec.fieldContext_TeamServiceUtilizationSqlInstancesDisk_used(ctx, field)
+	case "requested":
+		return ec.fieldContext_TeamServiceUtilizationSqlInstancesDisk_requested(ctx, field)
+	case "utilization":
+		return ec.fieldContext_TeamServiceUtilizationSqlInstancesDisk_utilization(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TeamServiceUtilizationSqlInstancesDisk", field.Name)
+}
+
+func (ec *executionContext) childFields_TeamServiceUtilizationSqlInstancesMemory(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "used":
+		return ec.fieldContext_TeamServiceUtilizationSqlInstancesMemory_used(ctx, field)
+	case "requested":
+		return ec.fieldContext_TeamServiceUtilizationSqlInstancesMemory_requested(ctx, field)
+	case "utilization":
+		return ec.fieldContext_TeamServiceUtilizationSqlInstancesMemory_utilization(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TeamServiceUtilizationSqlInstancesMemory", field.Name)
+}
+
+func (ec *executionContext) childFields_TeamUpdatedActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "updatedFields":
+		return ec.fieldContext_TeamUpdatedActivityLogEntryData_updatedFields(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TeamUpdatedActivityLogEntryData", field.Name)
+}
+
+func (ec *executionContext) childFields_TeamUpdatedActivityLogEntryDataUpdatedField(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "field":
+		return ec.fieldContext_TeamUpdatedActivityLogEntryDataUpdatedField_field(ctx, field)
+	case "oldValue":
+		return ec.fieldContext_TeamUpdatedActivityLogEntryDataUpdatedField_oldValue(ctx, field)
+	case "newValue":
+		return ec.fieldContext_TeamUpdatedActivityLogEntryDataUpdatedField_newValue(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TeamUpdatedActivityLogEntryDataUpdatedField", field.Name)
+}
+
+func (ec *executionContext) childFields_TeamUtilizationData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "team":
+		return ec.fieldContext_TeamUtilizationData_team(ctx, field)
+	case "requested":
+		return ec.fieldContext_TeamUtilizationData_requested(ctx, field)
+	case "used":
+		return ec.fieldContext_TeamUtilizationData_used(ctx, field)
+	case "environment":
+		return ec.fieldContext_TeamUtilizationData_environment(ctx, field)
+	case "teamEnvironment":
+		return ec.fieldContext_TeamUtilizationData_teamEnvironment(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TeamUtilizationData", field.Name)
+}
+
+func (ec *executionContext) childFields_TeamVulnerabilitySummary(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "riskScore":
+		return ec.fieldContext_TeamVulnerabilitySummary_riskScore(ctx, field)
+	case "critical":
+		return ec.fieldContext_TeamVulnerabilitySummary_critical(ctx, field)
+	case "high":
+		return ec.fieldContext_TeamVulnerabilitySummary_high(ctx, field)
+	case "medium":
+		return ec.fieldContext_TeamVulnerabilitySummary_medium(ctx, field)
+	case "low":
+		return ec.fieldContext_TeamVulnerabilitySummary_low(ctx, field)
+	case "unassigned":
+		return ec.fieldContext_TeamVulnerabilitySummary_unassigned(ctx, field)
+	case "sbomCount":
+		return ec.fieldContext_TeamVulnerabilitySummary_sbomCount(ctx, field)
+	case "coverage":
+		return ec.fieldContext_TeamVulnerabilitySummary_coverage(ctx, field)
+	case "lastUpdated":
+		return ec.fieldContext_TeamVulnerabilitySummary_lastUpdated(ctx, field)
+	case "riskScoreTrend":
+		return ec.fieldContext_TeamVulnerabilitySummary_riskScoreTrend(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TeamVulnerabilitySummary", field.Name)
+}
+
+func (ec *executionContext) childFields_TenantVulnerabilitySummary(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "riskScore":
+		return ec.fieldContext_TenantVulnerabilitySummary_riskScore(ctx, field)
+	case "critical":
+		return ec.fieldContext_TenantVulnerabilitySummary_critical(ctx, field)
+	case "high":
+		return ec.fieldContext_TenantVulnerabilitySummary_high(ctx, field)
+	case "medium":
+		return ec.fieldContext_TenantVulnerabilitySummary_medium(ctx, field)
+	case "low":
+		return ec.fieldContext_TenantVulnerabilitySummary_low(ctx, field)
+	case "unassigned":
+		return ec.fieldContext_TenantVulnerabilitySummary_unassigned(ctx, field)
+	case "sbomCount":
+		return ec.fieldContext_TenantVulnerabilitySummary_sbomCount(ctx, field)
+	case "coverage":
+		return ec.fieldContext_TenantVulnerabilitySummary_coverage(ctx, field)
+	case "lastUpdated":
+		return ec.fieldContext_TenantVulnerabilitySummary_lastUpdated(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TenantVulnerabilitySummary", field.Name)
+}
+
+func (ec *executionContext) childFields_TriggerJobPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "job":
+		return ec.fieldContext_TriggerJobPayload_job(ctx, field)
+	case "jobRun":
+		return ec.fieldContext_TriggerJobPayload_jobRun(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TriggerJobPayload", field.Name)
+}
+
+func (ec *executionContext) childFields_UnleashInstance(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_UnleashInstance_id(ctx, field)
+	case "name":
+		return ec.fieldContext_UnleashInstance_name(ctx, field)
+	case "version":
+		return ec.fieldContext_UnleashInstance_version(ctx, field)
+	case "allowedTeams":
+		return ec.fieldContext_UnleashInstance_allowedTeams(ctx, field)
+	case "webIngress":
+		return ec.fieldContext_UnleashInstance_webIngress(ctx, field)
+	case "apiIngress":
+		return ec.fieldContext_UnleashInstance_apiIngress(ctx, field)
+	case "metrics":
+		return ec.fieldContext_UnleashInstance_metrics(ctx, field)
+	case "ready":
+		return ec.fieldContext_UnleashInstance_ready(ctx, field)
+	case "releaseChannelName":
+		return ec.fieldContext_UnleashInstance_releaseChannelName(ctx, field)
+	case "releaseChannel":
+		return ec.fieldContext_UnleashInstance_releaseChannel(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type UnleashInstance", field.Name)
+}
+
+func (ec *executionContext) childFields_UnleashInstanceMetrics(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "toggles":
+		return ec.fieldContext_UnleashInstanceMetrics_toggles(ctx, field)
+	case "apiTokens":
+		return ec.fieldContext_UnleashInstanceMetrics_apiTokens(ctx, field)
+	case "cpuUtilization":
+		return ec.fieldContext_UnleashInstanceMetrics_cpuUtilization(ctx, field)
+	case "cpuRequests":
+		return ec.fieldContext_UnleashInstanceMetrics_cpuRequests(ctx, field)
+	case "memoryUtilization":
+		return ec.fieldContext_UnleashInstanceMetrics_memoryUtilization(ctx, field)
+	case "memoryRequests":
+		return ec.fieldContext_UnleashInstanceMetrics_memoryRequests(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type UnleashInstanceMetrics", field.Name)
+}
+
+func (ec *executionContext) childFields_UnleashInstanceUpdatedActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "revokedTeamSlug":
+		return ec.fieldContext_UnleashInstanceUpdatedActivityLogEntryData_revokedTeamSlug(ctx, field)
+	case "allowedTeamSlug":
+		return ec.fieldContext_UnleashInstanceUpdatedActivityLogEntryData_allowedTeamSlug(ctx, field)
+	case "updatedReleaseChannel":
+		return ec.fieldContext_UnleashInstanceUpdatedActivityLogEntryData_updatedReleaseChannel(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type UnleashInstanceUpdatedActivityLogEntryData", field.Name)
+}
+
+func (ec *executionContext) childFields_UnleashReleaseChannel(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "name":
+		return ec.fieldContext_UnleashReleaseChannel_name(ctx, field)
+	case "currentVersion":
+		return ec.fieldContext_UnleashReleaseChannel_currentVersion(ctx, field)
+	case "type":
+		return ec.fieldContext_UnleashReleaseChannel_type(ctx, field)
+	case "lastUpdated":
+		return ec.fieldContext_UnleashReleaseChannel_lastUpdated(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type UnleashReleaseChannel", field.Name)
+}
+
+func (ec *executionContext) childFields_UpdateConfigValuePayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "config":
+		return ec.fieldContext_UpdateConfigValuePayload_config(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type UpdateConfigValuePayload", field.Name)
+}
+
+func (ec *executionContext) childFields_UpdateImageVulnerabilityPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "vulnerability":
+		return ec.fieldContext_UpdateImageVulnerabilityPayload_vulnerability(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type UpdateImageVulnerabilityPayload", field.Name)
+}
+
+func (ec *executionContext) childFields_UpdateOpenSearchPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "openSearch":
+		return ec.fieldContext_UpdateOpenSearchPayload_openSearch(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type UpdateOpenSearchPayload", field.Name)
+}
+
+func (ec *executionContext) childFields_UpdateSecretValuePayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "secret":
+		return ec.fieldContext_UpdateSecretValuePayload_secret(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type UpdateSecretValuePayload", field.Name)
+}
+
+func (ec *executionContext) childFields_UpdateServiceAccountPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "serviceAccount":
+		return ec.fieldContext_UpdateServiceAccountPayload_serviceAccount(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type UpdateServiceAccountPayload", field.Name)
+}
+
+func (ec *executionContext) childFields_UpdateServiceAccountTokenPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "serviceAccount":
+		return ec.fieldContext_UpdateServiceAccountTokenPayload_serviceAccount(ctx, field)
+	case "serviceAccountToken":
+		return ec.fieldContext_UpdateServiceAccountTokenPayload_serviceAccountToken(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type UpdateServiceAccountTokenPayload", field.Name)
+}
+
+func (ec *executionContext) childFields_UpdateTeamEnvironmentPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "environment":
+		return ec.fieldContext_UpdateTeamEnvironmentPayload_environment(ctx, field)
+	case "teamEnvironment":
+		return ec.fieldContext_UpdateTeamEnvironmentPayload_teamEnvironment(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type UpdateTeamEnvironmentPayload", field.Name)
+}
+
+func (ec *executionContext) childFields_UpdateTeamPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "team":
+		return ec.fieldContext_UpdateTeamPayload_team(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type UpdateTeamPayload", field.Name)
+}
+
+func (ec *executionContext) childFields_UpdateUnleashInstancePayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "unleash":
+		return ec.fieldContext_UpdateUnleashInstancePayload_unleash(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type UpdateUnleashInstancePayload", field.Name)
+}
+
+func (ec *executionContext) childFields_UpdateValkeyPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "valkey":
+		return ec.fieldContext_UpdateValkeyPayload_valkey(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type UpdateValkeyPayload", field.Name)
+}
+
+func (ec *executionContext) childFields_User(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_User_id(ctx, field)
+	case "email":
+		return ec.fieldContext_User_email(ctx, field)
+	case "name":
+		return ec.fieldContext_User_name(ctx, field)
+	case "externalID":
+		return ec.fieldContext_User_externalID(ctx, field)
+	case "teams":
+		return ec.fieldContext_User_teams(ctx, field)
+	case "isAdmin":
+		return ec.fieldContext_User_isAdmin(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+}
+
+func (ec *executionContext) childFields_UserConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pageInfo":
+		return ec.fieldContext_UserConnection_pageInfo(ctx, field)
+	case "nodes":
+		return ec.fieldContext_UserConnection_nodes(ctx, field)
+	case "edges":
+		return ec.fieldContext_UserConnection_edges(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type UserConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_UserEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_UserEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_UserEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type UserEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_UserSyncLogEntryConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pageInfo":
+		return ec.fieldContext_UserSyncLogEntryConnection_pageInfo(ctx, field)
+	case "nodes":
+		return ec.fieldContext_UserSyncLogEntryConnection_nodes(ctx, field)
+	case "edges":
+		return ec.fieldContext_UserSyncLogEntryConnection_edges(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type UserSyncLogEntryConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_UserSyncLogEntryEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_UserSyncLogEntryEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_UserSyncLogEntryEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type UserSyncLogEntryEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_UtilizationSample(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "timestamp":
+		return ec.fieldContext_UtilizationSample_timestamp(ctx, field)
+	case "value":
+		return ec.fieldContext_UtilizationSample_value(ctx, field)
+	case "instance":
+		return ec.fieldContext_UtilizationSample_instance(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type UtilizationSample", field.Name)
+}
+
+func (ec *executionContext) childFields_Valkey(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_Valkey_id(ctx, field)
+	case "name":
+		return ec.fieldContext_Valkey_name(ctx, field)
+	case "terminationProtection":
+		return ec.fieldContext_Valkey_terminationProtection(ctx, field)
+	case "team":
+		return ec.fieldContext_Valkey_team(ctx, field)
+	case "environment":
+		return ec.fieldContext_Valkey_environment(ctx, field)
+	case "teamEnvironment":
+		return ec.fieldContext_Valkey_teamEnvironment(ctx, field)
+	case "access":
+		return ec.fieldContext_Valkey_access(ctx, field)
+	case "workload":
+		return ec.fieldContext_Valkey_workload(ctx, field)
+	case "state":
+		return ec.fieldContext_Valkey_state(ctx, field)
+	case "tier":
+		return ec.fieldContext_Valkey_tier(ctx, field)
+	case "memory":
+		return ec.fieldContext_Valkey_memory(ctx, field)
+	case "maxMemoryPolicy":
+		return ec.fieldContext_Valkey_maxMemoryPolicy(ctx, field)
+	case "notifyKeyspaceEvents":
+		return ec.fieldContext_Valkey_notifyKeyspaceEvents(ctx, field)
+	case "databases":
+		return ec.fieldContext_Valkey_databases(ctx, field)
+	case "issues":
+		return ec.fieldContext_Valkey_issues(ctx, field)
+	case "activityLog":
+		return ec.fieldContext_Valkey_activityLog(ctx, field)
+	case "cost":
+		return ec.fieldContext_Valkey_cost(ctx, field)
+	case "maintenance":
+		return ec.fieldContext_Valkey_maintenance(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type Valkey", field.Name)
+}
+
+func (ec *executionContext) childFields_ValkeyAccess(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "workload":
+		return ec.fieldContext_ValkeyAccess_workload(ctx, field)
+	case "access":
+		return ec.fieldContext_ValkeyAccess_access(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ValkeyAccess", field.Name)
+}
+
+func (ec *executionContext) childFields_ValkeyAccessConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pageInfo":
+		return ec.fieldContext_ValkeyAccessConnection_pageInfo(ctx, field)
+	case "nodes":
+		return ec.fieldContext_ValkeyAccessConnection_nodes(ctx, field)
+	case "edges":
+		return ec.fieldContext_ValkeyAccessConnection_edges(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ValkeyAccessConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_ValkeyAccessEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_ValkeyAccessEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_ValkeyAccessEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ValkeyAccessEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_ValkeyConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pageInfo":
+		return ec.fieldContext_ValkeyConnection_pageInfo(ctx, field)
+	case "nodes":
+		return ec.fieldContext_ValkeyConnection_nodes(ctx, field)
+	case "edges":
+		return ec.fieldContext_ValkeyConnection_edges(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ValkeyConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_ValkeyCost(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "sum":
+		return ec.fieldContext_ValkeyCost_sum(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ValkeyCost", field.Name)
+}
+
+func (ec *executionContext) childFields_ValkeyCredentials(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "username":
+		return ec.fieldContext_ValkeyCredentials_username(ctx, field)
+	case "password":
+		return ec.fieldContext_ValkeyCredentials_password(ctx, field)
+	case "host":
+		return ec.fieldContext_ValkeyCredentials_host(ctx, field)
+	case "port":
+		return ec.fieldContext_ValkeyCredentials_port(ctx, field)
+	case "uri":
+		return ec.fieldContext_ValkeyCredentials_uri(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ValkeyCredentials", field.Name)
+}
+
+func (ec *executionContext) childFields_ValkeyEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_ValkeyEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_ValkeyEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ValkeyEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_ValkeyMaintenance(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "window":
+		return ec.fieldContext_ValkeyMaintenance_window(ctx, field)
+	case "updates":
+		return ec.fieldContext_ValkeyMaintenance_updates(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ValkeyMaintenance", field.Name)
+}
+
+func (ec *executionContext) childFields_ValkeyMaintenanceUpdate(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "title":
+		return ec.fieldContext_ValkeyMaintenanceUpdate_title(ctx, field)
+	case "description":
+		return ec.fieldContext_ValkeyMaintenanceUpdate_description(ctx, field)
+	case "deadline":
+		return ec.fieldContext_ValkeyMaintenanceUpdate_deadline(ctx, field)
+	case "startAt":
+		return ec.fieldContext_ValkeyMaintenanceUpdate_startAt(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ValkeyMaintenanceUpdate", field.Name)
+}
+
+func (ec *executionContext) childFields_ValkeyMaintenanceUpdateConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pageInfo":
+		return ec.fieldContext_ValkeyMaintenanceUpdateConnection_pageInfo(ctx, field)
+	case "nodes":
+		return ec.fieldContext_ValkeyMaintenanceUpdateConnection_nodes(ctx, field)
+	case "edges":
+		return ec.fieldContext_ValkeyMaintenanceUpdateConnection_edges(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ValkeyMaintenanceUpdateConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_ValkeyMaintenanceUpdateEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_ValkeyMaintenanceUpdateEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_ValkeyMaintenanceUpdateEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ValkeyMaintenanceUpdateEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_ValkeyUpdatedActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "updatedFields":
+		return ec.fieldContext_ValkeyUpdatedActivityLogEntryData_updatedFields(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ValkeyUpdatedActivityLogEntryData", field.Name)
+}
+
+func (ec *executionContext) childFields_ValkeyUpdatedActivityLogEntryDataUpdatedField(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "field":
+		return ec.fieldContext_ValkeyUpdatedActivityLogEntryDataUpdatedField_field(ctx, field)
+	case "oldValue":
+		return ec.fieldContext_ValkeyUpdatedActivityLogEntryDataUpdatedField_oldValue(ctx, field)
+	case "newValue":
+		return ec.fieldContext_ValkeyUpdatedActivityLogEntryDataUpdatedField_newValue(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ValkeyUpdatedActivityLogEntryDataUpdatedField", field.Name)
+}
+
+func (ec *executionContext) childFields_ViewSecretValuesPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "values":
+		return ec.fieldContext_ViewSecretValuesPayload_values(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ViewSecretValuesPayload", field.Name)
+}
+
+func (ec *executionContext) childFields_VulnerabilityActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "identifier":
+		return ec.fieldContext_VulnerabilityActivityLogEntryData_identifier(ctx, field)
+	case "severity":
+		return ec.fieldContext_VulnerabilityActivityLogEntryData_severity(ctx, field)
+	case "package":
+		return ec.fieldContext_VulnerabilityActivityLogEntryData_package(ctx, field)
+	case "previousSuppression":
+		return ec.fieldContext_VulnerabilityActivityLogEntryData_previousSuppression(ctx, field)
+	case "newSuppression":
+		return ec.fieldContext_VulnerabilityActivityLogEntryData_newSuppression(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type VulnerabilityActivityLogEntryData", field.Name)
+}
+
+func (ec *executionContext) childFields_VulnerabilityFixHistory(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "samples":
+		return ec.fieldContext_VulnerabilityFixHistory_samples(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type VulnerabilityFixHistory", field.Name)
+}
+
+func (ec *executionContext) childFields_VulnerabilityFixSample(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "severity":
+		return ec.fieldContext_VulnerabilityFixSample_severity(ctx, field)
+	case "date":
+		return ec.fieldContext_VulnerabilityFixSample_date(ctx, field)
+	case "days":
+		return ec.fieldContext_VulnerabilityFixSample_days(ctx, field)
+	case "fixedCount":
+		return ec.fieldContext_VulnerabilityFixSample_fixedCount(ctx, field)
+	case "firstFixedAt":
+		return ec.fieldContext_VulnerabilityFixSample_firstFixedAt(ctx, field)
+	case "lastFixedAt":
+		return ec.fieldContext_VulnerabilityFixSample_lastFixedAt(ctx, field)
+	case "totalWorkloads":
+		return ec.fieldContext_VulnerabilityFixSample_totalWorkloads(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type VulnerabilityFixSample", field.Name)
+}
+
+func (ec *executionContext) childFields_WorkloadConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pageInfo":
+		return ec.fieldContext_WorkloadConnection_pageInfo(ctx, field)
+	case "nodes":
+		return ec.fieldContext_WorkloadConnection_nodes(ctx, field)
+	case "edges":
+		return ec.fieldContext_WorkloadConnection_edges(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type WorkloadConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_WorkloadCost(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "daily":
+		return ec.fieldContext_WorkloadCost_daily(ctx, field)
+	case "monthly":
+		return ec.fieldContext_WorkloadCost_monthly(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type WorkloadCost", field.Name)
+}
+
+func (ec *executionContext) childFields_WorkloadCostPeriod(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "sum":
+		return ec.fieldContext_WorkloadCostPeriod_sum(ctx, field)
+	case "series":
+		return ec.fieldContext_WorkloadCostPeriod_series(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type WorkloadCostPeriod", field.Name)
+}
+
+func (ec *executionContext) childFields_WorkloadCostSample(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "workload":
+		return ec.fieldContext_WorkloadCostSample_workload(ctx, field)
+	case "workloadName":
+		return ec.fieldContext_WorkloadCostSample_workloadName(ctx, field)
+	case "cost":
+		return ec.fieldContext_WorkloadCostSample_cost(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type WorkloadCostSample", field.Name)
+}
+
+func (ec *executionContext) childFields_WorkloadCostSeries(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "date":
+		return ec.fieldContext_WorkloadCostSeries_date(ctx, field)
+	case "sum":
+		return ec.fieldContext_WorkloadCostSeries_sum(ctx, field)
+	case "workloads":
+		return ec.fieldContext_WorkloadCostSeries_workloads(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type WorkloadCostSeries", field.Name)
+}
+
+func (ec *executionContext) childFields_WorkloadEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_WorkloadEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_WorkloadEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type WorkloadEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_WorkloadLogLine(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "time":
+		return ec.fieldContext_WorkloadLogLine_time(ctx, field)
+	case "message":
+		return ec.fieldContext_WorkloadLogLine_message(ctx, field)
+	case "instance":
+		return ec.fieldContext_WorkloadLogLine_instance(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type WorkloadLogLine", field.Name)
+}
+
+func (ec *executionContext) childFields_WorkloadResourceQuantity(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cpu":
+		return ec.fieldContext_WorkloadResourceQuantity_cpu(ctx, field)
+	case "memory":
+		return ec.fieldContext_WorkloadResourceQuantity_memory(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type WorkloadResourceQuantity", field.Name)
+}
+
+func (ec *executionContext) childFields_WorkloadUtilization(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "current":
+		return ec.fieldContext_WorkloadUtilization_current(ctx, field)
+	case "requested":
+		return ec.fieldContext_WorkloadUtilization_requested(ctx, field)
+	case "requestedSeries":
+		return ec.fieldContext_WorkloadUtilization_requestedSeries(ctx, field)
+	case "limit":
+		return ec.fieldContext_WorkloadUtilization_limit(ctx, field)
+	case "limitSeries":
+		return ec.fieldContext_WorkloadUtilization_limitSeries(ctx, field)
+	case "series":
+		return ec.fieldContext_WorkloadUtilization_series(ctx, field)
+	case "recommendations":
+		return ec.fieldContext_WorkloadUtilization_recommendations(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type WorkloadUtilization", field.Name)
+}
+
+func (ec *executionContext) childFields_WorkloadUtilizationData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "workload":
+		return ec.fieldContext_WorkloadUtilizationData_workload(ctx, field)
+	case "requested":
+		return ec.fieldContext_WorkloadUtilizationData_requested(ctx, field)
+	case "used":
+		return ec.fieldContext_WorkloadUtilizationData_used(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type WorkloadUtilizationData", field.Name)
+}
+
+func (ec *executionContext) childFields_WorkloadUtilizationRecommendations(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cpuRequestCores":
+		return ec.fieldContext_WorkloadUtilizationRecommendations_cpuRequestCores(ctx, field)
+	case "memoryRequestBytes":
+		return ec.fieldContext_WorkloadUtilizationRecommendations_memoryRequestBytes(ctx, field)
+	case "memoryLimitBytes":
+		return ec.fieldContext_WorkloadUtilizationRecommendations_memoryLimitBytes(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type WorkloadUtilizationRecommendations", field.Name)
+}
+
+func (ec *executionContext) childFields_WorkloadVulnerabilitySummary(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_WorkloadVulnerabilitySummary_id(ctx, field)
+	case "workload":
+		return ec.fieldContext_WorkloadVulnerabilitySummary_workload(ctx, field)
+	case "hasSBOM":
+		return ec.fieldContext_WorkloadVulnerabilitySummary_hasSBOM(ctx, field)
+	case "summary":
+		return ec.fieldContext_WorkloadVulnerabilitySummary_summary(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type WorkloadVulnerabilitySummary", field.Name)
+}
+
+func (ec *executionContext) childFields_WorkloadVulnerabilitySummaryConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pageInfo":
+		return ec.fieldContext_WorkloadVulnerabilitySummaryConnection_pageInfo(ctx, field)
+	case "edges":
+		return ec.fieldContext_WorkloadVulnerabilitySummaryConnection_edges(ctx, field)
+	case "nodes":
+		return ec.fieldContext_WorkloadVulnerabilitySummaryConnection_nodes(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type WorkloadVulnerabilitySummaryConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_WorkloadVulnerabilitySummaryEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_WorkloadVulnerabilitySummaryEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_WorkloadVulnerabilitySummaryEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type WorkloadVulnerabilitySummaryEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_WorkloadWithVulnerability(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "vulnerability":
+		return ec.fieldContext_WorkloadWithVulnerability_vulnerability(ctx, field)
+	case "workload":
+		return ec.fieldContext_WorkloadWithVulnerability_workload(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type WorkloadWithVulnerability", field.Name)
+}
+
+func (ec *executionContext) childFields_WorkloadWithVulnerabilityConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pageInfo":
+		return ec.fieldContext_WorkloadWithVulnerabilityConnection_pageInfo(ctx, field)
+	case "edges":
+		return ec.fieldContext_WorkloadWithVulnerabilityConnection_edges(ctx, field)
+	case "nodes":
+		return ec.fieldContext_WorkloadWithVulnerabilityConnection_nodes(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type WorkloadWithVulnerabilityConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_WorkloadWithVulnerabilityEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_WorkloadWithVulnerabilityEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_WorkloadWithVulnerabilityEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type WorkloadWithVulnerabilityEdge", field.Name)
+}
+
+func (ec *executionContext) childFields___Directive(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "name":
+		return ec.fieldContext___Directive_name(ctx, field)
+	case "description":
+		return ec.fieldContext___Directive_description(ctx, field)
+	case "isRepeatable":
+		return ec.fieldContext___Directive_isRepeatable(ctx, field)
+	case "locations":
+		return ec.fieldContext___Directive_locations(ctx, field)
+	case "args":
+		return ec.fieldContext___Directive_args(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type __Directive", field.Name)
+}
+
+func (ec *executionContext) childFields___EnumValue(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "name":
+		return ec.fieldContext___EnumValue_name(ctx, field)
+	case "description":
+		return ec.fieldContext___EnumValue_description(ctx, field)
+	case "isDeprecated":
+		return ec.fieldContext___EnumValue_isDeprecated(ctx, field)
+	case "deprecationReason":
+		return ec.fieldContext___EnumValue_deprecationReason(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type __EnumValue", field.Name)
+}
+
+func (ec *executionContext) childFields___Field(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "name":
+		return ec.fieldContext___Field_name(ctx, field)
+	case "description":
+		return ec.fieldContext___Field_description(ctx, field)
+	case "args":
+		return ec.fieldContext___Field_args(ctx, field)
+	case "type":
+		return ec.fieldContext___Field_type(ctx, field)
+	case "isDeprecated":
+		return ec.fieldContext___Field_isDeprecated(ctx, field)
+	case "deprecationReason":
+		return ec.fieldContext___Field_deprecationReason(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type __Field", field.Name)
+}
+
+func (ec *executionContext) childFields___InputValue(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "name":
+		return ec.fieldContext___InputValue_name(ctx, field)
+	case "description":
+		return ec.fieldContext___InputValue_description(ctx, field)
+	case "type":
+		return ec.fieldContext___InputValue_type(ctx, field)
+	case "defaultValue":
+		return ec.fieldContext___InputValue_defaultValue(ctx, field)
+	case "isDeprecated":
+		return ec.fieldContext___InputValue_isDeprecated(ctx, field)
+	case "deprecationReason":
+		return ec.fieldContext___InputValue_deprecationReason(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type __InputValue", field.Name)
+}
+
+func (ec *executionContext) childFields___Schema(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "description":
+		return ec.fieldContext___Schema_description(ctx, field)
+	case "types":
+		return ec.fieldContext___Schema_types(ctx, field)
+	case "queryType":
+		return ec.fieldContext___Schema_queryType(ctx, field)
+	case "mutationType":
+		return ec.fieldContext___Schema_mutationType(ctx, field)
+	case "subscriptionType":
+		return ec.fieldContext___Schema_subscriptionType(ctx, field)
+	case "directives":
+		return ec.fieldContext___Schema_directives(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type __Schema", field.Name)
+}
+
+func (ec *executionContext) childFields___Type(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "kind":
+		return ec.fieldContext___Type_kind(ctx, field)
+	case "name":
+		return ec.fieldContext___Type_name(ctx, field)
+	case "description":
+		return ec.fieldContext___Type_description(ctx, field)
+	case "specifiedByURL":
+		return ec.fieldContext___Type_specifiedByURL(ctx, field)
+	case "fields":
+		return ec.fieldContext___Type_fields(ctx, field)
+	case "interfaces":
+		return ec.fieldContext___Type_interfaces(ctx, field)
+	case "possibleTypes":
+		return ec.fieldContext___Type_possibleTypes(ctx, field)
+	case "enumValues":
+		return ec.fieldContext___Type_enumValues(ctx, field)
+	case "inputFields":
+		return ec.fieldContext___Type_inputFields(ctx, field)
+	case "ofType":
+		return ec.fieldContext___Type_ofType(ctx, field)
+	case "isOneOf":
+		return ec.fieldContext___Type_isOneOf(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type __Type", field.Name)
+}

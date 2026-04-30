@@ -5,12 +5,16 @@ package gengql
 import (
 	"context"
 	"errors"
-	"fmt"
+	"math"
 	"strconv"
 	"sync/atomic"
+	"time"
 
 	"github.com/99designs/gqlgen/graphql"
+	"github.com/nais/api/internal/activitylog"
+	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/kubernetes/event/pubsublog"
+	"github.com/nais/api/internal/slug"
 	"github.com/vektah/gqlparser/v2/ast"
 )
 
@@ -33,28 +37,22 @@ func (ec *executionContext) _ClusterAuditActivityLogEntry_id(ctx context.Context
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ClusterAuditActivityLogEntry_id,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ClusterAuditActivityLogEntry_id(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
-		ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent,
+		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
+			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ClusterAuditActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ClusterAuditActivityLogEntry",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ClusterAuditActivityLogEntry", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
 func (ec *executionContext) _ClusterAuditActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *pubsublog.ClusterAuditActivityLogEntry) (ret graphql.Marshaler) {
@@ -62,28 +60,22 @@ func (ec *executionContext) _ClusterAuditActivityLogEntry_actor(ctx context.Cont
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ClusterAuditActivityLogEntry_actor,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ClusterAuditActivityLogEntry_actor(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Actor, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ClusterAuditActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ClusterAuditActivityLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ClusterAuditActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _ClusterAuditActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *pubsublog.ClusterAuditActivityLogEntry) (ret graphql.Marshaler) {
@@ -91,28 +83,22 @@ func (ec *executionContext) _ClusterAuditActivityLogEntry_createdAt(ctx context.
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ClusterAuditActivityLogEntry_createdAt,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ClusterAuditActivityLogEntry_createdAt(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.CreatedAt, nil
 		},
 		nil,
-		ec.marshalNTime2timeᚐTime,
+		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
+			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ClusterAuditActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ClusterAuditActivityLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ClusterAuditActivityLogEntry", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
 func (ec *executionContext) _ClusterAuditActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *pubsublog.ClusterAuditActivityLogEntry) (ret graphql.Marshaler) {
@@ -120,28 +106,22 @@ func (ec *executionContext) _ClusterAuditActivityLogEntry_message(ctx context.Co
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ClusterAuditActivityLogEntry_message,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ClusterAuditActivityLogEntry_message(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Message, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ClusterAuditActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ClusterAuditActivityLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ClusterAuditActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _ClusterAuditActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *pubsublog.ClusterAuditActivityLogEntry) (ret graphql.Marshaler) {
@@ -149,28 +129,22 @@ func (ec *executionContext) _ClusterAuditActivityLogEntry_resourceType(ctx conte
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ClusterAuditActivityLogEntry_resourceType,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ClusterAuditActivityLogEntry_resourceType(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceType, nil
 		},
 		nil,
-		ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType,
+		func(ctx context.Context, selections ast.SelectionSet, v activitylog.ActivityLogEntryResourceType) graphql.Marshaler {
+			return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ClusterAuditActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ClusterAuditActivityLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ActivityLogEntryResourceType does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ClusterAuditActivityLogEntry", field, false, false, errors.New("field of type ActivityLogEntryResourceType does not have child fields"))
 }
 
 func (ec *executionContext) _ClusterAuditActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *pubsublog.ClusterAuditActivityLogEntry) (ret graphql.Marshaler) {
@@ -178,28 +152,22 @@ func (ec *executionContext) _ClusterAuditActivityLogEntry_resourceName(ctx conte
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ClusterAuditActivityLogEntry_resourceName,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ClusterAuditActivityLogEntry_resourceName(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceName, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ClusterAuditActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ClusterAuditActivityLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ClusterAuditActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _ClusterAuditActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *pubsublog.ClusterAuditActivityLogEntry) (ret graphql.Marshaler) {
@@ -207,28 +175,22 @@ func (ec *executionContext) _ClusterAuditActivityLogEntry_teamSlug(ctx context.C
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ClusterAuditActivityLogEntry_teamSlug,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ClusterAuditActivityLogEntry_teamSlug(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.TeamSlug, nil
 		},
 		nil,
-		ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug,
+		func(ctx context.Context, selections ast.SelectionSet, v *slug.Slug) graphql.Marshaler {
+			return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ClusterAuditActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ClusterAuditActivityLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Slug does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ClusterAuditActivityLogEntry", field, false, false, errors.New("field of type Slug does not have child fields"))
 }
 
 func (ec *executionContext) _ClusterAuditActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *pubsublog.ClusterAuditActivityLogEntry) (ret graphql.Marshaler) {
@@ -236,28 +198,22 @@ func (ec *executionContext) _ClusterAuditActivityLogEntry_environmentName(ctx co
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ClusterAuditActivityLogEntry_environmentName,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ClusterAuditActivityLogEntry_environmentName(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.EnvironmentName, nil
 		},
 		nil,
-		ec.marshalOString2ᚖstring,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
+		},
 		true,
 		false,
 	)
 }
-
 func (ec *executionContext) fieldContext_ClusterAuditActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ClusterAuditActivityLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ClusterAuditActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _ClusterAuditActivityLogEntry_data(ctx context.Context, field graphql.CollectedField, obj *pubsublog.ClusterAuditActivityLogEntry) (ret graphql.Marshaler) {
@@ -265,17 +221,20 @@ func (ec *executionContext) _ClusterAuditActivityLogEntry_data(ctx context.Conte
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ClusterAuditActivityLogEntry_data,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ClusterAuditActivityLogEntry_data(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Data, nil
 		},
 		nil,
-		ec.marshalNClusterAuditActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋkubernetesᚋeventᚋpubsublogᚐClusterAuditActivityLogEntryData,
+		func(ctx context.Context, selections ast.SelectionSet, v *pubsublog.ClusterAuditActivityLogEntryData) graphql.Marshaler {
+			return ec.marshalNClusterAuditActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋkubernetesᚋeventᚋpubsublogᚐClusterAuditActivityLogEntryData(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ClusterAuditActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ClusterAuditActivityLogEntry",
@@ -283,13 +242,7 @@ func (ec *executionContext) fieldContext_ClusterAuditActivityLogEntry_data(_ con
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "action":
-				return ec.fieldContext_ClusterAuditActivityLogEntryData_action(ctx, field)
-			case "resourceKind":
-				return ec.fieldContext_ClusterAuditActivityLogEntryData_resourceKind(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type ClusterAuditActivityLogEntryData", field.Name)
+			return ec.childFields_ClusterAuditActivityLogEntryData(ctx, field)
 		},
 	}
 	return fc, nil
@@ -300,28 +253,22 @@ func (ec *executionContext) _ClusterAuditActivityLogEntryData_action(ctx context
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ClusterAuditActivityLogEntryData_action,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ClusterAuditActivityLogEntryData_action(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Action, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ClusterAuditActivityLogEntryData_action(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ClusterAuditActivityLogEntryData",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ClusterAuditActivityLogEntryData", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _ClusterAuditActivityLogEntryData_resourceKind(ctx context.Context, field graphql.CollectedField, obj *pubsublog.ClusterAuditActivityLogEntryData) (ret graphql.Marshaler) {
@@ -329,28 +276,22 @@ func (ec *executionContext) _ClusterAuditActivityLogEntryData_resourceKind(ctx c
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ClusterAuditActivityLogEntryData_resourceKind,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ClusterAuditActivityLogEntryData_resourceKind(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceKind, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ClusterAuditActivityLogEntryData_resourceKind(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ClusterAuditActivityLogEntryData",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ClusterAuditActivityLogEntryData", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 // endregion **************************** field.gotpl *****************************
@@ -427,7 +368,7 @@ func (ec *executionContext) _ClusterAuditActivityLogEntry(ctx context.Context, s
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -471,7 +412,7 @@ func (ec *executionContext) _ClusterAuditActivityLogEntryData(ctx context.Contex
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{

@@ -27,6 +27,7 @@ Test.gql("Grant postgres access without authorization in non-existent team", fun
 	t.check({
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains('you need the "postgres:access:grant" authorization.'),
 				path = {
 					"grantPostgresAccess",
@@ -58,6 +59,7 @@ Test.gql("Grant postgres access without authorization in existing team", functio
 	t.check({
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains('you need the "postgres:access:grant" authorization.'),
 				path = {
 					"grantPostgresAccess",

@@ -84,10 +84,12 @@ Test.gql("list reconcilers with config as non-admin", function(t)
 		data = Null,
 		errors = {
 			{
+				locations = NotNull(),
 				message = "You are authenticated, but your account is not authorized to perform this action.",
 				path = { "reconcilers", "nodes", Ignore(), "config" },
 			},
 			{
+				locations = NotNull(),
 				message = "You are authenticated, but your account is not authorized to perform this action.",
 				path = { "reconcilers", "nodes", Ignore(), "config" },
 			},
@@ -110,6 +112,7 @@ Test.gql("enable reconciler as non-admin", function(t)
 		data = Null,
 		errors = {
 			{
+				locations = NotNull(),
 				message = "You are authenticated, but your account is not authorized to perform this action.",
 				path = { "enableReconciler" },
 			},
@@ -132,6 +135,7 @@ Test.gql("disable reconciler as non-admin", function(t)
 		data = Null,
 		errors = {
 			{
+				locations = NotNull(),
 				message = "You are authenticated, but your account is not authorized to perform this action.",
 				path = { "disableReconciler" },
 			},
@@ -157,6 +161,7 @@ Test.gql("enable non-configured reconciler as admin", function(t)
 		data = Null,
 		errors = {
 			{
+				locations = NotNull(),
 				message = "Reconciler is not fully configured, missing one or more options: config-secret, config-visible",
 				path = { "enableReconciler" },
 			},

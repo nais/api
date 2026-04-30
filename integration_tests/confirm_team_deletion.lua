@@ -48,6 +48,7 @@ Test.gql("Confirm team deletion with the same user", function(t)
 		data = Null,
 		errors = {
 			{
+				locations = NotNull(),
 				message = "You cannot confirm your own delete key.",
 				path = { "confirmTeamDeletion" },
 			},

@@ -5,12 +5,14 @@ package gengql
 import (
 	"context"
 	"errors"
-	"fmt"
+	"math"
 	"strconv"
 	"sync/atomic"
+	"time"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/nais/api/internal/cost"
+	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/persistence/bigquery"
 	"github.com/nais/api/internal/team"
@@ -38,27 +40,42 @@ type BigQueryDatasetResolver interface {
 func (ec *executionContext) field_BigQueryDataset_access_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first", ec.unmarshalOInt2ᚖint)
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
+		func(ctx context.Context, v any) (*int, error) {
+			return ec.unmarshalOInt2ᚖint(ctx, v)
+		})
 	if err != nil {
 		return nil, err
 	}
 	args["first"] = arg0
-	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after", ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor)
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
+		func(ctx context.Context, v any) (*pagination.Cursor, error) {
+			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+		})
 	if err != nil {
 		return nil, err
 	}
 	args["after"] = arg1
-	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last", ec.unmarshalOInt2ᚖint)
+	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
+		func(ctx context.Context, v any) (*int, error) {
+			return ec.unmarshalOInt2ᚖint(ctx, v)
+		})
 	if err != nil {
 		return nil, err
 	}
 	args["last"] = arg2
-	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before", ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor)
+	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
+		func(ctx context.Context, v any) (*pagination.Cursor, error) {
+			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+		})
 	if err != nil {
 		return nil, err
 	}
 	args["before"] = arg3
-	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "orderBy", ec.unmarshalOBigQueryDatasetAccessOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDatasetAccessOrder)
+	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "orderBy",
+		func(ctx context.Context, v any) (*bigquery.BigQueryDatasetAccessOrder, error) {
+			return ec.unmarshalOBigQueryDatasetAccessOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDatasetAccessOrder(ctx, v)
+		})
 	if err != nil {
 		return nil, err
 	}
@@ -79,28 +96,22 @@ func (ec *executionContext) _BigQueryDataset_id(ctx context.Context, field graph
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_BigQueryDataset_id,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_BigQueryDataset_id(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
-		ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent,
+		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
+			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_BigQueryDataset_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "BigQueryDataset",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("BigQueryDataset", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
 func (ec *executionContext) _BigQueryDataset_name(ctx context.Context, field graphql.CollectedField, obj *bigquery.BigQueryDataset) (ret graphql.Marshaler) {
@@ -108,28 +119,22 @@ func (ec *executionContext) _BigQueryDataset_name(ctx context.Context, field gra
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_BigQueryDataset_name,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_BigQueryDataset_name(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Name, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_BigQueryDataset_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "BigQueryDataset",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("BigQueryDataset", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _BigQueryDataset_team(ctx context.Context, field graphql.CollectedField, obj *bigquery.BigQueryDataset) (ret graphql.Marshaler) {
@@ -137,17 +142,20 @@ func (ec *executionContext) _BigQueryDataset_team(ctx context.Context, field gra
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_BigQueryDataset_team,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_BigQueryDataset_team(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.BigQueryDataset().Team(ctx, obj)
 		},
 		nil,
-		ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam,
+		func(ctx context.Context, selections ast.SelectionSet, v *team.Team) graphql.Marshaler {
+			return ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_BigQueryDataset_team(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "BigQueryDataset",
@@ -155,91 +163,7 @@ func (ec *executionContext) fieldContext_BigQueryDataset_team(_ context.Context,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Team_id(ctx, field)
-			case "slug":
-				return ec.fieldContext_Team_slug(ctx, field)
-			case "slackChannel":
-				return ec.fieldContext_Team_slackChannel(ctx, field)
-			case "purpose":
-				return ec.fieldContext_Team_purpose(ctx, field)
-			case "externalResources":
-				return ec.fieldContext_Team_externalResources(ctx, field)
-			case "member":
-				return ec.fieldContext_Team_member(ctx, field)
-			case "members":
-				return ec.fieldContext_Team_members(ctx, field)
-			case "lastSuccessfulSync":
-				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
-			case "deletionInProgress":
-				return ec.fieldContext_Team_deletionInProgress(ctx, field)
-			case "viewerIsOwner":
-				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
-			case "viewerIsMember":
-				return ec.fieldContext_Team_viewerIsMember(ctx, field)
-			case "environments":
-				return ec.fieldContext_Team_environments(ctx, field)
-			case "environment":
-				return ec.fieldContext_Team_environment(ctx, field)
-			case "deleteKey":
-				return ec.fieldContext_Team_deleteKey(ctx, field)
-			case "inventoryCounts":
-				return ec.fieldContext_Team_inventoryCounts(ctx, field)
-			case "activityLog":
-				return ec.fieldContext_Team_activityLog(ctx, field)
-			case "alerts":
-				return ec.fieldContext_Team_alerts(ctx, field)
-			case "applications":
-				return ec.fieldContext_Team_applications(ctx, field)
-			case "bigQueryDatasets":
-				return ec.fieldContext_Team_bigQueryDatasets(ctx, field)
-			case "buckets":
-				return ec.fieldContext_Team_buckets(ctx, field)
-			case "configs":
-				return ec.fieldContext_Team_configs(ctx, field)
-			case "cost":
-				return ec.fieldContext_Team_cost(ctx, field)
-			case "deploymentKey":
-				return ec.fieldContext_Team_deploymentKey(ctx, field)
-			case "deployments":
-				return ec.fieldContext_Team_deployments(ctx, field)
-			case "issues":
-				return ec.fieldContext_Team_issues(ctx, field)
-			case "jobs":
-				return ec.fieldContext_Team_jobs(ctx, field)
-			case "kafkaTopics":
-				return ec.fieldContext_Team_kafkaTopics(ctx, field)
-			case "openSearches":
-				return ec.fieldContext_Team_openSearches(ctx, field)
-			case "postgresInstances":
-				return ec.fieldContext_Team_postgresInstances(ctx, field)
-			case "repositories":
-				return ec.fieldContext_Team_repositories(ctx, field)
-			case "secrets":
-				return ec.fieldContext_Team_secrets(ctx, field)
-			case "sqlInstances":
-				return ec.fieldContext_Team_sqlInstances(ctx, field)
-			case "unleash":
-				return ec.fieldContext_Team_unleash(ctx, field)
-			case "workloadUtilization":
-				return ec.fieldContext_Team_workloadUtilization(ctx, field)
-			case "serviceUtilization":
-				return ec.fieldContext_Team_serviceUtilization(ctx, field)
-			case "valkeys":
-				return ec.fieldContext_Team_valkeys(ctx, field)
-			case "imageVulnerabilityHistory":
-				return ec.fieldContext_Team_imageVulnerabilityHistory(ctx, field)
-			case "vulnerabilityFixHistory":
-				return ec.fieldContext_Team_vulnerabilityFixHistory(ctx, field)
-			case "vulnerabilitySummary":
-				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
-			case "vulnerabilitySummaries":
-				return ec.fieldContext_Team_vulnerabilitySummaries(ctx, field)
-			case "workloads":
-				return ec.fieldContext_Team_workloads(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
+			return ec.childFields_Team(ctx, field)
 		},
 	}
 	return fc, nil
@@ -250,17 +174,20 @@ func (ec *executionContext) _BigQueryDataset_environment(ctx context.Context, fi
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_BigQueryDataset_environment,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_BigQueryDataset_environment(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.BigQueryDataset().Environment(ctx, obj)
 		},
 		nil,
-		ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment,
+		func(ctx context.Context, selections ast.SelectionSet, v *team.TeamEnvironment) graphql.Marshaler {
+			return ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_BigQueryDataset_environment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "BigQueryDataset",
@@ -268,49 +195,7 @@ func (ec *executionContext) fieldContext_BigQueryDataset_environment(_ context.C
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_TeamEnvironment_id(ctx, field)
-			case "name":
-				return ec.fieldContext_TeamEnvironment_name(ctx, field)
-			case "gcpProjectID":
-				return ec.fieldContext_TeamEnvironment_gcpProjectID(ctx, field)
-			case "slackAlertsChannel":
-				return ec.fieldContext_TeamEnvironment_slackAlertsChannel(ctx, field)
-			case "team":
-				return ec.fieldContext_TeamEnvironment_team(ctx, field)
-			case "alerts":
-				return ec.fieldContext_TeamEnvironment_alerts(ctx, field)
-			case "application":
-				return ec.fieldContext_TeamEnvironment_application(ctx, field)
-			case "bigQueryDataset":
-				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
-			case "bucket":
-				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
-			case "config":
-				return ec.fieldContext_TeamEnvironment_config(ctx, field)
-			case "cost":
-				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
-			case "environment":
-				return ec.fieldContext_TeamEnvironment_environment(ctx, field)
-			case "job":
-				return ec.fieldContext_TeamEnvironment_job(ctx, field)
-			case "kafkaTopic":
-				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
-			case "openSearch":
-				return ec.fieldContext_TeamEnvironment_openSearch(ctx, field)
-			case "postgresInstance":
-				return ec.fieldContext_TeamEnvironment_postgresInstance(ctx, field)
-			case "secret":
-				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
-			case "sqlInstance":
-				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
-			case "valkey":
-				return ec.fieldContext_TeamEnvironment_valkey(ctx, field)
-			case "workload":
-				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
+			return ec.childFields_TeamEnvironment(ctx, field)
 		},
 	}
 	return fc, nil
@@ -321,17 +206,20 @@ func (ec *executionContext) _BigQueryDataset_teamEnvironment(ctx context.Context
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_BigQueryDataset_teamEnvironment,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_BigQueryDataset_teamEnvironment(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.BigQueryDataset().TeamEnvironment(ctx, obj)
 		},
 		nil,
-		ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment,
+		func(ctx context.Context, selections ast.SelectionSet, v *team.TeamEnvironment) graphql.Marshaler {
+			return ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_BigQueryDataset_teamEnvironment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "BigQueryDataset",
@@ -339,49 +227,7 @@ func (ec *executionContext) fieldContext_BigQueryDataset_teamEnvironment(_ conte
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_TeamEnvironment_id(ctx, field)
-			case "name":
-				return ec.fieldContext_TeamEnvironment_name(ctx, field)
-			case "gcpProjectID":
-				return ec.fieldContext_TeamEnvironment_gcpProjectID(ctx, field)
-			case "slackAlertsChannel":
-				return ec.fieldContext_TeamEnvironment_slackAlertsChannel(ctx, field)
-			case "team":
-				return ec.fieldContext_TeamEnvironment_team(ctx, field)
-			case "alerts":
-				return ec.fieldContext_TeamEnvironment_alerts(ctx, field)
-			case "application":
-				return ec.fieldContext_TeamEnvironment_application(ctx, field)
-			case "bigQueryDataset":
-				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
-			case "bucket":
-				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
-			case "config":
-				return ec.fieldContext_TeamEnvironment_config(ctx, field)
-			case "cost":
-				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
-			case "environment":
-				return ec.fieldContext_TeamEnvironment_environment(ctx, field)
-			case "job":
-				return ec.fieldContext_TeamEnvironment_job(ctx, field)
-			case "kafkaTopic":
-				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
-			case "openSearch":
-				return ec.fieldContext_TeamEnvironment_openSearch(ctx, field)
-			case "postgresInstance":
-				return ec.fieldContext_TeamEnvironment_postgresInstance(ctx, field)
-			case "secret":
-				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
-			case "sqlInstance":
-				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
-			case "valkey":
-				return ec.fieldContext_TeamEnvironment_valkey(ctx, field)
-			case "workload":
-				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
+			return ec.childFields_TeamEnvironment(ctx, field)
 		},
 	}
 	return fc, nil
@@ -392,28 +238,22 @@ func (ec *executionContext) _BigQueryDataset_cascadingDelete(ctx context.Context
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_BigQueryDataset_cascadingDelete,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_BigQueryDataset_cascadingDelete(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.CascadingDelete, nil
 		},
 		nil,
-		ec.marshalNBoolean2bool,
+		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
+			return ec.marshalNBoolean2bool(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_BigQueryDataset_cascadingDelete(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "BigQueryDataset",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("BigQueryDataset", field, false, false, errors.New("field of type Boolean does not have child fields"))
 }
 
 func (ec *executionContext) _BigQueryDataset_description(ctx context.Context, field graphql.CollectedField, obj *bigquery.BigQueryDataset) (ret graphql.Marshaler) {
@@ -421,28 +261,22 @@ func (ec *executionContext) _BigQueryDataset_description(ctx context.Context, fi
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_BigQueryDataset_description,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_BigQueryDataset_description(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Description, nil
 		},
 		nil,
-		ec.marshalOString2ᚖstring,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
+		},
 		true,
 		false,
 	)
 }
-
 func (ec *executionContext) fieldContext_BigQueryDataset_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "BigQueryDataset",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("BigQueryDataset", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _BigQueryDataset_access(ctx context.Context, field graphql.CollectedField, obj *bigquery.BigQueryDataset) (ret graphql.Marshaler) {
@@ -450,18 +284,21 @@ func (ec *executionContext) _BigQueryDataset_access(ctx context.Context, field g
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_BigQueryDataset_access,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_BigQueryDataset_access(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
 			return ec.Resolvers.BigQueryDataset().Access(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*bigquery.BigQueryDatasetAccessOrder))
 		},
 		nil,
-		ec.marshalNBigQueryDatasetAccessConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
+		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[*bigquery.BigQueryDatasetAccess]) graphql.Marshaler {
+			return ec.marshalNBigQueryDatasetAccessConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_BigQueryDataset_access(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "BigQueryDataset",
@@ -469,15 +306,7 @@ func (ec *executionContext) fieldContext_BigQueryDataset_access(ctx context.Cont
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "pageInfo":
-				return ec.fieldContext_BigQueryDatasetAccessConnection_pageInfo(ctx, field)
-			case "nodes":
-				return ec.fieldContext_BigQueryDatasetAccessConnection_nodes(ctx, field)
-			case "edges":
-				return ec.fieldContext_BigQueryDatasetAccessConnection_edges(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type BigQueryDatasetAccessConnection", field.Name)
+			return ec.childFields_BigQueryDatasetAccessConnection(ctx, field)
 		},
 	}
 	defer func() {
@@ -499,17 +328,20 @@ func (ec *executionContext) _BigQueryDataset_status(ctx context.Context, field g
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_BigQueryDataset_status,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_BigQueryDataset_status(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Status, nil
 		},
 		nil,
-		ec.marshalNBigQueryDatasetStatus2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDatasetStatus,
+		func(ctx context.Context, selections ast.SelectionSet, v *bigquery.BigQueryDatasetStatus) graphql.Marshaler {
+			return ec.marshalNBigQueryDatasetStatus2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDatasetStatus(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_BigQueryDataset_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "BigQueryDataset",
@@ -517,13 +349,7 @@ func (ec *executionContext) fieldContext_BigQueryDataset_status(_ context.Contex
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "creationTime":
-				return ec.fieldContext_BigQueryDatasetStatus_creationTime(ctx, field)
-			case "lastModifiedTime":
-				return ec.fieldContext_BigQueryDatasetStatus_lastModifiedTime(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type BigQueryDatasetStatus", field.Name)
+			return ec.childFields_BigQueryDatasetStatus(ctx, field)
 		},
 	}
 	return fc, nil
@@ -534,17 +360,20 @@ func (ec *executionContext) _BigQueryDataset_workload(ctx context.Context, field
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_BigQueryDataset_workload,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_BigQueryDataset_workload(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.BigQueryDataset().Workload(ctx, obj)
 		},
 		nil,
-		ec.marshalOWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload,
+		func(ctx context.Context, selections ast.SelectionSet, v workload.Workload) graphql.Marshaler {
+			return ec.marshalOWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload(ctx, selections, v)
+		},
 		true,
 		false,
 	)
 }
-
 func (ec *executionContext) fieldContext_BigQueryDataset_workload(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "BigQueryDataset",
@@ -563,17 +392,20 @@ func (ec *executionContext) _BigQueryDataset_cost(ctx context.Context, field gra
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_BigQueryDataset_cost,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_BigQueryDataset_cost(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.BigQueryDataset().Cost(ctx, obj)
 		},
 		nil,
-		ec.marshalNBigQueryDatasetCost2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐBigQueryDatasetCost,
+		func(ctx context.Context, selections ast.SelectionSet, v *cost.BigQueryDatasetCost) graphql.Marshaler {
+			return ec.marshalNBigQueryDatasetCost2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐBigQueryDatasetCost(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_BigQueryDataset_cost(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "BigQueryDataset",
@@ -581,11 +413,7 @@ func (ec *executionContext) fieldContext_BigQueryDataset_cost(_ context.Context,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "sum":
-				return ec.fieldContext_BigQueryDatasetCost_sum(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type BigQueryDatasetCost", field.Name)
+			return ec.childFields_BigQueryDatasetCost(ctx, field)
 		},
 	}
 	return fc, nil
@@ -596,28 +424,22 @@ func (ec *executionContext) _BigQueryDatasetAccess_role(ctx context.Context, fie
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_BigQueryDatasetAccess_role,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_BigQueryDatasetAccess_role(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Role, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_BigQueryDatasetAccess_role(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "BigQueryDatasetAccess",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("BigQueryDatasetAccess", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _BigQueryDatasetAccess_email(ctx context.Context, field graphql.CollectedField, obj *bigquery.BigQueryDatasetAccess) (ret graphql.Marshaler) {
@@ -625,28 +447,22 @@ func (ec *executionContext) _BigQueryDatasetAccess_email(ctx context.Context, fi
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_BigQueryDatasetAccess_email,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_BigQueryDatasetAccess_email(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Email, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_BigQueryDatasetAccess_email(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "BigQueryDatasetAccess",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("BigQueryDatasetAccess", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _BigQueryDatasetAccessConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*bigquery.BigQueryDatasetAccess]) (ret graphql.Marshaler) {
@@ -654,17 +470,20 @@ func (ec *executionContext) _BigQueryDatasetAccessConnection_pageInfo(ctx contex
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_BigQueryDatasetAccessConnection_pageInfo,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_BigQueryDatasetAccessConnection_pageInfo(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.PageInfo, nil
 		},
 		nil,
-		ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo,
+		func(ctx context.Context, selections ast.SelectionSet, v pagination.PageInfo) graphql.Marshaler {
+			return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_BigQueryDatasetAccessConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "BigQueryDatasetAccessConnection",
@@ -672,23 +491,7 @@ func (ec *executionContext) fieldContext_BigQueryDatasetAccessConnection_pageInf
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "hasNextPage":
-				return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
-			case "endCursor":
-				return ec.fieldContext_PageInfo_endCursor(ctx, field)
-			case "hasPreviousPage":
-				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
-			case "startCursor":
-				return ec.fieldContext_PageInfo_startCursor(ctx, field)
-			case "totalCount":
-				return ec.fieldContext_PageInfo_totalCount(ctx, field)
-			case "pageStart":
-				return ec.fieldContext_PageInfo_pageStart(ctx, field)
-			case "pageEnd":
-				return ec.fieldContext_PageInfo_pageEnd(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
+			return ec.childFields_PageInfo(ctx, field)
 		},
 	}
 	return fc, nil
@@ -699,17 +502,20 @@ func (ec *executionContext) _BigQueryDatasetAccessConnection_nodes(ctx context.C
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_BigQueryDatasetAccessConnection_nodes,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_BigQueryDatasetAccessConnection_nodes(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Nodes(), nil
 		},
 		nil,
-		ec.marshalNBigQueryDatasetAccess2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDatasetAccessᚄ,
+		func(ctx context.Context, selections ast.SelectionSet, v []*bigquery.BigQueryDatasetAccess) graphql.Marshaler {
+			return ec.marshalNBigQueryDatasetAccess2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDatasetAccessᚄ(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_BigQueryDatasetAccessConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "BigQueryDatasetAccessConnection",
@@ -717,13 +523,7 @@ func (ec *executionContext) fieldContext_BigQueryDatasetAccessConnection_nodes(_
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "role":
-				return ec.fieldContext_BigQueryDatasetAccess_role(ctx, field)
-			case "email":
-				return ec.fieldContext_BigQueryDatasetAccess_email(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type BigQueryDatasetAccess", field.Name)
+			return ec.childFields_BigQueryDatasetAccess(ctx, field)
 		},
 	}
 	return fc, nil
@@ -734,17 +534,20 @@ func (ec *executionContext) _BigQueryDatasetAccessConnection_edges(ctx context.C
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_BigQueryDatasetAccessConnection_edges,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_BigQueryDatasetAccessConnection_edges(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Edges, nil
 		},
 		nil,
-		ec.marshalNBigQueryDatasetAccessEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ,
+		func(ctx context.Context, selections ast.SelectionSet, v []pagination.Edge[*bigquery.BigQueryDatasetAccess]) graphql.Marshaler {
+			return ec.marshalNBigQueryDatasetAccessEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_BigQueryDatasetAccessConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "BigQueryDatasetAccessConnection",
@@ -752,13 +555,7 @@ func (ec *executionContext) fieldContext_BigQueryDatasetAccessConnection_edges(_
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "cursor":
-				return ec.fieldContext_BigQueryDatasetAccessEdge_cursor(ctx, field)
-			case "node":
-				return ec.fieldContext_BigQueryDatasetAccessEdge_node(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type BigQueryDatasetAccessEdge", field.Name)
+			return ec.childFields_BigQueryDatasetAccessEdge(ctx, field)
 		},
 	}
 	return fc, nil
@@ -769,28 +566,22 @@ func (ec *executionContext) _BigQueryDatasetAccessEdge_cursor(ctx context.Contex
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_BigQueryDatasetAccessEdge_cursor,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_BigQueryDatasetAccessEdge_cursor(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Cursor, nil
 		},
 		nil,
-		ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor,
+		func(ctx context.Context, selections ast.SelectionSet, v pagination.Cursor) graphql.Marshaler {
+			return ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_BigQueryDatasetAccessEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "BigQueryDatasetAccessEdge",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Cursor does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("BigQueryDatasetAccessEdge", field, false, false, errors.New("field of type Cursor does not have child fields"))
 }
 
 func (ec *executionContext) _BigQueryDatasetAccessEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*bigquery.BigQueryDatasetAccess]) (ret graphql.Marshaler) {
@@ -798,17 +589,20 @@ func (ec *executionContext) _BigQueryDatasetAccessEdge_node(ctx context.Context,
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_BigQueryDatasetAccessEdge_node,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_BigQueryDatasetAccessEdge_node(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Node, nil
 		},
 		nil,
-		ec.marshalNBigQueryDatasetAccess2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDatasetAccess,
+		func(ctx context.Context, selections ast.SelectionSet, v *bigquery.BigQueryDatasetAccess) graphql.Marshaler {
+			return ec.marshalNBigQueryDatasetAccess2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDatasetAccess(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_BigQueryDatasetAccessEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "BigQueryDatasetAccessEdge",
@@ -816,13 +610,7 @@ func (ec *executionContext) fieldContext_BigQueryDatasetAccessEdge_node(_ contex
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "role":
-				return ec.fieldContext_BigQueryDatasetAccess_role(ctx, field)
-			case "email":
-				return ec.fieldContext_BigQueryDatasetAccess_email(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type BigQueryDatasetAccess", field.Name)
+			return ec.childFields_BigQueryDatasetAccess(ctx, field)
 		},
 	}
 	return fc, nil
@@ -833,17 +621,20 @@ func (ec *executionContext) _BigQueryDatasetConnection_pageInfo(ctx context.Cont
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_BigQueryDatasetConnection_pageInfo,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_BigQueryDatasetConnection_pageInfo(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.PageInfo, nil
 		},
 		nil,
-		ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo,
+		func(ctx context.Context, selections ast.SelectionSet, v pagination.PageInfo) graphql.Marshaler {
+			return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_BigQueryDatasetConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "BigQueryDatasetConnection",
@@ -851,23 +642,7 @@ func (ec *executionContext) fieldContext_BigQueryDatasetConnection_pageInfo(_ co
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "hasNextPage":
-				return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
-			case "endCursor":
-				return ec.fieldContext_PageInfo_endCursor(ctx, field)
-			case "hasPreviousPage":
-				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
-			case "startCursor":
-				return ec.fieldContext_PageInfo_startCursor(ctx, field)
-			case "totalCount":
-				return ec.fieldContext_PageInfo_totalCount(ctx, field)
-			case "pageStart":
-				return ec.fieldContext_PageInfo_pageStart(ctx, field)
-			case "pageEnd":
-				return ec.fieldContext_PageInfo_pageEnd(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
+			return ec.childFields_PageInfo(ctx, field)
 		},
 	}
 	return fc, nil
@@ -878,17 +653,20 @@ func (ec *executionContext) _BigQueryDatasetConnection_nodes(ctx context.Context
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_BigQueryDatasetConnection_nodes,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_BigQueryDatasetConnection_nodes(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Nodes(), nil
 		},
 		nil,
-		ec.marshalNBigQueryDataset2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDatasetᚄ,
+		func(ctx context.Context, selections ast.SelectionSet, v []*bigquery.BigQueryDataset) graphql.Marshaler {
+			return ec.marshalNBigQueryDataset2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDatasetᚄ(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_BigQueryDatasetConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "BigQueryDatasetConnection",
@@ -896,31 +674,7 @@ func (ec *executionContext) fieldContext_BigQueryDatasetConnection_nodes(_ conte
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_BigQueryDataset_id(ctx, field)
-			case "name":
-				return ec.fieldContext_BigQueryDataset_name(ctx, field)
-			case "team":
-				return ec.fieldContext_BigQueryDataset_team(ctx, field)
-			case "environment":
-				return ec.fieldContext_BigQueryDataset_environment(ctx, field)
-			case "teamEnvironment":
-				return ec.fieldContext_BigQueryDataset_teamEnvironment(ctx, field)
-			case "cascadingDelete":
-				return ec.fieldContext_BigQueryDataset_cascadingDelete(ctx, field)
-			case "description":
-				return ec.fieldContext_BigQueryDataset_description(ctx, field)
-			case "access":
-				return ec.fieldContext_BigQueryDataset_access(ctx, field)
-			case "status":
-				return ec.fieldContext_BigQueryDataset_status(ctx, field)
-			case "workload":
-				return ec.fieldContext_BigQueryDataset_workload(ctx, field)
-			case "cost":
-				return ec.fieldContext_BigQueryDataset_cost(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type BigQueryDataset", field.Name)
+			return ec.childFields_BigQueryDataset(ctx, field)
 		},
 	}
 	return fc, nil
@@ -931,17 +685,20 @@ func (ec *executionContext) _BigQueryDatasetConnection_edges(ctx context.Context
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_BigQueryDatasetConnection_edges,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_BigQueryDatasetConnection_edges(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Edges, nil
 		},
 		nil,
-		ec.marshalNBigQueryDatasetEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ,
+		func(ctx context.Context, selections ast.SelectionSet, v []pagination.Edge[*bigquery.BigQueryDataset]) graphql.Marshaler {
+			return ec.marshalNBigQueryDatasetEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_BigQueryDatasetConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "BigQueryDatasetConnection",
@@ -949,13 +706,7 @@ func (ec *executionContext) fieldContext_BigQueryDatasetConnection_edges(_ conte
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "cursor":
-				return ec.fieldContext_BigQueryDatasetEdge_cursor(ctx, field)
-			case "node":
-				return ec.fieldContext_BigQueryDatasetEdge_node(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type BigQueryDatasetEdge", field.Name)
+			return ec.childFields_BigQueryDatasetEdge(ctx, field)
 		},
 	}
 	return fc, nil
@@ -966,28 +717,22 @@ func (ec *executionContext) _BigQueryDatasetEdge_cursor(ctx context.Context, fie
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_BigQueryDatasetEdge_cursor,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_BigQueryDatasetEdge_cursor(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Cursor, nil
 		},
 		nil,
-		ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor,
+		func(ctx context.Context, selections ast.SelectionSet, v pagination.Cursor) graphql.Marshaler {
+			return ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_BigQueryDatasetEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "BigQueryDatasetEdge",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Cursor does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("BigQueryDatasetEdge", field, false, false, errors.New("field of type Cursor does not have child fields"))
 }
 
 func (ec *executionContext) _BigQueryDatasetEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*bigquery.BigQueryDataset]) (ret graphql.Marshaler) {
@@ -995,17 +740,20 @@ func (ec *executionContext) _BigQueryDatasetEdge_node(ctx context.Context, field
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_BigQueryDatasetEdge_node,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_BigQueryDatasetEdge_node(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Node, nil
 		},
 		nil,
-		ec.marshalNBigQueryDataset2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDataset,
+		func(ctx context.Context, selections ast.SelectionSet, v *bigquery.BigQueryDataset) graphql.Marshaler {
+			return ec.marshalNBigQueryDataset2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDataset(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_BigQueryDatasetEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "BigQueryDatasetEdge",
@@ -1013,31 +761,7 @@ func (ec *executionContext) fieldContext_BigQueryDatasetEdge_node(_ context.Cont
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_BigQueryDataset_id(ctx, field)
-			case "name":
-				return ec.fieldContext_BigQueryDataset_name(ctx, field)
-			case "team":
-				return ec.fieldContext_BigQueryDataset_team(ctx, field)
-			case "environment":
-				return ec.fieldContext_BigQueryDataset_environment(ctx, field)
-			case "teamEnvironment":
-				return ec.fieldContext_BigQueryDataset_teamEnvironment(ctx, field)
-			case "cascadingDelete":
-				return ec.fieldContext_BigQueryDataset_cascadingDelete(ctx, field)
-			case "description":
-				return ec.fieldContext_BigQueryDataset_description(ctx, field)
-			case "access":
-				return ec.fieldContext_BigQueryDataset_access(ctx, field)
-			case "status":
-				return ec.fieldContext_BigQueryDataset_status(ctx, field)
-			case "workload":
-				return ec.fieldContext_BigQueryDataset_workload(ctx, field)
-			case "cost":
-				return ec.fieldContext_BigQueryDataset_cost(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type BigQueryDataset", field.Name)
+			return ec.childFields_BigQueryDataset(ctx, field)
 		},
 	}
 	return fc, nil
@@ -1048,28 +772,22 @@ func (ec *executionContext) _BigQueryDatasetStatus_creationTime(ctx context.Cont
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_BigQueryDatasetStatus_creationTime,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_BigQueryDatasetStatus_creationTime(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.CreationTime, nil
 		},
 		nil,
-		ec.marshalNTime2timeᚐTime,
+		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
+			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_BigQueryDatasetStatus_creationTime(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "BigQueryDatasetStatus",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("BigQueryDatasetStatus", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
 func (ec *executionContext) _BigQueryDatasetStatus_lastModifiedTime(ctx context.Context, field graphql.CollectedField, obj *bigquery.BigQueryDatasetStatus) (ret graphql.Marshaler) {
@@ -1077,28 +795,22 @@ func (ec *executionContext) _BigQueryDatasetStatus_lastModifiedTime(ctx context.
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_BigQueryDatasetStatus_lastModifiedTime,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_BigQueryDatasetStatus_lastModifiedTime(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.LastModifiedTime, nil
 		},
 		nil,
-		ec.marshalOTime2ᚖtimeᚐTime,
+		func(ctx context.Context, selections ast.SelectionSet, v *time.Time) graphql.Marshaler {
+			return ec.marshalOTime2ᚖtimeᚐTime(ctx, selections, v)
+		},
 		true,
 		false,
 	)
 }
-
 func (ec *executionContext) fieldContext_BigQueryDatasetStatus_lastModifiedTime(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "BigQueryDatasetStatus",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("BigQueryDatasetStatus", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
 func (ec *executionContext) _TeamInventoryCountBigQueryDatasets_total(ctx context.Context, field graphql.CollectedField, obj *bigquery.TeamInventoryCountBigQueryDatasets) (ret graphql.Marshaler) {
@@ -1106,28 +818,22 @@ func (ec *executionContext) _TeamInventoryCountBigQueryDatasets_total(ctx contex
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_TeamInventoryCountBigQueryDatasets_total,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_TeamInventoryCountBigQueryDatasets_total(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Total, nil
 		},
 		nil,
-		ec.marshalNInt2int,
+		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
+			return ec.marshalNInt2int(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_TeamInventoryCountBigQueryDatasets_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamInventoryCountBigQueryDatasets",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("TeamInventoryCountBigQueryDatasets", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
 // endregion **************************** field.gotpl *****************************
@@ -1136,6 +842,10 @@ func (ec *executionContext) fieldContext_TeamInventoryCountBigQueryDatasets_tota
 
 func (ec *executionContext) unmarshalInputBigQueryDatasetAccessOrder(ctx context.Context, obj any) (bigquery.BigQueryDatasetAccessOrder, error) {
 	var it bigquery.BigQueryDatasetAccessOrder
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -1169,6 +879,10 @@ func (ec *executionContext) unmarshalInputBigQueryDatasetAccessOrder(ctx context
 
 func (ec *executionContext) unmarshalInputBigQueryDatasetOrder(ctx context.Context, obj any) (bigquery.BigQueryDatasetOrder, error) {
 	var it bigquery.BigQueryDatasetOrder
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -1463,7 +1177,7 @@ func (ec *executionContext) _BigQueryDataset(ctx context.Context, sel ast.Select
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -1507,7 +1221,7 @@ func (ec *executionContext) _BigQueryDatasetAccess(ctx context.Context, sel ast.
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -1556,7 +1270,7 @@ func (ec *executionContext) _BigQueryDatasetAccessConnection(ctx context.Context
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -1600,7 +1314,7 @@ func (ec *executionContext) _BigQueryDatasetAccessEdge(ctx context.Context, sel 
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -1649,7 +1363,7 @@ func (ec *executionContext) _BigQueryDatasetConnection(ctx context.Context, sel 
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -1693,7 +1407,7 @@ func (ec *executionContext) _BigQueryDatasetEdge(ctx context.Context, sel ast.Se
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -1734,7 +1448,7 @@ func (ec *executionContext) _BigQueryDatasetStatus(ctx context.Context, sel ast.
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -1773,7 +1487,7 @@ func (ec *executionContext) _TeamInventoryCountBigQueryDatasets(ctx context.Cont
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{

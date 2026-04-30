@@ -223,6 +223,7 @@ Test.gql("Other team CANNOT see secret values via viewSecretValues", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("You are authenticated"),
 				path = { "viewSecretValues" },
 			},
@@ -255,6 +256,7 @@ Test.gql("Other team CANNOT create secret in alpha", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("You are authenticated"),
 				path = { "createSecret" },
 			},
@@ -287,6 +289,7 @@ Test.gql("Other team CANNOT add value to alpha secret", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("You are authenticated"),
 				path = { "addSecretValue" },
 			},
@@ -319,6 +322,7 @@ Test.gql("Other team CANNOT update value in alpha secret", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("You are authenticated"),
 				path = { "updateSecretValue" },
 			},
@@ -348,6 +352,7 @@ Test.gql("Other team CANNOT remove value from alpha secret", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("You are authenticated"),
 				path = { "removeSecretValue" },
 			},
@@ -374,6 +379,7 @@ Test.gql("Other team CANNOT delete alpha secret", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("You are authenticated"),
 				path = { "deleteSecret" },
 			},

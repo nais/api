@@ -5,17 +5,20 @@ package gengql
 import (
 	"context"
 	"errors"
-	"fmt"
+	"math"
 	"strconv"
 	"sync/atomic"
+	"time"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/cost"
+	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/issue"
 	"github.com/nais/api/internal/persistence/valkey"
 	"github.com/nais/api/internal/servicemaintenance"
+	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/workload"
 	"github.com/vektah/gqlparser/v2/ast"
@@ -47,27 +50,42 @@ type ValkeyAccessResolver interface {
 func (ec *executionContext) field_Valkey_access_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first", ec.unmarshalOInt2ᚖint)
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
+		func(ctx context.Context, v any) (*int, error) {
+			return ec.unmarshalOInt2ᚖint(ctx, v)
+		})
 	if err != nil {
 		return nil, err
 	}
 	args["first"] = arg0
-	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after", ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor)
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
+		func(ctx context.Context, v any) (*pagination.Cursor, error) {
+			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+		})
 	if err != nil {
 		return nil, err
 	}
 	args["after"] = arg1
-	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last", ec.unmarshalOInt2ᚖint)
+	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
+		func(ctx context.Context, v any) (*int, error) {
+			return ec.unmarshalOInt2ᚖint(ctx, v)
+		})
 	if err != nil {
 		return nil, err
 	}
 	args["last"] = arg2
-	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before", ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor)
+	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
+		func(ctx context.Context, v any) (*pagination.Cursor, error) {
+			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+		})
 	if err != nil {
 		return nil, err
 	}
 	args["before"] = arg3
-	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "orderBy", ec.unmarshalOValkeyAccessOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyAccessOrder)
+	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "orderBy",
+		func(ctx context.Context, v any) (*valkey.ValkeyAccessOrder, error) {
+			return ec.unmarshalOValkeyAccessOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyAccessOrder(ctx, v)
+		})
 	if err != nil {
 		return nil, err
 	}
@@ -78,27 +96,42 @@ func (ec *executionContext) field_Valkey_access_args(ctx context.Context, rawArg
 func (ec *executionContext) field_Valkey_activityLog_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first", ec.unmarshalOInt2ᚖint)
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
+		func(ctx context.Context, v any) (*int, error) {
+			return ec.unmarshalOInt2ᚖint(ctx, v)
+		})
 	if err != nil {
 		return nil, err
 	}
 	args["first"] = arg0
-	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after", ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor)
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
+		func(ctx context.Context, v any) (*pagination.Cursor, error) {
+			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+		})
 	if err != nil {
 		return nil, err
 	}
 	args["after"] = arg1
-	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last", ec.unmarshalOInt2ᚖint)
+	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
+		func(ctx context.Context, v any) (*int, error) {
+			return ec.unmarshalOInt2ᚖint(ctx, v)
+		})
 	if err != nil {
 		return nil, err
 	}
 	args["last"] = arg2
-	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before", ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor)
+	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
+		func(ctx context.Context, v any) (*pagination.Cursor, error) {
+			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+		})
 	if err != nil {
 		return nil, err
 	}
 	args["before"] = arg3
-	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "filter", ec.unmarshalOActivityLogFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogFilter)
+	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "filter",
+		func(ctx context.Context, v any) (*activitylog.ActivityLogFilter, error) {
+			return ec.unmarshalOActivityLogFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogFilter(ctx, v)
+		})
 	if err != nil {
 		return nil, err
 	}
@@ -109,32 +142,50 @@ func (ec *executionContext) field_Valkey_activityLog_args(ctx context.Context, r
 func (ec *executionContext) field_Valkey_issues_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first", ec.unmarshalOInt2ᚖint)
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
+		func(ctx context.Context, v any) (*int, error) {
+			return ec.unmarshalOInt2ᚖint(ctx, v)
+		})
 	if err != nil {
 		return nil, err
 	}
 	args["first"] = arg0
-	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after", ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor)
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
+		func(ctx context.Context, v any) (*pagination.Cursor, error) {
+			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+		})
 	if err != nil {
 		return nil, err
 	}
 	args["after"] = arg1
-	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last", ec.unmarshalOInt2ᚖint)
+	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
+		func(ctx context.Context, v any) (*int, error) {
+			return ec.unmarshalOInt2ᚖint(ctx, v)
+		})
 	if err != nil {
 		return nil, err
 	}
 	args["last"] = arg2
-	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before", ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor)
+	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
+		func(ctx context.Context, v any) (*pagination.Cursor, error) {
+			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+		})
 	if err != nil {
 		return nil, err
 	}
 	args["before"] = arg3
-	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "orderBy", ec.unmarshalOIssueOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋissueᚐIssueOrder)
+	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "orderBy",
+		func(ctx context.Context, v any) (*issue.IssueOrder, error) {
+			return ec.unmarshalOIssueOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋissueᚐIssueOrder(ctx, v)
+		})
 	if err != nil {
 		return nil, err
 	}
 	args["orderBy"] = arg4
-	arg5, err := graphql.ProcessArgField(ctx, rawArgs, "filter", ec.unmarshalOResourceIssueFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋissueᚐResourceIssueFilter)
+	arg5, err := graphql.ProcessArgField(ctx, rawArgs, "filter",
+		func(ctx context.Context, v any) (*issue.ResourceIssueFilter, error) {
+			return ec.unmarshalOResourceIssueFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋissueᚐResourceIssueFilter(ctx, v)
+		})
 	if err != nil {
 		return nil, err
 	}
@@ -155,17 +206,20 @@ func (ec *executionContext) _CreateValkeyCredentialsPayload_credentials(ctx cont
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_CreateValkeyCredentialsPayload_credentials,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_CreateValkeyCredentialsPayload_credentials(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Credentials, nil
 		},
 		nil,
-		ec.marshalNValkeyCredentials2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyCredentials,
+		func(ctx context.Context, selections ast.SelectionSet, v *valkey.ValkeyCredentials) graphql.Marshaler {
+			return ec.marshalNValkeyCredentials2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyCredentials(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_CreateValkeyCredentialsPayload_credentials(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CreateValkeyCredentialsPayload",
@@ -173,19 +227,7 @@ func (ec *executionContext) fieldContext_CreateValkeyCredentialsPayload_credenti
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "username":
-				return ec.fieldContext_ValkeyCredentials_username(ctx, field)
-			case "password":
-				return ec.fieldContext_ValkeyCredentials_password(ctx, field)
-			case "host":
-				return ec.fieldContext_ValkeyCredentials_host(ctx, field)
-			case "port":
-				return ec.fieldContext_ValkeyCredentials_port(ctx, field)
-			case "uri":
-				return ec.fieldContext_ValkeyCredentials_uri(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type ValkeyCredentials", field.Name)
+			return ec.childFields_ValkeyCredentials(ctx, field)
 		},
 	}
 	return fc, nil
@@ -196,17 +238,20 @@ func (ec *executionContext) _CreateValkeyPayload_valkey(ctx context.Context, fie
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_CreateValkeyPayload_valkey,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_CreateValkeyPayload_valkey(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Valkey, nil
 		},
 		nil,
-		ec.marshalNValkey2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkey,
+		func(ctx context.Context, selections ast.SelectionSet, v *valkey.Valkey) graphql.Marshaler {
+			return ec.marshalNValkey2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkey(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_CreateValkeyPayload_valkey(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CreateValkeyPayload",
@@ -214,45 +259,7 @@ func (ec *executionContext) fieldContext_CreateValkeyPayload_valkey(_ context.Co
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Valkey_id(ctx, field)
-			case "name":
-				return ec.fieldContext_Valkey_name(ctx, field)
-			case "terminationProtection":
-				return ec.fieldContext_Valkey_terminationProtection(ctx, field)
-			case "team":
-				return ec.fieldContext_Valkey_team(ctx, field)
-			case "environment":
-				return ec.fieldContext_Valkey_environment(ctx, field)
-			case "teamEnvironment":
-				return ec.fieldContext_Valkey_teamEnvironment(ctx, field)
-			case "access":
-				return ec.fieldContext_Valkey_access(ctx, field)
-			case "workload":
-				return ec.fieldContext_Valkey_workload(ctx, field)
-			case "state":
-				return ec.fieldContext_Valkey_state(ctx, field)
-			case "tier":
-				return ec.fieldContext_Valkey_tier(ctx, field)
-			case "memory":
-				return ec.fieldContext_Valkey_memory(ctx, field)
-			case "maxMemoryPolicy":
-				return ec.fieldContext_Valkey_maxMemoryPolicy(ctx, field)
-			case "notifyKeyspaceEvents":
-				return ec.fieldContext_Valkey_notifyKeyspaceEvents(ctx, field)
-			case "databases":
-				return ec.fieldContext_Valkey_databases(ctx, field)
-			case "issues":
-				return ec.fieldContext_Valkey_issues(ctx, field)
-			case "activityLog":
-				return ec.fieldContext_Valkey_activityLog(ctx, field)
-			case "cost":
-				return ec.fieldContext_Valkey_cost(ctx, field)
-			case "maintenance":
-				return ec.fieldContext_Valkey_maintenance(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Valkey", field.Name)
+			return ec.childFields_Valkey(ctx, field)
 		},
 	}
 	return fc, nil
@@ -263,28 +270,22 @@ func (ec *executionContext) _DeleteValkeyPayload_valkeyDeleted(ctx context.Conte
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_DeleteValkeyPayload_valkeyDeleted,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_DeleteValkeyPayload_valkeyDeleted(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.ValkeyDeleted, nil
 		},
 		nil,
-		ec.marshalOBoolean2ᚖbool,
+		func(ctx context.Context, selections ast.SelectionSet, v *bool) graphql.Marshaler {
+			return ec.marshalOBoolean2ᚖbool(ctx, selections, v)
+		},
 		true,
 		false,
 	)
 }
-
 func (ec *executionContext) fieldContext_DeleteValkeyPayload_valkeyDeleted(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "DeleteValkeyPayload",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("DeleteValkeyPayload", field, false, false, errors.New("field of type Boolean does not have child fields"))
 }
 
 func (ec *executionContext) _TeamInventoryCountValkeys_total(ctx context.Context, field graphql.CollectedField, obj *valkey.TeamInventoryCountValkeys) (ret graphql.Marshaler) {
@@ -292,28 +293,22 @@ func (ec *executionContext) _TeamInventoryCountValkeys_total(ctx context.Context
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_TeamInventoryCountValkeys_total,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_TeamInventoryCountValkeys_total(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Total, nil
 		},
 		nil,
-		ec.marshalNInt2int,
+		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
+			return ec.marshalNInt2int(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_TeamInventoryCountValkeys_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamInventoryCountValkeys",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("TeamInventoryCountValkeys", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
 func (ec *executionContext) _UpdateValkeyPayload_valkey(ctx context.Context, field graphql.CollectedField, obj *valkey.UpdateValkeyPayload) (ret graphql.Marshaler) {
@@ -321,17 +316,20 @@ func (ec *executionContext) _UpdateValkeyPayload_valkey(ctx context.Context, fie
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_UpdateValkeyPayload_valkey,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_UpdateValkeyPayload_valkey(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Valkey, nil
 		},
 		nil,
-		ec.marshalNValkey2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkey,
+		func(ctx context.Context, selections ast.SelectionSet, v *valkey.Valkey) graphql.Marshaler {
+			return ec.marshalNValkey2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkey(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_UpdateValkeyPayload_valkey(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "UpdateValkeyPayload",
@@ -339,45 +337,7 @@ func (ec *executionContext) fieldContext_UpdateValkeyPayload_valkey(_ context.Co
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Valkey_id(ctx, field)
-			case "name":
-				return ec.fieldContext_Valkey_name(ctx, field)
-			case "terminationProtection":
-				return ec.fieldContext_Valkey_terminationProtection(ctx, field)
-			case "team":
-				return ec.fieldContext_Valkey_team(ctx, field)
-			case "environment":
-				return ec.fieldContext_Valkey_environment(ctx, field)
-			case "teamEnvironment":
-				return ec.fieldContext_Valkey_teamEnvironment(ctx, field)
-			case "access":
-				return ec.fieldContext_Valkey_access(ctx, field)
-			case "workload":
-				return ec.fieldContext_Valkey_workload(ctx, field)
-			case "state":
-				return ec.fieldContext_Valkey_state(ctx, field)
-			case "tier":
-				return ec.fieldContext_Valkey_tier(ctx, field)
-			case "memory":
-				return ec.fieldContext_Valkey_memory(ctx, field)
-			case "maxMemoryPolicy":
-				return ec.fieldContext_Valkey_maxMemoryPolicy(ctx, field)
-			case "notifyKeyspaceEvents":
-				return ec.fieldContext_Valkey_notifyKeyspaceEvents(ctx, field)
-			case "databases":
-				return ec.fieldContext_Valkey_databases(ctx, field)
-			case "issues":
-				return ec.fieldContext_Valkey_issues(ctx, field)
-			case "activityLog":
-				return ec.fieldContext_Valkey_activityLog(ctx, field)
-			case "cost":
-				return ec.fieldContext_Valkey_cost(ctx, field)
-			case "maintenance":
-				return ec.fieldContext_Valkey_maintenance(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Valkey", field.Name)
+			return ec.childFields_Valkey(ctx, field)
 		},
 	}
 	return fc, nil
@@ -388,28 +348,22 @@ func (ec *executionContext) _Valkey_id(ctx context.Context, field graphql.Collec
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Valkey_id,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Valkey_id(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
-		ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent,
+		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
+			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_Valkey_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Valkey",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("Valkey", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
 func (ec *executionContext) _Valkey_name(ctx context.Context, field graphql.CollectedField, obj *valkey.Valkey) (ret graphql.Marshaler) {
@@ -417,28 +371,22 @@ func (ec *executionContext) _Valkey_name(ctx context.Context, field graphql.Coll
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Valkey_name,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Valkey_name(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Name, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_Valkey_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Valkey",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("Valkey", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _Valkey_terminationProtection(ctx context.Context, field graphql.CollectedField, obj *valkey.Valkey) (ret graphql.Marshaler) {
@@ -446,28 +394,22 @@ func (ec *executionContext) _Valkey_terminationProtection(ctx context.Context, f
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Valkey_terminationProtection,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Valkey_terminationProtection(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.TerminationProtection, nil
 		},
 		nil,
-		ec.marshalNBoolean2bool,
+		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
+			return ec.marshalNBoolean2bool(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_Valkey_terminationProtection(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Valkey",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("Valkey", field, false, false, errors.New("field of type Boolean does not have child fields"))
 }
 
 func (ec *executionContext) _Valkey_team(ctx context.Context, field graphql.CollectedField, obj *valkey.Valkey) (ret graphql.Marshaler) {
@@ -475,17 +417,20 @@ func (ec *executionContext) _Valkey_team(ctx context.Context, field graphql.Coll
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Valkey_team,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Valkey_team(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.Valkey().Team(ctx, obj)
 		},
 		nil,
-		ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam,
+		func(ctx context.Context, selections ast.SelectionSet, v *team.Team) graphql.Marshaler {
+			return ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_Valkey_team(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Valkey",
@@ -493,91 +438,7 @@ func (ec *executionContext) fieldContext_Valkey_team(_ context.Context, field gr
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Team_id(ctx, field)
-			case "slug":
-				return ec.fieldContext_Team_slug(ctx, field)
-			case "slackChannel":
-				return ec.fieldContext_Team_slackChannel(ctx, field)
-			case "purpose":
-				return ec.fieldContext_Team_purpose(ctx, field)
-			case "externalResources":
-				return ec.fieldContext_Team_externalResources(ctx, field)
-			case "member":
-				return ec.fieldContext_Team_member(ctx, field)
-			case "members":
-				return ec.fieldContext_Team_members(ctx, field)
-			case "lastSuccessfulSync":
-				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
-			case "deletionInProgress":
-				return ec.fieldContext_Team_deletionInProgress(ctx, field)
-			case "viewerIsOwner":
-				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
-			case "viewerIsMember":
-				return ec.fieldContext_Team_viewerIsMember(ctx, field)
-			case "environments":
-				return ec.fieldContext_Team_environments(ctx, field)
-			case "environment":
-				return ec.fieldContext_Team_environment(ctx, field)
-			case "deleteKey":
-				return ec.fieldContext_Team_deleteKey(ctx, field)
-			case "inventoryCounts":
-				return ec.fieldContext_Team_inventoryCounts(ctx, field)
-			case "activityLog":
-				return ec.fieldContext_Team_activityLog(ctx, field)
-			case "alerts":
-				return ec.fieldContext_Team_alerts(ctx, field)
-			case "applications":
-				return ec.fieldContext_Team_applications(ctx, field)
-			case "bigQueryDatasets":
-				return ec.fieldContext_Team_bigQueryDatasets(ctx, field)
-			case "buckets":
-				return ec.fieldContext_Team_buckets(ctx, field)
-			case "configs":
-				return ec.fieldContext_Team_configs(ctx, field)
-			case "cost":
-				return ec.fieldContext_Team_cost(ctx, field)
-			case "deploymentKey":
-				return ec.fieldContext_Team_deploymentKey(ctx, field)
-			case "deployments":
-				return ec.fieldContext_Team_deployments(ctx, field)
-			case "issues":
-				return ec.fieldContext_Team_issues(ctx, field)
-			case "jobs":
-				return ec.fieldContext_Team_jobs(ctx, field)
-			case "kafkaTopics":
-				return ec.fieldContext_Team_kafkaTopics(ctx, field)
-			case "openSearches":
-				return ec.fieldContext_Team_openSearches(ctx, field)
-			case "postgresInstances":
-				return ec.fieldContext_Team_postgresInstances(ctx, field)
-			case "repositories":
-				return ec.fieldContext_Team_repositories(ctx, field)
-			case "secrets":
-				return ec.fieldContext_Team_secrets(ctx, field)
-			case "sqlInstances":
-				return ec.fieldContext_Team_sqlInstances(ctx, field)
-			case "unleash":
-				return ec.fieldContext_Team_unleash(ctx, field)
-			case "workloadUtilization":
-				return ec.fieldContext_Team_workloadUtilization(ctx, field)
-			case "serviceUtilization":
-				return ec.fieldContext_Team_serviceUtilization(ctx, field)
-			case "valkeys":
-				return ec.fieldContext_Team_valkeys(ctx, field)
-			case "imageVulnerabilityHistory":
-				return ec.fieldContext_Team_imageVulnerabilityHistory(ctx, field)
-			case "vulnerabilityFixHistory":
-				return ec.fieldContext_Team_vulnerabilityFixHistory(ctx, field)
-			case "vulnerabilitySummary":
-				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
-			case "vulnerabilitySummaries":
-				return ec.fieldContext_Team_vulnerabilitySummaries(ctx, field)
-			case "workloads":
-				return ec.fieldContext_Team_workloads(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
+			return ec.childFields_Team(ctx, field)
 		},
 	}
 	return fc, nil
@@ -588,17 +449,20 @@ func (ec *executionContext) _Valkey_environment(ctx context.Context, field graph
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Valkey_environment,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Valkey_environment(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.Valkey().Environment(ctx, obj)
 		},
 		nil,
-		ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment,
+		func(ctx context.Context, selections ast.SelectionSet, v *team.TeamEnvironment) graphql.Marshaler {
+			return ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_Valkey_environment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Valkey",
@@ -606,49 +470,7 @@ func (ec *executionContext) fieldContext_Valkey_environment(_ context.Context, f
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_TeamEnvironment_id(ctx, field)
-			case "name":
-				return ec.fieldContext_TeamEnvironment_name(ctx, field)
-			case "gcpProjectID":
-				return ec.fieldContext_TeamEnvironment_gcpProjectID(ctx, field)
-			case "slackAlertsChannel":
-				return ec.fieldContext_TeamEnvironment_slackAlertsChannel(ctx, field)
-			case "team":
-				return ec.fieldContext_TeamEnvironment_team(ctx, field)
-			case "alerts":
-				return ec.fieldContext_TeamEnvironment_alerts(ctx, field)
-			case "application":
-				return ec.fieldContext_TeamEnvironment_application(ctx, field)
-			case "bigQueryDataset":
-				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
-			case "bucket":
-				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
-			case "config":
-				return ec.fieldContext_TeamEnvironment_config(ctx, field)
-			case "cost":
-				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
-			case "environment":
-				return ec.fieldContext_TeamEnvironment_environment(ctx, field)
-			case "job":
-				return ec.fieldContext_TeamEnvironment_job(ctx, field)
-			case "kafkaTopic":
-				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
-			case "openSearch":
-				return ec.fieldContext_TeamEnvironment_openSearch(ctx, field)
-			case "postgresInstance":
-				return ec.fieldContext_TeamEnvironment_postgresInstance(ctx, field)
-			case "secret":
-				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
-			case "sqlInstance":
-				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
-			case "valkey":
-				return ec.fieldContext_TeamEnvironment_valkey(ctx, field)
-			case "workload":
-				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
+			return ec.childFields_TeamEnvironment(ctx, field)
 		},
 	}
 	return fc, nil
@@ -659,17 +481,20 @@ func (ec *executionContext) _Valkey_teamEnvironment(ctx context.Context, field g
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Valkey_teamEnvironment,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Valkey_teamEnvironment(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.Valkey().TeamEnvironment(ctx, obj)
 		},
 		nil,
-		ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment,
+		func(ctx context.Context, selections ast.SelectionSet, v *team.TeamEnvironment) graphql.Marshaler {
+			return ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_Valkey_teamEnvironment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Valkey",
@@ -677,49 +502,7 @@ func (ec *executionContext) fieldContext_Valkey_teamEnvironment(_ context.Contex
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_TeamEnvironment_id(ctx, field)
-			case "name":
-				return ec.fieldContext_TeamEnvironment_name(ctx, field)
-			case "gcpProjectID":
-				return ec.fieldContext_TeamEnvironment_gcpProjectID(ctx, field)
-			case "slackAlertsChannel":
-				return ec.fieldContext_TeamEnvironment_slackAlertsChannel(ctx, field)
-			case "team":
-				return ec.fieldContext_TeamEnvironment_team(ctx, field)
-			case "alerts":
-				return ec.fieldContext_TeamEnvironment_alerts(ctx, field)
-			case "application":
-				return ec.fieldContext_TeamEnvironment_application(ctx, field)
-			case "bigQueryDataset":
-				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
-			case "bucket":
-				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
-			case "config":
-				return ec.fieldContext_TeamEnvironment_config(ctx, field)
-			case "cost":
-				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
-			case "environment":
-				return ec.fieldContext_TeamEnvironment_environment(ctx, field)
-			case "job":
-				return ec.fieldContext_TeamEnvironment_job(ctx, field)
-			case "kafkaTopic":
-				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
-			case "openSearch":
-				return ec.fieldContext_TeamEnvironment_openSearch(ctx, field)
-			case "postgresInstance":
-				return ec.fieldContext_TeamEnvironment_postgresInstance(ctx, field)
-			case "secret":
-				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
-			case "sqlInstance":
-				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
-			case "valkey":
-				return ec.fieldContext_TeamEnvironment_valkey(ctx, field)
-			case "workload":
-				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
+			return ec.childFields_TeamEnvironment(ctx, field)
 		},
 	}
 	return fc, nil
@@ -730,18 +513,21 @@ func (ec *executionContext) _Valkey_access(ctx context.Context, field graphql.Co
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Valkey_access,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Valkey_access(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
 			return ec.Resolvers.Valkey().Access(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*valkey.ValkeyAccessOrder))
 		},
 		nil,
-		ec.marshalNValkeyAccessConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
+		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[*valkey.ValkeyAccess]) graphql.Marshaler {
+			return ec.marshalNValkeyAccessConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_Valkey_access(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Valkey",
@@ -749,15 +535,7 @@ func (ec *executionContext) fieldContext_Valkey_access(ctx context.Context, fiel
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "pageInfo":
-				return ec.fieldContext_ValkeyAccessConnection_pageInfo(ctx, field)
-			case "nodes":
-				return ec.fieldContext_ValkeyAccessConnection_nodes(ctx, field)
-			case "edges":
-				return ec.fieldContext_ValkeyAccessConnection_edges(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type ValkeyAccessConnection", field.Name)
+			return ec.childFields_ValkeyAccessConnection(ctx, field)
 		},
 	}
 	defer func() {
@@ -779,17 +557,20 @@ func (ec *executionContext) _Valkey_workload(ctx context.Context, field graphql.
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Valkey_workload,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Valkey_workload(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.Valkey().Workload(ctx, obj)
 		},
 		nil,
-		ec.marshalOWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload,
+		func(ctx context.Context, selections ast.SelectionSet, v workload.Workload) graphql.Marshaler {
+			return ec.marshalOWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload(ctx, selections, v)
+		},
 		true,
 		false,
 	)
 }
-
 func (ec *executionContext) fieldContext_Valkey_workload(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Valkey",
@@ -808,28 +589,22 @@ func (ec *executionContext) _Valkey_state(ctx context.Context, field graphql.Col
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Valkey_state,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Valkey_state(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.Valkey().State(ctx, obj)
 		},
 		nil,
-		ec.marshalNValkeyState2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyState,
+		func(ctx context.Context, selections ast.SelectionSet, v valkey.ValkeyState) graphql.Marshaler {
+			return ec.marshalNValkeyState2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyState(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_Valkey_state(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Valkey",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ValkeyState does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("Valkey", field, true, true, errors.New("field of type ValkeyState does not have child fields"))
 }
 
 func (ec *executionContext) _Valkey_tier(ctx context.Context, field graphql.CollectedField, obj *valkey.Valkey) (ret graphql.Marshaler) {
@@ -837,28 +612,22 @@ func (ec *executionContext) _Valkey_tier(ctx context.Context, field graphql.Coll
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Valkey_tier,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Valkey_tier(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Tier, nil
 		},
 		nil,
-		ec.marshalNValkeyTier2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyTier,
+		func(ctx context.Context, selections ast.SelectionSet, v valkey.ValkeyTier) graphql.Marshaler {
+			return ec.marshalNValkeyTier2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyTier(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_Valkey_tier(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Valkey",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ValkeyTier does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("Valkey", field, false, false, errors.New("field of type ValkeyTier does not have child fields"))
 }
 
 func (ec *executionContext) _Valkey_memory(ctx context.Context, field graphql.CollectedField, obj *valkey.Valkey) (ret graphql.Marshaler) {
@@ -866,28 +635,22 @@ func (ec *executionContext) _Valkey_memory(ctx context.Context, field graphql.Co
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Valkey_memory,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Valkey_memory(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Memory, nil
 		},
 		nil,
-		ec.marshalNValkeyMemory2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyMemory,
+		func(ctx context.Context, selections ast.SelectionSet, v valkey.ValkeyMemory) graphql.Marshaler {
+			return ec.marshalNValkeyMemory2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyMemory(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_Valkey_memory(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Valkey",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ValkeyMemory does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("Valkey", field, false, false, errors.New("field of type ValkeyMemory does not have child fields"))
 }
 
 func (ec *executionContext) _Valkey_maxMemoryPolicy(ctx context.Context, field graphql.CollectedField, obj *valkey.Valkey) (ret graphql.Marshaler) {
@@ -895,28 +658,22 @@ func (ec *executionContext) _Valkey_maxMemoryPolicy(ctx context.Context, field g
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Valkey_maxMemoryPolicy,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Valkey_maxMemoryPolicy(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.MaxMemoryPolicy, nil
 		},
 		nil,
-		ec.marshalOValkeyMaxMemoryPolicy2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyMaxMemoryPolicy,
+		func(ctx context.Context, selections ast.SelectionSet, v valkey.ValkeyMaxMemoryPolicy) graphql.Marshaler {
+			return ec.marshalOValkeyMaxMemoryPolicy2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyMaxMemoryPolicy(ctx, selections, v)
+		},
 		true,
 		false,
 	)
 }
-
 func (ec *executionContext) fieldContext_Valkey_maxMemoryPolicy(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Valkey",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ValkeyMaxMemoryPolicy does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("Valkey", field, false, false, errors.New("field of type ValkeyMaxMemoryPolicy does not have child fields"))
 }
 
 func (ec *executionContext) _Valkey_notifyKeyspaceEvents(ctx context.Context, field graphql.CollectedField, obj *valkey.Valkey) (ret graphql.Marshaler) {
@@ -924,28 +681,22 @@ func (ec *executionContext) _Valkey_notifyKeyspaceEvents(ctx context.Context, fi
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Valkey_notifyKeyspaceEvents,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Valkey_notifyKeyspaceEvents(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.NotifyKeyspaceEvents, nil
 		},
 		nil,
-		ec.marshalOString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalOString2string(ctx, selections, v)
+		},
 		true,
 		false,
 	)
 }
-
 func (ec *executionContext) fieldContext_Valkey_notifyKeyspaceEvents(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Valkey",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("Valkey", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _Valkey_databases(ctx context.Context, field graphql.CollectedField, obj *valkey.Valkey) (ret graphql.Marshaler) {
@@ -953,28 +704,22 @@ func (ec *executionContext) _Valkey_databases(ctx context.Context, field graphql
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Valkey_databases,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Valkey_databases(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Databases, nil
 		},
 		nil,
-		ec.marshalNInt2int,
+		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
+			return ec.marshalNInt2int(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_Valkey_databases(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Valkey",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("Valkey", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
 func (ec *executionContext) _Valkey_issues(ctx context.Context, field graphql.CollectedField, obj *valkey.Valkey) (ret graphql.Marshaler) {
@@ -982,18 +727,21 @@ func (ec *executionContext) _Valkey_issues(ctx context.Context, field graphql.Co
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Valkey_issues,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Valkey_issues(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
 			return ec.Resolvers.Valkey().Issues(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*issue.IssueOrder), fc.Args["filter"].(*issue.ResourceIssueFilter))
 		},
 		nil,
-		ec.marshalNIssueConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
+		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[issue.Issue]) graphql.Marshaler {
+			return ec.marshalNIssueConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_Valkey_issues(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Valkey",
@@ -1001,15 +749,7 @@ func (ec *executionContext) fieldContext_Valkey_issues(ctx context.Context, fiel
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "pageInfo":
-				return ec.fieldContext_IssueConnection_pageInfo(ctx, field)
-			case "nodes":
-				return ec.fieldContext_IssueConnection_nodes(ctx, field)
-			case "edges":
-				return ec.fieldContext_IssueConnection_edges(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type IssueConnection", field.Name)
+			return ec.childFields_IssueConnection(ctx, field)
 		},
 	}
 	defer func() {
@@ -1031,18 +771,21 @@ func (ec *executionContext) _Valkey_activityLog(ctx context.Context, field graph
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Valkey_activityLog,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Valkey_activityLog(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
 			return ec.Resolvers.Valkey().ActivityLog(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["filter"].(*activitylog.ActivityLogFilter))
 		},
 		nil,
-		ec.marshalNActivityLogEntryConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
+		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[activitylog.ActivityLogEntry]) graphql.Marshaler {
+			return ec.marshalNActivityLogEntryConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_Valkey_activityLog(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Valkey",
@@ -1050,15 +793,7 @@ func (ec *executionContext) fieldContext_Valkey_activityLog(ctx context.Context,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "pageInfo":
-				return ec.fieldContext_ActivityLogEntryConnection_pageInfo(ctx, field)
-			case "nodes":
-				return ec.fieldContext_ActivityLogEntryConnection_nodes(ctx, field)
-			case "edges":
-				return ec.fieldContext_ActivityLogEntryConnection_edges(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type ActivityLogEntryConnection", field.Name)
+			return ec.childFields_ActivityLogEntryConnection(ctx, field)
 		},
 	}
 	defer func() {
@@ -1080,17 +815,20 @@ func (ec *executionContext) _Valkey_cost(ctx context.Context, field graphql.Coll
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Valkey_cost,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Valkey_cost(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.Valkey().Cost(ctx, obj)
 		},
 		nil,
-		ec.marshalNValkeyCost2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐValkeyCost,
+		func(ctx context.Context, selections ast.SelectionSet, v *cost.ValkeyCost) graphql.Marshaler {
+			return ec.marshalNValkeyCost2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐValkeyCost(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_Valkey_cost(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Valkey",
@@ -1098,11 +836,7 @@ func (ec *executionContext) fieldContext_Valkey_cost(_ context.Context, field gr
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "sum":
-				return ec.fieldContext_ValkeyCost_sum(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type ValkeyCost", field.Name)
+			return ec.childFields_ValkeyCost(ctx, field)
 		},
 	}
 	return fc, nil
@@ -1113,17 +847,20 @@ func (ec *executionContext) _Valkey_maintenance(ctx context.Context, field graph
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Valkey_maintenance,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Valkey_maintenance(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.Valkey().Maintenance(ctx, obj)
 		},
 		nil,
-		ec.marshalNValkeyMaintenance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋservicemaintenanceᚐValkeyMaintenance,
+		func(ctx context.Context, selections ast.SelectionSet, v *servicemaintenance.ValkeyMaintenance) graphql.Marshaler {
+			return ec.marshalNValkeyMaintenance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋservicemaintenanceᚐValkeyMaintenance(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_Valkey_maintenance(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Valkey",
@@ -1131,13 +868,7 @@ func (ec *executionContext) fieldContext_Valkey_maintenance(_ context.Context, f
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "window":
-				return ec.fieldContext_ValkeyMaintenance_window(ctx, field)
-			case "updates":
-				return ec.fieldContext_ValkeyMaintenance_updates(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type ValkeyMaintenance", field.Name)
+			return ec.childFields_ValkeyMaintenance(ctx, field)
 		},
 	}
 	return fc, nil
@@ -1148,17 +879,20 @@ func (ec *executionContext) _ValkeyAccess_workload(ctx context.Context, field gr
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ValkeyAccess_workload,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyAccess_workload(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.ValkeyAccess().Workload(ctx, obj)
 		},
 		nil,
-		ec.marshalNWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload,
+		func(ctx context.Context, selections ast.SelectionSet, v workload.Workload) graphql.Marshaler {
+			return ec.marshalNWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ValkeyAccess_workload(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ValkeyAccess",
@@ -1177,28 +911,22 @@ func (ec *executionContext) _ValkeyAccess_access(ctx context.Context, field grap
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ValkeyAccess_access,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyAccess_access(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Access, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ValkeyAccess_access(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ValkeyAccess",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ValkeyAccess", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _ValkeyAccessConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*valkey.ValkeyAccess]) (ret graphql.Marshaler) {
@@ -1206,17 +934,20 @@ func (ec *executionContext) _ValkeyAccessConnection_pageInfo(ctx context.Context
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ValkeyAccessConnection_pageInfo,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyAccessConnection_pageInfo(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.PageInfo, nil
 		},
 		nil,
-		ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo,
+		func(ctx context.Context, selections ast.SelectionSet, v pagination.PageInfo) graphql.Marshaler {
+			return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ValkeyAccessConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ValkeyAccessConnection",
@@ -1224,23 +955,7 @@ func (ec *executionContext) fieldContext_ValkeyAccessConnection_pageInfo(_ conte
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "hasNextPage":
-				return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
-			case "endCursor":
-				return ec.fieldContext_PageInfo_endCursor(ctx, field)
-			case "hasPreviousPage":
-				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
-			case "startCursor":
-				return ec.fieldContext_PageInfo_startCursor(ctx, field)
-			case "totalCount":
-				return ec.fieldContext_PageInfo_totalCount(ctx, field)
-			case "pageStart":
-				return ec.fieldContext_PageInfo_pageStart(ctx, field)
-			case "pageEnd":
-				return ec.fieldContext_PageInfo_pageEnd(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
+			return ec.childFields_PageInfo(ctx, field)
 		},
 	}
 	return fc, nil
@@ -1251,17 +966,20 @@ func (ec *executionContext) _ValkeyAccessConnection_nodes(ctx context.Context, f
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ValkeyAccessConnection_nodes,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyAccessConnection_nodes(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Nodes(), nil
 		},
 		nil,
-		ec.marshalNValkeyAccess2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyAccessᚄ,
+		func(ctx context.Context, selections ast.SelectionSet, v []*valkey.ValkeyAccess) graphql.Marshaler {
+			return ec.marshalNValkeyAccess2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyAccessᚄ(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ValkeyAccessConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ValkeyAccessConnection",
@@ -1269,13 +987,7 @@ func (ec *executionContext) fieldContext_ValkeyAccessConnection_nodes(_ context.
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "workload":
-				return ec.fieldContext_ValkeyAccess_workload(ctx, field)
-			case "access":
-				return ec.fieldContext_ValkeyAccess_access(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type ValkeyAccess", field.Name)
+			return ec.childFields_ValkeyAccess(ctx, field)
 		},
 	}
 	return fc, nil
@@ -1286,17 +998,20 @@ func (ec *executionContext) _ValkeyAccessConnection_edges(ctx context.Context, f
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ValkeyAccessConnection_edges,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyAccessConnection_edges(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Edges, nil
 		},
 		nil,
-		ec.marshalNValkeyAccessEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ,
+		func(ctx context.Context, selections ast.SelectionSet, v []pagination.Edge[*valkey.ValkeyAccess]) graphql.Marshaler {
+			return ec.marshalNValkeyAccessEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ValkeyAccessConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ValkeyAccessConnection",
@@ -1304,13 +1019,7 @@ func (ec *executionContext) fieldContext_ValkeyAccessConnection_edges(_ context.
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "cursor":
-				return ec.fieldContext_ValkeyAccessEdge_cursor(ctx, field)
-			case "node":
-				return ec.fieldContext_ValkeyAccessEdge_node(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type ValkeyAccessEdge", field.Name)
+			return ec.childFields_ValkeyAccessEdge(ctx, field)
 		},
 	}
 	return fc, nil
@@ -1321,28 +1030,22 @@ func (ec *executionContext) _ValkeyAccessEdge_cursor(ctx context.Context, field 
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ValkeyAccessEdge_cursor,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyAccessEdge_cursor(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Cursor, nil
 		},
 		nil,
-		ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor,
+		func(ctx context.Context, selections ast.SelectionSet, v pagination.Cursor) graphql.Marshaler {
+			return ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ValkeyAccessEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ValkeyAccessEdge",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Cursor does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ValkeyAccessEdge", field, false, false, errors.New("field of type Cursor does not have child fields"))
 }
 
 func (ec *executionContext) _ValkeyAccessEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*valkey.ValkeyAccess]) (ret graphql.Marshaler) {
@@ -1350,17 +1053,20 @@ func (ec *executionContext) _ValkeyAccessEdge_node(ctx context.Context, field gr
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ValkeyAccessEdge_node,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyAccessEdge_node(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Node, nil
 		},
 		nil,
-		ec.marshalNValkeyAccess2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyAccess,
+		func(ctx context.Context, selections ast.SelectionSet, v *valkey.ValkeyAccess) graphql.Marshaler {
+			return ec.marshalNValkeyAccess2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyAccess(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ValkeyAccessEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ValkeyAccessEdge",
@@ -1368,13 +1074,7 @@ func (ec *executionContext) fieldContext_ValkeyAccessEdge_node(_ context.Context
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "workload":
-				return ec.fieldContext_ValkeyAccess_workload(ctx, field)
-			case "access":
-				return ec.fieldContext_ValkeyAccess_access(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type ValkeyAccess", field.Name)
+			return ec.childFields_ValkeyAccess(ctx, field)
 		},
 	}
 	return fc, nil
@@ -1385,17 +1085,20 @@ func (ec *executionContext) _ValkeyConnection_pageInfo(ctx context.Context, fiel
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ValkeyConnection_pageInfo,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyConnection_pageInfo(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.PageInfo, nil
 		},
 		nil,
-		ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo,
+		func(ctx context.Context, selections ast.SelectionSet, v pagination.PageInfo) graphql.Marshaler {
+			return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ValkeyConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ValkeyConnection",
@@ -1403,23 +1106,7 @@ func (ec *executionContext) fieldContext_ValkeyConnection_pageInfo(_ context.Con
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "hasNextPage":
-				return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
-			case "endCursor":
-				return ec.fieldContext_PageInfo_endCursor(ctx, field)
-			case "hasPreviousPage":
-				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
-			case "startCursor":
-				return ec.fieldContext_PageInfo_startCursor(ctx, field)
-			case "totalCount":
-				return ec.fieldContext_PageInfo_totalCount(ctx, field)
-			case "pageStart":
-				return ec.fieldContext_PageInfo_pageStart(ctx, field)
-			case "pageEnd":
-				return ec.fieldContext_PageInfo_pageEnd(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
+			return ec.childFields_PageInfo(ctx, field)
 		},
 	}
 	return fc, nil
@@ -1430,17 +1117,20 @@ func (ec *executionContext) _ValkeyConnection_nodes(ctx context.Context, field g
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ValkeyConnection_nodes,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyConnection_nodes(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Nodes(), nil
 		},
 		nil,
-		ec.marshalNValkey2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyᚄ,
+		func(ctx context.Context, selections ast.SelectionSet, v []*valkey.Valkey) graphql.Marshaler {
+			return ec.marshalNValkey2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyᚄ(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ValkeyConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ValkeyConnection",
@@ -1448,45 +1138,7 @@ func (ec *executionContext) fieldContext_ValkeyConnection_nodes(_ context.Contex
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Valkey_id(ctx, field)
-			case "name":
-				return ec.fieldContext_Valkey_name(ctx, field)
-			case "terminationProtection":
-				return ec.fieldContext_Valkey_terminationProtection(ctx, field)
-			case "team":
-				return ec.fieldContext_Valkey_team(ctx, field)
-			case "environment":
-				return ec.fieldContext_Valkey_environment(ctx, field)
-			case "teamEnvironment":
-				return ec.fieldContext_Valkey_teamEnvironment(ctx, field)
-			case "access":
-				return ec.fieldContext_Valkey_access(ctx, field)
-			case "workload":
-				return ec.fieldContext_Valkey_workload(ctx, field)
-			case "state":
-				return ec.fieldContext_Valkey_state(ctx, field)
-			case "tier":
-				return ec.fieldContext_Valkey_tier(ctx, field)
-			case "memory":
-				return ec.fieldContext_Valkey_memory(ctx, field)
-			case "maxMemoryPolicy":
-				return ec.fieldContext_Valkey_maxMemoryPolicy(ctx, field)
-			case "notifyKeyspaceEvents":
-				return ec.fieldContext_Valkey_notifyKeyspaceEvents(ctx, field)
-			case "databases":
-				return ec.fieldContext_Valkey_databases(ctx, field)
-			case "issues":
-				return ec.fieldContext_Valkey_issues(ctx, field)
-			case "activityLog":
-				return ec.fieldContext_Valkey_activityLog(ctx, field)
-			case "cost":
-				return ec.fieldContext_Valkey_cost(ctx, field)
-			case "maintenance":
-				return ec.fieldContext_Valkey_maintenance(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Valkey", field.Name)
+			return ec.childFields_Valkey(ctx, field)
 		},
 	}
 	return fc, nil
@@ -1497,17 +1149,20 @@ func (ec *executionContext) _ValkeyConnection_edges(ctx context.Context, field g
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ValkeyConnection_edges,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyConnection_edges(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Edges, nil
 		},
 		nil,
-		ec.marshalNValkeyEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ,
+		func(ctx context.Context, selections ast.SelectionSet, v []pagination.Edge[*valkey.Valkey]) graphql.Marshaler {
+			return ec.marshalNValkeyEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ValkeyConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ValkeyConnection",
@@ -1515,13 +1170,7 @@ func (ec *executionContext) fieldContext_ValkeyConnection_edges(_ context.Contex
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "cursor":
-				return ec.fieldContext_ValkeyEdge_cursor(ctx, field)
-			case "node":
-				return ec.fieldContext_ValkeyEdge_node(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type ValkeyEdge", field.Name)
+			return ec.childFields_ValkeyEdge(ctx, field)
 		},
 	}
 	return fc, nil
@@ -1532,28 +1181,22 @@ func (ec *executionContext) _ValkeyCreatedActivityLogEntry_id(ctx context.Contex
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ValkeyCreatedActivityLogEntry_id,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyCreatedActivityLogEntry_id(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
-		ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent,
+		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
+			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ValkeyCreatedActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ValkeyCreatedActivityLogEntry",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ValkeyCreatedActivityLogEntry", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
 func (ec *executionContext) _ValkeyCreatedActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyCreatedActivityLogEntry) (ret graphql.Marshaler) {
@@ -1561,28 +1204,22 @@ func (ec *executionContext) _ValkeyCreatedActivityLogEntry_actor(ctx context.Con
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ValkeyCreatedActivityLogEntry_actor,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyCreatedActivityLogEntry_actor(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Actor, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ValkeyCreatedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ValkeyCreatedActivityLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ValkeyCreatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _ValkeyCreatedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyCreatedActivityLogEntry) (ret graphql.Marshaler) {
@@ -1590,28 +1227,22 @@ func (ec *executionContext) _ValkeyCreatedActivityLogEntry_createdAt(ctx context
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ValkeyCreatedActivityLogEntry_createdAt,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyCreatedActivityLogEntry_createdAt(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.CreatedAt, nil
 		},
 		nil,
-		ec.marshalNTime2timeᚐTime,
+		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
+			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ValkeyCreatedActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ValkeyCreatedActivityLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ValkeyCreatedActivityLogEntry", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
 func (ec *executionContext) _ValkeyCreatedActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyCreatedActivityLogEntry) (ret graphql.Marshaler) {
@@ -1619,28 +1250,22 @@ func (ec *executionContext) _ValkeyCreatedActivityLogEntry_message(ctx context.C
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ValkeyCreatedActivityLogEntry_message,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyCreatedActivityLogEntry_message(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Message, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ValkeyCreatedActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ValkeyCreatedActivityLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ValkeyCreatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _ValkeyCreatedActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyCreatedActivityLogEntry) (ret graphql.Marshaler) {
@@ -1648,28 +1273,22 @@ func (ec *executionContext) _ValkeyCreatedActivityLogEntry_resourceType(ctx cont
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ValkeyCreatedActivityLogEntry_resourceType,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyCreatedActivityLogEntry_resourceType(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceType, nil
 		},
 		nil,
-		ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType,
+		func(ctx context.Context, selections ast.SelectionSet, v activitylog.ActivityLogEntryResourceType) graphql.Marshaler {
+			return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ValkeyCreatedActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ValkeyCreatedActivityLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ActivityLogEntryResourceType does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ValkeyCreatedActivityLogEntry", field, false, false, errors.New("field of type ActivityLogEntryResourceType does not have child fields"))
 }
 
 func (ec *executionContext) _ValkeyCreatedActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyCreatedActivityLogEntry) (ret graphql.Marshaler) {
@@ -1677,28 +1296,22 @@ func (ec *executionContext) _ValkeyCreatedActivityLogEntry_resourceName(ctx cont
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ValkeyCreatedActivityLogEntry_resourceName,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyCreatedActivityLogEntry_resourceName(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceName, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ValkeyCreatedActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ValkeyCreatedActivityLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ValkeyCreatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _ValkeyCreatedActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyCreatedActivityLogEntry) (ret graphql.Marshaler) {
@@ -1706,28 +1319,22 @@ func (ec *executionContext) _ValkeyCreatedActivityLogEntry_teamSlug(ctx context.
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ValkeyCreatedActivityLogEntry_teamSlug,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyCreatedActivityLogEntry_teamSlug(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.TeamSlug, nil
 		},
 		nil,
-		ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug,
+		func(ctx context.Context, selections ast.SelectionSet, v *slug.Slug) graphql.Marshaler {
+			return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ValkeyCreatedActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ValkeyCreatedActivityLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Slug does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ValkeyCreatedActivityLogEntry", field, false, false, errors.New("field of type Slug does not have child fields"))
 }
 
 func (ec *executionContext) _ValkeyCreatedActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyCreatedActivityLogEntry) (ret graphql.Marshaler) {
@@ -1735,28 +1342,22 @@ func (ec *executionContext) _ValkeyCreatedActivityLogEntry_environmentName(ctx c
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ValkeyCreatedActivityLogEntry_environmentName,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyCreatedActivityLogEntry_environmentName(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.EnvironmentName, nil
 		},
 		nil,
-		ec.marshalOString2ᚖstring,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
+		},
 		true,
 		false,
 	)
 }
-
 func (ec *executionContext) fieldContext_ValkeyCreatedActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ValkeyCreatedActivityLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ValkeyCreatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _ValkeyCredentials_username(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyCredentials) (ret graphql.Marshaler) {
@@ -1764,28 +1365,22 @@ func (ec *executionContext) _ValkeyCredentials_username(ctx context.Context, fie
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ValkeyCredentials_username,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyCredentials_username(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Username, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ValkeyCredentials_username(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ValkeyCredentials",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ValkeyCredentials", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _ValkeyCredentials_password(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyCredentials) (ret graphql.Marshaler) {
@@ -1793,28 +1388,22 @@ func (ec *executionContext) _ValkeyCredentials_password(ctx context.Context, fie
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ValkeyCredentials_password,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyCredentials_password(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Password, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ValkeyCredentials_password(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ValkeyCredentials",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ValkeyCredentials", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _ValkeyCredentials_host(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyCredentials) (ret graphql.Marshaler) {
@@ -1822,28 +1411,22 @@ func (ec *executionContext) _ValkeyCredentials_host(ctx context.Context, field g
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ValkeyCredentials_host,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyCredentials_host(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Host, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ValkeyCredentials_host(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ValkeyCredentials",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ValkeyCredentials", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _ValkeyCredentials_port(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyCredentials) (ret graphql.Marshaler) {
@@ -1851,28 +1434,22 @@ func (ec *executionContext) _ValkeyCredentials_port(ctx context.Context, field g
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ValkeyCredentials_port,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyCredentials_port(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Port, nil
 		},
 		nil,
-		ec.marshalNInt2int,
+		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
+			return ec.marshalNInt2int(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ValkeyCredentials_port(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ValkeyCredentials",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ValkeyCredentials", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
 func (ec *executionContext) _ValkeyCredentials_uri(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyCredentials) (ret graphql.Marshaler) {
@@ -1880,28 +1457,22 @@ func (ec *executionContext) _ValkeyCredentials_uri(ctx context.Context, field gr
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ValkeyCredentials_uri,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyCredentials_uri(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.URI, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ValkeyCredentials_uri(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ValkeyCredentials",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ValkeyCredentials", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _ValkeyDeletedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyDeletedActivityLogEntry) (ret graphql.Marshaler) {
@@ -1909,28 +1480,22 @@ func (ec *executionContext) _ValkeyDeletedActivityLogEntry_id(ctx context.Contex
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ValkeyDeletedActivityLogEntry_id,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyDeletedActivityLogEntry_id(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
-		ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent,
+		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
+			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ValkeyDeletedActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ValkeyDeletedActivityLogEntry",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ValkeyDeletedActivityLogEntry", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
 func (ec *executionContext) _ValkeyDeletedActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyDeletedActivityLogEntry) (ret graphql.Marshaler) {
@@ -1938,28 +1503,22 @@ func (ec *executionContext) _ValkeyDeletedActivityLogEntry_actor(ctx context.Con
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ValkeyDeletedActivityLogEntry_actor,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyDeletedActivityLogEntry_actor(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Actor, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ValkeyDeletedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ValkeyDeletedActivityLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ValkeyDeletedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _ValkeyDeletedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyDeletedActivityLogEntry) (ret graphql.Marshaler) {
@@ -1967,28 +1526,22 @@ func (ec *executionContext) _ValkeyDeletedActivityLogEntry_createdAt(ctx context
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ValkeyDeletedActivityLogEntry_createdAt,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyDeletedActivityLogEntry_createdAt(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.CreatedAt, nil
 		},
 		nil,
-		ec.marshalNTime2timeᚐTime,
+		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
+			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ValkeyDeletedActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ValkeyDeletedActivityLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ValkeyDeletedActivityLogEntry", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
 func (ec *executionContext) _ValkeyDeletedActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyDeletedActivityLogEntry) (ret graphql.Marshaler) {
@@ -1996,28 +1549,22 @@ func (ec *executionContext) _ValkeyDeletedActivityLogEntry_message(ctx context.C
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ValkeyDeletedActivityLogEntry_message,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyDeletedActivityLogEntry_message(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Message, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ValkeyDeletedActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ValkeyDeletedActivityLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ValkeyDeletedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _ValkeyDeletedActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyDeletedActivityLogEntry) (ret graphql.Marshaler) {
@@ -2025,28 +1572,22 @@ func (ec *executionContext) _ValkeyDeletedActivityLogEntry_resourceType(ctx cont
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ValkeyDeletedActivityLogEntry_resourceType,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyDeletedActivityLogEntry_resourceType(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceType, nil
 		},
 		nil,
-		ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType,
+		func(ctx context.Context, selections ast.SelectionSet, v activitylog.ActivityLogEntryResourceType) graphql.Marshaler {
+			return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ValkeyDeletedActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ValkeyDeletedActivityLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ActivityLogEntryResourceType does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ValkeyDeletedActivityLogEntry", field, false, false, errors.New("field of type ActivityLogEntryResourceType does not have child fields"))
 }
 
 func (ec *executionContext) _ValkeyDeletedActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyDeletedActivityLogEntry) (ret graphql.Marshaler) {
@@ -2054,28 +1595,22 @@ func (ec *executionContext) _ValkeyDeletedActivityLogEntry_resourceName(ctx cont
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ValkeyDeletedActivityLogEntry_resourceName,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyDeletedActivityLogEntry_resourceName(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceName, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ValkeyDeletedActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ValkeyDeletedActivityLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ValkeyDeletedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _ValkeyDeletedActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyDeletedActivityLogEntry) (ret graphql.Marshaler) {
@@ -2083,28 +1618,22 @@ func (ec *executionContext) _ValkeyDeletedActivityLogEntry_teamSlug(ctx context.
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ValkeyDeletedActivityLogEntry_teamSlug,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyDeletedActivityLogEntry_teamSlug(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.TeamSlug, nil
 		},
 		nil,
-		ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug,
+		func(ctx context.Context, selections ast.SelectionSet, v *slug.Slug) graphql.Marshaler {
+			return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ValkeyDeletedActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ValkeyDeletedActivityLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Slug does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ValkeyDeletedActivityLogEntry", field, false, false, errors.New("field of type Slug does not have child fields"))
 }
 
 func (ec *executionContext) _ValkeyDeletedActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyDeletedActivityLogEntry) (ret graphql.Marshaler) {
@@ -2112,28 +1641,22 @@ func (ec *executionContext) _ValkeyDeletedActivityLogEntry_environmentName(ctx c
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ValkeyDeletedActivityLogEntry_environmentName,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyDeletedActivityLogEntry_environmentName(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.EnvironmentName, nil
 		},
 		nil,
-		ec.marshalOString2ᚖstring,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
+		},
 		true,
 		false,
 	)
 }
-
 func (ec *executionContext) fieldContext_ValkeyDeletedActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ValkeyDeletedActivityLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ValkeyDeletedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _ValkeyEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*valkey.Valkey]) (ret graphql.Marshaler) {
@@ -2141,28 +1664,22 @@ func (ec *executionContext) _ValkeyEdge_cursor(ctx context.Context, field graphq
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ValkeyEdge_cursor,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyEdge_cursor(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Cursor, nil
 		},
 		nil,
-		ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor,
+		func(ctx context.Context, selections ast.SelectionSet, v pagination.Cursor) graphql.Marshaler {
+			return ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ValkeyEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ValkeyEdge",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Cursor does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ValkeyEdge", field, false, false, errors.New("field of type Cursor does not have child fields"))
 }
 
 func (ec *executionContext) _ValkeyEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*valkey.Valkey]) (ret graphql.Marshaler) {
@@ -2170,17 +1687,20 @@ func (ec *executionContext) _ValkeyEdge_node(ctx context.Context, field graphql.
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ValkeyEdge_node,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyEdge_node(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Node, nil
 		},
 		nil,
-		ec.marshalNValkey2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkey,
+		func(ctx context.Context, selections ast.SelectionSet, v *valkey.Valkey) graphql.Marshaler {
+			return ec.marshalNValkey2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkey(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ValkeyEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ValkeyEdge",
@@ -2188,45 +1708,7 @@ func (ec *executionContext) fieldContext_ValkeyEdge_node(_ context.Context, fiel
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Valkey_id(ctx, field)
-			case "name":
-				return ec.fieldContext_Valkey_name(ctx, field)
-			case "terminationProtection":
-				return ec.fieldContext_Valkey_terminationProtection(ctx, field)
-			case "team":
-				return ec.fieldContext_Valkey_team(ctx, field)
-			case "environment":
-				return ec.fieldContext_Valkey_environment(ctx, field)
-			case "teamEnvironment":
-				return ec.fieldContext_Valkey_teamEnvironment(ctx, field)
-			case "access":
-				return ec.fieldContext_Valkey_access(ctx, field)
-			case "workload":
-				return ec.fieldContext_Valkey_workload(ctx, field)
-			case "state":
-				return ec.fieldContext_Valkey_state(ctx, field)
-			case "tier":
-				return ec.fieldContext_Valkey_tier(ctx, field)
-			case "memory":
-				return ec.fieldContext_Valkey_memory(ctx, field)
-			case "maxMemoryPolicy":
-				return ec.fieldContext_Valkey_maxMemoryPolicy(ctx, field)
-			case "notifyKeyspaceEvents":
-				return ec.fieldContext_Valkey_notifyKeyspaceEvents(ctx, field)
-			case "databases":
-				return ec.fieldContext_Valkey_databases(ctx, field)
-			case "issues":
-				return ec.fieldContext_Valkey_issues(ctx, field)
-			case "activityLog":
-				return ec.fieldContext_Valkey_activityLog(ctx, field)
-			case "cost":
-				return ec.fieldContext_Valkey_cost(ctx, field)
-			case "maintenance":
-				return ec.fieldContext_Valkey_maintenance(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Valkey", field.Name)
+			return ec.childFields_Valkey(ctx, field)
 		},
 	}
 	return fc, nil
@@ -2237,28 +1719,22 @@ func (ec *executionContext) _ValkeyUpdatedActivityLogEntry_id(ctx context.Contex
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ValkeyUpdatedActivityLogEntry_id,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyUpdatedActivityLogEntry_id(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
-		ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent,
+		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
+			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ValkeyUpdatedActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ValkeyUpdatedActivityLogEntry",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ValkeyUpdatedActivityLogEntry", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
 func (ec *executionContext) _ValkeyUpdatedActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyUpdatedActivityLogEntry) (ret graphql.Marshaler) {
@@ -2266,28 +1742,22 @@ func (ec *executionContext) _ValkeyUpdatedActivityLogEntry_actor(ctx context.Con
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ValkeyUpdatedActivityLogEntry_actor,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyUpdatedActivityLogEntry_actor(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Actor, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ValkeyUpdatedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ValkeyUpdatedActivityLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ValkeyUpdatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _ValkeyUpdatedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyUpdatedActivityLogEntry) (ret graphql.Marshaler) {
@@ -2295,28 +1765,22 @@ func (ec *executionContext) _ValkeyUpdatedActivityLogEntry_createdAt(ctx context
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ValkeyUpdatedActivityLogEntry_createdAt,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyUpdatedActivityLogEntry_createdAt(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.CreatedAt, nil
 		},
 		nil,
-		ec.marshalNTime2timeᚐTime,
+		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
+			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ValkeyUpdatedActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ValkeyUpdatedActivityLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ValkeyUpdatedActivityLogEntry", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
 func (ec *executionContext) _ValkeyUpdatedActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyUpdatedActivityLogEntry) (ret graphql.Marshaler) {
@@ -2324,28 +1788,22 @@ func (ec *executionContext) _ValkeyUpdatedActivityLogEntry_message(ctx context.C
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ValkeyUpdatedActivityLogEntry_message,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyUpdatedActivityLogEntry_message(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Message, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ValkeyUpdatedActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ValkeyUpdatedActivityLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ValkeyUpdatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _ValkeyUpdatedActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyUpdatedActivityLogEntry) (ret graphql.Marshaler) {
@@ -2353,28 +1811,22 @@ func (ec *executionContext) _ValkeyUpdatedActivityLogEntry_resourceType(ctx cont
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ValkeyUpdatedActivityLogEntry_resourceType,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyUpdatedActivityLogEntry_resourceType(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceType, nil
 		},
 		nil,
-		ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType,
+		func(ctx context.Context, selections ast.SelectionSet, v activitylog.ActivityLogEntryResourceType) graphql.Marshaler {
+			return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ValkeyUpdatedActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ValkeyUpdatedActivityLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ActivityLogEntryResourceType does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ValkeyUpdatedActivityLogEntry", field, false, false, errors.New("field of type ActivityLogEntryResourceType does not have child fields"))
 }
 
 func (ec *executionContext) _ValkeyUpdatedActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyUpdatedActivityLogEntry) (ret graphql.Marshaler) {
@@ -2382,28 +1834,22 @@ func (ec *executionContext) _ValkeyUpdatedActivityLogEntry_resourceName(ctx cont
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ValkeyUpdatedActivityLogEntry_resourceName,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyUpdatedActivityLogEntry_resourceName(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceName, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ValkeyUpdatedActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ValkeyUpdatedActivityLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ValkeyUpdatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _ValkeyUpdatedActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyUpdatedActivityLogEntry) (ret graphql.Marshaler) {
@@ -2411,28 +1857,22 @@ func (ec *executionContext) _ValkeyUpdatedActivityLogEntry_teamSlug(ctx context.
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ValkeyUpdatedActivityLogEntry_teamSlug,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyUpdatedActivityLogEntry_teamSlug(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.TeamSlug, nil
 		},
 		nil,
-		ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug,
+		func(ctx context.Context, selections ast.SelectionSet, v *slug.Slug) graphql.Marshaler {
+			return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ValkeyUpdatedActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ValkeyUpdatedActivityLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Slug does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ValkeyUpdatedActivityLogEntry", field, false, false, errors.New("field of type Slug does not have child fields"))
 }
 
 func (ec *executionContext) _ValkeyUpdatedActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyUpdatedActivityLogEntry) (ret graphql.Marshaler) {
@@ -2440,28 +1880,22 @@ func (ec *executionContext) _ValkeyUpdatedActivityLogEntry_environmentName(ctx c
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ValkeyUpdatedActivityLogEntry_environmentName,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyUpdatedActivityLogEntry_environmentName(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.EnvironmentName, nil
 		},
 		nil,
-		ec.marshalOString2ᚖstring,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
+		},
 		true,
 		false,
 	)
 }
-
 func (ec *executionContext) fieldContext_ValkeyUpdatedActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ValkeyUpdatedActivityLogEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ValkeyUpdatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _ValkeyUpdatedActivityLogEntry_data(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyUpdatedActivityLogEntry) (ret graphql.Marshaler) {
@@ -2469,17 +1903,20 @@ func (ec *executionContext) _ValkeyUpdatedActivityLogEntry_data(ctx context.Cont
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ValkeyUpdatedActivityLogEntry_data,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyUpdatedActivityLogEntry_data(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Data, nil
 		},
 		nil,
-		ec.marshalNValkeyUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyUpdatedActivityLogEntryData,
+		func(ctx context.Context, selections ast.SelectionSet, v *valkey.ValkeyUpdatedActivityLogEntryData) graphql.Marshaler {
+			return ec.marshalNValkeyUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyUpdatedActivityLogEntryData(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ValkeyUpdatedActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ValkeyUpdatedActivityLogEntry",
@@ -2487,11 +1924,7 @@ func (ec *executionContext) fieldContext_ValkeyUpdatedActivityLogEntry_data(_ co
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "updatedFields":
-				return ec.fieldContext_ValkeyUpdatedActivityLogEntryData_updatedFields(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type ValkeyUpdatedActivityLogEntryData", field.Name)
+			return ec.childFields_ValkeyUpdatedActivityLogEntryData(ctx, field)
 		},
 	}
 	return fc, nil
@@ -2502,17 +1935,20 @@ func (ec *executionContext) _ValkeyUpdatedActivityLogEntryData_updatedFields(ctx
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ValkeyUpdatedActivityLogEntryData_updatedFields,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyUpdatedActivityLogEntryData_updatedFields(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.UpdatedFields, nil
 		},
 		nil,
-		ec.marshalNValkeyUpdatedActivityLogEntryDataUpdatedField2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyUpdatedActivityLogEntryDataUpdatedFieldᚄ,
+		func(ctx context.Context, selections ast.SelectionSet, v []*valkey.ValkeyUpdatedActivityLogEntryDataUpdatedField) graphql.Marshaler {
+			return ec.marshalNValkeyUpdatedActivityLogEntryDataUpdatedField2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyUpdatedActivityLogEntryDataUpdatedFieldᚄ(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ValkeyUpdatedActivityLogEntryData_updatedFields(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ValkeyUpdatedActivityLogEntryData",
@@ -2520,15 +1956,7 @@ func (ec *executionContext) fieldContext_ValkeyUpdatedActivityLogEntryData_updat
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "field":
-				return ec.fieldContext_ValkeyUpdatedActivityLogEntryDataUpdatedField_field(ctx, field)
-			case "oldValue":
-				return ec.fieldContext_ValkeyUpdatedActivityLogEntryDataUpdatedField_oldValue(ctx, field)
-			case "newValue":
-				return ec.fieldContext_ValkeyUpdatedActivityLogEntryDataUpdatedField_newValue(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type ValkeyUpdatedActivityLogEntryDataUpdatedField", field.Name)
+			return ec.childFields_ValkeyUpdatedActivityLogEntryDataUpdatedField(ctx, field)
 		},
 	}
 	return fc, nil
@@ -2539,28 +1967,22 @@ func (ec *executionContext) _ValkeyUpdatedActivityLogEntryDataUpdatedField_field
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ValkeyUpdatedActivityLogEntryDataUpdatedField_field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyUpdatedActivityLogEntryDataUpdatedField_field(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Field, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ValkeyUpdatedActivityLogEntryDataUpdatedField_field(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ValkeyUpdatedActivityLogEntryDataUpdatedField",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ValkeyUpdatedActivityLogEntryDataUpdatedField", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _ValkeyUpdatedActivityLogEntryDataUpdatedField_oldValue(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyUpdatedActivityLogEntryDataUpdatedField) (ret graphql.Marshaler) {
@@ -2568,28 +1990,22 @@ func (ec *executionContext) _ValkeyUpdatedActivityLogEntryDataUpdatedField_oldVa
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ValkeyUpdatedActivityLogEntryDataUpdatedField_oldValue,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyUpdatedActivityLogEntryDataUpdatedField_oldValue(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.OldValue, nil
 		},
 		nil,
-		ec.marshalOString2ᚖstring,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
+		},
 		true,
 		false,
 	)
 }
-
 func (ec *executionContext) fieldContext_ValkeyUpdatedActivityLogEntryDataUpdatedField_oldValue(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ValkeyUpdatedActivityLogEntryDataUpdatedField",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ValkeyUpdatedActivityLogEntryDataUpdatedField", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _ValkeyUpdatedActivityLogEntryDataUpdatedField_newValue(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyUpdatedActivityLogEntryDataUpdatedField) (ret graphql.Marshaler) {
@@ -2597,28 +2013,22 @@ func (ec *executionContext) _ValkeyUpdatedActivityLogEntryDataUpdatedField_newVa
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ValkeyUpdatedActivityLogEntryDataUpdatedField_newValue,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyUpdatedActivityLogEntryDataUpdatedField_newValue(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.NewValue, nil
 		},
 		nil,
-		ec.marshalOString2ᚖstring,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
+		},
 		true,
 		false,
 	)
 }
-
 func (ec *executionContext) fieldContext_ValkeyUpdatedActivityLogEntryDataUpdatedField_newValue(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ValkeyUpdatedActivityLogEntryDataUpdatedField",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ValkeyUpdatedActivityLogEntryDataUpdatedField", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 // endregion **************************** field.gotpl *****************************
@@ -2627,6 +2037,10 @@ func (ec *executionContext) fieldContext_ValkeyUpdatedActivityLogEntryDataUpdate
 
 func (ec *executionContext) unmarshalInputCreateValkeyCredentialsInput(ctx context.Context, obj any) (valkey.CreateValkeyCredentialsInput, error) {
 	var it valkey.CreateValkeyCredentialsInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -2681,6 +2095,10 @@ func (ec *executionContext) unmarshalInputCreateValkeyCredentialsInput(ctx conte
 
 func (ec *executionContext) unmarshalInputCreateValkeyInput(ctx context.Context, obj any) (valkey.CreateValkeyInput, error) {
 	var it valkey.CreateValkeyInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -2756,6 +2174,10 @@ func (ec *executionContext) unmarshalInputCreateValkeyInput(ctx context.Context,
 
 func (ec *executionContext) unmarshalInputDeleteValkeyInput(ctx context.Context, obj any) (valkey.DeleteValkeyInput, error) {
 	var it valkey.DeleteValkeyInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -2796,6 +2218,10 @@ func (ec *executionContext) unmarshalInputDeleteValkeyInput(ctx context.Context,
 
 func (ec *executionContext) unmarshalInputUpdateValkeyInput(ctx context.Context, obj any) (valkey.UpdateValkeyInput, error) {
 	var it valkey.UpdateValkeyInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -2871,6 +2297,10 @@ func (ec *executionContext) unmarshalInputUpdateValkeyInput(ctx context.Context,
 
 func (ec *executionContext) unmarshalInputValkeyAccessOrder(ctx context.Context, obj any) (valkey.ValkeyAccessOrder, error) {
 	var it valkey.ValkeyAccessOrder
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -2904,6 +2334,10 @@ func (ec *executionContext) unmarshalInputValkeyAccessOrder(ctx context.Context,
 
 func (ec *executionContext) unmarshalInputValkeyOrder(ctx context.Context, obj any) (valkey.ValkeyOrder, error) {
 	var it valkey.ValkeyOrder
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -2968,7 +2402,7 @@ func (ec *executionContext) _CreateValkeyCredentialsPayload(ctx context.Context,
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -3007,7 +2441,7 @@ func (ec *executionContext) _CreateValkeyPayload(ctx context.Context, sel ast.Se
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -3043,7 +2477,7 @@ func (ec *executionContext) _DeleteValkeyPayload(ctx context.Context, sel ast.Se
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -3082,7 +2516,7 @@ func (ec *executionContext) _TeamInventoryCountValkeys(ctx context.Context, sel 
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -3121,7 +2555,7 @@ func (ec *executionContext) _UpdateValkeyPayload(ctx context.Context, sel ast.Se
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -3546,7 +2980,7 @@ func (ec *executionContext) _Valkey(ctx context.Context, sel ast.SelectionSet, o
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -3621,7 +3055,7 @@ func (ec *executionContext) _ValkeyAccess(ctx context.Context, sel ast.Selection
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -3670,7 +3104,7 @@ func (ec *executionContext) _ValkeyAccessConnection(ctx context.Context, sel ast
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -3714,7 +3148,7 @@ func (ec *executionContext) _ValkeyAccessEdge(ctx context.Context, sel ast.Selec
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -3763,7 +3197,7 @@ func (ec *executionContext) _ValkeyConnection(ctx context.Context, sel ast.Selec
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -3834,7 +3268,7 @@ func (ec *executionContext) _ValkeyCreatedActivityLogEntry(ctx context.Context, 
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -3893,7 +3327,7 @@ func (ec *executionContext) _ValkeyCredentials(ctx context.Context, sel ast.Sele
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -3964,7 +3398,7 @@ func (ec *executionContext) _ValkeyDeletedActivityLogEntry(ctx context.Context, 
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -4008,7 +3442,7 @@ func (ec *executionContext) _ValkeyEdge(ctx context.Context, sel ast.SelectionSe
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -4084,7 +3518,7 @@ func (ec *executionContext) _ValkeyUpdatedActivityLogEntry(ctx context.Context, 
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -4123,7 +3557,7 @@ func (ec *executionContext) _ValkeyUpdatedActivityLogEntryData(ctx context.Conte
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -4166,7 +3600,7 @@ func (ec *executionContext) _ValkeyUpdatedActivityLogEntryDataUpdatedField(ctx c
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{

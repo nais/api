@@ -5,7 +5,7 @@ package gengql
 import (
 	"context"
 	"errors"
-	"fmt"
+	"math"
 	"strconv"
 	"sync/atomic"
 
@@ -38,17 +38,20 @@ func (ec *executionContext) _CurrentUnitPrices_cpu(ctx context.Context, field gr
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_CurrentUnitPrices_cpu,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_CurrentUnitPrices_cpu(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.CurrentUnitPrices().CPU(ctx, obj)
 		},
 		nil,
-		ec.marshalNPrice2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpriceᚐPrice,
+		func(ctx context.Context, selections ast.SelectionSet, v *price.Price) graphql.Marshaler {
+			return ec.marshalNPrice2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpriceᚐPrice(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_CurrentUnitPrices_cpu(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CurrentUnitPrices",
@@ -56,11 +59,7 @@ func (ec *executionContext) fieldContext_CurrentUnitPrices_cpu(_ context.Context
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "value":
-				return ec.fieldContext_Price_value(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Price", field.Name)
+			return ec.childFields_Price(ctx, field)
 		},
 	}
 	return fc, nil
@@ -71,17 +70,20 @@ func (ec *executionContext) _CurrentUnitPrices_memory(ctx context.Context, field
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_CurrentUnitPrices_memory,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_CurrentUnitPrices_memory(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.CurrentUnitPrices().Memory(ctx, obj)
 		},
 		nil,
-		ec.marshalNPrice2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpriceᚐPrice,
+		func(ctx context.Context, selections ast.SelectionSet, v *price.Price) graphql.Marshaler {
+			return ec.marshalNPrice2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpriceᚐPrice(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_CurrentUnitPrices_memory(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CurrentUnitPrices",
@@ -89,11 +91,7 @@ func (ec *executionContext) fieldContext_CurrentUnitPrices_memory(_ context.Cont
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "value":
-				return ec.fieldContext_Price_value(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Price", field.Name)
+			return ec.childFields_Price(ctx, field)
 		},
 	}
 	return fc, nil
@@ -104,28 +102,22 @@ func (ec *executionContext) _Price_value(ctx context.Context, field graphql.Coll
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Price_value,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Price_value(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Value, nil
 		},
 		nil,
-		ec.marshalNFloat2float64,
+		func(ctx context.Context, selections ast.SelectionSet, v float64) graphql.Marshaler {
+			return ec.marshalNFloat2float64(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_Price_value(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Price",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Float does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("Price", field, false, false, errors.New("field of type Float does not have child fields"))
 }
 
 // endregion **************************** field.gotpl *****************************
@@ -232,7 +224,7 @@ func (ec *executionContext) _CurrentUnitPrices(ctx context.Context, sel ast.Sele
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -271,7 +263,7 @@ func (ec *executionContext) _Price(ctx context.Context, sel ast.SelectionSet, ob
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{

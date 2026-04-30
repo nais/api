@@ -79,6 +79,7 @@ Test.gql("as non-team member", function(t)
 		data = Null,
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("you need the \"applications:delete\""),
 				path = { "deleteApplication" },
 			},

@@ -24,6 +24,7 @@ Test.gql("Non-member cannot create OpenSearch credentials", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("you need the \"aiven:credentials:create\" authorization"),
 				path = { "createOpenSearchCredentials" },
 			},
@@ -52,6 +53,7 @@ Test.gql("Non-member cannot create Valkey credentials", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("you need the \"aiven:credentials:create\" authorization"),
 				path = { "createValkeyCredentials" },
 			},
@@ -78,6 +80,7 @@ Test.gql("Non-member cannot create Kafka credentials", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("you need the \"aiven:credentials:create\" authorization"),
 				path = { "createKafkaCredentials" },
 			},
@@ -106,6 +109,7 @@ Test.gql("Cannot create credentials for non-existing team", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("you need the \"aiven:credentials:create\" authorization"),
 				path = { "createOpenSearchCredentials" },
 			},
@@ -134,6 +138,7 @@ Test.gql("TTL exceeding 30 days is rejected", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("TTL exceeds maximum of 30 days"),
 				path = { "createOpenSearchCredentials" },
 			},
@@ -162,6 +167,7 @@ Test.gql("Valkey TTL exceeding 30 days is rejected", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("TTL exceeds maximum of 30 days"),
 				path = { "createValkeyCredentials" },
 			},
@@ -188,6 +194,7 @@ Test.gql("Kafka TTL exceeding 365 days is rejected", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("TTL exceeds maximum of 365 days"),
 				path = { "createKafkaCredentials" },
 			},
@@ -216,6 +223,7 @@ Test.gql("Invalid TTL format is rejected", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("invalid TTL"),
 				path = { "createValkeyCredentials" },
 			},
@@ -244,6 +252,7 @@ Test.gql("OpenSearch invalid TTL format is rejected", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("invalid TTL"),
 				path = { "createOpenSearchCredentials" },
 			},
@@ -270,6 +279,7 @@ Test.gql("Kafka invalid TTL format is rejected", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("invalid TTL"),
 				path = { "createKafkaCredentials" },
 			},
@@ -296,6 +306,7 @@ Test.gql("Zero TTL is rejected", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("TTL must be positive"),
 				path = { "createKafkaCredentials" },
 			},
@@ -324,6 +335,7 @@ Test.gql("OpenSearch zero TTL is rejected", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("TTL must be positive"),
 				path = { "createOpenSearchCredentials" },
 			},
@@ -352,6 +364,7 @@ Test.gql("Valkey zero TTL is rejected", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("TTL must be positive"),
 				path = { "createValkeyCredentials" },
 			},

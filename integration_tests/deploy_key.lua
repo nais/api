@@ -120,6 +120,7 @@ Test.gql("Get deploy key for team not member of", function(t)
 		},
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("you need the \"deploy_key:read\""),
 				path = { "team", "deploymentKey" },
 			},
@@ -215,6 +216,7 @@ Test.gql("Change deploy key as non-member", function(t)
 		data = Null,
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("you need the \"deploy_key:update\""),
 				path = { "changeDeploymentKey" },
 			},

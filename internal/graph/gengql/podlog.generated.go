@@ -5,8 +5,10 @@ package gengql
 import (
 	"context"
 	"errors"
+	"math"
 	"strconv"
 	"sync/atomic"
+	"time"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/nais/api/internal/workload/podlog"
@@ -32,28 +34,22 @@ func (ec *executionContext) _WorkloadLogLine_time(ctx context.Context, field gra
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_WorkloadLogLine_time,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_WorkloadLogLine_time(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Time, nil
 		},
 		nil,
-		ec.marshalNTime2timeᚐTime,
+		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
+			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_WorkloadLogLine_time(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "WorkloadLogLine",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("WorkloadLogLine", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
 func (ec *executionContext) _WorkloadLogLine_message(ctx context.Context, field graphql.CollectedField, obj *podlog.WorkloadLogLine) (ret graphql.Marshaler) {
@@ -61,28 +57,22 @@ func (ec *executionContext) _WorkloadLogLine_message(ctx context.Context, field 
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_WorkloadLogLine_message,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_WorkloadLogLine_message(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Message, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_WorkloadLogLine_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "WorkloadLogLine",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("WorkloadLogLine", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _WorkloadLogLine_instance(ctx context.Context, field graphql.CollectedField, obj *podlog.WorkloadLogLine) (ret graphql.Marshaler) {
@@ -90,28 +80,22 @@ func (ec *executionContext) _WorkloadLogLine_instance(ctx context.Context, field
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_WorkloadLogLine_instance,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_WorkloadLogLine_instance(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Instance, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_WorkloadLogLine_instance(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "WorkloadLogLine",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("WorkloadLogLine", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 // endregion **************************** field.gotpl *****************************
@@ -120,6 +104,10 @@ func (ec *executionContext) fieldContext_WorkloadLogLine_instance(_ context.Cont
 
 func (ec *executionContext) unmarshalInputWorkloadLogSubscriptionFilter(ctx context.Context, obj any) (podlog.WorkloadLogSubscriptionFilter, error) {
 	var it podlog.WorkloadLogSubscriptionFilter
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -215,7 +203,7 @@ func (ec *executionContext) _WorkloadLogLine(ctx context.Context, sel ast.Select
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{

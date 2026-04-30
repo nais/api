@@ -293,6 +293,7 @@ Test.gql("Metrics - error on step less than 10 seconds", function(t)
 		data = Null,
 		errors = {
 			{
+				locations = NotNull(),
 				message = "Query step size must be at least 10 seconds. Please increase the step size to reduce the number of data points.",
 				path = { "environment", "metrics" },
 			},
@@ -333,6 +334,7 @@ Test.gql("Metrics - error on time range exceeding 30 days", function(t)
 		data = Null,
 		errors = {
 			{
+				locations = NotNull(),
 				message = "The time range is too large. Maximum allowed is 30 days, but you requested 744h0m0s. Please reduce the time range.",
 				path = { "environment", "metrics" },
 			},
@@ -375,6 +377,7 @@ Test.gql("Metrics - error on exceeding maximum data points (11000)", function(t)
 		data = Null,
 		errors = {
 			{
+				locations = NotNull(),
 				message = "This query would return too many data points (259201). The maximum allowed is 11000. Please increase the step size or reduce the time range.",
 				path = { "environment", "metrics" },
 			},
@@ -415,6 +418,7 @@ Test.gql("Metrics - error on end time before start time", function(t)
 		data = Null,
 		errors = {
 			{
+				locations = NotNull(),
 				message = "The end time must be after the start time. Please check your time range.",
 				path = { "environment", "metrics" },
 			},
@@ -448,6 +452,7 @@ Test.gql("Metrics - error on empty query", function(t)
 		data = Null,
 		errors = {
 			{
+				locations = NotNull(),
 				message = "Failed to query metrics: unknown position: parse error: no expression found in input",
 				path = { "environment", "metrics" },
 			},

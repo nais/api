@@ -5,11 +5,12 @@ package gengql
 import (
 	"context"
 	"errors"
-	"fmt"
+	"math"
 	"strconv"
 	"sync/atomic"
 
 	"github.com/99designs/gqlgen/graphql"
+	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/persistence/kafkatopic"
 	"github.com/nais/api/internal/team"
@@ -38,32 +39,50 @@ type KafkaTopicAclResolver interface {
 func (ec *executionContext) field_KafkaTopic_acl_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first", ec.unmarshalOInt2ᚖint)
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
+		func(ctx context.Context, v any) (*int, error) {
+			return ec.unmarshalOInt2ᚖint(ctx, v)
+		})
 	if err != nil {
 		return nil, err
 	}
 	args["first"] = arg0
-	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after", ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor)
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
+		func(ctx context.Context, v any) (*pagination.Cursor, error) {
+			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+		})
 	if err != nil {
 		return nil, err
 	}
 	args["after"] = arg1
-	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last", ec.unmarshalOInt2ᚖint)
+	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
+		func(ctx context.Context, v any) (*int, error) {
+			return ec.unmarshalOInt2ᚖint(ctx, v)
+		})
 	if err != nil {
 		return nil, err
 	}
 	args["last"] = arg2
-	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before", ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor)
+	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
+		func(ctx context.Context, v any) (*pagination.Cursor, error) {
+			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+		})
 	if err != nil {
 		return nil, err
 	}
 	args["before"] = arg3
-	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "filter", ec.unmarshalOKafkaTopicAclFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicACLFilter)
+	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "filter",
+		func(ctx context.Context, v any) (*kafkatopic.KafkaTopicACLFilter, error) {
+			return ec.unmarshalOKafkaTopicAclFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicACLFilter(ctx, v)
+		})
 	if err != nil {
 		return nil, err
 	}
 	args["filter"] = arg4
-	arg5, err := graphql.ProcessArgField(ctx, rawArgs, "orderBy", ec.unmarshalOKafkaTopicAclOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicACLOrder)
+	arg5, err := graphql.ProcessArgField(ctx, rawArgs, "orderBy",
+		func(ctx context.Context, v any) (*kafkatopic.KafkaTopicACLOrder, error) {
+			return ec.unmarshalOKafkaTopicAclOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicACLOrder(ctx, v)
+		})
 	if err != nil {
 		return nil, err
 	}
@@ -84,17 +103,20 @@ func (ec *executionContext) _CreateKafkaCredentialsPayload_credentials(ctx conte
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_CreateKafkaCredentialsPayload_credentials,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_CreateKafkaCredentialsPayload_credentials(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Credentials, nil
 		},
 		nil,
-		ec.marshalNKafkaCredentials2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaCredentials,
+		func(ctx context.Context, selections ast.SelectionSet, v *kafkatopic.KafkaCredentials) graphql.Marshaler {
+			return ec.marshalNKafkaCredentials2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaCredentials(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_CreateKafkaCredentialsPayload_credentials(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CreateKafkaCredentialsPayload",
@@ -102,21 +124,7 @@ func (ec *executionContext) fieldContext_CreateKafkaCredentialsPayload_credentia
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "username":
-				return ec.fieldContext_KafkaCredentials_username(ctx, field)
-			case "accessCert":
-				return ec.fieldContext_KafkaCredentials_accessCert(ctx, field)
-			case "accessKey":
-				return ec.fieldContext_KafkaCredentials_accessKey(ctx, field)
-			case "caCert":
-				return ec.fieldContext_KafkaCredentials_caCert(ctx, field)
-			case "brokers":
-				return ec.fieldContext_KafkaCredentials_brokers(ctx, field)
-			case "schemaRegistry":
-				return ec.fieldContext_KafkaCredentials_schemaRegistry(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type KafkaCredentials", field.Name)
+			return ec.childFields_KafkaCredentials(ctx, field)
 		},
 	}
 	return fc, nil
@@ -127,28 +135,22 @@ func (ec *executionContext) _KafkaCredentials_username(ctx context.Context, fiel
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_KafkaCredentials_username,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_KafkaCredentials_username(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Username, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_KafkaCredentials_username(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "KafkaCredentials",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("KafkaCredentials", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _KafkaCredentials_accessCert(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaCredentials) (ret graphql.Marshaler) {
@@ -156,28 +158,22 @@ func (ec *executionContext) _KafkaCredentials_accessCert(ctx context.Context, fi
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_KafkaCredentials_accessCert,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_KafkaCredentials_accessCert(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.AccessCert, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_KafkaCredentials_accessCert(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "KafkaCredentials",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("KafkaCredentials", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _KafkaCredentials_accessKey(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaCredentials) (ret graphql.Marshaler) {
@@ -185,28 +181,22 @@ func (ec *executionContext) _KafkaCredentials_accessKey(ctx context.Context, fie
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_KafkaCredentials_accessKey,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_KafkaCredentials_accessKey(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.AccessKey, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_KafkaCredentials_accessKey(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "KafkaCredentials",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("KafkaCredentials", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _KafkaCredentials_caCert(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaCredentials) (ret graphql.Marshaler) {
@@ -214,28 +204,22 @@ func (ec *executionContext) _KafkaCredentials_caCert(ctx context.Context, field 
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_KafkaCredentials_caCert,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_KafkaCredentials_caCert(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.CaCert, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_KafkaCredentials_caCert(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "KafkaCredentials",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("KafkaCredentials", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _KafkaCredentials_brokers(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaCredentials) (ret graphql.Marshaler) {
@@ -243,28 +227,22 @@ func (ec *executionContext) _KafkaCredentials_brokers(ctx context.Context, field
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_KafkaCredentials_brokers,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_KafkaCredentials_brokers(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Brokers, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_KafkaCredentials_brokers(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "KafkaCredentials",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("KafkaCredentials", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _KafkaCredentials_schemaRegistry(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaCredentials) (ret graphql.Marshaler) {
@@ -272,28 +250,22 @@ func (ec *executionContext) _KafkaCredentials_schemaRegistry(ctx context.Context
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_KafkaCredentials_schemaRegistry,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_KafkaCredentials_schemaRegistry(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.SchemaRegistry, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_KafkaCredentials_schemaRegistry(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "KafkaCredentials",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("KafkaCredentials", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _KafkaTopic_id(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopic) (ret graphql.Marshaler) {
@@ -301,28 +273,22 @@ func (ec *executionContext) _KafkaTopic_id(ctx context.Context, field graphql.Co
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_KafkaTopic_id,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_KafkaTopic_id(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
-		ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent,
+		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
+			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_KafkaTopic_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "KafkaTopic",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("KafkaTopic", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
 func (ec *executionContext) _KafkaTopic_name(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopic) (ret graphql.Marshaler) {
@@ -330,28 +296,22 @@ func (ec *executionContext) _KafkaTopic_name(ctx context.Context, field graphql.
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_KafkaTopic_name,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_KafkaTopic_name(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Name, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_KafkaTopic_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "KafkaTopic",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("KafkaTopic", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _KafkaTopic_team(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopic) (ret graphql.Marshaler) {
@@ -359,17 +319,20 @@ func (ec *executionContext) _KafkaTopic_team(ctx context.Context, field graphql.
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_KafkaTopic_team,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_KafkaTopic_team(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.KafkaTopic().Team(ctx, obj)
 		},
 		nil,
-		ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam,
+		func(ctx context.Context, selections ast.SelectionSet, v *team.Team) graphql.Marshaler {
+			return ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_KafkaTopic_team(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "KafkaTopic",
@@ -377,91 +340,7 @@ func (ec *executionContext) fieldContext_KafkaTopic_team(_ context.Context, fiel
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Team_id(ctx, field)
-			case "slug":
-				return ec.fieldContext_Team_slug(ctx, field)
-			case "slackChannel":
-				return ec.fieldContext_Team_slackChannel(ctx, field)
-			case "purpose":
-				return ec.fieldContext_Team_purpose(ctx, field)
-			case "externalResources":
-				return ec.fieldContext_Team_externalResources(ctx, field)
-			case "member":
-				return ec.fieldContext_Team_member(ctx, field)
-			case "members":
-				return ec.fieldContext_Team_members(ctx, field)
-			case "lastSuccessfulSync":
-				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
-			case "deletionInProgress":
-				return ec.fieldContext_Team_deletionInProgress(ctx, field)
-			case "viewerIsOwner":
-				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
-			case "viewerIsMember":
-				return ec.fieldContext_Team_viewerIsMember(ctx, field)
-			case "environments":
-				return ec.fieldContext_Team_environments(ctx, field)
-			case "environment":
-				return ec.fieldContext_Team_environment(ctx, field)
-			case "deleteKey":
-				return ec.fieldContext_Team_deleteKey(ctx, field)
-			case "inventoryCounts":
-				return ec.fieldContext_Team_inventoryCounts(ctx, field)
-			case "activityLog":
-				return ec.fieldContext_Team_activityLog(ctx, field)
-			case "alerts":
-				return ec.fieldContext_Team_alerts(ctx, field)
-			case "applications":
-				return ec.fieldContext_Team_applications(ctx, field)
-			case "bigQueryDatasets":
-				return ec.fieldContext_Team_bigQueryDatasets(ctx, field)
-			case "buckets":
-				return ec.fieldContext_Team_buckets(ctx, field)
-			case "configs":
-				return ec.fieldContext_Team_configs(ctx, field)
-			case "cost":
-				return ec.fieldContext_Team_cost(ctx, field)
-			case "deploymentKey":
-				return ec.fieldContext_Team_deploymentKey(ctx, field)
-			case "deployments":
-				return ec.fieldContext_Team_deployments(ctx, field)
-			case "issues":
-				return ec.fieldContext_Team_issues(ctx, field)
-			case "jobs":
-				return ec.fieldContext_Team_jobs(ctx, field)
-			case "kafkaTopics":
-				return ec.fieldContext_Team_kafkaTopics(ctx, field)
-			case "openSearches":
-				return ec.fieldContext_Team_openSearches(ctx, field)
-			case "postgresInstances":
-				return ec.fieldContext_Team_postgresInstances(ctx, field)
-			case "repositories":
-				return ec.fieldContext_Team_repositories(ctx, field)
-			case "secrets":
-				return ec.fieldContext_Team_secrets(ctx, field)
-			case "sqlInstances":
-				return ec.fieldContext_Team_sqlInstances(ctx, field)
-			case "unleash":
-				return ec.fieldContext_Team_unleash(ctx, field)
-			case "workloadUtilization":
-				return ec.fieldContext_Team_workloadUtilization(ctx, field)
-			case "serviceUtilization":
-				return ec.fieldContext_Team_serviceUtilization(ctx, field)
-			case "valkeys":
-				return ec.fieldContext_Team_valkeys(ctx, field)
-			case "imageVulnerabilityHistory":
-				return ec.fieldContext_Team_imageVulnerabilityHistory(ctx, field)
-			case "vulnerabilityFixHistory":
-				return ec.fieldContext_Team_vulnerabilityFixHistory(ctx, field)
-			case "vulnerabilitySummary":
-				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
-			case "vulnerabilitySummaries":
-				return ec.fieldContext_Team_vulnerabilitySummaries(ctx, field)
-			case "workloads":
-				return ec.fieldContext_Team_workloads(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
+			return ec.childFields_Team(ctx, field)
 		},
 	}
 	return fc, nil
@@ -472,17 +351,20 @@ func (ec *executionContext) _KafkaTopic_environment(ctx context.Context, field g
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_KafkaTopic_environment,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_KafkaTopic_environment(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.KafkaTopic().Environment(ctx, obj)
 		},
 		nil,
-		ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment,
+		func(ctx context.Context, selections ast.SelectionSet, v *team.TeamEnvironment) graphql.Marshaler {
+			return ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_KafkaTopic_environment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "KafkaTopic",
@@ -490,49 +372,7 @@ func (ec *executionContext) fieldContext_KafkaTopic_environment(_ context.Contex
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_TeamEnvironment_id(ctx, field)
-			case "name":
-				return ec.fieldContext_TeamEnvironment_name(ctx, field)
-			case "gcpProjectID":
-				return ec.fieldContext_TeamEnvironment_gcpProjectID(ctx, field)
-			case "slackAlertsChannel":
-				return ec.fieldContext_TeamEnvironment_slackAlertsChannel(ctx, field)
-			case "team":
-				return ec.fieldContext_TeamEnvironment_team(ctx, field)
-			case "alerts":
-				return ec.fieldContext_TeamEnvironment_alerts(ctx, field)
-			case "application":
-				return ec.fieldContext_TeamEnvironment_application(ctx, field)
-			case "bigQueryDataset":
-				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
-			case "bucket":
-				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
-			case "config":
-				return ec.fieldContext_TeamEnvironment_config(ctx, field)
-			case "cost":
-				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
-			case "environment":
-				return ec.fieldContext_TeamEnvironment_environment(ctx, field)
-			case "job":
-				return ec.fieldContext_TeamEnvironment_job(ctx, field)
-			case "kafkaTopic":
-				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
-			case "openSearch":
-				return ec.fieldContext_TeamEnvironment_openSearch(ctx, field)
-			case "postgresInstance":
-				return ec.fieldContext_TeamEnvironment_postgresInstance(ctx, field)
-			case "secret":
-				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
-			case "sqlInstance":
-				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
-			case "valkey":
-				return ec.fieldContext_TeamEnvironment_valkey(ctx, field)
-			case "workload":
-				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
+			return ec.childFields_TeamEnvironment(ctx, field)
 		},
 	}
 	return fc, nil
@@ -543,17 +383,20 @@ func (ec *executionContext) _KafkaTopic_teamEnvironment(ctx context.Context, fie
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_KafkaTopic_teamEnvironment,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_KafkaTopic_teamEnvironment(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.KafkaTopic().TeamEnvironment(ctx, obj)
 		},
 		nil,
-		ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment,
+		func(ctx context.Context, selections ast.SelectionSet, v *team.TeamEnvironment) graphql.Marshaler {
+			return ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_KafkaTopic_teamEnvironment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "KafkaTopic",
@@ -561,49 +404,7 @@ func (ec *executionContext) fieldContext_KafkaTopic_teamEnvironment(_ context.Co
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_TeamEnvironment_id(ctx, field)
-			case "name":
-				return ec.fieldContext_TeamEnvironment_name(ctx, field)
-			case "gcpProjectID":
-				return ec.fieldContext_TeamEnvironment_gcpProjectID(ctx, field)
-			case "slackAlertsChannel":
-				return ec.fieldContext_TeamEnvironment_slackAlertsChannel(ctx, field)
-			case "team":
-				return ec.fieldContext_TeamEnvironment_team(ctx, field)
-			case "alerts":
-				return ec.fieldContext_TeamEnvironment_alerts(ctx, field)
-			case "application":
-				return ec.fieldContext_TeamEnvironment_application(ctx, field)
-			case "bigQueryDataset":
-				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
-			case "bucket":
-				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
-			case "config":
-				return ec.fieldContext_TeamEnvironment_config(ctx, field)
-			case "cost":
-				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
-			case "environment":
-				return ec.fieldContext_TeamEnvironment_environment(ctx, field)
-			case "job":
-				return ec.fieldContext_TeamEnvironment_job(ctx, field)
-			case "kafkaTopic":
-				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
-			case "openSearch":
-				return ec.fieldContext_TeamEnvironment_openSearch(ctx, field)
-			case "postgresInstance":
-				return ec.fieldContext_TeamEnvironment_postgresInstance(ctx, field)
-			case "secret":
-				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
-			case "sqlInstance":
-				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
-			case "valkey":
-				return ec.fieldContext_TeamEnvironment_valkey(ctx, field)
-			case "workload":
-				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
+			return ec.childFields_TeamEnvironment(ctx, field)
 		},
 	}
 	return fc, nil
@@ -614,18 +415,21 @@ func (ec *executionContext) _KafkaTopic_acl(ctx context.Context, field graphql.C
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_KafkaTopic_acl,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_KafkaTopic_acl(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
 			return ec.Resolvers.KafkaTopic().ACL(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["filter"].(*kafkatopic.KafkaTopicACLFilter), fc.Args["orderBy"].(*kafkatopic.KafkaTopicACLOrder))
 		},
 		nil,
-		ec.marshalNKafkaTopicAclConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection,
+		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[*kafkatopic.KafkaTopicACL]) graphql.Marshaler {
+			return ec.marshalNKafkaTopicAclConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_KafkaTopic_acl(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "KafkaTopic",
@@ -633,15 +437,7 @@ func (ec *executionContext) fieldContext_KafkaTopic_acl(ctx context.Context, fie
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "pageInfo":
-				return ec.fieldContext_KafkaTopicAclConnection_pageInfo(ctx, field)
-			case "nodes":
-				return ec.fieldContext_KafkaTopicAclConnection_nodes(ctx, field)
-			case "edges":
-				return ec.fieldContext_KafkaTopicAclConnection_edges(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type KafkaTopicAclConnection", field.Name)
+			return ec.childFields_KafkaTopicAclConnection(ctx, field)
 		},
 	}
 	defer func() {
@@ -663,17 +459,20 @@ func (ec *executionContext) _KafkaTopic_configuration(ctx context.Context, field
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_KafkaTopic_configuration,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_KafkaTopic_configuration(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Configuration, nil
 		},
 		nil,
-		ec.marshalOKafkaTopicConfiguration2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicConfiguration,
+		func(ctx context.Context, selections ast.SelectionSet, v *kafkatopic.KafkaTopicConfiguration) graphql.Marshaler {
+			return ec.marshalOKafkaTopicConfiguration2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicConfiguration(ctx, selections, v)
+		},
 		true,
 		false,
 	)
 }
-
 func (ec *executionContext) fieldContext_KafkaTopic_configuration(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "KafkaTopic",
@@ -681,25 +480,7 @@ func (ec *executionContext) fieldContext_KafkaTopic_configuration(_ context.Cont
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "cleanupPolicy":
-				return ec.fieldContext_KafkaTopicConfiguration_cleanupPolicy(ctx, field)
-			case "maxMessageBytes":
-				return ec.fieldContext_KafkaTopicConfiguration_maxMessageBytes(ctx, field)
-			case "minimumInSyncReplicas":
-				return ec.fieldContext_KafkaTopicConfiguration_minimumInSyncReplicas(ctx, field)
-			case "partitions":
-				return ec.fieldContext_KafkaTopicConfiguration_partitions(ctx, field)
-			case "replication":
-				return ec.fieldContext_KafkaTopicConfiguration_replication(ctx, field)
-			case "retentionBytes":
-				return ec.fieldContext_KafkaTopicConfiguration_retentionBytes(ctx, field)
-			case "retentionHours":
-				return ec.fieldContext_KafkaTopicConfiguration_retentionHours(ctx, field)
-			case "segmentHours":
-				return ec.fieldContext_KafkaTopicConfiguration_segmentHours(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type KafkaTopicConfiguration", field.Name)
+			return ec.childFields_KafkaTopicConfiguration(ctx, field)
 		},
 	}
 	return fc, nil
@@ -710,28 +491,22 @@ func (ec *executionContext) _KafkaTopic_pool(ctx context.Context, field graphql.
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_KafkaTopic_pool,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_KafkaTopic_pool(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Pool, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_KafkaTopic_pool(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "KafkaTopic",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("KafkaTopic", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _KafkaTopicAcl_access(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopicACL) (ret graphql.Marshaler) {
@@ -739,28 +514,22 @@ func (ec *executionContext) _KafkaTopicAcl_access(ctx context.Context, field gra
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_KafkaTopicAcl_access,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_KafkaTopicAcl_access(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Access, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_KafkaTopicAcl_access(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "KafkaTopicAcl",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("KafkaTopicAcl", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _KafkaTopicAcl_workloadName(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopicACL) (ret graphql.Marshaler) {
@@ -768,28 +537,22 @@ func (ec *executionContext) _KafkaTopicAcl_workloadName(ctx context.Context, fie
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_KafkaTopicAcl_workloadName,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_KafkaTopicAcl_workloadName(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.WorkloadName, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_KafkaTopicAcl_workloadName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "KafkaTopicAcl",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("KafkaTopicAcl", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _KafkaTopicAcl_teamName(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopicACL) (ret graphql.Marshaler) {
@@ -797,28 +560,22 @@ func (ec *executionContext) _KafkaTopicAcl_teamName(ctx context.Context, field g
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_KafkaTopicAcl_teamName,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_KafkaTopicAcl_teamName(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.TeamName, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_KafkaTopicAcl_teamName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "KafkaTopicAcl",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("KafkaTopicAcl", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _KafkaTopicAcl_team(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopicACL) (ret graphql.Marshaler) {
@@ -826,17 +583,20 @@ func (ec *executionContext) _KafkaTopicAcl_team(ctx context.Context, field graph
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_KafkaTopicAcl_team,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_KafkaTopicAcl_team(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.KafkaTopicAcl().Team(ctx, obj)
 		},
 		nil,
-		ec.marshalOTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam,
+		func(ctx context.Context, selections ast.SelectionSet, v *team.Team) graphql.Marshaler {
+			return ec.marshalOTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx, selections, v)
+		},
 		true,
 		false,
 	)
 }
-
 func (ec *executionContext) fieldContext_KafkaTopicAcl_team(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "KafkaTopicAcl",
@@ -844,91 +604,7 @@ func (ec *executionContext) fieldContext_KafkaTopicAcl_team(_ context.Context, f
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Team_id(ctx, field)
-			case "slug":
-				return ec.fieldContext_Team_slug(ctx, field)
-			case "slackChannel":
-				return ec.fieldContext_Team_slackChannel(ctx, field)
-			case "purpose":
-				return ec.fieldContext_Team_purpose(ctx, field)
-			case "externalResources":
-				return ec.fieldContext_Team_externalResources(ctx, field)
-			case "member":
-				return ec.fieldContext_Team_member(ctx, field)
-			case "members":
-				return ec.fieldContext_Team_members(ctx, field)
-			case "lastSuccessfulSync":
-				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
-			case "deletionInProgress":
-				return ec.fieldContext_Team_deletionInProgress(ctx, field)
-			case "viewerIsOwner":
-				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
-			case "viewerIsMember":
-				return ec.fieldContext_Team_viewerIsMember(ctx, field)
-			case "environments":
-				return ec.fieldContext_Team_environments(ctx, field)
-			case "environment":
-				return ec.fieldContext_Team_environment(ctx, field)
-			case "deleteKey":
-				return ec.fieldContext_Team_deleteKey(ctx, field)
-			case "inventoryCounts":
-				return ec.fieldContext_Team_inventoryCounts(ctx, field)
-			case "activityLog":
-				return ec.fieldContext_Team_activityLog(ctx, field)
-			case "alerts":
-				return ec.fieldContext_Team_alerts(ctx, field)
-			case "applications":
-				return ec.fieldContext_Team_applications(ctx, field)
-			case "bigQueryDatasets":
-				return ec.fieldContext_Team_bigQueryDatasets(ctx, field)
-			case "buckets":
-				return ec.fieldContext_Team_buckets(ctx, field)
-			case "configs":
-				return ec.fieldContext_Team_configs(ctx, field)
-			case "cost":
-				return ec.fieldContext_Team_cost(ctx, field)
-			case "deploymentKey":
-				return ec.fieldContext_Team_deploymentKey(ctx, field)
-			case "deployments":
-				return ec.fieldContext_Team_deployments(ctx, field)
-			case "issues":
-				return ec.fieldContext_Team_issues(ctx, field)
-			case "jobs":
-				return ec.fieldContext_Team_jobs(ctx, field)
-			case "kafkaTopics":
-				return ec.fieldContext_Team_kafkaTopics(ctx, field)
-			case "openSearches":
-				return ec.fieldContext_Team_openSearches(ctx, field)
-			case "postgresInstances":
-				return ec.fieldContext_Team_postgresInstances(ctx, field)
-			case "repositories":
-				return ec.fieldContext_Team_repositories(ctx, field)
-			case "secrets":
-				return ec.fieldContext_Team_secrets(ctx, field)
-			case "sqlInstances":
-				return ec.fieldContext_Team_sqlInstances(ctx, field)
-			case "unleash":
-				return ec.fieldContext_Team_unleash(ctx, field)
-			case "workloadUtilization":
-				return ec.fieldContext_Team_workloadUtilization(ctx, field)
-			case "serviceUtilization":
-				return ec.fieldContext_Team_serviceUtilization(ctx, field)
-			case "valkeys":
-				return ec.fieldContext_Team_valkeys(ctx, field)
-			case "imageVulnerabilityHistory":
-				return ec.fieldContext_Team_imageVulnerabilityHistory(ctx, field)
-			case "vulnerabilityFixHistory":
-				return ec.fieldContext_Team_vulnerabilityFixHistory(ctx, field)
-			case "vulnerabilitySummary":
-				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
-			case "vulnerabilitySummaries":
-				return ec.fieldContext_Team_vulnerabilitySummaries(ctx, field)
-			case "workloads":
-				return ec.fieldContext_Team_workloads(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
+			return ec.childFields_Team(ctx, field)
 		},
 	}
 	return fc, nil
@@ -939,17 +615,20 @@ func (ec *executionContext) _KafkaTopicAcl_workload(ctx context.Context, field g
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_KafkaTopicAcl_workload,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_KafkaTopicAcl_workload(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.KafkaTopicAcl().Workload(ctx, obj)
 		},
 		nil,
-		ec.marshalOWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload,
+		func(ctx context.Context, selections ast.SelectionSet, v workload.Workload) graphql.Marshaler {
+			return ec.marshalOWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload(ctx, selections, v)
+		},
 		true,
 		false,
 	)
 }
-
 func (ec *executionContext) fieldContext_KafkaTopicAcl_workload(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "KafkaTopicAcl",
@@ -968,17 +647,20 @@ func (ec *executionContext) _KafkaTopicAcl_topic(ctx context.Context, field grap
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_KafkaTopicAcl_topic,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_KafkaTopicAcl_topic(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.KafkaTopicAcl().Topic(ctx, obj)
 		},
 		nil,
-		ec.marshalNKafkaTopic2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopic,
+		func(ctx context.Context, selections ast.SelectionSet, v *kafkatopic.KafkaTopic) graphql.Marshaler {
+			return ec.marshalNKafkaTopic2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopic(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_KafkaTopicAcl_topic(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "KafkaTopicAcl",
@@ -986,25 +668,7 @@ func (ec *executionContext) fieldContext_KafkaTopicAcl_topic(_ context.Context, 
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_KafkaTopic_id(ctx, field)
-			case "name":
-				return ec.fieldContext_KafkaTopic_name(ctx, field)
-			case "team":
-				return ec.fieldContext_KafkaTopic_team(ctx, field)
-			case "environment":
-				return ec.fieldContext_KafkaTopic_environment(ctx, field)
-			case "teamEnvironment":
-				return ec.fieldContext_KafkaTopic_teamEnvironment(ctx, field)
-			case "acl":
-				return ec.fieldContext_KafkaTopic_acl(ctx, field)
-			case "configuration":
-				return ec.fieldContext_KafkaTopic_configuration(ctx, field)
-			case "pool":
-				return ec.fieldContext_KafkaTopic_pool(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type KafkaTopic", field.Name)
+			return ec.childFields_KafkaTopic(ctx, field)
 		},
 	}
 	return fc, nil
@@ -1015,17 +679,20 @@ func (ec *executionContext) _KafkaTopicAclConnection_pageInfo(ctx context.Contex
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_KafkaTopicAclConnection_pageInfo,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_KafkaTopicAclConnection_pageInfo(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.PageInfo, nil
 		},
 		nil,
-		ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo,
+		func(ctx context.Context, selections ast.SelectionSet, v pagination.PageInfo) graphql.Marshaler {
+			return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_KafkaTopicAclConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "KafkaTopicAclConnection",
@@ -1033,23 +700,7 @@ func (ec *executionContext) fieldContext_KafkaTopicAclConnection_pageInfo(_ cont
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "hasNextPage":
-				return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
-			case "endCursor":
-				return ec.fieldContext_PageInfo_endCursor(ctx, field)
-			case "hasPreviousPage":
-				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
-			case "startCursor":
-				return ec.fieldContext_PageInfo_startCursor(ctx, field)
-			case "totalCount":
-				return ec.fieldContext_PageInfo_totalCount(ctx, field)
-			case "pageStart":
-				return ec.fieldContext_PageInfo_pageStart(ctx, field)
-			case "pageEnd":
-				return ec.fieldContext_PageInfo_pageEnd(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
+			return ec.childFields_PageInfo(ctx, field)
 		},
 	}
 	return fc, nil
@@ -1060,17 +711,20 @@ func (ec *executionContext) _KafkaTopicAclConnection_nodes(ctx context.Context, 
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_KafkaTopicAclConnection_nodes,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_KafkaTopicAclConnection_nodes(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Nodes(), nil
 		},
 		nil,
-		ec.marshalNKafkaTopicAcl2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicACLᚄ,
+		func(ctx context.Context, selections ast.SelectionSet, v []*kafkatopic.KafkaTopicACL) graphql.Marshaler {
+			return ec.marshalNKafkaTopicAcl2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicACLᚄ(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_KafkaTopicAclConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "KafkaTopicAclConnection",
@@ -1078,21 +732,7 @@ func (ec *executionContext) fieldContext_KafkaTopicAclConnection_nodes(_ context
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "access":
-				return ec.fieldContext_KafkaTopicAcl_access(ctx, field)
-			case "workloadName":
-				return ec.fieldContext_KafkaTopicAcl_workloadName(ctx, field)
-			case "teamName":
-				return ec.fieldContext_KafkaTopicAcl_teamName(ctx, field)
-			case "team":
-				return ec.fieldContext_KafkaTopicAcl_team(ctx, field)
-			case "workload":
-				return ec.fieldContext_KafkaTopicAcl_workload(ctx, field)
-			case "topic":
-				return ec.fieldContext_KafkaTopicAcl_topic(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type KafkaTopicAcl", field.Name)
+			return ec.childFields_KafkaTopicAcl(ctx, field)
 		},
 	}
 	return fc, nil
@@ -1103,17 +743,20 @@ func (ec *executionContext) _KafkaTopicAclConnection_edges(ctx context.Context, 
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_KafkaTopicAclConnection_edges,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_KafkaTopicAclConnection_edges(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Edges, nil
 		},
 		nil,
-		ec.marshalNKafkaTopicAclEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ,
+		func(ctx context.Context, selections ast.SelectionSet, v []pagination.Edge[*kafkatopic.KafkaTopicACL]) graphql.Marshaler {
+			return ec.marshalNKafkaTopicAclEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_KafkaTopicAclConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "KafkaTopicAclConnection",
@@ -1121,13 +764,7 @@ func (ec *executionContext) fieldContext_KafkaTopicAclConnection_edges(_ context
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "cursor":
-				return ec.fieldContext_KafkaTopicAclEdge_cursor(ctx, field)
-			case "node":
-				return ec.fieldContext_KafkaTopicAclEdge_node(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type KafkaTopicAclEdge", field.Name)
+			return ec.childFields_KafkaTopicAclEdge(ctx, field)
 		},
 	}
 	return fc, nil
@@ -1138,28 +775,22 @@ func (ec *executionContext) _KafkaTopicAclEdge_cursor(ctx context.Context, field
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_KafkaTopicAclEdge_cursor,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_KafkaTopicAclEdge_cursor(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Cursor, nil
 		},
 		nil,
-		ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor,
+		func(ctx context.Context, selections ast.SelectionSet, v pagination.Cursor) graphql.Marshaler {
+			return ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_KafkaTopicAclEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "KafkaTopicAclEdge",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Cursor does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("KafkaTopicAclEdge", field, false, false, errors.New("field of type Cursor does not have child fields"))
 }
 
 func (ec *executionContext) _KafkaTopicAclEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*kafkatopic.KafkaTopicACL]) (ret graphql.Marshaler) {
@@ -1167,17 +798,20 @@ func (ec *executionContext) _KafkaTopicAclEdge_node(ctx context.Context, field g
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_KafkaTopicAclEdge_node,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_KafkaTopicAclEdge_node(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Node, nil
 		},
 		nil,
-		ec.marshalNKafkaTopicAcl2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicACL,
+		func(ctx context.Context, selections ast.SelectionSet, v *kafkatopic.KafkaTopicACL) graphql.Marshaler {
+			return ec.marshalNKafkaTopicAcl2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicACL(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_KafkaTopicAclEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "KafkaTopicAclEdge",
@@ -1185,21 +819,7 @@ func (ec *executionContext) fieldContext_KafkaTopicAclEdge_node(_ context.Contex
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "access":
-				return ec.fieldContext_KafkaTopicAcl_access(ctx, field)
-			case "workloadName":
-				return ec.fieldContext_KafkaTopicAcl_workloadName(ctx, field)
-			case "teamName":
-				return ec.fieldContext_KafkaTopicAcl_teamName(ctx, field)
-			case "team":
-				return ec.fieldContext_KafkaTopicAcl_team(ctx, field)
-			case "workload":
-				return ec.fieldContext_KafkaTopicAcl_workload(ctx, field)
-			case "topic":
-				return ec.fieldContext_KafkaTopicAcl_topic(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type KafkaTopicAcl", field.Name)
+			return ec.childFields_KafkaTopicAcl(ctx, field)
 		},
 	}
 	return fc, nil
@@ -1210,28 +830,22 @@ func (ec *executionContext) _KafkaTopicConfiguration_cleanupPolicy(ctx context.C
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_KafkaTopicConfiguration_cleanupPolicy,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_KafkaTopicConfiguration_cleanupPolicy(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.CleanupPolicy, nil
 		},
 		nil,
-		ec.marshalOString2ᚖstring,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
+		},
 		true,
 		false,
 	)
 }
-
 func (ec *executionContext) fieldContext_KafkaTopicConfiguration_cleanupPolicy(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "KafkaTopicConfiguration",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("KafkaTopicConfiguration", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _KafkaTopicConfiguration_maxMessageBytes(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopicConfiguration) (ret graphql.Marshaler) {
@@ -1239,28 +853,22 @@ func (ec *executionContext) _KafkaTopicConfiguration_maxMessageBytes(ctx context
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_KafkaTopicConfiguration_maxMessageBytes,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_KafkaTopicConfiguration_maxMessageBytes(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.MaxMessageBytes, nil
 		},
 		nil,
-		ec.marshalOInt2ᚖint,
+		func(ctx context.Context, selections ast.SelectionSet, v *int) graphql.Marshaler {
+			return ec.marshalOInt2ᚖint(ctx, selections, v)
+		},
 		true,
 		false,
 	)
 }
-
 func (ec *executionContext) fieldContext_KafkaTopicConfiguration_maxMessageBytes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "KafkaTopicConfiguration",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("KafkaTopicConfiguration", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
 func (ec *executionContext) _KafkaTopicConfiguration_minimumInSyncReplicas(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopicConfiguration) (ret graphql.Marshaler) {
@@ -1268,28 +876,22 @@ func (ec *executionContext) _KafkaTopicConfiguration_minimumInSyncReplicas(ctx c
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_KafkaTopicConfiguration_minimumInSyncReplicas,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_KafkaTopicConfiguration_minimumInSyncReplicas(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.MinimumInSyncReplicas, nil
 		},
 		nil,
-		ec.marshalOInt2ᚖint,
+		func(ctx context.Context, selections ast.SelectionSet, v *int) graphql.Marshaler {
+			return ec.marshalOInt2ᚖint(ctx, selections, v)
+		},
 		true,
 		false,
 	)
 }
-
 func (ec *executionContext) fieldContext_KafkaTopicConfiguration_minimumInSyncReplicas(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "KafkaTopicConfiguration",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("KafkaTopicConfiguration", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
 func (ec *executionContext) _KafkaTopicConfiguration_partitions(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopicConfiguration) (ret graphql.Marshaler) {
@@ -1297,28 +899,22 @@ func (ec *executionContext) _KafkaTopicConfiguration_partitions(ctx context.Cont
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_KafkaTopicConfiguration_partitions,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_KafkaTopicConfiguration_partitions(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Partitions, nil
 		},
 		nil,
-		ec.marshalOInt2ᚖint,
+		func(ctx context.Context, selections ast.SelectionSet, v *int) graphql.Marshaler {
+			return ec.marshalOInt2ᚖint(ctx, selections, v)
+		},
 		true,
 		false,
 	)
 }
-
 func (ec *executionContext) fieldContext_KafkaTopicConfiguration_partitions(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "KafkaTopicConfiguration",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("KafkaTopicConfiguration", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
 func (ec *executionContext) _KafkaTopicConfiguration_replication(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopicConfiguration) (ret graphql.Marshaler) {
@@ -1326,28 +922,22 @@ func (ec *executionContext) _KafkaTopicConfiguration_replication(ctx context.Con
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_KafkaTopicConfiguration_replication,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_KafkaTopicConfiguration_replication(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Replication, nil
 		},
 		nil,
-		ec.marshalOInt2ᚖint,
+		func(ctx context.Context, selections ast.SelectionSet, v *int) graphql.Marshaler {
+			return ec.marshalOInt2ᚖint(ctx, selections, v)
+		},
 		true,
 		false,
 	)
 }
-
 func (ec *executionContext) fieldContext_KafkaTopicConfiguration_replication(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "KafkaTopicConfiguration",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("KafkaTopicConfiguration", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
 func (ec *executionContext) _KafkaTopicConfiguration_retentionBytes(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopicConfiguration) (ret graphql.Marshaler) {
@@ -1355,28 +945,22 @@ func (ec *executionContext) _KafkaTopicConfiguration_retentionBytes(ctx context.
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_KafkaTopicConfiguration_retentionBytes,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_KafkaTopicConfiguration_retentionBytes(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.RetentionBytes, nil
 		},
 		nil,
-		ec.marshalOInt2ᚖint,
+		func(ctx context.Context, selections ast.SelectionSet, v *int) graphql.Marshaler {
+			return ec.marshalOInt2ᚖint(ctx, selections, v)
+		},
 		true,
 		false,
 	)
 }
-
 func (ec *executionContext) fieldContext_KafkaTopicConfiguration_retentionBytes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "KafkaTopicConfiguration",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("KafkaTopicConfiguration", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
 func (ec *executionContext) _KafkaTopicConfiguration_retentionHours(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopicConfiguration) (ret graphql.Marshaler) {
@@ -1384,28 +968,22 @@ func (ec *executionContext) _KafkaTopicConfiguration_retentionHours(ctx context.
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_KafkaTopicConfiguration_retentionHours,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_KafkaTopicConfiguration_retentionHours(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.RetentionHours, nil
 		},
 		nil,
-		ec.marshalOInt2ᚖint,
+		func(ctx context.Context, selections ast.SelectionSet, v *int) graphql.Marshaler {
+			return ec.marshalOInt2ᚖint(ctx, selections, v)
+		},
 		true,
 		false,
 	)
 }
-
 func (ec *executionContext) fieldContext_KafkaTopicConfiguration_retentionHours(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "KafkaTopicConfiguration",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("KafkaTopicConfiguration", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
 func (ec *executionContext) _KafkaTopicConfiguration_segmentHours(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopicConfiguration) (ret graphql.Marshaler) {
@@ -1413,28 +991,22 @@ func (ec *executionContext) _KafkaTopicConfiguration_segmentHours(ctx context.Co
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_KafkaTopicConfiguration_segmentHours,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_KafkaTopicConfiguration_segmentHours(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.SegmentHours, nil
 		},
 		nil,
-		ec.marshalOInt2ᚖint,
+		func(ctx context.Context, selections ast.SelectionSet, v *int) graphql.Marshaler {
+			return ec.marshalOInt2ᚖint(ctx, selections, v)
+		},
 		true,
 		false,
 	)
 }
-
 func (ec *executionContext) fieldContext_KafkaTopicConfiguration_segmentHours(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "KafkaTopicConfiguration",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("KafkaTopicConfiguration", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
 func (ec *executionContext) _KafkaTopicConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*kafkatopic.KafkaTopic]) (ret graphql.Marshaler) {
@@ -1442,17 +1014,20 @@ func (ec *executionContext) _KafkaTopicConnection_pageInfo(ctx context.Context, 
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_KafkaTopicConnection_pageInfo,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_KafkaTopicConnection_pageInfo(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.PageInfo, nil
 		},
 		nil,
-		ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo,
+		func(ctx context.Context, selections ast.SelectionSet, v pagination.PageInfo) graphql.Marshaler {
+			return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_KafkaTopicConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "KafkaTopicConnection",
@@ -1460,23 +1035,7 @@ func (ec *executionContext) fieldContext_KafkaTopicConnection_pageInfo(_ context
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "hasNextPage":
-				return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
-			case "endCursor":
-				return ec.fieldContext_PageInfo_endCursor(ctx, field)
-			case "hasPreviousPage":
-				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
-			case "startCursor":
-				return ec.fieldContext_PageInfo_startCursor(ctx, field)
-			case "totalCount":
-				return ec.fieldContext_PageInfo_totalCount(ctx, field)
-			case "pageStart":
-				return ec.fieldContext_PageInfo_pageStart(ctx, field)
-			case "pageEnd":
-				return ec.fieldContext_PageInfo_pageEnd(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
+			return ec.childFields_PageInfo(ctx, field)
 		},
 	}
 	return fc, nil
@@ -1487,17 +1046,20 @@ func (ec *executionContext) _KafkaTopicConnection_nodes(ctx context.Context, fie
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_KafkaTopicConnection_nodes,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_KafkaTopicConnection_nodes(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Nodes(), nil
 		},
 		nil,
-		ec.marshalNKafkaTopic2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicᚄ,
+		func(ctx context.Context, selections ast.SelectionSet, v []*kafkatopic.KafkaTopic) graphql.Marshaler {
+			return ec.marshalNKafkaTopic2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicᚄ(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_KafkaTopicConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "KafkaTopicConnection",
@@ -1505,25 +1067,7 @@ func (ec *executionContext) fieldContext_KafkaTopicConnection_nodes(_ context.Co
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_KafkaTopic_id(ctx, field)
-			case "name":
-				return ec.fieldContext_KafkaTopic_name(ctx, field)
-			case "team":
-				return ec.fieldContext_KafkaTopic_team(ctx, field)
-			case "environment":
-				return ec.fieldContext_KafkaTopic_environment(ctx, field)
-			case "teamEnvironment":
-				return ec.fieldContext_KafkaTopic_teamEnvironment(ctx, field)
-			case "acl":
-				return ec.fieldContext_KafkaTopic_acl(ctx, field)
-			case "configuration":
-				return ec.fieldContext_KafkaTopic_configuration(ctx, field)
-			case "pool":
-				return ec.fieldContext_KafkaTopic_pool(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type KafkaTopic", field.Name)
+			return ec.childFields_KafkaTopic(ctx, field)
 		},
 	}
 	return fc, nil
@@ -1534,17 +1078,20 @@ func (ec *executionContext) _KafkaTopicConnection_edges(ctx context.Context, fie
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_KafkaTopicConnection_edges,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_KafkaTopicConnection_edges(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Edges, nil
 		},
 		nil,
-		ec.marshalNKafkaTopicEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ,
+		func(ctx context.Context, selections ast.SelectionSet, v []pagination.Edge[*kafkatopic.KafkaTopic]) graphql.Marshaler {
+			return ec.marshalNKafkaTopicEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_KafkaTopicConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "KafkaTopicConnection",
@@ -1552,13 +1099,7 @@ func (ec *executionContext) fieldContext_KafkaTopicConnection_edges(_ context.Co
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "cursor":
-				return ec.fieldContext_KafkaTopicEdge_cursor(ctx, field)
-			case "node":
-				return ec.fieldContext_KafkaTopicEdge_node(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type KafkaTopicEdge", field.Name)
+			return ec.childFields_KafkaTopicEdge(ctx, field)
 		},
 	}
 	return fc, nil
@@ -1569,28 +1110,22 @@ func (ec *executionContext) _KafkaTopicEdge_cursor(ctx context.Context, field gr
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_KafkaTopicEdge_cursor,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_KafkaTopicEdge_cursor(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Cursor, nil
 		},
 		nil,
-		ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor,
+		func(ctx context.Context, selections ast.SelectionSet, v pagination.Cursor) graphql.Marshaler {
+			return ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_KafkaTopicEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "KafkaTopicEdge",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Cursor does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("KafkaTopicEdge", field, false, false, errors.New("field of type Cursor does not have child fields"))
 }
 
 func (ec *executionContext) _KafkaTopicEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*kafkatopic.KafkaTopic]) (ret graphql.Marshaler) {
@@ -1598,17 +1133,20 @@ func (ec *executionContext) _KafkaTopicEdge_node(ctx context.Context, field grap
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_KafkaTopicEdge_node,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_KafkaTopicEdge_node(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Node, nil
 		},
 		nil,
-		ec.marshalNKafkaTopic2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopic,
+		func(ctx context.Context, selections ast.SelectionSet, v *kafkatopic.KafkaTopic) graphql.Marshaler {
+			return ec.marshalNKafkaTopic2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopic(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_KafkaTopicEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "KafkaTopicEdge",
@@ -1616,25 +1154,7 @@ func (ec *executionContext) fieldContext_KafkaTopicEdge_node(_ context.Context, 
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_KafkaTopic_id(ctx, field)
-			case "name":
-				return ec.fieldContext_KafkaTopic_name(ctx, field)
-			case "team":
-				return ec.fieldContext_KafkaTopic_team(ctx, field)
-			case "environment":
-				return ec.fieldContext_KafkaTopic_environment(ctx, field)
-			case "teamEnvironment":
-				return ec.fieldContext_KafkaTopic_teamEnvironment(ctx, field)
-			case "acl":
-				return ec.fieldContext_KafkaTopic_acl(ctx, field)
-			case "configuration":
-				return ec.fieldContext_KafkaTopic_configuration(ctx, field)
-			case "pool":
-				return ec.fieldContext_KafkaTopic_pool(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type KafkaTopic", field.Name)
+			return ec.childFields_KafkaTopic(ctx, field)
 		},
 	}
 	return fc, nil
@@ -1645,28 +1165,22 @@ func (ec *executionContext) _TeamInventoryCountKafkaTopics_total(ctx context.Con
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_TeamInventoryCountKafkaTopics_total,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_TeamInventoryCountKafkaTopics_total(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Total, nil
 		},
 		nil,
-		ec.marshalNInt2int,
+		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
+			return ec.marshalNInt2int(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_TeamInventoryCountKafkaTopics_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamInventoryCountKafkaTopics",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("TeamInventoryCountKafkaTopics", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
 // endregion **************************** field.gotpl *****************************
@@ -1675,6 +1189,10 @@ func (ec *executionContext) fieldContext_TeamInventoryCountKafkaTopics_total(_ c
 
 func (ec *executionContext) unmarshalInputCreateKafkaCredentialsInput(ctx context.Context, obj any) (kafkatopic.CreateKafkaCredentialsInput, error) {
 	var it kafkatopic.CreateKafkaCredentialsInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -1715,6 +1233,10 @@ func (ec *executionContext) unmarshalInputCreateKafkaCredentialsInput(ctx contex
 
 func (ec *executionContext) unmarshalInputKafkaTopicAclFilter(ctx context.Context, obj any) (kafkatopic.KafkaTopicACLFilter, error) {
 	var it kafkatopic.KafkaTopicACLFilter
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -1755,6 +1277,10 @@ func (ec *executionContext) unmarshalInputKafkaTopicAclFilter(ctx context.Contex
 
 func (ec *executionContext) unmarshalInputKafkaTopicAclOrder(ctx context.Context, obj any) (kafkatopic.KafkaTopicACLOrder, error) {
 	var it kafkatopic.KafkaTopicACLOrder
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -1788,6 +1314,10 @@ func (ec *executionContext) unmarshalInputKafkaTopicAclOrder(ctx context.Context
 
 func (ec *executionContext) unmarshalInputKafkaTopicOrder(ctx context.Context, obj any) (kafkatopic.KafkaTopicOrder, error) {
 	var it kafkatopic.KafkaTopicOrder
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -1852,7 +1382,7 @@ func (ec *executionContext) _CreateKafkaCredentialsPayload(ctx context.Context, 
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -1916,7 +1446,7 @@ func (ec *executionContext) _KafkaCredentials(ctx context.Context, sel ast.Selec
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -2111,7 +1641,7 @@ func (ec *executionContext) _KafkaTopic(ctx context.Context, sel ast.SelectionSe
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -2262,7 +1792,7 @@ func (ec *executionContext) _KafkaTopicAcl(ctx context.Context, sel ast.Selectio
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -2311,7 +1841,7 @@ func (ec *executionContext) _KafkaTopicAclConnection(ctx context.Context, sel as
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -2355,7 +1885,7 @@ func (ec *executionContext) _KafkaTopicAclEdge(ctx context.Context, sel ast.Sele
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -2405,7 +1935,7 @@ func (ec *executionContext) _KafkaTopicConfiguration(ctx context.Context, sel as
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -2454,7 +1984,7 @@ func (ec *executionContext) _KafkaTopicConnection(ctx context.Context, sel ast.S
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -2498,7 +2028,7 @@ func (ec *executionContext) _KafkaTopicEdge(ctx context.Context, sel ast.Selecti
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -2537,7 +2067,7 @@ func (ec *executionContext) _TeamInventoryCountKafkaTopics(ctx context.Context, 
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{

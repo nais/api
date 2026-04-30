@@ -5,7 +5,7 @@ package gengql
 import (
 	"context"
 	"errors"
-	"fmt"
+	"math"
 	"strconv"
 	"sync/atomic"
 
@@ -40,17 +40,26 @@ type WorkloadCostSampleResolver interface {
 func (ec *executionContext) field_TeamCost_daily_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "from", ec.unmarshalNDate2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate)
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "from",
+		func(ctx context.Context, v any) (scalar.Date, error) {
+			return ec.unmarshalNDate2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx, v)
+		})
 	if err != nil {
 		return nil, err
 	}
 	args["from"] = arg0
-	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "to", ec.unmarshalNDate2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate)
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "to",
+		func(ctx context.Context, v any) (scalar.Date, error) {
+			return ec.unmarshalNDate2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx, v)
+		})
 	if err != nil {
 		return nil, err
 	}
 	args["to"] = arg1
-	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "filter", ec.unmarshalOTeamCostDailyFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamCostDailyFilter)
+	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "filter",
+		func(ctx context.Context, v any) (*cost.TeamCostDailyFilter, error) {
+			return ec.unmarshalOTeamCostDailyFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamCostDailyFilter(ctx, v)
+		})
 	if err != nil {
 		return nil, err
 	}
@@ -61,12 +70,18 @@ func (ec *executionContext) field_TeamCost_daily_args(ctx context.Context, rawAr
 func (ec *executionContext) field_TeamEnvironmentCost_daily_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "from", ec.unmarshalNDate2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate)
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "from",
+		func(ctx context.Context, v any) (scalar.Date, error) {
+			return ec.unmarshalNDate2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx, v)
+		})
 	if err != nil {
 		return nil, err
 	}
 	args["from"] = arg0
-	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "to", ec.unmarshalNDate2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate)
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "to",
+		func(ctx context.Context, v any) (scalar.Date, error) {
+			return ec.unmarshalNDate2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx, v)
+		})
 	if err != nil {
 		return nil, err
 	}
@@ -77,12 +92,18 @@ func (ec *executionContext) field_TeamEnvironmentCost_daily_args(ctx context.Con
 func (ec *executionContext) field_WorkloadCost_daily_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "from", ec.unmarshalNDate2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate)
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "from",
+		func(ctx context.Context, v any) (scalar.Date, error) {
+			return ec.unmarshalNDate2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx, v)
+		})
 	if err != nil {
 		return nil, err
 	}
 	args["from"] = arg0
-	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "to", ec.unmarshalNDate2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate)
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "to",
+		func(ctx context.Context, v any) (scalar.Date, error) {
+			return ec.unmarshalNDate2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx, v)
+		})
 	if err != nil {
 		return nil, err
 	}
@@ -103,28 +124,22 @@ func (ec *executionContext) _BigQueryDatasetCost_sum(ctx context.Context, field 
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_BigQueryDatasetCost_sum,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_BigQueryDatasetCost_sum(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Sum, nil
 		},
 		nil,
-		ec.marshalNFloat2float64,
+		func(ctx context.Context, selections ast.SelectionSet, v float64) graphql.Marshaler {
+			return ec.marshalNFloat2float64(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_BigQueryDatasetCost_sum(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "BigQueryDatasetCost",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Float does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("BigQueryDatasetCost", field, false, false, errors.New("field of type Float does not have child fields"))
 }
 
 func (ec *executionContext) _CostMonthlySummary_series(ctx context.Context, field graphql.CollectedField, obj *cost.CostMonthlySummary) (ret graphql.Marshaler) {
@@ -132,17 +147,20 @@ func (ec *executionContext) _CostMonthlySummary_series(ctx context.Context, fiel
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_CostMonthlySummary_series,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_CostMonthlySummary_series(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Series, nil
 		},
 		nil,
-		ec.marshalNServiceCostSeries2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐServiceCostSeriesᚄ,
+		func(ctx context.Context, selections ast.SelectionSet, v []*cost.ServiceCostSeries) graphql.Marshaler {
+			return ec.marshalNServiceCostSeries2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐServiceCostSeriesᚄ(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_CostMonthlySummary_series(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CostMonthlySummary",
@@ -150,15 +168,7 @@ func (ec *executionContext) fieldContext_CostMonthlySummary_series(_ context.Con
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "date":
-				return ec.fieldContext_ServiceCostSeries_date(ctx, field)
-			case "sum":
-				return ec.fieldContext_ServiceCostSeries_sum(ctx, field)
-			case "services":
-				return ec.fieldContext_ServiceCostSeries_services(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type ServiceCostSeries", field.Name)
+			return ec.childFields_ServiceCostSeries(ctx, field)
 		},
 	}
 	return fc, nil
@@ -169,28 +179,22 @@ func (ec *executionContext) _OpenSearchCost_sum(ctx context.Context, field graph
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_OpenSearchCost_sum,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_OpenSearchCost_sum(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Sum, nil
 		},
 		nil,
-		ec.marshalNFloat2float64,
+		func(ctx context.Context, selections ast.SelectionSet, v float64) graphql.Marshaler {
+			return ec.marshalNFloat2float64(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_OpenSearchCost_sum(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "OpenSearchCost",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Float does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("OpenSearchCost", field, false, false, errors.New("field of type Float does not have child fields"))
 }
 
 func (ec *executionContext) _ServiceCostSample_service(ctx context.Context, field graphql.CollectedField, obj *cost.ServiceCostSample) (ret graphql.Marshaler) {
@@ -198,28 +202,22 @@ func (ec *executionContext) _ServiceCostSample_service(ctx context.Context, fiel
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ServiceCostSample_service,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ServiceCostSample_service(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Service, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ServiceCostSample_service(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ServiceCostSample",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ServiceCostSample", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _ServiceCostSample_cost(ctx context.Context, field graphql.CollectedField, obj *cost.ServiceCostSample) (ret graphql.Marshaler) {
@@ -227,28 +225,22 @@ func (ec *executionContext) _ServiceCostSample_cost(ctx context.Context, field g
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ServiceCostSample_cost,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ServiceCostSample_cost(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Cost, nil
 		},
 		nil,
-		ec.marshalNFloat2float64,
+		func(ctx context.Context, selections ast.SelectionSet, v float64) graphql.Marshaler {
+			return ec.marshalNFloat2float64(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ServiceCostSample_cost(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ServiceCostSample",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Float does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ServiceCostSample", field, false, false, errors.New("field of type Float does not have child fields"))
 }
 
 func (ec *executionContext) _ServiceCostSeries_date(ctx context.Context, field graphql.CollectedField, obj *cost.ServiceCostSeries) (ret graphql.Marshaler) {
@@ -256,28 +248,22 @@ func (ec *executionContext) _ServiceCostSeries_date(ctx context.Context, field g
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ServiceCostSeries_date,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ServiceCostSeries_date(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Date, nil
 		},
 		nil,
-		ec.marshalNDate2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate,
+		func(ctx context.Context, selections ast.SelectionSet, v scalar.Date) graphql.Marshaler {
+			return ec.marshalNDate2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ServiceCostSeries_date(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ServiceCostSeries",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Date does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ServiceCostSeries", field, false, false, errors.New("field of type Date does not have child fields"))
 }
 
 func (ec *executionContext) _ServiceCostSeries_sum(ctx context.Context, field graphql.CollectedField, obj *cost.ServiceCostSeries) (ret graphql.Marshaler) {
@@ -285,28 +271,22 @@ func (ec *executionContext) _ServiceCostSeries_sum(ctx context.Context, field gr
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ServiceCostSeries_sum,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ServiceCostSeries_sum(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Sum(), nil
 		},
 		nil,
-		ec.marshalNFloat2float64,
+		func(ctx context.Context, selections ast.SelectionSet, v float64) graphql.Marshaler {
+			return ec.marshalNFloat2float64(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ServiceCostSeries_sum(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ServiceCostSeries",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Float does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ServiceCostSeries", field, true, false, errors.New("field of type Float does not have child fields"))
 }
 
 func (ec *executionContext) _ServiceCostSeries_services(ctx context.Context, field graphql.CollectedField, obj *cost.ServiceCostSeries) (ret graphql.Marshaler) {
@@ -314,17 +294,20 @@ func (ec *executionContext) _ServiceCostSeries_services(ctx context.Context, fie
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ServiceCostSeries_services,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ServiceCostSeries_services(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Services, nil
 		},
 		nil,
-		ec.marshalNServiceCostSample2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐServiceCostSampleᚄ,
+		func(ctx context.Context, selections ast.SelectionSet, v []*cost.ServiceCostSample) graphql.Marshaler {
+			return ec.marshalNServiceCostSample2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐServiceCostSampleᚄ(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ServiceCostSeries_services(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ServiceCostSeries",
@@ -332,13 +315,7 @@ func (ec *executionContext) fieldContext_ServiceCostSeries_services(_ context.Co
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "service":
-				return ec.fieldContext_ServiceCostSample_service(ctx, field)
-			case "cost":
-				return ec.fieldContext_ServiceCostSample_cost(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type ServiceCostSample", field.Name)
+			return ec.childFields_ServiceCostSample(ctx, field)
 		},
 	}
 	return fc, nil
@@ -349,28 +326,22 @@ func (ec *executionContext) _SqlInstanceCost_sum(ctx context.Context, field grap
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_SqlInstanceCost_sum,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_SqlInstanceCost_sum(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Sum, nil
 		},
 		nil,
-		ec.marshalNFloat2float64,
+		func(ctx context.Context, selections ast.SelectionSet, v float64) graphql.Marshaler {
+			return ec.marshalNFloat2float64(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_SqlInstanceCost_sum(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "SqlInstanceCost",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Float does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("SqlInstanceCost", field, false, false, errors.New("field of type Float does not have child fields"))
 }
 
 func (ec *executionContext) _TeamCost_daily(ctx context.Context, field graphql.CollectedField, obj *cost.TeamCost) (ret graphql.Marshaler) {
@@ -378,18 +349,21 @@ func (ec *executionContext) _TeamCost_daily(ctx context.Context, field graphql.C
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_TeamCost_daily,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_TeamCost_daily(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
 			return ec.Resolvers.TeamCost().Daily(ctx, obj, fc.Args["from"].(scalar.Date), fc.Args["to"].(scalar.Date), fc.Args["filter"].(*cost.TeamCostDailyFilter))
 		},
 		nil,
-		ec.marshalNTeamCostPeriod2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamCostPeriod,
+		func(ctx context.Context, selections ast.SelectionSet, v *cost.TeamCostPeriod) graphql.Marshaler {
+			return ec.marshalNTeamCostPeriod2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamCostPeriod(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_TeamCost_daily(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamCost",
@@ -397,13 +371,7 @@ func (ec *executionContext) fieldContext_TeamCost_daily(ctx context.Context, fie
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "sum":
-				return ec.fieldContext_TeamCostPeriod_sum(ctx, field)
-			case "series":
-				return ec.fieldContext_TeamCostPeriod_series(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type TeamCostPeriod", field.Name)
+			return ec.childFields_TeamCostPeriod(ctx, field)
 		},
 	}
 	defer func() {
@@ -425,17 +393,20 @@ func (ec *executionContext) _TeamCost_monthlySummary(ctx context.Context, field 
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_TeamCost_monthlySummary,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_TeamCost_monthlySummary(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.TeamCost().MonthlySummary(ctx, obj)
 		},
 		nil,
-		ec.marshalNTeamCostMonthlySummary2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamCostMonthlySummary,
+		func(ctx context.Context, selections ast.SelectionSet, v *cost.TeamCostMonthlySummary) graphql.Marshaler {
+			return ec.marshalNTeamCostMonthlySummary2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamCostMonthlySummary(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_TeamCost_monthlySummary(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamCost",
@@ -443,13 +414,7 @@ func (ec *executionContext) fieldContext_TeamCost_monthlySummary(_ context.Conte
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "sum":
-				return ec.fieldContext_TeamCostMonthlySummary_sum(ctx, field)
-			case "series":
-				return ec.fieldContext_TeamCostMonthlySummary_series(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type TeamCostMonthlySummary", field.Name)
+			return ec.childFields_TeamCostMonthlySummary(ctx, field)
 		},
 	}
 	return fc, nil
@@ -460,28 +425,22 @@ func (ec *executionContext) _TeamCostMonthlySample_date(ctx context.Context, fie
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_TeamCostMonthlySample_date,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_TeamCostMonthlySample_date(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Date, nil
 		},
 		nil,
-		ec.marshalNDate2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate,
+		func(ctx context.Context, selections ast.SelectionSet, v scalar.Date) graphql.Marshaler {
+			return ec.marshalNDate2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_TeamCostMonthlySample_date(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamCostMonthlySample",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Date does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("TeamCostMonthlySample", field, false, false, errors.New("field of type Date does not have child fields"))
 }
 
 func (ec *executionContext) _TeamCostMonthlySample_cost(ctx context.Context, field graphql.CollectedField, obj *cost.TeamCostMonthlySample) (ret graphql.Marshaler) {
@@ -489,28 +448,22 @@ func (ec *executionContext) _TeamCostMonthlySample_cost(ctx context.Context, fie
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_TeamCostMonthlySample_cost,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_TeamCostMonthlySample_cost(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Cost, nil
 		},
 		nil,
-		ec.marshalNFloat2float64,
+		func(ctx context.Context, selections ast.SelectionSet, v float64) graphql.Marshaler {
+			return ec.marshalNFloat2float64(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_TeamCostMonthlySample_cost(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamCostMonthlySample",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Float does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("TeamCostMonthlySample", field, false, false, errors.New("field of type Float does not have child fields"))
 }
 
 func (ec *executionContext) _TeamCostMonthlySummary_sum(ctx context.Context, field graphql.CollectedField, obj *cost.TeamCostMonthlySummary) (ret graphql.Marshaler) {
@@ -518,28 +471,22 @@ func (ec *executionContext) _TeamCostMonthlySummary_sum(ctx context.Context, fie
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_TeamCostMonthlySummary_sum,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_TeamCostMonthlySummary_sum(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Sum(), nil
 		},
 		nil,
-		ec.marshalNFloat2float64,
+		func(ctx context.Context, selections ast.SelectionSet, v float64) graphql.Marshaler {
+			return ec.marshalNFloat2float64(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_TeamCostMonthlySummary_sum(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamCostMonthlySummary",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Float does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("TeamCostMonthlySummary", field, true, false, errors.New("field of type Float does not have child fields"))
 }
 
 func (ec *executionContext) _TeamCostMonthlySummary_series(ctx context.Context, field graphql.CollectedField, obj *cost.TeamCostMonthlySummary) (ret graphql.Marshaler) {
@@ -547,17 +494,20 @@ func (ec *executionContext) _TeamCostMonthlySummary_series(ctx context.Context, 
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_TeamCostMonthlySummary_series,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_TeamCostMonthlySummary_series(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Series, nil
 		},
 		nil,
-		ec.marshalNTeamCostMonthlySample2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamCostMonthlySampleᚄ,
+		func(ctx context.Context, selections ast.SelectionSet, v []*cost.TeamCostMonthlySample) graphql.Marshaler {
+			return ec.marshalNTeamCostMonthlySample2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamCostMonthlySampleᚄ(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_TeamCostMonthlySummary_series(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamCostMonthlySummary",
@@ -565,13 +515,7 @@ func (ec *executionContext) fieldContext_TeamCostMonthlySummary_series(_ context
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "date":
-				return ec.fieldContext_TeamCostMonthlySample_date(ctx, field)
-			case "cost":
-				return ec.fieldContext_TeamCostMonthlySample_cost(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type TeamCostMonthlySample", field.Name)
+			return ec.childFields_TeamCostMonthlySample(ctx, field)
 		},
 	}
 	return fc, nil
@@ -582,28 +526,22 @@ func (ec *executionContext) _TeamCostPeriod_sum(ctx context.Context, field graph
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_TeamCostPeriod_sum,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_TeamCostPeriod_sum(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Sum(), nil
 		},
 		nil,
-		ec.marshalNFloat2float64,
+		func(ctx context.Context, selections ast.SelectionSet, v float64) graphql.Marshaler {
+			return ec.marshalNFloat2float64(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_TeamCostPeriod_sum(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamCostPeriod",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Float does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("TeamCostPeriod", field, true, false, errors.New("field of type Float does not have child fields"))
 }
 
 func (ec *executionContext) _TeamCostPeriod_series(ctx context.Context, field graphql.CollectedField, obj *cost.TeamCostPeriod) (ret graphql.Marshaler) {
@@ -611,17 +549,20 @@ func (ec *executionContext) _TeamCostPeriod_series(ctx context.Context, field gr
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_TeamCostPeriod_series,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_TeamCostPeriod_series(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Series, nil
 		},
 		nil,
-		ec.marshalNServiceCostSeries2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐServiceCostSeriesᚄ,
+		func(ctx context.Context, selections ast.SelectionSet, v []*cost.ServiceCostSeries) graphql.Marshaler {
+			return ec.marshalNServiceCostSeries2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐServiceCostSeriesᚄ(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_TeamCostPeriod_series(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamCostPeriod",
@@ -629,15 +570,7 @@ func (ec *executionContext) fieldContext_TeamCostPeriod_series(_ context.Context
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "date":
-				return ec.fieldContext_ServiceCostSeries_date(ctx, field)
-			case "sum":
-				return ec.fieldContext_ServiceCostSeries_sum(ctx, field)
-			case "services":
-				return ec.fieldContext_ServiceCostSeries_services(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type ServiceCostSeries", field.Name)
+			return ec.childFields_ServiceCostSeries(ctx, field)
 		},
 	}
 	return fc, nil
@@ -648,18 +581,21 @@ func (ec *executionContext) _TeamEnvironmentCost_daily(ctx context.Context, fiel
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_TeamEnvironmentCost_daily,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_TeamEnvironmentCost_daily(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
 			return ec.Resolvers.TeamEnvironmentCost().Daily(ctx, obj, fc.Args["from"].(scalar.Date), fc.Args["to"].(scalar.Date))
 		},
 		nil,
-		ec.marshalNTeamEnvironmentCostPeriod2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamEnvironmentCostPeriod,
+		func(ctx context.Context, selections ast.SelectionSet, v *cost.TeamEnvironmentCostPeriod) graphql.Marshaler {
+			return ec.marshalNTeamEnvironmentCostPeriod2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamEnvironmentCostPeriod(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_TeamEnvironmentCost_daily(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamEnvironmentCost",
@@ -667,13 +603,7 @@ func (ec *executionContext) fieldContext_TeamEnvironmentCost_daily(ctx context.C
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "sum":
-				return ec.fieldContext_TeamEnvironmentCostPeriod_sum(ctx, field)
-			case "series":
-				return ec.fieldContext_TeamEnvironmentCostPeriod_series(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironmentCostPeriod", field.Name)
+			return ec.childFields_TeamEnvironmentCostPeriod(ctx, field)
 		},
 	}
 	defer func() {
@@ -695,28 +625,22 @@ func (ec *executionContext) _TeamEnvironmentCostPeriod_sum(ctx context.Context, 
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_TeamEnvironmentCostPeriod_sum,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_TeamEnvironmentCostPeriod_sum(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Sum(), nil
 		},
 		nil,
-		ec.marshalNFloat2float64,
+		func(ctx context.Context, selections ast.SelectionSet, v float64) graphql.Marshaler {
+			return ec.marshalNFloat2float64(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_TeamEnvironmentCostPeriod_sum(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamEnvironmentCostPeriod",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Float does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("TeamEnvironmentCostPeriod", field, true, false, errors.New("field of type Float does not have child fields"))
 }
 
 func (ec *executionContext) _TeamEnvironmentCostPeriod_series(ctx context.Context, field graphql.CollectedField, obj *cost.TeamEnvironmentCostPeriod) (ret graphql.Marshaler) {
@@ -724,17 +648,20 @@ func (ec *executionContext) _TeamEnvironmentCostPeriod_series(ctx context.Contex
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_TeamEnvironmentCostPeriod_series,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_TeamEnvironmentCostPeriod_series(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Series, nil
 		},
 		nil,
-		ec.marshalNWorkloadCostSeries2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCostSeriesᚄ,
+		func(ctx context.Context, selections ast.SelectionSet, v []*cost.WorkloadCostSeries) graphql.Marshaler {
+			return ec.marshalNWorkloadCostSeries2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCostSeriesᚄ(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_TeamEnvironmentCostPeriod_series(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamEnvironmentCostPeriod",
@@ -742,15 +669,7 @@ func (ec *executionContext) fieldContext_TeamEnvironmentCostPeriod_series(_ cont
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "date":
-				return ec.fieldContext_WorkloadCostSeries_date(ctx, field)
-			case "sum":
-				return ec.fieldContext_WorkloadCostSeries_sum(ctx, field)
-			case "workloads":
-				return ec.fieldContext_WorkloadCostSeries_workloads(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type WorkloadCostSeries", field.Name)
+			return ec.childFields_WorkloadCostSeries(ctx, field)
 		},
 	}
 	return fc, nil
@@ -761,28 +680,22 @@ func (ec *executionContext) _ValkeyCost_sum(ctx context.Context, field graphql.C
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ValkeyCost_sum,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyCost_sum(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Sum, nil
 		},
 		nil,
-		ec.marshalNFloat2float64,
+		func(ctx context.Context, selections ast.SelectionSet, v float64) graphql.Marshaler {
+			return ec.marshalNFloat2float64(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ValkeyCost_sum(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ValkeyCost",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Float does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ValkeyCost", field, false, false, errors.New("field of type Float does not have child fields"))
 }
 
 func (ec *executionContext) _WorkloadCost_daily(ctx context.Context, field graphql.CollectedField, obj *cost.WorkloadCost) (ret graphql.Marshaler) {
@@ -790,18 +703,21 @@ func (ec *executionContext) _WorkloadCost_daily(ctx context.Context, field graph
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_WorkloadCost_daily,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_WorkloadCost_daily(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
 			return ec.Resolvers.WorkloadCost().Daily(ctx, obj, fc.Args["from"].(scalar.Date), fc.Args["to"].(scalar.Date))
 		},
 		nil,
-		ec.marshalNWorkloadCostPeriod2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCostPeriod,
+		func(ctx context.Context, selections ast.SelectionSet, v *cost.WorkloadCostPeriod) graphql.Marshaler {
+			return ec.marshalNWorkloadCostPeriod2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCostPeriod(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_WorkloadCost_daily(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "WorkloadCost",
@@ -809,13 +725,7 @@ func (ec *executionContext) fieldContext_WorkloadCost_daily(ctx context.Context,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "sum":
-				return ec.fieldContext_WorkloadCostPeriod_sum(ctx, field)
-			case "series":
-				return ec.fieldContext_WorkloadCostPeriod_series(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type WorkloadCostPeriod", field.Name)
+			return ec.childFields_WorkloadCostPeriod(ctx, field)
 		},
 	}
 	defer func() {
@@ -837,17 +747,20 @@ func (ec *executionContext) _WorkloadCost_monthly(ctx context.Context, field gra
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_WorkloadCost_monthly,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_WorkloadCost_monthly(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.WorkloadCost().Monthly(ctx, obj)
 		},
 		nil,
-		ec.marshalNWorkloadCostPeriod2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCostPeriod,
+		func(ctx context.Context, selections ast.SelectionSet, v *cost.WorkloadCostPeriod) graphql.Marshaler {
+			return ec.marshalNWorkloadCostPeriod2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCostPeriod(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_WorkloadCost_monthly(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "WorkloadCost",
@@ -855,13 +768,7 @@ func (ec *executionContext) fieldContext_WorkloadCost_monthly(_ context.Context,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "sum":
-				return ec.fieldContext_WorkloadCostPeriod_sum(ctx, field)
-			case "series":
-				return ec.fieldContext_WorkloadCostPeriod_series(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type WorkloadCostPeriod", field.Name)
+			return ec.childFields_WorkloadCostPeriod(ctx, field)
 		},
 	}
 	return fc, nil
@@ -872,28 +779,22 @@ func (ec *executionContext) _WorkloadCostPeriod_sum(ctx context.Context, field g
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_WorkloadCostPeriod_sum,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_WorkloadCostPeriod_sum(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Sum(), nil
 		},
 		nil,
-		ec.marshalNFloat2float64,
+		func(ctx context.Context, selections ast.SelectionSet, v float64) graphql.Marshaler {
+			return ec.marshalNFloat2float64(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_WorkloadCostPeriod_sum(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "WorkloadCostPeriod",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Float does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("WorkloadCostPeriod", field, true, false, errors.New("field of type Float does not have child fields"))
 }
 
 func (ec *executionContext) _WorkloadCostPeriod_series(ctx context.Context, field graphql.CollectedField, obj *cost.WorkloadCostPeriod) (ret graphql.Marshaler) {
@@ -901,17 +802,20 @@ func (ec *executionContext) _WorkloadCostPeriod_series(ctx context.Context, fiel
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_WorkloadCostPeriod_series,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_WorkloadCostPeriod_series(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Series, nil
 		},
 		nil,
-		ec.marshalNServiceCostSeries2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐServiceCostSeriesᚄ,
+		func(ctx context.Context, selections ast.SelectionSet, v []*cost.ServiceCostSeries) graphql.Marshaler {
+			return ec.marshalNServiceCostSeries2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐServiceCostSeriesᚄ(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_WorkloadCostPeriod_series(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "WorkloadCostPeriod",
@@ -919,15 +823,7 @@ func (ec *executionContext) fieldContext_WorkloadCostPeriod_series(_ context.Con
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "date":
-				return ec.fieldContext_ServiceCostSeries_date(ctx, field)
-			case "sum":
-				return ec.fieldContext_ServiceCostSeries_sum(ctx, field)
-			case "services":
-				return ec.fieldContext_ServiceCostSeries_services(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type ServiceCostSeries", field.Name)
+			return ec.childFields_ServiceCostSeries(ctx, field)
 		},
 	}
 	return fc, nil
@@ -938,17 +834,20 @@ func (ec *executionContext) _WorkloadCostSample_workload(ctx context.Context, fi
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_WorkloadCostSample_workload,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_WorkloadCostSample_workload(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.WorkloadCostSample().Workload(ctx, obj)
 		},
 		nil,
-		ec.marshalOWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload,
+		func(ctx context.Context, selections ast.SelectionSet, v workload.Workload) graphql.Marshaler {
+			return ec.marshalOWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload(ctx, selections, v)
+		},
 		true,
 		false,
 	)
 }
-
 func (ec *executionContext) fieldContext_WorkloadCostSample_workload(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "WorkloadCostSample",
@@ -967,28 +866,22 @@ func (ec *executionContext) _WorkloadCostSample_workloadName(ctx context.Context
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_WorkloadCostSample_workloadName,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_WorkloadCostSample_workloadName(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.WorkloadName, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_WorkloadCostSample_workloadName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "WorkloadCostSample",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("WorkloadCostSample", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _WorkloadCostSample_cost(ctx context.Context, field graphql.CollectedField, obj *cost.WorkloadCostSample) (ret graphql.Marshaler) {
@@ -996,28 +889,22 @@ func (ec *executionContext) _WorkloadCostSample_cost(ctx context.Context, field 
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_WorkloadCostSample_cost,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_WorkloadCostSample_cost(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Cost, nil
 		},
 		nil,
-		ec.marshalNFloat2float64,
+		func(ctx context.Context, selections ast.SelectionSet, v float64) graphql.Marshaler {
+			return ec.marshalNFloat2float64(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_WorkloadCostSample_cost(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "WorkloadCostSample",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Float does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("WorkloadCostSample", field, false, false, errors.New("field of type Float does not have child fields"))
 }
 
 func (ec *executionContext) _WorkloadCostSeries_date(ctx context.Context, field graphql.CollectedField, obj *cost.WorkloadCostSeries) (ret graphql.Marshaler) {
@@ -1025,28 +912,22 @@ func (ec *executionContext) _WorkloadCostSeries_date(ctx context.Context, field 
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_WorkloadCostSeries_date,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_WorkloadCostSeries_date(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Date, nil
 		},
 		nil,
-		ec.marshalNDate2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate,
+		func(ctx context.Context, selections ast.SelectionSet, v scalar.Date) graphql.Marshaler {
+			return ec.marshalNDate2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_WorkloadCostSeries_date(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "WorkloadCostSeries",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Date does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("WorkloadCostSeries", field, false, false, errors.New("field of type Date does not have child fields"))
 }
 
 func (ec *executionContext) _WorkloadCostSeries_sum(ctx context.Context, field graphql.CollectedField, obj *cost.WorkloadCostSeries) (ret graphql.Marshaler) {
@@ -1054,28 +935,22 @@ func (ec *executionContext) _WorkloadCostSeries_sum(ctx context.Context, field g
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_WorkloadCostSeries_sum,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_WorkloadCostSeries_sum(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Sum(), nil
 		},
 		nil,
-		ec.marshalNFloat2float64,
+		func(ctx context.Context, selections ast.SelectionSet, v float64) graphql.Marshaler {
+			return ec.marshalNFloat2float64(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_WorkloadCostSeries_sum(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "WorkloadCostSeries",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Float does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("WorkloadCostSeries", field, true, false, errors.New("field of type Float does not have child fields"))
 }
 
 func (ec *executionContext) _WorkloadCostSeries_workloads(ctx context.Context, field graphql.CollectedField, obj *cost.WorkloadCostSeries) (ret graphql.Marshaler) {
@@ -1083,17 +958,20 @@ func (ec *executionContext) _WorkloadCostSeries_workloads(ctx context.Context, f
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_WorkloadCostSeries_workloads,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_WorkloadCostSeries_workloads(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Workloads, nil
 		},
 		nil,
-		ec.marshalNWorkloadCostSample2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCostSampleᚄ,
+		func(ctx context.Context, selections ast.SelectionSet, v []*cost.WorkloadCostSample) graphql.Marshaler {
+			return ec.marshalNWorkloadCostSample2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCostSampleᚄ(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_WorkloadCostSeries_workloads(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "WorkloadCostSeries",
@@ -1101,15 +979,7 @@ func (ec *executionContext) fieldContext_WorkloadCostSeries_workloads(_ context.
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "workload":
-				return ec.fieldContext_WorkloadCostSample_workload(ctx, field)
-			case "workloadName":
-				return ec.fieldContext_WorkloadCostSample_workloadName(ctx, field)
-			case "cost":
-				return ec.fieldContext_WorkloadCostSample_cost(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type WorkloadCostSample", field.Name)
+			return ec.childFields_WorkloadCostSample(ctx, field)
 		},
 	}
 	return fc, nil
@@ -1121,6 +991,10 @@ func (ec *executionContext) fieldContext_WorkloadCostSeries_workloads(_ context.
 
 func (ec *executionContext) unmarshalInputTeamCostDailyFilter(ctx context.Context, obj any) (cost.TeamCostDailyFilter, error) {
 	var it cost.TeamCostDailyFilter
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -1178,7 +1052,7 @@ func (ec *executionContext) _BigQueryDatasetCost(ctx context.Context, sel ast.Se
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -1217,7 +1091,7 @@ func (ec *executionContext) _CostMonthlySummary(ctx context.Context, sel ast.Sel
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -1256,7 +1130,7 @@ func (ec *executionContext) _OpenSearchCost(ctx context.Context, sel ast.Selecti
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -1300,7 +1174,7 @@ func (ec *executionContext) _ServiceCostSample(ctx context.Context, sel ast.Sele
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -1349,7 +1223,7 @@ func (ec *executionContext) _ServiceCostSeries(ctx context.Context, sel ast.Sele
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -1388,7 +1262,7 @@ func (ec *executionContext) _SqlInstanceCost(ctx context.Context, sel ast.Select
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -1494,7 +1368,7 @@ func (ec *executionContext) _TeamCost(ctx context.Context, sel ast.SelectionSet,
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -1538,7 +1412,7 @@ func (ec *executionContext) _TeamCostMonthlySample(ctx context.Context, sel ast.
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -1582,7 +1456,7 @@ func (ec *executionContext) _TeamCostMonthlySummary(ctx context.Context, sel ast
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -1626,7 +1500,7 @@ func (ec *executionContext) _TeamCostPeriod(ctx context.Context, sel ast.Selecti
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -1696,7 +1570,7 @@ func (ec *executionContext) _TeamEnvironmentCost(ctx context.Context, sel ast.Se
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -1740,7 +1614,7 @@ func (ec *executionContext) _TeamEnvironmentCostPeriod(ctx context.Context, sel 
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -1779,7 +1653,7 @@ func (ec *executionContext) _ValkeyCost(ctx context.Context, sel ast.SelectionSe
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -1885,7 +1759,7 @@ func (ec *executionContext) _WorkloadCost(ctx context.Context, sel ast.Selection
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -1929,7 +1803,7 @@ func (ec *executionContext) _WorkloadCostPeriod(ctx context.Context, sel ast.Sel
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -2006,7 +1880,7 @@ func (ec *executionContext) _WorkloadCostSample(ctx context.Context, sel ast.Sel
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -2055,7 +1929,7 @@ func (ec *executionContext) _WorkloadCostSeries(ctx context.Context, sel ast.Sel
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
