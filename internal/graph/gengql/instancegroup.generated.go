@@ -5,13 +5,17 @@ package gengql
 import (
 	"context"
 	"errors"
-	"fmt"
+	"math"
 	"strconv"
 	"sync/atomic"
+	"time"
 
 	"github.com/99designs/gqlgen/graphql"
+	"github.com/nais/api/internal/graph/ident"
+	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
 	"github.com/nais/api/internal/workload/instancegroup"
+	"github.com/nais/api/internal/workload/secret"
 	"github.com/vektah/gqlparser/v2/ast"
 )
 
@@ -40,28 +44,22 @@ func (ec *executionContext) _InstanceGroup_id(ctx context.Context, field graphql
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_InstanceGroup_id,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_InstanceGroup_id(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
-		ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent,
+		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
+			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_InstanceGroup_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "InstanceGroup",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("InstanceGroup", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
 func (ec *executionContext) _InstanceGroup_name(ctx context.Context, field graphql.CollectedField, obj *instancegroup.InstanceGroup) (ret graphql.Marshaler) {
@@ -69,28 +67,22 @@ func (ec *executionContext) _InstanceGroup_name(ctx context.Context, field graph
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_InstanceGroup_name,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_InstanceGroup_name(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Name, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_InstanceGroup_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "InstanceGroup",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("InstanceGroup", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _InstanceGroup_image(ctx context.Context, field graphql.CollectedField, obj *instancegroup.InstanceGroup) (ret graphql.Marshaler) {
@@ -98,17 +90,20 @@ func (ec *executionContext) _InstanceGroup_image(ctx context.Context, field grap
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_InstanceGroup_image,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_InstanceGroup_image(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Image(), nil
 		},
 		nil,
-		ec.marshalNContainerImage2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐContainerImage,
+		func(ctx context.Context, selections ast.SelectionSet, v *workload.ContainerImage) graphql.Marshaler {
+			return ec.marshalNContainerImage2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐContainerImage(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_InstanceGroup_image(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "InstanceGroup",
@@ -116,25 +111,7 @@ func (ec *executionContext) fieldContext_InstanceGroup_image(_ context.Context, 
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_ContainerImage_id(ctx, field)
-			case "name":
-				return ec.fieldContext_ContainerImage_name(ctx, field)
-			case "tag":
-				return ec.fieldContext_ContainerImage_tag(ctx, field)
-			case "activityLog":
-				return ec.fieldContext_ContainerImage_activityLog(ctx, field)
-			case "hasSBOM":
-				return ec.fieldContext_ContainerImage_hasSBOM(ctx, field)
-			case "vulnerabilities":
-				return ec.fieldContext_ContainerImage_vulnerabilities(ctx, field)
-			case "vulnerabilitySummary":
-				return ec.fieldContext_ContainerImage_vulnerabilitySummary(ctx, field)
-			case "workloadReferences":
-				return ec.fieldContext_ContainerImage_workloadReferences(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type ContainerImage", field.Name)
+			return ec.childFields_ContainerImage(ctx, field)
 		},
 	}
 	return fc, nil
@@ -145,28 +122,22 @@ func (ec *executionContext) _InstanceGroup_created(ctx context.Context, field gr
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_InstanceGroup_created,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_InstanceGroup_created(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Created, nil
 		},
 		nil,
-		ec.marshalNTime2timeᚐTime,
+		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
+			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_InstanceGroup_created(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "InstanceGroup",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("InstanceGroup", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
 func (ec *executionContext) _InstanceGroup_readyInstances(ctx context.Context, field graphql.CollectedField, obj *instancegroup.InstanceGroup) (ret graphql.Marshaler) {
@@ -174,28 +145,22 @@ func (ec *executionContext) _InstanceGroup_readyInstances(ctx context.Context, f
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_InstanceGroup_readyInstances,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_InstanceGroup_readyInstances(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.ReadyInstances, nil
 		},
 		nil,
-		ec.marshalNInt2int,
+		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
+			return ec.marshalNInt2int(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_InstanceGroup_readyInstances(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "InstanceGroup",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("InstanceGroup", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
 func (ec *executionContext) _InstanceGroup_desiredInstances(ctx context.Context, field graphql.CollectedField, obj *instancegroup.InstanceGroup) (ret graphql.Marshaler) {
@@ -203,28 +168,22 @@ func (ec *executionContext) _InstanceGroup_desiredInstances(ctx context.Context,
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_InstanceGroup_desiredInstances,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_InstanceGroup_desiredInstances(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.DesiredInstances, nil
 		},
 		nil,
-		ec.marshalNInt2int,
+		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
+			return ec.marshalNInt2int(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_InstanceGroup_desiredInstances(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "InstanceGroup",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("InstanceGroup", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
 func (ec *executionContext) _InstanceGroup_environmentVariables(ctx context.Context, field graphql.CollectedField, obj *instancegroup.InstanceGroup) (ret graphql.Marshaler) {
@@ -232,17 +191,20 @@ func (ec *executionContext) _InstanceGroup_environmentVariables(ctx context.Cont
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_InstanceGroup_environmentVariables,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_InstanceGroup_environmentVariables(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.InstanceGroup().EnvironmentVariables(ctx, obj)
 		},
 		nil,
-		ec.marshalNInstanceGroupEnvironmentVariable2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋinstancegroupᚐInstanceGroupEnvironmentVariableᚄ,
+		func(ctx context.Context, selections ast.SelectionSet, v []*instancegroup.InstanceGroupEnvironmentVariable) graphql.Marshaler {
+			return ec.marshalNInstanceGroupEnvironmentVariable2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋinstancegroupᚐInstanceGroupEnvironmentVariableᚄ(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_InstanceGroup_environmentVariables(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "InstanceGroup",
@@ -250,15 +212,7 @@ func (ec *executionContext) fieldContext_InstanceGroup_environmentVariables(_ co
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "name":
-				return ec.fieldContext_InstanceGroupEnvironmentVariable_name(ctx, field)
-			case "value":
-				return ec.fieldContext_InstanceGroupEnvironmentVariable_value(ctx, field)
-			case "source":
-				return ec.fieldContext_InstanceGroupEnvironmentVariable_source(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type InstanceGroupEnvironmentVariable", field.Name)
+			return ec.childFields_InstanceGroupEnvironmentVariable(ctx, field)
 		},
 	}
 	return fc, nil
@@ -269,17 +223,20 @@ func (ec *executionContext) _InstanceGroup_mountedFiles(ctx context.Context, fie
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_InstanceGroup_mountedFiles,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_InstanceGroup_mountedFiles(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.InstanceGroup().MountedFiles(ctx, obj)
 		},
 		nil,
-		ec.marshalNInstanceGroupMountedFile2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋinstancegroupᚐInstanceGroupMountedFileᚄ,
+		func(ctx context.Context, selections ast.SelectionSet, v []*instancegroup.InstanceGroupMountedFile) graphql.Marshaler {
+			return ec.marshalNInstanceGroupMountedFile2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋinstancegroupᚐInstanceGroupMountedFileᚄ(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_InstanceGroup_mountedFiles(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "InstanceGroup",
@@ -287,19 +244,7 @@ func (ec *executionContext) fieldContext_InstanceGroup_mountedFiles(_ context.Co
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "path":
-				return ec.fieldContext_InstanceGroupMountedFile_path(ctx, field)
-			case "source":
-				return ec.fieldContext_InstanceGroupMountedFile_source(ctx, field)
-			case "content":
-				return ec.fieldContext_InstanceGroupMountedFile_content(ctx, field)
-			case "encoding":
-				return ec.fieldContext_InstanceGroupMountedFile_encoding(ctx, field)
-			case "error":
-				return ec.fieldContext_InstanceGroupMountedFile_error(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type InstanceGroupMountedFile", field.Name)
+			return ec.childFields_InstanceGroupMountedFile(ctx, field)
 		},
 	}
 	return fc, nil
@@ -310,17 +255,20 @@ func (ec *executionContext) _InstanceGroup_instances(ctx context.Context, field 
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_InstanceGroup_instances,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_InstanceGroup_instances(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.InstanceGroup().Instances(ctx, obj)
 		},
 		nil,
-		ec.marshalNApplicationInstance2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplicationInstanceᚄ,
+		func(ctx context.Context, selections ast.SelectionSet, v []*application.ApplicationInstance) graphql.Marshaler {
+			return ec.marshalNApplicationInstance2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplicationInstanceᚄ(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_InstanceGroup_instances(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "InstanceGroup",
@@ -328,23 +276,7 @@ func (ec *executionContext) fieldContext_InstanceGroup_instances(_ context.Conte
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_ApplicationInstance_id(ctx, field)
-			case "name":
-				return ec.fieldContext_ApplicationInstance_name(ctx, field)
-			case "image":
-				return ec.fieldContext_ApplicationInstance_image(ctx, field)
-			case "restarts":
-				return ec.fieldContext_ApplicationInstance_restarts(ctx, field)
-			case "created":
-				return ec.fieldContext_ApplicationInstance_created(ctx, field)
-			case "status":
-				return ec.fieldContext_ApplicationInstance_status(ctx, field)
-			case "instanceUtilization":
-				return ec.fieldContext_ApplicationInstance_instanceUtilization(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type ApplicationInstance", field.Name)
+			return ec.childFields_ApplicationInstance(ctx, field)
 		},
 	}
 	return fc, nil
@@ -355,28 +287,22 @@ func (ec *executionContext) _InstanceGroupEnvironmentVariable_name(ctx context.C
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_InstanceGroupEnvironmentVariable_name,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_InstanceGroupEnvironmentVariable_name(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Name, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_InstanceGroupEnvironmentVariable_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "InstanceGroupEnvironmentVariable",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("InstanceGroupEnvironmentVariable", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _InstanceGroupEnvironmentVariable_value(ctx context.Context, field graphql.CollectedField, obj *instancegroup.InstanceGroupEnvironmentVariable) (ret graphql.Marshaler) {
@@ -384,28 +310,22 @@ func (ec *executionContext) _InstanceGroupEnvironmentVariable_value(ctx context.
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_InstanceGroupEnvironmentVariable_value,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_InstanceGroupEnvironmentVariable_value(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Value, nil
 		},
 		nil,
-		ec.marshalOString2ᚖstring,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
+		},
 		true,
 		false,
 	)
 }
-
 func (ec *executionContext) fieldContext_InstanceGroupEnvironmentVariable_value(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "InstanceGroupEnvironmentVariable",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("InstanceGroupEnvironmentVariable", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _InstanceGroupEnvironmentVariable_source(ctx context.Context, field graphql.CollectedField, obj *instancegroup.InstanceGroupEnvironmentVariable) (ret graphql.Marshaler) {
@@ -413,17 +333,20 @@ func (ec *executionContext) _InstanceGroupEnvironmentVariable_source(ctx context
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_InstanceGroupEnvironmentVariable_source,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_InstanceGroupEnvironmentVariable_source(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Source, nil
 		},
 		nil,
-		ec.marshalNInstanceGroupValueSource2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋinstancegroupᚐInstanceGroupValueSource,
+		func(ctx context.Context, selections ast.SelectionSet, v instancegroup.InstanceGroupValueSource) graphql.Marshaler {
+			return ec.marshalNInstanceGroupValueSource2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋinstancegroupᚐInstanceGroupValueSource(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_InstanceGroupEnvironmentVariable_source(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "InstanceGroupEnvironmentVariable",
@@ -431,13 +354,7 @@ func (ec *executionContext) fieldContext_InstanceGroupEnvironmentVariable_source
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "kind":
-				return ec.fieldContext_InstanceGroupValueSource_kind(ctx, field)
-			case "name":
-				return ec.fieldContext_InstanceGroupValueSource_name(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type InstanceGroupValueSource", field.Name)
+			return ec.childFields_InstanceGroupValueSource(ctx, field)
 		},
 	}
 	return fc, nil
@@ -448,28 +365,22 @@ func (ec *executionContext) _InstanceGroupMountedFile_path(ctx context.Context, 
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_InstanceGroupMountedFile_path,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_InstanceGroupMountedFile_path(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Path, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_InstanceGroupMountedFile_path(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "InstanceGroupMountedFile",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("InstanceGroupMountedFile", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _InstanceGroupMountedFile_source(ctx context.Context, field graphql.CollectedField, obj *instancegroup.InstanceGroupMountedFile) (ret graphql.Marshaler) {
@@ -477,17 +388,20 @@ func (ec *executionContext) _InstanceGroupMountedFile_source(ctx context.Context
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_InstanceGroupMountedFile_source,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_InstanceGroupMountedFile_source(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Source, nil
 		},
 		nil,
-		ec.marshalNInstanceGroupValueSource2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋinstancegroupᚐInstanceGroupValueSource,
+		func(ctx context.Context, selections ast.SelectionSet, v instancegroup.InstanceGroupValueSource) graphql.Marshaler {
+			return ec.marshalNInstanceGroupValueSource2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋinstancegroupᚐInstanceGroupValueSource(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_InstanceGroupMountedFile_source(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "InstanceGroupMountedFile",
@@ -495,13 +409,7 @@ func (ec *executionContext) fieldContext_InstanceGroupMountedFile_source(_ conte
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "kind":
-				return ec.fieldContext_InstanceGroupValueSource_kind(ctx, field)
-			case "name":
-				return ec.fieldContext_InstanceGroupValueSource_name(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type InstanceGroupValueSource", field.Name)
+			return ec.childFields_InstanceGroupValueSource(ctx, field)
 		},
 	}
 	return fc, nil
@@ -512,28 +420,22 @@ func (ec *executionContext) _InstanceGroupMountedFile_content(ctx context.Contex
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_InstanceGroupMountedFile_content,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_InstanceGroupMountedFile_content(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Content, nil
 		},
 		nil,
-		ec.marshalOString2ᚖstring,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
+		},
 		true,
 		false,
 	)
 }
-
 func (ec *executionContext) fieldContext_InstanceGroupMountedFile_content(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "InstanceGroupMountedFile",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("InstanceGroupMountedFile", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _InstanceGroupMountedFile_encoding(ctx context.Context, field graphql.CollectedField, obj *instancegroup.InstanceGroupMountedFile) (ret graphql.Marshaler) {
@@ -541,28 +443,22 @@ func (ec *executionContext) _InstanceGroupMountedFile_encoding(ctx context.Conte
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_InstanceGroupMountedFile_encoding,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_InstanceGroupMountedFile_encoding(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Encoding, nil
 		},
 		nil,
-		ec.marshalNValueEncoding2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐValueEncoding,
+		func(ctx context.Context, selections ast.SelectionSet, v secret.ValueEncoding) graphql.Marshaler {
+			return ec.marshalNValueEncoding2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐValueEncoding(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_InstanceGroupMountedFile_encoding(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "InstanceGroupMountedFile",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ValueEncoding does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("InstanceGroupMountedFile", field, false, false, errors.New("field of type ValueEncoding does not have child fields"))
 }
 
 func (ec *executionContext) _InstanceGroupMountedFile_error(ctx context.Context, field graphql.CollectedField, obj *instancegroup.InstanceGroupMountedFile) (ret graphql.Marshaler) {
@@ -570,28 +466,22 @@ func (ec *executionContext) _InstanceGroupMountedFile_error(ctx context.Context,
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_InstanceGroupMountedFile_error,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_InstanceGroupMountedFile_error(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Error, nil
 		},
 		nil,
-		ec.marshalOString2ᚖstring,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
+		},
 		true,
 		false,
 	)
 }
-
 func (ec *executionContext) fieldContext_InstanceGroupMountedFile_error(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "InstanceGroupMountedFile",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("InstanceGroupMountedFile", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _InstanceGroupValueSource_kind(ctx context.Context, field graphql.CollectedField, obj *instancegroup.InstanceGroupValueSource) (ret graphql.Marshaler) {
@@ -599,28 +489,22 @@ func (ec *executionContext) _InstanceGroupValueSource_kind(ctx context.Context, 
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_InstanceGroupValueSource_kind,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_InstanceGroupValueSource_kind(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Kind, nil
 		},
 		nil,
-		ec.marshalNInstanceGroupValueSourceKind2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋinstancegroupᚐInstanceGroupValueSourceKind,
+		func(ctx context.Context, selections ast.SelectionSet, v instancegroup.InstanceGroupValueSourceKind) graphql.Marshaler {
+			return ec.marshalNInstanceGroupValueSourceKind2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋinstancegroupᚐInstanceGroupValueSourceKind(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_InstanceGroupValueSource_kind(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "InstanceGroupValueSource",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type InstanceGroupValueSourceKind does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("InstanceGroupValueSource", field, false, false, errors.New("field of type InstanceGroupValueSourceKind does not have child fields"))
 }
 
 func (ec *executionContext) _InstanceGroupValueSource_name(ctx context.Context, field graphql.CollectedField, obj *instancegroup.InstanceGroupValueSource) (ret graphql.Marshaler) {
@@ -628,28 +512,22 @@ func (ec *executionContext) _InstanceGroupValueSource_name(ctx context.Context, 
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_InstanceGroupValueSource_name,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_InstanceGroupValueSource_name(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Name, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_InstanceGroupValueSource_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "InstanceGroupValueSource",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("InstanceGroupValueSource", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 // endregion **************************** field.gotpl *****************************
@@ -822,7 +700,7 @@ func (ec *executionContext) _InstanceGroup(ctx context.Context, sel ast.Selectio
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -868,7 +746,7 @@ func (ec *executionContext) _InstanceGroupEnvironmentVariable(ctx context.Contex
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -921,7 +799,7 @@ func (ec *executionContext) _InstanceGroupMountedFile(ctx context.Context, sel a
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -965,7 +843,7 @@ func (ec *executionContext) _InstanceGroupValueSource(ctx context.Context, sel a
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{

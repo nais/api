@@ -6,10 +6,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"math"
 	"strconv"
 	"sync/atomic"
 
 	"github.com/99designs/gqlgen/graphql"
+	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/netpol"
@@ -42,28 +44,22 @@ func (ec *executionContext) _ExternalNetworkPolicyHost_target(ctx context.Contex
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ExternalNetworkPolicyHost_target,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ExternalNetworkPolicyHost_target(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Target, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ExternalNetworkPolicyHost_target(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ExternalNetworkPolicyHost",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ExternalNetworkPolicyHost", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _ExternalNetworkPolicyHost_ports(ctx context.Context, field graphql.CollectedField, obj *netpol.ExternalNetworkPolicyHost) (ret graphql.Marshaler) {
@@ -71,28 +67,22 @@ func (ec *executionContext) _ExternalNetworkPolicyHost_ports(ctx context.Context
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ExternalNetworkPolicyHost_ports,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ExternalNetworkPolicyHost_ports(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Ports, nil
 		},
 		nil,
-		ec.marshalNInt2ᚕintᚄ,
+		func(ctx context.Context, selections ast.SelectionSet, v []int) graphql.Marshaler {
+			return ec.marshalNInt2ᚕintᚄ(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ExternalNetworkPolicyHost_ports(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ExternalNetworkPolicyHost",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ExternalNetworkPolicyHost", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
 func (ec *executionContext) _ExternalNetworkPolicyIpv4_target(ctx context.Context, field graphql.CollectedField, obj *netpol.ExternalNetworkPolicyIpv4) (ret graphql.Marshaler) {
@@ -100,28 +90,22 @@ func (ec *executionContext) _ExternalNetworkPolicyIpv4_target(ctx context.Contex
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ExternalNetworkPolicyIpv4_target,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ExternalNetworkPolicyIpv4_target(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Target, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ExternalNetworkPolicyIpv4_target(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ExternalNetworkPolicyIpv4",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ExternalNetworkPolicyIpv4", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _ExternalNetworkPolicyIpv4_ports(ctx context.Context, field graphql.CollectedField, obj *netpol.ExternalNetworkPolicyIpv4) (ret graphql.Marshaler) {
@@ -129,28 +113,22 @@ func (ec *executionContext) _ExternalNetworkPolicyIpv4_ports(ctx context.Context
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_ExternalNetworkPolicyIpv4_ports,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ExternalNetworkPolicyIpv4_ports(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Ports, nil
 		},
 		nil,
-		ec.marshalNInt2ᚕintᚄ,
+		func(ctx context.Context, selections ast.SelectionSet, v []int) graphql.Marshaler {
+			return ec.marshalNInt2ᚕintᚄ(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_ExternalNetworkPolicyIpv4_ports(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ExternalNetworkPolicyIpv4",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("ExternalNetworkPolicyIpv4", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
 func (ec *executionContext) _InboundNetworkPolicy_rules(ctx context.Context, field graphql.CollectedField, obj *netpol.InboundNetworkPolicy) (ret graphql.Marshaler) {
@@ -158,17 +136,20 @@ func (ec *executionContext) _InboundNetworkPolicy_rules(ctx context.Context, fie
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_InboundNetworkPolicy_rules,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_InboundNetworkPolicy_rules(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Rules, nil
 		},
 		nil,
-		ec.marshalNNetworkPolicyRule2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋnetpolᚐNetworkPolicyRuleᚄ,
+		func(ctx context.Context, selections ast.SelectionSet, v []*netpol.NetworkPolicyRule) graphql.Marshaler {
+			return ec.marshalNNetworkPolicyRule2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋnetpolᚐNetworkPolicyRuleᚄ(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_InboundNetworkPolicy_rules(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "InboundNetworkPolicy",
@@ -176,19 +157,7 @@ func (ec *executionContext) fieldContext_InboundNetworkPolicy_rules(_ context.Co
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "targetWorkloadName":
-				return ec.fieldContext_NetworkPolicyRule_targetWorkloadName(ctx, field)
-			case "targetWorkload":
-				return ec.fieldContext_NetworkPolicyRule_targetWorkload(ctx, field)
-			case "targetTeamSlug":
-				return ec.fieldContext_NetworkPolicyRule_targetTeamSlug(ctx, field)
-			case "targetTeam":
-				return ec.fieldContext_NetworkPolicyRule_targetTeam(ctx, field)
-			case "mutual":
-				return ec.fieldContext_NetworkPolicyRule_mutual(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type NetworkPolicyRule", field.Name)
+			return ec.childFields_NetworkPolicyRule(ctx, field)
 		},
 	}
 	return fc, nil
@@ -199,17 +168,20 @@ func (ec *executionContext) _NetworkPolicy_inbound(ctx context.Context, field gr
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_NetworkPolicy_inbound,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_NetworkPolicy_inbound(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Inbound, nil
 		},
 		nil,
-		ec.marshalNInboundNetworkPolicy2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋnetpolᚐInboundNetworkPolicy,
+		func(ctx context.Context, selections ast.SelectionSet, v *netpol.InboundNetworkPolicy) graphql.Marshaler {
+			return ec.marshalNInboundNetworkPolicy2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋnetpolᚐInboundNetworkPolicy(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_NetworkPolicy_inbound(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "NetworkPolicy",
@@ -217,11 +189,7 @@ func (ec *executionContext) fieldContext_NetworkPolicy_inbound(_ context.Context
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "rules":
-				return ec.fieldContext_InboundNetworkPolicy_rules(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type InboundNetworkPolicy", field.Name)
+			return ec.childFields_InboundNetworkPolicy(ctx, field)
 		},
 	}
 	return fc, nil
@@ -232,17 +200,20 @@ func (ec *executionContext) _NetworkPolicy_outbound(ctx context.Context, field g
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_NetworkPolicy_outbound,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_NetworkPolicy_outbound(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Outbound, nil
 		},
 		nil,
-		ec.marshalNOutboundNetworkPolicy2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋnetpolᚐOutboundNetworkPolicy,
+		func(ctx context.Context, selections ast.SelectionSet, v *netpol.OutboundNetworkPolicy) graphql.Marshaler {
+			return ec.marshalNOutboundNetworkPolicy2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋnetpolᚐOutboundNetworkPolicy(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_NetworkPolicy_outbound(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "NetworkPolicy",
@@ -250,13 +221,7 @@ func (ec *executionContext) fieldContext_NetworkPolicy_outbound(_ context.Contex
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "rules":
-				return ec.fieldContext_OutboundNetworkPolicy_rules(ctx, field)
-			case "external":
-				return ec.fieldContext_OutboundNetworkPolicy_external(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type OutboundNetworkPolicy", field.Name)
+			return ec.childFields_OutboundNetworkPolicy(ctx, field)
 		},
 	}
 	return fc, nil
@@ -267,28 +232,22 @@ func (ec *executionContext) _NetworkPolicyRule_targetWorkloadName(ctx context.Co
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_NetworkPolicyRule_targetWorkloadName,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_NetworkPolicyRule_targetWorkloadName(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.TargetWorkloadName, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_NetworkPolicyRule_targetWorkloadName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "NetworkPolicyRule",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("NetworkPolicyRule", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _NetworkPolicyRule_targetWorkload(ctx context.Context, field graphql.CollectedField, obj *netpol.NetworkPolicyRule) (ret graphql.Marshaler) {
@@ -296,17 +255,20 @@ func (ec *executionContext) _NetworkPolicyRule_targetWorkload(ctx context.Contex
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_NetworkPolicyRule_targetWorkload,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_NetworkPolicyRule_targetWorkload(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.NetworkPolicyRule().TargetWorkload(ctx, obj)
 		},
 		nil,
-		ec.marshalOWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload,
+		func(ctx context.Context, selections ast.SelectionSet, v workload.Workload) graphql.Marshaler {
+			return ec.marshalOWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload(ctx, selections, v)
+		},
 		true,
 		false,
 	)
 }
-
 func (ec *executionContext) fieldContext_NetworkPolicyRule_targetWorkload(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "NetworkPolicyRule",
@@ -325,28 +287,22 @@ func (ec *executionContext) _NetworkPolicyRule_targetTeamSlug(ctx context.Contex
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_NetworkPolicyRule_targetTeamSlug,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_NetworkPolicyRule_targetTeamSlug(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.TargetTeamSlug, nil
 		},
 		nil,
-		ec.marshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug,
+		func(ctx context.Context, selections ast.SelectionSet, v slug.Slug) graphql.Marshaler {
+			return ec.marshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_NetworkPolicyRule_targetTeamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "NetworkPolicyRule",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Slug does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("NetworkPolicyRule", field, false, false, errors.New("field of type Slug does not have child fields"))
 }
 
 func (ec *executionContext) _NetworkPolicyRule_targetTeam(ctx context.Context, field graphql.CollectedField, obj *netpol.NetworkPolicyRule) (ret graphql.Marshaler) {
@@ -354,17 +310,20 @@ func (ec *executionContext) _NetworkPolicyRule_targetTeam(ctx context.Context, f
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_NetworkPolicyRule_targetTeam,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_NetworkPolicyRule_targetTeam(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.NetworkPolicyRule().TargetTeam(ctx, obj)
 		},
 		nil,
-		ec.marshalOTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam,
+		func(ctx context.Context, selections ast.SelectionSet, v *team.Team) graphql.Marshaler {
+			return ec.marshalOTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx, selections, v)
+		},
 		true,
 		false,
 	)
 }
-
 func (ec *executionContext) fieldContext_NetworkPolicyRule_targetTeam(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "NetworkPolicyRule",
@@ -372,91 +331,7 @@ func (ec *executionContext) fieldContext_NetworkPolicyRule_targetTeam(_ context.
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Team_id(ctx, field)
-			case "slug":
-				return ec.fieldContext_Team_slug(ctx, field)
-			case "slackChannel":
-				return ec.fieldContext_Team_slackChannel(ctx, field)
-			case "purpose":
-				return ec.fieldContext_Team_purpose(ctx, field)
-			case "externalResources":
-				return ec.fieldContext_Team_externalResources(ctx, field)
-			case "member":
-				return ec.fieldContext_Team_member(ctx, field)
-			case "members":
-				return ec.fieldContext_Team_members(ctx, field)
-			case "lastSuccessfulSync":
-				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
-			case "deletionInProgress":
-				return ec.fieldContext_Team_deletionInProgress(ctx, field)
-			case "viewerIsOwner":
-				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
-			case "viewerIsMember":
-				return ec.fieldContext_Team_viewerIsMember(ctx, field)
-			case "environments":
-				return ec.fieldContext_Team_environments(ctx, field)
-			case "environment":
-				return ec.fieldContext_Team_environment(ctx, field)
-			case "deleteKey":
-				return ec.fieldContext_Team_deleteKey(ctx, field)
-			case "inventoryCounts":
-				return ec.fieldContext_Team_inventoryCounts(ctx, field)
-			case "activityLog":
-				return ec.fieldContext_Team_activityLog(ctx, field)
-			case "alerts":
-				return ec.fieldContext_Team_alerts(ctx, field)
-			case "applications":
-				return ec.fieldContext_Team_applications(ctx, field)
-			case "bigQueryDatasets":
-				return ec.fieldContext_Team_bigQueryDatasets(ctx, field)
-			case "buckets":
-				return ec.fieldContext_Team_buckets(ctx, field)
-			case "configs":
-				return ec.fieldContext_Team_configs(ctx, field)
-			case "cost":
-				return ec.fieldContext_Team_cost(ctx, field)
-			case "deploymentKey":
-				return ec.fieldContext_Team_deploymentKey(ctx, field)
-			case "deployments":
-				return ec.fieldContext_Team_deployments(ctx, field)
-			case "issues":
-				return ec.fieldContext_Team_issues(ctx, field)
-			case "jobs":
-				return ec.fieldContext_Team_jobs(ctx, field)
-			case "kafkaTopics":
-				return ec.fieldContext_Team_kafkaTopics(ctx, field)
-			case "openSearches":
-				return ec.fieldContext_Team_openSearches(ctx, field)
-			case "postgresInstances":
-				return ec.fieldContext_Team_postgresInstances(ctx, field)
-			case "repositories":
-				return ec.fieldContext_Team_repositories(ctx, field)
-			case "secrets":
-				return ec.fieldContext_Team_secrets(ctx, field)
-			case "sqlInstances":
-				return ec.fieldContext_Team_sqlInstances(ctx, field)
-			case "unleash":
-				return ec.fieldContext_Team_unleash(ctx, field)
-			case "workloadUtilization":
-				return ec.fieldContext_Team_workloadUtilization(ctx, field)
-			case "serviceUtilization":
-				return ec.fieldContext_Team_serviceUtilization(ctx, field)
-			case "valkeys":
-				return ec.fieldContext_Team_valkeys(ctx, field)
-			case "imageVulnerabilityHistory":
-				return ec.fieldContext_Team_imageVulnerabilityHistory(ctx, field)
-			case "vulnerabilityFixHistory":
-				return ec.fieldContext_Team_vulnerabilityFixHistory(ctx, field)
-			case "vulnerabilitySummary":
-				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
-			case "vulnerabilitySummaries":
-				return ec.fieldContext_Team_vulnerabilitySummaries(ctx, field)
-			case "workloads":
-				return ec.fieldContext_Team_workloads(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
+			return ec.childFields_Team(ctx, field)
 		},
 	}
 	return fc, nil
@@ -467,28 +342,22 @@ func (ec *executionContext) _NetworkPolicyRule_mutual(ctx context.Context, field
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_NetworkPolicyRule_mutual,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_NetworkPolicyRule_mutual(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.NetworkPolicyRule().Mutual(ctx, obj)
 		},
 		nil,
-		ec.marshalNBoolean2bool,
+		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
+			return ec.marshalNBoolean2bool(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_NetworkPolicyRule_mutual(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "NetworkPolicyRule",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("NetworkPolicyRule", field, true, true, errors.New("field of type Boolean does not have child fields"))
 }
 
 func (ec *executionContext) _OutboundNetworkPolicy_rules(ctx context.Context, field graphql.CollectedField, obj *netpol.OutboundNetworkPolicy) (ret graphql.Marshaler) {
@@ -496,17 +365,20 @@ func (ec *executionContext) _OutboundNetworkPolicy_rules(ctx context.Context, fi
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_OutboundNetworkPolicy_rules,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_OutboundNetworkPolicy_rules(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Rules, nil
 		},
 		nil,
-		ec.marshalNNetworkPolicyRule2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋnetpolᚐNetworkPolicyRuleᚄ,
+		func(ctx context.Context, selections ast.SelectionSet, v []*netpol.NetworkPolicyRule) graphql.Marshaler {
+			return ec.marshalNNetworkPolicyRule2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋnetpolᚐNetworkPolicyRuleᚄ(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_OutboundNetworkPolicy_rules(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "OutboundNetworkPolicy",
@@ -514,19 +386,7 @@ func (ec *executionContext) fieldContext_OutboundNetworkPolicy_rules(_ context.C
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "targetWorkloadName":
-				return ec.fieldContext_NetworkPolicyRule_targetWorkloadName(ctx, field)
-			case "targetWorkload":
-				return ec.fieldContext_NetworkPolicyRule_targetWorkload(ctx, field)
-			case "targetTeamSlug":
-				return ec.fieldContext_NetworkPolicyRule_targetTeamSlug(ctx, field)
-			case "targetTeam":
-				return ec.fieldContext_NetworkPolicyRule_targetTeam(ctx, field)
-			case "mutual":
-				return ec.fieldContext_NetworkPolicyRule_mutual(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type NetworkPolicyRule", field.Name)
+			return ec.childFields_NetworkPolicyRule(ctx, field)
 		},
 	}
 	return fc, nil
@@ -537,17 +397,20 @@ func (ec *executionContext) _OutboundNetworkPolicy_external(ctx context.Context,
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_OutboundNetworkPolicy_external,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_OutboundNetworkPolicy_external(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.External, nil
 		},
 		nil,
-		ec.marshalNExternalNetworkPolicyTarget2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋnetpolᚐExternalNetworkPolicyTargetᚄ,
+		func(ctx context.Context, selections ast.SelectionSet, v []netpol.ExternalNetworkPolicyTarget) graphql.Marshaler {
+			return ec.marshalNExternalNetworkPolicyTarget2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋnetpolᚐExternalNetworkPolicyTargetᚄ(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_OutboundNetworkPolicy_external(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "OutboundNetworkPolicy",
@@ -630,7 +493,7 @@ func (ec *executionContext) _ExternalNetworkPolicyHost(ctx context.Context, sel 
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -674,7 +537,7 @@ func (ec *executionContext) _ExternalNetworkPolicyIpv4(ctx context.Context, sel 
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -713,7 +576,7 @@ func (ec *executionContext) _InboundNetworkPolicy(ctx context.Context, sel ast.S
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -757,7 +620,7 @@ func (ec *executionContext) _NetworkPolicy(ctx context.Context, sel ast.Selectio
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -903,7 +766,7 @@ func (ec *executionContext) _NetworkPolicyRule(ctx context.Context, sel ast.Sele
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -947,7 +810,7 @@ func (ec *executionContext) _OutboundNetworkPolicy(ctx context.Context, sel ast.
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{

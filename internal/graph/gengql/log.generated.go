@@ -5,9 +5,10 @@ package gengql
 import (
 	"context"
 	"errors"
-	"fmt"
+	"math"
 	"strconv"
 	"sync/atomic"
+	"time"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/nais/api/internal/loki"
@@ -33,28 +34,22 @@ func (ec *executionContext) _LogLine_time(ctx context.Context, field graphql.Col
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_LogLine_time,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_LogLine_time(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Time, nil
 		},
 		nil,
-		ec.marshalNTime2timeᚐTime,
+		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
+			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_LogLine_time(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "LogLine",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("LogLine", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
 func (ec *executionContext) _LogLine_message(ctx context.Context, field graphql.CollectedField, obj *loki.LogLine) (ret graphql.Marshaler) {
@@ -62,28 +57,22 @@ func (ec *executionContext) _LogLine_message(ctx context.Context, field graphql.
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_LogLine_message,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_LogLine_message(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Message, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_LogLine_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "LogLine",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("LogLine", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _LogLine_labels(ctx context.Context, field graphql.CollectedField, obj *loki.LogLine) (ret graphql.Marshaler) {
@@ -91,17 +80,20 @@ func (ec *executionContext) _LogLine_labels(ctx context.Context, field graphql.C
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_LogLine_labels,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_LogLine_labels(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Labels, nil
 		},
 		nil,
-		ec.marshalNLogLineLabel2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋlokiᚐLogLineLabelᚄ,
+		func(ctx context.Context, selections ast.SelectionSet, v []*loki.LogLineLabel) graphql.Marshaler {
+			return ec.marshalNLogLineLabel2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋlokiᚐLogLineLabelᚄ(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_LogLine_labels(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "LogLine",
@@ -109,13 +101,7 @@ func (ec *executionContext) fieldContext_LogLine_labels(_ context.Context, field
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "key":
-				return ec.fieldContext_LogLineLabel_key(ctx, field)
-			case "value":
-				return ec.fieldContext_LogLineLabel_value(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type LogLineLabel", field.Name)
+			return ec.childFields_LogLineLabel(ctx, field)
 		},
 	}
 	return fc, nil
@@ -126,28 +112,22 @@ func (ec *executionContext) _LogLineLabel_key(ctx context.Context, field graphql
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_LogLineLabel_key,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_LogLineLabel_key(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Key, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_LogLineLabel_key(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "LogLineLabel",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("LogLineLabel", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _LogLineLabel_value(ctx context.Context, field graphql.CollectedField, obj *loki.LogLineLabel) (ret graphql.Marshaler) {
@@ -155,28 +135,22 @@ func (ec *executionContext) _LogLineLabel_value(ctx context.Context, field graph
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_LogLineLabel_value,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_LogLineLabel_value(ctx, field)
+		},
 		func(ctx context.Context) (any, error) {
 			return obj.Value, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
 		true,
 		true,
 	)
 }
-
 func (ec *executionContext) fieldContext_LogLineLabel_value(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "LogLineLabel",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
+	return graphql.NewScalarFieldContext("LogLineLabel", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 // endregion **************************** field.gotpl *****************************
@@ -185,6 +159,10 @@ func (ec *executionContext) fieldContext_LogLineLabel_value(_ context.Context, f
 
 func (ec *executionContext) unmarshalInputLogSubscriptionFilter(ctx context.Context, obj any) (loki.LogSubscriptionFilter, error) {
 	var it loki.LogSubscriptionFilter
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -229,6 +207,10 @@ func (ec *executionContext) unmarshalInputLogSubscriptionFilter(ctx context.Cont
 
 func (ec *executionContext) unmarshalInputLogSubscriptionInitialBatch(ctx context.Context, obj any) (loki.LogSubscriptionInitialBatch, error) {
 	var it loki.LogSubscriptionInitialBatch
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -307,7 +289,7 @@ func (ec *executionContext) _LogLine(ctx context.Context, sel ast.SelectionSet, 
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
@@ -351,7 +333,7 @@ func (ec *executionContext) _LogLineLabel(ctx context.Context, sel ast.Selection
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
 
 	for label, dfs := range deferred {
 		ec.ProcessDeferredGroup(graphql.DeferredGroup{
