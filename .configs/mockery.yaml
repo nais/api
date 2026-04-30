@@ -3,6 +3,7 @@ filename: "mock_{{.InterfaceName | snakecase }}.go"
 template: testify
 template-data:
   unroll-variadic: true
+include-auto-generated: true
 packages:
   github.com/nais/api/internal/thirdparty/hookd:
     interfaces:
@@ -18,7 +19,5 @@ packages:
       include-interface-regex: .*Server
       exclude-interface-regex: Unsafe.*
   github.com/nais/api/internal/cost/costsql:
-    config:
-      include-auto-generated: true
     interfaces:
       Querier:
