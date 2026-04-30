@@ -57,7 +57,7 @@ func ListIssues(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagina
 		params.IssueType = (*string)(filter.IssueType)
 		params.ResourceName = filter.ResourceName
 		if filter.Severity != nil {
-			params.Severity = issuesql.NullSeverityLevel{SeverityLevel: issuesql.SeverityLevel(*filter.Severity), Valid: true}
+			params.Severity = new(issuesql.SeverityLevel(*filter.Severity))
 		}
 	}
 

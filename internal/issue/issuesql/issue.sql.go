@@ -146,7 +146,7 @@ type ListIssuesParams struct {
 	Team         string
 	Env          []string
 	IssueType    *string
-	Severity     NullSeverityLevel
+	Severity     *SeverityLevel
 	ResourceType *string
 	ResourceName *string
 	OrderBy      string
