@@ -31,6 +31,7 @@ Test.gql("Create team with user that is not authorized", function(t)
 		data = Null,
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("Specifically, you need the \"teams:create\" authorization."),
 				path = {
 					"createTeam",
@@ -166,6 +167,7 @@ Test.gql("Create team with invalid slug", function(t)
 				data = Null,
 				errors = {
 					{
+						locations = NotNull(),
 						message = errorMessageMatch,
 						path = {
 							"createTeam",

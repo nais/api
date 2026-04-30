@@ -150,6 +150,7 @@ Test.gql("single environment that does not exist", function(t)
 		data = Null,
 		errors = {
 			{
+				locations = NotNull(),
 				message = "Environment \"some-non-existing-environment\" not found",
 				path = { "environment" },
 			},

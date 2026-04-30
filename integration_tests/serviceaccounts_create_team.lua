@@ -102,6 +102,7 @@ Test.gql("Create new team as service account without permission", function(t)
 		data = Null,
 		errors = {
 			{
+				locations = NotNull(),
 				message = "You are authenticated, but your account is not authorized to perform this action. Specifically, you need the \"teams:create\" authorization.",
 				path = { "createTeam" },
 			},
@@ -211,6 +212,7 @@ Test.gql("Add team member without permission", function(t)
 		data = Null,
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("Specifically, you need the \"teams:members:admin\" authorization."),
 				path = {
 					"addTeamMember",

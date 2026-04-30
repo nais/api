@@ -233,6 +233,7 @@ Test.gql("Other team CANNOT create config in alpha", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("You are authenticated"),
 				path = { "createConfig" },
 			},
@@ -265,6 +266,7 @@ Test.gql("Other team CANNOT add value to alpha config", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("You are authenticated"),
 				path = { "addConfigValue" },
 			},
@@ -297,6 +299,7 @@ Test.gql("Other team CANNOT update value in alpha config", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("You are authenticated"),
 				path = { "updateConfigValue" },
 			},
@@ -326,6 +329,7 @@ Test.gql("Other team CANNOT remove value from alpha config", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("You are authenticated"),
 				path = { "removeConfigValue" },
 			},
@@ -352,6 +356,7 @@ Test.gql("Other team CANNOT delete alpha config", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("You are authenticated"),
 				path = { "deleteConfig" },
 			},

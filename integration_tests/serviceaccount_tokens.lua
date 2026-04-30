@@ -80,6 +80,7 @@ Test.gql("Create token for service account that does not exist", function(t)
 		data = Null,
 		errors = {
 			{
+				locations = NotNull(),
 				message = "The specified service account was not found.",
 				path = {
 					"createServiceAccountToken",
@@ -141,6 +142,7 @@ Test.gql("Create service account token without permission", function(t)
 		data = Null,
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("Specifically, you need the \"service_accounts:update\" authorization."),
 				path = {
 					"createServiceAccountToken",
@@ -276,6 +278,7 @@ Test.gql("Update service account token that does not exist", function(t)
 		data = Null,
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("Object was not found in the database."),
 				path = {
 					"updateServiceAccountToken",
@@ -302,6 +305,7 @@ Test.gql("Delete service account token that does not exist", function(t)
 		data = Null,
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("Object was not found in the database."),
 				path = {
 					"deleteServiceAccountToken",

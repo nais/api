@@ -27,6 +27,7 @@ Test.gql("Create service account as non-member", function(t)
 		data = Null,
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("Specifically, you need the \"service_accounts:create\" authorization."),
 				path = {
 					"createServiceAccount",
@@ -98,6 +99,7 @@ Test.gql("Update service account as non-member", function(t)
 		data = Null,
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("Specifically, you need the \"service_accounts:update\" authorization."),
 				path = {
 					"updateServiceAccount",
@@ -160,6 +162,7 @@ Test.gql("Assign role to service account as non-member", function(t)
 		data = Null,
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("Specifically, you need the \"service_accounts:update\" authorization."),
 				path = {
 					"assignRoleToServiceAccount",
@@ -196,6 +199,7 @@ Test.gql("Assign global role to service account as member", function(t)
 		data = Null,
 		errors = {
 			{
+				locations = NotNull(),
 				message = "Role \"Team creator\" is only allowed on global service accounts.",
 				path = {
 					"assignRoleToServiceAccount",
@@ -272,6 +276,7 @@ Test.gql("Assign duplicate role to service account as member", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("has already been assigned the \"Deploy key viewer\" role"),
 				path = {
 					"assignRoleToServiceAccount",
@@ -353,6 +358,7 @@ Test.gql("Assign another role to service account as member that requires owner",
 		data = Null,
 		errors = {
 			{
+				locations = NotNull(),
 				message = "User does not have permission to assign the \"Team owner\" role.",
 				path = {
 					"assignRoleToServiceAccount",
@@ -384,6 +390,7 @@ Test.gql("Revoke role from service account as non-member", function(t)
 		data = Null,
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("Specifically, you need the \"service_accounts:update\" authorization."),
 				path = {
 					"revokeRoleFromServiceAccount",
@@ -461,6 +468,7 @@ Test.gql("Revoke unassigned role from service account as member", function(t)
 		data = Null,
 		errors = {
 			{
+				locations = NotNull(),
 				message = "Service account does not have the \"Service account owner\" role assigned.",
 				path = {
 					"revokeRoleFromServiceAccount",
@@ -497,6 +505,7 @@ Test.gql("Revoke role from service account as member that requires owner", funct
 		data = Null,
 		errors = {
 			{
+				locations = NotNull(),
 				message = "User does not have permission to revoke the \"Team owner\" role.",
 				path = {
 					"revokeRoleFromServiceAccount",
@@ -525,6 +534,7 @@ Test.gql("Delete service account as non-member", function(t)
 		data = Null,
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("Specifically, you need the \"service_accounts:delete\" authorization."),
 				path = {
 					"deleteServiceAccount",

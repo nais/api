@@ -57,6 +57,7 @@ Test.gql("Set role on user that is not a member", function(t)
 		data = Null,
 		errors = {
 			{
+				locations = NotNull(),
 				message = "User is not a member of the team.",
 				path = {
 					"setTeamMemberRole",
@@ -91,6 +92,7 @@ Test.gql("Add user that does not exist", function(t)
 		data = Null,
 		errors = {
 			{
+				locations = NotNull(),
 				message = "The specified user was not found.",
 				path = {
 					"addTeamMember",

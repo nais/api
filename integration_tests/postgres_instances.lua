@@ -530,6 +530,7 @@ Test.gql("Delete Postgres in non-existing team", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("you need the \"postgres:delete\" authorization."),
 				path = {
 					"deletePostgres",
@@ -559,6 +560,7 @@ Test.gql("Delete Postgres as non-team-member", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("You are authenticated"),
 				path = {
 					"deletePostgres",

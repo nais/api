@@ -26,6 +26,7 @@ Test.gql("Create config for team that does not exist", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("You are authenticated"),
 				path = {
 					"createConfig",
@@ -56,6 +57,7 @@ Test.gql("Create config that already exists", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = "A config with this name already exists.",
 				path = {
 					"createConfig",
@@ -165,6 +167,7 @@ Test.gql("Add config value that already exists", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("already contains a value with the name"),
 				path = {
 					"addConfigValue",
@@ -241,6 +244,7 @@ Test.gql("Update config value that does not exist", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("does not contain a value with the name"),
 				path = {
 					"updateConfigValue",
@@ -273,6 +277,7 @@ Test.gql("Remove config value that does not exist", function(t)
 		data = Null,
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("does not contain a value with the name"),
 				path = {
 					"removeConfigValue",
@@ -420,6 +425,7 @@ Test.gql("Delete config that does not exist", function(t)
 		data = Null,
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("Resource not found"),
 				path = {
 					"deleteConfig",
@@ -475,6 +481,7 @@ Test.gql("Create config as non-team member", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("You are authenticated"),
 				path = {
 					"createConfig",
@@ -509,6 +516,7 @@ Test.gql("Update config as non-team member", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("You are authenticated"),
 				path = {
 					"updateConfigValue",
@@ -537,6 +545,7 @@ Test.gql("Delete config as non-team member", function(t)
 	t.check {
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("You are authenticated"),
 				path = {
 					"deleteConfig",
@@ -779,6 +788,7 @@ Test.gql("Unmanaged config not in list", function(t)
 		data = Null,
 		errors = {
 			{
+				locations = NotNull(),
 				message = Contains("not found"),
 				path = {
 					"team",
