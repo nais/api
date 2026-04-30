@@ -18,5 +18,7 @@ packages:
       include-interface-regex: .*Server
       exclude-interface-regex: Unsafe.*
   github.com/nais/api/internal/cost/costsql:
+    config:
+      include-auto-generated: true
     interfaces:
       Querier:
