@@ -54,9 +54,19 @@ type claims struct {
 	Email string
 }
 
+// isSafeRedirectPath returns true if the path is a safe relative path that cannot
+// be used to redirect users to an external site (e.g. //attacker.com).
+func isSafeRedirectPath(path string) bool {
+	u, err := url.Parse(path)
+	if err != nil {
+		return false
+	}
+	return u.Scheme == "" && u.Host == "" && strings.HasPrefix(u.Path, "/")
+}
+
 func (h *handler) Login(w http.ResponseWriter, r *http.Request) {
 	redirectURI := r.URL.Query().Get("redirect_uri")
-	if len(redirectURI) > 0 && strings.HasPrefix(redirectURI, "/") {
+	if len(redirectURI) > 0 && isSafeRedirectPath(redirectURI) {
 		http.SetCookie(w, &http.Cookie{
 			Name:     RedirectURICookie,
 			Value:    redirectURI,
@@ -64,6 +74,7 @@ func (h *handler) Login(w http.ResponseWriter, r *http.Request) {
 			Expires:  time.Now().Add(30 * time.Minute),
 			Secure:   true,
 			HttpOnly: true,
+			SameSite: http.SameSiteLaxMode,
 		})
 	}
 
@@ -75,6 +86,7 @@ func (h *handler) Login(w http.ResponseWriter, r *http.Request) {
 		Expires:  time.Now().Add(30 * time.Minute),
 		Secure:   true,
 		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode,
 	})
 
 	opts := make([]oauth2.AuthCodeOption, 0)
@@ -96,7 +108,10 @@ func (h *handler) Callback(w http.ResponseWriter, r *http.Request) {
 	redirectURIRaw, err := r.Cookie(RedirectURICookie)
 	if err == nil {
 		if redirectPath, err := url.QueryUnescape(redirectURIRaw.Value); err == nil {
-			frontendURL = redirectPath
+			// Re-validate after unescaping to prevent open redirect via encoded payloads.
+			if isSafeRedirectPath(redirectPath) {
+				frontendURL = redirectPath
+			}
 		}
 	}
 
@@ -202,6 +217,7 @@ func (h *handler) SetSessionCookie(w http.ResponseWriter, session *session.Sessi
 		Expires:  session.Expires,
 		Secure:   true,
 		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode,
 	})
 }
 
@@ -213,5 +229,6 @@ func (h *handler) DeleteCookie(w http.ResponseWriter, name string) {
 		Expires:  time.Unix(0, 0),
 		Secure:   true,
 		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode,
 	})
 }
