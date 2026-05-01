@@ -78,7 +78,7 @@ func NewHandler(config gengql.Config, log logrus.FieldLogger) (*handler.Server, 
 			return ctx.IsResolver
 		}),
 	))
-	graphHandler.Use(extension.FixedComplexityLimit(100_000_000))
+	graphHandler.Use(extension.FixedComplexityLimit(10_000))
 	graphHandler.Use(deprecationTracer)
 
 	return graphHandler, nil
