@@ -93,6 +93,8 @@ type MutationResolver interface {
 	RemoveSecretValue(ctx context.Context, input secret.RemoveSecretValueInput) (*secret.RemoveSecretValuePayload, error)
 	DeleteSecret(ctx context.Context, input secret.DeleteSecretInput) (*secret.DeleteSecretPayload, error)
 	ViewSecretValues(ctx context.Context, input secret.ViewSecretValuesInput) (*secret.ViewSecretValuesPayload, error)
+	AddWorkloadToServiceAccount(ctx context.Context, input serviceaccount.AddWorkloadToServiceAccountInput) (*serviceaccount.AddWorkloadToServiceAccountPayload, error)
+	RemoveWorkloadFromServiceAccount(ctx context.Context, input serviceaccount.RemoveWorkloadFromServiceAccountInput) (*serviceaccount.RemoveWorkloadFromServiceAccountPayload, error)
 	CreateServiceAccount(ctx context.Context, input serviceaccount.CreateServiceAccountInput) (*serviceaccount.CreateServiceAccountPayload, error)
 	UpdateServiceAccount(ctx context.Context, input serviceaccount.UpdateServiceAccountInput) (*serviceaccount.UpdateServiceAccountPayload, error)
 	DeleteServiceAccount(ctx context.Context, input serviceaccount.DeleteServiceAccountInput) (*serviceaccount.DeleteServiceAccountPayload, error)
@@ -206,6 +208,20 @@ func (ec *executionContext) field_Mutation_addTeamMember_args(ctx context.Contex
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input",
 		func(ctx context.Context, v any) (team.AddTeamMemberInput, error) {
 			return ec.unmarshalNAddTeamMemberInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐAddTeamMemberInput(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_addWorkloadToServiceAccount_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input",
+		func(ctx context.Context, v any) (serviceaccount.AddWorkloadToServiceAccountInput, error) {
+			return ec.unmarshalNAddWorkloadToServiceAccountInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐAddWorkloadToServiceAccountInput(ctx, v)
 		})
 	if err != nil {
 		return nil, err
@@ -682,6 +698,20 @@ func (ec *executionContext) field_Mutation_removeTeamMember_args(ctx context.Con
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input",
 		func(ctx context.Context, v any) (team.RemoveTeamMemberInput, error) {
 			return ec.unmarshalNRemoveTeamMemberInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐRemoveTeamMemberInput(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_removeWorkloadFromServiceAccount_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input",
+		func(ctx context.Context, v any) (serviceaccount.RemoveWorkloadFromServiceAccountInput, error) {
+			return ec.unmarshalNRemoveWorkloadFromServiceAccountInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐRemoveWorkloadFromServiceAccountInput(ctx, v)
 		})
 	if err != nil {
 		return nil, err
@@ -2836,6 +2866,94 @@ func (ec *executionContext) fieldContext_Mutation_viewSecretValues(ctx context.C
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_viewSecretValues_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_addWorkloadToServiceAccount(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Mutation_addWorkloadToServiceAccount(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.Resolvers.Mutation().AddWorkloadToServiceAccount(ctx, fc.Args["input"].(serviceaccount.AddWorkloadToServiceAccountInput))
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *serviceaccount.AddWorkloadToServiceAccountPayload) graphql.Marshaler {
+			return ec.marshalNAddWorkloadToServiceAccountPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐAddWorkloadToServiceAccountPayload(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Mutation_addWorkloadToServiceAccount(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_AddWorkloadToServiceAccountPayload(ctx, field)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_addWorkloadToServiceAccount_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_removeWorkloadFromServiceAccount(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Mutation_removeWorkloadFromServiceAccount(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.Resolvers.Mutation().RemoveWorkloadFromServiceAccount(ctx, fc.Args["input"].(serviceaccount.RemoveWorkloadFromServiceAccountInput))
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *serviceaccount.RemoveWorkloadFromServiceAccountPayload) graphql.Marshaler {
+			return ec.marshalNRemoveWorkloadFromServiceAccountPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐRemoveWorkloadFromServiceAccountPayload(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Mutation_removeWorkloadFromServiceAccount(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_RemoveWorkloadFromServiceAccountPayload(ctx, field)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_removeWorkloadFromServiceAccount_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -5671,6 +5789,20 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._ServiceMaintenanceActivityLogEntry(ctx, sel, obj)
+	case serviceaccount.ServiceAccountWorkloadBindingRemovedActivityLogEntry:
+		return ec._ServiceAccountWorkloadBindingRemovedActivityLogEntry(ctx, sel, &obj)
+	case *serviceaccount.ServiceAccountWorkloadBindingRemovedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ServiceAccountWorkloadBindingRemovedActivityLogEntry(ctx, sel, obj)
+	case serviceaccount.ServiceAccountWorkloadBindingAddedActivityLogEntry:
+		return ec._ServiceAccountWorkloadBindingAddedActivityLogEntry(ctx, sel, &obj)
+	case *serviceaccount.ServiceAccountWorkloadBindingAddedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ServiceAccountWorkloadBindingAddedActivityLogEntry(ctx, sel, obj)
 	case serviceaccount.ServiceAccountUpdatedActivityLogEntry:
 		return ec._ServiceAccountUpdatedActivityLogEntry(ctx, sel, &obj)
 	case *serviceaccount.ServiceAccountUpdatedActivityLogEntry:
@@ -6159,6 +6291,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._TeamEnvironment(ctx, sel, obj)
+	case serviceaccount.ServiceAccountWorkloadBinding:
+		return ec._ServiceAccountWorkloadBinding(ctx, sel, &obj)
+	case *serviceaccount.ServiceAccountWorkloadBinding:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ServiceAccountWorkloadBinding(ctx, sel, obj)
 	case serviceaccount.ServiceAccountToken:
 		return ec._ServiceAccountToken(ctx, sel, &obj)
 	case *serviceaccount.ServiceAccountToken:
@@ -6560,6 +6699,20 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "viewSecretValues":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_viewSecretValues(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "addWorkloadToServiceAccount":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_addWorkloadToServiceAccount(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "removeWorkloadFromServiceAccount":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_removeWorkloadFromServiceAccount(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++

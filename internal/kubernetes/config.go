@@ -19,6 +19,33 @@ type StaticCluster struct {
 	Token string
 }
 
+// ClusterType is the kind of Kubernetes cluster Nais runs on. The cluster type determines (among other things) the
+// format of the OIDC issuer URL used to validate projected ServiceAccount tokens.
+type ClusterType string
+
+const (
+	ClusterTypeGKE    ClusterType = "gke"
+	ClusterTypeOnprem ClusterType = "onprem"
+)
+
+// IssuerURLFormatGKE is the format string used to construct the OIDC issuer URL for a GKE cluster. It accepts
+// (cluster, tenant). TODO: replace with the real format once we have it.
+const IssuerURLFormatGKE = "https://container.googleapis.com/v1/projects/%[2]s/locations/europe-north1/clusters/%[1]s"
+
+// IssuerURLFormatOnprem is the format string used to construct the OIDC issuer URL for an on-prem cluster. It
+// accepts (cluster, tenant). TODO: replace with the real format once we have it.
+const IssuerURLFormatOnprem = "https://kubernetes.%[1]s.%[2]s.cloud.nais.io"
+
+// IssuerURL returns the OIDC issuer URL for the given cluster and tenant.
+func IssuerURL(clusterType ClusterType, cluster, tenant string) string {
+	switch clusterType {
+	case ClusterTypeOnprem:
+		return fmt.Sprintf(IssuerURLFormatOnprem, cluster, tenant)
+	default:
+		return fmt.Sprintf(IssuerURLFormatGKE, cluster, tenant)
+	}
+}
+
 type ClusterConfigMap map[string]*rest.Config
 
 func CreateClusterConfigMap(tenant string, clusters []string, staticClusters []StaticCluster) (ClusterConfigMap, error) {

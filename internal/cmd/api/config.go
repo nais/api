@@ -4,6 +4,7 @@ import (
 	"context"
 	"reflect"
 
+	"github.com/nais/api/internal/auth/middleware"
 	"github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/thirdparty/aiven"
 	"github.com/nais/api/internal/workload/logging"
@@ -22,6 +23,25 @@ func (k *k8sConfig) AllClusterNames() []string {
 		clusters = append(clusters, c.Name)
 	}
 	return clusters
+}
+
+// KubernetesIssuers returns the list of trusted OIDC issuers for projected Kubernetes ServiceAccount tokens, used
+// by the K8s SA authentication middleware.
+func (k *k8sConfig) KubernetesIssuers(tenant string) []middleware.KubernetesIssuer {
+	issuers := make([]middleware.KubernetesIssuer, 0, len(k.Clusters)+len(k.StaticClusters))
+	for _, c := range k.Clusters {
+		issuers = append(issuers, middleware.KubernetesIssuer{
+			Environment: c,
+			IssuerURL:   kubernetes.IssuerURL(kubernetes.ClusterTypeGKE, c, tenant),
+		})
+	}
+	for _, c := range k.StaticClusters {
+		issuers = append(issuers, middleware.KubernetesIssuer{
+			Environment: c.Name,
+			IssuerURL:   kubernetes.IssuerURL(kubernetes.ClusterTypeOnprem, c.Name, tenant),
+		})
+	}
+	return issuers
 }
 
 type ClusterInfo struct {

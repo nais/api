@@ -11,20 +11,28 @@ import (
 
 type Querier interface {
 	Create(ctx context.Context, arg CreateParams) (*ServiceAccount, error)
+	CreateBinding(ctx context.Context, arg CreateBindingParams) (*ServiceAccountWorkloadBinding, error)
 	CreateToken(ctx context.Context, arg CreateTokenParams) (*ServiceAccountToken, error)
 	Delete(ctx context.Context, id uuid.UUID) error
+	DeleteBinding(ctx context.Context, id uuid.UUID) error
 	// TODO: Remove once static service accounts has been removed
 	DeleteStaticServiceAccounts(ctx context.Context) error
 	DeleteToken(ctx context.Context, id uuid.UUID) error
+	GetBindingByID(ctx context.Context, id uuid.UUID) (*ServiceAccountWorkloadBinding, error)
+	GetBindingByWorkload(ctx context.Context, arg GetBindingByWorkloadParams) (*ServiceAccountWorkloadBinding, error)
+	GetBindingsByIDs(ctx context.Context, ids []uuid.UUID) ([]*ServiceAccountWorkloadBinding, error)
 	GetByIDs(ctx context.Context, ids []uuid.UUID) ([]*ServiceAccount, error)
 	GetByName(ctx context.Context, name string) (*ServiceAccount, error)
 	GetServiceAccountAndTokenBySecret(ctx context.Context, token string) (*GetServiceAccountAndTokenBySecretRow, error)
 	GetTokensByIDs(ctx context.Context, ids []uuid.UUID) ([]*ServiceAccountToken, error)
 	LastUsedAt(ctx context.Context, serviceAccountID uuid.UUID) (pgtype.Timestamptz, error)
 	List(ctx context.Context, arg ListParams) ([]*ListRow, error)
+	ListBindingsForServiceAccount(ctx context.Context, arg ListBindingsForServiceAccountParams) ([]*ListBindingsForServiceAccountRow, error)
 	ListTokensForServiceAccount(ctx context.Context, arg ListTokensForServiceAccountParams) ([]*ListTokensForServiceAccountRow, error)
 	RemoveApiKeysFromServiceAccount(ctx context.Context, serviceAccountID uuid.UUID) error
+	SetBindingKubernetesUID(ctx context.Context, arg SetBindingKubernetesUIDParams) error
 	Update(ctx context.Context, arg UpdateParams) (*ServiceAccount, error)
+	UpdateBindingLastUsedAt(ctx context.Context, id uuid.UUID) error
 	UpdateToken(ctx context.Context, arg UpdateTokenParams) (*ServiceAccountToken, error)
 	UpdateTokenLastUsedAt(ctx context.Context, id uuid.UUID) error
 }

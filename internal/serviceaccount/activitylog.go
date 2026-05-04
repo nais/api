@@ -7,12 +7,14 @@ import (
 )
 
 const (
-	activityLogEntryResourceTypeServiceAccount      activitylog.ActivityLogEntryResourceType = "SERVICE_ACCOUNT"
-	activityLogEntryActionAssignServiceAccountRole  activitylog.ActivityLogEntryAction       = "ASSIGN_SERVICE_ACCOUNT_TOKEN_ROLE"
-	activityLogEntryActionRevokeServiceAccountRole  activitylog.ActivityLogEntryAction       = "REVOKE_SERVICE_ACCOUNT_TOKEN_ROLE"
-	activityLogEntryActionCreateServiceAccountToken activitylog.ActivityLogEntryAction       = "CREATE_SERVICE_ACCOUNT_TOKEN"
-	activityLogEntryActionUpdateServiceAccountToken activitylog.ActivityLogEntryAction       = "UPDATE_SERVICE_ACCOUNT_TOKEN"
-	activityLogEntryActionDeleteServiceAccountToken activitylog.ActivityLogEntryAction       = "DELETE_SERVICE_ACCOUNT_TOKEN"
+	activityLogEntryResourceTypeServiceAccount                activitylog.ActivityLogEntryResourceType = "SERVICE_ACCOUNT"
+	activityLogEntryActionAssignServiceAccountRole            activitylog.ActivityLogEntryAction       = "ASSIGN_SERVICE_ACCOUNT_TOKEN_ROLE"
+	activityLogEntryActionRevokeServiceAccountRole            activitylog.ActivityLogEntryAction       = "REVOKE_SERVICE_ACCOUNT_TOKEN_ROLE"
+	activityLogEntryActionCreateServiceAccountToken           activitylog.ActivityLogEntryAction       = "CREATE_SERVICE_ACCOUNT_TOKEN"
+	activityLogEntryActionUpdateServiceAccountToken           activitylog.ActivityLogEntryAction       = "UPDATE_SERVICE_ACCOUNT_TOKEN"
+	activityLogEntryActionDeleteServiceAccountToken           activitylog.ActivityLogEntryAction       = "DELETE_SERVICE_ACCOUNT_TOKEN"
+	activityLogEntryActionAddServiceAccountWorkloadBinding    activitylog.ActivityLogEntryAction       = "ADD_SERVICE_ACCOUNT_WORKLOAD_BINDING"
+	activityLogEntryActionRemoveServiceAccountWorkloadBinding activitylog.ActivityLogEntryAction       = "REMOVE_SERVICE_ACCOUNT_WORKLOAD_BINDING"
 )
 
 func init() {
@@ -104,6 +106,30 @@ func init() {
 				GenericActivityLogEntry: entry.WithMessage("Revoked role from service account"),
 				Data:                    data,
 			}, nil
+		case activityLogEntryActionAddServiceAccountWorkloadBinding:
+			data, err := activitylog.TransformData(entry, func(data *ServiceAccountWorkloadBindingAddedActivityLogEntryData) *ServiceAccountWorkloadBindingAddedActivityLogEntryData {
+				return data
+			})
+			if err != nil {
+				return nil, err
+			}
+
+			return ServiceAccountWorkloadBindingAddedActivityLogEntry{
+				GenericActivityLogEntry: entry.WithMessage("Added workload to service account"),
+				Data:                    data,
+			}, nil
+		case activityLogEntryActionRemoveServiceAccountWorkloadBinding:
+			data, err := activitylog.TransformData(entry, func(data *ServiceAccountWorkloadBindingRemovedActivityLogEntryData) *ServiceAccountWorkloadBindingRemovedActivityLogEntryData {
+				return data
+			})
+			if err != nil {
+				return nil, err
+			}
+
+			return ServiceAccountWorkloadBindingRemovedActivityLogEntry{
+				GenericActivityLogEntry: entry.WithMessage("Removed workload from service account"),
+				Data:                    data,
+			}, nil
 		default:
 			return nil, fmt.Errorf("unsupported service account activity log entry action: %q", entry.Action)
 		}
@@ -117,6 +143,8 @@ func init() {
 	activitylog.RegisterFilter("SERVICE_ACCOUNT_TOKEN_DELETED", activityLogEntryActionDeleteServiceAccountToken, activityLogEntryResourceTypeServiceAccount)
 	activitylog.RegisterFilter("SERVICE_ACCOUNT_ROLE_ASSIGNED", activityLogEntryActionAssignServiceAccountRole, activityLogEntryResourceTypeServiceAccount)
 	activitylog.RegisterFilter("SERVICE_ACCOUNT_ROLE_REVOKED", activityLogEntryActionRevokeServiceAccountRole, activityLogEntryResourceTypeServiceAccount)
+	activitylog.RegisterFilter("SERVICE_ACCOUNT_WORKLOAD_BINDING_ADDED", activityLogEntryActionAddServiceAccountWorkloadBinding, activityLogEntryResourceTypeServiceAccount)
+	activitylog.RegisterFilter("SERVICE_ACCOUNT_WORKLOAD_BINDING_REMOVED", activityLogEntryActionRemoveServiceAccountWorkloadBinding, activityLogEntryResourceTypeServiceAccount)
 }
 
 type RoleAssignedToServiceAccountActivityLogEntry struct {
@@ -191,4 +219,24 @@ type ServiceAccountUpdatedActivityLogEntryDataUpdatedField struct {
 
 type ServiceAccountTokenDeletedActivityLogEntryData struct {
 	TokenName string `json:"tokenName"`
+}
+
+type ServiceAccountWorkloadBindingAddedActivityLogEntry struct {
+	activitylog.GenericActivityLogEntry
+	Data *ServiceAccountWorkloadBindingAddedActivityLogEntryData `json:"data"`
+}
+
+type ServiceAccountWorkloadBindingAddedActivityLogEntryData struct {
+	WorkloadTeamSlug string `json:"workloadTeamSlug"`
+	WorkloadName     string `json:"workloadName"`
+}
+
+type ServiceAccountWorkloadBindingRemovedActivityLogEntry struct {
+	activitylog.GenericActivityLogEntry
+	Data *ServiceAccountWorkloadBindingRemovedActivityLogEntryData `json:"data"`
+}
+
+type ServiceAccountWorkloadBindingRemovedActivityLogEntryData struct {
+	WorkloadTeamSlug string `json:"workloadTeamSlug"`
+	WorkloadName     string `json:"workloadName"`
 }

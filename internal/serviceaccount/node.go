@@ -13,11 +13,13 @@ type identType int
 const (
 	identServiceAccount identType = iota
 	identServiceAccountToken
+	identServiceAccountWorkloadBinding
 )
 
 func init() {
 	ident.RegisterIdentType(identServiceAccount, "SA", GetByIdent)
 	ident.RegisterIdentType(identServiceAccountToken, "SAT", GetTokenByIdent)
+	ident.RegisterIdentType(identServiceAccountWorkloadBinding, "SAB", GetBindingByIdent)
 }
 
 func newIdent(uid uuid.UUID) ident.Ident {
@@ -26,6 +28,10 @@ func newIdent(uid uuid.UUID) ident.Ident {
 
 func newTokenIdent(uid uuid.UUID) ident.Ident {
 	return ident.NewIdent(identServiceAccountToken, base58.Encode(uid[:]))
+}
+
+func newBindingIdent(uid uuid.UUID) ident.Ident {
+	return ident.NewIdent(identServiceAccountWorkloadBinding, base58.Encode(uid[:]))
 }
 
 func parseIdent(id ident.Ident) (uuid.UUID, error) {
@@ -41,6 +47,15 @@ func parseTokenIdent(id ident.Ident) (uuid.UUID, error) {
 	parts := id.Parts()
 	if len(parts) != 1 {
 		return uuid.Nil, fmt.Errorf("invalid service account token ident")
+	}
+
+	return uuid.FromBytes(base58.Decode(parts[0]))
+}
+
+func parseBindingIdent(id ident.Ident) (uuid.UUID, error) {
+	parts := id.Parts()
+	if len(parts) != 1 {
+		return uuid.Nil, fmt.Errorf("invalid service account workload binding ident")
 	}
 
 	return uuid.FromBytes(base58.Decode(parts[0]))

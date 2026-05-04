@@ -28,3 +28,16 @@ type ServiceAccountToken struct {
 	Token            string
 	ServiceAccountID uuid.UUID
 }
+
+type ServiceAccountWorkloadBinding struct {
+	ID               uuid.UUID
+	CreatedAt        pgtype.Timestamptz
+	UpdatedAt        pgtype.Timestamptz
+	LastUsedAt       pgtype.Timestamptz
+	ServiceAccountID uuid.UUID
+	Environment      string
+	TeamSlug         slug.Slug
+	WorkloadName     string
+	// The UID of the Kubernetes ServiceAccount, set on first successful authentication (trust-on-first-use).
+	KubernetesServiceAccountUid *uuid.UUID
+}

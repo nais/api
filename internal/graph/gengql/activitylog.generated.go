@@ -360,6 +360,20 @@ func (ec *executionContext) _ActivityLogEntry(ctx context.Context, sel ast.Selec
 			return graphql.Null
 		}
 		return ec._ServiceMaintenanceActivityLogEntry(ctx, sel, obj)
+	case serviceaccount.ServiceAccountWorkloadBindingRemovedActivityLogEntry:
+		return ec._ServiceAccountWorkloadBindingRemovedActivityLogEntry(ctx, sel, &obj)
+	case *serviceaccount.ServiceAccountWorkloadBindingRemovedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ServiceAccountWorkloadBindingRemovedActivityLogEntry(ctx, sel, obj)
+	case serviceaccount.ServiceAccountWorkloadBindingAddedActivityLogEntry:
+		return ec._ServiceAccountWorkloadBindingAddedActivityLogEntry(ctx, sel, &obj)
+	case *serviceaccount.ServiceAccountWorkloadBindingAddedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ServiceAccountWorkloadBindingAddedActivityLogEntry(ctx, sel, obj)
 	case serviceaccount.ServiceAccountUpdatedActivityLogEntry:
 		return ec._ServiceAccountUpdatedActivityLogEntry(ctx, sel, &obj)
 	case *serviceaccount.ServiceAccountUpdatedActivityLogEntry:
