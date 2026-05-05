@@ -92,7 +92,7 @@ func (r *serviceAccountWorkloadBindingResolver) IsBroken(ctx context.Context, ob
 	if err != nil {
 		return false, err
 	}
-	// Broken if the workload no longer exists. We can't detect UID mismatch from a stored binding alone — that
+	// TODO(thokra): Broken if the workload no longer exists. We can't detect UID mismatch from a stored binding alone — that
 	// only surfaces at authentication time when the actual UID does not match the pinned one. Once such an
 	// authentication has been attempted, future requests will keep failing; surfacing UID mismatch here would
 	// require additional bookkeeping which is out of scope for now.
