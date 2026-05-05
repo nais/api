@@ -1,0 +1,15 @@
+apiVersion: data.nais.io/v1
+kind: Postgres
+metadata:
+  name: postgres-1
+  namespace: devteam
+  labels:
+    team: devteam
+spec:
+  cluster:
+    allowDeletion: false
+    majorVersion: "18"
+    resources:
+      diskSize: "2Gi"
+      cpu: "100m"
+      memory: "1Gi"
