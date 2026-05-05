@@ -11,6 +11,7 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/alerts"
+	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/cost"
 	"github.com/nais/api/internal/deployment"
 	"github.com/nais/api/internal/environment"
@@ -1705,7 +1706,7 @@ type ComplexityRoot struct {
 		Me                        func(childComplexity int) int
 		Node                      func(childComplexity int, id ident.Ident) int
 		Reconcilers               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		Roles                     func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Roles                     func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *authz.RoleFilter) int
 		Search                    func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter search.SearchFilter) int
 		ServiceAccount            func(childComplexity int, id ident.Ident) int
 		ServiceAccounts           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
@@ -2505,6 +2506,7 @@ type ComplexityRoot struct {
 		Repositories              func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *repository.RepositoryOrder, filter *repository.TeamRepositoryFilter) int
 		SQLInstances              func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *sqlinstance.SQLInstanceOrder) int
 		Secrets                   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *secret.SecretOrder, filter *secret.SecretFilter) int
+		ServiceAccounts           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		ServiceUtilization        func(childComplexity int) int
 		SlackChannel              func(childComplexity int) int
 		Slug                      func(childComplexity int) int
@@ -10361,7 +10363,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Query.Roles(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
+		return e.ComplexityRoot.Query.Roles(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["filter"].(*authz.RoleFilter)), true
 
 	case "Query.search":
 		if e.ComplexityRoot.Query.Search == nil {
@@ -13991,6 +13993,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Team.Secrets(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*secret.SecretOrder), args["filter"].(*secret.SecretFilter)), true
+
+	case "Team.serviceAccounts":
+		if e.ComplexityRoot.Team.ServiceAccounts == nil {
+			break
+		}
+
+		args, err := ec.field_Team_serviceAccounts_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Team.ServiceAccounts(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
 
 	case "Team.serviceUtilization":
 		if e.ComplexityRoot.Team.ServiceUtilization == nil {
@@ -17705,6 +17719,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputRestartApplicationInput,
 		ec.unmarshalInputRevokeRoleFromServiceAccountInput,
 		ec.unmarshalInputRevokeTeamAccessToUnleashInput,
+		ec.unmarshalInputRoleFilter,
 		ec.unmarshalInputSearchFilter,
 		ec.unmarshalInputSecretFilter,
 		ec.unmarshalInputSecretOrder,
@@ -19365,7 +19380,19 @@ extend type Query {
 
 		"Get items before this cursor."
 		before: Cursor
+
+		"""
+		Optional filter to filter the roles by.
+		"""
+		filter: RoleFilter
 	): RoleConnection!
+}
+
+input RoleFilter {
+	"""
+	Exclude global roles from the results.
+	"""
+	excludeGlobalRoles: Boolean
 }
 
 type RoleConnection {
@@ -23963,6 +23990,16 @@ input SearchFilter {
 	The type of entities to search for. If not specified, all types will be searched.
 	"""
 	type: SearchType
+
+	"""
+	The types of entities to search for. If not specified, all types will be searched.
+	"""
+	types: [SearchType!]
+
+	"""
+	Teams to search in. If not specified, all teams will be searched.
+	"""
+	teams: [Slug!]
 }
 
 """
@@ -24875,7 +24912,34 @@ type ServiceAccountWorkloadBindingRemovedActivityLogEntryData {
 	workloadName: String!
 }
 `, BuiltIn: false},
-	{Name: "../schema/serviceaccounts.graphqls", Input: `extend type Query {
+	{Name: "../schema/serviceaccounts.graphqls", Input: `extend type Team {
+	"""
+	Nais service accounts owned by the team.
+	"""
+	serviceAccounts(
+		"""
+		Get the first n items in the connection. This can be used in combination with the after parameter.
+		"""
+		first: Int
+
+		"""
+		Get items after this cursor.
+		"""
+		after: Cursor
+
+		"""
+		Get the last n items in the connection. This can be used in combination with the before parameter.
+		"""
+		last: Int
+
+		"""
+		Get items before this cursor.
+		"""
+		before: Cursor
+	): ServiceAccountConnection!
+}
+
+extend type Query {
 	"""
 	Get a list of service accounts.
 	"""
@@ -32753,6 +32817,8 @@ func (ec *executionContext) childFields_Team(ctx context.Context, field graphql.
 		return ec.fieldContext_Team_repositories(ctx, field)
 	case "secrets":
 		return ec.fieldContext_Team_secrets(ctx, field)
+	case "serviceAccounts":
+		return ec.fieldContext_Team_serviceAccounts(ctx, field)
 	case "sqlInstances":
 		return ec.fieldContext_Team_sqlInstances(ctx, field)
 	case "unleash":

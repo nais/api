@@ -5,6 +5,7 @@ package gengql
 import (
 	activitylog "github.com/nais/api/internal/activitylog"
 	alerts "github.com/nais/api/internal/alerts"
+	authz "github.com/nais/api/internal/auth/authz"
 	deployment "github.com/nais/api/internal/deployment"
 	repository "github.com/nais/api/internal/github/repository"
 	pagination "github.com/nais/api/internal/graph/pagination"
@@ -132,7 +133,7 @@ func NewComplexityRoot() ComplexityRoot {
 	c.Query.Reconcilers = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
-	c.Query.Roles = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
+	c.Query.Roles = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *authz.RoleFilter) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.Query.Search = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter search.SearchFilter) int {
@@ -232,6 +233,9 @@ func NewComplexityRoot() ComplexityRoot {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.Team.Secrets = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *secret.SecretOrder, filter *secret.SecretFilter) int {
+		return cursorComplexity(first, last) * childComplexity
+	}
+	c.Team.ServiceAccounts = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.Team.Valkeys = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *valkey.ValkeyOrder) int {

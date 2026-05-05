@@ -340,6 +340,61 @@ func (q *Queries) List(ctx context.Context, arg ListParams) ([]*ListRow, error) 
 	return items, nil
 }
 
+const listForTeam = `-- name: ListForTeam :many
+SELECT
+	service_accounts.id, service_accounts.created_at, service_accounts.updated_at, service_accounts.name, service_accounts.description, service_accounts.team_slug,
+	COUNT(*) OVER () AS total_count
+FROM
+	service_accounts
+WHERE
+	team_slug = $1
+ORDER BY
+	name
+LIMIT
+	$3
+OFFSET
+	$2
+`
+
+type ListForTeamParams struct {
+	TeamSlug *slug.Slug
+	Offset   int32
+	Limit    int32
+}
+
+type ListForTeamRow struct {
+	ServiceAccount ServiceAccount
+	TotalCount     int64
+}
+
+func (q *Queries) ListForTeam(ctx context.Context, arg ListForTeamParams) ([]*ListForTeamRow, error) {
+	rows, err := q.db.Query(ctx, listForTeam, arg.TeamSlug, arg.Offset, arg.Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*ListForTeamRow{}
+	for rows.Next() {
+		var i ListForTeamRow
+		if err := rows.Scan(
+			&i.ServiceAccount.ID,
+			&i.ServiceAccount.CreatedAt,
+			&i.ServiceAccount.UpdatedAt,
+			&i.ServiceAccount.Name,
+			&i.ServiceAccount.Description,
+			&i.ServiceAccount.TeamSlug,
+			&i.TotalCount,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listTokensForServiceAccount = `-- name: ListTokensForServiceAccount :many
 SELECT
 	service_account_tokens.id, service_account_tokens.created_at, service_account_tokens.updated_at, service_account_tokens.last_used_at, service_account_tokens.expires_at, service_account_tokens.name, service_account_tokens.description, service_account_tokens.token, service_account_tokens.service_account_id,

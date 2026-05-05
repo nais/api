@@ -126,7 +126,7 @@ type MutationResolver interface {
 }
 type QueryResolver interface {
 	Node(ctx context.Context, id ident.Ident) (model.Node, error)
-	Roles(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*authz.Role], error)
+	Roles(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *authz.RoleFilter) (*pagination.Connection[*authz.Role], error)
 	CostMonthlySummary(ctx context.Context, from scalar.Date, to scalar.Date) (*cost.CostMonthlySummary, error)
 	Deployments(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *deployment.DeploymentOrder, filter *deployment.DeploymentFilter) (*pagination.Connection[*deployment.Deployment], error)
 	Environments(ctx context.Context, orderBy *environment.EnvironmentOrder) (*pagination.Connection[*environment.Environment], error)
@@ -1265,6 +1265,14 @@ func (ec *executionContext) field_Query_roles_args(ctx context.Context, rawArgs 
 		return nil, err
 	}
 	args["before"] = arg3
+	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "filter",
+		func(ctx context.Context, v any) (*authz.RoleFilter, error) {
+			return ec.unmarshalORoleFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋauthzᚐRoleFilter(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["filter"] = arg4
 	return args, nil
 }
 
@@ -4407,7 +4415,7 @@ func (ec *executionContext) _Query_roles(ctx context.Context, field graphql.Coll
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.Resolvers.Query().Roles(ctx, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
+			return ec.Resolvers.Query().Roles(ctx, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["filter"].(*authz.RoleFilter))
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[*authz.Role]) graphql.Marshaler {

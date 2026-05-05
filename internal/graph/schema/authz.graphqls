@@ -28,7 +28,19 @@ extend type Query {
 
 		"Get items before this cursor."
 		before: Cursor
+
+		"""
+		Optional filter to filter the roles by.
+		"""
+		filter: RoleFilter
 	): RoleConnection!
+}
+
+input RoleFilter {
+	"""
+	Exclude global roles from the results.
+	"""
+	excludeGlobalRoles: Boolean
 }
 
 type RoleConnection {

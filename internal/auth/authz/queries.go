@@ -10,14 +10,20 @@ import (
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/slug"
+	"k8s.io/utils/ptr"
 )
 
-func ListRoles(ctx context.Context, page *pagination.Pagination) (*RoleConnection, error) {
+func ListRoles(ctx context.Context, page *pagination.Pagination, filter *RoleFilter) (*RoleConnection, error) {
 	q := db(ctx)
 
+	if filter == nil {
+		filter = &RoleFilter{}
+	}
+
 	ret, err := q.ListRoles(ctx, authzsql.ListRolesParams{
-		Offset: page.Offset(),
-		Limit:  page.Limit(),
+		Offset:        page.Offset(),
+		Limit:         page.Limit(),
+		ExcludeGlobal: ptr.Deref(filter.ExcludeGlobalRoles, false),
 	})
 	if err != nil {
 		return nil, err

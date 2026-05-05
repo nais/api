@@ -13,8 +13,9 @@ import (
 )
 
 type k8sConfig struct {
-	Clusters       []string                   `env:"KUBERNETES_CLUSTERS"`
-	StaticClusters []kubernetes.StaticCluster `env:"KUBERNETES_CLUSTERS_STATIC"`
+	Clusters         []string                   `env:"KUBERNETES_CLUSTERS"`
+	StaticClusters   []kubernetes.StaticCluster `env:"KUBERNETES_CLUSTERS_STATIC"`
+	SkipSAMiddleware bool                       `env:"KUBERNETES_SKIP_SA_MIDDLEWARE,default=false"`
 }
 
 func (k *k8sConfig) AllClusterNames() []string {

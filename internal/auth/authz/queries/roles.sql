@@ -3,6 +3,11 @@ SELECT
 	*
 FROM
 	roles
+WHERE
+	(
+		NOT @exclude_global::BOOLEAN
+		OR is_only_global IS FALSE
+	)
 ORDER BY
 	name ASC
 OFFSET

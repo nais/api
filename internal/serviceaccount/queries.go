@@ -13,6 +13,7 @@ import (
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/serviceaccount/serviceaccountsql"
+	"github.com/nais/api/internal/slug"
 )
 
 func Get(ctx context.Context, serviceAccountID uuid.UUID) (*ServiceAccount, error) {
@@ -355,6 +356,27 @@ func List(ctx context.Context, page *pagination.Pagination) (*ServiceAccountConn
 		total = ret[0].TotalCount
 	}
 	return pagination.NewConvertConnection(ret, page, total, func(from *serviceaccountsql.ListRow) *ServiceAccount {
+		return toGraphServiceAccount(&from.ServiceAccount)
+	}), nil
+}
+
+func ListForTeam(ctx context.Context, page *pagination.Pagination, teamSlug slug.Slug) (*ServiceAccountConnection, error) {
+	q := db(ctx)
+
+	ret, err := q.ListForTeam(ctx, serviceaccountsql.ListForTeamParams{
+		TeamSlug: &teamSlug,
+		Offset:   page.Offset(),
+		Limit:    page.Limit(),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	var total int64
+	if len(ret) > 0 {
+		total = ret[0].TotalCount
+	}
+	return pagination.NewConvertConnection(ret, page, total, func(from *serviceaccountsql.ListForTeamRow) *ServiceAccount {
 		return toGraphServiceAccount(&from.ServiceAccount)
 	}), nil
 }

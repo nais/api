@@ -48,6 +48,16 @@ input SearchFilter {
 	The type of entities to search for. If not specified, all types will be searched.
 	"""
 	type: SearchType
+
+	"""
+	The types of entities to search for. If not specified, all types will be searched.
+	"""
+	types: [SearchType!]
+
+	"""
+	Teams to search in. If not specified, all teams will be searched.
+	"""
+	teams: [Slug!]
 }
 
 """

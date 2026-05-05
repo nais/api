@@ -28,6 +28,7 @@ type Querier interface {
 	LastUsedAt(ctx context.Context, serviceAccountID uuid.UUID) (pgtype.Timestamptz, error)
 	List(ctx context.Context, arg ListParams) ([]*ListRow, error)
 	ListBindingsForServiceAccount(ctx context.Context, arg ListBindingsForServiceAccountParams) ([]*ListBindingsForServiceAccountRow, error)
+	ListForTeam(ctx context.Context, arg ListForTeamParams) ([]*ListForTeamRow, error)
 	ListTokensForServiceAccount(ctx context.Context, arg ListTokensForServiceAccountParams) ([]*ListTokensForServiceAccountRow, error)
 	RemoveApiKeysFromServiceAccount(ctx context.Context, serviceAccountID uuid.UUID) error
 	SetBindingKubernetesUID(ctx context.Context, arg SetBindingKubernetesUIDParams) error

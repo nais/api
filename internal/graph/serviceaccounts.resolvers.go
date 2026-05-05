@@ -137,6 +137,15 @@ func (r *serviceAccountResolver) Tokens(ctx context.Context, obj *serviceaccount
 	return serviceaccount.ListTokensForServiceAccount(ctx, page, obj.UUID)
 }
 
+func (r *teamResolver) ServiceAccounts(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*serviceaccount.ServiceAccount], error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+
+	return serviceaccount.ListForTeam(ctx, page, obj.Slug)
+}
+
 func (r *Resolver) ServiceAccount() gengql.ServiceAccountResolver { return &serviceAccountResolver{r} }
 
 type serviceAccountResolver struct{ *Resolver }
