@@ -2,6 +2,8 @@ package middleware
 
 import (
 	"context"
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
@@ -52,12 +54,6 @@ type k8sSAAuth struct {
 // If the token does not look like a JWT, or validation fails, the middleware passes the request to the next
 // handler unchanged so that other authentication mechanisms (such as opaque bearer tokens) get a chance.
 func KubernetesServiceAccountAuthentication(ctx context.Context, issuers []KubernetesIssuer, log logrus.FieldLogger) (func(next http.Handler) http.Handler, error) {
-	if len(issuers) == 0 {
-		// No trusted issuers — return a no-op middleware. This makes the middleware safe to wire up before any
-		// clusters are configured.
-		return func(next http.Handler) http.Handler { return next }, nil
-	}
-
 	httpClient := httprc.NewClient()
 	cache, err := jwk.NewCache(ctx, httpClient)
 	if err != nil {
@@ -75,9 +71,6 @@ func KubernetesServiceAccountAuthentication(ctx context.Context, issuers []Kuber
 		}
 		disc, err := client.Discover(ctx, iss.IssuerURL, http.DefaultClient)
 		if err != nil {
-			// Don't fail middleware setup just because one cluster's discovery is unavailable. Log and skip; we
-			// can re-try at request time by re-registering. But for now: fail loudly so misconfiguration is
-			// obvious.
 			return nil, fmt.Errorf("discovering oidc for cluster %q (%s): %w", iss.Environment, iss.IssuerURL, err)
 		}
 		if err := cache.Register(ctx, disc.JwksURI); err != nil {
@@ -128,13 +121,7 @@ func (k *k8sSAAuth) handler(next http.Handler) http.Handler {
 		ctx := r.Context()
 
 		// Inspect the unverified token to find the issuer and look up the matching cluster.
-		unverified, err := jwt.ParseInsecure([]byte(token))
-		if err != nil {
-			k.log.WithError(err).Debug("k8s sa auth: parse insecure")
-			next.ServeHTTP(w, r)
-			return
-		}
-		issuer, ok := unverified.Issuer()
+		issuer, ok := getJWTIssuer(token)
 		if !ok {
 			next.ServeHTTP(w, r)
 			return
@@ -153,10 +140,11 @@ func (k *k8sSAAuth) handler(next http.Handler) http.Handler {
 			return
 		}
 
-		verified, err := jwt.Parse([]byte(token),
+		_, err = jwt.Parse([]byte(token),
 			jwt.WithKeySet(jwks),
 			jwt.WithIssuer(issuer),
 			jwt.WithAudience(KubernetesServiceAccountAudience),
+			jwt.WithValidate(true),
 		)
 		if err != nil {
 			k.log.WithError(err).WithField("issuer", issuer).Debug("k8s sa auth: validate")
@@ -164,22 +152,26 @@ func (k *k8sSAAuth) handler(next http.Handler) http.Handler {
 			return
 		}
 
-		ns, name, k8sUID, ok := extractK8sServiceAccount(verified)
+		claims, err := extractK8sServiceAccount(token)
 		if !ok {
-			k.log.Debug("k8s sa auth: missing kubernetes.io claim")
+			k.log.WithError(err).Debug("k8s sa auth: missing kubernetes.io claim")
 			next.ServeHTTP(w, r)
 			return
 		}
 
-		teamSlug := slug.Slug(ns)
-
-		result, err := serviceaccount.AuthenticateKubernetesServiceAccount(ctx, entry.environment, teamSlug, name, k8sUID)
+		result, err := serviceaccount.AuthenticateKubernetesServiceAccount(
+			ctx,
+			entry.environment,
+			claims.TeamSlug,
+			claims.ServiceAccountName,
+			claims.ServiceAccountUID,
+		)
 		if err != nil {
 			k.log.WithError(err).WithFields(logrus.Fields{
 				"environment": entry.environment,
-				"team":        ns,
-				"k8s_sa":      name,
-				"k8s_sa_uid":  k8sUID,
+				"team":        claims.TeamSlug,
+				"sa_name":     claims.ServiceAccountName,
+				"sa_uid":      claims.ServiceAccountUID,
 			}).Debug("k8s sa auth: lookup binding")
 			next.ServeHTTP(w, r)
 			return
@@ -196,30 +188,55 @@ func (k *k8sSAAuth) handler(next http.Handler) http.Handler {
 	})
 }
 
-// extractK8sServiceAccount pulls (namespace, sa-name, sa-uid) out of the standard "kubernetes.io" claim that
-// projected K8s SA tokens carry. Returns ok=false if any of the values are missing or malformed.
-func extractK8sServiceAccount(t jwt.Token) (namespace, name string, uid uuid.UUID, ok bool) {
-	var raw any
-	if err := t.Get("kubernetes.io", &raw); err != nil {
-		return "", "", uuid.Nil, false
-	}
-	m, ok := raw.(map[string]any)
-	if !ok {
-		return "", "", uuid.Nil, false
-	}
-	ns, _ := m["namespace"].(string)
-	saRaw, _ := m["serviceaccount"].(map[string]any)
-	if ns == "" || saRaw == nil {
-		return "", "", uuid.Nil, false
-	}
-	saName, _ := saRaw["name"].(string)
-	saUIDStr, _ := saRaw["uid"].(string)
-	if saName == "" || saUIDStr == "" {
-		return "", "", uuid.Nil, false
-	}
-	parsedUID, err := uuid.Parse(saUIDStr)
+func getJWTIssuer(token string) (string, bool) {
+	unverified, err := jwt.ParseInsecure([]byte(token))
 	if err != nil {
-		return "", "", uuid.Nil, false
+		return "", false
 	}
-	return ns, saName, parsedUID, true
+	return unverified.Issuer()
+}
+
+type k8sClaims struct {
+	TeamSlug           slug.Slug
+	ServiceAccountName string
+	ServiceAccountUID  uuid.UUID
+}
+
+// extractK8sServiceAccount pulls (namespace, sa-name, sa-uid) out of the standard "kubernetes.io" claim that
+// projected K8s SA tokens carry. Make sure to validate the token signature and claims before calling this, as
+// it does not perform any verification.
+func extractK8sServiceAccount(t string) (*k8sClaims, error) {
+	parts := strings.SplitN(t, ".", 3)
+	if len(parts) != 3 {
+		return nil, fmt.Errorf("token does not have three parts")
+	}
+
+	var claims struct {
+		Kubernetes struct {
+			Namespace      string `json:"namespace"`
+			ServiceAccount struct {
+				Name string `json:"name"`
+				UID  string `json:"uid"`
+			} `json:"serviceaccount"`
+		} `json:"kubernetes.io"`
+	}
+
+	if err := json.Unmarshal(base64.StdEncoding.DecodeString(parts[1])); err != nil {
+		return nil, fmt.Errorf("unmarshaling kubernetes.io claim: %w", err)
+	}
+
+	if claims.Kubernetes.Namespace == "" || claims.Kubernetes.ServiceAccount.Name == "" || claims.Kubernetes.ServiceAccount.UID == "" {
+		return nil, fmt.Errorf("missing fields in kubernetes.io claim")
+	}
+
+	uid, err := uuid.Parse(claims.Kubernetes.ServiceAccount.UID)
+	if err != nil {
+		return nil, fmt.Errorf("parsing service account UID as UUID: %w", err)
+	}
+
+	return &k8sClaims{
+		TeamSlug:           slug.Slug(claims.Kubernetes.Namespace),
+		ServiceAccountName: claims.Kubernetes.ServiceAccount.Name,
+		ServiceAccountUID:  uid,
+	}, nil
 }

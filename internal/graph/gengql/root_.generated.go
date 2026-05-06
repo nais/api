@@ -2235,16 +2235,15 @@ type ComplexityRoot struct {
 	}
 
 	ServiceAccountWorkloadBinding struct {
-		CreatedAt                   func(childComplexity int) int
-		Environment                 func(childComplexity int) int
-		ID                          func(childComplexity int) int
-		IsBroken                    func(childComplexity int) int
-		KubernetesServiceAccountUID func(childComplexity int) int
-		LastUsedAt                  func(childComplexity int) int
-		ServiceAccount              func(childComplexity int) int
-		TeamSlug                    func(childComplexity int) int
-		Workload                    func(childComplexity int) int
-		WorkloadName                func(childComplexity int) int
+		CreatedAt      func(childComplexity int) int
+		Environment    func(childComplexity int) int
+		ID             func(childComplexity int) int
+		IsBroken       func(childComplexity int) int
+		LastUsedAt     func(childComplexity int) int
+		ServiceAccount func(childComplexity int) int
+		TeamSlug       func(childComplexity int) int
+		Workload       func(childComplexity int) int
+		WorkloadName   func(childComplexity int) int
 	}
 
 	ServiceAccountWorkloadBindingAddedActivityLogEntry struct {
@@ -12713,13 +12712,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ServiceAccountWorkloadBinding.IsBroken(childComplexity), true
-
-	case "ServiceAccountWorkloadBinding.kubernetesServiceAccountUID":
-		if e.ComplexityRoot.ServiceAccountWorkloadBinding.KubernetesServiceAccountUID == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ServiceAccountWorkloadBinding.KubernetesServiceAccountUID(childComplexity), true
 
 	case "ServiceAccountWorkloadBinding.lastUsedAt":
 		if e.ComplexityRoot.ServiceAccountWorkloadBinding.LastUsedAt == nil {
@@ -24661,11 +24653,8 @@ type SecretValuesViewedActivityLogEntryData {
 `, BuiltIn: false},
 	{Name: "../schema/serviceaccount_workload_bindings.graphqls", Input: `extend type Mutation {
 	"""
-	Bind a workload (application or job) to a service account, allowing the workload to authenticate against the
-	Nais API as the service account using its Kubernetes ServiceAccount token.
-
-	Only members of the team that owns the service account may add or remove bindings. The workload's team is not
-	consulted.
+	Bind a workload to a service account, allowing the workload to authenticate against the
+	Nais API as the service account using its Workload Token.
 	"""
 	addWorkloadToServiceAccount(
 		input: AddWorkloadToServiceAccountInput!
@@ -24673,8 +24662,6 @@ type SecretValuesViewedActivityLogEntryData {
 
 	"""
 	Remove a workload binding from a service account.
-
-	Only members of the team that owns the service account may remove bindings.
 	"""
 	removeWorkloadFromServiceAccount(
 		input: RemoveWorkloadFromServiceAccountInput!
@@ -24700,22 +24687,6 @@ extend type ServiceAccount {
 	): ServiceAccountWorkloadBindingConnection!
 }
 
-extend type Application {
-	"""
-	The Nais service account this application is bound to, if any. Authenticating using the application's
-	Kubernetes ServiceAccount token will then act as this Nais service account.
-	"""
-	serviceAccount: ServiceAccount
-}
-
-extend type Job {
-	"""
-	The Nais service account this job is bound to, if any. Authenticating using the job's Kubernetes
-	ServiceAccount token will then act as this Nais service account.
-	"""
-	serviceAccount: ServiceAccount
-}
-
 input AddWorkloadToServiceAccountInput {
 	"""
 	The ID of the service account to bind the workload to.
@@ -24723,18 +24694,17 @@ input AddWorkloadToServiceAccountInput {
 	serviceAccountID: ID!
 
 	"""
-	The environment (cluster) the workload is deployed in.
+	The environment the workload is deployed in.
 	"""
 	environment: String!
 
 	"""
-	The team slug owning the workload. The Kubernetes ServiceAccount is expected to live in this team's
-	namespace.
+	The team slug owning the workload.
 	"""
 	teamSlug: Slug!
 
 	"""
-	The name of the workload. This is also the name of the Kubernetes ServiceAccount the workload runs as.
+	The name of the workload.
 	"""
 	workloadName: String!
 }
@@ -24772,12 +24742,12 @@ type RemoveWorkloadFromServiceAccountPayload {
 
 """
 A binding between a Nais service account and a Nais workload (application or job). When the workload presents its
-Kubernetes ServiceAccount token to the API, the API will authenticate the request as the bound service account.
+Workload Token to the API, the API will authenticate the request as the bound service account.
 
-The binding is identified at authentication time by the workload's environment, namespace (team slug) and the name
-of the Kubernetes ServiceAccount, plus the Kubernetes ServiceAccount UID once it has been observed (trust on first
-use). If the UID changes (for instance because the K8s ServiceAccount has been recreated), the binding is
-considered broken and authentication will fail until the binding is removed and re-added.
+The binding is identified at authentication time by the workload's environment, team and name, plus the Workload
+UID once it has been observed (trust on first use). If the UID changes (for instance because the workload has
+been recreated), the binding is considered broken and authentication will fail until the binding is removed and
+re-added.
 """
 type ServiceAccountWorkloadBinding implements Node {
 	"""
@@ -24791,13 +24761,12 @@ type ServiceAccountWorkloadBinding implements Node {
 	serviceAccount: ServiceAccount!
 
 	"""
-	The currently-resolved workload, or null if it can no longer be found in the cluster (for instance because it
-	has been deleted).
+	The currently-resolved workload, or null if it can no longer be found (for instance because it has been deleted).
 	"""
 	workload: Workload
 
 	"""
-	The environment (cluster) the bound workload is deployed in.
+	The environment the bound workload is deployed in.
 	"""
 	environment: String!
 
@@ -24807,18 +24776,12 @@ type ServiceAccountWorkloadBinding implements Node {
 	teamSlug: Slug!
 
 	"""
-	The name of the bound workload (and of its Kubernetes ServiceAccount).
+	The name of the bound workload.
 	"""
 	workloadName: String!
 
 	"""
-	The UID of the Kubernetes ServiceAccount last seen authenticating using this binding. Null until the first
-	successful authentication (trust on first use).
-	"""
-	kubernetesServiceAccountUID: String
-
-	"""
-	True if the binding is broken — either the workload no longer exists, or the Kubernetes ServiceAccount UID
+	True if the binding is broken — either the workload no longer exists, or the Workload UID
 	does not match the value pinned to the binding.
 	"""
 	isBroken: Boolean!
@@ -24974,6 +24937,22 @@ extend type Query {
 		"""
 		id: ID!
 	): ServiceAccount!
+}
+
+extend type Application {
+	"""
+	The Nais service account this application is bound to, if any. Authenticating using the application's
+	Kubernetes ServiceAccount token will then act as this Nais service account.
+	"""
+	serviceAccount: ServiceAccount
+}
+
+extend type Job {
+	"""
+	The Nais service account this job is bound to, if any. Authenticating using the job's Kubernetes
+	ServiceAccount token will then act as this Nais service account.
+	"""
+	serviceAccount: ServiceAccount
 }
 
 extend type Mutation {
@@ -32397,8 +32376,6 @@ func (ec *executionContext) childFields_ServiceAccountWorkloadBinding(ctx contex
 		return ec.fieldContext_ServiceAccountWorkloadBinding_teamSlug(ctx, field)
 	case "workloadName":
 		return ec.fieldContext_ServiceAccountWorkloadBinding_workloadName(ctx, field)
-	case "kubernetesServiceAccountUID":
-		return ec.fieldContext_ServiceAccountWorkloadBinding_kubernetesServiceAccountUID(ctx, field)
 	case "isBroken":
 		return ec.fieldContext_ServiceAccountWorkloadBinding_isBroken(ctx, field)
 	case "createdAt":

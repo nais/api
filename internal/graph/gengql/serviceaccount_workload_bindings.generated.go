@@ -26,7 +26,6 @@ type ServiceAccountWorkloadBindingResolver interface {
 	ServiceAccount(ctx context.Context, obj *serviceaccount.ServiceAccountWorkloadBinding) (*serviceaccount.ServiceAccount, error)
 	Workload(ctx context.Context, obj *serviceaccount.ServiceAccountWorkloadBinding) (workload.Workload, error)
 
-	KubernetesServiceAccountUID(ctx context.Context, obj *serviceaccount.ServiceAccountWorkloadBinding) (*string, error)
 	IsBroken(ctx context.Context, obj *serviceaccount.ServiceAccountWorkloadBinding) (bool, error)
 }
 
@@ -315,29 +314,6 @@ func (ec *executionContext) _ServiceAccountWorkloadBinding_workloadName(ctx cont
 }
 func (ec *executionContext) fieldContext_ServiceAccountWorkloadBinding_workloadName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ServiceAccountWorkloadBinding", field, false, false, errors.New("field of type String does not have child fields"))
-}
-
-func (ec *executionContext) _ServiceAccountWorkloadBinding_kubernetesServiceAccountUID(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBinding) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ServiceAccountWorkloadBinding_kubernetesServiceAccountUID(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return ec.Resolvers.ServiceAccountWorkloadBinding().KubernetesServiceAccountUID(ctx, obj)
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
-		},
-		true,
-		false,
-	)
-}
-func (ec *executionContext) fieldContext_ServiceAccountWorkloadBinding_kubernetesServiceAccountUID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("ServiceAccountWorkloadBinding", field, true, true, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _ServiceAccountWorkloadBinding_isBroken(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBinding) (ret graphql.Marshaler) {
@@ -1353,39 +1329,6 @@ func (ec *executionContext) _ServiceAccountWorkloadBinding(ctx context.Context, 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "kubernetesServiceAccountUID":
-			field := field
-
-			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._ServiceAccountWorkloadBinding_kubernetesServiceAccountUID(ctx, field, obj)
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "isBroken":
 			field := field
 

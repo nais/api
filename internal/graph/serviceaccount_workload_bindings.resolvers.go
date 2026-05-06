@@ -6,33 +6,12 @@ import (
 
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/pagination"
+	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/serviceaccount"
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
 	"github.com/nais/api/internal/workload/job"
 )
-
-func (r *applicationResolver) ServiceAccount(ctx context.Context, obj *application.Application) (*serviceaccount.ServiceAccount, error) {
-	b, err := serviceaccount.GetBindingForWorkload(ctx, obj.EnvironmentName, obj.TeamSlug, obj.Name)
-	if err != nil {
-		if errors.Is(err, &serviceaccount.ErrBindingNotFound{}) {
-			return nil, nil
-		}
-		return nil, err
-	}
-	return serviceaccount.Get(ctx, b.ServiceAccountID)
-}
-
-func (r *jobResolver) ServiceAccount(ctx context.Context, obj *job.Job) (*serviceaccount.ServiceAccount, error) {
-	b, err := serviceaccount.GetBindingForWorkload(ctx, obj.EnvironmentName, obj.TeamSlug, obj.Name)
-	if err != nil {
-		if errors.Is(err, &serviceaccount.ErrBindingNotFound{}) {
-			return nil, nil
-		}
-		return nil, err
-	}
-	return serviceaccount.Get(ctx, b.ServiceAccountID)
-}
 
 func (r *mutationResolver) AddWorkloadToServiceAccount(ctx context.Context, input serviceaccount.AddWorkloadToServiceAccountInput) (*serviceaccount.AddWorkloadToServiceAccountPayload, error) {
 	sa, binding, err := serviceaccount.AddWorkloadBinding(ctx, input)
@@ -79,17 +58,9 @@ func (r *serviceAccountWorkloadBindingResolver) Workload(ctx context.Context, ob
 	return nil, nil
 }
 
-func (r *serviceAccountWorkloadBindingResolver) KubernetesServiceAccountUID(ctx context.Context, obj *serviceaccount.ServiceAccountWorkloadBinding) (*string, error) {
-	if obj.KubernetesServiceAccountUID == nil {
-		return nil, nil
-	}
-	s := obj.KubernetesServiceAccountUID.String()
-	return &s, nil
-}
-
 func (r *serviceAccountWorkloadBindingResolver) IsBroken(ctx context.Context, obj *serviceaccount.ServiceAccountWorkloadBinding) (bool, error) {
 	w, err := r.Workload(ctx, obj)
-	if err != nil {
+	if err != nil && !errors.Is(err, &watcher.ErrorNotFound{}) {
 		return false, err
 	}
 	// TODO(thokra): Broken if the workload no longer exists. We can't detect UID mismatch from a stored binding alone — that
