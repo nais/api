@@ -26,11 +26,11 @@ const KubernetesServiceAccountAudience = "nais"
 // KubernetesIssuer represents one trusted Kubernetes cluster's OIDC issuer for projected ServiceAccount tokens.
 type KubernetesIssuer struct {
 	// Environment is the name of the Nais environment (cluster) this issuer corresponds to.
-	Environment string
+	Environment string `json:"environment"`
 
-	// IssuerURL is the OIDC issuer URL (the value that will appear in the `iss` claim and where OIDC discovery
+	// Issuer is the OIDC issuer URL (the value that will appear in the `iss` claim and where OIDC discovery
 	// is performed).
-	IssuerURL string
+	Issuer string `json:"issuer"`
 }
 
 // k8sSAAuth is the request-handling state for the Kubernetes SA authentication middleware.
@@ -66,17 +66,17 @@ func KubernetesServiceAccountAuthentication(ctx context.Context, issuers []Kuber
 	}, len(issuers))
 
 	for _, iss := range issuers {
-		if iss.IssuerURL == "" || iss.Environment == "" {
-			return nil, fmt.Errorf("invalid kubernetes issuer entry: environment=%q, issuer=%q", iss.Environment, iss.IssuerURL)
+		if iss.Issuer == "" || iss.Environment == "" {
+			return nil, fmt.Errorf("invalid kubernetes issuer entry: environment=%q, issuer=%q", iss.Environment, iss.Issuer)
 		}
-		disc, err := client.Discover(ctx, iss.IssuerURL, http.DefaultClient)
+		disc, err := client.Discover(ctx, iss.Issuer, http.DefaultClient)
 		if err != nil {
-			return nil, fmt.Errorf("discovering oidc for cluster %q (%s): %w", iss.Environment, iss.IssuerURL, err)
+			return nil, fmt.Errorf("discovering oidc for cluster %q (%s): %w", iss.Environment, iss.Issuer, err)
 		}
 		if err := cache.Register(ctx, disc.JwksURI); err != nil {
 			return nil, fmt.Errorf("registering jwks for cluster %q: %w", iss.Environment, err)
 		}
-		idx[iss.IssuerURL] = struct {
+		idx[iss.Issuer] = struct {
 			environment string
 			jwksURL     string
 		}{

@@ -13,9 +13,9 @@ import (
 )
 
 type k8sConfig struct {
-	Clusters         []string                   `env:"KUBERNETES_CLUSTERS"`
-	StaticClusters   []kubernetes.StaticCluster `env:"KUBERNETES_CLUSTERS_STATIC"`
-	SkipSAMiddleware bool                       `env:"KUBERNETES_SKIP_SA_MIDDLEWARE,default=false"`
+	Clusters       []string                      `env:"KUBERNETES_CLUSTERS"`
+	StaticClusters []kubernetes.StaticCluster    `env:"KUBERNETES_CLUSTERS_STATIC"`
+	OIDCIssuers    []middleware.KubernetesIssuer `env:"KUBERNETES_OIDC_ISSUERS,default={}"`
 }
 
 func (k *k8sConfig) AllClusterNames() []string {
@@ -24,25 +24,6 @@ func (k *k8sConfig) AllClusterNames() []string {
 		clusters = append(clusters, c.Name)
 	}
 	return clusters
-}
-
-// KubernetesIssuers returns the list of trusted OIDC issuers for projected Kubernetes ServiceAccount tokens, used
-// by the K8s SA authentication middleware.
-func (k *k8sConfig) KubernetesIssuers(tenant string) []middleware.KubernetesIssuer {
-	issuers := make([]middleware.KubernetesIssuer, 0, len(k.Clusters)+len(k.StaticClusters))
-	for _, c := range k.Clusters {
-		issuers = append(issuers, middleware.KubernetesIssuer{
-			Environment: c,
-			IssuerURL:   kubernetes.IssuerURL(kubernetes.ClusterTypeGKE, c, tenant),
-		})
-	}
-	for _, c := range k.StaticClusters {
-		issuers = append(issuers, middleware.KubernetesIssuer{
-			Environment: c.Name,
-			IssuerURL:   kubernetes.IssuerURL(kubernetes.ClusterTypeOnprem, c.Name, tenant),
-		})
-	}
-	return issuers
 }
 
 type ClusterInfo struct {
