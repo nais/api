@@ -34,6 +34,23 @@ type KubernetesIssuer struct {
 	Issuer string `json:"issuer"`
 }
 
+// KubernetesIssuers is a list of trusted Kubernetes OIDC issuers, parsed from a JSON-encoded environment variable.
+type KubernetesIssuers []KubernetesIssuer
+
+func (k *KubernetesIssuers) UnmarshalJSON(data []byte) error {
+	if len(data) == 0 || string(data) == "null" {
+		return nil
+	}
+
+	var issuers []KubernetesIssuer
+	if err := json.Unmarshal(data, &issuers); err != nil {
+		return fmt.Errorf("unmarshalling Kubernetes OIDC issuers: %w", err)
+	}
+
+	*k = issuers
+	return nil
+}
+
 // k8sSAAuth is the request-handling state for the Kubernetes SA authentication middleware.
 type k8sSAAuth struct {
 	// issuers maps `iss` claim value -> environment + jwks URL.

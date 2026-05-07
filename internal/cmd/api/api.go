@@ -165,6 +165,11 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	}
 	defer mgmtWatcherMgr.Stop()
 
+	// Cancel the context before the watcher managers try to stop (defers run LIFO).
+	// Without this, watcherMgr.Stop() and mgmtWatcherMgr.Stop() may block indefinitely
+	// waiting for goroutines that need context cancellation to exit.
+	defer cancel()
+
 	watchers := watchers.SetupWatchers(ctx, watcherMgr, mgmtWatcherMgr)
 
 	pubsubClient, err := pubsub.NewClient(ctx, cfg.GoogleManagementProjectID)
@@ -278,9 +283,12 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		}
 	}
 
-	k8sSAMiddleware, err := middleware.KubernetesServiceAccountAuthentication(ctx, cfg.K8s.OIDCIssuers, log.WithField("subsystem", "k8s_sa_auth"))
-	if err != nil {
-		return fmt.Errorf("failed to create kubernetes service account authentication middleware: %w", err)
+	var k8sSAMiddleware func(next http.Handler) http.Handler
+	if len(cfg.K8s.OIDCIssuers) > 0 {
+		k8sSAMiddleware, err = middleware.KubernetesServiceAccountAuthentication(ctx, cfg.K8s.OIDCIssuers, log.WithField("subsystem", "k8s_sa_auth"))
+		if err != nil {
+			return fmt.Errorf("failed to create kubernetes service account authentication middleware: %w", err)
+		}
 	}
 
 	githubOIDCMiddleware, err := middleware.GitHubOIDC(ctx, middleware.GitHubOIDCIssuer, log.WithField("subsystem", "github_oidc"))
