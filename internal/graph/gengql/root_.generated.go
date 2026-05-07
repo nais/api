@@ -23981,7 +23981,7 @@ input SearchFilter {
 	"""
 	The type of entities to search for. If not specified, all types will be searched.
 	"""
-	type: SearchType
+	type: SearchType @deprecated(reason: "Use the 'types' field instead.")
 
 	"""
 	The types of entities to search for. If not specified, all types will be searched.
