@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/nais/api/internal/activitylog"
+	"github.com/nais/api/internal/slug"
 )
 
 const (
@@ -227,8 +228,8 @@ type ServiceAccountWorkloadBindingAddedActivityLogEntry struct {
 }
 
 type ServiceAccountWorkloadBindingAddedActivityLogEntryData struct {
-	TeamSlug     string `json:"teamSlug"`
-	WorkloadName string `json:"workloadName"`
+	TeamSlug     slug.Slug `json:"teamSlug"`
+	WorkloadName string    `json:"workloadName"`
 }
 
 type ServiceAccountWorkloadBindingRemovedActivityLogEntry struct {
@@ -237,6 +238,6 @@ type ServiceAccountWorkloadBindingRemovedActivityLogEntry struct {
 }
 
 type ServiceAccountWorkloadBindingRemovedActivityLogEntryData struct {
-	TeamSlug     string `json:"teamSlug"`
-	WorkloadName string `json:"workloadName"`
+	TeamSlug     slug.Slug `json:"teamSlug"`
+	WorkloadName string    `json:"workloadName"`
 }

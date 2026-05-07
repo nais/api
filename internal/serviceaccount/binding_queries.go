@@ -103,7 +103,7 @@ func AddWorkloadBinding(ctx context.Context, input AddWorkloadToServiceAccountIn
 			TeamSlug:        sa.TeamSlug,
 			EnvironmentName: &input.Environment,
 			Data: &ServiceAccountWorkloadBindingAddedActivityLogEntryData{
-				TeamSlug:     input.TeamSlug.String(),
+				TeamSlug:     input.TeamSlug,
 				WorkloadName: input.WorkloadName,
 			},
 		})
@@ -146,7 +146,7 @@ func RemoveWorkloadBinding(ctx context.Context, input RemoveWorkloadFromServiceA
 			TeamSlug:        sa.TeamSlug,
 			EnvironmentName: &env,
 			Data: &ServiceAccountWorkloadBindingRemovedActivityLogEntryData{
-				TeamSlug:     binding.TeamSlug.String(),
+				TeamSlug:     binding.TeamSlug,
 				WorkloadName: binding.WorkloadName,
 			},
 		})

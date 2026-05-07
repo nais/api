@@ -28,6 +28,12 @@ type ServiceAccountWorkloadBindingResolver interface {
 
 	IsBroken(ctx context.Context, obj *serviceaccount.ServiceAccountWorkloadBinding) (bool, error)
 }
+type ServiceAccountWorkloadBindingAddedActivityLogEntryDataResolver interface {
+	TeamSlug(ctx context.Context, obj *serviceaccount.ServiceAccountWorkloadBindingAddedActivityLogEntryData) (slug.Slug, error)
+}
+type ServiceAccountWorkloadBindingRemovedActivityLogEntryDataResolver interface {
+	TeamSlug(ctx context.Context, obj *serviceaccount.ServiceAccountWorkloadBindingRemovedActivityLogEntryData) (slug.Slug, error)
+}
 
 // endregion ************************** generated!.gotpl **************************
 
@@ -610,18 +616,18 @@ func (ec *executionContext) _ServiceAccountWorkloadBindingAddedActivityLogEntryD
 			return ec.fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntryData_teamSlug(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.TeamSlug, nil
+			return ec.Resolvers.ServiceAccountWorkloadBindingAddedActivityLogEntryData().TeamSlug(ctx, obj)
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v slug.Slug) graphql.Marshaler {
+			return ec.marshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, selections, v)
 		},
 		true,
 		true,
 	)
 }
 func (ec *executionContext) fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntryData_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("ServiceAccountWorkloadBindingAddedActivityLogEntryData", field, false, false, errors.New("field of type String does not have child fields"))
+	return graphql.NewScalarFieldContext("ServiceAccountWorkloadBindingAddedActivityLogEntryData", field, true, true, errors.New("field of type Slug does not have child fields"))
 }
 
 func (ec *executionContext) _ServiceAccountWorkloadBindingAddedActivityLogEntryData_workloadName(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingAddedActivityLogEntryData) (ret graphql.Marshaler) {
@@ -1023,18 +1029,18 @@ func (ec *executionContext) _ServiceAccountWorkloadBindingRemovedActivityLogEntr
 			return ec.fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntryData_teamSlug(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.TeamSlug, nil
+			return ec.Resolvers.ServiceAccountWorkloadBindingRemovedActivityLogEntryData().TeamSlug(ctx, obj)
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v slug.Slug) graphql.Marshaler {
+			return ec.marshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, selections, v)
 		},
 		true,
 		true,
 	)
 }
 func (ec *executionContext) fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntryData_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("ServiceAccountWorkloadBindingRemovedActivityLogEntryData", field, false, false, errors.New("field of type String does not have child fields"))
+	return graphql.NewScalarFieldContext("ServiceAccountWorkloadBindingRemovedActivityLogEntryData", field, true, true, errors.New("field of type Slug does not have child fields"))
 }
 
 func (ec *executionContext) _ServiceAccountWorkloadBindingRemovedActivityLogEntryData_workloadName(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingRemovedActivityLogEntryData) (ret graphql.Marshaler) {
@@ -1480,14 +1486,45 @@ func (ec *executionContext) _ServiceAccountWorkloadBindingAddedActivityLogEntryD
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("ServiceAccountWorkloadBindingAddedActivityLogEntryData")
 		case "teamSlug":
-			out.Values[i] = ec._ServiceAccountWorkloadBindingAddedActivityLogEntryData_teamSlug(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ServiceAccountWorkloadBindingAddedActivityLogEntryData_teamSlug(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "workloadName":
 			out.Values[i] = ec._ServiceAccountWorkloadBindingAddedActivityLogEntryData_workloadName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -1690,14 +1727,45 @@ func (ec *executionContext) _ServiceAccountWorkloadBindingRemovedActivityLogEntr
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("ServiceAccountWorkloadBindingRemovedActivityLogEntryData")
 		case "teamSlug":
-			out.Values[i] = ec._ServiceAccountWorkloadBindingRemovedActivityLogEntryData_teamSlug(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ServiceAccountWorkloadBindingRemovedActivityLogEntryData_teamSlug(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "workloadName":
 			out.Values[i] = ec._ServiceAccountWorkloadBindingRemovedActivityLogEntryData_workloadName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))

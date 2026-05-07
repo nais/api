@@ -105,6 +105,8 @@ type ResolverRoot interface {
 	Secret() SecretResolver
 	ServiceAccount() ServiceAccountResolver
 	ServiceAccountWorkloadBinding() ServiceAccountWorkloadBindingResolver
+	ServiceAccountWorkloadBindingAddedActivityLogEntryData() ServiceAccountWorkloadBindingAddedActivityLogEntryDataResolver
+	ServiceAccountWorkloadBindingRemovedActivityLogEntryData() ServiceAccountWorkloadBindingRemovedActivityLogEntryDataResolver
 	SqlDatabase() SqlDatabaseResolver
 	SqlInstance() SqlInstanceResolver
 	SqlInstanceMetrics() SqlInstanceMetricsResolver
@@ -24843,7 +24845,7 @@ type ServiceAccountWorkloadBindingAddedActivityLogEntryData {
 	"""
 	The team slug of the workload.
 	"""
-	teamSlug: String!
+	teamSlug: Slug!
 
 	"""
 	The name of the workload.
@@ -24867,7 +24869,7 @@ type ServiceAccountWorkloadBindingRemovedActivityLogEntryData {
 	"""
 	The team slug of the workload.
 	"""
-	teamSlug: String!
+	teamSlug: Slug!
 
 	"""
 	The name of the workload.
