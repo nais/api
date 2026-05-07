@@ -84,7 +84,6 @@ Test.gql("Add workload to service account as member", function(t)
 					environment
 					teamSlug
 					workloadName
-					kubernetesServiceAccountUID
 					isBroken
 					lastUsedAt
 					workload {
@@ -106,7 +105,6 @@ Test.gql("Add workload to service account as member", function(t)
 					environment = "dev",
 					teamSlug = "slug-1",
 					workloadName = "my-app",
-					kubernetesServiceAccountUID = Null,
 					-- The workload doesn't actually exist in the fake cluster, so the binding is reported as
 					-- broken and the workload is null.
 					isBroken = true,
