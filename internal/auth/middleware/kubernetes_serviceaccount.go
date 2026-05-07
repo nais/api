@@ -13,6 +13,7 @@ import (
 	"github.com/lestrrat-go/jwx/v3/jwk"
 	"github.com/lestrrat-go/jwx/v3/jwt"
 	"github.com/nais/api/internal/auth/authz"
+	"github.com/nais/api/internal/environmentmapper"
 	"github.com/nais/api/internal/serviceaccount"
 	"github.com/nais/api/internal/slug"
 	"github.com/sirupsen/logrus"
@@ -48,7 +49,7 @@ type k8sSAAuth struct {
 // projected ServiceAccount token.
 //
 // The middleware looks for a Bearer token that parses as a JWT (three dot-separated segments). If found, it is
-// validated against the issuer JWKS of one of the trusted clusters. On success, the binding (env, namespace, sa
+// validated against the issuer JWKS of one of the trusted environments. On success, the binding (env, namespace, sa
 // name) is looked up and the request is authenticated as the bound Nais service account.
 //
 // If the token does not look like a JWT, or validation fails, the middleware passes the request to the next
@@ -71,16 +72,16 @@ func KubernetesServiceAccountAuthentication(ctx context.Context, issuers []Kuber
 		}
 		disc, err := client.Discover(ctx, iss.Issuer, http.DefaultClient)
 		if err != nil {
-			return nil, fmt.Errorf("discovering oidc for cluster %q (%s): %w", iss.Environment, iss.Issuer, err)
+			return nil, fmt.Errorf("discovering oidc for environment %q (%s): %w", iss.Environment, iss.Issuer, err)
 		}
 		if err := cache.Register(ctx, disc.JwksURI); err != nil {
-			return nil, fmt.Errorf("registering jwks for cluster %q: %w", iss.Environment, err)
+			return nil, fmt.Errorf("registering jwks for environment %q: %w", iss.Environment, err)
 		}
 		idx[iss.Issuer] = struct {
 			environment string
 			jwksURL     string
 		}{
-			environment: iss.Environment,
+			environment: environmentmapper.EnvironmentName(iss.Environment),
 			jwksURL:     disc.JwksURI,
 		}
 	}
