@@ -53,6 +53,19 @@ func wrap[T model.Node](fn func(ctx context.Context, id Ident) (T, error)) Looku
 	}
 }
 
+// identError is an error type for invalid ident input that provides user-facing messages.
+type identError struct {
+	msg string
+}
+
+func (e *identError) Error() string {
+	return e.msg
+}
+
+func (e *identError) GraphError() string {
+	return e.msg
+}
+
 type Ident struct {
 	ID   string
 	Type string
@@ -100,12 +113,12 @@ func (i Ident) String() string {
 func (i *Ident) UnmarshalGQLContext(_ context.Context, v any) error {
 	ident, ok := v.(string)
 	if !ok {
-		return fmt.Errorf("ident must be a string")
+		return &identError{msg: "The provided ID is not valid. Expected a string identifier."}
 	}
 
 	typ, id, ok := strings.Cut(ident, "_")
 	if !ok {
-		return fmt.Errorf("invalid ident")
+		return &identError{msg: "The provided ID is not valid. Expected format: TYPE_VALUE (e.g. SA_abc123)."}
 	}
 
 	found := false
@@ -117,7 +130,7 @@ func (i *Ident) UnmarshalGQLContext(_ context.Context, v any) error {
 	}
 
 	if !found {
-		return fmt.Errorf("unknown ident type")
+		return &identError{msg: "The provided ID is not valid. The identifier type is not recognized."}
 	}
 
 	i.Type = typ

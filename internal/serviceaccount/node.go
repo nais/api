@@ -1,10 +1,9 @@
 package serviceaccount
 
 import (
-	"fmt"
-
 	"github.com/btcsuite/btcutil/base58"
 	"github.com/google/uuid"
+	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/ident"
 )
 
@@ -37,26 +36,38 @@ func newBindingIdent(uid uuid.UUID) ident.Ident {
 func parseIdent(id ident.Ident) (uuid.UUID, error) {
 	parts := id.Parts()
 	if len(parts) != 1 {
-		return uuid.Nil, fmt.Errorf("invalid service account ident")
+		return uuid.Nil, apierror.Errorf("The provided service account ID is not valid.")
 	}
 
-	return uuid.FromBytes(base58.Decode(parts[0]))
+	uid, err := uuid.FromBytes(base58.Decode(parts[0]))
+	if err != nil {
+		return uuid.Nil, apierror.Errorf("The provided service account ID is not valid.")
+	}
+	return uid, nil
 }
 
 func parseTokenIdent(id ident.Ident) (uuid.UUID, error) {
 	parts := id.Parts()
 	if len(parts) != 1 {
-		return uuid.Nil, fmt.Errorf("invalid service account token ident")
+		return uuid.Nil, apierror.Errorf("The provided service account token ID is not valid.")
 	}
 
-	return uuid.FromBytes(base58.Decode(parts[0]))
+	uid, err := uuid.FromBytes(base58.Decode(parts[0]))
+	if err != nil {
+		return uuid.Nil, apierror.Errorf("The provided service account token ID is not valid.")
+	}
+	return uid, nil
 }
 
 func parseBindingIdent(id ident.Ident) (uuid.UUID, error) {
 	parts := id.Parts()
 	if len(parts) != 1 {
-		return uuid.Nil, fmt.Errorf("invalid service account workload binding ident")
+		return uuid.Nil, apierror.Errorf("The provided service account workload binding ID is not valid.")
 	}
 
-	return uuid.FromBytes(base58.Decode(parts[0]))
+	uid, err := uuid.FromBytes(base58.Decode(parts[0]))
+	if err != nil {
+		return uuid.Nil, apierror.Errorf("The provided service account workload binding ID is not valid.")
+	}
+	return uid, nil
 }

@@ -1,7 +1,7 @@
 local user = User.new()
 local nonMember = User.new()
 local team = Team.new("slug-1", "purpose", "#channel")
-team:addMember(user)
+team:addOwner(user)
 
 Test.gql("Create service account for team", function(t)
 	t.addHeader("x-user-email", user:email())
