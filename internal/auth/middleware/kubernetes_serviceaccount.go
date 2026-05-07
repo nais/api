@@ -153,7 +153,7 @@ func (k *k8sSAAuth) handler(next http.Handler) http.Handler {
 		}
 
 		claims, err := extractK8sServiceAccount(token)
-		if !ok {
+		if err != nil {
 			k.log.WithError(err).Debug("k8s sa auth: missing kubernetes.io claim")
 			next.ServeHTTP(w, r)
 			return
@@ -221,7 +221,12 @@ func extractK8sServiceAccount(t string) (*k8sClaims, error) {
 		} `json:"kubernetes.io"`
 	}
 
-	if err := json.Unmarshal(base64.StdEncoding.DecodeString(parts[1])); err != nil {
+	str, err := base64.URLEncoding.DecodeString(parts[1])
+	if err != nil {
+		return nil, fmt.Errorf("base64 decoding JWT payload: %w", err)
+	}
+
+	if err := json.Unmarshal(str, &claims); err != nil {
 		return nil, fmt.Errorf("unmarshaling kubernetes.io claim: %w", err)
 	}
 

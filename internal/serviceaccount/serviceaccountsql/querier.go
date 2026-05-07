@@ -31,7 +31,7 @@ type Querier interface {
 	ListForTeam(ctx context.Context, arg ListForTeamParams) ([]*ListForTeamRow, error)
 	ListTokensForServiceAccount(ctx context.Context, arg ListTokensForServiceAccountParams) ([]*ListTokensForServiceAccountRow, error)
 	RemoveApiKeysFromServiceAccount(ctx context.Context, serviceAccountID uuid.UUID) error
-	SetBindingKubernetesUID(ctx context.Context, arg SetBindingKubernetesUIDParams) error
+	SetBindingKubernetesUID(ctx context.Context, arg SetBindingKubernetesUIDParams) (int64, error)
 	Update(ctx context.Context, arg UpdateParams) (*ServiceAccount, error)
 	UpdateBindingLastUsedAt(ctx context.Context, id uuid.UUID) error
 	UpdateToken(ctx context.Context, arg UpdateTokenParams) (*ServiceAccountToken, error)

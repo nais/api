@@ -2,6 +2,7 @@ package serviceaccount
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/google/uuid"
@@ -73,7 +74,11 @@ func AddWorkloadBinding(ctx context.Context, input AddWorkloadToServiceAccountIn
 	}
 
 	// Check for an existing binding for this workload.
-	if existing, err := GetBindingForWorkload(ctx, input.Environment, input.TeamSlug, input.WorkloadName); err == nil && existing != nil {
+	if existing, err := GetBindingForWorkload(ctx, input.Environment, input.TeamSlug, input.WorkloadName); err != nil {
+		if !errors.Is(err, &ErrBindingNotFound{}) {
+			return nil, nil, err
+		}
+	} else if existing != nil {
 		return nil, nil, apierror.Errorf("The workload %q in team %q is already bound to a service account.", input.WorkloadName, input.TeamSlug)
 	}
 
@@ -193,15 +198,29 @@ func AuthenticateKubernetesServiceAccount(ctx context.Context, environment strin
 	}
 
 	if row.KubernetesServiceAccountUid == nil {
-		// Trust on first use: pin the UID.
-		err := q.SetBindingKubernetesUID(ctx, serviceaccountsql.SetBindingKubernetesUIDParams{
+		// Trust on first use: atomically pin the UID only if still NULL.
+		rowsAffected, err := q.SetBindingKubernetesUID(ctx, serviceaccountsql.SetBindingKubernetesUIDParams{
 			KubernetesServiceAccountUid: &k8sServiceAccountUID,
 			ID:                          row.ID,
 		})
 		if err != nil {
 			return nil, err
 		}
-		row.KubernetesServiceAccountUid = &k8sServiceAccountUID
+
+		if rowsAffected == 0 {
+			// Another request pinned the UID concurrently. Re-read and verify.
+			row, err = q.GetBindingByWorkload(ctx, serviceaccountsql.GetBindingByWorkloadParams{
+				Environment:  environment,
+				TeamSlug:     teamSlug,
+				WorkloadName: k8sServiceAccountName,
+			})
+			if err != nil {
+				return nil, handleBindingError(err)
+			}
+			if row.KubernetesServiceAccountUid == nil || *row.KubernetesServiceAccountUid != k8sServiceAccountUID {
+				return nil, ErrUIDMismatch
+			}
+		}
 	} else if *row.KubernetesServiceAccountUid != k8sServiceAccountUID {
 		return nil, ErrUIDMismatch
 	}

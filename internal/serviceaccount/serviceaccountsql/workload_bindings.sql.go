@@ -230,12 +230,13 @@ func (q *Queries) ListBindingsForServiceAccount(ctx context.Context, arg ListBin
 	return items, nil
 }
 
-const setBindingKubernetesUID = `-- name: SetBindingKubernetesUID :exec
+const setBindingKubernetesUID = `-- name: SetBindingKubernetesUID :execrows
 UPDATE service_account_workload_bindings
 SET
 	kubernetes_service_account_uid = $1
 WHERE
 	id = $2
+	AND kubernetes_service_account_uid IS NULL
 `
 
 type SetBindingKubernetesUIDParams struct {
@@ -243,9 +244,12 @@ type SetBindingKubernetesUIDParams struct {
 	ID                          uuid.UUID
 }
 
-func (q *Queries) SetBindingKubernetesUID(ctx context.Context, arg SetBindingKubernetesUIDParams) error {
-	_, err := q.db.Exec(ctx, setBindingKubernetesUID, arg.KubernetesServiceAccountUid, arg.ID)
-	return err
+func (q *Queries) SetBindingKubernetesUID(ctx context.Context, arg SetBindingKubernetesUIDParams) (int64, error) {
+	result, err := q.db.Exec(ctx, setBindingKubernetesUID, arg.KubernetesServiceAccountUid, arg.ID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
 }
 
 const updateBindingLastUsedAt = `-- name: UpdateBindingLastUsedAt :exec

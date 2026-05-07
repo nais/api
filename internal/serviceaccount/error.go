@@ -38,7 +38,7 @@ func (e *ErrNotFound) Is(v error) bool {
 
 func handleError(err error) error {
 	if errors.Is(err, pgx.ErrNoRows) {
-		return ErrNotFound{
+		return &ErrNotFound{
 			err: err,
 		}
 	}
@@ -73,7 +73,7 @@ func (e *ErrBindingNotFound) Is(v error) bool {
 
 func handleBindingError(err error) error {
 	if errors.Is(err, pgx.ErrNoRows) {
-		return ErrBindingNotFound{err: err}
+		return &ErrBindingNotFound{err: err}
 	}
 	return err
 }
