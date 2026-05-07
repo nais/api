@@ -44,6 +44,10 @@ func toUserRoles(row *authzsql.GetRolesForUsersRow) (*UserRoles, error) {
 	}, nil
 }
 
+type RoleFilter struct {
+	ExcludeGlobalRoles *bool `json:"excludeGlobalRoles,omitempty"`
+}
+
 type ServiceAccountRoles struct {
 	ServiceAccountID uuid.UUID
 	Roles            []*Role

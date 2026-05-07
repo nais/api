@@ -4,6 +4,7 @@ import (
 	"context"
 	"reflect"
 
+	"github.com/nais/api/internal/auth/middleware"
 	"github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/thirdparty/aiven"
 	"github.com/nais/api/internal/workload/logging"
@@ -12,8 +13,9 @@ import (
 )
 
 type k8sConfig struct {
-	Clusters       []string                   `env:"KUBERNETES_CLUSTERS"`
-	StaticClusters []kubernetes.StaticCluster `env:"KUBERNETES_CLUSTERS_STATIC"`
+	Clusters       []string                      `env:"KUBERNETES_CLUSTERS"`
+	StaticClusters []kubernetes.StaticCluster    `env:"KUBERNETES_CLUSTERS_STATIC"`
+	OIDCIssuers    []middleware.KubernetesIssuer `env:"KUBERNETES_OIDC_ISSUERS"`
 }
 
 func (k *k8sConfig) AllClusterNames() []string {

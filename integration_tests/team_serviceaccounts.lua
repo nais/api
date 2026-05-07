@@ -1,7 +1,9 @@
 local user = User.new()
+local member = User.new()
 local nonMember = User.new()
 local team = Team.new("slug-1", "purpose", "#channel")
-team:addMember(user)
+team:addOwner(user)
+team:addMember(member)
 
 
 Test.gql("Create service account as non-member", function(t)
@@ -38,6 +40,39 @@ Test.gql("Create service account as non-member", function(t)
 end)
 
 Test.gql("Create service account as member", function(t)
+	t.addHeader("x-user-email", member:email())
+
+	t.query([[
+		mutation {
+			createServiceAccount(
+				input: {
+					name: "my-sa"
+					description: "some description"
+					teamSlug: "slug-1"
+				}
+			) {
+				serviceAccount {
+					id
+				}
+			}
+		}
+	]])
+
+	t.check {
+		data = Null,
+		errors = {
+			{
+				locations = NotNull(),
+				message = Contains("Specifically, you need the \"service_accounts:create\" authorization."),
+				path = {
+					"createServiceAccount",
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("Create service account as owner", function(t)
 	t.addHeader("x-user-email", user:email())
 
 	t.query [[
@@ -110,6 +145,38 @@ Test.gql("Update service account as non-member", function(t)
 end)
 
 Test.gql("Update service account as member", function(t)
+	t.addHeader("x-user-email", member:email())
+
+	t.query(string.format([[
+		mutation {
+			updateServiceAccount(
+				input: {
+					serviceAccountID: "%s"
+					description: "new description"
+				}
+			) {
+				serviceAccount {
+					id
+				}
+			}
+		}
+	]], State.saID))
+
+	t.check {
+		data = Null,
+		errors = {
+			{
+				locations = NotNull(),
+				message = Contains("Specifically, you need the \"service_accounts:update\" authorization."),
+				path = {
+					"updateServiceAccount",
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("Update service account as owner", function(t)
 	t.addHeader("x-user-email", user:email())
 
 	t.query(string.format([[
@@ -172,7 +239,39 @@ Test.gql("Assign role to service account as non-member", function(t)
 	}
 end)
 
-Test.gql("Assign global role to service account as member", function(t)
+Test.gql("Assign role to service account as member", function(t)
+	t.addHeader("x-user-email", member:email())
+
+	t.query(string.format([[
+		mutation {
+			assignRoleToServiceAccount(
+				input: {
+					serviceAccountID: "%s"
+					roleName: "Team member"
+				}
+			) {
+				serviceAccount {
+					id
+				}
+			}
+		}
+	]], State.saID))
+
+	t.check {
+		data = Null,
+		errors = {
+			{
+				locations = NotNull(),
+				message = Contains("Specifically, you need the \"service_accounts:update\" authorization."),
+				path = {
+					"assignRoleToServiceAccount",
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("Assign global role to team service account as owner", function(t)
 	t.addHeader("x-user-email", user:email())
 
 	t.query(string.format([[
@@ -209,7 +308,7 @@ Test.gql("Assign global role to service account as member", function(t)
 	}
 end)
 
-Test.gql("Assign role to service account as member", function(t)
+Test.gql("Assign role to service account as owner", function(t)
 	t.addHeader("x-user-email", user:email())
 
 	t.query(string.format([[
@@ -250,7 +349,7 @@ Test.gql("Assign role to service account as member", function(t)
 	}
 end)
 
-Test.gql("Assign duplicate role to service account as member", function(t)
+Test.gql("Assign duplicate role to service account as owner", function(t)
 	t.addHeader("x-user-email", user:email())
 
 	t.query(string.format([[
@@ -287,7 +386,7 @@ Test.gql("Assign duplicate role to service account as member", function(t)
 	}
 end)
 
-Test.gql("Assign another role to service account as member", function(t)
+Test.gql("Assign another role to service account as owner", function(t)
 	t.addHeader("x-user-email", user:email())
 
 	t.query(string.format([[
@@ -331,7 +430,7 @@ Test.gql("Assign another role to service account as member", function(t)
 	}
 end)
 
-Test.gql("Assign another role to service account as member that requires owner", function(t)
+Test.gql("Assign Team owner role to service account as owner", function(t)
 	t.addHeader("x-user-email", user:email())
 
 	t.query(string.format([[
@@ -355,13 +454,23 @@ Test.gql("Assign another role to service account as member that requires owner",
 	]], State.saID))
 
 	t.check {
-		data = Null,
-		errors = {
-			{
-				locations = NotNull(),
-				message = "User does not have permission to assign the \"Team owner\" role.",
-				path = {
-					"assignRoleToServiceAccount",
+		data = {
+			assignRoleToServiceAccount = {
+				serviceAccount = {
+					id = State.saID,
+					roles = {
+						nodes = {
+							{
+								name = "Deploy key viewer",
+							},
+							{
+								name = "Team member",
+							},
+							{
+								name = "Team owner",
+							},
+						},
+					},
 				},
 			},
 		},
@@ -376,7 +485,7 @@ Test.gql("Revoke role from service account as non-member", function(t)
 			revokeRoleFromServiceAccount(
 				input: {
 					serviceAccountID: "%s"
-					roleName: "Team creator"
+					roleName: "Team member"
 				}
 			) {
 				serviceAccount {
@@ -401,6 +510,82 @@ Test.gql("Revoke role from service account as non-member", function(t)
 end)
 
 Test.gql("Revoke role from service account as member", function(t)
+	t.addHeader("x-user-email", member:email())
+
+	t.query(string.format([[
+		mutation {
+			revokeRoleFromServiceAccount(
+				input: {
+					serviceAccountID: "%s"
+					roleName: "Team member"
+				}
+			) {
+				serviceAccount {
+					id
+				}
+			}
+		}
+	]], State.saID))
+
+	t.check {
+		data = Null,
+		errors = {
+			{
+				locations = NotNull(),
+				message = Contains("Specifically, you need the \"service_accounts:update\" authorization."),
+				path = {
+					"revokeRoleFromServiceAccount",
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("Revoke Team owner role from service account as owner", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query(string.format([[
+		mutation {
+			revokeRoleFromServiceAccount(
+				input: {
+					serviceAccountID: "%s"
+					roleName: "Team owner"
+				}
+			) {
+				serviceAccount {
+					id
+					roles {
+						nodes {
+							name
+						}
+					}
+				}
+			}
+		}
+	]], State.saID))
+
+	t.check {
+		data = {
+			revokeRoleFromServiceAccount = {
+				serviceAccount = {
+					id = State.saID,
+					roles = {
+						nodes = {
+							{
+								name = "Deploy key viewer",
+							},
+							{
+								name = "Team member",
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("Revoke role from service account as owner", function(t)
 	t.addHeader("x-user-email", user:email())
 
 	t.query(string.format([[
@@ -441,7 +626,7 @@ Test.gql("Revoke role from service account as member", function(t)
 	}
 end)
 
-Test.gql("Revoke unassigned role from service account as member", function(t)
+Test.gql("Revoke unassigned role from service account as owner", function(t)
 	t.addHeader("x-user-email", user:email())
 
 	t.query(string.format([[
@@ -470,43 +655,6 @@ Test.gql("Revoke unassigned role from service account as member", function(t)
 			{
 				locations = NotNull(),
 				message = "Service account does not have the \"Service account owner\" role assigned.",
-				path = {
-					"revokeRoleFromServiceAccount",
-				},
-			},
-		},
-	}
-end)
-
-Test.gql("Revoke role from service account as member that requires owner", function(t)
-	t.addHeader("x-user-email", user:email())
-
-	t.query(string.format([[
-		mutation {
-			revokeRoleFromServiceAccount(
-				input: {
-					serviceAccountID: "%s"
-					roleName: "Team owner"
-				}
-			) {
-				serviceAccount {
-					id
-					roles {
-						nodes {
-							name
-						}
-					}
-				}
-			}
-		}
-	]], State.saID))
-
-	t.check {
-		data = Null,
-		errors = {
-			{
-				locations = NotNull(),
-				message = "User does not have permission to revoke the \"Team owner\" role.",
 				path = {
 					"revokeRoleFromServiceAccount",
 				},
@@ -545,6 +693,35 @@ Test.gql("Delete service account as non-member", function(t)
 end)
 
 Test.gql("Delete service account as member", function(t)
+	t.addHeader("x-user-email", member:email())
+
+	t.query(string.format([[
+		mutation {
+			deleteServiceAccount(
+				input: {
+					serviceAccountID: "%s"
+				}
+			) {
+				serviceAccountDeleted
+			}
+		}
+	]], State.saID))
+
+	t.check {
+		data = Null,
+		errors = {
+			{
+				locations = NotNull(),
+				message = Contains("Specifically, you need the \"service_accounts:delete\" authorization."),
+				path = {
+					"deleteServiceAccount",
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("Delete service account as owner", function(t)
 	t.addHeader("x-user-email", user:email())
 
 	t.query(string.format([[

@@ -24,9 +24,10 @@ func fromContext(ctx context.Context) *loaders {
 }
 
 type loaders struct {
-	internalQuerier           *serviceaccountsql.Queries
-	serviceAccountLoader      *dataloadgen.Loader[uuid.UUID, *ServiceAccount]
-	serviceAccountTokenLoader *dataloadgen.Loader[uuid.UUID, *ServiceAccountToken]
+	internalQuerier             *serviceaccountsql.Queries
+	serviceAccountLoader        *dataloadgen.Loader[uuid.UUID, *ServiceAccount]
+	serviceAccountTokenLoader   *dataloadgen.Loader[uuid.UUID, *ServiceAccountToken]
+	serviceAccountBindingLoader *dataloadgen.Loader[uuid.UUID, *ServiceAccountWorkloadBinding]
 }
 
 func newLoaders(dbConn *pgxpool.Pool) *loaders {
@@ -34,9 +35,10 @@ func newLoaders(dbConn *pgxpool.Pool) *loaders {
 	serviceAccountLoader := &dataloader{db: db}
 
 	return &loaders{
-		internalQuerier:           db,
-		serviceAccountLoader:      dataloadgen.NewLoader(serviceAccountLoader.list, loader.DefaultDataLoaderOptions...),
-		serviceAccountTokenLoader: dataloadgen.NewLoader(serviceAccountLoader.listTokens, loader.DefaultDataLoaderOptions...),
+		internalQuerier:             db,
+		serviceAccountLoader:        dataloadgen.NewLoader(serviceAccountLoader.list, loader.DefaultDataLoaderOptions...),
+		serviceAccountTokenLoader:   dataloadgen.NewLoader(serviceAccountLoader.listTokens, loader.DefaultDataLoaderOptions...),
+		serviceAccountBindingLoader: dataloadgen.NewLoader(serviceAccountLoader.listBindings, loader.DefaultDataLoaderOptions...),
 	}
 }
 
@@ -52,6 +54,11 @@ func (l dataloader) list(ctx context.Context, serviceAccountIDs []uuid.UUID) ([]
 func (l dataloader) listTokens(ctx context.Context, serviceAccountTokenIDs []uuid.UUID) ([]*ServiceAccountToken, []error) {
 	makeKey := func(obj *ServiceAccountToken) uuid.UUID { return obj.UUID }
 	return loader.LoadModels(ctx, serviceAccountTokenIDs, l.db.GetTokensByIDs, toGraphServiceAccountToken, makeKey)
+}
+
+func (l dataloader) listBindings(ctx context.Context, ids []uuid.UUID) ([]*ServiceAccountWorkloadBinding, []error) {
+	makeKey := func(obj *ServiceAccountWorkloadBinding) uuid.UUID { return obj.UUID }
+	return loader.LoadModels(ctx, ids, l.db.GetBindingsByIDs, toGraphServiceAccountWorkloadBinding, makeKey)
 }
 
 func db(ctx context.Context) *serviceaccountsql.Queries {

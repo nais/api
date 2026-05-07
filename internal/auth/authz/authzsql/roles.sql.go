@@ -353,21 +353,27 @@ SELECT
 	name, description, is_only_global
 FROM
 	roles
+WHERE
+	(
+		NOT $1::BOOLEAN
+		OR is_only_global IS FALSE
+	)
 ORDER BY
 	name ASC
 OFFSET
-	$1
-LIMIT
 	$2
+LIMIT
+	$3
 `
 
 type ListRolesParams struct {
-	Offset int32
-	Limit  int32
+	ExcludeGlobal bool
+	Offset        int32
+	Limit         int32
 }
 
 func (q *Queries) ListRoles(ctx context.Context, arg ListRolesParams) ([]*Role, error) {
-	rows, err := q.db.Query(ctx, listRoles, arg.Offset, arg.Limit)
+	rows, err := q.db.Query(ctx, listRoles, arg.ExcludeGlobal, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}

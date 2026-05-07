@@ -2,6 +2,7 @@ package graph
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/nais/api/internal/auth/authz"
@@ -10,7 +11,31 @@ import (
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/serviceaccount"
 	"github.com/nais/api/internal/team"
+	"github.com/nais/api/internal/workload/application"
+	"github.com/nais/api/internal/workload/job"
 )
+
+func (r *applicationResolver) ServiceAccount(ctx context.Context, obj *application.Application) (*serviceaccount.ServiceAccount, error) {
+	b, err := serviceaccount.GetBindingForWorkload(ctx, obj.EnvironmentName, obj.TeamSlug, obj.Name)
+	if err != nil {
+		if errors.Is(err, &serviceaccount.ErrBindingNotFound{}) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return serviceaccount.Get(ctx, b.ServiceAccountID)
+}
+
+func (r *jobResolver) ServiceAccount(ctx context.Context, obj *job.Job) (*serviceaccount.ServiceAccount, error) {
+	b, err := serviceaccount.GetBindingForWorkload(ctx, obj.EnvironmentName, obj.TeamSlug, obj.Name)
+	if err != nil {
+		if errors.Is(err, &serviceaccount.ErrBindingNotFound{}) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return serviceaccount.Get(ctx, b.ServiceAccountID)
+}
 
 func (r *mutationResolver) CreateServiceAccount(ctx context.Context, input serviceaccount.CreateServiceAccountInput) (*serviceaccount.CreateServiceAccountPayload, error) {
 	sa, err := serviceaccount.Create(ctx, input)
@@ -135,6 +160,15 @@ func (r *serviceAccountResolver) Tokens(ctx context.Context, obj *serviceaccount
 	}
 
 	return serviceaccount.ListTokensForServiceAccount(ctx, page, obj.UUID)
+}
+
+func (r *teamResolver) ServiceAccounts(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*serviceaccount.ServiceAccount], error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+
+	return serviceaccount.ListForTeam(ctx, page, obj.Slug)
 }
 
 func (r *Resolver) ServiceAccount() gengql.ServiceAccountResolver { return &serviceAccountResolver{r} }

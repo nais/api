@@ -254,6 +254,36 @@ func (ec *executionContext) fieldContext_RoleEdge_cursor(_ context.Context, fiel
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputRoleFilter(ctx context.Context, obj any) (authz.RoleFilter, error) {
+	var it authz.RoleFilter
+	if obj == nil {
+		return it, nil
+	}
+
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"excludeGlobalRoles"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "excludeGlobalRoles":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("excludeGlobalRoles"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ExcludeGlobalRoles = data
+		}
+	}
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -466,6 +496,14 @@ func (ec *executionContext) marshalNRoleEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinte
 	}
 
 	return ret
+}
+
+func (ec *executionContext) unmarshalORoleFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋauthzᚐRoleFilter(ctx context.Context, v any) (*authz.RoleFilter, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputRoleFilter(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 // endregion ***************************** type.gotpl *****************************

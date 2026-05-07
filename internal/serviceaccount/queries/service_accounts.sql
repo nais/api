@@ -13,6 +13,22 @@ OFFSET
 	sqlc.arg('offset')
 ;
 
+-- name: ListForTeam :many
+SELECT
+	sqlc.embed(service_accounts),
+	COUNT(*) OVER () AS total_count
+FROM
+	service_accounts
+WHERE
+	team_slug = @team_slug
+ORDER BY
+	name
+LIMIT
+	sqlc.arg('limit')
+OFFSET
+	sqlc.arg('offset')
+;
+
 -- name: GetServiceAccountAndTokenBySecret :one
 SELECT
 	sqlc.embed(service_accounts),

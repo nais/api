@@ -11,6 +11,7 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/alerts"
+	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/cost"
 	"github.com/nais/api/internal/deployment"
 	"github.com/nais/api/internal/environment"
@@ -103,6 +104,7 @@ type ResolverRoot interface {
 	RestartApplicationPayload() RestartApplicationPayloadResolver
 	Secret() SecretResolver
 	ServiceAccount() ServiceAccountResolver
+	ServiceAccountWorkloadBinding() ServiceAccountWorkloadBindingResolver
 	SqlDatabase() SqlDatabaseResolver
 	SqlInstance() SqlInstanceResolver
 	SqlInstanceMetrics() SqlInstanceMetricsResolver
@@ -169,6 +171,11 @@ type ComplexityRoot struct {
 		Member func(childComplexity int) int
 	}
 
+	AddWorkloadToServiceAccountPayload struct {
+		Binding        func(childComplexity int) int
+		ServiceAccount func(childComplexity int) int
+	}
+
 	AlertConnection struct {
 		Edges    func(childComplexity int) int
 		Nodes    func(childComplexity int) int
@@ -211,6 +218,7 @@ type ComplexityRoot struct {
 		Resources                 func(childComplexity int) int
 		SQLInstances              func(childComplexity int, orderBy *sqlinstance.SQLInstanceOrder) int
 		Secrets                   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		ServiceAccount            func(childComplexity int) int
 		State                     func(childComplexity int) int
 		Team                      func(childComplexity int) int
 		TeamEnvironment           func(childComplexity int) int
@@ -1069,6 +1077,7 @@ type ComplexityRoot struct {
 		SQLInstances              func(childComplexity int, orderBy *sqlinstance.SQLInstanceOrder) int
 		Schedule                  func(childComplexity int) int
 		Secrets                   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		ServiceAccount            func(childComplexity int) int
 		State                     func(childComplexity int) int
 		Team                      func(childComplexity int) int
 		TeamEnvironment           func(childComplexity int) int
@@ -1351,63 +1360,65 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		AddConfigValue               func(childComplexity int, input config.AddConfigValueInput) int
-		AddRepositoryToTeam          func(childComplexity int, input repository.AddRepositoryToTeamInput) int
-		AddSecretValue               func(childComplexity int, input secret.AddSecretValueInput) int
-		AddTeamMember                func(childComplexity int, input team.AddTeamMemberInput) int
-		AllowTeamAccessToUnleash     func(childComplexity int, input unleash.AllowTeamAccessToUnleashInput) int
-		AssignRoleToServiceAccount   func(childComplexity int, input serviceaccount.AssignRoleToServiceAccountInput) int
-		ChangeDeploymentKey          func(childComplexity int, input deployment.ChangeDeploymentKeyInput) int
-		ConfigureReconciler          func(childComplexity int, input reconciler.ConfigureReconcilerInput) int
-		ConfirmTeamDeletion          func(childComplexity int, input team.ConfirmTeamDeletionInput) int
-		CreateConfig                 func(childComplexity int, input config.CreateConfigInput) int
-		CreateKafkaCredentials       func(childComplexity int, input kafkatopic.CreateKafkaCredentialsInput) int
-		CreateOpenSearch             func(childComplexity int, input opensearch.CreateOpenSearchInput) int
-		CreateOpenSearchCredentials  func(childComplexity int, input opensearch.CreateOpenSearchCredentialsInput) int
-		CreateSecret                 func(childComplexity int, input secret.CreateSecretInput) int
-		CreateServiceAccount         func(childComplexity int, input serviceaccount.CreateServiceAccountInput) int
-		CreateServiceAccountToken    func(childComplexity int, input serviceaccount.CreateServiceAccountTokenInput) int
-		CreateTeam                   func(childComplexity int, input team.CreateTeamInput) int
-		CreateUnleashForTeam         func(childComplexity int, input unleash.CreateUnleashForTeamInput) int
-		CreateValkey                 func(childComplexity int, input valkey.CreateValkeyInput) int
-		CreateValkeyCredentials      func(childComplexity int, input valkey.CreateValkeyCredentialsInput) int
-		DeleteApplication            func(childComplexity int, input application.DeleteApplicationInput) int
-		DeleteConfig                 func(childComplexity int, input config.DeleteConfigInput) int
-		DeleteJob                    func(childComplexity int, input job.DeleteJobInput) int
-		DeleteJobRun                 func(childComplexity int, input job.DeleteJobRunInput) int
-		DeleteOpenSearch             func(childComplexity int, input opensearch.DeleteOpenSearchInput) int
-		DeletePostgres               func(childComplexity int, input postgres.DeletePostgresInput) int
-		DeleteSecret                 func(childComplexity int, input secret.DeleteSecretInput) int
-		DeleteServiceAccount         func(childComplexity int, input serviceaccount.DeleteServiceAccountInput) int
-		DeleteServiceAccountToken    func(childComplexity int, input serviceaccount.DeleteServiceAccountTokenInput) int
-		DeleteUnleashInstance        func(childComplexity int, input unleash.DeleteUnleashInstanceInput) int
-		DeleteValkey                 func(childComplexity int, input valkey.DeleteValkeyInput) int
-		DisableReconciler            func(childComplexity int, input reconciler.DisableReconcilerInput) int
-		EnableReconciler             func(childComplexity int, input reconciler.EnableReconcilerInput) int
-		GrantPostgresAccess          func(childComplexity int, input postgres.GrantPostgresAccessInput) int
-		RemoveConfigValue            func(childComplexity int, input config.RemoveConfigValueInput) int
-		RemoveRepositoryFromTeam     func(childComplexity int, input repository.RemoveRepositoryFromTeamInput) int
-		RemoveSecretValue            func(childComplexity int, input secret.RemoveSecretValueInput) int
-		RemoveTeamMember             func(childComplexity int, input team.RemoveTeamMemberInput) int
-		RequestTeamDeletion          func(childComplexity int, input team.RequestTeamDeletionInput) int
-		RestartApplication           func(childComplexity int, input application.RestartApplicationInput) int
-		RevokeRoleFromServiceAccount func(childComplexity int, input serviceaccount.RevokeRoleFromServiceAccountInput) int
-		RevokeTeamAccessToUnleash    func(childComplexity int, input unleash.RevokeTeamAccessToUnleashInput) int
-		SetTeamMemberRole            func(childComplexity int, input team.SetTeamMemberRoleInput) int
-		StartOpenSearchMaintenance   func(childComplexity int, input servicemaintenance.StartOpenSearchMaintenanceInput) int
-		StartValkeyMaintenance       func(childComplexity int, input servicemaintenance.StartValkeyMaintenanceInput) int
-		TriggerJob                   func(childComplexity int, input job.TriggerJobInput) int
-		UpdateConfigValue            func(childComplexity int, input config.UpdateConfigValueInput) int
-		UpdateImageVulnerability     func(childComplexity int, input vulnerability.UpdateImageVulnerabilityInput) int
-		UpdateOpenSearch             func(childComplexity int, input opensearch.UpdateOpenSearchInput) int
-		UpdateSecretValue            func(childComplexity int, input secret.UpdateSecretValueInput) int
-		UpdateServiceAccount         func(childComplexity int, input serviceaccount.UpdateServiceAccountInput) int
-		UpdateServiceAccountToken    func(childComplexity int, input serviceaccount.UpdateServiceAccountTokenInput) int
-		UpdateTeam                   func(childComplexity int, input team.UpdateTeamInput) int
-		UpdateTeamEnvironment        func(childComplexity int, input team.UpdateTeamEnvironmentInput) int
-		UpdateUnleashInstance        func(childComplexity int, input unleash.UpdateUnleashInstanceInput) int
-		UpdateValkey                 func(childComplexity int, input valkey.UpdateValkeyInput) int
-		ViewSecretValues             func(childComplexity int, input secret.ViewSecretValuesInput) int
+		AddConfigValue                   func(childComplexity int, input config.AddConfigValueInput) int
+		AddRepositoryToTeam              func(childComplexity int, input repository.AddRepositoryToTeamInput) int
+		AddSecretValue                   func(childComplexity int, input secret.AddSecretValueInput) int
+		AddTeamMember                    func(childComplexity int, input team.AddTeamMemberInput) int
+		AddWorkloadToServiceAccount      func(childComplexity int, input serviceaccount.AddWorkloadToServiceAccountInput) int
+		AllowTeamAccessToUnleash         func(childComplexity int, input unleash.AllowTeamAccessToUnleashInput) int
+		AssignRoleToServiceAccount       func(childComplexity int, input serviceaccount.AssignRoleToServiceAccountInput) int
+		ChangeDeploymentKey              func(childComplexity int, input deployment.ChangeDeploymentKeyInput) int
+		ConfigureReconciler              func(childComplexity int, input reconciler.ConfigureReconcilerInput) int
+		ConfirmTeamDeletion              func(childComplexity int, input team.ConfirmTeamDeletionInput) int
+		CreateConfig                     func(childComplexity int, input config.CreateConfigInput) int
+		CreateKafkaCredentials           func(childComplexity int, input kafkatopic.CreateKafkaCredentialsInput) int
+		CreateOpenSearch                 func(childComplexity int, input opensearch.CreateOpenSearchInput) int
+		CreateOpenSearchCredentials      func(childComplexity int, input opensearch.CreateOpenSearchCredentialsInput) int
+		CreateSecret                     func(childComplexity int, input secret.CreateSecretInput) int
+		CreateServiceAccount             func(childComplexity int, input serviceaccount.CreateServiceAccountInput) int
+		CreateServiceAccountToken        func(childComplexity int, input serviceaccount.CreateServiceAccountTokenInput) int
+		CreateTeam                       func(childComplexity int, input team.CreateTeamInput) int
+		CreateUnleashForTeam             func(childComplexity int, input unleash.CreateUnleashForTeamInput) int
+		CreateValkey                     func(childComplexity int, input valkey.CreateValkeyInput) int
+		CreateValkeyCredentials          func(childComplexity int, input valkey.CreateValkeyCredentialsInput) int
+		DeleteApplication                func(childComplexity int, input application.DeleteApplicationInput) int
+		DeleteConfig                     func(childComplexity int, input config.DeleteConfigInput) int
+		DeleteJob                        func(childComplexity int, input job.DeleteJobInput) int
+		DeleteJobRun                     func(childComplexity int, input job.DeleteJobRunInput) int
+		DeleteOpenSearch                 func(childComplexity int, input opensearch.DeleteOpenSearchInput) int
+		DeletePostgres                   func(childComplexity int, input postgres.DeletePostgresInput) int
+		DeleteSecret                     func(childComplexity int, input secret.DeleteSecretInput) int
+		DeleteServiceAccount             func(childComplexity int, input serviceaccount.DeleteServiceAccountInput) int
+		DeleteServiceAccountToken        func(childComplexity int, input serviceaccount.DeleteServiceAccountTokenInput) int
+		DeleteUnleashInstance            func(childComplexity int, input unleash.DeleteUnleashInstanceInput) int
+		DeleteValkey                     func(childComplexity int, input valkey.DeleteValkeyInput) int
+		DisableReconciler                func(childComplexity int, input reconciler.DisableReconcilerInput) int
+		EnableReconciler                 func(childComplexity int, input reconciler.EnableReconcilerInput) int
+		GrantPostgresAccess              func(childComplexity int, input postgres.GrantPostgresAccessInput) int
+		RemoveConfigValue                func(childComplexity int, input config.RemoveConfigValueInput) int
+		RemoveRepositoryFromTeam         func(childComplexity int, input repository.RemoveRepositoryFromTeamInput) int
+		RemoveSecretValue                func(childComplexity int, input secret.RemoveSecretValueInput) int
+		RemoveTeamMember                 func(childComplexity int, input team.RemoveTeamMemberInput) int
+		RemoveWorkloadFromServiceAccount func(childComplexity int, input serviceaccount.RemoveWorkloadFromServiceAccountInput) int
+		RequestTeamDeletion              func(childComplexity int, input team.RequestTeamDeletionInput) int
+		RestartApplication               func(childComplexity int, input application.RestartApplicationInput) int
+		RevokeRoleFromServiceAccount     func(childComplexity int, input serviceaccount.RevokeRoleFromServiceAccountInput) int
+		RevokeTeamAccessToUnleash        func(childComplexity int, input unleash.RevokeTeamAccessToUnleashInput) int
+		SetTeamMemberRole                func(childComplexity int, input team.SetTeamMemberRoleInput) int
+		StartOpenSearchMaintenance       func(childComplexity int, input servicemaintenance.StartOpenSearchMaintenanceInput) int
+		StartValkeyMaintenance           func(childComplexity int, input servicemaintenance.StartValkeyMaintenanceInput) int
+		TriggerJob                       func(childComplexity int, input job.TriggerJobInput) int
+		UpdateConfigValue                func(childComplexity int, input config.UpdateConfigValueInput) int
+		UpdateImageVulnerability         func(childComplexity int, input vulnerability.UpdateImageVulnerabilityInput) int
+		UpdateOpenSearch                 func(childComplexity int, input opensearch.UpdateOpenSearchInput) int
+		UpdateSecretValue                func(childComplexity int, input secret.UpdateSecretValueInput) int
+		UpdateServiceAccount             func(childComplexity int, input serviceaccount.UpdateServiceAccountInput) int
+		UpdateServiceAccountToken        func(childComplexity int, input serviceaccount.UpdateServiceAccountTokenInput) int
+		UpdateTeam                       func(childComplexity int, input team.UpdateTeamInput) int
+		UpdateTeamEnvironment            func(childComplexity int, input team.UpdateTeamEnvironmentInput) int
+		UpdateUnleashInstance            func(childComplexity int, input unleash.UpdateUnleashInstanceInput) int
+		UpdateValkey                     func(childComplexity int, input valkey.UpdateValkeyInput) int
+		ViewSecretValues                 func(childComplexity int, input secret.ViewSecretValuesInput) int
 	}
 
 	NetworkPolicy struct {
@@ -1695,7 +1706,7 @@ type ComplexityRoot struct {
 		Me                        func(childComplexity int) int
 		Node                      func(childComplexity int, id ident.Ident) int
 		Reconcilers               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		Roles                     func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Roles                     func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *authz.RoleFilter) int
 		Search                    func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter search.SearchFilter) int
 		ServiceAccount            func(childComplexity int, id ident.Ident) int
 		ServiceAccounts           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
@@ -1814,6 +1825,11 @@ type ComplexityRoot struct {
 	RemoveTeamMemberPayload struct {
 		Team func(childComplexity int) int
 		User func(childComplexity int) int
+	}
+
+	RemoveWorkloadFromServiceAccountPayload struct {
+		BindingDeleted func(childComplexity int) int
+		ServiceAccount func(childComplexity int) int
 	}
 
 	Repository struct {
@@ -2076,15 +2092,16 @@ type ComplexityRoot struct {
 	}
 
 	ServiceAccount struct {
-		CreatedAt   func(childComplexity int) int
-		Description func(childComplexity int) int
-		ID          func(childComplexity int) int
-		LastUsedAt  func(childComplexity int) int
-		Name        func(childComplexity int) int
-		Roles       func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		Team        func(childComplexity int) int
-		Tokens      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		UpdatedAt   func(childComplexity int) int
+		CreatedAt        func(childComplexity int) int
+		Description      func(childComplexity int) int
+		ID               func(childComplexity int) int
+		LastUsedAt       func(childComplexity int) int
+		Name             func(childComplexity int) int
+		Roles            func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Team             func(childComplexity int) int
+		Tokens           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		UpdatedAt        func(childComplexity int) int
+		WorkloadBindings func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 	}
 
 	ServiceAccountConnection struct {
@@ -2215,6 +2232,63 @@ type ComplexityRoot struct {
 		Field    func(childComplexity int) int
 		NewValue func(childComplexity int) int
 		OldValue func(childComplexity int) int
+	}
+
+	ServiceAccountWorkloadBinding struct {
+		CreatedAt      func(childComplexity int) int
+		Environment    func(childComplexity int) int
+		ID             func(childComplexity int) int
+		IsBroken       func(childComplexity int) int
+		LastUsedAt     func(childComplexity int) int
+		ServiceAccount func(childComplexity int) int
+		TeamSlug       func(childComplexity int) int
+		Workload       func(childComplexity int) int
+		WorkloadName   func(childComplexity int) int
+	}
+
+	ServiceAccountWorkloadBindingAddedActivityLogEntry struct {
+		Actor           func(childComplexity int) int
+		CreatedAt       func(childComplexity int) int
+		Data            func(childComplexity int) int
+		EnvironmentName func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Message         func(childComplexity int) int
+		ResourceName    func(childComplexity int) int
+		ResourceType    func(childComplexity int) int
+		TeamSlug        func(childComplexity int) int
+	}
+
+	ServiceAccountWorkloadBindingAddedActivityLogEntryData struct {
+		TeamSlug     func(childComplexity int) int
+		WorkloadName func(childComplexity int) int
+	}
+
+	ServiceAccountWorkloadBindingConnection struct {
+		Edges    func(childComplexity int) int
+		Nodes    func(childComplexity int) int
+		PageInfo func(childComplexity int) int
+	}
+
+	ServiceAccountWorkloadBindingEdge struct {
+		Cursor func(childComplexity int) int
+		Node   func(childComplexity int) int
+	}
+
+	ServiceAccountWorkloadBindingRemovedActivityLogEntry struct {
+		Actor           func(childComplexity int) int
+		CreatedAt       func(childComplexity int) int
+		Data            func(childComplexity int) int
+		EnvironmentName func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Message         func(childComplexity int) int
+		ResourceName    func(childComplexity int) int
+		ResourceType    func(childComplexity int) int
+		TeamSlug        func(childComplexity int) int
+	}
+
+	ServiceAccountWorkloadBindingRemovedActivityLogEntryData struct {
+		TeamSlug     func(childComplexity int) int
+		WorkloadName func(childComplexity int) int
 	}
 
 	ServiceCostSample struct {
@@ -2431,6 +2505,7 @@ type ComplexityRoot struct {
 		Repositories              func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *repository.RepositoryOrder, filter *repository.TeamRepositoryFilter) int
 		SQLInstances              func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *sqlinstance.SQLInstanceOrder) int
 		Secrets                   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *secret.SecretOrder, filter *secret.SecretFilter) int
+		ServiceAccounts           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		ServiceUtilization        func(childComplexity int) int
 		SlackChannel              func(childComplexity int) int
 		Slug                      func(childComplexity int) int
@@ -3380,6 +3455,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.AddTeamMemberPayload.Member(childComplexity), true
 
+	case "AddWorkloadToServiceAccountPayload.binding":
+		if e.ComplexityRoot.AddWorkloadToServiceAccountPayload.Binding == nil {
+			break
+		}
+
+		return e.ComplexityRoot.AddWorkloadToServiceAccountPayload.Binding(childComplexity), true
+
+	case "AddWorkloadToServiceAccountPayload.serviceAccount":
+		if e.ComplexityRoot.AddWorkloadToServiceAccountPayload.ServiceAccount == nil {
+			break
+		}
+
+		return e.ComplexityRoot.AddWorkloadToServiceAccountPayload.ServiceAccount(childComplexity), true
+
 	case "AlertConnection.edges":
 		if e.ComplexityRoot.AlertConnection.Edges == nil {
 			break
@@ -3663,6 +3752,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Application.Secrets(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
+
+	case "Application.serviceAccount":
+		if e.ComplexityRoot.Application.ServiceAccount == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Application.ServiceAccount(childComplexity), true
 
 	case "Application.state":
 		if e.ComplexityRoot.Application.State == nil {
@@ -7127,6 +7223,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Job.Secrets(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
 
+	case "Job.serviceAccount":
+		if e.ComplexityRoot.Job.ServiceAccount == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Job.ServiceAccount(childComplexity), true
+
 	case "Job.state":
 		if e.ComplexityRoot.Job.State == nil {
 			break
@@ -8287,6 +8390,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Mutation.AddTeamMember(childComplexity, args["input"].(team.AddTeamMemberInput)), true
 
+	case "Mutation.addWorkloadToServiceAccount":
+		if e.ComplexityRoot.Mutation.AddWorkloadToServiceAccount == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_addWorkloadToServiceAccount_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Mutation.AddWorkloadToServiceAccount(childComplexity, args["input"].(serviceaccount.AddWorkloadToServiceAccountInput)), true
+
 	case "Mutation.allowTeamAccessToUnleash":
 		if e.ComplexityRoot.Mutation.AllowTeamAccessToUnleash == nil {
 			break
@@ -8694,6 +8809,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Mutation.RemoveTeamMember(childComplexity, args["input"].(team.RemoveTeamMemberInput)), true
+
+	case "Mutation.removeWorkloadFromServiceAccount":
+		if e.ComplexityRoot.Mutation.RemoveWorkloadFromServiceAccount == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_removeWorkloadFromServiceAccount_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Mutation.RemoveWorkloadFromServiceAccount(childComplexity, args["input"].(serviceaccount.RemoveWorkloadFromServiceAccountInput)), true
 
 	case "Mutation.requestTeamDeletion":
 		if e.ComplexityRoot.Mutation.RequestTeamDeletion == nil {
@@ -10235,7 +10362,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Query.Roles(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
+		return e.ComplexityRoot.Query.Roles(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["filter"].(*authz.RoleFilter)), true
 
 	case "Query.search":
 		if e.ComplexityRoot.Query.Search == nil {
@@ -10807,6 +10934,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.RemoveTeamMemberPayload.User(childComplexity), true
+
+	case "RemoveWorkloadFromServiceAccountPayload.bindingDeleted":
+		if e.ComplexityRoot.RemoveWorkloadFromServiceAccountPayload.BindingDeleted == nil {
+			break
+		}
+
+		return e.ComplexityRoot.RemoveWorkloadFromServiceAccountPayload.BindingDeleted(childComplexity), true
+
+	case "RemoveWorkloadFromServiceAccountPayload.serviceAccount":
+		if e.ComplexityRoot.RemoveWorkloadFromServiceAccountPayload.ServiceAccount == nil {
+			break
+		}
+
+		return e.ComplexityRoot.RemoveWorkloadFromServiceAccountPayload.ServiceAccount(childComplexity), true
 
 	case "Repository.id":
 		if e.ComplexityRoot.Repository.ID == nil {
@@ -11979,6 +12120,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ServiceAccount.UpdatedAt(childComplexity), true
 
+	case "ServiceAccount.workloadBindings":
+		if e.ComplexityRoot.ServiceAccount.WorkloadBindings == nil {
+			break
+		}
+
+		args, err := ec.field_ServiceAccount_workloadBindings_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.ServiceAccount.WorkloadBindings(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
+
 	case "ServiceAccountConnection.edges":
 		if e.ComplexityRoot.ServiceAccountConnection.Edges == nil {
 			break
@@ -12531,6 +12684,258 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ServiceAccountUpdatedActivityLogEntryDataUpdatedField.OldValue(childComplexity), true
+
+	case "ServiceAccountWorkloadBinding.createdAt":
+		if e.ComplexityRoot.ServiceAccountWorkloadBinding.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ServiceAccountWorkloadBinding.CreatedAt(childComplexity), true
+
+	case "ServiceAccountWorkloadBinding.environment":
+		if e.ComplexityRoot.ServiceAccountWorkloadBinding.Environment == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ServiceAccountWorkloadBinding.Environment(childComplexity), true
+
+	case "ServiceAccountWorkloadBinding.id":
+		if e.ComplexityRoot.ServiceAccountWorkloadBinding.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ServiceAccountWorkloadBinding.ID(childComplexity), true
+
+	case "ServiceAccountWorkloadBinding.isBroken":
+		if e.ComplexityRoot.ServiceAccountWorkloadBinding.IsBroken == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ServiceAccountWorkloadBinding.IsBroken(childComplexity), true
+
+	case "ServiceAccountWorkloadBinding.lastUsedAt":
+		if e.ComplexityRoot.ServiceAccountWorkloadBinding.LastUsedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ServiceAccountWorkloadBinding.LastUsedAt(childComplexity), true
+
+	case "ServiceAccountWorkloadBinding.serviceAccount":
+		if e.ComplexityRoot.ServiceAccountWorkloadBinding.ServiceAccount == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ServiceAccountWorkloadBinding.ServiceAccount(childComplexity), true
+
+	case "ServiceAccountWorkloadBinding.teamSlug":
+		if e.ComplexityRoot.ServiceAccountWorkloadBinding.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ServiceAccountWorkloadBinding.TeamSlug(childComplexity), true
+
+	case "ServiceAccountWorkloadBinding.workload":
+		if e.ComplexityRoot.ServiceAccountWorkloadBinding.Workload == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ServiceAccountWorkloadBinding.Workload(childComplexity), true
+
+	case "ServiceAccountWorkloadBinding.workloadName":
+		if e.ComplexityRoot.ServiceAccountWorkloadBinding.WorkloadName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ServiceAccountWorkloadBinding.WorkloadName(childComplexity), true
+
+	case "ServiceAccountWorkloadBindingAddedActivityLogEntry.actor":
+		if e.ComplexityRoot.ServiceAccountWorkloadBindingAddedActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ServiceAccountWorkloadBindingAddedActivityLogEntry.Actor(childComplexity), true
+
+	case "ServiceAccountWorkloadBindingAddedActivityLogEntry.createdAt":
+		if e.ComplexityRoot.ServiceAccountWorkloadBindingAddedActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ServiceAccountWorkloadBindingAddedActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "ServiceAccountWorkloadBindingAddedActivityLogEntry.data":
+		if e.ComplexityRoot.ServiceAccountWorkloadBindingAddedActivityLogEntry.Data == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ServiceAccountWorkloadBindingAddedActivityLogEntry.Data(childComplexity), true
+
+	case "ServiceAccountWorkloadBindingAddedActivityLogEntry.environmentName":
+		if e.ComplexityRoot.ServiceAccountWorkloadBindingAddedActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ServiceAccountWorkloadBindingAddedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "ServiceAccountWorkloadBindingAddedActivityLogEntry.id":
+		if e.ComplexityRoot.ServiceAccountWorkloadBindingAddedActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ServiceAccountWorkloadBindingAddedActivityLogEntry.ID(childComplexity), true
+
+	case "ServiceAccountWorkloadBindingAddedActivityLogEntry.message":
+		if e.ComplexityRoot.ServiceAccountWorkloadBindingAddedActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ServiceAccountWorkloadBindingAddedActivityLogEntry.Message(childComplexity), true
+
+	case "ServiceAccountWorkloadBindingAddedActivityLogEntry.resourceName":
+		if e.ComplexityRoot.ServiceAccountWorkloadBindingAddedActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ServiceAccountWorkloadBindingAddedActivityLogEntry.ResourceName(childComplexity), true
+
+	case "ServiceAccountWorkloadBindingAddedActivityLogEntry.resourceType":
+		if e.ComplexityRoot.ServiceAccountWorkloadBindingAddedActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ServiceAccountWorkloadBindingAddedActivityLogEntry.ResourceType(childComplexity), true
+
+	case "ServiceAccountWorkloadBindingAddedActivityLogEntry.teamSlug":
+		if e.ComplexityRoot.ServiceAccountWorkloadBindingAddedActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ServiceAccountWorkloadBindingAddedActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "ServiceAccountWorkloadBindingAddedActivityLogEntryData.teamSlug":
+		if e.ComplexityRoot.ServiceAccountWorkloadBindingAddedActivityLogEntryData.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ServiceAccountWorkloadBindingAddedActivityLogEntryData.TeamSlug(childComplexity), true
+
+	case "ServiceAccountWorkloadBindingAddedActivityLogEntryData.workloadName":
+		if e.ComplexityRoot.ServiceAccountWorkloadBindingAddedActivityLogEntryData.WorkloadName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ServiceAccountWorkloadBindingAddedActivityLogEntryData.WorkloadName(childComplexity), true
+
+	case "ServiceAccountWorkloadBindingConnection.edges":
+		if e.ComplexityRoot.ServiceAccountWorkloadBindingConnection.Edges == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ServiceAccountWorkloadBindingConnection.Edges(childComplexity), true
+
+	case "ServiceAccountWorkloadBindingConnection.nodes":
+		if e.ComplexityRoot.ServiceAccountWorkloadBindingConnection.Nodes == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ServiceAccountWorkloadBindingConnection.Nodes(childComplexity), true
+
+	case "ServiceAccountWorkloadBindingConnection.pageInfo":
+		if e.ComplexityRoot.ServiceAccountWorkloadBindingConnection.PageInfo == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ServiceAccountWorkloadBindingConnection.PageInfo(childComplexity), true
+
+	case "ServiceAccountWorkloadBindingEdge.cursor":
+		if e.ComplexityRoot.ServiceAccountWorkloadBindingEdge.Cursor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ServiceAccountWorkloadBindingEdge.Cursor(childComplexity), true
+
+	case "ServiceAccountWorkloadBindingEdge.node":
+		if e.ComplexityRoot.ServiceAccountWorkloadBindingEdge.Node == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ServiceAccountWorkloadBindingEdge.Node(childComplexity), true
+
+	case "ServiceAccountWorkloadBindingRemovedActivityLogEntry.actor":
+		if e.ComplexityRoot.ServiceAccountWorkloadBindingRemovedActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ServiceAccountWorkloadBindingRemovedActivityLogEntry.Actor(childComplexity), true
+
+	case "ServiceAccountWorkloadBindingRemovedActivityLogEntry.createdAt":
+		if e.ComplexityRoot.ServiceAccountWorkloadBindingRemovedActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ServiceAccountWorkloadBindingRemovedActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "ServiceAccountWorkloadBindingRemovedActivityLogEntry.data":
+		if e.ComplexityRoot.ServiceAccountWorkloadBindingRemovedActivityLogEntry.Data == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ServiceAccountWorkloadBindingRemovedActivityLogEntry.Data(childComplexity), true
+
+	case "ServiceAccountWorkloadBindingRemovedActivityLogEntry.environmentName":
+		if e.ComplexityRoot.ServiceAccountWorkloadBindingRemovedActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ServiceAccountWorkloadBindingRemovedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "ServiceAccountWorkloadBindingRemovedActivityLogEntry.id":
+		if e.ComplexityRoot.ServiceAccountWorkloadBindingRemovedActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ServiceAccountWorkloadBindingRemovedActivityLogEntry.ID(childComplexity), true
+
+	case "ServiceAccountWorkloadBindingRemovedActivityLogEntry.message":
+		if e.ComplexityRoot.ServiceAccountWorkloadBindingRemovedActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ServiceAccountWorkloadBindingRemovedActivityLogEntry.Message(childComplexity), true
+
+	case "ServiceAccountWorkloadBindingRemovedActivityLogEntry.resourceName":
+		if e.ComplexityRoot.ServiceAccountWorkloadBindingRemovedActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ServiceAccountWorkloadBindingRemovedActivityLogEntry.ResourceName(childComplexity), true
+
+	case "ServiceAccountWorkloadBindingRemovedActivityLogEntry.resourceType":
+		if e.ComplexityRoot.ServiceAccountWorkloadBindingRemovedActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ServiceAccountWorkloadBindingRemovedActivityLogEntry.ResourceType(childComplexity), true
+
+	case "ServiceAccountWorkloadBindingRemovedActivityLogEntry.teamSlug":
+		if e.ComplexityRoot.ServiceAccountWorkloadBindingRemovedActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ServiceAccountWorkloadBindingRemovedActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "ServiceAccountWorkloadBindingRemovedActivityLogEntryData.teamSlug":
+		if e.ComplexityRoot.ServiceAccountWorkloadBindingRemovedActivityLogEntryData.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ServiceAccountWorkloadBindingRemovedActivityLogEntryData.TeamSlug(childComplexity), true
+
+	case "ServiceAccountWorkloadBindingRemovedActivityLogEntryData.workloadName":
+		if e.ComplexityRoot.ServiceAccountWorkloadBindingRemovedActivityLogEntryData.WorkloadName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ServiceAccountWorkloadBindingRemovedActivityLogEntryData.WorkloadName(childComplexity), true
 
 	case "ServiceCostSample.cost":
 		if e.ComplexityRoot.ServiceCostSample.Cost == nil {
@@ -13580,6 +13985,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Team.Secrets(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*secret.SecretOrder), args["filter"].(*secret.SecretFilter)), true
+
+	case "Team.serviceAccounts":
+		if e.ComplexityRoot.Team.ServiceAccounts == nil {
+			break
+		}
+
+		args, err := ec.field_Team_serviceAccounts_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Team.ServiceAccounts(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
 
 	case "Team.serviceUtilization":
 		if e.ComplexityRoot.Team.ServiceUtilization == nil {
@@ -17222,6 +17639,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputAddRepositoryToTeamInput,
 		ec.unmarshalInputAddSecretValueInput,
 		ec.unmarshalInputAddTeamMemberInput,
+		ec.unmarshalInputAddWorkloadToServiceAccountInput,
 		ec.unmarshalInputAlertOrder,
 		ec.unmarshalInputAllowTeamAccessToUnleashInput,
 		ec.unmarshalInputApplicationOrder,
@@ -17286,12 +17704,14 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputRemoveRepositoryFromTeamInput,
 		ec.unmarshalInputRemoveSecretValueInput,
 		ec.unmarshalInputRemoveTeamMemberInput,
+		ec.unmarshalInputRemoveWorkloadFromServiceAccountInput,
 		ec.unmarshalInputRepositoryOrder,
 		ec.unmarshalInputRequestTeamDeletionInput,
 		ec.unmarshalInputResourceIssueFilter,
 		ec.unmarshalInputRestartApplicationInput,
 		ec.unmarshalInputRevokeRoleFromServiceAccountInput,
 		ec.unmarshalInputRevokeTeamAccessToUnleashInput,
+		ec.unmarshalInputRoleFilter,
 		ec.unmarshalInputSearchFilter,
 		ec.unmarshalInputSecretFilter,
 		ec.unmarshalInputSecretOrder,
@@ -18952,7 +19372,19 @@ extend type Query {
 
 		"Get items before this cursor."
 		before: Cursor
+
+		"""
+		Optional filter to filter the roles by.
+		"""
+		filter: RoleFilter
 	): RoleConnection!
+}
+
+input RoleFilter {
+	"""
+	Exclude global roles from the results.
+	"""
+	excludeGlobalRoles: Boolean
 }
 
 type RoleConnection {
@@ -23549,7 +23981,17 @@ input SearchFilter {
 	"""
 	The type of entities to search for. If not specified, all types will be searched.
 	"""
-	type: SearchType
+	type: SearchType @deprecated(reason: "Use the 'types' field instead.")
+
+	"""
+	The types of entities to search for. If not specified, all types will be searched.
+	"""
+	types: [SearchType!]
+
+	"""
+	Teams to search in. If not specified, all teams will be searched.
+	"""
+	teams: [Slug!]
 }
 
 """
@@ -24209,7 +24651,335 @@ type SecretValuesViewedActivityLogEntryData {
 	reason: String!
 }
 `, BuiltIn: false},
-	{Name: "../schema/serviceaccounts.graphqls", Input: `extend type Query {
+	{Name: "../schema/serviceaccount_workload_bindings.graphqls", Input: `extend type Mutation {
+	"""
+	Bind a workload to a service account, allowing the workload to authenticate against the
+	Nais API as the service account using its Workload Token.
+	"""
+	addWorkloadToServiceAccount(
+		input: AddWorkloadToServiceAccountInput!
+	): AddWorkloadToServiceAccountPayload!
+
+	"""
+	Remove a workload binding from a service account.
+	"""
+	removeWorkloadFromServiceAccount(
+		input: RemoveWorkloadFromServiceAccountInput!
+	): RemoveWorkloadFromServiceAccountPayload!
+}
+
+extend type ServiceAccount {
+	"""
+	The workloads bound to this service account.
+	"""
+	workloadBindings(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+	): ServiceAccountWorkloadBindingConnection!
+}
+
+input AddWorkloadToServiceAccountInput {
+	"""
+	The ID of the service account to bind the workload to.
+	"""
+	serviceAccountID: ID!
+
+	"""
+	The environment the workload is deployed in.
+	"""
+	environment: String!
+
+	"""
+	The team slug owning the workload.
+	"""
+	teamSlug: Slug!
+
+	"""
+	The name of the workload.
+	"""
+	workloadName: String!
+}
+
+type AddWorkloadToServiceAccountPayload {
+	"""
+	The service account that the workload was bound to.
+	"""
+	serviceAccount: ServiceAccount
+
+	"""
+	The created binding.
+	"""
+	binding: ServiceAccountWorkloadBinding
+}
+
+input RemoveWorkloadFromServiceAccountInput {
+	"""
+	The ID of the binding to remove.
+	"""
+	bindingID: ID!
+}
+
+type RemoveWorkloadFromServiceAccountPayload {
+	"""
+	The service account the binding was associated with.
+	"""
+	serviceAccount: ServiceAccount
+
+	"""
+	True if the binding was removed.
+	"""
+	bindingDeleted: Boolean
+}
+
+"""
+A binding between a Nais service account and a Nais workload (application or job). When the workload presents its
+Workload Token to the API, the API will authenticate the request as the bound service account.
+
+The binding is identified at authentication time by the workload's environment, team and name, plus the Workload
+UID once it has been observed (trust on first use). If the UID changes (for instance because the workload has
+been recreated), the binding is considered broken and authentication will fail until the binding is removed and
+re-added.
+"""
+type ServiceAccountWorkloadBinding implements Node {
+	"""
+	The globally unique ID of the binding.
+	"""
+	id: ID!
+
+	"""
+	The service account this binding belongs to.
+	"""
+	serviceAccount: ServiceAccount!
+
+	"""
+	The currently-resolved workload, or null if it can no longer be found (for instance because it has been deleted).
+	"""
+	workload: Workload
+
+	"""
+	The environment the bound workload is deployed in.
+	"""
+	environment: String!
+
+	"""
+	The team slug owning the bound workload.
+	"""
+	teamSlug: Slug!
+
+	"""
+	The name of the bound workload.
+	"""
+	workloadName: String!
+
+	"""
+	True if the binding is broken — either the workload no longer exists, or the Workload UID
+	does not match the value pinned to the binding.
+	"""
+	isBroken: Boolean!
+
+	"""
+	When the binding was created.
+	"""
+	createdAt: Time!
+
+	"""
+	When the binding was last used to authenticate against the API. Updates are throttled to at most once per
+	minute.
+	"""
+	lastUsedAt: Time
+}
+
+type ServiceAccountWorkloadBindingConnection {
+	"""
+	A list of bindings.
+	"""
+	nodes: [ServiceAccountWorkloadBinding!]!
+
+	"""
+	A list of edges.
+	"""
+	edges: [ServiceAccountWorkloadBindingEdge!]!
+
+	"""
+	Information to aid in pagination.
+	"""
+	pageInfo: PageInfo!
+}
+
+type ServiceAccountWorkloadBindingEdge {
+	"""
+	The binding.
+	"""
+	node: ServiceAccountWorkloadBinding!
+
+	"""
+	A cursor for use in pagination.
+	"""
+	cursor: Cursor!
+}
+
+type ServiceAccountWorkloadBindingAddedActivityLogEntry implements ActivityLogEntry & Node {
+	"""
+	ID of the entry.
+	"""
+	id: ID!
+
+	"""
+	The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user.
+	"""
+	actor: String!
+
+	"""
+	Creation time of the entry.
+	"""
+	createdAt: Time!
+
+	"""
+	Message that summarizes the entry.
+	"""
+	message: String!
+
+	"""
+	Type of the resource that was affected by the action.
+	"""
+	resourceType: ActivityLogEntryResourceType!
+
+	"""
+	Name of the resource that was affected by the action.
+	"""
+	resourceName: String!
+
+	"""
+	The team slug that the entry belongs to.
+	"""
+	teamSlug: Slug
+
+	"""
+	The environment name that the entry belongs to.
+	"""
+	environmentName: String
+
+	"""
+	Data associated with the entry.
+	"""
+	data: ServiceAccountWorkloadBindingAddedActivityLogEntryData!
+}
+
+type ServiceAccountWorkloadBindingAddedActivityLogEntryData {
+	"""
+	The team slug of the workload.
+	"""
+	teamSlug: Slug!
+
+	"""
+	The name of the workload.
+	"""
+	workloadName: String!
+}
+
+type ServiceAccountWorkloadBindingRemovedActivityLogEntry implements ActivityLogEntry & Node {
+	"""
+	ID of the entry.
+	"""
+	id: ID!
+
+	"""
+	The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user.
+	"""
+	actor: String!
+
+	"""
+	Creation time of the entry.
+	"""
+	createdAt: Time!
+
+	"""
+	Message that summarizes the entry.
+	"""
+	message: String!
+
+	"""
+	Type of the resource that was affected by the action.
+	"""
+	resourceType: ActivityLogEntryResourceType!
+
+	"""
+	Name of the resource that was affected by the action.
+	"""
+	resourceName: String!
+
+	"""
+	The team slug that the entry belongs to.
+	"""
+	teamSlug: Slug
+
+	"""
+	The environment name that the entry belongs to.
+	"""
+	environmentName: String
+
+	"""
+	Data associated with the entry.
+	"""
+	data: ServiceAccountWorkloadBindingRemovedActivityLogEntryData!
+}
+
+type ServiceAccountWorkloadBindingRemovedActivityLogEntryData {
+	"""
+	The team slug of the workload.
+	"""
+	teamSlug: Slug!
+
+	"""
+	The name of the workload.
+	"""
+	workloadName: String!
+}
+
+extend enum ActivityLogActivityType {
+	"A workload binding was added to a service account."
+	SERVICE_ACCOUNT_WORKLOAD_BINDING_ADDED
+	"A workload binding was removed from a service account."
+	SERVICE_ACCOUNT_WORKLOAD_BINDING_REMOVED
+}
+`, BuiltIn: false},
+	{Name: "../schema/serviceaccounts.graphqls", Input: `extend type Team {
+	"""
+	Nais service accounts owned by the team.
+	"""
+	serviceAccounts(
+		"""
+		Get the first n items in the connection. This can be used in combination with the after parameter.
+		"""
+		first: Int
+
+		"""
+		Get items after this cursor.
+		"""
+		after: Cursor
+
+		"""
+		Get the last n items in the connection. This can be used in combination with the before parameter.
+		"""
+		last: Int
+
+		"""
+		Get items before this cursor.
+		"""
+		before: Cursor
+	): ServiceAccountConnection!
+}
+
+extend type Query {
 	"""
 	Get a list of service accounts.
 	"""
@@ -24244,6 +25014,22 @@ type SecretValuesViewedActivityLogEntryData {
 		"""
 		id: ID!
 	): ServiceAccount!
+}
+
+extend type Application {
+	"""
+	The Nais service account this application is bound to, if any. Authenticating using the application's
+	Workload Token will then act as this Nais service account.
+	"""
+	serviceAccount: ServiceAccount
+}
+
+extend type Job {
+	"""
+	The Nais service account this job is bound to, if any. Authenticating using the job's Workload Token
+	will then act as this Nais service account.
+	"""
+	serviceAccount: ServiceAccount
 }
 
 extend type Mutation {
@@ -28987,6 +29773,16 @@ func (ec *executionContext) childFields_AddTeamMemberPayload(ctx context.Context
 	return nil, fmt.Errorf("no field named %q was found under type AddTeamMemberPayload", field.Name)
 }
 
+func (ec *executionContext) childFields_AddWorkloadToServiceAccountPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "serviceAccount":
+		return ec.fieldContext_AddWorkloadToServiceAccountPayload_serviceAccount(ctx, field)
+	case "binding":
+		return ec.fieldContext_AddWorkloadToServiceAccountPayload_binding(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type AddWorkloadToServiceAccountPayload", field.Name)
+}
+
 func (ec *executionContext) childFields_AlertConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "pageInfo":
@@ -29073,6 +29869,8 @@ func (ec *executionContext) childFields_Application(ctx context.Context, field g
 		return ec.fieldContext_Application_postgresInstances(ctx, field)
 	case "secrets":
 		return ec.fieldContext_Application_secrets(ctx, field)
+	case "serviceAccount":
+		return ec.fieldContext_Application_serviceAccount(ctx, field)
 	case "sqlInstances":
 		return ec.fieldContext_Application_sqlInstances(ctx, field)
 	case "utilization":
@@ -30357,6 +31155,8 @@ func (ec *executionContext) childFields_Job(ctx context.Context, field graphql.C
 		return ec.fieldContext_Job_postgresInstances(ctx, field)
 	case "secrets":
 		return ec.fieldContext_Job_secrets(ctx, field)
+	case "serviceAccount":
+		return ec.fieldContext_Job_serviceAccount(ctx, field)
 	case "sqlInstances":
 		return ec.fieldContext_Job_sqlInstances(ctx, field)
 	case "valkeys":
@@ -31237,6 +32037,16 @@ func (ec *executionContext) childFields_RemoveTeamMemberPayload(ctx context.Cont
 	return nil, fmt.Errorf("no field named %q was found under type RemoveTeamMemberPayload", field.Name)
 }
 
+func (ec *executionContext) childFields_RemoveWorkloadFromServiceAccountPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "serviceAccount":
+		return ec.fieldContext_RemoveWorkloadFromServiceAccountPayload_serviceAccount(ctx, field)
+	case "bindingDeleted":
+		return ec.fieldContext_RemoveWorkloadFromServiceAccountPayload_bindingDeleted(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type RemoveWorkloadFromServiceAccountPayload", field.Name)
+}
+
 func (ec *executionContext) childFields_Repository(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "id":
@@ -31503,6 +32313,8 @@ func (ec *executionContext) childFields_ServiceAccount(ctx context.Context, fiel
 		return ec.fieldContext_ServiceAccount_roles(ctx, field)
 	case "tokens":
 		return ec.fieldContext_ServiceAccount_tokens(ctx, field)
+	case "workloadBindings":
+		return ec.fieldContext_ServiceAccount_workloadBindings(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type ServiceAccount", field.Name)
 }
@@ -31625,6 +32437,72 @@ func (ec *executionContext) childFields_ServiceAccountUpdatedActivityLogEntryDat
 		return ec.fieldContext_ServiceAccountUpdatedActivityLogEntryDataUpdatedField_newValue(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type ServiceAccountUpdatedActivityLogEntryDataUpdatedField", field.Name)
+}
+
+func (ec *executionContext) childFields_ServiceAccountWorkloadBinding(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_ServiceAccountWorkloadBinding_id(ctx, field)
+	case "serviceAccount":
+		return ec.fieldContext_ServiceAccountWorkloadBinding_serviceAccount(ctx, field)
+	case "workload":
+		return ec.fieldContext_ServiceAccountWorkloadBinding_workload(ctx, field)
+	case "environment":
+		return ec.fieldContext_ServiceAccountWorkloadBinding_environment(ctx, field)
+	case "teamSlug":
+		return ec.fieldContext_ServiceAccountWorkloadBinding_teamSlug(ctx, field)
+	case "workloadName":
+		return ec.fieldContext_ServiceAccountWorkloadBinding_workloadName(ctx, field)
+	case "isBroken":
+		return ec.fieldContext_ServiceAccountWorkloadBinding_isBroken(ctx, field)
+	case "createdAt":
+		return ec.fieldContext_ServiceAccountWorkloadBinding_createdAt(ctx, field)
+	case "lastUsedAt":
+		return ec.fieldContext_ServiceAccountWorkloadBinding_lastUsedAt(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ServiceAccountWorkloadBinding", field.Name)
+}
+
+func (ec *executionContext) childFields_ServiceAccountWorkloadBindingAddedActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "teamSlug":
+		return ec.fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntryData_teamSlug(ctx, field)
+	case "workloadName":
+		return ec.fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntryData_workloadName(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ServiceAccountWorkloadBindingAddedActivityLogEntryData", field.Name)
+}
+
+func (ec *executionContext) childFields_ServiceAccountWorkloadBindingConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "nodes":
+		return ec.fieldContext_ServiceAccountWorkloadBindingConnection_nodes(ctx, field)
+	case "edges":
+		return ec.fieldContext_ServiceAccountWorkloadBindingConnection_edges(ctx, field)
+	case "pageInfo":
+		return ec.fieldContext_ServiceAccountWorkloadBindingConnection_pageInfo(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ServiceAccountWorkloadBindingConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_ServiceAccountWorkloadBindingEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "node":
+		return ec.fieldContext_ServiceAccountWorkloadBindingEdge_node(ctx, field)
+	case "cursor":
+		return ec.fieldContext_ServiceAccountWorkloadBindingEdge_cursor(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ServiceAccountWorkloadBindingEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_ServiceAccountWorkloadBindingRemovedActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "teamSlug":
+		return ec.fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntryData_teamSlug(ctx, field)
+	case "workloadName":
+		return ec.fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntryData_workloadName(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ServiceAccountWorkloadBindingRemovedActivityLogEntryData", field.Name)
 }
 
 func (ec *executionContext) childFields_ServiceCostSample(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -31993,6 +32871,8 @@ func (ec *executionContext) childFields_Team(ctx context.Context, field graphql.
 		return ec.fieldContext_Team_repositories(ctx, field)
 	case "secrets":
 		return ec.fieldContext_Team_secrets(ctx, field)
+	case "serviceAccounts":
+		return ec.fieldContext_Team_serviceAccounts(ctx, field)
 	case "sqlInstances":
 		return ec.fieldContext_Team_sqlInstances(ctx, field)
 	case "unleash":

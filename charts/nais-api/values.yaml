@@ -37,6 +37,7 @@ fasit:
 kubernetes:
   clusters: "dev,prod"
   static: ""
+  oidcIssuers: ""
 
 resources:
   cpu: 300m

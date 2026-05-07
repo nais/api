@@ -103,6 +103,10 @@ spec:
               value: {{ .Values.auditLog.projectID | quote }}
             - name: NAIS_AUDIT_LOG_LOCATION
               value: {{ .Values.auditLog.location | quote }}
+            {{- if .Values.kubernetes.oidcIssuers }}
+            - name: KUBERNETES_OIDC_ISSUERS
+              value: {{ .Values.kubernetes.oidcIssuers | quote }}
+            {{- end }}
           envFrom:
             - secretRef:
                 name: "{{ .Release.Name }}"

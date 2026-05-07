@@ -186,10 +186,29 @@ func (b *bleveSearcher) Search(ctx context.Context, page *pagination.Pagination,
 	}
 
 	if filter.Type != nil {
-		kind := bleve.NewTermQuery(filter.Type.String())
-		kind.FieldVal = "kind"
-		queries = append(queries, kind)
+		filter.Types = append(filter.Types, *filter.Type)
 	}
+
+	if len(filter.Types) > 0 {
+		typesQuery := bleve.NewDisjunctionQuery()
+		for _, t := range filter.Types {
+			kind := bleve.NewTermQuery(t.String())
+			kind.FieldVal = "kind"
+			typesQuery.AddQuery(kind)
+		}
+		queries = append(queries, typesQuery)
+	}
+
+	if len(filter.Teams) > 0 {
+		teamQuery := bleve.NewDisjunctionQuery()
+		for _, team := range filter.Teams {
+			teamQ := bleve.NewTermQuery(team.String())
+			teamQ.FieldVal = "team"
+			teamQuery.AddQuery(teamQ)
+		}
+		queries = append(queries, teamQuery)
+	}
+
 	var q query.Query = bleve.NewConjunctionQuery(queries...)
 
 	if len(slugs) > 0 && (filter.Type == nil || (filter.Type != nil && *filter.Type != "TEAM")) {

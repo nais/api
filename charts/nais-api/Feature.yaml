@@ -256,6 +256,22 @@ values:
         {{- end -}}
         {{- toJSON $result | quote -}}
 
+  kubernetes.oidcIssuers:
+    displayName: Kubernetes OIDC issuers
+    description: JSON array with objects containing `environment` and `issuer` for each supported environment.
+    computed:
+      template: |
+        {{- $tenantEnvs := filter "kind" "tenant" .Envs -}}
+        {{- $result := list -}}
+        {{- range $env := $tenantEnvs -}}
+          {{- if not $env.apiserver_oidc_issuer }}{{ continue }}{{ end -}}
+          {{- $currentIssuer := dict -}}
+          {{- $_ := set $currentIssuer "environment" $env.name -}}
+          {{- $_ := set $currentIssuer "issuer" $env.apiserver_oidc_issuer -}}
+          {{- $result = append $result $currentIssuer -}}
+        {{- end -}}
+        {{- toJSON $result | quote -}}
+
 rename:
   - from: "zitadel.idp_id"
     to: "zitadel.idpID"

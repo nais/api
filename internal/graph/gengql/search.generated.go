@@ -188,7 +188,7 @@ func (ec *executionContext) unmarshalInputSearchFilter(ctx context.Context, obj 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"query", "type"}
+	fieldsInOrder := [...]string{"query", "type", "types", "teams"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -209,6 +209,20 @@ func (ec *executionContext) unmarshalInputSearchFilter(ctx context.Context, obj 
 				return it, err
 			}
 			it.Type = data
+		case "types":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("types"))
+			data, err := ec.unmarshalOSearchType2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋsearchᚐSearchTypeᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Types = data
+		case "teams":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teams"))
+			data, err := ec.unmarshalOSlug2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlugᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Teams = data
 		}
 	}
 	return it, nil
@@ -454,6 +468,53 @@ func (ec *executionContext) marshalNSearchNodeEdge2ᚕgithubᚗcomᚋnaisᚋapi�
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
 		return ec.marshalNSearchNodeEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
+	})
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) unmarshalNSearchType2githubᚗcomᚋnaisᚋapiᚋinternalᚋsearchᚐSearchType(ctx context.Context, v any) (search.SearchType, error) {
+	var res search.SearchType
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNSearchType2githubᚗcomᚋnaisᚋapiᚋinternalᚋsearchᚐSearchType(ctx context.Context, sel ast.SelectionSet, v search.SearchType) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalOSearchType2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋsearchᚐSearchTypeᚄ(ctx context.Context, v any) ([]search.SearchType, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []any
+	vSlice = graphql.CoerceList(v)
+	var err error
+	res := make([]search.SearchType, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNSearchType2githubᚗcomᚋnaisᚋapiᚋinternalᚋsearchᚐSearchType(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalOSearchType2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋsearchᚐSearchTypeᚄ(ctx context.Context, sel ast.SelectionSet, v []search.SearchType) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNSearchType2githubᚗcomᚋnaisᚋapiᚋinternalᚋsearchᚐSearchType(ctx, sel, v[i])
 	})
 
 	for _, e := range ret {

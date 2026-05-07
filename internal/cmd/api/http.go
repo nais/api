@@ -79,6 +79,7 @@ func runHTTPServer(
 	listenAddress string,
 
 	jwtMiddleware func(http.Handler) http.Handler,
+	k8sSAMiddleware func(http.Handler) http.Handler,
 	githubOIDCMiddleware func(http.Handler) http.Handler,
 	authHandler authn.Handler,
 	graphHandler *handler.Server,
@@ -115,6 +116,10 @@ func runHTTPServer(
 			middleware.ApiKeyAuthentication(),
 			middleware.Oauth2Authentication(authHandler),
 		)
+
+		if k8sSAMiddleware != nil {
+			middlewares = append(middlewares, k8sSAMiddleware)
+		}
 
 		if githubOIDCMiddleware != nil {
 			middlewares = append(middlewares, githubOIDCMiddleware)
