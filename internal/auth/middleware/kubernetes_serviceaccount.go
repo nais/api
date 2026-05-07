@@ -221,7 +221,7 @@ func extractK8sServiceAccount(t string) (*k8sClaims, error) {
 		} `json:"kubernetes.io"`
 	}
 
-	str, err := base64.URLEncoding.DecodeString(parts[1])
+	str, err := base64.RawURLEncoding.DecodeString(parts[1])
 	if err != nil {
 		return nil, fmt.Errorf("base64 decoding JWT payload: %w", err)
 	}
