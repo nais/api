@@ -2259,8 +2259,8 @@ type ComplexityRoot struct {
 	}
 
 	ServiceAccountWorkloadBindingAddedActivityLogEntryData struct {
-		WorkloadName     func(childComplexity int) int
-		WorkloadTeamSlug func(childComplexity int) int
+		TeamSlug     func(childComplexity int) int
+		WorkloadName func(childComplexity int) int
 	}
 
 	ServiceAccountWorkloadBindingConnection struct {
@@ -2287,8 +2287,8 @@ type ComplexityRoot struct {
 	}
 
 	ServiceAccountWorkloadBindingRemovedActivityLogEntryData struct {
-		WorkloadName     func(childComplexity int) int
-		WorkloadTeamSlug func(childComplexity int) int
+		TeamSlug     func(childComplexity int) int
+		WorkloadName func(childComplexity int) int
 	}
 
 	ServiceCostSample struct {
@@ -12811,19 +12811,19 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ServiceAccountWorkloadBindingAddedActivityLogEntry.TeamSlug(childComplexity), true
 
+	case "ServiceAccountWorkloadBindingAddedActivityLogEntryData.teamSlug":
+		if e.ComplexityRoot.ServiceAccountWorkloadBindingAddedActivityLogEntryData.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ServiceAccountWorkloadBindingAddedActivityLogEntryData.TeamSlug(childComplexity), true
+
 	case "ServiceAccountWorkloadBindingAddedActivityLogEntryData.workloadName":
 		if e.ComplexityRoot.ServiceAccountWorkloadBindingAddedActivityLogEntryData.WorkloadName == nil {
 			break
 		}
 
 		return e.ComplexityRoot.ServiceAccountWorkloadBindingAddedActivityLogEntryData.WorkloadName(childComplexity), true
-
-	case "ServiceAccountWorkloadBindingAddedActivityLogEntryData.workloadTeamSlug":
-		if e.ComplexityRoot.ServiceAccountWorkloadBindingAddedActivityLogEntryData.WorkloadTeamSlug == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ServiceAccountWorkloadBindingAddedActivityLogEntryData.WorkloadTeamSlug(childComplexity), true
 
 	case "ServiceAccountWorkloadBindingConnection.edges":
 		if e.ComplexityRoot.ServiceAccountWorkloadBindingConnection.Edges == nil {
@@ -12923,19 +12923,19 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ServiceAccountWorkloadBindingRemovedActivityLogEntry.TeamSlug(childComplexity), true
 
+	case "ServiceAccountWorkloadBindingRemovedActivityLogEntryData.teamSlug":
+		if e.ComplexityRoot.ServiceAccountWorkloadBindingRemovedActivityLogEntryData.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ServiceAccountWorkloadBindingRemovedActivityLogEntryData.TeamSlug(childComplexity), true
+
 	case "ServiceAccountWorkloadBindingRemovedActivityLogEntryData.workloadName":
 		if e.ComplexityRoot.ServiceAccountWorkloadBindingRemovedActivityLogEntryData.WorkloadName == nil {
 			break
 		}
 
 		return e.ComplexityRoot.ServiceAccountWorkloadBindingRemovedActivityLogEntryData.WorkloadName(childComplexity), true
-
-	case "ServiceAccountWorkloadBindingRemovedActivityLogEntryData.workloadTeamSlug":
-		if e.ComplexityRoot.ServiceAccountWorkloadBindingRemovedActivityLogEntryData.WorkloadTeamSlug == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ServiceAccountWorkloadBindingRemovedActivityLogEntryData.WorkloadTeamSlug(childComplexity), true
 
 	case "ServiceCostSample.cost":
 		if e.ComplexityRoot.ServiceCostSample.Cost == nil {
@@ -24843,7 +24843,7 @@ type ServiceAccountWorkloadBindingAddedActivityLogEntryData {
 	"""
 	The team slug of the workload.
 	"""
-	workloadTeamSlug: String!
+	teamSlug: String!
 
 	"""
 	The name of the workload.
@@ -24867,7 +24867,7 @@ type ServiceAccountWorkloadBindingRemovedActivityLogEntryData {
 	"""
 	The team slug of the workload.
 	"""
-	workloadTeamSlug: String!
+	teamSlug: String!
 
 	"""
 	The name of the workload.
@@ -32388,8 +32388,8 @@ func (ec *executionContext) childFields_ServiceAccountWorkloadBinding(ctx contex
 
 func (ec *executionContext) childFields_ServiceAccountWorkloadBindingAddedActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
-	case "workloadTeamSlug":
-		return ec.fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntryData_workloadTeamSlug(ctx, field)
+	case "teamSlug":
+		return ec.fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntryData_teamSlug(ctx, field)
 	case "workloadName":
 		return ec.fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntryData_workloadName(ctx, field)
 	}
@@ -32420,8 +32420,8 @@ func (ec *executionContext) childFields_ServiceAccountWorkloadBindingEdge(ctx co
 
 func (ec *executionContext) childFields_ServiceAccountWorkloadBindingRemovedActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
-	case "workloadTeamSlug":
-		return ec.fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntryData_workloadTeamSlug(ctx, field)
+	case "teamSlug":
+		return ec.fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntryData_teamSlug(ctx, field)
 	case "workloadName":
 		return ec.fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntryData_workloadName(ctx, field)
 	}

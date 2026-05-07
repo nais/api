@@ -227,8 +227,8 @@ type ServiceAccountWorkloadBindingAddedActivityLogEntry struct {
 }
 
 type ServiceAccountWorkloadBindingAddedActivityLogEntryData struct {
-	WorkloadTeamSlug string `json:"workloadTeamSlug"`
-	WorkloadName     string `json:"workloadName"`
+	TeamSlug     string `json:"teamSlug"`
+	WorkloadName string `json:"workloadName"`
 }
 
 type ServiceAccountWorkloadBindingRemovedActivityLogEntry struct {
@@ -237,6 +237,6 @@ type ServiceAccountWorkloadBindingRemovedActivityLogEntry struct {
 }
 
 type ServiceAccountWorkloadBindingRemovedActivityLogEntryData struct {
-	WorkloadTeamSlug string `json:"workloadTeamSlug"`
-	WorkloadName     string `json:"workloadName"`
+	TeamSlug     string `json:"teamSlug"`
+	WorkloadName string `json:"workloadName"`
 }
