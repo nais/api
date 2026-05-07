@@ -68,6 +68,10 @@ func AddWorkloadBinding(ctx context.Context, input AddWorkloadToServiceAccountIn
 		return nil, nil, apierror.Errorf("Workload name must not be empty.")
 	}
 
+	if sa.TeamSlug != nil && *sa.TeamSlug != input.TeamSlug {
+		return nil, nil, apierror.Errorf("The service account %q belongs to team %q and cannot be bound to a workload in team %q.", sa.Name, *sa.TeamSlug, input.TeamSlug)
+	}
+
 	// Check for an existing binding for this workload.
 	if existing, err := GetBindingForWorkload(ctx, input.Environment, input.TeamSlug, input.WorkloadName); err == nil && existing != nil {
 		return nil, nil, apierror.Errorf("The workload %q in team %q is already bound to a service account.", input.WorkloadName, input.TeamSlug)

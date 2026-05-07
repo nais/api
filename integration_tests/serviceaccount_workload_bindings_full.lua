@@ -328,7 +328,8 @@ Test.gql("Add binding in dev-gcp environment", function(t)
 end)
 
 -- Test 6: Add binding referencing a different team slug
-Test.gql("Add binding referencing team-beta", function(t)
+-- Test: Cannot bind workload from a different team to a team-scoped SA
+Test.gql("Add binding referencing different team fails", function(t)
 	t.addHeader("x-user-email", user:email())
 
 	t.query(string.format([[
@@ -341,24 +342,19 @@ Test.gql("Add binding referencing team-beta", function(t)
 			}) {
 				binding {
 					id
-					environment
-					teamSlug
-					workloadName
-					isBroken
 				}
 			}
 		}
 	]], State.saID))
 
 	t.check {
-		data = {
-			addWorkloadToServiceAccount = {
-				binding = {
-					id = Save("binding4ID"),
-					environment = "dev",
-					teamSlug = "team-beta",
-					workloadName = "beta-app",
-					isBroken = true,
+		data = Null,
+		errors = {
+			{
+				locations = NotNull(),
+				message = Contains("belongs to team \"team-alpha\" and cannot be bound to a workload in team \"team-beta\""),
+				path = {
+					"addWorkloadToServiceAccount",
 				},
 			},
 		},
@@ -421,7 +417,7 @@ Test.gql("Verify pagination totalCount with all bindings", function(t)
 			serviceAccount = {
 				workloadBindings = {
 					pageInfo = {
-						totalCount = 4,
+						totalCount = 3,
 						hasNextPage = false,
 						hasPreviousPage = false,
 					},
@@ -458,7 +454,7 @@ Test.gql("Verify pagination with first:2", function(t)
 			serviceAccount = {
 				workloadBindings = {
 					pageInfo = {
-						totalCount = 4,
+						totalCount = 3,
 						hasNextPage = true,
 						hasPreviousPage = false,
 						endCursor = Save("page1EndCursor"),
@@ -495,7 +491,7 @@ Test.gql("Verify pagination with first:2 after cursor", function(t)
 			serviceAccount = {
 				workloadBindings = {
 					pageInfo = {
-						totalCount = 4,
+						totalCount = 3,
 						hasNextPage = false,
 						hasPreviousPage = true,
 					},
@@ -533,7 +529,7 @@ Test.gql("Remove binding for app-three", function(t)
 					id = State.saID,
 					workloadBindings = {
 						pageInfo = {
-							totalCount = 3,
+							totalCount = 2,
 						},
 					},
 				},
@@ -605,7 +601,7 @@ Test.gql("Verify remaining bindings after removal", function(t)
 			serviceAccount = {
 				workloadBindings = {
 					pageInfo = {
-						totalCount = 3,
+						totalCount = 2,
 					},
 					nodes = NotNull(),
 				},
@@ -814,7 +810,7 @@ Test.gql("First SA bindings unchanged after second SA operations", function(t)
 			serviceAccount = {
 				workloadBindings = {
 					pageInfo = {
-						totalCount = 3,
+						totalCount = 2,
 					},
 				},
 			},
