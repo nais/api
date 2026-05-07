@@ -3,13 +3,11 @@ package graph
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/serviceaccount"
-	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
 	"github.com/nais/api/internal/workload/job"
@@ -72,28 +70,29 @@ func (r *serviceAccountWorkloadBindingResolver) IsBroken(ctx context.Context, ob
 	return w == nil, nil
 }
 
-func (r *serviceAccountWorkloadBindingAddedActivityLogEntryDataResolver) TeamSlug(ctx context.Context, obj *serviceaccount.ServiceAccountWorkloadBindingAddedActivityLogEntryData) (slug.Slug, error) {
-	panic(fmt.Errorf("not implemented: TeamSlug - teamSlug"))
-}
-
-func (r *serviceAccountWorkloadBindingRemovedActivityLogEntryDataResolver) TeamSlug(ctx context.Context, obj *serviceaccount.ServiceAccountWorkloadBindingRemovedActivityLogEntryData) (slug.Slug, error) {
-	panic(fmt.Errorf("not implemented: TeamSlug - teamSlug"))
-}
-
 func (r *Resolver) ServiceAccountWorkloadBinding() gengql.ServiceAccountWorkloadBindingResolver {
 	return &serviceAccountWorkloadBindingResolver{r}
 }
 
+type serviceAccountWorkloadBindingResolver struct{ *Resolver }
+
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//    it when you're done.
+//  - You have helper methods in this file. Move them out to keep these resolver files clean.
+/*
+	func (r *serviceAccountWorkloadBindingAddedActivityLogEntryDataResolver) TeamSlug(ctx context.Context, obj *serviceaccount.ServiceAccountWorkloadBindingAddedActivityLogEntryData) (slug.Slug, error) {
+	panic(fmt.Errorf("not implemented: TeamSlug - teamSlug"))
+}
+func (r *serviceAccountWorkloadBindingRemovedActivityLogEntryDataResolver) TeamSlug(ctx context.Context, obj *serviceaccount.ServiceAccountWorkloadBindingRemovedActivityLogEntryData) (slug.Slug, error) {
+	panic(fmt.Errorf("not implemented: TeamSlug - teamSlug"))
+}
 func (r *Resolver) ServiceAccountWorkloadBindingAddedActivityLogEntryData() gengql.ServiceAccountWorkloadBindingAddedActivityLogEntryDataResolver {
 	return &serviceAccountWorkloadBindingAddedActivityLogEntryDataResolver{r}
 }
-
 func (r *Resolver) ServiceAccountWorkloadBindingRemovedActivityLogEntryData() gengql.ServiceAccountWorkloadBindingRemovedActivityLogEntryDataResolver {
 	return &serviceAccountWorkloadBindingRemovedActivityLogEntryDataResolver{r}
 }
-
-type (
-	serviceAccountWorkloadBindingResolver                            struct{ *Resolver }
-	serviceAccountWorkloadBindingAddedActivityLogEntryDataResolver   struct{ *Resolver }
-	serviceAccountWorkloadBindingRemovedActivityLogEntryDataResolver struct{ *Resolver }
-)
+*/

@@ -105,8 +105,6 @@ type ResolverRoot interface {
 	Secret() SecretResolver
 	ServiceAccount() ServiceAccountResolver
 	ServiceAccountWorkloadBinding() ServiceAccountWorkloadBindingResolver
-	ServiceAccountWorkloadBindingAddedActivityLogEntryData() ServiceAccountWorkloadBindingAddedActivityLogEntryDataResolver
-	ServiceAccountWorkloadBindingRemovedActivityLogEntryData() ServiceAccountWorkloadBindingRemovedActivityLogEntryDataResolver
 	SqlDatabase() SqlDatabaseResolver
 	SqlInstance() SqlInstanceResolver
 	SqlInstanceMetrics() SqlInstanceMetricsResolver
@@ -24830,14 +24828,49 @@ type ServiceAccountWorkloadBindingEdge {
 }
 
 type ServiceAccountWorkloadBindingAddedActivityLogEntry implements ActivityLogEntry & Node {
+	"""
+	ID of the entry.
+	"""
 	id: ID!
+
+	"""
+	The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user.
+	"""
 	actor: String!
+
+	"""
+	Creation time of the entry.
+	"""
 	createdAt: Time!
+
+	"""
+	Message that summarizes the entry.
+	"""
 	message: String!
+
+	"""
+	Type of the resource that was affected by the action.
+	"""
 	resourceType: ActivityLogEntryResourceType!
+
+	"""
+	Name of the resource that was affected by the action.
+	"""
 	resourceName: String!
+
+	"""
+	The team slug that the entry belongs to.
+	"""
 	teamSlug: Slug
+
+	"""
+	The environment name that the entry belongs to.
+	"""
 	environmentName: String
+
+	"""
+	Data associated with the entry.
+	"""
 	data: ServiceAccountWorkloadBindingAddedActivityLogEntryData!
 }
 
@@ -24854,14 +24887,49 @@ type ServiceAccountWorkloadBindingAddedActivityLogEntryData {
 }
 
 type ServiceAccountWorkloadBindingRemovedActivityLogEntry implements ActivityLogEntry & Node {
+	"""
+	ID of the entry.
+	"""
 	id: ID!
+
+	"""
+	The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user.
+	"""
 	actor: String!
+
+	"""
+	Creation time of the entry.
+	"""
 	createdAt: Time!
+
+	"""
+	Message that summarizes the entry.
+	"""
 	message: String!
+
+	"""
+	Type of the resource that was affected by the action.
+	"""
 	resourceType: ActivityLogEntryResourceType!
+
+	"""
+	Name of the resource that was affected by the action.
+	"""
 	resourceName: String!
+
+	"""
+	The team slug that the entry belongs to.
+	"""
 	teamSlug: Slug
+
+	"""
+	The environment name that the entry belongs to.
+	"""
 	environmentName: String
+
+	"""
+	Data associated with the entry.
+	"""
 	data: ServiceAccountWorkloadBindingRemovedActivityLogEntryData!
 }
 
