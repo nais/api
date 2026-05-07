@@ -13,9 +13,9 @@ import (
 )
 
 type k8sConfig struct {
-	Clusters       []string                      `env:"KUBERNETES_CLUSTERS"`
-	StaticClusters []kubernetes.StaticCluster    `env:"KUBERNETES_CLUSTERS_STATIC"`
-	OIDCIssuers    []middleware.KubernetesIssuer `env:"KUBERNETES_OIDC_ISSUERS"`
+	Clusters       []string                     `env:"KUBERNETES_CLUSTERS"`
+	StaticClusters []kubernetes.StaticCluster   `env:"KUBERNETES_CLUSTERS_STATIC"`
+	OIDCIssuers    middleware.KubernetesIssuers `env:"KUBERNETES_OIDC_ISSUERS"`
 }
 
 func (k *k8sConfig) AllClusterNames() []string {
