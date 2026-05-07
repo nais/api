@@ -24944,6 +24944,13 @@ type ServiceAccountWorkloadBindingRemovedActivityLogEntryData {
 	"""
 	workloadName: String!
 }
+
+extend enum ActivityLogActivityType {
+	"A workload binding was added to a service account."
+	SERVICE_ACCOUNT_WORKLOAD_BINDING_ADDED
+	"A workload binding was removed from a service account."
+	SERVICE_ACCOUNT_WORKLOAD_BINDING_REMOVED
+}
 `, BuiltIn: false},
 	{Name: "../schema/serviceaccounts.graphqls", Input: `extend type Team {
 	"""
