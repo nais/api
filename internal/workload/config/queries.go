@@ -81,21 +81,16 @@ func GetByIdent(ctx context.Context, id ident.Ident) (*Config, error) {
 	return Get(ctx, teamSlug, env, name)
 }
 
-// GetConfigValues returns the config values directly from the cached data.
-// ConfigMap data is not sensitive, so no elevation is needed.
-func GetConfigValues(ctx context.Context, teamSlug slug.Slug, environmentName, name string) ([]*ConfigValue, error) {
-	config, err := fromContext(ctx).Watcher().Get(environmentName, teamSlug.String(), name)
-	if err != nil {
-		return nil, err
-	}
-
-	values := configValuesFromConfig(config)
+// ValuesFromConfig extracts sorted ConfigValue entries from a Config's Data and BinaryData fields.
+// This is safe to use with Config objects from any source (watcher cache, direct API fetch, etc.)
+func ValuesFromConfig(cfg *Config) []*ConfigValue {
+	values := configValuesFromConfig(cfg)
 
 	slices.SortFunc(values, func(a, b *ConfigValue) int {
 		return strings.Compare(a.Name, b.Name)
 	})
 
-	return values, nil
+	return values
 }
 
 // configValuesFromConfig builds ConfigValue entries from a Config's Data and BinaryData fields.

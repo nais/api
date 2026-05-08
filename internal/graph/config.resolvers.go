@@ -37,7 +37,7 @@ func (r *configResolver) Team(ctx context.Context, obj *config.Config) (*team.Te
 }
 
 func (r *configResolver) Values(ctx context.Context, obj *config.Config) ([]*config.ConfigValue, error) {
-	return config.GetConfigValues(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Name)
+	return config.ValuesFromConfig(obj), nil
 }
 
 func (r *configResolver) Applications(ctx context.Context, obj *config.Config, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*application.Application], error) {
