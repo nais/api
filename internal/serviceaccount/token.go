@@ -18,7 +18,7 @@ func HashToken(token string) (string, error) {
 	return base58.Encode(sha256Hash.Sum(nil)), nil
 }
 
-func generateToken() (string, error) {
+func GenerateToken() (string, error) {
 	b := make([]byte, 64)
 	if _, err := rand.Read(b); err != nil {
 		return "", err

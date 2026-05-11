@@ -55,6 +55,7 @@ func buildIndexMapping() (mapping.IndexMapping, error) {
 	docMapping := bleve.NewDocumentMapping()
 	docMapping.AddFieldMappingsAt("kind", bleve.NewKeywordFieldMapping())
 	docMapping.AddFieldMappingsAt("name", bleve.NewTextFieldMapping(), bleve.NewKeywordFieldMapping())
+	docMapping.AddFieldMappingsAt("team", bleve.NewKeywordFieldMapping())
 	indexMapping.AddDocumentMapping("doc", docMapping)
 
 	err := indexMapping.AddCustomAnalyzer(custom.Name,

@@ -601,13 +601,13 @@ SELECT
 		SELECT
 			1
 		FROM
-			authorizations a
-			INNER JOIN role_authorizations ra ON ra.authorization_name = a.name
+			role_authorizations ra
 			INNER JOIN service_account_roles sar ON sar.role_name = ra.role_name
+			INNER JOIN service_accounts sa ON sa.id = sar.service_account_id
 		WHERE
-			sar.service_account_id = $1
-			AND a.name = $2
-			AND sar.target_team_slug = $3::slug
+			sa.id = $1
+			AND ra.authorization_name = $2
+			AND sa.team_slug = $3::slug
 	)::BOOLEAN
 `
 

@@ -187,7 +187,7 @@ func CreateToken(ctx context.Context, input CreateServiceAccountTokenInput) (*Se
 		return nil, nil, nil, err
 	}
 
-	secret, err := generateToken()
+	secret, err := GenerateToken()
 	if err != nil {
 		return nil, nil, nil, err
 	}
