@@ -503,8 +503,12 @@ func pluralize(s string, count int32) string {
 }
 
 type TeamInventoryCountJobs struct {
-	Total    int       `json:"total"`
-	TeamSlug slug.Slug `json:"-"`
+	Total     int       `json:"total"`
+	Running   int       `json:"running"`
+	Completed int       `json:"completed"`
+	Failed    int       `json:"failed"`
+	Unknown   int       `json:"unknown"`
+	TeamSlug  slug.Slug `json:"-"`
 }
 
 type JobRunStatus struct {
