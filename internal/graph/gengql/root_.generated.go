@@ -18699,6 +18699,11 @@ input TeamApplicationsFilter {
 	Filter by the name of the environment.
 	"""
 	environments: [String!]
+
+	"""
+	Filter by application state. When provided, only applications matching one of the given states are returned.
+	"""
+	states: [ApplicationState!]
 }
 
 """
@@ -21581,6 +21586,11 @@ input TeamJobsFilter {
 	Filter by the name of the environment.
 	"""
 	environments: [String!]
+
+	"""
+	Filter by job state. When provided, only jobs matching one of the given states are returned.
+	"""
+	states: [JobState!]
 }
 type Job implements Node & Workload & ActivityLogger {
 	"The globally unique ID of the job."
