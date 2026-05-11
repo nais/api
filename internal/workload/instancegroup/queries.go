@@ -71,6 +71,38 @@ func GetByIdent(ctx context.Context, id ident.Ident) (*InstanceGroup, error) {
 	return toGraphInstanceGroup(rs, env), nil
 }
 
+// GetEnvironmentVariableByIdent returns an environment variable by its ident.
+func GetEnvironmentVariableByIdent(ctx context.Context, id ident.Ident) (*InstanceGroupEnvironmentVariable, error) {
+	teamSlug, env, appName, igName, envVarName, err := parseEnvVarIdent(id)
+	if err != nil {
+		return nil, err
+	}
+
+	l := fromContext(ctx)
+	rs, err := l.rsWatcher.Get(env, teamSlug.String(), igName)
+	if err != nil {
+		return nil, err
+	}
+
+	ig := toGraphInstanceGroup(rs, env)
+	if ig.ApplicationName != appName {
+		return nil, fmt.Errorf("instance group %q does not belong to application %q", igName, appName)
+	}
+
+	envVars, err := ListEnvironmentVariables(ctx, ig)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, ev := range envVars {
+		if ev.Name == envVarName {
+			return ev, nil
+		}
+	}
+
+	return nil, fmt.Errorf("environment variable %q not found in instance group %q", envVarName, igName)
+}
+
 // ListEnvironmentVariables extracts environment variables from the instance group's pod template.
 // For envFrom references, it resolves individual key names by querying the Kubernetes API.
 // Variables from Secrets have nil values (require elevation). Variables from ConfigMaps include values.
@@ -89,7 +121,11 @@ func ListEnvironmentVariables(ctx context.Context, ig *InstanceGroup) ([]*Instan
 	// Direct env vars
 	for _, env := range container.Env {
 		ev := &InstanceGroupEnvironmentVariable{
-			Name: env.Name,
+			Name:              env.Name,
+			TeamSlug:          ig.TeamSlug,
+			EnvironmentName:   ig.EnvironmentName,
+			ApplicationName:   ig.ApplicationName,
+			InstanceGroupName: ig.Name,
 		}
 
 		switch {
@@ -156,6 +192,10 @@ func ListEnvironmentVariables(ctx context.Context, ig *InstanceGroup) ([]*Instan
 						Kind: InstanceGroupValueSourceKindSecret,
 						Name: secretName,
 					},
+					TeamSlug:          ig.TeamSlug,
+					EnvironmentName:   ig.EnvironmentName,
+					ApplicationName:   ig.ApplicationName,
+					InstanceGroupName: ig.Name,
 				})
 				continue
 			}
@@ -166,6 +206,10 @@ func ListEnvironmentVariables(ctx context.Context, ig *InstanceGroup) ([]*Instan
 						Kind: InstanceGroupValueSourceKindSecret,
 						Name: secretName,
 					},
+					TeamSlug:          ig.TeamSlug,
+					EnvironmentName:   ig.EnvironmentName,
+					ApplicationName:   ig.ApplicationName,
+					InstanceGroupName: ig.Name,
 				})
 			}
 
@@ -180,6 +224,10 @@ func ListEnvironmentVariables(ctx context.Context, ig *InstanceGroup) ([]*Instan
 						Kind: InstanceGroupValueSourceKindConfig,
 						Name: cmName,
 					},
+					TeamSlug:          ig.TeamSlug,
+					EnvironmentName:   ig.EnvironmentName,
+					ApplicationName:   ig.ApplicationName,
+					InstanceGroupName: ig.Name,
 				})
 				continue
 			}
@@ -192,6 +240,10 @@ func ListEnvironmentVariables(ctx context.Context, ig *InstanceGroup) ([]*Instan
 						Kind: InstanceGroupValueSourceKindConfig,
 						Name: cmName,
 					},
+					TeamSlug:          ig.TeamSlug,
+					EnvironmentName:   ig.EnvironmentName,
+					ApplicationName:   ig.ApplicationName,
+					InstanceGroupName: ig.Name,
 				})
 			}
 		}

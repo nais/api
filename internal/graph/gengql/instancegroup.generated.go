@@ -282,6 +282,29 @@ func (ec *executionContext) fieldContext_InstanceGroup_instances(_ context.Conte
 	return fc, nil
 }
 
+func (ec *executionContext) _InstanceGroupEnvironmentVariable_id(ctx context.Context, field graphql.CollectedField, obj *instancegroup.InstanceGroupEnvironmentVariable) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_InstanceGroupEnvironmentVariable_id(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.ID(), nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
+			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_InstanceGroupEnvironmentVariable_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("InstanceGroupEnvironmentVariable", field, true, false, errors.New("field of type ID does not have child fields"))
+}
+
 func (ec *executionContext) _InstanceGroupEnvironmentVariable_name(ctx context.Context, field graphql.CollectedField, obj *instancegroup.InstanceGroupEnvironmentVariable) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -714,7 +737,7 @@ func (ec *executionContext) _InstanceGroup(ctx context.Context, sel ast.Selectio
 	return out
 }
 
-var instanceGroupEnvironmentVariableImplementors = []string{"InstanceGroupEnvironmentVariable"}
+var instanceGroupEnvironmentVariableImplementors = []string{"InstanceGroupEnvironmentVariable", "Node"}
 
 func (ec *executionContext) _InstanceGroupEnvironmentVariable(ctx context.Context, sel ast.SelectionSet, obj *instancegroup.InstanceGroupEnvironmentVariable) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, instanceGroupEnvironmentVariableImplementors)
@@ -725,6 +748,11 @@ func (ec *executionContext) _InstanceGroupEnvironmentVariable(ctx context.Contex
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("InstanceGroupEnvironmentVariable")
+		case "id":
+			out.Values[i] = ec._InstanceGroupEnvironmentVariable_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "name":
 			out.Values[i] = ec._InstanceGroupEnvironmentVariable_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
