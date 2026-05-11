@@ -160,10 +160,15 @@ func (r *teamEnvironmentResolver) Job(ctx context.Context, obj *team.TeamEnviron
 
 func (r *teamInventoryCountsResolver) Jobs(ctx context.Context, obj *team.TeamInventoryCounts) (*job.TeamInventoryCountJobs, error) {
 	jobs := job.ListAllForTeam(ctx, obj.TeamSlug, nil, nil)
+	running, completed, failed, unknown := job.StateCounts(ctx, jobs)
 
 	return &job.TeamInventoryCountJobs{
-		Total:    len(jobs),
-		TeamSlug: obj.TeamSlug,
+		Total:     len(jobs),
+		Running:   running,
+		Completed: completed,
+		Failed:    failed,
+		Unknown:   unknown,
+		TeamSlug:  obj.TeamSlug,
 	}, nil
 }
 

@@ -2687,7 +2687,10 @@ type ComplexityRoot struct {
 	}
 
 	TeamInventoryCountApplications struct {
-		Total func(childComplexity int) int
+		NotRunning func(childComplexity int) int
+		Running    func(childComplexity int) int
+		Total      func(childComplexity int) int
+		Unknown    func(childComplexity int) int
 	}
 
 	TeamInventoryCountBigQueryDatasets struct {
@@ -2703,7 +2706,11 @@ type ComplexityRoot struct {
 	}
 
 	TeamInventoryCountJobs struct {
-		Total func(childComplexity int) int
+		Completed func(childComplexity int) int
+		Failed    func(childComplexity int) int
+		Running   func(childComplexity int) int
+		Total     func(childComplexity int) int
+		Unknown   func(childComplexity int) int
 	}
 
 	TeamInventoryCountKafkaTopics struct {
@@ -14867,12 +14874,33 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.TeamGoogleGroup.Email(childComplexity), true
 
+	case "TeamInventoryCountApplications.notRunning":
+		if e.ComplexityRoot.TeamInventoryCountApplications.NotRunning == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TeamInventoryCountApplications.NotRunning(childComplexity), true
+
+	case "TeamInventoryCountApplications.running":
+		if e.ComplexityRoot.TeamInventoryCountApplications.Running == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TeamInventoryCountApplications.Running(childComplexity), true
+
 	case "TeamInventoryCountApplications.total":
 		if e.ComplexityRoot.TeamInventoryCountApplications.Total == nil {
 			break
 		}
 
 		return e.ComplexityRoot.TeamInventoryCountApplications.Total(childComplexity), true
+
+	case "TeamInventoryCountApplications.unknown":
+		if e.ComplexityRoot.TeamInventoryCountApplications.Unknown == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TeamInventoryCountApplications.Unknown(childComplexity), true
 
 	case "TeamInventoryCountBigQueryDatasets.total":
 		if e.ComplexityRoot.TeamInventoryCountBigQueryDatasets.Total == nil {
@@ -14895,12 +14923,40 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.TeamInventoryCountConfigs.Total(childComplexity), true
 
+	case "TeamInventoryCountJobs.completed":
+		if e.ComplexityRoot.TeamInventoryCountJobs.Completed == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TeamInventoryCountJobs.Completed(childComplexity), true
+
+	case "TeamInventoryCountJobs.failed":
+		if e.ComplexityRoot.TeamInventoryCountJobs.Failed == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TeamInventoryCountJobs.Failed(childComplexity), true
+
+	case "TeamInventoryCountJobs.running":
+		if e.ComplexityRoot.TeamInventoryCountJobs.Running == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TeamInventoryCountJobs.Running(childComplexity), true
+
 	case "TeamInventoryCountJobs.total":
 		if e.ComplexityRoot.TeamInventoryCountJobs.Total == nil {
 			break
 		}
 
 		return e.ComplexityRoot.TeamInventoryCountJobs.Total(childComplexity), true
+
+	case "TeamInventoryCountJobs.unknown":
+		if e.ComplexityRoot.TeamInventoryCountJobs.Unknown == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TeamInventoryCountJobs.Unknown(childComplexity), true
 
 	case "TeamInventoryCountKafkaTopics.total":
 		if e.ComplexityRoot.TeamInventoryCountKafkaTopics.Total == nil {
@@ -18526,6 +18582,21 @@ type TeamInventoryCountApplications {
 	Total number of applications.
 	"""
 	total: Int!
+
+	"""
+	Number of applications in a running state.
+	"""
+	running: Int!
+
+	"""
+	Number of applications in a not running state.
+	"""
+	notRunning: Int!
+
+	"""
+	Number of applications in an unknown state.
+	"""
+	unknown: Int!
 }
 
 """
@@ -21863,6 +21934,18 @@ type JobRunInstanceEdge {
 type TeamInventoryCountJobs {
 	"Total number of jobs."
 	total: Int!
+
+	"Number of jobs in a running state."
+	running: Int!
+
+	"Number of jobs in a completed state."
+	completed: Int!
+
+	"Number of jobs in a failed state."
+	failed: Int!
+
+	"Number of jobs in an unknown state."
+	unknown: Int!
 }
 
 input JobOrder {
@@ -33134,6 +33217,12 @@ func (ec *executionContext) childFields_TeamInventoryCountApplications(ctx conte
 	switch field.Name {
 	case "total":
 		return ec.fieldContext_TeamInventoryCountApplications_total(ctx, field)
+	case "running":
+		return ec.fieldContext_TeamInventoryCountApplications_running(ctx, field)
+	case "notRunning":
+		return ec.fieldContext_TeamInventoryCountApplications_notRunning(ctx, field)
+	case "unknown":
+		return ec.fieldContext_TeamInventoryCountApplications_unknown(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type TeamInventoryCountApplications", field.Name)
 }
@@ -33166,6 +33255,14 @@ func (ec *executionContext) childFields_TeamInventoryCountJobs(ctx context.Conte
 	switch field.Name {
 	case "total":
 		return ec.fieldContext_TeamInventoryCountJobs_total(ctx, field)
+	case "running":
+		return ec.fieldContext_TeamInventoryCountJobs_running(ctx, field)
+	case "completed":
+		return ec.fieldContext_TeamInventoryCountJobs_completed(ctx, field)
+	case "failed":
+		return ec.fieldContext_TeamInventoryCountJobs_failed(ctx, field)
+	case "unknown":
+		return ec.fieldContext_TeamInventoryCountJobs_unknown(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type TeamInventoryCountJobs", field.Name)
 }

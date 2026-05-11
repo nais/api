@@ -172,10 +172,14 @@ func (r *teamEnvironmentResolver) Application(ctx context.Context, obj *team.Tea
 
 func (r *teamInventoryCountsResolver) Applications(ctx context.Context, obj *team.TeamInventoryCounts) (*application.TeamInventoryCountApplications, error) {
 	apps := application.ListAllForTeam(ctx, obj.TeamSlug, nil, nil)
+	running, notRunning, unknown := application.StateCounts(ctx, apps)
 
 	return &application.TeamInventoryCountApplications{
-		Total:    len(apps),
-		TeamSlug: obj.TeamSlug,
+		Total:      len(apps),
+		Running:    running,
+		NotRunning: notRunning,
+		Unknown:    unknown,
+		TeamSlug:   obj.TeamSlug,
 	}, nil
 }
 
