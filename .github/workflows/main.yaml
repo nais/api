@@ -14,8 +14,8 @@ jobs:
     name: Check pull request
     runs-on: ubuntu-latest-8-cores
     steps:
-      - uses: actions/checkout@v4
-      - uses: jdx/mise-action@v2
+      - uses: actions/checkout@v6
+      - uses: jdx/mise-action@v4
         with:
           cache_key_prefix: mise-test
       - uses: ./.github/actions/go-cache
@@ -28,8 +28,8 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest-8-cores
     steps:
-      - uses: actions/checkout@v4
-      - uses: jdx/mise-action@v2
+      - uses: actions/checkout@v6
+      - uses: jdx/mise-action@v4
         with:
           cache_key_prefix: mise-lint
       - uses: ./.github/actions/go-cache
@@ -55,8 +55,8 @@ jobs:
     outputs:
       version: ${{ steps.build-push-sign.outputs.version }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: jdx/mise-action@v2
+      - uses: actions/checkout@v6
+      - uses: jdx/mise-action@v4
         with:
           cache_key_prefix: mise-build-push
       - uses: ./.github/actions/go-cache
