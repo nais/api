@@ -201,7 +201,7 @@ func (r *secretResolver) LastModifiedBy(ctx context.Context, obj *secret.Secret)
 	return user.GetByEmail(ctx, *obj.ModifiedByUserEmail)
 }
 
-func (r *secretResolver) ActivityLog(ctx context.Context, obj *secret.Secret, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*pagination.Connection[activitylog.ActivityLogEntry], error) {
+func (r *secretResolver) ActivityLog(ctx context.Context, obj *secret.Secret, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*activitylog.ActivityLogEntryConnection, error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err

@@ -10,6 +10,14 @@ WHERE
 		sqlc.narg('filter')::TEXT[] IS NULL
 		OR (resource_type || ':' || action) = ANY (sqlc.narg('filter')::TEXT[])
 	)
+	AND (
+		sqlc.narg('resource_types')::TEXT[] IS NULL
+		OR resource_type = ANY (sqlc.narg('resource_types')::TEXT[])
+	)
+	AND (
+		sqlc.narg('environments')::TEXT[] IS NULL
+		OR environment = ANY (sqlc.narg('environments')::TEXT[])
+	)
 ORDER BY
 	created_at DESC
 LIMIT
@@ -30,6 +38,14 @@ WHERE
 	AND (
 		sqlc.narg('filter')::TEXT[] IS NULL
 		OR (resource_type || ':' || action) = ANY (sqlc.narg('filter')::TEXT[])
+	)
+	AND (
+		sqlc.narg('resource_types')::TEXT[] IS NULL
+		OR resource_type = ANY (sqlc.narg('resource_types')::TEXT[])
+	)
+	AND (
+		sqlc.narg('environments')::TEXT[] IS NULL
+		OR environment = ANY (sqlc.narg('environments')::TEXT[])
 	)
 ORDER BY
 	created_at DESC
@@ -53,6 +69,14 @@ WHERE
 	AND (
 		sqlc.narg('filter')::TEXT[] IS NULL
 		OR (resource_type || ':' || action) = ANY (sqlc.narg('filter')::TEXT[])
+	)
+	AND (
+		sqlc.narg('resource_types')::TEXT[] IS NULL
+		OR activity_log_combined_view.resource_type = ANY (sqlc.narg('resource_types')::TEXT[])
+	)
+	AND (
+		sqlc.narg('environments')::TEXT[] IS NULL
+		OR activity_log_combined_view.environment = ANY (sqlc.narg('environments')::TEXT[])
 	)
 ORDER BY
 	created_at DESC
@@ -103,6 +127,41 @@ WHERE
 	id = ANY (@ids::UUID[])
 ORDER BY
 	created_at DESC
+;
+
+-- name: FacetsForTeam :many
+SELECT
+	resource_type,
+	action,
+	COALESCE(environment, '') AS environment,
+	COUNT(*) AS total_count,
+	COUNT(*) FILTER (
+		WHERE
+			(
+				sqlc.narg('filter')::TEXT[] IS NULL
+				OR (resource_type || ':' || action) = ANY (sqlc.narg('filter')::TEXT[])
+			)
+			AND (
+				sqlc.narg('resource_types')::TEXT[] IS NULL
+				OR resource_type = ANY (sqlc.narg('resource_types')::TEXT[])
+			)
+			AND (
+				sqlc.narg('environments')::TEXT[] IS NULL
+				OR environment = ANY (sqlc.narg('environments')::TEXT[])
+			)
+	) AS filtered_count
+FROM
+	activity_log_combined_view
+WHERE
+	team_slug = @team_slug
+GROUP BY
+	resource_type,
+	action,
+	environment
+ORDER BY
+	resource_type,
+	action,
+	environment
 ;
 
 -- name: RefreshMaterializedView :exec

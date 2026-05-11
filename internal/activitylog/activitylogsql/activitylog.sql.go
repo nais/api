@@ -56,6 +56,87 @@ func (q *Queries) Create(ctx context.Context, arg CreateParams) error {
 	return err
 }
 
+const facetsForTeam = `-- name: FacetsForTeam :many
+SELECT
+	resource_type,
+	action,
+	COALESCE(environment, '') AS environment,
+	COUNT(*) AS total_count,
+	COUNT(*) FILTER (
+		WHERE
+			(
+				$1::TEXT[] IS NULL
+				OR (resource_type || ':' || action) = ANY ($1::TEXT[])
+			)
+			AND (
+				$2::TEXT[] IS NULL
+				OR resource_type = ANY ($2::TEXT[])
+			)
+			AND (
+				$3::TEXT[] IS NULL
+				OR environment = ANY ($3::TEXT[])
+			)
+	) AS filtered_count
+FROM
+	activity_log_combined_view
+WHERE
+	team_slug = $4
+GROUP BY
+	resource_type,
+	action,
+	environment
+ORDER BY
+	resource_type,
+	action,
+	environment
+`
+
+type FacetsForTeamParams struct {
+	Filter        []string
+	ResourceTypes []string
+	Environments  []string
+	TeamSlug      *slug.Slug
+}
+
+type FacetsForTeamRow struct {
+	ResourceType  string
+	Action        string
+	Environment   string
+	TotalCount    int64
+	FilteredCount int64
+}
+
+func (q *Queries) FacetsForTeam(ctx context.Context, arg FacetsForTeamParams) ([]*FacetsForTeamRow, error) {
+	rows, err := q.db.Query(ctx, facetsForTeam,
+		arg.Filter,
+		arg.ResourceTypes,
+		arg.Environments,
+		arg.TeamSlug,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*FacetsForTeamRow{}
+	for rows.Next() {
+		var i FacetsForTeamRow
+		if err := rows.Scan(
+			&i.ResourceType,
+			&i.Action,
+			&i.Environment,
+			&i.TotalCount,
+			&i.FilteredCount,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const get = `-- name: Get :one
 SELECT
 	id, created_at, actor, action, resource_type, resource_name, team_slug, data, environment
@@ -136,20 +217,30 @@ WHERE
 		$3::TEXT[] IS NULL
 		OR (resource_type || ':' || action) = ANY ($3::TEXT[])
 	)
+	AND (
+		$4::TEXT[] IS NULL
+		OR resource_type = ANY ($4::TEXT[])
+	)
+	AND (
+		$5::TEXT[] IS NULL
+		OR environment = ANY ($5::TEXT[])
+	)
 ORDER BY
 	created_at DESC
 LIMIT
-	$5
+	$7
 OFFSET
-	$4
+	$6
 `
 
 type ListForResourceParams struct {
-	ResourceType string
-	ResourceName string
-	Filter       []string
-	Offset       int32
-	Limit        int32
+	ResourceType  string
+	ResourceName  string
+	Filter        []string
+	ResourceTypes []string
+	Environments  []string
+	Offset        int32
+	Limit         int32
 }
 
 type ListForResourceRow struct {
@@ -162,6 +253,8 @@ func (q *Queries) ListForResource(ctx context.Context, arg ListForResourceParams
 		arg.ResourceType,
 		arg.ResourceName,
 		arg.Filter,
+		arg.ResourceTypes,
+		arg.Environments,
 		arg.Offset,
 		arg.Limit,
 	)
@@ -209,12 +302,20 @@ WHERE
 		$5::TEXT[] IS NULL
 		OR (resource_type || ':' || action) = ANY ($5::TEXT[])
 	)
+	AND (
+		$6::TEXT[] IS NULL
+		OR activity_log_combined_view.resource_type = ANY ($6::TEXT[])
+	)
+	AND (
+		$7::TEXT[] IS NULL
+		OR activity_log_combined_view.environment = ANY ($7::TEXT[])
+	)
 ORDER BY
 	created_at DESC
 LIMIT
-	$7
+	$9
 OFFSET
-	$6
+	$8
 `
 
 type ListForResourceTeamAndEnvironmentParams struct {
@@ -223,6 +324,8 @@ type ListForResourceTeamAndEnvironmentParams struct {
 	ResourceName    string
 	EnvironmentName *string
 	Filter          []string
+	ResourceTypes   []string
+	Environments    []string
 	Offset          int32
 	Limit           int32
 }
@@ -239,6 +342,8 @@ func (q *Queries) ListForResourceTeamAndEnvironment(ctx context.Context, arg Lis
 		arg.ResourceName,
 		arg.EnvironmentName,
 		arg.Filter,
+		arg.ResourceTypes,
+		arg.Environments,
 		arg.Offset,
 		arg.Limit,
 	)
@@ -283,19 +388,29 @@ WHERE
 		$2::TEXT[] IS NULL
 		OR (resource_type || ':' || action) = ANY ($2::TEXT[])
 	)
+	AND (
+		$3::TEXT[] IS NULL
+		OR resource_type = ANY ($3::TEXT[])
+	)
+	AND (
+		$4::TEXT[] IS NULL
+		OR environment = ANY ($4::TEXT[])
+	)
 ORDER BY
 	created_at DESC
 LIMIT
-	$4
+	$6
 OFFSET
-	$3
+	$5
 `
 
 type ListForTeamParams struct {
-	TeamSlug *slug.Slug
-	Filter   []string
-	Offset   int32
-	Limit    int32
+	TeamSlug      *slug.Slug
+	Filter        []string
+	ResourceTypes []string
+	Environments  []string
+	Offset        int32
+	Limit         int32
 }
 
 type ListForTeamRow struct {
@@ -307,6 +422,8 @@ func (q *Queries) ListForTeam(ctx context.Context, arg ListForTeamParams) ([]*Li
 	rows, err := q.db.Query(ctx, listForTeam,
 		arg.TeamSlug,
 		arg.Filter,
+		arg.ResourceTypes,
+		arg.Environments,
 		arg.Offset,
 		arg.Limit,
 	)

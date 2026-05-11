@@ -65,7 +65,7 @@ func (r *applicationResolver) Instances(ctx context.Context, obj *application.Ap
 	return application.ListInstances(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Name, page)
 }
 
-func (r *applicationResolver) ActivityLog(ctx context.Context, obj *application.Application, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*pagination.Connection[activitylog.ActivityLogEntry], error) {
+func (r *applicationResolver) ActivityLog(ctx context.Context, obj *application.Application, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*activitylog.ActivityLogEntryConnection, error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err

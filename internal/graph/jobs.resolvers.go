@@ -64,7 +64,7 @@ func (r *jobResolver) Manifest(ctx context.Context, obj *job.Job) (*job.JobManif
 	return job.Manifest(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Name)
 }
 
-func (r *jobResolver) ActivityLog(ctx context.Context, obj *job.Job, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*pagination.Connection[activitylog.ActivityLogEntry], error) {
+func (r *jobResolver) ActivityLog(ctx context.Context, obj *job.Job, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*activitylog.ActivityLogEntryConnection, error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err

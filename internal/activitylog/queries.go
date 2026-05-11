@@ -80,10 +80,12 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 	q := db(ctx)
 
 	ret, err := q.ListForTeam(ctx, activitylogsql.ListForTeamParams{
-		TeamSlug: new(teamSlug),
-		Offset:   page.Offset(),
-		Limit:    page.Limit(),
-		Filter:   withFilters(filter),
+		TeamSlug:      new(teamSlug),
+		Offset:        page.Offset(),
+		Limit:         page.Limit(),
+		Filter:        withFilters(filter),
+		ResourceTypes: withResourceTypes(filter),
+		Environments:  withEnvironments(filter),
 	})
 	if err != nil {
 		return nil, err
@@ -93,20 +95,33 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 	if len(ret) > 0 {
 		total = ret[0].TotalCount
 	}
-	return pagination.NewConvertConnectionWithError(ret, page, total, func(from *activitylogsql.ListForTeamRow) (ActivityLogEntry, error) {
+
+	conn, err := pagination.NewConvertConnectionWithError(ret, page, total, func(from *activitylogsql.ListForTeamRow) (ActivityLogEntry, error) {
 		return toGraphActivityLogEntry(&from.ActivityLogCombinedView)
 	})
+	if err != nil {
+		return nil, err
+	}
+
+	ts := teamSlug
+	return &ActivityLogEntryConnection{
+		Connection: *conn,
+		teamSlug:   &ts,
+		filter:     filter,
+	}, nil
 }
 
 func ListForResource(ctx context.Context, resourceType ActivityLogEntryResourceType, resourceName string, page *pagination.Pagination, filter *ActivityLogFilter) (*ActivityLogEntryConnection, error) {
 	q := db(ctx)
 
 	ret, err := q.ListForResource(ctx, activitylogsql.ListForResourceParams{
-		ResourceType: string(resourceType),
-		ResourceName: resourceName,
-		Offset:       page.Offset(),
-		Limit:        page.Limit(),
-		Filter:       withFilters(filter),
+		ResourceType:  string(resourceType),
+		ResourceName:  resourceName,
+		Offset:        page.Offset(),
+		Limit:         page.Limit(),
+		Filter:        withFilters(filter),
+		ResourceTypes: withResourceTypes(filter),
+		Environments:  withEnvironments(filter),
 	})
 	if err != nil {
 		return nil, err
@@ -116,9 +131,17 @@ func ListForResource(ctx context.Context, resourceType ActivityLogEntryResourceT
 	if len(ret) > 0 {
 		total = ret[0].TotalCount
 	}
-	return pagination.NewConvertConnectionWithError(ret, page, total, func(from *activitylogsql.ListForResourceRow) (ActivityLogEntry, error) {
+
+	conn, err := pagination.NewConvertConnectionWithError(ret, page, total, func(from *activitylogsql.ListForResourceRow) (ActivityLogEntry, error) {
 		return toGraphActivityLogEntry(&from.ActivityLogCombinedView)
 	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &ActivityLogEntryConnection{
+		Connection: *conn,
+	}, nil
 }
 
 func ListForResourceTeamAndEnvironment(ctx context.Context, resourceType ActivityLogEntryResourceType, teamSlug slug.Slug, resourceName, environmentName string, page *pagination.Pagination, filter *ActivityLogFilter) (*ActivityLogEntryConnection, error) {
@@ -132,6 +155,8 @@ func ListForResourceTeamAndEnvironment(ctx context.Context, resourceType Activit
 		Offset:          page.Offset(),
 		Limit:           page.Limit(),
 		Filter:          withFilters(filter),
+		ResourceTypes:   withResourceTypes(filter),
+		Environments:    withEnvironments(filter),
 	})
 	if err != nil {
 		return nil, err
@@ -141,9 +166,17 @@ func ListForResourceTeamAndEnvironment(ctx context.Context, resourceType Activit
 	if len(ret) > 0 {
 		total = ret[0].TotalCount
 	}
-	return pagination.NewConvertConnectionWithError(ret, page, total, func(from *activitylogsql.ListForResourceTeamAndEnvironmentRow) (ActivityLogEntry, error) {
+
+	conn, err := pagination.NewConvertConnectionWithError(ret, page, total, func(from *activitylogsql.ListForResourceTeamAndEnvironmentRow) (ActivityLogEntry, error) {
 		return toGraphActivityLogEntry(&from.ActivityLogCombinedView)
 	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &ActivityLogEntryConnection{
+		Connection: *conn,
+	}, nil
 }
 
 func toGraphActivityLogEntry(row *activitylogsql.ActivityLogCombinedView) (ActivityLogEntry, error) {

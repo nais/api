@@ -57,6 +57,7 @@ func NewExecutableSchema(cfg Config) graphql.ExecutableSchema {
 type Config = graphql.Config[ResolverRoot, DirectiveRoot, ComplexityRoot]
 
 type ResolverRoot interface {
+	ActivityLogEntryConnection() ActivityLogEntryConnectionResolver
 	Application() ApplicationResolver
 	ApplicationInstance() ApplicationInstanceResolver
 	ApplicationRestartLoopIssue() ApplicationRestartLoopIssueResolver
@@ -144,8 +145,14 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
+	ActivityLogActivityTypeFacetItem struct {
+		ActivityType func(childComplexity int) int
+		Count        func(childComplexity int) int
+	}
+
 	ActivityLogEntryConnection struct {
 		Edges    func(childComplexity int) int
+		Facets   func(childComplexity int) int
 		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
 	}
@@ -153,6 +160,22 @@ type ComplexityRoot struct {
 	ActivityLogEntryEdge struct {
 		Cursor func(childComplexity int) int
 		Node   func(childComplexity int) int
+	}
+
+	ActivityLogEnvironmentFacetItem struct {
+		Count           func(childComplexity int) int
+		EnvironmentName func(childComplexity int) int
+	}
+
+	ActivityLogFacets struct {
+		ActivityTypes func(childComplexity int) int
+		Environments  func(childComplexity int) int
+		ResourceTypes func(childComplexity int) int
+	}
+
+	ActivityLogResourceTypeFacetItem struct {
+		Count        func(childComplexity int) int
+		ResourceType func(childComplexity int) int
 	}
 
 	AddConfigValuePayload struct {
@@ -3400,12 +3423,33 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 	_ = ec
 	switch typeName + "." + field {
 
+	case "ActivityLogActivityTypeFacetItem.activityType":
+		if e.ComplexityRoot.ActivityLogActivityTypeFacetItem.ActivityType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ActivityLogActivityTypeFacetItem.ActivityType(childComplexity), true
+
+	case "ActivityLogActivityTypeFacetItem.count":
+		if e.ComplexityRoot.ActivityLogActivityTypeFacetItem.Count == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ActivityLogActivityTypeFacetItem.Count(childComplexity), true
+
 	case "ActivityLogEntryConnection.edges":
 		if e.ComplexityRoot.ActivityLogEntryConnection.Edges == nil {
 			break
 		}
 
 		return e.ComplexityRoot.ActivityLogEntryConnection.Edges(childComplexity), true
+
+	case "ActivityLogEntryConnection.facets":
+		if e.ComplexityRoot.ActivityLogEntryConnection.Facets == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ActivityLogEntryConnection.Facets(childComplexity), true
 
 	case "ActivityLogEntryConnection.nodes":
 		if e.ComplexityRoot.ActivityLogEntryConnection.Nodes == nil {
@@ -3434,6 +3478,55 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ActivityLogEntryEdge.Node(childComplexity), true
+
+	case "ActivityLogEnvironmentFacetItem.count":
+		if e.ComplexityRoot.ActivityLogEnvironmentFacetItem.Count == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ActivityLogEnvironmentFacetItem.Count(childComplexity), true
+
+	case "ActivityLogEnvironmentFacetItem.environmentName":
+		if e.ComplexityRoot.ActivityLogEnvironmentFacetItem.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ActivityLogEnvironmentFacetItem.EnvironmentName(childComplexity), true
+
+	case "ActivityLogFacets.activityTypes":
+		if e.ComplexityRoot.ActivityLogFacets.ActivityTypes == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ActivityLogFacets.ActivityTypes(childComplexity), true
+
+	case "ActivityLogFacets.environments":
+		if e.ComplexityRoot.ActivityLogFacets.Environments == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ActivityLogFacets.Environments(childComplexity), true
+
+	case "ActivityLogFacets.resourceTypes":
+		if e.ComplexityRoot.ActivityLogFacets.ResourceTypes == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ActivityLogFacets.ResourceTypes(childComplexity), true
+
+	case "ActivityLogResourceTypeFacetItem.count":
+		if e.ComplexityRoot.ActivityLogResourceTypeFacetItem.Count == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ActivityLogResourceTypeFacetItem.Count(childComplexity), true
+
+	case "ActivityLogResourceTypeFacetItem.resourceType":
+		if e.ComplexityRoot.ActivityLogResourceTypeFacetItem.ResourceType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ActivityLogResourceTypeFacetItem.ResourceType(childComplexity), true
 
 	case "AddConfigValuePayload.config":
 		if e.ComplexityRoot.AddConfigValuePayload.Config == nil {
@@ -18069,6 +18162,8 @@ extend type Valkey implements ActivityLogger {
 
 input ActivityLogFilter {
 	activityTypes: [ActivityLogActivityType!]
+	resourceTypes: [ActivityLogEntryResourceType!]
+	environments: [String!]
 }
 
 enum ActivityLogActivityType
@@ -18146,6 +18241,78 @@ type ActivityLogEntryConnection {
 	List of edges.
 	"""
 	edges: [ActivityLogEntryEdge!]!
+
+	"""
+	Facets for the activity log entries. Provides distribution counts to help narrow down results.
+	Facet counts are computed over the full result set (ignoring pagination) but respect the current filter.
+	Only populated for team-level activity logs.
+	"""
+	facets: ActivityLogFacets
+}
+
+"""
+Facets for activity log entries, providing distribution counts across different dimensions.
+"""
+type ActivityLogFacets {
+	"""
+	Distribution of entries by activity type. These values can be used with the ActivityLogFilter.
+	"""
+	activityTypes: [ActivityLogActivityTypeFacetItem!]!
+
+	"""
+	Distribution of entries by resource type.
+	"""
+	resourceTypes: [ActivityLogResourceTypeFacetItem!]!
+
+	"""
+	Distribution of entries by environment.
+	"""
+	environments: [ActivityLogEnvironmentFacetItem!]!
+}
+
+"""
+A single facet item for activity types.
+"""
+type ActivityLogActivityTypeFacetItem {
+	"""
+	The activity type enum value, usable in the ActivityLogFilter.
+	"""
+	activityType: ActivityLogActivityType!
+
+	"""
+	Number of matching entries.
+	"""
+	count: Int!
+}
+
+"""
+A single facet item for resource types.
+"""
+type ActivityLogResourceTypeFacetItem {
+	"""
+	The resource type.
+	"""
+	resourceType: ActivityLogEntryResourceType!
+
+	"""
+	Number of matching entries.
+	"""
+	count: Int!
+}
+
+"""
+A single facet item for environments.
+"""
+type ActivityLogEnvironmentFacetItem {
+	"""
+	The environment name.
+	"""
+	environmentName: String!
+
+	"""
+	Number of matching entries.
+	"""
+	count: Int!
 }
 
 """
@@ -29825,6 +29992,16 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 // Each function is generated once per unique object type, deduplicating the
 // switch statements that were previously inlined in every fieldContext_* function.
 
+func (ec *executionContext) childFields_ActivityLogActivityTypeFacetItem(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "activityType":
+		return ec.fieldContext_ActivityLogActivityTypeFacetItem_activityType(ctx, field)
+	case "count":
+		return ec.fieldContext_ActivityLogActivityTypeFacetItem_count(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ActivityLogActivityTypeFacetItem", field.Name)
+}
+
 func (ec *executionContext) childFields_ActivityLogEntryConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "pageInfo":
@@ -29833,6 +30010,8 @@ func (ec *executionContext) childFields_ActivityLogEntryConnection(ctx context.C
 		return ec.fieldContext_ActivityLogEntryConnection_nodes(ctx, field)
 	case "edges":
 		return ec.fieldContext_ActivityLogEntryConnection_edges(ctx, field)
+	case "facets":
+		return ec.fieldContext_ActivityLogEntryConnection_facets(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type ActivityLogEntryConnection", field.Name)
 }
@@ -29845,6 +30024,38 @@ func (ec *executionContext) childFields_ActivityLogEntryEdge(ctx context.Context
 		return ec.fieldContext_ActivityLogEntryEdge_node(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type ActivityLogEntryEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_ActivityLogEnvironmentFacetItem(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "environmentName":
+		return ec.fieldContext_ActivityLogEnvironmentFacetItem_environmentName(ctx, field)
+	case "count":
+		return ec.fieldContext_ActivityLogEnvironmentFacetItem_count(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ActivityLogEnvironmentFacetItem", field.Name)
+}
+
+func (ec *executionContext) childFields_ActivityLogFacets(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "activityTypes":
+		return ec.fieldContext_ActivityLogFacets_activityTypes(ctx, field)
+	case "resourceTypes":
+		return ec.fieldContext_ActivityLogFacets_resourceTypes(ctx, field)
+	case "environments":
+		return ec.fieldContext_ActivityLogFacets_environments(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ActivityLogFacets", field.Name)
+}
+
+func (ec *executionContext) childFields_ActivityLogResourceTypeFacetItem(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "resourceType":
+		return ec.fieldContext_ActivityLogResourceTypeFacetItem_resourceType(ctx, field)
+	case "count":
+		return ec.fieldContext_ActivityLogResourceTypeFacetItem_count(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ActivityLogResourceTypeFacetItem", field.Name)
 }
 
 func (ec *executionContext) childFields_AddConfigValuePayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
