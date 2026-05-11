@@ -617,9 +617,7 @@ type ServiceAccountHasTeamMembershipParams struct {
 	TeamSlug          slug.Slug
 }
 
-// Strict team membership check for service accounts WITHOUT admin bypass.
-// Unlike ServiceAccountHasTeamAuthorization, global service accounts (team_slug IS NULL)
-// do NOT pass this check — the SA must belong to the specific team.
+// Strict team membership check for service accounts WITHOUT admin bypass
 func (q *Queries) ServiceAccountHasTeamMembership(ctx context.Context, arg ServiceAccountHasTeamMembershipParams) (bool, error) {
 	row := q.db.QueryRow(ctx, serviceAccountHasTeamMembership, arg.ServiceAccountID, arg.AuthorizationName, arg.TeamSlug)
 	var column_1 bool
