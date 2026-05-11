@@ -601,13 +601,13 @@ SELECT
 		SELECT
 			1
 		FROM
-			authorizations a
-			INNER JOIN role_authorizations ra ON ra.authorization_name = a.name
+			role_authorizations ra
 			INNER JOIN service_account_roles sar ON sar.role_name = ra.role_name
+			INNER JOIN service_accounts sa ON sa.id = sar.service_account_id
 		WHERE
-			sar.service_account_id = $1
-			AND a.name = $2
-			AND sar.target_team_slug = $3::slug
+			sa.id = $1
+			AND ra.authorization_name = $2
+			AND sa.team_slug = $3::slug
 	)::BOOLEAN
 `
 
@@ -617,7 +617,9 @@ type ServiceAccountHasTeamMembershipParams struct {
 	TeamSlug          slug.Slug
 }
 
-// Strict team membership check for service accounts WITHOUT admin bypass
+// Strict team membership check for service accounts WITHOUT admin bypass.
+// Unlike ServiceAccountHasTeamAuthorization, global service accounts (team_slug IS NULL)
+// do NOT pass this check — the SA must belong to the specific team.
 func (q *Queries) ServiceAccountHasTeamMembership(ctx context.Context, arg ServiceAccountHasTeamMembershipParams) (bool, error) {
 	row := q.db.QueryRow(ctx, serviceAccountHasTeamMembership, arg.ServiceAccountID, arg.AuthorizationName, arg.TeamSlug)
 	var column_1 bool

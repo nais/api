@@ -31,7 +31,9 @@ type Querier interface {
 	ServiceAccountHasGlobalAuthorization(ctx context.Context, arg ServiceAccountHasGlobalAuthorizationParams) (bool, error)
 	ServiceAccountHasRole(ctx context.Context, arg ServiceAccountHasRoleParams) (bool, error)
 	ServiceAccountHasTeamAuthorization(ctx context.Context, arg ServiceAccountHasTeamAuthorizationParams) (bool, error)
-	// Strict team membership check for service accounts WITHOUT admin bypass
+	// Strict team membership check for service accounts WITHOUT admin bypass.
+	// Unlike ServiceAccountHasTeamAuthorization, global service accounts (team_slug IS NULL)
+	// do NOT pass this check — the SA must belong to the specific team.
 	ServiceAccountHasTeamMembership(ctx context.Context, arg ServiceAccountHasTeamMembershipParams) (bool, error)
 	UserCanAssignRole(ctx context.Context, arg UserCanAssignRoleParams) (bool, error)
 }

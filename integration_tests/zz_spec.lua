@@ -289,6 +289,44 @@ function User:admin()
 	return false
 end
 
+---@class ServiceAccount
+ServiceAccount = {}
+--- Create a new service account with a token
+---@param name string
+---@param teamSlug? string
+---@return ServiceAccount
+function ServiceAccount.new(name, teamSlug)
+	print("new")
+	return {}
+end
+
+--- The id of the service account
+---@return string
+function ServiceAccount:id()
+	print("id")
+	return ""
+end
+
+--- The name of the service account
+---@return string
+function ServiceAccount:name()
+	print("name")
+	return ""
+end
+
+--- The bearer token for authenticating as this service account
+---@return string
+function ServiceAccount:token()
+	print("token")
+	return ""
+end
+
+--- Assign a role to this service account
+---@param roleName string
+function ServiceAccount:assignRole(roleName)
+	print("assignRole")
+end
+
 ---@class IssueChecker
 IssueChecker = {}
 --- Initialize the issue checker
