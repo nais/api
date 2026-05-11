@@ -38,6 +38,16 @@ func init() {
 			}
 		}
 
+		if len(filter.States) > 0 {
+			s, err := GetState(ctx, v)
+			if err != nil {
+				return slices.Contains(filter.States, JobStateUnknown)
+			}
+			if !slices.Contains(filter.States, s) {
+				return false
+			}
+		}
+
 		return true
 	})
 }

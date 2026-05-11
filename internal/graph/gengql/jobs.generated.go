@@ -4061,7 +4061,7 @@ func (ec *executionContext) unmarshalInputTeamJobsFilter(ctx context.Context, ob
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "environments"}
+	fieldsInOrder := [...]string{"name", "environments", "states"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -4082,6 +4082,13 @@ func (ec *executionContext) unmarshalInputTeamJobsFilter(ctx context.Context, ob
 				return it, err
 			}
 			it.Environments = data
+		case "states":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("states"))
+			data, err := ec.unmarshalOJobState2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobStateᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.States = data
 		}
 	}
 	return it, nil
@@ -6873,6 +6880,43 @@ func (ec *executionContext) marshalOJobSchedule2ᚖgithubᚗcomᚋnaisᚋapiᚋi
 		return graphql.Null
 	}
 	return ec._JobSchedule(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOJobState2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobStateᚄ(ctx context.Context, v any) ([]job.JobState, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []any
+	vSlice = graphql.CoerceList(v)
+	var err error
+	res := make([]job.JobState, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNJobState2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobState(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalOJobState2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobStateᚄ(ctx context.Context, sel ast.SelectionSet, v []job.JobState) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNJobState2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobState(ctx, sel, v[i])
+	})
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) unmarshalOTeamJobsFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐTeamJobsFilter(ctx context.Context, v any) (*job.TeamJobsFilter, error) {

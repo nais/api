@@ -634,8 +634,9 @@ type ApplicationInstanceStatus struct {
 }
 
 type TeamApplicationsFilter struct {
-	Name         string   `json:"name"`
-	Environments []string `json:"environments"`
+	Name         string             `json:"name"`
+	Environments []string           `json:"environments"`
+	States       []ApplicationState `json:"states"`
 }
 
 type ScalingDirection string

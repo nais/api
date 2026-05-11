@@ -517,8 +517,9 @@ type JobRunStatus struct {
 }
 
 type TeamJobsFilter struct {
-	Name         string   `json:"name"`
-	Environments []string `json:"environments"`
+	Name         string     `json:"name"`
+	Environments []string   `json:"environments"`
+	States       []JobState `json:"states"`
 }
 
 type JobRunTrigger struct {
