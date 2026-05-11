@@ -6368,6 +6368,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Issue(ctx, sel, obj)
+	case instancegroup.InstanceGroupEnvironmentVariable:
+		return ec._InstanceGroupEnvironmentVariable(ctx, sel, &obj)
+	case *instancegroup.InstanceGroupEnvironmentVariable:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._InstanceGroupEnvironmentVariable(ctx, sel, obj)
 	case instancegroup.InstanceGroup:
 		return ec._InstanceGroup(ctx, sel, &obj)
 	case *instancegroup.InstanceGroup:

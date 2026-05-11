@@ -1014,6 +1014,7 @@ type ComplexityRoot struct {
 	}
 
 	InstanceGroupEnvironmentVariable struct {
+		ID     func(childComplexity int) int
 		Name   func(childComplexity int) int
 		Source func(childComplexity int) int
 		Value  func(childComplexity int) int
@@ -6847,6 +6848,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.InstanceGroup.ReadyInstances(childComplexity), true
+
+	case "InstanceGroupEnvironmentVariable.id":
+		if e.ComplexityRoot.InstanceGroupEnvironmentVariable.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.InstanceGroupEnvironmentVariable.ID(childComplexity), true
 
 	case "InstanceGroupEnvironmentVariable.name":
 		if e.ComplexityRoot.InstanceGroupEnvironmentVariable.Name == nil {
@@ -21087,7 +21095,12 @@ type InstanceGroup implements Node {
 """
 An environment variable configured for an instance group.
 """
-type InstanceGroupEnvironmentVariable {
+type InstanceGroupEnvironmentVariable implements Node {
+	"""
+	The globally unique ID of the environment variable.
+	"""
+	id: ID!
+
 	"""
 	The name of the environment variable.
 	"""
@@ -31043,6 +31056,8 @@ func (ec *executionContext) childFields_InstanceGroup(ctx context.Context, field
 
 func (ec *executionContext) childFields_InstanceGroupEnvironmentVariable(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
+	case "id":
+		return ec.fieldContext_InstanceGroupEnvironmentVariable_id(ctx, field)
 	case "name":
 		return ec.fieldContext_InstanceGroupEnvironmentVariable_name(ctx, field)
 	case "value":

@@ -52,6 +52,17 @@ type InstanceGroupEnvironmentVariable struct {
 	Name   string                   `json:"name"`
 	Value  *string                  `json:"value"`
 	Source InstanceGroupValueSource `json:"source"`
+
+	TeamSlug          slug.Slug `json:"-"`
+	EnvironmentName   string    `json:"-"`
+	ApplicationName   string    `json:"-"`
+	InstanceGroupName string    `json:"-"`
+}
+
+func (InstanceGroupEnvironmentVariable) IsNode() {}
+
+func (ev InstanceGroupEnvironmentVariable) ID() ident.Ident {
+	return newEnvVarIdent(ev.TeamSlug, ev.EnvironmentName, ev.ApplicationName, ev.InstanceGroupName, ev.Name)
 }
 
 // InstanceGroupMountedFile represents a file mounted from a Secret or ConfigMap.
