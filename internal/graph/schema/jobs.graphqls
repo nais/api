@@ -338,6 +338,18 @@ type JobRunInstanceEdge {
 type TeamInventoryCountJobs {
 	"Total number of jobs."
 	total: Int!
+
+	"Number of jobs in a running state."
+	running: Int!
+
+	"Number of jobs in a completed state."
+	completed: Int!
+
+	"Number of jobs in a failed state."
+	failed: Int!
+
+	"Number of jobs in an unknown state."
+	unknown: Int!
 }
 
 input JobOrder {
