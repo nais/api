@@ -6,18 +6,21 @@ import (
 	"strings"
 
 	"github.com/nais/api/internal/activitylog/activitylogsql"
-	"github.com/nais/api/internal/slug"
 )
 
-// ComputeFacetsForTeam computes facets for a team's activity log.
-func ComputeFacetsForTeam(ctx context.Context, teamSlug slug.Slug, filter *ActivityLogFilter) (*ActivityLogFacets, error) {
+// ComputeFacets computes facets for an activity log query. Called lazily by the
+// resolver only when the client requests the facets field.
+func ComputeFacets(ctx context.Context, scope *ActivityLogScope, filter *ActivityLogFilter) (*ActivityLogFacets, error) {
 	q := db(ctx)
 
-	rows, err := q.FacetsForTeam(ctx, activitylogsql.FacetsForTeamParams{
-		TeamSlug:      new(teamSlug),
-		Filter:        withFilters(filter),
-		ResourceTypes: withResourceTypes(filter),
-		Environments:  withEnvironments(filter),
+	rows, err := q.Facets(ctx, activitylogsql.FacetsParams{
+		TeamSlug:            scopeField(scope, func(s *ActivityLogScope) *string { return (*string)(s.TeamSlug) }),
+		ResourceType:        scopeField(scope, func(s *ActivityLogScope) *string { return s.ResourceType }),
+		ResourceName:        scopeField(scope, func(s *ActivityLogScope) *string { return s.ResourceName }),
+		EnvironmentName:     scopeField(scope, func(s *ActivityLogScope) *string { return s.EnvironmentName }),
+		Filter:              withFilters(filter),
+		FilterResourceTypes: withResourceTypes(filter),
+		FilterEnvironments:  withEnvironments(filter),
 	})
 	if err != nil {
 		return nil, err
@@ -26,13 +29,20 @@ func ComputeFacetsForTeam(ctx context.Context, teamSlug slug.Slug, filter *Activ
 	return buildFacets(rows), nil
 }
 
-func buildFacets(rows []*activitylogsql.FacetsForTeamRow) *ActivityLogFacets {
+func scopeField(scope *ActivityLogScope, fn func(*ActivityLogScope) *string) *string {
+	if scope == nil {
+		return nil
+	}
+	return fn(scope)
+}
+
+func buildFacets(rows []*activitylogsql.FacetsRow) *ActivityLogFacets {
 	activityTypeCounts := map[ActivityLogActivityType]int{}
 	resourceTypeCounts := map[ActivityLogEntryResourceType]int{}
 	environmentCounts := map[string]int{}
 
 	for _, row := range rows {
-		// Seed with total_count to ensure all values that exist for this team are present
+		// Seed with total_count to ensure all values that exist in this scope are present
 		rt := ActivityLogEntryResourceType(row.ResourceType)
 		if _, ok := resourceTypeCounts[rt]; !ok {
 			resourceTypeCounts[rt] = 0

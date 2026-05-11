@@ -18245,7 +18245,7 @@ type ActivityLogEntryConnection {
 	"""
 	Facets for the activity log entries. Provides distribution counts to help narrow down results.
 	Facet counts are computed over the full result set (ignoring pagination) but respect the current filter.
-	Only populated for team-level activity logs.
+	Only computed when requested.
 	"""
 	facets: ActivityLogFacets
 }

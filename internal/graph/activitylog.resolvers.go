@@ -14,12 +14,7 @@ import (
 )
 
 func (r *activityLogEntryConnectionResolver) Facets(ctx context.Context, obj *activitylog.ActivityLogEntryConnection) (*activitylog.ActivityLogFacets, error) {
-	teamSlug := obj.GetTeamSlug()
-	if teamSlug == nil {
-		return nil, nil
-	}
-
-	return activitylog.ComputeFacetsForTeam(ctx, *teamSlug, obj.GetFilter())
+	return activitylog.ComputeFacets(ctx, obj.GetScope(), obj.GetFilter())
 }
 
 func (r *openSearchResolver) ActivityLog(ctx context.Context, obj *opensearch.OpenSearch, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*activitylog.ActivityLogEntryConnection, error) {

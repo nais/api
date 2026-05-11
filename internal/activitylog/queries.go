@@ -106,7 +106,7 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 	ts := teamSlug
 	return &ActivityLogEntryConnection{
 		Connection: *conn,
-		teamSlug:   &ts,
+		scope:      &ActivityLogScope{TeamSlug: &ts},
 		filter:     filter,
 	}, nil
 }
@@ -139,8 +139,11 @@ func ListForResource(ctx context.Context, resourceType ActivityLogEntryResourceT
 		return nil, err
 	}
 
+	rt := string(resourceType)
 	return &ActivityLogEntryConnection{
 		Connection: *conn,
+		scope:      &ActivityLogScope{ResourceType: &rt, ResourceName: &resourceName},
+		filter:     filter,
 	}, nil
 }
 
@@ -174,8 +177,12 @@ func ListForResourceTeamAndEnvironment(ctx context.Context, resourceType Activit
 		return nil, err
 	}
 
+	rt := string(resourceType)
+	ts := teamSlug
 	return &ActivityLogEntryConnection{
 		Connection: *conn,
+		scope:      &ActivityLogScope{TeamSlug: &ts, ResourceType: &rt, ResourceName: &resourceName, EnvironmentName: &environmentName},
+		filter:     filter,
 	}, nil
 }
 

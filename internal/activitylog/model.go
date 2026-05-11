@@ -37,12 +37,21 @@ type ActivityLogEntryConnection struct {
 	pagination.Connection[ActivityLogEntry]
 
 	// unexported fields used by the facets resolver for lazy computation
-	teamSlug *slug.Slug
-	filter   *ActivityLogFilter
+	scope  *ActivityLogScope
+	filter *ActivityLogFilter
 }
 
-func (c *ActivityLogEntryConnection) GetTeamSlug() *slug.Slug       { return c.teamSlug }
+func (c *ActivityLogEntryConnection) GetScope() *ActivityLogScope   { return c.scope }
 func (c *ActivityLogEntryConnection) GetFilter() *ActivityLogFilter { return c.filter }
+
+// ActivityLogScope defines the base scope for an activity log query.
+// All fields are optional; nil means "no constraint on this dimension".
+type ActivityLogScope struct {
+	TeamSlug        *slug.Slug
+	ResourceType    *string
+	ResourceName    *string
+	EnvironmentName *string
+}
 
 type ActivityLogEntryEdge = pagination.Edge[ActivityLogEntry]
 

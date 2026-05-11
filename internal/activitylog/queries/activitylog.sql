@@ -129,7 +129,7 @@ ORDER BY
 	created_at DESC
 ;
 
--- name: FacetsForTeam :many
+-- name: Facets :many
 SELECT
 	resource_type,
 	action,
@@ -142,18 +142,33 @@ SELECT
 				OR (resource_type || ':' || action) = ANY (sqlc.narg('filter')::TEXT[])
 			)
 			AND (
-				sqlc.narg('resource_types')::TEXT[] IS NULL
-				OR resource_type = ANY (sqlc.narg('resource_types')::TEXT[])
+				sqlc.narg('filter_resource_types')::TEXT[] IS NULL
+				OR resource_type = ANY (sqlc.narg('filter_resource_types')::TEXT[])
 			)
 			AND (
-				sqlc.narg('environments')::TEXT[] IS NULL
-				OR environment = ANY (sqlc.narg('environments')::TEXT[])
+				sqlc.narg('filter_environments')::TEXT[] IS NULL
+				OR environment = ANY (sqlc.narg('filter_environments')::TEXT[])
 			)
 	) AS filtered_count
 FROM
 	activity_log_combined_view
 WHERE
-	team_slug = @team_slug
+	(
+		sqlc.narg('team_slug')::TEXT IS NULL
+		OR team_slug = sqlc.narg('team_slug')
+	)
+	AND (
+		sqlc.narg('resource_type')::TEXT IS NULL
+		OR resource_type = sqlc.narg('resource_type')
+	)
+	AND (
+		sqlc.narg('resource_name')::TEXT IS NULL
+		OR resource_name = sqlc.narg('resource_name')
+	)
+	AND (
+		sqlc.narg('environment_name')::TEXT IS NULL
+		OR environment = sqlc.narg('environment_name')
+	)
 GROUP BY
 	resource_type,
 	action,

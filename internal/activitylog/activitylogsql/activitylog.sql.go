@@ -56,7 +56,7 @@ func (q *Queries) Create(ctx context.Context, arg CreateParams) error {
 	return err
 }
 
-const facetsForTeam = `-- name: FacetsForTeam :many
+const facets = `-- name: Facets :many
 SELECT
 	resource_type,
 	action,
@@ -80,7 +80,22 @@ SELECT
 FROM
 	activity_log_combined_view
 WHERE
-	team_slug = $4
+	(
+		$4::TEXT IS NULL
+		OR team_slug = $4
+	)
+	AND (
+		$5::TEXT IS NULL
+		OR resource_type = $5
+	)
+	AND (
+		$6::TEXT IS NULL
+		OR resource_name = $6
+	)
+	AND (
+		$7::TEXT IS NULL
+		OR environment = $7
+	)
 GROUP BY
 	resource_type,
 	action,
@@ -91,14 +106,17 @@ ORDER BY
 	environment
 `
 
-type FacetsForTeamParams struct {
-	Filter        []string
-	ResourceTypes []string
-	Environments  []string
-	TeamSlug      *slug.Slug
+type FacetsParams struct {
+	Filter              []string
+	FilterResourceTypes []string
+	FilterEnvironments  []string
+	TeamSlug            *string
+	ResourceType        *string
+	ResourceName        *string
+	EnvironmentName     *string
 }
 
-type FacetsForTeamRow struct {
+type FacetsRow struct {
 	ResourceType  string
 	Action        string
 	Environment   string
@@ -106,20 +124,23 @@ type FacetsForTeamRow struct {
 	FilteredCount int64
 }
 
-func (q *Queries) FacetsForTeam(ctx context.Context, arg FacetsForTeamParams) ([]*FacetsForTeamRow, error) {
-	rows, err := q.db.Query(ctx, facetsForTeam,
+func (q *Queries) Facets(ctx context.Context, arg FacetsParams) ([]*FacetsRow, error) {
+	rows, err := q.db.Query(ctx, facets,
 		arg.Filter,
-		arg.ResourceTypes,
-		arg.Environments,
+		arg.FilterResourceTypes,
+		arg.FilterEnvironments,
 		arg.TeamSlug,
+		arg.ResourceType,
+		arg.ResourceName,
+		arg.EnvironmentName,
 	)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []*FacetsForTeamRow{}
+	items := []*FacetsRow{}
 	for rows.Next() {
-		var i FacetsForTeamRow
+		var i FacetsRow
 		if err := rows.Scan(
 			&i.ResourceType,
 			&i.Action,
