@@ -304,8 +304,8 @@ Test.gql("Query non-existent service account by ID", function(t)
 	}
 end)
 
--- List all service accounts
-Test.gql("List all service accounts", function(t)
+-- List global service accounts
+Test.gql("List global service accounts", function(t)
 	t.addHeader("x-user-email", admin:email())
 
 	t.query [[
@@ -338,17 +338,9 @@ Test.gql("List all service accounts", function(t)
 						description = "A global service account",
 						team = Null,
 					},
-					{
-						id = State.teamSaID,
-						name = "team-sa",
-						description = "A team service account",
-						team = {
-							slug = "query-team",
-						},
-					},
 				},
 				pageInfo = {
-					totalCount = 2,
+					totalCount = 1,
 					hasNextPage = false,
 					hasPreviousPage = false,
 				},
