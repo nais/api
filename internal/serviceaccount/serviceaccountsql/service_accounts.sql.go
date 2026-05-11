@@ -293,6 +293,8 @@ SELECT
 	COUNT(*) OVER () AS total_count
 FROM
 	service_accounts
+WHERE
+	team_slug IS NULL
 ORDER BY
 	name,
 	team_slug
