@@ -298,6 +298,28 @@ func GetState(ctx context.Context, obj *Job) (JobState, error) {
 	}
 }
 
+// StateCounts computes the number of jobs in each state for a given list of jobs.
+func StateCounts(ctx context.Context, jobs []*Job) (running, completed, failed, unknown int) {
+	for _, j := range jobs {
+		state, err := GetState(ctx, j)
+		if err != nil {
+			unknown++
+			continue
+		}
+		switch state {
+		case JobStateRunning:
+			running++
+		case JobStateCompleted:
+			completed++
+		case JobStateFailed:
+			failed++
+		default:
+			unknown++
+		}
+	}
+	return
+}
+
 func allRuns(ctx context.Context, teamSlug slug.Slug, environment string, jobName string) ([]*JobRun, error) {
 	nameReq, err := labels.NewRequirement("app", selection.Equals, []string{jobName})
 	if err != nil {

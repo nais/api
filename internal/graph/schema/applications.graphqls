@@ -84,6 +84,21 @@ type TeamInventoryCountApplications {
 	Total number of applications.
 	"""
 	total: Int!
+
+	"""
+	Number of applications in a running state.
+	"""
+	running: Int!
+
+	"""
+	Number of applications in a not running state.
+	"""
+	notRunning: Int!
+
+	"""
+	Number of applications in an unknown state.
+	"""
+	unknown: Int!
 }
 
 """

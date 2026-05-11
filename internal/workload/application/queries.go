@@ -246,3 +246,23 @@ func GetState(ctx context.Context, obj *Application) (ApplicationState, error) {
 
 	return ApplicationStateNotRunning, nil
 }
+
+// StateCounts computes the number of applications in each state for a given list of applications.
+func StateCounts(ctx context.Context, apps []*Application) (running, notRunning, unknown int) {
+	for _, app := range apps {
+		state, err := GetState(ctx, app)
+		if err != nil {
+			unknown++
+			continue
+		}
+		switch state {
+		case ApplicationStateRunning:
+			running++
+		case ApplicationStateNotRunning:
+			notRunning++
+		default:
+			unknown++
+		}
+	}
+	return
+}

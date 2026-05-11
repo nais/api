@@ -3982,6 +3982,75 @@ func (ec *executionContext) fieldContext_TeamInventoryCountApplications_total(_ 
 	return graphql.NewScalarFieldContext("TeamInventoryCountApplications", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
+func (ec *executionContext) _TeamInventoryCountApplications_running(ctx context.Context, field graphql.CollectedField, obj *application.TeamInventoryCountApplications) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_TeamInventoryCountApplications_running(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Running, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
+			return ec.marshalNInt2int(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_TeamInventoryCountApplications_running(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("TeamInventoryCountApplications", field, false, false, errors.New("field of type Int does not have child fields"))
+}
+
+func (ec *executionContext) _TeamInventoryCountApplications_notRunning(ctx context.Context, field graphql.CollectedField, obj *application.TeamInventoryCountApplications) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_TeamInventoryCountApplications_notRunning(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.NotRunning, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
+			return ec.marshalNInt2int(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_TeamInventoryCountApplications_notRunning(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("TeamInventoryCountApplications", field, false, false, errors.New("field of type Int does not have child fields"))
+}
+
+func (ec *executionContext) _TeamInventoryCountApplications_unknown(ctx context.Context, field graphql.CollectedField, obj *application.TeamInventoryCountApplications) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_TeamInventoryCountApplications_unknown(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Unknown, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
+			return ec.marshalNInt2int(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_TeamInventoryCountApplications_unknown(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("TeamInventoryCountApplications", field, false, false, errors.New("field of type Int does not have child fields"))
+}
+
 // endregion **************************** field.gotpl *****************************
 
 // region    **************************** input.gotpl *****************************
@@ -6728,6 +6797,21 @@ func (ec *executionContext) _TeamInventoryCountApplications(ctx context.Context,
 			out.Values[i] = graphql.MarshalString("TeamInventoryCountApplications")
 		case "total":
 			out.Values[i] = ec._TeamInventoryCountApplications_total(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "running":
+			out.Values[i] = ec._TeamInventoryCountApplications_running(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "notRunning":
+			out.Values[i] = ec._TeamInventoryCountApplications_notRunning(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "unknown":
+			out.Values[i] = ec._TeamInventoryCountApplications_unknown(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
