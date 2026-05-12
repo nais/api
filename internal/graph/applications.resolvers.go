@@ -7,6 +7,7 @@ import (
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/gengql"
+	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/issue"
 	"github.com/nais/api/internal/team"
@@ -166,13 +167,20 @@ func (r *teamResolver) Applications(ctx context.Context, obj *team.Team, first *
 	}
 
 	// Fetch all apps for the team (unfiltered) for facet computation.
-	unfilteredApps := application.ListAllForTeam(ctx, obj.Slug, orderBy, nil)
+	// Pass nil orderBy to avoid expensive sorting (e.g. STATE) on items that may be filtered out.
+	unfilteredApps := application.ListAllForTeam(ctx, obj.Slug, nil, nil)
 
 	// Apply filter for the actual result set.
 	filteredApps := unfilteredApps
 	if filter != nil {
 		filteredApps = application.SortFilter.Filter(ctx, unfilteredApps, filter)
 	}
+
+	// Sort only the filtered result set.
+	if orderBy == nil {
+		orderBy = &application.ApplicationOrder{Field: "NAME", Direction: model.OrderDirectionAsc}
+	}
+	application.SortFilter.Sort(ctx, filteredApps, orderBy.Field, orderBy.Direction)
 
 	apps := pagination.Slice(filteredApps, page)
 	conn := pagination.NewConnection(apps, page, len(filteredApps))

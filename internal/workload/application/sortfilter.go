@@ -2,7 +2,6 @@ package application
 
 import (
 	"context"
-	"slices"
 	"strings"
 
 	"github.com/nais/api/internal/graph/sortfilter"
@@ -25,29 +24,5 @@ func init() {
 		return int(s)
 	}, "NAME", "ENVIRONMENT")
 
-	SortFilter.RegisterFilter(func(ctx context.Context, v *Application, filter *TeamApplicationsFilter) bool {
-		if filter.Name != "" {
-			if !strings.Contains(strings.ToLower(v.Name), strings.ToLower(filter.Name)) {
-				return false
-			}
-		}
-
-		if len(filter.Environments) > 0 {
-			if !slices.Contains(filter.Environments, v.EnvironmentName) {
-				return false
-			}
-		}
-
-		if len(filter.States) > 0 {
-			s, err := GetState(ctx, v)
-			if err != nil {
-				return slices.Contains(filter.States, ApplicationStateUnknown)
-			}
-			if !slices.Contains(filter.States, s) {
-				return false
-			}
-		}
-
-		return true
-	})
+	SortFilter.RegisterFilter(matchesFilter)
 }

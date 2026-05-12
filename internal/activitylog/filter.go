@@ -19,7 +19,7 @@ func RegisterFilter(activityType ActivityLogActivityType, action ActivityLogEntr
 		if f.action == action {
 			// If the activity type is already registered with the same action, append the resource type
 			f.resourceType = append(f.resourceType, resourceType)
-			// Make sure the resouce type slice is unique
+			// Make sure the resource type slice is unique
 			slices.Sort(f.resourceType)
 			f.resourceType = slices.Compact(f.resourceType)
 

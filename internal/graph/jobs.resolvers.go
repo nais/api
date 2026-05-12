@@ -7,6 +7,7 @@ import (
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/gengql"
+	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/issue"
 	"github.com/nais/api/internal/team"
@@ -154,13 +155,20 @@ func (r *teamResolver) Jobs(ctx context.Context, obj *team.Team, first *int, aft
 	}
 
 	// Fetch all jobs for the team (unfiltered) for facet computation.
-	unfilteredJobs := job.ListAllForTeam(ctx, obj.Slug, orderBy, nil)
+	// Pass nil orderBy to avoid expensive sorting (e.g. STATE) on items that may be filtered out.
+	unfilteredJobs := job.ListAllForTeam(ctx, obj.Slug, nil, nil)
 
 	// Apply filter for the actual result set.
 	filteredJobs := unfilteredJobs
 	if filter != nil {
 		filteredJobs = job.SortFilter.Filter(ctx, unfilteredJobs, filter)
 	}
+
+	// Sort only the filtered result set.
+	if orderBy == nil {
+		orderBy = &job.JobOrder{Field: "NAME", Direction: model.OrderDirectionAsc}
+	}
+	job.SortFilter.Sort(ctx, filteredJobs, orderBy.Field, orderBy.Direction)
 
 	jobs := pagination.Slice(filteredJobs, page)
 	conn := pagination.NewConnection(jobs, page, len(filteredJobs))
