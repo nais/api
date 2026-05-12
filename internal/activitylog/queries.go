@@ -80,7 +80,7 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 	q := db(ctx)
 
 	ret, err := q.ListForTeam(ctx, activitylogsql.ListForTeamParams{
-		TeamSlug:      new(teamSlug),
+		TeamSlug:      &teamSlug,
 		Offset:        page.Offset(),
 		Limit:         page.Limit(),
 		Filter:        withFilters(filter),
@@ -103,10 +103,9 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 		return nil, err
 	}
 
-	ts := teamSlug
 	return &ActivityLogEntryConnection{
 		Connection: *conn,
-		scope:      &ActivityLogScope{TeamSlug: &ts},
+		scope:      &ActivityLogScope{TeamSlug: &teamSlug},
 		filter:     filter,
 	}, nil
 }
@@ -139,10 +138,9 @@ func ListForResource(ctx context.Context, resourceType ActivityLogEntryResourceT
 		return nil, err
 	}
 
-	rt := string(resourceType)
 	return &ActivityLogEntryConnection{
 		Connection: *conn,
-		scope:      &ActivityLogScope{ResourceType: &rt, ResourceName: &resourceName},
+		scope:      &ActivityLogScope{ResourceType: new(string(resourceType)), ResourceName: &resourceName},
 		filter:     filter,
 	}, nil
 }
@@ -153,8 +151,8 @@ func ListForResourceTeamAndEnvironment(ctx context.Context, resourceType Activit
 	ret, err := q.ListForResourceTeamAndEnvironment(ctx, activitylogsql.ListForResourceTeamAndEnvironmentParams{
 		ResourceType:    string(resourceType),
 		ResourceName:    resourceName,
-		EnvironmentName: new(environmentName),
-		TeamSlug:        new(teamSlug),
+		EnvironmentName: &environmentName,
+		TeamSlug:        &teamSlug,
 		Offset:          page.Offset(),
 		Limit:           page.Limit(),
 		Filter:          withFilters(filter),
@@ -177,11 +175,9 @@ func ListForResourceTeamAndEnvironment(ctx context.Context, resourceType Activit
 		return nil, err
 	}
 
-	rt := string(resourceType)
-	ts := teamSlug
 	return &ActivityLogEntryConnection{
 		Connection: *conn,
-		scope:      &ActivityLogScope{TeamSlug: &ts, ResourceType: &rt, ResourceName: &resourceName, EnvironmentName: &environmentName},
+		scope:      &ActivityLogScope{TeamSlug: &teamSlug, ResourceType: new(string(resourceType)), ResourceName: &resourceName, EnvironmentName: &environmentName},
 		filter:     filter,
 	}, nil
 }
