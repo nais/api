@@ -84,6 +84,19 @@ sql:
         <<: *default_go
         package: "activitylogsql"
         out: "../internal/activitylog/activitylogsql"
+        overrides:
+          - db_type: "slug"
+            go_type: "*github.com/nais/api/internal/slug.Slug"
+            nullable: true
+          - db_type: "slug"
+            go_type: "github.com/nais/api/internal/slug.Slug"
+          - db_type: "uuid"
+            go_type: "*github.com/google/uuid.UUID"
+            nullable: true
+          - db_type: "uuid"
+            go_type: "github.com/google/uuid.UUID"
+          - column: "activity_log_combined_view.team_slug"
+            go_type: "*github.com/nais/api/internal/slug.Slug"
 
   - <<: *default_domain
     name: "GitHub repositories SQL"
