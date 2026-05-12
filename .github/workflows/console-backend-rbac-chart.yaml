@@ -57,7 +57,8 @@ jobs:
       - name: Push Chart
         run: helm push ${{ env.NAME }}*.tgz ${{ env.IMAGE_REPOSITORY }}
 
-  rollout:
+  deploy:
+    name: Deploy
     needs:
       - lint
       - build_push
@@ -66,7 +67,14 @@ jobs:
     permissions:
       id-token: write
     steps:
-      - uses: nais/fasit-deploy@v2 # ratchet:exclude
+      - uses: nais/fasit-deploy@v4 # ratchet:exclude
         with:
           chart: ${{ env.IMAGE_REPOSITORY }}/${{ env.NAME }}
           version: ${{ needs.build_push.outputs.version }}
+          targets: |
+            [
+              { "target": { "kind": "tenant", "tenant": "ci-nais" }, "wait": true },
+              { "target": { "kind": "onprem", "tenant": "ci-nais" }, "wait": true },
+              { "target": { "kind": "tenant" } },
+              { "target": { "kind": "onprem" } }
+            ]
