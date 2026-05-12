@@ -31,8 +31,8 @@ type ConfigResolver interface {
 	TeamEnvironment(ctx context.Context, obj *config.Config) (*team.TeamEnvironment, error)
 	Team(ctx context.Context, obj *config.Config) (*team.Team, error)
 	Values(ctx context.Context, obj *config.Config) ([]*config.ConfigValue, error)
-	Applications(ctx context.Context, obj *config.Config, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*application.Application], error)
-	Jobs(ctx context.Context, obj *config.Config, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*job.Job], error)
+	Applications(ctx context.Context, obj *config.Config, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*application.ApplicationConnection, error)
+	Jobs(ctx context.Context, obj *config.Config, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*job.JobConnection, error)
 	Workloads(ctx context.Context, obj *config.Config, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[workload.Workload], error)
 
 	LastModifiedBy(ctx context.Context, obj *config.Config) (*user.User, error)
@@ -398,8 +398,8 @@ func (ec *executionContext) _Config_applications(ctx context.Context, field grap
 			return ec.Resolvers.Config().Applications(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[*application.Application]) graphql.Marshaler {
-			return ec.marshalNApplicationConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *application.ApplicationConnection) graphql.Marshaler {
+			return ec.marshalNApplicationConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplicationConnection(ctx, selections, v)
 		},
 		true,
 		true,
@@ -442,8 +442,8 @@ func (ec *executionContext) _Config_jobs(ctx context.Context, field graphql.Coll
 			return ec.Resolvers.Config().Jobs(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[*job.Job]) graphql.Marshaler {
-			return ec.marshalNJobConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *job.JobConnection) graphql.Marshaler {
+			return ec.marshalNJobConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobConnection(ctx, selections, v)
 		},
 		true,
 		true,

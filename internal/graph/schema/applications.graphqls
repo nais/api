@@ -387,6 +387,12 @@ type ApplicationConnection {
 	List of edges.
 	"""
 	edges: [ApplicationEdge!]!
+
+	"""
+	Facets for the applications. Provides distribution counts to help narrow down results.
+	Facet counts are computed over the full result set (ignoring pagination) but respect the current filter.
+	"""
+	facets: ApplicationFacets
 }
 
 """
@@ -402,6 +408,51 @@ type ApplicationEdge {
 	The application.
 	"""
 	node: Application!
+}
+
+"""
+Facets for applications, providing distribution counts across different dimensions.
+"""
+type ApplicationFacets {
+	"""
+	Distribution of applications by environment.
+	"""
+	environments: [ApplicationEnvironmentFacetItem!]!
+
+	"""
+	Distribution of applications by state.
+	"""
+	states: [ApplicationStateFacetItem!]!
+}
+
+"""
+A single facet item for environments.
+"""
+type ApplicationEnvironmentFacetItem {
+	"""
+	The environment name.
+	"""
+	environmentName: String!
+
+	"""
+	Number of matching applications.
+	"""
+	count: Int!
+}
+
+"""
+A single facet item for application states.
+"""
+type ApplicationStateFacetItem {
+	"""
+	The application state.
+	"""
+	state: ApplicationState!
+
+	"""
+	Number of matching applications.
+	"""
+	count: Int!
 }
 
 """

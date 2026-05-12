@@ -59,6 +59,7 @@ type Config = graphql.Config[ResolverRoot, DirectiveRoot, ComplexityRoot]
 type ResolverRoot interface {
 	ActivityLogEntryConnection() ActivityLogEntryConnectionResolver
 	Application() ApplicationResolver
+	ApplicationConnection() ApplicationConnectionResolver
 	ApplicationInstance() ApplicationInstanceResolver
 	ApplicationRestartLoopIssue() ApplicationRestartLoopIssueResolver
 	BigQueryDataset() BigQueryDatasetResolver
@@ -82,6 +83,7 @@ type ResolverRoot interface {
 	InstanceGroup() InstanceGroupResolver
 	InvalidSpecIssue() InvalidSpecIssueResolver
 	Job() JobResolver
+	JobConnection() JobConnectionResolver
 	JobRun() JobRunResolver
 	KafkaTopic() KafkaTopicResolver
 	KafkaTopicAcl() KafkaTopicAclResolver
@@ -252,6 +254,7 @@ type ComplexityRoot struct {
 
 	ApplicationConnection struct {
 		Edges    func(childComplexity int) int
+		Facets   func(childComplexity int) int
 		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
 	}
@@ -282,6 +285,16 @@ type ComplexityRoot struct {
 	ApplicationEdge struct {
 		Cursor func(childComplexity int) int
 		Node   func(childComplexity int) int
+	}
+
+	ApplicationEnvironmentFacetItem struct {
+		Count           func(childComplexity int) int
+		EnvironmentName func(childComplexity int) int
+	}
+
+	ApplicationFacets struct {
+		Environments func(childComplexity int) int
+		States       func(childComplexity int) int
 	}
 
 	ApplicationInstance struct {
@@ -371,6 +384,11 @@ type ComplexityRoot struct {
 		MaxInstances func(childComplexity int) int
 		MinInstances func(childComplexity int) int
 		Strategies   func(childComplexity int) int
+	}
+
+	ApplicationStateFacetItem struct {
+		Count func(childComplexity int) int
+		State func(childComplexity int) int
 	}
 
 	ApplicationUpdatedActivityLogEntry struct {
@@ -1111,6 +1129,7 @@ type ComplexityRoot struct {
 
 	JobConnection struct {
 		Edges    func(childComplexity int) int
+		Facets   func(childComplexity int) int
 		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
 	}
@@ -1141,6 +1160,16 @@ type ComplexityRoot struct {
 	JobEdge struct {
 		Cursor func(childComplexity int) int
 		Node   func(childComplexity int) int
+	}
+
+	JobEnvironmentFacetItem struct {
+		Count           func(childComplexity int) int
+		EnvironmentName func(childComplexity int) int
+	}
+
+	JobFacets struct {
+		Environments func(childComplexity int) int
+		States       func(childComplexity int) int
 	}
 
 	JobManifest struct {
@@ -1220,6 +1249,11 @@ type ComplexityRoot struct {
 	JobSchedule struct {
 		Expression func(childComplexity int) int
 		TimeZone   func(childComplexity int) int
+	}
+
+	JobStateFacetItem struct {
+		Count func(childComplexity int) int
+		State func(childComplexity int) int
 	}
 
 	JobTriggeredActivityLogEntry struct {
@@ -3920,6 +3954,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ApplicationConnection.Edges(childComplexity), true
 
+	case "ApplicationConnection.facets":
+		if e.ComplexityRoot.ApplicationConnection.Facets == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationConnection.Facets(childComplexity), true
+
 	case "ApplicationConnection.nodes":
 		if e.ComplexityRoot.ApplicationConnection.Nodes == nil {
 			break
@@ -4066,6 +4107,34 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ApplicationEdge.Node(childComplexity), true
+
+	case "ApplicationEnvironmentFacetItem.count":
+		if e.ComplexityRoot.ApplicationEnvironmentFacetItem.Count == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationEnvironmentFacetItem.Count(childComplexity), true
+
+	case "ApplicationEnvironmentFacetItem.environmentName":
+		if e.ComplexityRoot.ApplicationEnvironmentFacetItem.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationEnvironmentFacetItem.EnvironmentName(childComplexity), true
+
+	case "ApplicationFacets.environments":
+		if e.ComplexityRoot.ApplicationFacets.Environments == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationFacets.Environments(childComplexity), true
+
+	case "ApplicationFacets.states":
+		if e.ComplexityRoot.ApplicationFacets.States == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationFacets.States(childComplexity), true
 
 	case "ApplicationInstance.created":
 		if e.ComplexityRoot.ApplicationInstance.Created == nil {
@@ -4442,6 +4511,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ApplicationScaling.Strategies(childComplexity), true
+
+	case "ApplicationStateFacetItem.count":
+		if e.ComplexityRoot.ApplicationStateFacetItem.Count == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationStateFacetItem.Count(childComplexity), true
+
+	case "ApplicationStateFacetItem.state":
+		if e.ComplexityRoot.ApplicationStateFacetItem.State == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationStateFacetItem.State(childComplexity), true
 
 	case "ApplicationUpdatedActivityLogEntry.actor":
 		if e.ComplexityRoot.ApplicationUpdatedActivityLogEntry.Actor == nil {
@@ -7390,6 +7473,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.JobConnection.Edges(childComplexity), true
 
+	case "JobConnection.facets":
+		if e.ComplexityRoot.JobConnection.Facets == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobConnection.Facets(childComplexity), true
+
 	case "JobConnection.nodes":
 		if e.ComplexityRoot.JobConnection.Nodes == nil {
 			break
@@ -7536,6 +7626,34 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.JobEdge.Node(childComplexity), true
+
+	case "JobEnvironmentFacetItem.count":
+		if e.ComplexityRoot.JobEnvironmentFacetItem.Count == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobEnvironmentFacetItem.Count(childComplexity), true
+
+	case "JobEnvironmentFacetItem.environmentName":
+		if e.ComplexityRoot.JobEnvironmentFacetItem.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobEnvironmentFacetItem.EnvironmentName(childComplexity), true
+
+	case "JobFacets.environments":
+		if e.ComplexityRoot.JobFacets.Environments == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobFacets.Environments(childComplexity), true
+
+	case "JobFacets.states":
+		if e.ComplexityRoot.JobFacets.States == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobFacets.States(childComplexity), true
 
 	case "JobManifest.content":
 		if e.ComplexityRoot.JobManifest.Content == nil {
@@ -7821,6 +7939,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.JobSchedule.TimeZone(childComplexity), true
+
+	case "JobStateFacetItem.count":
+		if e.ComplexityRoot.JobStateFacetItem.Count == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobStateFacetItem.Count(childComplexity), true
+
+	case "JobStateFacetItem.state":
+		if e.ComplexityRoot.JobStateFacetItem.State == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobStateFacetItem.State(childComplexity), true
 
 	case "JobTriggeredActivityLogEntry.actor":
 		if e.ComplexityRoot.JobTriggeredActivityLogEntry.Actor == nil {
@@ -18245,7 +18377,6 @@ type ActivityLogEntryConnection {
 	"""
 	Facets for the activity log entries. Provides distribution counts to help narrow down results.
 	Facet counts are computed over the full result set (ignoring pagination) but respect the current filter.
-	Only computed when requested.
 	"""
 	facets: ActivityLogFacets
 }
@@ -19052,6 +19183,12 @@ type ApplicationConnection {
 	List of edges.
 	"""
 	edges: [ApplicationEdge!]!
+
+	"""
+	Facets for the applications. Provides distribution counts to help narrow down results.
+	Facet counts are computed over the full result set (ignoring pagination) but respect the current filter.
+	"""
+	facets: ApplicationFacets
 }
 
 """
@@ -19067,6 +19204,51 @@ type ApplicationEdge {
 	The application.
 	"""
 	node: Application!
+}
+
+"""
+Facets for applications, providing distribution counts across different dimensions.
+"""
+type ApplicationFacets {
+	"""
+	Distribution of applications by environment.
+	"""
+	environments: [ApplicationEnvironmentFacetItem!]!
+
+	"""
+	Distribution of applications by state.
+	"""
+	states: [ApplicationStateFacetItem!]!
+}
+
+"""
+A single facet item for environments.
+"""
+type ApplicationEnvironmentFacetItem {
+	"""
+	The environment name.
+	"""
+	environmentName: String!
+
+	"""
+	Number of matching applications.
+	"""
+	count: Int!
+}
+
+"""
+A single facet item for application states.
+"""
+type ApplicationStateFacetItem {
+	"""
+	The application state.
+	"""
+	state: ApplicationState!
+
+	"""
+	Number of matching applications.
+	"""
+	count: Int!
 }
 
 """
@@ -22060,6 +22242,12 @@ type JobConnection {
 
 	"List of edges."
 	edges: [JobEdge!]!
+
+	"""
+	Facets for the jobs. Provides distribution counts to help narrow down results.
+	Facet counts are computed over the full result set (ignoring pagination) but respect the current filter.
+	"""
+	facets: JobFacets
 }
 
 type JobRunInstanceConnection {
@@ -22090,6 +22278,51 @@ type JobEdge {
 
 	"The job."
 	node: Job!
+}
+
+"""
+Facets for jobs, providing distribution counts across different dimensions.
+"""
+type JobFacets {
+	"""
+	Distribution of jobs by environment.
+	"""
+	environments: [JobEnvironmentFacetItem!]!
+
+	"""
+	Distribution of jobs by state.
+	"""
+	states: [JobStateFacetItem!]!
+}
+
+"""
+A single facet item for environments.
+"""
+type JobEnvironmentFacetItem {
+	"""
+	The environment name.
+	"""
+	environmentName: String!
+
+	"""
+	Number of matching jobs.
+	"""
+	count: Int!
+}
+
+"""
+A single facet item for job states.
+"""
+type JobStateFacetItem {
+	"""
+	The job state.
+	"""
+	state: JobState!
+
+	"""
+	Number of matching jobs.
+	"""
+	count: Int!
 }
 
 type JobRunEdge {
@@ -30210,6 +30443,8 @@ func (ec *executionContext) childFields_ApplicationConnection(ctx context.Contex
 		return ec.fieldContext_ApplicationConnection_nodes(ctx, field)
 	case "edges":
 		return ec.fieldContext_ApplicationConnection_edges(ctx, field)
+	case "facets":
+		return ec.fieldContext_ApplicationConnection_facets(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type ApplicationConnection", field.Name)
 }
@@ -30222,6 +30457,26 @@ func (ec *executionContext) childFields_ApplicationEdge(ctx context.Context, fie
 		return ec.fieldContext_ApplicationEdge_node(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type ApplicationEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_ApplicationEnvironmentFacetItem(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "environmentName":
+		return ec.fieldContext_ApplicationEnvironmentFacetItem_environmentName(ctx, field)
+	case "count":
+		return ec.fieldContext_ApplicationEnvironmentFacetItem_count(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ApplicationEnvironmentFacetItem", field.Name)
+}
+
+func (ec *executionContext) childFields_ApplicationFacets(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "environments":
+		return ec.fieldContext_ApplicationFacets_environments(ctx, field)
+	case "states":
+		return ec.fieldContext_ApplicationFacets_states(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ApplicationFacets", field.Name)
 }
 
 func (ec *executionContext) childFields_ApplicationInstance(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -30332,6 +30587,16 @@ func (ec *executionContext) childFields_ApplicationScaling(ctx context.Context, 
 		return ec.fieldContext_ApplicationScaling_strategies(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type ApplicationScaling", field.Name)
+}
+
+func (ec *executionContext) childFields_ApplicationStateFacetItem(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "state":
+		return ec.fieldContext_ApplicationStateFacetItem_state(ctx, field)
+	case "count":
+		return ec.fieldContext_ApplicationStateFacetItem_count(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ApplicationStateFacetItem", field.Name)
 }
 
 func (ec *executionContext) childFields_AssignRoleToServiceAccountPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -31496,6 +31761,8 @@ func (ec *executionContext) childFields_JobConnection(ctx context.Context, field
 		return ec.fieldContext_JobConnection_nodes(ctx, field)
 	case "edges":
 		return ec.fieldContext_JobConnection_edges(ctx, field)
+	case "facets":
+		return ec.fieldContext_JobConnection_facets(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type JobConnection", field.Name)
 }
@@ -31508,6 +31775,26 @@ func (ec *executionContext) childFields_JobEdge(ctx context.Context, field graph
 		return ec.fieldContext_JobEdge_node(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type JobEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_JobEnvironmentFacetItem(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "environmentName":
+		return ec.fieldContext_JobEnvironmentFacetItem_environmentName(ctx, field)
+	case "count":
+		return ec.fieldContext_JobEnvironmentFacetItem_count(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type JobEnvironmentFacetItem", field.Name)
+}
+
+func (ec *executionContext) childFields_JobFacets(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "environments":
+		return ec.fieldContext_JobFacets_environments(ctx, field)
+	case "states":
+		return ec.fieldContext_JobFacets_states(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type JobFacets", field.Name)
 }
 
 func (ec *executionContext) childFields_JobManifest(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -31642,6 +31929,16 @@ func (ec *executionContext) childFields_JobSchedule(ctx context.Context, field g
 		return ec.fieldContext_JobSchedule_timeZone(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type JobSchedule", field.Name)
+}
+
+func (ec *executionContext) childFields_JobStateFacetItem(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "state":
+		return ec.fieldContext_JobStateFacetItem_state(ctx, field)
+	case "count":
+		return ec.fieldContext_JobStateFacetItem_count(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type JobStateFacetItem", field.Name)
 }
 
 func (ec *executionContext) childFields_KafkaCredentials(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {

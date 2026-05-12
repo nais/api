@@ -292,6 +292,12 @@ type JobConnection {
 
 	"List of edges."
 	edges: [JobEdge!]!
+
+	"""
+	Facets for the jobs. Provides distribution counts to help narrow down results.
+	Facet counts are computed over the full result set (ignoring pagination) but respect the current filter.
+	"""
+	facets: JobFacets
 }
 
 type JobRunInstanceConnection {
@@ -322,6 +328,51 @@ type JobEdge {
 
 	"The job."
 	node: Job!
+}
+
+"""
+Facets for jobs, providing distribution counts across different dimensions.
+"""
+type JobFacets {
+	"""
+	Distribution of jobs by environment.
+	"""
+	environments: [JobEnvironmentFacetItem!]!
+
+	"""
+	Distribution of jobs by state.
+	"""
+	states: [JobStateFacetItem!]!
+}
+
+"""
+A single facet item for environments.
+"""
+type JobEnvironmentFacetItem {
+	"""
+	The environment name.
+	"""
+	environmentName: String!
+
+	"""
+	Number of matching jobs.
+	"""
+	count: Int!
+}
+
+"""
+A single facet item for job states.
+"""
+type JobStateFacetItem {
+	"""
+	The job state.
+	"""
+	state: JobState!
+
+	"""
+	Number of matching jobs.
+	"""
+	count: Int!
 }
 
 type JobRunEdge {

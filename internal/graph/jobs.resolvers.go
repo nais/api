@@ -96,6 +96,10 @@ func (r *jobResolver) Issues(ctx context.Context, obj *job.Job, first *int, afte
 	return issue.ListIssues(ctx, obj.TeamSlug, page, orderBy, f)
 }
 
+func (r *jobConnectionResolver) Facets(ctx context.Context, obj *job.JobConnection) (*job.JobFacets, error) {
+	return job.ComputeFacets(ctx, obj.GetAllJobs(), obj.GetFilter())
+}
+
 func (r *jobRunResolver) Duration(ctx context.Context, obj *job.JobRun) (int, error) {
 	return int(math.Round(obj.Duration().Seconds())), nil
 }
@@ -143,15 +147,25 @@ func (r *mutationResolver) TriggerJob(ctx context.Context, input job.TriggerJobI
 	}, nil
 }
 
-func (r *teamResolver) Jobs(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *job.JobOrder, filter *job.TeamJobsFilter) (*pagination.Connection[*job.Job], error) {
+func (r *teamResolver) Jobs(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *job.JobOrder, filter *job.TeamJobsFilter) (*job.JobConnection, error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
 	}
 
-	ret := job.ListAllForTeam(ctx, obj.Slug, orderBy, filter)
-	jobs := pagination.Slice(ret, page)
-	return pagination.NewConnection(jobs, page, len(ret)), nil
+	// Fetch all jobs for the team (unfiltered) for facet computation.
+	unfilteredJobs := job.ListAllForTeam(ctx, obj.Slug, orderBy, nil)
+
+	// Apply filter for the actual result set.
+	filteredJobs := unfilteredJobs
+	if filter != nil {
+		filteredJobs = job.SortFilter.Filter(ctx, unfilteredJobs, filter)
+	}
+
+	jobs := pagination.Slice(filteredJobs, page)
+	conn := pagination.NewConnection(jobs, page, len(filteredJobs))
+
+	return job.NewJobConnection(conn, unfilteredJobs, filter), nil
 }
 
 func (r *teamEnvironmentResolver) Job(ctx context.Context, obj *team.TeamEnvironment, name string) (*job.Job, error) {
@@ -186,6 +200,8 @@ func (r *Resolver) DeleteJobRunPayload() gengql.DeleteJobRunPayloadResolver {
 
 func (r *Resolver) Job() gengql.JobResolver { return &jobResolver{r} }
 
+func (r *Resolver) JobConnection() gengql.JobConnectionResolver { return &jobConnectionResolver{r} }
+
 func (r *Resolver) JobRun() gengql.JobRunResolver { return &jobRunResolver{r} }
 
 func (r *Resolver) TriggerJobPayload() gengql.TriggerJobPayloadResolver {
@@ -196,6 +212,7 @@ type (
 	deleteJobPayloadResolver    struct{ *Resolver }
 	deleteJobRunPayloadResolver struct{ *Resolver }
 	jobResolver                 struct{ *Resolver }
+	jobConnectionResolver       struct{ *Resolver }
 	jobRunResolver              struct{ *Resolver }
 	triggerJobPayloadResolver   struct{ *Resolver }
 )
