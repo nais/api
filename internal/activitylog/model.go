@@ -33,10 +33,46 @@ type ActivityLogEntry interface {
 	ID() ident.Ident
 }
 
-type (
-	ActivityLogEntryConnection = pagination.Connection[ActivityLogEntry]
-	ActivityLogEntryEdge       = pagination.Edge[ActivityLogEntry]
-)
+type ActivityLogEntryConnection struct {
+	pagination.Connection[ActivityLogEntry]
+
+	scope  *ActivityLogScope
+	filter *ActivityLogFilter
+}
+
+func (c *ActivityLogEntryConnection) GetScope() *ActivityLogScope   { return c.scope }
+func (c *ActivityLogEntryConnection) GetFilter() *ActivityLogFilter { return c.filter }
+
+// ActivityLogScope defines the base scope for an activity log query.
+type ActivityLogScope struct {
+	TeamSlug        *slug.Slug
+	ResourceType    *string
+	ResourceName    *string
+	EnvironmentName *string
+}
+
+type ActivityLogEntryEdge = pagination.Edge[ActivityLogEntry]
+
+type ActivityLogFacets struct {
+	ActivityTypes []ActivityLogActivityTypeFacetItem `json:"activityTypes"`
+	ResourceTypes []ActivityLogResourceTypeFacetItem `json:"resourceTypes"`
+	Environments  []ActivityLogEnvironmentFacetItem  `json:"environments"`
+}
+
+type ActivityLogActivityTypeFacetItem struct {
+	ActivityType ActivityLogActivityType `json:"activityType"`
+	Count        int                     `json:"count"`
+}
+
+type ActivityLogResourceTypeFacetItem struct {
+	ResourceType ActivityLogEntryResourceType `json:"resourceType"`
+	Count        int                          `json:"count"`
+}
+
+type ActivityLogEnvironmentFacetItem struct {
+	EnvironmentName string `json:"environmentName"`
+	Count           int    `json:"count"`
+}
 
 type GenericActivityLogEntry struct {
 	Actor           string                       `json:"actor"`
@@ -87,7 +123,9 @@ func TransformData[T any](entry GenericActivityLogEntry, f func(*T) *T) (*T, err
 }
 
 type ActivityLogFilter struct {
-	ActivityTypes []ActivityLogActivityType `json:"activityTypes,omitempty"`
+	ActivityTypes []ActivityLogActivityType      `json:"activityTypes,omitempty"`
+	ResourceTypes []ActivityLogEntryResourceType `json:"resourceTypes,omitempty"`
+	Environments  []string                       `json:"environments,omitempty"`
 }
 
 type ActivityLogActivityType string

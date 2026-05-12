@@ -14,7 +14,7 @@ import (
 	"github.com/nais/api/internal/workload/job"
 )
 
-func (r *containerImageResolver) ActivityLog(ctx context.Context, obj *workload.ContainerImage, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*pagination.Connection[activitylog.ActivityLogEntry], error) {
+func (r *containerImageResolver) ActivityLog(ctx context.Context, obj *workload.ContainerImage, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*activitylog.ActivityLogEntryConnection, error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err

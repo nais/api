@@ -10,6 +10,14 @@ WHERE
 		sqlc.narg('filter')::TEXT[] IS NULL
 		OR (resource_type || ':' || action) = ANY (sqlc.narg('filter')::TEXT[])
 	)
+	AND (
+		sqlc.narg('resource_types')::TEXT[] IS NULL
+		OR resource_type = ANY (sqlc.narg('resource_types')::TEXT[])
+	)
+	AND (
+		sqlc.narg('environments')::TEXT[] IS NULL
+		OR environment = ANY (sqlc.narg('environments')::TEXT[])
+	)
 ORDER BY
 	created_at DESC
 LIMIT
@@ -30,6 +38,14 @@ WHERE
 	AND (
 		sqlc.narg('filter')::TEXT[] IS NULL
 		OR (resource_type || ':' || action) = ANY (sqlc.narg('filter')::TEXT[])
+	)
+	AND (
+		sqlc.narg('resource_types')::TEXT[] IS NULL
+		OR resource_type = ANY (sqlc.narg('resource_types')::TEXT[])
+	)
+	AND (
+		sqlc.narg('environments')::TEXT[] IS NULL
+		OR environment = ANY (sqlc.narg('environments')::TEXT[])
 	)
 ORDER BY
 	created_at DESC
@@ -53,6 +69,14 @@ WHERE
 	AND (
 		sqlc.narg('filter')::TEXT[] IS NULL
 		OR (resource_type || ':' || action) = ANY (sqlc.narg('filter')::TEXT[])
+	)
+	AND (
+		sqlc.narg('resource_types')::TEXT[] IS NULL
+		OR activity_log_combined_view.resource_type = ANY (sqlc.narg('resource_types')::TEXT[])
+	)
+	AND (
+		sqlc.narg('environments')::TEXT[] IS NULL
+		OR activity_log_combined_view.environment = ANY (sqlc.narg('environments')::TEXT[])
 	)
 ORDER BY
 	created_at DESC
@@ -103,6 +127,56 @@ WHERE
 	id = ANY (@ids::UUID[])
 ORDER BY
 	created_at DESC
+;
+
+-- name: Facets :many
+SELECT
+	resource_type,
+	action,
+	COALESCE(environment, '') AS environment,
+	COUNT(*) AS total_count,
+	COUNT(*) FILTER (
+		WHERE
+			(
+				sqlc.narg('filter')::TEXT[] IS NULL
+				OR (resource_type || ':' || action) = ANY (sqlc.narg('filter')::TEXT[])
+			)
+			AND (
+				sqlc.narg('filter_resource_types')::TEXT[] IS NULL
+				OR resource_type = ANY (sqlc.narg('filter_resource_types')::TEXT[])
+			)
+			AND (
+				sqlc.narg('filter_environments')::TEXT[] IS NULL
+				OR environment = ANY (sqlc.narg('filter_environments')::TEXT[])
+			)
+	) AS filtered_count
+FROM
+	activity_log_combined_view
+WHERE
+	(
+		sqlc.narg('team_slug')::TEXT IS NULL
+		OR team_slug = sqlc.narg('team_slug')
+	)
+	AND (
+		sqlc.narg('resource_type')::TEXT IS NULL
+		OR resource_type = sqlc.narg('resource_type')
+	)
+	AND (
+		sqlc.narg('resource_name')::TEXT IS NULL
+		OR resource_name = sqlc.narg('resource_name')
+	)
+	AND (
+		sqlc.narg('environment_name')::TEXT IS NULL
+		OR environment = sqlc.narg('environment_name')
+	)
+GROUP BY
+	resource_type,
+	action,
+	environment
+ORDER BY
+	resource_type,
+	action,
+	environment
 ;
 
 -- name: RefreshMaterializedView :exec

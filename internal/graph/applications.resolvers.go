@@ -7,6 +7,7 @@ import (
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/gengql"
+	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/issue"
 	"github.com/nais/api/internal/team"
@@ -65,7 +66,7 @@ func (r *applicationResolver) Instances(ctx context.Context, obj *application.Ap
 	return application.ListInstances(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Name, page)
 }
 
-func (r *applicationResolver) ActivityLog(ctx context.Context, obj *application.Application, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*pagination.Connection[activitylog.ActivityLogEntry], error) {
+func (r *applicationResolver) ActivityLog(ctx context.Context, obj *application.Application, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*activitylog.ActivityLogEntryConnection, error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
@@ -95,6 +96,10 @@ func (r *applicationResolver) Issues(ctx context.Context, obj *application.Appli
 	}
 
 	return issue.ListIssues(ctx, obj.TeamSlug, page, orderBy, f)
+}
+
+func (r *applicationConnectionResolver) Facets(ctx context.Context, obj *application.ApplicationConnection) (*application.ApplicationFacets, error) {
+	return application.ComputeFacets(ctx, obj.GetAllApps(), obj.GetFilter())
 }
 
 func (r *deleteApplicationPayloadResolver) Team(ctx context.Context, obj *application.DeleteApplicationPayload) (*team.Team, error) {
@@ -155,15 +160,32 @@ func (r *restartApplicationPayloadResolver) Application(ctx context.Context, obj
 	return application.Get(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ApplicationName)
 }
 
-func (r *teamResolver) Applications(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *application.ApplicationOrder, filter *application.TeamApplicationsFilter) (*pagination.Connection[*application.Application], error) {
+func (r *teamResolver) Applications(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *application.ApplicationOrder, filter *application.TeamApplicationsFilter) (*application.ApplicationConnection, error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
 	}
 
-	ret := application.ListAllForTeam(ctx, obj.Slug, orderBy, filter)
-	apps := pagination.Slice(ret, page)
-	return pagination.NewConnection(apps, page, len(ret)), nil
+	// Fetch all apps for the team (unfiltered) for facet computation.
+	// Pass nil orderBy to avoid expensive sorting (e.g. STATE) on items that may be filtered out.
+	unfilteredApps := application.ListAllForTeam(ctx, obj.Slug, nil, nil)
+
+	// Apply filter for the actual result set.
+	filteredApps := unfilteredApps
+	if filter != nil {
+		filteredApps = application.SortFilter.Filter(ctx, unfilteredApps, filter)
+	}
+
+	// Sort only the filtered result set.
+	if orderBy == nil {
+		orderBy = &application.ApplicationOrder{Field: "NAME", Direction: model.OrderDirectionAsc}
+	}
+	application.SortFilter.Sort(ctx, filteredApps, orderBy.Field, orderBy.Direction)
+
+	apps := pagination.Slice(filteredApps, page)
+	conn := pagination.NewConnection(apps, page, len(filteredApps))
+
+	return application.NewApplicationConnection(conn, unfilteredApps, filter), nil
 }
 
 func (r *teamEnvironmentResolver) Application(ctx context.Context, obj *team.TeamEnvironment, name string) (*application.Application, error) {
@@ -185,6 +207,10 @@ func (r *teamInventoryCountsResolver) Applications(ctx context.Context, obj *tea
 
 func (r *Resolver) Application() gengql.ApplicationResolver { return &applicationResolver{r} }
 
+func (r *Resolver) ApplicationConnection() gengql.ApplicationConnectionResolver {
+	return &applicationConnectionResolver{r}
+}
+
 func (r *Resolver) ApplicationInstance() gengql.ApplicationInstanceResolver {
 	return &applicationInstanceResolver{r}
 }
@@ -203,6 +229,7 @@ func (r *Resolver) RestartApplicationPayload() gengql.RestartApplicationPayloadR
 
 type (
 	applicationResolver               struct{ *Resolver }
+	applicationConnectionResolver     struct{ *Resolver }
 	applicationInstanceResolver       struct{ *Resolver }
 	deleteApplicationPayloadResolver  struct{ *Resolver }
 	ingressResolver                   struct{ *Resolver }

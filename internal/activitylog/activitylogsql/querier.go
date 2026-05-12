@@ -10,6 +10,7 @@ import (
 
 type Querier interface {
 	Create(ctx context.Context, arg CreateParams) error
+	Facets(ctx context.Context, arg FacetsParams) ([]*FacetsRow, error)
 	Get(ctx context.Context, id uuid.UUID) (*ActivityLogCombinedView, error)
 	ListByIDs(ctx context.Context, ids []uuid.UUID) ([]*ActivityLogCombinedView, error)
 	ListForResource(ctx context.Context, arg ListForResourceParams) ([]*ListForResourceRow, error)

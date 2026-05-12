@@ -126,7 +126,7 @@ func (r *secretResolver) Team(ctx context.Context, obj *secret.Secret) (*team.Te
 	return team.Get(ctx, obj.TeamSlug)
 }
 
-func (r *secretResolver) Applications(ctx context.Context, obj *secret.Secret, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*application.Application], error) {
+func (r *secretResolver) Applications(ctx context.Context, obj *secret.Secret, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*application.ApplicationConnection, error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
@@ -142,10 +142,11 @@ func (r *secretResolver) Applications(ctx context.Context, obj *secret.Secret, f
 	}
 
 	apps := pagination.Slice(ret, page)
-	return pagination.NewConnection(apps, page, len(ret)), nil
+	conn := pagination.NewConnection(apps, page, len(ret))
+	return application.NewApplicationConnection(conn, ret, nil), nil
 }
 
-func (r *secretResolver) Jobs(ctx context.Context, obj *secret.Secret, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*job.Job], error) {
+func (r *secretResolver) Jobs(ctx context.Context, obj *secret.Secret, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*job.JobConnection, error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
@@ -161,7 +162,8 @@ func (r *secretResolver) Jobs(ctx context.Context, obj *secret.Secret, first *in
 	}
 
 	jobs := pagination.Slice(ret, page)
-	return pagination.NewConnection(jobs, page, len(ret)), nil
+	conn := pagination.NewConnection(jobs, page, len(ret))
+	return job.NewJobConnection(conn, ret, nil), nil
 }
 
 func (r *secretResolver) Workloads(ctx context.Context, obj *secret.Secret, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[workload.Workload], error) {
@@ -201,7 +203,7 @@ func (r *secretResolver) LastModifiedBy(ctx context.Context, obj *secret.Secret)
 	return user.GetByEmail(ctx, *obj.ModifiedByUserEmail)
 }
 
-func (r *secretResolver) ActivityLog(ctx context.Context, obj *secret.Secret, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*pagination.Connection[activitylog.ActivityLogEntry], error) {
+func (r *secretResolver) ActivityLog(ctx context.Context, obj *secret.Secret, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*activitylog.ActivityLogEntryConnection, error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err

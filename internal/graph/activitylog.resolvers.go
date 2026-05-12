@@ -5,6 +5,7 @@ import (
 
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/environmentmapper"
+	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/persistence/opensearch"
 	"github.com/nais/api/internal/persistence/valkey"
@@ -12,7 +13,11 @@ import (
 	"github.com/nais/api/internal/team"
 )
 
-func (r *openSearchResolver) ActivityLog(ctx context.Context, obj *opensearch.OpenSearch, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*pagination.Connection[activitylog.ActivityLogEntry], error) {
+func (r *activityLogEntryConnectionResolver) Facets(ctx context.Context, obj *activitylog.ActivityLogEntryConnection) (*activitylog.ActivityLogFacets, error) {
+	return activitylog.ComputeFacets(ctx, obj.GetScope(), obj.GetFilter())
+}
+
+func (r *openSearchResolver) ActivityLog(ctx context.Context, obj *opensearch.OpenSearch, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*activitylog.ActivityLogEntryConnection, error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
@@ -29,7 +34,7 @@ func (r *openSearchResolver) ActivityLog(ctx context.Context, obj *opensearch.Op
 	)
 }
 
-func (r *reconcilerResolver) ActivityLog(ctx context.Context, obj *reconciler.Reconciler, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*pagination.Connection[activitylog.ActivityLogEntry], error) {
+func (r *reconcilerResolver) ActivityLog(ctx context.Context, obj *reconciler.Reconciler, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*activitylog.ActivityLogEntryConnection, error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
@@ -38,7 +43,7 @@ func (r *reconcilerResolver) ActivityLog(ctx context.Context, obj *reconciler.Re
 	return activitylog.ListForResource(ctx, reconciler.ActivityLogEntryResourceTypeReconciler, obj.Name, page, filter)
 }
 
-func (r *teamResolver) ActivityLog(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*pagination.Connection[activitylog.ActivityLogEntry], error) {
+func (r *teamResolver) ActivityLog(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*activitylog.ActivityLogEntryConnection, error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
@@ -47,7 +52,7 @@ func (r *teamResolver) ActivityLog(ctx context.Context, obj *team.Team, first *i
 	return activitylog.ListForTeam(ctx, obj.Slug, page, filter)
 }
 
-func (r *valkeyResolver) ActivityLog(ctx context.Context, obj *valkey.Valkey, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*pagination.Connection[activitylog.ActivityLogEntry], error) {
+func (r *valkeyResolver) ActivityLog(ctx context.Context, obj *valkey.Valkey, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*activitylog.ActivityLogEntryConnection, error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
@@ -63,3 +68,9 @@ func (r *valkeyResolver) ActivityLog(ctx context.Context, obj *valkey.Valkey, fi
 		filter,
 	)
 }
+
+func (r *Resolver) ActivityLogEntryConnection() gengql.ActivityLogEntryConnectionResolver {
+	return &activityLogEntryConnectionResolver{r}
+}
+
+type activityLogEntryConnectionResolver struct{ *Resolver }

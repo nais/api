@@ -40,7 +40,7 @@ func (r *configResolver) Values(ctx context.Context, obj *config.Config) ([]*con
 	return config.ValuesFromConfig(obj), nil
 }
 
-func (r *configResolver) Applications(ctx context.Context, obj *config.Config, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*application.Application], error) {
+func (r *configResolver) Applications(ctx context.Context, obj *config.Config, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*application.ApplicationConnection, error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
@@ -56,10 +56,11 @@ func (r *configResolver) Applications(ctx context.Context, obj *config.Config, f
 	}
 
 	apps := pagination.Slice(ret, page)
-	return pagination.NewConnection(apps, page, len(ret)), nil
+	conn := pagination.NewConnection(apps, page, len(ret))
+	return application.NewApplicationConnection(conn, ret, nil), nil
 }
 
-func (r *configResolver) Jobs(ctx context.Context, obj *config.Config, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*job.Job], error) {
+func (r *configResolver) Jobs(ctx context.Context, obj *config.Config, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*job.JobConnection, error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
@@ -75,7 +76,8 @@ func (r *configResolver) Jobs(ctx context.Context, obj *config.Config, first *in
 	}
 
 	jobs := pagination.Slice(ret, page)
-	return pagination.NewConnection(jobs, page, len(ret)), nil
+	conn := pagination.NewConnection(jobs, page, len(ret))
+	return job.NewJobConnection(conn, ret, nil), nil
 }
 
 func (r *configResolver) Workloads(ctx context.Context, obj *config.Config, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[workload.Workload], error) {
@@ -123,7 +125,7 @@ func (r *configResolver) LastModifiedBy(ctx context.Context, obj *config.Config)
 	return u, nil
 }
 
-func (r *configResolver) ActivityLog(ctx context.Context, obj *config.Config, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*pagination.Connection[activitylog.ActivityLogEntry], error) {
+func (r *configResolver) ActivityLog(ctx context.Context, obj *config.Config, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*activitylog.ActivityLogEntryConnection, error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err

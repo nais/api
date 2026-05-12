@@ -20,8 +20,25 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+type ApplicationConnection struct {
+	pagination.Connection[*Application]
+
+	allApps []*Application
+	filter  *TeamApplicationsFilter
+}
+
+func (c *ApplicationConnection) GetAllApps() []*Application         { return c.allApps }
+func (c *ApplicationConnection) GetFilter() *TeamApplicationsFilter { return c.filter }
+
+func NewApplicationConnection(conn *pagination.Connection[*Application], allApps []*Application, filter *TeamApplicationsFilter) *ApplicationConnection {
+	return &ApplicationConnection{
+		Connection: *conn,
+		allApps:    allApps,
+		filter:     filter,
+	}
+}
+
 type (
-	ApplicationConnection         = pagination.Connection[*Application]
 	ApplicationEdge               = pagination.Edge[*Application]
 	ApplicationInstanceConnection = pagination.Connection[*ApplicationInstance]
 	ApplicationInstanceEdge       = pagination.Edge[*ApplicationInstance]
@@ -637,6 +654,21 @@ type TeamApplicationsFilter struct {
 	Name         string             `json:"name"`
 	Environments []string           `json:"environments"`
 	States       []ApplicationState `json:"states"`
+}
+
+type ApplicationFacets struct {
+	Environments []ApplicationEnvironmentFacetItem `json:"environments"`
+	States       []ApplicationStateFacetItem       `json:"states"`
+}
+
+type ApplicationEnvironmentFacetItem struct {
+	EnvironmentName string `json:"environmentName"`
+	Count           int    `json:"count"`
+}
+
+type ApplicationStateFacetItem struct {
+	State ApplicationState `json:"state"`
+	Count int              `json:"count"`
 }
 
 type ScalingDirection string
