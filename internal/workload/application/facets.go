@@ -6,8 +6,7 @@ import (
 	"strings"
 )
 
-// ComputeFacets computes facets for an application query. Called lazily by the
-// resolver only when the client requests the facets field.
+// ComputeFacets computes facets for an application query.
 func ComputeFacets(ctx context.Context, allApps []*Application, filter *TeamApplicationsFilter) (*ApplicationFacets, error) {
 	environmentCounts := map[string]int{}
 	stateCounts := map[ApplicationState]int{}
