@@ -186,6 +186,9 @@ type JobSchedule {
 
 	"The time zone for the job. Defaults to UTC."
 	timeZone: String!
+
+	"The next scheduled run time."
+	nextRun: Time!
 }
 
 union JobAuthIntegrations = EntraIDAuthIntegration | MaskinportenAuthIntegration
@@ -427,6 +430,9 @@ enum JobOrderField {
 	Order by state.
 	"""
 	STATE
+
+	"Order jobs by next scheduled run time. Jobs without a schedule are sorted last."
+	NEXT_RUN
 }
 
 extend union SearchNode = Job

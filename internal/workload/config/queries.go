@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"maps"
 	"slices"
 	"strings"
 
@@ -611,13 +612,9 @@ func encodeValueForStorage(input *ConfigValueInput) (string, error) {
 func mergeAnnotations(existingAnnotations map[string]string, user string, extraAnnotations map[string]string) map[string]string {
 	merged := make(map[string]string)
 	// Start with existing annotations
-	for k, v := range existingAnnotations {
-		merged[k] = v
-	}
+	maps.Copy(merged, existingAnnotations)
 	// Apply standard annotations (overwrites last-modified-at, etc.)
-	for k, v := range annotations(user) {
-		merged[k] = v
-	}
+	maps.Copy(merged, annotations(user))
 	// Apply extra annotations
 	for k, v := range extraAnnotations {
 		if v == "" {

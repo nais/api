@@ -3487,6 +3487,29 @@ func (ec *executionContext) fieldContext_JobSchedule_timeZone(_ context.Context,
 	return graphql.NewScalarFieldContext("JobSchedule", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
+func (ec *executionContext) _JobSchedule_nextRun(ctx context.Context, field graphql.CollectedField, obj *job.JobSchedule) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_JobSchedule_nextRun(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.NextRun, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
+			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_JobSchedule_nextRun(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("JobSchedule", field, false, false, errors.New("field of type Time does not have child fields"))
+}
+
 func (ec *executionContext) _JobStateFacetItem_state(ctx context.Context, field graphql.CollectedField, obj *job.JobStateFacetItem) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -6488,6 +6511,11 @@ func (ec *executionContext) _JobSchedule(ctx context.Context, sel ast.SelectionS
 			}
 		case "timeZone":
 			out.Values[i] = ec._JobSchedule_timeZone(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "nextRun":
+			out.Values[i] = ec._JobSchedule_nextRun(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}

@@ -1248,6 +1248,7 @@ type ComplexityRoot struct {
 
 	JobSchedule struct {
 		Expression func(childComplexity int) int
+		NextRun    func(childComplexity int) int
 		TimeZone   func(childComplexity int) int
 	}
 
@@ -7932,6 +7933,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.JobSchedule.Expression(childComplexity), true
+
+	case "JobSchedule.nextRun":
+		if e.ComplexityRoot.JobSchedule.NextRun == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobSchedule.NextRun(childComplexity), true
 
 	case "JobSchedule.timeZone":
 		if e.ComplexityRoot.JobSchedule.TimeZone == nil {
@@ -22148,6 +22156,9 @@ type JobSchedule {
 
 	"The time zone for the job. Defaults to UTC."
 	timeZone: String!
+
+	"The next scheduled run time."
+	nextRun: Time!
 }
 
 union JobAuthIntegrations = EntraIDAuthIntegration | MaskinportenAuthIntegration
@@ -22389,6 +22400,9 @@ enum JobOrderField {
 	Order by state.
 	"""
 	STATE
+
+	"Order jobs by next scheduled run time. Jobs without a schedule are sorted last."
+	NEXT_RUN
 }
 
 extend union SearchNode = Job
@@ -31939,6 +31953,8 @@ func (ec *executionContext) childFields_JobSchedule(ctx context.Context, field g
 		return ec.fieldContext_JobSchedule_expression(ctx, field)
 	case "timeZone":
 		return ec.fieldContext_JobSchedule_timeZone(ctx, field)
+	case "nextRun":
+		return ec.fieldContext_JobSchedule_nextRun(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type JobSchedule", field.Name)
 }
