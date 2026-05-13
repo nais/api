@@ -93,16 +93,17 @@ func TestSortFilter_NextRun(t *testing.T) {
 		}
 	})
 
-	t.Run("DESC puts unscheduled jobs first", func(t *testing.T) {
+	t.Run("DESC puts unscheduled jobs last with partition", func(t *testing.T) {
 		jobs := []*Job{
-			jobWithNextRun("scheduled", &soon),
 			jobWithoutSchedule("noSchedule"),
+			jobWithNextRun("scheduled", &soon),
 		}
 
 		SortFilter.Sort(context.Background(), jobs, "NEXT_RUN", model.OrderDirectionDesc)
+		partitionUnscheduledLast(jobs)
 
-		if jobs[0].Name != "noSchedule" || jobs[1].Name != "scheduled" {
-			t.Fatalf("expected [noSchedule, scheduled], got [%s, %s]", jobs[0].Name, jobs[1].Name)
+		if jobs[0].Name != "scheduled" || jobs[1].Name != "noSchedule" {
+			t.Fatalf("expected [scheduled, noSchedule], got [%s, %s]", jobs[0].Name, jobs[1].Name)
 		}
 	})
 
@@ -114,6 +115,7 @@ func TestSortFilter_NextRun(t *testing.T) {
 		}
 
 		SortFilter.Sort(context.Background(), jobs, "NEXT_RUN", model.OrderDirectionAsc)
+		partitionUnscheduledLast(jobs)
 
 		if jobs[0].Name != "good" {
 			t.Fatalf("expected good first, got %s", jobs[0].Name)
