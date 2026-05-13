@@ -44,6 +44,10 @@ func ListAllForTeam(ctx context.Context, teamSlug slug.Slug, orderBy *JobOrder, 
 
 	SortFilter.Sort(ctx, ret, orderBy.Field, orderBy.Direction)
 
+	if orderBy.Field == "NEXT_RUN" {
+		partitionUnscheduledLast(ret)
+	}
+
 	return ret
 }
 

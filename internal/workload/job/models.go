@@ -13,6 +13,7 @@ import (
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/workload"
 	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
+	"github.com/robfig/cron/v3"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -104,8 +105,9 @@ type JobManifest struct {
 func (JobManifest) IsWorkloadManifest() {}
 
 type JobSchedule struct {
-	Expression string `json:"expression"`
-	TimeZone   string `json:"timeZone"`
+	Expression string     `json:"expression"`
+	TimeZone   string     `json:"timeZone"`
+	NextRun    *time.Time `json:"nextRun"`
 }
 
 type JobRun struct {
@@ -333,10 +335,26 @@ func (j *Job) Schedule() *JobSchedule {
 		return nil
 	}
 
-	return &JobSchedule{
-		Expression: j.Spec.Schedule,
-		TimeZone:   ptr.Deref(j.Spec.TimeZone, "UTC"),
+	tz := ptr.Deref(j.Spec.TimeZone, "UTC")
+	loc, err := time.LoadLocation(tz)
+	if err != nil {
+		loc = time.UTC
+		tz = "UTC"
 	}
+
+	result := &JobSchedule{
+		Expression: j.Spec.Schedule,
+		TimeZone:   tz,
+	}
+
+	parser := cron.NewParser(cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow)
+	sched, err := parser.Parse(j.Spec.Schedule)
+	if err == nil {
+		next := sched.Next(time.Now().In(loc))
+		result.NextRun = &next
+	}
+
+	return result
 }
 
 func toGraphJob(job *nais_io_v1.Naisjob, environmentName string) *Job {

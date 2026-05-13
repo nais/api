@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"slices"
 	"strings"
 
 	"github.com/google/uuid"
@@ -120,12 +121,7 @@ func looksLikeJWT(token string) bool {
 	if len(parts) != 3 {
 		return false
 	}
-	for _, p := range parts {
-		if p == "" {
-			return false
-		}
-	}
-	return true
+	return !slices.Contains(parts, "")
 }
 
 func (k *k8sSAAuth) handler(next http.Handler) http.Handler {

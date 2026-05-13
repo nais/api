@@ -23,6 +23,45 @@ func init() {
 		}
 		return int(s)
 	}, "NAME", "ENVIRONMENT")
+	SortFilter.RegisterSort("NEXT_RUN", func(ctx context.Context, a, b *Job) int {
+		aNext := a.Schedule()
+		bNext := b.Schedule()
+		aHas := aNext != nil && aNext.NextRun != nil
+		bHas := bNext != nil && bNext.NextRun != nil
+
+		switch {
+		case !aHas && !bHas:
+			return 0
+		case !aHas:
+			return 1
+		case !bHas:
+			return -1
+		}
+
+		switch {
+		case aNext.NextRun.Before(*bNext.NextRun):
+			return -1
+		case aNext.NextRun.After(*bNext.NextRun):
+			return 1
+		default:
+			return 0
+		}
+	}, "NAME", "ENVIRONMENT")
 
 	SortFilter.RegisterFilter(matchesFilter)
+}
+
+func partitionUnscheduledLast(jobs []*Job) {
+	scheduled := make([]*Job, 0, len(jobs))
+	unscheduled := make([]*Job, 0)
+	for _, j := range jobs {
+		s := j.Schedule()
+		if s != nil && s.NextRun != nil {
+			scheduled = append(scheduled, j)
+		} else {
+			unscheduled = append(unscheduled, j)
+		}
+	}
+	copy(jobs, scheduled)
+	copy(jobs[len(scheduled):], unscheduled)
 }

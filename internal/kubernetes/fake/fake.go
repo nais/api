@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/fs"
+	"maps"
 	"os"
 	"path/filepath"
 	"strings"
@@ -331,12 +332,10 @@ func NewDynamicClient(scheme *runtime.Scheme) *dynfake.FakeDynamicClient {
 		for k, v := range desired.Object {
 			if k == "metadata" {
 				// Merge metadata rather than replacing it wholesale.
-				desiredMeta, ok1 := v.(map[string]interface{})
-				existingMeta, ok2 := merged.Object["metadata"].(map[string]interface{})
+				desiredMeta, ok1 := v.(map[string]any)
+				existingMeta, ok2 := merged.Object["metadata"].(map[string]any)
 				if ok1 && ok2 {
-					for mk, mv := range desiredMeta {
-						existingMeta[mk] = mv
-					}
+					maps.Copy(existingMeta, desiredMeta)
 					merged.Object["metadata"] = existingMeta
 				} else {
 					merged.Object[k] = v
