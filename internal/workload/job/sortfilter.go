@@ -54,8 +54,10 @@ func init() {
 
 func partitionUnscheduledLast(jobs []*Job) {
 	slices.SortStableFunc(jobs, func(a, b *Job) int {
-		aHas := a.Schedule() != nil && a.Schedule().NextRun != nil
-		bHas := b.Schedule() != nil && b.Schedule().NextRun != nil
+		aSched := a.Schedule()
+		bSched := b.Schedule()
+		aHas := aSched != nil && aSched.NextRun != nil
+		bHas := bSched != nil && bSched.NextRun != nil
 		switch {
 		case aHas == bHas:
 			return 0
