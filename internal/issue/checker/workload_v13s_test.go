@@ -61,19 +61,19 @@ func TestVulnerabilities_ExternalIngressCriticalIssue(t *testing.T) {
 		V13sClient: staticV13sClient{workloads: []*vulnerabilities.WorkloadForVulnerability{
 			{
 				WorkloadRef:   &vulnerabilities.Workload{Cluster: "dev-gcp", Namespace: "devteam", Type: "app", Name: "ext-app"},
-				Vulnerability: &vulnerabilities.Vulnerability{CvssScore: new(10.0)},
+				Vulnerability: &vulnerabilities.Vulnerability{CvssScore: new(10.0), Cve: &vulnerabilities.Cve{CvssScore: new(10.0)}},
 			},
 			{
 				WorkloadRef:   &vulnerabilities.Workload{Cluster: "dev-gcp", Namespace: "devteam", Type: "app", Name: "ext-app"},
-				Vulnerability: &vulnerabilities.Vulnerability{CvssScore: new(10.0)},
+				Vulnerability: &vulnerabilities.Vulnerability{CvssScore: new(10.0), Cve: &vulnerabilities.Cve{CvssScore: new(10.0)}},
 			},
 			{
 				WorkloadRef:   &vulnerabilities.Workload{Cluster: "dev-gcp", Namespace: "devteam", Type: "app", Name: "internal-only"},
-				Vulnerability: &vulnerabilities.Vulnerability{CvssScore: new(10.0)},
+				Vulnerability: &vulnerabilities.Vulnerability{CvssScore: new(10.0), Cve: &vulnerabilities.Cve{CvssScore: new(10.0)}},
 			},
 			{
 				WorkloadRef:   &vulnerabilities.Workload{Cluster: "dev-gcp", Namespace: "devteam", Type: "app", Name: "ext-app"},
-				Vulnerability: &vulnerabilities.Vulnerability{CvssScore: new(9.9)},
+				Vulnerability: &vulnerabilities.Vulnerability{CvssScore: new(9.9), Cve: &vulnerabilities.Cve{CvssScore: new(9.9)}},
 			},
 		}},
 		log: logrus.New(),
