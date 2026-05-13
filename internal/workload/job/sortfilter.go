@@ -2,7 +2,6 @@ package job
 
 import (
 	"context"
-	"slices"
 	"strings"
 
 	"github.com/nais/api/internal/graph/sortfilter"
@@ -53,18 +52,16 @@ func init() {
 }
 
 func partitionUnscheduledLast(jobs []*Job) {
-	slices.SortStableFunc(jobs, func(a, b *Job) int {
-		aSched := a.Schedule()
-		bSched := b.Schedule()
-		aHas := aSched != nil && aSched.NextRun != nil
-		bHas := bSched != nil && bSched.NextRun != nil
-		switch {
-		case aHas == bHas:
-			return 0
-		case !aHas:
-			return 1
-		default:
-			return -1
+	scheduled := make([]*Job, 0, len(jobs))
+	unscheduled := make([]*Job, 0)
+	for _, j := range jobs {
+		s := j.Schedule()
+		if s != nil && s.NextRun != nil {
+			scheduled = append(scheduled, j)
+		} else {
+			unscheduled = append(unscheduled, j)
 		}
-	})
+	}
+	copy(jobs, scheduled)
+	copy(jobs[len(scheduled):], unscheduled)
 }

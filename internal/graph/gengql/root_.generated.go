@@ -22401,7 +22401,7 @@ enum JobOrderField {
 	"""
 	STATE
 
-	"Order jobs by next scheduled run time. Jobs without a schedule are always sorted last."
+	"Order jobs by next scheduled run time. Jobs without a next run (no schedule or invalid cron) are always sorted last."
 	NEXT_RUN
 }
 

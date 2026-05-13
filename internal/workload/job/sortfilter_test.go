@@ -84,5 +84,8 @@ func TestSortFilter_NextRun(t *testing.T) {
 		if jobs[0].Name != "good" {
 			t.Fatalf("expected good first, got %s", jobs[0].Name)
 		}
+		if jobs[1].Name == "good" || jobs[2].Name == "good" {
+			t.Fatal("expected badCron and noSchedule to both be after good")
+		}
 	})
 }
