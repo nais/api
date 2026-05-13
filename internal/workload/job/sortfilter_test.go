@@ -20,27 +20,27 @@ func TestSortFilter_NextRun(t *testing.T) {
 
 	t.Run("ASC sorts by next run time", func(t *testing.T) {
 		jobs := []*Job{
-			makeJob("hourly", "0 * * * *"),
-			makeJob("every-5-min", "*/5 * * * *"),
+			makeJob("rare", "0 0 1 1 *"),
+			makeJob("frequent", "* * * * *"),
 		}
 
 		SortFilter.Sort(context.Background(), jobs, "NEXT_RUN", model.OrderDirectionAsc)
 
-		if jobs[0].Name != "every-5-min" || jobs[1].Name != "hourly" {
-			t.Fatalf("expected [every-5-min, hourly], got [%s, %s]", jobs[0].Name, jobs[1].Name)
+		if jobs[0].Name != "frequent" || jobs[1].Name != "rare" {
+			t.Fatalf("expected [frequent, rare], got [%s, %s]", jobs[0].Name, jobs[1].Name)
 		}
 	})
 
 	t.Run("DESC sorts by next run time descending", func(t *testing.T) {
 		jobs := []*Job{
-			makeJob("every-5-min", "*/5 * * * *"),
-			makeJob("hourly", "0 * * * *"),
+			makeJob("frequent", "* * * * *"),
+			makeJob("rare", "0 0 1 1 *"),
 		}
 
 		SortFilter.Sort(context.Background(), jobs, "NEXT_RUN", model.OrderDirectionDesc)
 
-		if jobs[0].Name != "hourly" || jobs[1].Name != "every-5-min" {
-			t.Fatalf("expected [hourly, every-5-min], got [%s, %s]", jobs[0].Name, jobs[1].Name)
+		if jobs[0].Name != "rare" || jobs[1].Name != "frequent" {
+			t.Fatalf("expected [rare, frequent], got [%s, %s]", jobs[0].Name, jobs[1].Name)
 		}
 	})
 

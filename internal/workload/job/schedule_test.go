@@ -16,6 +16,7 @@ func TestJob_Schedule(t *testing.T) {
 	})
 
 	t.Run("valid cron expression returns future nextRun", func(t *testing.T) {
+		before := time.Now()
 		j := &Job{Spec: &nais_io_v1.NaisjobSpec{Schedule: "0 * * * *"}}
 		s := j.Schedule()
 		if s == nil {
@@ -30,8 +31,8 @@ func TestJob_Schedule(t *testing.T) {
 		if s.NextRun == nil {
 			t.Fatal("expected non-nil nextRun")
 		}
-		if !s.NextRun.After(time.Now()) {
-			t.Fatal("expected nextRun to be in the future")
+		if !s.NextRun.After(before) {
+			t.Fatal("expected nextRun to be after reference time")
 		}
 	})
 
