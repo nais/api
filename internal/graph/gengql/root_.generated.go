@@ -22157,8 +22157,8 @@ type JobSchedule {
 	"The time zone for the job. Defaults to UTC."
 	timeZone: String!
 
-	"The next scheduled run time."
-	nextRun: Time!
+	"The next scheduled run time. Null if the cron expression is invalid."
+	nextRun: Time
 }
 
 union JobAuthIntegrations = EntraIDAuthIntegration | MaskinportenAuthIntegration

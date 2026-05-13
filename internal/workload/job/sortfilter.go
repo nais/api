@@ -33,7 +33,7 @@ func init() {
 
 func nextRunUnix(j *Job) int64 {
 	s := j.Schedule()
-	if s == nil {
+	if s == nil || s.NextRun == nil {
 		return math.MaxInt64
 	}
 	return s.NextRun.Unix()

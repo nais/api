@@ -28,8 +28,8 @@ func TestJob_Schedule(t *testing.T) {
 		if s.TimeZone != "UTC" {
 			t.Fatalf("unexpected timezone: %s", s.TimeZone)
 		}
-		if s.NextRun.IsZero() {
-			t.Fatal("expected non-zero nextRun")
+		if s.NextRun == nil {
+			t.Fatal("expected non-nil nextRun")
 		}
 		if !s.NextRun.After(time.Now()) {
 			t.Fatal("expected nextRun to be in the future")
@@ -48,8 +48,8 @@ func TestJob_Schedule(t *testing.T) {
 		if s.TimeZone != "Europe/Oslo" {
 			t.Fatalf("unexpected timezone: %s", s.TimeZone)
 		}
-		if s.NextRun.IsZero() {
-			t.Fatal("expected non-zero nextRun")
+		if s.NextRun == nil {
+			t.Fatal("expected non-nil nextRun")
 		}
 	})
 
@@ -65,15 +65,22 @@ func TestJob_Schedule(t *testing.T) {
 		if s.TimeZone != "UTC" {
 			t.Fatalf("expected timezone to be UTC, got %s", s.TimeZone)
 		}
-		if s.NextRun.IsZero() {
-			t.Fatal("expected non-zero nextRun even with invalid timezone")
+		if s.NextRun == nil {
+			t.Fatal("expected non-nil nextRun even with invalid timezone")
 		}
 	})
 
-	t.Run("invalid cron expression returns nil", func(t *testing.T) {
+	t.Run("invalid cron expression returns nil nextRun", func(t *testing.T) {
 		j := &Job{Spec: &nais_io_v1.NaisjobSpec{Schedule: "not a cron"}}
-		if j.Schedule() != nil {
-			t.Fatal("expected nil schedule for invalid cron expression")
+		s := j.Schedule()
+		if s == nil {
+			t.Fatal("expected non-nil schedule")
+		}
+		if s.Expression != "not a cron" {
+			t.Fatalf("unexpected expression: %s", s.Expression)
+		}
+		if s.NextRun != nil {
+			t.Fatalf("expected nil nextRun for invalid cron, got %v", s.NextRun)
 		}
 	})
 }

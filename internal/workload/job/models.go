@@ -105,9 +105,9 @@ type JobManifest struct {
 func (JobManifest) IsWorkloadManifest() {}
 
 type JobSchedule struct {
-	Expression string    `json:"expression"`
-	TimeZone   string    `json:"timeZone"`
-	NextRun    time.Time `json:"nextRun"`
+	Expression string     `json:"expression"`
+	TimeZone   string     `json:"timeZone"`
+	NextRun    *time.Time `json:"nextRun"`
 }
 
 type JobRun struct {
@@ -342,17 +342,19 @@ func (j *Job) Schedule() *JobSchedule {
 		tz = "UTC"
 	}
 
-	parser := cron.NewParser(cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow)
-	sched, err := parser.Parse(j.Spec.Schedule)
-	if err != nil {
-		return nil
-	}
-
-	return &JobSchedule{
+	result := &JobSchedule{
 		Expression: j.Spec.Schedule,
 		TimeZone:   tz,
-		NextRun:    sched.Next(time.Now().In(loc)),
 	}
+
+	parser := cron.NewParser(cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow)
+	sched, err := parser.Parse(j.Spec.Schedule)
+	if err == nil {
+		next := sched.Next(time.Now().In(loc))
+		result.NextRun = &next
+	}
+
+	return result
 }
 
 func toGraphJob(job *nais_io_v1.Naisjob, environmentName string) *Job {
