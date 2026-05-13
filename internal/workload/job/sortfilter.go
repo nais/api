@@ -2,7 +2,6 @@ package job
 
 import (
 	"context"
-	"math"
 	"strings"
 
 	"github.com/nais/api/internal/graph/sortfilter"
@@ -24,17 +23,30 @@ func init() {
 		}
 		return int(s)
 	}, "NAME", "ENVIRONMENT")
-	SortFilter.RegisterConcurrentSort("NEXT_RUN", func(ctx context.Context, j *Job) int {
-		return int(nextRunUnix(j))
+	SortFilter.RegisterSort("NEXT_RUN", func(ctx context.Context, a, b *Job) int {
+		aNext := a.Schedule()
+		bNext := b.Schedule()
+		aHas := aNext != nil && aNext.NextRun != nil
+		bHas := bNext != nil && bNext.NextRun != nil
+
+		switch {
+		case !aHas && !bHas:
+			return 0
+		case !aHas:
+			return 1
+		case !bHas:
+			return -1
+		}
+
+		switch {
+		case aNext.NextRun.Before(*bNext.NextRun):
+			return -1
+		case aNext.NextRun.After(*bNext.NextRun):
+			return 1
+		default:
+			return 0
+		}
 	}, "NAME", "ENVIRONMENT")
 
 	SortFilter.RegisterFilter(matchesFilter)
-}
-
-func nextRunUnix(j *Job) int64 {
-	s := j.Schedule()
-	if s == nil || s.NextRun == nil {
-		return math.MaxInt64
-	}
-	return s.NextRun.Unix()
 }

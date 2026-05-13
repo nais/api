@@ -5,6 +5,7 @@ import (
 	"io"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/nais/api/internal/graph/ident"
@@ -59,6 +60,9 @@ func (JobRunInstance) IsNode() {}
 type Job struct {
 	workload.Base
 	Spec *nais_io_v1.NaisjobSpec `json:"-"`
+
+	scheduleOnce sync.Once
+	schedule     *JobSchedule
 }
 
 func (Job) IsNode()           {}
@@ -331,30 +335,33 @@ func (j *Job) Resources() *JobResources {
 }
 
 func (j *Job) Schedule() *JobSchedule {
-	if j.Spec.Schedule == "" {
-		return nil
-	}
+	j.scheduleOnce.Do(func() {
+		if j.Spec.Schedule == "" {
+			return
+		}
 
-	tz := ptr.Deref(j.Spec.TimeZone, "UTC")
-	loc, err := time.LoadLocation(tz)
-	if err != nil {
-		loc = time.UTC
-		tz = "UTC"
-	}
+		tz := ptr.Deref(j.Spec.TimeZone, "UTC")
+		loc, err := time.LoadLocation(tz)
+		if err != nil {
+			loc = time.UTC
+			tz = "UTC"
+		}
 
-	result := &JobSchedule{
-		Expression: j.Spec.Schedule,
-		TimeZone:   tz,
-	}
+		result := &JobSchedule{
+			Expression: j.Spec.Schedule,
+			TimeZone:   tz,
+		}
 
-	parser := cron.NewParser(cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow)
-	sched, err := parser.Parse(j.Spec.Schedule)
-	if err == nil {
-		next := sched.Next(time.Now().In(loc))
-		result.NextRun = &next
-	}
+		parser := cron.NewParser(cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow)
+		sched, err := parser.Parse(j.Spec.Schedule)
+		if err == nil {
+			next := sched.Next(time.Now().In(loc))
+			result.NextRun = &next
+		}
 
-	return result
+		j.schedule = result
+	})
+	return j.schedule
 }
 
 func toGraphJob(job *nais_io_v1.Naisjob, environmentName string) *Job {

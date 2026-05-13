@@ -1,7 +1,6 @@
 package job
 
 import (
-	"math"
 	"testing"
 	"time"
 
@@ -81,33 +80,6 @@ func TestJob_Schedule(t *testing.T) {
 		}
 		if s.NextRun != nil {
 			t.Fatalf("expected nil nextRun for invalid cron, got %v", s.NextRun)
-		}
-	})
-}
-
-func TestNextRunUnix(t *testing.T) {
-	t.Run("nil schedule returns MaxInt64", func(t *testing.T) {
-		j := &Job{Spec: &nais_io_v1.NaisjobSpec{Schedule: ""}}
-		if got := nextRunUnix(j); got != math.MaxInt64 {
-			t.Fatalf("expected MaxInt64, got %d", got)
-		}
-	})
-
-	t.Run("invalid cron returns MaxInt64", func(t *testing.T) {
-		j := &Job{Spec: &nais_io_v1.NaisjobSpec{Schedule: "bad"}}
-		if got := nextRunUnix(j); got != math.MaxInt64 {
-			t.Fatalf("expected MaxInt64 for zero nextRun, got %d", got)
-		}
-	})
-
-	t.Run("valid schedule returns unix timestamp", func(t *testing.T) {
-		j := &Job{Spec: &nais_io_v1.NaisjobSpec{Schedule: "0 * * * *"}}
-		got := nextRunUnix(j)
-		if got == math.MaxInt64 {
-			t.Fatal("expected a real timestamp, got MaxInt64")
-		}
-		if got <= time.Now().Unix() {
-			t.Fatalf("expected future timestamp, got %d", got)
 		}
 	})
 }
