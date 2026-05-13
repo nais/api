@@ -339,20 +339,19 @@ func (j *Job) Schedule() *JobSchedule {
 	loc, err := time.LoadLocation(tz)
 	if err != nil {
 		loc = time.UTC
+		tz = "UTC"
 	}
 
 	parser := cron.NewParser(cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow)
 	sched, err := parser.Parse(j.Spec.Schedule)
-
-	var nextRun time.Time
-	if err == nil {
-		nextRun = sched.Next(time.Now().In(loc))
+	if err != nil {
+		return nil
 	}
 
 	return &JobSchedule{
 		Expression: j.Spec.Schedule,
 		TimeZone:   tz,
-		NextRun:    nextRun,
+		NextRun:    sched.Next(time.Now().In(loc)),
 	}
 }
 
