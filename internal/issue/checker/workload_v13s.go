@@ -38,9 +38,11 @@ func (f fakeV13sClient) ListVulnerabilitySummaries(ctx context.Context, opts ...
 					ImageTag:  "tag1",
 				},
 				VulnerabilitySummary: &vulnerabilities.Summary{
-					HasSbom:   true,
 					Critical:  5,
 					RiskScore: 250,
+				},
+				SbomStatus: &vulnerabilities.SbomStatusInfo{
+					Status: vulnerabilities.SbomStatus_SBOM_STATUS_READY,
 				},
 			},
 			{
@@ -53,8 +55,8 @@ func (f fakeV13sClient) ListVulnerabilitySummaries(ctx context.Context, opts ...
 					ImageName: "missing-sbom-image",
 					ImageTag:  "tag1",
 				},
-				VulnerabilitySummary: &vulnerabilities.Summary{
-					HasSbom: false,
+				SbomStatus: &vulnerabilities.SbomStatusInfo{
+					Status: vulnerabilities.SbomStatus_SBOM_STATUS_NO_SBOM,
 				},
 			},
 			{
@@ -68,9 +70,11 @@ func (f fakeV13sClient) ListVulnerabilitySummaries(ctx context.Context, opts ...
 					ImageTag:  "tag1",
 				},
 				VulnerabilitySummary: &vulnerabilities.Summary{
-					HasSbom:   true,
 					Critical:  5,
 					RiskScore: 250,
+				},
+				SbomStatus: &vulnerabilities.SbomStatusInfo{
+					Status: vulnerabilities.SbomStatus_SBOM_STATUS_READY,
 				},
 			},
 			{
@@ -83,8 +87,8 @@ func (f fakeV13sClient) ListVulnerabilitySummaries(ctx context.Context, opts ...
 					ImageName: "missing-sbom-image",
 					ImageTag:  "tag1",
 				},
-				VulnerabilitySummary: &vulnerabilities.Summary{
-					HasSbom: false,
+				SbomStatus: &vulnerabilities.SbomStatusInfo{
+					Status: vulnerabilities.SbomStatus_SBOM_STATUS_NO_SBOM,
 				},
 			},
 			{
@@ -97,8 +101,8 @@ func (f fakeV13sClient) ListVulnerabilitySummaries(ctx context.Context, opts ...
 					ImageName: "some-image",
 					ImageTag:  "tag1",
 				},
-				VulnerabilitySummary: &vulnerabilities.Summary{
-					HasSbom: false,
+				SbomStatus: &vulnerabilities.SbomStatusInfo{
+					Status: vulnerabilities.SbomStatus_SBOM_STATUS_NO_SBOM,
 				},
 			},
 		},
@@ -177,7 +181,7 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 			continue
 		}
 
-		if node.VulnerabilitySummary.Critical > 0 || node.VulnerabilitySummary.RiskScore > 100 {
+		if node.VulnerabilitySummary != nil && (node.VulnerabilitySummary.Critical > 0 || node.VulnerabilitySummary.RiskScore > 100) {
 			ret = append(ret, &Issue{
 				IssueType:    issue.IssueTypeVulnerableImage,
 				ResourceType: workloadType,
@@ -198,7 +202,10 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 			})
 		}
 
-		if !node.VulnerabilitySummary.HasSbom {
+		sbomStatus := node.GetSbomStatus().GetStatus()
+		if sbomStatus != vulnerabilities.SbomStatus_SBOM_STATUS_READY &&
+			sbomStatus != vulnerabilities.SbomStatus_SBOM_STATUS_PROCESSING &&
+			sbomStatus != vulnerabilities.SbomStatus_SBOM_STATUS_UNSPECIFIED {
 			ret = append(ret, &Issue{
 				IssueType:    issue.IssueTypeMissingSBOM,
 				ResourceType: workloadType,
