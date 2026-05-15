@@ -67,6 +67,7 @@ type ResolverRoot interface {
 	CVE() CVEResolver
 	Config() ConfigResolver
 	ContainerImage() ContainerImageResolver
+	ContainerImageSBOM() ContainerImageSBOMResolver
 	ContainerImageWorkloadReference() ContainerImageWorkloadReferenceResolver
 	CurrentUnitPrices() CurrentUnitPricesResolver
 	DeleteApplicationPayload() DeleteApplicationPayloadResolver
@@ -622,10 +623,17 @@ type ComplexityRoot struct {
 		HasSbom              func(childComplexity int) int
 		ID                   func(childComplexity int) int
 		Name                 func(childComplexity int) int
+		Sbom                 func(childComplexity int) int
 		Tag                  func(childComplexity int) int
 		Vulnerabilities      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *vulnerability.ImageVulnerabilityFilter, orderBy *vulnerability.ImageVulnerabilityOrder) int
 		VulnerabilitySummary func(childComplexity int) int
 		WorkloadReferences   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+	}
+
+	ContainerImageSBOM struct {
+		ID                  func(childComplexity int) int
+		ProcessingStartedAt func(childComplexity int) int
+		Status              func(childComplexity int) int
 	}
 
 	ContainerImageWorkloadReference struct {
@@ -5509,6 +5517,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ContainerImage.Name(childComplexity), true
 
+	case "ContainerImage.sbom":
+		if e.ComplexityRoot.ContainerImage.Sbom == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ContainerImage.Sbom(childComplexity), true
+
 	case "ContainerImage.tag":
 		if e.ComplexityRoot.ContainerImage.Tag == nil {
 			break
@@ -5546,6 +5561,27 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ContainerImage.WorkloadReferences(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
+
+	case "ContainerImageSBOM.id":
+		if e.ComplexityRoot.ContainerImageSBOM.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ContainerImageSBOM.ID(childComplexity), true
+
+	case "ContainerImageSBOM.processingStartedAt":
+		if e.ComplexityRoot.ContainerImageSBOM.ProcessingStartedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ContainerImageSBOM.ProcessingStartedAt(childComplexity), true
+
+	case "ContainerImageSBOM.status":
+		if e.ComplexityRoot.ContainerImageSBOM.Status == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ContainerImageSBOM.Status(childComplexity), true
 
 	case "ContainerImageWorkloadReference.workload":
 		if e.ComplexityRoot.ContainerImageWorkloadReference.Workload == nil {
@@ -29431,9 +29467,33 @@ type ImageVulnerabilityHistory {
 	samples: [ImageVulnerabilitySample!]!
 }
 
+"""
+SBOM metadata for a container image, including pipeline status and processing
+information. This type is accessed through ContainerImage.sbom.
+"""
+type ContainerImageSBOM implements Node {
+	"The globally unique ID of the container image SBOM node."
+	id: ID!
+
+	"The SBOM pipeline status."
+	status: SBOMStatus!
+
+	"""
+	The timestamp when SBOM processing started for this image.
+	Useful as a progress indicator when status is PROCESSING.
+	"""
+	processingStartedAt: Time
+}
+
 extend type ContainerImage {
-	"Whether the image has a software bill of materials (SBOM) attached to it."
+	"SBOM pipeline status and processing information for this image."
+	sbom: ContainerImageSBOM!
+
+	"""
+	Whether the image has a software bill of materials (SBOM) attached to it.
+	"""
 	hasSBOM: Boolean!
+		@deprecated(reason: "Use sbom { status } == READY to check if an SBOM is attached.")
 
 	"Get the vulnerabilities of the image."
 	vulnerabilities(
@@ -29800,6 +29860,7 @@ type WorkloadVulnerabilitySummary implements Node {
 
 	"True if the workload has a software bill of materials (SBOM) attached."
 	hasSBOM: Boolean!
+		@deprecated(reason: "Use workload { image { sbom { status } } } to check SBOM status.")
 
 	"The vulnerability summary for the workload."
 	summary: ImageVulnerabilitySummary!
@@ -30041,6 +30102,21 @@ type VulnerabilityFixSample {
 
 	"Total number of workloads with this severity of vulnerabilities."
 	totalWorkloads: Int!
+}
+
+"The SBOM pipeline status for an image or workload."
+enum SBOMStatus {
+	"SBOM generation is in progress."
+	PROCESSING
+
+	"SBOM data is available."
+	READY
+
+	"No SBOM is available for this image or workload."
+	NO_SBOM
+
+	"SBOM generation failed."
+	FAILED
 }
 `, BuiltIn: false},
 	{Name: "../schema/workloads.graphqls", Input: `extend type Team {
@@ -31231,6 +31307,8 @@ func (ec *executionContext) childFields_ContainerImage(ctx context.Context, fiel
 		return ec.fieldContext_ContainerImage_tag(ctx, field)
 	case "activityLog":
 		return ec.fieldContext_ContainerImage_activityLog(ctx, field)
+	case "sbom":
+		return ec.fieldContext_ContainerImage_sbom(ctx, field)
 	case "hasSBOM":
 		return ec.fieldContext_ContainerImage_hasSBOM(ctx, field)
 	case "vulnerabilities":
@@ -31241,6 +31319,18 @@ func (ec *executionContext) childFields_ContainerImage(ctx context.Context, fiel
 		return ec.fieldContext_ContainerImage_workloadReferences(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type ContainerImage", field.Name)
+}
+
+func (ec *executionContext) childFields_ContainerImageSBOM(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_ContainerImageSBOM_id(ctx, field)
+	case "status":
+		return ec.fieldContext_ContainerImageSBOM_status(ctx, field)
+	case "processingStartedAt":
+		return ec.fieldContext_ContainerImageSBOM_processingStartedAt(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ContainerImageSBOM", field.Name)
 }
 
 func (ec *executionContext) childFields_ContainerImageWorkloadReference(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
