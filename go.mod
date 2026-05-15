@@ -488,3 +488,5 @@ replace github.com/hashicorp/terraform-provider-google-beta => ./third_party/git
 replace github.com/nais/api/pkg/apiclient => ./pkg/apiclient
 
 replace github.com/hashicorp/memberlist => github.com/grafana/memberlist v0.3.1-0.20251126142931-6f9f62ab6f86
+
+replace github.com/nais/v13s/pkg/api => ../v13s/pkg/api
