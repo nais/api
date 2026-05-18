@@ -30005,6 +30005,7 @@ type UpdateImageVulnerabilityPayload {
 	vulnerability: ImageVulnerability
 }
 
+"Input for suppressing a CVE across a set of specific workloads."
 input SuppressVulnerabilitiesInput {
 	"The CVE identifier to suppress (e.g. CVE-2024-12345)."
 	cveID: String!
@@ -30018,6 +30019,7 @@ input SuppressVulnerabilitiesInput {
 	state: ImageVulnerabilitySuppressionState
 }
 
+"A workload to target when suppressing a CVE."
 input SuppressVulnerabilitiesWorkloadInput {
 	"The name of the workload."
 	name: String!
@@ -30029,11 +30031,13 @@ input SuppressVulnerabilitiesWorkloadInput {
 	workloadType: String!
 }
 
+"Return value of the suppressVulnerabilities mutation."
 type SuppressVulnerabilitiesPayload {
 	"The workloads for which the CVE was suppressed."
 	workloads: [SuppressedVulnerabilityWorkload!]!
 }
 
+"A workload for which a CVE suppression was applied."
 type SuppressedVulnerabilityWorkload {
 	"The name of the workload."
 	name: String!
