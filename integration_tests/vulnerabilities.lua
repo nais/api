@@ -57,6 +57,7 @@ Test.gql("List vulnerability summaries for team", function(t)
 					  hasSBOM
 				  sbom {
 					status
+					processingStartedAt
 				  }
 					  vulnerabilitySummary{
 						total
@@ -85,6 +86,7 @@ Test.gql("List vulnerability summaries for team", function(t)
 								hasSBOM = true,
 								sbom = {
 									status = "READY",
+									processingStartedAt = Ignore(),
 								},
 								vulnerabilitySummary = {
 									total = NotNull(),
