@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/nais/api/internal/graph/model"
-	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/workload/application"
 	"github.com/nais/api/internal/workload/job"
 )
@@ -17,57 +16,42 @@ func ComputeFacets(ctx context.Context, allSecrets []*Secret, filter *SecretFilt
 	environmentCounts := map[string]int{}
 	inUseCounts := map[bool]int{}
 
-	// Precompute in-use sets per environment to avoid O(secrets × workloads)
-	inUseByEnv := buildSecretInUseMap(ctx, filtered)
+	inUseSet := buildSecretInUseSet(ctx, filtered)
 
 	for _, s := range filtered {
 		environmentCounts[s.EnvironmentName]++
-
-		key := s.EnvironmentName + "/" + s.Name
-		inUse := inUseByEnv[key]
-		inUseCounts[inUse]++
+		inUseCounts[inUseSet[s.EnvironmentName+"/"+s.Name]]++
 	}
 
 	return assembleFacets(environmentCounts, inUseCounts)
 }
 
-func buildSecretInUseMap(ctx context.Context, secrets []*Secret) map[string]bool {
-	result := make(map[string]bool, len(secrets))
-
-	// Collect unique (teamSlug, env) pairs we need to check
-	type envKey struct {
-		teamSlug slug.Slug
-		env      string
+func buildSecretInUseSet(ctx context.Context, secrets []*Secret) map[string]bool {
+	if len(secrets) == 0 {
+		return nil
 	}
-	envs := make(map[envKey]bool)
+
+	teamSlug := secrets[0].TeamSlug
+	envs := make(map[string]bool)
 	for _, s := range secrets {
-		envs[envKey{s.TeamSlug, s.EnvironmentName}] = true
+		envs[s.EnvironmentName] = true
 	}
 
-	// For each unique environment, list workloads once and collect referenced secret names
-	referencedSecrets := make(map[string]bool)
-	for ek := range envs {
-		apps := application.ListAllForTeamInEnvironment(ctx, ek.teamSlug, ek.env)
-		for _, app := range apps {
+	referenced := make(map[string]bool)
+	for env := range envs {
+		for _, app := range application.ListAllForTeamInEnvironment(ctx, teamSlug, env) {
 			for _, name := range app.GetSecrets() {
-				referencedSecrets[ek.env+"/"+name] = true
+				referenced[env+"/"+name] = true
 			}
 		}
-
-		jobs := job.ListAllForTeamInEnvironment(ctx, ek.teamSlug, ek.env)
-		for _, j := range jobs {
+		for _, j := range job.ListAllForTeamInEnvironment(ctx, teamSlug, env) {
 			for _, name := range j.GetSecrets() {
-				referencedSecrets[ek.env+"/"+name] = true
+				referenced[env+"/"+name] = true
 			}
 		}
 	}
 
-	for _, s := range secrets {
-		key := s.EnvironmentName + "/" + s.Name
-		result[key] = referencedSecrets[key]
-	}
-
-	return result
+	return referenced
 }
 
 func assembleFacets(
@@ -93,7 +77,6 @@ func assembleFacets(
 		})
 	}
 
-	// Sort for stable ordering
 	slices.SortFunc(facets.Environments, func(a, b model.EnvironmentFacetItem) int {
 		return strings.Compare(a.EnvironmentName, b.EnvironmentName)
 	})

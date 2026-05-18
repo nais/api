@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/nais/api/internal/graph/model"
-	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/workload/application"
 	"github.com/nais/api/internal/workload/job"
 )
@@ -17,57 +16,42 @@ func ComputeFacets(ctx context.Context, allConfigs []*Config, filter *ConfigFilt
 	environmentCounts := map[string]int{}
 	inUseCounts := map[bool]int{}
 
-	// Precompute in-use sets per environment to avoid O(configs × workloads)
-	inUseByEnv := buildConfigInUseMap(ctx, filtered)
+	inUseSet := buildConfigInUseSet(ctx, filtered)
 
 	for _, c := range filtered {
 		environmentCounts[c.EnvironmentName]++
-
-		key := c.EnvironmentName + "/" + c.Name
-		inUse := inUseByEnv[key]
-		inUseCounts[inUse]++
+		inUseCounts[inUseSet[c.EnvironmentName+"/"+c.Name]]++
 	}
 
 	return assembleFacets(environmentCounts, inUseCounts)
 }
 
-func buildConfigInUseMap(ctx context.Context, configs []*Config) map[string]bool {
-	result := make(map[string]bool, len(configs))
-
-	// Collect unique (teamSlug, env) pairs we need to check
-	type envKey struct {
-		teamSlug slug.Slug
-		env      string
+func buildConfigInUseSet(ctx context.Context, configs []*Config) map[string]bool {
+	if len(configs) == 0 {
+		return nil
 	}
-	envs := make(map[envKey]bool)
+
+	teamSlug := configs[0].TeamSlug
+	envs := make(map[string]bool)
 	for _, c := range configs {
-		envs[envKey{c.TeamSlug, c.EnvironmentName}] = true
+		envs[c.EnvironmentName] = true
 	}
 
-	// For each unique environment, list workloads once and collect referenced config names
-	referencedConfigs := make(map[string]bool)
-	for ek := range envs {
-		apps := application.ListAllForTeamInEnvironment(ctx, ek.teamSlug, ek.env)
-		for _, app := range apps {
+	referenced := make(map[string]bool)
+	for env := range envs {
+		for _, app := range application.ListAllForTeamInEnvironment(ctx, teamSlug, env) {
 			for _, name := range app.GetConfigs() {
-				referencedConfigs[ek.env+"/"+name] = true
+				referenced[env+"/"+name] = true
 			}
 		}
-
-		jobs := job.ListAllForTeamInEnvironment(ctx, ek.teamSlug, ek.env)
-		for _, j := range jobs {
+		for _, j := range job.ListAllForTeamInEnvironment(ctx, teamSlug, env) {
 			for _, name := range j.GetConfigs() {
-				referencedConfigs[ek.env+"/"+name] = true
+				referenced[env+"/"+name] = true
 			}
 		}
 	}
 
-	for _, c := range configs {
-		key := c.EnvironmentName + "/" + c.Name
-		result[key] = referencedConfigs[key]
-	}
-
-	return result
+	return referenced
 }
 
 func assembleFacets(
@@ -93,7 +77,6 @@ func assembleFacets(
 		})
 	}
 
-	// Sort for stable ordering
 	slices.SortFunc(facets.Environments, func(a, b model.EnvironmentFacetItem) int {
 		return strings.Compare(a.EnvironmentName, b.EnvironmentName)
 	})
