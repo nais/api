@@ -1,15 +1,16 @@
 package kafkatopic
 
 import (
+	"context"
 	"slices"
 	"strings"
 
 	"github.com/nais/api/internal/graph/model"
 )
 
-// ComputeFacets computes facets for a Kafka topic query.
-// All possible values are seeded from allTopics, but only items matching the filter are counted.
-func ComputeFacets(allTopics []*KafkaTopic, filter *KafkaTopicFilter) *KafkaTopicFacets {
+func ComputeFacets(ctx context.Context, allTopics []*KafkaTopic, filter *KafkaTopicFilter) *KafkaTopicFacets {
+	filtered := SortFilterTopic.Filter(ctx, allTopics, filter)
+
 	// Seed all possible values from allTopics
 	environmentCounts := map[string]int{}
 	poolCounts := map[string]int{}
@@ -20,42 +21,12 @@ func ComputeFacets(allTopics []*KafkaTopic, filter *KafkaTopicFilter) *KafkaTopi
 	}
 
 	// Count only items matching the filter
-	for _, t := range allTopics {
-		if !matchesFilter(t, filter) {
-			continue
-		}
+	for _, t := range filtered {
 		environmentCounts[t.EnvironmentName]++
 		poolCounts[t.Pool]++
 	}
 
 	return assembleFacets(environmentCounts, poolCounts)
-}
-
-// matchesFilter checks if a single topic matches the given filter.
-func matchesFilter(t *KafkaTopic, filter *KafkaTopicFilter) bool {
-	if filter == nil {
-		return true
-	}
-
-	if filter.Name != "" {
-		if !strings.Contains(strings.ToLower(t.Name), strings.ToLower(filter.Name)) {
-			return false
-		}
-	}
-
-	if len(filter.Environments) > 0 {
-		if !slices.Contains(filter.Environments, t.EnvironmentName) {
-			return false
-		}
-	}
-
-	if len(filter.Pools) > 0 {
-		if !slices.Contains(filter.Pools, t.Pool) {
-			return false
-		}
-	}
-
-	return true
 }
 
 func assembleFacets(environmentCounts map[string]int, poolCounts map[string]int) *KafkaTopicFacets {

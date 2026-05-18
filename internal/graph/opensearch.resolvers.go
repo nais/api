@@ -108,7 +108,7 @@ func (r *openSearchAccessResolver) Workload(ctx context.Context, obj *opensearch
 }
 
 func (r *openSearchConnectionResolver) Facets(ctx context.Context, obj *opensearch.OpenSearchConnection) (*opensearch.OpenSearchFacets, error) {
-	return opensearch.ComputeFacets(obj.GetAllInstances(), obj.GetFilter()), nil
+	return opensearch.ComputeFacets(ctx, obj.GetAllInstances(), obj.GetFilter()), nil
 }
 
 func (r *teamResolver) OpenSearches(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *opensearch.OpenSearchOrder, filter *opensearch.OpenSearchFilter) (*opensearch.OpenSearchConnection, error) {

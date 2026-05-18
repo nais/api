@@ -123,7 +123,7 @@ func (r *valkeyAccessResolver) Workload(ctx context.Context, obj *valkey.ValkeyA
 }
 
 func (r *valkeyConnectionResolver) Facets(ctx context.Context, obj *valkey.ValkeyConnection) (*valkey.ValkeyFacets, error) {
-	return valkey.ComputeFacets(obj.GetAllInstances(), obj.GetFilter()), nil
+	return valkey.ComputeFacets(ctx, obj.GetAllInstances(), obj.GetFilter()), nil
 }
 
 func (r *Resolver) Valkey() gengql.ValkeyResolver { return &valkeyResolver{r} }

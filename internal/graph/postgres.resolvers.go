@@ -98,7 +98,7 @@ func (r *postgresInstanceAuditResolver) URL(ctx context.Context, obj *postgres.P
 }
 
 func (r *postgresInstanceConnectionResolver) Facets(ctx context.Context, obj *postgres.PostgresInstanceConnection) (*postgres.PostgresInstanceFacets, error) {
-	return postgres.ComputeFacets(obj.GetAllInstances(), obj.GetFilter()), nil
+	return postgres.ComputeFacets(ctx, obj.GetAllInstances(), obj.GetFilter()), nil
 }
 
 func (r *teamResolver) PostgresInstances(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *postgres.PostgresInstanceOrder, filter *postgres.PostgresInstanceFilter) (*postgres.PostgresInstanceConnection, error) {

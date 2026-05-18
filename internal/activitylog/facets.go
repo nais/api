@@ -8,7 +8,6 @@ import (
 	"github.com/nais/api/internal/activitylog/activitylogsql"
 )
 
-// ComputeFacets computes facets for an activity log query.
 func ComputeFacets(ctx context.Context, scope *ActivityLogScope, filter *ActivityLogFilter) (*ActivityLogFacets, error) {
 	q := db(ctx)
 

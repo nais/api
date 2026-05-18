@@ -27,11 +27,8 @@ func ComputeFacets(ctx context.Context, allApps []*Application, filter *TeamAppl
 	}
 
 	// Second pass: count apps that match the full filter
-	for _, app := range allApps {
-		if !matchesFilter(ctx, app, filter) {
-			continue
-		}
-
+	filtered := SortFilter.Filter(ctx, allApps, filter)
+	for _, app := range filtered {
 		environmentCounts[app.EnvironmentName]++
 
 		state, err := GetState(ctx, app)

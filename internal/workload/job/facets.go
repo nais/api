@@ -27,11 +27,8 @@ func ComputeFacets(ctx context.Context, allJobs []*Job, filter *TeamJobsFilter) 
 	}
 
 	// Second pass: count jobs that match the full filter
-	for _, j := range allJobs {
-		if !matchesFilter(ctx, j, filter) {
-			continue
-		}
-
+	filtered := SortFilter.Filter(ctx, allJobs, filter)
+	for _, j := range filtered {
 		environmentCounts[j.EnvironmentName]++
 
 		state, err := GetState(ctx, j)

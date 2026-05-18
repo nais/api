@@ -1,15 +1,16 @@
 package bucket
 
 import (
+	"context"
 	"slices"
 	"strings"
 
 	"github.com/nais/api/internal/graph/model"
 )
 
-// ComputeFacets computes facets for a bucket query.
-// All possible values are seeded from allBuckets, but only items matching the filter are counted.
-func ComputeFacets(allBuckets []*Bucket, filter *BucketFilter) *BucketFacets {
+func ComputeFacets(ctx context.Context, allBuckets []*Bucket, filter *BucketFilter) *BucketFacets {
+	filtered := SortFilter.Filter(ctx, allBuckets, filter)
+
 	// Seed all possible values from allBuckets
 	environmentCounts := map[string]int{}
 
@@ -18,35 +19,11 @@ func ComputeFacets(allBuckets []*Bucket, filter *BucketFilter) *BucketFacets {
 	}
 
 	// Count only items matching the filter
-	for _, b := range allBuckets {
-		if !matchesFilter(b, filter) {
-			continue
-		}
+	for _, b := range filtered {
 		environmentCounts[b.EnvironmentName]++
 	}
 
 	return assembleFacets(environmentCounts)
-}
-
-// matchesFilter checks if a single bucket matches the given filter.
-func matchesFilter(b *Bucket, filter *BucketFilter) bool {
-	if filter == nil {
-		return true
-	}
-
-	if filter.Name != "" {
-		if !strings.Contains(strings.ToLower(b.Name), strings.ToLower(filter.Name)) {
-			return false
-		}
-	}
-
-	if len(filter.Environments) > 0 {
-		if !slices.Contains(filter.Environments, b.EnvironmentName) {
-			return false
-		}
-	}
-
-	return true
 }
 
 func assembleFacets(environmentCounts map[string]int) *BucketFacets {

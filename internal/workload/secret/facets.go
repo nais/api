@@ -6,64 +6,68 @@ import (
 	"strings"
 
 	"github.com/nais/api/internal/graph/model"
+	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/workload/application"
 	"github.com/nais/api/internal/workload/job"
 )
 
-// ComputeFacets computes facets for a secret query.
 func ComputeFacets(ctx context.Context, allSecrets []*Secret, filter *SecretFilter) *SecretFacets {
+	filtered := SortFilter.Filter(ctx, allSecrets, filter)
+
 	environmentCounts := map[string]int{}
 	inUseCounts := map[bool]int{}
 
-	for _, s := range allSecrets {
-		if !matchesFacetFilter(s, filter) {
-			continue
-		}
+	// Precompute in-use sets per environment to avoid O(secrets × workloads)
+	inUseByEnv := buildSecretInUseMap(ctx, filtered)
+
+	for _, s := range filtered {
 		environmentCounts[s.EnvironmentName]++
 
-		inUse := isSecretInUse(ctx, s)
+		key := s.EnvironmentName + "/" + s.Name
+		inUse := inUseByEnv[key]
 		inUseCounts[inUse]++
 	}
 
 	return assembleFacets(environmentCounts, inUseCounts)
 }
 
-func isSecretInUse(ctx context.Context, s *Secret) bool {
-	applications := application.ListAllForTeam(ctx, s.TeamSlug, nil, nil)
-	for _, app := range applications {
-		if slices.Contains(app.GetSecrets(), s.Name) {
-			return true
+func buildSecretInUseMap(ctx context.Context, secrets []*Secret) map[string]bool {
+	result := make(map[string]bool, len(secrets))
+
+	// Collect unique (teamSlug, env) pairs we need to check
+	type envKey struct {
+		teamSlug slug.Slug
+		env      string
+	}
+	envs := make(map[envKey]bool)
+	for _, s := range secrets {
+		envs[envKey{s.TeamSlug, s.EnvironmentName}] = true
+	}
+
+	// For each unique environment, list workloads once and collect referenced secret names
+	referencedSecrets := make(map[string]bool)
+	for ek := range envs {
+		apps := application.ListAllForTeamInEnvironment(ctx, ek.teamSlug, ek.env)
+		for _, app := range apps {
+			for _, name := range app.GetSecrets() {
+				referencedSecrets[ek.env+"/"+name] = true
+			}
+		}
+
+		jobs := job.ListAllForTeamInEnvironment(ctx, ek.teamSlug, ek.env)
+		for _, j := range jobs {
+			for _, name := range j.GetSecrets() {
+				referencedSecrets[ek.env+"/"+name] = true
+			}
 		}
 	}
 
-	jobs := job.ListAllForTeam(ctx, s.TeamSlug, nil, nil)
-	for _, j := range jobs {
-		if slices.Contains(j.GetSecrets(), s.Name) {
-			return true
-		}
+	for _, s := range secrets {
+		key := s.EnvironmentName + "/" + s.Name
+		result[key] = referencedSecrets[key]
 	}
 
-	return false
-}
-
-func matchesFacetFilter(s *Secret, filter *SecretFilter) bool {
-	if filter == nil {
-		return true
-	}
-
-	if filter.Name != "" {
-		if !strings.Contains(strings.ToLower(s.Name), strings.ToLower(filter.Name)) {
-			return false
-		}
-	}
-
-	if len(filter.Environments) > 0 {
-		if !slices.Contains(filter.Environments, s.EnvironmentName) {
-			return false
-		}
-	}
-
-	return true
+	return result
 }
 
 func assembleFacets(

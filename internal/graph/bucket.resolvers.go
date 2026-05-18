@@ -37,7 +37,7 @@ func (r *bucketResolver) Workload(ctx context.Context, obj *bucket.Bucket) (work
 }
 
 func (r *bucketConnectionResolver) Facets(ctx context.Context, obj *bucket.BucketConnection) (*bucket.BucketFacets, error) {
-	return bucket.ComputeFacets(obj.GetAllBuckets(), obj.GetFilter()), nil
+	return bucket.ComputeFacets(ctx, obj.GetAllBuckets(), obj.GetFilter()), nil
 }
 
 func (r *jobResolver) Buckets(ctx context.Context, obj *job.Job, orderBy *bucket.BucketOrder) (*bucket.BucketConnection, error) {

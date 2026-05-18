@@ -1,52 +1,25 @@
 package opensearch
 
 import (
+	"context"
 	"slices"
 	"strings"
 
 	"github.com/nais/api/internal/graph/model"
 )
 
-// ComputeFacets computes facets for an OpenSearch query.
-func ComputeFacets(allInstances []*OpenSearch, filter *OpenSearchFilter) *OpenSearchFacets {
+func ComputeFacets(ctx context.Context, allInstances []*OpenSearch, filter *OpenSearchFilter) *OpenSearchFacets {
+	filtered := SortFilterOpenSearch.Filter(ctx, allInstances, filter)
+
 	environmentCounts := map[string]int{}
 	tierCounts := map[OpenSearchTier]int{}
 
-	for _, inst := range allInstances {
-		if !matchesFilter(inst, filter) {
-			continue
-		}
+	for _, inst := range filtered {
 		environmentCounts[inst.EnvironmentName]++
 		tierCounts[inst.Tier]++
 	}
 
 	return assembleFacets(environmentCounts, tierCounts)
-}
-
-func matchesFilter(inst *OpenSearch, filter *OpenSearchFilter) bool {
-	if filter == nil {
-		return true
-	}
-
-	if filter.Name != "" {
-		if !strings.Contains(strings.ToLower(inst.Name), strings.ToLower(filter.Name)) {
-			return false
-		}
-	}
-
-	if len(filter.Environments) > 0 {
-		if !slices.Contains(filter.Environments, inst.EnvironmentName) {
-			return false
-		}
-	}
-
-	if len(filter.Tiers) > 0 {
-		if !slices.Contains(filter.Tiers, inst.Tier) {
-			return false
-		}
-	}
-
-	return true
 }
 
 func assembleFacets(

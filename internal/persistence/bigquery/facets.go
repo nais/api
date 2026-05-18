@@ -1,15 +1,16 @@
 package bigquery
 
 import (
+	"context"
 	"slices"
 	"strings"
 
 	"github.com/nais/api/internal/graph/model"
 )
 
-// ComputeFacets computes facets for a BigQuery dataset query.
-// All possible values are seeded from allDatasets, but only items matching the filter are counted.
-func ComputeFacets(allDatasets []*BigQueryDataset, filter *BigQueryDatasetFilter) *BigQueryDatasetFacets {
+func ComputeFacets(ctx context.Context, allDatasets []*BigQueryDataset, filter *BigQueryDatasetFilter) *BigQueryDatasetFacets {
+	filtered := SortFilter.Filter(ctx, allDatasets, filter)
+
 	// Seed all possible values from allDatasets
 	environmentCounts := map[string]int{}
 
@@ -18,35 +19,11 @@ func ComputeFacets(allDatasets []*BigQueryDataset, filter *BigQueryDatasetFilter
 	}
 
 	// Count only items matching the filter
-	for _, d := range allDatasets {
-		if !matchesFilter(d, filter) {
-			continue
-		}
+	for _, d := range filtered {
 		environmentCounts[d.EnvironmentName]++
 	}
 
 	return assembleFacets(environmentCounts)
-}
-
-// matchesFilter checks if a single dataset matches the given filter.
-func matchesFilter(d *BigQueryDataset, filter *BigQueryDatasetFilter) bool {
-	if filter == nil {
-		return true
-	}
-
-	if filter.Name != "" {
-		if !strings.Contains(strings.ToLower(d.Name), strings.ToLower(filter.Name)) {
-			return false
-		}
-	}
-
-	if len(filter.Environments) > 0 {
-		if !slices.Contains(filter.Environments, d.EnvironmentName) {
-			return false
-		}
-	}
-
-	return true
 }
 
 func assembleFacets(environmentCounts map[string]int) *BigQueryDatasetFacets {

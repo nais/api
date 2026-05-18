@@ -66,7 +66,7 @@ func (r *bigQueryDatasetResolver) Workload(ctx context.Context, obj *bigquery.Bi
 }
 
 func (r *bigQueryDatasetConnectionResolver) Facets(ctx context.Context, obj *bigquery.BigQueryDatasetConnection) (*bigquery.BigQueryDatasetFacets, error) {
-	return bigquery.ComputeFacets(obj.GetAllDatasets(), obj.GetFilter()), nil
+	return bigquery.ComputeFacets(ctx, obj.GetAllDatasets(), obj.GetFilter()), nil
 }
 
 func (r *jobResolver) BigQueryDatasets(ctx context.Context, obj *job.Job, orderBy *bigquery.BigQueryDatasetOrder) (*bigquery.BigQueryDatasetConnection, error) {

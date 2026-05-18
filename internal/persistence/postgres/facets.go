@@ -1,15 +1,16 @@
 package postgres
 
 import (
+	"context"
 	"slices"
 	"strings"
 
 	"github.com/nais/api/internal/graph/model"
 )
 
-// ComputeFacets computes facets for a Postgres instance query.
-// All possible values are seeded from allInstances, but only items matching the filter are counted.
-func ComputeFacets(allInstances []*PostgresInstance, filter *PostgresInstanceFilter) *PostgresInstanceFacets {
+func ComputeFacets(ctx context.Context, allInstances []*PostgresInstance, filter *PostgresInstanceFilter) *PostgresInstanceFacets {
+	filtered := SortFilterPostgresInstance.Filter(ctx, allInstances, filter)
+
 	// Seed all possible values from allInstances
 	environmentCounts := map[string]int{}
 	stateCounts := map[PostgresInstanceState]int{}
@@ -24,10 +25,7 @@ func ComputeFacets(allInstances []*PostgresInstance, filter *PostgresInstanceFil
 	}
 
 	// Count only items matching the filter
-	for _, inst := range allInstances {
-		if !matchesFilter(inst, filter) {
-			continue
-		}
+	for _, inst := range filtered {
 		environmentCounts[inst.EnvironmentName]++
 		stateCounts[inst.State]++
 		haCounts[inst.HighAvailability]++
@@ -35,45 +33,6 @@ func ComputeFacets(allInstances []*PostgresInstance, filter *PostgresInstanceFil
 	}
 
 	return assembleFacets(environmentCounts, stateCounts, haCounts, versionCounts)
-}
-
-// matchesFilter checks if a single instance matches the given filter.
-func matchesFilter(inst *PostgresInstance, filter *PostgresInstanceFilter) bool {
-	if filter == nil {
-		return true
-	}
-
-	if filter.Name != "" {
-		if !strings.Contains(strings.ToLower(inst.Name), strings.ToLower(filter.Name)) {
-			return false
-		}
-	}
-
-	if len(filter.Environments) > 0 {
-		if !slices.Contains(filter.Environments, inst.EnvironmentName) {
-			return false
-		}
-	}
-
-	if len(filter.States) > 0 {
-		if !slices.Contains(filter.States, inst.State) {
-			return false
-		}
-	}
-
-	if filter.HighAvailability != nil {
-		if inst.HighAvailability != *filter.HighAvailability {
-			return false
-		}
-	}
-
-	if len(filter.MajorVersions) > 0 {
-		if !slices.Contains(filter.MajorVersions, inst.MajorVersion) {
-			return false
-		}
-	}
-
-	return true
 }
 
 func assembleFacets(

@@ -89,7 +89,7 @@ func (r *kafkaTopicAclResolver) Topic(ctx context.Context, obj *kafkatopic.Kafka
 }
 
 func (r *kafkaTopicConnectionResolver) Facets(ctx context.Context, obj *kafkatopic.KafkaTopicConnection) (*kafkatopic.KafkaTopicFacets, error) {
-	return kafkatopic.ComputeFacets(obj.GetAllTopics(), obj.GetFilter()), nil
+	return kafkatopic.ComputeFacets(ctx, obj.GetAllTopics(), obj.GetFilter()), nil
 }
 
 func (r *mutationResolver) CreateKafkaCredentials(ctx context.Context, input kafkatopic.CreateKafkaCredentialsInput) (*kafkatopic.CreateKafkaCredentialsPayload, error) {
