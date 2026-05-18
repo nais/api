@@ -44,7 +44,7 @@ require (
 	github.com/nais/pgrator/pkg/api v0.0.0-20260219115817-cf954d58c04e
 	github.com/nais/tester v0.1.1
 	github.com/nais/unleasherator v0.0.0-20251216221129-efebc54203fe
-	github.com/nais/v13s/pkg/api v0.0.0-20260519115145-3193309b1b36
+	github.com/nais/v13s/pkg/api v0.0.0-20260526094622-34ca1c9b7a76
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pressly/goose/v3 v3.27.0
 	github.com/prometheus/client_golang v1.23.2
@@ -488,5 +488,3 @@ replace github.com/hashicorp/terraform-provider-google-beta => ./third_party/git
 replace github.com/nais/api/pkg/apiclient => ./pkg/apiclient
 
 replace github.com/hashicorp/memberlist => github.com/grafana/memberlist v0.3.1-0.20251126142931-6f9f62ab6f86
-
-replace github.com/nais/v13s/pkg/api => ../v13s/pkg/api
