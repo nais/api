@@ -1478,6 +1478,7 @@ type ComplexityRoot struct {
 		SetTeamMemberRole                func(childComplexity int, input team.SetTeamMemberRoleInput) int
 		StartOpenSearchMaintenance       func(childComplexity int, input servicemaintenance.StartOpenSearchMaintenanceInput) int
 		StartValkeyMaintenance           func(childComplexity int, input servicemaintenance.StartValkeyMaintenanceInput) int
+		SuppressVulnerabilities          func(childComplexity int, input vulnerability.SuppressVulnerabilitiesInput) int
 		TriggerJob                       func(childComplexity int, input job.TriggerJobInput) int
 		UpdateApplication                func(childComplexity int, input application.UpdateApplicationInput) int
 		UpdateConfigValue                func(childComplexity int, input config.UpdateConfigValueInput) int
@@ -2546,6 +2547,10 @@ type ComplexityRoot struct {
 	Subscription struct {
 		Log         func(childComplexity int, filter loki.LogSubscriptionFilter) int
 		WorkloadLog func(childComplexity int, filter podlog.WorkloadLogSubscriptionFilter) int
+	}
+
+	SuppressVulnerabilitiesPayload struct {
+		SuppressedCount func(childComplexity int) int
 	}
 
 	Team struct {
@@ -9204,6 +9209,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Mutation.StartValkeyMaintenance(childComplexity, args["input"].(servicemaintenance.StartValkeyMaintenanceInput)), true
 
+	case "Mutation.suppressVulnerabilities":
+		if e.ComplexityRoot.Mutation.SuppressVulnerabilities == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_suppressVulnerabilities_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Mutation.SuppressVulnerabilities(childComplexity, args["input"].(vulnerability.SuppressVulnerabilitiesInput)), true
+
 	case "Mutation.triggerJob":
 		if e.ComplexityRoot.Mutation.TriggerJob == nil {
 			break
@@ -14005,6 +14022,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Subscription.WorkloadLog(childComplexity, args["filter"].(podlog.WorkloadLogSubscriptionFilter)), true
 
+	case "SuppressVulnerabilitiesPayload.suppressedCount":
+		if e.ComplexityRoot.SuppressVulnerabilitiesPayload.SuppressedCount == nil {
+			break
+		}
+
+		return e.ComplexityRoot.SuppressVulnerabilitiesPayload.SuppressedCount(childComplexity), true
+
 	case "Team.activityLog":
 		if e.ComplexityRoot.Team.ActivityLog == nil {
 			break
@@ -18106,6 +18130,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputSqlInstanceUserOrder,
 		ec.unmarshalInputStartOpenSearchMaintenanceInput,
 		ec.unmarshalInputStartValkeyMaintenanceInput,
+		ec.unmarshalInputSuppressVulnerabilitiesInput,
 		ec.unmarshalInputTeamAlertsFilter,
 		ec.unmarshalInputTeamApplicationsFilter,
 		ec.unmarshalInputTeamCostDailyFilter,
@@ -29303,6 +29328,12 @@ type CreateValkeyCredentialsPayload {
 	This mutation is currently unstable and may change in the future.
 	"""
 	updateImageVulnerability(input: UpdateImageVulnerabilityInput!): UpdateImageVulnerabilityPayload!
+
+	"""
+	Suppresses all occurrences of a CVE across workloads for a team.
+	This mutation is currently unstable and may change in the future.
+	"""
+	suppressVulnerabilities(input: SuppressVulnerabilitiesInput!): SuppressVulnerabilitiesPayload!
 }
 
 extend type Query {
@@ -29923,6 +29954,26 @@ input UpdateImageVulnerabilityInput {
 type UpdateImageVulnerabilityPayload {
 	"The vulnerability updated."
 	vulnerability: ImageVulnerability
+}
+
+input SuppressVulnerabilitiesInput {
+	"The CVE identifier to suppress (e.g. CVE-2024-12345)."
+	cveID: String!
+	"The team to suppress the CVE for."
+	teamSlug: Slug!
+	"Optionally limit suppression to a specific environment."
+	environmentName: String
+	"The reason for suppressing the vulnerability."
+	reason: String!
+	"Should the vulnerability be suppressed."
+	suppress: Boolean!
+	"New state of the vulnerability."
+	state: ImageVulnerabilitySuppressionState
+}
+
+type SuppressVulnerabilitiesPayload {
+	"The number of workloads for which the CVE was suppressed."
+	suppressedCount: Int!
 }
 
 type VulnerabilityActivityLogEntryData {
@@ -33716,6 +33767,14 @@ func (ec *executionContext) childFields_StartValkeyMaintenancePayload(ctx contex
 		return ec.fieldContext_StartValkeyMaintenancePayload_error(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type StartValkeyMaintenancePayload", field.Name)
+}
+
+func (ec *executionContext) childFields_SuppressVulnerabilitiesPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "suppressedCount":
+		return ec.fieldContext_SuppressVulnerabilitiesPayload_suppressedCount(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type SuppressVulnerabilitiesPayload", field.Name)
 }
 
 func (ec *executionContext) childFields_Team(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
