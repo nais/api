@@ -14,11 +14,11 @@ import (
 	"github.com/nais/api/internal/workload/job"
 )
 
-func (r *applicationResolver) Valkeys(ctx context.Context, obj *application.Application, orderBy *valkey.ValkeyOrder) (*pagination.Connection[*valkey.Valkey], error) {
+func (r *applicationResolver) Valkeys(ctx context.Context, obj *application.Application, orderBy *valkey.ValkeyOrder) (*valkey.ValkeyConnection, error) {
 	return valkey.ListForWorkload(ctx, obj.TeamSlug, obj.GetEnvironmentName(), obj.Spec.Valkey, orderBy)
 }
 
-func (r *jobResolver) Valkeys(ctx context.Context, obj *job.Job, orderBy *valkey.ValkeyOrder) (*pagination.Connection[*valkey.Valkey], error) {
+func (r *jobResolver) Valkeys(ctx context.Context, obj *job.Job, orderBy *valkey.ValkeyOrder) (*valkey.ValkeyConnection, error) {
 	return valkey.ListForWorkload(ctx, obj.TeamSlug, obj.GetEnvironmentName(), obj.Spec.Valkey, orderBy)
 }
 
@@ -50,13 +50,13 @@ func (r *mutationResolver) CreateValkeyCredentials(ctx context.Context, input va
 	return valkey.CreateValkeyCredentials(ctx, input)
 }
 
-func (r *teamResolver) Valkeys(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *valkey.ValkeyOrder) (*pagination.Connection[*valkey.Valkey], error) {
+func (r *teamResolver) Valkeys(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *valkey.ValkeyOrder, filter *valkey.ValkeyFilter) (*valkey.ValkeyConnection, error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
 	}
 
-	return valkey.ListForTeam(ctx, obj.Slug, page, orderBy)
+	return valkey.ListForTeam(ctx, obj.Slug, page, orderBy, filter)
 }
 
 func (r *teamEnvironmentResolver) Valkey(ctx context.Context, obj *team.TeamEnvironment, name string) (*valkey.Valkey, error) {
@@ -122,11 +122,20 @@ func (r *valkeyAccessResolver) Workload(ctx context.Context, obj *valkey.ValkeyA
 	return getWorkload(ctx, obj.WorkloadReference, obj.TeamSlug, obj.EnvironmentName)
 }
 
+func (r *valkeyConnectionResolver) Facets(ctx context.Context, obj *valkey.ValkeyConnection) (*valkey.ValkeyFacets, error) {
+	return valkey.ComputeFacets(obj.GetAllInstances(), obj.GetFilter()), nil
+}
+
 func (r *Resolver) Valkey() gengql.ValkeyResolver { return &valkeyResolver{r} }
 
 func (r *Resolver) ValkeyAccess() gengql.ValkeyAccessResolver { return &valkeyAccessResolver{r} }
 
+func (r *Resolver) ValkeyConnection() gengql.ValkeyConnectionResolver {
+	return &valkeyConnectionResolver{r}
+}
+
 type (
-	valkeyResolver       struct{ *Resolver }
-	valkeyAccessResolver struct{ *Resolver }
+	valkeyResolver           struct{ *Resolver }
+	valkeyAccessResolver     struct{ *Resolver }
+	valkeyConnectionResolver struct{ *Resolver }
 )

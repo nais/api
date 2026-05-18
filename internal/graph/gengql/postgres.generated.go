@@ -13,6 +13,7 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/graph/ident"
+	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/persistence/postgres"
 	"github.com/nais/api/internal/slug"
@@ -31,6 +32,9 @@ type PostgresInstanceResolver interface {
 }
 type PostgresInstanceAuditResolver interface {
 	URL(ctx context.Context, obj *postgres.PostgresInstanceAudit) (*string, error)
+}
+type PostgresInstanceConnectionResolver interface {
+	Facets(ctx context.Context, obj *postgres.PostgresInstanceConnection) (*postgres.PostgresInstanceFacets, error)
 }
 
 // endregion ************************** generated!.gotpl **************************
@@ -995,7 +999,7 @@ func (ec *executionContext) fieldContext_PostgresInstanceAudit_statementClasses(
 	return graphql.NewScalarFieldContext("PostgresInstanceAudit", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _PostgresInstanceConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*postgres.PostgresInstance]) (ret graphql.Marshaler) {
+func (ec *executionContext) _PostgresInstanceConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstanceConnection) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -1027,7 +1031,7 @@ func (ec *executionContext) fieldContext_PostgresInstanceConnection_pageInfo(_ c
 	return fc, nil
 }
 
-func (ec *executionContext) _PostgresInstanceConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*postgres.PostgresInstance]) (ret graphql.Marshaler) {
+func (ec *executionContext) _PostgresInstanceConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstanceConnection) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -1059,7 +1063,7 @@ func (ec *executionContext) fieldContext_PostgresInstanceConnection_nodes(_ cont
 	return fc, nil
 }
 
-func (ec *executionContext) _PostgresInstanceConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*postgres.PostgresInstance]) (ret graphql.Marshaler) {
+func (ec *executionContext) _PostgresInstanceConnection_edges(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstanceConnection) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -1086,6 +1090,38 @@ func (ec *executionContext) fieldContext_PostgresInstanceConnection_edges(_ cont
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return ec.childFields_PostgresInstanceEdge(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresInstanceConnection_facets(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstanceConnection) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresInstanceConnection_facets(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.PostgresInstanceConnection().Facets(ctx, obj)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *postgres.PostgresInstanceFacets) graphql.Marshaler {
+			return ec.marshalOPostgresInstanceFacets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceFacets(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresInstanceConnection_facets(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresInstanceConnection",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_PostgresInstanceFacets(ctx, field)
 		},
 	}
 	return fc, nil
@@ -1146,6 +1182,134 @@ func (ec *executionContext) fieldContext_PostgresInstanceEdge_node(_ context.Con
 	return fc, nil
 }
 
+func (ec *executionContext) _PostgresInstanceFacets_environments(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstanceFacets) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresInstanceFacets_environments(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Environments, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []model.EnvironmentFacetItem) graphql.Marshaler {
+			return ec.marshalNEnvironmentFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐEnvironmentFacetItemᚄ(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresInstanceFacets_environments(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresInstanceFacets",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_EnvironmentFacetItem(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresInstanceFacets_states(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstanceFacets) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresInstanceFacets_states(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.States, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []postgres.PostgresInstanceStateFacetItem) graphql.Marshaler {
+			return ec.marshalNPostgresInstanceStateFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceStateFacetItemᚄ(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresInstanceFacets_states(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresInstanceFacets",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_PostgresInstanceStateFacetItem(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresInstanceFacets_highAvailability(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstanceFacets) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresInstanceFacets_highAvailability(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.HighAvailability, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []model.BooleanFacetItem) graphql.Marshaler {
+			return ec.marshalNBooleanFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBooleanFacetItemᚄ(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresInstanceFacets_highAvailability(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresInstanceFacets",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_BooleanFacetItem(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresInstanceFacets_majorVersions(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstanceFacets) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresInstanceFacets_majorVersions(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.MajorVersions, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []postgres.PostgresInstanceMajorVersionFacetItem) graphql.Marshaler {
+			return ec.marshalNPostgresInstanceMajorVersionFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceMajorVersionFacetItemᚄ(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresInstanceFacets_majorVersions(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresInstanceFacets",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_PostgresInstanceMajorVersionFacetItem(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _PostgresInstanceMaintenanceWindow_day(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstanceMaintenanceWindow) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -1190,6 +1354,52 @@ func (ec *executionContext) _PostgresInstanceMaintenanceWindow_hour(ctx context.
 }
 func (ec *executionContext) fieldContext_PostgresInstanceMaintenanceWindow_hour(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("PostgresInstanceMaintenanceWindow", field, false, false, errors.New("field of type Int does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresInstanceMajorVersionFacetItem_majorVersion(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstanceMajorVersionFacetItem) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresInstanceMajorVersionFacetItem_majorVersion(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.MajorVersion, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresInstanceMajorVersionFacetItem_majorVersion(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresInstanceMajorVersionFacetItem", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresInstanceMajorVersionFacetItem_count(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstanceMajorVersionFacetItem) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresInstanceMajorVersionFacetItem_count(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Count, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
+			return ec.marshalNInt2int(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresInstanceMajorVersionFacetItem_count(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresInstanceMajorVersionFacetItem", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
 func (ec *executionContext) _PostgresInstanceResources_cpu(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstanceResources) (ret graphql.Marshaler) {
@@ -1259,6 +1469,52 @@ func (ec *executionContext) _PostgresInstanceResources_diskSize(ctx context.Cont
 }
 func (ec *executionContext) fieldContext_PostgresInstanceResources_diskSize(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("PostgresInstanceResources", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresInstanceStateFacetItem_state(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstanceStateFacetItem) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresInstanceStateFacetItem_state(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.State, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v postgres.PostgresInstanceState) graphql.Marshaler {
+			return ec.marshalNPostgresInstanceState2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceState(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresInstanceStateFacetItem_state(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresInstanceStateFacetItem", field, false, false, errors.New("field of type PostgresInstanceState does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresInstanceStateFacetItem_count(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstanceStateFacetItem) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresInstanceStateFacetItem_count(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Count, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
+			return ec.marshalNInt2int(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresInstanceStateFacetItem_count(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresInstanceStateFacetItem", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
 func (ec *executionContext) _TeamInventoryCountPostgresInstances_total(ctx context.Context, field graphql.CollectedField, obj *postgres.TeamInventoryCountPostgresInstances) (ret graphql.Marshaler) {
@@ -1385,6 +1641,64 @@ func (ec *executionContext) unmarshalInputGrantPostgresAccessInput(ctx context.C
 				return it, err
 			}
 			it.Duration = data
+		}
+	}
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputPostgresInstanceFilter(ctx context.Context, obj any) (postgres.PostgresInstanceFilter, error) {
+	var it postgres.PostgresInstanceFilter
+	if obj == nil {
+		return it, nil
+	}
+
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"name", "environments", "states", "highAvailability", "majorVersions"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalOString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "environments":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environments"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Environments = data
+		case "states":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("states"))
+			data, err := ec.unmarshalOPostgresInstanceState2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceStateᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.States = data
+		case "highAvailability":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("highAvailability"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HighAvailability = data
+		case "majorVersions":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("majorVersions"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MajorVersions = data
 		}
 	}
 	return it, nil
@@ -1989,7 +2303,7 @@ func (ec *executionContext) _PostgresInstanceAudit(ctx context.Context, sel ast.
 
 var postgresInstanceConnectionImplementors = []string{"PostgresInstanceConnection"}
 
-func (ec *executionContext) _PostgresInstanceConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.Connection[*postgres.PostgresInstance]) graphql.Marshaler {
+func (ec *executionContext) _PostgresInstanceConnection(ctx context.Context, sel ast.SelectionSet, obj *postgres.PostgresInstanceConnection) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, postgresInstanceConnectionImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -2001,18 +2315,51 @@ func (ec *executionContext) _PostgresInstanceConnection(ctx context.Context, sel
 		case "pageInfo":
 			out.Values[i] = ec._PostgresInstanceConnection_pageInfo(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "nodes":
 			out.Values[i] = ec._PostgresInstanceConnection_nodes(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "edges":
 			out.Values[i] = ec._PostgresInstanceConnection_edges(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "facets":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._PostgresInstanceConnection_facets(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -2054,6 +2401,60 @@ func (ec *executionContext) _PostgresInstanceEdge(ctx context.Context, sel ast.S
 			}
 		case "node":
 			out.Values[i] = ec._PostgresInstanceEdge_node(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var postgresInstanceFacetsImplementors = []string{"PostgresInstanceFacets"}
+
+func (ec *executionContext) _PostgresInstanceFacets(ctx context.Context, sel ast.SelectionSet, obj *postgres.PostgresInstanceFacets) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, postgresInstanceFacetsImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PostgresInstanceFacets")
+		case "environments":
+			out.Values[i] = ec._PostgresInstanceFacets_environments(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "states":
+			out.Values[i] = ec._PostgresInstanceFacets_states(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "highAvailability":
+			out.Values[i] = ec._PostgresInstanceFacets_highAvailability(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "majorVersions":
+			out.Values[i] = ec._PostgresInstanceFacets_majorVersions(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -2124,6 +2525,50 @@ func (ec *executionContext) _PostgresInstanceMaintenanceWindow(ctx context.Conte
 	return out
 }
 
+var postgresInstanceMajorVersionFacetItemImplementors = []string{"PostgresInstanceMajorVersionFacetItem"}
+
+func (ec *executionContext) _PostgresInstanceMajorVersionFacetItem(ctx context.Context, sel ast.SelectionSet, obj *postgres.PostgresInstanceMajorVersionFacetItem) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, postgresInstanceMajorVersionFacetItemImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PostgresInstanceMajorVersionFacetItem")
+		case "majorVersion":
+			out.Values[i] = ec._PostgresInstanceMajorVersionFacetItem_majorVersion(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "count":
+			out.Values[i] = ec._PostgresInstanceMajorVersionFacetItem_count(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var postgresInstanceResourcesImplementors = []string{"PostgresInstanceResources"}
 
 func (ec *executionContext) _PostgresInstanceResources(ctx context.Context, sel ast.SelectionSet, obj *postgres.PostgresInstanceResources) graphql.Marshaler {
@@ -2147,6 +2592,50 @@ func (ec *executionContext) _PostgresInstanceResources(ctx context.Context, sel 
 			}
 		case "diskSize":
 			out.Values[i] = ec._PostgresInstanceResources_diskSize(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var postgresInstanceStateFacetItemImplementors = []string{"PostgresInstanceStateFacetItem"}
+
+func (ec *executionContext) _PostgresInstanceStateFacetItem(ctx context.Context, sel ast.SelectionSet, obj *postgres.PostgresInstanceStateFacetItem) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, postgresInstanceStateFacetItemImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PostgresInstanceStateFacetItem")
+		case "state":
+			out.Values[i] = ec._PostgresInstanceStateFacetItem_state(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "count":
+			out.Values[i] = ec._PostgresInstanceStateFacetItem_count(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -2298,11 +2787,11 @@ func (ec *executionContext) marshalNPostgresInstanceAudit2githubᚗcomᚋnaisᚋ
 	return ec._PostgresInstanceAudit(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNPostgresInstanceConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[*postgres.PostgresInstance]) graphql.Marshaler {
+func (ec *executionContext) marshalNPostgresInstanceConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceConnection(ctx context.Context, sel ast.SelectionSet, v postgres.PostgresInstanceConnection) graphql.Marshaler {
 	return ec._PostgresInstanceConnection(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNPostgresInstanceConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*postgres.PostgresInstance]) graphql.Marshaler {
+func (ec *executionContext) marshalNPostgresInstanceConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceConnection(ctx context.Context, sel ast.SelectionSet, v *postgres.PostgresInstanceConnection) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
@@ -2321,6 +2810,26 @@ func (ec *executionContext) marshalNPostgresInstanceEdge2ᚕgithubᚗcomᚋnais�
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
 		return ec.marshalNPostgresInstanceEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
+	})
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNPostgresInstanceMajorVersionFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceMajorVersionFacetItem(ctx context.Context, sel ast.SelectionSet, v postgres.PostgresInstanceMajorVersionFacetItem) graphql.Marshaler {
+	return ec._PostgresInstanceMajorVersionFacetItem(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNPostgresInstanceMajorVersionFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceMajorVersionFacetItemᚄ(ctx context.Context, sel ast.SelectionSet, v []postgres.PostgresInstanceMajorVersionFacetItem) graphql.Marshaler {
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNPostgresInstanceMajorVersionFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceMajorVersionFacetItem(ctx, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -2362,6 +2871,26 @@ func (ec *executionContext) marshalNPostgresInstanceState2githubᚗcomᚋnaisᚋ
 	return v
 }
 
+func (ec *executionContext) marshalNPostgresInstanceStateFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceStateFacetItem(ctx context.Context, sel ast.SelectionSet, v postgres.PostgresInstanceStateFacetItem) graphql.Marshaler {
+	return ec._PostgresInstanceStateFacetItem(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNPostgresInstanceStateFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceStateFacetItemᚄ(ctx context.Context, sel ast.SelectionSet, v []postgres.PostgresInstanceStateFacetItem) graphql.Marshaler {
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNPostgresInstanceStateFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceStateFacetItem(ctx, sel, v[i])
+	})
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
 func (ec *executionContext) marshalNTeamInventoryCountPostgresInstances2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐTeamInventoryCountPostgresInstances(ctx context.Context, sel ast.SelectionSet, v postgres.TeamInventoryCountPostgresInstances) graphql.Marshaler {
 	return ec._TeamInventoryCountPostgresInstances(ctx, sel, &v)
 }
@@ -2374,6 +2903,21 @@ func (ec *executionContext) marshalNTeamInventoryCountPostgresInstances2ᚖgithu
 		return graphql.Null
 	}
 	return ec._TeamInventoryCountPostgresInstances(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOPostgresInstanceFacets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceFacets(ctx context.Context, sel ast.SelectionSet, v *postgres.PostgresInstanceFacets) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._PostgresInstanceFacets(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOPostgresInstanceFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceFilter(ctx context.Context, v any) (*postgres.PostgresInstanceFilter, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputPostgresInstanceFilter(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOPostgresInstanceMaintenanceWindow2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceMaintenanceWindow(ctx context.Context, sel ast.SelectionSet, v *postgres.PostgresInstanceMaintenanceWindow) graphql.Marshaler {
@@ -2389,6 +2933,43 @@ func (ec *executionContext) unmarshalOPostgresInstanceOrder2ᚖgithubᚗcomᚋna
 	}
 	res, err := ec.unmarshalInputPostgresInstanceOrder(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOPostgresInstanceState2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceStateᚄ(ctx context.Context, v any) ([]postgres.PostgresInstanceState, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []any
+	vSlice = graphql.CoerceList(v)
+	var err error
+	res := make([]postgres.PostgresInstanceState, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNPostgresInstanceState2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceState(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalOPostgresInstanceState2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceStateᚄ(ctx context.Context, sel ast.SelectionSet, v []postgres.PostgresInstanceState) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNPostgresInstanceState2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceState(ctx, sel, v[i])
+	})
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 // endregion ***************************** type.gotpl *****************************

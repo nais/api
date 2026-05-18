@@ -39,6 +39,12 @@ func init() {
 			}
 		}
 
+		if len(filter.Environments) > 0 {
+			if !slices.Contains(filter.Environments, v.EnvironmentName) {
+				return false
+			}
+		}
+
 		if filter.InUse != nil {
 			inUse := false
 

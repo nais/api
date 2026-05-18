@@ -107,13 +107,17 @@ func (r *openSearchAccessResolver) Workload(ctx context.Context, obj *opensearch
 	return getWorkload(ctx, obj.WorkloadReference, obj.TeamSlug, obj.EnvironmentName)
 }
 
-func (r *teamResolver) OpenSearches(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *opensearch.OpenSearchOrder) (*pagination.Connection[*opensearch.OpenSearch], error) {
+func (r *openSearchConnectionResolver) Facets(ctx context.Context, obj *opensearch.OpenSearchConnection) (*opensearch.OpenSearchFacets, error) {
+	return opensearch.ComputeFacets(obj.GetAllInstances(), obj.GetFilter()), nil
+}
+
+func (r *teamResolver) OpenSearches(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *opensearch.OpenSearchOrder, filter *opensearch.OpenSearchFilter) (*opensearch.OpenSearchConnection, error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
 	}
 
-	return opensearch.ListForTeam(ctx, obj.Slug, page, orderBy)
+	return opensearch.ListForTeam(ctx, obj.Slug, page, orderBy, filter)
 }
 
 func (r *teamEnvironmentResolver) OpenSearch(ctx context.Context, obj *team.TeamEnvironment, name string) (*opensearch.OpenSearch, error) {
@@ -132,7 +136,12 @@ func (r *Resolver) OpenSearchAccess() gengql.OpenSearchAccessResolver {
 	return &openSearchAccessResolver{r}
 }
 
+func (r *Resolver) OpenSearchConnection() gengql.OpenSearchConnectionResolver {
+	return &openSearchConnectionResolver{r}
+}
+
 type (
-	openSearchResolver       struct{ *Resolver }
-	openSearchAccessResolver struct{ *Resolver }
+	openSearchResolver           struct{ *Resolver }
+	openSearchAccessResolver     struct{ *Resolver }
+	openSearchConnectionResolver struct{ *Resolver }
 )

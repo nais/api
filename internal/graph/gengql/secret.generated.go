@@ -13,6 +13,7 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/graph/ident"
+	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/team"
@@ -37,6 +38,9 @@ type SecretResolver interface {
 
 	LastModifiedBy(ctx context.Context, obj *secret.Secret) (*user.User, error)
 	ActivityLog(ctx context.Context, obj *secret.Secret, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*activitylog.ActivityLogEntryConnection, error)
+}
+type SecretConnectionResolver interface {
+	Facets(ctx context.Context, obj *secret.SecretConnection) (*secret.SecretFacets, error)
 }
 
 // endregion ************************** generated!.gotpl **************************
@@ -726,7 +730,7 @@ func (ec *executionContext) fieldContext_Secret_activityLog(ctx context.Context,
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*secret.Secret]) (ret graphql.Marshaler) {
+func (ec *executionContext) _SecretConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *secret.SecretConnection) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -758,7 +762,7 @@ func (ec *executionContext) fieldContext_SecretConnection_pageInfo(_ context.Con
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*secret.Secret]) (ret graphql.Marshaler) {
+func (ec *executionContext) _SecretConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *secret.SecretConnection) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -790,7 +794,7 @@ func (ec *executionContext) fieldContext_SecretConnection_nodes(_ context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*secret.Secret]) (ret graphql.Marshaler) {
+func (ec *executionContext) _SecretConnection_edges(ctx context.Context, field graphql.CollectedField, obj *secret.SecretConnection) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -817,6 +821,38 @@ func (ec *executionContext) fieldContext_SecretConnection_edges(_ context.Contex
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return ec.childFields_SecretEdge(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SecretConnection_facets(ctx context.Context, field graphql.CollectedField, obj *secret.SecretConnection) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_SecretConnection_facets(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.SecretConnection().Facets(ctx, obj)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *secret.SecretFacets) graphql.Marshaler {
+			return ec.marshalOSecretFacets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretFacets(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_SecretConnection_facets(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SecretConnection",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_SecretFacets(ctx, field)
 		},
 	}
 	return fc, nil
@@ -1240,6 +1276,70 @@ func (ec *executionContext) fieldContext_SecretEdge_node(_ context.Context, fiel
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return ec.childFields_Secret(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SecretFacets_environments(ctx context.Context, field graphql.CollectedField, obj *secret.SecretFacets) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_SecretFacets_environments(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Environments, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []model.EnvironmentFacetItem) graphql.Marshaler {
+			return ec.marshalNEnvironmentFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐEnvironmentFacetItemᚄ(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_SecretFacets_environments(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SecretFacets",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_EnvironmentFacetItem(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SecretFacets_inUse(ctx context.Context, field graphql.CollectedField, obj *secret.SecretFacets) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_SecretFacets_inUse(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.InUse, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []model.BooleanFacetItem) graphql.Marshaler {
+			return ec.marshalNBooleanFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBooleanFacetItemᚄ(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_SecretFacets_inUse(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SecretFacets",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_BooleanFacetItem(ctx, field)
 		},
 	}
 	return fc, nil
@@ -2562,7 +2662,7 @@ func (ec *executionContext) unmarshalInputSecretFilter(ctx context.Context, obj 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "inUse"}
+	fieldsInOrder := [...]string{"name", "inUse", "environments"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -2583,6 +2683,13 @@ func (ec *executionContext) unmarshalInputSecretFilter(ctx context.Context, obj 
 				return it, err
 			}
 			it.InUse = data
+		case "environments":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environments"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Environments = data
 		}
 	}
 	return it, nil
@@ -3265,7 +3372,7 @@ func (ec *executionContext) _Secret(ctx context.Context, sel ast.SelectionSet, o
 
 var secretConnectionImplementors = []string{"SecretConnection"}
 
-func (ec *executionContext) _SecretConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.Connection[*secret.Secret]) graphql.Marshaler {
+func (ec *executionContext) _SecretConnection(ctx context.Context, sel ast.SelectionSet, obj *secret.SecretConnection) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, secretConnectionImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -3277,18 +3384,51 @@ func (ec *executionContext) _SecretConnection(ctx context.Context, sel ast.Selec
 		case "pageInfo":
 			out.Values[i] = ec._SecretConnection_pageInfo(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "nodes":
 			out.Values[i] = ec._SecretConnection_nodes(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "edges":
 			out.Values[i] = ec._SecretConnection_edges(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "facets":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._SecretConnection_facets(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3472,6 +3612,50 @@ func (ec *executionContext) _SecretEdge(ctx context.Context, sel ast.SelectionSe
 			}
 		case "node":
 			out.Values[i] = ec._SecretEdge_node(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var secretFacetsImplementors = []string{"SecretFacets"}
+
+func (ec *executionContext) _SecretFacets(ctx context.Context, sel ast.SelectionSet, obj *secret.SecretFacets) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, secretFacetsImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SecretFacets")
+		case "environments":
+			out.Values[i] = ec._SecretFacets_environments(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "inUse":
+			out.Values[i] = ec._SecretFacets_inUse(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -4231,11 +4415,11 @@ func (ec *executionContext) marshalNSecret2ᚖgithubᚗcomᚋnaisᚋapiᚋintern
 	return ec._Secret(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNSecretConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[*secret.Secret]) graphql.Marshaler {
+func (ec *executionContext) marshalNSecretConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretConnection(ctx context.Context, sel ast.SelectionSet, v secret.SecretConnection) graphql.Marshaler {
 	return ec._SecretConnection(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNSecretConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*secret.Secret]) graphql.Marshaler {
+func (ec *executionContext) marshalNSecretConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretConnection(ctx context.Context, sel ast.SelectionSet, v *secret.SecretConnection) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
@@ -4403,6 +4587,13 @@ func (ec *executionContext) marshalOSecret2ᚖgithubᚗcomᚋnaisᚋapiᚋintern
 		return graphql.Null
 	}
 	return ec._Secret(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOSecretFacets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretFacets(ctx context.Context, sel ast.SelectionSet, v *secret.SecretFacets) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._SecretFacets(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOSecretFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretFilter(ctx context.Context, v any) (*secret.SecretFilter, error) {

@@ -25,10 +25,50 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-type (
-	PostgresInstanceConnection = pagination.Connection[*PostgresInstance]
-	PostgresInstanceEdge       = pagination.Edge[*PostgresInstance]
-)
+type PostgresInstanceEdge = pagination.Edge[*PostgresInstance]
+
+type PostgresInstanceFilter struct {
+	Name             string                  `json:"name"`
+	Environments     []string                `json:"environments"`
+	States           []PostgresInstanceState `json:"states"`
+	HighAvailability *bool                   `json:"highAvailability"`
+	MajorVersions    []string                `json:"majorVersions"`
+}
+
+type PostgresInstanceConnection struct {
+	pagination.Connection[*PostgresInstance]
+
+	allInstances []*PostgresInstance
+	filter       *PostgresInstanceFilter
+}
+
+func (c *PostgresInstanceConnection) GetAllInstances() []*PostgresInstance { return c.allInstances }
+func (c *PostgresInstanceConnection) GetFilter() *PostgresInstanceFilter   { return c.filter }
+
+func NewPostgresInstanceConnection(conn *pagination.Connection[*PostgresInstance], allInstances []*PostgresInstance, filter *PostgresInstanceFilter) *PostgresInstanceConnection {
+	return &PostgresInstanceConnection{
+		Connection:   *conn,
+		allInstances: allInstances,
+		filter:       filter,
+	}
+}
+
+type PostgresInstanceFacets struct {
+	Environments     []model.EnvironmentFacetItem            `json:"environments"`
+	States           []PostgresInstanceStateFacetItem        `json:"states"`
+	HighAvailability []model.BooleanFacetItem                `json:"highAvailability"`
+	MajorVersions    []PostgresInstanceMajorVersionFacetItem `json:"majorVersions"`
+}
+
+type PostgresInstanceStateFacetItem struct {
+	State PostgresInstanceState `json:"state"`
+	Count int                   `json:"count"`
+}
+
+type PostgresInstanceMajorVersionFacetItem struct {
+	MajorVersion string `json:"majorVersion"`
+	Count        int    `json:"count"`
+}
 
 type PostgresInstance struct {
 	Name              string                             `json:"name"`

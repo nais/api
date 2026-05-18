@@ -1,0 +1,22 @@
+"""
+A shared facet item representing the count of resources within a specific environment.
+Reusable across multiple resource connections.
+"""
+type EnvironmentFacetItem {
+	"The environment name."
+	environmentName: String!
+
+	"Number of matching resources."
+	count: Int!
+}
+
+"""
+A shared facet item representing a boolean distribution (e.g., in-use, high availability).
+"""
+type BooleanFacetItem {
+	"The boolean value."
+	value: Boolean!
+
+	"Number of matching resources."
+	count: Int!
+}

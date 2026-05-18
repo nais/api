@@ -35,12 +35,22 @@ func Get(ctx context.Context, teamSlug slug.Slug, environment, name string) (*Bi
 	}
 }
 
-func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *BigQueryDatasetOrder) (*BigQueryDatasetConnection, error) {
+func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *BigQueryDatasetOrder, filter *BigQueryDatasetFilter) (*BigQueryDatasetConnection, error) {
 	all := ListAllForTeam(ctx, teamSlug)
-	orderDatasets(ctx, all, orderBy)
 
-	datasets := pagination.Slice(all, page)
-	return pagination.NewConnection(datasets, page, len(all)), nil
+	if orderBy == nil {
+		orderBy = &BigQueryDatasetOrder{
+			Field:     "NAME",
+			Direction: model.OrderDirectionAsc,
+		}
+	}
+
+	filtered := SortFilter.Filter(ctx, all, filter)
+	SortFilter.Sort(ctx, filtered, orderBy.Field, orderBy.Direction)
+
+	datasets := pagination.Slice(filtered, page)
+	conn := pagination.NewConnection(datasets, page, len(filtered))
+	return NewBigQueryDatasetConnection(conn, all, filter), nil
 }
 
 func ListAllForTeam(ctx context.Context, teamSlug slug.Slug) []*BigQueryDataset {
@@ -61,7 +71,8 @@ func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName st
 	}
 
 	orderDatasets(ctx, ret, orderBy)
-	return pagination.NewConnectionWithoutPagination(ret), nil
+	conn := pagination.NewConnectionWithoutPagination(ret)
+	return NewBigQueryDatasetConnection(conn, ret, nil), nil
 }
 
 func orderDatasets(ctx context.Context, datasets []*BigQueryDataset, orderBy *BigQueryDatasetOrder) {

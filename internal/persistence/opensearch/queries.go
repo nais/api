@@ -73,12 +73,22 @@ func State(ctx context.Context, os *OpenSearch) (OpenSearchState, error) {
 	}
 }
 
-func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *OpenSearchOrder) (*OpenSearchConnection, error) {
+func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *OpenSearchOrder, filter *OpenSearchFilter) (*OpenSearchConnection, error) {
 	all := ListAllForTeam(ctx, teamSlug)
-	orderOpenSearch(ctx, all, orderBy)
 
-	instances := pagination.Slice(all, page)
-	return pagination.NewConnection(instances, page, len(all)), nil
+	if orderBy == nil {
+		orderBy = &OpenSearchOrder{
+			Field:     "NAME",
+			Direction: model.OrderDirectionAsc,
+		}
+	}
+
+	filtered := SortFilterOpenSearch.Filter(ctx, all, filter)
+	SortFilterOpenSearch.Sort(ctx, filtered, orderBy.Field, orderBy.Direction)
+
+	instances := pagination.Slice(filtered, page)
+	conn := pagination.NewConnection(instances, page, len(filtered))
+	return NewOpenSearchConnection(conn, all, filter), nil
 }
 
 func ListAllForTeam(ctx context.Context, teamSlug slug.Slug) []*OpenSearch {

@@ -24,11 +24,44 @@ import (
 )
 
 type (
-	ValkeyConnection       = pagination.Connection[*Valkey]
 	ValkeyEdge             = pagination.Edge[*Valkey]
 	ValkeyAccessConnection = pagination.Connection[*ValkeyAccess]
 	ValkeyAccessEdge       = pagination.Edge[*ValkeyAccess]
 )
+
+type ValkeyFilter struct {
+	Name         string       `json:"name"`
+	Environments []string     `json:"environments"`
+	Tiers        []ValkeyTier `json:"tiers"`
+}
+
+type ValkeyConnection struct {
+	pagination.Connection[*Valkey]
+
+	allInstances []*Valkey
+	filter       *ValkeyFilter
+}
+
+func (c *ValkeyConnection) GetAllInstances() []*Valkey { return c.allInstances }
+func (c *ValkeyConnection) GetFilter() *ValkeyFilter   { return c.filter }
+
+func NewValkeyConnection(conn *pagination.Connection[*Valkey], allInstances []*Valkey, filter *ValkeyFilter) *ValkeyConnection {
+	return &ValkeyConnection{
+		Connection:   *conn,
+		allInstances: allInstances,
+		filter:       filter,
+	}
+}
+
+type ValkeyFacets struct {
+	Environments []model.EnvironmentFacetItem `json:"environments"`
+	Tiers        []ValkeyTierFacetItem        `json:"tiers"`
+}
+
+type ValkeyTierFacetItem struct {
+	Tier  ValkeyTier `json:"tier"`
+	Count int        `json:"count"`
+}
 
 type Valkey struct {
 	Name                  string                `json:"name"`

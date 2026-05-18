@@ -28,12 +28,22 @@ func Get(ctx context.Context, teamSlug slug.Slug, environment, name string) (*Ka
 	return fromContext(ctx).watcher.Get(environment, teamSlug.String(), name)
 }
 
-func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *KafkaTopicOrder) (*KafkaTopicConnection, error) {
+func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *KafkaTopicOrder, filter *KafkaTopicFilter) (*KafkaTopicConnection, error) {
 	all := ListAllForTeam(ctx, teamSlug)
-	orderTopics(ctx, all, orderBy)
 
-	slice := pagination.Slice(all, page)
-	return pagination.NewConnection(slice, page, len(all)), nil
+	if orderBy == nil {
+		orderBy = &KafkaTopicOrder{
+			Field:     "NAME",
+			Direction: model.OrderDirectionAsc,
+		}
+	}
+
+	filtered := SortFilterTopic.Filter(ctx, all, filter)
+	SortFilterTopic.Sort(ctx, filtered, orderBy.Field, orderBy.Direction)
+
+	slice := pagination.Slice(filtered, page)
+	conn := pagination.NewConnection(slice, page, len(filtered))
+	return NewKafkaTopicConnection(conn, all, filter), nil
 }
 
 func ListAllForTeam(ctx context.Context, teamSlug slug.Slug) []*KafkaTopic {

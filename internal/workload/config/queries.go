@@ -42,7 +42,8 @@ func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName st
 
 	SortFilter.Sort(ctx, ret, "NAME", model.OrderDirectionAsc)
 	paginated := pagination.Slice(ret, page)
-	return pagination.NewConnection(paginated, page, len(ret)), nil
+	conn := pagination.NewConnection(paginated, page, len(ret))
+	return NewConfigConnection(conn, ret, nil), nil
 }
 
 func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *ConfigOrder, filter *ConfigFilter) (*ConfigConnection, error) {
@@ -59,7 +60,8 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 	SortFilter.Sort(ctx, filtered, orderBy.Field, orderBy.Direction)
 
 	configs := pagination.Slice(filtered, page)
-	return pagination.NewConnection(configs, page, len(filtered)), nil
+	conn := pagination.NewConnection(configs, page, len(filtered))
+	return NewConfigConnection(conn, allConfigs, filter), nil
 }
 
 func CountForTeam(ctx context.Context, teamSlug slug.Slug) int {

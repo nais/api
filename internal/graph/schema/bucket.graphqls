@@ -15,6 +15,9 @@ extend type Team {
 
 		"Ordering options for items returned from the connection."
 		orderBy: BucketOrder
+
+		"Filtering options for items returned from the connection."
+		filter: BucketFilter
 	): BucketConnection!
 }
 
@@ -72,11 +75,25 @@ type BucketConnection {
 	pageInfo: PageInfo!
 	nodes: [Bucket!]!
 	edges: [BucketEdge!]!
+
+	"""
+	Facets for buckets. Provides distribution counts to help narrow down results.
+	Facet counts are computed over the full result set (ignoring pagination) but respect the current filter.
+	"""
+	facets: BucketFacets
 }
 
 type BucketEdge {
 	cursor: Cursor!
 	node: Bucket!
+}
+
+"""
+Facets for buckets, providing distribution counts across different dimensions.
+"""
+type BucketFacets {
+	"Distribution of buckets by environment."
+	environments: [EnvironmentFacetItem!]!
 }
 
 input BucketOrder {
@@ -87,6 +104,17 @@ input BucketOrder {
 enum BucketOrderField {
 	NAME
 	ENVIRONMENT
+}
+
+"""
+Input for filtering buckets.
+"""
+input BucketFilter {
+	"Filter by the name of the bucket."
+	name: String
+
+	"Filter by environments."
+	environments: [String!]
 }
 
 extend union SearchNode = Bucket

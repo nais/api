@@ -18,7 +18,7 @@ import (
 	"github.com/nais/api/internal/workload/secret"
 )
 
-func (r *applicationResolver) Secrets(ctx context.Context, obj *application.Application, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*secret.Secret], error) {
+func (r *applicationResolver) Secrets(ctx context.Context, obj *application.Application, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*secret.SecretConnection, error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
@@ -27,7 +27,7 @@ func (r *applicationResolver) Secrets(ctx context.Context, obj *application.Appl
 	return secret.ListForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj, page)
 }
 
-func (r *jobResolver) Secrets(ctx context.Context, obj *job.Job, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*secret.Secret], error) {
+func (r *jobResolver) Secrets(ctx context.Context, obj *job.Job, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*secret.SecretConnection, error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
@@ -220,10 +220,14 @@ func (r *secretResolver) ActivityLog(ctx context.Context, obj *secret.Secret, fi
 	)
 }
 
+func (r *secretConnectionResolver) Facets(ctx context.Context, obj *secret.SecretConnection) (*secret.SecretFacets, error) {
+	return secret.ComputeFacets(ctx, obj.GetAllSecrets(), obj.GetFilter()), nil
+}
+
 // Secrets returns all secrets for a team.
 // Secret metadata (names, keys) is visible to all authenticated users.
 // Secret values require team membership (use viewSecretValues mutation).
-func (r *teamResolver) Secrets(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *secret.SecretOrder, filter *secret.SecretFilter) (*pagination.Connection[*secret.Secret], error) {
+func (r *teamResolver) Secrets(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *secret.SecretOrder, filter *secret.SecretFilter) (*secret.SecretConnection, error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
@@ -247,4 +251,11 @@ func (r *teamInventoryCountsResolver) Secrets(ctx context.Context, obj *team.Tea
 
 func (r *Resolver) Secret() gengql.SecretResolver { return &secretResolver{r} }
 
-type secretResolver struct{ *Resolver }
+func (r *Resolver) SecretConnection() gengql.SecretConnectionResolver {
+	return &secretConnectionResolver{r}
+}
+
+type (
+	secretResolver           struct{ *Resolver }
+	secretConnectionResolver struct{ *Resolver }
+)

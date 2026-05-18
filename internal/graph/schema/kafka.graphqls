@@ -20,6 +20,9 @@ extend type Team {
 
 		"Ordering options for items returned from the connection."
 		orderBy: KafkaTopicOrder
+
+		"Filtering options for items returned from the connection."
+		filter: KafkaTopicFilter
 	): KafkaTopicConnection!
 }
 
@@ -103,6 +106,12 @@ type KafkaTopicConnection {
 	pageInfo: PageInfo!
 	nodes: [KafkaTopic!]!
 	edges: [KafkaTopicEdge!]!
+
+	"""
+	Facets for Kafka topics. Provides distribution counts to help narrow down results.
+	Facet counts are computed over the full result set (ignoring pagination) but respect the current filter.
+	"""
+	facets: KafkaTopicFacets
 }
 
 type KafkaTopicAclConnection {
@@ -119,6 +128,42 @@ type KafkaTopicEdge {
 type KafkaTopicAclEdge {
 	cursor: Cursor!
 	node: KafkaTopicAcl!
+}
+
+"""
+Facets for Kafka topics, providing distribution counts across different dimensions.
+"""
+type KafkaTopicFacets {
+	"Distribution of topics by environment."
+	environments: [EnvironmentFacetItem!]!
+
+	"Distribution of topics by Kafka pool."
+	pools: [KafkaTopicPoolFacetItem!]!
+}
+
+"""
+A single facet item for Kafka pools.
+"""
+type KafkaTopicPoolFacetItem {
+	"The pool name."
+	pool: String!
+
+	"Number of matching topics."
+	count: Int!
+}
+
+"""
+Input for filtering Kafka topics.
+"""
+input KafkaTopicFilter {
+	"Filter by the name of the topic."
+	name: String
+
+	"Filter by environments."
+	environments: [String!]
+
+	"Filter by Kafka pool."
+	pools: [String!]
 }
 
 input KafkaTopicAclFilter {

@@ -2,6 +2,7 @@ package kafkatopic
 
 import (
 	"context"
+	"slices"
 	"strings"
 
 	"github.com/nais/api/internal/graph/sortfilter"
@@ -11,7 +12,7 @@ import (
 )
 
 var (
-	SortFilterTopic    = sortfilter.New[*KafkaTopic, KafkaTopicOrderField, struct{}]()
+	SortFilterTopic    = sortfilter.New[*KafkaTopic, KafkaTopicOrderField, *KafkaTopicFilter]()
 	SortFilterTopicACL = sortfilter.New[*KafkaTopicACL, KafkaTopicACLOrderField, *KafkaTopicACLFilter]()
 )
 
@@ -22,6 +23,28 @@ func init() {
 	SortFilterTopic.RegisterSort("ENVIRONMENT", func(ctx context.Context, a, b *KafkaTopic) int {
 		return strings.Compare(a.EnvironmentName, b.EnvironmentName)
 	}, "NAME")
+
+	SortFilterTopic.RegisterFilter(func(ctx context.Context, v *KafkaTopic, filter *KafkaTopicFilter) bool {
+		if filter.Name != "" {
+			if !strings.Contains(strings.ToLower(v.Name), strings.ToLower(filter.Name)) {
+				return false
+			}
+		}
+
+		if len(filter.Environments) > 0 {
+			if !slices.Contains(filter.Environments, v.EnvironmentName) {
+				return false
+			}
+		}
+
+		if len(filter.Pools) > 0 {
+			if !slices.Contains(filter.Pools, v.Pool) {
+				return false
+			}
+		}
+
+		return true
+	})
 
 	SortFilterTopicACL.RegisterSort("TOPIC_NAME", func(ctx context.Context, a, b *KafkaTopicACL) int {
 		return strings.Compare(a.TopicName, b.TopicName)

@@ -17,10 +17,25 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-type (
-	ConfigConnection = pagination.Connection[*Config]
-	ConfigEdge       = pagination.Edge[*Config]
-)
+type ConfigEdge = pagination.Edge[*Config]
+
+type ConfigConnection struct {
+	pagination.Connection[*Config]
+
+	allConfigs []*Config
+	filter     *ConfigFilter
+}
+
+func (c *ConfigConnection) GetAllConfigs() []*Config { return c.allConfigs }
+func (c *ConfigConnection) GetFilter() *ConfigFilter { return c.filter }
+
+func NewConfigConnection(conn *pagination.Connection[*Config], allConfigs []*Config, filter *ConfigFilter) *ConfigConnection {
+	return &ConfigConnection{
+		Connection: *conn,
+		allConfigs: allConfigs,
+		filter:     filter,
+	}
+}
 
 type Config struct {
 	Name                string            `json:"name"`
@@ -201,8 +216,9 @@ func (e ConfigOrderField) MarshalGQL(w io.Writer) {
 }
 
 type ConfigFilter struct {
-	Name  *string `json:"name"`
-	InUse *bool   `json:"inUse"`
+	Name         *string  `json:"name"`
+	InUse        *bool    `json:"inUse"`
+	Environments []string `json:"environments"`
 }
 
 // IsActivityLogger implements the ActivityLogger interface.
@@ -210,4 +226,9 @@ func (Config) IsActivityLogger() {}
 
 type TeamInventoryCountConfigs struct {
 	Total int `json:"total"`
+}
+
+type ConfigFacets struct {
+	Environments []model.EnvironmentFacetItem `json:"environments"`
+	InUse        []model.BooleanFacetItem     `json:"inUse"`
 }

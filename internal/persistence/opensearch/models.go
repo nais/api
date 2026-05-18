@@ -27,11 +27,44 @@ import (
 )
 
 type (
-	OpenSearchConnection       = pagination.Connection[*OpenSearch]
 	OpenSearchEdge             = pagination.Edge[*OpenSearch]
 	OpenSearchAccessConnection = pagination.Connection[*OpenSearchAccess]
 	OpenSearchAccessEdge       = pagination.Edge[*OpenSearchAccess]
 )
+
+type OpenSearchFilter struct {
+	Name         string           `json:"name"`
+	Environments []string         `json:"environments"`
+	Tiers        []OpenSearchTier `json:"tiers"`
+}
+
+type OpenSearchConnection struct {
+	pagination.Connection[*OpenSearch]
+
+	allInstances []*OpenSearch
+	filter       *OpenSearchFilter
+}
+
+func (c *OpenSearchConnection) GetAllInstances() []*OpenSearch { return c.allInstances }
+func (c *OpenSearchConnection) GetFilter() *OpenSearchFilter   { return c.filter }
+
+func NewOpenSearchConnection(conn *pagination.Connection[*OpenSearch], allInstances []*OpenSearch, filter *OpenSearchFilter) *OpenSearchConnection {
+	return &OpenSearchConnection{
+		Connection:   *conn,
+		allInstances: allInstances,
+		filter:       filter,
+	}
+}
+
+type OpenSearchFacets struct {
+	Environments []model.EnvironmentFacetItem `json:"environments"`
+	Tiers        []OpenSearchTierFacetItem    `json:"tiers"`
+}
+
+type OpenSearchTierFacetItem struct {
+	Tier  OpenSearchTier `json:"tier"`
+	Count int            `json:"count"`
+}
 
 type OpenSearch struct {
 	Name                  string                 `json:"name"`

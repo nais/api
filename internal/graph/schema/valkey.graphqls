@@ -15,6 +15,9 @@ extend type Team {
 
 		"Ordering options for items returned from the connection."
 		orderBy: ValkeyOrder
+
+		"Filtering options for items returned from the connection."
+		filter: ValkeyFilter
 	): ValkeyConnection!
 }
 
@@ -128,6 +131,12 @@ type ValkeyConnection {
 	pageInfo: PageInfo!
 	nodes: [Valkey!]!
 	edges: [ValkeyEdge!]!
+
+	"""
+	Facets for Valkey instances. Provides distribution counts to help narrow down results.
+	Facet counts are computed over the full result set (ignoring pagination) but respect the current filter.
+	"""
+	facets: ValkeyFacets
 }
 
 type ValkeyAccessEdge {
@@ -138,6 +147,42 @@ type ValkeyAccessEdge {
 type ValkeyEdge {
 	cursor: Cursor!
 	node: Valkey!
+}
+
+"""
+Facets for Valkey instances, providing distribution counts across different dimensions.
+"""
+type ValkeyFacets {
+	"Distribution of instances by environment."
+	environments: [EnvironmentFacetItem!]!
+
+	"Distribution of instances by tier."
+	tiers: [ValkeyTierFacetItem!]!
+}
+
+"""
+A single facet item for Valkey tiers.
+"""
+type ValkeyTierFacetItem {
+	"The Valkey tier."
+	tier: ValkeyTier!
+
+	"Number of matching instances."
+	count: Int!
+}
+
+"""
+Input for filtering Valkey instances.
+"""
+input ValkeyFilter {
+	"Filter by the name of the instance."
+	name: String
+
+	"Filter by environments."
+	environments: [String!]
+
+	"Filter by tier."
+	tiers: [ValkeyTier!]
 }
 
 input ValkeyAccessOrder {

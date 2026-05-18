@@ -64,9 +64,12 @@ type ResolverRoot interface {
 	ApplicationInstance() ApplicationInstanceResolver
 	ApplicationRestartLoopIssue() ApplicationRestartLoopIssueResolver
 	BigQueryDataset() BigQueryDatasetResolver
+	BigQueryDatasetConnection() BigQueryDatasetConnectionResolver
 	Bucket() BucketResolver
+	BucketConnection() BucketConnectionResolver
 	CVE() CVEResolver
 	Config() ConfigResolver
+	ConfigConnection() ConfigConnectionResolver
 	ContainerImage() ContainerImageResolver
 	ContainerImageSBOM() ContainerImageSBOMResolver
 	ContainerImageWorkloadReference() ContainerImageWorkloadReferenceResolver
@@ -89,6 +92,7 @@ type ResolverRoot interface {
 	JobRun() JobRunResolver
 	KafkaTopic() KafkaTopicResolver
 	KafkaTopicAcl() KafkaTopicAclResolver
+	KafkaTopicConnection() KafkaTopicConnectionResolver
 	LastRunFailedIssue() LastRunFailedIssueResolver
 	MissingSbomIssue() MissingSbomIssueResolver
 	Mutation() MutationResolver
@@ -96,10 +100,12 @@ type ResolverRoot interface {
 	NoRunningInstancesIssue() NoRunningInstancesIssueResolver
 	OpenSearch() OpenSearchResolver
 	OpenSearchAccess() OpenSearchAccessResolver
+	OpenSearchConnection() OpenSearchConnectionResolver
 	OpenSearchIssue() OpenSearchIssueResolver
 	OpenSearchMaintenance() OpenSearchMaintenanceResolver
 	PostgresInstance() PostgresInstanceResolver
 	PostgresInstanceAudit() PostgresInstanceAuditResolver
+	PostgresInstanceConnection() PostgresInstanceConnectionResolver
 	PrometheusAlert() PrometheusAlertResolver
 	Query() QueryResolver
 	Reconciler() ReconcilerResolver
@@ -108,6 +114,7 @@ type ResolverRoot interface {
 	Repository() RepositoryResolver
 	RestartApplicationPayload() RestartApplicationPayloadResolver
 	Secret() SecretResolver
+	SecretConnection() SecretConnectionResolver
 	ServiceAccount() ServiceAccountResolver
 	ServiceAccountWorkloadBinding() ServiceAccountWorkloadBindingResolver
 	SqlDatabase() SqlDatabaseResolver
@@ -137,6 +144,7 @@ type ResolverRoot interface {
 	User() UserResolver
 	Valkey() ValkeyResolver
 	ValkeyAccess() ValkeyAccessResolver
+	ValkeyConnection() ValkeyConnectionResolver
 	ValkeyIssue() ValkeyIssueResolver
 	ValkeyMaintenance() ValkeyMaintenanceResolver
 	VulnerableImageIssue() VulnerableImageIssueResolver
@@ -458,6 +466,7 @@ type ComplexityRoot struct {
 
 	BigQueryDatasetConnection struct {
 		Edges    func(childComplexity int) int
+		Facets   func(childComplexity int) int
 		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
 	}
@@ -471,9 +480,18 @@ type ComplexityRoot struct {
 		Node   func(childComplexity int) int
 	}
 
+	BigQueryDatasetFacets struct {
+		Environments func(childComplexity int) int
+	}
+
 	BigQueryDatasetStatus struct {
 		CreationTime     func(childComplexity int) int
 		LastModifiedTime func(childComplexity int) int
+	}
+
+	BooleanFacetItem struct {
+		Count func(childComplexity int) int
+		Value func(childComplexity int) int
 	}
 
 	Bucket struct {
@@ -490,6 +508,7 @@ type ComplexityRoot struct {
 
 	BucketConnection struct {
 		Edges    func(childComplexity int) int
+		Facets   func(childComplexity int) int
 		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
 	}
@@ -497,6 +516,10 @@ type ComplexityRoot struct {
 	BucketEdge struct {
 		Cursor func(childComplexity int) int
 		Node   func(childComplexity int) int
+	}
+
+	BucketFacets struct {
+		Environments func(childComplexity int) int
 	}
 
 	CPUScalingStrategy struct {
@@ -562,6 +585,7 @@ type ComplexityRoot struct {
 
 	ConfigConnection struct {
 		Edges    func(childComplexity int) int
+		Facets   func(childComplexity int) int
 		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
 	}
@@ -591,6 +615,11 @@ type ComplexityRoot struct {
 	ConfigEdge struct {
 		Cursor func(childComplexity int) int
 		Node   func(childComplexity int) int
+	}
+
+	ConfigFacets struct {
+		Environments func(childComplexity int) int
+		InUse        func(childComplexity int) int
 	}
 
 	ConfigUpdatedActivityLogEntry struct {
@@ -905,6 +934,11 @@ type ComplexityRoot struct {
 	EnvironmentEdge struct {
 		Cursor func(childComplexity int) int
 		Node   func(childComplexity int) int
+	}
+
+	EnvironmentFacetItem struct {
+		Count           func(childComplexity int) int
+		EnvironmentName func(childComplexity int) int
 	}
 
 	ExternalIngressCriticalVulnerabilityIssue struct {
@@ -1375,6 +1409,7 @@ type ComplexityRoot struct {
 
 	KafkaTopicConnection struct {
 		Edges    func(childComplexity int) int
+		Facets   func(childComplexity int) int
 		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
 	}
@@ -1382,6 +1417,16 @@ type ComplexityRoot struct {
 	KafkaTopicEdge struct {
 		Cursor func(childComplexity int) int
 		Node   func(childComplexity int) int
+	}
+
+	KafkaTopicFacets struct {
+		Environments func(childComplexity int) int
+		Pools        func(childComplexity int) int
+	}
+
+	KafkaTopicPoolFacetItem struct {
+		Count func(childComplexity int) int
+		Pool  func(childComplexity int) int
 	}
 
 	LastRunFailedIssue struct {
@@ -1579,6 +1624,7 @@ type ComplexityRoot struct {
 
 	OpenSearchConnection struct {
 		Edges    func(childComplexity int) int
+		Facets   func(childComplexity int) int
 		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
 	}
@@ -1622,6 +1668,11 @@ type ComplexityRoot struct {
 		Node   func(childComplexity int) int
 	}
 
+	OpenSearchFacets struct {
+		Environments func(childComplexity int) int
+		Tiers        func(childComplexity int) int
+	}
+
 	OpenSearchIssue struct {
 		Event           func(childComplexity int) int
 		ID              func(childComplexity int) int
@@ -1652,6 +1703,11 @@ type ComplexityRoot struct {
 	OpenSearchMaintenanceUpdateEdge struct {
 		Cursor func(childComplexity int) int
 		Node   func(childComplexity int) int
+	}
+
+	OpenSearchTierFacetItem struct {
+		Count func(childComplexity int) int
+		Tier  func(childComplexity int) int
 	}
 
 	OpenSearchUpdatedActivityLogEntry struct {
@@ -1747,6 +1803,7 @@ type ComplexityRoot struct {
 
 	PostgresInstanceConnection struct {
 		Edges    func(childComplexity int) int
+		Facets   func(childComplexity int) int
 		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
 	}
@@ -1756,15 +1813,32 @@ type ComplexityRoot struct {
 		Node   func(childComplexity int) int
 	}
 
+	PostgresInstanceFacets struct {
+		Environments     func(childComplexity int) int
+		HighAvailability func(childComplexity int) int
+		MajorVersions    func(childComplexity int) int
+		States           func(childComplexity int) int
+	}
+
 	PostgresInstanceMaintenanceWindow struct {
 		Day  func(childComplexity int) int
 		Hour func(childComplexity int) int
+	}
+
+	PostgresInstanceMajorVersionFacetItem struct {
+		Count        func(childComplexity int) int
+		MajorVersion func(childComplexity int) int
 	}
 
 	PostgresInstanceResources struct {
 		CPU      func(childComplexity int) int
 		DiskSize func(childComplexity int) int
 		Memory   func(childComplexity int) int
+	}
+
+	PostgresInstanceStateFacetItem struct {
+		Count func(childComplexity int) int
+		State func(childComplexity int) int
 	}
 
 	Price struct {
@@ -2089,6 +2163,7 @@ type ComplexityRoot struct {
 
 	SecretConnection struct {
 		Edges    func(childComplexity int) int
+		Facets   func(childComplexity int) int
 		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
 	}
@@ -2118,6 +2193,11 @@ type ComplexityRoot struct {
 	SecretEdge struct {
 		Cursor func(childComplexity int) int
 		Node   func(childComplexity int) int
+	}
+
+	SecretFacets struct {
+		Environments func(childComplexity int) int
+		InUse        func(childComplexity int) int
 	}
 
 	SecretValue struct {
@@ -2578,8 +2658,8 @@ type ComplexityRoot struct {
 		ActivityLog               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int
 		Alerts                    func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *alerts.AlertOrder, filter *alerts.TeamAlertsFilter) int
 		Applications              func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *application.ApplicationOrder, filter *application.TeamApplicationsFilter) int
-		BigQueryDatasets          func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bigquery.BigQueryDatasetOrder) int
-		Buckets                   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bucket.BucketOrder) int
+		BigQueryDatasets          func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bigquery.BigQueryDatasetOrder, filter *bigquery.BigQueryDatasetFilter) int
+		Buckets                   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bucket.BucketOrder, filter *bucket.BucketFilter) int
 		Configs                   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *config.ConfigOrder, filter *config.ConfigFilter) int
 		Cost                      func(childComplexity int) int
 		DeleteKey                 func(childComplexity int, key string) int
@@ -2594,12 +2674,12 @@ type ComplexityRoot struct {
 		InventoryCounts           func(childComplexity int) int
 		Issues                    func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.IssueFilter) int
 		Jobs                      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *job.JobOrder, filter *job.TeamJobsFilter) int
-		KafkaTopics               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *kafkatopic.KafkaTopicOrder) int
+		KafkaTopics               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *kafkatopic.KafkaTopicOrder, filter *kafkatopic.KafkaTopicFilter) int
 		LastSuccessfulSync        func(childComplexity int) int
 		Member                    func(childComplexity int, email string) int
 		Members                   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.TeamMemberOrder) int
-		OpenSearches              func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *opensearch.OpenSearchOrder) int
-		PostgresInstances         func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *postgres.PostgresInstanceOrder) int
+		OpenSearches              func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *opensearch.OpenSearchOrder, filter *opensearch.OpenSearchFilter) int
+		PostgresInstances         func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *postgres.PostgresInstanceOrder, filter *postgres.PostgresInstanceFilter) int
 		Purpose                   func(childComplexity int) int
 		Repositories              func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *repository.RepositoryOrder, filter *repository.TeamRepositoryFilter) int
 		SQLInstances              func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *sqlinstance.SQLInstanceOrder) int
@@ -2609,7 +2689,7 @@ type ComplexityRoot struct {
 		SlackChannel              func(childComplexity int) int
 		Slug                      func(childComplexity int) int
 		Unleash                   func(childComplexity int) int
-		Valkeys                   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *valkey.ValkeyOrder) int
+		Valkeys                   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *valkey.ValkeyOrder, filter *valkey.ValkeyFilter) int
 		ViewerIsMember            func(childComplexity int) int
 		ViewerIsOwner             func(childComplexity int) int
 		VulnerabilityFixHistory   func(childComplexity int, from scalar.Date) int
@@ -3296,6 +3376,7 @@ type ComplexityRoot struct {
 
 	ValkeyConnection struct {
 		Edges    func(childComplexity int) int
+		Facets   func(childComplexity int) int
 		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
 	}
@@ -3339,6 +3420,11 @@ type ComplexityRoot struct {
 		Node   func(childComplexity int) int
 	}
 
+	ValkeyFacets struct {
+		Environments func(childComplexity int) int
+		Tiers        func(childComplexity int) int
+	}
+
 	ValkeyIssue struct {
 		Event           func(childComplexity int) int
 		ID              func(childComplexity int) int
@@ -3369,6 +3455,11 @@ type ComplexityRoot struct {
 	ValkeyMaintenanceUpdateEdge struct {
 		Cursor func(childComplexity int) int
 		Node   func(childComplexity int) int
+	}
+
+	ValkeyTierFacetItem struct {
+		Count func(childComplexity int) int
+		Tier  func(childComplexity int) int
 	}
 
 	ValkeyUpdatedActivityLogEntry struct {
@@ -4876,6 +4967,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.BigQueryDatasetConnection.Edges(childComplexity), true
 
+	case "BigQueryDatasetConnection.facets":
+		if e.ComplexityRoot.BigQueryDatasetConnection.Facets == nil {
+			break
+		}
+
+		return e.ComplexityRoot.BigQueryDatasetConnection.Facets(childComplexity), true
+
 	case "BigQueryDatasetConnection.nodes":
 		if e.ComplexityRoot.BigQueryDatasetConnection.Nodes == nil {
 			break
@@ -4911,6 +5009,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.BigQueryDatasetEdge.Node(childComplexity), true
 
+	case "BigQueryDatasetFacets.environments":
+		if e.ComplexityRoot.BigQueryDatasetFacets.Environments == nil {
+			break
+		}
+
+		return e.ComplexityRoot.BigQueryDatasetFacets.Environments(childComplexity), true
+
 	case "BigQueryDatasetStatus.creationTime":
 		if e.ComplexityRoot.BigQueryDatasetStatus.CreationTime == nil {
 			break
@@ -4924,6 +5029,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.BigQueryDatasetStatus.LastModifiedTime(childComplexity), true
+
+	case "BooleanFacetItem.count":
+		if e.ComplexityRoot.BooleanFacetItem.Count == nil {
+			break
+		}
+
+		return e.ComplexityRoot.BooleanFacetItem.Count(childComplexity), true
+
+	case "BooleanFacetItem.value":
+		if e.ComplexityRoot.BooleanFacetItem.Value == nil {
+			break
+		}
+
+		return e.ComplexityRoot.BooleanFacetItem.Value(childComplexity), true
 
 	case "Bucket.cascadingDelete":
 		if e.ComplexityRoot.Bucket.CascadingDelete == nil {
@@ -4995,6 +5114,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.BucketConnection.Edges(childComplexity), true
 
+	case "BucketConnection.facets":
+		if e.ComplexityRoot.BucketConnection.Facets == nil {
+			break
+		}
+
+		return e.ComplexityRoot.BucketConnection.Facets(childComplexity), true
+
 	case "BucketConnection.nodes":
 		if e.ComplexityRoot.BucketConnection.Nodes == nil {
 			break
@@ -5022,6 +5148,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.BucketEdge.Node(childComplexity), true
+
+	case "BucketFacets.environments":
+		if e.ComplexityRoot.BucketFacets.Environments == nil {
+			break
+		}
+
+		return e.ComplexityRoot.BucketFacets.Environments(childComplexity), true
 
 	case "CPUScalingStrategy.threshold":
 		if e.ComplexityRoot.CPUScalingStrategy.Threshold == nil {
@@ -5314,6 +5447,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ConfigConnection.Edges(childComplexity), true
 
+	case "ConfigConnection.facets":
+		if e.ComplexityRoot.ConfigConnection.Facets == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigConnection.Facets(childComplexity), true
+
 	case "ConfigConnection.nodes":
 		if e.ComplexityRoot.ConfigConnection.Nodes == nil {
 			break
@@ -5453,6 +5593,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ConfigEdge.Node(childComplexity), true
+
+	case "ConfigFacets.environments":
+		if e.ComplexityRoot.ConfigFacets.Environments == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigFacets.Environments(childComplexity), true
+
+	case "ConfigFacets.inUse":
+		if e.ComplexityRoot.ConfigFacets.InUse == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigFacets.InUse(childComplexity), true
 
 	case "ConfigUpdatedActivityLogEntry.actor":
 		if e.ComplexityRoot.ConfigUpdatedActivityLogEntry.Actor == nil {
@@ -6510,6 +6664,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.EnvironmentEdge.Node(childComplexity), true
+
+	case "EnvironmentFacetItem.count":
+		if e.ComplexityRoot.EnvironmentFacetItem.Count == nil {
+			break
+		}
+
+		return e.ComplexityRoot.EnvironmentFacetItem.Count(childComplexity), true
+
+	case "EnvironmentFacetItem.environmentName":
+		if e.ComplexityRoot.EnvironmentFacetItem.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.EnvironmentFacetItem.EnvironmentName(childComplexity), true
 
 	case "ExternalIngressCriticalVulnerabilityIssue.cvssScore":
 		if e.ComplexityRoot.ExternalIngressCriticalVulnerabilityIssue.CvssScore == nil {
@@ -8542,6 +8710,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.KafkaTopicConnection.Edges(childComplexity), true
 
+	case "KafkaTopicConnection.facets":
+		if e.ComplexityRoot.KafkaTopicConnection.Facets == nil {
+			break
+		}
+
+		return e.ComplexityRoot.KafkaTopicConnection.Facets(childComplexity), true
+
 	case "KafkaTopicConnection.nodes":
 		if e.ComplexityRoot.KafkaTopicConnection.Nodes == nil {
 			break
@@ -8569,6 +8744,34 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.KafkaTopicEdge.Node(childComplexity), true
+
+	case "KafkaTopicFacets.environments":
+		if e.ComplexityRoot.KafkaTopicFacets.Environments == nil {
+			break
+		}
+
+		return e.ComplexityRoot.KafkaTopicFacets.Environments(childComplexity), true
+
+	case "KafkaTopicFacets.pools":
+		if e.ComplexityRoot.KafkaTopicFacets.Pools == nil {
+			break
+		}
+
+		return e.ComplexityRoot.KafkaTopicFacets.Pools(childComplexity), true
+
+	case "KafkaTopicPoolFacetItem.count":
+		if e.ComplexityRoot.KafkaTopicPoolFacetItem.Count == nil {
+			break
+		}
+
+		return e.ComplexityRoot.KafkaTopicPoolFacetItem.Count(childComplexity), true
+
+	case "KafkaTopicPoolFacetItem.pool":
+		if e.ComplexityRoot.KafkaTopicPoolFacetItem.Pool == nil {
+			break
+		}
+
+		return e.ComplexityRoot.KafkaTopicPoolFacetItem.Pool(childComplexity), true
 
 	case "LastRunFailedIssue.id":
 		if e.ComplexityRoot.LastRunFailedIssue.ID == nil {
@@ -9817,6 +10020,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.OpenSearchConnection.Edges(childComplexity), true
 
+	case "OpenSearchConnection.facets":
+		if e.ComplexityRoot.OpenSearchConnection.Facets == nil {
+			break
+		}
+
+		return e.ComplexityRoot.OpenSearchConnection.Facets(childComplexity), true
+
 	case "OpenSearchConnection.nodes":
 		if e.ComplexityRoot.OpenSearchConnection.Nodes == nil {
 			break
@@ -9999,6 +10209,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.OpenSearchEdge.Node(childComplexity), true
 
+	case "OpenSearchFacets.environments":
+		if e.ComplexityRoot.OpenSearchFacets.Environments == nil {
+			break
+		}
+
+		return e.ComplexityRoot.OpenSearchFacets.Environments(childComplexity), true
+
+	case "OpenSearchFacets.tiers":
+		if e.ComplexityRoot.OpenSearchFacets.Tiers == nil {
+			break
+		}
+
+		return e.ComplexityRoot.OpenSearchFacets.Tiers(childComplexity), true
+
 	case "OpenSearchIssue.event":
 		if e.ComplexityRoot.OpenSearchIssue.Event == nil {
 			break
@@ -10122,6 +10346,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.OpenSearchMaintenanceUpdateEdge.Node(childComplexity), true
+
+	case "OpenSearchTierFacetItem.count":
+		if e.ComplexityRoot.OpenSearchTierFacetItem.Count == nil {
+			break
+		}
+
+		return e.ComplexityRoot.OpenSearchTierFacetItem.Count(childComplexity), true
+
+	case "OpenSearchTierFacetItem.tier":
+		if e.ComplexityRoot.OpenSearchTierFacetItem.Tier == nil {
+			break
+		}
+
+		return e.ComplexityRoot.OpenSearchTierFacetItem.Tier(childComplexity), true
 
 	case "OpenSearchUpdatedActivityLogEntry.actor":
 		if e.ComplexityRoot.OpenSearchUpdatedActivityLogEntry.Actor == nil {
@@ -10541,6 +10779,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.PostgresInstanceConnection.Edges(childComplexity), true
 
+	case "PostgresInstanceConnection.facets":
+		if e.ComplexityRoot.PostgresInstanceConnection.Facets == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresInstanceConnection.Facets(childComplexity), true
+
 	case "PostgresInstanceConnection.nodes":
 		if e.ComplexityRoot.PostgresInstanceConnection.Nodes == nil {
 			break
@@ -10569,6 +10814,34 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.PostgresInstanceEdge.Node(childComplexity), true
 
+	case "PostgresInstanceFacets.environments":
+		if e.ComplexityRoot.PostgresInstanceFacets.Environments == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresInstanceFacets.Environments(childComplexity), true
+
+	case "PostgresInstanceFacets.highAvailability":
+		if e.ComplexityRoot.PostgresInstanceFacets.HighAvailability == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresInstanceFacets.HighAvailability(childComplexity), true
+
+	case "PostgresInstanceFacets.majorVersions":
+		if e.ComplexityRoot.PostgresInstanceFacets.MajorVersions == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresInstanceFacets.MajorVersions(childComplexity), true
+
+	case "PostgresInstanceFacets.states":
+		if e.ComplexityRoot.PostgresInstanceFacets.States == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresInstanceFacets.States(childComplexity), true
+
 	case "PostgresInstanceMaintenanceWindow.day":
 		if e.ComplexityRoot.PostgresInstanceMaintenanceWindow.Day == nil {
 			break
@@ -10582,6 +10855,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.PostgresInstanceMaintenanceWindow.Hour(childComplexity), true
+
+	case "PostgresInstanceMajorVersionFacetItem.count":
+		if e.ComplexityRoot.PostgresInstanceMajorVersionFacetItem.Count == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresInstanceMajorVersionFacetItem.Count(childComplexity), true
+
+	case "PostgresInstanceMajorVersionFacetItem.majorVersion":
+		if e.ComplexityRoot.PostgresInstanceMajorVersionFacetItem.MajorVersion == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresInstanceMajorVersionFacetItem.MajorVersion(childComplexity), true
 
 	case "PostgresInstanceResources.cpu":
 		if e.ComplexityRoot.PostgresInstanceResources.CPU == nil {
@@ -10603,6 +10890,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.PostgresInstanceResources.Memory(childComplexity), true
+
+	case "PostgresInstanceStateFacetItem.count":
+		if e.ComplexityRoot.PostgresInstanceStateFacetItem.Count == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresInstanceStateFacetItem.Count(childComplexity), true
+
+	case "PostgresInstanceStateFacetItem.state":
+		if e.ComplexityRoot.PostgresInstanceStateFacetItem.State == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresInstanceStateFacetItem.State(childComplexity), true
 
 	case "Price.value":
 		if e.ComplexityRoot.Price.Value == nil {
@@ -12099,6 +12400,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.SecretConnection.Edges(childComplexity), true
 
+	case "SecretConnection.facets":
+		if e.ComplexityRoot.SecretConnection.Facets == nil {
+			break
+		}
+
+		return e.ComplexityRoot.SecretConnection.Facets(childComplexity), true
+
 	case "SecretConnection.nodes":
 		if e.ComplexityRoot.SecretConnection.Nodes == nil {
 			break
@@ -12238,6 +12546,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.SecretEdge.Node(childComplexity), true
+
+	case "SecretFacets.environments":
+		if e.ComplexityRoot.SecretFacets.Environments == nil {
+			break
+		}
+
+		return e.ComplexityRoot.SecretFacets.Environments(childComplexity), true
+
+	case "SecretFacets.inUse":
+		if e.ComplexityRoot.SecretFacets.InUse == nil {
+			break
+		}
+
+		return e.ComplexityRoot.SecretFacets.InUse(childComplexity), true
 
 	case "SecretValue.encoding":
 		if e.ComplexityRoot.SecretValue.Encoding == nil {
@@ -14222,7 +14544,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Team.BigQueryDatasets(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*bigquery.BigQueryDatasetOrder)), true
+		return e.ComplexityRoot.Team.BigQueryDatasets(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*bigquery.BigQueryDatasetOrder), args["filter"].(*bigquery.BigQueryDatasetFilter)), true
 
 	case "Team.buckets":
 		if e.ComplexityRoot.Team.Buckets == nil {
@@ -14234,7 +14556,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Team.Buckets(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*bucket.BucketOrder)), true
+		return e.ComplexityRoot.Team.Buckets(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*bucket.BucketOrder), args["filter"].(*bucket.BucketFilter)), true
 
 	case "Team.configs":
 		if e.ComplexityRoot.Team.Configs == nil {
@@ -14379,7 +14701,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Team.KafkaTopics(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*kafkatopic.KafkaTopicOrder)), true
+		return e.ComplexityRoot.Team.KafkaTopics(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*kafkatopic.KafkaTopicOrder), args["filter"].(*kafkatopic.KafkaTopicFilter)), true
 
 	case "Team.lastSuccessfulSync":
 		if e.ComplexityRoot.Team.LastSuccessfulSync == nil {
@@ -14422,7 +14744,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Team.OpenSearches(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*opensearch.OpenSearchOrder)), true
+		return e.ComplexityRoot.Team.OpenSearches(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*opensearch.OpenSearchOrder), args["filter"].(*opensearch.OpenSearchFilter)), true
 
 	case "Team.postgresInstances":
 		if e.ComplexityRoot.Team.PostgresInstances == nil {
@@ -14434,7 +14756,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Team.PostgresInstances(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*postgres.PostgresInstanceOrder)), true
+		return e.ComplexityRoot.Team.PostgresInstances(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*postgres.PostgresInstanceOrder), args["filter"].(*postgres.PostgresInstanceFilter)), true
 
 	case "Team.purpose":
 		if e.ComplexityRoot.Team.Purpose == nil {
@@ -14529,7 +14851,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Team.Valkeys(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*valkey.ValkeyOrder)), true
+		return e.ComplexityRoot.Team.Valkeys(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*valkey.ValkeyOrder), args["filter"].(*valkey.ValkeyFilter)), true
 
 	case "Team.viewerIsMember":
 		if e.ComplexityRoot.Team.ViewerIsMember == nil {
@@ -17426,6 +17748,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ValkeyConnection.Edges(childComplexity), true
 
+	case "ValkeyConnection.facets":
+		if e.ComplexityRoot.ValkeyConnection.Facets == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ValkeyConnection.Facets(childComplexity), true
+
 	case "ValkeyConnection.nodes":
 		if e.ComplexityRoot.ValkeyConnection.Nodes == nil {
 			break
@@ -17608,6 +17937,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ValkeyEdge.Node(childComplexity), true
 
+	case "ValkeyFacets.environments":
+		if e.ComplexityRoot.ValkeyFacets.Environments == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ValkeyFacets.Environments(childComplexity), true
+
+	case "ValkeyFacets.tiers":
+		if e.ComplexityRoot.ValkeyFacets.Tiers == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ValkeyFacets.Tiers(childComplexity), true
+
 	case "ValkeyIssue.event":
 		if e.ComplexityRoot.ValkeyIssue.Event == nil {
 			break
@@ -17731,6 +18074,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ValkeyMaintenanceUpdateEdge.Node(childComplexity), true
+
+	case "ValkeyTierFacetItem.count":
+		if e.ComplexityRoot.ValkeyTierFacetItem.Count == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ValkeyTierFacetItem.Count(childComplexity), true
+
+	case "ValkeyTierFacetItem.tier":
+		if e.ComplexityRoot.ValkeyTierFacetItem.Tier == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ValkeyTierFacetItem.Tier(childComplexity), true
 
 	case "ValkeyUpdatedActivityLogEntry.actor":
 		if e.ComplexityRoot.ValkeyUpdatedActivityLogEntry.Actor == nil {
@@ -18437,7 +18794,9 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputApplicationOrder,
 		ec.unmarshalInputAssignRoleToServiceAccountInput,
 		ec.unmarshalInputBigQueryDatasetAccessOrder,
+		ec.unmarshalInputBigQueryDatasetFilter,
 		ec.unmarshalInputBigQueryDatasetOrder,
+		ec.unmarshalInputBucketFilter,
 		ec.unmarshalInputBucketOrder,
 		ec.unmarshalInputCVEOrder,
 		ec.unmarshalInputCVEWorkloadsFilter,
@@ -18486,13 +18845,16 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputJobOrder,
 		ec.unmarshalInputKafkaTopicAclFilter,
 		ec.unmarshalInputKafkaTopicAclOrder,
+		ec.unmarshalInputKafkaTopicFilter,
 		ec.unmarshalInputKafkaTopicOrder,
 		ec.unmarshalInputLogSubscriptionFilter,
 		ec.unmarshalInputLogSubscriptionInitialBatch,
 		ec.unmarshalInputMetricsQueryInput,
 		ec.unmarshalInputMetricsRangeInput,
 		ec.unmarshalInputOpenSearchAccessOrder,
+		ec.unmarshalInputOpenSearchFilter,
 		ec.unmarshalInputOpenSearchOrder,
+		ec.unmarshalInputPostgresInstanceFilter,
 		ec.unmarshalInputPostgresInstanceOrder,
 		ec.unmarshalInputReconcilerConfigInput,
 		ec.unmarshalInputRemoveConfigValueInput,
@@ -18544,6 +18906,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputUserOrder,
 		ec.unmarshalInputUserTeamOrder,
 		ec.unmarshalInputValkeyAccessOrder,
+		ec.unmarshalInputValkeyFilter,
 		ec.unmarshalInputValkeyOrder,
 		ec.unmarshalInputViewSecretValuesInput,
 		ec.unmarshalInputVulnerabilitySummaryOrder,
@@ -20494,6 +20857,9 @@ type RoleEdge {
 
 		"Ordering options for items returned from the connection."
 		orderBy: BigQueryDatasetOrder
+
+		"Filtering options for items returned from the connection."
+		filter: BigQueryDatasetFilter
 	): BigQueryDatasetConnection!
 }
 
@@ -20574,6 +20940,12 @@ type BigQueryDatasetConnection {
 	pageInfo: PageInfo!
 	nodes: [BigQueryDataset!]!
 	edges: [BigQueryDatasetEdge!]!
+
+	"""
+	Facets for BigQuery datasets. Provides distribution counts to help narrow down results.
+	Facet counts are computed over the full result set (ignoring pagination) but respect the current filter.
+	"""
+	facets: BigQueryDatasetFacets
 }
 
 type BigQueryDatasetAccessEdge {
@@ -20584,6 +20956,14 @@ type BigQueryDatasetAccessEdge {
 type BigQueryDatasetEdge {
 	cursor: Cursor!
 	node: BigQueryDataset!
+}
+
+"""
+Facets for BigQuery datasets, providing distribution counts across different dimensions.
+"""
+type BigQueryDatasetFacets {
+	"Distribution of datasets by environment."
+	environments: [EnvironmentFacetItem!]!
 }
 
 input BigQueryDatasetAccessOrder {
@@ -20604,6 +20984,17 @@ enum BigQueryDatasetAccessOrderField {
 enum BigQueryDatasetOrderField {
 	NAME
 	ENVIRONMENT
+}
+
+"""
+Input for filtering BigQuery datasets.
+"""
+input BigQueryDatasetFilter {
+	"Filter by the name of the dataset."
+	name: String
+
+	"Filter by environments."
+	environments: [String!]
 }
 
 extend union SearchNode = BigQueryDataset
@@ -20629,6 +21020,9 @@ extend enum SearchType {
 
 		"Ordering options for items returned from the connection."
 		orderBy: BucketOrder
+
+		"Filtering options for items returned from the connection."
+		filter: BucketFilter
 	): BucketConnection!
 }
 
@@ -20686,11 +21080,25 @@ type BucketConnection {
 	pageInfo: PageInfo!
 	nodes: [Bucket!]!
 	edges: [BucketEdge!]!
+
+	"""
+	Facets for buckets. Provides distribution counts to help narrow down results.
+	Facet counts are computed over the full result set (ignoring pagination) but respect the current filter.
+	"""
+	facets: BucketFacets
 }
 
 type BucketEdge {
 	cursor: Cursor!
 	node: Bucket!
+}
+
+"""
+Facets for buckets, providing distribution counts across different dimensions.
+"""
+type BucketFacets {
+	"Distribution of buckets by environment."
+	environments: [EnvironmentFacetItem!]!
 }
 
 input BucketOrder {
@@ -20701,6 +21109,17 @@ input BucketOrder {
 enum BucketOrderField {
 	NAME
 	ENVIRONMENT
+}
+
+"""
+Input for filtering buckets.
+"""
+input BucketFilter {
+	"Filter by the name of the bucket."
+	name: String
+
+	"Filter by environments."
+	environments: [String!]
 }
 
 extend union SearchNode = Bucket
@@ -20808,6 +21227,11 @@ input ConfigFilter {
 	Filter by usage of the config.
 	"""
 	inUse: Boolean
+
+	"""
+	Filter by environments.
+	"""
+	environments: [String!]
 }
 
 extend type TeamEnvironment {
@@ -21098,6 +21522,12 @@ type ConfigConnection {
 
 	"List of edges."
 	edges: [ConfigEdge!]!
+
+	"""
+	Facets for configs. Provides distribution counts to help narrow down results.
+	Facet counts are computed over the full result set (ignoring pagination) but respect the current filter.
+	"""
+	facets: ConfigFacets
 }
 
 type ConfigEdge {
@@ -21106,6 +21536,17 @@ type ConfigEdge {
 
 	"The Config."
 	node: Config!
+}
+
+"""
+Facets for configs, providing distribution counts across different dimensions.
+"""
+type ConfigFacets {
+	"Distribution of configs by environment."
+	environments: [EnvironmentFacetItem!]!
+
+	"Distribution of configs by whether they are in use by any workload."
+	inUse: [BooleanFacetItem!]!
 }
 
 type ConfigValue {
@@ -22001,6 +22442,29 @@ extend type TeamEnvironment {
 	Get the environment.
 	"""
 	environment: Environment!
+}
+`, BuiltIn: false},
+	{Name: "../schema/facets.graphqls", Input: `"""
+A shared facet item representing the count of resources within a specific environment.
+Reusable across multiple resource connections.
+"""
+type EnvironmentFacetItem {
+	"The environment name."
+	environmentName: String!
+
+	"Number of matching resources."
+	count: Int!
+}
+
+"""
+A shared facet item representing a boolean distribution (e.g., in-use, high availability).
+"""
+type BooleanFacetItem {
+	"The boolean value."
+	value: Boolean!
+
+	"Number of matching resources."
+	count: Int!
 }
 `, BuiltIn: false},
 	{Name: "../schema/feature.graphqls", Input: `type Features implements Node {
@@ -23314,6 +23778,9 @@ extend type Team {
 
 		"Ordering options for items returned from the connection."
 		orderBy: KafkaTopicOrder
+
+		"Filtering options for items returned from the connection."
+		filter: KafkaTopicFilter
 	): KafkaTopicConnection!
 }
 
@@ -23397,6 +23864,12 @@ type KafkaTopicConnection {
 	pageInfo: PageInfo!
 	nodes: [KafkaTopic!]!
 	edges: [KafkaTopicEdge!]!
+
+	"""
+	Facets for Kafka topics. Provides distribution counts to help narrow down results.
+	Facet counts are computed over the full result set (ignoring pagination) but respect the current filter.
+	"""
+	facets: KafkaTopicFacets
 }
 
 type KafkaTopicAclConnection {
@@ -23413,6 +23886,42 @@ type KafkaTopicEdge {
 type KafkaTopicAclEdge {
 	cursor: Cursor!
 	node: KafkaTopicAcl!
+}
+
+"""
+Facets for Kafka topics, providing distribution counts across different dimensions.
+"""
+type KafkaTopicFacets {
+	"Distribution of topics by environment."
+	environments: [EnvironmentFacetItem!]!
+
+	"Distribution of topics by Kafka pool."
+	pools: [KafkaTopicPoolFacetItem!]!
+}
+
+"""
+A single facet item for Kafka pools.
+"""
+type KafkaTopicPoolFacetItem {
+	"The pool name."
+	pool: String!
+
+	"Number of matching topics."
+	count: Int!
+}
+
+"""
+Input for filtering Kafka topics.
+"""
+input KafkaTopicFilter {
+	"Filter by the name of the topic."
+	name: String
+
+	"Filter by environments."
+	environments: [String!]
+
+	"Filter by Kafka pool."
+	pools: [String!]
 }
 
 input KafkaTopicAclFilter {
@@ -23784,6 +24293,9 @@ type NetworkPolicy {
 
 		"Ordering options for items returned from the connection."
 		orderBy: OpenSearchOrder
+
+		"Filtering options for items returned from the connection."
+		filter: OpenSearchFilter
 	): OpenSearchConnection!
 }
 
@@ -23893,6 +24405,12 @@ type OpenSearchConnection {
 	pageInfo: PageInfo!
 	nodes: [OpenSearch!]!
 	edges: [OpenSearchEdge!]!
+
+	"""
+	Facets for OpenSearch instances. Provides distribution counts to help narrow down results.
+	Facet counts are computed over the full result set (ignoring pagination) but respect the current filter.
+	"""
+	facets: OpenSearchFacets
 }
 
 type OpenSearchAccessEdge {
@@ -23903,6 +24421,42 @@ type OpenSearchAccessEdge {
 type OpenSearchEdge {
 	cursor: Cursor!
 	node: OpenSearch!
+}
+
+"""
+Facets for OpenSearch instances, providing distribution counts across different dimensions.
+"""
+type OpenSearchFacets {
+	"Distribution of instances by environment."
+	environments: [EnvironmentFacetItem!]!
+
+	"Distribution of instances by tier."
+	tiers: [OpenSearchTierFacetItem!]!
+}
+
+"""
+A single facet item for OpenSearch tiers.
+"""
+type OpenSearchTierFacetItem {
+	"The OpenSearch tier."
+	tier: OpenSearchTier!
+
+	"Number of matching instances."
+	count: Int!
+}
+
+"""
+Input for filtering OpenSearch instances.
+"""
+input OpenSearchFilter {
+	"Filter by the name of the instance."
+	name: String
+
+	"Filter by environments."
+	environments: [String!]
+
+	"Filter by tier."
+	tiers: [OpenSearchTier!]
 }
 
 input OpenSearchAccessOrder {
@@ -24243,6 +24797,9 @@ type WorkloadLogLine {
 
 		"Ordering options for items returned from the connection."
 		orderBy: PostgresInstanceOrder
+
+		"Filtering options for items returned from the connection."
+		filter: PostgresInstanceFilter
 	): PostgresInstanceConnection!
 }
 
@@ -24278,6 +24835,26 @@ extend type Job {
 input PostgresInstanceOrder {
 	field: PostgresInstanceOrderField!
 	direction: OrderDirection!
+}
+
+"""
+Input for filtering Postgres instances.
+"""
+input PostgresInstanceFilter {
+	"Filter by the name of the instance."
+	name: String
+
+	"Filter by environments."
+	environments: [String!]
+
+	"Filter by instance state."
+	states: [PostgresInstanceState!]
+
+	"Filter by high availability."
+	highAvailability: Boolean
+
+	"Filter by major versions."
+	majorVersions: [String!]
 }
 
 enum PostgresInstanceOrderField {
@@ -24343,11 +24920,56 @@ type PostgresInstanceConnection {
 	pageInfo: PageInfo!
 	nodes: [PostgresInstance!]!
 	edges: [PostgresInstanceEdge!]!
+
+	"""
+	Facets for Postgres instances. Provides distribution counts to help narrow down results.
+	Facet counts are computed over the full result set (ignoring pagination) but respect the current filter.
+	"""
+	facets: PostgresInstanceFacets
 }
 
 type PostgresInstanceEdge {
 	cursor: Cursor!
 	node: PostgresInstance!
+}
+
+"""
+Facets for Postgres instances, providing distribution counts across different dimensions.
+"""
+type PostgresInstanceFacets {
+	"Distribution of instances by environment."
+	environments: [EnvironmentFacetItem!]!
+
+	"Distribution of instances by state."
+	states: [PostgresInstanceStateFacetItem!]!
+
+	"Distribution of instances by high availability."
+	highAvailability: [BooleanFacetItem!]!
+
+	"Distribution of instances by major version."
+	majorVersions: [PostgresInstanceMajorVersionFacetItem!]!
+}
+
+"""
+A single facet item for Postgres instance states.
+"""
+type PostgresInstanceStateFacetItem {
+	"The Postgres instance state."
+	state: PostgresInstanceState!
+
+	"Number of matching instances."
+	count: Int!
+}
+
+"""
+A single facet item for Postgres major versions.
+"""
+type PostgresInstanceMajorVersionFacetItem {
+	"The major version string."
+	majorVersion: String!
+
+	"Number of matching instances."
+	count: Int!
 }
 
 type PostgresInstanceResources {
@@ -25297,6 +25919,11 @@ input SecretFilter {
 	Filter by usage of the secret.
 	"""
 	inUse: Boolean
+
+	"""
+	Filter by environments.
+	"""
+	environments: [String!]
 }
 
 extend type TeamEnvironment {
@@ -25615,6 +26242,12 @@ type SecretConnection {
 
 	"List of edges."
 	edges: [SecretEdge!]!
+
+	"""
+	Facets for secrets. Provides distribution counts to help narrow down results.
+	Facet counts are computed over the full result set (ignoring pagination) but respect the current filter.
+	"""
+	facets: SecretFacets
 }
 
 type SecretEdge {
@@ -25623,6 +26256,17 @@ type SecretEdge {
 
 	"The Secret."
 	node: Secret!
+}
+
+"""
+Facets for secrets, providing distribution counts across different dimensions.
+"""
+type SecretFacets {
+	"Distribution of secrets by environment."
+	environments: [EnvironmentFacetItem!]!
+
+	"Distribution of secrets by whether they are in use by any workload."
+	inUse: [BooleanFacetItem!]!
 }
 
 type SecretValue {
@@ -29586,6 +30230,9 @@ type ApplicationInstanceUtilization {
 
 		"Ordering options for items returned from the connection."
 		orderBy: ValkeyOrder
+
+		"Filtering options for items returned from the connection."
+		filter: ValkeyFilter
 	): ValkeyConnection!
 }
 
@@ -29699,6 +30346,12 @@ type ValkeyConnection {
 	pageInfo: PageInfo!
 	nodes: [Valkey!]!
 	edges: [ValkeyEdge!]!
+
+	"""
+	Facets for Valkey instances. Provides distribution counts to help narrow down results.
+	Facet counts are computed over the full result set (ignoring pagination) but respect the current filter.
+	"""
+	facets: ValkeyFacets
 }
 
 type ValkeyAccessEdge {
@@ -29709,6 +30362,42 @@ type ValkeyAccessEdge {
 type ValkeyEdge {
 	cursor: Cursor!
 	node: Valkey!
+}
+
+"""
+Facets for Valkey instances, providing distribution counts across different dimensions.
+"""
+type ValkeyFacets {
+	"Distribution of instances by environment."
+	environments: [EnvironmentFacetItem!]!
+
+	"Distribution of instances by tier."
+	tiers: [ValkeyTierFacetItem!]!
+}
+
+"""
+A single facet item for Valkey tiers.
+"""
+type ValkeyTierFacetItem {
+	"The Valkey tier."
+	tier: ValkeyTier!
+
+	"Number of matching instances."
+	count: Int!
+}
+
+"""
+Input for filtering Valkey instances.
+"""
+input ValkeyFilter {
+	"Filter by the name of the instance."
+	name: String
+
+	"Filter by environments."
+	environments: [String!]
+
+	"Filter by tier."
+	tiers: [ValkeyTier!]
 }
 
 input ValkeyAccessOrder {
@@ -31748,6 +32437,8 @@ func (ec *executionContext) childFields_BigQueryDatasetConnection(ctx context.Co
 		return ec.fieldContext_BigQueryDatasetConnection_nodes(ctx, field)
 	case "edges":
 		return ec.fieldContext_BigQueryDatasetConnection_edges(ctx, field)
+	case "facets":
+		return ec.fieldContext_BigQueryDatasetConnection_facets(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type BigQueryDatasetConnection", field.Name)
 }
@@ -31770,6 +32461,14 @@ func (ec *executionContext) childFields_BigQueryDatasetEdge(ctx context.Context,
 	return nil, fmt.Errorf("no field named %q was found under type BigQueryDatasetEdge", field.Name)
 }
 
+func (ec *executionContext) childFields_BigQueryDatasetFacets(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "environments":
+		return ec.fieldContext_BigQueryDatasetFacets_environments(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type BigQueryDatasetFacets", field.Name)
+}
+
 func (ec *executionContext) childFields_BigQueryDatasetStatus(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "creationTime":
@@ -31778,6 +32477,16 @@ func (ec *executionContext) childFields_BigQueryDatasetStatus(ctx context.Contex
 		return ec.fieldContext_BigQueryDatasetStatus_lastModifiedTime(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type BigQueryDatasetStatus", field.Name)
+}
+
+func (ec *executionContext) childFields_BooleanFacetItem(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "value":
+		return ec.fieldContext_BooleanFacetItem_value(ctx, field)
+	case "count":
+		return ec.fieldContext_BooleanFacetItem_count(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type BooleanFacetItem", field.Name)
 }
 
 func (ec *executionContext) childFields_Bucket(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -31812,6 +32521,8 @@ func (ec *executionContext) childFields_BucketConnection(ctx context.Context, fi
 		return ec.fieldContext_BucketConnection_nodes(ctx, field)
 	case "edges":
 		return ec.fieldContext_BucketConnection_edges(ctx, field)
+	case "facets":
+		return ec.fieldContext_BucketConnection_facets(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type BucketConnection", field.Name)
 }
@@ -31824,6 +32535,14 @@ func (ec *executionContext) childFields_BucketEdge(ctx context.Context, field gr
 		return ec.fieldContext_BucketEdge_node(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type BucketEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_BucketFacets(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "environments":
+		return ec.fieldContext_BucketFacets_environments(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type BucketFacets", field.Name)
 }
 
 func (ec *executionContext) childFields_CVE(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -31924,6 +32643,8 @@ func (ec *executionContext) childFields_ConfigConnection(ctx context.Context, fi
 		return ec.fieldContext_ConfigConnection_nodes(ctx, field)
 	case "edges":
 		return ec.fieldContext_ConfigConnection_edges(ctx, field)
+	case "facets":
+		return ec.fieldContext_ConfigConnection_facets(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type ConfigConnection", field.Name)
 }
@@ -31936,6 +32657,16 @@ func (ec *executionContext) childFields_ConfigEdge(ctx context.Context, field gr
 		return ec.fieldContext_ConfigEdge_node(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type ConfigEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_ConfigFacets(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "environments":
+		return ec.fieldContext_ConfigFacets_environments(ctx, field)
+	case "inUse":
+		return ec.fieldContext_ConfigFacets_inUse(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ConfigFacets", field.Name)
 }
 
 func (ec *executionContext) childFields_ConfigUpdatedActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -32450,6 +33181,16 @@ func (ec *executionContext) childFields_EnvironmentEdge(ctx context.Context, fie
 		return ec.fieldContext_EnvironmentEdge_node(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type EnvironmentEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_EnvironmentFacetItem(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "environmentName":
+		return ec.fieldContext_EnvironmentFacetItem_environmentName(ctx, field)
+	case "count":
+		return ec.fieldContext_EnvironmentFacetItem_count(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type EnvironmentFacetItem", field.Name)
 }
 
 func (ec *executionContext) childFields_FeatureKafka(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -33160,6 +33901,8 @@ func (ec *executionContext) childFields_KafkaTopicConnection(ctx context.Context
 		return ec.fieldContext_KafkaTopicConnection_nodes(ctx, field)
 	case "edges":
 		return ec.fieldContext_KafkaTopicConnection_edges(ctx, field)
+	case "facets":
+		return ec.fieldContext_KafkaTopicConnection_facets(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type KafkaTopicConnection", field.Name)
 }
@@ -33172,6 +33915,26 @@ func (ec *executionContext) childFields_KafkaTopicEdge(ctx context.Context, fiel
 		return ec.fieldContext_KafkaTopicEdge_node(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type KafkaTopicEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_KafkaTopicFacets(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "environments":
+		return ec.fieldContext_KafkaTopicFacets_environments(ctx, field)
+	case "pools":
+		return ec.fieldContext_KafkaTopicFacets_pools(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type KafkaTopicFacets", field.Name)
+}
+
+func (ec *executionContext) childFields_KafkaTopicPoolFacetItem(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pool":
+		return ec.fieldContext_KafkaTopicPoolFacetItem_pool(ctx, field)
+	case "count":
+		return ec.fieldContext_KafkaTopicPoolFacetItem_count(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type KafkaTopicPoolFacetItem", field.Name)
 }
 
 func (ec *executionContext) childFields_LogLine(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -33352,6 +34115,8 @@ func (ec *executionContext) childFields_OpenSearchConnection(ctx context.Context
 		return ec.fieldContext_OpenSearchConnection_nodes(ctx, field)
 	case "edges":
 		return ec.fieldContext_OpenSearchConnection_edges(ctx, field)
+	case "facets":
+		return ec.fieldContext_OpenSearchConnection_facets(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type OpenSearchConnection", field.Name)
 }
@@ -33388,6 +34153,16 @@ func (ec *executionContext) childFields_OpenSearchEdge(ctx context.Context, fiel
 		return ec.fieldContext_OpenSearchEdge_node(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type OpenSearchEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_OpenSearchFacets(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "environments":
+		return ec.fieldContext_OpenSearchFacets_environments(ctx, field)
+	case "tiers":
+		return ec.fieldContext_OpenSearchFacets_tiers(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type OpenSearchFacets", field.Name)
 }
 
 func (ec *executionContext) childFields_OpenSearchMaintenance(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -33434,6 +34209,16 @@ func (ec *executionContext) childFields_OpenSearchMaintenanceUpdateEdge(ctx cont
 		return ec.fieldContext_OpenSearchMaintenanceUpdateEdge_node(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type OpenSearchMaintenanceUpdateEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_OpenSearchTierFacetItem(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "tier":
+		return ec.fieldContext_OpenSearchTierFacetItem_tier(ctx, field)
+	case "count":
+		return ec.fieldContext_OpenSearchTierFacetItem_count(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type OpenSearchTierFacetItem", field.Name)
 }
 
 func (ec *executionContext) childFields_OpenSearchUpdatedActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -33556,6 +34341,8 @@ func (ec *executionContext) childFields_PostgresInstanceConnection(ctx context.C
 		return ec.fieldContext_PostgresInstanceConnection_nodes(ctx, field)
 	case "edges":
 		return ec.fieldContext_PostgresInstanceConnection_edges(ctx, field)
+	case "facets":
+		return ec.fieldContext_PostgresInstanceConnection_facets(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type PostgresInstanceConnection", field.Name)
 }
@@ -33570,6 +34357,20 @@ func (ec *executionContext) childFields_PostgresInstanceEdge(ctx context.Context
 	return nil, fmt.Errorf("no field named %q was found under type PostgresInstanceEdge", field.Name)
 }
 
+func (ec *executionContext) childFields_PostgresInstanceFacets(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "environments":
+		return ec.fieldContext_PostgresInstanceFacets_environments(ctx, field)
+	case "states":
+		return ec.fieldContext_PostgresInstanceFacets_states(ctx, field)
+	case "highAvailability":
+		return ec.fieldContext_PostgresInstanceFacets_highAvailability(ctx, field)
+	case "majorVersions":
+		return ec.fieldContext_PostgresInstanceFacets_majorVersions(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostgresInstanceFacets", field.Name)
+}
+
 func (ec *executionContext) childFields_PostgresInstanceMaintenanceWindow(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "day":
@@ -33578,6 +34379,16 @@ func (ec *executionContext) childFields_PostgresInstanceMaintenanceWindow(ctx co
 		return ec.fieldContext_PostgresInstanceMaintenanceWindow_hour(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type PostgresInstanceMaintenanceWindow", field.Name)
+}
+
+func (ec *executionContext) childFields_PostgresInstanceMajorVersionFacetItem(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "majorVersion":
+		return ec.fieldContext_PostgresInstanceMajorVersionFacetItem_majorVersion(ctx, field)
+	case "count":
+		return ec.fieldContext_PostgresInstanceMajorVersionFacetItem_count(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostgresInstanceMajorVersionFacetItem", field.Name)
 }
 
 func (ec *executionContext) childFields_PostgresInstanceResources(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -33590,6 +34401,16 @@ func (ec *executionContext) childFields_PostgresInstanceResources(ctx context.Co
 		return ec.fieldContext_PostgresInstanceResources_diskSize(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type PostgresInstanceResources", field.Name)
+}
+
+func (ec *executionContext) childFields_PostgresInstanceStateFacetItem(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "state":
+		return ec.fieldContext_PostgresInstanceStateFacetItem_state(ctx, field)
+	case "count":
+		return ec.fieldContext_PostgresInstanceStateFacetItem_count(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostgresInstanceStateFacetItem", field.Name)
 }
 
 func (ec *executionContext) childFields_Price(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -33960,6 +34781,8 @@ func (ec *executionContext) childFields_SecretConnection(ctx context.Context, fi
 		return ec.fieldContext_SecretConnection_nodes(ctx, field)
 	case "edges":
 		return ec.fieldContext_SecretConnection_edges(ctx, field)
+	case "facets":
+		return ec.fieldContext_SecretConnection_facets(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type SecretConnection", field.Name)
 }
@@ -33972,6 +34795,16 @@ func (ec *executionContext) childFields_SecretEdge(ctx context.Context, field gr
 		return ec.fieldContext_SecretEdge_node(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type SecretEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_SecretFacets(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "environments":
+		return ec.fieldContext_SecretFacets_environments(ctx, field)
+	case "inUse":
+		return ec.fieldContext_SecretFacets_inUse(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type SecretFacets", field.Name)
 }
 
 func (ec *executionContext) childFields_SecretValue(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -35568,6 +36401,8 @@ func (ec *executionContext) childFields_ValkeyConnection(ctx context.Context, fi
 		return ec.fieldContext_ValkeyConnection_nodes(ctx, field)
 	case "edges":
 		return ec.fieldContext_ValkeyConnection_edges(ctx, field)
+	case "facets":
+		return ec.fieldContext_ValkeyConnection_facets(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type ValkeyConnection", field.Name)
 }
@@ -35604,6 +36439,16 @@ func (ec *executionContext) childFields_ValkeyEdge(ctx context.Context, field gr
 		return ec.fieldContext_ValkeyEdge_node(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type ValkeyEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_ValkeyFacets(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "environments":
+		return ec.fieldContext_ValkeyFacets_environments(ctx, field)
+	case "tiers":
+		return ec.fieldContext_ValkeyFacets_tiers(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ValkeyFacets", field.Name)
 }
 
 func (ec *executionContext) childFields_ValkeyMaintenance(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -35650,6 +36495,16 @@ func (ec *executionContext) childFields_ValkeyMaintenanceUpdateEdge(ctx context.
 		return ec.fieldContext_ValkeyMaintenanceUpdateEdge_node(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type ValkeyMaintenanceUpdateEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_ValkeyTierFacetItem(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "tier":
+		return ec.fieldContext_ValkeyTierFacetItem_tier(ctx, field)
+	case "count":
+		return ec.fieldContext_ValkeyTierFacetItem_count(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ValkeyTierFacetItem", field.Name)
 }
 
 func (ec *executionContext) childFields_ValkeyUpdatedActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
