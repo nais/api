@@ -2550,7 +2550,16 @@ type ComplexityRoot struct {
 	}
 
 	SuppressVulnerabilitiesPayload struct {
-		SuppressedCount func(childComplexity int) int
+		Workloads func(childComplexity int) int
+	}
+
+	SuppressedVulnerabilityWorkload struct {
+		EnvironmentName func(childComplexity int) int
+		ImageName       func(childComplexity int) int
+		ImageTag        func(childComplexity int) int
+		Name            func(childComplexity int) int
+		TeamSlug        func(childComplexity int) int
+		WorkloadType    func(childComplexity int) int
 	}
 
 	Team struct {
@@ -14022,12 +14031,54 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Subscription.WorkloadLog(childComplexity, args["filter"].(podlog.WorkloadLogSubscriptionFilter)), true
 
-	case "SuppressVulnerabilitiesPayload.suppressedCount":
-		if e.ComplexityRoot.SuppressVulnerabilitiesPayload.SuppressedCount == nil {
+	case "SuppressVulnerabilitiesPayload.workloads":
+		if e.ComplexityRoot.SuppressVulnerabilitiesPayload.Workloads == nil {
 			break
 		}
 
-		return e.ComplexityRoot.SuppressVulnerabilitiesPayload.SuppressedCount(childComplexity), true
+		return e.ComplexityRoot.SuppressVulnerabilitiesPayload.Workloads(childComplexity), true
+
+	case "SuppressedVulnerabilityWorkload.environmentName":
+		if e.ComplexityRoot.SuppressedVulnerabilityWorkload.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.SuppressedVulnerabilityWorkload.EnvironmentName(childComplexity), true
+
+	case "SuppressedVulnerabilityWorkload.imageName":
+		if e.ComplexityRoot.SuppressedVulnerabilityWorkload.ImageName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.SuppressedVulnerabilityWorkload.ImageName(childComplexity), true
+
+	case "SuppressedVulnerabilityWorkload.imageTag":
+		if e.ComplexityRoot.SuppressedVulnerabilityWorkload.ImageTag == nil {
+			break
+		}
+
+		return e.ComplexityRoot.SuppressedVulnerabilityWorkload.ImageTag(childComplexity), true
+
+	case "SuppressedVulnerabilityWorkload.name":
+		if e.ComplexityRoot.SuppressedVulnerabilityWorkload.Name == nil {
+			break
+		}
+
+		return e.ComplexityRoot.SuppressedVulnerabilityWorkload.Name(childComplexity), true
+
+	case "SuppressedVulnerabilityWorkload.teamSlug":
+		if e.ComplexityRoot.SuppressedVulnerabilityWorkload.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.SuppressedVulnerabilityWorkload.TeamSlug(childComplexity), true
+
+	case "SuppressedVulnerabilityWorkload.workloadType":
+		if e.ComplexityRoot.SuppressedVulnerabilityWorkload.WorkloadType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.SuppressedVulnerabilityWorkload.WorkloadType(childComplexity), true
 
 	case "Team.activityLog":
 		if e.ComplexityRoot.Team.ActivityLog == nil {
@@ -29979,8 +30030,23 @@ input SuppressVulnerabilitiesWorkloadInput {
 }
 
 type SuppressVulnerabilitiesPayload {
-	"The number of workloads for which the CVE was suppressed."
-	suppressedCount: Int!
+	"The workloads for which the CVE was suppressed."
+	workloads: [SuppressedVulnerabilityWorkload!]!
+}
+
+type SuppressedVulnerabilityWorkload {
+	"The name of the workload."
+	name: String!
+	"The team the workload belongs to."
+	teamSlug: Slug!
+	"The environment the workload is deployed in."
+	environmentName: String!
+	"The type of the workload."
+	workloadType: String!
+	"The image name used by the workload."
+	imageName: String!
+	"The image tag used by the workload."
+	imageTag: String!
 }
 
 type VulnerabilityActivityLogEntryData {
@@ -33778,10 +33844,28 @@ func (ec *executionContext) childFields_StartValkeyMaintenancePayload(ctx contex
 
 func (ec *executionContext) childFields_SuppressVulnerabilitiesPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
-	case "suppressedCount":
-		return ec.fieldContext_SuppressVulnerabilitiesPayload_suppressedCount(ctx, field)
+	case "workloads":
+		return ec.fieldContext_SuppressVulnerabilitiesPayload_workloads(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type SuppressVulnerabilitiesPayload", field.Name)
+}
+
+func (ec *executionContext) childFields_SuppressedVulnerabilityWorkload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "name":
+		return ec.fieldContext_SuppressedVulnerabilityWorkload_name(ctx, field)
+	case "teamSlug":
+		return ec.fieldContext_SuppressedVulnerabilityWorkload_teamSlug(ctx, field)
+	case "environmentName":
+		return ec.fieldContext_SuppressedVulnerabilityWorkload_environmentName(ctx, field)
+	case "workloadType":
+		return ec.fieldContext_SuppressedVulnerabilityWorkload_workloadType(ctx, field)
+	case "imageName":
+		return ec.fieldContext_SuppressedVulnerabilityWorkload_imageName(ctx, field)
+	case "imageTag":
+		return ec.fieldContext_SuppressedVulnerabilityWorkload_imageTag(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type SuppressedVulnerabilityWorkload", field.Name)
 }
 
 func (ec *executionContext) childFields_Team(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
