@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/url"
+	"strconv"
 	"time"
 
 	"github.com/nais/api/internal/activitylog"
@@ -14,8 +15,11 @@ import (
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/workload"
+	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/labels"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/selection"
 	"k8s.io/apimachinery/pkg/types"
@@ -157,6 +161,99 @@ func Restart(ctx context.Context, teamSlug slug.Slug, environmentName, name stri
 		ResourceName:    name,
 		Actor:           authz.ActorFromContext(ctx).User,
 	})
+}
+
+func Update(ctx context.Context, input UpdateApplicationInput) (*UpdateApplicationPayload, error) {
+	w := fromContext(ctx).appWatcher
+
+	app, err := w.Get(input.EnvironmentName, input.TeamSlug.String(), input.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	var changedFields []*activitylog.ResourceChangedField
+
+	if len(input.EnvironmentVariables) > 0 {
+		merged := workload.MergeEnvVars(app.Spec.Env, input.EnvironmentVariables)
+		if !workload.EnvVarsEqual(app.Spec.Env, merged) {
+			changedFields = append(changedFields, workload.EnvVarChangedFields(app.Spec.Env, merged)...)
+			app.Spec.Env = merged
+		}
+	}
+
+	if input.Replicas != nil {
+		min, max := input.Replicas.Min, input.Replicas.Max
+		if app.Spec.Replicas == nil || !ptr.Equal(app.Spec.Replicas.Min, &min) || !ptr.Equal(app.Spec.Replicas.Max, &max) {
+			if app.Spec.Replicas == nil {
+				minStr := strconv.Itoa(min)
+				maxStr := strconv.Itoa(max)
+				changedFields = append(changedFields, &activitylog.ResourceChangedField{Field: "spec.replicas.min", NewValue: &minStr})
+				changedFields = append(changedFields, &activitylog.ResourceChangedField{Field: "spec.replicas.max", NewValue: &maxStr})
+				app.Spec.Replicas = &nais_io_v1.Replicas{}
+			} else {
+				if !ptr.Equal(app.Spec.Replicas.Min, &min) {
+					var oldMin *string
+					if app.Spec.Replicas.Min != nil {
+						oldMin = new(strconv.Itoa(*app.Spec.Replicas.Min))
+					}
+					newMin := strconv.Itoa(min)
+					changedFields = append(changedFields, &activitylog.ResourceChangedField{Field: "spec.replicas.min", OldValue: oldMin, NewValue: &newMin})
+				}
+				if !ptr.Equal(app.Spec.Replicas.Max, &max) {
+					var oldMax *string
+					if app.Spec.Replicas.Max != nil {
+						oldMax = new(strconv.Itoa(*app.Spec.Replicas.Max))
+					}
+					newMax := strconv.Itoa(max)
+					changedFields = append(changedFields, &activitylog.ResourceChangedField{Field: "spec.replicas.max", OldValue: oldMax, NewValue: &newMax})
+				}
+			}
+			app.Spec.Replicas.Min = &min
+			app.Spec.Replicas.Max = &max
+		}
+	}
+
+	if len(changedFields) == 0 {
+		return &UpdateApplicationPayload{
+			TeamSlug:        input.TeamSlug,
+			EnvironmentName: input.EnvironmentName,
+			ApplicationName: input.Name,
+		}, nil
+	}
+
+	obj, err := runtime.DefaultUnstructuredConverter.ToUnstructured(app)
+	if err != nil {
+		return nil, fmt.Errorf("converting application to unstructured: %w", err)
+	}
+
+	client, err := w.ImpersonatedClient(ctx, input.EnvironmentName)
+	if err != nil {
+		return nil, fmt.Errorf("creating impersonated client: %w", err)
+	}
+
+	if _, err := client.Namespace(input.TeamSlug.String()).Update(ctx, &unstructured.Unstructured{Object: obj}, metav1.UpdateOptions{}); err != nil {
+		return nil, fmt.Errorf("updating application: %w", err)
+	}
+
+	if err := activitylog.Create(ctx, activitylog.CreateInput{
+		Action:          activitylog.ActivityLogEntryActionUpdated,
+		ResourceType:    ActivityLogEntryResourceTypeApplication,
+		TeamSlug:        &input.TeamSlug,
+		EnvironmentName: &input.EnvironmentName,
+		ResourceName:    input.Name,
+		Actor:           authz.ActorFromContext(ctx).User,
+		Data: &ApplicationUpdatedActivityLogEntryData{
+			ChangedFields: changedFields,
+		},
+	}); err != nil {
+		return nil, err
+	}
+
+	return &UpdateApplicationPayload{
+		TeamSlug:        input.TeamSlug,
+		EnvironmentName: input.EnvironmentName,
+		ApplicationName: input.Name,
+	}, nil
 }
 
 func ListInstances(ctx context.Context, teamSlug slug.Slug, environmentName, appName string, page *pagination.Pagination) (*ApplicationInstanceConnection, error) {

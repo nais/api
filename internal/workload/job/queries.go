@@ -270,6 +270,67 @@ func Trigger(ctx context.Context, teamSlug slug.Slug, environmentName, name, run
 	return ToGraphJobRun(jobRunBatch, environmentName), nil
 }
 
+func Update(ctx context.Context, input UpdateJobInput) (*UpdateJobPayload, error) {
+	w := fromContext(ctx).jobWatcher
+
+	naisjob, err := w.Get(input.EnvironmentName, input.TeamSlug.String(), input.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	var changedFields []*activitylog.ResourceChangedField
+
+	if len(input.EnvironmentVariables) > 0 {
+		merged := workload.MergeEnvVars(naisjob.Spec.Env, input.EnvironmentVariables)
+		if !workload.EnvVarsEqual(naisjob.Spec.Env, merged) {
+			changedFields = append(changedFields, workload.EnvVarChangedFields(naisjob.Spec.Env, merged)...)
+			naisjob.Spec.Env = merged
+		}
+	}
+
+	if len(changedFields) == 0 {
+		return &UpdateJobPayload{
+			TeamSlug:        input.TeamSlug,
+			JobName:         input.Name,
+			EnvironmentName: input.EnvironmentName,
+		}, nil
+	}
+
+	obj, err := runtime.DefaultUnstructuredConverter.ToUnstructured(naisjob)
+	if err != nil {
+		return nil, fmt.Errorf("converting naisjob to unstructured: %w", err)
+	}
+
+	client, err := w.ImpersonatedClient(ctx, input.EnvironmentName)
+	if err != nil {
+		return nil, fmt.Errorf("creating impersonated client: %w", err)
+	}
+
+	if _, err := client.Namespace(input.TeamSlug.String()).Update(ctx, &unstructured.Unstructured{Object: obj}, metav1.UpdateOptions{}); err != nil {
+		return nil, fmt.Errorf("updating job: %w", err)
+	}
+
+	if err := activitylog.Create(ctx, activitylog.CreateInput{
+		Action:          activitylog.ActivityLogEntryActionUpdated,
+		ResourceType:    ActivityLogEntryResourceTypeJob,
+		TeamSlug:        &input.TeamSlug,
+		EnvironmentName: &input.EnvironmentName,
+		ResourceName:    input.Name,
+		Actor:           authz.ActorFromContext(ctx).User,
+		Data: &JobUpdatedActivityLogEntryData{
+			ChangedFields: changedFields,
+		},
+	}); err != nil {
+		return nil, err
+	}
+
+	return &UpdateJobPayload{
+		TeamSlug:        input.TeamSlug,
+		JobName:         input.Name,
+		EnvironmentName: input.EnvironmentName,
+	}, nil
+}
+
 func GetState(ctx context.Context, obj *Job) (JobState, error) {
 	runs, err := allRuns(ctx, obj.GetTeamSlug(), obj.GetEnvironmentName(), obj.GetName())
 	if err != nil {

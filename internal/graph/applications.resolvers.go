@@ -156,6 +156,14 @@ func (r *mutationResolver) RestartApplication(ctx context.Context, input applica
 	}, nil
 }
 
+func (r *mutationResolver) UpdateApplication(ctx context.Context, input application.UpdateApplicationInput) (*application.UpdateApplicationPayload, error) {
+	if err := authz.CanUpdateApplications(ctx, input.TeamSlug); err != nil {
+		return nil, err
+	}
+
+	return application.Update(ctx, input)
+}
+
 func (r *restartApplicationPayloadResolver) Application(ctx context.Context, obj *application.RestartApplicationPayload) (*application.Application, error) {
 	return application.Get(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ApplicationName)
 }
@@ -205,6 +213,10 @@ func (r *teamInventoryCountsResolver) Applications(ctx context.Context, obj *tea
 	}, nil
 }
 
+func (r *updateApplicationPayloadResolver) Application(ctx context.Context, obj *application.UpdateApplicationPayload) (*application.Application, error) {
+	return application.Get(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ApplicationName)
+}
+
 func (r *Resolver) Application() gengql.ApplicationResolver { return &applicationResolver{r} }
 
 func (r *Resolver) ApplicationConnection() gengql.ApplicationConnectionResolver {
@@ -227,6 +239,10 @@ func (r *Resolver) RestartApplicationPayload() gengql.RestartApplicationPayloadR
 	return &restartApplicationPayloadResolver{r}
 }
 
+func (r *Resolver) UpdateApplicationPayload() gengql.UpdateApplicationPayloadResolver {
+	return &updateApplicationPayloadResolver{r}
+}
+
 type (
 	applicationResolver               struct{ *Resolver }
 	applicationConnectionResolver     struct{ *Resolver }
@@ -235,4 +251,5 @@ type (
 	ingressResolver                   struct{ *Resolver }
 	ingressMetricsResolver            struct{ *Resolver }
 	restartApplicationPayloadResolver struct{ *Resolver }
+	updateApplicationPayloadResolver  struct{ *Resolver }
 )

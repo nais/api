@@ -455,3 +455,18 @@ input TeamWorkloadsFilter {
 	"""
 	environments: [String!]
 }
+
+"""
+Input for setting an environment variable on a workload. To remove a variable, set value to null.
+"""
+input UpdateWorkloadEnvironmentVariableInput {
+	"""
+	Name of the environment variable.
+	"""
+	name: String!
+
+	"""
+	Value of the environment variable. Set to null to remove the variable.
+	"""
+	value: String
+}

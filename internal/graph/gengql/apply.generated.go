@@ -953,6 +953,32 @@ func (ec *executionContext) marshalNResourceChangedField2ᚕgithubᚗcomᚋnais�
 	return ret
 }
 
+func (ec *executionContext) marshalNResourceChangedField2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐResourceChangedFieldᚄ(ctx context.Context, sel ast.SelectionSet, v []*activitylog.ResourceChangedField) graphql.Marshaler {
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNResourceChangedField2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐResourceChangedField(ctx, sel, v[i])
+	})
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNResourceChangedField2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐResourceChangedField(ctx context.Context, sel ast.SelectionSet, v *activitylog.ResourceChangedField) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ResourceChangedField(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐGitHubActorClaims(ctx context.Context, sel ast.SelectionSet, v *activitylog.GitHubActorClaims) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null

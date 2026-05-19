@@ -30,6 +30,17 @@ extend type Mutation {
 
 	"Trigger a job"
 	triggerJob(input: TriggerJobInput!): TriggerJobPayload!
+
+	"""
+	Update specific fields on a job. Only provided fields are applied.
+	Changes are temporary and will be overwritten on next deploy.
+	"""
+	updateJob(
+		"""
+		Input for updating a job.
+		"""
+		input: UpdateJobInput!
+	): UpdateJobPayload!
 }
 
 extend type TeamEnvironment {
@@ -615,6 +626,9 @@ type JobCreatedActivityLogEntry implements ActivityLogEntry & Node {
 	data: GenericKubernetesResourceActivityLogEntryData!
 }
 
+"""
+Activity log entry for when a job is updated.
+"""
 type JobUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
@@ -641,7 +655,17 @@ type JobUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 	environmentName: String
 
 	"Data associated with the update."
-	data: GenericKubernetesResourceActivityLogEntryData!
+	data: JobUpdatedActivityLogEntryData!
+}
+
+"""
+Data associated with a job update activity log entry.
+"""
+type JobUpdatedActivityLogEntryData {
+	"The fields that changed during the update."
+	changedFields: [ResourceChangedField!]!
+	"GitHub Actions OIDC token claims at the time of the apply. Only present when the request was authenticated via a GitHub token."
+	gitHubActorClaims: GitHubActorClaims
 }
 
 extend enum ActivityLogActivityType {
@@ -653,4 +677,39 @@ extend enum ActivityLogActivityType {
 
 	"Activity log entries related to job triggering."
 	JOB_TRIGGERED
+
+	"Activity log entries related to job updates."
+	JOB_UPDATED
+}
+
+input UpdateJobInput {
+	"""
+	Name of the job.
+	"""
+	name: String!
+
+	"""
+	Slug of the team that owns the job.
+	"""
+	teamSlug: Slug!
+
+	"""
+	Name of the environment where the job runs.
+	"""
+	environmentName: String!
+
+	"""
+	Update environment variables. Variables are merged with existing ones.
+	"""
+	environmentVariables: [UpdateWorkloadEnvironmentVariableInput!]
+}
+
+"""
+Payload for updating a job.
+"""
+type UpdateJobPayload {
+	"""
+	The updated job.
+	"""
+	job: Job
 }

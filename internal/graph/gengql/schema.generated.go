@@ -66,6 +66,7 @@ import (
 type MutationResolver interface {
 	DeleteApplication(ctx context.Context, input application.DeleteApplicationInput) (*application.DeleteApplicationPayload, error)
 	RestartApplication(ctx context.Context, input application.RestartApplicationInput) (*application.RestartApplicationPayload, error)
+	UpdateApplication(ctx context.Context, input application.UpdateApplicationInput) (*application.UpdateApplicationPayload, error)
 	CreateConfig(ctx context.Context, input config.CreateConfigInput) (*config.CreateConfigPayload, error)
 	AddConfigValue(ctx context.Context, input config.AddConfigValueInput) (*config.AddConfigValuePayload, error)
 	UpdateConfigValue(ctx context.Context, input config.UpdateConfigValueInput) (*config.UpdateConfigValuePayload, error)
@@ -75,6 +76,7 @@ type MutationResolver interface {
 	DeleteJob(ctx context.Context, input job.DeleteJobInput) (*job.DeleteJobPayload, error)
 	DeleteJobRun(ctx context.Context, input job.DeleteJobRunInput) (*job.DeleteJobRunPayload, error)
 	TriggerJob(ctx context.Context, input job.TriggerJobInput) (*job.TriggerJobPayload, error)
+	UpdateJob(ctx context.Context, input job.UpdateJobInput) (*job.UpdateJobPayload, error)
 	CreateKafkaCredentials(ctx context.Context, input kafkatopic.CreateKafkaCredentialsInput) (*kafkatopic.CreateKafkaCredentialsPayload, error)
 	CreateOpenSearch(ctx context.Context, input opensearch.CreateOpenSearchInput) (*opensearch.CreateOpenSearchPayload, error)
 	UpdateOpenSearch(ctx context.Context, input opensearch.UpdateOpenSearchInput) (*opensearch.UpdateOpenSearchPayload, error)
@@ -832,6 +834,20 @@ func (ec *executionContext) field_Mutation_triggerJob_args(ctx context.Context, 
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_updateApplication_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input",
+		func(ctx context.Context, v any) (application.UpdateApplicationInput, error) {
+			return ec.unmarshalNUpdateApplicationInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐUpdateApplicationInput(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_updateConfigValue_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -852,6 +868,20 @@ func (ec *executionContext) field_Mutation_updateImageVulnerability_args(ctx con
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input",
 		func(ctx context.Context, v any) (vulnerability.UpdateImageVulnerabilityInput, error) {
 			return ec.unmarshalNUpdateImageVulnerabilityInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐUpdateImageVulnerabilityInput(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_updateJob_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input",
+		func(ctx context.Context, v any) (job.UpdateJobInput, error) {
+			return ec.unmarshalNUpdateJobInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐUpdateJobInput(ctx, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1692,6 +1722,50 @@ func (ec *executionContext) fieldContext_Mutation_restartApplication(ctx context
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_updateApplication(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Mutation_updateApplication(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.Resolvers.Mutation().UpdateApplication(ctx, fc.Args["input"].(application.UpdateApplicationInput))
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *application.UpdateApplicationPayload) graphql.Marshaler {
+			return ec.marshalNUpdateApplicationPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐUpdateApplicationPayload(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Mutation_updateApplication(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_UpdateApplicationPayload(ctx, field)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_updateApplication_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_createConfig(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -2082,6 +2156,50 @@ func (ec *executionContext) fieldContext_Mutation_triggerJob(ctx context.Context
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_triggerJob_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_updateJob(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Mutation_updateJob(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.Resolvers.Mutation().UpdateJob(ctx, fc.Args["input"].(job.UpdateJobInput))
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *job.UpdateJobPayload) graphql.Marshaler {
+			return ec.marshalNUpdateJobPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐUpdateJobPayload(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Mutation_updateJob(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_UpdateJobPayload(ctx, field)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_updateJob_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -6529,6 +6647,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "updateApplication":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updateApplication(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "createConfig":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createConfig(ctx, field)
@@ -6588,6 +6713,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "triggerJob":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_triggerJob(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "updateJob":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updateJob(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++

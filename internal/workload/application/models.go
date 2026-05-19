@@ -530,6 +530,25 @@ type RestartApplicationPayload struct {
 	EnvironmentName string    `json:"-"`
 }
 
+type UpdateApplicationInput struct {
+	Name                 string                                             `json:"name"`
+	TeamSlug             slug.Slug                                          `json:"teamSlug"`
+	EnvironmentName      string                                             `json:"environmentName"`
+	EnvironmentVariables []*workload.UpdateWorkloadEnvironmentVariableInput `json:"environmentVariables,omitempty"`
+	Replicas             *UpdateApplicationReplicasInput                    `json:"replicas,omitempty"`
+}
+
+type UpdateApplicationReplicasInput struct {
+	Min int `json:"min"`
+	Max int `json:"max"`
+}
+
+type UpdateApplicationPayload struct {
+	TeamSlug        slug.Slug `json:"-"`
+	ApplicationName string    `json:"-"`
+	EnvironmentName string    `json:"-"`
+}
+
 type ApplicationInstanceState string
 
 const (

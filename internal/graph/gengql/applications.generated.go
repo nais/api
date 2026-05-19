@@ -95,6 +95,9 @@ type IngressMetricsResolver interface {
 type RestartApplicationPayloadResolver interface {
 	Application(ctx context.Context, obj *application.RestartApplicationPayload) (*application.Application, error)
 }
+type UpdateApplicationPayloadResolver interface {
+	Application(ctx context.Context, obj *application.UpdateApplicationPayload) (*application.Application, error)
+}
 
 // endregion ************************** generated!.gotpl **************************
 
@@ -3737,8 +3740,8 @@ func (ec *executionContext) _ApplicationUpdatedActivityLogEntry_data(ctx context
 			return obj.Data, nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *activitylog.GenericKubernetesResourceActivityLogEntryData) graphql.Marshaler {
-			return ec.marshalNGenericKubernetesResourceActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐGenericKubernetesResourceActivityLogEntryData(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *application.ApplicationUpdatedActivityLogEntryData) graphql.Marshaler {
+			return ec.marshalNApplicationUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplicationUpdatedActivityLogEntryData(ctx, selections, v)
 		},
 		true,
 		true,
@@ -3751,7 +3754,71 @@ func (ec *executionContext) fieldContext_ApplicationUpdatedActivityLogEntry_data
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_GenericKubernetesResourceActivityLogEntryData(ctx, field)
+			return ec.childFields_ApplicationUpdatedActivityLogEntryData(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ApplicationUpdatedActivityLogEntryData_changedFields(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationUpdatedActivityLogEntryData) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ApplicationUpdatedActivityLogEntryData_changedFields(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.ChangedFields, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []*activitylog.ResourceChangedField) graphql.Marshaler {
+			return ec.marshalNResourceChangedField2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐResourceChangedFieldᚄ(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_ApplicationUpdatedActivityLogEntryData_changedFields(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ApplicationUpdatedActivityLogEntryData",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_ResourceChangedField(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ApplicationUpdatedActivityLogEntryData_gitHubActorClaims(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationUpdatedActivityLogEntryData) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ApplicationUpdatedActivityLogEntryData_gitHubActorClaims(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.GitHubActorClaims, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *activitylog.GitHubActorClaims) graphql.Marshaler {
+			return ec.marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐGitHubActorClaims(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_ApplicationUpdatedActivityLogEntryData_gitHubActorClaims(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ApplicationUpdatedActivityLogEntryData",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_GitHubActorClaims(ctx, field)
 		},
 	}
 	return fc, nil
@@ -4242,6 +4309,38 @@ func (ec *executionContext) fieldContext_TeamInventoryCountApplications_unknown(
 	return graphql.NewScalarFieldContext("TeamInventoryCountApplications", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
+func (ec *executionContext) _UpdateApplicationPayload_application(ctx context.Context, field graphql.CollectedField, obj *application.UpdateApplicationPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_UpdateApplicationPayload_application(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.UpdateApplicationPayload().Application(ctx, obj)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *application.Application) graphql.Marshaler {
+			return ec.marshalOApplication2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplication(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_UpdateApplicationPayload_application(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UpdateApplicationPayload",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_Application(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
 // endregion **************************** field.gotpl *****************************
 
 // region    **************************** input.gotpl *****************************
@@ -4454,6 +4553,101 @@ func (ec *executionContext) unmarshalInputTeamApplicationsFilter(ctx context.Con
 				return it, err
 			}
 			it.States = data
+		}
+	}
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputUpdateApplicationInput(ctx context.Context, obj any) (application.UpdateApplicationInput, error) {
+	var it application.UpdateApplicationInput
+	if obj == nil {
+		return it, nil
+	}
+
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"name", "teamSlug", "environmentName", "environmentVariables", "replicas"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "teamSlug":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamSlug"))
+			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TeamSlug = data
+		case "environmentName":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environmentName"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.EnvironmentName = data
+		case "environmentVariables":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environmentVariables"))
+			data, err := ec.unmarshalOUpdateWorkloadEnvironmentVariableInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐUpdateWorkloadEnvironmentVariableInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.EnvironmentVariables = data
+		case "replicas":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("replicas"))
+			data, err := ec.unmarshalOUpdateApplicationReplicasInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐUpdateApplicationReplicasInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Replicas = data
+		}
+	}
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputUpdateApplicationReplicasInput(ctx context.Context, obj any) (application.UpdateApplicationReplicasInput, error) {
+	var it application.UpdateApplicationReplicasInput
+	if obj == nil {
+		return it, nil
+	}
+
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"min", "max"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "min":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("min"))
+			data, err := ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Min = data
+		case "max":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("max"))
+			data, err := ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Max = data
 		}
 	}
 	return it, nil
@@ -6619,6 +6813,47 @@ func (ec *executionContext) _ApplicationUpdatedActivityLogEntry(ctx context.Cont
 	return out
 }
 
+var applicationUpdatedActivityLogEntryDataImplementors = []string{"ApplicationUpdatedActivityLogEntryData"}
+
+func (ec *executionContext) _ApplicationUpdatedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, obj *application.ApplicationUpdatedActivityLogEntryData) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, applicationUpdatedActivityLogEntryDataImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ApplicationUpdatedActivityLogEntryData")
+		case "changedFields":
+			out.Values[i] = ec._ApplicationUpdatedActivityLogEntryData_changedFields(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "gitHubActorClaims":
+			out.Values[i] = ec._ApplicationUpdatedActivityLogEntryData_gitHubActorClaims(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var cPUScalingStrategyImplementors = []string{"CPUScalingStrategy", "ScalingStrategy"}
 
 func (ec *executionContext) _CPUScalingStrategy(ctx context.Context, sel ast.SelectionSet, obj *application.CPUScalingStrategy) graphql.Marshaler {
@@ -7194,6 +7429,73 @@ func (ec *executionContext) _TeamInventoryCountApplications(ctx context.Context,
 	return out
 }
 
+var updateApplicationPayloadImplementors = []string{"UpdateApplicationPayload"}
+
+func (ec *executionContext) _UpdateApplicationPayload(ctx context.Context, sel ast.SelectionSet, obj *application.UpdateApplicationPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, updateApplicationPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("UpdateApplicationPayload")
+		case "application":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._UpdateApplicationPayload_application(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 // endregion **************************** object.gotpl ****************************
 
 // region    ***************************** type.gotpl *****************************
@@ -7472,6 +7774,16 @@ func (ec *executionContext) marshalNApplicationStateFacetItem2ᚕgithubᚗcomᚋ
 	return ret
 }
 
+func (ec *executionContext) marshalNApplicationUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplicationUpdatedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *application.ApplicationUpdatedActivityLogEntryData) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ApplicationUpdatedActivityLogEntryData(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNDeleteApplicationInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐDeleteApplicationInput(ctx context.Context, v any) (application.DeleteApplicationInput, error) {
 	res, err := ec.unmarshalInputDeleteApplicationInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -7651,6 +7963,25 @@ func (ec *executionContext) marshalNTeamInventoryCountApplications2ᚖgithubᚗc
 	return ec._TeamInventoryCountApplications(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNUpdateApplicationInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐUpdateApplicationInput(ctx context.Context, v any) (application.UpdateApplicationInput, error) {
+	res, err := ec.unmarshalInputUpdateApplicationInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNUpdateApplicationPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐUpdateApplicationPayload(ctx context.Context, sel ast.SelectionSet, v application.UpdateApplicationPayload) graphql.Marshaler {
+	return ec._UpdateApplicationPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNUpdateApplicationPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐUpdateApplicationPayload(ctx context.Context, sel ast.SelectionSet, v *application.UpdateApplicationPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._UpdateApplicationPayload(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalOApplication2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplication(ctx context.Context, sel ast.SelectionSet, v *application.Application) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -7715,6 +8046,14 @@ func (ec *executionContext) unmarshalOTeamApplicationsFilter2ᚖgithubᚗcomᚋn
 		return nil, nil
 	}
 	res, err := ec.unmarshalInputTeamApplicationsFilter(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOUpdateApplicationReplicasInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐUpdateApplicationReplicasInput(ctx context.Context, v any) (*application.UpdateApplicationReplicasInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputUpdateApplicationReplicasInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 

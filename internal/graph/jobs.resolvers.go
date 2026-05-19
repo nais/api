@@ -148,6 +148,14 @@ func (r *mutationResolver) TriggerJob(ctx context.Context, input job.TriggerJobI
 	}, nil
 }
 
+func (r *mutationResolver) UpdateJob(ctx context.Context, input job.UpdateJobInput) (*job.UpdateJobPayload, error) {
+	if err := authz.CanUpdateJobs(ctx, input.TeamSlug); err != nil {
+		return nil, err
+	}
+
+	return job.Update(ctx, input)
+}
+
 func (r *teamResolver) Jobs(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *job.JobOrder, filter *job.TeamJobsFilter) (*job.JobConnection, error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
@@ -198,6 +206,10 @@ func (r *triggerJobPayloadResolver) Job(ctx context.Context, obj *job.TriggerJob
 	return job.Get(ctx, obj.TeamSlug, obj.EnvironmentName, obj.JobName)
 }
 
+func (r *updateJobPayloadResolver) Job(ctx context.Context, obj *job.UpdateJobPayload) (*job.Job, error) {
+	return job.Get(ctx, obj.TeamSlug, obj.EnvironmentName, obj.JobName)
+}
+
 func (r *Resolver) DeleteJobPayload() gengql.DeleteJobPayloadResolver {
 	return &deleteJobPayloadResolver{r}
 }
@@ -216,6 +228,10 @@ func (r *Resolver) TriggerJobPayload() gengql.TriggerJobPayloadResolver {
 	return &triggerJobPayloadResolver{r}
 }
 
+func (r *Resolver) UpdateJobPayload() gengql.UpdateJobPayloadResolver {
+	return &updateJobPayloadResolver{r}
+}
+
 type (
 	deleteJobPayloadResolver    struct{ *Resolver }
 	deleteJobRunPayloadResolver struct{ *Resolver }
@@ -223,4 +239,5 @@ type (
 	jobConnectionResolver       struct{ *Resolver }
 	jobRunResolver              struct{ *Resolver }
 	triggerJobPayloadResolver   struct{ *Resolver }
+	updateJobPayloadResolver    struct{ *Resolver }
 )

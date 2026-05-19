@@ -66,7 +66,7 @@ func init() {
 				Data:                    data,
 			}, nil
 		case activitylog.ActivityLogEntryActionUpdated:
-			data, err := activitylog.UnmarshalData[activitylog.GenericKubernetesResourceActivityLogEntryData](entry)
+			data, err := activitylog.UnmarshalData[ApplicationUpdatedActivityLogEntryData](entry)
 			if err != nil {
 				return nil, fmt.Errorf("transforming application updated activity log entry data: %w", err)
 			}
@@ -84,7 +84,7 @@ func init() {
 	activitylog.RegisterFilter("APPLICATION_SCALED", activityLogEntryActionAutoScaleApplication, ActivityLogEntryResourceTypeApplication)
 	activitylog.RegisterFilter("DEPLOYMENT", deploymentactivity.ActivityLogEntryActionDeployment, ActivityLogEntryResourceTypeApplication)
 	activitylog.RegisterFilter("GENERIC_KUBERNETES_RESOURCE_CREATED", activitylog.ActivityLogEntryActionCreated, ActivityLogEntryResourceTypeApplication)
-	activitylog.RegisterFilter("GENERIC_KUBERNETES_RESOURCE_UPDATED", activitylog.ActivityLogEntryActionUpdated, ActivityLogEntryResourceTypeApplication)
+	activitylog.RegisterFilter("APPLICATION_UPDATED", activitylog.ActivityLogEntryActionUpdated, ActivityLogEntryResourceTypeApplication)
 }
 
 type ApplicationRestartedActivityLogEntry struct {
@@ -115,5 +115,10 @@ type ApplicationCreatedActivityLogEntry struct {
 type ApplicationUpdatedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
 
-	Data *activitylog.GenericKubernetesResourceActivityLogEntryData `json:"data"`
+	Data *ApplicationUpdatedActivityLogEntryData `json:"data"`
+}
+
+type ApplicationUpdatedActivityLogEntryData struct {
+	ChangedFields     []*activitylog.ResourceChangedField `json:"changedFields"`
+	GitHubActorClaims *activitylog.GitHubActorClaims      `json:"gitHubActorClaims,omitempty"`
 }

@@ -3,6 +3,7 @@ package workload
 import (
 	"fmt"
 	"io"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -276,4 +277,87 @@ type TeamWorkloadsFilter struct {
 	Environments             []string `json:"environments,omitempty"`
 	States                   []string `json:"states,omitempty"`
 	WorkloadStatusErrorTypes []string `json:"workloadStatusErrorTypes,omitempty"`
+}
+
+type UpdateWorkloadEnvironmentVariableInput struct {
+	Name  string  `json:"name"`
+	Value *string `json:"value,omitempty"`
+}
+
+func MergeEnvVars(existing nais_io_v1.EnvVars, updates []*UpdateWorkloadEnvironmentVariableInput) nais_io_v1.EnvVars {
+	envMap := make(map[string]nais_io_v1.EnvVar, len(existing))
+	for _, e := range existing {
+		envMap[e.Name] = e
+	}
+
+	for _, u := range updates {
+		if u.Value == nil {
+			delete(envMap, u.Name)
+		} else {
+			envMap[u.Name] = nais_io_v1.EnvVar{Name: u.Name, Value: *u.Value}
+		}
+	}
+
+	result := make(nais_io_v1.EnvVars, 0, len(envMap))
+	for _, v := range envMap {
+		result = append(result, v)
+	}
+
+	slices.SortFunc(result, func(a, b nais_io_v1.EnvVar) int {
+		return strings.Compare(a.Name, b.Name)
+	})
+	return result
+}
+
+func EnvVarsEqual(a, b nais_io_v1.EnvVars) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	m := make(map[string]string, len(a))
+	for _, v := range a {
+		m[v.Name] = v.Value
+	}
+	for _, v := range b {
+		if existing, ok := m[v.Name]; !ok || existing != v.Value {
+			return false
+		}
+	}
+	return true
+}
+
+func EnvVarChangedFields(existing nais_io_v1.EnvVars, merged nais_io_v1.EnvVars) []*activitylog.ResourceChangedField {
+	oldMap := make(map[string]string, len(existing))
+	for _, v := range existing {
+		oldMap[v.Name] = v.Value
+	}
+	newMap := make(map[string]string, len(merged))
+	for _, v := range merged {
+		newMap[v.Name] = v.Value
+	}
+
+	var fields []*activitylog.ResourceChangedField
+
+	for name, oldVal := range oldMap {
+		if newVal, ok := newMap[name]; !ok {
+			old := oldVal
+			fields = append(fields, &activitylog.ResourceChangedField{Field: "spec.env." + name, OldValue: &old})
+		} else if newVal != oldVal {
+			old := oldVal
+			n := newVal
+			fields = append(fields, &activitylog.ResourceChangedField{Field: "spec.env." + name, OldValue: &old, NewValue: &n})
+		}
+	}
+
+	for name, newVal := range newMap {
+		if _, ok := oldMap[name]; !ok {
+			n := newVal
+			fields = append(fields, &activitylog.ResourceChangedField{Field: "spec.env." + name, NewValue: &n})
+		}
+	}
+
+	slices.SortFunc(fields, func(a, b *activitylog.ResourceChangedField) int {
+		return strings.Compare(a.Field, b.Field)
+	})
+
+	return fields
 }
