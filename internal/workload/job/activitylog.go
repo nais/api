@@ -63,7 +63,7 @@ func init() {
 				Data:                    data,
 			}, nil
 		case activitylog.ActivityLogEntryActionUpdated:
-			data, err := activitylog.UnmarshalData[activitylog.GenericKubernetesResourceActivityLogEntryData](entry)
+			data, err := activitylog.UnmarshalData[JobUpdatedActivityLogEntryData](entry)
 			if err != nil {
 				return nil, fmt.Errorf("transforming job updated activity log entry data: %w", err)
 			}
@@ -82,6 +82,7 @@ func init() {
 	activitylog.RegisterFilter("DEPLOYMENT", deploymentactivity.ActivityLogEntryActionDeployment, ActivityLogEntryResourceTypeJob)
 	activitylog.RegisterFilter("GENERIC_KUBERNETES_RESOURCE_CREATED", activitylog.ActivityLogEntryActionCreated, ActivityLogEntryResourceTypeJob)
 	activitylog.RegisterFilter("GENERIC_KUBERNETES_RESOURCE_UPDATED", activitylog.ActivityLogEntryActionUpdated, ActivityLogEntryResourceTypeJob)
+	activitylog.RegisterFilter("JOB_UPDATED", activitylog.ActivityLogEntryActionUpdated, ActivityLogEntryResourceTypeJob)
 }
 
 type JobTriggeredActivityLogEntry struct {
@@ -110,5 +111,10 @@ type JobCreatedActivityLogEntry struct {
 type JobUpdatedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
 
-	Data *activitylog.GenericKubernetesResourceActivityLogEntryData `json:"data"`
+	Data *JobUpdatedActivityLogEntryData `json:"data"`
+}
+
+type JobUpdatedActivityLogEntryData struct {
+	ChangedFields     []*activitylog.ResourceChangedField `json:"changedFields"`
+	GitHubActorClaims *activitylog.GitHubActorClaims      `json:"gitHubActorClaims,omitempty"`
 }

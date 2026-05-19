@@ -67,6 +67,17 @@ extend type Mutation {
 		"""
 		input: RestartApplicationInput!
 	): RestartApplicationPayload!
+
+	"""
+	Update specific fields on an application. Only provided fields are applied.
+	Changes are temporary and will be overwritten on next deploy.
+	"""
+	updateApplication(
+		"""
+		Input for updating an application.
+		"""
+		input: UpdateApplicationInput!
+	): UpdateApplicationPayload!
 }
 
 extend type TeamInventoryCounts {
@@ -552,6 +563,58 @@ type RestartApplicationPayload {
 	application: Application
 }
 
+input UpdateApplicationInput {
+	"""
+	Name of the application.
+	"""
+	name: String!
+
+	"""
+	Slug of the team that owns the application.
+	"""
+	teamSlug: Slug!
+
+	"""
+	Name of the environment where the application runs.
+	"""
+	environmentName: String!
+
+	"""
+	Update environment variables. Variables are merged with existing ones.
+	"""
+	env: [UpdateEnvVariableInput!]
+
+	"""
+	Update the replica configuration.
+	"""
+	replicas: UpdateApplicationReplicasInput
+}
+
+"""
+Input for updating the replica configuration of an application.
+"""
+input UpdateApplicationReplicasInput {
+	"""
+	Minimum number of replicas.
+	"""
+	min: Int!
+
+	"""
+	Maximum number of replicas.
+	"""
+	max: Int!
+}
+
+"""
+Payload for updating an application.
+"""
+type UpdateApplicationPayload {
+	"""
+	The updated application.
+	"""
+	application: Application
+}
+
 type Ingress {
 	"""
 	URL for the ingress.
@@ -840,6 +903,13 @@ type ApplicationCreatedActivityLogEntry implements ActivityLogEntry & Node {
 	data: GenericKubernetesResourceActivityLogEntryData!
 }
 
+type ApplicationUpdatedActivityLogEntryData {
+	"The fields that changed during the update."
+	changedFields: [ResourceChangedField!]!
+	"GitHub Actions OIDC token claims at the time of the apply. Only present when the request was authenticated via a GitHub token."
+	gitHubActorClaims: GitHubActorClaims
+}
+
 type ApplicationUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
@@ -866,7 +936,7 @@ type ApplicationUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 	environmentName: String
 
 	"Data associated with the update."
-	data: GenericKubernetesResourceActivityLogEntryData!
+	data: ApplicationUpdatedActivityLogEntryData!
 }
 
 extend enum ActivityLogActivityType {
@@ -884,4 +954,9 @@ extend enum ActivityLogActivityType {
 	An application was scaled.
 	"""
 	APPLICATION_SCALED
+
+	"""
+	An application was updated.
+	"""
+	APPLICATION_UPDATED
 }

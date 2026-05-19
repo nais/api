@@ -87,6 +87,9 @@ type JobRunResolver interface {
 type TriggerJobPayloadResolver interface {
 	Job(ctx context.Context, obj *job.TriggerJobPayload) (*job.Job, error)
 }
+type UpdateJobPayloadResolver interface {
+	Job(ctx context.Context, obj *job.UpdateJobPayload) (*job.Job, error)
+}
 
 // endregion ************************** generated!.gotpl **************************
 
@@ -3936,8 +3939,8 @@ func (ec *executionContext) _JobUpdatedActivityLogEntry_data(ctx context.Context
 			return obj.Data, nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *activitylog.GenericKubernetesResourceActivityLogEntryData) graphql.Marshaler {
-			return ec.marshalNGenericKubernetesResourceActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐGenericKubernetesResourceActivityLogEntryData(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *job.JobUpdatedActivityLogEntryData) graphql.Marshaler {
+			return ec.marshalNJobUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobUpdatedActivityLogEntryData(ctx, selections, v)
 		},
 		true,
 		true,
@@ -3950,7 +3953,71 @@ func (ec *executionContext) fieldContext_JobUpdatedActivityLogEntry_data(_ conte
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_GenericKubernetesResourceActivityLogEntryData(ctx, field)
+			return ec.childFields_JobUpdatedActivityLogEntryData(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _JobUpdatedActivityLogEntryData_changedFields(ctx context.Context, field graphql.CollectedField, obj *job.JobUpdatedActivityLogEntryData) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_JobUpdatedActivityLogEntryData_changedFields(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.ChangedFields, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []*activitylog.ResourceChangedField) graphql.Marshaler {
+			return ec.marshalNResourceChangedField2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐResourceChangedFieldᚄ(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_JobUpdatedActivityLogEntryData_changedFields(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "JobUpdatedActivityLogEntryData",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_ResourceChangedField(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _JobUpdatedActivityLogEntryData_gitHubActorClaims(ctx context.Context, field graphql.CollectedField, obj *job.JobUpdatedActivityLogEntryData) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_JobUpdatedActivityLogEntryData_gitHubActorClaims(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.GitHubActorClaims, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *activitylog.GitHubActorClaims) graphql.Marshaler {
+			return ec.marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐGitHubActorClaims(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_JobUpdatedActivityLogEntryData_gitHubActorClaims(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "JobUpdatedActivityLogEntryData",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_GitHubActorClaims(ctx, field)
 		},
 	}
 	return fc, nil
@@ -4130,6 +4197,38 @@ func (ec *executionContext) fieldContext_TriggerJobPayload_jobRun(_ context.Cont
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return ec.childFields_JobRun(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UpdateJobPayload_job(ctx context.Context, field graphql.CollectedField, obj *job.UpdateJobPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_UpdateJobPayload_job(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.UpdateJobPayload().Job(ctx, obj)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *job.Job) graphql.Marshaler {
+			return ec.marshalOJob2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJob(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_UpdateJobPayload_job(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UpdateJobPayload",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_Job(ctx, field)
 		},
 	}
 	return fc, nil
@@ -4354,6 +4453,57 @@ func (ec *executionContext) unmarshalInputTriggerJobInput(ctx context.Context, o
 				return it, err
 			}
 			it.RunName = data
+		}
+	}
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputUpdateJobInput(ctx context.Context, obj any) (job.UpdateJobInput, error) {
+	var it job.UpdateJobInput
+	if obj == nil {
+		return it, nil
+	}
+
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"name", "teamSlug", "environmentName", "env"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "teamSlug":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamSlug"))
+			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TeamSlug = data
+		case "environmentName":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environmentName"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.EnvironmentName = data
+		case "env":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("env"))
+			data, err := ec.unmarshalOUpdateEnvVariableInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐUpdateEnvVariableInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Env = data
 		}
 	}
 	return it, nil
@@ -6730,6 +6880,47 @@ func (ec *executionContext) _JobUpdatedActivityLogEntry(ctx context.Context, sel
 	return out
 }
 
+var jobUpdatedActivityLogEntryDataImplementors = []string{"JobUpdatedActivityLogEntryData"}
+
+func (ec *executionContext) _JobUpdatedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, obj *job.JobUpdatedActivityLogEntryData) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, jobUpdatedActivityLogEntryDataImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("JobUpdatedActivityLogEntryData")
+		case "changedFields":
+			out.Values[i] = ec._JobUpdatedActivityLogEntryData_changedFields(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "gitHubActorClaims":
+			out.Values[i] = ec._JobUpdatedActivityLogEntryData_gitHubActorClaims(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var teamInventoryCountJobsImplementors = []string{"TeamInventoryCountJobs"}
 
 func (ec *executionContext) _TeamInventoryCountJobs(ctx context.Context, sel ast.SelectionSet, obj *job.TeamInventoryCountJobs) graphql.Marshaler {
@@ -6835,6 +7026,73 @@ func (ec *executionContext) _TriggerJobPayload(ctx context.Context, sel ast.Sele
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "jobRun":
 			out.Values[i] = ec._TriggerJobPayload_jobRun(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var updateJobPayloadImplementors = []string{"UpdateJobPayload"}
+
+func (ec *executionContext) _UpdateJobPayload(ctx context.Context, sel ast.SelectionSet, obj *job.UpdateJobPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, updateJobPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("UpdateJobPayload")
+		case "job":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._UpdateJobPayload_job(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -7234,6 +7492,16 @@ func (ec *executionContext) marshalNJobStateFacetItem2ᚕgithubᚗcomᚋnaisᚋa
 	return ret
 }
 
+func (ec *executionContext) marshalNJobUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobUpdatedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *job.JobUpdatedActivityLogEntryData) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._JobUpdatedActivityLogEntryData(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNTeamInventoryCountJobs2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐTeamInventoryCountJobs(ctx context.Context, sel ast.SelectionSet, v job.TeamInventoryCountJobs) graphql.Marshaler {
 	return ec._TeamInventoryCountJobs(ctx, sel, &v)
 }
@@ -7265,6 +7533,25 @@ func (ec *executionContext) marshalNTriggerJobPayload2ᚖgithubᚗcomᚋnaisᚋa
 		return graphql.Null
 	}
 	return ec._TriggerJobPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNUpdateJobInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐUpdateJobInput(ctx context.Context, v any) (job.UpdateJobInput, error) {
+	res, err := ec.unmarshalInputUpdateJobInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNUpdateJobPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐUpdateJobPayload(ctx context.Context, sel ast.SelectionSet, v job.UpdateJobPayload) graphql.Marshaler {
+	return ec._UpdateJobPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNUpdateJobPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐUpdateJobPayload(ctx context.Context, sel ast.SelectionSet, v *job.UpdateJobPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._UpdateJobPayload(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOJob2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJob(ctx context.Context, sel ast.SelectionSet, v *job.Job) graphql.Marshaler {

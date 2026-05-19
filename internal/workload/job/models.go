@@ -491,6 +491,19 @@ type TriggerJobPayload struct {
 	JobRun          *JobRun   `json:"jobRun"`
 }
 
+type UpdateJobInput struct {
+	Name            string                             `json:"name"`
+	TeamSlug        slug.Slug                          `json:"teamSlug"`
+	EnvironmentName string                             `json:"environmentName"`
+	Env             []*workload.UpdateEnvVariableInput `json:"env,omitempty"`
+}
+
+type UpdateJobPayload struct {
+	TeamSlug        slug.Slug `json:"-"`
+	JobName         string    `json:"-"`
+	EnvironmentName string    `json:"-"`
+}
+
 func statusMessage(job *batchv1.Job) string {
 	if failedTime(job) != nil {
 		return fmt.Sprintf("Run failed after %d attempts", job.Status.Failed)

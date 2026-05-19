@@ -129,6 +129,8 @@ type ResolverRoot interface {
 	UnleashInstance() UnleashInstanceResolver
 	UnleashInstanceMetrics() UnleashInstanceMetricsResolver
 	UnleashReleaseChannelIssue() UnleashReleaseChannelIssueResolver
+	UpdateApplicationPayload() UpdateApplicationPayloadResolver
+	UpdateJobPayload() UpdateJobPayloadResolver
 	UpdateTeamEnvironmentPayload() UpdateTeamEnvironmentPayloadResolver
 	User() UserResolver
 	Valkey() ValkeyResolver
@@ -401,6 +403,11 @@ type ComplexityRoot struct {
 		ResourceName    func(childComplexity int) int
 		ResourceType    func(childComplexity int) int
 		TeamSlug        func(childComplexity int) int
+	}
+
+	ApplicationUpdatedActivityLogEntryData struct {
+		ChangedFields     func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
 	}
 
 	AssignRoleToServiceAccountPayload struct {
@@ -1280,6 +1287,11 @@ type ComplexityRoot struct {
 		TeamSlug        func(childComplexity int) int
 	}
 
+	JobUpdatedActivityLogEntryData struct {
+		ChangedFields     func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+	}
+
 	KafkaCredentials struct {
 		AccessCert     func(childComplexity int) int
 		AccessKey      func(childComplexity int) int
@@ -1467,8 +1479,10 @@ type ComplexityRoot struct {
 		StartOpenSearchMaintenance       func(childComplexity int, input servicemaintenance.StartOpenSearchMaintenanceInput) int
 		StartValkeyMaintenance           func(childComplexity int, input servicemaintenance.StartValkeyMaintenanceInput) int
 		TriggerJob                       func(childComplexity int, input job.TriggerJobInput) int
+		UpdateApplication                func(childComplexity int, input application.UpdateApplicationInput) int
 		UpdateConfigValue                func(childComplexity int, input config.UpdateConfigValueInput) int
 		UpdateImageVulnerability         func(childComplexity int, input vulnerability.UpdateImageVulnerabilityInput) int
+		UpdateJob                        func(childComplexity int, input job.UpdateJobInput) int
 		UpdateOpenSearch                 func(childComplexity int, input opensearch.UpdateOpenSearchInput) int
 		UpdateSecretValue                func(childComplexity int, input secret.UpdateSecretValueInput) int
 		UpdateServiceAccount             func(childComplexity int, input serviceaccount.UpdateServiceAccountInput) int
@@ -3051,12 +3065,20 @@ type ComplexityRoot struct {
 		Unleash             func(childComplexity int) int
 	}
 
+	UpdateApplicationPayload struct {
+		Application func(childComplexity int) int
+	}
+
 	UpdateConfigValuePayload struct {
 		Config func(childComplexity int) int
 	}
 
 	UpdateImageVulnerabilityPayload struct {
 		Vulnerability func(childComplexity int) int
+	}
+
+	UpdateJobPayload struct {
+		Job func(childComplexity int) int
 	}
 
 	UpdateOpenSearchPayload struct {
@@ -4589,6 +4611,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ApplicationUpdatedActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "ApplicationUpdatedActivityLogEntryData.changedFields":
+		if e.ComplexityRoot.ApplicationUpdatedActivityLogEntryData.ChangedFields == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationUpdatedActivityLogEntryData.ChangedFields(childComplexity), true
+
+	case "ApplicationUpdatedActivityLogEntryData.gitHubActorClaims":
+		if e.ComplexityRoot.ApplicationUpdatedActivityLogEntryData.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationUpdatedActivityLogEntryData.GitHubActorClaims(childComplexity), true
 
 	case "AssignRoleToServiceAccountPayload.serviceAccount":
 		if e.ComplexityRoot.AssignRoleToServiceAccountPayload.ServiceAccount == nil {
@@ -8081,6 +8117,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.JobUpdatedActivityLogEntry.TeamSlug(childComplexity), true
 
+	case "JobUpdatedActivityLogEntryData.changedFields":
+		if e.ComplexityRoot.JobUpdatedActivityLogEntryData.ChangedFields == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobUpdatedActivityLogEntryData.ChangedFields(childComplexity), true
+
+	case "JobUpdatedActivityLogEntryData.gitHubActorClaims":
+		if e.ComplexityRoot.JobUpdatedActivityLogEntryData.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobUpdatedActivityLogEntryData.GitHubActorClaims(childComplexity), true
+
 	case "KafkaCredentials.accessCert":
 		if e.ComplexityRoot.KafkaCredentials.AccessCert == nil {
 			break
@@ -9166,6 +9216,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Mutation.TriggerJob(childComplexity, args["input"].(job.TriggerJobInput)), true
 
+	case "Mutation.updateApplication":
+		if e.ComplexityRoot.Mutation.UpdateApplication == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateApplication_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Mutation.UpdateApplication(childComplexity, args["input"].(application.UpdateApplicationInput)), true
+
 	case "Mutation.updateConfigValue":
 		if e.ComplexityRoot.Mutation.UpdateConfigValue == nil {
 			break
@@ -9189,6 +9251,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Mutation.UpdateImageVulnerability(childComplexity, args["input"].(vulnerability.UpdateImageVulnerabilityInput)), true
+
+	case "Mutation.updateJob":
+		if e.ComplexityRoot.Mutation.UpdateJob == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateJob_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Mutation.UpdateJob(childComplexity, args["input"].(job.UpdateJobInput)), true
 
 	case "Mutation.updateOpenSearch":
 		if e.ComplexityRoot.Mutation.UpdateOpenSearch == nil {
@@ -16379,6 +16453,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.UnleashReleaseChannelIssue.Unleash(childComplexity), true
 
+	case "UpdateApplicationPayload.application":
+		if e.ComplexityRoot.UpdateApplicationPayload.Application == nil {
+			break
+		}
+
+		return e.ComplexityRoot.UpdateApplicationPayload.Application(childComplexity), true
+
 	case "UpdateConfigValuePayload.config":
 		if e.ComplexityRoot.UpdateConfigValuePayload.Config == nil {
 			break
@@ -16392,6 +16473,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.UpdateImageVulnerabilityPayload.Vulnerability(childComplexity), true
+
+	case "UpdateJobPayload.job":
+		if e.ComplexityRoot.UpdateJobPayload.Job == nil {
+			break
+		}
+
+		return e.ComplexityRoot.UpdateJobPayload.Job(childComplexity), true
 
 	case "UpdateOpenSearchPayload.openSearch":
 		if e.ComplexityRoot.UpdateOpenSearchPayload.OpenSearch == nil {
@@ -18029,8 +18117,12 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputTeamVulnerabilitySummaryFilter,
 		ec.unmarshalInputTeamWorkloadsFilter,
 		ec.unmarshalInputTriggerJobInput,
+		ec.unmarshalInputUpdateApplicationInput,
+		ec.unmarshalInputUpdateApplicationReplicasInput,
 		ec.unmarshalInputUpdateConfigValueInput,
+		ec.unmarshalInputUpdateEnvVariableInput,
 		ec.unmarshalInputUpdateImageVulnerabilityInput,
+		ec.unmarshalInputUpdateJobInput,
 		ec.unmarshalInputUpdateOpenSearchInput,
 		ec.unmarshalInputUpdateSecretValueInput,
 		ec.unmarshalInputUpdateServiceAccountInput,
@@ -18883,6 +18975,17 @@ extend type Mutation {
 		"""
 		input: RestartApplicationInput!
 	): RestartApplicationPayload!
+
+	"""
+	Update specific fields on an application. Only provided fields are applied.
+	Changes are temporary and will be overwritten on next deploy.
+	"""
+	updateApplication(
+		"""
+		Input for updating an application.
+		"""
+		input: UpdateApplicationInput!
+	): UpdateApplicationPayload!
 }
 
 extend type TeamInventoryCounts {
@@ -19368,6 +19471,58 @@ type RestartApplicationPayload {
 	application: Application
 }
 
+input UpdateApplicationInput {
+	"""
+	Name of the application.
+	"""
+	name: String!
+
+	"""
+	Slug of the team that owns the application.
+	"""
+	teamSlug: Slug!
+
+	"""
+	Name of the environment where the application runs.
+	"""
+	environmentName: String!
+
+	"""
+	Update environment variables. Variables are merged with existing ones.
+	"""
+	env: [UpdateEnvVariableInput!]
+
+	"""
+	Update the replica configuration.
+	"""
+	replicas: UpdateApplicationReplicasInput
+}
+
+"""
+Input for updating the replica configuration of an application.
+"""
+input UpdateApplicationReplicasInput {
+	"""
+	Minimum number of replicas.
+	"""
+	min: Int!
+
+	"""
+	Maximum number of replicas.
+	"""
+	max: Int!
+}
+
+"""
+Payload for updating an application.
+"""
+type UpdateApplicationPayload {
+	"""
+	The updated application.
+	"""
+	application: Application
+}
+
 type Ingress {
 	"""
 	URL for the ingress.
@@ -19656,6 +19811,13 @@ type ApplicationCreatedActivityLogEntry implements ActivityLogEntry & Node {
 	data: GenericKubernetesResourceActivityLogEntryData!
 }
 
+type ApplicationUpdatedActivityLogEntryData {
+	"The fields that changed during the update."
+	changedFields: [ResourceChangedField!]!
+	"GitHub Actions OIDC token claims at the time of the apply. Only present when the request was authenticated via a GitHub token."
+	gitHubActorClaims: GitHubActorClaims
+}
+
 type ApplicationUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
@@ -19682,7 +19844,7 @@ type ApplicationUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 	environmentName: String
 
 	"Data associated with the update."
-	data: GenericKubernetesResourceActivityLogEntryData!
+	data: ApplicationUpdatedActivityLogEntryData!
 }
 
 extend enum ActivityLogActivityType {
@@ -19700,6 +19862,11 @@ extend enum ActivityLogActivityType {
 	An application was scaled.
 	"""
 	APPLICATION_SCALED
+
+	"""
+	An application was updated.
+	"""
+	APPLICATION_UPDATED
 }
 `, BuiltIn: false},
 	{Name: "../schema/apply.graphqls", Input: `extend enum ActivityLogActivityType {
@@ -22000,6 +22167,17 @@ extend type Mutation {
 
 	"Trigger a job"
 	triggerJob(input: TriggerJobInput!): TriggerJobPayload!
+
+	"""
+	Update specific fields on a job. Only provided fields are applied.
+	Changes are temporary and will be overwritten on next deploy.
+	"""
+	updateJob(
+		"""
+		Input for updating a job.
+		"""
+		input: UpdateJobInput!
+	): UpdateJobPayload!
 }
 
 extend type TeamEnvironment {
@@ -22611,7 +22789,14 @@ type JobUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 	environmentName: String
 
 	"Data associated with the update."
-	data: GenericKubernetesResourceActivityLogEntryData!
+	data: JobUpdatedActivityLogEntryData!
+}
+
+type JobUpdatedActivityLogEntryData {
+	"The fields that changed during the update."
+	changedFields: [ResourceChangedField!]!
+	"GitHub Actions OIDC token claims at the time of the apply. Only present when the request was authenticated via a GitHub token."
+	gitHubActorClaims: GitHubActorClaims
 }
 
 extend enum ActivityLogActivityType {
@@ -22623,6 +22808,41 @@ extend enum ActivityLogActivityType {
 
 	"Activity log entries related to job triggering."
 	JOB_TRIGGERED
+
+	"Activity log entries related to job updates."
+	JOB_UPDATED
+}
+
+input UpdateJobInput {
+	"""
+	Name of the job.
+	"""
+	name: String!
+
+	"""
+	Slug of the team that owns the job.
+	"""
+	teamSlug: Slug!
+
+	"""
+	Name of the environment where the job runs.
+	"""
+	environmentName: String!
+
+	"""
+	Update environment variables. Variables are merged with existing ones.
+	"""
+	env: [UpdateEnvVariableInput!]
+}
+
+"""
+Payload for updating a job.
+"""
+type UpdateJobPayload {
+	"""
+	The updated job.
+	"""
+	job: Job
 }
 `, BuiltIn: false},
 	{Name: "../schema/kafka.graphqls", Input: `extend type Mutation {
@@ -30243,6 +30463,21 @@ input TeamWorkloadsFilter {
 	"""
 	environments: [String!]
 }
+
+"""
+Input for setting an environment variable on a workload. To remove a variable, set value to null.
+"""
+input UpdateEnvVariableInput {
+	"""
+	Name of the environment variable.
+	"""
+	name: String!
+
+	"""
+	Value of the environment variable. Set to null to remove the variable.
+	"""
+	value: String
+}
 `, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
@@ -30623,6 +30858,16 @@ func (ec *executionContext) childFields_ApplicationStateFacetItem(ctx context.Co
 		return ec.fieldContext_ApplicationStateFacetItem_count(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type ApplicationStateFacetItem", field.Name)
+}
+
+func (ec *executionContext) childFields_ApplicationUpdatedActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "changedFields":
+		return ec.fieldContext_ApplicationUpdatedActivityLogEntryData_changedFields(ctx, field)
+	case "gitHubActorClaims":
+		return ec.fieldContext_ApplicationUpdatedActivityLogEntryData_gitHubActorClaims(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ApplicationUpdatedActivityLogEntryData", field.Name)
 }
 
 func (ec *executionContext) childFields_AssignRoleToServiceAccountPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -31967,6 +32212,16 @@ func (ec *executionContext) childFields_JobStateFacetItem(ctx context.Context, f
 		return ec.fieldContext_JobStateFacetItem_count(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type JobStateFacetItem", field.Name)
+}
+
+func (ec *executionContext) childFields_JobUpdatedActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "changedFields":
+		return ec.fieldContext_JobUpdatedActivityLogEntryData_changedFields(ctx, field)
+	case "gitHubActorClaims":
+		return ec.fieldContext_JobUpdatedActivityLogEntryData_gitHubActorClaims(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type JobUpdatedActivityLogEntryData", field.Name)
 }
 
 func (ec *executionContext) childFields_KafkaCredentials(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -34179,6 +34434,14 @@ func (ec *executionContext) childFields_UnleashReleaseChannel(ctx context.Contex
 	return nil, fmt.Errorf("no field named %q was found under type UnleashReleaseChannel", field.Name)
 }
 
+func (ec *executionContext) childFields_UpdateApplicationPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "application":
+		return ec.fieldContext_UpdateApplicationPayload_application(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type UpdateApplicationPayload", field.Name)
+}
+
 func (ec *executionContext) childFields_UpdateConfigValuePayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "config":
@@ -34193,6 +34456,14 @@ func (ec *executionContext) childFields_UpdateImageVulnerabilityPayload(ctx cont
 		return ec.fieldContext_UpdateImageVulnerabilityPayload_vulnerability(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type UpdateImageVulnerabilityPayload", field.Name)
+}
+
+func (ec *executionContext) childFields_UpdateJobPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "job":
+		return ec.fieldContext_UpdateJobPayload_job(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type UpdateJobPayload", field.Name)
 }
 
 func (ec *executionContext) childFields_UpdateOpenSearchPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
