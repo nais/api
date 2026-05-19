@@ -29,7 +29,7 @@ type BucketResolver interface {
 	Workload(ctx context.Context, obj *bucket.Bucket) (workload.Workload, error)
 }
 type BucketConnectionResolver interface {
-	Facets(ctx context.Context, obj *bucket.BucketConnection) (*bucket.BucketFacets, error)
+	Facets(ctx context.Context, obj *pagination.FacetableConnection[*bucket.Bucket, *bucket.BucketFilter]) (*bucket.BucketFacets, error)
 }
 
 // endregion ************************** generated!.gotpl **************************
@@ -287,7 +287,7 @@ func (ec *executionContext) fieldContext_Bucket_workload(_ context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _BucketConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *bucket.BucketConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _BucketConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*bucket.Bucket, *bucket.BucketFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -319,7 +319,7 @@ func (ec *executionContext) fieldContext_BucketConnection_pageInfo(_ context.Con
 	return fc, nil
 }
 
-func (ec *executionContext) _BucketConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *bucket.BucketConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _BucketConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*bucket.Bucket, *bucket.BucketFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -351,7 +351,7 @@ func (ec *executionContext) fieldContext_BucketConnection_nodes(_ context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _BucketConnection_edges(ctx context.Context, field graphql.CollectedField, obj *bucket.BucketConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _BucketConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*bucket.Bucket, *bucket.BucketFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -383,7 +383,7 @@ func (ec *executionContext) fieldContext_BucketConnection_edges(_ context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _BucketConnection_facets(ctx context.Context, field graphql.CollectedField, obj *bucket.BucketConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _BucketConnection_facets(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*bucket.Bucket, *bucket.BucketFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -813,7 +813,7 @@ func (ec *executionContext) _Bucket(ctx context.Context, sel ast.SelectionSet, o
 
 var bucketConnectionImplementors = []string{"BucketConnection"}
 
-func (ec *executionContext) _BucketConnection(ctx context.Context, sel ast.SelectionSet, obj *bucket.BucketConnection) graphql.Marshaler {
+func (ec *executionContext) _BucketConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.FacetableConnection[*bucket.Bucket, *bucket.BucketFilter]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, bucketConnectionImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1049,11 +1049,11 @@ func (ec *executionContext) marshalNBucket2ᚖgithubᚗcomᚋnaisᚋapiᚋintern
 	return ec._Bucket(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNBucketConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbucketᚐBucketConnection(ctx context.Context, sel ast.SelectionSet, v bucket.BucketConnection) graphql.Marshaler {
+func (ec *executionContext) marshalNBucketConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx context.Context, sel ast.SelectionSet, v pagination.FacetableConnection[*bucket.Bucket, *bucket.BucketFilter]) graphql.Marshaler {
 	return ec._BucketConnection(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNBucketConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbucketᚐBucketConnection(ctx context.Context, sel ast.SelectionSet, v *bucket.BucketConnection) graphql.Marshaler {
+func (ec *executionContext) marshalNBucketConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.FacetableConnection[*bucket.Bucket, *bucket.BucketFilter]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")

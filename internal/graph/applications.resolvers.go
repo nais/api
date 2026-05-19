@@ -103,8 +103,8 @@ func (r *applicationResolver) History(ctx context.Context, obj *application.Appl
 	return instancegroup.ImageHistory(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Name)
 }
 
-func (r *applicationConnectionResolver) Facets(ctx context.Context, obj *application.ApplicationConnection) (*application.ApplicationFacets, error) {
-	return application.ComputeFacets(ctx, obj.GetAllApps(), obj.GetFilter())
+func (r *applicationConnectionResolver) Facets(ctx context.Context, obj *pagination.FacetableConnection[*application.Application, *application.TeamApplicationsFilter]) (*application.ApplicationFacets, error) {
+	return application.ComputeFacets(ctx, obj.GetAllItems(), obj.GetFilter())
 }
 
 func (r *deleteApplicationPayloadResolver) Team(ctx context.Context, obj *application.DeleteApplicationPayload) (*team.Team, error) {
@@ -173,7 +173,7 @@ func (r *restartApplicationPayloadResolver) Application(ctx context.Context, obj
 	return application.Get(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ApplicationName)
 }
 
-func (r *teamResolver) Applications(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *application.ApplicationOrder, filter *application.TeamApplicationsFilter) (*application.ApplicationConnection, error) {
+func (r *teamResolver) Applications(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *application.ApplicationOrder, filter *application.TeamApplicationsFilter) (*pagination.FacetableConnection[*application.Application, *application.TeamApplicationsFilter], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
@@ -183,22 +183,11 @@ func (r *teamResolver) Applications(ctx context.Context, obj *team.Team, first *
 	// Pass nil orderBy to avoid expensive sorting (e.g. STATE) on items that may be filtered out.
 	unfilteredApps := application.ListAllForTeam(ctx, obj.Slug, nil, nil)
 
-	// Apply filter for the actual result set.
-	filteredApps := unfilteredApps
-	if filter != nil {
-		filteredApps = application.SortFilter.Filter(ctx, unfilteredApps, filter)
-	}
-
-	// Sort only the filtered result set.
 	if orderBy == nil {
 		orderBy = &application.ApplicationOrder{Field: "NAME", Direction: model.OrderDirectionAsc}
 	}
-	application.SortFilter.Sort(ctx, filteredApps, orderBy.Field, orderBy.Direction)
 
-	apps := pagination.Slice(filteredApps, page)
-	conn := pagination.NewConnection(apps, page, len(filteredApps))
-
-	return application.NewApplicationConnection(conn, unfilteredApps, filter), nil
+	return application.SortFilter.PaginatedList(ctx, unfilteredApps, page, orderBy.Field, orderBy.Direction, filter), nil
 }
 
 func (r *teamEnvironmentResolver) Application(ctx context.Context, obj *team.TeamEnvironment, name string) (*application.Application, error) {

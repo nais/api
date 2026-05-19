@@ -83,12 +83,7 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 		}
 	}
 
-	filtered := SortFilterOpenSearch.Filter(ctx, all, filter)
-	SortFilterOpenSearch.Sort(ctx, filtered, orderBy.Field, orderBy.Direction)
-
-	instances := pagination.Slice(filtered, page)
-	conn := pagination.NewConnection(instances, page, len(filtered))
-	return NewOpenSearchConnection(conn, all, filter), nil
+	return SortFilterOpenSearch.PaginatedList(ctx, all, page, orderBy.Field, orderBy.Direction, filter), nil
 }
 
 func ListAllForTeam(ctx context.Context, teamSlug slug.Slug) []*OpenSearch {

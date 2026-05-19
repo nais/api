@@ -38,23 +38,7 @@ type OpenSearchFilter struct {
 	Tiers        []OpenSearchTier `json:"tiers"`
 }
 
-type OpenSearchConnection struct {
-	pagination.Connection[*OpenSearch]
-
-	allInstances []*OpenSearch
-	filter       *OpenSearchFilter
-}
-
-func (c *OpenSearchConnection) GetAllInstances() []*OpenSearch { return c.allInstances }
-func (c *OpenSearchConnection) GetFilter() *OpenSearchFilter   { return c.filter }
-
-func NewOpenSearchConnection(conn *pagination.Connection[*OpenSearch], allInstances []*OpenSearch, filter *OpenSearchFilter) *OpenSearchConnection {
-	return &OpenSearchConnection{
-		Connection:   *conn,
-		allInstances: allInstances,
-		filter:       filter,
-	}
-}
+type OpenSearchConnection = pagination.FacetableConnection[*OpenSearch, *OpenSearchFilter]
 
 type OpenSearchFacets struct {
 	Environments []model.EnvironmentFacetItem `json:"environments"`

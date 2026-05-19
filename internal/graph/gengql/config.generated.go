@@ -32,15 +32,15 @@ type ConfigResolver interface {
 	TeamEnvironment(ctx context.Context, obj *config.Config) (*team.TeamEnvironment, error)
 	Team(ctx context.Context, obj *config.Config) (*team.Team, error)
 	Values(ctx context.Context, obj *config.Config) ([]*config.ConfigValue, error)
-	Applications(ctx context.Context, obj *config.Config, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*application.ApplicationConnection, error)
-	Jobs(ctx context.Context, obj *config.Config, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*job.JobConnection, error)
+	Applications(ctx context.Context, obj *config.Config, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.FacetableConnection[*application.Application, *application.TeamApplicationsFilter], error)
+	Jobs(ctx context.Context, obj *config.Config, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.FacetableConnection[*job.Job, *job.TeamJobsFilter], error)
 	Workloads(ctx context.Context, obj *config.Config, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[workload.Workload], error)
 
 	LastModifiedBy(ctx context.Context, obj *config.Config) (*user.User, error)
 	ActivityLog(ctx context.Context, obj *config.Config, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*activitylog.ActivityLogEntryConnection, error)
 }
 type ConfigConnectionResolver interface {
-	Facets(ctx context.Context, obj *config.ConfigConnection) (*config.ConfigFacets, error)
+	Facets(ctx context.Context, obj *pagination.FacetableConnection[*config.Config, *config.ConfigFilter]) (*config.ConfigFacets, error)
 }
 
 // endregion ************************** generated!.gotpl **************************
@@ -402,8 +402,8 @@ func (ec *executionContext) _Config_applications(ctx context.Context, field grap
 			return ec.Resolvers.Config().Applications(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *application.ApplicationConnection) graphql.Marshaler {
-			return ec.marshalNApplicationConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplicationConnection(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *pagination.FacetableConnection[*application.Application, *application.TeamApplicationsFilter]) graphql.Marshaler {
+			return ec.marshalNApplicationConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, selections, v)
 		},
 		true,
 		true,
@@ -446,8 +446,8 @@ func (ec *executionContext) _Config_jobs(ctx context.Context, field graphql.Coll
 			return ec.Resolvers.Config().Jobs(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *job.JobConnection) graphql.Marshaler {
-			return ec.marshalNJobConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobConnection(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *pagination.FacetableConnection[*job.Job, *job.TeamJobsFilter]) graphql.Marshaler {
+			return ec.marshalNJobConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, selections, v)
 		},
 		true,
 		true,
@@ -620,7 +620,7 @@ func (ec *executionContext) fieldContext_Config_activityLog(ctx context.Context,
 	return fc, nil
 }
 
-func (ec *executionContext) _ConfigConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *config.ConfigConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _ConfigConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*config.Config, *config.ConfigFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -652,7 +652,7 @@ func (ec *executionContext) fieldContext_ConfigConnection_pageInfo(_ context.Con
 	return fc, nil
 }
 
-func (ec *executionContext) _ConfigConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *config.ConfigConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _ConfigConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*config.Config, *config.ConfigFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -684,7 +684,7 @@ func (ec *executionContext) fieldContext_ConfigConnection_nodes(_ context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _ConfigConnection_edges(ctx context.Context, field graphql.CollectedField, obj *config.ConfigConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _ConfigConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*config.Config, *config.ConfigFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -716,7 +716,7 @@ func (ec *executionContext) fieldContext_ConfigConnection_edges(_ context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _ConfigConnection_facets(ctx context.Context, field graphql.CollectedField, obj *config.ConfigConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _ConfigConnection_facets(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*config.Config, *config.ConfigFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -2514,7 +2514,7 @@ func (ec *executionContext) _Config(ctx context.Context, sel ast.SelectionSet, o
 
 var configConnectionImplementors = []string{"ConfigConnection"}
 
-func (ec *executionContext) _ConfigConnection(ctx context.Context, sel ast.SelectionSet, obj *config.ConfigConnection) graphql.Marshaler {
+func (ec *executionContext) _ConfigConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.FacetableConnection[*config.Config, *config.ConfigFilter]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, configConnectionImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -3267,11 +3267,11 @@ func (ec *executionContext) marshalNConfig2ᚖgithubᚗcomᚋnaisᚋapiᚋintern
 	return ec._Config(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNConfigConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigConnection(ctx context.Context, sel ast.SelectionSet, v config.ConfigConnection) graphql.Marshaler {
+func (ec *executionContext) marshalNConfigConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx context.Context, sel ast.SelectionSet, v pagination.FacetableConnection[*config.Config, *config.ConfigFilter]) graphql.Marshaler {
 	return ec._ConfigConnection(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNConfigConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigConnection(ctx context.Context, sel ast.SelectionSet, v *config.ConfigConnection) graphql.Marshaler {
+func (ec *executionContext) marshalNConfigConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.FacetableConnection[*config.Config, *config.ConfigFilter]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")

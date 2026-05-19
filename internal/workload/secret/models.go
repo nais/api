@@ -24,23 +24,7 @@ const (
 
 type SecretEdge = pagination.Edge[*Secret]
 
-type SecretConnection struct {
-	pagination.Connection[*Secret]
-
-	allSecrets []*Secret
-	filter     *SecretFilter
-}
-
-func (c *SecretConnection) GetAllSecrets() []*Secret { return c.allSecrets }
-func (c *SecretConnection) GetFilter() *SecretFilter { return c.filter }
-
-func NewSecretConnection(conn *pagination.Connection[*Secret], allSecrets []*Secret, filter *SecretFilter) *SecretConnection {
-	return &SecretConnection{
-		Connection: *conn,
-		allSecrets: allSecrets,
-		filter:     filter,
-	}
-}
+type SecretConnection = pagination.FacetableConnection[*Secret, *SecretFilter]
 
 type SecretFacets struct {
 	Environments []model.EnvironmentFacetItem `json:"environments"`

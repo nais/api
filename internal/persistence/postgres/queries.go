@@ -93,12 +93,7 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 		}
 	}
 
-	filtered := SortFilterPostgresInstance.Filter(ctx, all, filter)
-	SortFilterPostgresInstance.Sort(ctx, filtered, orderBy.Field, orderBy.Direction)
-
-	instances := pagination.Slice(filtered, page)
-	conn := pagination.NewConnection(instances, page, len(filtered))
-	return NewPostgresInstanceConnection(conn, all, filter), nil
+	return SortFilterPostgresInstance.PaginatedList(ctx, all, page, orderBy.Field, orderBy.Direction, filter), nil
 }
 
 func ListAllForTeam(ctx context.Context, teamSlug slug.Slug) []*PostgresInstance {

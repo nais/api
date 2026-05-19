@@ -23,23 +23,7 @@ type (
 	BucketCorsEdge       = pagination.Edge[*BucketCors]
 )
 
-type BucketConnection struct {
-	pagination.Connection[*Bucket]
-
-	allBuckets []*Bucket
-	filter     *BucketFilter
-}
-
-func (c *BucketConnection) GetAllBuckets() []*Bucket { return c.allBuckets }
-func (c *BucketConnection) GetFilter() *BucketFilter { return c.filter }
-
-func NewBucketConnection(conn *pagination.Connection[*Bucket], allBuckets []*Bucket, filter *BucketFilter) *BucketConnection {
-	return &BucketConnection{
-		Connection: *conn,
-		allBuckets: allBuckets,
-		filter:     filter,
-	}
-}
+type BucketConnection = pagination.FacetableConnection[*Bucket, *BucketFilter]
 
 type BucketFacets struct {
 	Environments []model.EnvironmentFacetItem `json:"environments"`

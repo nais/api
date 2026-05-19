@@ -13,9 +13,9 @@ import (
 	"github.com/nais/api/internal/workload/job"
 )
 
-func (r *applicationResolver) PostgresInstances(ctx context.Context, obj *application.Application, orderBy *postgres.PostgresInstanceOrder) (*postgres.PostgresInstanceConnection, error) {
+func (r *applicationResolver) PostgresInstances(ctx context.Context, obj *application.Application, orderBy *postgres.PostgresInstanceOrder) (*pagination.FacetableConnection[*postgres.PostgresInstance, *postgres.PostgresInstanceFilter], error) {
 	if obj.Spec.Postgres == nil || obj.Spec.Postgres.ClusterName == "" {
-		return postgres.NewPostgresInstanceConnection(pagination.EmptyConnection[*postgres.PostgresInstance](), nil, nil), nil
+		return pagination.NewFacetableConnection(pagination.EmptyConnection[*postgres.PostgresInstance](), nil, (*postgres.PostgresInstanceFilter)(nil)), nil
 	}
 
 	instance, err := postgres.GetForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Spec.Postgres.ClusterName)
@@ -24,16 +24,16 @@ func (r *applicationResolver) PostgresInstances(ctx context.Context, obj *applic
 	}
 
 	if instance == nil {
-		return postgres.NewPostgresInstanceConnection(pagination.EmptyConnection[*postgres.PostgresInstance](), nil, nil), nil
+		return pagination.NewFacetableConnection(pagination.EmptyConnection[*postgres.PostgresInstance](), nil, (*postgres.PostgresInstanceFilter)(nil)), nil
 	}
 
 	instances := []*postgres.PostgresInstance{instance}
-	return postgres.NewPostgresInstanceConnection(pagination.NewConnectionWithoutPagination(instances), instances, nil), nil
+	return pagination.NewFacetableConnection(pagination.NewConnectionWithoutPagination(instances), instances, (*postgres.PostgresInstanceFilter)(nil)), nil
 }
 
-func (r *jobResolver) PostgresInstances(ctx context.Context, obj *job.Job, orderBy *postgres.PostgresInstanceOrder) (*postgres.PostgresInstanceConnection, error) {
+func (r *jobResolver) PostgresInstances(ctx context.Context, obj *job.Job, orderBy *postgres.PostgresInstanceOrder) (*pagination.FacetableConnection[*postgres.PostgresInstance, *postgres.PostgresInstanceFilter], error) {
 	if obj.Spec.Postgres == nil || obj.Spec.Postgres.ClusterName == "" {
-		return postgres.NewPostgresInstanceConnection(pagination.EmptyConnection[*postgres.PostgresInstance](), nil, nil), nil
+		return pagination.NewFacetableConnection(pagination.EmptyConnection[*postgres.PostgresInstance](), nil, (*postgres.PostgresInstanceFilter)(nil)), nil
 	}
 
 	instance, err := postgres.GetForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Spec.Postgres.ClusterName)
@@ -42,11 +42,11 @@ func (r *jobResolver) PostgresInstances(ctx context.Context, obj *job.Job, order
 	}
 
 	if instance == nil {
-		return postgres.NewPostgresInstanceConnection(pagination.EmptyConnection[*postgres.PostgresInstance](), nil, nil), nil
+		return pagination.NewFacetableConnection(pagination.EmptyConnection[*postgres.PostgresInstance](), nil, (*postgres.PostgresInstanceFilter)(nil)), nil
 	}
 
 	instances := []*postgres.PostgresInstance{instance}
-	return postgres.NewPostgresInstanceConnection(pagination.NewConnectionWithoutPagination(instances), instances, nil), nil
+	return pagination.NewFacetableConnection(pagination.NewConnectionWithoutPagination(instances), instances, (*postgres.PostgresInstanceFilter)(nil)), nil
 }
 
 func (r *mutationResolver) GrantPostgresAccess(ctx context.Context, input postgres.GrantPostgresAccessInput) (*postgres.GrantPostgresAccessPayload, error) {
@@ -97,11 +97,11 @@ func (r *postgresInstanceAuditResolver) URL(ctx context.Context, obj *postgres.P
 	return postgres.GetAuditURL(ctx, obj)
 }
 
-func (r *postgresInstanceConnectionResolver) Facets(ctx context.Context, obj *postgres.PostgresInstanceConnection) (*postgres.PostgresInstanceFacets, error) {
-	return postgres.ComputeFacets(ctx, obj.GetAllInstances(), obj.GetFilter()), nil
+func (r *postgresInstanceConnectionResolver) Facets(ctx context.Context, obj *pagination.FacetableConnection[*postgres.PostgresInstance, *postgres.PostgresInstanceFilter]) (*postgres.PostgresInstanceFacets, error) {
+	return postgres.ComputeFacets(ctx, obj.GetAllItems(), obj.GetFilter()), nil
 }
 
-func (r *teamResolver) PostgresInstances(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *postgres.PostgresInstanceOrder, filter *postgres.PostgresInstanceFilter) (*postgres.PostgresInstanceConnection, error) {
+func (r *teamResolver) PostgresInstances(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *postgres.PostgresInstanceOrder, filter *postgres.PostgresInstanceFilter) (*pagination.FacetableConnection[*postgres.PostgresInstance, *postgres.PostgresInstanceFilter], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err

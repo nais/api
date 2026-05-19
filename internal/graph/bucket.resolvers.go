@@ -12,9 +12,9 @@ import (
 	"github.com/nais/api/internal/workload/job"
 )
 
-func (r *applicationResolver) Buckets(ctx context.Context, obj *application.Application, orderBy *bucket.BucketOrder) (*bucket.BucketConnection, error) {
+func (r *applicationResolver) Buckets(ctx context.Context, obj *application.Application, orderBy *bucket.BucketOrder) (*pagination.FacetableConnection[*bucket.Bucket, *bucket.BucketFilter], error) {
 	if obj.Spec.GCP == nil {
-		return bucket.NewBucketConnection(pagination.EmptyConnection[*bucket.Bucket](), nil, nil), nil
+		return pagination.NewFacetableConnection(pagination.EmptyConnection[*bucket.Bucket](), nil, (*bucket.BucketFilter)(nil)), nil
 	}
 
 	return bucket.ListForWorkload(ctx, obj.TeamSlug, obj.Spec.GCP.Buckets, orderBy)
@@ -36,18 +36,18 @@ func (r *bucketResolver) Workload(ctx context.Context, obj *bucket.Bucket) (work
 	return getWorkload(ctx, obj.WorkloadReference, obj.TeamSlug, obj.EnvironmentName)
 }
 
-func (r *bucketConnectionResolver) Facets(ctx context.Context, obj *bucket.BucketConnection) (*bucket.BucketFacets, error) {
-	return bucket.ComputeFacets(ctx, obj.GetAllBuckets(), obj.GetFilter()), nil
+func (r *bucketConnectionResolver) Facets(ctx context.Context, obj *pagination.FacetableConnection[*bucket.Bucket, *bucket.BucketFilter]) (*bucket.BucketFacets, error) {
+	return bucket.ComputeFacets(ctx, obj.GetAllItems(), obj.GetFilter()), nil
 }
 
-func (r *jobResolver) Buckets(ctx context.Context, obj *job.Job, orderBy *bucket.BucketOrder) (*bucket.BucketConnection, error) {
+func (r *jobResolver) Buckets(ctx context.Context, obj *job.Job, orderBy *bucket.BucketOrder) (*pagination.FacetableConnection[*bucket.Bucket, *bucket.BucketFilter], error) {
 	if obj.Spec.GCP == nil {
-		return bucket.NewBucketConnection(pagination.EmptyConnection[*bucket.Bucket](), nil, nil), nil
+		return pagination.NewFacetableConnection(pagination.EmptyConnection[*bucket.Bucket](), nil, (*bucket.BucketFilter)(nil)), nil
 	}
 	return bucket.ListForWorkload(ctx, obj.TeamSlug, obj.Spec.GCP.Buckets, orderBy)
 }
 
-func (r *teamResolver) Buckets(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bucket.BucketOrder, filter *bucket.BucketFilter) (*bucket.BucketConnection, error) {
+func (r *teamResolver) Buckets(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bucket.BucketOrder, filter *bucket.BucketFilter) (*pagination.FacetableConnection[*bucket.Bucket, *bucket.BucketFilter], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err

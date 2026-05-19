@@ -62,26 +62,26 @@ type TeamResolver interface {
 	InventoryCounts(ctx context.Context, obj *team.Team) (*team.TeamInventoryCounts, error)
 	ActivityLog(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*activitylog.ActivityLogEntryConnection, error)
 	Alerts(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *alerts.AlertOrder, filter *alerts.TeamAlertsFilter) (*pagination.Connection[alerts.Alert], error)
-	Applications(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *application.ApplicationOrder, filter *application.TeamApplicationsFilter) (*application.ApplicationConnection, error)
-	BigQueryDatasets(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bigquery.BigQueryDatasetOrder, filter *bigquery.BigQueryDatasetFilter) (*bigquery.BigQueryDatasetConnection, error)
-	Buckets(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bucket.BucketOrder, filter *bucket.BucketFilter) (*bucket.BucketConnection, error)
-	Configs(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *config.ConfigOrder, filter *config.ConfigFilter) (*config.ConfigConnection, error)
+	Applications(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *application.ApplicationOrder, filter *application.TeamApplicationsFilter) (*pagination.FacetableConnection[*application.Application, *application.TeamApplicationsFilter], error)
+	BigQueryDatasets(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bigquery.BigQueryDatasetOrder, filter *bigquery.BigQueryDatasetFilter) (*pagination.FacetableConnection[*bigquery.BigQueryDataset, *bigquery.BigQueryDatasetFilter], error)
+	Buckets(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bucket.BucketOrder, filter *bucket.BucketFilter) (*pagination.FacetableConnection[*bucket.Bucket, *bucket.BucketFilter], error)
+	Configs(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *config.ConfigOrder, filter *config.ConfigFilter) (*pagination.FacetableConnection[*config.Config, *config.ConfigFilter], error)
 	Cost(ctx context.Context, obj *team.Team) (*cost.TeamCost, error)
 	DeploymentKey(ctx context.Context, obj *team.Team) (*deployment.DeploymentKey, error)
 	Deployments(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*deployment.Deployment], error)
 	Issues(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.IssueFilter) (*pagination.Connection[issue.Issue], error)
-	Jobs(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *job.JobOrder, filter *job.TeamJobsFilter) (*job.JobConnection, error)
-	KafkaTopics(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *kafkatopic.KafkaTopicOrder, filter *kafkatopic.KafkaTopicFilter) (*kafkatopic.KafkaTopicConnection, error)
-	OpenSearches(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *opensearch.OpenSearchOrder, filter *opensearch.OpenSearchFilter) (*opensearch.OpenSearchConnection, error)
-	PostgresInstances(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *postgres.PostgresInstanceOrder, filter *postgres.PostgresInstanceFilter) (*postgres.PostgresInstanceConnection, error)
+	Jobs(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *job.JobOrder, filter *job.TeamJobsFilter) (*pagination.FacetableConnection[*job.Job, *job.TeamJobsFilter], error)
+	KafkaTopics(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *kafkatopic.KafkaTopicOrder, filter *kafkatopic.KafkaTopicFilter) (*pagination.FacetableConnection[*kafkatopic.KafkaTopic, *kafkatopic.KafkaTopicFilter], error)
+	OpenSearches(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *opensearch.OpenSearchOrder, filter *opensearch.OpenSearchFilter) (*pagination.FacetableConnection[*opensearch.OpenSearch, *opensearch.OpenSearchFilter], error)
+	PostgresInstances(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *postgres.PostgresInstanceOrder, filter *postgres.PostgresInstanceFilter) (*pagination.FacetableConnection[*postgres.PostgresInstance, *postgres.PostgresInstanceFilter], error)
 	Repositories(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *repository.RepositoryOrder, filter *repository.TeamRepositoryFilter) (*pagination.Connection[*repository.Repository], error)
-	Secrets(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *secret.SecretOrder, filter *secret.SecretFilter) (*secret.SecretConnection, error)
+	Secrets(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *secret.SecretOrder, filter *secret.SecretFilter) (*pagination.FacetableConnection[*secret.Secret, *secret.SecretFilter], error)
 	ServiceAccounts(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*serviceaccount.ServiceAccount], error)
 	SQLInstances(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *sqlinstance.SQLInstanceOrder) (*pagination.Connection[*sqlinstance.SQLInstance], error)
 	Unleash(ctx context.Context, obj *team.Team) (*unleash.UnleashInstance, error)
 	WorkloadUtilization(ctx context.Context, obj *team.Team, resourceType utilization.UtilizationResourceType) ([]*utilization.WorkloadUtilizationData, error)
 	ServiceUtilization(ctx context.Context, obj *team.Team) (*utilization.TeamServiceUtilization, error)
-	Valkeys(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *valkey.ValkeyOrder, filter *valkey.ValkeyFilter) (*valkey.ValkeyConnection, error)
+	Valkeys(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *valkey.ValkeyOrder, filter *valkey.ValkeyFilter) (*pagination.FacetableConnection[*valkey.Valkey, *valkey.ValkeyFilter], error)
 	ImageVulnerabilityHistory(ctx context.Context, obj *team.Team, from scalar.Date) (*vulnerability.ImageVulnerabilityHistory, error)
 	VulnerabilityFixHistory(ctx context.Context, obj *team.Team, from scalar.Date) (*vulnerability.VulnerabilityFixHistory, error)
 	VulnerabilitySummary(ctx context.Context, obj *team.Team, filter *vulnerability.TeamVulnerabilitySummaryFilter) (*vulnerability.TeamVulnerabilitySummary, error)
@@ -2274,8 +2274,8 @@ func (ec *executionContext) _Team_applications(ctx context.Context, field graphq
 			return ec.Resolvers.Team().Applications(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*application.ApplicationOrder), fc.Args["filter"].(*application.TeamApplicationsFilter))
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *application.ApplicationConnection) graphql.Marshaler {
-			return ec.marshalNApplicationConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplicationConnection(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *pagination.FacetableConnection[*application.Application, *application.TeamApplicationsFilter]) graphql.Marshaler {
+			return ec.marshalNApplicationConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, selections, v)
 		},
 		true,
 		true,
@@ -2318,8 +2318,8 @@ func (ec *executionContext) _Team_bigQueryDatasets(ctx context.Context, field gr
 			return ec.Resolvers.Team().BigQueryDatasets(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*bigquery.BigQueryDatasetOrder), fc.Args["filter"].(*bigquery.BigQueryDatasetFilter))
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *bigquery.BigQueryDatasetConnection) graphql.Marshaler {
-			return ec.marshalNBigQueryDatasetConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDatasetConnection(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *pagination.FacetableConnection[*bigquery.BigQueryDataset, *bigquery.BigQueryDatasetFilter]) graphql.Marshaler {
+			return ec.marshalNBigQueryDatasetConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, selections, v)
 		},
 		true,
 		true,
@@ -2362,8 +2362,8 @@ func (ec *executionContext) _Team_buckets(ctx context.Context, field graphql.Col
 			return ec.Resolvers.Team().Buckets(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*bucket.BucketOrder), fc.Args["filter"].(*bucket.BucketFilter))
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *bucket.BucketConnection) graphql.Marshaler {
-			return ec.marshalNBucketConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbucketᚐBucketConnection(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *pagination.FacetableConnection[*bucket.Bucket, *bucket.BucketFilter]) graphql.Marshaler {
+			return ec.marshalNBucketConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, selections, v)
 		},
 		true,
 		true,
@@ -2406,8 +2406,8 @@ func (ec *executionContext) _Team_configs(ctx context.Context, field graphql.Col
 			return ec.Resolvers.Team().Configs(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*config.ConfigOrder), fc.Args["filter"].(*config.ConfigFilter))
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *config.ConfigConnection) graphql.Marshaler {
-			return ec.marshalNConfigConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigConnection(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *pagination.FacetableConnection[*config.Config, *config.ConfigFilter]) graphql.Marshaler {
+			return ec.marshalNConfigConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, selections, v)
 		},
 		true,
 		true,
@@ -2602,8 +2602,8 @@ func (ec *executionContext) _Team_jobs(ctx context.Context, field graphql.Collec
 			return ec.Resolvers.Team().Jobs(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*job.JobOrder), fc.Args["filter"].(*job.TeamJobsFilter))
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *job.JobConnection) graphql.Marshaler {
-			return ec.marshalNJobConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobConnection(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *pagination.FacetableConnection[*job.Job, *job.TeamJobsFilter]) graphql.Marshaler {
+			return ec.marshalNJobConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, selections, v)
 		},
 		true,
 		true,
@@ -2646,8 +2646,8 @@ func (ec *executionContext) _Team_kafkaTopics(ctx context.Context, field graphql
 			return ec.Resolvers.Team().KafkaTopics(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*kafkatopic.KafkaTopicOrder), fc.Args["filter"].(*kafkatopic.KafkaTopicFilter))
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *kafkatopic.KafkaTopicConnection) graphql.Marshaler {
-			return ec.marshalNKafkaTopicConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicConnection(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *pagination.FacetableConnection[*kafkatopic.KafkaTopic, *kafkatopic.KafkaTopicFilter]) graphql.Marshaler {
+			return ec.marshalNKafkaTopicConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, selections, v)
 		},
 		true,
 		true,
@@ -2690,8 +2690,8 @@ func (ec *executionContext) _Team_openSearches(ctx context.Context, field graphq
 			return ec.Resolvers.Team().OpenSearches(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*opensearch.OpenSearchOrder), fc.Args["filter"].(*opensearch.OpenSearchFilter))
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *opensearch.OpenSearchConnection) graphql.Marshaler {
-			return ec.marshalNOpenSearchConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchConnection(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *pagination.FacetableConnection[*opensearch.OpenSearch, *opensearch.OpenSearchFilter]) graphql.Marshaler {
+			return ec.marshalNOpenSearchConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, selections, v)
 		},
 		true,
 		true,
@@ -2734,8 +2734,8 @@ func (ec *executionContext) _Team_postgresInstances(ctx context.Context, field g
 			return ec.Resolvers.Team().PostgresInstances(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*postgres.PostgresInstanceOrder), fc.Args["filter"].(*postgres.PostgresInstanceFilter))
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *postgres.PostgresInstanceConnection) graphql.Marshaler {
-			return ec.marshalNPostgresInstanceConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceConnection(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *pagination.FacetableConnection[*postgres.PostgresInstance, *postgres.PostgresInstanceFilter]) graphql.Marshaler {
+			return ec.marshalNPostgresInstanceConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, selections, v)
 		},
 		true,
 		true,
@@ -2822,8 +2822,8 @@ func (ec *executionContext) _Team_secrets(ctx context.Context, field graphql.Col
 			return ec.Resolvers.Team().Secrets(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*secret.SecretOrder), fc.Args["filter"].(*secret.SecretFilter))
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *secret.SecretConnection) graphql.Marshaler {
-			return ec.marshalNSecretConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretConnection(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *pagination.FacetableConnection[*secret.Secret, *secret.SecretFilter]) graphql.Marshaler {
+			return ec.marshalNSecretConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, selections, v)
 		},
 		true,
 		true,
@@ -3062,8 +3062,8 @@ func (ec *executionContext) _Team_valkeys(ctx context.Context, field graphql.Col
 			return ec.Resolvers.Team().Valkeys(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*valkey.ValkeyOrder), fc.Args["filter"].(*valkey.ValkeyFilter))
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *valkey.ValkeyConnection) graphql.Marshaler {
-			return ec.marshalNValkeyConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyConnection(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *pagination.FacetableConnection[*valkey.Valkey, *valkey.ValkeyFilter]) graphql.Marshaler {
+			return ec.marshalNValkeyConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, selections, v)
 		},
 		true,
 		true,

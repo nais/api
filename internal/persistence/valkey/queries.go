@@ -60,12 +60,7 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 		}
 	}
 
-	filtered := SortFilterValkey.Filter(ctx, all, filter)
-	SortFilterValkey.Sort(ctx, filtered, orderBy.Field, orderBy.Direction)
-
-	instances := pagination.Slice(filtered, page)
-	conn := pagination.NewConnection(instances, page, len(filtered))
-	return NewValkeyConnection(conn, all, filter), nil
+	return SortFilterValkey.PaginatedList(ctx, all, page, orderBy.Field, orderBy.Direction, filter), nil
 }
 
 func ListAllForTeam(ctx context.Context, teamSlug slug.Slug) []*Valkey {
@@ -116,7 +111,7 @@ func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName st
 
 	orderValkey(ctx, ret, orderBy)
 	conn := pagination.NewConnectionWithoutPagination(ret)
-	return NewValkeyConnection(conn, ret, nil), nil
+	return pagination.NewFacetableConnection(conn, ret, (*ValkeyFilter)(nil)), nil
 }
 
 func orderValkey(ctx context.Context, instances []*Valkey, orderBy *ValkeyOrder) {

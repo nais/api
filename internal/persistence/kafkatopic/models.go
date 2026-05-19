@@ -21,23 +21,7 @@ type (
 	KafkaTopicACLEdge       = pagination.Edge[*KafkaTopicACL]
 )
 
-type KafkaTopicConnection struct {
-	pagination.Connection[*KafkaTopic]
-
-	allTopics []*KafkaTopic
-	filter    *KafkaTopicFilter
-}
-
-func (c *KafkaTopicConnection) GetAllTopics() []*KafkaTopic  { return c.allTopics }
-func (c *KafkaTopicConnection) GetFilter() *KafkaTopicFilter { return c.filter }
-
-func NewKafkaTopicConnection(conn *pagination.Connection[*KafkaTopic], allTopics []*KafkaTopic, filter *KafkaTopicFilter) *KafkaTopicConnection {
-	return &KafkaTopicConnection{
-		Connection: *conn,
-		allTopics:  allTopics,
-		filter:     filter,
-	}
-}
+type KafkaTopicConnection = pagination.FacetableConnection[*KafkaTopic, *KafkaTopicFilter]
 
 type KafkaTopicFacets struct {
 	Environments []model.EnvironmentFacetItem `json:"environments"`

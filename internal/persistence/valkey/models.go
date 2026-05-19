@@ -35,23 +35,7 @@ type ValkeyFilter struct {
 	Tiers        []ValkeyTier `json:"tiers"`
 }
 
-type ValkeyConnection struct {
-	pagination.Connection[*Valkey]
-
-	allInstances []*Valkey
-	filter       *ValkeyFilter
-}
-
-func (c *ValkeyConnection) GetAllInstances() []*Valkey { return c.allInstances }
-func (c *ValkeyConnection) GetFilter() *ValkeyFilter   { return c.filter }
-
-func NewValkeyConnection(conn *pagination.Connection[*Valkey], allInstances []*Valkey, filter *ValkeyFilter) *ValkeyConnection {
-	return &ValkeyConnection{
-		Connection:   *conn,
-		allInstances: allInstances,
-		filter:       filter,
-	}
-}
+type ValkeyConnection = pagination.FacetableConnection[*Valkey, *ValkeyFilter]
 
 type ValkeyFacets struct {
 	Environments []model.EnvironmentFacetItem `json:"environments"`

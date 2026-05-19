@@ -107,11 +107,11 @@ func (r *openSearchAccessResolver) Workload(ctx context.Context, obj *opensearch
 	return getWorkload(ctx, obj.WorkloadReference, obj.TeamSlug, obj.EnvironmentName)
 }
 
-func (r *openSearchConnectionResolver) Facets(ctx context.Context, obj *opensearch.OpenSearchConnection) (*opensearch.OpenSearchFacets, error) {
-	return opensearch.ComputeFacets(ctx, obj.GetAllInstances(), obj.GetFilter()), nil
+func (r *openSearchConnectionResolver) Facets(ctx context.Context, obj *pagination.FacetableConnection[*opensearch.OpenSearch, *opensearch.OpenSearchFilter]) (*opensearch.OpenSearchFacets, error) {
+	return opensearch.ComputeFacets(ctx, obj.GetAllItems(), obj.GetFilter()), nil
 }
 
-func (r *teamResolver) OpenSearches(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *opensearch.OpenSearchOrder, filter *opensearch.OpenSearchFilter) (*opensearch.OpenSearchConnection, error) {
+func (r *teamResolver) OpenSearches(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *opensearch.OpenSearchOrder, filter *opensearch.OpenSearchFilter) (*pagination.FacetableConnection[*opensearch.OpenSearch, *opensearch.OpenSearchFilter], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err

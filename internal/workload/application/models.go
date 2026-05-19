@@ -20,23 +20,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-type ApplicationConnection struct {
-	pagination.Connection[*Application]
-
-	allApps []*Application
-	filter  *TeamApplicationsFilter
-}
-
-func (c *ApplicationConnection) GetAllApps() []*Application         { return c.allApps }
-func (c *ApplicationConnection) GetFilter() *TeamApplicationsFilter { return c.filter }
-
-func NewApplicationConnection(conn *pagination.Connection[*Application], allApps []*Application, filter *TeamApplicationsFilter) *ApplicationConnection {
-	return &ApplicationConnection{
-		Connection: *conn,
-		allApps:    allApps,
-		filter:     filter,
-	}
-}
+type ApplicationConnection = pagination.FacetableConnection[*Application, *TeamApplicationsFilter]
 
 type (
 	ApplicationEdge               = pagination.Edge[*Application]

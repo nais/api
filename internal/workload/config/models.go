@@ -19,23 +19,7 @@ import (
 
 type ConfigEdge = pagination.Edge[*Config]
 
-type ConfigConnection struct {
-	pagination.Connection[*Config]
-
-	allConfigs []*Config
-	filter     *ConfigFilter
-}
-
-func (c *ConfigConnection) GetAllConfigs() []*Config { return c.allConfigs }
-func (c *ConfigConnection) GetFilter() *ConfigFilter { return c.filter }
-
-func NewConfigConnection(conn *pagination.Connection[*Config], allConfigs []*Config, filter *ConfigFilter) *ConfigConnection {
-	return &ConfigConnection{
-		Connection: *conn,
-		allConfigs: allConfigs,
-		filter:     filter,
-	}
-}
+type ConfigConnection = pagination.FacetableConnection[*Config, *ConfigFilter]
 
 type Config struct {
 	Name                string            `json:"name"`

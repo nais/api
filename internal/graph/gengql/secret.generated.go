@@ -32,15 +32,15 @@ type SecretResolver interface {
 	TeamEnvironment(ctx context.Context, obj *secret.Secret) (*team.TeamEnvironment, error)
 	Team(ctx context.Context, obj *secret.Secret) (*team.Team, error)
 
-	Applications(ctx context.Context, obj *secret.Secret, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*application.ApplicationConnection, error)
-	Jobs(ctx context.Context, obj *secret.Secret, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*job.JobConnection, error)
+	Applications(ctx context.Context, obj *secret.Secret, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.FacetableConnection[*application.Application, *application.TeamApplicationsFilter], error)
+	Jobs(ctx context.Context, obj *secret.Secret, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.FacetableConnection[*job.Job, *job.TeamJobsFilter], error)
 	Workloads(ctx context.Context, obj *secret.Secret, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[workload.Workload], error)
 
 	LastModifiedBy(ctx context.Context, obj *secret.Secret) (*user.User, error)
 	ActivityLog(ctx context.Context, obj *secret.Secret, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*activitylog.ActivityLogEntryConnection, error)
 }
 type SecretConnectionResolver interface {
-	Facets(ctx context.Context, obj *secret.SecretConnection) (*secret.SecretFacets, error)
+	Facets(ctx context.Context, obj *pagination.FacetableConnection[*secret.Secret, *secret.SecretFilter]) (*secret.SecretFacets, error)
 }
 
 // endregion ************************** generated!.gotpl **************************
@@ -512,8 +512,8 @@ func (ec *executionContext) _Secret_applications(ctx context.Context, field grap
 			return ec.Resolvers.Secret().Applications(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *application.ApplicationConnection) graphql.Marshaler {
-			return ec.marshalNApplicationConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplicationConnection(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *pagination.FacetableConnection[*application.Application, *application.TeamApplicationsFilter]) graphql.Marshaler {
+			return ec.marshalNApplicationConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, selections, v)
 		},
 		true,
 		true,
@@ -556,8 +556,8 @@ func (ec *executionContext) _Secret_jobs(ctx context.Context, field graphql.Coll
 			return ec.Resolvers.Secret().Jobs(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *job.JobConnection) graphql.Marshaler {
-			return ec.marshalNJobConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobConnection(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *pagination.FacetableConnection[*job.Job, *job.TeamJobsFilter]) graphql.Marshaler {
+			return ec.marshalNJobConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, selections, v)
 		},
 		true,
 		true,
@@ -730,7 +730,7 @@ func (ec *executionContext) fieldContext_Secret_activityLog(ctx context.Context,
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *secret.SecretConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _SecretConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*secret.Secret, *secret.SecretFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -762,7 +762,7 @@ func (ec *executionContext) fieldContext_SecretConnection_pageInfo(_ context.Con
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *secret.SecretConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _SecretConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*secret.Secret, *secret.SecretFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -794,7 +794,7 @@ func (ec *executionContext) fieldContext_SecretConnection_nodes(_ context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretConnection_edges(ctx context.Context, field graphql.CollectedField, obj *secret.SecretConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _SecretConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*secret.Secret, *secret.SecretFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -826,7 +826,7 @@ func (ec *executionContext) fieldContext_SecretConnection_edges(_ context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretConnection_facets(ctx context.Context, field graphql.CollectedField, obj *secret.SecretConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _SecretConnection_facets(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*secret.Secret, *secret.SecretFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -3372,7 +3372,7 @@ func (ec *executionContext) _Secret(ctx context.Context, sel ast.SelectionSet, o
 
 var secretConnectionImplementors = []string{"SecretConnection"}
 
-func (ec *executionContext) _SecretConnection(ctx context.Context, sel ast.SelectionSet, obj *secret.SecretConnection) graphql.Marshaler {
+func (ec *executionContext) _SecretConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.FacetableConnection[*secret.Secret, *secret.SecretFilter]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, secretConnectionImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -4415,11 +4415,11 @@ func (ec *executionContext) marshalNSecret2ᚖgithubᚗcomᚋnaisᚋapiᚋintern
 	return ec._Secret(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNSecretConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretConnection(ctx context.Context, sel ast.SelectionSet, v secret.SecretConnection) graphql.Marshaler {
+func (ec *executionContext) marshalNSecretConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx context.Context, sel ast.SelectionSet, v pagination.FacetableConnection[*secret.Secret, *secret.SecretFilter]) graphql.Marshaler {
 	return ec._SecretConnection(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNSecretConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretConnection(ctx context.Context, sel ast.SelectionSet, v *secret.SecretConnection) graphql.Marshaler {
+func (ec *executionContext) marshalNSecretConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.FacetableConnection[*secret.Secret, *secret.SecretFilter]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")

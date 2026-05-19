@@ -34,7 +34,7 @@ type PostgresInstanceAuditResolver interface {
 	URL(ctx context.Context, obj *postgres.PostgresInstanceAudit) (*string, error)
 }
 type PostgresInstanceConnectionResolver interface {
-	Facets(ctx context.Context, obj *postgres.PostgresInstanceConnection) (*postgres.PostgresInstanceFacets, error)
+	Facets(ctx context.Context, obj *pagination.FacetableConnection[*postgres.PostgresInstance, *postgres.PostgresInstanceFilter]) (*postgres.PostgresInstanceFacets, error)
 }
 
 // endregion ************************** generated!.gotpl **************************
@@ -999,7 +999,7 @@ func (ec *executionContext) fieldContext_PostgresInstanceAudit_statementClasses(
 	return graphql.NewScalarFieldContext("PostgresInstanceAudit", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _PostgresInstanceConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstanceConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _PostgresInstanceConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*postgres.PostgresInstance, *postgres.PostgresInstanceFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -1031,7 +1031,7 @@ func (ec *executionContext) fieldContext_PostgresInstanceConnection_pageInfo(_ c
 	return fc, nil
 }
 
-func (ec *executionContext) _PostgresInstanceConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstanceConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _PostgresInstanceConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*postgres.PostgresInstance, *postgres.PostgresInstanceFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -1063,7 +1063,7 @@ func (ec *executionContext) fieldContext_PostgresInstanceConnection_nodes(_ cont
 	return fc, nil
 }
 
-func (ec *executionContext) _PostgresInstanceConnection_edges(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstanceConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _PostgresInstanceConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*postgres.PostgresInstance, *postgres.PostgresInstanceFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -1095,7 +1095,7 @@ func (ec *executionContext) fieldContext_PostgresInstanceConnection_edges(_ cont
 	return fc, nil
 }
 
-func (ec *executionContext) _PostgresInstanceConnection_facets(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstanceConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _PostgresInstanceConnection_facets(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*postgres.PostgresInstance, *postgres.PostgresInstanceFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -2303,7 +2303,7 @@ func (ec *executionContext) _PostgresInstanceAudit(ctx context.Context, sel ast.
 
 var postgresInstanceConnectionImplementors = []string{"PostgresInstanceConnection"}
 
-func (ec *executionContext) _PostgresInstanceConnection(ctx context.Context, sel ast.SelectionSet, obj *postgres.PostgresInstanceConnection) graphql.Marshaler {
+func (ec *executionContext) _PostgresInstanceConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.FacetableConnection[*postgres.PostgresInstance, *postgres.PostgresInstanceFilter]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, postgresInstanceConnectionImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -2787,11 +2787,11 @@ func (ec *executionContext) marshalNPostgresInstanceAudit2githubᚗcomᚋnaisᚋ
 	return ec._PostgresInstanceAudit(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNPostgresInstanceConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceConnection(ctx context.Context, sel ast.SelectionSet, v postgres.PostgresInstanceConnection) graphql.Marshaler {
+func (ec *executionContext) marshalNPostgresInstanceConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx context.Context, sel ast.SelectionSet, v pagination.FacetableConnection[*postgres.PostgresInstance, *postgres.PostgresInstanceFilter]) graphql.Marshaler {
 	return ec._PostgresInstanceConnection(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNPostgresInstanceConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceConnection(ctx context.Context, sel ast.SelectionSet, v *postgres.PostgresInstanceConnection) graphql.Marshaler {
+func (ec *executionContext) marshalNPostgresInstanceConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.FacetableConnection[*postgres.PostgresInstance, *postgres.PostgresInstanceFilter]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")

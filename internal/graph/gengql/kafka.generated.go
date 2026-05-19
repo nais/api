@@ -33,7 +33,7 @@ type KafkaTopicAclResolver interface {
 	Topic(ctx context.Context, obj *kafkatopic.KafkaTopicACL) (*kafkatopic.KafkaTopic, error)
 }
 type KafkaTopicConnectionResolver interface {
-	Facets(ctx context.Context, obj *kafkatopic.KafkaTopicConnection) (*kafkatopic.KafkaTopicFacets, error)
+	Facets(ctx context.Context, obj *pagination.FacetableConnection[*kafkatopic.KafkaTopic, *kafkatopic.KafkaTopicFilter]) (*kafkatopic.KafkaTopicFacets, error)
 }
 
 // endregion ************************** generated!.gotpl **************************
@@ -1013,7 +1013,7 @@ func (ec *executionContext) fieldContext_KafkaTopicConfiguration_segmentHours(_ 
 	return graphql.NewScalarFieldContext("KafkaTopicConfiguration", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
-func (ec *executionContext) _KafkaTopicConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopicConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _KafkaTopicConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*kafkatopic.KafkaTopic, *kafkatopic.KafkaTopicFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -1045,7 +1045,7 @@ func (ec *executionContext) fieldContext_KafkaTopicConnection_pageInfo(_ context
 	return fc, nil
 }
 
-func (ec *executionContext) _KafkaTopicConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopicConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _KafkaTopicConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*kafkatopic.KafkaTopic, *kafkatopic.KafkaTopicFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -1077,7 +1077,7 @@ func (ec *executionContext) fieldContext_KafkaTopicConnection_nodes(_ context.Co
 	return fc, nil
 }
 
-func (ec *executionContext) _KafkaTopicConnection_edges(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopicConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _KafkaTopicConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*kafkatopic.KafkaTopic, *kafkatopic.KafkaTopicFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -1109,7 +1109,7 @@ func (ec *executionContext) fieldContext_KafkaTopicConnection_edges(_ context.Co
 	return fc, nil
 }
 
-func (ec *executionContext) _KafkaTopicConnection_facets(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopicConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _KafkaTopicConnection_facets(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*kafkatopic.KafkaTopic, *kafkatopic.KafkaTopicFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -2141,7 +2141,7 @@ func (ec *executionContext) _KafkaTopicConfiguration(ctx context.Context, sel as
 
 var kafkaTopicConnectionImplementors = []string{"KafkaTopicConnection"}
 
-func (ec *executionContext) _KafkaTopicConnection(ctx context.Context, sel ast.SelectionSet, obj *kafkatopic.KafkaTopicConnection) graphql.Marshaler {
+func (ec *executionContext) _KafkaTopicConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.FacetableConnection[*kafkatopic.KafkaTopic, *kafkatopic.KafkaTopicFilter]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, kafkaTopicConnectionImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -2525,11 +2525,11 @@ func (ec *executionContext) marshalNKafkaTopicAclOrderField2githubᚗcomᚋnais�
 	return v
 }
 
-func (ec *executionContext) marshalNKafkaTopicConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicConnection(ctx context.Context, sel ast.SelectionSet, v kafkatopic.KafkaTopicConnection) graphql.Marshaler {
+func (ec *executionContext) marshalNKafkaTopicConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx context.Context, sel ast.SelectionSet, v pagination.FacetableConnection[*kafkatopic.KafkaTopic, *kafkatopic.KafkaTopicFilter]) graphql.Marshaler {
 	return ec._KafkaTopicConnection(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNKafkaTopicConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicConnection(ctx context.Context, sel ast.SelectionSet, v *kafkatopic.KafkaTopicConnection) graphql.Marshaler {
+func (ec *executionContext) marshalNKafkaTopicConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.FacetableConnection[*kafkatopic.KafkaTopic, *kafkatopic.KafkaTopicFilter]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")

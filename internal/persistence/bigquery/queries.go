@@ -45,12 +45,7 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 		}
 	}
 
-	filtered := SortFilter.Filter(ctx, all, filter)
-	SortFilter.Sort(ctx, filtered, orderBy.Field, orderBy.Direction)
-
-	datasets := pagination.Slice(filtered, page)
-	conn := pagination.NewConnection(datasets, page, len(filtered))
-	return NewBigQueryDatasetConnection(conn, all, filter), nil
+	return SortFilter.PaginatedList(ctx, all, page, orderBy.Field, orderBy.Direction, filter), nil
 }
 
 func ListAllForTeam(ctx context.Context, teamSlug slug.Slug) []*BigQueryDataset {
@@ -72,7 +67,7 @@ func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName st
 
 	orderDatasets(ctx, ret, orderBy)
 	conn := pagination.NewConnectionWithoutPagination(ret)
-	return NewBigQueryDatasetConnection(conn, ret, nil), nil
+	return pagination.NewFacetableConnection(conn, ret, (*BigQueryDatasetFilter)(nil)), nil
 }
 
 func orderDatasets(ctx context.Context, datasets []*BigQueryDataset, orderBy *BigQueryDatasetOrder) {

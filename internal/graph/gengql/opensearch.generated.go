@@ -46,7 +46,7 @@ type OpenSearchAccessResolver interface {
 	Workload(ctx context.Context, obj *opensearch.OpenSearchAccess) (workload.Workload, error)
 }
 type OpenSearchConnectionResolver interface {
-	Facets(ctx context.Context, obj *opensearch.OpenSearchConnection) (*opensearch.OpenSearchFacets, error)
+	Facets(ctx context.Context, obj *pagination.FacetableConnection[*opensearch.OpenSearch, *opensearch.OpenSearchFilter]) (*opensearch.OpenSearchFacets, error)
 }
 
 // endregion ************************** generated!.gotpl **************************
@@ -1017,7 +1017,7 @@ func (ec *executionContext) fieldContext_OpenSearchAccessEdge_node(_ context.Con
 	return fc, nil
 }
 
-func (ec *executionContext) _OpenSearchConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearchConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _OpenSearchConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*opensearch.OpenSearch, *opensearch.OpenSearchFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -1049,7 +1049,7 @@ func (ec *executionContext) fieldContext_OpenSearchConnection_pageInfo(_ context
 	return fc, nil
 }
 
-func (ec *executionContext) _OpenSearchConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearchConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _OpenSearchConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*opensearch.OpenSearch, *opensearch.OpenSearchFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -1081,7 +1081,7 @@ func (ec *executionContext) fieldContext_OpenSearchConnection_nodes(_ context.Co
 	return fc, nil
 }
 
-func (ec *executionContext) _OpenSearchConnection_edges(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearchConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _OpenSearchConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*opensearch.OpenSearch, *opensearch.OpenSearchFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -1113,7 +1113,7 @@ func (ec *executionContext) fieldContext_OpenSearchConnection_edges(_ context.Co
 	return fc, nil
 }
 
-func (ec *executionContext) _OpenSearchConnection_facets(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearchConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _OpenSearchConnection_facets(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*opensearch.OpenSearch, *opensearch.OpenSearchFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -3328,7 +3328,7 @@ func (ec *executionContext) _OpenSearchAccessEdge(ctx context.Context, sel ast.S
 
 var openSearchConnectionImplementors = []string{"OpenSearchConnection"}
 
-func (ec *executionContext) _OpenSearchConnection(ctx context.Context, sel ast.SelectionSet, obj *opensearch.OpenSearchConnection) graphql.Marshaler {
+func (ec *executionContext) _OpenSearchConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.FacetableConnection[*opensearch.OpenSearch, *opensearch.OpenSearchFilter]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, openSearchConnectionImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -4179,11 +4179,11 @@ func (ec *executionContext) marshalNOpenSearchAccessOrderField2githubᚗcomᚋna
 	return v
 }
 
-func (ec *executionContext) marshalNOpenSearchConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchConnection(ctx context.Context, sel ast.SelectionSet, v opensearch.OpenSearchConnection) graphql.Marshaler {
+func (ec *executionContext) marshalNOpenSearchConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx context.Context, sel ast.SelectionSet, v pagination.FacetableConnection[*opensearch.OpenSearch, *opensearch.OpenSearchFilter]) graphql.Marshaler {
 	return ec._OpenSearchConnection(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNOpenSearchConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchConnection(ctx context.Context, sel ast.SelectionSet, v *opensearch.OpenSearchConnection) graphql.Marshaler {
+func (ec *executionContext) marshalNOpenSearchConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.FacetableConnection[*opensearch.OpenSearch, *opensearch.OpenSearchFilter]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")

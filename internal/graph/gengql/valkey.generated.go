@@ -44,7 +44,7 @@ type ValkeyAccessResolver interface {
 	Workload(ctx context.Context, obj *valkey.ValkeyAccess) (workload.Workload, error)
 }
 type ValkeyConnectionResolver interface {
-	Facets(ctx context.Context, obj *valkey.ValkeyConnection) (*valkey.ValkeyFacets, error)
+	Facets(ctx context.Context, obj *pagination.FacetableConnection[*valkey.Valkey, *valkey.ValkeyFilter]) (*valkey.ValkeyFacets, error)
 }
 
 // endregion ************************** generated!.gotpl **************************
@@ -1084,7 +1084,7 @@ func (ec *executionContext) fieldContext_ValkeyAccessEdge_node(_ context.Context
 	return fc, nil
 }
 
-func (ec *executionContext) _ValkeyConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _ValkeyConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*valkey.Valkey, *valkey.ValkeyFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -1116,7 +1116,7 @@ func (ec *executionContext) fieldContext_ValkeyConnection_pageInfo(_ context.Con
 	return fc, nil
 }
 
-func (ec *executionContext) _ValkeyConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _ValkeyConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*valkey.Valkey, *valkey.ValkeyFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -1148,7 +1148,7 @@ func (ec *executionContext) fieldContext_ValkeyConnection_nodes(_ context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _ValkeyConnection_edges(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _ValkeyConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*valkey.Valkey, *valkey.ValkeyFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -1180,7 +1180,7 @@ func (ec *executionContext) fieldContext_ValkeyConnection_edges(_ context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _ValkeyConnection_facets(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _ValkeyConnection_facets(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*valkey.Valkey, *valkey.ValkeyFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -3354,7 +3354,7 @@ func (ec *executionContext) _ValkeyAccessEdge(ctx context.Context, sel ast.Selec
 
 var valkeyConnectionImplementors = []string{"ValkeyConnection"}
 
-func (ec *executionContext) _ValkeyConnection(ctx context.Context, sel ast.SelectionSet, obj *valkey.ValkeyConnection) graphql.Marshaler {
+func (ec *executionContext) _ValkeyConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.FacetableConnection[*valkey.Valkey, *valkey.ValkeyFilter]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, valkeyConnectionImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -4119,11 +4119,11 @@ func (ec *executionContext) marshalNValkeyAccessOrderField2githubᚗcomᚋnais�
 	return v
 }
 
-func (ec *executionContext) marshalNValkeyConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyConnection(ctx context.Context, sel ast.SelectionSet, v valkey.ValkeyConnection) graphql.Marshaler {
+func (ec *executionContext) marshalNValkeyConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx context.Context, sel ast.SelectionSet, v pagination.FacetableConnection[*valkey.Valkey, *valkey.ValkeyFilter]) graphql.Marshaler {
 	return ec._ValkeyConnection(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNValkeyConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyConnection(ctx context.Context, sel ast.SelectionSet, v *valkey.ValkeyConnection) graphql.Marshaler {
+func (ec *executionContext) marshalNValkeyConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.FacetableConnection[*valkey.Valkey, *valkey.ValkeyFilter]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")

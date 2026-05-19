@@ -35,23 +35,7 @@ type PostgresInstanceFilter struct {
 	MajorVersions    []string                `json:"majorVersions"`
 }
 
-type PostgresInstanceConnection struct {
-	pagination.Connection[*PostgresInstance]
-
-	allInstances []*PostgresInstance
-	filter       *PostgresInstanceFilter
-}
-
-func (c *PostgresInstanceConnection) GetAllInstances() []*PostgresInstance { return c.allInstances }
-func (c *PostgresInstanceConnection) GetFilter() *PostgresInstanceFilter   { return c.filter }
-
-func NewPostgresInstanceConnection(conn *pagination.Connection[*PostgresInstance], allInstances []*PostgresInstance, filter *PostgresInstanceFilter) *PostgresInstanceConnection {
-	return &PostgresInstanceConnection{
-		Connection:   *conn,
-		allInstances: allInstances,
-		filter:       filter,
-	}
-}
+type PostgresInstanceConnection = pagination.FacetableConnection[*PostgresInstance, *PostgresInstanceFilter]
 
 type PostgresInstanceFacets struct {
 	Environments     []model.EnvironmentFacetItem            `json:"environments"`

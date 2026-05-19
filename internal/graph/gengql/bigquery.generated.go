@@ -34,7 +34,7 @@ type BigQueryDatasetResolver interface {
 	Cost(ctx context.Context, obj *bigquery.BigQueryDataset) (*cost.BigQueryDatasetCost, error)
 }
 type BigQueryDatasetConnectionResolver interface {
-	Facets(ctx context.Context, obj *bigquery.BigQueryDatasetConnection) (*bigquery.BigQueryDatasetFacets, error)
+	Facets(ctx context.Context, obj *pagination.FacetableConnection[*bigquery.BigQueryDataset, *bigquery.BigQueryDatasetFilter]) (*bigquery.BigQueryDatasetFacets, error)
 }
 
 // endregion ************************** generated!.gotpl **************************
@@ -620,7 +620,7 @@ func (ec *executionContext) fieldContext_BigQueryDatasetAccessEdge_node(_ contex
 	return fc, nil
 }
 
-func (ec *executionContext) _BigQueryDatasetConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *bigquery.BigQueryDatasetConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _BigQueryDatasetConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*bigquery.BigQueryDataset, *bigquery.BigQueryDatasetFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -652,7 +652,7 @@ func (ec *executionContext) fieldContext_BigQueryDatasetConnection_pageInfo(_ co
 	return fc, nil
 }
 
-func (ec *executionContext) _BigQueryDatasetConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *bigquery.BigQueryDatasetConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _BigQueryDatasetConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*bigquery.BigQueryDataset, *bigquery.BigQueryDatasetFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -684,7 +684,7 @@ func (ec *executionContext) fieldContext_BigQueryDatasetConnection_nodes(_ conte
 	return fc, nil
 }
 
-func (ec *executionContext) _BigQueryDatasetConnection_edges(ctx context.Context, field graphql.CollectedField, obj *bigquery.BigQueryDatasetConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _BigQueryDatasetConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*bigquery.BigQueryDataset, *bigquery.BigQueryDatasetFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -716,7 +716,7 @@ func (ec *executionContext) fieldContext_BigQueryDatasetConnection_edges(_ conte
 	return fc, nil
 }
 
-func (ec *executionContext) _BigQueryDatasetConnection_facets(ctx context.Context, field graphql.CollectedField, obj *bigquery.BigQueryDatasetConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _BigQueryDatasetConnection_facets(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*bigquery.BigQueryDataset, *bigquery.BigQueryDatasetFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -1435,7 +1435,7 @@ func (ec *executionContext) _BigQueryDatasetAccessEdge(ctx context.Context, sel 
 
 var bigQueryDatasetConnectionImplementors = []string{"BigQueryDatasetConnection"}
 
-func (ec *executionContext) _BigQueryDatasetConnection(ctx context.Context, sel ast.SelectionSet, obj *bigquery.BigQueryDatasetConnection) graphql.Marshaler {
+func (ec *executionContext) _BigQueryDatasetConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.FacetableConnection[*bigquery.BigQueryDataset, *bigquery.BigQueryDatasetFilter]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, bigQueryDatasetConnectionImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1782,11 +1782,11 @@ func (ec *executionContext) marshalNBigQueryDatasetAccessOrderField2githubᚗcom
 	return v
 }
 
-func (ec *executionContext) marshalNBigQueryDatasetConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDatasetConnection(ctx context.Context, sel ast.SelectionSet, v bigquery.BigQueryDatasetConnection) graphql.Marshaler {
+func (ec *executionContext) marshalNBigQueryDatasetConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx context.Context, sel ast.SelectionSet, v pagination.FacetableConnection[*bigquery.BigQueryDataset, *bigquery.BigQueryDatasetFilter]) graphql.Marshaler {
 	return ec._BigQueryDatasetConnection(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNBigQueryDatasetConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDatasetConnection(ctx context.Context, sel ast.SelectionSet, v *bigquery.BigQueryDatasetConnection) graphql.Marshaler {
+func (ec *executionContext) marshalNBigQueryDatasetConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.FacetableConnection[*bigquery.BigQueryDataset, *bigquery.BigQueryDatasetFilter]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")

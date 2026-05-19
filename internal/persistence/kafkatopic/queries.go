@@ -38,12 +38,7 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 		}
 	}
 
-	filtered := SortFilterTopic.Filter(ctx, all, filter)
-	SortFilterTopic.Sort(ctx, filtered, orderBy.Field, orderBy.Direction)
-
-	slice := pagination.Slice(filtered, page)
-	conn := pagination.NewConnection(slice, page, len(filtered))
-	return NewKafkaTopicConnection(conn, all, filter), nil
+	return SortFilterTopic.PaginatedList(ctx, all, page, orderBy.Field, orderBy.Direction, filter), nil
 }
 
 func ListAllForTeam(ctx context.Context, teamSlug slug.Slug) []*KafkaTopic {

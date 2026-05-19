@@ -24,23 +24,7 @@ type (
 	BigQueryDatasetAccessEdge       = pagination.Edge[*BigQueryDatasetAccess]
 )
 
-type BigQueryDatasetConnection struct {
-	pagination.Connection[*BigQueryDataset]
-
-	allDatasets []*BigQueryDataset
-	filter      *BigQueryDatasetFilter
-}
-
-func (c *BigQueryDatasetConnection) GetAllDatasets() []*BigQueryDataset { return c.allDatasets }
-func (c *BigQueryDatasetConnection) GetFilter() *BigQueryDatasetFilter  { return c.filter }
-
-func NewBigQueryDatasetConnection(conn *pagination.Connection[*BigQueryDataset], allDatasets []*BigQueryDataset, filter *BigQueryDatasetFilter) *BigQueryDatasetConnection {
-	return &BigQueryDatasetConnection{
-		Connection:  *conn,
-		allDatasets: allDatasets,
-		filter:      filter,
-	}
-}
+type BigQueryDatasetConnection = pagination.FacetableConnection[*BigQueryDataset, *BigQueryDatasetFilter]
 
 type BigQueryDatasetFacets struct {
 	Environments []model.EnvironmentFacetItem `json:"environments"`

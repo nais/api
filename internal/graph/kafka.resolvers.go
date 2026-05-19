@@ -88,8 +88,8 @@ func (r *kafkaTopicAclResolver) Topic(ctx context.Context, obj *kafkatopic.Kafka
 	return kafkatopic.Get(ctx, obj.TeamSlug, obj.EnvironmentName, obj.TopicName)
 }
 
-func (r *kafkaTopicConnectionResolver) Facets(ctx context.Context, obj *kafkatopic.KafkaTopicConnection) (*kafkatopic.KafkaTopicFacets, error) {
-	return kafkatopic.ComputeFacets(ctx, obj.GetAllTopics(), obj.GetFilter()), nil
+func (r *kafkaTopicConnectionResolver) Facets(ctx context.Context, obj *pagination.FacetableConnection[*kafkatopic.KafkaTopic, *kafkatopic.KafkaTopicFilter]) (*kafkatopic.KafkaTopicFacets, error) {
+	return kafkatopic.ComputeFacets(ctx, obj.GetAllItems(), obj.GetFilter()), nil
 }
 
 func (r *mutationResolver) CreateKafkaCredentials(ctx context.Context, input kafkatopic.CreateKafkaCredentialsInput) (*kafkatopic.CreateKafkaCredentialsPayload, error) {
@@ -99,7 +99,7 @@ func (r *mutationResolver) CreateKafkaCredentials(ctx context.Context, input kaf
 	return kafkatopic.CreateKafkaCredentials(ctx, input)
 }
 
-func (r *teamResolver) KafkaTopics(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *kafkatopic.KafkaTopicOrder, filter *kafkatopic.KafkaTopicFilter) (*kafkatopic.KafkaTopicConnection, error) {
+func (r *teamResolver) KafkaTopics(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *kafkatopic.KafkaTopicOrder, filter *kafkatopic.KafkaTopicFilter) (*pagination.FacetableConnection[*kafkatopic.KafkaTopic, *kafkatopic.KafkaTopicFilter], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err

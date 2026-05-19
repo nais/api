@@ -34,12 +34,7 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 		}
 	}
 
-	filtered := SortFilter.Filter(ctx, all, filter)
-	SortFilter.Sort(ctx, filtered, orderBy.Field, orderBy.Direction)
-
-	slice := pagination.Slice(filtered, page)
-	conn := pagination.NewConnection(slice, page, len(filtered))
-	return NewBucketConnection(conn, all, filter), nil
+	return SortFilter.PaginatedList(ctx, all, page, orderBy.Field, orderBy.Direction, filter), nil
 }
 
 func ListAllForTeam(ctx context.Context, teamSlug slug.Slug) []*Bucket {
@@ -61,7 +56,7 @@ func ListForWorkload(ctx context.Context, teamSlug slug.Slug, references []nais_
 
 	orderBuckets(ctx, ret, orderBy)
 	conn := pagination.NewConnectionWithoutPagination(ret)
-	return NewBucketConnection(conn, ret, nil), nil
+	return pagination.NewFacetableConnection(conn, ret, (*BucketFilter)(nil)), nil
 }
 
 func orderBuckets(ctx context.Context, buckets []*Bucket, orderBy *BucketOrder) {
