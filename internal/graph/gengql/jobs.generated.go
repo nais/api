@@ -4469,7 +4469,7 @@ func (ec *executionContext) unmarshalInputUpdateJobInput(ctx context.Context, ob
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "teamSlug", "environmentName", "env"}
+	fieldsInOrder := [...]string{"name", "teamSlug", "environmentName", "environmentVariables"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -4497,13 +4497,13 @@ func (ec *executionContext) unmarshalInputUpdateJobInput(ctx context.Context, ob
 				return it, err
 			}
 			it.EnvironmentName = data
-		case "env":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("env"))
-			data, err := ec.unmarshalOUpdateEnvironmentVariableInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐUpdateEnvironmentVariableInputᚄ(ctx, v)
+		case "environmentVariables":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environmentVariables"))
+			data, err := ec.unmarshalOUpdateWorkloadEnvironmentVariableInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐUpdateWorkloadEnvironmentVariableInputᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Env = data
+			it.EnvironmentVariables = data
 		}
 	}
 	return it, nil

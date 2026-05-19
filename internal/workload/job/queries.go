@@ -280,8 +280,8 @@ func Update(ctx context.Context, input UpdateJobInput) (*UpdateJobPayload, error
 
 	var changedFields []*activitylog.ResourceChangedField
 
-	if input.Env != nil {
-		merged := workload.MergeEnvVars(naisjob.Spec.Env, input.Env)
+	if len(input.EnvironmentVariables) > 0 {
+		merged := workload.MergeEnvVars(naisjob.Spec.Env, input.EnvironmentVariables)
 		if !workload.EnvVarsEqual(naisjob.Spec.Env, merged) {
 			changedFields = append(changedFields, workload.EnvVarChangedFields(naisjob.Spec.Env, merged)...)
 			naisjob.Spec.Env = merged

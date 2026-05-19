@@ -4569,7 +4569,7 @@ func (ec *executionContext) unmarshalInputUpdateApplicationInput(ctx context.Con
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "teamSlug", "environmentName", "env", "replicas"}
+	fieldsInOrder := [...]string{"name", "teamSlug", "environmentName", "environmentVariables", "replicas"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -4597,13 +4597,13 @@ func (ec *executionContext) unmarshalInputUpdateApplicationInput(ctx context.Con
 				return it, err
 			}
 			it.EnvironmentName = data
-		case "env":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("env"))
-			data, err := ec.unmarshalOUpdateEnvironmentVariableInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐUpdateEnvironmentVariableInputᚄ(ctx, v)
+		case "environmentVariables":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environmentVariables"))
+			data, err := ec.unmarshalOUpdateWorkloadEnvironmentVariableInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐUpdateWorkloadEnvironmentVariableInputᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Env = data
+			it.EnvironmentVariables = data
 		case "replicas":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("replicas"))
 			data, err := ec.unmarshalOUpdateApplicationReplicasInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐUpdateApplicationReplicasInput(ctx, v)

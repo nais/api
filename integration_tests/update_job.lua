@@ -15,7 +15,7 @@ Test.gql("update job env as team member", function(t)
 					teamSlug: "slug-1"
 					environmentName: "dev"
 					name: "jobname-1"
-					env: [
+					environmentVariables: [
 						{ name: "MY_VAR", value: "hello" }
 						{ name: "OTHER", value: "world" }
 					]
@@ -49,7 +49,7 @@ Test.gql("update job no-op returns job without activity log", function(t)
 					teamSlug: "slug-1"
 					environmentName: "dev"
 					name: "jobname-1"
-					env: [
+					environmentVariables: [
 						{ name: "MY_VAR", value: "hello" }
 						{ name: "OTHER", value: "world" }
 					]
@@ -83,7 +83,7 @@ Test.gql("update job as non-member", function(t)
 					teamSlug: "slug-1"
 					environmentName: "dev"
 					name: "jobname-1"
-					env: [{ name: "MY_VAR", value: "hello" }]
+					environmentVariables: [{ name: "MY_VAR", value: "hello" }]
 				}
 			) {
 				job {
@@ -183,7 +183,7 @@ Test.gql("update job remove env variable", function(t)
 					teamSlug: "slug-1"
 					environmentName: "dev"
 					name: "jobname-1"
-					env: [
+					environmentVariables: [
 						{ name: "MY_VAR", value: null }
 					]
 				}

@@ -492,10 +492,10 @@ type TriggerJobPayload struct {
 }
 
 type UpdateJobInput struct {
-	Name            string                                     `json:"name"`
-	TeamSlug        slug.Slug                                  `json:"teamSlug"`
-	EnvironmentName string                                     `json:"environmentName"`
-	Env             []*workload.UpdateEnvironmentVariableInput `json:"env,omitempty"`
+	Name                 string                                             `json:"name"`
+	TeamSlug             slug.Slug                                          `json:"teamSlug"`
+	EnvironmentName      string                                             `json:"environmentName"`
+	EnvironmentVariables []*workload.UpdateWorkloadEnvironmentVariableInput `json:"environmentVariables,omitempty"`
 }
 
 type UpdateJobPayload struct {

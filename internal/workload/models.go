@@ -279,12 +279,12 @@ type TeamWorkloadsFilter struct {
 	WorkloadStatusErrorTypes []string `json:"workloadStatusErrorTypes,omitempty"`
 }
 
-type UpdateEnvironmentVariableInput struct {
+type UpdateWorkloadEnvironmentVariableInput struct {
 	Name  string  `json:"name"`
 	Value *string `json:"value,omitempty"`
 }
 
-func MergeEnvVars(existing nais_io_v1.EnvVars, updates []*UpdateEnvironmentVariableInput) nais_io_v1.EnvVars {
+func MergeEnvVars(existing nais_io_v1.EnvVars, updates []*UpdateWorkloadEnvironmentVariableInput) nais_io_v1.EnvVars {
 	envMap := make(map[string]nais_io_v1.EnvVar, len(existing))
 	for _, e := range existing {
 		envMap[e.Name] = e
@@ -354,6 +354,10 @@ func EnvVarChangedFields(existing nais_io_v1.EnvVars, merged nais_io_v1.EnvVars)
 			fields = append(fields, &activitylog.ResourceChangedField{Field: "spec.env." + name, NewValue: &n})
 		}
 	}
+
+	slices.SortFunc(fields, func(a, b *activitylog.ResourceChangedField) int {
+		return strings.Compare(a.Field, b.Field)
+	})
 
 	return fields
 }

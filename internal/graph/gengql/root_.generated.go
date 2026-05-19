@@ -18120,7 +18120,6 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputUpdateApplicationInput,
 		ec.unmarshalInputUpdateApplicationReplicasInput,
 		ec.unmarshalInputUpdateConfigValueInput,
-		ec.unmarshalInputUpdateEnvironmentVariableInput,
 		ec.unmarshalInputUpdateImageVulnerabilityInput,
 		ec.unmarshalInputUpdateJobInput,
 		ec.unmarshalInputUpdateOpenSearchInput,
@@ -18131,6 +18130,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputUpdateTeamInput,
 		ec.unmarshalInputUpdateUnleashInstanceInput,
 		ec.unmarshalInputUpdateValkeyInput,
+		ec.unmarshalInputUpdateWorkloadEnvironmentVariableInput,
 		ec.unmarshalInputUserOrder,
 		ec.unmarshalInputUserTeamOrder,
 		ec.unmarshalInputValkeyAccessOrder,
@@ -19493,7 +19493,7 @@ input UpdateApplicationInput {
 	"""
 	Update environment variables. Variables are merged with existing ones.
 	"""
-	env: [UpdateEnvironmentVariableInput!]
+	environmentVariables: [UpdateWorkloadEnvironmentVariableInput!]
 
 	"""
 	Update the replica configuration.
@@ -22844,7 +22844,7 @@ input UpdateJobInput {
 	"""
 	Update environment variables. Variables are merged with existing ones.
 	"""
-	env: [UpdateEnvironmentVariableInput!]
+	environmentVariables: [UpdateWorkloadEnvironmentVariableInput!]
 }
 
 """
@@ -30479,7 +30479,7 @@ input TeamWorkloadsFilter {
 """
 Input for setting an environment variable on a workload. To remove a variable, set value to null.
 """
-input UpdateEnvironmentVariableInput {
+input UpdateWorkloadEnvironmentVariableInput {
 	"""
 	Name of the environment variable.
 	"""

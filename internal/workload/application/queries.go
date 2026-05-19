@@ -173,8 +173,8 @@ func Update(ctx context.Context, input UpdateApplicationInput) (*UpdateApplicati
 
 	var changedFields []*activitylog.ResourceChangedField
 
-	if input.Env != nil {
-		merged := workload.MergeEnvVars(app.Spec.Env, input.Env)
+	if len(input.EnvironmentVariables) > 0 {
+		merged := workload.MergeEnvVars(app.Spec.Env, input.EnvironmentVariables)
 		if !workload.EnvVarsEqual(app.Spec.Env, merged) {
 			changedFields = append(changedFields, workload.EnvVarChangedFields(app.Spec.Env, merged)...)
 			app.Spec.Env = merged

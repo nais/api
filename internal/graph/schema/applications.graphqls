@@ -585,7 +585,7 @@ input UpdateApplicationInput {
 	"""
 	Update environment variables. Variables are merged with existing ones.
 	"""
-	env: [UpdateEnvironmentVariableInput!]
+	environmentVariables: [UpdateWorkloadEnvironmentVariableInput!]
 
 	"""
 	Update the replica configuration.

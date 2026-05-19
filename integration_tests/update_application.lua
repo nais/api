@@ -15,7 +15,7 @@ Test.gql("update application env and replicas as team member", function(t)
 					teamSlug: "slug-1"
 					environmentName: "dev"
 					name: "another-app"
-					env: [
+					environmentVariables: [
 						{ name: "FOO", value: "bar" }
 						{ name: "BAZ", value: "qux" }
 					]
@@ -68,7 +68,7 @@ Test.gql("update application no-op returns application without new activity log"
 					teamSlug: "slug-1"
 					environmentName: "dev"
 					name: "another-app"
-					env: [
+					environmentVariables: [
 						{ name: "FOO", value: "bar" }
 						{ name: "BAZ", value: "qux" }
 					]
@@ -103,7 +103,7 @@ Test.gql("update application as non-member", function(t)
 					teamSlug: "slug-1"
 					environmentName: "dev"
 					name: "another-app"
-					env: [{ name: "FOO", value: "bar" }]
+					environmentVariables: [{ name: "FOO", value: "bar" }]
 				}
 			) {
 				application {
@@ -188,7 +188,7 @@ Test.gql("update application remove env variable", function(t)
 					teamSlug: "slug-1"
 					environmentName: "dev"
 					name: "another-app"
-					env: [
+					environmentVariables: [
 						{ name: "FOO", value: null }
 					]
 				}

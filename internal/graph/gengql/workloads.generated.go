@@ -798,8 +798,8 @@ func (ec *executionContext) unmarshalInputTeamWorkloadsFilter(ctx context.Contex
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputUpdateEnvironmentVariableInput(ctx context.Context, obj any) (workload.UpdateEnvironmentVariableInput, error) {
-	var it workload.UpdateEnvironmentVariableInput
+func (ec *executionContext) unmarshalInputUpdateWorkloadEnvironmentVariableInput(ctx context.Context, obj any) (workload.UpdateWorkloadEnvironmentVariableInput, error) {
+	var it workload.UpdateWorkloadEnvironmentVariableInput
 	if obj == nil {
 		return it, nil
 	}
@@ -1535,8 +1535,8 @@ func (ec *executionContext) marshalNEnvironmentWorkloadOrderField2githubᚗcom�
 	return v
 }
 
-func (ec *executionContext) unmarshalNUpdateEnvironmentVariableInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐUpdateEnvironmentVariableInput(ctx context.Context, v any) (*workload.UpdateEnvironmentVariableInput, error) {
-	res, err := ec.unmarshalInputUpdateEnvironmentVariableInput(ctx, v)
+func (ec *executionContext) unmarshalNUpdateWorkloadEnvironmentVariableInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐUpdateWorkloadEnvironmentVariableInput(ctx context.Context, v any) (*workload.UpdateWorkloadEnvironmentVariableInput, error) {
+	res, err := ec.unmarshalInputUpdateWorkloadEnvironmentVariableInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
@@ -1646,17 +1646,17 @@ func (ec *executionContext) unmarshalOTeamWorkloadsFilter2ᚖgithubᚗcomᚋnais
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOUpdateEnvironmentVariableInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐUpdateEnvironmentVariableInputᚄ(ctx context.Context, v any) ([]*workload.UpdateEnvironmentVariableInput, error) {
+func (ec *executionContext) unmarshalOUpdateWorkloadEnvironmentVariableInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐUpdateWorkloadEnvironmentVariableInputᚄ(ctx context.Context, v any) ([]*workload.UpdateWorkloadEnvironmentVariableInput, error) {
 	if v == nil {
 		return nil, nil
 	}
 	var vSlice []any
 	vSlice = graphql.CoerceList(v)
 	var err error
-	res := make([]*workload.UpdateEnvironmentVariableInput, len(vSlice))
+	res := make([]*workload.UpdateWorkloadEnvironmentVariableInput, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNUpdateEnvironmentVariableInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐUpdateEnvironmentVariableInput(ctx, vSlice[i])
+		res[i], err = ec.unmarshalNUpdateWorkloadEnvironmentVariableInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐUpdateWorkloadEnvironmentVariableInput(ctx, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
