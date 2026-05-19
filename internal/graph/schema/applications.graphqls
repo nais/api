@@ -563,6 +563,9 @@ type RestartApplicationPayload {
 	application: Application
 }
 
+"""
+Input for updating an application.
+"""
 input UpdateApplicationInput {
 	"""
 	Name of the application.

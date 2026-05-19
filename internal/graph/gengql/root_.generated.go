@@ -19471,6 +19471,9 @@ type RestartApplicationPayload {
 	application: Application
 }
 
+"""
+Input for updating an application.
+"""
 input UpdateApplicationInput {
 	"""
 	Name of the application.
@@ -22766,6 +22769,9 @@ type JobCreatedActivityLogEntry implements ActivityLogEntry & Node {
 	data: GenericKubernetesResourceActivityLogEntryData!
 }
 
+"""
+Activity log entry for when a job is updated.
+"""
 type JobUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
@@ -22795,6 +22801,9 @@ type JobUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 	data: JobUpdatedActivityLogEntryData!
 }
 
+"""
+Data associated with a job update activity log entry.
+"""
 type JobUpdatedActivityLogEntryData {
 	"The fields that changed during the update."
 	changedFields: [ResourceChangedField!]!
