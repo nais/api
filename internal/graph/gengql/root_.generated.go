@@ -29692,6 +29692,7 @@ type CVE implements Node {
 
 "Filter for workloads affected by a CVE. When teamSlugs is provided only workloads belonging to those teams are returned."
 input CVEWorkloadsFilter {
+	"Team identifiers used to limit results to workloads owned by those teams."
 	teamSlugs: [Slug!]
 }
 
