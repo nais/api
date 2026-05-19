@@ -459,7 +459,7 @@ input TeamWorkloadsFilter {
 """
 Input for setting an environment variable on a workload. To remove a variable, set value to null.
 """
-input UpdateEnvVariableInput {
+input UpdateEnvironmentVariableInput {
 	"""
 	Name of the environment variable.
 	"""

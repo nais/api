@@ -531,11 +531,11 @@ type RestartApplicationPayload struct {
 }
 
 type UpdateApplicationInput struct {
-	Name            string                             `json:"name"`
-	TeamSlug        slug.Slug                          `json:"teamSlug"`
-	EnvironmentName string                             `json:"environmentName"`
-	Env             []*workload.UpdateEnvVariableInput `json:"env,omitempty"`
-	Replicas        *UpdateApplicationReplicasInput    `json:"replicas,omitempty"`
+	Name            string                                     `json:"name"`
+	TeamSlug        slug.Slug                                  `json:"teamSlug"`
+	EnvironmentName string                                     `json:"environmentName"`
+	Env             []*workload.UpdateEnvironmentVariableInput `json:"env,omitempty"`
+	Replicas        *UpdateApplicationReplicasInput            `json:"replicas,omitempty"`
 }
 
 type UpdateApplicationReplicasInput struct {

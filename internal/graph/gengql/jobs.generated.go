@@ -4499,7 +4499,7 @@ func (ec *executionContext) unmarshalInputUpdateJobInput(ctx context.Context, ob
 			it.EnvironmentName = data
 		case "env":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("env"))
-			data, err := ec.unmarshalOUpdateEnvVariableInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐUpdateEnvVariableInputᚄ(ctx, v)
+			data, err := ec.unmarshalOUpdateEnvironmentVariableInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐUpdateEnvironmentVariableInputᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}

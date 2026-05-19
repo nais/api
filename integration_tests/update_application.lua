@@ -50,8 +50,8 @@ Test.k8s("application has updated env and replicas", function(t)
 			ingresses = { "https://another-app.external.server.com" },
 			replicas = Ignore(),
 			env = {
-				{ name = "FOO", value = "bar" },
 				{ name = "BAZ", value = "qux" },
+				{ name = "FOO", value = "bar" },
 			},
 		},
 		status = Ignore(),
@@ -164,10 +164,10 @@ Test.gql("activity log contains update entry", function(t)
 							resourceName = "another-app",
 							data = {
 								changedFields = {
-									{ field = "spec.env.FOO", oldValue = Null, newValue = "bar" },
-									{ field = "spec.env.BAZ", oldValue = Null, newValue = "qux" },
-									{ field = "spec.replicas.min", oldValue = "1", newValue = "2" },
-									{ field = "spec.replicas.max", oldValue = "1", newValue = "5" },
+									{ field = "spec.env.BAZ",      oldValue = Null, newValue = "qux" },
+									{ field = "spec.env.FOO",      oldValue = Null, newValue = "bar" },
+									{ field = "spec.replicas.min", oldValue = "1",  newValue = "2" },
+									{ field = "spec.replicas.max", oldValue = "1",  newValue = "5" },
 								},
 							},
 						},

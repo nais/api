@@ -326,7 +326,7 @@ Test.gql("activity log contains ApplicationUpdatedActivityLogEntry with changedF
 			team(slug: "%s") {
 				activityLog(
 					first: 20
-					filter: { activityTypes: [GENERIC_KUBERNETES_RESOURCE_UPDATED] }
+					filter: { activityTypes: [APPLICATION_UPDATED] }
 				) {
 					nodes {
 						__typename
@@ -337,8 +337,6 @@ Test.gql("activity log contains ApplicationUpdatedActivityLogEntry with changedF
 						environmentName
 						... on ApplicationUpdatedActivityLogEntry {
 							data {
-								apiVersion
-								kind
 								changedFields {
 									field
 									oldValue
@@ -367,8 +365,6 @@ Test.gql("activity log contains ApplicationUpdatedActivityLogEntry with changedF
 							resourceName = "my-app",
 							environmentName = "dev",
 							data = {
-								apiVersion = "nais.io/v1alpha1",
-								kind = "Application",
 								changedFields = {
 									{
 										field = "spec.image",

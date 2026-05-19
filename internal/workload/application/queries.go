@@ -192,14 +192,20 @@ func Update(ctx context.Context, input UpdateApplicationInput) (*UpdateApplicati
 				app.Spec.Replicas = &nais_io_v1.Replicas{}
 			} else {
 				if !ptr.Equal(app.Spec.Replicas.Min, &min) {
-					oldMin := strconv.Itoa(*app.Spec.Replicas.Min)
+					var oldMin *string
+					if app.Spec.Replicas.Min != nil {
+						oldMin = new(strconv.Itoa(*app.Spec.Replicas.Min))
+					}
 					newMin := strconv.Itoa(min)
-					changedFields = append(changedFields, &activitylog.ResourceChangedField{Field: "spec.replicas.min", OldValue: &oldMin, NewValue: &newMin})
+					changedFields = append(changedFields, &activitylog.ResourceChangedField{Field: "spec.replicas.min", OldValue: oldMin, NewValue: &newMin})
 				}
 				if !ptr.Equal(app.Spec.Replicas.Max, &max) {
-					oldMax := strconv.Itoa(*app.Spec.Replicas.Max)
+					var oldMax *string
+					if app.Spec.Replicas.Max != nil {
+						oldMax = new(strconv.Itoa(*app.Spec.Replicas.Max))
+					}
 					newMax := strconv.Itoa(max)
-					changedFields = append(changedFields, &activitylog.ResourceChangedField{Field: "spec.replicas.max", OldValue: &oldMax, NewValue: &newMax})
+					changedFields = append(changedFields, &activitylog.ResourceChangedField{Field: "spec.replicas.max", OldValue: oldMax, NewValue: &newMax})
 				}
 			}
 			app.Spec.Replicas.Min = &min

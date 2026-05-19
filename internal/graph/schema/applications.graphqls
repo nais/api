@@ -582,7 +582,7 @@ input UpdateApplicationInput {
 	"""
 	Update environment variables. Variables are merged with existing ones.
 	"""
-	env: [UpdateEnvVariableInput!]
+	env: [UpdateEnvironmentVariableInput!]
 
 	"""
 	Update the replica configuration.
@@ -903,6 +903,9 @@ type ApplicationCreatedActivityLogEntry implements ActivityLogEntry & Node {
 	data: GenericKubernetesResourceActivityLogEntryData!
 }
 
+"""
+Data associated with an application update activity log entry.
+"""
 type ApplicationUpdatedActivityLogEntryData {
 	"The fields that changed during the update."
 	changedFields: [ResourceChangedField!]!
@@ -910,6 +913,9 @@ type ApplicationUpdatedActivityLogEntryData {
 	gitHubActorClaims: GitHubActorClaims
 }
 
+"""
+Activity log entry for when an application is updated.
+"""
 type ApplicationUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!

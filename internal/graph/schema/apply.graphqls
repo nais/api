@@ -1,7 +1,4 @@
 extend enum ActivityLogActivityType {
-	"A generic kubernetes resource was updated via apply."
-	GENERIC_KUBERNETES_RESOURCE_UPDATED
-
 	"A generic kubernetes resource was created via apply."
 	GENERIC_KUBERNETES_RESOURCE_CREATED
 }

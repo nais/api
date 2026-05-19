@@ -18120,7 +18120,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputUpdateApplicationInput,
 		ec.unmarshalInputUpdateApplicationReplicasInput,
 		ec.unmarshalInputUpdateConfigValueInput,
-		ec.unmarshalInputUpdateEnvVariableInput,
+		ec.unmarshalInputUpdateEnvironmentVariableInput,
 		ec.unmarshalInputUpdateImageVulnerabilityInput,
 		ec.unmarshalInputUpdateJobInput,
 		ec.unmarshalInputUpdateOpenSearchInput,
@@ -19490,7 +19490,7 @@ input UpdateApplicationInput {
 	"""
 	Update environment variables. Variables are merged with existing ones.
 	"""
-	env: [UpdateEnvVariableInput!]
+	env: [UpdateEnvironmentVariableInput!]
 
 	"""
 	Update the replica configuration.
@@ -19811,6 +19811,9 @@ type ApplicationCreatedActivityLogEntry implements ActivityLogEntry & Node {
 	data: GenericKubernetesResourceActivityLogEntryData!
 }
 
+"""
+Data associated with an application update activity log entry.
+"""
 type ApplicationUpdatedActivityLogEntryData {
 	"The fields that changed during the update."
 	changedFields: [ResourceChangedField!]!
@@ -19818,6 +19821,9 @@ type ApplicationUpdatedActivityLogEntryData {
 	gitHubActorClaims: GitHubActorClaims
 }
 
+"""
+Activity log entry for when an application is updated.
+"""
 type ApplicationUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
@@ -19870,9 +19876,6 @@ extend enum ActivityLogActivityType {
 }
 `, BuiltIn: false},
 	{Name: "../schema/apply.graphqls", Input: `extend enum ActivityLogActivityType {
-	"A generic kubernetes resource was updated via apply."
-	GENERIC_KUBERNETES_RESOURCE_UPDATED
-
 	"A generic kubernetes resource was created via apply."
 	GENERIC_KUBERNETES_RESOURCE_CREATED
 }
@@ -22832,7 +22835,7 @@ input UpdateJobInput {
 	"""
 	Update environment variables. Variables are merged with existing ones.
 	"""
-	env: [UpdateEnvVariableInput!]
+	env: [UpdateEnvironmentVariableInput!]
 }
 
 """
@@ -30467,7 +30470,7 @@ input TeamWorkloadsFilter {
 """
 Input for setting an environment variable on a workload. To remove a variable, set value to null.
 """
-input UpdateEnvVariableInput {
+input UpdateEnvironmentVariableInput {
 	"""
 	Name of the environment variable.
 	"""

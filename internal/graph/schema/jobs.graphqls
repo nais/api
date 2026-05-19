@@ -695,7 +695,7 @@ input UpdateJobInput {
 	"""
 	Update environment variables. Variables are merged with existing ones.
 	"""
-	env: [UpdateEnvVariableInput!]
+	env: [UpdateEnvironmentVariableInput!]
 }
 
 """

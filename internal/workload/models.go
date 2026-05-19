@@ -3,6 +3,7 @@ package workload
 import (
 	"fmt"
 	"io"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -278,12 +279,12 @@ type TeamWorkloadsFilter struct {
 	WorkloadStatusErrorTypes []string `json:"workloadStatusErrorTypes,omitempty"`
 }
 
-type UpdateEnvVariableInput struct {
+type UpdateEnvironmentVariableInput struct {
 	Name  string  `json:"name"`
 	Value *string `json:"value,omitempty"`
 }
 
-func MergeEnvVars(existing nais_io_v1.EnvVars, updates []*UpdateEnvVariableInput) nais_io_v1.EnvVars {
+func MergeEnvVars(existing nais_io_v1.EnvVars, updates []*UpdateEnvironmentVariableInput) nais_io_v1.EnvVars {
 	envMap := make(map[string]nais_io_v1.EnvVar, len(existing))
 	for _, e := range existing {
 		envMap[e.Name] = e
@@ -301,6 +302,10 @@ func MergeEnvVars(existing nais_io_v1.EnvVars, updates []*UpdateEnvVariableInput
 	for _, v := range envMap {
 		result = append(result, v)
 	}
+
+	slices.SortFunc(result, func(a, b nais_io_v1.EnvVar) int {
+		return strings.Compare(a.Name, b.Name)
+	})
 	return result
 }
 

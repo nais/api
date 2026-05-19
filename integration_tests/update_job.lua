@@ -115,7 +115,7 @@ Test.k8s("job has updated env", function(t)
 			schedule = "0 0 * * *",
 			env = {
 				{ name = "MY_VAR", value = "hello" },
-				{ name = "OTHER", value = "world" },
+				{ name = "OTHER",  value = "world" },
 			},
 		},
 		status = Ignore(),
@@ -162,7 +162,7 @@ Test.gql("activity log contains job update entry", function(t)
 							data = {
 								changedFields = {
 									{ field = "spec.env.MY_VAR", oldValue = Null, newValue = "hello" },
-									{ field = "spec.env.OTHER", oldValue = Null, newValue = "world" },
+									{ field = "spec.env.OTHER",  oldValue = Null, newValue = "world" },
 								},
 							},
 						},
