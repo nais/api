@@ -113,7 +113,7 @@ type Integer interface {
 	int64 | int32 | int | uint64
 }
 
-// FacetableConnection wraps a Connection with the full unfiltered items and the
+// FacetableConnection wraps a Connection with the full item list (before pagination) and the
 // applied filter so that facets can be computed lazily by resolvers.
 type FacetableConnection[T any, F any] struct {
 	Connection[T]
