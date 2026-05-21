@@ -111,16 +111,6 @@ func stringMatch(s, pattern string) bool {
 	return strings.HasPrefix(s, pattern)
 }
 
-func orderTopics(ctx context.Context, topics []*KafkaTopic, orderBy *KafkaTopicOrder) {
-	if orderBy == nil {
-		orderBy = &KafkaTopicOrder{
-			Field:     "NAME",
-			Direction: model.OrderDirectionAsc,
-		}
-	}
-	SortFilterTopic.Sort(ctx, topics, orderBy.Field, orderBy.Direction)
-}
-
 func orderTopicACLs(ctx context.Context, acls []*KafkaTopicACL, orderBy *KafkaTopicACLOrder) {
 	if orderBy == nil {
 		orderBy = &KafkaTopicACLOrder{

@@ -158,17 +158,6 @@ func GetForWorkload(ctx context.Context, teamSlug slug.Slug, environment string,
 	return fromContext(ctx).client.watcher.Get(environment, teamSlug.String(), instanceNamer(teamSlug, reference.Instance))
 }
 
-func orderOpenSearch(ctx context.Context, ret []*OpenSearch, orderBy *OpenSearchOrder) {
-	if orderBy == nil {
-		orderBy = &OpenSearchOrder{
-			Field:     "NAME",
-			Direction: model.OrderDirectionAsc,
-		}
-	}
-
-	SortFilterOpenSearch.Sort(ctx, ret, orderBy.Field, orderBy.Direction)
-}
-
 func Create(ctx context.Context, input CreateOpenSearchInput) (*CreateOpenSearchPayload, error) {
 	if err := input.Validate(ctx); err != nil {
 		return nil, err
