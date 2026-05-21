@@ -1021,14 +1021,15 @@ type ComplexityRoot struct {
 	}
 
 	ImageVulnerabilitySummary struct {
-		Critical    func(childComplexity int) int
-		High        func(childComplexity int) int
-		LastUpdated func(childComplexity int) int
-		Low         func(childComplexity int) int
-		Medium      func(childComplexity int) int
-		RiskScore   func(childComplexity int) int
-		Total       func(childComplexity int) int
-		Unassigned  func(childComplexity int) int
+		Critical      func(childComplexity int) int
+		High          func(childComplexity int) int
+		LastUpdated   func(childComplexity int) int
+		Low           func(childComplexity int) int
+		Medium        func(childComplexity int) int
+		RiskScore     func(childComplexity int) int
+		StaleImageTag func(childComplexity int) int
+		Total         func(childComplexity int) int
+		Unassigned    func(childComplexity int) int
 	}
 
 	ImageVulnerabilitySuppression struct {
@@ -6946,6 +6947,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ImageVulnerabilitySummary.RiskScore(childComplexity), true
+
+	case "ImageVulnerabilitySummary.staleImageTag":
+		if e.ComplexityRoot.ImageVulnerabilitySummary.StaleImageTag == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImageVulnerabilitySummary.StaleImageTag(childComplexity), true
 
 	case "ImageVulnerabilitySummary.total":
 		if e.ComplexityRoot.ImageVulnerabilitySummary.Total == nil {
@@ -29636,6 +29644,13 @@ type ImageVulnerabilitySummary {
 
 	"Timestamp of the last update of the vulnerability summary."
 	lastUpdated: Time
+
+	"""
+	When set, the vulnerability counts are sourced from this older image tag because
+	no summary exists yet for the requested tag (e.g. a newly deployed image that is
+	still being scanned). The value is the tag the stale data originates from.
+	"""
+	staleImageTag: String
 }
 
 type ImageVulnerabilityConnection {
@@ -31941,6 +31956,8 @@ func (ec *executionContext) childFields_ImageVulnerabilitySummary(ctx context.Co
 		return ec.fieldContext_ImageVulnerabilitySummary_unassigned(ctx, field)
 	case "lastUpdated":
 		return ec.fieldContext_ImageVulnerabilitySummary_lastUpdated(ctx, field)
+	case "staleImageTag":
+		return ec.fieldContext_ImageVulnerabilitySummary_staleImageTag(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type ImageVulnerabilitySummary", field.Name)
 }
