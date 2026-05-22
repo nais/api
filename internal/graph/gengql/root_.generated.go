@@ -176,11 +176,6 @@ type ComplexityRoot struct {
 		Node   func(childComplexity int) int
 	}
 
-	ActivityLogEnvironmentFacetItem struct {
-		Count           func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-	}
-
 	ActivityLogFacets struct {
 		ActivityTypes func(childComplexity int) int
 		Environments  func(childComplexity int) int
@@ -298,11 +293,6 @@ type ComplexityRoot struct {
 	ApplicationEdge struct {
 		Cursor func(childComplexity int) int
 		Node   func(childComplexity int) int
-	}
-
-	ApplicationEnvironmentFacetItem struct {
-		Count           func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
 	}
 
 	ApplicationFacets struct {
@@ -936,11 +926,6 @@ type ComplexityRoot struct {
 		Node   func(childComplexity int) int
 	}
 
-	EnvironmentFacetItem struct {
-		Count           func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-	}
-
 	ExternalIngressCriticalVulnerabilityIssue struct {
 		CvssScore       func(childComplexity int) int
 		ID              func(childComplexity int) int
@@ -1227,11 +1212,6 @@ type ComplexityRoot struct {
 		Node   func(childComplexity int) int
 	}
 
-	JobEnvironmentFacetItem struct {
-		Count           func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-	}
-
 	JobFacets struct {
 		Environments func(childComplexity int) int
 		States       func(childComplexity int) int
@@ -1422,11 +1402,6 @@ type ComplexityRoot struct {
 	KafkaTopicFacets struct {
 		Environments func(childComplexity int) int
 		Pools        func(childComplexity int) int
-	}
-
-	KafkaTopicPoolFacetItem struct {
-		Count func(childComplexity int) int
-		Pool  func(childComplexity int) int
 	}
 
 	LastRunFailedIssue struct {
@@ -1823,11 +1798,6 @@ type ComplexityRoot struct {
 	PostgresInstanceMaintenanceWindow struct {
 		Day  func(childComplexity int) int
 		Hour func(childComplexity int) int
-	}
-
-	PostgresInstanceMajorVersionFacetItem struct {
-		Count        func(childComplexity int) int
-		MajorVersion func(childComplexity int) int
 	}
 
 	PostgresInstanceResources struct {
@@ -2647,6 +2617,11 @@ type ComplexityRoot struct {
 
 	StartValkeyMaintenancePayload struct {
 		Error func(childComplexity int) int
+	}
+
+	StringFacetItem struct {
+		Count func(childComplexity int) int
+		Value func(childComplexity int) int
 	}
 
 	Subscription struct {
@@ -3704,20 +3679,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ActivityLogEntryEdge.Node(childComplexity), true
 
-	case "ActivityLogEnvironmentFacetItem.count":
-		if e.ComplexityRoot.ActivityLogEnvironmentFacetItem.Count == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ActivityLogEnvironmentFacetItem.Count(childComplexity), true
-
-	case "ActivityLogEnvironmentFacetItem.environmentName":
-		if e.ComplexityRoot.ActivityLogEnvironmentFacetItem.EnvironmentName == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ActivityLogEnvironmentFacetItem.EnvironmentName(childComplexity), true
-
 	case "ActivityLogFacets.activityTypes":
 		if e.ComplexityRoot.ActivityLogFacets.ActivityTypes == nil {
 			break
@@ -4305,20 +4266,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ApplicationEdge.Node(childComplexity), true
-
-	case "ApplicationEnvironmentFacetItem.count":
-		if e.ComplexityRoot.ApplicationEnvironmentFacetItem.Count == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ApplicationEnvironmentFacetItem.Count(childComplexity), true
-
-	case "ApplicationEnvironmentFacetItem.environmentName":
-		if e.ComplexityRoot.ApplicationEnvironmentFacetItem.EnvironmentName == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ApplicationEnvironmentFacetItem.EnvironmentName(childComplexity), true
 
 	case "ApplicationFacets.environments":
 		if e.ComplexityRoot.ApplicationFacets.Environments == nil {
@@ -6665,20 +6612,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.EnvironmentEdge.Node(childComplexity), true
 
-	case "EnvironmentFacetItem.count":
-		if e.ComplexityRoot.EnvironmentFacetItem.Count == nil {
-			break
-		}
-
-		return e.ComplexityRoot.EnvironmentFacetItem.Count(childComplexity), true
-
-	case "EnvironmentFacetItem.environmentName":
-		if e.ComplexityRoot.EnvironmentFacetItem.EnvironmentName == nil {
-			break
-		}
-
-		return e.ComplexityRoot.EnvironmentFacetItem.EnvironmentName(childComplexity), true
-
 	case "ExternalIngressCriticalVulnerabilityIssue.cvssScore":
 		if e.ComplexityRoot.ExternalIngressCriticalVulnerabilityIssue.CvssScore == nil {
 			break
@@ -7979,20 +7912,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.JobEdge.Node(childComplexity), true
 
-	case "JobEnvironmentFacetItem.count":
-		if e.ComplexityRoot.JobEnvironmentFacetItem.Count == nil {
-			break
-		}
-
-		return e.ComplexityRoot.JobEnvironmentFacetItem.Count(childComplexity), true
-
-	case "JobEnvironmentFacetItem.environmentName":
-		if e.ComplexityRoot.JobEnvironmentFacetItem.EnvironmentName == nil {
-			break
-		}
-
-		return e.ComplexityRoot.JobEnvironmentFacetItem.EnvironmentName(childComplexity), true
-
 	case "JobFacets.environments":
 		if e.ComplexityRoot.JobFacets.Environments == nil {
 			break
@@ -8758,20 +8677,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.KafkaTopicFacets.Pools(childComplexity), true
-
-	case "KafkaTopicPoolFacetItem.count":
-		if e.ComplexityRoot.KafkaTopicPoolFacetItem.Count == nil {
-			break
-		}
-
-		return e.ComplexityRoot.KafkaTopicPoolFacetItem.Count(childComplexity), true
-
-	case "KafkaTopicPoolFacetItem.pool":
-		if e.ComplexityRoot.KafkaTopicPoolFacetItem.Pool == nil {
-			break
-		}
-
-		return e.ComplexityRoot.KafkaTopicPoolFacetItem.Pool(childComplexity), true
 
 	case "LastRunFailedIssue.id":
 		if e.ComplexityRoot.LastRunFailedIssue.ID == nil {
@@ -10855,20 +10760,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.PostgresInstanceMaintenanceWindow.Hour(childComplexity), true
-
-	case "PostgresInstanceMajorVersionFacetItem.count":
-		if e.ComplexityRoot.PostgresInstanceMajorVersionFacetItem.Count == nil {
-			break
-		}
-
-		return e.ComplexityRoot.PostgresInstanceMajorVersionFacetItem.Count(childComplexity), true
-
-	case "PostgresInstanceMajorVersionFacetItem.majorVersion":
-		if e.ComplexityRoot.PostgresInstanceMajorVersionFacetItem.MajorVersion == nil {
-			break
-		}
-
-		return e.ComplexityRoot.PostgresInstanceMajorVersionFacetItem.MajorVersion(childComplexity), true
 
 	case "PostgresInstanceResources.cpu":
 		if e.ComplexityRoot.PostgresInstanceResources.CPU == nil {
@@ -14473,6 +14364,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.StartValkeyMaintenancePayload.Error(childComplexity), true
+
+	case "StringFacetItem.count":
+		if e.ComplexityRoot.StringFacetItem.Count == nil {
+			break
+		}
+
+		return e.ComplexityRoot.StringFacetItem.Count(childComplexity), true
+
+	case "StringFacetItem.value":
+		if e.ComplexityRoot.StringFacetItem.Value == nil {
+			break
+		}
+
+		return e.ComplexityRoot.StringFacetItem.Value(childComplexity), true
 
 	case "Subscription.log":
 		if e.ComplexityRoot.Subscription.Log == nil {
@@ -19283,7 +19188,7 @@ type ActivityLogFacets {
 	"""
 	Distribution of entries by environment.
 	"""
-	environments: [ActivityLogEnvironmentFacetItem!]!
+	environments: [StringFacetItem!]!
 }
 
 """
@@ -19309,21 +19214,6 @@ type ActivityLogResourceTypeFacetItem {
 	The resource type.
 	"""
 	resourceType: ActivityLogEntryResourceType!
-
-	"""
-	Number of matching entries.
-	"""
-	count: Int!
-}
-
-"""
-A single facet item for environments.
-"""
-type ActivityLogEnvironmentFacetItem {
-	"""
-	The environment name.
-	"""
-	environmentName: String!
 
 	"""
 	Number of matching entries.
@@ -20129,27 +20019,12 @@ type ApplicationFacets {
 	"""
 	Distribution of applications by environment.
 	"""
-	environments: [ApplicationEnvironmentFacetItem!]!
+	environments: [StringFacetItem!]!
 
 	"""
 	Distribution of applications by state.
 	"""
 	states: [ApplicationStateFacetItem!]!
-}
-
-"""
-A single facet item for environments.
-"""
-type ApplicationEnvironmentFacetItem {
-	"""
-	The environment name.
-	"""
-	environmentName: String!
-
-	"""
-	Number of matching applications.
-	"""
-	count: Int!
 }
 
 """
@@ -20963,7 +20838,7 @@ Facets for BigQuery datasets, providing distribution counts across different dim
 """
 type BigQueryDatasetFacets {
 	"Distribution of datasets by environment."
-	environments: [EnvironmentFacetItem!]!
+	environments: [StringFacetItem!]!
 }
 
 input BigQueryDatasetAccessOrder {
@@ -21098,7 +20973,7 @@ Facets for buckets, providing distribution counts across different dimensions.
 """
 type BucketFacets {
 	"Distribution of buckets by environment."
-	environments: [EnvironmentFacetItem!]!
+	environments: [StringFacetItem!]!
 }
 
 input BucketOrder {
@@ -21543,7 +21418,7 @@ Facets for configs, providing distribution counts across different dimensions.
 """
 type ConfigFacets {
 	"Distribution of configs by environment."
-	environments: [EnvironmentFacetItem!]!
+	environments: [StringFacetItem!]!
 
 	"Distribution of configs by whether they are in use by any workload."
 	inUse: [BooleanFacetItem!]!
@@ -22445,23 +22320,22 @@ extend type TeamEnvironment {
 }
 `, BuiltIn: false},
 	{Name: "../schema/facets.graphqls", Input: `"""
-A shared facet item representing the count of resources within a specific environment.
-Reusable across multiple resource connections.
+A shared facet item representing a boolean distribution (e.g., in-use, high availability).
 """
-type EnvironmentFacetItem {
-	"The environment name."
-	environmentName: String!
+type BooleanFacetItem {
+	"The boolean value."
+	value: Boolean!
 
 	"Number of matching resources."
 	count: Int!
 }
 
 """
-A shared facet item representing a boolean distribution (e.g., in-use, high availability).
+A shared facet item representing a string value distribution (e.g., pool name, version).
 """
-type BooleanFacetItem {
-	"The boolean value."
-	value: Boolean!
+type StringFacetItem {
+	"The string value."
+	value: String!
 
 	"Number of matching resources."
 	count: Int!
@@ -23393,27 +23267,12 @@ type JobFacets {
 	"""
 	Distribution of jobs by environment.
 	"""
-	environments: [JobEnvironmentFacetItem!]!
+	environments: [StringFacetItem!]!
 
 	"""
 	Distribution of jobs by state.
 	"""
 	states: [JobStateFacetItem!]!
-}
-
-"""
-A single facet item for environments.
-"""
-type JobEnvironmentFacetItem {
-	"""
-	The environment name.
-	"""
-	environmentName: String!
-
-	"""
-	Number of matching jobs.
-	"""
-	count: Int!
 }
 
 """
@@ -23893,21 +23752,10 @@ Facets for Kafka topics, providing distribution counts across different dimensio
 """
 type KafkaTopicFacets {
 	"Distribution of topics by environment."
-	environments: [EnvironmentFacetItem!]!
+	environments: [StringFacetItem!]!
 
 	"Distribution of topics by Kafka pool."
-	pools: [KafkaTopicPoolFacetItem!]!
-}
-
-"""
-A single facet item for Kafka pools.
-"""
-type KafkaTopicPoolFacetItem {
-	"The pool name."
-	pool: String!
-
-	"Number of matching topics."
-	count: Int!
+	pools: [StringFacetItem!]!
 }
 
 """
@@ -24428,7 +24276,7 @@ Facets for OpenSearch instances, providing distribution counts across different 
 """
 type OpenSearchFacets {
 	"Distribution of instances by environment."
-	environments: [EnvironmentFacetItem!]!
+	environments: [StringFacetItem!]!
 
 	"Distribution of instances by tier."
 	tiers: [OpenSearchTierFacetItem!]!
@@ -24938,7 +24786,7 @@ Facets for Postgres instances, providing distribution counts across different di
 """
 type PostgresInstanceFacets {
 	"Distribution of instances by environment."
-	environments: [EnvironmentFacetItem!]!
+	environments: [StringFacetItem!]!
 
 	"Distribution of instances by state."
 	states: [PostgresInstanceStateFacetItem!]!
@@ -24947,7 +24795,7 @@ type PostgresInstanceFacets {
 	highAvailability: [BooleanFacetItem!]!
 
 	"Distribution of instances by major version."
-	majorVersions: [PostgresInstanceMajorVersionFacetItem!]!
+	majorVersions: [StringFacetItem!]!
 }
 
 """
@@ -24956,17 +24804,6 @@ A single facet item for Postgres instance states.
 type PostgresInstanceStateFacetItem {
 	"The Postgres instance state."
 	state: PostgresInstanceState!
-
-	"Number of matching instances."
-	count: Int!
-}
-
-"""
-A single facet item for Postgres major versions.
-"""
-type PostgresInstanceMajorVersionFacetItem {
-	"The major version string."
-	majorVersion: String!
 
 	"Number of matching instances."
 	count: Int!
@@ -26263,7 +26100,7 @@ Facets for secrets, providing distribution counts across different dimensions.
 """
 type SecretFacets {
 	"Distribution of secrets by environment."
-	environments: [EnvironmentFacetItem!]!
+	environments: [StringFacetItem!]!
 
 	"Distribution of secrets by whether they are in use by any workload."
 	inUse: [BooleanFacetItem!]!
@@ -30369,7 +30206,7 @@ Facets for Valkey instances, providing distribution counts across different dime
 """
 type ValkeyFacets {
 	"Distribution of instances by environment."
-	environments: [EnvironmentFacetItem!]!
+	environments: [StringFacetItem!]!
 
 	"Distribution of instances by tier."
 	tiers: [ValkeyTierFacetItem!]!
@@ -31991,16 +31828,6 @@ func (ec *executionContext) childFields_ActivityLogEntryEdge(ctx context.Context
 	return nil, fmt.Errorf("no field named %q was found under type ActivityLogEntryEdge", field.Name)
 }
 
-func (ec *executionContext) childFields_ActivityLogEnvironmentFacetItem(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-	switch field.Name {
-	case "environmentName":
-		return ec.fieldContext_ActivityLogEnvironmentFacetItem_environmentName(ctx, field)
-	case "count":
-		return ec.fieldContext_ActivityLogEnvironmentFacetItem_count(ctx, field)
-	}
-	return nil, fmt.Errorf("no field named %q was found under type ActivityLogEnvironmentFacetItem", field.Name)
-}
-
 func (ec *executionContext) childFields_ActivityLogFacets(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "activityTypes":
@@ -32191,16 +32018,6 @@ func (ec *executionContext) childFields_ApplicationEdge(ctx context.Context, fie
 		return ec.fieldContext_ApplicationEdge_node(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type ApplicationEdge", field.Name)
-}
-
-func (ec *executionContext) childFields_ApplicationEnvironmentFacetItem(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-	switch field.Name {
-	case "environmentName":
-		return ec.fieldContext_ApplicationEnvironmentFacetItem_environmentName(ctx, field)
-	case "count":
-		return ec.fieldContext_ApplicationEnvironmentFacetItem_count(ctx, field)
-	}
-	return nil, fmt.Errorf("no field named %q was found under type ApplicationEnvironmentFacetItem", field.Name)
 }
 
 func (ec *executionContext) childFields_ApplicationFacets(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -33183,16 +33000,6 @@ func (ec *executionContext) childFields_EnvironmentEdge(ctx context.Context, fie
 	return nil, fmt.Errorf("no field named %q was found under type EnvironmentEdge", field.Name)
 }
 
-func (ec *executionContext) childFields_EnvironmentFacetItem(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-	switch field.Name {
-	case "environmentName":
-		return ec.fieldContext_EnvironmentFacetItem_environmentName(ctx, field)
-	case "count":
-		return ec.fieldContext_EnvironmentFacetItem_count(ctx, field)
-	}
-	return nil, fmt.Errorf("no field named %q was found under type EnvironmentFacetItem", field.Name)
-}
-
 func (ec *executionContext) childFields_FeatureKafka(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "id":
@@ -33615,16 +33422,6 @@ func (ec *executionContext) childFields_JobEdge(ctx context.Context, field graph
 	return nil, fmt.Errorf("no field named %q was found under type JobEdge", field.Name)
 }
 
-func (ec *executionContext) childFields_JobEnvironmentFacetItem(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-	switch field.Name {
-	case "environmentName":
-		return ec.fieldContext_JobEnvironmentFacetItem_environmentName(ctx, field)
-	case "count":
-		return ec.fieldContext_JobEnvironmentFacetItem_count(ctx, field)
-	}
-	return nil, fmt.Errorf("no field named %q was found under type JobEnvironmentFacetItem", field.Name)
-}
-
 func (ec *executionContext) childFields_JobFacets(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "environments":
@@ -33925,16 +33722,6 @@ func (ec *executionContext) childFields_KafkaTopicFacets(ctx context.Context, fi
 		return ec.fieldContext_KafkaTopicFacets_pools(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type KafkaTopicFacets", field.Name)
-}
-
-func (ec *executionContext) childFields_KafkaTopicPoolFacetItem(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-	switch field.Name {
-	case "pool":
-		return ec.fieldContext_KafkaTopicPoolFacetItem_pool(ctx, field)
-	case "count":
-		return ec.fieldContext_KafkaTopicPoolFacetItem_count(ctx, field)
-	}
-	return nil, fmt.Errorf("no field named %q was found under type KafkaTopicPoolFacetItem", field.Name)
 }
 
 func (ec *executionContext) childFields_LogLine(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -34379,16 +34166,6 @@ func (ec *executionContext) childFields_PostgresInstanceMaintenanceWindow(ctx co
 		return ec.fieldContext_PostgresInstanceMaintenanceWindow_hour(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type PostgresInstanceMaintenanceWindow", field.Name)
-}
-
-func (ec *executionContext) childFields_PostgresInstanceMajorVersionFacetItem(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-	switch field.Name {
-	case "majorVersion":
-		return ec.fieldContext_PostgresInstanceMajorVersionFacetItem_majorVersion(ctx, field)
-	case "count":
-		return ec.fieldContext_PostgresInstanceMajorVersionFacetItem_count(ctx, field)
-	}
-	return nil, fmt.Errorf("no field named %q was found under type PostgresInstanceMajorVersionFacetItem", field.Name)
 }
 
 func (ec *executionContext) childFields_PostgresInstanceResources(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -35363,6 +35140,16 @@ func (ec *executionContext) childFields_StartValkeyMaintenancePayload(ctx contex
 		return ec.fieldContext_StartValkeyMaintenancePayload_error(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type StartValkeyMaintenancePayload", field.Name)
+}
+
+func (ec *executionContext) childFields_StringFacetItem(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "value":
+		return ec.fieldContext_StringFacetItem_value(ctx, field)
+	case "count":
+		return ec.fieldContext_StringFacetItem_count(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type StringFacetItem", field.Name)
 }
 
 func (ec *executionContext) childFields_Team(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {

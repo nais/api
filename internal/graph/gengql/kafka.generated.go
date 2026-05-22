@@ -1208,8 +1208,8 @@ func (ec *executionContext) _KafkaTopicFacets_environments(ctx context.Context, 
 			return obj.Environments, nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v []model.EnvironmentFacetItem) graphql.Marshaler {
-			return ec.marshalNEnvironmentFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐEnvironmentFacetItemᚄ(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v []model.StringFacetItem) graphql.Marshaler {
+			return ec.marshalNStringFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItemᚄ(ctx, selections, v)
 		},
 		true,
 		true,
@@ -1222,7 +1222,7 @@ func (ec *executionContext) fieldContext_KafkaTopicFacets_environments(_ context
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_EnvironmentFacetItem(ctx, field)
+			return ec.childFields_StringFacetItem(ctx, field)
 		},
 	}
 	return fc, nil
@@ -1240,8 +1240,8 @@ func (ec *executionContext) _KafkaTopicFacets_pools(ctx context.Context, field g
 			return obj.Pools, nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v []kafkatopic.KafkaTopicPoolFacetItem) graphql.Marshaler {
-			return ec.marshalNKafkaTopicPoolFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicPoolFacetItemᚄ(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v []model.StringFacetItem) graphql.Marshaler {
+			return ec.marshalNStringFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItemᚄ(ctx, selections, v)
 		},
 		true,
 		true,
@@ -1254,56 +1254,10 @@ func (ec *executionContext) fieldContext_KafkaTopicFacets_pools(_ context.Contex
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_KafkaTopicPoolFacetItem(ctx, field)
+			return ec.childFields_StringFacetItem(ctx, field)
 		},
 	}
 	return fc, nil
-}
-
-func (ec *executionContext) _KafkaTopicPoolFacetItem_pool(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopicPoolFacetItem) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaTopicPoolFacetItem_pool(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return obj.Pool, nil
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_KafkaTopicPoolFacetItem_pool(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("KafkaTopicPoolFacetItem", field, false, false, errors.New("field of type String does not have child fields"))
-}
-
-func (ec *executionContext) _KafkaTopicPoolFacetItem_count(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopicPoolFacetItem) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaTopicPoolFacetItem_count(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return obj.Count, nil
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
-			return ec.marshalNInt2int(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_KafkaTopicPoolFacetItem_count(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("KafkaTopicPoolFacetItem", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
 func (ec *executionContext) _TeamInventoryCountKafkaTopics_total(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.TeamInventoryCountKafkaTopics) (ret graphql.Marshaler) {
@@ -2309,50 +2263,6 @@ func (ec *executionContext) _KafkaTopicFacets(ctx context.Context, sel ast.Selec
 	return out
 }
 
-var kafkaTopicPoolFacetItemImplementors = []string{"KafkaTopicPoolFacetItem"}
-
-func (ec *executionContext) _KafkaTopicPoolFacetItem(ctx context.Context, sel ast.SelectionSet, obj *kafkatopic.KafkaTopicPoolFacetItem) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, kafkaTopicPoolFacetItemImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("KafkaTopicPoolFacetItem")
-		case "pool":
-			out.Values[i] = ec._KafkaTopicPoolFacetItem_pool(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "count":
-			out.Values[i] = ec._KafkaTopicPoolFacetItem_count(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
-
-	for label, dfs := range deferred {
-		ec.ProcessDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
 var teamInventoryCountKafkaTopicsImplementors = []string{"TeamInventoryCountKafkaTopics"}
 
 func (ec *executionContext) _TeamInventoryCountKafkaTopics(ctx context.Context, sel ast.SelectionSet, obj *kafkatopic.TeamInventoryCountKafkaTopics) graphql.Marshaler {
@@ -2567,26 +2477,6 @@ func (ec *executionContext) unmarshalNKafkaTopicOrderField2githubᚗcomᚋnais�
 
 func (ec *executionContext) marshalNKafkaTopicOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicOrderField(ctx context.Context, sel ast.SelectionSet, v kafkatopic.KafkaTopicOrderField) graphql.Marshaler {
 	return v
-}
-
-func (ec *executionContext) marshalNKafkaTopicPoolFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicPoolFacetItem(ctx context.Context, sel ast.SelectionSet, v kafkatopic.KafkaTopicPoolFacetItem) graphql.Marshaler {
-	return ec._KafkaTopicPoolFacetItem(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNKafkaTopicPoolFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicPoolFacetItemᚄ(ctx context.Context, sel ast.SelectionSet, v []kafkatopic.KafkaTopicPoolFacetItem) graphql.Marshaler {
-	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
-		fc := graphql.GetFieldContext(ctx)
-		fc.Result = &v[i]
-		return ec.marshalNKafkaTopicPoolFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicPoolFacetItem(ctx, sel, v[i])
-	})
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
 }
 
 func (ec *executionContext) marshalNTeamInventoryCountKafkaTopics2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐTeamInventoryCountKafkaTopics(ctx context.Context, sel ast.SelectionSet, v kafkatopic.TeamInventoryCountKafkaTopics) graphql.Marshaler {

@@ -27,8 +27,8 @@ type SecretEdge = pagination.Edge[*Secret]
 type SecretConnection = pagination.FacetableConnection[*Secret, *SecretFilter]
 
 type SecretFacets struct {
-	Environments []model.EnvironmentFacetItem `json:"environments"`
-	InUse        []model.BooleanFacetItem     `json:"inUse"`
+	Environments []model.StringFacetItem  `json:"environments"`
+	InUse        []model.BooleanFacetItem `json:"inUse"`
 }
 
 type Secret struct {

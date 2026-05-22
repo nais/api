@@ -121,7 +121,7 @@ Facets for BigQuery datasets, providing distribution counts across different dim
 """
 type BigQueryDatasetFacets {
 	"Distribution of datasets by environment."
-	environments: [EnvironmentFacetItem!]!
+	environments: [StringFacetItem!]!
 }
 
 input BigQueryDatasetAccessOrder {

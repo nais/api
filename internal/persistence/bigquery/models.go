@@ -27,7 +27,7 @@ type (
 type BigQueryDatasetConnection = pagination.FacetableConnection[*BigQueryDataset, *BigQueryDatasetFilter]
 
 type BigQueryDatasetFacets struct {
-	Environments []model.EnvironmentFacetItem `json:"environments"`
+	Environments []model.StringFacetItem `json:"environments"`
 }
 
 type BigQueryDatasetFilter struct {

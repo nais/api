@@ -93,7 +93,7 @@ Facets for buckets, providing distribution counts across different dimensions.
 """
 type BucketFacets {
 	"Distribution of buckets by environment."
-	environments: [EnvironmentFacetItem!]!
+	environments: [StringFacetItem!]!
 }
 
 input BucketOrder {

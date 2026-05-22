@@ -26,7 +26,7 @@ type (
 type BucketConnection = pagination.FacetableConnection[*Bucket, *BucketFilter]
 
 type BucketFacets struct {
-	Environments []model.EnvironmentFacetItem `json:"environments"`
+	Environments []model.StringFacetItem `json:"environments"`
 }
 
 type BucketFilter struct {

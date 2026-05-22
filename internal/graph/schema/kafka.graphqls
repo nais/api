@@ -135,21 +135,10 @@ Facets for Kafka topics, providing distribution counts across different dimensio
 """
 type KafkaTopicFacets {
 	"Distribution of topics by environment."
-	environments: [EnvironmentFacetItem!]!
+	environments: [StringFacetItem!]!
 
 	"Distribution of topics by Kafka pool."
-	pools: [KafkaTopicPoolFacetItem!]!
-}
-
-"""
-A single facet item for Kafka pools.
-"""
-type KafkaTopicPoolFacetItem {
-	"The pool name."
-	pool: String!
-
-	"Number of matching topics."
-	count: Int!
+	pools: [StringFacetItem!]!
 }
 
 """

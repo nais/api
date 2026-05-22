@@ -38,8 +38,8 @@ type ValkeyFilter struct {
 type ValkeyConnection = pagination.FacetableConnection[*Valkey, *ValkeyFilter]
 
 type ValkeyFacets struct {
-	Environments []model.EnvironmentFacetItem `json:"environments"`
-	Tiers        []ValkeyTierFacetItem        `json:"tiers"`
+	Environments []model.StringFacetItem `json:"environments"`
+	Tiers        []ValkeyTierFacetItem   `json:"tiers"`
 }
 
 type ValkeyTierFacetItem struct {

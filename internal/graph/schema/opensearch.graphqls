@@ -150,7 +150,7 @@ Facets for OpenSearch instances, providing distribution counts across different 
 """
 type OpenSearchFacets {
 	"Distribution of instances by environment."
-	environments: [EnvironmentFacetItem!]!
+	environments: [StringFacetItem!]!
 
 	"Distribution of instances by tier."
 	tiers: [OpenSearchTierFacetItem!]!

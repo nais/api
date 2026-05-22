@@ -74,16 +74,16 @@ func (ec *executionContext) fieldContext_BooleanFacetItem_count(_ context.Contex
 	return graphql.NewScalarFieldContext("BooleanFacetItem", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
-func (ec *executionContext) _EnvironmentFacetItem_environmentName(ctx context.Context, field graphql.CollectedField, obj *model.EnvironmentFacetItem) (ret graphql.Marshaler) {
+func (ec *executionContext) _StringFacetItem_value(ctx context.Context, field graphql.CollectedField, obj *model.StringFacetItem) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_EnvironmentFacetItem_environmentName(ctx, field)
+			return ec.fieldContext_StringFacetItem_value(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.EnvironmentName, nil
+			return obj.Value, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
@@ -93,17 +93,17 @@ func (ec *executionContext) _EnvironmentFacetItem_environmentName(ctx context.Co
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_EnvironmentFacetItem_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("EnvironmentFacetItem", field, false, false, errors.New("field of type String does not have child fields"))
+func (ec *executionContext) fieldContext_StringFacetItem_value(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("StringFacetItem", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _EnvironmentFacetItem_count(ctx context.Context, field graphql.CollectedField, obj *model.EnvironmentFacetItem) (ret graphql.Marshaler) {
+func (ec *executionContext) _StringFacetItem_count(ctx context.Context, field graphql.CollectedField, obj *model.StringFacetItem) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_EnvironmentFacetItem_count(ctx, field)
+			return ec.fieldContext_StringFacetItem_count(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Count, nil
@@ -116,8 +116,8 @@ func (ec *executionContext) _EnvironmentFacetItem_count(ctx context.Context, fie
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_EnvironmentFacetItem_count(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("EnvironmentFacetItem", field, false, false, errors.New("field of type Int does not have child fields"))
+func (ec *executionContext) fieldContext_StringFacetItem_count(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("StringFacetItem", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
 // endregion **************************** field.gotpl *****************************
@@ -176,24 +176,24 @@ func (ec *executionContext) _BooleanFacetItem(ctx context.Context, sel ast.Selec
 	return out
 }
 
-var environmentFacetItemImplementors = []string{"EnvironmentFacetItem"}
+var stringFacetItemImplementors = []string{"StringFacetItem"}
 
-func (ec *executionContext) _EnvironmentFacetItem(ctx context.Context, sel ast.SelectionSet, obj *model.EnvironmentFacetItem) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, environmentFacetItemImplementors)
+func (ec *executionContext) _StringFacetItem(ctx context.Context, sel ast.SelectionSet, obj *model.StringFacetItem) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, stringFacetItemImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("EnvironmentFacetItem")
-		case "environmentName":
-			out.Values[i] = ec._EnvironmentFacetItem_environmentName(ctx, field, obj)
+			out.Values[i] = graphql.MarshalString("StringFacetItem")
+		case "value":
+			out.Values[i] = ec._StringFacetItem_value(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "count":
-			out.Values[i] = ec._EnvironmentFacetItem_count(ctx, field, obj)
+			out.Values[i] = ec._StringFacetItem_count(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -244,15 +244,15 @@ func (ec *executionContext) marshalNBooleanFacetItem2ᚕgithubᚗcomᚋnaisᚋap
 	return ret
 }
 
-func (ec *executionContext) marshalNEnvironmentFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐEnvironmentFacetItem(ctx context.Context, sel ast.SelectionSet, v model.EnvironmentFacetItem) graphql.Marshaler {
-	return ec._EnvironmentFacetItem(ctx, sel, &v)
+func (ec *executionContext) marshalNStringFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItem(ctx context.Context, sel ast.SelectionSet, v model.StringFacetItem) graphql.Marshaler {
+	return ec._StringFacetItem(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNEnvironmentFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐEnvironmentFacetItemᚄ(ctx context.Context, sel ast.SelectionSet, v []model.EnvironmentFacetItem) graphql.Marshaler {
+func (ec *executionContext) marshalNStringFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItemᚄ(ctx context.Context, sel ast.SelectionSet, v []model.StringFacetItem) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNEnvironmentFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐEnvironmentFacetItem(ctx, sel, v[i])
+		return ec.marshalNStringFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItem(ctx, sel, v[i])
 	})
 
 	for _, e := range ret {

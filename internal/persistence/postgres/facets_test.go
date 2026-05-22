@@ -51,18 +51,18 @@ func TestComputeFacets(t *testing.T) {
 		name              string
 		instances         []*PostgresInstance
 		filter            *PostgresInstanceFilter
-		wantEnvironments  []model.EnvironmentFacetItem
+		wantEnvironments  []model.StringFacetItem
 		wantStates        []PostgresInstanceStateFacetItem
 		wantHA            []model.BooleanFacetItem
-		wantMajorVersions []PostgresInstanceMajorVersionFacetItem
+		wantMajorVersions []model.StringFacetItem
 	}{
 		{
 			name:      "no filter counts all instances",
 			instances: allInstances,
 			filter:    nil,
-			wantEnvironments: []model.EnvironmentFacetItem{
-				{EnvironmentName: "dev", Count: 2},
-				{EnvironmentName: "prod", Count: 2},
+			wantEnvironments: []model.StringFacetItem{
+				{Value: "dev", Count: 2},
+				{Value: "prod", Count: 2},
 			},
 			wantStates: []PostgresInstanceStateFacetItem{
 				{State: PostgresInstanceStateAvailable, Count: 2},
@@ -73,19 +73,19 @@ func TestComputeFacets(t *testing.T) {
 				{Value: false, Count: 2},
 				{Value: true, Count: 2},
 			},
-			wantMajorVersions: []PostgresInstanceMajorVersionFacetItem{
-				{MajorVersion: "15", Count: 2},
-				{MajorVersion: "16", Count: 1},
-				{MajorVersion: "17", Count: 1},
+			wantMajorVersions: []model.StringFacetItem{
+				{Value: "15", Count: 2},
+				{Value: "16", Count: 1},
+				{Value: "17", Count: 1},
 			},
 		},
 		{
 			name:      "filter by environment counts only matching but seeds all",
 			instances: allInstances,
 			filter:    &PostgresInstanceFilter{Environments: []string{"dev"}},
-			wantEnvironments: []model.EnvironmentFacetItem{
-				{EnvironmentName: "dev", Count: 2},
-				{EnvironmentName: "prod", Count: 0},
+			wantEnvironments: []model.StringFacetItem{
+				{Value: "dev", Count: 2},
+				{Value: "prod", Count: 0},
 			},
 			wantStates: []PostgresInstanceStateFacetItem{
 				{State: PostgresInstanceStateAvailable, Count: 1},
@@ -96,19 +96,19 @@ func TestComputeFacets(t *testing.T) {
 				{Value: false, Count: 1},
 				{Value: true, Count: 1},
 			},
-			wantMajorVersions: []PostgresInstanceMajorVersionFacetItem{
-				{MajorVersion: "15", Count: 1},
-				{MajorVersion: "16", Count: 1},
-				{MajorVersion: "17", Count: 0},
+			wantMajorVersions: []model.StringFacetItem{
+				{Value: "15", Count: 1},
+				{Value: "16", Count: 1},
+				{Value: "17", Count: 0},
 			},
 		},
 		{
 			name:      "filter by state counts only matching state",
 			instances: allInstances,
 			filter:    &PostgresInstanceFilter{States: []PostgresInstanceState{PostgresInstanceStateAvailable}},
-			wantEnvironments: []model.EnvironmentFacetItem{
-				{EnvironmentName: "dev", Count: 1},
-				{EnvironmentName: "prod", Count: 1},
+			wantEnvironments: []model.StringFacetItem{
+				{Value: "dev", Count: 1},
+				{Value: "prod", Count: 1},
 			},
 			wantStates: []PostgresInstanceStateFacetItem{
 				{State: PostgresInstanceStateAvailable, Count: 2},
@@ -119,19 +119,19 @@ func TestComputeFacets(t *testing.T) {
 				{Value: false, Count: 1},
 				{Value: true, Count: 1},
 			},
-			wantMajorVersions: []PostgresInstanceMajorVersionFacetItem{
-				{MajorVersion: "15", Count: 2},
-				{MajorVersion: "16", Count: 0},
-				{MajorVersion: "17", Count: 0},
+			wantMajorVersions: []model.StringFacetItem{
+				{Value: "15", Count: 2},
+				{Value: "16", Count: 0},
+				{Value: "17", Count: 0},
 			},
 		},
 		{
 			name:      "filter by high availability",
 			instances: allInstances,
 			filter:    &PostgresInstanceFilter{HighAvailability: boolPtr(true)},
-			wantEnvironments: []model.EnvironmentFacetItem{
-				{EnvironmentName: "dev", Count: 1},
-				{EnvironmentName: "prod", Count: 1},
+			wantEnvironments: []model.StringFacetItem{
+				{Value: "dev", Count: 1},
+				{Value: "prod", Count: 1},
 			},
 			wantStates: []PostgresInstanceStateFacetItem{
 				{State: PostgresInstanceStateAvailable, Count: 1},
@@ -142,19 +142,19 @@ func TestComputeFacets(t *testing.T) {
 				{Value: false, Count: 0},
 				{Value: true, Count: 2},
 			},
-			wantMajorVersions: []PostgresInstanceMajorVersionFacetItem{
-				{MajorVersion: "15", Count: 1},
-				{MajorVersion: "16", Count: 1},
-				{MajorVersion: "17", Count: 0},
+			wantMajorVersions: []model.StringFacetItem{
+				{Value: "15", Count: 1},
+				{Value: "16", Count: 1},
+				{Value: "17", Count: 0},
 			},
 		},
 		{
 			name:      "filter by major version",
 			instances: allInstances,
 			filter:    &PostgresInstanceFilter{MajorVersions: []string{"15"}},
-			wantEnvironments: []model.EnvironmentFacetItem{
-				{EnvironmentName: "dev", Count: 1},
-				{EnvironmentName: "prod", Count: 1},
+			wantEnvironments: []model.StringFacetItem{
+				{Value: "dev", Count: 1},
+				{Value: "prod", Count: 1},
 			},
 			wantStates: []PostgresInstanceStateFacetItem{
 				{State: PostgresInstanceStateAvailable, Count: 2},
@@ -165,10 +165,10 @@ func TestComputeFacets(t *testing.T) {
 				{Value: false, Count: 1},
 				{Value: true, Count: 1},
 			},
-			wantMajorVersions: []PostgresInstanceMajorVersionFacetItem{
-				{MajorVersion: "15", Count: 2},
-				{MajorVersion: "16", Count: 0},
-				{MajorVersion: "17", Count: 0},
+			wantMajorVersions: []model.StringFacetItem{
+				{Value: "15", Count: 2},
+				{Value: "16", Count: 0},
+				{Value: "17", Count: 0},
 			},
 		},
 		{
@@ -178,9 +178,9 @@ func TestComputeFacets(t *testing.T) {
 				Environments: []string{"prod"},
 				States:       []PostgresInstanceState{PostgresInstanceStateAvailable},
 			},
-			wantEnvironments: []model.EnvironmentFacetItem{
-				{EnvironmentName: "dev", Count: 0},
-				{EnvironmentName: "prod", Count: 1},
+			wantEnvironments: []model.StringFacetItem{
+				{Value: "dev", Count: 0},
+				{Value: "prod", Count: 1},
 			},
 			wantStates: []PostgresInstanceStateFacetItem{
 				{State: PostgresInstanceStateAvailable, Count: 1},
@@ -191,20 +191,20 @@ func TestComputeFacets(t *testing.T) {
 				{Value: false, Count: 0},
 				{Value: true, Count: 1},
 			},
-			wantMajorVersions: []PostgresInstanceMajorVersionFacetItem{
-				{MajorVersion: "15", Count: 1},
-				{MajorVersion: "16", Count: 0},
-				{MajorVersion: "17", Count: 0},
+			wantMajorVersions: []model.StringFacetItem{
+				{Value: "15", Count: 1},
+				{Value: "16", Count: 0},
+				{Value: "17", Count: 0},
 			},
 		},
 		{
 			name:              "empty input returns empty facets",
 			instances:         nil,
 			filter:            nil,
-			wantEnvironments:  []model.EnvironmentFacetItem{},
+			wantEnvironments:  []model.StringFacetItem{},
 			wantStates:        []PostgresInstanceStateFacetItem{},
 			wantHA:            []model.BooleanFacetItem{},
-			wantMajorVersions: []PostgresInstanceMajorVersionFacetItem{},
+			wantMajorVersions: []model.StringFacetItem{},
 		},
 	}
 

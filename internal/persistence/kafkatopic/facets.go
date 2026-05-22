@@ -31,30 +31,30 @@ func ComputeFacets(ctx context.Context, allTopics []*KafkaTopic, filter *KafkaTo
 
 func assembleFacets(environmentCounts map[string]int, poolCounts map[string]int) *KafkaTopicFacets {
 	facets := &KafkaTopicFacets{
-		Environments: make([]model.EnvironmentFacetItem, 0, len(environmentCounts)),
-		Pools:        make([]KafkaTopicPoolFacetItem, 0, len(poolCounts)),
+		Environments: make([]model.StringFacetItem, 0, len(environmentCounts)),
+		Pools:        make([]model.StringFacetItem, 0, len(poolCounts)),
 	}
 
 	for env, count := range environmentCounts {
-		facets.Environments = append(facets.Environments, model.EnvironmentFacetItem{
-			EnvironmentName: env,
-			Count:           count,
-		})
-	}
-
-	for pool, count := range poolCounts {
-		facets.Pools = append(facets.Pools, KafkaTopicPoolFacetItem{
-			Pool:  pool,
+		facets.Environments = append(facets.Environments, model.StringFacetItem{
+			Value: env,
 			Count: count,
 		})
 	}
 
-	slices.SortFunc(facets.Environments, func(a, b model.EnvironmentFacetItem) int {
-		return strings.Compare(a.EnvironmentName, b.EnvironmentName)
+	for pool, count := range poolCounts {
+		facets.Pools = append(facets.Pools, model.StringFacetItem{
+			Value: pool,
+			Count: count,
+		})
+	}
+
+	slices.SortFunc(facets.Environments, func(a, b model.StringFacetItem) int {
+		return strings.Compare(a.Value, b.Value)
 	})
 
-	slices.SortFunc(facets.Pools, func(a, b KafkaTopicPoolFacetItem) int {
-		return strings.Compare(a.Pool, b.Pool)
+	slices.SortFunc(facets.Pools, func(a, b model.StringFacetItem) int {
+		return strings.Compare(a.Value, b.Value)
 	})
 
 	return facets

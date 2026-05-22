@@ -213,6 +213,6 @@ type TeamInventoryCountConfigs struct {
 }
 
 type ConfigFacets struct {
-	Environments []model.EnvironmentFacetItem `json:"environments"`
-	InUse        []model.BooleanFacetItem     `json:"inUse"`
+	Environments []model.StringFacetItem  `json:"environments"`
+	InUse        []model.BooleanFacetItem `json:"inUse"`
 }

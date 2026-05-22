@@ -59,14 +59,14 @@ func assembleFacets(
 	inUseCounts map[bool]int,
 ) *SecretFacets {
 	facets := &SecretFacets{
-		Environments: make([]model.EnvironmentFacetItem, 0, len(environmentCounts)),
+		Environments: make([]model.StringFacetItem, 0, len(environmentCounts)),
 		InUse:        make([]model.BooleanFacetItem, 0, len(inUseCounts)),
 	}
 
 	for env, count := range environmentCounts {
-		facets.Environments = append(facets.Environments, model.EnvironmentFacetItem{
-			EnvironmentName: env,
-			Count:           count,
+		facets.Environments = append(facets.Environments, model.StringFacetItem{
+			Value: env,
+			Count: count,
 		})
 	}
 
@@ -77,8 +77,8 @@ func assembleFacets(
 		})
 	}
 
-	slices.SortFunc(facets.Environments, func(a, b model.EnvironmentFacetItem) int {
-		return strings.Compare(a.EnvironmentName, b.EnvironmentName)
+	slices.SortFunc(facets.Environments, func(a, b model.StringFacetItem) int {
+		return strings.Compare(a.Value, b.Value)
 	})
 
 	slices.SortFunc(facets.InUse, func(a, b model.BooleanFacetItem) int {

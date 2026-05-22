@@ -24,13 +24,8 @@ type (
 type KafkaTopicConnection = pagination.FacetableConnection[*KafkaTopic, *KafkaTopicFilter]
 
 type KafkaTopicFacets struct {
-	Environments []model.EnvironmentFacetItem `json:"environments"`
-	Pools        []KafkaTopicPoolFacetItem    `json:"pools"`
-}
-
-type KafkaTopicPoolFacetItem struct {
-	Pool  string `json:"pool"`
-	Count int    `json:"count"`
+	Environments []model.StringFacetItem `json:"environments"`
+	Pools        []model.StringFacetItem `json:"pools"`
 }
 
 type KafkaTopicFilter struct {

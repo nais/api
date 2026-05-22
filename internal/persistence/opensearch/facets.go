@@ -27,14 +27,14 @@ func assembleFacets(
 	tierCounts map[OpenSearchTier]int,
 ) *OpenSearchFacets {
 	facets := &OpenSearchFacets{
-		Environments: make([]model.EnvironmentFacetItem, 0, len(environmentCounts)),
+		Environments: make([]model.StringFacetItem, 0, len(environmentCounts)),
 		Tiers:        make([]OpenSearchTierFacetItem, 0, len(tierCounts)),
 	}
 
 	for env, count := range environmentCounts {
-		facets.Environments = append(facets.Environments, model.EnvironmentFacetItem{
-			EnvironmentName: env,
-			Count:           count,
+		facets.Environments = append(facets.Environments, model.StringFacetItem{
+			Value: env,
+			Count: count,
 		})
 	}
 
@@ -46,8 +46,8 @@ func assembleFacets(
 	}
 
 	// Sort for stable ordering
-	slices.SortFunc(facets.Environments, func(a, b model.EnvironmentFacetItem) int {
-		return strings.Compare(a.EnvironmentName, b.EnvironmentName)
+	slices.SortFunc(facets.Environments, func(a, b model.StringFacetItem) int {
+		return strings.Compare(a.Value, b.Value)
 	})
 
 	slices.SortFunc(facets.Tiers, func(a, b OpenSearchTierFacetItem) int {

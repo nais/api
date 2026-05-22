@@ -555,13 +555,8 @@ type TeamJobsFilter struct {
 }
 
 type JobFacets struct {
-	Environments []JobEnvironmentFacetItem `json:"environments"`
-	States       []JobStateFacetItem       `json:"states"`
-}
-
-type JobEnvironmentFacetItem struct {
-	EnvironmentName string `json:"environmentName"`
-	Count           int    `json:"count"`
+	Environments []model.StringFacetItem `json:"environments"`
+	States       []JobStateFacetItem     `json:"states"`
 }
 
 type JobStateFacetItem struct {

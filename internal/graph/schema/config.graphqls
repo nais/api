@@ -367,7 +367,7 @@ Facets for configs, providing distribution counts across different dimensions.
 """
 type ConfigFacets {
 	"Distribution of configs by environment."
-	environments: [EnvironmentFacetItem!]!
+	environments: [StringFacetItem!]!
 
 	"Distribution of configs by whether they are in use by any workload."
 	inUse: [BooleanFacetItem!]!

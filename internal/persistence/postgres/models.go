@@ -38,20 +38,15 @@ type PostgresInstanceFilter struct {
 type PostgresInstanceConnection = pagination.FacetableConnection[*PostgresInstance, *PostgresInstanceFilter]
 
 type PostgresInstanceFacets struct {
-	Environments     []model.EnvironmentFacetItem            `json:"environments"`
-	States           []PostgresInstanceStateFacetItem        `json:"states"`
-	HighAvailability []model.BooleanFacetItem                `json:"highAvailability"`
-	MajorVersions    []PostgresInstanceMajorVersionFacetItem `json:"majorVersions"`
+	Environments     []model.StringFacetItem          `json:"environments"`
+	States           []PostgresInstanceStateFacetItem `json:"states"`
+	HighAvailability []model.BooleanFacetItem         `json:"highAvailability"`
+	MajorVersions    []model.StringFacetItem          `json:"majorVersions"`
 }
 
 type PostgresInstanceStateFacetItem struct {
 	State PostgresInstanceState `json:"state"`
 	Count int                   `json:"count"`
-}
-
-type PostgresInstanceMajorVersionFacetItem struct {
-	MajorVersion string `json:"majorVersion"`
-	Count        int    `json:"count"`
 }
 
 type PostgresInstance struct {

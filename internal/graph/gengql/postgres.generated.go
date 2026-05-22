@@ -1194,8 +1194,8 @@ func (ec *executionContext) _PostgresInstanceFacets_environments(ctx context.Con
 			return obj.Environments, nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v []model.EnvironmentFacetItem) graphql.Marshaler {
-			return ec.marshalNEnvironmentFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐEnvironmentFacetItemᚄ(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v []model.StringFacetItem) graphql.Marshaler {
+			return ec.marshalNStringFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItemᚄ(ctx, selections, v)
 		},
 		true,
 		true,
@@ -1208,7 +1208,7 @@ func (ec *executionContext) fieldContext_PostgresInstanceFacets_environments(_ c
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_EnvironmentFacetItem(ctx, field)
+			return ec.childFields_StringFacetItem(ctx, field)
 		},
 	}
 	return fc, nil
@@ -1290,8 +1290,8 @@ func (ec *executionContext) _PostgresInstanceFacets_majorVersions(ctx context.Co
 			return obj.MajorVersions, nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v []postgres.PostgresInstanceMajorVersionFacetItem) graphql.Marshaler {
-			return ec.marshalNPostgresInstanceMajorVersionFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceMajorVersionFacetItemᚄ(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v []model.StringFacetItem) graphql.Marshaler {
+			return ec.marshalNStringFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItemᚄ(ctx, selections, v)
 		},
 		true,
 		true,
@@ -1304,7 +1304,7 @@ func (ec *executionContext) fieldContext_PostgresInstanceFacets_majorVersions(_ 
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_PostgresInstanceMajorVersionFacetItem(ctx, field)
+			return ec.childFields_StringFacetItem(ctx, field)
 		},
 	}
 	return fc, nil
@@ -1354,52 +1354,6 @@ func (ec *executionContext) _PostgresInstanceMaintenanceWindow_hour(ctx context.
 }
 func (ec *executionContext) fieldContext_PostgresInstanceMaintenanceWindow_hour(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("PostgresInstanceMaintenanceWindow", field, false, false, errors.New("field of type Int does not have child fields"))
-}
-
-func (ec *executionContext) _PostgresInstanceMajorVersionFacetItem_majorVersion(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstanceMajorVersionFacetItem) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PostgresInstanceMajorVersionFacetItem_majorVersion(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return obj.MajorVersion, nil
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_PostgresInstanceMajorVersionFacetItem_majorVersion(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("PostgresInstanceMajorVersionFacetItem", field, false, false, errors.New("field of type String does not have child fields"))
-}
-
-func (ec *executionContext) _PostgresInstanceMajorVersionFacetItem_count(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstanceMajorVersionFacetItem) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PostgresInstanceMajorVersionFacetItem_count(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return obj.Count, nil
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
-			return ec.marshalNInt2int(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_PostgresInstanceMajorVersionFacetItem_count(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("PostgresInstanceMajorVersionFacetItem", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
 func (ec *executionContext) _PostgresInstanceResources_cpu(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstanceResources) (ret graphql.Marshaler) {
@@ -2525,50 +2479,6 @@ func (ec *executionContext) _PostgresInstanceMaintenanceWindow(ctx context.Conte
 	return out
 }
 
-var postgresInstanceMajorVersionFacetItemImplementors = []string{"PostgresInstanceMajorVersionFacetItem"}
-
-func (ec *executionContext) _PostgresInstanceMajorVersionFacetItem(ctx context.Context, sel ast.SelectionSet, obj *postgres.PostgresInstanceMajorVersionFacetItem) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, postgresInstanceMajorVersionFacetItemImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("PostgresInstanceMajorVersionFacetItem")
-		case "majorVersion":
-			out.Values[i] = ec._PostgresInstanceMajorVersionFacetItem_majorVersion(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "count":
-			out.Values[i] = ec._PostgresInstanceMajorVersionFacetItem_count(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
-
-	for label, dfs := range deferred {
-		ec.ProcessDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
 var postgresInstanceResourcesImplementors = []string{"PostgresInstanceResources"}
 
 func (ec *executionContext) _PostgresInstanceResources(ctx context.Context, sel ast.SelectionSet, obj *postgres.PostgresInstanceResources) graphql.Marshaler {
@@ -2810,26 +2720,6 @@ func (ec *executionContext) marshalNPostgresInstanceEdge2ᚕgithubᚗcomᚋnais�
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
 		return ec.marshalNPostgresInstanceEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
-	})
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
-func (ec *executionContext) marshalNPostgresInstanceMajorVersionFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceMajorVersionFacetItem(ctx context.Context, sel ast.SelectionSet, v postgres.PostgresInstanceMajorVersionFacetItem) graphql.Marshaler {
-	return ec._PostgresInstanceMajorVersionFacetItem(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNPostgresInstanceMajorVersionFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceMajorVersionFacetItemᚄ(ctx context.Context, sel ast.SelectionSet, v []postgres.PostgresInstanceMajorVersionFacetItem) graphql.Marshaler {
-	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
-		fc := graphql.GetFieldContext(ctx)
-		fc.Result = &v[i]
-		return ec.marshalNPostgresInstanceMajorVersionFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceMajorVersionFacetItem(ctx, sel, v[i])
 	})
 
 	for _, e := range ret {

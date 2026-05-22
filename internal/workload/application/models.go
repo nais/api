@@ -661,13 +661,8 @@ type TeamApplicationsFilter struct {
 }
 
 type ApplicationFacets struct {
-	Environments []ApplicationEnvironmentFacetItem `json:"environments"`
-	States       []ApplicationStateFacetItem       `json:"states"`
-}
-
-type ApplicationEnvironmentFacetItem struct {
-	EnvironmentName string `json:"environmentName"`
-	Count           int    `json:"count"`
+	Environments []model.StringFacetItem     `json:"environments"`
+	States       []ApplicationStateFacetItem `json:"states"`
 }
 
 type ApplicationStateFacetItem struct {

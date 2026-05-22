@@ -28,18 +28,18 @@ func ComputeFacets(ctx context.Context, allDatasets []*BigQueryDataset, filter *
 
 func assembleFacets(environmentCounts map[string]int) *BigQueryDatasetFacets {
 	facets := &BigQueryDatasetFacets{
-		Environments: make([]model.EnvironmentFacetItem, 0, len(environmentCounts)),
+		Environments: make([]model.StringFacetItem, 0, len(environmentCounts)),
 	}
 
 	for env, count := range environmentCounts {
-		facets.Environments = append(facets.Environments, model.EnvironmentFacetItem{
-			EnvironmentName: env,
-			Count:           count,
+		facets.Environments = append(facets.Environments, model.StringFacetItem{
+			Value: env,
+			Count: count,
 		})
 	}
 
-	slices.SortFunc(facets.Environments, func(a, b model.EnvironmentFacetItem) int {
-		return strings.Compare(a.EnvironmentName, b.EnvironmentName)
+	slices.SortFunc(facets.Environments, func(a, b model.StringFacetItem) int {
+		return strings.Compare(a.Value, b.Value)
 	})
 
 	return facets

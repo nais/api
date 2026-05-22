@@ -41,8 +41,8 @@ type OpenSearchFilter struct {
 type OpenSearchConnection = pagination.FacetableConnection[*OpenSearch, *OpenSearchFilter]
 
 type OpenSearchFacets struct {
-	Environments []model.EnvironmentFacetItem `json:"environments"`
-	Tiers        []OpenSearchTierFacetItem    `json:"tiers"`
+	Environments []model.StringFacetItem   `json:"environments"`
+	Tiers        []OpenSearchTierFacetItem `json:"tiers"`
 }
 
 type OpenSearchTierFacetItem struct {

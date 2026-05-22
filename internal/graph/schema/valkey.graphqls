@@ -154,7 +154,7 @@ Facets for Valkey instances, providing distribution counts across different dime
 """
 type ValkeyFacets {
 	"Distribution of instances by environment."
-	environments: [EnvironmentFacetItem!]!
+	environments: [StringFacetItem!]!
 
 	"Distribution of instances by tier."
 	tiers: [ValkeyTierFacetItem!]!

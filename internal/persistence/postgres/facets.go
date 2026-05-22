@@ -42,16 +42,16 @@ func assembleFacets(
 	versionCounts map[string]int,
 ) *PostgresInstanceFacets {
 	facets := &PostgresInstanceFacets{
-		Environments:     make([]model.EnvironmentFacetItem, 0, len(environmentCounts)),
+		Environments:     make([]model.StringFacetItem, 0, len(environmentCounts)),
 		States:           make([]PostgresInstanceStateFacetItem, 0, len(stateCounts)),
 		HighAvailability: make([]model.BooleanFacetItem, 0, len(haCounts)),
-		MajorVersions:    make([]PostgresInstanceMajorVersionFacetItem, 0, len(versionCounts)),
+		MajorVersions:    make([]model.StringFacetItem, 0, len(versionCounts)),
 	}
 
 	for env, count := range environmentCounts {
-		facets.Environments = append(facets.Environments, model.EnvironmentFacetItem{
-			EnvironmentName: env,
-			Count:           count,
+		facets.Environments = append(facets.Environments, model.StringFacetItem{
+			Value: env,
+			Count: count,
 		})
 	}
 
@@ -70,15 +70,15 @@ func assembleFacets(
 	}
 
 	for version, count := range versionCounts {
-		facets.MajorVersions = append(facets.MajorVersions, PostgresInstanceMajorVersionFacetItem{
-			MajorVersion: version,
-			Count:        count,
+		facets.MajorVersions = append(facets.MajorVersions, model.StringFacetItem{
+			Value: version,
+			Count: count,
 		})
 	}
 
 	// Sort for stable ordering
-	slices.SortFunc(facets.Environments, func(a, b model.EnvironmentFacetItem) int {
-		return strings.Compare(a.EnvironmentName, b.EnvironmentName)
+	slices.SortFunc(facets.Environments, func(a, b model.StringFacetItem) int {
+		return strings.Compare(a.Value, b.Value)
 	})
 
 	slices.SortFunc(facets.States, func(a, b PostgresInstanceStateFacetItem) int {
@@ -95,8 +95,8 @@ func assembleFacets(
 		return -1
 	})
 
-	slices.SortFunc(facets.MajorVersions, func(a, b PostgresInstanceMajorVersionFacetItem) int {
-		return strings.Compare(a.MajorVersion, b.MajorVersion)
+	slices.SortFunc(facets.MajorVersions, func(a, b model.StringFacetItem) int {
+		return strings.Compare(a.Value, b.Value)
 	})
 
 	return facets

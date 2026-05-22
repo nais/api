@@ -16,6 +16,7 @@ import (
 	"github.com/nais/api/internal/cost"
 	"github.com/nais/api/internal/deployment"
 	"github.com/nais/api/internal/graph/ident"
+	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/issue"
@@ -2298,52 +2299,6 @@ func (ec *executionContext) fieldContext_ApplicationEdge_node(_ context.Context,
 	return fc, nil
 }
 
-func (ec *executionContext) _ApplicationEnvironmentFacetItem_environmentName(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationEnvironmentFacetItem) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ApplicationEnvironmentFacetItem_environmentName(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return obj.EnvironmentName, nil
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_ApplicationEnvironmentFacetItem_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("ApplicationEnvironmentFacetItem", field, false, false, errors.New("field of type String does not have child fields"))
-}
-
-func (ec *executionContext) _ApplicationEnvironmentFacetItem_count(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationEnvironmentFacetItem) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ApplicationEnvironmentFacetItem_count(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return obj.Count, nil
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
-			return ec.marshalNInt2int(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_ApplicationEnvironmentFacetItem_count(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("ApplicationEnvironmentFacetItem", field, false, false, errors.New("field of type Int does not have child fields"))
-}
-
 func (ec *executionContext) _ApplicationFacets_environments(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationFacets) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -2356,8 +2311,8 @@ func (ec *executionContext) _ApplicationFacets_environments(ctx context.Context,
 			return obj.Environments, nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v []application.ApplicationEnvironmentFacetItem) graphql.Marshaler {
-			return ec.marshalNApplicationEnvironmentFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplicationEnvironmentFacetItemᚄ(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v []model.StringFacetItem) graphql.Marshaler {
+			return ec.marshalNStringFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItemᚄ(ctx, selections, v)
 		},
 		true,
 		true,
@@ -2370,7 +2325,7 @@ func (ec *executionContext) fieldContext_ApplicationFacets_environments(_ contex
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_ApplicationEnvironmentFacetItem(ctx, field)
+			return ec.childFields_StringFacetItem(ctx, field)
 		},
 	}
 	return fc, nil
@@ -6151,50 +6106,6 @@ func (ec *executionContext) _ApplicationEdge(ctx context.Context, sel ast.Select
 	return out
 }
 
-var applicationEnvironmentFacetItemImplementors = []string{"ApplicationEnvironmentFacetItem"}
-
-func (ec *executionContext) _ApplicationEnvironmentFacetItem(ctx context.Context, sel ast.SelectionSet, obj *application.ApplicationEnvironmentFacetItem) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, applicationEnvironmentFacetItemImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("ApplicationEnvironmentFacetItem")
-		case "environmentName":
-			out.Values[i] = ec._ApplicationEnvironmentFacetItem_environmentName(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "count":
-			out.Values[i] = ec._ApplicationEnvironmentFacetItem_count(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
-
-	for label, dfs := range deferred {
-		ec.ProcessDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
 var applicationFacetsImplementors = []string{"ApplicationFacets"}
 
 func (ec *executionContext) _ApplicationFacets(ctx context.Context, sel ast.SelectionSet, obj *application.ApplicationFacets) graphql.Marshaler {
@@ -7745,26 +7656,6 @@ func (ec *executionContext) marshalNApplicationEdge2ᚕgithubᚗcomᚋnaisᚋapi
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
 		return ec.marshalNApplicationEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
-	})
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
-func (ec *executionContext) marshalNApplicationEnvironmentFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplicationEnvironmentFacetItem(ctx context.Context, sel ast.SelectionSet, v application.ApplicationEnvironmentFacetItem) graphql.Marshaler {
-	return ec._ApplicationEnvironmentFacetItem(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNApplicationEnvironmentFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplicationEnvironmentFacetItemᚄ(ctx context.Context, sel ast.SelectionSet, v []application.ApplicationEnvironmentFacetItem) graphql.Marshaler {
-	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
-		fc := graphql.GetFieldContext(ctx)
-		fc.Result = &v[i]
-		return ec.marshalNApplicationEnvironmentFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplicationEnvironmentFacetItem(ctx, sel, v[i])
 	})
 
 	for _, e := range ret {

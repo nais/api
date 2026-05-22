@@ -156,7 +156,7 @@ Facets for Postgres instances, providing distribution counts across different di
 """
 type PostgresInstanceFacets {
 	"Distribution of instances by environment."
-	environments: [EnvironmentFacetItem!]!
+	environments: [StringFacetItem!]!
 
 	"Distribution of instances by state."
 	states: [PostgresInstanceStateFacetItem!]!
@@ -165,7 +165,7 @@ type PostgresInstanceFacets {
 	highAvailability: [BooleanFacetItem!]!
 
 	"Distribution of instances by major version."
-	majorVersions: [PostgresInstanceMajorVersionFacetItem!]!
+	majorVersions: [StringFacetItem!]!
 }
 
 """
@@ -174,17 +174,6 @@ A single facet item for Postgres instance states.
 type PostgresInstanceStateFacetItem {
 	"The Postgres instance state."
 	state: PostgresInstanceState!
-
-	"Number of matching instances."
-	count: Int!
-}
-
-"""
-A single facet item for Postgres major versions.
-"""
-type PostgresInstanceMajorVersionFacetItem {
-	"The major version string."
-	majorVersion: String!
 
 	"Number of matching instances."
 	count: Int!
