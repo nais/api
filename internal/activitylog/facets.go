@@ -112,9 +112,7 @@ func assembleFacets(activityTypeCounts map[ActivityLogActivityType]int, resource
 		return strings.Compare(string(a.ResourceType), string(b.ResourceType))
 	})
 
-	slices.SortFunc(facets.Environments, func(a, b model.StringFacetItem) int {
-		return strings.Compare(a.Value, b.Value)
-	})
+	model.SortStringFacetItems(facets.Environments)
 
 	return facets
 }

@@ -77,27 +77,15 @@ func assembleFacets(
 	}
 
 	// Sort for stable ordering
-	slices.SortFunc(facets.Environments, func(a, b model.StringFacetItem) int {
-		return strings.Compare(a.Value, b.Value)
-	})
+	model.SortStringFacetItems(facets.Environments)
 
 	slices.SortFunc(facets.States, func(a, b PostgresInstanceStateFacetItem) int {
 		return strings.Compare(a.State.String(), b.State.String())
 	})
 
-	slices.SortFunc(facets.HighAvailability, func(a, b model.BooleanFacetItem) int {
-		if a.Value == b.Value {
-			return 0
-		}
-		if a.Value {
-			return 1
-		}
-		return -1
-	})
+	model.SortBooleanFacetItems(facets.HighAvailability)
 
-	slices.SortFunc(facets.MajorVersions, func(a, b model.StringFacetItem) int {
-		return strings.Compare(a.Value, b.Value)
-	})
+	model.SortStringFacetItems(facets.MajorVersions)
 
 	return facets
 }

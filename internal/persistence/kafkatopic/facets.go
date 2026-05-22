@@ -2,8 +2,6 @@ package kafkatopic
 
 import (
 	"context"
-	"slices"
-	"strings"
 
 	"github.com/nais/api/internal/graph/model"
 )
@@ -49,13 +47,8 @@ func assembleFacets(environmentCounts map[string]int, poolCounts map[string]int)
 		})
 	}
 
-	slices.SortFunc(facets.Environments, func(a, b model.StringFacetItem) int {
-		return strings.Compare(a.Value, b.Value)
-	})
-
-	slices.SortFunc(facets.Pools, func(a, b model.StringFacetItem) int {
-		return strings.Compare(a.Value, b.Value)
-	})
+	model.SortStringFacetItems(facets.Environments)
+	model.SortStringFacetItems(facets.Pools)
 
 	return facets
 }

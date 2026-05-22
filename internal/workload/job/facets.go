@@ -95,9 +95,7 @@ func assembleFacets(environmentCounts map[string]int, stateCounts map[JobState]i
 	}
 
 	// Sort alphabetically for stable ordering
-	slices.SortFunc(facets.Environments, func(a, b model.StringFacetItem) int {
-		return strings.Compare(a.Value, b.Value)
-	})
+	model.SortStringFacetItems(facets.Environments)
 
 	slices.SortFunc(facets.States, func(a, b JobStateFacetItem) int {
 		return strings.Compare(a.State.String(), b.State.String())

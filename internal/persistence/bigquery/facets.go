@@ -2,8 +2,6 @@ package bigquery
 
 import (
 	"context"
-	"slices"
-	"strings"
 
 	"github.com/nais/api/internal/graph/model"
 )
@@ -38,9 +36,7 @@ func assembleFacets(environmentCounts map[string]int) *BigQueryDatasetFacets {
 		})
 	}
 
-	slices.SortFunc(facets.Environments, func(a, b model.StringFacetItem) int {
-		return strings.Compare(a.Value, b.Value)
-	})
+	model.SortStringFacetItems(facets.Environments)
 
 	return facets
 }

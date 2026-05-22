@@ -46,9 +46,7 @@ func assembleFacets(
 	}
 
 	// Sort for stable ordering
-	slices.SortFunc(facets.Environments, func(a, b model.StringFacetItem) int {
-		return strings.Compare(a.Value, b.Value)
-	})
+	model.SortStringFacetItems(facets.Environments)
 
 	slices.SortFunc(facets.Tiers, func(a, b ValkeyTierFacetItem) int {
 		return strings.Compare(a.Tier.String(), b.Tier.String())

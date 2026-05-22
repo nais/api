@@ -2,8 +2,6 @@ package config
 
 import (
 	"context"
-	"slices"
-	"strings"
 
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/workload/application"
@@ -77,19 +75,8 @@ func assembleFacets(
 		})
 	}
 
-	slices.SortFunc(facets.Environments, func(a, b model.StringFacetItem) int {
-		return strings.Compare(a.Value, b.Value)
-	})
-
-	slices.SortFunc(facets.InUse, func(a, b model.BooleanFacetItem) int {
-		if a.Value == b.Value {
-			return 0
-		}
-		if a.Value {
-			return 1
-		}
-		return -1
-	})
+	model.SortStringFacetItems(facets.Environments)
+	model.SortBooleanFacetItems(facets.InUse)
 
 	return facets
 }
