@@ -189,6 +189,11 @@ type ExternalIngressCriticalVulnerabilityIssueDetails struct {
 	Ingresses []string `json:"ingresses"`
 }
 
+type ExternalIngressActNowVulnerabilityIssueDetails struct {
+	PriorityActNow int      `json:"priorityActNow"`
+	Ingresses      []string `json:"ingresses"`
+}
+
 type IssueType string
 
 const (
@@ -208,6 +213,7 @@ const (
 	IssueTypeVulnerableImage                      IssueType = "VULNERABLE_IMAGE"
 	IssueTypeMissingSBOM                          IssueType = "MISSING_SBOM"
 	IssueTypeExternalIngressCriticalVulnerability IssueType = "EXTERNAL_INGRESS_CRITICAL_VULNERABILITY"
+	IssueTypeExternalIngressActNowVulnerability   IssueType = "EXTERNAL_INGRESS_ACT_NOW_VULNERABILITY"
 	IssueTypeUnleashReleaseChannel                IssueType = "UNLEASH_RELEASE_CHANNEL"
 	IssueTypeApplicationRestartLoop               IssueType = "APPLICATION_RESTART_LOOP"
 )
@@ -227,6 +233,7 @@ var AllIssueType = []IssueType{
 	IssueTypeVulnerableImage,
 	IssueTypeMissingSBOM,
 	IssueTypeExternalIngressCriticalVulnerability,
+	IssueTypeExternalIngressActNowVulnerability,
 	IssueTypeUnleashReleaseChannel,
 	IssueTypeApplicationRestartLoop,
 }
@@ -238,7 +245,8 @@ func (e IssueType) IsValid() bool {
 		IssueTypeNoRunningInstances, IssueTypeLastRunFailed, IssueTypeWorkloadProblem,
 		IssueTypeInvalidSpec, IssueTypeFailedSynchronization, IssueTypeVulnerableImage,
 		IssueTypeMissingSBOM, IssueTypeExternalIngressCriticalVulnerability,
-		IssueTypeUnleashReleaseChannel, IssueTypeApplicationRestartLoop:
+		IssueTypeExternalIngressActNowVulnerability, IssueTypeUnleashReleaseChannel,
+		IssueTypeApplicationRestartLoop:
 		return true
 	}
 	return false
@@ -503,6 +511,15 @@ type ExternalIngressCriticalVulnerabilityIssue struct {
 func (ExternalIngressCriticalVulnerabilityIssue) IsIssue() {}
 
 func (ExternalIngressCriticalVulnerabilityIssue) IsNode() {}
+
+type ExternalIngressActNowVulnerabilityIssue struct {
+	Base
+	ExternalIngressActNowVulnerabilityIssueDetails
+}
+
+func (ExternalIngressActNowVulnerabilityIssue) IsIssue() {}
+
+func (ExternalIngressActNowVulnerabilityIssue) IsNode() {}
 
 type UnleashReleaseChannelIssueDetails struct {
 	ChannelName         string `json:"channelName"`
