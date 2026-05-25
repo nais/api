@@ -2,6 +2,7 @@ package graph
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/pagination"
@@ -38,6 +39,14 @@ func (r *deprecatedRegistryIssueResolver) TeamEnvironment(ctx context.Context, o
 
 func (r *deprecatedRegistryIssueResolver) Workload(ctx context.Context, obj *issue.DeprecatedRegistryIssue) (workload.Workload, error) {
 	return getWorkloadByResourceType(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ResourceName, obj.ResourceType)
+}
+
+func (r *externalIngressActNowVulnerabilityIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.ExternalIngressActNowVulnerabilityIssue) (*team.TeamEnvironment, error) {
+	panic(fmt.Errorf("not implemented: TeamEnvironment - teamEnvironment"))
+}
+
+func (r *externalIngressActNowVulnerabilityIssueResolver) Workload(ctx context.Context, obj *issue.ExternalIngressActNowVulnerabilityIssue) (workload.Workload, error) {
+	panic(fmt.Errorf("not implemented: Workload - workload"))
 }
 
 func (r *externalIngressCriticalVulnerabilityIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.ExternalIngressCriticalVulnerabilityIssue) (*team.TeamEnvironment, error) {
@@ -157,6 +166,10 @@ func (r *Resolver) DeprecatedRegistryIssue() gengql.DeprecatedRegistryIssueResol
 	return &deprecatedRegistryIssueResolver{r}
 }
 
+func (r *Resolver) ExternalIngressActNowVulnerabilityIssue() gengql.ExternalIngressActNowVulnerabilityIssueResolver {
+	return &externalIngressActNowVulnerabilityIssueResolver{r}
+}
+
 func (r *Resolver) ExternalIngressCriticalVulnerabilityIssue() gengql.ExternalIngressCriticalVulnerabilityIssueResolver {
 	return &externalIngressCriticalVulnerabilityIssueResolver{r}
 }
@@ -207,6 +220,7 @@ type (
 	applicationRestartLoopIssueResolver               struct{ *Resolver }
 	deprecatedIngressIssueResolver                    struct{ *Resolver }
 	deprecatedRegistryIssueResolver                   struct{ *Resolver }
+	externalIngressActNowVulnerabilityIssueResolver   struct{ *Resolver }
 	externalIngressCriticalVulnerabilityIssueResolver struct{ *Resolver }
 	failedSynchronizationIssueResolver                struct{ *Resolver }
 	invalidSpecIssueResolver                          struct{ *Resolver }

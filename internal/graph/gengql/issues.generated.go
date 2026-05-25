@@ -43,6 +43,11 @@ type DeprecatedRegistryIssueResolver interface {
 
 	Workload(ctx context.Context, obj *issue.DeprecatedRegistryIssue) (workload.Workload, error)
 }
+type ExternalIngressActNowVulnerabilityIssueResolver interface {
+	TeamEnvironment(ctx context.Context, obj *issue.ExternalIngressActNowVulnerabilityIssue) (*team.TeamEnvironment, error)
+
+	Workload(ctx context.Context, obj *issue.ExternalIngressActNowVulnerabilityIssue) (workload.Workload, error)
+}
 type ExternalIngressCriticalVulnerabilityIssueResolver interface {
 	TeamEnvironment(ctx context.Context, obj *issue.ExternalIngressCriticalVulnerabilityIssue) (*team.TeamEnvironment, error)
 
@@ -605,6 +610,185 @@ func (ec *executionContext) fieldContext_DeprecatedRegistryIssue_workload(_ cont
 		},
 	}
 	return fc, nil
+}
+
+func (ec *executionContext) _ExternalIngressActNowVulnerabilityIssue_id(ctx context.Context, field graphql.CollectedField, obj *issue.ExternalIngressActNowVulnerabilityIssue) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ExternalIngressActNowVulnerabilityIssue_id(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.ID, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
+			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_ExternalIngressActNowVulnerabilityIssue_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("ExternalIngressActNowVulnerabilityIssue", field, false, false, errors.New("field of type ID does not have child fields"))
+}
+
+func (ec *executionContext) _ExternalIngressActNowVulnerabilityIssue_teamEnvironment(ctx context.Context, field graphql.CollectedField, obj *issue.ExternalIngressActNowVulnerabilityIssue) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ExternalIngressActNowVulnerabilityIssue_teamEnvironment(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.ExternalIngressActNowVulnerabilityIssue().TeamEnvironment(ctx, obj)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *team.TeamEnvironment) graphql.Marshaler {
+			return ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_ExternalIngressActNowVulnerabilityIssue_teamEnvironment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ExternalIngressActNowVulnerabilityIssue",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_TeamEnvironment(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ExternalIngressActNowVulnerabilityIssue_severity(ctx context.Context, field graphql.CollectedField, obj *issue.ExternalIngressActNowVulnerabilityIssue) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ExternalIngressActNowVulnerabilityIssue_severity(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Severity, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v issue.Severity) graphql.Marshaler {
+			return ec.marshalNSeverity2githubᚗcomᚋnaisᚋapiᚋinternalᚋissueᚐSeverity(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_ExternalIngressActNowVulnerabilityIssue_severity(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("ExternalIngressActNowVulnerabilityIssue", field, false, false, errors.New("field of type Severity does not have child fields"))
+}
+
+func (ec *executionContext) _ExternalIngressActNowVulnerabilityIssue_message(ctx context.Context, field graphql.CollectedField, obj *issue.ExternalIngressActNowVulnerabilityIssue) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ExternalIngressActNowVulnerabilityIssue_message(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Message, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_ExternalIngressActNowVulnerabilityIssue_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("ExternalIngressActNowVulnerabilityIssue", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _ExternalIngressActNowVulnerabilityIssue_workload(ctx context.Context, field graphql.CollectedField, obj *issue.ExternalIngressActNowVulnerabilityIssue) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ExternalIngressActNowVulnerabilityIssue_workload(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.ExternalIngressActNowVulnerabilityIssue().Workload(ctx, obj)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v workload.Workload) graphql.Marshaler {
+			return ec.marshalNWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_ExternalIngressActNowVulnerabilityIssue_workload(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ExternalIngressActNowVulnerabilityIssue",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ExternalIngressActNowVulnerabilityIssue_priorityActNow(ctx context.Context, field graphql.CollectedField, obj *issue.ExternalIngressActNowVulnerabilityIssue) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ExternalIngressActNowVulnerabilityIssue_priorityActNow(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.PriorityActNow, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
+			return ec.marshalNInt2int(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_ExternalIngressActNowVulnerabilityIssue_priorityActNow(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("ExternalIngressActNowVulnerabilityIssue", field, false, false, errors.New("field of type Int does not have child fields"))
+}
+
+func (ec *executionContext) _ExternalIngressActNowVulnerabilityIssue_ingresses(ctx context.Context, field graphql.CollectedField, obj *issue.ExternalIngressActNowVulnerabilityIssue) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ExternalIngressActNowVulnerabilityIssue_ingresses(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Ingresses, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []string) graphql.Marshaler {
+			return ec.marshalNString2ᚕstringᚄ(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_ExternalIngressActNowVulnerabilityIssue_ingresses(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("ExternalIngressActNowVulnerabilityIssue", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _ExternalIngressCriticalVulnerabilityIssue_id(ctx context.Context, field graphql.CollectedField, obj *issue.ExternalIngressCriticalVulnerabilityIssue) (ret graphql.Marshaler) {
@@ -2812,6 +2996,13 @@ func (ec *executionContext) _Issue(ctx context.Context, sel ast.SelectionSet, ob
 			return graphql.Null
 		}
 		return ec._ExternalIngressCriticalVulnerabilityIssue(ctx, sel, obj)
+	case issue.ExternalIngressActNowVulnerabilityIssue:
+		return ec._ExternalIngressActNowVulnerabilityIssue(ctx, sel, &obj)
+	case *issue.ExternalIngressActNowVulnerabilityIssue:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ExternalIngressActNowVulnerabilityIssue(ctx, sel, obj)
 	case issue.DeprecatedRegistryIssue:
 		return ec._DeprecatedRegistryIssue(ctx, sel, &obj)
 	case *issue.DeprecatedRegistryIssue:
@@ -3206,6 +3397,137 @@ func (ec *executionContext) _DeprecatedRegistryIssue(ctx context.Context, sel as
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var externalIngressActNowVulnerabilityIssueImplementors = []string{"ExternalIngressActNowVulnerabilityIssue", "Issue", "Node"}
+
+func (ec *executionContext) _ExternalIngressActNowVulnerabilityIssue(ctx context.Context, sel ast.SelectionSet, obj *issue.ExternalIngressActNowVulnerabilityIssue) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, externalIngressActNowVulnerabilityIssueImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ExternalIngressActNowVulnerabilityIssue")
+		case "id":
+			out.Values[i] = ec._ExternalIngressActNowVulnerabilityIssue_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "teamEnvironment":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ExternalIngressActNowVulnerabilityIssue_teamEnvironment(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "severity":
+			out.Values[i] = ec._ExternalIngressActNowVulnerabilityIssue_severity(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "message":
+			out.Values[i] = ec._ExternalIngressActNowVulnerabilityIssue_message(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "workload":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ExternalIngressActNowVulnerabilityIssue_workload(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "priorityActNow":
+			out.Values[i] = ec._ExternalIngressActNowVulnerabilityIssue_priorityActNow(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "ingresses":
+			out.Values[i] = ec._ExternalIngressActNowVulnerabilityIssue_ingresses(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
