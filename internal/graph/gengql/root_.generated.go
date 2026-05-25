@@ -81,6 +81,7 @@ type ResolverRoot interface {
 	DeprecatedIngressIssue() DeprecatedIngressIssueResolver
 	DeprecatedRegistryIssue() DeprecatedRegistryIssueResolver
 	Environment() EnvironmentResolver
+	ExternalIngressActNowVulnerabilityIssue() ExternalIngressActNowVulnerabilityIssueResolver
 	ExternalIngressCriticalVulnerabilityIssue() ExternalIngressCriticalVulnerabilityIssueResolver
 	FailedSynchronizationIssue() FailedSynchronizationIssueResolver
 	Ingress() IngressResolver
@@ -933,6 +934,16 @@ type ComplexityRoot struct {
 	EnvironmentEdge struct {
 		Cursor func(childComplexity int) int
 		Node   func(childComplexity int) int
+	}
+
+	ExternalIngressActNowVulnerabilityIssue struct {
+		ID              func(childComplexity int) int
+		Ingresses       func(childComplexity int) int
+		Message         func(childComplexity int) int
+		PriorityActNow  func(childComplexity int) int
+		Severity        func(childComplexity int) int
+		TeamEnvironment func(childComplexity int) int
+		Workload        func(childComplexity int) int
 	}
 
 	ExternalIngressCriticalVulnerabilityIssue struct {
@@ -6740,6 +6751,55 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.EnvironmentEdge.Node(childComplexity), true
+
+	case "ExternalIngressActNowVulnerabilityIssue.id":
+		if e.ComplexityRoot.ExternalIngressActNowVulnerabilityIssue.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ExternalIngressActNowVulnerabilityIssue.ID(childComplexity), true
+
+	case "ExternalIngressActNowVulnerabilityIssue.ingresses":
+		if e.ComplexityRoot.ExternalIngressActNowVulnerabilityIssue.Ingresses == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ExternalIngressActNowVulnerabilityIssue.Ingresses(childComplexity), true
+
+	case "ExternalIngressActNowVulnerabilityIssue.message":
+		if e.ComplexityRoot.ExternalIngressActNowVulnerabilityIssue.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ExternalIngressActNowVulnerabilityIssue.Message(childComplexity), true
+
+	case "ExternalIngressActNowVulnerabilityIssue.priorityActNow":
+		if e.ComplexityRoot.ExternalIngressActNowVulnerabilityIssue.PriorityActNow == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ExternalIngressActNowVulnerabilityIssue.PriorityActNow(childComplexity), true
+
+	case "ExternalIngressActNowVulnerabilityIssue.severity":
+		if e.ComplexityRoot.ExternalIngressActNowVulnerabilityIssue.Severity == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ExternalIngressActNowVulnerabilityIssue.Severity(childComplexity), true
+
+	case "ExternalIngressActNowVulnerabilityIssue.teamEnvironment":
+		if e.ComplexityRoot.ExternalIngressActNowVulnerabilityIssue.TeamEnvironment == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ExternalIngressActNowVulnerabilityIssue.TeamEnvironment(childComplexity), true
+
+	case "ExternalIngressActNowVulnerabilityIssue.workload":
+		if e.ComplexityRoot.ExternalIngressActNowVulnerabilityIssue.Workload == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ExternalIngressActNowVulnerabilityIssue.Workload(childComplexity), true
 
 	case "ExternalIngressCriticalVulnerabilityIssue.cvssScore":
 		if e.ComplexityRoot.ExternalIngressCriticalVulnerabilityIssue.CvssScore == nil {
@@ -23227,6 +23287,7 @@ enum IssueType {
 	MISSING_SBOM
 	VULNERABLE_IMAGE
 	EXTERNAL_INGRESS_CRITICAL_VULNERABILITY
+	EXTERNAL_INGRESS_ACT_NOW_VULNERABILITY
 	UNLEASH_RELEASE_CHANNEL
 	"Raised when an application is stuck in a restart loop."
 	APPLICATION_RESTART_LOOP
@@ -23251,6 +23312,18 @@ type ExternalIngressCriticalVulnerabilityIssue implements Issue & Node {
 
 	workload: Workload!
 	cvssScore: Float!
+	ingresses: [String!]!
+}
+
+"Raised when a workload with external ingresses has one or more ACT_NOW priority vulnerabilities."
+type ExternalIngressActNowVulnerabilityIssue implements Issue & Node {
+	id: ID!
+	teamEnvironment: TeamEnvironment!
+	severity: Severity!
+	message: String!
+
+	workload: Workload!
+	priorityActNow: Int!
 	ingresses: [String!]!
 }
 
