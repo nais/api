@@ -230,6 +230,7 @@ enum IssueType {
 	MISSING_SBOM
 	VULNERABLE_IMAGE
 	EXTERNAL_INGRESS_CRITICAL_VULNERABILITY
+	EXTERNAL_INGRESS_ACT_NOW_VULNERABILITY
 	UNLEASH_RELEASE_CHANNEL
 	"Raised when an application is stuck in a restart loop."
 	APPLICATION_RESTART_LOOP
@@ -254,6 +255,18 @@ type ExternalIngressCriticalVulnerabilityIssue implements Issue & Node {
 
 	workload: Workload!
 	cvssScore: Float!
+	ingresses: [String!]!
+}
+
+"Raised when a workload with external ingresses has one or more ACT_NOW priority vulnerabilities."
+type ExternalIngressActNowVulnerabilityIssue implements Issue & Node {
+	id: ID!
+	teamEnvironment: TeamEnvironment!
+	severity: Severity!
+	message: String!
+
+	workload: Workload!
+	priorityActNow: Int!
 	ingresses: [String!]!
 }
 

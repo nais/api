@@ -35,11 +35,13 @@ func (f fakeV13sClient) ListVulnerabilitySummaries(ctx context.Context, opts ...
 					Cluster:   "dev-gcp",
 					Type:      "app",
 					ImageName: "vulnerable-image",
-					ImageTag:  "tag1",
+				ImageTag:  "tag1",
 				},
 				VulnerabilitySummary: &vulnerabilities.Summary{
-					Critical:  5,
-					RiskScore: 250,
+					Critical:       5,
+					RiskScore:      250,
+					PriorityActNow: 2,
+					PriorityHigh:   3,
 				},
 				SbomStatus: &vulnerabilities.SbomStatusInfo{
 					Status: vulnerabilities.SbomStatus_SBOM_STATUS_READY,
@@ -67,11 +69,13 @@ func (f fakeV13sClient) ListVulnerabilitySummaries(ctx context.Context, opts ...
 					Cluster:   "dev-gcp",
 					Type:      "app",
 					ImageName: "vulnerable-image",
-					ImageTag:  "tag1",
+				ImageTag:  "tag1",
 				},
 				VulnerabilitySummary: &vulnerabilities.Summary{
-					Critical:  5,
-					RiskScore: 250,
+					Critical:       5,
+					RiskScore:      250,
+					PriorityActNow: 2,
+					PriorityHigh:   3,
 				},
 				SbomStatus: &vulnerabilities.SbomStatusInfo{
 					Status: vulnerabilities.SbomStatus_SBOM_STATUS_READY,
@@ -181,23 +185,28 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 			continue
 		}
 
-		if node.VulnerabilitySummary != nil && (node.VulnerabilitySummary.Critical > 0 || node.VulnerabilitySummary.RiskScore > 100) {
+		summary := node.VulnerabilitySummary
+		if summary != nil && (summary.PriorityActNow > 0 || summary.PriorityHigh > 0) {
+			severity := issue.SeverityWarning
+			if summary.PriorityActNow > 0 {
+				severity = issue.SeverityCritical
+			}
 			ret = append(ret, &Issue{
 				IssueType:    issue.IssueTypeVulnerableImage,
 				ResourceType: workloadType,
 				ResourceName: node.Workload.GetName(),
 				Team:         node.Workload.GetNamespace(),
 				Env:          environmentmapper.EnvironmentName(node.Workload.GetCluster()),
-				Severity:     issue.SeverityWarning,
+				Severity:     severity,
 				Message: fmt.Sprintf(
-					"Image '%s' has %d critical vulnerabilities and a risk score of %d",
+					"Image '%s' has %d ACT_NOW and %d HIGH priority vulnerabilities",
 					node.Workload.ImageName,
-					node.VulnerabilitySummary.Critical,
-					node.VulnerabilitySummary.RiskScore,
+					summary.PriorityActNow,
+					summary.PriorityHigh,
 				),
 				IssueDetails: issue.VulnerableImageIssueDetails{
-					Critical:  int(node.VulnerabilitySummary.Critical),
-					RiskScore: int(node.VulnerabilitySummary.RiskScore),
+					Critical:  int(summary.Critical),
+					RiskScore: int(summary.RiskScore),
 				},
 			})
 		}
@@ -276,6 +285,48 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 			IssueDetails: issue.ExternalIngressCriticalVulnerabilityIssueDetails{
 				CvssScore: cvss,
 				Ingresses: externalIngresses,
+			},
+		})
+	}
+
+	seenActNow := map[string]struct{}{}
+	for _, node := range resp.GetNodes() {
+		workloadType, ok := mapType(node.Workload.GetType())
+		if !ok || workloadType != issue.ResourceTypeApplication {
+			continue
+		}
+
+		if node.VulnerabilitySummary == nil || node.VulnerabilitySummary.PriorityActNow == 0 {
+			continue
+		}
+
+		env := environmentmapper.EnvironmentName(node.Workload.GetCluster())
+		key := workloadKey(env, node.Workload.GetNamespace(), node.Workload.GetName())
+		if _, exists := seenActNow[key]; exists {
+			continue
+		}
+
+		externalIngresses := externalIngressesByWorkload[key]
+		if len(externalIngresses) == 0 {
+			continue
+		}
+		seenActNow[key] = struct{}{}
+
+		ret = append(ret, &Issue{
+			IssueType:    issue.IssueTypeExternalIngressActNowVulnerability,
+			ResourceType: workloadType,
+			ResourceName: node.Workload.GetName(),
+			Team:         node.Workload.GetNamespace(),
+			Env:          env,
+			Severity:     issue.SeverityCritical,
+			Message: fmt.Sprintf(
+				"Workload with external ingresses %s has %d ACT_NOW priority vulnerabilities",
+				strings.Join(externalIngresses, ", "),
+				node.VulnerabilitySummary.PriorityActNow,
+			),
+			IssueDetails: issue.ExternalIngressActNowVulnerabilityIssueDetails{
+				PriorityActNow: int(node.VulnerabilitySummary.PriorityActNow),
+				Ingresses:      externalIngresses,
 			},
 		})
 	}
