@@ -3,7 +3,6 @@ package logging
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/slug"
@@ -76,14 +75,10 @@ func (l LogDestinationLoki) ID() ident.Ident {
 }
 
 func (l LogDestinationLoki) GrafanaURL(ctx context.Context) string {
-	const tpl = `var-ds=%s-loki&var-filters=service_name|%%3D|%s&var-filters=service_namespace|%%3D|%s`
+	const tpl = `var-ds=Logs&var-filters=k8s_cluster_name|%%3D|%s&var-filters=service_name|%%3D|%s&var-filters=service_namespace|%%3D|%s`
 
 	tenantName := fromContext(ctx).tenantName
 	envName := l.EnvironmentName
-	// All loki logs are stored in gcp, update the envName to match the loki datasource
-	if before, ok := strings.CutSuffix(envName, "-fss"); ok {
-		envName = before + "-gcp"
-	}
 	lokiURL := "https://grafana." + tenantName + ".cloud.nais.io/a/grafana-lokiexplore-app/explore/service/" + l.WorkloadName + "/logs?"
 
 	return lokiURL + fmt.Sprintf(tpl, envName, l.WorkloadName, l.TeamSlug)
