@@ -503,7 +503,7 @@ type ComplexityRoot struct {
 		Identifier  func(childComplexity int) int
 		Severity    func(childComplexity int) int
 		Title       func(childComplexity int) int
-		Workloads   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Workloads   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *vulnerability.CVEWorkloadsFilter) int
 	}
 
 	CVEConnection struct {
@@ -4991,7 +4991,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.CVE.Workloads(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
+		return e.ComplexityRoot.CVE.Workloads(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["filter"].(*vulnerability.CVEWorkloadsFilter)), true
 
 	case "CVEConnection.edges":
 		if e.ComplexityRoot.CVEConnection.Edges == nil {
@@ -18033,6 +18033,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputBigQueryDatasetOrder,
 		ec.unmarshalInputBucketOrder,
 		ec.unmarshalInputCVEOrder,
+		ec.unmarshalInputCVEWorkloadsFilter,
 		ec.unmarshalInputChangeDeploymentKeyInput,
 		ec.unmarshalInputConfigFilter,
 		ec.unmarshalInputConfigOrder,
@@ -29683,7 +29684,16 @@ type CVE implements Node {
 
 		"Get items before this cursor."
 		before: Cursor
+
+		"Filter workloads. When teamSlugs is set only workloads belonging to those teams are returned."
+		filter: CVEWorkloadsFilter
 	): WorkloadWithVulnerabilityConnection!
+}
+
+"Filter for workloads affected by a CVE. When teamSlugs is provided only workloads belonging to those teams are returned."
+input CVEWorkloadsFilter {
+	"Team identifiers used to limit results to workloads owned by those teams."
+	teamSlugs: [Slug!]
 }
 
 type WorkloadWithVulnerabilityConnection {

@@ -44,7 +44,7 @@ require (
 	github.com/nais/pgrator/pkg/api v0.0.0-20260219115817-cf954d58c04e
 	github.com/nais/tester v0.1.1
 	github.com/nais/unleasherator v0.0.0-20251216221129-efebc54203fe
-	github.com/nais/v13s/pkg/api v0.0.0-20260513133039-3688f23180a9
+	github.com/nais/v13s/pkg/api v0.0.0-20260519115145-3193309b1b36
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pressly/goose/v3 v3.27.0
 	github.com/prometheus/client_golang v1.23.2

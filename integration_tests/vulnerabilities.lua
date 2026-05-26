@@ -166,6 +166,76 @@ Test.gql("Get vulnerability summary for team", function(t)
 	}
 end)
 
+Test.gql("Get CVE workloads without filter", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query([[
+		{
+			cve(identifier: "CVE-2024-12345") {
+				identifier
+				workloads(first: 10) {
+					pageInfo {
+						totalCount
+					}
+					nodes {
+						workload {
+							name
+						}
+					}
+				}
+			}
+		}
+	]])
+
+	t.check {
+		data = {
+			cve = {
+				identifier = "CVE-2024-12345",
+				workloads = {
+					pageInfo = { totalCount = 1 },
+					nodes = {
+						{ workload = { name = "app-with-vulnerabilities" } },
+					},
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("Get CVE workloads filtered by teamSlugs", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query(string.format([[
+		{
+			cve(identifier: "CVE-2024-12345") {
+				identifier
+				workloads(first: 10, filter: { teamSlugs: ["%s"] }) {
+					pageInfo {
+						totalCount
+					}
+					nodes {
+						workload {
+							name
+						}
+					}
+				}
+			}
+		}
+	]], team:slug()))
+
+	t.check {
+		data = {
+			cve = {
+				identifier = "CVE-2024-12345",
+				workloads = {
+					pageInfo = { totalCount = 1 },
+					nodes = {
+						{ workload = { name = "app-with-vulnerabilities" } },
+					},
+				},
+			},
+		},
+	}
+end)
+
 Test.gql("List vulnerabilities for image", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query(string.format([[
