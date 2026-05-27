@@ -3450,6 +3450,7 @@ type ComplexityRoot struct {
 	}
 
 	WorkloadWithVulnerability struct {
+		ID            func(childComplexity int) int
 		Vulnerability func(childComplexity int) int
 		Workload      func(childComplexity int) int
 	}
@@ -17962,6 +17963,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.WorkloadVulnerabilitySummaryEdge.Node(childComplexity), true
 
+	case "WorkloadWithVulnerability.id":
+		if e.ComplexityRoot.WorkloadWithVulnerability.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadWithVulnerability.ID(childComplexity), true
+
 	case "WorkloadWithVulnerability.vulnerability":
 		if e.ComplexityRoot.WorkloadWithVulnerability.Vulnerability == nil {
 			break
@@ -29715,8 +29723,15 @@ type WorkloadWithVulnerabilityEdge {
 	node: WorkloadWithVulnerability!
 }
 
-type WorkloadWithVulnerability {
+"A workload affected by a specific vulnerability."
+type WorkloadWithVulnerability implements Node {
+	"The globally unique ID of the workload vulnerability node."
+	id: ID!
+
+	"The vulnerability affecting the workload."
 	vulnerability: ImageVulnerability!
+
+	"The workload affected by the vulnerability."
 	workload: Workload!
 }
 
@@ -35038,6 +35053,8 @@ func (ec *executionContext) childFields_WorkloadVulnerabilitySummaryEdge(ctx con
 
 func (ec *executionContext) childFields_WorkloadWithVulnerability(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
+	case "id":
+		return ec.fieldContext_WorkloadWithVulnerability_id(ctx, field)
 	case "vulnerability":
 		return ec.fieldContext_WorkloadWithVulnerability_vulnerability(ctx, field)
 	case "workload":
