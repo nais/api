@@ -236,6 +236,65 @@ Test.gql("Get CVE workloads filtered by teamSlugs", function(t)
 	}
 end)
 
+Test.gql("Get WorkloadWithVulnerability node by id", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query([[
+		{
+			cve(identifier: "CVE-2024-12345") {
+				workloads(first: 1) {
+					nodes {
+						id
+					}
+				}
+			}
+		}
+	]])
+
+	t.check {
+		data = {
+			cve = {
+				workloads = {
+					nodes = {
+						{ id = Save("workload_with_vulnerability_id") },
+					},
+				},
+			},
+		},
+	}
+
+	local id = State.workload_with_vulnerability_id
+
+	t.query(string.format([[
+		{
+			node(id: "%s") {
+				id
+				... on WorkloadWithVulnerability {
+					workload {
+						name
+					}
+					vulnerability {
+						identifier
+					}
+				}
+			}
+		}
+	]], id))
+
+	t.check {
+		data = {
+			node = {
+				id = id,
+				workload = {
+					name = "app-with-vulnerabilities",
+				},
+				vulnerability = {
+					identifier = "CVE-2024-12345",
+				},
+			},
+		},
+	}
+end)
+
 Test.gql("List vulnerabilities for image", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query(string.format([[

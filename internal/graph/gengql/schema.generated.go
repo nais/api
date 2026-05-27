@@ -6384,6 +6384,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._ApplicationCreatedActivityLogEntry(ctx, sel, obj)
+	case vulnerability.WorkloadWithVulnerability:
+		return ec._WorkloadWithVulnerability(ctx, sel, &obj)
+	case *vulnerability.WorkloadWithVulnerability:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._WorkloadWithVulnerability(ctx, sel, obj)
 	case vulnerability.WorkloadVulnerabilitySummary:
 		return ec._WorkloadVulnerabilitySummary(ctx, sel, &obj)
 	case *vulnerability.WorkloadVulnerabilitySummary:
