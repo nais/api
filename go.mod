@@ -44,7 +44,7 @@ require (
 	github.com/nais/pgrator/pkg/api v0.0.0-20260219115817-cf954d58c04e
 	github.com/nais/tester v0.1.1
 	github.com/nais/unleasherator v0.0.0-20251216221129-efebc54203fe
-	github.com/nais/v13s/pkg/api v0.0.0-20260528080657-d4f49e5737da
+	github.com/nais/v13s/pkg/api v0.0.0-20260528121134-739c7136ac8e
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pressly/goose/v3 v3.27.0
 	github.com/prometheus/client_golang v1.23.2
@@ -80,7 +80,11 @@ require (
 	golang.org/x/text v0.37.0
 	golang.org/x/tools v0.44.0
 	google.golang.org/api v0.280.0
+<<<<<<< HEAD
 	google.golang.org/genproto/googleapis/api v0.0.0-20260401024825-9d38bb4040a9
+=======
+	google.golang.org/genproto/googleapis/api v0.0.0-20260319201613-d00831a3d3e7
+>>>>>>> 99537aa0 (chore: bump v13s to v0.0.0-20260528121134-739c7136ac8e (cve-priority rebase onto main))
 	google.golang.org/grpc v1.81.1
 	google.golang.org/protobuf v1.36.11
 	k8s.io/api v0.35.1
