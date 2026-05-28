@@ -2,7 +2,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/pagination"
@@ -42,11 +41,11 @@ func (r *deprecatedRegistryIssueResolver) Workload(ctx context.Context, obj *iss
 }
 
 func (r *externalIngressActNowVulnerabilityIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.ExternalIngressActNowVulnerabilityIssue) (*team.TeamEnvironment, error) {
-	panic(fmt.Errorf("not implemented: TeamEnvironment - teamEnvironment"))
+	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
 
 func (r *externalIngressActNowVulnerabilityIssueResolver) Workload(ctx context.Context, obj *issue.ExternalIngressActNowVulnerabilityIssue) (workload.Workload, error) {
-	panic(fmt.Errorf("not implemented: Workload - workload"))
+	return getWorkloadByResourceType(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ResourceName, obj.ResourceType)
 }
 
 func (r *externalIngressCriticalVulnerabilityIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.ExternalIngressCriticalVulnerabilityIssue) (*team.TeamEnvironment, error) {
