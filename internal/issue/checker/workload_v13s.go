@@ -35,7 +35,7 @@ func (f fakeV13sClient) ListVulnerabilitySummaries(ctx context.Context, opts ...
 					Cluster:   "dev-gcp",
 					Type:      "app",
 					ImageName: "vulnerable-image",
-				ImageTag:  "tag1",
+					ImageTag:  "tag1",
 				},
 				VulnerabilitySummary: &vulnerabilities.Summary{
 					Critical:       5,
@@ -69,7 +69,7 @@ func (f fakeV13sClient) ListVulnerabilitySummaries(ctx context.Context, opts ...
 					Cluster:   "dev-gcp",
 					Type:      "app",
 					ImageName: "vulnerable-image",
-				ImageTag:  "tag1",
+					ImageTag:  "tag1",
 				},
 				VulnerabilitySummary: &vulnerabilities.Summary{
 					Critical:       5,
