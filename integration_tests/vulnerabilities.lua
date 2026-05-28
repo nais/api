@@ -55,6 +55,10 @@ Test.gql("List vulnerability summaries for team", function(t)
 					image{
 					  name
 					  hasSBOM
+				  sbom {
+					status
+					processingStartedAt
+				  }
 					  vulnerabilitySummary{
 						total
 						critical
@@ -80,6 +84,10 @@ Test.gql("List vulnerability summaries for team", function(t)
 							image = {
 								name = "europe-north1-docker.pkg.dev/nais/navikt/app-name",
 								hasSBOM = true,
+								sbom = {
+									status = "READY",
+									processingStartedAt = Ignore(),
+								},
 								vulnerabilitySummary = {
 									total = NotNull(),
 									critical = NotNull(),
