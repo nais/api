@@ -4569,7 +4569,7 @@ func (ec *executionContext) unmarshalInputUpdateApplicationInput(ctx context.Con
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "teamSlug", "environmentName", "environmentVariables", "replicas"}
+	fieldsInOrder := [...]string{"name", "teamSlug", "environmentName", "environmentVariables", "replicas", "image"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -4611,6 +4611,13 @@ func (ec *executionContext) unmarshalInputUpdateApplicationInput(ctx context.Con
 				return it, err
 			}
 			it.Replicas = data
+		case "image":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("image"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Image = data
 		}
 	}
 	return it, nil

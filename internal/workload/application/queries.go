@@ -172,6 +172,7 @@ func Update(ctx context.Context, input UpdateApplicationInput) (*UpdateApplicati
 	}
 
 	var changedFields []*activitylog.ResourceChangedField
+	var updateImageResource *string
 
 	if len(input.EnvironmentVariables) > 0 {
 		merged := workload.MergeEnvVars(app.Spec.Env, input.EnvironmentVariables)
@@ -213,6 +214,26 @@ func Update(ctx context.Context, input UpdateApplicationInput) (*UpdateApplicati
 		}
 	}
 
+	if input.Image != nil {
+		effectiveImage := app.Status.EffectiveImage
+		newImage := *input.Image
+		if newImage != effectiveImage {
+			if effectiveImage != "" {
+				changedFields = append(changedFields, &activitylog.ResourceChangedField{Field: "spec.image", OldValue: &effectiveImage, NewValue: &newImage})
+			} else {
+				changedFields = append(changedFields, &activitylog.ResourceChangedField{Field: "spec.image", NewValue: &newImage})
+			}
+
+			if app.Spec.Image != "" {
+				// Image is set directly in the Application spec
+				app.Spec.Image = newImage
+			} else {
+				// Image is managed by a separate Image resource (WorkloadImage pattern)
+				updateImageResource = &newImage
+			}
+		}
+	}
+
 	if len(changedFields) == 0 {
 		return &UpdateApplicationPayload{
 			TeamSlug:        input.TeamSlug,
@@ -233,6 +254,30 @@ func Update(ctx context.Context, input UpdateApplicationInput) (*UpdateApplicati
 
 	if _, err := client.Namespace(input.TeamSlug.String()).Update(ctx, &unstructured.Unstructured{Object: obj}, metav1.UpdateOptions{}); err != nil {
 		return nil, fmt.Errorf("updating application: %w", err)
+	}
+
+	if updateImageResource != nil {
+		imageClient, err := w.ImpersonatedClient(ctx, input.EnvironmentName, watcher.WithImpersonatedClientGVR(schema.GroupVersionResource{
+			Group:    "nais.io",
+			Version:  "v1",
+			Resource: "images",
+		}))
+		if err != nil {
+			return nil, fmt.Errorf("creating image resource client: %w", err)
+		}
+
+		imageObj, err := imageClient.Namespace(input.TeamSlug.String()).Get(ctx, input.Name, metav1.GetOptions{})
+		if err != nil {
+			return nil, fmt.Errorf("getting image resource: %w", err)
+		}
+
+		if err := unstructured.SetNestedField(imageObj.Object, *updateImageResource, "spec", "image"); err != nil {
+			return nil, fmt.Errorf("setting image field: %w", err)
+		}
+
+		if _, err := imageClient.Namespace(input.TeamSlug.String()).Update(ctx, imageObj, metav1.UpdateOptions{}); err != nil {
+			return nil, fmt.Errorf("updating image resource: %w", err)
+		}
 	}
 
 	if err := activitylog.Create(ctx, activitylog.CreateInput{

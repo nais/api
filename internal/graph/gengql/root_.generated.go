@@ -19882,6 +19882,11 @@ input UpdateApplicationInput {
 	Update the replica configuration.
 	"""
 	replicas: UpdateApplicationReplicasInput
+
+	"""
+	Update the container image. Must be a full image reference including tag, e.g. "ghcr.io/org/app:sha-abc123".
+	"""
+	image: String
 }
 
 """
