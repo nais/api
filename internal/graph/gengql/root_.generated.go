@@ -19571,7 +19571,7 @@ type Application implements Node & Workload & ActivityLogger {
 	): IssueConnection!
 
 	"""
-	History of previous deployments for this application, ordered by most recent first.
+	History of previous releases of this application, ordered by most recent first.
 	"""
 	history: [ApplicationHistory!]!
 }
