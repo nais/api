@@ -146,8 +146,6 @@ type ResolverRoot interface {
 	WorkloadUtilization() WorkloadUtilizationResolver
 	WorkloadUtilizationData() WorkloadUtilizationDataResolver
 	WorkloadVulnerabilitySummary() WorkloadVulnerabilitySummaryResolver
-	CreateTunnelInput() CreateTunnelInputResolver
-	DeleteTunnelInput() DeleteTunnelInputResolver
 }
 
 type DirectiveRoot struct {

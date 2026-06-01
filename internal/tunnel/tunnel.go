@@ -52,7 +52,7 @@ func (t *Tunnel) GetObjectKind() schema.ObjectKind { return schema.EmptyObjectKi
 func (t *Tunnel) DeepCopyObject() runtime.Object   { return t }
 
 type CreateTunnelInput struct {
-	TeamSlug        string
+	TeamSlug        slug.Slug
 	EnvironmentName string
 	TargetHost      string
 	TargetPort      int32
@@ -64,7 +64,7 @@ type CreateTunnelPayload struct {
 }
 
 type DeleteTunnelInput struct {
-	TeamSlug        string
+	TeamSlug        slug.Slug
 	EnvironmentName string
 	TunnelName      string
 }

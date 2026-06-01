@@ -26,13 +26,6 @@ type TunnelResolver interface {
 	Target(ctx context.Context, obj *tunnel.Tunnel) (*tunnel.TunnelTarget, error)
 }
 
-type CreateTunnelInputResolver interface {
-	TeamSlug(ctx context.Context, obj *tunnel.CreateTunnelInput, data slug.Slug) error
-}
-type DeleteTunnelInputResolver interface {
-	TeamSlug(ctx context.Context, obj *tunnel.DeleteTunnelInput, data slug.Slug) error
-}
-
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
@@ -868,9 +861,7 @@ func (ec *executionContext) unmarshalInputCreateTunnelInput(ctx context.Context,
 			if err != nil {
 				return it, err
 			}
-			if err = ec.Resolvers.CreateTunnelInput().TeamSlug(ctx, &it, data); err != nil {
-				return it, err
-			}
+			it.TeamSlug = data
 		case "environmentName":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environmentName"))
 			data, err := ec.unmarshalNString2string(ctx, v)
@@ -928,9 +919,7 @@ func (ec *executionContext) unmarshalInputDeleteTunnelInput(ctx context.Context,
 			if err != nil {
 				return it, err
 			}
-			if err = ec.Resolvers.DeleteTunnelInput().TeamSlug(ctx, &it, data); err != nil {
-				return it, err
-			}
+			it.TeamSlug = data
 		case "environmentName":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environmentName"))
 			data, err := ec.unmarshalNString2string(ctx, v)

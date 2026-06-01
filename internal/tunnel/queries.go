@@ -31,13 +31,12 @@ func Create(ctx context.Context, input CreateTunnelInput) (*CreateTunnelPayload,
 	}
 	resolvedIP := addrs[0]
 
-	namespace := input.TeamSlug
 	loaders := FromContext(ctx)
 	if loaders == nil {
 		return nil, fmt.Errorf("tunnel loaders not found in context")
 	}
 
-	client, err := loaders.tunnelWatcher.ImpersonatedClientWithNamespace(ctx, input.EnvironmentName, namespace)
+	client, err := loaders.tunnelWatcher.ImpersonatedClientWithNamespace(ctx, input.EnvironmentName, input.TeamSlug.String())
 	if err != nil {
 		return nil, err
 	}
@@ -48,7 +47,7 @@ func Create(ctx context.Context, input CreateTunnelInput) (*CreateTunnelPayload,
 	res.SetAPIVersion(tunnelAPIVersion)
 	res.SetKind(tunnelKind)
 	res.SetName(tunnelName)
-	res.SetNamespace(namespace)
+	res.SetNamespace(input.TeamSlug.String())
 
 	res.Object["spec"] = map[string]any{
 		"teamSlug":        input.TeamSlug,
@@ -82,7 +81,7 @@ func Create(ctx context.Context, input CreateTunnelInput) (*CreateTunnelPayload,
 	tunnelOperationsTotal.Add(ctx, 1,
 		metric.WithAttributes(
 			attribute.String("operation", "create"),
-			attribute.String("team", input.TeamSlug),
+			attribute.String("team", input.TeamSlug.String()),
 			attribute.String("environment", input.EnvironmentName),
 		),
 	)
@@ -103,7 +102,7 @@ func Get(ctx context.Context, teamSlug, environment, name string) (*Tunnel, erro
 	return nil, ErrTunnelNotFound
 }
 
-func Delete(ctx context.Context, teamSlug, environmentName, tunnelName string) error {
+func Delete(ctx context.Context, teamSlug slug.Slug, environmentName, tunnelName string) error {
 	loaders := FromContext(ctx)
 	if loaders == nil {
 		return fmt.Errorf("tunnel loaders not found in context")
@@ -111,7 +110,7 @@ func Delete(ctx context.Context, teamSlug, environmentName, tunnelName string) e
 
 	var found *Tunnel
 	for _, w := range loaders.tunnelWatcher.All() {
-		if w.Obj.TeamSlug == teamSlug && w.Obj.Environment == environmentName && w.Obj.Name == tunnelName {
+		if w.Obj.TeamSlug == teamSlug.String() && w.Obj.Environment == environmentName && w.Obj.Name == tunnelName {
 			found = w.Obj
 			break
 		}

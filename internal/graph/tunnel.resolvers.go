@@ -5,7 +5,6 @@ import (
 	"errors"
 
 	"github.com/nais/api/internal/graph/gengql"
-	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/tunnel"
 )
@@ -40,28 +39,6 @@ func (r *tunnelResolver) Target(ctx context.Context, obj *tunnel.Tunnel) (*tunne
 	}, nil
 }
 
-func (r *createTunnelInputResolver) TeamSlug(ctx context.Context, obj *tunnel.CreateTunnelInput, data slug.Slug) error {
-	obj.TeamSlug = data.String()
-	return nil
-}
-
-func (r *deleteTunnelInputResolver) TeamSlug(ctx context.Context, obj *tunnel.DeleteTunnelInput, data slug.Slug) error {
-	obj.TeamSlug = data.String()
-	return nil
-}
-
 func (r *Resolver) Tunnel() gengql.TunnelResolver { return &tunnelResolver{r} }
 
-func (r *Resolver) CreateTunnelInput() gengql.CreateTunnelInputResolver {
-	return &createTunnelInputResolver{r}
-}
-
-func (r *Resolver) DeleteTunnelInput() gengql.DeleteTunnelInputResolver {
-	return &deleteTunnelInputResolver{r}
-}
-
-type (
-	tunnelResolver            struct{ *Resolver }
-	createTunnelInputResolver struct{ *Resolver }
-	deleteTunnelInputResolver struct{ *Resolver }
-)
+type tunnelResolver struct{ *Resolver }
