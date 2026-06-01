@@ -3023,26 +3023,34 @@ type ComplexityRoot struct {
 	TunnelCreatedActivityLogEntry struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
+		Data            func(childComplexity int) int
 		EnvironmentName func(childComplexity int) int
 		ID              func(childComplexity int) int
 		Message         func(childComplexity int) int
 		ResourceName    func(childComplexity int) int
 		ResourceType    func(childComplexity int) int
-		TargetHost      func(childComplexity int) int
 		TeamSlug        func(childComplexity int) int
-		TunnelName      func(childComplexity int) int
+	}
+
+	TunnelCreatedActivityLogEntryData struct {
+		TargetHost func(childComplexity int) int
+		TunnelName func(childComplexity int) int
 	}
 
 	TunnelDeletedActivityLogEntry struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
+		Data            func(childComplexity int) int
 		EnvironmentName func(childComplexity int) int
 		ID              func(childComplexity int) int
 		Message         func(childComplexity int) int
 		ResourceName    func(childComplexity int) int
 		ResourceType    func(childComplexity int) int
 		TeamSlug        func(childComplexity int) int
-		TunnelName      func(childComplexity int) int
+	}
+
+	TunnelDeletedActivityLogEntryData struct {
+		TunnelName func(childComplexity int) int
 	}
 
 	TunnelTarget struct {
@@ -16277,6 +16285,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.TunnelCreatedActivityLogEntry.CreatedAt(childComplexity), true
 
+	case "TunnelCreatedActivityLogEntry.data":
+		if e.ComplexityRoot.TunnelCreatedActivityLogEntry.Data == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TunnelCreatedActivityLogEntry.Data(childComplexity), true
+
 	case "TunnelCreatedActivityLogEntry.environmentName":
 		if e.ComplexityRoot.TunnelCreatedActivityLogEntry.EnvironmentName == nil {
 			break
@@ -16312,13 +16327,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.TunnelCreatedActivityLogEntry.ResourceType(childComplexity), true
 
-	case "TunnelCreatedActivityLogEntry.targetHost":
-		if e.ComplexityRoot.TunnelCreatedActivityLogEntry.TargetHost == nil {
-			break
-		}
-
-		return e.ComplexityRoot.TunnelCreatedActivityLogEntry.TargetHost(childComplexity), true
-
 	case "TunnelCreatedActivityLogEntry.teamSlug":
 		if e.ComplexityRoot.TunnelCreatedActivityLogEntry.TeamSlug == nil {
 			break
@@ -16326,12 +16334,19 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.TunnelCreatedActivityLogEntry.TeamSlug(childComplexity), true
 
-	case "TunnelCreatedActivityLogEntry.tunnelName":
-		if e.ComplexityRoot.TunnelCreatedActivityLogEntry.TunnelName == nil {
+	case "TunnelCreatedActivityLogEntryData.targetHost":
+		if e.ComplexityRoot.TunnelCreatedActivityLogEntryData.TargetHost == nil {
 			break
 		}
 
-		return e.ComplexityRoot.TunnelCreatedActivityLogEntry.TunnelName(childComplexity), true
+		return e.ComplexityRoot.TunnelCreatedActivityLogEntryData.TargetHost(childComplexity), true
+
+	case "TunnelCreatedActivityLogEntryData.tunnelName":
+		if e.ComplexityRoot.TunnelCreatedActivityLogEntryData.TunnelName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TunnelCreatedActivityLogEntryData.TunnelName(childComplexity), true
 
 	case "TunnelDeletedActivityLogEntry.actor":
 		if e.ComplexityRoot.TunnelDeletedActivityLogEntry.Actor == nil {
@@ -16346,6 +16361,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.TunnelDeletedActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "TunnelDeletedActivityLogEntry.data":
+		if e.ComplexityRoot.TunnelDeletedActivityLogEntry.Data == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TunnelDeletedActivityLogEntry.Data(childComplexity), true
 
 	case "TunnelDeletedActivityLogEntry.environmentName":
 		if e.ComplexityRoot.TunnelDeletedActivityLogEntry.EnvironmentName == nil {
@@ -16389,12 +16411,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.TunnelDeletedActivityLogEntry.TeamSlug(childComplexity), true
 
-	case "TunnelDeletedActivityLogEntry.tunnelName":
-		if e.ComplexityRoot.TunnelDeletedActivityLogEntry.TunnelName == nil {
+	case "TunnelDeletedActivityLogEntryData.tunnelName":
+		if e.ComplexityRoot.TunnelDeletedActivityLogEntryData.TunnelName == nil {
 			break
 		}
 
-		return e.ComplexityRoot.TunnelDeletedActivityLogEntry.TunnelName(childComplexity), true
+		return e.ComplexityRoot.TunnelDeletedActivityLogEntryData.TunnelName(childComplexity), true
 
 	case "TunnelTarget.host":
 		if e.ComplexityRoot.TunnelTarget.Host == nil {
@@ -28545,6 +28567,13 @@ type TunnelCreatedActivityLogEntry implements ActivityLogEntry & Node {
 	environmentName: String
 
 	"""
+	Data associated with the update.
+	"""
+	data: TunnelCreatedActivityLogEntryData!
+}
+
+type TunnelCreatedActivityLogEntryData {
+	"""
 	The name of the tunnel that was created.
 	"""
 	tunnelName: String!
@@ -28596,6 +28625,13 @@ type TunnelDeletedActivityLogEntry implements ActivityLogEntry & Node {
 	"""
 	environmentName: String
 
+	"""
+	Data associated with the update.
+	"""
+	data: TunnelDeletedActivityLogEntryData!
+}
+
+type TunnelDeletedActivityLogEntryData {
 	"""
 	The name of the tunnel that was deleted.
 	"""
@@ -35115,6 +35151,24 @@ func (ec *executionContext) childFields_Tunnel(ctx context.Context, field graphq
 		return ec.fieldContext_Tunnel_createdAt(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type Tunnel", field.Name)
+}
+
+func (ec *executionContext) childFields_TunnelCreatedActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "tunnelName":
+		return ec.fieldContext_TunnelCreatedActivityLogEntryData_tunnelName(ctx, field)
+	case "targetHost":
+		return ec.fieldContext_TunnelCreatedActivityLogEntryData_targetHost(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TunnelCreatedActivityLogEntryData", field.Name)
+}
+
+func (ec *executionContext) childFields_TunnelDeletedActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "tunnelName":
+		return ec.fieldContext_TunnelDeletedActivityLogEntryData_tunnelName(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TunnelDeletedActivityLogEntryData", field.Name)
 }
 
 func (ec *executionContext) childFields_TunnelTarget(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {

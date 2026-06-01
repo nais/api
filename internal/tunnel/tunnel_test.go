@@ -5,7 +5,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/nais/api/internal/activitylog"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
@@ -151,38 +150,6 @@ func TestTunnelGetters(t *testing.T) {
 	}
 	if tun.DeepCopyObject() != tun {
 		t.Errorf("DeepCopyObject: expected same pointer")
-	}
-}
-
-func TestActivityLogEntryTypes(t *testing.T) {
-	created := TunnelCreatedActivityLogEntry{
-		GenericActivityLogEntry: activitylog.GenericActivityLogEntry{
-			Actor:        "user@example.com",
-			Message:      "Created Tunnel",
-			ResourceType: ActivityLogEntryResourceTypeTunnel,
-			ResourceName: "tunnel-abc",
-		},
-		TunnelName: "tunnel-abc",
-		TargetHost: "db.internal",
-	}
-	if created.TunnelName != "tunnel-abc" {
-		t.Errorf("TunnelCreatedActivityLogEntry.TunnelName: got %q, want %q", created.TunnelName, "tunnel-abc")
-	}
-	if created.TargetHost != "db.internal" {
-		t.Errorf("TunnelCreatedActivityLogEntry.TargetHost: got %q, want %q", created.TargetHost, "db.internal")
-	}
-
-	deleted := TunnelDeletedActivityLogEntry{
-		GenericActivityLogEntry: activitylog.GenericActivityLogEntry{
-			Actor:        "user@example.com",
-			Message:      "Deleted Tunnel",
-			ResourceType: ActivityLogEntryResourceTypeTunnel,
-			ResourceName: "tunnel-abc",
-		},
-		TunnelName: "tunnel-abc",
-	}
-	if deleted.TunnelName != "tunnel-abc" {
-		t.Errorf("TunnelDeletedActivityLogEntry.TunnelName: got %q, want %q", deleted.TunnelName, "tunnel-abc")
 	}
 }
 

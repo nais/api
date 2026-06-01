@@ -199,6 +199,13 @@ type TunnelCreatedActivityLogEntry implements ActivityLogEntry & Node {
 	environmentName: String
 
 	"""
+	Data associated with the update.
+	"""
+	data: TunnelCreatedActivityLogEntryData!
+}
+
+type TunnelCreatedActivityLogEntryData {
+	"""
 	The name of the tunnel that was created.
 	"""
 	tunnelName: String!
@@ -250,6 +257,13 @@ type TunnelDeletedActivityLogEntry implements ActivityLogEntry & Node {
 	"""
 	environmentName: String
 
+	"""
+	Data associated with the update.
+	"""
+	data: TunnelDeletedActivityLogEntryData!
+}
+
+type TunnelDeletedActivityLogEntryData {
 	"""
 	The name of the tunnel that was deleted.
 	"""

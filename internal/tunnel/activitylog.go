@@ -23,8 +23,10 @@ func init() {
 			}
 			return TunnelCreatedActivityLogEntry{
 				GenericActivityLogEntry: entry.WithMessage("Created Tunnel"),
-				TunnelName:              data.TunnelName,
-				TargetHost:              data.TargetHost,
+				Data: TunnelCreatedActivityLogEntryData{
+					TunnelName: data.TunnelName,
+					TargetHost: data.TargetHost,
+				},
 			}, nil
 		case activitylog.ActivityLogEntryActionDeleted:
 			data, err := activitylog.UnmarshalData[tunnelDeletedData](entry)
@@ -33,7 +35,9 @@ func init() {
 			}
 			return TunnelDeletedActivityLogEntry{
 				GenericActivityLogEntry: entry.WithMessage("Deleted Tunnel"),
-				TunnelName:              data.TunnelName,
+				Data: TunnelDeletedActivityLogEntryData{
+					TunnelName: data.TunnelName,
+				},
 			}, nil
 		default:
 			return nil, fmt.Errorf("unsupported tunnel activity log entry action: %q", entry.Action)
@@ -57,12 +61,20 @@ type tunnelDeletedData struct {
 
 type TunnelCreatedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
-	TunnelName string `json:"tunnelName"`
-	TargetHost string `json:"targetHost"`
+	Data TunnelCreatedActivityLogEntryData `json:"data"`
 }
 
 type TunnelDeletedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
+	Data TunnelDeletedActivityLogEntryData `json:"data"`
+}
+
+type TunnelCreatedActivityLogEntryData struct {
+	TunnelName string `json:"tunnelName"`
+	TargetHost string `json:"targetHost"`
+}
+
+type TunnelDeletedActivityLogEntryData struct {
 	TunnelName string `json:"tunnelName"`
 }
 
