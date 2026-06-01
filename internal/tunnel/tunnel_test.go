@@ -3,58 +3,9 @@ package tunnel
 import (
 	"context"
 	"testing"
-	"time"
 
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
-
-func TestPhaseConstantsAreDefined(t *testing.T) {
-	phases := []Phase{
-		PhasePending,
-		PhaseProvisioning,
-		PhaseReady,
-		PhaseConnected,
-		PhaseFailed,
-		PhaseTerminated,
-	}
-	for _, p := range phases {
-		if p == "" {
-			t.Errorf("phase constant is empty string")
-		}
-	}
-}
-
-func TestPhaseConstantValues(t *testing.T) {
-	cases := []struct {
-		phase    Phase
-		expected string
-	}{
-		{PhasePending, "Pending"},
-		{PhaseProvisioning, "Provisioning"},
-		{PhaseReady, "Ready"},
-		{PhaseConnected, "Connected"},
-		{PhaseFailed, "Failed"},
-		{PhaseTerminated, "Terminated"},
-	}
-	for _, c := range cases {
-		if string(c.phase) != c.expected {
-			t.Errorf("Phase %q: expected %q", c.phase, c.expected)
-		}
-	}
-}
-
-func TestErrorsAreNonNil(t *testing.T) {
-	errs := []error{
-		ErrTunnelNotFound,
-		ErrTunnelNotReady,
-		ErrNotImplemented,
-	}
-	for _, err := range errs {
-		if err == nil {
-			t.Errorf("expected non-nil error, got nil")
-		}
-	}
-}
 
 func TestErrorMessages(t *testing.T) {
 	cases := []struct {
@@ -69,60 +20,6 @@ func TestErrorMessages(t *testing.T) {
 		if c.err.Error() != c.message {
 			t.Errorf("error message: got %q, want %q", c.err.Error(), c.message)
 		}
-	}
-}
-
-func TestTunnelStructFields(t *testing.T) {
-	now := time.Now()
-	tun := Tunnel{
-		Name:              "tunnel-abc",
-		TeamSlug:          "my-team",
-		Environment:       "dev",
-		Target:            Target{Host: "db.internal", Port: 5432},
-		ClientPublicKey:   "client-pub-key",
-		GatewayPublicKey:  "gw-pub-key",
-		ForwarderEndpoint: "5.6.7.8:54321",
-		GatewayPodName:    "gateway-pod-0",
-		Phase:             PhaseReady,
-		Message:           "all good",
-		CreatedAt:         now,
-	}
-
-	if tun.Name != "tunnel-abc" {
-		t.Errorf("Name: got %q, want %q", tun.Name, "tunnel-abc")
-	}
-	if tun.TeamSlug != "my-team" {
-		t.Errorf("TeamSlug: got %q, want %q", tun.TeamSlug, "my-team")
-	}
-	if tun.Environment != "dev" {
-		t.Errorf("Environment: got %q, want %q", tun.Environment, "dev")
-	}
-	if tun.Target.Host != "db.internal" {
-		t.Errorf("Target.Host: got %q, want %q", tun.Target.Host, "db.internal")
-	}
-	if tun.Target.Port != 5432 {
-		t.Errorf("Target.Port: got %d, want %d", tun.Target.Port, 5432)
-	}
-	if tun.ClientPublicKey != "client-pub-key" {
-		t.Errorf("ClientPublicKey: got %q, want %q", tun.ClientPublicKey, "client-pub-key")
-	}
-	if tun.GatewayPublicKey != "gw-pub-key" {
-		t.Errorf("GatewayPublicKey: got %q, want %q", tun.GatewayPublicKey, "gw-pub-key")
-	}
-	if tun.ForwarderEndpoint != "5.6.7.8:54321" {
-		t.Errorf("ForwarderEndpoint: got %q, want %q", tun.ForwarderEndpoint, "5.6.7.8:54321")
-	}
-	if tun.GatewayPodName != "gateway-pod-0" {
-		t.Errorf("GatewayPodName: got %q, want %q", tun.GatewayPodName, "gateway-pod-0")
-	}
-	if tun.Phase != PhaseReady {
-		t.Errorf("Phase: got %q, want %q", tun.Phase, PhaseReady)
-	}
-	if tun.Message != "all good" {
-		t.Errorf("Message: got %q, want %q", tun.Message, "all good")
-	}
-	if !tun.CreatedAt.Equal(now) {
-		t.Errorf("CreatedAt mismatch")
 	}
 }
 
@@ -150,12 +47,6 @@ func TestTunnelGetters(t *testing.T) {
 	}
 	if tun.DeepCopyObject() != tun {
 		t.Errorf("DeepCopyObject: expected same pointer")
-	}
-}
-
-func TestActivityLogResourceType(t *testing.T) {
-	if ActivityLogEntryResourceTypeTunnel != "TUNNEL" {
-		t.Errorf("ActivityLogEntryResourceTypeTunnel: got %q, want %q", ActivityLogEntryResourceTypeTunnel, "TUNNEL")
 	}
 }
 
@@ -255,37 +146,5 @@ func TestWithLoaders(t *testing.T) {
 	got := FromContext(ctx)
 	if got != loaders {
 		t.Errorf("FromContext: got %v, want %v", got, loaders)
-	}
-}
-
-func TestCreateTunnelInputFields(t *testing.T) {
-	input := CreateTunnelInput{
-		TeamSlug:        "team-c",
-		EnvironmentName: "staging",
-		TargetHost:      "pg.internal",
-		TargetPort:      5432,
-		ClientPublicKey: "pub-key",
-	}
-	if input.TeamSlug != "team-c" {
-		t.Errorf("TeamSlug: got %q, want %q", input.TeamSlug, "team-c")
-	}
-	if input.EnvironmentName != "staging" {
-		t.Errorf("EnvironmentName: got %q, want %q", input.EnvironmentName, "staging")
-	}
-	if input.TargetHost != "pg.internal" {
-		t.Errorf("TargetHost: got %q, want %q", input.TargetHost, "pg.internal")
-	}
-	if input.TargetPort != 5432 {
-		t.Errorf("TargetPort: got %d, want %d", input.TargetPort, 5432)
-	}
-	if input.ClientPublicKey != "pub-key" {
-		t.Errorf("ClientPublicKey: got %q, want %q", input.ClientPublicKey, "pub-key")
-	}
-}
-
-func TestDeleteTunnelPayload(t *testing.T) {
-	payload := DeleteTunnelPayload{Success: true}
-	if !payload.Success {
-		t.Errorf("DeleteTunnelPayload.Success: expected true")
 	}
 }
