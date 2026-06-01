@@ -12,6 +12,7 @@ import (
 	"github.com/nais/api/internal/persistence/sqlinstance"
 	"github.com/nais/api/internal/persistence/valkey"
 	"github.com/nais/api/internal/team"
+	"github.com/nais/api/internal/tunnel"
 	"github.com/nais/api/internal/unleash"
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
@@ -46,6 +47,7 @@ type (
 	SecretWatcher          = watcher.Watcher[*secret.Secret]
 	ConfigWatcher          = watcher.Watcher[*config.Config]
 	ReplicaSetWatcher      = watcher.Watcher[*appsv1.ReplicaSet]
+	TunnelWatcher          = watcher.Watcher[*tunnel.Tunnel]
 )
 
 type Watchers struct {
@@ -67,6 +69,7 @@ type Watchers struct {
 	SecretWatcher          *SecretWatcher
 	ConfigWatcher          *ConfigWatcher
 	ReplicaSetWatcher      *ReplicaSetWatcher
+	TunnelWatcher          *TunnelWatcher
 }
 
 func SetupWatchers(
@@ -93,5 +96,6 @@ func SetupWatchers(
 		SecretWatcher:          secret.NewWatcher(ctx, watcherMgr),
 		ConfigWatcher:          config.NewWatcher(ctx, watcherMgr),
 		ReplicaSetWatcher:      instancegroup.NewWatcher(ctx, watcherMgr),
+		TunnelWatcher:          tunnel.NewWatcher(ctx, watcherMgr),
 	}
 }
