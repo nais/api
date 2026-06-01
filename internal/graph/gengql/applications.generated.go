@@ -55,6 +55,7 @@ type ApplicationResolver interface {
 	ActivityLog(ctx context.Context, obj *application.Application, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*activitylog.ActivityLogEntryConnection, error)
 	State(ctx context.Context, obj *application.Application) (application.ApplicationState, error)
 	Issues(ctx context.Context, obj *application.Application, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) (*pagination.Connection[issue.Issue], error)
+	History(ctx context.Context, obj *application.Application) ([]*instancegroup.ApplicationHistory, error)
 	BigQueryDatasets(ctx context.Context, obj *application.Application, orderBy *bigquery.BigQueryDatasetOrder) (*pagination.Connection[*bigquery.BigQueryDataset], error)
 	Buckets(ctx context.Context, obj *application.Application, orderBy *bucket.BucketOrder) (*pagination.Connection[*bucket.Bucket], error)
 	Configs(ctx context.Context, obj *application.Application, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*config.Config], error)
@@ -970,6 +971,38 @@ func (ec *executionContext) fieldContext_Application_issues(ctx context.Context,
 	if fc.Args, err = ec.field_Application_issues_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Application_history(ctx context.Context, field graphql.CollectedField, obj *application.Application) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Application_history(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.Application().History(ctx, obj)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []*instancegroup.ApplicationHistory) graphql.Marshaler {
+			return ec.marshalNApplicationHistory2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋinstancegroupᚐApplicationHistoryᚄ(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Application_history(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Application",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_ApplicationHistory(ctx, field)
+		},
 	}
 	return fc, nil
 }
@@ -2373,6 +2406,52 @@ func (ec *executionContext) fieldContext_ApplicationFacets_states(_ context.Cont
 		},
 	}
 	return fc, nil
+}
+
+func (ec *executionContext) _ApplicationHistory_image(ctx context.Context, field graphql.CollectedField, obj *instancegroup.ApplicationHistory) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ApplicationHistory_image(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Image, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_ApplicationHistory_image(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("ApplicationHistory", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _ApplicationHistory_deployedAt(ctx context.Context, field graphql.CollectedField, obj *instancegroup.ApplicationHistory) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ApplicationHistory_deployedAt(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.DeployedAt, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
+			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_ApplicationHistory_deployedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("ApplicationHistory", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
 func (ec *executionContext) _ApplicationInstance_id(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationInstance) (ret graphql.Marshaler) {
@@ -4569,7 +4648,7 @@ func (ec *executionContext) unmarshalInputUpdateApplicationInput(ctx context.Con
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "teamSlug", "environmentName", "environmentVariables", "replicas"}
+	fieldsInOrder := [...]string{"name", "teamSlug", "environmentName", "environmentVariables", "replicas", "image"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -4611,6 +4690,13 @@ func (ec *executionContext) unmarshalInputUpdateApplicationInput(ctx context.Con
 				return it, err
 			}
 			it.Replicas = data
+		case "image":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("image"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Image = data
 		}
 	}
 	return it, nil
@@ -5065,6 +5151,42 @@ func (ec *executionContext) _Application(ctx context.Context, sel ast.SelectionS
 					}
 				}()
 				res = ec._Application_issues(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "history":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Application_history(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -6091,6 +6213,50 @@ func (ec *executionContext) _ApplicationFacets(ctx context.Context, sel ast.Sele
 			}
 		case "states":
 			out.Values[i] = ec._ApplicationFacets_states(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var applicationHistoryImplementors = []string{"ApplicationHistory"}
+
+func (ec *executionContext) _ApplicationHistory(ctx context.Context, sel ast.SelectionSet, obj *instancegroup.ApplicationHistory) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, applicationHistoryImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ApplicationHistory")
+		case "image":
+			out.Values[i] = ec._ApplicationHistory_image(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "deployedAt":
+			out.Values[i] = ec._ApplicationHistory_deployedAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -7608,6 +7774,32 @@ func (ec *executionContext) marshalNApplicationEnvironmentFacetItem2ᚕgithubᚗ
 	}
 
 	return ret
+}
+
+func (ec *executionContext) marshalNApplicationHistory2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋinstancegroupᚐApplicationHistoryᚄ(ctx context.Context, sel ast.SelectionSet, v []*instancegroup.ApplicationHistory) graphql.Marshaler {
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNApplicationHistory2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋinstancegroupᚐApplicationHistory(ctx, sel, v[i])
+	})
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNApplicationHistory2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋinstancegroupᚐApplicationHistory(ctx context.Context, sel ast.SelectionSet, v *instancegroup.ApplicationHistory) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ApplicationHistory(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNApplicationInstance2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplicationInstanceᚄ(ctx context.Context, sel ast.SelectionSet, v []*application.ApplicationInstance) graphql.Marshaler {

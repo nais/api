@@ -536,6 +536,7 @@ type UpdateApplicationInput struct {
 	EnvironmentName      string                                             `json:"environmentName"`
 	EnvironmentVariables []*workload.UpdateWorkloadEnvironmentVariableInput `json:"environmentVariables,omitempty"`
 	Replicas             *UpdateApplicationReplicasInput                    `json:"replicas,omitempty"`
+	Image                *string                                            `json:"image,omitempty"`
 }
 
 type UpdateApplicationReplicasInput struct {

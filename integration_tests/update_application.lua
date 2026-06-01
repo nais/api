@@ -273,3 +273,128 @@ Test.gql("activity log contains env removal entry", function(t)
 		},
 	}
 end)
+
+Test.gql("update application image", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query [[
+		mutation {
+			updateApplication(
+				input: {
+					teamSlug: "slug-1"
+					environmentName: "dev"
+					name: "another-app"
+					image: "navikt/app-name:v2.0.0"
+				}
+			) {
+				application {
+					name
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			updateApplication = {
+				application = {
+					name = "another-app",
+				},
+			},
+		},
+	}
+end)
+
+Test.k8s("application has updated image", function(t)
+	t.check("nais.io/v1alpha1", "applications", "dev", "slug-1", "another-app", {
+		apiVersion = "nais.io/v1alpha1",
+		kind = "Application",
+		metadata = Ignore(),
+		spec = {
+			image = "navikt/app-name:v2.0.0",
+			ingresses = { "https://another-app.external.server.com" },
+			replicas = Ignore(),
+			env = {
+				{ name = "BAZ", value = "qux" },
+			},
+		},
+		status = Ignore(),
+	})
+end)
+
+Test.gql("activity log contains image update entry", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query(string.format([[
+		{
+			team(slug: "%s") {
+				activityLog(first: 1, filter: { activityTypes: [APPLICATION_UPDATED] }) {
+					nodes {
+						__typename
+						resourceName
+						... on ApplicationUpdatedActivityLogEntry {
+							data {
+								changedFields {
+									field
+									oldValue
+									newValue
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	]], team:slug()))
+
+	t.check {
+		data = {
+			team = {
+				activityLog = {
+					nodes = {
+						{
+							__typename = "ApplicationUpdatedActivityLogEntry",
+							resourceName = "another-app",
+							data = {
+								changedFields = {
+									{ field = "spec.image", oldValue = "navikt/app-name:latest", newValue = "navikt/app-name:v2.0.0" },
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("update application image no-op", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query [[
+		mutation {
+			updateApplication(
+				input: {
+					teamSlug: "slug-1"
+					environmentName: "dev"
+					name: "another-app"
+					image: "navikt/app-name:v2.0.0"
+				}
+			) {
+				application {
+					name
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			updateApplication = {
+				application = {
+					name = "another-app",
+				},
+			},
+		},
+	}
+end)

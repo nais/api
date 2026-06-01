@@ -251,6 +251,26 @@ type Application implements Node & Workload & ActivityLogger {
 		"Filtering options for items returned from the connection."
 		filter: ResourceIssueFilter
 	): IssueConnection!
+
+	"""
+	History of previous releases of this application, ordered by most recent first.
+	"""
+	history: [ApplicationHistory!]!
+}
+
+"""
+A historical release entry for an application.
+"""
+type ApplicationHistory {
+	"""
+	The full container image reference including tag.
+	"""
+	image: String!
+
+	"""
+	When this image was deployed.
+	"""
+	deployedAt: Time!
 }
 
 enum ApplicationState {
@@ -591,6 +611,11 @@ input UpdateApplicationInput {
 	Update the replica configuration.
 	"""
 	replicas: UpdateApplicationReplicasInput
+
+	"""
+	Update the container image. Must be a full image reference including tag, e.g. "ghcr.io/org/app:sha-abc123".
+	"""
+	image: String
 }
 
 """

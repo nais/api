@@ -9,6 +9,8 @@ spec:
   replicas:
     max: 1
     min: 1
+status:
+  effectiveImage: navikt/app-name:latest
 
 ---
 apiVersion: apps/v1

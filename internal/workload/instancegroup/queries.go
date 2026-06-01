@@ -13,6 +13,7 @@ import (
 	"github.com/nais/api/internal/workload/application"
 	"github.com/nais/api/internal/workload/secret"
 	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
+	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -51,6 +52,51 @@ func ListForApplication(ctx context.Context, teamSlug slug.Slug, environmentName
 	slices.SortFunc(ret, func(a, b *InstanceGroup) int {
 		return b.Created.Compare(a.Created)
 	})
+
+	return ret, nil
+}
+
+func ImageHistory(ctx context.Context, teamSlug slug.Slug, environmentName, appName string) ([]*ApplicationHistory, error) {
+	l := fromContext(ctx)
+
+	nameReq, err := labels.NewRequirement("app", selection.Equals, []string{appName})
+	if err != nil {
+		return nil, err
+	}
+	selector := labels.NewSelector().Add(*nameReq)
+
+	replicaSets := watcher.Objects(l.rsWatcher.GetByNamespace(
+		teamSlug.String(),
+		watcher.WithLabels(selector),
+		watcher.InCluster(environmentName),
+	))
+	slices.SortFunc(replicaSets, func(a, b *appsv1.ReplicaSet) int {
+		return b.CreationTimestamp.Compare(a.CreationTimestamp.Time)
+	})
+
+	seen := make(map[string]struct{})
+	ret := make([]*ApplicationHistory, 0, len(replicaSets))
+
+	for _, rs := range replicaSets {
+		image := ""
+		for _, c := range rs.Spec.Template.Spec.Containers {
+			if c.Name == appName {
+				image = c.Image
+				break
+			}
+		}
+		if image == "" {
+			continue
+		}
+		if _, ok := seen[image]; ok {
+			continue
+		}
+		seen[image] = struct{}{}
+		ret = append(ret, &ApplicationHistory{
+			Image:      image,
+			DeployedAt: rs.CreationTimestamp.Time,
+		})
+	}
 
 	return ret, nil
 }

@@ -9,6 +9,7 @@ import (
 
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
+	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
@@ -16,6 +17,7 @@ import (
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/workload"
 	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
+	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/labels"
@@ -172,6 +174,7 @@ func Update(ctx context.Context, input UpdateApplicationInput) (*UpdateApplicati
 	}
 
 	var changedFields []*activitylog.ResourceChangedField
+	var updateImageResource *string
 
 	if len(input.EnvironmentVariables) > 0 {
 		merged := workload.MergeEnvVars(app.Spec.Env, input.EnvironmentVariables)
@@ -213,6 +216,26 @@ func Update(ctx context.Context, input UpdateApplicationInput) (*UpdateApplicati
 		}
 	}
 
+	if input.Image != nil {
+		effectiveImage := app.Status.EffectiveImage
+		newImage := *input.Image
+		if newImage != effectiveImage {
+			if effectiveImage != "" {
+				changedFields = append(changedFields, &activitylog.ResourceChangedField{Field: "spec.image", OldValue: &effectiveImage, NewValue: &newImage})
+			} else {
+				changedFields = append(changedFields, &activitylog.ResourceChangedField{Field: "spec.image", NewValue: &newImage})
+			}
+
+			if app.Spec.Image != "" {
+				// Image is set directly in the Application spec
+				app.Spec.Image = newImage
+			} else {
+				// Image is managed by a separate Image resource (WorkloadImage pattern)
+				updateImageResource = &newImage
+			}
+		}
+	}
+
 	if len(changedFields) == 0 {
 		return &UpdateApplicationPayload{
 			TeamSlug:        input.TeamSlug,
@@ -233,6 +256,42 @@ func Update(ctx context.Context, input UpdateApplicationInput) (*UpdateApplicati
 
 	if _, err := client.Namespace(input.TeamSlug.String()).Update(ctx, &unstructured.Unstructured{Object: obj}, metav1.UpdateOptions{}); err != nil {
 		return nil, fmt.Errorf("updating application: %w", err)
+	}
+
+	if updateImageResource != nil {
+		imageClient, err := w.ImpersonatedClient(ctx, input.EnvironmentName, watcher.WithImpersonatedClientGVR(schema.GroupVersionResource{
+			Group:    "nais.io",
+			Version:  "v1",
+			Resource: "images",
+		}))
+		if err != nil {
+			return nil, fmt.Errorf("creating image resource client: %w", err)
+		}
+
+		imageObj, err := imageClient.Namespace(input.TeamSlug.String()).Get(ctx, input.Name, metav1.GetOptions{})
+		if err != nil {
+			if k8serrors.IsNotFound(err) {
+				return nil, apierror.Errorf("Image resource %q not found in %s. The application may not be using the image resource pattern.", input.Name, input.EnvironmentName)
+			}
+			if k8serrors.IsForbidden(err) {
+				return nil, apierror.Errorf("You do not have permission to read the image resource for %q.", input.Name)
+			}
+			return nil, fmt.Errorf("getting image resource: %w", err)
+		}
+
+		if err := unstructured.SetNestedField(imageObj.Object, *updateImageResource, "spec", "image"); err != nil {
+			return nil, fmt.Errorf("setting image field: %w", err)
+		}
+
+		if _, err := imageClient.Namespace(input.TeamSlug.String()).Update(ctx, imageObj, metav1.UpdateOptions{}); err != nil {
+			if k8serrors.IsForbidden(err) {
+				return nil, apierror.Errorf("You do not have permission to update the image resource for %q.", input.Name)
+			}
+			if k8serrors.IsConflict(err) {
+				return nil, apierror.Errorf("The image resource for %q was modified by another process. Please try again.", input.Name)
+			}
+			return nil, fmt.Errorf("updating image resource: %w", err)
+		}
 	}
 
 	if err := activitylog.Create(ctx, activitylog.CreateInput{
