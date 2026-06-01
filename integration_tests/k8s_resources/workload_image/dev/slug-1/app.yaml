@@ -1,0 +1,21 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: image-app
+spec:
+  image: ""
+  ingresses:
+    - "https://image-app.external.server.com"
+  replicas:
+    max: 2
+    min: 1
+status:
+  effectiveImage: ghcr.io/navikt/image-app:v1.0.0
+
+---
+apiVersion: nais.io/v1
+kind: Image
+metadata:
+  name: image-app
+spec:
+  image: ghcr.io/navikt/image-app:v1.0.0

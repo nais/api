@@ -13,6 +13,7 @@ import (
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
+	"github.com/nais/api/internal/workload/instancegroup"
 )
 
 func (r *applicationResolver) Team(ctx context.Context, obj *application.Application) (*team.Team, error) {
@@ -96,6 +97,10 @@ func (r *applicationResolver) Issues(ctx context.Context, obj *application.Appli
 	}
 
 	return issue.ListIssues(ctx, obj.TeamSlug, page, orderBy, f)
+}
+
+func (r *applicationResolver) History(ctx context.Context, obj *application.Application) ([]*instancegroup.ApplicationHistory, error) {
+	return instancegroup.ImageHistory(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Name)
 }
 
 func (r *applicationConnectionResolver) Facets(ctx context.Context, obj *application.ApplicationConnection) (*application.ApplicationFacets, error) {

@@ -251,6 +251,26 @@ type Application implements Node & Workload & ActivityLogger {
 		"Filtering options for items returned from the connection."
 		filter: ResourceIssueFilter
 	): IssueConnection!
+
+	"""
+	History of previous releases of this application, ordered by most recent first.
+	"""
+	history: [ApplicationHistory!]!
+}
+
+"""
+A historical deployment entry for an application.
+"""
+type ApplicationHistory {
+	"""
+	The full container image reference including tag.
+	"""
+	image: String!
+
+	"""
+	When this image was deployed.
+	"""
+	deployedAt: Time!
 }
 
 enum ApplicationState {

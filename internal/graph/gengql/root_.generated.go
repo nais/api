@@ -230,6 +230,7 @@ type ComplexityRoot struct {
 		DeletionStartedAt         func(childComplexity int) int
 		Deployments               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		Environment               func(childComplexity int) int
+		History                   func(childComplexity int) int
 		ID                        func(childComplexity int) int
 		Image                     func(childComplexity int) int
 		ImageVulnerabilityHistory func(childComplexity int, from scalar.Date) int
@@ -299,6 +300,11 @@ type ComplexityRoot struct {
 	ApplicationFacets struct {
 		Environments func(childComplexity int) int
 		States       func(childComplexity int) int
+	}
+
+	ApplicationHistory struct {
+		DeployedAt func(childComplexity int) int
+		Image      func(childComplexity int) int
 	}
 
 	ApplicationInstance struct {
@@ -3828,6 +3834,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Application.Environment(childComplexity), true
 
+	case "Application.history":
+		if e.ComplexityRoot.Application.History == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Application.History(childComplexity), true
+
 	case "Application.id":
 		if e.ComplexityRoot.Application.ID == nil {
 			break
@@ -4229,6 +4242,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ApplicationFacets.States(childComplexity), true
+
+	case "ApplicationHistory.deployedAt":
+		if e.ComplexityRoot.ApplicationHistory.DeployedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationHistory.DeployedAt(childComplexity), true
+
+	case "ApplicationHistory.image":
+		if e.ComplexityRoot.ApplicationHistory.Image == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationHistory.Image(childComplexity), true
 
 	case "ApplicationInstance.created":
 		if e.ComplexityRoot.ApplicationInstance.Created == nil {
@@ -19542,6 +19569,26 @@ type Application implements Node & Workload & ActivityLogger {
 		"Filtering options for items returned from the connection."
 		filter: ResourceIssueFilter
 	): IssueConnection!
+
+	"""
+	History of previous deployments for this application, ordered by most recent first.
+	"""
+	history: [ApplicationHistory!]!
+}
+
+"""
+A historical deployment entry for an application.
+"""
+type ApplicationHistory {
+	"""
+	The full container image reference including tag.
+	"""
+	image: String!
+
+	"""
+	When this image was deployed.
+	"""
+	deployedAt: Time!
 }
 
 enum ApplicationState {
@@ -31391,6 +31438,8 @@ func (ec *executionContext) childFields_Application(ctx context.Context, field g
 		return ec.fieldContext_Application_state(ctx, field)
 	case "issues":
 		return ec.fieldContext_Application_issues(ctx, field)
+	case "history":
+		return ec.fieldContext_Application_history(ctx, field)
 	case "bigQueryDatasets":
 		return ec.fieldContext_Application_bigQueryDatasets(ctx, field)
 	case "buckets":
@@ -31473,6 +31522,16 @@ func (ec *executionContext) childFields_ApplicationFacets(ctx context.Context, f
 		return ec.fieldContext_ApplicationFacets_states(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type ApplicationFacets", field.Name)
+}
+
+func (ec *executionContext) childFields_ApplicationHistory(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "image":
+		return ec.fieldContext_ApplicationHistory_image(ctx, field)
+	case "deployedAt":
+		return ec.fieldContext_ApplicationHistory_deployedAt(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ApplicationHistory", field.Name)
 }
 
 func (ec *executionContext) childFields_ApplicationInstance(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {

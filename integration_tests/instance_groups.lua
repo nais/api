@@ -340,3 +340,47 @@ Test.gql("Instance group with mounted files", function(t)
 		},
 	}
 end)
+
+Test.gql("Application history from ReplicaSets", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query [[
+		query {
+			team(slug: "myteam") {
+				applications {
+					nodes {
+						name
+						history {
+							image
+							deployedAt
+						}
+					}
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			team = {
+				applications = {
+					nodes = {
+						{
+							name = "myapp",
+							history = {
+								{
+									image = "ghcr.io/navikt/myapp:v1.2.3",
+									deployedAt = "2024-01-15T10:00:00Z",
+								},
+								{
+									image = "ghcr.io/navikt/myapp:v1.0.0",
+									deployedAt = "2024-01-10T08:00:00Z",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+end)

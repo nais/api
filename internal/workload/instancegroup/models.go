@@ -16,6 +16,11 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
+type ApplicationHistory struct {
+	Image      string    `json:"image"`
+	DeployedAt time.Time `json:"deployedAt"`
+}
+
 // InstanceGroup represents a group of identical instances (backed by a ReplicaSet).
 // All instances in the group share the same configuration (env vars, mounts, image).
 type InstanceGroup struct {
