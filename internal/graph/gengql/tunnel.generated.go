@@ -20,12 +20,6 @@ import (
 
 // region    ************************** generated!.gotpl **************************
 
-type TunnelResolver interface {
-	Phase(ctx context.Context, obj *tunnel.Tunnel) (tunnel.TunnelPhase, error)
-
-	Target(ctx context.Context, obj *tunnel.Tunnel) (*tunnel.TunnelTarget, error)
-}
-
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
@@ -148,7 +142,7 @@ func (ec *executionContext) _Tunnel_phase(ctx context.Context, field graphql.Col
 			return ec.fieldContext_Tunnel_phase(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return ec.Resolvers.Tunnel().Phase(ctx, obj)
+			return obj.Phase, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v tunnel.TunnelPhase) graphql.Marshaler {
@@ -159,7 +153,7 @@ func (ec *executionContext) _Tunnel_phase(ctx context.Context, field graphql.Col
 	)
 }
 func (ec *executionContext) fieldContext_Tunnel_phase(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("Tunnel", field, true, true, errors.New("field of type TunnelPhase does not have child fields"))
+	return graphql.NewScalarFieldContext("Tunnel", field, false, false, errors.New("field of type TunnelPhase does not have child fields"))
 }
 
 func (ec *executionContext) _Tunnel_gatewayPublicKey(ctx context.Context, field graphql.CollectedField, obj *tunnel.Tunnel) (ret graphql.Marshaler) {
@@ -217,11 +211,11 @@ func (ec *executionContext) _Tunnel_target(ctx context.Context, field graphql.Co
 			return ec.fieldContext_Tunnel_target(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return ec.Resolvers.Tunnel().Target(ctx, obj)
+			return obj.Target, nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *tunnel.TunnelTarget) graphql.Marshaler {
-			return ec.marshalNTunnelTarget2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋtunnelᚐTunnelTarget(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v tunnel.TunnelTarget) graphql.Marshaler {
+			return ec.marshalNTunnelTarget2githubᚗcomᚋnaisᚋapiᚋinternalᚋtunnelᚐTunnelTarget(ctx, selections, v)
 		},
 		true,
 		true,
@@ -231,8 +225,8 @@ func (ec *executionContext) fieldContext_Tunnel_target(_ context.Context, field 
 	fc = &graphql.FieldContext{
 		Object:     "Tunnel",
 		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return ec.childFields_TunnelTarget(ctx, field)
 		},
@@ -1039,104 +1033,42 @@ func (ec *executionContext) _Tunnel(ctx context.Context, sel ast.SelectionSet, o
 		case "id":
 			out.Values[i] = ec._Tunnel_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		case "name":
 			out.Values[i] = ec._Tunnel_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		case "phase":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Tunnel_phase(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
+			out.Values[i] = ec._Tunnel_phase(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
 			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "gatewayPublicKey":
 			out.Values[i] = ec._Tunnel_gatewayPublicKey(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		case "forwarderEndpoint":
 			out.Values[i] = ec._Tunnel_forwarderEndpoint(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		case "target":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Tunnel_target(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
+			out.Values[i] = ec._Tunnel_target(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
 			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "message":
 			out.Values[i] = ec._Tunnel_message(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		case "createdAt":
 			out.Values[i] = ec._Tunnel_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -1506,16 +1438,6 @@ func (ec *executionContext) marshalNTunnelPhase2githubᚗcomᚋnaisᚋapiᚋinte
 
 func (ec *executionContext) marshalNTunnelTarget2githubᚗcomᚋnaisᚋapiᚋinternalᚋtunnelᚐTunnelTarget(ctx context.Context, sel ast.SelectionSet, v tunnel.TunnelTarget) graphql.Marshaler {
 	return ec._TunnelTarget(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNTunnelTarget2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋtunnelᚐTunnelTarget(ctx context.Context, sel ast.SelectionSet, v *tunnel.TunnelTarget) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._TunnelTarget(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOTunnel2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋtunnelᚐTunnel(ctx context.Context, sel ast.SelectionSet, v *tunnel.Tunnel) graphql.Marshaler {

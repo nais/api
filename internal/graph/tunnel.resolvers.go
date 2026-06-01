@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 
-	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/tunnel"
 )
@@ -27,18 +26,3 @@ func (r *teamEnvironmentResolver) Tunnel(ctx context.Context, obj *team.TeamEnvi
 	}
 	return t, err
 }
-
-func (r *tunnelResolver) Phase(ctx context.Context, obj *tunnel.Tunnel) (tunnel.TunnelPhase, error) {
-	return tunnel.TunnelPhase(obj.Phase), nil
-}
-
-func (r *tunnelResolver) Target(ctx context.Context, obj *tunnel.Tunnel) (*tunnel.TunnelTarget, error) {
-	return &tunnel.TunnelTarget{
-		Host: obj.Target.Host,
-		Port: int(obj.Target.Port),
-	}, nil
-}
-
-func (r *Resolver) Tunnel() gengql.TunnelResolver { return &tunnelResolver{r} }
-
-type tunnelResolver struct{ *Resolver }

@@ -2,6 +2,7 @@ package tunnel
 
 import (
 	"context"
+	"strings"
 
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -49,12 +50,12 @@ func converter(u *unstructured.Unstructured) (*Tunnel, error) {
 		Name:              u.GetName(),
 		TeamSlug:          teamSlug,
 		Environment:       environment,
-		Target:            Target{Host: host, Port: int32(portFloat)},
+		Target:            TunnelTarget{Host: host, Port: int(portFloat)},
 		ClientPublicKey:   clientPublicKey,
 		GatewayPublicKey:  gatewayPublicKey,
 		ForwarderEndpoint: forwarderEndpoint,
 		GatewayPodName:    gatewayPodName,
-		Phase:             Phase(phase),
+		Phase:             TunnelPhase(strings.ToUpper(phase)),
 		Message:           message,
 		CreatedAt:         u.GetCreationTimestamp().Time,
 	}, nil

@@ -9,32 +9,16 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-type Phase string
-
-const (
-	PhasePending      Phase = "Pending"
-	PhaseProvisioning Phase = "Provisioning"
-	PhaseReady        Phase = "Ready"
-	PhaseConnected    Phase = "Connected"
-	PhaseFailed       Phase = "Failed"
-	PhaseTerminated   Phase = "Terminated"
-)
-
-type Target struct {
-	Host string
-	Port int32
-}
-
 type Tunnel struct {
 	Name              string
 	TeamSlug          string
 	Environment       string
-	Target            Target
+	Target            TunnelTarget
 	ClientPublicKey   string
 	GatewayPublicKey  string
 	ForwarderEndpoint string
 	GatewayPodName    string
-	Phase             Phase
+	Phase             TunnelPhase
 	Message           string
 	CreatedAt         time.Time
 }

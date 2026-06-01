@@ -128,7 +128,6 @@ type ResolverRoot interface {
 	TeamUtilizationData() TeamUtilizationDataResolver
 	TeamVulnerabilitySummary() TeamVulnerabilitySummaryResolver
 	TriggerJobPayload() TriggerJobPayloadResolver
-	Tunnel() TunnelResolver
 	UnleashInstance() UnleashInstanceResolver
 	UnleashInstanceMetrics() UnleashInstanceMetricsResolver
 	UnleashReleaseChannelIssue() UnleashReleaseChannelIssueResolver

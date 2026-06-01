@@ -92,8 +92,8 @@ func TestConverterBasic(t *testing.T) {
 	if tun.Target.Port != 6379 {
 		t.Errorf("Target.Port: got %d, want %d", tun.Target.Port, 6379)
 	}
-	if tun.Phase != PhaseReady {
-		t.Errorf("Phase: got %q, want %q", tun.Phase, PhaseReady)
+	if tun.Phase != TunnelPhaseReady {
+		t.Errorf("Phase: got %q, want %q", tun.Phase, TunnelPhaseReady)
 	}
 	if tun.GatewayPublicKey != "gw-key" {
 		t.Errorf("GatewayPublicKey: got %q, want %q", tun.GatewayPublicKey, "gw-key")

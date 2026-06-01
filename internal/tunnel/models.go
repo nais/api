@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"slices"
 	"strconv"
 )
 
@@ -33,11 +34,7 @@ var AllTunnelPhase = []TunnelPhase{
 }
 
 func (e TunnelPhase) IsValid() bool {
-	switch e {
-	case TunnelPhasePending, TunnelPhaseProvisioning, TunnelPhaseReady, TunnelPhaseConnected, TunnelPhaseFailed, TunnelPhaseTerminated:
-		return true
-	}
-	return false
+	return slices.Contains(AllTunnelPhase, e)
 }
 
 func (e TunnelPhase) String() string {
