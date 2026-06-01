@@ -19577,7 +19577,7 @@ type Application implements Node & Workload & ActivityLogger {
 }
 
 """
-A historical deployment entry for an application.
+A historical release entry for an application.
 """
 type ApplicationHistory {
 	"""
