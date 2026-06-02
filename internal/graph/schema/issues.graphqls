@@ -192,7 +192,7 @@ type ExternalIngressCriticalVulnerabilityIssue implements Issue & Node {
 	ingresses: [String!]!
 }
 
-"Raised when a workload with external ingresses has one or more ACT_NOW priority vulnerabilities."
+"Raised when a workload with external ingresses has one or more IMMEDIATE risk-tier vulnerabilities."
 type ExternalIngressActNowVulnerabilityIssue implements Issue & Node {
 	id: ID!
 	teamEnvironment: TeamEnvironment!
