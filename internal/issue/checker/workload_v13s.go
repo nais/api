@@ -38,10 +38,10 @@ func (f fakeV13sClient) ListVulnerabilitySummaries(ctx context.Context, opts ...
 					ImageTag:  "tag1",
 				},
 				VulnerabilitySummary: &vulnerabilities.Summary{
-					Critical:       5,
-					RiskScore:      250,
-					PriorityActNow: 2,
-					PriorityHigh:   3,
+					Critical:  5,
+					RiskScore: 250,
+					ActNow:    2,
+					HighRisk:  3,
 				},
 				SbomStatus: &vulnerabilities.SbomStatusInfo{
 					Status: vulnerabilities.SbomStatus_SBOM_STATUS_READY,
@@ -72,10 +72,10 @@ func (f fakeV13sClient) ListVulnerabilitySummaries(ctx context.Context, opts ...
 					ImageTag:  "tag1",
 				},
 				VulnerabilitySummary: &vulnerabilities.Summary{
-					Critical:       5,
-					RiskScore:      250,
-					PriorityActNow: 2,
-					PriorityHigh:   3,
+					Critical:  5,
+					RiskScore: 250,
+					ActNow:    2,
+					HighRisk:  3,
 				},
 				SbomStatus: &vulnerabilities.SbomStatusInfo{
 					Status: vulnerabilities.SbomStatus_SBOM_STATUS_READY,
@@ -186,9 +186,9 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 		}
 
 		summary := node.VulnerabilitySummary
-		if summary != nil && (summary.PriorityActNow > 0 || summary.PriorityHigh > 0) {
+		if summary != nil && (summary.ActNow > 0 || summary.HighRisk > 0) {
 			severity := issue.SeverityWarning
-			if summary.PriorityActNow > 0 {
+			if summary.ActNow > 0 {
 				severity = issue.SeverityCritical
 			}
 			ret = append(ret, &Issue{
@@ -199,10 +199,10 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 				Env:          environmentmapper.EnvironmentName(node.Workload.GetCluster()),
 				Severity:     severity,
 				Message: fmt.Sprintf(
-					"Image '%s' has %d ACT_NOW and %d HIGH priority vulnerabilities",
+					"Image '%s' has %d IMMEDIATE and %d HIGH risk-tier vulnerabilities",
 					node.Workload.ImageName,
-					summary.PriorityActNow,
-					summary.PriorityHigh,
+					summary.ActNow,
+					summary.HighRisk,
 				),
 				IssueDetails: issue.VulnerableImageIssueDetails{
 					Critical:  int(summary.Critical),
@@ -296,7 +296,7 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 			continue
 		}
 
-		if node.VulnerabilitySummary == nil || node.VulnerabilitySummary.PriorityActNow == 0 {
+		if node.VulnerabilitySummary == nil || node.VulnerabilitySummary.ActNow == 0 {
 			continue
 		}
 
@@ -320,12 +320,12 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 			Env:          env,
 			Severity:     issue.SeverityCritical,
 			Message: fmt.Sprintf(
-				"Workload with external ingresses %s has %d ACT_NOW priority vulnerabilities",
+				"Workload with external ingresses %s has %d IMMEDIATE risk-tier vulnerabilities",
 				strings.Join(externalIngresses, ", "),
-				node.VulnerabilitySummary.PriorityActNow,
+				node.VulnerabilitySummary.ActNow,
 			),
 			IssueDetails: issue.ExternalIngressActNowVulnerabilityIssueDetails{
-				PriorityActNow: int(node.VulnerabilitySummary.PriorityActNow),
+				PriorityActNow: int(node.VulnerabilitySummary.ActNow),
 				Ingresses:      externalIngresses,
 			},
 		})
