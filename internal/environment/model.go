@@ -17,8 +17,9 @@ type (
 )
 
 type Environment struct {
-	Name string `json:"name"`
-	GCP  bool   `json:"-"`
+	Name          string  `json:"name"`
+	GCP           bool    `json:"-"`
+	OIDCIssuerURL *string `json:"oidcIssuerURL,omitempty"`
 }
 
 func (Environment) IsNode() {}
@@ -61,6 +62,7 @@ func (e EnvironmentOrderField) MarshalGQL(w io.Writer) {
 
 func toGraphEnvironment(e *environmentsql.Environment) *Environment {
 	return &Environment{
-		Name: e.Name,
+		Name:          e.Name,
+		OIDCIssuerURL: e.OidcIssuerUrl,
 	}
 }

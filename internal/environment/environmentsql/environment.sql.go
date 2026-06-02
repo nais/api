@@ -18,7 +18,7 @@ func (q *Queries) DeleteAllEnvironments(ctx context.Context) error {
 
 const get = `-- name: Get :one
 SELECT
-	name, gcp
+	name, gcp, oidc_issuer_url
 FROM
 	environments
 WHERE
@@ -28,30 +28,31 @@ WHERE
 func (q *Queries) Get(ctx context.Context, name string) (*Environment, error) {
 	row := q.db.QueryRow(ctx, get, name)
 	var i Environment
-	err := row.Scan(&i.Name, &i.Gcp)
+	err := row.Scan(&i.Name, &i.Gcp, &i.OidcIssuerUrl)
 	return &i, err
 }
 
 const insertEnvironment = `-- name: InsertEnvironment :exec
 INSERT INTO
-	environments (name, gcp)
+	environments (name, gcp, oidc_issuer_url)
 VALUES
-	($1, $2)
+	($1, $2, $3)
 `
 
 type InsertEnvironmentParams struct {
-	Name string
-	Gcp  bool
+	Name          string
+	Gcp           bool
+	OidcIssuerUrl *string
 }
 
 func (q *Queries) InsertEnvironment(ctx context.Context, arg InsertEnvironmentParams) error {
-	_, err := q.db.Exec(ctx, insertEnvironment, arg.Name, arg.Gcp)
+	_, err := q.db.Exec(ctx, insertEnvironment, arg.Name, arg.Gcp, arg.OidcIssuerUrl)
 	return err
 }
 
 const list = `-- name: List :many
 SELECT
-	name, gcp
+	name, gcp, oidc_issuer_url
 FROM
 	environments
 ORDER BY
@@ -67,7 +68,7 @@ func (q *Queries) List(ctx context.Context) ([]*Environment, error) {
 	items := []*Environment{}
 	for rows.Next() {
 		var i Environment
-		if err := rows.Scan(&i.Name, &i.Gcp); err != nil {
+		if err := rows.Scan(&i.Name, &i.Gcp, &i.OidcIssuerUrl); err != nil {
 			return nil, err
 		}
 		items = append(items, &i)
@@ -80,7 +81,7 @@ func (q *Queries) List(ctx context.Context) ([]*Environment, error) {
 
 const listByNames = `-- name: ListByNames :many
 SELECT
-	name, gcp
+	name, gcp, oidc_issuer_url
 FROM
 	environments
 WHERE
@@ -98,7 +99,7 @@ func (q *Queries) ListByNames(ctx context.Context, names []string) ([]*Environme
 	items := []*Environment{}
 	for rows.Next() {
 		var i Environment
-		if err := rows.Scan(&i.Name, &i.Gcp); err != nil {
+		if err := rows.Scan(&i.Name, &i.Gcp, &i.OidcIssuerUrl); err != nil {
 			return nil, err
 		}
 		items = append(items, &i)

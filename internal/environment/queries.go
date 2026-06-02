@@ -60,7 +60,7 @@ func SyncEnvironments(ctx context.Context, envs []*Environment) error {
 		}
 
 		for _, env := range envs {
-			if err := insertEnvironment(ctx, env.Name, env.GCP); err != nil {
+			if err := insertEnvironment(ctx, env); err != nil {
 				return err
 			}
 		}
@@ -73,9 +73,10 @@ func deleteAllEnvironments(ctx context.Context) error {
 	return db(ctx).DeleteAllEnvironments(ctx)
 }
 
-func insertEnvironment(ctx context.Context, name string, gcp bool) error {
+func insertEnvironment(ctx context.Context, env *Environment) error {
 	return db(ctx).InsertEnvironment(ctx, environmentsql.InsertEnvironmentParams{
-		Name: name,
-		Gcp:  gcp,
+		Name:          env.Name,
+		Gcp:           env.GCP,
+		OidcIssuerUrl: env.OIDCIssuerURL,
 	})
 }

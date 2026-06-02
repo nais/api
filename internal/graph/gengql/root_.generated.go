@@ -909,10 +909,11 @@ type ComplexityRoot struct {
 	}
 
 	Environment struct {
-		ID        func(childComplexity int) int
-		Metrics   func(childComplexity int, input metrics.MetricsQueryInput) int
-		Name      func(childComplexity int) int
-		Workloads func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *workload.EnvironmentWorkloadOrder) int
+		ID            func(childComplexity int) int
+		Metrics       func(childComplexity int, input metrics.MetricsQueryInput) int
+		Name          func(childComplexity int) int
+		OIDCIssuerURL func(childComplexity int) int
+		Workloads     func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *workload.EnvironmentWorkloadOrder) int
 	}
 
 	EnvironmentConnection struct {
@@ -6564,6 +6565,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Environment.Name(childComplexity), true
+
+	case "Environment.oidcIssuerURL":
+		if e.ComplexityRoot.Environment.OIDCIssuerURL == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Environment.OIDCIssuerURL(childComplexity), true
 
 	case "Environment.workloads":
 		if e.ComplexityRoot.Environment.Workloads == nil {
@@ -22310,6 +22318,11 @@ type Environment implements Node {
 	Unique name of the environment.
 	"""
 	name: String!
+
+	"""
+	The OIDC issuer URL for workload identity tokens in the environment. Null for environments that do not support workload identity.
+	"""
+	oidcIssuerURL: String
 }
 
 extend type TeamEnvironment {
@@ -32970,6 +32983,8 @@ func (ec *executionContext) childFields_Environment(ctx context.Context, field g
 		return ec.fieldContext_Environment_id(ctx, field)
 	case "name":
 		return ec.fieldContext_Environment_name(ctx, field)
+	case "oidcIssuerURL":
+		return ec.fieldContext_Environment_oidcIssuerURL(ctx, field)
 	case "metrics":
 		return ec.fieldContext_Environment_metrics(ctx, field)
 	case "workloads":

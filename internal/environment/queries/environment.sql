@@ -33,7 +33,7 @@ DELETE FROM environments
 
 -- name: InsertEnvironment :exec
 INSERT INTO
-	environments (name, gcp)
+	environments (name, gcp, oidc_issuer_url)
 VALUES
-	(@name, @gcp)
+	(@name, @gcp, @oidc_issuer_url)
 ;
