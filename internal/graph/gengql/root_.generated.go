@@ -84,7 +84,6 @@ type ResolverRoot interface {
 	ExternalIngressActNowVulnerabilityIssue() ExternalIngressActNowVulnerabilityIssueResolver
 	ExternalIngressCriticalVulnerabilityIssue() ExternalIngressCriticalVulnerabilityIssueResolver
 	FailedSynchronizationIssue() FailedSynchronizationIssueResolver
-	ImageVulnerabilitySummary() ImageVulnerabilitySummaryResolver
 	Ingress() IngressResolver
 	IngressMetrics() IngressMetricsResolver
 	InstanceGroup() InstanceGroupResolver
@@ -31632,16 +31631,16 @@ type ImageVulnerabilitySummary {
 	"Number of vulnerabilities with severity UNASSIGNED."
 	unassigned: Int!
 
-	"Number of vulnerabilities with priority ACT_NOW."
+	"Number of vulnerabilities with risk tier IMMEDIATE."
 	priorityActNow: Int!
 
-	"Number of vulnerabilities with priority HIGH."
+	"Number of vulnerabilities with risk tier HIGH."
 	priorityHigh: Int!
 
-	"Number of vulnerabilities with priority ELEVATED."
+	"Number of vulnerabilities with risk tier ELEVATED."
 	priorityElevated: Int!
 
-	"Number of vulnerabilities with priority MONITOR."
+	"Number of vulnerabilities with risk tier MONITOR."
 	priorityMonitor: Int!
 
 	"Timestamp of the last update of the vulnerability summary."
@@ -31736,7 +31735,7 @@ type ImageVulnerability implements Node {
 
 enum CVEPriority {
 	"Vulnerability is known to be actively exploited and requires immediate action."
-	ACT_NOW
+	IMMEDIATE
 	"Vulnerability is associated with ransomware or has a high EPSS percentile."
 	HIGH
 	"Vulnerability has a critical or high severity and elevated EPSS percentile."
@@ -31959,11 +31958,11 @@ enum VulnerabilitySummaryOrderByField {
 	"""
 	VULNERABILITY_SEVERITY_UNASSIGNED
 	"""
-	Order by priority ACT_NOW count"
+	Order by IMMEDIATE risk-tier count"
 	"""
 	VULNERABILITY_PRIORITY_ACT_NOW
 	"""
-	Order by priority HIGH count"
+	Order by HIGH risk-tier count"
 	"""
 	VULNERABILITY_PRIORITY_HIGH
 }
