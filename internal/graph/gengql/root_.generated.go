@@ -1050,6 +1050,7 @@ type ComplexityRoot struct {
 	ImageVulnerability struct {
 		CvssScore                func(childComplexity int) int
 		Description              func(childComplexity int) int
+		FixVersion               func(childComplexity int) int
 		ID                       func(childComplexity int) int
 		Identifier               func(childComplexity int) int
 		Package                  func(childComplexity int) int
@@ -7236,6 +7237,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ImageVulnerability.Description(childComplexity), true
+
+	case "ImageVulnerability.fixVersion":
+		if e.ComplexityRoot.ImageVulnerability.FixVersion == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImageVulnerability.FixVersion(childComplexity), true
 
 	case "ImageVulnerability.id":
 		if e.ComplexityRoot.ImageVulnerability.ID == nil {
@@ -31721,6 +31729,9 @@ type ImageVulnerability implements Node {
 	"Package name of the vulnerability."
 	package: String!
 
+	"First known package version that contains a fix."
+	fixVersion: String
+
 	suppression: ImageVulnerabilitySuppression
 
 	"Timestamp of when the vulnerability got its current severity."
@@ -34010,6 +34021,8 @@ func (ec *executionContext) childFields_ImageVulnerability(ctx context.Context, 
 		return ec.fieldContext_ImageVulnerability_description(ctx, field)
 	case "package":
 		return ec.fieldContext_ImageVulnerability_package(ctx, field)
+	case "fixVersion":
+		return ec.fieldContext_ImageVulnerability_fixVersion(ctx, field)
 	case "suppression":
 		return ec.fieldContext_ImageVulnerability_suppression(ctx, field)
 	case "severitySince":
