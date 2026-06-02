@@ -80,11 +80,7 @@ require (
 	golang.org/x/text v0.37.0
 	golang.org/x/tools v0.44.0
 	google.golang.org/api v0.280.0
-<<<<<<< HEAD
 	google.golang.org/genproto/googleapis/api v0.0.0-20260401024825-9d38bb4040a9
-=======
-	google.golang.org/genproto/googleapis/api v0.0.0-20260319201613-d00831a3d3e7
->>>>>>> 99537aa0 (chore: bump v13s to v0.0.0-20260528121134-739c7136ac8e (cve-priority rebase onto main))
 	google.golang.org/grpc v1.81.1
 	google.golang.org/protobuf v1.36.11
 	k8s.io/api v0.35.1
