@@ -815,6 +815,8 @@ github.com/nais/unleasherator v0.0.0-20251216221129-efebc54203fe h1:CdRVopOihru4
 github.com/nais/unleasherator v0.0.0-20251216221129-efebc54203fe/go.mod h1:Tiz/1If3WgcfvNhmsO5DiQC+L+1XhBG3KWbIfbjx4EU=
 github.com/nais/v13s/pkg/api v0.0.0-20260528121134-739c7136ac8e h1:7fut4nxp6NlX7xS5SnwLkdyAhWanqmcpuClssn/cT8Q=
 github.com/nais/v13s/pkg/api v0.0.0-20260528121134-739c7136ac8e/go.mod h1:KBuEYLBJOFM36G7D5RAZ5oRyUv0/IOK9JCgkUS1eqqY=
+github.com/nais/v13s/pkg/api v0.0.0-20260602103534-af9d5e6d27d3 h1:ei4Q9fAPa0dtBo7aBwCUuVrDRXA9jtipqsU6PhOcPYw=
+github.com/nais/v13s/pkg/api v0.0.0-20260602103534-af9d5e6d27d3/go.mod h1:KBuEYLBJOFM36G7D5RAZ5oRyUv0/IOK9JCgkUS1eqqY=
 github.com/ncruces/go-sqlite3 v0.32.0 h1:hNBUXp88LrfQCsuyXLqWTbTUG35sUuktDsqhhgHvU20=
 github.com/ncruces/go-sqlite3 v0.32.0/go.mod h1:MIWTK60ONDl0oVY073zYvJP21C3Dly6P9bxVpgkLwdQ=
 github.com/ncruces/go-strftime v1.0.0 h1:HMFp8mLCTPp341M/ZnA4qaf7ZlsbTc+miZjCLOFAw7w=
