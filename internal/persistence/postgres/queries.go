@@ -83,12 +83,17 @@ func GetForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName, cl
 	return GetZalandoPostgres(ctx, teamSlug, environmentName, clusterName)
 }
 
-func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *PostgresInstanceOrder) (*PostgresInstanceConnection, error) {
+func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *PostgresInstanceOrder, filter *PostgresInstanceFilter) (*PostgresInstanceConnection, error) {
 	all := ListAllForTeam(ctx, teamSlug)
-	orderPostgresInstances(ctx, all, orderBy)
 
-	instances := pagination.Slice(all, page)
-	return pagination.NewConnection(instances, page, len(all)), nil
+	if orderBy == nil {
+		orderBy = &PostgresInstanceOrder{
+			Field:     PostgresInstanceOrderFieldName,
+			Direction: model.OrderDirectionAsc,
+		}
+	}
+
+	return SortFilterPostgresInstance.PaginatedList(ctx, all, page, orderBy.Field, orderBy.Direction, filter), nil
 }
 
 func ListAllForTeam(ctx context.Context, teamSlug slug.Slug) []*PostgresInstance {
@@ -98,17 +103,6 @@ func ListAllForTeam(ctx context.Context, teamSlug slug.Slug) []*PostgresInstance
 
 func CountForTeam(ctx context.Context, teamSlug slug.Slug) int {
 	return len(fromContext(ctx).zalandoPostgresWatcher.GetByNamespace(teamSlug.String()))
-}
-
-func orderPostgresInstances(ctx context.Context, instances []*PostgresInstance, orderBy *PostgresInstanceOrder) {
-	if orderBy == nil {
-		orderBy = &PostgresInstanceOrder{
-			Field:     PostgresInstanceOrderFieldName,
-			Direction: model.OrderDirectionAsc,
-		}
-	}
-
-	SortFilterPostgresInstance.Sort(ctx, instances, orderBy.Field, orderBy.Direction)
 }
 
 func GetZalandoPostgresByIdent(ctx context.Context, id ident.Ident) (*PostgresInstance, error) {

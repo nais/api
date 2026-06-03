@@ -26,11 +26,28 @@ import (
 )
 
 type (
-	ValkeyConnection       = pagination.Connection[*Valkey]
 	ValkeyEdge             = pagination.Edge[*Valkey]
 	ValkeyAccessConnection = pagination.Connection[*ValkeyAccess]
 	ValkeyAccessEdge       = pagination.Edge[*ValkeyAccess]
 )
+
+type ValkeyFilter struct {
+	Name         string       `json:"name"`
+	Environments []string     `json:"environments"`
+	Tiers        []ValkeyTier `json:"tiers"`
+}
+
+type ValkeyConnection = pagination.FacetableConnection[*Valkey, *ValkeyFilter]
+
+type ValkeyFacets struct {
+	Environments []model.StringFacetItem `json:"environments"`
+	Tiers        []ValkeyTierFacetItem   `json:"tiers"`
+}
+
+type ValkeyTierFacetItem struct {
+	Tier  ValkeyTier `json:"tier"`
+	Count int        `json:"count"`
+}
 
 type Valkey struct {
 	Name                  string                `json:"name"`

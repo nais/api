@@ -16,6 +16,7 @@ import (
 	"github.com/nais/api/internal/cost"
 	"github.com/nais/api/internal/deployment"
 	"github.com/nais/api/internal/graph/ident"
+	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/issue"
@@ -60,25 +61,25 @@ type JobResolver interface {
 	ActivityLog(ctx context.Context, obj *job.Job, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*activitylog.ActivityLogEntryConnection, error)
 	State(ctx context.Context, obj *job.Job) (job.JobState, error)
 	Issues(ctx context.Context, obj *job.Job, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) (*pagination.Connection[issue.Issue], error)
-	BigQueryDatasets(ctx context.Context, obj *job.Job, orderBy *bigquery.BigQueryDatasetOrder) (*pagination.Connection[*bigquery.BigQueryDataset], error)
-	Buckets(ctx context.Context, obj *job.Job, orderBy *bucket.BucketOrder) (*pagination.Connection[*bucket.Bucket], error)
-	Configs(ctx context.Context, obj *job.Job, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*config.Config], error)
+	BigQueryDatasets(ctx context.Context, obj *job.Job, orderBy *bigquery.BigQueryDatasetOrder) (*pagination.FacetableConnection[*bigquery.BigQueryDataset, *bigquery.BigQueryDatasetFilter], error)
+	Buckets(ctx context.Context, obj *job.Job, orderBy *bucket.BucketOrder) (*pagination.FacetableConnection[*bucket.Bucket, *bucket.BucketFilter], error)
+	Configs(ctx context.Context, obj *job.Job, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.FacetableConnection[*config.Config, *config.ConfigFilter], error)
 	Cost(ctx context.Context, obj *job.Job) (*cost.WorkloadCost, error)
 	Deployments(ctx context.Context, obj *job.Job, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*deployment.Deployment], error)
 	KafkaTopicAcls(ctx context.Context, obj *job.Job, orderBy *kafkatopic.KafkaTopicACLOrder) (*pagination.Connection[*kafkatopic.KafkaTopicACL], error)
 	LogDestinations(ctx context.Context, obj *job.Job) ([]logging.LogDestination, error)
 	NetworkPolicy(ctx context.Context, obj *job.Job) (*netpol.NetworkPolicy, error)
 	OpenSearch(ctx context.Context, obj *job.Job) (*opensearch.OpenSearch, error)
-	PostgresInstances(ctx context.Context, obj *job.Job, orderBy *postgres.PostgresInstanceOrder) (*pagination.Connection[*postgres.PostgresInstance], error)
-	Secrets(ctx context.Context, obj *job.Job, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*secret.Secret], error)
+	PostgresInstances(ctx context.Context, obj *job.Job, orderBy *postgres.PostgresInstanceOrder) (*pagination.FacetableConnection[*postgres.PostgresInstance, *postgres.PostgresInstanceFilter], error)
+	Secrets(ctx context.Context, obj *job.Job, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.FacetableConnection[*secret.Secret, *secret.SecretFilter], error)
 	ServiceAccount(ctx context.Context, obj *job.Job) (*serviceaccount.ServiceAccount, error)
 	SQLInstances(ctx context.Context, obj *job.Job, orderBy *sqlinstance.SQLInstanceOrder) (*pagination.Connection[*sqlinstance.SQLInstance], error)
-	Valkeys(ctx context.Context, obj *job.Job, orderBy *valkey.ValkeyOrder) (*pagination.Connection[*valkey.Valkey], error)
+	Valkeys(ctx context.Context, obj *job.Job, orderBy *valkey.ValkeyOrder) (*pagination.FacetableConnection[*valkey.Valkey, *valkey.ValkeyFilter], error)
 	ImageVulnerabilityHistory(ctx context.Context, obj *job.Job, from scalar.Date) (*vulnerability.ImageVulnerabilityHistory, error)
 	VulnerabilityFixHistory(ctx context.Context, obj *job.Job, from scalar.Date) (*vulnerability.VulnerabilityFixHistory, error)
 }
 type JobConnectionResolver interface {
-	Facets(ctx context.Context, obj *job.JobConnection) (*job.JobFacets, error)
+	Facets(ctx context.Context, obj *pagination.FacetableConnection[*job.Job, *job.TeamJobsFilter]) (*job.JobFacets, error)
 }
 type JobRunResolver interface {
 	Duration(ctx context.Context, obj *job.JobRun) (int, error)
@@ -1099,8 +1100,8 @@ func (ec *executionContext) _Job_bigQueryDatasets(ctx context.Context, field gra
 			return ec.Resolvers.Job().BigQueryDatasets(ctx, obj, fc.Args["orderBy"].(*bigquery.BigQueryDatasetOrder))
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[*bigquery.BigQueryDataset]) graphql.Marshaler {
-			return ec.marshalNBigQueryDatasetConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *pagination.FacetableConnection[*bigquery.BigQueryDataset, *bigquery.BigQueryDatasetFilter]) graphql.Marshaler {
+			return ec.marshalNBigQueryDatasetConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, selections, v)
 		},
 		true,
 		true,
@@ -1143,8 +1144,8 @@ func (ec *executionContext) _Job_buckets(ctx context.Context, field graphql.Coll
 			return ec.Resolvers.Job().Buckets(ctx, obj, fc.Args["orderBy"].(*bucket.BucketOrder))
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[*bucket.Bucket]) graphql.Marshaler {
-			return ec.marshalNBucketConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *pagination.FacetableConnection[*bucket.Bucket, *bucket.BucketFilter]) graphql.Marshaler {
+			return ec.marshalNBucketConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, selections, v)
 		},
 		true,
 		true,
@@ -1187,8 +1188,8 @@ func (ec *executionContext) _Job_configs(ctx context.Context, field graphql.Coll
 			return ec.Resolvers.Job().Configs(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[*config.Config]) graphql.Marshaler {
-			return ec.marshalNConfigConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *pagination.FacetableConnection[*config.Config, *config.ConfigFilter]) graphql.Marshaler {
+			return ec.marshalNConfigConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, selections, v)
 		},
 		true,
 		true,
@@ -1447,8 +1448,8 @@ func (ec *executionContext) _Job_postgresInstances(ctx context.Context, field gr
 			return ec.Resolvers.Job().PostgresInstances(ctx, obj, fc.Args["orderBy"].(*postgres.PostgresInstanceOrder))
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[*postgres.PostgresInstance]) graphql.Marshaler {
-			return ec.marshalNPostgresInstanceConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *pagination.FacetableConnection[*postgres.PostgresInstance, *postgres.PostgresInstanceFilter]) graphql.Marshaler {
+			return ec.marshalNPostgresInstanceConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, selections, v)
 		},
 		true,
 		true,
@@ -1491,8 +1492,8 @@ func (ec *executionContext) _Job_secrets(ctx context.Context, field graphql.Coll
 			return ec.Resolvers.Job().Secrets(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[*secret.Secret]) graphql.Marshaler {
-			return ec.marshalNSecretConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *pagination.FacetableConnection[*secret.Secret, *secret.SecretFilter]) graphql.Marshaler {
+			return ec.marshalNSecretConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, selections, v)
 		},
 		true,
 		true,
@@ -1611,8 +1612,8 @@ func (ec *executionContext) _Job_valkeys(ctx context.Context, field graphql.Coll
 			return ec.Resolvers.Job().Valkeys(ctx, obj, fc.Args["orderBy"].(*valkey.ValkeyOrder))
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[*valkey.Valkey]) graphql.Marshaler {
-			return ec.marshalNValkeyConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *pagination.FacetableConnection[*valkey.Valkey, *valkey.ValkeyFilter]) graphql.Marshaler {
+			return ec.marshalNValkeyConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, selections, v)
 		},
 		true,
 		true,
@@ -1730,7 +1731,7 @@ func (ec *executionContext) fieldContext_Job_vulnerabilityFixHistory(ctx context
 	return fc, nil
 }
 
-func (ec *executionContext) _JobConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *job.JobConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _JobConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*job.Job, *job.TeamJobsFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -1762,7 +1763,7 @@ func (ec *executionContext) fieldContext_JobConnection_pageInfo(_ context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _JobConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *job.JobConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _JobConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*job.Job, *job.TeamJobsFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -1794,7 +1795,7 @@ func (ec *executionContext) fieldContext_JobConnection_nodes(_ context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _JobConnection_edges(ctx context.Context, field graphql.CollectedField, obj *job.JobConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _JobConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*job.Job, *job.TeamJobsFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -1826,7 +1827,7 @@ func (ec *executionContext) fieldContext_JobConnection_edges(_ context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _JobConnection_facets(ctx context.Context, field graphql.CollectedField, obj *job.JobConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _JobConnection_facets(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*job.Job, *job.TeamJobsFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -2313,52 +2314,6 @@ func (ec *executionContext) fieldContext_JobEdge_node(_ context.Context, field g
 	return fc, nil
 }
 
-func (ec *executionContext) _JobEnvironmentFacetItem_environmentName(ctx context.Context, field graphql.CollectedField, obj *job.JobEnvironmentFacetItem) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobEnvironmentFacetItem_environmentName(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return obj.EnvironmentName, nil
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_JobEnvironmentFacetItem_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("JobEnvironmentFacetItem", field, false, false, errors.New("field of type String does not have child fields"))
-}
-
-func (ec *executionContext) _JobEnvironmentFacetItem_count(ctx context.Context, field graphql.CollectedField, obj *job.JobEnvironmentFacetItem) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobEnvironmentFacetItem_count(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return obj.Count, nil
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
-			return ec.marshalNInt2int(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_JobEnvironmentFacetItem_count(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("JobEnvironmentFacetItem", field, false, false, errors.New("field of type Int does not have child fields"))
-}
-
 func (ec *executionContext) _JobFacets_environments(ctx context.Context, field graphql.CollectedField, obj *job.JobFacets) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -2371,8 +2326,8 @@ func (ec *executionContext) _JobFacets_environments(ctx context.Context, field g
 			return obj.Environments, nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v []job.JobEnvironmentFacetItem) graphql.Marshaler {
-			return ec.marshalNJobEnvironmentFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobEnvironmentFacetItemᚄ(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v []model.StringFacetItem) graphql.Marshaler {
+			return ec.marshalNStringFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItemᚄ(ctx, selections, v)
 		},
 		true,
 		true,
@@ -2385,7 +2340,7 @@ func (ec *executionContext) fieldContext_JobFacets_environments(_ context.Contex
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_JobEnvironmentFacetItem(ctx, field)
+			return ec.childFields_StringFacetItem(ctx, field)
 		},
 	}
 	return fc, nil
@@ -5639,7 +5594,7 @@ func (ec *executionContext) _Job(ctx context.Context, sel ast.SelectionSet, obj 
 
 var jobConnectionImplementors = []string{"JobConnection"}
 
-func (ec *executionContext) _JobConnection(ctx context.Context, sel ast.SelectionSet, obj *job.JobConnection) graphql.Marshaler {
+func (ec *executionContext) _JobConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.FacetableConnection[*job.Job, *job.TeamJobsFilter]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, jobConnectionImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -5884,50 +5839,6 @@ func (ec *executionContext) _JobEdge(ctx context.Context, sel ast.SelectionSet, 
 			}
 		case "node":
 			out.Values[i] = ec._JobEdge_node(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
-
-	for label, dfs := range deferred {
-		ec.ProcessDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var jobEnvironmentFacetItemImplementors = []string{"JobEnvironmentFacetItem"}
-
-func (ec *executionContext) _JobEnvironmentFacetItem(ctx context.Context, sel ast.SelectionSet, obj *job.JobEnvironmentFacetItem) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, jobEnvironmentFacetItemImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("JobEnvironmentFacetItem")
-		case "environmentName":
-			out.Values[i] = ec._JobEnvironmentFacetItem_environmentName(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "count":
-			out.Values[i] = ec._JobEnvironmentFacetItem_count(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -7214,11 +7125,11 @@ func (ec *executionContext) marshalNJobAuthIntegrations2ᚕgithubᚗcomᚋnais�
 	return ret
 }
 
-func (ec *executionContext) marshalNJobConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobConnection(ctx context.Context, sel ast.SelectionSet, v job.JobConnection) graphql.Marshaler {
+func (ec *executionContext) marshalNJobConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx context.Context, sel ast.SelectionSet, v pagination.FacetableConnection[*job.Job, *job.TeamJobsFilter]) graphql.Marshaler {
 	return ec._JobConnection(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNJobConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobConnection(ctx context.Context, sel ast.SelectionSet, v *job.JobConnection) graphql.Marshaler {
+func (ec *executionContext) marshalNJobConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.FacetableConnection[*job.Job, *job.TeamJobsFilter]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
@@ -7237,26 +7148,6 @@ func (ec *executionContext) marshalNJobEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinter
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
 		return ec.marshalNJobEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
-	})
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
-func (ec *executionContext) marshalNJobEnvironmentFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobEnvironmentFacetItem(ctx context.Context, sel ast.SelectionSet, v job.JobEnvironmentFacetItem) graphql.Marshaler {
-	return ec._JobEnvironmentFacetItem(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNJobEnvironmentFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobEnvironmentFacetItemᚄ(ctx context.Context, sel ast.SelectionSet, v []job.JobEnvironmentFacetItem) graphql.Marshaler {
-	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
-		fc := graphql.GetFieldContext(ctx)
-		fc.Result = &v[i]
-		return ec.marshalNJobEnvironmentFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobEnvironmentFacetItem(ctx, sel, v[i])
 	})
 
 	for _, e := range ret {

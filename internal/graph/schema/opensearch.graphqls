@@ -15,6 +15,9 @@ extend type Team {
 
 		"Ordering options for items returned from the connection."
 		orderBy: OpenSearchOrder
+
+		"Filtering options for items returned from the connection."
+		filter: OpenSearchFilter
 	): OpenSearchConnection!
 }
 
@@ -164,6 +167,12 @@ type OpenSearchConnection {
 	pageInfo: PageInfo!
 	nodes: [OpenSearch!]!
 	edges: [OpenSearchEdge!]!
+
+	"""
+	Facets for OpenSearch instances. Provides distribution counts to help narrow down results.
+	Facet counts are computed over the full result set (ignoring pagination) but respect the current filter.
+	"""
+	facets: OpenSearchFacets
 }
 
 type OpenSearchAccessEdge {
@@ -174,6 +183,42 @@ type OpenSearchAccessEdge {
 type OpenSearchEdge {
 	cursor: Cursor!
 	node: OpenSearch!
+}
+
+"""
+Facets for OpenSearch instances, providing distribution counts across different dimensions.
+"""
+type OpenSearchFacets {
+	"Distribution of instances by environment."
+	environments: [StringFacetItem!]!
+
+	"Distribution of instances by tier."
+	tiers: [OpenSearchTierFacetItem!]!
+}
+
+"""
+A single facet item for OpenSearch tiers.
+"""
+type OpenSearchTierFacetItem {
+	"The OpenSearch tier."
+	tier: OpenSearchTier!
+
+	"Number of matching instances."
+	count: Int!
+}
+
+"""
+Input for filtering OpenSearch instances.
+"""
+input OpenSearchFilter {
+	"Filter by the name of the instance."
+	name: String
+
+	"Filter by environments."
+	environments: [String!]
+
+	"Filter by tier."
+	tiers: [OpenSearchTier!]
 }
 
 input OpenSearchAccessOrder {

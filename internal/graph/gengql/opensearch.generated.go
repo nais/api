@@ -14,6 +14,7 @@ import (
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/cost"
 	"github.com/nais/api/internal/graph/ident"
+	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/issue"
 	"github.com/nais/api/internal/persistence/opensearch"
@@ -43,6 +44,9 @@ type OpenSearchResolver interface {
 }
 type OpenSearchAccessResolver interface {
 	Workload(ctx context.Context, obj *opensearch.OpenSearchAccess) (workload.Workload, error)
+}
+type OpenSearchConnectionResolver interface {
+	Facets(ctx context.Context, obj *pagination.FacetableConnection[*opensearch.OpenSearch, *opensearch.OpenSearchFilter]) (*opensearch.OpenSearchFacets, error)
 }
 
 // endregion ************************** generated!.gotpl **************************
@@ -1109,7 +1113,7 @@ func (ec *executionContext) fieldContext_OpenSearchAccessEdge_node(_ context.Con
 	return fc, nil
 }
 
-func (ec *executionContext) _OpenSearchConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*opensearch.OpenSearch]) (ret graphql.Marshaler) {
+func (ec *executionContext) _OpenSearchConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*opensearch.OpenSearch, *opensearch.OpenSearchFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -1141,7 +1145,7 @@ func (ec *executionContext) fieldContext_OpenSearchConnection_pageInfo(_ context
 	return fc, nil
 }
 
-func (ec *executionContext) _OpenSearchConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*opensearch.OpenSearch]) (ret graphql.Marshaler) {
+func (ec *executionContext) _OpenSearchConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*opensearch.OpenSearch, *opensearch.OpenSearchFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -1173,7 +1177,7 @@ func (ec *executionContext) fieldContext_OpenSearchConnection_nodes(_ context.Co
 	return fc, nil
 }
 
-func (ec *executionContext) _OpenSearchConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*opensearch.OpenSearch]) (ret graphql.Marshaler) {
+func (ec *executionContext) _OpenSearchConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*opensearch.OpenSearch, *opensearch.OpenSearchFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -1200,6 +1204,38 @@ func (ec *executionContext) fieldContext_OpenSearchConnection_edges(_ context.Co
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return ec.childFields_OpenSearchEdge(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _OpenSearchConnection_facets(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*opensearch.OpenSearch, *opensearch.OpenSearchFilter]) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_OpenSearchConnection_facets(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.OpenSearchConnection().Facets(ctx, obj)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *opensearch.OpenSearchFacets) graphql.Marshaler {
+			return ec.marshalOOpenSearchFacets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchFacets(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_OpenSearchConnection_facets(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "OpenSearchConnection",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_OpenSearchFacets(ctx, field)
 		},
 	}
 	return fc, nil
@@ -1743,6 +1779,70 @@ func (ec *executionContext) fieldContext_OpenSearchEdge_node(_ context.Context, 
 	return fc, nil
 }
 
+func (ec *executionContext) _OpenSearchFacets_environments(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearchFacets) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_OpenSearchFacets_environments(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Environments, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []model.StringFacetItem) graphql.Marshaler {
+			return ec.marshalNStringFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItemᚄ(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_OpenSearchFacets_environments(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "OpenSearchFacets",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_StringFacetItem(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _OpenSearchFacets_tiers(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearchFacets) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_OpenSearchFacets_tiers(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Tiers, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []opensearch.OpenSearchTierFacetItem) graphql.Marshaler {
+			return ec.marshalNOpenSearchTierFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchTierFacetItemᚄ(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_OpenSearchFacets_tiers(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "OpenSearchFacets",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_OpenSearchTierFacetItem(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _OpenSearchHTTP_maxContentLength(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearchHTTP) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -1833,6 +1933,52 @@ func (ec *executionContext) _OpenSearchShardIndexingPressure_enforced(ctx contex
 }
 func (ec *executionContext) fieldContext_OpenSearchShardIndexingPressure_enforced(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("OpenSearchShardIndexingPressure", field, false, false, errors.New("field of type Boolean does not have child fields"))
+}
+
+func (ec *executionContext) _OpenSearchTierFacetItem_tier(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearchTierFacetItem) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_OpenSearchTierFacetItem_tier(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Tier, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v opensearch.OpenSearchTier) graphql.Marshaler {
+			return ec.marshalNOpenSearchTier2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchTier(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_OpenSearchTierFacetItem_tier(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("OpenSearchTierFacetItem", field, false, false, errors.New("field of type OpenSearchTier does not have child fields"))
+}
+
+func (ec *executionContext) _OpenSearchTierFacetItem_count(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearchTierFacetItem) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_OpenSearchTierFacetItem_count(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Count, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
+			return ec.marshalNInt2int(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_OpenSearchTierFacetItem_count(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("OpenSearchTierFacetItem", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
 func (ec *executionContext) _OpenSearchUpdatedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearchUpdatedActivityLogEntry) (ret graphql.Marshaler) {
@@ -2484,6 +2630,50 @@ func (ec *executionContext) unmarshalInputOpenSearchAccessOrder(ctx context.Cont
 				return it, err
 			}
 			it.Direction = data
+		}
+	}
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputOpenSearchFilter(ctx context.Context, obj any) (opensearch.OpenSearchFilter, error) {
+	var it opensearch.OpenSearchFilter
+	if obj == nil {
+		return it, nil
+	}
+
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"name", "environments", "tiers"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalOString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "environments":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environments"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Environments = data
+		case "tiers":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tiers"))
+			data, err := ec.unmarshalOOpenSearchTier2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchTierᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Tiers = data
 		}
 	}
 	return it, nil
@@ -3480,7 +3670,7 @@ func (ec *executionContext) _OpenSearchAccessEdge(ctx context.Context, sel ast.S
 
 var openSearchConnectionImplementors = []string{"OpenSearchConnection"}
 
-func (ec *executionContext) _OpenSearchConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.Connection[*opensearch.OpenSearch]) graphql.Marshaler {
+func (ec *executionContext) _OpenSearchConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.FacetableConnection[*opensearch.OpenSearch, *opensearch.OpenSearchFilter]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, openSearchConnectionImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -3492,18 +3682,51 @@ func (ec *executionContext) _OpenSearchConnection(ctx context.Context, sel ast.S
 		case "pageInfo":
 			out.Values[i] = ec._OpenSearchConnection_pageInfo(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "nodes":
 			out.Values[i] = ec._OpenSearchConnection_nodes(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "edges":
 			out.Values[i] = ec._OpenSearchConnection_edges(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "facets":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._OpenSearchConnection_facets(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3772,6 +3995,50 @@ func (ec *executionContext) _OpenSearchEdge(ctx context.Context, sel ast.Selecti
 	return out
 }
 
+var openSearchFacetsImplementors = []string{"OpenSearchFacets"}
+
+func (ec *executionContext) _OpenSearchFacets(ctx context.Context, sel ast.SelectionSet, obj *opensearch.OpenSearchFacets) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, openSearchFacetsImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("OpenSearchFacets")
+		case "environments":
+			out.Values[i] = ec._OpenSearchFacets_environments(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "tiers":
+			out.Values[i] = ec._OpenSearchFacets_tiers(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var openSearchHTTPImplementors = []string{"OpenSearchHTTP"}
 
 func (ec *executionContext) _OpenSearchHTTP(ctx context.Context, sel ast.SelectionSet, obj *opensearch.OpenSearchHTTP) graphql.Marshaler {
@@ -3862,6 +4129,50 @@ func (ec *executionContext) _OpenSearchShardIndexingPressure(ctx context.Context
 			}
 		case "enforced":
 			out.Values[i] = ec._OpenSearchShardIndexingPressure_enforced(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var openSearchTierFacetItemImplementors = []string{"OpenSearchTierFacetItem"}
+
+func (ec *executionContext) _OpenSearchTierFacetItem(ctx context.Context, sel ast.SelectionSet, obj *opensearch.OpenSearchTierFacetItem) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, openSearchTierFacetItemImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("OpenSearchTierFacetItem")
+		case "tier":
+			out.Values[i] = ec._OpenSearchTierFacetItem_tier(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "count":
+			out.Values[i] = ec._OpenSearchTierFacetItem_count(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -4326,11 +4637,11 @@ func (ec *executionContext) marshalNOpenSearchAccessOrderField2githubᚗcomᚋna
 	return v
 }
 
-func (ec *executionContext) marshalNOpenSearchConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[*opensearch.OpenSearch]) graphql.Marshaler {
+func (ec *executionContext) marshalNOpenSearchConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx context.Context, sel ast.SelectionSet, v pagination.FacetableConnection[*opensearch.OpenSearch, *opensearch.OpenSearchFilter]) graphql.Marshaler {
 	return ec._OpenSearchConnection(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNOpenSearchConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*opensearch.OpenSearch]) graphql.Marshaler {
+func (ec *executionContext) marshalNOpenSearchConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.FacetableConnection[*opensearch.OpenSearch, *opensearch.OpenSearchFilter]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
@@ -4432,6 +4743,26 @@ func (ec *executionContext) marshalNOpenSearchTier2githubᚗcomᚋnaisᚋapiᚋi
 	return v
 }
 
+func (ec *executionContext) marshalNOpenSearchTierFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchTierFacetItem(ctx context.Context, sel ast.SelectionSet, v opensearch.OpenSearchTierFacetItem) graphql.Marshaler {
+	return ec._OpenSearchTierFacetItem(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNOpenSearchTierFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchTierFacetItemᚄ(ctx context.Context, sel ast.SelectionSet, v []opensearch.OpenSearchTierFacetItem) graphql.Marshaler {
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNOpenSearchTierFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchTierFacetItem(ctx, sel, v[i])
+	})
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
 func (ec *executionContext) marshalNOpenSearchUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchUpdatedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *opensearch.OpenSearchUpdatedActivityLogEntryData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -4530,6 +4861,21 @@ func (ec *executionContext) unmarshalOOpenSearchAccessOrder2ᚖgithubᚗcomᚋna
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) marshalOOpenSearchFacets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchFacets(ctx context.Context, sel ast.SelectionSet, v *opensearch.OpenSearchFacets) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._OpenSearchFacets(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOOpenSearchFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchFilter(ctx context.Context, v any) (*opensearch.OpenSearchFilter, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputOpenSearchFilter(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalOOpenSearchHTTPInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchHTTPInput(ctx context.Context, v any) (*opensearch.OpenSearchHTTPInput, error) {
 	if v == nil {
 		return nil, nil
@@ -4560,6 +4906,43 @@ func (ec *executionContext) unmarshalOOpenSearchShardIndexingPressureInput2ᚖgi
 	}
 	res, err := ec.unmarshalInputOpenSearchShardIndexingPressureInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOOpenSearchTier2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchTierᚄ(ctx context.Context, v any) ([]opensearch.OpenSearchTier, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []any
+	vSlice = graphql.CoerceList(v)
+	var err error
+	res := make([]opensearch.OpenSearchTier, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNOpenSearchTier2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchTier(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalOOpenSearchTier2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchTierᚄ(ctx context.Context, sel ast.SelectionSet, v []opensearch.OpenSearchTier) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNOpenSearchTier2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchTier(ctx, sel, v[i])
+	})
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 // endregion ***************************** type.gotpl *****************************

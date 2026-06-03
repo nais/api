@@ -276,7 +276,7 @@ type ActivityLogFacets {
 	"""
 	Distribution of entries by environment.
 	"""
-	environments: [ActivityLogEnvironmentFacetItem!]!
+	environments: [StringFacetItem!]!
 }
 
 """
@@ -302,21 +302,6 @@ type ActivityLogResourceTypeFacetItem {
 	The resource type.
 	"""
 	resourceType: ActivityLogEntryResourceType!
-
-	"""
-	Number of matching entries.
-	"""
-	count: Int!
-}
-
-"""
-A single facet item for environments.
-"""
-type ActivityLogEnvironmentFacetItem {
-	"""
-	The environment name.
-	"""
-	environmentName: String!
 
 	"""
 	Number of matching entries.

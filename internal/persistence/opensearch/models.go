@@ -30,11 +30,28 @@ import (
 )
 
 type (
-	OpenSearchConnection       = pagination.Connection[*OpenSearch]
 	OpenSearchEdge             = pagination.Edge[*OpenSearch]
 	OpenSearchAccessConnection = pagination.Connection[*OpenSearchAccess]
 	OpenSearchAccessEdge       = pagination.Edge[*OpenSearchAccess]
 )
+
+type OpenSearchFilter struct {
+	Name         string           `json:"name"`
+	Environments []string         `json:"environments"`
+	Tiers        []OpenSearchTier `json:"tiers"`
+}
+
+type OpenSearchConnection = pagination.FacetableConnection[*OpenSearch, *OpenSearchFilter]
+
+type OpenSearchFacets struct {
+	Environments []model.StringFacetItem   `json:"environments"`
+	Tiers        []OpenSearchTierFacetItem `json:"tiers"`
+}
+
+type OpenSearchTierFacetItem struct {
+	Tier  OpenSearchTier `json:"tier"`
+	Count int            `json:"count"`
+}
 
 type OpenSearch struct {
 	Name                  string                          `json:"name"`

@@ -196,10 +196,10 @@ func NewComplexityRoot() ComplexityRoot {
 	c.Team.Applications = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *application.ApplicationOrder, filter *application.TeamApplicationsFilter) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
-	c.Team.BigQueryDatasets = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bigquery.BigQueryDatasetOrder) int {
+	c.Team.BigQueryDatasets = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bigquery.BigQueryDatasetOrder, filter *bigquery.BigQueryDatasetFilter) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
-	c.Team.Buckets = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bucket.BucketOrder) int {
+	c.Team.Buckets = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bucket.BucketOrder, filter *bucket.BucketFilter) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.Team.Configs = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *config.ConfigOrder, filter *config.ConfigFilter) int {
@@ -214,16 +214,16 @@ func NewComplexityRoot() ComplexityRoot {
 	c.Team.Jobs = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *job.JobOrder, filter *job.TeamJobsFilter) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
-	c.Team.KafkaTopics = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *kafkatopic.KafkaTopicOrder) int {
+	c.Team.KafkaTopics = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *kafkatopic.KafkaTopicOrder, filter *kafkatopic.KafkaTopicFilter) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.Team.Members = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.TeamMemberOrder) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
-	c.Team.OpenSearches = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *opensearch.OpenSearchOrder) int {
+	c.Team.OpenSearches = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *opensearch.OpenSearchOrder, filter *opensearch.OpenSearchFilter) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
-	c.Team.PostgresInstances = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *postgres.PostgresInstanceOrder) int {
+	c.Team.PostgresInstances = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *postgres.PostgresInstanceOrder, filter *postgres.PostgresInstanceFilter) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.Team.Repositories = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *repository.RepositoryOrder, filter *repository.TeamRepositoryFilter) int {
@@ -238,7 +238,7 @@ func NewComplexityRoot() ComplexityRoot {
 	c.Team.ServiceAccounts = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
-	c.Team.Valkeys = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *valkey.ValkeyOrder) int {
+	c.Team.Valkeys = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *valkey.ValkeyOrder, filter *valkey.ValkeyFilter) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.Team.VulnerabilitySummaries = func(childComplexity int, filter *vulnerability.TeamVulnerabilitySummaryFilter, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *vulnerability.VulnerabilitySummaryOrder) int {

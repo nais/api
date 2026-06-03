@@ -15,9 +15,9 @@ import (
 	"github.com/nais/api/internal/workload/job"
 )
 
-func (r *applicationResolver) BigQueryDatasets(ctx context.Context, obj *application.Application, orderBy *bigquery.BigQueryDatasetOrder) (*pagination.Connection[*bigquery.BigQueryDataset], error) {
+func (r *applicationResolver) BigQueryDatasets(ctx context.Context, obj *application.Application, orderBy *bigquery.BigQueryDatasetOrder) (*pagination.FacetableConnection[*bigquery.BigQueryDataset, *bigquery.BigQueryDatasetFilter], error) {
 	if obj.Spec.GCP == nil {
-		return pagination.EmptyConnection[*bigquery.BigQueryDataset](), nil
+		return pagination.NewFacetableConnection(pagination.EmptyConnection[*bigquery.BigQueryDataset](), nil, (*bigquery.BigQueryDatasetFilter)(nil)), nil
 	}
 
 	return bigquery.ListForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Spec.GCP.BigQueryDatasets, orderBy)
@@ -65,21 +65,25 @@ func (r *bigQueryDatasetResolver) Workload(ctx context.Context, obj *bigquery.Bi
 	return w, nil
 }
 
-func (r *jobResolver) BigQueryDatasets(ctx context.Context, obj *job.Job, orderBy *bigquery.BigQueryDatasetOrder) (*pagination.Connection[*bigquery.BigQueryDataset], error) {
+func (r *bigQueryDatasetConnectionResolver) Facets(ctx context.Context, obj *pagination.FacetableConnection[*bigquery.BigQueryDataset, *bigquery.BigQueryDatasetFilter]) (*bigquery.BigQueryDatasetFacets, error) {
+	return bigquery.ComputeFacets(ctx, obj.GetAllItems(), obj.GetFilter()), nil
+}
+
+func (r *jobResolver) BigQueryDatasets(ctx context.Context, obj *job.Job, orderBy *bigquery.BigQueryDatasetOrder) (*pagination.FacetableConnection[*bigquery.BigQueryDataset, *bigquery.BigQueryDatasetFilter], error) {
 	if obj.Spec.GCP == nil {
-		return pagination.EmptyConnection[*bigquery.BigQueryDataset](), nil
+		return pagination.NewFacetableConnection(pagination.EmptyConnection[*bigquery.BigQueryDataset](), nil, (*bigquery.BigQueryDatasetFilter)(nil)), nil
 	}
 
 	return bigquery.ListForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Spec.GCP.BigQueryDatasets, orderBy)
 }
 
-func (r *teamResolver) BigQueryDatasets(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bigquery.BigQueryDatasetOrder) (*pagination.Connection[*bigquery.BigQueryDataset], error) {
+func (r *teamResolver) BigQueryDatasets(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bigquery.BigQueryDatasetOrder, filter *bigquery.BigQueryDatasetFilter) (*pagination.FacetableConnection[*bigquery.BigQueryDataset, *bigquery.BigQueryDatasetFilter], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
 	}
 
-	return bigquery.ListForTeam(ctx, obj.Slug, page, orderBy)
+	return bigquery.ListForTeam(ctx, obj.Slug, page, orderBy, filter)
 }
 
 func (r *teamEnvironmentResolver) BigQueryDataset(ctx context.Context, obj *team.TeamEnvironment, name string) (*bigquery.BigQueryDataset, error) {
@@ -96,4 +100,11 @@ func (r *Resolver) BigQueryDataset() gengql.BigQueryDatasetResolver {
 	return &bigQueryDatasetResolver{r}
 }
 
-type bigQueryDatasetResolver struct{ *Resolver }
+func (r *Resolver) BigQueryDatasetConnection() gengql.BigQueryDatasetConnectionResolver {
+	return &bigQueryDatasetConnectionResolver{r}
+}
+
+type (
+	bigQueryDatasetResolver           struct{ *Resolver }
+	bigQueryDatasetConnectionResolver struct{ *Resolver }
+)

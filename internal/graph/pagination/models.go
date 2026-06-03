@@ -112,3 +112,23 @@ func NewConvertConnectionWithError[T any, F any, I Integer](nodes []T, page *Pag
 type Integer interface {
 	int64 | int32 | int | uint64
 }
+
+// FacetableConnection wraps a Connection with the full item list (before pagination) and the
+// applied filter so that facets can be computed lazily by resolvers.
+type FacetableConnection[T any, F any] struct {
+	Connection[T]
+
+	allItems []T
+	filter   F
+}
+
+func (c *FacetableConnection[T, F]) GetAllItems() []T { return c.allItems }
+func (c *FacetableConnection[T, F]) GetFilter() F     { return c.filter }
+
+func NewFacetableConnection[T any, F any](conn *Connection[T], allItems []T, filter F) *FacetableConnection[T, F] {
+	return &FacetableConnection[T, F]{
+		Connection: *conn,
+		allItems:   allItems,
+		filter:     filter,
+	}
+}

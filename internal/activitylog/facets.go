@@ -6,9 +6,9 @@ import (
 	"strings"
 
 	"github.com/nais/api/internal/activitylog/activitylogsql"
+	"github.com/nais/api/internal/graph/model"
 )
 
-// ComputeFacets computes facets for an activity log query.
 func ComputeFacets(ctx context.Context, scope *ActivityLogScope, filter *ActivityLogFilter) (*ActivityLogFacets, error) {
 	q := db(ctx)
 
@@ -79,7 +79,7 @@ func assembleFacets(activityTypeCounts map[ActivityLogActivityType]int, resource
 	facets := &ActivityLogFacets{
 		ActivityTypes: make([]ActivityLogActivityTypeFacetItem, 0, len(activityTypeCounts)),
 		ResourceTypes: make([]ActivityLogResourceTypeFacetItem, 0, len(resourceTypeCounts)),
-		Environments:  make([]ActivityLogEnvironmentFacetItem, 0, len(environmentCounts)),
+		Environments:  make([]model.StringFacetItem, 0, len(environmentCounts)),
 	}
 
 	for at, count := range activityTypeCounts {
@@ -97,9 +97,9 @@ func assembleFacets(activityTypeCounts map[ActivityLogActivityType]int, resource
 	}
 
 	for env, count := range environmentCounts {
-		facets.Environments = append(facets.Environments, ActivityLogEnvironmentFacetItem{
-			EnvironmentName: env,
-			Count:           count,
+		facets.Environments = append(facets.Environments, model.StringFacetItem{
+			Value: env,
+			Count: count,
 		})
 	}
 
@@ -112,9 +112,7 @@ func assembleFacets(activityTypeCounts map[ActivityLogActivityType]int, resource
 		return strings.Compare(string(a.ResourceType), string(b.ResourceType))
 	})
 
-	slices.SortFunc(facets.Environments, func(a, b ActivityLogEnvironmentFacetItem) int {
-		return strings.Compare(a.EnvironmentName, b.EnvironmentName)
-	})
+	model.SortStringFacetItems(facets.Environments)
 
 	return facets
 }

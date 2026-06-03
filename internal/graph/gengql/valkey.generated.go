@@ -14,6 +14,7 @@ import (
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/cost"
 	"github.com/nais/api/internal/graph/ident"
+	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/issue"
 	"github.com/nais/api/internal/persistence/valkey"
@@ -41,6 +42,9 @@ type ValkeyResolver interface {
 }
 type ValkeyAccessResolver interface {
 	Workload(ctx context.Context, obj *valkey.ValkeyAccess) (workload.Workload, error)
+}
+type ValkeyConnectionResolver interface {
+	Facets(ctx context.Context, obj *pagination.FacetableConnection[*valkey.Valkey, *valkey.ValkeyFilter]) (*valkey.ValkeyFacets, error)
 }
 
 // endregion ************************** generated!.gotpl **************************
@@ -1112,7 +1116,7 @@ func (ec *executionContext) fieldContext_ValkeyAccessEdge_node(_ context.Context
 	return fc, nil
 }
 
-func (ec *executionContext) _ValkeyConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*valkey.Valkey]) (ret graphql.Marshaler) {
+func (ec *executionContext) _ValkeyConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*valkey.Valkey, *valkey.ValkeyFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -1144,7 +1148,7 @@ func (ec *executionContext) fieldContext_ValkeyConnection_pageInfo(_ context.Con
 	return fc, nil
 }
 
-func (ec *executionContext) _ValkeyConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*valkey.Valkey]) (ret graphql.Marshaler) {
+func (ec *executionContext) _ValkeyConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*valkey.Valkey, *valkey.ValkeyFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -1176,7 +1180,7 @@ func (ec *executionContext) fieldContext_ValkeyConnection_nodes(_ context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _ValkeyConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*valkey.Valkey]) (ret graphql.Marshaler) {
+func (ec *executionContext) _ValkeyConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*valkey.Valkey, *valkey.ValkeyFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -1203,6 +1207,38 @@ func (ec *executionContext) fieldContext_ValkeyConnection_edges(_ context.Contex
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return ec.childFields_ValkeyEdge(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ValkeyConnection_facets(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*valkey.Valkey, *valkey.ValkeyFilter]) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyConnection_facets(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.ValkeyConnection().Facets(ctx, obj)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *valkey.ValkeyFacets) graphql.Marshaler {
+			return ec.marshalOValkeyFacets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyFacets(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_ValkeyConnection_facets(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ValkeyConnection",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_ValkeyFacets(ctx, field)
 		},
 	}
 	return fc, nil
@@ -1746,6 +1782,70 @@ func (ec *executionContext) fieldContext_ValkeyEdge_node(_ context.Context, fiel
 	return fc, nil
 }
 
+func (ec *executionContext) _ValkeyFacets_environments(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyFacets) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyFacets_environments(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Environments, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []model.StringFacetItem) graphql.Marshaler {
+			return ec.marshalNStringFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItemᚄ(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_ValkeyFacets_environments(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ValkeyFacets",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_StringFacetItem(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ValkeyFacets_tiers(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyFacets) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyFacets_tiers(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Tiers, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []valkey.ValkeyTierFacetItem) graphql.Marshaler {
+			return ec.marshalNValkeyTierFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyTierFacetItemᚄ(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_ValkeyFacets_tiers(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ValkeyFacets",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_ValkeyTierFacetItem(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ValkeyPersistence_disabled(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyPersistence) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -1767,6 +1867,52 @@ func (ec *executionContext) _ValkeyPersistence_disabled(ctx context.Context, fie
 }
 func (ec *executionContext) fieldContext_ValkeyPersistence_disabled(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ValkeyPersistence", field, false, false, errors.New("field of type Boolean does not have child fields"))
+}
+
+func (ec *executionContext) _ValkeyTierFacetItem_tier(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyTierFacetItem) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyTierFacetItem_tier(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Tier, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v valkey.ValkeyTier) graphql.Marshaler {
+			return ec.marshalNValkeyTier2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyTier(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_ValkeyTierFacetItem_tier(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("ValkeyTierFacetItem", field, false, false, errors.New("field of type ValkeyTier does not have child fields"))
+}
+
+func (ec *executionContext) _ValkeyTierFacetItem_count(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyTierFacetItem) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyTierFacetItem_count(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Count, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
+			return ec.marshalNInt2int(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_ValkeyTierFacetItem_count(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("ValkeyTierFacetItem", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
 func (ec *executionContext) _ValkeyUpdatedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyUpdatedActivityLogEntry) (ret graphql.Marshaler) {
@@ -2396,6 +2542,50 @@ func (ec *executionContext) unmarshalInputValkeyAccessOrder(ctx context.Context,
 				return it, err
 			}
 			it.Direction = data
+		}
+	}
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputValkeyFilter(ctx context.Context, obj any) (valkey.ValkeyFilter, error) {
+	var it valkey.ValkeyFilter
+	if obj == nil {
+		return it, nil
+	}
+
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"name", "environments", "tiers"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalOString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "environments":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environments"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Environments = data
+		case "tiers":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tiers"))
+			data, err := ec.unmarshalOValkeyTier2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyTierᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Tiers = data
 		}
 	}
 	return it, nil
@@ -3268,7 +3458,7 @@ func (ec *executionContext) _ValkeyAccessEdge(ctx context.Context, sel ast.Selec
 
 var valkeyConnectionImplementors = []string{"ValkeyConnection"}
 
-func (ec *executionContext) _ValkeyConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.Connection[*valkey.Valkey]) graphql.Marshaler {
+func (ec *executionContext) _ValkeyConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.FacetableConnection[*valkey.Valkey, *valkey.ValkeyFilter]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, valkeyConnectionImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -3280,18 +3470,51 @@ func (ec *executionContext) _ValkeyConnection(ctx context.Context, sel ast.Selec
 		case "pageInfo":
 			out.Values[i] = ec._ValkeyConnection_pageInfo(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "nodes":
 			out.Values[i] = ec._ValkeyConnection_nodes(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "edges":
 			out.Values[i] = ec._ValkeyConnection_edges(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "facets":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ValkeyConnection_facets(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3560,6 +3783,50 @@ func (ec *executionContext) _ValkeyEdge(ctx context.Context, sel ast.SelectionSe
 	return out
 }
 
+var valkeyFacetsImplementors = []string{"ValkeyFacets"}
+
+func (ec *executionContext) _ValkeyFacets(ctx context.Context, sel ast.SelectionSet, obj *valkey.ValkeyFacets) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, valkeyFacetsImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ValkeyFacets")
+		case "environments":
+			out.Values[i] = ec._ValkeyFacets_environments(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "tiers":
+			out.Values[i] = ec._ValkeyFacets_tiers(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var valkeyPersistenceImplementors = []string{"ValkeyPersistence"}
 
 func (ec *executionContext) _ValkeyPersistence(ctx context.Context, sel ast.SelectionSet, obj *valkey.ValkeyPersistence) graphql.Marshaler {
@@ -3573,6 +3840,50 @@ func (ec *executionContext) _ValkeyPersistence(ctx context.Context, sel ast.Sele
 			out.Values[i] = graphql.MarshalString("ValkeyPersistence")
 		case "disabled":
 			out.Values[i] = ec._ValkeyPersistence_disabled(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var valkeyTierFacetItemImplementors = []string{"ValkeyTierFacetItem"}
+
+func (ec *executionContext) _ValkeyTierFacetItem(ctx context.Context, sel ast.SelectionSet, obj *valkey.ValkeyTierFacetItem) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, valkeyTierFacetItemImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ValkeyTierFacetItem")
+		case "tier":
+			out.Values[i] = ec._ValkeyTierFacetItem_tier(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "count":
+			out.Values[i] = ec._ValkeyTierFacetItem_count(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -3951,11 +4262,11 @@ func (ec *executionContext) marshalNValkeyAccessOrderField2githubᚗcomᚋnais�
 	return v
 }
 
-func (ec *executionContext) marshalNValkeyConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[*valkey.Valkey]) graphql.Marshaler {
+func (ec *executionContext) marshalNValkeyConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx context.Context, sel ast.SelectionSet, v pagination.FacetableConnection[*valkey.Valkey, *valkey.ValkeyFilter]) graphql.Marshaler {
 	return ec._ValkeyConnection(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNValkeyConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*valkey.Valkey]) graphql.Marshaler {
+func (ec *executionContext) marshalNValkeyConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.FacetableConnection[*valkey.Valkey, *valkey.ValkeyFilter]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
@@ -4039,6 +4350,26 @@ func (ec *executionContext) marshalNValkeyTier2githubᚗcomᚋnaisᚋapiᚋinter
 	return v
 }
 
+func (ec *executionContext) marshalNValkeyTierFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyTierFacetItem(ctx context.Context, sel ast.SelectionSet, v valkey.ValkeyTierFacetItem) graphql.Marshaler {
+	return ec._ValkeyTierFacetItem(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNValkeyTierFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyTierFacetItemᚄ(ctx context.Context, sel ast.SelectionSet, v []valkey.ValkeyTierFacetItem) graphql.Marshaler {
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNValkeyTierFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyTierFacetItem(ctx, sel, v[i])
+	})
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
 func (ec *executionContext) marshalNValkeyUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyUpdatedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *valkey.ValkeyUpdatedActivityLogEntryData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -4083,6 +4414,21 @@ func (ec *executionContext) unmarshalOValkeyAccessOrder2ᚖgithubᚗcomᚋnais�
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) marshalOValkeyFacets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyFacets(ctx context.Context, sel ast.SelectionSet, v *valkey.ValkeyFacets) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._ValkeyFacets(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOValkeyFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyFilter(ctx context.Context, v any) (*valkey.ValkeyFilter, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputValkeyFilter(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalOValkeyMaxMemoryPolicy2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyMaxMemoryPolicy(ctx context.Context, v any) (valkey.ValkeyMaxMemoryPolicy, error) {
 	var res valkey.ValkeyMaxMemoryPolicy
 	err := res.UnmarshalGQL(v)
@@ -4123,6 +4469,43 @@ func (ec *executionContext) unmarshalOValkeyPersistenceInput2ᚖgithubᚗcomᚋn
 	}
 	res, err := ec.unmarshalInputValkeyPersistenceInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOValkeyTier2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyTierᚄ(ctx context.Context, v any) ([]valkey.ValkeyTier, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []any
+	vSlice = graphql.CoerceList(v)
+	var err error
+	res := make([]valkey.ValkeyTier, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNValkeyTier2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyTier(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalOValkeyTier2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyTierᚄ(ctx context.Context, sel ast.SelectionSet, v []valkey.ValkeyTier) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNValkeyTier2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyTier(ctx, sel, v[i])
+	})
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 // endregion ***************************** type.gotpl *****************************

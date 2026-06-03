@@ -1,0 +1,21 @@
+"""
+A shared facet item representing a boolean distribution (e.g., in-use, high availability).
+"""
+type BooleanFacetItem {
+	"The boolean value."
+	value: Boolean!
+
+	"Number of matching resources."
+	count: Int!
+}
+
+"""
+A shared facet item representing a string value distribution (e.g., pool name, version).
+"""
+type StringFacetItem {
+	"The string value."
+	value: String!
+
+	"Number of matching resources."
+	count: Int!
+}

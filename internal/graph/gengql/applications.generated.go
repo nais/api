@@ -16,6 +16,7 @@ import (
 	"github.com/nais/api/internal/cost"
 	"github.com/nais/api/internal/deployment"
 	"github.com/nais/api/internal/graph/ident"
+	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/issue"
@@ -56,9 +57,9 @@ type ApplicationResolver interface {
 	State(ctx context.Context, obj *application.Application) (application.ApplicationState, error)
 	Issues(ctx context.Context, obj *application.Application, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) (*pagination.Connection[issue.Issue], error)
 	History(ctx context.Context, obj *application.Application) ([]*instancegroup.ApplicationHistory, error)
-	BigQueryDatasets(ctx context.Context, obj *application.Application, orderBy *bigquery.BigQueryDatasetOrder) (*pagination.Connection[*bigquery.BigQueryDataset], error)
-	Buckets(ctx context.Context, obj *application.Application, orderBy *bucket.BucketOrder) (*pagination.Connection[*bucket.Bucket], error)
-	Configs(ctx context.Context, obj *application.Application, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*config.Config], error)
+	BigQueryDatasets(ctx context.Context, obj *application.Application, orderBy *bigquery.BigQueryDatasetOrder) (*pagination.FacetableConnection[*bigquery.BigQueryDataset, *bigquery.BigQueryDatasetFilter], error)
+	Buckets(ctx context.Context, obj *application.Application, orderBy *bucket.BucketOrder) (*pagination.FacetableConnection[*bucket.Bucket, *bucket.BucketFilter], error)
+	Configs(ctx context.Context, obj *application.Application, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.FacetableConnection[*config.Config, *config.ConfigFilter], error)
 	Cost(ctx context.Context, obj *application.Application) (*cost.WorkloadCost, error)
 	Deployments(ctx context.Context, obj *application.Application, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*deployment.Deployment], error)
 	InstanceGroups(ctx context.Context, obj *application.Application) ([]*instancegroup.InstanceGroup, error)
@@ -66,17 +67,17 @@ type ApplicationResolver interface {
 	LogDestinations(ctx context.Context, obj *application.Application) ([]logging.LogDestination, error)
 	NetworkPolicy(ctx context.Context, obj *application.Application) (*netpol.NetworkPolicy, error)
 	OpenSearch(ctx context.Context, obj *application.Application) (*opensearch.OpenSearch, error)
-	PostgresInstances(ctx context.Context, obj *application.Application, orderBy *postgres.PostgresInstanceOrder) (*pagination.Connection[*postgres.PostgresInstance], error)
-	Secrets(ctx context.Context, obj *application.Application, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*secret.Secret], error)
+	PostgresInstances(ctx context.Context, obj *application.Application, orderBy *postgres.PostgresInstanceOrder) (*pagination.FacetableConnection[*postgres.PostgresInstance, *postgres.PostgresInstanceFilter], error)
+	Secrets(ctx context.Context, obj *application.Application, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.FacetableConnection[*secret.Secret, *secret.SecretFilter], error)
 	ServiceAccount(ctx context.Context, obj *application.Application) (*serviceaccount.ServiceAccount, error)
 	SQLInstances(ctx context.Context, obj *application.Application, orderBy *sqlinstance.SQLInstanceOrder) (*pagination.Connection[*sqlinstance.SQLInstance], error)
 	Utilization(ctx context.Context, obj *application.Application) (*utilization.WorkloadUtilization, error)
-	Valkeys(ctx context.Context, obj *application.Application, orderBy *valkey.ValkeyOrder) (*pagination.Connection[*valkey.Valkey], error)
+	Valkeys(ctx context.Context, obj *application.Application, orderBy *valkey.ValkeyOrder) (*pagination.FacetableConnection[*valkey.Valkey, *valkey.ValkeyFilter], error)
 	ImageVulnerabilityHistory(ctx context.Context, obj *application.Application, from scalar.Date) (*vulnerability.ImageVulnerabilityHistory, error)
 	VulnerabilityFixHistory(ctx context.Context, obj *application.Application, from scalar.Date) (*vulnerability.VulnerabilityFixHistory, error)
 }
 type ApplicationConnectionResolver interface {
-	Facets(ctx context.Context, obj *application.ApplicationConnection) (*application.ApplicationFacets, error)
+	Facets(ctx context.Context, obj *pagination.FacetableConnection[*application.Application, *application.TeamApplicationsFilter]) (*application.ApplicationFacets, error)
 }
 type ApplicationInstanceResolver interface {
 	InstanceUtilization(ctx context.Context, obj *application.ApplicationInstance, resourceType utilization.UtilizationResourceType) (*utilization.ApplicationInstanceUtilization, error)
@@ -1020,8 +1021,8 @@ func (ec *executionContext) _Application_bigQueryDatasets(ctx context.Context, f
 			return ec.Resolvers.Application().BigQueryDatasets(ctx, obj, fc.Args["orderBy"].(*bigquery.BigQueryDatasetOrder))
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[*bigquery.BigQueryDataset]) graphql.Marshaler {
-			return ec.marshalNBigQueryDatasetConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *pagination.FacetableConnection[*bigquery.BigQueryDataset, *bigquery.BigQueryDatasetFilter]) graphql.Marshaler {
+			return ec.marshalNBigQueryDatasetConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, selections, v)
 		},
 		true,
 		true,
@@ -1064,8 +1065,8 @@ func (ec *executionContext) _Application_buckets(ctx context.Context, field grap
 			return ec.Resolvers.Application().Buckets(ctx, obj, fc.Args["orderBy"].(*bucket.BucketOrder))
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[*bucket.Bucket]) graphql.Marshaler {
-			return ec.marshalNBucketConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *pagination.FacetableConnection[*bucket.Bucket, *bucket.BucketFilter]) graphql.Marshaler {
+			return ec.marshalNBucketConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, selections, v)
 		},
 		true,
 		true,
@@ -1108,8 +1109,8 @@ func (ec *executionContext) _Application_configs(ctx context.Context, field grap
 			return ec.Resolvers.Application().Configs(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[*config.Config]) graphql.Marshaler {
-			return ec.marshalNConfigConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *pagination.FacetableConnection[*config.Config, *config.ConfigFilter]) graphql.Marshaler {
+			return ec.marshalNConfigConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, selections, v)
 		},
 		true,
 		true,
@@ -1400,8 +1401,8 @@ func (ec *executionContext) _Application_postgresInstances(ctx context.Context, 
 			return ec.Resolvers.Application().PostgresInstances(ctx, obj, fc.Args["orderBy"].(*postgres.PostgresInstanceOrder))
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[*postgres.PostgresInstance]) graphql.Marshaler {
-			return ec.marshalNPostgresInstanceConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *pagination.FacetableConnection[*postgres.PostgresInstance, *postgres.PostgresInstanceFilter]) graphql.Marshaler {
+			return ec.marshalNPostgresInstanceConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, selections, v)
 		},
 		true,
 		true,
@@ -1444,8 +1445,8 @@ func (ec *executionContext) _Application_secrets(ctx context.Context, field grap
 			return ec.Resolvers.Application().Secrets(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[*secret.Secret]) graphql.Marshaler {
-			return ec.marshalNSecretConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *pagination.FacetableConnection[*secret.Secret, *secret.SecretFilter]) graphql.Marshaler {
+			return ec.marshalNSecretConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, selections, v)
 		},
 		true,
 		true,
@@ -1596,8 +1597,8 @@ func (ec *executionContext) _Application_valkeys(ctx context.Context, field grap
 			return ec.Resolvers.Application().Valkeys(ctx, obj, fc.Args["orderBy"].(*valkey.ValkeyOrder))
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[*valkey.Valkey]) graphql.Marshaler {
-			return ec.marshalNValkeyConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *pagination.FacetableConnection[*valkey.Valkey, *valkey.ValkeyFilter]) graphql.Marshaler {
+			return ec.marshalNValkeyConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, selections, v)
 		},
 		true,
 		true,
@@ -1715,7 +1716,7 @@ func (ec *executionContext) fieldContext_Application_vulnerabilityFixHistory(ctx
 	return fc, nil
 }
 
-func (ec *executionContext) _ApplicationConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _ApplicationConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*application.Application, *application.TeamApplicationsFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -1747,7 +1748,7 @@ func (ec *executionContext) fieldContext_ApplicationConnection_pageInfo(_ contex
 	return fc, nil
 }
 
-func (ec *executionContext) _ApplicationConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _ApplicationConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*application.Application, *application.TeamApplicationsFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -1779,7 +1780,7 @@ func (ec *executionContext) fieldContext_ApplicationConnection_nodes(_ context.C
 	return fc, nil
 }
 
-func (ec *executionContext) _ApplicationConnection_edges(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _ApplicationConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*application.Application, *application.TeamApplicationsFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -1811,7 +1812,7 @@ func (ec *executionContext) fieldContext_ApplicationConnection_edges(_ context.C
 	return fc, nil
 }
 
-func (ec *executionContext) _ApplicationConnection_facets(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _ApplicationConnection_facets(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*application.Application, *application.TeamApplicationsFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -2298,52 +2299,6 @@ func (ec *executionContext) fieldContext_ApplicationEdge_node(_ context.Context,
 	return fc, nil
 }
 
-func (ec *executionContext) _ApplicationEnvironmentFacetItem_environmentName(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationEnvironmentFacetItem) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ApplicationEnvironmentFacetItem_environmentName(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return obj.EnvironmentName, nil
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_ApplicationEnvironmentFacetItem_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("ApplicationEnvironmentFacetItem", field, false, false, errors.New("field of type String does not have child fields"))
-}
-
-func (ec *executionContext) _ApplicationEnvironmentFacetItem_count(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationEnvironmentFacetItem) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ApplicationEnvironmentFacetItem_count(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return obj.Count, nil
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
-			return ec.marshalNInt2int(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_ApplicationEnvironmentFacetItem_count(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("ApplicationEnvironmentFacetItem", field, false, false, errors.New("field of type Int does not have child fields"))
-}
-
 func (ec *executionContext) _ApplicationFacets_environments(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationFacets) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -2356,8 +2311,8 @@ func (ec *executionContext) _ApplicationFacets_environments(ctx context.Context,
 			return obj.Environments, nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v []application.ApplicationEnvironmentFacetItem) graphql.Marshaler {
-			return ec.marshalNApplicationEnvironmentFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplicationEnvironmentFacetItemᚄ(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v []model.StringFacetItem) graphql.Marshaler {
+			return ec.marshalNStringFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItemᚄ(ctx, selections, v)
 		},
 		true,
 		true,
@@ -2370,7 +2325,7 @@ func (ec *executionContext) fieldContext_ApplicationFacets_environments(_ contex
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_ApplicationEnvironmentFacetItem(ctx, field)
+			return ec.childFields_StringFacetItem(ctx, field)
 		},
 	}
 	return fc, nil
@@ -5880,7 +5835,7 @@ func (ec *executionContext) _Application(ctx context.Context, sel ast.SelectionS
 
 var applicationConnectionImplementors = []string{"ApplicationConnection"}
 
-func (ec *executionContext) _ApplicationConnection(ctx context.Context, sel ast.SelectionSet, obj *application.ApplicationConnection) graphql.Marshaler {
+func (ec *executionContext) _ApplicationConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.FacetableConnection[*application.Application, *application.TeamApplicationsFilter]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, applicationConnectionImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -6125,50 +6080,6 @@ func (ec *executionContext) _ApplicationEdge(ctx context.Context, sel ast.Select
 			}
 		case "node":
 			out.Values[i] = ec._ApplicationEdge_node(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
-
-	for label, dfs := range deferred {
-		ec.ProcessDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var applicationEnvironmentFacetItemImplementors = []string{"ApplicationEnvironmentFacetItem"}
-
-func (ec *executionContext) _ApplicationEnvironmentFacetItem(ctx context.Context, sel ast.SelectionSet, obj *application.ApplicationEnvironmentFacetItem) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, applicationEnvironmentFacetItemImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("ApplicationEnvironmentFacetItem")
-		case "environmentName":
-			out.Values[i] = ec._ApplicationEnvironmentFacetItem_environmentName(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "count":
-			out.Values[i] = ec._ApplicationEnvironmentFacetItem_count(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -7722,11 +7633,11 @@ func (ec *executionContext) marshalNApplicationAuthIntegrations2ᚕgithubᚗcom�
 	return ret
 }
 
-func (ec *executionContext) marshalNApplicationConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplicationConnection(ctx context.Context, sel ast.SelectionSet, v application.ApplicationConnection) graphql.Marshaler {
+func (ec *executionContext) marshalNApplicationConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx context.Context, sel ast.SelectionSet, v pagination.FacetableConnection[*application.Application, *application.TeamApplicationsFilter]) graphql.Marshaler {
 	return ec._ApplicationConnection(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNApplicationConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplicationConnection(ctx context.Context, sel ast.SelectionSet, v *application.ApplicationConnection) graphql.Marshaler {
+func (ec *executionContext) marshalNApplicationConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.FacetableConnection[*application.Application, *application.TeamApplicationsFilter]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
@@ -7745,26 +7656,6 @@ func (ec *executionContext) marshalNApplicationEdge2ᚕgithubᚗcomᚋnaisᚋapi
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
 		return ec.marshalNApplicationEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
-	})
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
-func (ec *executionContext) marshalNApplicationEnvironmentFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplicationEnvironmentFacetItem(ctx context.Context, sel ast.SelectionSet, v application.ApplicationEnvironmentFacetItem) graphql.Marshaler {
-	return ec._ApplicationEnvironmentFacetItem(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNApplicationEnvironmentFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplicationEnvironmentFacetItemᚄ(ctx context.Context, sel ast.SelectionSet, v []application.ApplicationEnvironmentFacetItem) graphql.Marshaler {
-	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
-		fc := graphql.GetFieldContext(ctx)
-		fc.Result = &v[i]
-		return ec.marshalNApplicationEnvironmentFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplicationEnvironmentFacetItem(ctx, sel, v[i])
 	})
 
 	for _, e := range ret {

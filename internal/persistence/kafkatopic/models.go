@@ -16,11 +16,23 @@ import (
 )
 
 type (
-	KafkaTopicConnection    = pagination.Connection[*KafkaTopic]
 	KafkaTopicEdge          = pagination.Edge[*KafkaTopic]
 	KafkaTopicACLConnection = pagination.Connection[*KafkaTopicACL]
 	KafkaTopicACLEdge       = pagination.Edge[*KafkaTopicACL]
 )
+
+type KafkaTopicConnection = pagination.FacetableConnection[*KafkaTopic, *KafkaTopicFilter]
+
+type KafkaTopicFacets struct {
+	Environments []model.StringFacetItem `json:"environments"`
+	Pools        []model.StringFacetItem `json:"pools"`
+}
+
+type KafkaTopicFilter struct {
+	Name         string   `json:"name"`
+	Environments []string `json:"environments"`
+	Pools        []string `json:"pools"`
+}
 
 type KafkaTopic struct {
 	Name            string                   `json:"name"`

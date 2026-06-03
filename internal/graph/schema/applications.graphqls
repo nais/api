@@ -448,27 +448,12 @@ type ApplicationFacets {
 	"""
 	Distribution of applications by environment.
 	"""
-	environments: [ApplicationEnvironmentFacetItem!]!
+	environments: [StringFacetItem!]!
 
 	"""
 	Distribution of applications by state.
 	"""
 	states: [ApplicationStateFacetItem!]!
-}
-
-"""
-A single facet item for environments.
-"""
-type ApplicationEnvironmentFacetItem {
-	"""
-	The environment name.
-	"""
-	environmentName: String!
-
-	"""
-	Number of matching applications.
-	"""
-	count: Int!
 }
 
 """
