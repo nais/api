@@ -300,6 +300,84 @@ Test.gql("Create opensearch with out-of-range query bool max clause count", func
 	}
 end)
 
+Test.gql("Create opensearch with invalid max content length", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[
+		mutation CreateOpenSearch {
+		  createOpenSearch(
+		    input: {
+		      name: "foobar"
+		      environmentName: "dev"
+		      teamSlug: "someteamname"
+		      tier: HIGH_AVAILABILITY
+		      memory: GB_4
+		      version: V2
+		      storageGB: 240
+		      http: { maxContentLength: "not-a-quantity" }
+		    }
+		  ) {
+		    openSearch {
+		      name
+		    }
+		  }
+		}
+	]]
+
+	t.check {
+		errors = {
+			{
+				extensions = {
+					field = "maxContentLength",
+				},
+				message = "Max content length must be a valid quantity (e.g. \"100Mi\", \"1Gi\").",
+				path = {
+					"createOpenSearch",
+				},
+			},
+		},
+		data = Null,
+	}
+end)
+
+Test.gql("Create opensearch with out-of-range max content length", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[
+		mutation CreateOpenSearch {
+		  createOpenSearch(
+		    input: {
+		      name: "foobar"
+		      environmentName: "dev"
+		      teamSlug: "someteamname"
+		      tier: HIGH_AVAILABILITY
+		      memory: GB_4
+		      version: V2
+		      storageGB: 240
+		      http: { maxContentLength: "4Gi" }
+		    }
+		  ) {
+		    openSearch {
+		      name
+		    }
+		  }
+		}
+	]]
+
+	t.check {
+		errors = {
+			{
+				extensions = {
+					field = "maxContentLength",
+				},
+				message = "Max content length must be between 1 byte and 2147483647 bytes (around 2047Mi).",
+				path = {
+					"createOpenSearch",
+				},
+			},
+		},
+		data = Null,
+	}
+end)
+
 Test.k8s("Validate OpenSearch resource", function(t)
 	t.check("nais.io/v1", "opensearches", "dev", mainTeam:slug(), "foobar", {
 		apiVersion = "nais.io/v1",
@@ -470,6 +548,7 @@ Test.gql("Update OpenSearch as team-member", function(t)
 		      storageGB: 1020
 		      shardIndexingPressure: { enabled: true, enforced: true }
 		      indices: { queryBoolMaxClauseCount: 2048 }
+		      http: { maxContentLength: "100Mi" }
 		    }
 		  ) {
 		    openSearch {
@@ -480,6 +559,9 @@ Test.gql("Update OpenSearch as team-member", function(t)
 		      }
 		      indices {
 		        queryBoolMaxClauseCount
+		      }
+		      http {
+		        maxContentLength
 		      }
 		    }
 		  }
@@ -497,6 +579,9 @@ Test.gql("Update OpenSearch as team-member", function(t)
 					},
 					indices = {
 						queryBoolMaxClauseCount = 2048,
+					},
+					http = {
+						maxContentLength = "100Mi",
 					},
 				},
 			},
@@ -533,6 +618,9 @@ Test.k8s("Validate OpenSearch resource after update", function(t)
 				-- TODO: more precise assertion?
 				queryBoolMaxClauseCount = NotNull(),
 			},
+			http = {
+				maxContentLength = "100Mi",
+			},
 		},
 	})
 end)
@@ -554,6 +642,9 @@ Test.gql("List opensearches for team", function(t)
 		        }
 		        indices {
 		          queryBoolMaxClauseCount
+		        }
+		        http {
+		          maxContentLength
 		        }
 		      }
 		    }
@@ -577,6 +668,9 @@ Test.gql("List opensearches for team", function(t)
 							indices = {
 								queryBoolMaxClauseCount = 2048,
 							},
+							http = {
+								maxContentLength = "100Mi",
+							},
 						},
 						{
 							name = "foobar-hobbyist",
@@ -588,6 +682,9 @@ Test.gql("List opensearches for team", function(t)
 							},
 							indices = {
 								queryBoolMaxClauseCount = Null,
+							},
+							http = {
+								maxContentLength = Null,
 							},
 						},
 						{
@@ -601,6 +698,9 @@ Test.gql("List opensearches for team", function(t)
 							indices = {
 								queryBoolMaxClauseCount = Null,
 							},
+							http = {
+								maxContentLength = Null,
+							},
 						},
 						{
 							name = "opensearch-someteamname-hobbyist-not-managed",
@@ -613,6 +713,9 @@ Test.gql("List opensearches for team", function(t)
 							indices = {
 								queryBoolMaxClauseCount = Null,
 							},
+							http = {
+								maxContentLength = Null,
+							},
 						},
 						{
 							name = "opensearch-someteamname-not-managed",
@@ -624,6 +727,9 @@ Test.gql("List opensearches for team", function(t)
 							},
 							indices = {
 								queryBoolMaxClauseCount = 512,
+							},
+							http = {
+								maxContentLength = "200Mi",
 							},
 						},
 					},
@@ -766,6 +872,9 @@ Test.k8s("Validate hobbyist OpenSearch resource after update", function(t)
 			indices = {
 				-- TODO: more precise assertion?
 				queryBoolMaxClauseCount = NotNull(),
+			},
+			http = {
+				maxContentLength = "100Mi",
 			},
 		},
 	})
@@ -1050,6 +1159,11 @@ Test.gql("Verify activity log for opensearch operations", function(t)
 										field = "indices.queryBoolMaxClauseCount",
 										oldValue = Null,
 										newValue = "2048",
+									},
+									{
+										field = "http.maxContentLength",
+										oldValue = Null,
+										newValue = "100Mi",
 									},
 								},
 							},

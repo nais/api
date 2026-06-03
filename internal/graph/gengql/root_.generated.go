@@ -1645,6 +1645,7 @@ type ComplexityRoot struct {
 		Access                func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *opensearch.OpenSearchAccessOrder) int
 		ActivityLog           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int
 		Cost                  func(childComplexity int) int
+		HTTP                  func(childComplexity int) int
 		ID                    func(childComplexity int) int
 		Indices               func(childComplexity int) int
 		Issues                func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) int
@@ -1746,6 +1747,10 @@ type ComplexityRoot struct {
 		Environments func(childComplexity int) int
 		Labels       func(childComplexity int) int
 		Tiers        func(childComplexity int) int
+	}
+
+	OpenSearchHTTP struct {
+		MaxContentLength func(childComplexity int) int
 	}
 
 	OpenSearchIndices struct {
@@ -10339,6 +10344,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.OpenSearch.Cost(childComplexity), true
 
+	case "OpenSearch.http":
+		if e.ComplexityRoot.OpenSearch.HTTP == nil {
+			break
+		}
+
+		return e.ComplexityRoot.OpenSearch.HTTP(childComplexity), true
+
 	case "OpenSearch.id":
 		if e.ComplexityRoot.OpenSearch.ID == nil {
 			break
@@ -10798,6 +10810,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.OpenSearchFacets.Tiers(childComplexity), true
+
+	case "OpenSearchHTTP.maxContentLength":
+		if e.ComplexityRoot.OpenSearchHTTP.MaxContentLength == nil {
+			break
+		}
+
+		return e.ComplexityRoot.OpenSearchHTTP.MaxContentLength(childComplexity), true
 
 	case "OpenSearchIndices.queryBoolMaxClauseCount":
 		if e.ComplexityRoot.OpenSearchIndices.QueryBoolMaxClauseCount == nil {
@@ -19811,6 +19830,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputMetricsRangeInput,
 		ec.unmarshalInputOpenSearchAccessOrder,
 		ec.unmarshalInputOpenSearchFilter,
+		ec.unmarshalInputOpenSearchHTTPInput,
 		ec.unmarshalInputOpenSearchIndicesInput,
 		ec.unmarshalInputOpenSearchOrder,
 		ec.unmarshalInputOpenSearchShardIndexingPressureInput,
@@ -25624,6 +25644,8 @@ type OpenSearch implements Persistence & Node {
 	shardIndexingPressure: OpenSearchShardIndexingPressure!
 	"Index settings for the OpenSearch instance."
 	indices: OpenSearchIndices!
+	"HTTP settings for the OpenSearch instance."
+	http: OpenSearchHTTP!
 	"Issues that affects the instance."
 	issues(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
@@ -25688,6 +25710,16 @@ type OpenSearchIndices {
 input OpenSearchIndicesInput {
 	"Maximum number of clauses a Lucene BooleanQuery can contain. Must be between 64 and 4096. When not set, the instance uses the default of 1024."
 	queryBoolMaxClauseCount: Int
+}
+
+type OpenSearchHTTP {
+	"Maximum content length, in a human-readable quantity (e.g. \"100Mi\", \"1Gi\"), for requests to the OpenSearch HTTP API. When not set, the instance uses the default of 100Mi."
+	maxContentLength: String
+}
+
+input OpenSearchHTTPInput {
+	"Maximum content length for requests to the OpenSearch HTTP API. Specified as a human-readable quantity (e.g. \"100Mi\", \"1Gi\"); unitless values are interpreted as bytes. Must be between 1 byte and 2147483647 bytes (around 2047Mi). When not set, the instance uses the default of 100Mi."
+	maxContentLength: String
 }
 
 type OpenSearchAccess {
@@ -25838,6 +25870,8 @@ input CreateOpenSearchInput {
 	shardIndexingPressure: OpenSearchShardIndexingPressureInput
 	"Index settings for the OpenSearch instance."
 	indices: OpenSearchIndicesInput
+	"HTTP settings for the OpenSearch instance."
+	http: OpenSearchHTTPInput
 }
 
 type CreateOpenSearchPayload {
@@ -25866,6 +25900,8 @@ input UpdateOpenSearchInput {
 	shardIndexingPressure: OpenSearchShardIndexingPressureInput
 	"Index settings for the OpenSearch instance."
 	indices: OpenSearchIndicesInput
+	"HTTP settings for the OpenSearch instance."
+	http: OpenSearchHTTPInput
 }
 
 type UpdateOpenSearchPayload {
@@ -35850,6 +35886,8 @@ func (ec *executionContext) childFields_OpenSearch(ctx context.Context, field gr
 		return ec.fieldContext_OpenSearch_shardIndexingPressure(ctx, field)
 	case "indices":
 		return ec.fieldContext_OpenSearch_indices(ctx, field)
+	case "http":
+		return ec.fieldContext_OpenSearch_http(ctx, field)
 	case "issues":
 		return ec.fieldContext_OpenSearch_issues(ctx, field)
 	case "activityLog":
@@ -35962,6 +36000,14 @@ func (ec *executionContext) childFields_OpenSearchFacets(ctx context.Context, fi
 		return ec.fieldContext_OpenSearchFacets_labels(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type OpenSearchFacets", field.Name)
+}
+
+func (ec *executionContext) childFields_OpenSearchHTTP(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "maxContentLength":
+		return ec.fieldContext_OpenSearchHTTP_maxContentLength(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type OpenSearchHTTP", field.Name)
 }
 
 func (ec *executionContext) childFields_OpenSearchIndices(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
