@@ -67,6 +67,7 @@ type OpenSearch struct {
 	StorageGB             StorageGB                       `json:"storageGB"`
 	ShardIndexingPressure OpenSearchShardIndexingPressure `json:"shardIndexingPressure"`
 	Labels                []*model.ResourceLabel          `json:"labels"`
+	Indices               OpenSearchIndices               `json:"indices"`
 	TeamSlug              slug.Slug                       `json:"-"`
 	EnvironmentName       string                          `json:"-"`
 	WorkloadReference     *workload.Reference             `json:"-"`
@@ -118,6 +119,14 @@ type OpenSearchShardIndexingPressure struct {
 type OpenSearchShardIndexingPressureInput struct {
 	Enabled  bool `json:"enabled"`
 	Enforced bool `json:"enforced"`
+}
+
+type OpenSearchIndices struct {
+	QueryBoolMaxClauseCount *int `json:"queryBoolMaxClauseCount,omitempty"`
+}
+
+type OpenSearchIndicesInput struct {
+	QueryBoolMaxClauseCount *int `json:"queryBoolMaxClauseCount,omitempty"`
 }
 
 type OpenSearchStatus struct {
@@ -237,6 +246,12 @@ func toOpenSearch(u *unstructured.Unstructured, envName string) (*OpenSearch, er
 	shardIndexingPressureEnabled, _, _ := unstructured.NestedBool(u.Object, specShardIndexingPressureEnabled...)
 	shardIndexingPressureEnforced, _, _ := unstructured.NestedBool(u.Object, specShardIndexingPressureEnforced...)
 
+	indices := OpenSearchIndices{}
+	if v, found, _ := unstructured.NestedNumberAsFloat64(u.Object, specIndicesQueryBoolMaxClauseCount...); found {
+		n := int(v)
+		indices.QueryBoolMaxClauseCount = &n
+	}
+
 	return &OpenSearch{
 		Name:                  name,
 		EnvironmentName:       envName,
@@ -257,6 +272,7 @@ func toOpenSearch(u *unstructured.Unstructured, envName string) (*OpenSearch, er
 			Enabled:  shardIndexingPressureEnabled,
 			Enforced: shardIndexingPressureEnforced,
 		},
+		Indices: indices,
 	}, nil
 }
 
@@ -267,6 +283,11 @@ func toOpenSearchFromNais(o *naiscrd.OpenSearch, envName string) (*OpenSearch, e
 	if o.Spec.ShardIndexingPressure != nil {
 		shardIndexingPressure.Enabled = o.Spec.ShardIndexingPressure.Enabled
 		shardIndexingPressure.Enforced = o.Spec.ShardIndexingPressure.Enforced
+	}
+
+	indices := OpenSearchIndices{}
+	if o.Spec.Indices != nil {
+		indices.QueryBoolMaxClauseCount = o.Spec.Indices.QueryBoolMaxClauseCount
 	}
 
 	return &OpenSearch{
@@ -280,6 +301,7 @@ func toOpenSearchFromNais(o *naiscrd.OpenSearch, envName string) (*OpenSearch, e
 		MajorVersion:          majorVersion,
 		StorageGB:             StorageGB(o.Spec.StorageGB),
 		ShardIndexingPressure: shardIndexingPressure,
+		Indices:               indices,
 	}, nil
 }
 
@@ -325,6 +347,7 @@ type OpenSearchInput struct {
 	Version               OpenSearchMajorVersion                `json:"version"`
 	StorageGB             StorageGB                             `json:"storageGB"`
 	ShardIndexingPressure *OpenSearchShardIndexingPressureInput `json:"shardIndexingPressure,omitempty"`
+	Indices               *OpenSearchIndicesInput               `json:"indices,omitempty"`
 }
 
 func (o *OpenSearchInput) Validate(ctx context.Context) error {
@@ -342,6 +365,12 @@ func (o *OpenSearchInput) ValidationErrors(ctx context.Context) *validate.Valida
 	}
 	if !o.Version.IsValid() {
 		verr.Add("version", "Invalid OpenSearch version: %s.", o.Version.String())
+	}
+
+	if o.Indices != nil && o.Indices.QueryBoolMaxClauseCount != nil {
+		if c := *o.Indices.QueryBoolMaxClauseCount; c < 64 || c > 4096 {
+			verr.Add("queryBoolMaxClauseCount", "Query bool max clause count must be between 64 and 4096.")
+		}
 	}
 
 	machine, err := machineTypeFromTierAndMemory(o.Tier, o.Memory)
