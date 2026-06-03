@@ -36,6 +36,10 @@ spec:
   terminationProtection: true
   userConfig:
     opensearch_version: "2"
+    opensearch:
+      shard_indexing_pressure:
+        enabled: true
+        enforced: true
 status:
   conditions:
     - lastTransitionTime: "2023-11-08T10:36:06Z"

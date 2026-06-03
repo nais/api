@@ -30,6 +30,9 @@ var (
 	specDiskSpace             = []string{"spec", "disk_space"}
 	specTerminationProtection = []string{"spec", "terminationProtection"}
 	specOpenSearchVersion     = []string{"spec", "userConfig", "opensearch_version"}
+
+	specShardIndexingPressureEnabled  = []string{"spec", "userConfig", "opensearch", "shard_indexing_pressure", "enabled"}
+	specShardIndexingPressureEnforced = []string{"spec", "userConfig", "opensearch", "shard_indexing_pressure", "enforced"}
 )
 
 func GetByIdent(ctx context.Context, id ident.Ident) (*OpenSearch, error) {
@@ -209,6 +212,13 @@ func Create(ctx context.Context, input CreateOpenSearchInput) (*CreateOpenSearch
 	res.SetAnnotations(kubernetes.WithCommonAnnotations(nil, authz.ActorFromContext(ctx).User.Identity()))
 	kubernetes.SetManagedByConsoleLabel(res)
 
+	if input.ShardIndexingPressure != nil {
+		res.Spec.ShardIndexingPressure = &naiscrd.OpenSearchShardIndexingPressure{
+			Enabled:  input.ShardIndexingPressure.Enabled,
+			Enforced: input.ShardIndexingPressure.Enforced,
+		}
+	}
+
 	obj, err := kubernetes.ToUnstructured(res)
 	if err != nil {
 		return nil, err
@@ -269,6 +279,7 @@ func Update(ctx context.Context, input UpdateOpenSearchInput) (*UpdateOpenSearch
 		updateMemory,
 		updateVersion,
 		updateStorage,
+		updateShardIndexingPressure,
 	}
 
 	for _, f := range updateFuncs {
@@ -504,6 +515,46 @@ func formatUserLabels(labels []*model.ResourceLabel) string {
 		parts = append(parts, l.Key+"="+l.Value)
 	}
 	return strings.Join(parts, ", ")
+}
+
+func updateShardIndexingPressure(openSearch *naiscrd.OpenSearch, input UpdateOpenSearchInput) ([]*OpenSearchUpdatedActivityLogEntryDataUpdatedField, error) {
+	if input.ShardIndexingPressure == nil {
+		return nil, nil
+	}
+
+	var oldEnabled, oldEnforced bool
+	if openSearch.Spec.ShardIndexingPressure != nil {
+		oldEnabled = openSearch.Spec.ShardIndexingPressure.Enabled
+		oldEnforced = openSearch.Spec.ShardIndexingPressure.Enforced
+	}
+
+	changes := make([]*OpenSearchUpdatedActivityLogEntryDataUpdatedField, 0)
+
+	if oldEnabled != input.ShardIndexingPressure.Enabled {
+		changes = append(changes, &OpenSearchUpdatedActivityLogEntryDataUpdatedField{
+			Field:    "shardIndexingPressure.enabled",
+			OldValue: new(strconv.FormatBool(oldEnabled)),
+			NewValue: new(strconv.FormatBool(input.ShardIndexingPressure.Enabled)),
+		})
+	}
+	if oldEnforced != input.ShardIndexingPressure.Enforced {
+		changes = append(changes, &OpenSearchUpdatedActivityLogEntryDataUpdatedField{
+			Field:    "shardIndexingPressure.enforced",
+			OldValue: new(strconv.FormatBool(oldEnforced)),
+			NewValue: new(strconv.FormatBool(input.ShardIndexingPressure.Enforced)),
+		})
+	}
+
+	if len(changes) == 0 {
+		return nil, nil
+	}
+
+	openSearch.Spec.ShardIndexingPressure = &naiscrd.OpenSearchShardIndexingPressure{
+		Enabled:  input.ShardIndexingPressure.Enabled,
+		Enforced: input.ShardIndexingPressure.Enforced,
+	}
+
+	return changes, nil
 }
 
 func Delete(ctx context.Context, input DeleteOpenSearchInput) (*DeleteOpenSearchPayload, error) {

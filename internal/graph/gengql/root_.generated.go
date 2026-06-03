@@ -1650,6 +1650,7 @@ type ComplexityRoot struct {
 		Maintenance           func(childComplexity int) int
 		Memory                func(childComplexity int) int
 		Name                  func(childComplexity int) int
+		ShardIndexingPressure func(childComplexity int) int
 		State                 func(childComplexity int) int
 		StorageGB             func(childComplexity int) int
 		Team                  func(childComplexity int) int
@@ -1775,6 +1776,11 @@ type ComplexityRoot struct {
 	OpenSearchMaintenanceUpdateEdge struct {
 		Cursor func(childComplexity int) int
 		Node   func(childComplexity int) int
+	}
+
+	OpenSearchShardIndexingPressure struct {
+		Enabled  func(childComplexity int) int
+		Enforced func(childComplexity int) int
 	}
 
 	OpenSearchTierFacetItem struct {
@@ -10358,6 +10364,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.OpenSearch.Name(childComplexity), true
 
+	case "OpenSearch.shardIndexingPressure":
+		if e.ComplexityRoot.OpenSearch.ShardIndexingPressure == nil {
+			break
+		}
+
+		return e.ComplexityRoot.OpenSearch.ShardIndexingPressure(childComplexity), true
+
 	case "OpenSearch.state":
 		if e.ComplexityRoot.OpenSearch.State == nil {
 			break
@@ -10880,6 +10893,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.OpenSearchMaintenanceUpdateEdge.Node(childComplexity), true
+
+	case "OpenSearchShardIndexingPressure.enabled":
+		if e.ComplexityRoot.OpenSearchShardIndexingPressure.Enabled == nil {
+			break
+		}
+
+		return e.ComplexityRoot.OpenSearchShardIndexingPressure.Enabled(childComplexity), true
+
+	case "OpenSearchShardIndexingPressure.enforced":
+		if e.ComplexityRoot.OpenSearchShardIndexingPressure.Enforced == nil {
+			break
+		}
+
+		return e.ComplexityRoot.OpenSearchShardIndexingPressure.Enforced(childComplexity), true
 
 	case "OpenSearchTierFacetItem.count":
 		if e.ComplexityRoot.OpenSearchTierFacetItem.Count == nil {
@@ -19741,6 +19768,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputOpenSearchAccessOrder,
 		ec.unmarshalInputOpenSearchFilter,
 		ec.unmarshalInputOpenSearchOrder,
+		ec.unmarshalInputOpenSearchShardIndexingPressureInput,
 		ec.unmarshalInputPostgresInstanceFilter,
 		ec.unmarshalInputPostgresInstanceOrder,
 		ec.unmarshalInputReconcilerConfigInput,
@@ -25503,6 +25531,8 @@ type OpenSearch implements Persistence & Node {
 	storageGB: Int!
 	"User-defined labels attached to the instance."
 	labels: [ResourceLabel!]!
+	"Shard indexing back pressure settings for the OpenSearch instance."
+	shardIndexingPressure: OpenSearchShardIndexingPressure!
 	"Issues that affects the instance."
 	issues(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
@@ -25543,6 +25573,20 @@ enum OpenSearchState {
 	REBUILDING
 	RUNNING
 	UNKNOWN
+}
+
+type OpenSearchShardIndexingPressure {
+	"Whether shard indexing back pressure is enabled."
+	enabled: Boolean!
+	"Whether back pressure runs in enforced mode. In enforced mode requests that may degrade cluster performance are rejected; in shadow mode (enforced false) metrics are tracked but no requests are rejected."
+	enforced: Boolean!
+}
+
+input OpenSearchShardIndexingPressureInput {
+	"Enable or disable shard indexing back pressure. Defaults to false."
+	enabled: Boolean!
+	"Run back pressure in enforced mode. Defaults to false (shadow mode)."
+	enforced: Boolean!
 }
 
 type OpenSearchAccess {
@@ -25689,6 +25733,8 @@ input CreateOpenSearchInput {
 	version: OpenSearchMajorVersion!
 	"Available storage in GB."
 	storageGB: Int!
+	"Shard indexing back pressure settings. Defaults to disabled."
+	shardIndexingPressure: OpenSearchShardIndexingPressureInput
 }
 
 type CreateOpenSearchPayload {
@@ -25713,6 +25759,8 @@ input UpdateOpenSearchInput {
 	storageGB: Int!
 	"User-defined labels for the instance. When provided, replaces all existing user-defined labels. When omitted, labels are left unchanged."
 	labels: [ResourceLabelInput!]
+	"Shard indexing back pressure settings. Defaults to disabled."
+	shardIndexingPressure: OpenSearchShardIndexingPressureInput
 }
 
 type UpdateOpenSearchPayload {
@@ -35693,6 +35741,8 @@ func (ec *executionContext) childFields_OpenSearch(ctx context.Context, field gr
 		return ec.fieldContext_OpenSearch_storageGB(ctx, field)
 	case "labels":
 		return ec.fieldContext_OpenSearch_labels(ctx, field)
+	case "shardIndexingPressure":
+		return ec.fieldContext_OpenSearch_shardIndexingPressure(ctx, field)
 	case "issues":
 		return ec.fieldContext_OpenSearch_issues(ctx, field)
 	case "activityLog":
@@ -35851,6 +35901,16 @@ func (ec *executionContext) childFields_OpenSearchMaintenanceUpdateEdge(ctx cont
 		return ec.fieldContext_OpenSearchMaintenanceUpdateEdge_node(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type OpenSearchMaintenanceUpdateEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_OpenSearchShardIndexingPressure(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "enabled":
+		return ec.fieldContext_OpenSearchShardIndexingPressure_enabled(ctx, field)
+	case "enforced":
+		return ec.fieldContext_OpenSearchShardIndexingPressure_enforced(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type OpenSearchShardIndexingPressure", field.Name)
 }
 
 func (ec *executionContext) childFields_OpenSearchTierFacetItem(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
