@@ -33,6 +33,7 @@ var (
 	specMaxMemoryPolicy       = []string{"spec", "userConfig", "valkey_maxmemory_policy"}
 	specNotifyKeyspaceEvents  = []string{"spec", "userConfig", "valkey_notify_keyspace_events"}
 	specNumberOfDatabases     = []string{"spec", "userConfig", "valkey_number_of_databases"}
+	specValkeyPersistence     = []string{"spec", "userConfig", "valkey_persistence"}
 )
 
 func GetByIdent(ctx context.Context, id ident.Ident) (*Valkey, error) {
@@ -173,6 +174,12 @@ func Create(ctx context.Context, input CreateValkeyInput) (*CreateValkeyPayload,
 		res.Spec.Databases = input.Databases
 	}
 
+	if input.Persistence != nil {
+		res.Spec.Persistence = &naiscrd.ValkeyPersistence{
+			Disabled: input.Persistence.Disabled,
+		}
+	}
+
 	obj, err := kubernetes.ToUnstructured(res)
 	if err != nil {
 		return nil, err
@@ -243,6 +250,7 @@ func Update(ctx context.Context, input UpdateValkeyInput) (*UpdateValkeyPayload,
 		updateMaxMemoryPolicy,
 		updateNotifyKeyspaceEvents,
 		updateDatabases,
+		updatePersistence,
 	}
 
 	for _, f := range updateFuncs {
@@ -494,6 +502,34 @@ func updateDatabases(valkey *naiscrd.Valkey, input UpdateValkeyInput) ([]*Valkey
 	})
 
 	valkey.Spec.Databases = input.Databases
+	return changes, nil
+}
+
+func updatePersistence(valkey *naiscrd.Valkey, input UpdateValkeyInput) ([]*ValkeyUpdatedActivityLogEntryDataUpdatedField, error) {
+	if input.Persistence == nil {
+		return nil, nil
+	}
+
+	oldDisabled := false
+	if valkey.Spec.Persistence != nil {
+		oldDisabled = valkey.Spec.Persistence.Disabled
+	}
+
+	if oldDisabled == input.Persistence.Disabled {
+		return nil, nil
+	}
+
+	changes := []*ValkeyUpdatedActivityLogEntryDataUpdatedField{
+		{
+			Field:    "persistence.disabled",
+			OldValue: new(strconv.FormatBool(oldDisabled)),
+			NewValue: new(strconv.FormatBool(input.Persistence.Disabled)),
+		},
+	}
+
+	valkey.Spec.Persistence = &naiscrd.ValkeyPersistence{
+		Disabled: input.Persistence.Disabled,
+	}
 	return changes, nil
 }
 

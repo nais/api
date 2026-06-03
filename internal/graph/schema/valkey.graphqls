@@ -83,6 +83,8 @@ type Valkey implements Persistence & Node {
 	notifyKeyspaceEvents: String
 	"Number of databases the Valkey instance is configured with. Default is 16. Minimum 1, maximum 128. Changing this will cause a restart of the Valkey service."
 	databases: Int!
+	"Persistence and backup settings for the Valkey instance."
+	persistence: ValkeyPersistence!
 	"Issues that affects the instance."
 	issues(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
@@ -111,6 +113,16 @@ enum ValkeyState {
 	REBUILDING
 	RUNNING
 	UNKNOWN
+}
+
+type ValkeyPersistence {
+	"Whether persistence (RDB dumps and backups) is disabled. If true, all data is lost if the instance is restarted for any reason."
+	disabled: Boolean!
+}
+
+input ValkeyPersistenceInput {
+	"Disable persistence (RDB dumps and backups). Defaults to false."
+	disabled: Boolean!
 }
 
 type ValkeyAccess {
@@ -226,6 +238,8 @@ input CreateValkeyInput {
 	notifyKeyspaceEvents: String
 	"Number of databases. Default is 16. Minimum 1, maximum 128. Changing this will cause a restart of the Valkey service."
 	databases: Int
+	"Persistence and backup settings for the Valkey instance. Defaults to enabled."
+	persistence: ValkeyPersistenceInput
 }
 
 type CreateValkeyPayload {
@@ -250,6 +264,8 @@ input UpdateValkeyInput {
 	notifyKeyspaceEvents: String
 	"Number of databases. Default is 16. Minimum 1, maximum 128. Changing this will cause a restart of the Valkey service."
 	databases: Int
+	"Persistence and backup settings for the Valkey instance. Defaults to enabled."
+	persistence: ValkeyPersistenceInput
 }
 
 type UpdateValkeyPayload {

@@ -13,6 +13,8 @@ spec:
   plan: startup-4
   project: nav-dev
   projectVpcId: d405e36a-a577-4dce-af0e-6d217fc47a5c
+  userConfig:
+    valkey_persistence: "off"
   tags:
     environment: dev
     team: slug-1

@@ -319,11 +319,15 @@ Test.gql("Update Valkey as team-member", function(t)
 		      maxMemoryPolicy: ALLKEYS_RANDOM
 		      notifyKeyspaceEvents: "Exd"
 		      databases: 64
+		      persistence: { disabled: true }
 		    }
 		  ) {
 		    valkey {
 		      name
 		      databases
+		      persistence {
+		        disabled
+		      }
 		    }
 		  }
 		}
@@ -335,6 +339,9 @@ Test.gql("Update Valkey as team-member", function(t)
 				valkey = {
 					name = "foobar",
 					databases = 64,
+					persistence = {
+						disabled = true,
+					},
 				},
 			},
 		},
@@ -362,6 +369,9 @@ Test.k8s("Validate Valkey resource after update", function(t)
 			maxMemoryPolicy = "allkeys-random",
 			memory = "4GB",
 			notifyKeyspaceEvents = "Exd",
+			persistence = {
+				disabled = true,
+			},
 			tier = "HighAvailability",
 		},
 	})
@@ -436,6 +446,9 @@ Test.gql("List valkeys for team", function(t)
 		        maxMemoryPolicy
 		        notifyKeyspaceEvents
 		        databases
+		        persistence {
+		          disabled
+		        }
 		      }
 		    }
 		  }
@@ -454,6 +467,9 @@ Test.gql("List valkeys for team", function(t)
 							maxMemoryPolicy = "ALLKEYS_RANDOM",
 							notifyKeyspaceEvents = "Exd",
 							databases = 64,
+							persistence = {
+								disabled = true,
+							},
 						},
 						{
 							name = "foobar-hobbyist",
@@ -462,6 +478,9 @@ Test.gql("List valkeys for team", function(t)
 							maxMemoryPolicy = "",
 							notifyKeyspaceEvents = "",
 							databases = 16,
+							persistence = {
+								disabled = false,
+							},
 						},
 						{
 							name = "valkey-someteamname-hobbyist-not-managed",
@@ -470,6 +489,9 @@ Test.gql("List valkeys for team", function(t)
 							maxMemoryPolicy = "",
 							notifyKeyspaceEvents = "",
 							databases = 16,
+							persistence = {
+								disabled = false,
+							},
 						},
 						{
 							name = "valkey-someteamname-not-managed",
@@ -478,6 +500,9 @@ Test.gql("List valkeys for team", function(t)
 							maxMemoryPolicy = "",
 							notifyKeyspaceEvents = "",
 							databases = 16,
+							persistence = {
+								disabled = true,
+							},
 						},
 					},
 				},
@@ -540,6 +565,9 @@ Test.k8s("Validate hobbyist Valkey resource after update", function(t)
 			maxMemoryPolicy = "allkeys-random",
 			memory = "1GB",
 			notifyKeyspaceEvents = "Exd",
+			persistence = {
+				disabled = true,
+			},
 			tier = "SingleNode",
 		},
 	})
@@ -789,6 +817,11 @@ Test.gql("Verify activity log for valkey operations", function(t)
 										field = "databases",
 										oldValue = Null,
 										newValue = "64",
+									},
+									{
+										field = "persistence.disabled",
+										oldValue = "false",
+										newValue = "true",
 									},
 								},
 							},

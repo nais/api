@@ -41,6 +41,7 @@ type Valkey struct {
 	MaxMemoryPolicy       ValkeyMaxMemoryPolicy `json:"maxMemoryPolicy,omitempty"`
 	NotifyKeyspaceEvents  string                `json:"notifyKeyspaceEvents,omitempty"`
 	Databases             int                   `json:"databases"`
+	Persistence           ValkeyPersistence     `json:"persistence"`
 	TeamSlug              slug.Slug             `json:"-"`
 	EnvironmentName       string                `json:"-"`
 	WorkloadReference     *workload.Reference   `json:"-"`
@@ -81,6 +82,14 @@ type ValkeyAccess struct {
 	TeamSlug          slug.Slug           `json:"-"`
 	EnvironmentName   string              `json:"-"`
 	WorkloadReference *workload.Reference `json:"-"`
+}
+
+type ValkeyPersistence struct {
+	Disabled bool `json:"disabled"`
+}
+
+type ValkeyPersistenceInput struct {
+	Disabled bool `json:"disabled"`
 }
 
 type ValkeyStatus struct {
@@ -183,6 +192,10 @@ func toValkey(u *unstructured.Unstructured, envName string) (*Valkey, error) {
 		numberOfDatabases = 16
 	}
 
+	// In the Aiven CRD, persistence is configured via userConfig.valkey_persistence, where "off" disables it.
+	valkeyPersistence, _, _ := unstructured.NestedString(u.Object, specValkeyPersistence...)
+	persistenceDisabled := valkeyPersistence == "off"
+
 	machine, err := machineTypeFromPlan(obj.Spec.Plan)
 	if err != nil {
 		return nil, fmt.Errorf("converting from plan: %w", err)
@@ -209,6 +222,7 @@ func toValkey(u *unstructured.Unstructured, envName string) (*Valkey, error) {
 		MaxMemoryPolicy:      maxMemoryPolicy,
 		NotifyKeyspaceEvents: notifyKeyspaceEvents,
 		Databases:            int(numberOfDatabases),
+		Persistence:          ValkeyPersistence{Disabled: persistenceDisabled},
 	}, nil
 }
 
@@ -227,6 +241,11 @@ func toValkeyFromNais(v *naiscrd.Valkey, envName string) (*Valkey, error) {
 		databases = *v.Spec.Databases
 	}
 
+	persistence := ValkeyPersistence{}
+	if v.Spec.Persistence != nil {
+		persistence.Disabled = v.Spec.Persistence.Disabled
+	}
+
 	return &Valkey{
 		Name:                 v.Name,
 		EnvironmentName:      envName,
@@ -238,6 +257,7 @@ func toValkeyFromNais(v *naiscrd.Valkey, envName string) (*Valkey, error) {
 		NotifyKeyspaceEvents: v.Spec.NotifyKeyspaceEvents,
 		MaxMemoryPolicy:      mmp,
 		Databases:            databases,
+		Persistence:          persistence,
 	}, nil
 }
 
@@ -278,11 +298,12 @@ func (v *ValkeyMetadataInput) ValidationErrors(ctx context.Context) *validate.Va
 
 type ValkeyInput struct {
 	ValkeyMetadataInput
-	Tier                 ValkeyTier             `json:"tier"`
-	Memory               ValkeyMemory           `json:"memory"`
-	MaxMemoryPolicy      *ValkeyMaxMemoryPolicy `json:"maxMemoryPolicy,omitempty"`
-	NotifyKeyspaceEvents *string                `json:"notifyKeyspaceEvents,omitempty"`
-	Databases            *int                   `json:"databases,omitempty"`
+	Tier                 ValkeyTier              `json:"tier"`
+	Memory               ValkeyMemory            `json:"memory"`
+	MaxMemoryPolicy      *ValkeyMaxMemoryPolicy  `json:"maxMemoryPolicy,omitempty"`
+	NotifyKeyspaceEvents *string                 `json:"notifyKeyspaceEvents,omitempty"`
+	Databases            *int                    `json:"databases,omitempty"`
+	Persistence          *ValkeyPersistenceInput `json:"persistence,omitempty"`
 }
 
 func (v *ValkeyInput) Validate(ctx context.Context) error {
