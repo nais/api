@@ -351,27 +351,12 @@ type JobFacets {
 	"""
 	Distribution of jobs by environment.
 	"""
-	environments: [JobEnvironmentFacetItem!]!
+	environments: [StringFacetItem!]!
 
 	"""
 	Distribution of jobs by state.
 	"""
 	states: [JobStateFacetItem!]!
-}
-
-"""
-A single facet item for environments.
-"""
-type JobEnvironmentFacetItem {
-	"""
-	The environment name.
-	"""
-	environmentName: String!
-
-	"""
-	Number of matching jobs.
-	"""
-	count: Int!
 }
 
 """

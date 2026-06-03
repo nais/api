@@ -15,6 +15,9 @@ extend type Team {
 
 		"Ordering options for items returned from the connection."
 		orderBy: BigQueryDatasetOrder
+
+		"Filtering options for items returned from the connection."
+		filter: BigQueryDatasetFilter
 	): BigQueryDatasetConnection!
 }
 
@@ -95,6 +98,12 @@ type BigQueryDatasetConnection {
 	pageInfo: PageInfo!
 	nodes: [BigQueryDataset!]!
 	edges: [BigQueryDatasetEdge!]!
+
+	"""
+	Facets for BigQuery datasets. Provides distribution counts to help narrow down results.
+	Facet counts are computed over the full result set (ignoring pagination) but respect the current filter.
+	"""
+	facets: BigQueryDatasetFacets
 }
 
 type BigQueryDatasetAccessEdge {
@@ -105,6 +114,14 @@ type BigQueryDatasetAccessEdge {
 type BigQueryDatasetEdge {
 	cursor: Cursor!
 	node: BigQueryDataset!
+}
+
+"""
+Facets for BigQuery datasets, providing distribution counts across different dimensions.
+"""
+type BigQueryDatasetFacets {
+	"Distribution of datasets by environment."
+	environments: [StringFacetItem!]!
 }
 
 input BigQueryDatasetAccessOrder {
@@ -125,6 +142,17 @@ enum BigQueryDatasetAccessOrderField {
 enum BigQueryDatasetOrderField {
 	NAME
 	ENVIRONMENT
+}
+
+"""
+Input for filtering BigQuery datasets.
+"""
+input BigQueryDatasetFilter {
+	"Filter by the name of the dataset."
+	name: String
+
+	"Filter by environments."
+	environments: [String!]
 }
 
 extend union SearchNode = BigQueryDataset

@@ -4,6 +4,8 @@ import (
 	"context"
 	"slices"
 	"strings"
+
+	"github.com/nais/api/internal/graph/model"
 )
 
 // ComputeFacets computes facets for an application query.
@@ -27,11 +29,8 @@ func ComputeFacets(ctx context.Context, allApps []*Application, filter *TeamAppl
 	}
 
 	// Second pass: count apps that match the full filter
-	for _, app := range allApps {
-		if !matchesFilter(ctx, app, filter) {
-			continue
-		}
-
+	filtered := SortFilter.Filter(ctx, allApps, filter)
+	for _, app := range filtered {
 		environmentCounts[app.EnvironmentName]++
 
 		state, err := GetState(ctx, app)
@@ -77,14 +76,14 @@ func matchesFilter(ctx context.Context, app *Application, filter *TeamApplicatio
 
 func assembleFacets(environmentCounts map[string]int, stateCounts map[ApplicationState]int) *ApplicationFacets {
 	facets := &ApplicationFacets{
-		Environments: make([]ApplicationEnvironmentFacetItem, 0, len(environmentCounts)),
+		Environments: make([]model.StringFacetItem, 0, len(environmentCounts)),
 		States:       make([]ApplicationStateFacetItem, 0, len(stateCounts)),
 	}
 
 	for env, count := range environmentCounts {
-		facets.Environments = append(facets.Environments, ApplicationEnvironmentFacetItem{
-			EnvironmentName: env,
-			Count:           count,
+		facets.Environments = append(facets.Environments, model.StringFacetItem{
+			Value: env,
+			Count: count,
 		})
 	}
 
@@ -96,9 +95,7 @@ func assembleFacets(environmentCounts map[string]int, stateCounts map[Applicatio
 	}
 
 	// Sort alphabetically for stable ordering
-	slices.SortFunc(facets.Environments, func(a, b ApplicationEnvironmentFacetItem) int {
-		return strings.Compare(a.EnvironmentName, b.EnvironmentName)
-	})
+	model.SortStringFacetItems(facets.Environments)
 
 	slices.SortFunc(facets.States, func(a, b ApplicationStateFacetItem) int {
 		return strings.Compare(a.State.String(), b.State.String())

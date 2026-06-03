@@ -97,8 +97,8 @@ func (r *jobResolver) Issues(ctx context.Context, obj *job.Job, first *int, afte
 	return issue.ListIssues(ctx, obj.TeamSlug, page, orderBy, f)
 }
 
-func (r *jobConnectionResolver) Facets(ctx context.Context, obj *job.JobConnection) (*job.JobFacets, error) {
-	return job.ComputeFacets(ctx, obj.GetAllJobs(), obj.GetFilter())
+func (r *jobConnectionResolver) Facets(ctx context.Context, obj *pagination.FacetableConnection[*job.Job, *job.TeamJobsFilter]) (*job.JobFacets, error) {
+	return job.ComputeFacets(ctx, obj.GetAllItems(), obj.GetFilter())
 }
 
 func (r *jobRunResolver) Duration(ctx context.Context, obj *job.JobRun) (int, error) {
@@ -156,7 +156,7 @@ func (r *mutationResolver) UpdateJob(ctx context.Context, input job.UpdateJobInp
 	return job.Update(ctx, input)
 }
 
-func (r *teamResolver) Jobs(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *job.JobOrder, filter *job.TeamJobsFilter) (*job.JobConnection, error) {
+func (r *teamResolver) Jobs(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *job.JobOrder, filter *job.TeamJobsFilter) (*pagination.FacetableConnection[*job.Job, *job.TeamJobsFilter], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
@@ -166,22 +166,11 @@ func (r *teamResolver) Jobs(ctx context.Context, obj *team.Team, first *int, aft
 	// Pass nil orderBy to avoid expensive sorting (e.g. STATE) on items that may be filtered out.
 	unfilteredJobs := job.ListAllForTeam(ctx, obj.Slug, nil, nil)
 
-	// Apply filter for the actual result set.
-	filteredJobs := unfilteredJobs
-	if filter != nil {
-		filteredJobs = job.SortFilter.Filter(ctx, unfilteredJobs, filter)
-	}
-
-	// Sort only the filtered result set.
 	if orderBy == nil {
 		orderBy = &job.JobOrder{Field: "NAME", Direction: model.OrderDirectionAsc}
 	}
-	job.SortFilter.Sort(ctx, filteredJobs, orderBy.Field, orderBy.Direction)
 
-	jobs := pagination.Slice(filteredJobs, page)
-	conn := pagination.NewConnection(jobs, page, len(filteredJobs))
-
-	return job.NewJobConnection(conn, unfilteredJobs, filter), nil
+	return job.SortFilter.PaginatedList(ctx, unfilteredJobs, page, orderBy.Field, orderBy.Direction, filter), nil
 }
 
 func (r *teamEnvironmentResolver) Job(ctx context.Context, obj *team.TeamEnvironment, name string) (*job.Job, error) {

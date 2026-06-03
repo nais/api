@@ -88,6 +88,10 @@ func (r *kafkaTopicAclResolver) Topic(ctx context.Context, obj *kafkatopic.Kafka
 	return kafkatopic.Get(ctx, obj.TeamSlug, obj.EnvironmentName, obj.TopicName)
 }
 
+func (r *kafkaTopicConnectionResolver) Facets(ctx context.Context, obj *pagination.FacetableConnection[*kafkatopic.KafkaTopic, *kafkatopic.KafkaTopicFilter]) (*kafkatopic.KafkaTopicFacets, error) {
+	return kafkatopic.ComputeFacets(ctx, obj.GetAllItems(), obj.GetFilter()), nil
+}
+
 func (r *mutationResolver) CreateKafkaCredentials(ctx context.Context, input kafkatopic.CreateKafkaCredentialsInput) (*kafkatopic.CreateKafkaCredentialsPayload, error) {
 	if err := authz.CanCreateAivenCredentials(ctx, input.TeamSlug); err != nil {
 		return nil, err
@@ -95,13 +99,13 @@ func (r *mutationResolver) CreateKafkaCredentials(ctx context.Context, input kaf
 	return kafkatopic.CreateKafkaCredentials(ctx, input)
 }
 
-func (r *teamResolver) KafkaTopics(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *kafkatopic.KafkaTopicOrder) (*pagination.Connection[*kafkatopic.KafkaTopic], error) {
+func (r *teamResolver) KafkaTopics(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *kafkatopic.KafkaTopicOrder, filter *kafkatopic.KafkaTopicFilter) (*pagination.FacetableConnection[*kafkatopic.KafkaTopic, *kafkatopic.KafkaTopicFilter], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
 	}
 
-	return kafkatopic.ListForTeam(ctx, obj.Slug, page, orderBy)
+	return kafkatopic.ListForTeam(ctx, obj.Slug, page, orderBy, filter)
 }
 
 func (r *teamEnvironmentResolver) KafkaTopic(ctx context.Context, obj *team.TeamEnvironment, name string) (*kafkatopic.KafkaTopic, error) {
@@ -118,7 +122,12 @@ func (r *Resolver) KafkaTopic() gengql.KafkaTopicResolver { return &kafkaTopicRe
 
 func (r *Resolver) KafkaTopicAcl() gengql.KafkaTopicAclResolver { return &kafkaTopicAclResolver{r} }
 
+func (r *Resolver) KafkaTopicConnection() gengql.KafkaTopicConnectionResolver {
+	return &kafkaTopicConnectionResolver{r}
+}
+
 type (
-	kafkaTopicResolver    struct{ *Resolver }
-	kafkaTopicAclResolver struct{ *Resolver }
+	kafkaTopicResolver           struct{ *Resolver }
+	kafkaTopicAclResolver        struct{ *Resolver }
+	kafkaTopicConnectionResolver struct{ *Resolver }
 )

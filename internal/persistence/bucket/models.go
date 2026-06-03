@@ -18,11 +18,21 @@ import (
 )
 
 type (
-	BucketConnection     = pagination.Connection[*Bucket]
 	BucketEdge           = pagination.Edge[*Bucket]
 	BucketCorsConnection = pagination.Connection[*BucketCors]
 	BucketCorsEdge       = pagination.Edge[*BucketCors]
 )
+
+type BucketConnection = pagination.FacetableConnection[*Bucket, *BucketFilter]
+
+type BucketFacets struct {
+	Environments []model.StringFacetItem `json:"environments"`
+}
+
+type BucketFilter struct {
+	Name         string   `json:"name"`
+	Environments []string `json:"environments"`
+}
 
 type Bucket struct {
 	Name                     string              `json:"name"`

@@ -21,24 +21,7 @@ import (
 	"k8s.io/utils/ptr"
 )
 
-type JobConnection struct {
-	pagination.Connection[*Job]
-
-	allJobs []*Job
-	filter  *TeamJobsFilter
-}
-
-func (c *JobConnection) GetAllJobs() []*Job         { return c.allJobs }
-func (c *JobConnection) GetFilter() *TeamJobsFilter { return c.filter }
-
-// NewJobConnection creates a new JobConnection with the full job list and filter for facet computation.
-func NewJobConnection(conn *pagination.Connection[*Job], allJobs []*Job, filter *TeamJobsFilter) *JobConnection {
-	return &JobConnection{
-		Connection: *conn,
-		allJobs:    allJobs,
-		filter:     filter,
-	}
-}
+type JobConnection = pagination.FacetableConnection[*Job, *TeamJobsFilter]
 
 type (
 	JobEdge                  = pagination.Edge[*Job]
@@ -572,13 +555,8 @@ type TeamJobsFilter struct {
 }
 
 type JobFacets struct {
-	Environments []JobEnvironmentFacetItem `json:"environments"`
-	States       []JobStateFacetItem       `json:"states"`
-}
-
-type JobEnvironmentFacetItem struct {
-	EnvironmentName string `json:"environmentName"`
-	Count           int    `json:"count"`
+	Environments []model.StringFacetItem `json:"environments"`
+	States       []JobStateFacetItem     `json:"states"`
 }
 
 type JobStateFacetItem struct {

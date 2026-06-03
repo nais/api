@@ -15,6 +15,9 @@ extend type Team {
 
 		"Ordering options for items returned from the connection."
 		orderBy: PostgresInstanceOrder
+
+		"Filtering options for items returned from the connection."
+		filter: PostgresInstanceFilter
 	): PostgresInstanceConnection!
 }
 
@@ -50,6 +53,26 @@ extend type Job {
 input PostgresInstanceOrder {
 	field: PostgresInstanceOrderField!
 	direction: OrderDirection!
+}
+
+"""
+Input for filtering Postgres instances.
+"""
+input PostgresInstanceFilter {
+	"Filter by the name of the instance."
+	name: String
+
+	"Filter by environments."
+	environments: [String!]
+
+	"Filter by instance state."
+	states: [PostgresInstanceState!]
+
+	"Filter by high availability."
+	highAvailability: Boolean
+
+	"Filter by major versions."
+	majorVersions: [String!]
 }
 
 enum PostgresInstanceOrderField {
@@ -115,11 +138,45 @@ type PostgresInstanceConnection {
 	pageInfo: PageInfo!
 	nodes: [PostgresInstance!]!
 	edges: [PostgresInstanceEdge!]!
+
+	"""
+	Facets for Postgres instances. Provides distribution counts to help narrow down results.
+	Facet counts are computed over the full result set (ignoring pagination) but respect the current filter.
+	"""
+	facets: PostgresInstanceFacets
 }
 
 type PostgresInstanceEdge {
 	cursor: Cursor!
 	node: PostgresInstance!
+}
+
+"""
+Facets for Postgres instances, providing distribution counts across different dimensions.
+"""
+type PostgresInstanceFacets {
+	"Distribution of instances by environment."
+	environments: [StringFacetItem!]!
+
+	"Distribution of instances by state."
+	states: [PostgresInstanceStateFacetItem!]!
+
+	"Distribution of instances by high availability."
+	highAvailability: [BooleanFacetItem!]!
+
+	"Distribution of instances by major version."
+	majorVersions: [StringFacetItem!]!
+}
+
+"""
+A single facet item for Postgres instance states.
+"""
+type PostgresInstanceStateFacetItem {
+	"The Postgres instance state."
+	state: PostgresInstanceState!
+
+	"Number of matching instances."
+	count: Int!
 }
 
 type PostgresInstanceResources {

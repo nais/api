@@ -19,11 +19,21 @@ import (
 )
 
 type (
-	BigQueryDatasetConnection       = pagination.Connection[*BigQueryDataset]
 	BigQueryDatasetEdge             = pagination.Edge[*BigQueryDataset]
 	BigQueryDatasetAccessConnection = pagination.Connection[*BigQueryDatasetAccess]
 	BigQueryDatasetAccessEdge       = pagination.Edge[*BigQueryDatasetAccess]
 )
+
+type BigQueryDatasetConnection = pagination.FacetableConnection[*BigQueryDataset, *BigQueryDatasetFilter]
+
+type BigQueryDatasetFacets struct {
+	Environments []model.StringFacetItem `json:"environments"`
+}
+
+type BigQueryDatasetFilter struct {
+	Name         string   `json:"name"`
+	Environments []string `json:"environments"`
+}
 
 type BigQueryDataset struct {
 	// Name equals to the Instance name, not the kubernetes resource name

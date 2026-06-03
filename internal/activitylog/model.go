@@ -56,7 +56,7 @@ type ActivityLogEntryEdge = pagination.Edge[ActivityLogEntry]
 type ActivityLogFacets struct {
 	ActivityTypes []ActivityLogActivityTypeFacetItem `json:"activityTypes"`
 	ResourceTypes []ActivityLogResourceTypeFacetItem `json:"resourceTypes"`
-	Environments  []ActivityLogEnvironmentFacetItem  `json:"environments"`
+	Environments  []model.StringFacetItem            `json:"environments"`
 }
 
 type ActivityLogActivityTypeFacetItem struct {
@@ -67,11 +67,6 @@ type ActivityLogActivityTypeFacetItem struct {
 type ActivityLogResourceTypeFacetItem struct {
 	ResourceType ActivityLogEntryResourceType `json:"resourceType"`
 	Count        int                          `json:"count"`
-}
-
-type ActivityLogEnvironmentFacetItem struct {
-	EnvironmentName string `json:"environmentName"`
-	Count           int    `json:"count"`
 }
 
 type GenericActivityLogEntry struct {

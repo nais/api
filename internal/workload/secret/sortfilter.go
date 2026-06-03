@@ -39,10 +39,16 @@ func init() {
 			}
 		}
 
+		if len(filter.Environments) > 0 {
+			if !slices.Contains(filter.Environments, v.EnvironmentName) {
+				return false
+			}
+		}
+
 		if filter.InUse != nil {
 			inUse := false
 
-			applications := application.ListAllForTeam(ctx, v.TeamSlug, nil, nil)
+			applications := application.ListAllForTeamInEnvironment(ctx, v.TeamSlug, v.EnvironmentName)
 			for _, app := range applications {
 				if slices.Contains(app.GetSecrets(), v.Name) {
 					inUse = true
@@ -51,7 +57,7 @@ func init() {
 			}
 
 			if !inUse {
-				jobs := job.ListAllForTeam(ctx, v.TeamSlug, nil, nil)
+				jobs := job.ListAllForTeamInEnvironment(ctx, v.TeamSlug, v.EnvironmentName)
 				for _, j := range jobs {
 					if slices.Contains(j.GetSecrets(), v.Name) {
 						inUse = true

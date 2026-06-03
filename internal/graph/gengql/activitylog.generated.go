@@ -14,6 +14,7 @@ import (
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/deployment/deploymentactivity"
 	"github.com/nais/api/internal/github/repository"
+	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/kubernetes/event/pubsublog"
 	"github.com/nais/api/internal/persistence/aivencredentials"
@@ -282,52 +283,6 @@ func (ec *executionContext) fieldContext_ActivityLogEntryEdge_node(_ context.Con
 	return fc, nil
 }
 
-func (ec *executionContext) _ActivityLogEnvironmentFacetItem_environmentName(ctx context.Context, field graphql.CollectedField, obj *activitylog.ActivityLogEnvironmentFacetItem) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ActivityLogEnvironmentFacetItem_environmentName(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return obj.EnvironmentName, nil
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_ActivityLogEnvironmentFacetItem_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("ActivityLogEnvironmentFacetItem", field, false, false, errors.New("field of type String does not have child fields"))
-}
-
-func (ec *executionContext) _ActivityLogEnvironmentFacetItem_count(ctx context.Context, field graphql.CollectedField, obj *activitylog.ActivityLogEnvironmentFacetItem) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ActivityLogEnvironmentFacetItem_count(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return obj.Count, nil
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
-			return ec.marshalNInt2int(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_ActivityLogEnvironmentFacetItem_count(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("ActivityLogEnvironmentFacetItem", field, false, false, errors.New("field of type Int does not have child fields"))
-}
-
 func (ec *executionContext) _ActivityLogFacets_activityTypes(ctx context.Context, field graphql.CollectedField, obj *activitylog.ActivityLogFacets) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -404,8 +359,8 @@ func (ec *executionContext) _ActivityLogFacets_environments(ctx context.Context,
 			return obj.Environments, nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v []activitylog.ActivityLogEnvironmentFacetItem) graphql.Marshaler {
-			return ec.marshalNActivityLogEnvironmentFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEnvironmentFacetItemᚄ(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v []model.StringFacetItem) graphql.Marshaler {
+			return ec.marshalNStringFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItemᚄ(ctx, selections, v)
 		},
 		true,
 		true,
@@ -418,7 +373,7 @@ func (ec *executionContext) fieldContext_ActivityLogFacets_environments(_ contex
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_ActivityLogEnvironmentFacetItem(ctx, field)
+			return ec.childFields_StringFacetItem(ctx, field)
 		},
 	}
 	return fc, nil
@@ -1224,50 +1179,6 @@ func (ec *executionContext) _ActivityLogEntryEdge(ctx context.Context, sel ast.S
 	return out
 }
 
-var activityLogEnvironmentFacetItemImplementors = []string{"ActivityLogEnvironmentFacetItem"}
-
-func (ec *executionContext) _ActivityLogEnvironmentFacetItem(ctx context.Context, sel ast.SelectionSet, obj *activitylog.ActivityLogEnvironmentFacetItem) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, activityLogEnvironmentFacetItemImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("ActivityLogEnvironmentFacetItem")
-		case "environmentName":
-			out.Values[i] = ec._ActivityLogEnvironmentFacetItem_environmentName(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "count":
-			out.Values[i] = ec._ActivityLogEnvironmentFacetItem_count(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
-
-	for label, dfs := range deferred {
-		ec.ProcessDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
 var activityLogFacetsImplementors = []string{"ActivityLogFacets"}
 
 func (ec *executionContext) _ActivityLogFacets(ctx context.Context, sel ast.SelectionSet, obj *activitylog.ActivityLogFacets) graphql.Marshaler {
@@ -1470,26 +1381,6 @@ func (ec *executionContext) marshalNActivityLogEntryResourceType2githubᚗcomᚋ
 		}
 	}
 	return res
-}
-
-func (ec *executionContext) marshalNActivityLogEnvironmentFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEnvironmentFacetItem(ctx context.Context, sel ast.SelectionSet, v activitylog.ActivityLogEnvironmentFacetItem) graphql.Marshaler {
-	return ec._ActivityLogEnvironmentFacetItem(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNActivityLogEnvironmentFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEnvironmentFacetItemᚄ(ctx context.Context, sel ast.SelectionSet, v []activitylog.ActivityLogEnvironmentFacetItem) graphql.Marshaler {
-	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
-		fc := graphql.GetFieldContext(ctx)
-		fc.Result = &v[i]
-		return ec.marshalNActivityLogEnvironmentFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEnvironmentFacetItem(ctx, sel, v[i])
-	})
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
 }
 
 func (ec *executionContext) marshalNActivityLogResourceTypeFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceTypeFacetItem(ctx context.Context, sel ast.SelectionSet, v activitylog.ActivityLogResourceTypeFacetItem) graphql.Marshaler {

@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/nais/api/internal/graph/model"
+	"github.com/nais/api/internal/graph/pagination"
 	"github.com/sirupsen/logrus"
 	"github.com/sourcegraph/conc/pool"
 )
@@ -284,4 +285,22 @@ func sortFieldsToTieBreakers[SortField ~string](fields []SortField) []tieBreaker
 
 func tieBreakerToSortField[SortField ~string](tb tieBreaker[SortField]) SortField {
 	return tb.field + ":" + SortField(tb.direction)
+}
+
+// PaginatedList filters, sorts, paginates the items and returns a FacetableConnection
+// that carries both the paginated result and the full item list for facet computation.
+func (s *SortFilter[T, SortField, FilterObj]) PaginatedList(
+	ctx context.Context,
+	allItems []T,
+	page *pagination.Pagination,
+	field SortField,
+	direction model.OrderDirection,
+	filter FilterObj,
+) *pagination.FacetableConnection[T, FilterObj] {
+	filtered := s.Filter(ctx, allItems, filter)
+	s.Sort(ctx, filtered, field, direction)
+
+	slice := pagination.Slice(filtered, page)
+	conn := pagination.NewConnection(slice, page, len(filtered))
+	return pagination.NewFacetableConnection(conn, allItems, filter)
 }

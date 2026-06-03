@@ -73,12 +73,17 @@ func State(ctx context.Context, os *OpenSearch) (OpenSearchState, error) {
 	}
 }
 
-func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *OpenSearchOrder) (*OpenSearchConnection, error) {
+func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *OpenSearchOrder, filter *OpenSearchFilter) (*OpenSearchConnection, error) {
 	all := ListAllForTeam(ctx, teamSlug)
-	orderOpenSearch(ctx, all, orderBy)
 
-	instances := pagination.Slice(all, page)
-	return pagination.NewConnection(instances, page, len(all)), nil
+	if orderBy == nil {
+		orderBy = &OpenSearchOrder{
+			Field:     "NAME",
+			Direction: model.OrderDirectionAsc,
+		}
+	}
+
+	return SortFilterOpenSearch.PaginatedList(ctx, all, page, orderBy.Field, orderBy.Direction, filter), nil
 }
 
 func ListAllForTeam(ctx context.Context, teamSlug slug.Slug) []*OpenSearch {
@@ -151,17 +156,6 @@ func GetForWorkload(ctx context.Context, teamSlug slug.Slug, environment string,
 	}
 
 	return fromContext(ctx).client.watcher.Get(environment, teamSlug.String(), instanceNamer(teamSlug, reference.Instance))
-}
-
-func orderOpenSearch(ctx context.Context, ret []*OpenSearch, orderBy *OpenSearchOrder) {
-	if orderBy == nil {
-		orderBy = &OpenSearchOrder{
-			Field:     "NAME",
-			Direction: model.OrderDirectionAsc,
-		}
-	}
-
-	SortFilterOpenSearch.Sort(ctx, ret, orderBy.Field, orderBy.Direction)
 }
 
 func Create(ctx context.Context, input CreateOpenSearchInput) (*CreateOpenSearchPayload, error) {

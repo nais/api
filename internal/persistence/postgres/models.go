@@ -25,10 +25,29 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-type (
-	PostgresInstanceConnection = pagination.Connection[*PostgresInstance]
-	PostgresInstanceEdge       = pagination.Edge[*PostgresInstance]
-)
+type PostgresInstanceEdge = pagination.Edge[*PostgresInstance]
+
+type PostgresInstanceFilter struct {
+	Name             string                  `json:"name"`
+	Environments     []string                `json:"environments"`
+	States           []PostgresInstanceState `json:"states"`
+	HighAvailability *bool                   `json:"highAvailability"`
+	MajorVersions    []string                `json:"majorVersions"`
+}
+
+type PostgresInstanceConnection = pagination.FacetableConnection[*PostgresInstance, *PostgresInstanceFilter]
+
+type PostgresInstanceFacets struct {
+	Environments     []model.StringFacetItem          `json:"environments"`
+	States           []PostgresInstanceStateFacetItem `json:"states"`
+	HighAvailability []model.BooleanFacetItem         `json:"highAvailability"`
+	MajorVersions    []model.StringFacetItem          `json:"majorVersions"`
+}
+
+type PostgresInstanceStateFacetItem struct {
+	State PostgresInstanceState `json:"state"`
+	Count int                   `json:"count"`
+}
 
 type PostgresInstance struct {
 	Name              string                             `json:"name"`

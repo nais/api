@@ -51,6 +51,11 @@ input ConfigFilter {
 	Filter by usage of the config.
 	"""
 	inUse: Boolean
+
+	"""
+	Filter by environments.
+	"""
+	environments: [String!]
 }
 
 extend type TeamEnvironment {
@@ -341,6 +346,12 @@ type ConfigConnection {
 
 	"List of edges."
 	edges: [ConfigEdge!]!
+
+	"""
+	Facets for configs. Provides distribution counts to help narrow down results.
+	Facet counts are computed over the full result set (ignoring pagination) but respect the current filter.
+	"""
+	facets: ConfigFacets
 }
 
 type ConfigEdge {
@@ -349,6 +360,17 @@ type ConfigEdge {
 
 	"The Config."
 	node: Config!
+}
+
+"""
+Facets for configs, providing distribution counts across different dimensions.
+"""
+type ConfigFacets {
+	"Distribution of configs by environment."
+	environments: [StringFacetItem!]!
+
+	"Distribution of configs by whether they are in use by any workload."
+	inUse: [BooleanFacetItem!]!
 }
 
 type ConfigValue {

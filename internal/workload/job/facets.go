@@ -4,6 +4,8 @@ import (
 	"context"
 	"slices"
 	"strings"
+
+	"github.com/nais/api/internal/graph/model"
 )
 
 // ComputeFacets computes facets for a job query.
@@ -27,11 +29,8 @@ func ComputeFacets(ctx context.Context, allJobs []*Job, filter *TeamJobsFilter) 
 	}
 
 	// Second pass: count jobs that match the full filter
-	for _, j := range allJobs {
-		if !matchesFilter(ctx, j, filter) {
-			continue
-		}
-
+	filtered := SortFilter.Filter(ctx, allJobs, filter)
+	for _, j := range filtered {
 		environmentCounts[j.EnvironmentName]++
 
 		state, err := GetState(ctx, j)
@@ -77,14 +76,14 @@ func matchesFilter(ctx context.Context, j *Job, filter *TeamJobsFilter) bool {
 
 func assembleFacets(environmentCounts map[string]int, stateCounts map[JobState]int) *JobFacets {
 	facets := &JobFacets{
-		Environments: make([]JobEnvironmentFacetItem, 0, len(environmentCounts)),
+		Environments: make([]model.StringFacetItem, 0, len(environmentCounts)),
 		States:       make([]JobStateFacetItem, 0, len(stateCounts)),
 	}
 
 	for env, count := range environmentCounts {
-		facets.Environments = append(facets.Environments, JobEnvironmentFacetItem{
-			EnvironmentName: env,
-			Count:           count,
+		facets.Environments = append(facets.Environments, model.StringFacetItem{
+			Value: env,
+			Count: count,
 		})
 	}
 
@@ -96,9 +95,7 @@ func assembleFacets(environmentCounts map[string]int, stateCounts map[JobState]i
 	}
 
 	// Sort alphabetically for stable ordering
-	slices.SortFunc(facets.Environments, func(a, b JobEnvironmentFacetItem) int {
-		return strings.Compare(a.EnvironmentName, b.EnvironmentName)
-	})
+	model.SortStringFacetItems(facets.Environments)
 
 	slices.SortFunc(facets.States, func(a, b JobStateFacetItem) int {
 		return strings.Compare(a.State.String(), b.State.String())

@@ -13,6 +13,7 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/graph/ident"
+	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/team"
@@ -31,12 +32,15 @@ type ConfigResolver interface {
 	TeamEnvironment(ctx context.Context, obj *config.Config) (*team.TeamEnvironment, error)
 	Team(ctx context.Context, obj *config.Config) (*team.Team, error)
 	Values(ctx context.Context, obj *config.Config) ([]*config.ConfigValue, error)
-	Applications(ctx context.Context, obj *config.Config, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*application.ApplicationConnection, error)
-	Jobs(ctx context.Context, obj *config.Config, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*job.JobConnection, error)
+	Applications(ctx context.Context, obj *config.Config, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.FacetableConnection[*application.Application, *application.TeamApplicationsFilter], error)
+	Jobs(ctx context.Context, obj *config.Config, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.FacetableConnection[*job.Job, *job.TeamJobsFilter], error)
 	Workloads(ctx context.Context, obj *config.Config, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[workload.Workload], error)
 
 	LastModifiedBy(ctx context.Context, obj *config.Config) (*user.User, error)
 	ActivityLog(ctx context.Context, obj *config.Config, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*activitylog.ActivityLogEntryConnection, error)
+}
+type ConfigConnectionResolver interface {
+	Facets(ctx context.Context, obj *pagination.FacetableConnection[*config.Config, *config.ConfigFilter]) (*config.ConfigFacets, error)
 }
 
 // endregion ************************** generated!.gotpl **************************
@@ -398,8 +402,8 @@ func (ec *executionContext) _Config_applications(ctx context.Context, field grap
 			return ec.Resolvers.Config().Applications(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *application.ApplicationConnection) graphql.Marshaler {
-			return ec.marshalNApplicationConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplicationConnection(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *pagination.FacetableConnection[*application.Application, *application.TeamApplicationsFilter]) graphql.Marshaler {
+			return ec.marshalNApplicationConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, selections, v)
 		},
 		true,
 		true,
@@ -442,8 +446,8 @@ func (ec *executionContext) _Config_jobs(ctx context.Context, field graphql.Coll
 			return ec.Resolvers.Config().Jobs(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *job.JobConnection) graphql.Marshaler {
-			return ec.marshalNJobConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobConnection(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *pagination.FacetableConnection[*job.Job, *job.TeamJobsFilter]) graphql.Marshaler {
+			return ec.marshalNJobConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, selections, v)
 		},
 		true,
 		true,
@@ -616,7 +620,7 @@ func (ec *executionContext) fieldContext_Config_activityLog(ctx context.Context,
 	return fc, nil
 }
 
-func (ec *executionContext) _ConfigConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*config.Config]) (ret graphql.Marshaler) {
+func (ec *executionContext) _ConfigConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*config.Config, *config.ConfigFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -648,7 +652,7 @@ func (ec *executionContext) fieldContext_ConfigConnection_pageInfo(_ context.Con
 	return fc, nil
 }
 
-func (ec *executionContext) _ConfigConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*config.Config]) (ret graphql.Marshaler) {
+func (ec *executionContext) _ConfigConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*config.Config, *config.ConfigFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -680,7 +684,7 @@ func (ec *executionContext) fieldContext_ConfigConnection_nodes(_ context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _ConfigConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*config.Config]) (ret graphql.Marshaler) {
+func (ec *executionContext) _ConfigConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*config.Config, *config.ConfigFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -707,6 +711,38 @@ func (ec *executionContext) fieldContext_ConfigConnection_edges(_ context.Contex
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return ec.childFields_ConfigEdge(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ConfigConnection_facets(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*config.Config, *config.ConfigFilter]) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ConfigConnection_facets(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.ConfigConnection().Facets(ctx, obj)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *config.ConfigFacets) graphql.Marshaler {
+			return ec.marshalOConfigFacets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigFacets(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_ConfigConnection_facets(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ConfigConnection",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_ConfigFacets(ctx, field)
 		},
 	}
 	return fc, nil
@@ -1130,6 +1166,70 @@ func (ec *executionContext) fieldContext_ConfigEdge_node(_ context.Context, fiel
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return ec.childFields_Config(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ConfigFacets_environments(ctx context.Context, field graphql.CollectedField, obj *config.ConfigFacets) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ConfigFacets_environments(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Environments, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []model.StringFacetItem) graphql.Marshaler {
+			return ec.marshalNStringFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItemᚄ(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_ConfigFacets_environments(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ConfigFacets",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_StringFacetItem(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ConfigFacets_inUse(ctx context.Context, field graphql.CollectedField, obj *config.ConfigFacets) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ConfigFacets_inUse(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.InUse, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []model.BooleanFacetItem) graphql.Marshaler {
+			return ec.marshalNBooleanFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBooleanFacetItemᚄ(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_ConfigFacets_inUse(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ConfigFacets",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_BooleanFacetItem(ctx, field)
 		},
 	}
 	return fc, nil
@@ -1729,7 +1829,7 @@ func (ec *executionContext) unmarshalInputConfigFilter(ctx context.Context, obj 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "inUse"}
+	fieldsInOrder := [...]string{"name", "inUse", "environments"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -1750,6 +1850,13 @@ func (ec *executionContext) unmarshalInputConfigFilter(ctx context.Context, obj 
 				return it, err
 			}
 			it.InUse = data
+		case "environments":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environments"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Environments = data
 		}
 	}
 	return it, nil
@@ -2407,7 +2514,7 @@ func (ec *executionContext) _Config(ctx context.Context, sel ast.SelectionSet, o
 
 var configConnectionImplementors = []string{"ConfigConnection"}
 
-func (ec *executionContext) _ConfigConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.Connection[*config.Config]) graphql.Marshaler {
+func (ec *executionContext) _ConfigConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.FacetableConnection[*config.Config, *config.ConfigFilter]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, configConnectionImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -2419,18 +2526,51 @@ func (ec *executionContext) _ConfigConnection(ctx context.Context, sel ast.Selec
 		case "pageInfo":
 			out.Values[i] = ec._ConfigConnection_pageInfo(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "nodes":
 			out.Values[i] = ec._ConfigConnection_nodes(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "edges":
 			out.Values[i] = ec._ConfigConnection_edges(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "facets":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ConfigConnection_facets(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -2614,6 +2754,50 @@ func (ec *executionContext) _ConfigEdge(ctx context.Context, sel ast.SelectionSe
 			}
 		case "node":
 			out.Values[i] = ec._ConfigEdge_node(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var configFacetsImplementors = []string{"ConfigFacets"}
+
+func (ec *executionContext) _ConfigFacets(ctx context.Context, sel ast.SelectionSet, obj *config.ConfigFacets) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, configFacetsImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ConfigFacets")
+		case "environments":
+			out.Values[i] = ec._ConfigFacets_environments(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "inUse":
+			out.Values[i] = ec._ConfigFacets_inUse(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -3083,11 +3267,11 @@ func (ec *executionContext) marshalNConfig2ᚖgithubᚗcomᚋnaisᚋapiᚋintern
 	return ec._Config(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNConfigConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[*config.Config]) graphql.Marshaler {
+func (ec *executionContext) marshalNConfigConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx context.Context, sel ast.SelectionSet, v pagination.FacetableConnection[*config.Config, *config.ConfigFilter]) graphql.Marshaler {
 	return ec._ConfigConnection(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNConfigConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*config.Config]) graphql.Marshaler {
+func (ec *executionContext) marshalNConfigConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.FacetableConnection[*config.Config, *config.ConfigFilter]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
@@ -3289,6 +3473,13 @@ func (ec *executionContext) marshalOConfig2ᚖgithubᚗcomᚋnaisᚋapiᚋintern
 		return graphql.Null
 	}
 	return ec._Config(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOConfigFacets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigFacets(ctx context.Context, sel ast.SelectionSet, v *config.ConfigFacets) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._ConfigFacets(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOConfigFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigFilter(ctx context.Context, v any) (*config.ConfigFilter, error) {

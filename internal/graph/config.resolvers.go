@@ -19,7 +19,7 @@ import (
 	"github.com/nais/api/internal/workload/job"
 )
 
-func (r *applicationResolver) Configs(ctx context.Context, obj *application.Application, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*config.Config], error) {
+func (r *applicationResolver) Configs(ctx context.Context, obj *application.Application, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.FacetableConnection[*config.Config, *config.ConfigFilter], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
@@ -40,7 +40,7 @@ func (r *configResolver) Values(ctx context.Context, obj *config.Config) ([]*con
 	return config.ValuesFromConfig(obj), nil
 }
 
-func (r *configResolver) Applications(ctx context.Context, obj *config.Config, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*application.ApplicationConnection, error) {
+func (r *configResolver) Applications(ctx context.Context, obj *config.Config, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.FacetableConnection[*application.Application, *application.TeamApplicationsFilter], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
@@ -57,10 +57,10 @@ func (r *configResolver) Applications(ctx context.Context, obj *config.Config, f
 
 	apps := pagination.Slice(ret, page)
 	conn := pagination.NewConnection(apps, page, len(ret))
-	return application.NewApplicationConnection(conn, ret, nil), nil
+	return pagination.NewFacetableConnection(conn, ret, (*application.TeamApplicationsFilter)(nil)), nil
 }
 
-func (r *configResolver) Jobs(ctx context.Context, obj *config.Config, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*job.JobConnection, error) {
+func (r *configResolver) Jobs(ctx context.Context, obj *config.Config, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.FacetableConnection[*job.Job, *job.TeamJobsFilter], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
@@ -77,7 +77,7 @@ func (r *configResolver) Jobs(ctx context.Context, obj *config.Config, first *in
 
 	jobs := pagination.Slice(ret, page)
 	conn := pagination.NewConnection(jobs, page, len(ret))
-	return job.NewJobConnection(conn, ret, nil), nil
+	return pagination.NewFacetableConnection(conn, ret, (*job.TeamJobsFilter)(nil)), nil
 }
 
 func (r *configResolver) Workloads(ctx context.Context, obj *config.Config, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[workload.Workload], error) {
@@ -142,7 +142,11 @@ func (r *configResolver) ActivityLog(ctx context.Context, obj *config.Config, fi
 	)
 }
 
-func (r *jobResolver) Configs(ctx context.Context, obj *job.Job, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*config.Config], error) {
+func (r *configConnectionResolver) Facets(ctx context.Context, obj *pagination.FacetableConnection[*config.Config, *config.ConfigFilter]) (*config.ConfigFacets, error) {
+	return config.ComputeFacets(ctx, obj.GetAllItems(), obj.GetFilter()), nil
+}
+
+func (r *jobResolver) Configs(ctx context.Context, obj *job.Job, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.FacetableConnection[*config.Config, *config.ConfigFilter], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
@@ -226,7 +230,7 @@ func (r *mutationResolver) DeleteConfig(ctx context.Context, input config.Delete
 }
 
 // Configs returns all configs for a team.
-func (r *teamResolver) Configs(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *config.ConfigOrder, filter *config.ConfigFilter) (*pagination.Connection[*config.Config], error) {
+func (r *teamResolver) Configs(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *config.ConfigOrder, filter *config.ConfigFilter) (*pagination.FacetableConnection[*config.Config, *config.ConfigFilter], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
@@ -248,4 +252,11 @@ func (r *teamInventoryCountsResolver) Configs(ctx context.Context, obj *team.Tea
 
 func (r *Resolver) Config() gengql.ConfigResolver { return &configResolver{r} }
 
-type configResolver struct{ *Resolver }
+func (r *Resolver) ConfigConnection() gengql.ConfigConnectionResolver {
+	return &configConnectionResolver{r}
+}
+
+type (
+	configResolver           struct{ *Resolver }
+	configConnectionResolver struct{ *Resolver }
+)

@@ -22,10 +22,14 @@ const (
 	annotationSecretKeys           = "console.nais.io/cached-secret-keys"
 )
 
-type (
-	SecretConnection = pagination.Connection[*Secret]
-	SecretEdge       = pagination.Edge[*Secret]
-)
+type SecretEdge = pagination.Edge[*Secret]
+
+type SecretConnection = pagination.FacetableConnection[*Secret, *SecretFilter]
+
+type SecretFacets struct {
+	Environments []model.StringFacetItem  `json:"environments"`
+	InUse        []model.BooleanFacetItem `json:"inUse"`
+}
 
 type Secret struct {
 	Name                string     `json:"name"`
@@ -226,8 +230,9 @@ func (e SecretOrderField) MarshalGQL(w io.Writer) {
 }
 
 type SecretFilter struct {
-	Name  string `json:"name"`
-	InUse *bool  `json:"inUse"`
+	Name         string   `json:"name"`
+	InUse        *bool    `json:"inUse"`
+	Environments []string `json:"environments"`
 }
 
 type ViewSecretValuesInput struct {

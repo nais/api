@@ -13,6 +13,7 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/nais/api/internal/cost"
 	"github.com/nais/api/internal/graph/ident"
+	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/persistence/bigquery"
 	"github.com/nais/api/internal/team"
@@ -31,6 +32,9 @@ type BigQueryDatasetResolver interface {
 
 	Workload(ctx context.Context, obj *bigquery.BigQueryDataset) (workload.Workload, error)
 	Cost(ctx context.Context, obj *bigquery.BigQueryDataset) (*cost.BigQueryDatasetCost, error)
+}
+type BigQueryDatasetConnectionResolver interface {
+	Facets(ctx context.Context, obj *pagination.FacetableConnection[*bigquery.BigQueryDataset, *bigquery.BigQueryDatasetFilter]) (*bigquery.BigQueryDatasetFacets, error)
 }
 
 // endregion ************************** generated!.gotpl **************************
@@ -616,7 +620,7 @@ func (ec *executionContext) fieldContext_BigQueryDatasetAccessEdge_node(_ contex
 	return fc, nil
 }
 
-func (ec *executionContext) _BigQueryDatasetConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*bigquery.BigQueryDataset]) (ret graphql.Marshaler) {
+func (ec *executionContext) _BigQueryDatasetConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*bigquery.BigQueryDataset, *bigquery.BigQueryDatasetFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -648,7 +652,7 @@ func (ec *executionContext) fieldContext_BigQueryDatasetConnection_pageInfo(_ co
 	return fc, nil
 }
 
-func (ec *executionContext) _BigQueryDatasetConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*bigquery.BigQueryDataset]) (ret graphql.Marshaler) {
+func (ec *executionContext) _BigQueryDatasetConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*bigquery.BigQueryDataset, *bigquery.BigQueryDatasetFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -680,7 +684,7 @@ func (ec *executionContext) fieldContext_BigQueryDatasetConnection_nodes(_ conte
 	return fc, nil
 }
 
-func (ec *executionContext) _BigQueryDatasetConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*bigquery.BigQueryDataset]) (ret graphql.Marshaler) {
+func (ec *executionContext) _BigQueryDatasetConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*bigquery.BigQueryDataset, *bigquery.BigQueryDatasetFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -707,6 +711,38 @@ func (ec *executionContext) fieldContext_BigQueryDatasetConnection_edges(_ conte
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return ec.childFields_BigQueryDatasetEdge(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BigQueryDatasetConnection_facets(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*bigquery.BigQueryDataset, *bigquery.BigQueryDatasetFilter]) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_BigQueryDatasetConnection_facets(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.BigQueryDatasetConnection().Facets(ctx, obj)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *bigquery.BigQueryDatasetFacets) graphql.Marshaler {
+			return ec.marshalOBigQueryDatasetFacets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDatasetFacets(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_BigQueryDatasetConnection_facets(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BigQueryDatasetConnection",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_BigQueryDatasetFacets(ctx, field)
 		},
 	}
 	return fc, nil
@@ -762,6 +798,38 @@ func (ec *executionContext) fieldContext_BigQueryDatasetEdge_node(_ context.Cont
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return ec.childFields_BigQueryDataset(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BigQueryDatasetFacets_environments(ctx context.Context, field graphql.CollectedField, obj *bigquery.BigQueryDatasetFacets) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_BigQueryDatasetFacets_environments(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Environments, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []model.StringFacetItem) graphql.Marshaler {
+			return ec.marshalNStringFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItemᚄ(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_BigQueryDatasetFacets_environments(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BigQueryDatasetFacets",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_StringFacetItem(ctx, field)
 		},
 	}
 	return fc, nil
@@ -872,6 +940,43 @@ func (ec *executionContext) unmarshalInputBigQueryDatasetAccessOrder(ctx context
 				return it, err
 			}
 			it.Direction = data
+		}
+	}
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputBigQueryDatasetFilter(ctx context.Context, obj any) (bigquery.BigQueryDatasetFilter, error) {
+	var it bigquery.BigQueryDatasetFilter
+	if obj == nil {
+		return it, nil
+	}
+
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"name", "environments"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalOString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "environments":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environments"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Environments = data
 		}
 	}
 	return it, nil
@@ -1330,7 +1435,7 @@ func (ec *executionContext) _BigQueryDatasetAccessEdge(ctx context.Context, sel 
 
 var bigQueryDatasetConnectionImplementors = []string{"BigQueryDatasetConnection"}
 
-func (ec *executionContext) _BigQueryDatasetConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.Connection[*bigquery.BigQueryDataset]) graphql.Marshaler {
+func (ec *executionContext) _BigQueryDatasetConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.FacetableConnection[*bigquery.BigQueryDataset, *bigquery.BigQueryDatasetFilter]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, bigQueryDatasetConnectionImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1342,18 +1447,51 @@ func (ec *executionContext) _BigQueryDatasetConnection(ctx context.Context, sel 
 		case "pageInfo":
 			out.Values[i] = ec._BigQueryDatasetConnection_pageInfo(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "nodes":
 			out.Values[i] = ec._BigQueryDatasetConnection_nodes(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "edges":
 			out.Values[i] = ec._BigQueryDatasetConnection_edges(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "facets":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._BigQueryDatasetConnection_facets(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -1395,6 +1533,45 @@ func (ec *executionContext) _BigQueryDatasetEdge(ctx context.Context, sel ast.Se
 			}
 		case "node":
 			out.Values[i] = ec._BigQueryDatasetEdge_node(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var bigQueryDatasetFacetsImplementors = []string{"BigQueryDatasetFacets"}
+
+func (ec *executionContext) _BigQueryDatasetFacets(ctx context.Context, sel ast.SelectionSet, obj *bigquery.BigQueryDatasetFacets) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, bigQueryDatasetFacetsImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("BigQueryDatasetFacets")
+		case "environments":
+			out.Values[i] = ec._BigQueryDatasetFacets_environments(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -1605,11 +1782,11 @@ func (ec *executionContext) marshalNBigQueryDatasetAccessOrderField2githubᚗcom
 	return v
 }
 
-func (ec *executionContext) marshalNBigQueryDatasetConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[*bigquery.BigQueryDataset]) graphql.Marshaler {
+func (ec *executionContext) marshalNBigQueryDatasetConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx context.Context, sel ast.SelectionSet, v pagination.FacetableConnection[*bigquery.BigQueryDataset, *bigquery.BigQueryDatasetFilter]) graphql.Marshaler {
 	return ec._BigQueryDatasetConnection(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNBigQueryDatasetConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*bigquery.BigQueryDataset]) graphql.Marshaler {
+func (ec *executionContext) marshalNBigQueryDatasetConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.FacetableConnection[*bigquery.BigQueryDataset, *bigquery.BigQueryDatasetFilter]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
@@ -1678,6 +1855,21 @@ func (ec *executionContext) unmarshalOBigQueryDatasetAccessOrder2ᚖgithubᚗcom
 		return nil, nil
 	}
 	res, err := ec.unmarshalInputBigQueryDatasetAccessOrder(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOBigQueryDatasetFacets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDatasetFacets(ctx context.Context, sel ast.SelectionSet, v *bigquery.BigQueryDatasetFacets) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._BigQueryDatasetFacets(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOBigQueryDatasetFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDatasetFilter(ctx context.Context, v any) (*bigquery.BigQueryDatasetFilter, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputBigQueryDatasetFilter(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
