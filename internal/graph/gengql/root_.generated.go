@@ -1062,9 +1062,13 @@ type ComplexityRoot struct {
 	ImageVulnerability struct {
 		CvssScore                func(childComplexity int) int
 		Description              func(childComplexity int) int
+		EpssPercentile           func(childComplexity int) int
+		EpssScore                func(childComplexity int) int
 		FixVersion               func(childComplexity int) int
+		HasKevEntry              func(childComplexity int) int
 		ID                       func(childComplexity int) int
 		Identifier               func(childComplexity int) int
+		KnownRansomwareUse       func(childComplexity int) int
 		Package                  func(childComplexity int) int
 		Severity                 func(childComplexity int) int
 		SeveritySince            func(childComplexity int) int
@@ -7297,12 +7301,33 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ImageVulnerability.Description(childComplexity), true
 
+	case "ImageVulnerability.epssPercentile":
+		if e.ComplexityRoot.ImageVulnerability.EpssPercentile == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImageVulnerability.EpssPercentile(childComplexity), true
+
+	case "ImageVulnerability.epssScore":
+		if e.ComplexityRoot.ImageVulnerability.EpssScore == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImageVulnerability.EpssScore(childComplexity), true
+
 	case "ImageVulnerability.fixVersion":
 		if e.ComplexityRoot.ImageVulnerability.FixVersion == nil {
 			break
 		}
 
 		return e.ComplexityRoot.ImageVulnerability.FixVersion(childComplexity), true
+
+	case "ImageVulnerability.hasKevEntry":
+		if e.ComplexityRoot.ImageVulnerability.HasKevEntry == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImageVulnerability.HasKevEntry(childComplexity), true
 
 	case "ImageVulnerability.id":
 		if e.ComplexityRoot.ImageVulnerability.ID == nil {
@@ -7317,6 +7342,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ImageVulnerability.Identifier(childComplexity), true
+
+	case "ImageVulnerability.knownRansomwareUse":
+		if e.ComplexityRoot.ImageVulnerability.KnownRansomwareUse == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImageVulnerability.KnownRansomwareUse(childComplexity), true
 
 	case "ImageVulnerability.package":
 		if e.ComplexityRoot.ImageVulnerability.Package == nil {
@@ -32019,6 +32051,18 @@ type ImageVulnerability implements Node {
 
 	"CVSS score of the vulnerability."
 	cvssScore: Float
+
+	"EPSS score of the vulnerability."
+	epssScore: Float
+
+	"EPSS percentile of the vulnerability (0-1)."
+	epssPercentile: Float
+
+	"Whether the vulnerability has a CISA KEV entry."
+	hasKevEntry: Boolean!
+
+	"Whether the vulnerability has known ransomware use."
+	knownRansomwareUse: Boolean!
 }
 
 enum CVEPriority {
@@ -34327,6 +34371,14 @@ func (ec *executionContext) childFields_ImageVulnerability(ctx context.Context, 
 		return ec.fieldContext_ImageVulnerability_vulnerabilityDetailsLink(ctx, field)
 	case "cvssScore":
 		return ec.fieldContext_ImageVulnerability_cvssScore(ctx, field)
+	case "epssScore":
+		return ec.fieldContext_ImageVulnerability_epssScore(ctx, field)
+	case "epssPercentile":
+		return ec.fieldContext_ImageVulnerability_epssPercentile(ctx, field)
+	case "hasKevEntry":
+		return ec.fieldContext_ImageVulnerability_hasKevEntry(ctx, field)
+	case "knownRansomwareUse":
+		return ec.fieldContext_ImageVulnerability_knownRansomwareUse(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type ImageVulnerability", field.Name)
 }
