@@ -33,6 +33,8 @@ var (
 
 	specShardIndexingPressureEnabled  = []string{"spec", "userConfig", "opensearch", "shard_indexing_pressure", "enabled"}
 	specShardIndexingPressureEnforced = []string{"spec", "userConfig", "opensearch", "shard_indexing_pressure", "enforced"}
+
+	specIndicesQueryBoolMaxClauseCount = []string{"spec", "userConfig", "opensearch", "indices_query_bool_max_clause_count"}
 )
 
 func GetByIdent(ctx context.Context, id ident.Ident) (*OpenSearch, error) {
@@ -225,6 +227,12 @@ func Create(ctx context.Context, input CreateOpenSearchInput) (*CreateOpenSearch
 		}
 	}
 
+	if input.Indices != nil && input.Indices.QueryBoolMaxClauseCount != nil {
+		res.Spec.Indices = &naiscrd.OpenSearchIndices{
+			QueryBoolMaxClauseCount: input.Indices.QueryBoolMaxClauseCount,
+		}
+	}
+
 	obj, err := kubernetes.ToUnstructured(res)
 	if err != nil {
 		return nil, err
@@ -286,6 +294,7 @@ func Update(ctx context.Context, input UpdateOpenSearchInput) (*UpdateOpenSearch
 		updateVersion,
 		updateStorage,
 		updateShardIndexingPressure,
+		updateIndices,
 	}
 
 	for _, f := range updateFuncs {
@@ -516,6 +525,48 @@ func updateShardIndexingPressure(openSearch *naiscrd.OpenSearch, input UpdateOpe
 	}
 
 	return changes, nil
+}
+
+func updateIndices(openSearch *naiscrd.OpenSearch, input UpdateOpenSearchInput) ([]*OpenSearchUpdatedActivityLogEntryDataUpdatedField, error) {
+	if input.Indices == nil {
+		return nil, nil
+	}
+
+	var oldCount *int
+	if openSearch.Spec.Indices != nil {
+		oldCount = openSearch.Spec.Indices.QueryBoolMaxClauseCount
+	}
+	newCount := input.Indices.QueryBoolMaxClauseCount
+
+	if equalIntPtr(oldCount, newCount) {
+		return nil, nil
+	}
+
+	openSearch.Spec.Indices = &naiscrd.OpenSearchIndices{
+		QueryBoolMaxClauseCount: newCount,
+	}
+
+	return []*OpenSearchUpdatedActivityLogEntryDataUpdatedField{
+		{
+			Field:    "indices.queryBoolMaxClauseCount",
+			OldValue: intPtrToStringPtr(oldCount),
+			NewValue: intPtrToStringPtr(newCount),
+		},
+	}, nil
+}
+
+func equalIntPtr(a, b *int) bool {
+	if a == nil || b == nil {
+		return a == b
+	}
+	return *a == *b
+}
+
+func intPtrToStringPtr(v *int) *string {
+	if v == nil {
+		return nil
+	}
+	return new(strconv.Itoa(*v))
 }
 
 func Delete(ctx context.Context, input DeleteOpenSearchInput) (*DeleteOpenSearchPayload, error) {

@@ -1547,6 +1547,7 @@ type ComplexityRoot struct {
 		Cost                  func(childComplexity int) int
 		Environment           func(childComplexity int) int
 		ID                    func(childComplexity int) int
+		Indices               func(childComplexity int) int
 		Issues                func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) int
 		Maintenance           func(childComplexity int) int
 		Memory                func(childComplexity int) int
@@ -1621,6 +1622,10 @@ type ComplexityRoot struct {
 	OpenSearchEdge struct {
 		Cursor func(childComplexity int) int
 		Node   func(childComplexity int) int
+	}
+
+	OpenSearchIndices struct {
+		QueryBoolMaxClauseCount func(childComplexity int) int
 	}
 
 	OpenSearchIssue struct {
@@ -9683,6 +9688,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.OpenSearch.ID(childComplexity), true
 
+	case "OpenSearch.indices":
+		if e.ComplexityRoot.OpenSearch.Indices == nil {
+			break
+		}
+
+		return e.ComplexityRoot.OpenSearch.Indices(childComplexity), true
+
 	case "OpenSearch.issues":
 		if e.ComplexityRoot.OpenSearch.Issues == nil {
 			break
@@ -10016,6 +10028,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.OpenSearchEdge.Node(childComplexity), true
+
+	case "OpenSearchIndices.queryBoolMaxClauseCount":
+		if e.ComplexityRoot.OpenSearchIndices.QueryBoolMaxClauseCount == nil {
+			break
+		}
+
+		return e.ComplexityRoot.OpenSearchIndices.QueryBoolMaxClauseCount(childComplexity), true
 
 	case "OpenSearchIssue.event":
 		if e.ComplexityRoot.OpenSearchIssue.Event == nil {
@@ -18538,6 +18557,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputMetricsQueryInput,
 		ec.unmarshalInputMetricsRangeInput,
 		ec.unmarshalInputOpenSearchAccessOrder,
+		ec.unmarshalInputOpenSearchIndicesInput,
 		ec.unmarshalInputOpenSearchOrder,
 		ec.unmarshalInputOpenSearchShardIndexingPressureInput,
 		ec.unmarshalInputPostgresInstanceOrder,
@@ -23898,6 +23918,8 @@ type OpenSearch implements Persistence & Node {
 	storageGB: Int!
 	"Shard indexing back pressure settings for the OpenSearch instance."
 	shardIndexingPressure: OpenSearchShardIndexingPressure!
+	"Index settings for the OpenSearch instance."
+	indices: OpenSearchIndices!
 	"Issues that affects the instance."
 	issues(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
@@ -23940,6 +23962,16 @@ input OpenSearchShardIndexingPressureInput {
 	enabled: Boolean!
 	"Run back pressure in enforced mode. Defaults to false (shadow mode)."
 	enforced: Boolean!
+}
+
+type OpenSearchIndices {
+	"Maximum number of clauses a Lucene BooleanQuery can contain. When not set, the instance uses the default of 1024. Increasing this value may cause performance issues."
+	queryBoolMaxClauseCount: Int
+}
+
+input OpenSearchIndicesInput {
+	"Maximum number of clauses a Lucene BooleanQuery can contain. Must be between 64 and 4096. When not set, the instance uses the default of 1024."
+	queryBoolMaxClauseCount: Int
 }
 
 type OpenSearchAccess {
@@ -24038,6 +24070,8 @@ input CreateOpenSearchInput {
 	storageGB: Int!
 	"Shard indexing back pressure settings. Defaults to disabled."
 	shardIndexingPressure: OpenSearchShardIndexingPressureInput
+	"Index settings for the OpenSearch instance."
+	indices: OpenSearchIndicesInput
 }
 
 type CreateOpenSearchPayload {
@@ -24062,6 +24096,8 @@ input UpdateOpenSearchInput {
 	storageGB: Int!
 	"Shard indexing back pressure settings. Defaults to disabled."
 	shardIndexingPressure: OpenSearchShardIndexingPressureInput
+	"Index settings for the OpenSearch instance."
+	indices: OpenSearchIndicesInput
 }
 
 type UpdateOpenSearchPayload {
@@ -33386,6 +33422,8 @@ func (ec *executionContext) childFields_OpenSearch(ctx context.Context, field gr
 		return ec.fieldContext_OpenSearch_storageGB(ctx, field)
 	case "shardIndexingPressure":
 		return ec.fieldContext_OpenSearch_shardIndexingPressure(ctx, field)
+	case "indices":
+		return ec.fieldContext_OpenSearch_indices(ctx, field)
 	case "issues":
 		return ec.fieldContext_OpenSearch_issues(ctx, field)
 	case "activityLog":
@@ -33474,6 +33512,14 @@ func (ec *executionContext) childFields_OpenSearchEdge(ctx context.Context, fiel
 		return ec.fieldContext_OpenSearchEdge_node(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type OpenSearchEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_OpenSearchIndices(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "queryBoolMaxClauseCount":
+		return ec.fieldContext_OpenSearchIndices_queryBoolMaxClauseCount(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type OpenSearchIndices", field.Name)
 }
 
 func (ec *executionContext) childFields_OpenSearchMaintenance(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {

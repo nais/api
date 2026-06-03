@@ -261,6 +261,45 @@ Test.gql("Create opensearch with invalid storage capacity increment", function(t
 	}
 end)
 
+Test.gql("Create opensearch with out-of-range query bool max clause count", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[
+		mutation CreateOpenSearch {
+		  createOpenSearch(
+		    input: {
+		      name: "foobar"
+		      environmentName: "dev"
+		      teamSlug: "someteamname"
+		      tier: HIGH_AVAILABILITY
+		      memory: GB_4
+		      version: V2
+		      storageGB: 240
+		      indices: { queryBoolMaxClauseCount: 8192 }
+		    }
+		  ) {
+		    openSearch {
+		      name
+		    }
+		  }
+		}
+	]]
+
+	t.check {
+		errors = {
+			{
+				extensions = {
+					field = "queryBoolMaxClauseCount",
+				},
+				message = "Query bool max clause count must be between 64 and 4096.",
+				path = {
+					"createOpenSearch",
+				},
+			},
+		},
+		data = Null,
+	}
+end)
+
 Test.k8s("Validate OpenSearch resource", function(t)
 	t.check("nais.io/v1", "opensearches", "dev", mainTeam:slug(), "foobar", {
 		apiVersion = "nais.io/v1",
@@ -430,6 +469,7 @@ Test.gql("Update OpenSearch as team-member", function(t)
 		      version: V2
 		      storageGB: 1020
 		      shardIndexingPressure: { enabled: true, enforced: true }
+		      indices: { queryBoolMaxClauseCount: 2048 }
 		    }
 		  ) {
 		    openSearch {
@@ -437,6 +477,9 @@ Test.gql("Update OpenSearch as team-member", function(t)
 		      shardIndexingPressure {
 		        enabled
 		        enforced
+		      }
+		      indices {
+		        queryBoolMaxClauseCount
 		      }
 		    }
 		  }
@@ -451,6 +494,9 @@ Test.gql("Update OpenSearch as team-member", function(t)
 					shardIndexingPressure = {
 						enabled = true,
 						enforced = true,
+					},
+					indices = {
+						queryBoolMaxClauseCount = 2048,
 					},
 				},
 			},
@@ -483,6 +529,10 @@ Test.k8s("Validate OpenSearch resource after update", function(t)
 				enabled = true,
 				enforced = true,
 			},
+			indices = {
+				-- TODO: more precise assertion?
+				queryBoolMaxClauseCount = NotNull(),
+			},
 		},
 	})
 end)
@@ -501,6 +551,9 @@ Test.gql("List opensearches for team", function(t)
 		        shardIndexingPressure {
 		          enabled
 		          enforced
+		        }
+		        indices {
+		          queryBoolMaxClauseCount
 		        }
 		      }
 		    }
@@ -521,6 +574,9 @@ Test.gql("List opensearches for team", function(t)
 								enabled = true,
 								enforced = true,
 							},
+							indices = {
+								queryBoolMaxClauseCount = 2048,
+							},
 						},
 						{
 							name = "foobar-hobbyist",
@@ -529,6 +585,9 @@ Test.gql("List opensearches for team", function(t)
 							shardIndexingPressure = {
 								enabled = false,
 								enforced = false,
+							},
+							indices = {
+								queryBoolMaxClauseCount = Null,
 							},
 						},
 						{
@@ -539,6 +598,9 @@ Test.gql("List opensearches for team", function(t)
 								enabled = false,
 								enforced = false,
 							},
+							indices = {
+								queryBoolMaxClauseCount = Null,
+							},
 						},
 						{
 							name = "opensearch-someteamname-hobbyist-not-managed",
@@ -548,6 +610,9 @@ Test.gql("List opensearches for team", function(t)
 								enabled = false,
 								enforced = false,
 							},
+							indices = {
+								queryBoolMaxClauseCount = Null,
+							},
 						},
 						{
 							name = "opensearch-someteamname-not-managed",
@@ -556,6 +621,9 @@ Test.gql("List opensearches for team", function(t)
 							shardIndexingPressure = {
 								enabled = true,
 								enforced = true,
+							},
+							indices = {
+								queryBoolMaxClauseCount = 512,
 							},
 						},
 					},
@@ -694,6 +762,10 @@ Test.k8s("Validate hobbyist OpenSearch resource after update", function(t)
 			shardIndexingPressure = {
 				enabled = true,
 				enforced = true,
+			},
+			indices = {
+				-- TODO: more precise assertion?
+				queryBoolMaxClauseCount = NotNull(),
 			},
 		},
 	})
@@ -973,6 +1045,11 @@ Test.gql("Verify activity log for opensearch operations", function(t)
 										field = "shardIndexingPressure.enforced",
 										oldValue = "false",
 										newValue = "true",
+									},
+									{
+										field = "indices.queryBoolMaxClauseCount",
+										oldValue = Null,
+										newValue = "2048",
 									},
 								},
 							},
