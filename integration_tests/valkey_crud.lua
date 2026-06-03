@@ -319,15 +319,13 @@ Test.gql("Update Valkey as team-member", function(t)
 		      maxMemoryPolicy: ALLKEYS_RANDOM
 		      notifyKeyspaceEvents: "Exd"
 		      databases: 64
-		      persistence: { disabled: true }
+		      persistenceDisabled: true
 		    }
 		  ) {
 		    valkey {
 		      name
 		      databases
-		      persistence {
-		        disabled
-		      }
+		      persistenceDisabled
 		    }
 		  }
 		}
@@ -339,9 +337,7 @@ Test.gql("Update Valkey as team-member", function(t)
 				valkey = {
 					name = "foobar",
 					databases = 64,
-					persistence = {
-						disabled = true,
-					},
+					persistenceDisabled = true,
 				},
 			},
 		},
@@ -446,9 +442,7 @@ Test.gql("List valkeys for team", function(t)
 		        maxMemoryPolicy
 		        notifyKeyspaceEvents
 		        databases
-		        persistence {
-		          disabled
-		        }
+		        persistenceDisabled
 		      }
 		    }
 		  }
@@ -467,9 +461,7 @@ Test.gql("List valkeys for team", function(t)
 							maxMemoryPolicy = "ALLKEYS_RANDOM",
 							notifyKeyspaceEvents = "Exd",
 							databases = 64,
-							persistence = {
-								disabled = true,
-							},
+							persistenceDisabled = true,
 						},
 						{
 							name = "foobar-hobbyist",
@@ -478,9 +470,7 @@ Test.gql("List valkeys for team", function(t)
 							maxMemoryPolicy = "",
 							notifyKeyspaceEvents = "",
 							databases = 16,
-							persistence = {
-								disabled = false,
-							},
+							persistenceDisabled = false,
 						},
 						{
 							name = "valkey-someteamname-hobbyist-not-managed",
@@ -489,9 +479,7 @@ Test.gql("List valkeys for team", function(t)
 							maxMemoryPolicy = "",
 							notifyKeyspaceEvents = "",
 							databases = 16,
-							persistence = {
-								disabled = false,
-							},
+							persistenceDisabled = false,
 						},
 						{
 							name = "valkey-someteamname-not-managed",
@@ -500,9 +488,7 @@ Test.gql("List valkeys for team", function(t)
 							maxMemoryPolicy = "",
 							notifyKeyspaceEvents = "",
 							databases = 16,
-							persistence = {
-								disabled = true,
-							},
+							persistenceDisabled = true,
 						},
 					},
 				},
@@ -819,7 +805,7 @@ Test.gql("Verify activity log for valkey operations", function(t)
 										newValue = "64",
 									},
 									{
-										field = "persistence.disabled",
+										field = "persistenceDisabled",
 										oldValue = "false",
 										newValue = "true",
 									},
