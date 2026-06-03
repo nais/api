@@ -3467,6 +3467,7 @@ type ComplexityRoot struct {
 		Memory                func(childComplexity int) int
 		Name                  func(childComplexity int) int
 		NotifyKeyspaceEvents  func(childComplexity int) int
+		Persistence           func(childComplexity int) int
 		State                 func(childComplexity int) int
 		Team                  func(childComplexity int) int
 		TeamEnvironment       func(childComplexity int) int
@@ -3590,6 +3591,10 @@ type ComplexityRoot struct {
 	ValkeyMaintenanceUpdateEdge struct {
 		Cursor func(childComplexity int) int
 		Node   func(childComplexity int) int
+	}
+
+	ValkeyPersistence struct {
+		Disabled func(childComplexity int) int
 	}
 
 	ValkeyTierFacetItem struct {
@@ -18378,6 +18383,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Valkey.NotifyKeyspaceEvents(childComplexity), true
 
+	case "Valkey.persistence":
+		if e.ComplexityRoot.Valkey.Persistence == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Valkey.Persistence(childComplexity), true
+
 	case "Valkey.state":
 		if e.ComplexityRoot.Valkey.State == nil {
 			break
@@ -18886,6 +18898,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ValkeyMaintenanceUpdateEdge.Node(childComplexity), true
+
+	case "ValkeyPersistence.disabled":
+		if e.ComplexityRoot.ValkeyPersistence.Disabled == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ValkeyPersistence.Disabled(childComplexity), true
 
 	case "ValkeyTierFacetItem.count":
 		if e.ComplexityRoot.ValkeyTierFacetItem.Count == nil {
@@ -19780,6 +19799,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputValkeyAccessOrder,
 		ec.unmarshalInputValkeyFilter,
 		ec.unmarshalInputValkeyOrder,
+		ec.unmarshalInputValkeyPersistenceInput,
 		ec.unmarshalInputViewSecretValuesInput,
 		ec.unmarshalInputVulnerabilitySummaryOrder,
 		ec.unmarshalInputWorkloadLogSubscriptionFilter,
@@ -31581,6 +31601,8 @@ type Valkey implements Persistence & Node {
 	notifyKeyspaceEvents: String
 	"Number of databases the Valkey instance is configured with. Default is 16. Minimum 1, maximum 128. Changing this will cause a restart of the Valkey service."
 	databases: Int!
+	"Persistence and backup settings for the Valkey instance."
+	persistence: ValkeyPersistence!
 	"Issues that affects the instance."
 	issues(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
@@ -31609,6 +31631,16 @@ enum ValkeyState {
 	REBUILDING
 	RUNNING
 	UNKNOWN
+}
+
+type ValkeyPersistence {
+	"Whether persistence (RDB dumps and backups) is disabled. If true, all data is lost if the instance is restarted for any reason."
+	disabled: Boolean!
+}
+
+input ValkeyPersistenceInput {
+	"Disable persistence (RDB dumps and backups). Defaults to false."
+	disabled: Boolean!
 }
 
 type ValkeyAccess {
@@ -31784,6 +31816,8 @@ input CreateValkeyInput {
 	notifyKeyspaceEvents: String
 	"Number of databases. Default is 16. Minimum 1, maximum 128. Changing this will cause a restart of the Valkey service."
 	databases: Int
+	"Persistence and backup settings for the Valkey instance. Defaults to enabled."
+	persistence: ValkeyPersistenceInput
 }
 
 type CreateValkeyPayload {
@@ -31810,6 +31844,8 @@ input UpdateValkeyInput {
 	databases: Int
 	"User-defined labels for the instance. When provided, replaces all existing user-defined labels. When omitted, labels are left unchanged."
 	labels: [ResourceLabelInput!]
+	"Persistence and backup settings for the Valkey instance. Defaults to enabled."
+	persistence: ValkeyPersistenceInput
 }
 
 type UpdateValkeyPayload {
@@ -38019,6 +38055,8 @@ func (ec *executionContext) childFields_Valkey(ctx context.Context, field graphq
 		return ec.fieldContext_Valkey_notifyKeyspaceEvents(ctx, field)
 	case "databases":
 		return ec.fieldContext_Valkey_databases(ctx, field)
+	case "persistence":
+		return ec.fieldContext_Valkey_persistence(ctx, field)
 	case "issues":
 		return ec.fieldContext_Valkey_issues(ctx, field)
 	case "activityLog":
@@ -38177,6 +38215,14 @@ func (ec *executionContext) childFields_ValkeyMaintenanceUpdateEdge(ctx context.
 		return ec.fieldContext_ValkeyMaintenanceUpdateEdge_node(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type ValkeyMaintenanceUpdateEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_ValkeyPersistence(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "disabled":
+		return ec.fieldContext_ValkeyPersistence_disabled(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ValkeyPersistence", field.Name)
 }
 
 func (ec *executionContext) childFields_ValkeyTierFacetItem(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
