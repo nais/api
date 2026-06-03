@@ -59,17 +59,18 @@ type OpenSearchTierFacetItem struct {
 }
 
 type OpenSearch struct {
-	Name                  string                    `json:"name"`
-	Status                *naiscrd.OpenSearchStatus `json:"status"`
-	TerminationProtection bool                      `json:"terminationProtection"`
-	Tier                  OpenSearchTier            `json:"tier"`
-	Memory                OpenSearchMemory          `json:"memory"`
-	StorageGB             StorageGB                 `json:"storageGB"`
-	Labels                []*model.ResourceLabel    `json:"labels"`
-	TeamSlug              slug.Slug                 `json:"-"`
-	EnvironmentName       string                    `json:"-"`
-	WorkloadReference     *workload.Reference       `json:"-"`
-	MajorVersion          OpenSearchMajorVersion    `json:"-"`
+	Name                  string                          `json:"name"`
+	Status                *naiscrd.OpenSearchStatus       `json:"status"`
+	TerminationProtection bool                            `json:"terminationProtection"`
+	Tier                  OpenSearchTier                  `json:"tier"`
+	Memory                OpenSearchMemory                `json:"memory"`
+	StorageGB             StorageGB                       `json:"storageGB"`
+	ShardIndexingPressure OpenSearchShardIndexingPressure `json:"shardIndexingPressure"`
+	Labels                []*model.ResourceLabel          `json:"labels"`
+	TeamSlug              slug.Slug                       `json:"-"`
+	EnvironmentName       string                          `json:"-"`
+	WorkloadReference     *workload.Reference             `json:"-"`
+	MajorVersion          OpenSearchMajorVersion          `json:"-"`
 }
 
 func (OpenSearch) IsPersistence()    {}
@@ -107,6 +108,16 @@ type OpenSearchAccess struct {
 	TeamSlug          slug.Slug           `json:"-"`
 	EnvironmentName   string              `json:"-"`
 	WorkloadReference *workload.Reference `json:"-"`
+}
+
+type OpenSearchShardIndexingPressure struct {
+	Enabled  bool `json:"enabled"`
+	Enforced bool `json:"enforced"`
+}
+
+type OpenSearchShardIndexingPressureInput struct {
+	Enabled  bool `json:"enabled"`
+	Enforced bool `json:"enforced"`
 }
 
 type OpenSearchStatus struct {
@@ -223,6 +234,9 @@ func toOpenSearch(u *unstructured.Unstructured, envName string) (*OpenSearch, er
 		}
 	}
 
+	shardIndexingPressureEnabled, _, _ := unstructured.NestedBool(u.Object, specShardIndexingPressureEnabled...)
+	shardIndexingPressureEnforced, _, _ := unstructured.NestedBool(u.Object, specShardIndexingPressureEnforced...)
+
 	return &OpenSearch{
 		Name:                  name,
 		EnvironmentName:       envName,
@@ -239,22 +253,33 @@ func toOpenSearch(u *unstructured.Unstructured, envName string) (*OpenSearch, er
 		MajorVersion:      majorVersion,
 		StorageGB:         storageGB,
 		Labels:            model.UserLabels(obj.GetLabels()),
+		ShardIndexingPressure: OpenSearchShardIndexingPressure{
+			Enabled:  shardIndexingPressureEnabled,
+			Enforced: shardIndexingPressureEnforced,
+		},
 	}, nil
 }
 
 func toOpenSearchFromNais(o *naiscrd.OpenSearch, envName string) (*OpenSearch, error) {
 	majorVersion := fromMapperatorVersion(o.Spec.Version)
 
+	shardIndexingPressure := OpenSearchShardIndexingPressure{}
+	if o.Spec.ShardIndexingPressure != nil {
+		shardIndexingPressure.Enabled = o.Spec.ShardIndexingPressure.Enabled
+		shardIndexingPressure.Enforced = o.Spec.ShardIndexingPressure.Enforced
+	}
+
 	return &OpenSearch{
-		Name:              o.Name,
-		EnvironmentName:   envName,
-		Status:            o.Status,
-		TeamSlug:          slug.Slug(o.Namespace),
-		WorkloadReference: workload.ReferenceFromOwnerReferences(o.OwnerReferences),
-		Tier:              fromMapperatorTier(o.Spec.Tier),
-		Memory:            fromMapperatorMemory(o.Spec.Memory),
-		MajorVersion:      majorVersion,
-		StorageGB:         StorageGB(o.Spec.StorageGB),
+		Name:                  o.Name,
+		EnvironmentName:       envName,
+		Status:                o.Status,
+		TeamSlug:              slug.Slug(o.Namespace),
+		WorkloadReference:     workload.ReferenceFromOwnerReferences(o.OwnerReferences),
+		Tier:                  fromMapperatorTier(o.Spec.Tier),
+		Memory:                fromMapperatorMemory(o.Spec.Memory),
+		MajorVersion:          majorVersion,
+		StorageGB:             StorageGB(o.Spec.StorageGB),
+		ShardIndexingPressure: shardIndexingPressure,
 	}, nil
 }
 
@@ -295,10 +320,11 @@ func (o *OpenSearchMetadataInput) ValidationErrors(ctx context.Context) *validat
 
 type OpenSearchInput struct {
 	OpenSearchMetadataInput
-	Tier      OpenSearchTier         `json:"tier"`
-	Memory    OpenSearchMemory       `json:"memory"`
-	Version   OpenSearchMajorVersion `json:"version"`
-	StorageGB StorageGB              `json:"storageGB"`
+	Tier                  OpenSearchTier                        `json:"tier"`
+	Memory                OpenSearchMemory                      `json:"memory"`
+	Version               OpenSearchMajorVersion                `json:"version"`
+	StorageGB             StorageGB                             `json:"storageGB"`
+	ShardIndexingPressure *OpenSearchShardIndexingPressureInput `json:"shardIndexingPressure,omitempty"`
 }
 
 func (o *OpenSearchInput) Validate(ctx context.Context) error {

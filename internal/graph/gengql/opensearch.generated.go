@@ -659,6 +659,38 @@ func (ec *executionContext) fieldContext_OpenSearch_labels(_ context.Context, fi
 	return fc, nil
 }
 
+func (ec *executionContext) _OpenSearch_shardIndexingPressure(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearch) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_OpenSearch_shardIndexingPressure(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.ShardIndexingPressure, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v opensearch.OpenSearchShardIndexingPressure) graphql.Marshaler {
+			return ec.marshalNOpenSearchShardIndexingPressure2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchShardIndexingPressure(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_OpenSearch_shardIndexingPressure(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "OpenSearch",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_OpenSearchShardIndexingPressure(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _OpenSearch_issues(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearch) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -2041,6 +2073,52 @@ func (ec *executionContext) fieldContext_OpenSearchFacets_labels(_ context.Conte
 	return fc, nil
 }
 
+func (ec *executionContext) _OpenSearchShardIndexingPressure_enabled(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearchShardIndexingPressure) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_OpenSearchShardIndexingPressure_enabled(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Enabled, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
+			return ec.marshalNBoolean2bool(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_OpenSearchShardIndexingPressure_enabled(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("OpenSearchShardIndexingPressure", field, false, false, errors.New("field of type Boolean does not have child fields"))
+}
+
+func (ec *executionContext) _OpenSearchShardIndexingPressure_enforced(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearchShardIndexingPressure) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_OpenSearchShardIndexingPressure_enforced(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Enforced, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
+			return ec.marshalNBoolean2bool(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_OpenSearchShardIndexingPressure_enforced(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("OpenSearchShardIndexingPressure", field, false, false, errors.New("field of type Boolean does not have child fields"))
+}
+
 func (ec *executionContext) _OpenSearchTierFacetItem_tier(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearchTierFacetItem) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -2578,7 +2656,7 @@ func (ec *executionContext) unmarshalInputCreateOpenSearchInput(ctx context.Cont
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "environmentName", "teamSlug", "tier", "memory", "version", "storageGB"}
+	fieldsInOrder := [...]string{"name", "environmentName", "teamSlug", "tier", "memory", "version", "storageGB", "shardIndexingPressure"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -2634,6 +2712,13 @@ func (ec *executionContext) unmarshalInputCreateOpenSearchInput(ctx context.Cont
 				return it, err
 			}
 			it.StorageGB = data
+		case "shardIndexingPressure":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("shardIndexingPressure"))
+			data, err := ec.unmarshalOOpenSearchShardIndexingPressureInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchShardIndexingPressureInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ShardIndexingPressure = data
 		}
 	}
 	return it, nil
@@ -2808,6 +2893,43 @@ func (ec *executionContext) unmarshalInputOpenSearchOrder(ctx context.Context, o
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputOpenSearchShardIndexingPressureInput(ctx context.Context, obj any) (opensearch.OpenSearchShardIndexingPressureInput, error) {
+	var it opensearch.OpenSearchShardIndexingPressureInput
+	if obj == nil {
+		return it, nil
+	}
+
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"enabled", "enforced"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "enabled":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("enabled"))
+			data, err := ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Enabled = data
+		case "enforced":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("enforced"))
+			data, err := ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Enforced = data
+		}
+	}
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputUpdateOpenSearchInput(ctx context.Context, obj any) (opensearch.UpdateOpenSearchInput, error) {
 	var it opensearch.UpdateOpenSearchInput
 	if obj == nil {
@@ -2819,7 +2941,7 @@ func (ec *executionContext) unmarshalInputUpdateOpenSearchInput(ctx context.Cont
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "environmentName", "teamSlug", "tier", "memory", "version", "storageGB", "labels"}
+	fieldsInOrder := [...]string{"name", "environmentName", "teamSlug", "tier", "memory", "version", "storageGB", "labels", "shardIndexingPressure"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -2882,6 +3004,13 @@ func (ec *executionContext) unmarshalInputUpdateOpenSearchInput(ctx context.Cont
 				return it, err
 			}
 			it.Labels = data
+		case "shardIndexingPressure":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("shardIndexingPressure"))
+			data, err := ec.unmarshalOOpenSearchShardIndexingPressureInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchShardIndexingPressureInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ShardIndexingPressure = data
 		}
 	}
 	return it, nil
@@ -3265,6 +3394,11 @@ func (ec *executionContext) _OpenSearch(ctx context.Context, sel ast.SelectionSe
 			}
 		case "labels":
 			out.Values[i] = ec._OpenSearch_labels(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "shardIndexingPressure":
+			out.Values[i] = ec._OpenSearch_shardIndexingPressure(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -4189,6 +4323,50 @@ func (ec *executionContext) _OpenSearchFacets(ctx context.Context, sel ast.Selec
 	return out
 }
 
+var openSearchShardIndexingPressureImplementors = []string{"OpenSearchShardIndexingPressure"}
+
+func (ec *executionContext) _OpenSearchShardIndexingPressure(ctx context.Context, sel ast.SelectionSet, obj *opensearch.OpenSearchShardIndexingPressure) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, openSearchShardIndexingPressureImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("OpenSearchShardIndexingPressure")
+		case "enabled":
+			out.Values[i] = ec._OpenSearchShardIndexingPressure_enabled(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "enforced":
+			out.Values[i] = ec._OpenSearchShardIndexingPressure_enforced(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var openSearchTierFacetItemImplementors = []string{"OpenSearchTierFacetItem"}
 
 func (ec *executionContext) _OpenSearchTierFacetItem(ctx context.Context, sel ast.SelectionSet, obj *opensearch.OpenSearchTierFacetItem) graphql.Marshaler {
@@ -4765,6 +4943,10 @@ func (ec *executionContext) marshalNOpenSearchPermission2githubᚗcomᚋnaisᚋa
 	return v
 }
 
+func (ec *executionContext) marshalNOpenSearchShardIndexingPressure2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchShardIndexingPressure(ctx context.Context, sel ast.SelectionSet, v opensearch.OpenSearchShardIndexingPressure) graphql.Marshaler {
+	return ec._OpenSearchShardIndexingPressure(ctx, sel, &v)
+}
+
 func (ec *executionContext) unmarshalNOpenSearchState2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchState(ctx context.Context, v any) (opensearch.OpenSearchState, error) {
 	var res opensearch.OpenSearchState
 	err := res.UnmarshalGQL(v)
@@ -4923,6 +5105,14 @@ func (ec *executionContext) unmarshalOOpenSearchOrder2ᚖgithubᚗcomᚋnaisᚋa
 		return nil, nil
 	}
 	res, err := ec.unmarshalInputOpenSearchOrder(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOOpenSearchShardIndexingPressureInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchShardIndexingPressureInput(ctx context.Context, v any) (*opensearch.OpenSearchShardIndexingPressureInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputOpenSearchShardIndexingPressureInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 

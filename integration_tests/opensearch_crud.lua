@@ -429,10 +429,15 @@ Test.gql("Update OpenSearch as team-member", function(t)
 		      memory: GB_4
 		      version: V2
 		      storageGB: 1020
+		      shardIndexingPressure: { enabled: true, enforced: true }
 		    }
 		  ) {
 		    openSearch {
 		      name
+		      shardIndexingPressure {
+		        enabled
+		        enforced
+		      }
 		    }
 		  }
 		}
@@ -443,6 +448,10 @@ Test.gql("Update OpenSearch as team-member", function(t)
 			updateOpenSearch = {
 				openSearch = {
 					name = "foobar",
+					shardIndexingPressure = {
+						enabled = true,
+						enforced = true,
+					},
 				},
 			},
 		},
@@ -470,6 +479,10 @@ Test.k8s("Validate OpenSearch resource after update", function(t)
 			tier = "HighAvailability",
 			version = "2",
 			storageGB = NotNull(),
+			shardIndexingPressure = {
+				enabled = true,
+				enforced = true,
+			},
 		},
 	})
 end)
@@ -485,6 +498,10 @@ Test.gql("List opensearches for team", function(t)
 		        name
 		        tier
 		        memory
+		        shardIndexingPressure {
+		          enabled
+		          enforced
+		        }
 		      }
 		    }
 		  }
@@ -500,26 +517,46 @@ Test.gql("List opensearches for team", function(t)
 							name = "foobar",
 							tier = "HIGH_AVAILABILITY",
 							memory = "GB_4",
+							shardIndexingPressure = {
+								enabled = true,
+								enforced = true,
+							},
 						},
 						{
 							name = "foobar-hobbyist",
 							tier = "SINGLE_NODE",
 							memory = "GB_2",
+							shardIndexingPressure = {
+								enabled = false,
+								enforced = false,
+							},
 						},
 						{
 							name = "noversion",
 							tier = "SINGLE_NODE",
 							memory = "GB_2",
+							shardIndexingPressure = {
+								enabled = false,
+								enforced = false,
+							},
 						},
 						{
 							name = "opensearch-someteamname-hobbyist-not-managed",
 							tier = "SINGLE_NODE",
 							memory = "GB_2",
+							shardIndexingPressure = {
+								enabled = false,
+								enforced = false,
+							},
 						},
 						{
 							name = "opensearch-someteamname-not-managed",
 							tier = "HIGH_AVAILABILITY",
 							memory = "GB_8",
+							shardIndexingPressure = {
+								enabled = true,
+								enforced = true,
+							},
 						},
 					},
 				},
@@ -654,6 +691,10 @@ Test.k8s("Validate hobbyist OpenSearch resource after update", function(t)
 			tier = "SingleNode",
 			version = "2",
 			storageGB = NotNull(),
+			shardIndexingPressure = {
+				enabled = true,
+				enforced = true,
+			},
 		},
 	})
 end)
@@ -922,6 +963,16 @@ Test.gql("Verify activity log for opensearch operations", function(t)
 										field = "storageGB",
 										oldValue = "350",
 										newValue = "1020",
+									},
+									{
+										field = "shardIndexingPressure.enabled",
+										oldValue = "false",
+										newValue = "true",
+									},
+									{
+										field = "shardIndexingPressure.enforced",
+										oldValue = "false",
+										newValue = "true",
 									},
 								},
 							},
