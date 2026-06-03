@@ -21,6 +21,7 @@ import (
 	aiven_io_v1alpha1 "github.com/nais/liberator/pkg/apis/aiven.io/v1alpha1"
 	"github.com/nais/pgrator/pkg/api"
 	naiscrd "github.com/nais/pgrator/pkg/api/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -44,6 +45,7 @@ type OpenSearch struct {
 	StorageGB             StorageGB                       `json:"storageGB"`
 	ShardIndexingPressure OpenSearchShardIndexingPressure `json:"shardIndexingPressure"`
 	Indices               OpenSearchIndices               `json:"indices"`
+	HTTP                  OpenSearchHTTP                  `json:"http"`
 	TeamSlug              slug.Slug                       `json:"-"`
 	EnvironmentName       string                          `json:"-"`
 	WorkloadReference     *workload.Reference             `json:"-"`
@@ -103,6 +105,14 @@ type OpenSearchIndices struct {
 
 type OpenSearchIndicesInput struct {
 	QueryBoolMaxClauseCount *int `json:"queryBoolMaxClauseCount,omitempty"`
+}
+
+type OpenSearchHTTP struct {
+	MaxContentLength *string `json:"maxContentLength,omitempty"`
+}
+
+type OpenSearchHTTPInput struct {
+	MaxContentLength *string `json:"maxContentLength,omitempty"`
 }
 
 type OpenSearchStatus struct {
@@ -228,6 +238,12 @@ func toOpenSearch(u *unstructured.Unstructured, envName string) (*OpenSearch, er
 		indices.QueryBoolMaxClauseCount = &n
 	}
 
+	http := OpenSearchHTTP{}
+	if v, found, _ := unstructured.NestedNumberAsFloat64(u.Object, specHTTPMaxContentLength...); found {
+		s := resource.NewQuantity(int64(v), resource.BinarySI).String()
+		http.MaxContentLength = &s
+	}
+
 	return &OpenSearch{
 		Name:                  name,
 		EnvironmentName:       envName,
@@ -248,6 +264,7 @@ func toOpenSearch(u *unstructured.Unstructured, envName string) (*OpenSearch, er
 			Enforced: shardIndexingPressureEnforced,
 		},
 		Indices: indices,
+		HTTP:    http,
 	}, nil
 }
 
@@ -265,6 +282,12 @@ func toOpenSearchFromNais(o *naiscrd.OpenSearch, envName string) (*OpenSearch, e
 		indices.QueryBoolMaxClauseCount = o.Spec.Indices.QueryBoolMaxClauseCount
 	}
 
+	http := OpenSearchHTTP{}
+	if o.Spec.Http != nil && o.Spec.Http.MaxContentLength != nil {
+		s := o.Spec.Http.MaxContentLength.String()
+		http.MaxContentLength = &s
+	}
+
 	return &OpenSearch{
 		Name:                  o.Name,
 		EnvironmentName:       envName,
@@ -277,6 +300,7 @@ func toOpenSearchFromNais(o *naiscrd.OpenSearch, envName string) (*OpenSearch, e
 		StorageGB:             StorageGB(o.Spec.StorageGB),
 		ShardIndexingPressure: shardIndexingPressure,
 		Indices:               indices,
+		HTTP:                  http,
 	}, nil
 }
 
@@ -323,6 +347,7 @@ type OpenSearchInput struct {
 	StorageGB             StorageGB                             `json:"storageGB"`
 	ShardIndexingPressure *OpenSearchShardIndexingPressureInput `json:"shardIndexingPressure,omitempty"`
 	Indices               *OpenSearchIndicesInput               `json:"indices,omitempty"`
+	HTTP                  *OpenSearchHTTPInput                  `json:"http,omitempty"`
 }
 
 func (o *OpenSearchInput) Validate(ctx context.Context) error {
@@ -341,6 +366,15 @@ func (o *OpenSearchInput) Validate(ctx context.Context) error {
 	if o.Indices != nil && o.Indices.QueryBoolMaxClauseCount != nil {
 		if c := *o.Indices.QueryBoolMaxClauseCount; c < 64 || c > 4096 {
 			verr.Add("queryBoolMaxClauseCount", "Query bool max clause count must be between 64 and 4096.")
+		}
+	}
+
+	if o.HTTP != nil && o.HTTP.MaxContentLength != nil {
+		q, err := resource.ParseQuantity(*o.HTTP.MaxContentLength)
+		if err != nil {
+			verr.Add("maxContentLength", "Max content length must be a valid quantity (e.g. \"100Mi\", \"1Gi\").")
+		} else if b := q.Value(); b < 1 || b > 2147483647 {
+			verr.Add("maxContentLength", "Max content length must be between 1 byte and 2147483647 bytes (around 2047Mi).")
 		}
 	}
 

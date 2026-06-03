@@ -23,6 +23,7 @@ import (
 	"github.com/nais/pgrator/pkg/api"
 	naiscrd "github.com/nais/pgrator/pkg/api/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -35,6 +36,8 @@ var (
 	specShardIndexingPressureEnforced = []string{"spec", "userConfig", "opensearch", "shard_indexing_pressure", "enforced"}
 
 	specIndicesQueryBoolMaxClauseCount = []string{"spec", "userConfig", "opensearch", "indices_query_bool_max_clause_count"}
+
+	specHTTPMaxContentLength = []string{"spec", "userConfig", "opensearch", "http_max_content_length"}
 )
 
 func GetByIdent(ctx context.Context, id ident.Ident) (*OpenSearch, error) {
@@ -233,6 +236,16 @@ func Create(ctx context.Context, input CreateOpenSearchInput) (*CreateOpenSearch
 		}
 	}
 
+	if input.HTTP != nil && input.HTTP.MaxContentLength != nil {
+		q, err := resource.ParseQuantity(*input.HTTP.MaxContentLength)
+		if err != nil {
+			return nil, err
+		}
+		res.Spec.Http = &naiscrd.OpenSearchHttp{
+			MaxContentLength: &q,
+		}
+	}
+
 	obj, err := kubernetes.ToUnstructured(res)
 	if err != nil {
 		return nil, err
@@ -295,6 +308,7 @@ func Update(ctx context.Context, input UpdateOpenSearchInput) (*UpdateOpenSearch
 		updateStorage,
 		updateShardIndexingPressure,
 		updateIndices,
+		updateHTTP,
 	}
 
 	for _, f := range updateFuncs {
@@ -551,6 +565,39 @@ func updateIndices(openSearch *naiscrd.OpenSearch, input UpdateOpenSearchInput) 
 			Field:    "indices.queryBoolMaxClauseCount",
 			OldValue: intPtrToStringPtr(oldCount),
 			NewValue: intPtrToStringPtr(newCount),
+		},
+	}, nil
+}
+
+func updateHTTP(openSearch *naiscrd.OpenSearch, input UpdateOpenSearchInput) ([]*OpenSearchUpdatedActivityLogEntryDataUpdatedField, error) {
+	if input.HTTP == nil || input.HTTP.MaxContentLength == nil {
+		return nil, nil
+	}
+
+	newQ, err := resource.ParseQuantity(*input.HTTP.MaxContentLength)
+	if err != nil {
+		return nil, err
+	}
+
+	var oldValue *string
+	if openSearch.Spec.Http != nil && openSearch.Spec.Http.MaxContentLength != nil {
+		old := openSearch.Spec.Http.MaxContentLength
+		if old.Cmp(newQ) == 0 {
+			return nil, nil
+		}
+		s := old.String()
+		oldValue = &s
+	}
+
+	openSearch.Spec.Http = &naiscrd.OpenSearchHttp{
+		MaxContentLength: &newQ,
+	}
+
+	return []*OpenSearchUpdatedActivityLogEntryDataUpdatedField{
+		{
+			Field:    "http.maxContentLength",
+			OldValue: oldValue,
+			NewValue: new(newQ.String()),
 		},
 	}, nil
 }

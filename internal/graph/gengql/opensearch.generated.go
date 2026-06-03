@@ -719,6 +719,38 @@ func (ec *executionContext) fieldContext_OpenSearch_indices(_ context.Context, f
 	return fc, nil
 }
 
+func (ec *executionContext) _OpenSearch_http(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearch) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_OpenSearch_http(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.HTTP, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v opensearch.OpenSearchHTTP) graphql.Marshaler {
+			return ec.marshalNOpenSearchHTTP2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchHTTP(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_OpenSearch_http(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "OpenSearch",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_OpenSearchHTTP(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _OpenSearch_issues(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearch) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -1711,6 +1743,29 @@ func (ec *executionContext) fieldContext_OpenSearchEdge_node(_ context.Context, 
 	return fc, nil
 }
 
+func (ec *executionContext) _OpenSearchHTTP_maxContentLength(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearchHTTP) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_OpenSearchHTTP_maxContentLength(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.MaxContentLength, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_OpenSearchHTTP_maxContentLength(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("OpenSearchHTTP", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
 func (ec *executionContext) _OpenSearchIndices_queryBoolMaxClauseCount(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearchIndices) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -2271,7 +2326,7 @@ func (ec *executionContext) unmarshalInputCreateOpenSearchInput(ctx context.Cont
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "environmentName", "teamSlug", "tier", "memory", "version", "storageGB", "shardIndexingPressure", "indices"}
+	fieldsInOrder := [...]string{"name", "environmentName", "teamSlug", "tier", "memory", "version", "storageGB", "shardIndexingPressure", "indices", "http"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -2341,6 +2396,13 @@ func (ec *executionContext) unmarshalInputCreateOpenSearchInput(ctx context.Cont
 				return it, err
 			}
 			it.Indices = data
+		case "http":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("http"))
+			data, err := ec.unmarshalOOpenSearchHTTPInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchHTTPInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HTTP = data
 		}
 	}
 	return it, nil
@@ -2422,6 +2484,36 @@ func (ec *executionContext) unmarshalInputOpenSearchAccessOrder(ctx context.Cont
 				return it, err
 			}
 			it.Direction = data
+		}
+	}
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputOpenSearchHTTPInput(ctx context.Context, obj any) (opensearch.OpenSearchHTTPInput, error) {
+	var it opensearch.OpenSearchHTTPInput
+	if obj == nil {
+		return it, nil
+	}
+
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"maxContentLength"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "maxContentLength":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxContentLength"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MaxContentLength = data
 		}
 	}
 	return it, nil
@@ -2542,7 +2634,7 @@ func (ec *executionContext) unmarshalInputUpdateOpenSearchInput(ctx context.Cont
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "environmentName", "teamSlug", "tier", "memory", "version", "storageGB", "shardIndexingPressure", "indices"}
+	fieldsInOrder := [...]string{"name", "environmentName", "teamSlug", "tier", "memory", "version", "storageGB", "shardIndexingPressure", "indices", "http"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -2612,6 +2704,13 @@ func (ec *executionContext) unmarshalInputUpdateOpenSearchInput(ctx context.Cont
 				return it, err
 			}
 			it.Indices = data
+		case "http":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("http"))
+			data, err := ec.unmarshalOOpenSearchHTTPInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchHTTPInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HTTP = data
 		}
 	}
 	return it, nil
@@ -3036,6 +3135,11 @@ func (ec *executionContext) _OpenSearch(ctx context.Context, sel ast.SelectionSe
 			}
 		case "indices":
 			out.Values[i] = ec._OpenSearch_indices(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "http":
+			out.Values[i] = ec._OpenSearch_http(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -3668,6 +3772,42 @@ func (ec *executionContext) _OpenSearchEdge(ctx context.Context, sel ast.Selecti
 	return out
 }
 
+var openSearchHTTPImplementors = []string{"OpenSearchHTTP"}
+
+func (ec *executionContext) _OpenSearchHTTP(ctx context.Context, sel ast.SelectionSet, obj *opensearch.OpenSearchHTTP) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, openSearchHTTPImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("OpenSearchHTTP")
+		case "maxContentLength":
+			out.Values[i] = ec._OpenSearchHTTP_maxContentLength(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var openSearchIndicesImplementors = []string{"OpenSearchIndices"}
 
 func (ec *executionContext) _OpenSearchIndices(ctx context.Context, sel ast.SelectionSet, obj *opensearch.OpenSearchIndices) graphql.Marshaler {
@@ -4230,6 +4370,10 @@ func (ec *executionContext) marshalNOpenSearchEdge2ᚕgithubᚗcomᚋnaisᚋapi�
 	return ret
 }
 
+func (ec *executionContext) marshalNOpenSearchHTTP2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchHTTP(ctx context.Context, sel ast.SelectionSet, v opensearch.OpenSearchHTTP) graphql.Marshaler {
+	return ec._OpenSearchHTTP(ctx, sel, &v)
+}
+
 func (ec *executionContext) marshalNOpenSearchIndices2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchIndices(ctx context.Context, sel ast.SelectionSet, v opensearch.OpenSearchIndices) graphql.Marshaler {
 	return ec._OpenSearchIndices(ctx, sel, &v)
 }
@@ -4383,6 +4527,14 @@ func (ec *executionContext) unmarshalOOpenSearchAccessOrder2ᚖgithubᚗcomᚋna
 		return nil, nil
 	}
 	res, err := ec.unmarshalInputOpenSearchAccessOrder(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOOpenSearchHTTPInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchHTTPInput(ctx context.Context, v any) (*opensearch.OpenSearchHTTPInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputOpenSearchHTTPInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
