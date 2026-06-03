@@ -58,7 +58,7 @@ type Valkey struct {
 	MaxMemoryPolicy       ValkeyMaxMemoryPolicy `json:"maxMemoryPolicy,omitempty"`
 	NotifyKeyspaceEvents  string                `json:"notifyKeyspaceEvents,omitempty"`
 	Databases             int                   `json:"databases"`
-	Persistence           ValkeyPersistence     `json:"persistence"`
+	PersistenceDisabled   bool                  `json:"persistenceDisabled"`
 	TeamSlug              slug.Slug             `json:"-"`
 	EnvironmentName       string                `json:"-"`
 	WorkloadReference     *workload.Reference   `json:"-"`
@@ -99,14 +99,6 @@ type ValkeyAccess struct {
 	TeamSlug          slug.Slug           `json:"-"`
 	EnvironmentName   string              `json:"-"`
 	WorkloadReference *workload.Reference `json:"-"`
-}
-
-type ValkeyPersistence struct {
-	Disabled bool `json:"disabled"`
-}
-
-type ValkeyPersistenceInput struct {
-	Disabled bool `json:"disabled"`
 }
 
 type ValkeyStatus struct {
@@ -239,7 +231,7 @@ func toValkey(u *unstructured.Unstructured, envName string) (*Valkey, error) {
 		MaxMemoryPolicy:      maxMemoryPolicy,
 		NotifyKeyspaceEvents: notifyKeyspaceEvents,
 		Databases:            int(numberOfDatabases),
-		Persistence:          ValkeyPersistence{Disabled: persistenceDisabled},
+		PersistenceDisabled:  persistenceDisabled,
 	}, nil
 }
 
@@ -258,9 +250,9 @@ func toValkeyFromNais(v *naiscrd.Valkey, envName string) (*Valkey, error) {
 		databases = *v.Spec.Databases
 	}
 
-	persistence := ValkeyPersistence{}
+	persistenceDisabled := false
 	if v.Spec.Persistence != nil {
-		persistence.Disabled = v.Spec.Persistence.Disabled
+		persistenceDisabled = v.Spec.Persistence.Disabled
 	}
 
 	return &Valkey{
@@ -274,7 +266,7 @@ func toValkeyFromNais(v *naiscrd.Valkey, envName string) (*Valkey, error) {
 		NotifyKeyspaceEvents: v.Spec.NotifyKeyspaceEvents,
 		MaxMemoryPolicy:      mmp,
 		Databases:            databases,
-		Persistence:          persistence,
+		PersistenceDisabled:  persistenceDisabled,
 	}, nil
 }
 
@@ -315,12 +307,12 @@ func (v *ValkeyMetadataInput) ValidationErrors(ctx context.Context) *validate.Va
 
 type ValkeyInput struct {
 	ValkeyMetadataInput
-	Tier                 ValkeyTier              `json:"tier"`
-	Memory               ValkeyMemory            `json:"memory"`
-	MaxMemoryPolicy      *ValkeyMaxMemoryPolicy  `json:"maxMemoryPolicy,omitempty"`
-	NotifyKeyspaceEvents *string                 `json:"notifyKeyspaceEvents,omitempty"`
-	Databases            *int                    `json:"databases,omitempty"`
-	Persistence          *ValkeyPersistenceInput `json:"persistence,omitempty"`
+	Tier                 ValkeyTier             `json:"tier"`
+	Memory               ValkeyMemory           `json:"memory"`
+	MaxMemoryPolicy      *ValkeyMaxMemoryPolicy `json:"maxMemoryPolicy,omitempty"`
+	NotifyKeyspaceEvents *string                `json:"notifyKeyspaceEvents,omitempty"`
+	Databases            *int                   `json:"databases,omitempty"`
+	PersistenceDisabled  *bool                  `json:"persistenceDisabled,omitempty"`
 }
 
 func (v *ValkeyInput) Validate(ctx context.Context) error {

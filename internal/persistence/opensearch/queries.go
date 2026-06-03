@@ -25,6 +25,7 @@ import (
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/utils/ptr"
 )
 
 var (
@@ -217,21 +218,21 @@ func Create(ctx context.Context, input CreateOpenSearchInput) (*CreateOpenSearch
 	res.SetAnnotations(kubernetes.WithCommonAnnotations(nil, authz.ActorFromContext(ctx).User.Identity()))
 	kubernetes.SetManagedByConsoleLabel(res)
 
-	if input.ShardIndexingPressure != nil {
+	if input.ShardIndexingPressureEnabled != nil || input.ShardIndexingPressureEnforced != nil {
 		res.Spec.ShardIndexingPressure = &naiscrd.OpenSearchShardIndexingPressure{
-			Enabled:  input.ShardIndexingPressure.Enabled,
-			Enforced: input.ShardIndexingPressure.Enforced,
+			Enabled:  ptr.Deref(input.ShardIndexingPressureEnabled, false),
+			Enforced: ptr.Deref(input.ShardIndexingPressureEnforced, false),
 		}
 	}
 
-	if input.Indices != nil && input.Indices.QueryBoolMaxClauseCount != nil {
+	if input.IndicesQueryBoolMaxClauseCount != nil {
 		res.Spec.Indices = &naiscrd.OpenSearchIndices{
-			QueryBoolMaxClauseCount: input.Indices.QueryBoolMaxClauseCount,
+			QueryBoolMaxClauseCount: input.IndicesQueryBoolMaxClauseCount,
 		}
 	}
 
-	if input.HTTP != nil && input.HTTP.MaxContentLength != nil {
-		q, err := resource.ParseQuantity(*input.HTTP.MaxContentLength)
+	if input.HTTPMaxContentLength != nil {
+		q, err := resource.ParseQuantity(*input.HTTPMaxContentLength)
 		if err != nil {
 			return nil, err
 		}
@@ -496,7 +497,7 @@ func updateStorage(openSearch *naiscrd.OpenSearch, input UpdateOpenSearchInput) 
 }
 
 func updateShardIndexingPressure(openSearch *naiscrd.OpenSearch, input UpdateOpenSearchInput) ([]*OpenSearchUpdatedActivityLogEntryDataUpdatedField, error) {
-	if input.ShardIndexingPressure == nil {
+	if input.ShardIndexingPressureEnabled == nil && input.ShardIndexingPressureEnforced == nil {
 		return nil, nil
 	}
 
@@ -506,20 +507,23 @@ func updateShardIndexingPressure(openSearch *naiscrd.OpenSearch, input UpdateOpe
 		oldEnforced = openSearch.Spec.ShardIndexingPressure.Enforced
 	}
 
+	newEnabled := ptr.Deref(input.ShardIndexingPressureEnabled, oldEnabled)
+	newEnforced := ptr.Deref(input.ShardIndexingPressureEnforced, oldEnforced)
+
 	changes := make([]*OpenSearchUpdatedActivityLogEntryDataUpdatedField, 0)
 
-	if oldEnabled != input.ShardIndexingPressure.Enabled {
+	if oldEnabled != newEnabled {
 		changes = append(changes, &OpenSearchUpdatedActivityLogEntryDataUpdatedField{
-			Field:    "shardIndexingPressure.enabled",
+			Field:    "shardIndexingPressureEnabled",
 			OldValue: new(strconv.FormatBool(oldEnabled)),
-			NewValue: new(strconv.FormatBool(input.ShardIndexingPressure.Enabled)),
+			NewValue: new(strconv.FormatBool(newEnabled)),
 		})
 	}
-	if oldEnforced != input.ShardIndexingPressure.Enforced {
+	if oldEnforced != newEnforced {
 		changes = append(changes, &OpenSearchUpdatedActivityLogEntryDataUpdatedField{
-			Field:    "shardIndexingPressure.enforced",
+			Field:    "shardIndexingPressureEnforced",
 			OldValue: new(strconv.FormatBool(oldEnforced)),
-			NewValue: new(strconv.FormatBool(input.ShardIndexingPressure.Enforced)),
+			NewValue: new(strconv.FormatBool(newEnforced)),
 		})
 	}
 
@@ -528,15 +532,15 @@ func updateShardIndexingPressure(openSearch *naiscrd.OpenSearch, input UpdateOpe
 	}
 
 	openSearch.Spec.ShardIndexingPressure = &naiscrd.OpenSearchShardIndexingPressure{
-		Enabled:  input.ShardIndexingPressure.Enabled,
-		Enforced: input.ShardIndexingPressure.Enforced,
+		Enabled:  newEnabled,
+		Enforced: newEnforced,
 	}
 
 	return changes, nil
 }
 
 func updateIndices(openSearch *naiscrd.OpenSearch, input UpdateOpenSearchInput) ([]*OpenSearchUpdatedActivityLogEntryDataUpdatedField, error) {
-	if input.Indices == nil {
+	if input.IndicesQueryBoolMaxClauseCount == nil {
 		return nil, nil
 	}
 
@@ -544,7 +548,7 @@ func updateIndices(openSearch *naiscrd.OpenSearch, input UpdateOpenSearchInput) 
 	if openSearch.Spec.Indices != nil {
 		oldCount = openSearch.Spec.Indices.QueryBoolMaxClauseCount
 	}
-	newCount := input.Indices.QueryBoolMaxClauseCount
+	newCount := input.IndicesQueryBoolMaxClauseCount
 
 	if equalIntPtr(oldCount, newCount) {
 		return nil, nil
@@ -556,7 +560,7 @@ func updateIndices(openSearch *naiscrd.OpenSearch, input UpdateOpenSearchInput) 
 
 	return []*OpenSearchUpdatedActivityLogEntryDataUpdatedField{
 		{
-			Field:    "indices.queryBoolMaxClauseCount",
+			Field:    "indicesQueryBoolMaxClauseCount",
 			OldValue: intPtrToStringPtr(oldCount),
 			NewValue: intPtrToStringPtr(newCount),
 		},
@@ -564,11 +568,11 @@ func updateIndices(openSearch *naiscrd.OpenSearch, input UpdateOpenSearchInput) 
 }
 
 func updateHTTP(openSearch *naiscrd.OpenSearch, input UpdateOpenSearchInput) ([]*OpenSearchUpdatedActivityLogEntryDataUpdatedField, error) {
-	if input.HTTP == nil || input.HTTP.MaxContentLength == nil {
+	if input.HTTPMaxContentLength == nil {
 		return nil, nil
 	}
 
-	newQ, err := resource.ParseQuantity(*input.HTTP.MaxContentLength)
+	newQ, err := resource.ParseQuantity(*input.HTTPMaxContentLength)
 	if err != nil {
 		return nil, err
 	}
@@ -589,7 +593,7 @@ func updateHTTP(openSearch *naiscrd.OpenSearch, input UpdateOpenSearchInput) ([]
 
 	return []*OpenSearchUpdatedActivityLogEntryDataUpdatedField{
 		{
-			Field:    "http.maxContentLength",
+			Field:    "httpMaxContentLength",
 			OldValue: oldValue,
 			NewValue: new(newQ.String()),
 		},

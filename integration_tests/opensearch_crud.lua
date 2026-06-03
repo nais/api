@@ -274,7 +274,7 @@ Test.gql("Create opensearch with out-of-range query bool max clause count", func
 		      memory: GB_4
 		      version: V2
 		      storageGB: 240
-		      indices: { queryBoolMaxClauseCount: 8192 }
+		      indicesQueryBoolMaxClauseCount: 8192
 		    }
 		  ) {
 		    openSearch {
@@ -288,7 +288,7 @@ Test.gql("Create opensearch with out-of-range query bool max clause count", func
 		errors = {
 			{
 				extensions = {
-					field = "queryBoolMaxClauseCount",
+					field = "indicesQueryBoolMaxClauseCount",
 				},
 				message = "Query bool max clause count must be between 64 and 4096.",
 				path = {
@@ -313,7 +313,7 @@ Test.gql("Create opensearch with invalid max content length", function(t)
 		      memory: GB_4
 		      version: V2
 		      storageGB: 240
-		      http: { maxContentLength: "not-a-quantity" }
+		      httpMaxContentLength: "not-a-quantity"
 		    }
 		  ) {
 		    openSearch {
@@ -327,7 +327,7 @@ Test.gql("Create opensearch with invalid max content length", function(t)
 		errors = {
 			{
 				extensions = {
-					field = "maxContentLength",
+					field = "httpMaxContentLength",
 				},
 				message = "Max content length must be a valid quantity (e.g. \"100Mi\", \"1Gi\").",
 				path = {
@@ -352,7 +352,7 @@ Test.gql("Create opensearch with out-of-range max content length", function(t)
 		      memory: GB_4
 		      version: V2
 		      storageGB: 240
-		      http: { maxContentLength: "4Gi" }
+		      httpMaxContentLength: "4Gi"
 		    }
 		  ) {
 		    openSearch {
@@ -366,7 +366,7 @@ Test.gql("Create opensearch with out-of-range max content length", function(t)
 		errors = {
 			{
 				extensions = {
-					field = "maxContentLength",
+					field = "httpMaxContentLength",
 				},
 				message = "Max content length must be between 1 byte and 2147483647 bytes (around 2047Mi).",
 				path = {
@@ -546,23 +546,18 @@ Test.gql("Update OpenSearch as team-member", function(t)
 		      memory: GB_4
 		      version: V2
 		      storageGB: 1020
-		      shardIndexingPressure: { enabled: true, enforced: true }
-		      indices: { queryBoolMaxClauseCount: 2048 }
-		      http: { maxContentLength: "100Mi" }
+		      shardIndexingPressureEnabled: true
+		      shardIndexingPressureEnforced: true
+		      indicesQueryBoolMaxClauseCount: 2048
+		      httpMaxContentLength: "100Mi"
 		    }
 		  ) {
 		    openSearch {
 		      name
-		      shardIndexingPressure {
-		        enabled
-		        enforced
-		      }
-		      indices {
-		        queryBoolMaxClauseCount
-		      }
-		      http {
-		        maxContentLength
-		      }
+		      shardIndexingPressureEnabled
+		      shardIndexingPressureEnforced
+		      indicesQueryBoolMaxClauseCount
+		      httpMaxContentLength
 		    }
 		  }
 		}
@@ -573,16 +568,10 @@ Test.gql("Update OpenSearch as team-member", function(t)
 			updateOpenSearch = {
 				openSearch = {
 					name = "foobar",
-					shardIndexingPressure = {
-						enabled = true,
-						enforced = true,
-					},
-					indices = {
-						queryBoolMaxClauseCount = 2048,
-					},
-					http = {
-						maxContentLength = "100Mi",
-					},
+					shardIndexingPressureEnabled = true,
+					shardIndexingPressureEnforced = true,
+					indicesQueryBoolMaxClauseCount = 2048,
+					httpMaxContentLength = "100Mi",
 				},
 			},
 		},
@@ -636,16 +625,10 @@ Test.gql("List opensearches for team", function(t)
 		        name
 		        tier
 		        memory
-		        shardIndexingPressure {
-		          enabled
-		          enforced
-		        }
-		        indices {
-		          queryBoolMaxClauseCount
-		        }
-		        http {
-		          maxContentLength
-		        }
+		        shardIndexingPressureEnabled
+		        shardIndexingPressureEnforced
+		        indicesQueryBoolMaxClauseCount
+		        httpMaxContentLength
 		      }
 		    }
 		  }
@@ -661,76 +644,46 @@ Test.gql("List opensearches for team", function(t)
 							name = "foobar",
 							tier = "HIGH_AVAILABILITY",
 							memory = "GB_4",
-							shardIndexingPressure = {
-								enabled = true,
-								enforced = true,
-							},
-							indices = {
-								queryBoolMaxClauseCount = 2048,
-							},
-							http = {
-								maxContentLength = "100Mi",
-							},
+							shardIndexingPressureEnabled = true,
+							shardIndexingPressureEnforced = true,
+							indicesQueryBoolMaxClauseCount = 2048,
+							httpMaxContentLength = "100Mi",
 						},
 						{
 							name = "foobar-hobbyist",
 							tier = "SINGLE_NODE",
 							memory = "GB_2",
-							shardIndexingPressure = {
-								enabled = false,
-								enforced = false,
-							},
-							indices = {
-								queryBoolMaxClauseCount = Null,
-							},
-							http = {
-								maxContentLength = Null,
-							},
+							shardIndexingPressureEnabled = false,
+							shardIndexingPressureEnforced = false,
+							indicesQueryBoolMaxClauseCount = Null,
+							httpMaxContentLength = Null,
 						},
 						{
 							name = "noversion",
 							tier = "SINGLE_NODE",
 							memory = "GB_2",
-							shardIndexingPressure = {
-								enabled = false,
-								enforced = false,
-							},
-							indices = {
-								queryBoolMaxClauseCount = Null,
-							},
-							http = {
-								maxContentLength = Null,
-							},
+							shardIndexingPressureEnabled = false,
+							shardIndexingPressureEnforced = false,
+							indicesQueryBoolMaxClauseCount = Null,
+							httpMaxContentLength = Null,
 						},
 						{
 							name = "opensearch-someteamname-hobbyist-not-managed",
 							tier = "SINGLE_NODE",
 							memory = "GB_2",
-							shardIndexingPressure = {
-								enabled = false,
-								enforced = false,
-							},
-							indices = {
-								queryBoolMaxClauseCount = Null,
-							},
-							http = {
-								maxContentLength = Null,
-							},
+							shardIndexingPressureEnabled = false,
+							shardIndexingPressureEnforced = false,
+							indicesQueryBoolMaxClauseCount = Null,
+							httpMaxContentLength = Null,
 						},
 						{
 							name = "opensearch-someteamname-not-managed",
 							tier = "HIGH_AVAILABILITY",
 							memory = "GB_8",
-							shardIndexingPressure = {
-								enabled = true,
-								enforced = true,
-							},
-							indices = {
-								queryBoolMaxClauseCount = 512,
-							},
-							http = {
-								maxContentLength = "200Mi",
-							},
+							shardIndexingPressureEnabled = true,
+							shardIndexingPressureEnforced = true,
+							indicesQueryBoolMaxClauseCount = 512,
+							httpMaxContentLength = "200Mi",
 						},
 					},
 				},
@@ -1146,22 +1099,22 @@ Test.gql("Verify activity log for opensearch operations", function(t)
 										newValue = "1020",
 									},
 									{
-										field = "shardIndexingPressure.enabled",
+										field = "shardIndexingPressureEnabled",
 										oldValue = "false",
 										newValue = "true",
 									},
 									{
-										field = "shardIndexingPressure.enforced",
+										field = "shardIndexingPressureEnforced",
 										oldValue = "false",
 										newValue = "true",
 									},
 									{
-										field = "indices.queryBoolMaxClauseCount",
+										field = "indicesQueryBoolMaxClauseCount",
 										oldValue = Null,
 										newValue = "2048",
 									},
 									{
-										field = "http.maxContentLength",
+										field = "httpMaxContentLength",
 										oldValue = Null,
 										newValue = "100Mi",
 									},

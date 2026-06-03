@@ -180,9 +180,9 @@ func Create(ctx context.Context, input CreateValkeyInput) (*CreateValkeyPayload,
 		res.Spec.Databases = input.Databases
 	}
 
-	if input.Persistence != nil {
+	if input.PersistenceDisabled != nil {
 		res.Spec.Persistence = &naiscrd.ValkeyPersistence{
-			Disabled: input.Persistence.Disabled,
+			Disabled: *input.PersistenceDisabled,
 		}
 	}
 
@@ -512,7 +512,7 @@ func updateDatabases(valkey *naiscrd.Valkey, input UpdateValkeyInput) ([]*Valkey
 }
 
 func updatePersistence(valkey *naiscrd.Valkey, input UpdateValkeyInput) ([]*ValkeyUpdatedActivityLogEntryDataUpdatedField, error) {
-	if input.Persistence == nil {
+	if input.PersistenceDisabled == nil {
 		return nil, nil
 	}
 
@@ -521,20 +521,20 @@ func updatePersistence(valkey *naiscrd.Valkey, input UpdateValkeyInput) ([]*Valk
 		oldDisabled = valkey.Spec.Persistence.Disabled
 	}
 
-	if oldDisabled == input.Persistence.Disabled {
+	if oldDisabled == *input.PersistenceDisabled {
 		return nil, nil
 	}
 
 	changes := []*ValkeyUpdatedActivityLogEntryDataUpdatedField{
 		{
-			Field:    "persistence.disabled",
+			Field:    "persistenceDisabled",
 			OldValue: new(strconv.FormatBool(oldDisabled)),
-			NewValue: new(strconv.FormatBool(input.Persistence.Disabled)),
+			NewValue: new(strconv.FormatBool(*input.PersistenceDisabled)),
 		},
 	}
 
 	valkey.Spec.Persistence = &naiscrd.ValkeyPersistence{
-		Disabled: input.Persistence.Disabled,
+		Disabled: *input.PersistenceDisabled,
 	}
 	return changes, nil
 }

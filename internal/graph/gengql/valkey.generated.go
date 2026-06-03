@@ -726,36 +726,27 @@ func (ec *executionContext) fieldContext_Valkey_databases(_ context.Context, fie
 	return graphql.NewScalarFieldContext("Valkey", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
-func (ec *executionContext) _Valkey_persistence(ctx context.Context, field graphql.CollectedField, obj *valkey.Valkey) (ret graphql.Marshaler) {
+func (ec *executionContext) _Valkey_persistenceDisabled(ctx context.Context, field graphql.CollectedField, obj *valkey.Valkey) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Valkey_persistence(ctx, field)
+			return ec.fieldContext_Valkey_persistenceDisabled(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.Persistence, nil
+			return obj.PersistenceDisabled, nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v valkey.ValkeyPersistence) graphql.Marshaler {
-			return ec.marshalNValkeyPersistence2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyPersistence(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
+			return ec.marshalNBoolean2bool(ctx, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Valkey_persistence(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Valkey",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_ValkeyPersistence(ctx, field)
-		},
-	}
-	return fc, nil
+func (ec *executionContext) fieldContext_Valkey_persistenceDisabled(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("Valkey", field, false, false, errors.New("field of type Boolean does not have child fields"))
 }
 
 func (ec *executionContext) _Valkey_issues(ctx context.Context, field graphql.CollectedField, obj *valkey.Valkey) (ret graphql.Marshaler) {
@@ -1846,29 +1837,6 @@ func (ec *executionContext) fieldContext_ValkeyFacets_tiers(_ context.Context, f
 	return fc, nil
 }
 
-func (ec *executionContext) _ValkeyPersistence_disabled(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyPersistence) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ValkeyPersistence_disabled(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return obj.Disabled, nil
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
-			return ec.marshalNBoolean2bool(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_ValkeyPersistence_disabled(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("ValkeyPersistence", field, false, false, errors.New("field of type Boolean does not have child fields"))
-}
-
 func (ec *executionContext) _ValkeyTierFacetItem_tier(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyTierFacetItem) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -2305,7 +2273,7 @@ func (ec *executionContext) unmarshalInputCreateValkeyInput(ctx context.Context,
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "environmentName", "teamSlug", "tier", "memory", "maxMemoryPolicy", "notifyKeyspaceEvents", "databases", "persistence"}
+	fieldsInOrder := [...]string{"name", "environmentName", "teamSlug", "tier", "memory", "maxMemoryPolicy", "notifyKeyspaceEvents", "databases", "persistenceDisabled"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -2368,13 +2336,13 @@ func (ec *executionContext) unmarshalInputCreateValkeyInput(ctx context.Context,
 				return it, err
 			}
 			it.Databases = data
-		case "persistence":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("persistence"))
-			data, err := ec.unmarshalOValkeyPersistenceInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyPersistenceInput(ctx, v)
+		case "persistenceDisabled":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("persistenceDisabled"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Persistence = data
+			it.PersistenceDisabled = data
 		}
 	}
 	return it, nil
@@ -2435,7 +2403,7 @@ func (ec *executionContext) unmarshalInputUpdateValkeyInput(ctx context.Context,
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "environmentName", "teamSlug", "tier", "memory", "maxMemoryPolicy", "notifyKeyspaceEvents", "databases", "persistence"}
+	fieldsInOrder := [...]string{"name", "environmentName", "teamSlug", "tier", "memory", "maxMemoryPolicy", "notifyKeyspaceEvents", "databases", "persistenceDisabled"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -2498,13 +2466,13 @@ func (ec *executionContext) unmarshalInputUpdateValkeyInput(ctx context.Context,
 				return it, err
 			}
 			it.Databases = data
-		case "persistence":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("persistence"))
-			data, err := ec.unmarshalOValkeyPersistenceInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyPersistenceInput(ctx, v)
+		case "persistenceDisabled":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("persistenceDisabled"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Persistence = data
+			it.PersistenceDisabled = data
 		}
 	}
 	return it, nil
@@ -2623,36 +2591,6 @@ func (ec *executionContext) unmarshalInputValkeyOrder(ctx context.Context, obj a
 				return it, err
 			}
 			it.Direction = data
-		}
-	}
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputValkeyPersistenceInput(ctx context.Context, obj any) (valkey.ValkeyPersistenceInput, error) {
-	var it valkey.ValkeyPersistenceInput
-	if obj == nil {
-		return it, nil
-	}
-
-	asMap := map[string]any{}
-	for k, v := range obj.(map[string]any) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"disabled"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "disabled":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("disabled"))
-			data, err := ec.unmarshalNBoolean2bool(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Disabled = data
 		}
 	}
 	return it, nil
@@ -3116,8 +3054,8 @@ func (ec *executionContext) _Valkey(ctx context.Context, sel ast.SelectionSet, o
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "persistence":
-			out.Values[i] = ec._Valkey_persistence(ctx, field, obj)
+		case "persistenceDisabled":
+			out.Values[i] = ec._Valkey_persistenceDisabled(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -3827,45 +3765,6 @@ func (ec *executionContext) _ValkeyFacets(ctx context.Context, sel ast.Selection
 	return out
 }
 
-var valkeyPersistenceImplementors = []string{"ValkeyPersistence"}
-
-func (ec *executionContext) _ValkeyPersistence(ctx context.Context, sel ast.SelectionSet, obj *valkey.ValkeyPersistence) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, valkeyPersistenceImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("ValkeyPersistence")
-		case "disabled":
-			out.Values[i] = ec._ValkeyPersistence_disabled(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
-
-	for label, dfs := range deferred {
-		ec.ProcessDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
 var valkeyTierFacetItemImplementors = []string{"ValkeyTierFacetItem"}
 
 func (ec *executionContext) _ValkeyTierFacetItem(ctx context.Context, sel ast.SelectionSet, obj *valkey.ValkeyTierFacetItem) graphql.Marshaler {
@@ -4326,10 +4225,6 @@ func (ec *executionContext) marshalNValkeyOrderField2githubᚗcomᚋnaisᚋapi�
 	return v
 }
 
-func (ec *executionContext) marshalNValkeyPersistence2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyPersistence(ctx context.Context, sel ast.SelectionSet, v valkey.ValkeyPersistence) graphql.Marshaler {
-	return ec._ValkeyPersistence(ctx, sel, &v)
-}
-
 func (ec *executionContext) unmarshalNValkeyState2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyState(ctx context.Context, v any) (valkey.ValkeyState, error) {
 	var res valkey.ValkeyState
 	err := res.UnmarshalGQL(v)
@@ -4460,14 +4355,6 @@ func (ec *executionContext) unmarshalOValkeyOrder2ᚖgithubᚗcomᚋnaisᚋapi�
 		return nil, nil
 	}
 	res, err := ec.unmarshalInputValkeyOrder(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) unmarshalOValkeyPersistenceInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyPersistenceInput(ctx context.Context, v any) (*valkey.ValkeyPersistenceInput, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputValkeyPersistenceInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 

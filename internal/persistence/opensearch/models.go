@@ -54,19 +54,22 @@ type OpenSearchTierFacetItem struct {
 }
 
 type OpenSearch struct {
-	Name                  string                          `json:"name"`
-	Status                *naiscrd.OpenSearchStatus       `json:"status"`
-	TerminationProtection bool                            `json:"terminationProtection"`
-	Tier                  OpenSearchTier                  `json:"tier"`
-	Memory                OpenSearchMemory                `json:"memory"`
-	StorageGB             StorageGB                       `json:"storageGB"`
-	ShardIndexingPressure OpenSearchShardIndexingPressure `json:"shardIndexingPressure"`
-	Indices               OpenSearchIndices               `json:"indices"`
-	HTTP                  OpenSearchHTTP                  `json:"http"`
-	TeamSlug              slug.Slug                       `json:"-"`
-	EnvironmentName       string                          `json:"-"`
-	WorkloadReference     *workload.Reference             `json:"-"`
-	MajorVersion          OpenSearchMajorVersion          `json:"-"`
+	Name                  string                    `json:"name"`
+	Status                *naiscrd.OpenSearchStatus `json:"status"`
+	TerminationProtection bool                      `json:"terminationProtection"`
+	Tier                  OpenSearchTier            `json:"tier"`
+	Memory                OpenSearchMemory          `json:"memory"`
+	StorageGB             StorageGB                 `json:"storageGB"`
+
+	ShardIndexingPressureEnabled   bool    `json:"shardIndexingPressureEnabled"`
+	ShardIndexingPressureEnforced  bool    `json:"shardIndexingPressureEnforced"`
+	IndicesQueryBoolMaxClauseCount *int    `json:"indicesQueryBoolMaxClauseCount,omitempty"`
+	HTTPMaxContentLength           *string `json:"httpMaxContentLength,omitempty"`
+
+	TeamSlug          slug.Slug              `json:"-"`
+	EnvironmentName   string                 `json:"-"`
+	WorkloadReference *workload.Reference    `json:"-"`
+	MajorVersion      OpenSearchMajorVersion `json:"-"`
 }
 
 func (OpenSearch) IsPersistence()    {}
@@ -104,32 +107,6 @@ type OpenSearchAccess struct {
 	TeamSlug          slug.Slug           `json:"-"`
 	EnvironmentName   string              `json:"-"`
 	WorkloadReference *workload.Reference `json:"-"`
-}
-
-type OpenSearchShardIndexingPressure struct {
-	Enabled  bool `json:"enabled"`
-	Enforced bool `json:"enforced"`
-}
-
-type OpenSearchShardIndexingPressureInput struct {
-	Enabled  bool `json:"enabled"`
-	Enforced bool `json:"enforced"`
-}
-
-type OpenSearchIndices struct {
-	QueryBoolMaxClauseCount *int `json:"queryBoolMaxClauseCount,omitempty"`
-}
-
-type OpenSearchIndicesInput struct {
-	QueryBoolMaxClauseCount *int `json:"queryBoolMaxClauseCount,omitempty"`
-}
-
-type OpenSearchHTTP struct {
-	MaxContentLength *string `json:"maxContentLength,omitempty"`
-}
-
-type OpenSearchHTTPInput struct {
-	MaxContentLength *string `json:"maxContentLength,omitempty"`
 }
 
 type OpenSearchStatus struct {
@@ -249,16 +226,16 @@ func toOpenSearch(u *unstructured.Unstructured, envName string) (*OpenSearch, er
 	shardIndexingPressureEnabled, _, _ := unstructured.NestedBool(u.Object, specShardIndexingPressureEnabled...)
 	shardIndexingPressureEnforced, _, _ := unstructured.NestedBool(u.Object, specShardIndexingPressureEnforced...)
 
-	indices := OpenSearchIndices{}
+	var queryBoolMaxClauseCount *int
 	if v, found, _ := unstructured.NestedNumberAsFloat64(u.Object, specIndicesQueryBoolMaxClauseCount...); found {
 		n := int(v)
-		indices.QueryBoolMaxClauseCount = &n
+		queryBoolMaxClauseCount = &n
 	}
 
-	http := OpenSearchHTTP{}
+	var maxContentLength *string
 	if v, found, _ := unstructured.NestedNumberAsFloat64(u.Object, specHTTPMaxContentLength...); found {
 		s := resource.NewQuantity(int64(v), resource.BinarySI).String()
-		http.MaxContentLength = &s
+		maxContentLength = &s
 	}
 
 	return &OpenSearch{
@@ -270,54 +247,53 @@ func toOpenSearch(u *unstructured.Unstructured, envName string) (*OpenSearch, er
 				Conditions: obj.Status.Conditions,
 			},
 		},
-		TeamSlug:          slug.Slug(obj.GetNamespace()),
-		WorkloadReference: workload.ReferenceFromOwnerReferences(obj.GetOwnerReferences()),
-		Tier:              machine.Tier,
-		Memory:            machine.Memory,
-		MajorVersion:      majorVersion,
-		StorageGB:         storageGB,
-		ShardIndexingPressure: OpenSearchShardIndexingPressure{
-			Enabled:  shardIndexingPressureEnabled,
-			Enforced: shardIndexingPressureEnforced,
-		},
-		Indices: indices,
-		HTTP:    http,
+		TeamSlug:                       slug.Slug(obj.GetNamespace()),
+		WorkloadReference:              workload.ReferenceFromOwnerReferences(obj.GetOwnerReferences()),
+		Tier:                           machine.Tier,
+		Memory:                         machine.Memory,
+		MajorVersion:                   majorVersion,
+		StorageGB:                      storageGB,
+		ShardIndexingPressureEnabled:   shardIndexingPressureEnabled,
+		ShardIndexingPressureEnforced:  shardIndexingPressureEnforced,
+		IndicesQueryBoolMaxClauseCount: queryBoolMaxClauseCount,
+		HTTPMaxContentLength:           maxContentLength,
 	}, nil
 }
 
 func toOpenSearchFromNais(o *naiscrd.OpenSearch, envName string) (*OpenSearch, error) {
 	majorVersion := fromMapperatorVersion(o.Spec.Version)
 
-	shardIndexingPressure := OpenSearchShardIndexingPressure{}
+	var shardIndexingPressureEnabled, shardIndexingPressureEnforced bool
 	if o.Spec.ShardIndexingPressure != nil {
-		shardIndexingPressure.Enabled = o.Spec.ShardIndexingPressure.Enabled
-		shardIndexingPressure.Enforced = o.Spec.ShardIndexingPressure.Enforced
+		shardIndexingPressureEnabled = o.Spec.ShardIndexingPressure.Enabled
+		shardIndexingPressureEnforced = o.Spec.ShardIndexingPressure.Enforced
 	}
 
-	indices := OpenSearchIndices{}
+	var queryBoolMaxClauseCount *int
 	if o.Spec.Indices != nil {
-		indices.QueryBoolMaxClauseCount = o.Spec.Indices.QueryBoolMaxClauseCount
+		queryBoolMaxClauseCount = o.Spec.Indices.QueryBoolMaxClauseCount
 	}
 
-	http := OpenSearchHTTP{}
+	var maxContentLength *string
 	if o.Spec.Http != nil && o.Spec.Http.MaxContentLength != nil {
 		s := o.Spec.Http.MaxContentLength.String()
-		http.MaxContentLength = &s
+		maxContentLength = &s
 	}
 
 	return &OpenSearch{
-		Name:                  o.Name,
-		EnvironmentName:       envName,
-		Status:                o.Status,
-		TeamSlug:              slug.Slug(o.Namespace),
-		WorkloadReference:     workload.ReferenceFromOwnerReferences(o.OwnerReferences),
-		Tier:                  fromMapperatorTier(o.Spec.Tier),
-		Memory:                fromMapperatorMemory(o.Spec.Memory),
-		MajorVersion:          majorVersion,
-		StorageGB:             StorageGB(o.Spec.StorageGB),
-		ShardIndexingPressure: shardIndexingPressure,
-		Indices:               indices,
-		HTTP:                  http,
+		Name:                           o.Name,
+		EnvironmentName:                envName,
+		Status:                         o.Status,
+		TeamSlug:                       slug.Slug(o.Namespace),
+		WorkloadReference:              workload.ReferenceFromOwnerReferences(o.OwnerReferences),
+		Tier:                           fromMapperatorTier(o.Spec.Tier),
+		Memory:                         fromMapperatorMemory(o.Spec.Memory),
+		MajorVersion:                   majorVersion,
+		StorageGB:                      StorageGB(o.Spec.StorageGB),
+		ShardIndexingPressureEnabled:   shardIndexingPressureEnabled,
+		ShardIndexingPressureEnforced:  shardIndexingPressureEnforced,
+		IndicesQueryBoolMaxClauseCount: queryBoolMaxClauseCount,
+		HTTPMaxContentLength:           maxContentLength,
 	}, nil
 }
 
@@ -358,13 +334,14 @@ func (o *OpenSearchMetadataInput) ValidationErrors(ctx context.Context) *validat
 
 type OpenSearchInput struct {
 	OpenSearchMetadataInput
-	Tier                  OpenSearchTier                        `json:"tier"`
-	Memory                OpenSearchMemory                      `json:"memory"`
-	Version               OpenSearchMajorVersion                `json:"version"`
-	StorageGB             StorageGB                             `json:"storageGB"`
-	ShardIndexingPressure *OpenSearchShardIndexingPressureInput `json:"shardIndexingPressure,omitempty"`
-	Indices               *OpenSearchIndicesInput               `json:"indices,omitempty"`
-	HTTP                  *OpenSearchHTTPInput                  `json:"http,omitempty"`
+	Tier                           OpenSearchTier         `json:"tier"`
+	Memory                         OpenSearchMemory       `json:"memory"`
+	Version                        OpenSearchMajorVersion `json:"version"`
+	StorageGB                      StorageGB              `json:"storageGB"`
+	ShardIndexingPressureEnabled   *bool                  `json:"shardIndexingPressureEnabled,omitempty"`
+	ShardIndexingPressureEnforced  *bool                  `json:"shardIndexingPressureEnforced,omitempty"`
+	IndicesQueryBoolMaxClauseCount *int                   `json:"indicesQueryBoolMaxClauseCount,omitempty"`
+	HTTPMaxContentLength           *string                `json:"httpMaxContentLength,omitempty"`
 }
 
 func (o *OpenSearchInput) Validate(ctx context.Context) error {
@@ -380,18 +357,18 @@ func (o *OpenSearchInput) Validate(ctx context.Context) error {
 		verr.Add("version", "Invalid OpenSearch version: %s.", o.Version.String())
 	}
 
-	if o.Indices != nil && o.Indices.QueryBoolMaxClauseCount != nil {
-		if c := *o.Indices.QueryBoolMaxClauseCount; c < 64 || c > 4096 {
-			verr.Add("queryBoolMaxClauseCount", "Query bool max clause count must be between 64 and 4096.")
+	if o.IndicesQueryBoolMaxClauseCount != nil {
+		if c := *o.IndicesQueryBoolMaxClauseCount; c < 64 || c > 4096 {
+			verr.Add("indicesQueryBoolMaxClauseCount", "Query bool max clause count must be between 64 and 4096.")
 		}
 	}
 
-	if o.HTTP != nil && o.HTTP.MaxContentLength != nil {
-		q, err := resource.ParseQuantity(*o.HTTP.MaxContentLength)
+	if o.HTTPMaxContentLength != nil {
+		q, err := resource.ParseQuantity(*o.HTTPMaxContentLength)
 		if err != nil {
-			verr.Add("maxContentLength", "Max content length must be a valid quantity (e.g. \"100Mi\", \"1Gi\").")
+			verr.Add("httpMaxContentLength", "Max content length must be a valid quantity (e.g. \"100Mi\", \"1Gi\").")
 		} else if b := q.Value(); b < 1 || b > 2147483647 {
-			verr.Add("maxContentLength", "Max content length must be between 1 byte and 2147483647 bytes (around 2047Mi).")
+			verr.Add("httpMaxContentLength", "Max content length must be between 1 byte and 2147483647 bytes (around 2047Mi).")
 		}
 	}
 
