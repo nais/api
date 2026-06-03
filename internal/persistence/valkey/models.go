@@ -221,6 +221,12 @@ func toValkeyFromNais(v *naiscrd.Valkey, envName string) (*Valkey, error) {
 			return nil, err
 		}
 	}
+
+	databases := 16
+	if v.Spec.Databases != nil {
+		databases = *v.Spec.Databases
+	}
+
 	return &Valkey{
 		Name:                 v.Name,
 		EnvironmentName:      envName,
@@ -231,6 +237,7 @@ func toValkeyFromNais(v *naiscrd.Valkey, envName string) (*Valkey, error) {
 		Memory:               fromMapperatorMemory(v.Spec.Memory),
 		NotifyKeyspaceEvents: v.Spec.NotifyKeyspaceEvents,
 		MaxMemoryPolicy:      mmp,
+		Databases:            databases,
 	}, nil
 }
 

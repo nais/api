@@ -169,10 +169,22 @@ func Create(ctx context.Context, input CreateValkeyInput) (*CreateValkeyPayload,
 	if input.NotifyKeyspaceEvents != nil {
 		res.Spec.NotifyKeyspaceEvents = *input.NotifyKeyspaceEvents
 	}
+	if input.Databases != nil {
+		res.Spec.Databases = input.Databases
+	}
 
 	obj, err := kubernetes.ToUnstructured(res)
 	if err != nil {
 		return nil, err
+	}
+
+	// TODO: fix
+	if input.Databases != nil {
+		// Must be stored and read as float64 for the integration tests to work.
+		err := unstructured.SetNestedField(obj.Object, float64(*input.Databases), "spec", "databases")
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	if _, err = client.Create(ctx, obj, metav1.CreateOptions{}); err != nil {
@@ -241,6 +253,16 @@ func Update(ctx context.Context, input UpdateValkeyInput) (*UpdateValkeyPayload,
 		changes = append(changes, res...)
 	}
 
+	// TODO: fix
+	databases := concreteValkey.Spec.Databases
+	if input.Databases != nil {
+		databases = input.Databases
+	}
+	// Must be stored and read as float64 for the integration tests to work.
+	if err := unstructured.SetNestedField(valkey.Object, float64(*databases), "spec", "databases"); err != nil {
+		return nil, err
+	}
+
 	if len(changes) == 0 {
 		v, err := kubernetes.ToConcrete[naiscrd.Valkey](valkey)
 		if err != nil {
@@ -258,6 +280,12 @@ func Update(ctx context.Context, input UpdateValkeyInput) (*UpdateValkeyPayload,
 
 	obj, err := kubernetes.ToUnstructured(concreteValkey)
 	if err != nil {
+		return nil, err
+	}
+
+	// TODO: fix
+	// Must be stored and read as float64 for the integration tests to work.
+	if err := unstructured.SetNestedField(obj.Object, float64(*databases), "spec", "databases"); err != nil {
 		return nil, err
 	}
 
@@ -401,7 +429,7 @@ func updateMaxMemoryPolicy(valkey *naiscrd.Valkey, input UpdateValkeyInput) ([]*
 		if err != nil {
 			return nil, fmt.Errorf("parsing existing max memory policy: %w", err)
 		}
-		oldMMP = ptr.To(old.String())
+		oldMMP = new(old.String())
 	}
 
 	changes := make([]*ValkeyUpdatedActivityLogEntryDataUpdatedField, 0)
@@ -430,7 +458,7 @@ func updateNotifyKeyspaceEvents(valkey *naiscrd.Valkey, input UpdateValkeyInput)
 
 	var oldValue *string
 	if valkey.Spec.NotifyKeyspaceEvents != "" {
-		oldValue = new(valkey.Spec.NotifyKeyspaceEvents))
+		oldValue = new(valkey.Spec.NotifyKeyspaceEvents)
 	}
 	changes = append(changes, &ValkeyUpdatedActivityLogEntryDataUpdatedField{
 		Field:    "notifyKeyspaceEvents",
@@ -455,7 +483,7 @@ func updateDatabases(valkey *naiscrd.Valkey, input UpdateValkeyInput) ([]*Valkey
 	}
 
 	changes = append(changes, &ValkeyUpdatedActivityLogEntryDataUpdatedField{
-		Field:    "databases",
+		Field: "databases",
 		OldValue: func() *string {
 			if oldValue != nil {
 				return new(strconv.FormatInt(int64(*oldValue), 10))
@@ -465,11 +493,7 @@ func updateDatabases(valkey *naiscrd.Valkey, input UpdateValkeyInput) ([]*Valkey
 		NewValue: new(strconv.Itoa(*input.Databases)),
 	})
 
-	// Must be stored and read as float64 for the integration tests to work.
-	if err := unstructured.SetNestedField(valkey.Object, float64(*input.Databases), specNumberOfDatabases...); err != nil {
-		return nil, err
-	}
-
+	valkey.Spec.Databases = input.Databases
 	return changes, nil
 }
 
