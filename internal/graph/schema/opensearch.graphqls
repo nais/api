@@ -85,6 +85,8 @@ type OpenSearch implements Persistence & Node {
 	labels: [ResourceLabel!]!
 	"Shard indexing back pressure settings for the OpenSearch instance."
 	shardIndexingPressure: OpenSearchShardIndexingPressure!
+	"Index settings for the OpenSearch instance."
+	indices: OpenSearchIndices!
 	"Issues that affects the instance."
 	issues(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
@@ -139,6 +141,16 @@ input OpenSearchShardIndexingPressureInput {
 	enabled: Boolean!
 	"Run back pressure in enforced mode. Defaults to false (shadow mode)."
 	enforced: Boolean!
+}
+
+type OpenSearchIndices {
+	"Maximum number of clauses a Lucene BooleanQuery can contain. When not set, the instance uses the default of 1024. Increasing this value may cause performance issues."
+	queryBoolMaxClauseCount: Int
+}
+
+input OpenSearchIndicesInput {
+	"Maximum number of clauses a Lucene BooleanQuery can contain. Must be between 64 and 4096. When not set, the instance uses the default of 1024."
+	queryBoolMaxClauseCount: Int
 }
 
 type OpenSearchAccess {
@@ -287,6 +299,8 @@ input CreateOpenSearchInput {
 	storageGB: Int!
 	"Shard indexing back pressure settings. Defaults to disabled."
 	shardIndexingPressure: OpenSearchShardIndexingPressureInput
+	"Index settings for the OpenSearch instance."
+	indices: OpenSearchIndicesInput
 }
 
 type CreateOpenSearchPayload {
@@ -313,6 +327,8 @@ input UpdateOpenSearchInput {
 	labels: [ResourceLabelInput!]
 	"Shard indexing back pressure settings. Defaults to disabled."
 	shardIndexingPressure: OpenSearchShardIndexingPressureInput
+	"Index settings for the OpenSearch instance."
+	indices: OpenSearchIndicesInput
 }
 
 type UpdateOpenSearchPayload {

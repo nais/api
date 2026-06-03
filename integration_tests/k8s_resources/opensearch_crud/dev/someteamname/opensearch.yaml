@@ -37,6 +37,7 @@ spec:
   userConfig:
     opensearch_version: "2"
     opensearch:
+      indices_query_bool_max_clause_count: 512
       shard_indexing_pressure:
         enabled: true
         enforced: true
