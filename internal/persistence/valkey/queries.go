@@ -175,10 +175,22 @@ func Create(ctx context.Context, input CreateValkeyInput) (*CreateValkeyPayload,
 	if input.NotifyKeyspaceEvents != nil {
 		res.Spec.NotifyKeyspaceEvents = *input.NotifyKeyspaceEvents
 	}
+	if input.Databases != nil {
+		res.Spec.Databases = input.Databases
+	}
 
 	obj, err := kubernetes.ToUnstructured(res)
 	if err != nil {
 		return nil, err
+	}
+
+	// TODO: fix
+	if input.Databases != nil {
+		// Must be stored and read as float64 for the integration tests to work.
+		err := unstructured.SetNestedField(obj.Object, float64(*input.Databases), "spec", "databases")
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	if _, err = client.Create(ctx, obj, metav1.CreateOptions{}); err != nil {
@@ -249,6 +261,16 @@ func Update(ctx context.Context, input UpdateValkeyInput) (*UpdateValkeyPayload,
 
 	changes = append(changes, updateLabels(valkey, input)...)
 
+	// TODO: fix
+	databases := concreteValkey.Spec.Databases
+	if input.Databases != nil {
+		databases = input.Databases
+	}
+	// Must be stored and read as float64 for the integration tests to work.
+	if err := unstructured.SetNestedField(valkey.Object, float64(*databases), "spec", "databases"); err != nil {
+		return nil, err
+	}
+
 	if len(changes) == 0 {
 		v, err := kubernetes.ToConcrete[naiscrd.Valkey](valkey)
 		if err != nil {
@@ -266,6 +288,12 @@ func Update(ctx context.Context, input UpdateValkeyInput) (*UpdateValkeyPayload,
 
 	obj, err := kubernetes.ToUnstructured(concreteValkey)
 	if err != nil {
+		return nil, err
+	}
+
+	// TODO: fix
+	// Must be stored and read as float64 for the integration tests to work.
+	if err := unstructured.SetNestedField(obj.Object, float64(*databases), "spec", "databases"); err != nil {
 		return nil, err
 	}
 

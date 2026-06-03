@@ -86,12 +86,10 @@ Test.gql("Create valkey as team member", function(t)
 		      teamSlug: "someteamname"
 		      tier: SINGLE_NODE
 		      memory: GB_14
-		      databases: 32
 		    }
 		  ) {
 		    valkey {
 		      name
-		      databases
 		    }
 		  }
 		}
@@ -102,7 +100,6 @@ Test.gql("Create valkey as team member", function(t)
 			createValkey = {
 				valkey = {
 					name = "foobar",
-					databases = 32,
 				},
 			},
 		},
@@ -233,8 +230,7 @@ Test.k8s("Validate Valkey resource", function(t)
 			name = "foobar",
 			namespace = "someteamname",
 		},
-        spec = {
-			databases = 32,
+		spec = {
 			memory = "14GB",
 			tier = "SingleNode",
 		},
@@ -362,6 +358,7 @@ Test.k8s("Validate Valkey resource after update", function(t)
 			namespace = "someteamname",
 		},
 		spec = {
+			databases = 64,
 			maxMemoryPolicy = "allkeys-random",
 			memory = "4GB",
 			notifyKeyspaceEvents = "Exd",
@@ -539,6 +536,7 @@ Test.k8s("Validate hobbyist Valkey resource after update", function(t)
 			namespace = "someteamname",
 		},
 		spec = {
+			databases = 64,
 			maxMemoryPolicy = "allkeys-random",
 			memory = "1GB",
 			notifyKeyspaceEvents = "Exd",
@@ -789,7 +787,7 @@ Test.gql("Verify activity log for valkey operations", function(t)
 									},
 									{
 										field = "databases",
-										oldValue = "32",
+										oldValue = Null,
 										newValue = "64",
 									},
 								},
