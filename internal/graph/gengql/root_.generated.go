@@ -31989,35 +31989,35 @@ enum VulnerabilitySummaryOrderByField {
 	"""
 	ENVIRONMENT
 	"""
-	Order by risk score"
+	Order by risk score.
 	"""
 	VULNERABILITY_RISK_SCORE
 	"""
-	Order by vulnerability severity critical"
+	Order by vulnerability severity critical.
 	"""
 	VULNERABILITY_SEVERITY_CRITICAL
 	"""
-	Order by vulnerability severity high"
+	Order by vulnerability severity high.
 	"""
 	VULNERABILITY_SEVERITY_HIGH
 	"""
-	Order by vulnerability severity medium"
+	Order by vulnerability severity medium.
 	"""
 	VULNERABILITY_SEVERITY_MEDIUM
 	"""
-	Order by vulnerability severity low"
+	Order by vulnerability severity low.
 	"""
 	VULNERABILITY_SEVERITY_LOW
 	"""
-	Order by vulnerability severity unassigned"
+	Order by vulnerability severity unassigned.
 	"""
 	VULNERABILITY_SEVERITY_UNASSIGNED
 	"""
-	Order by IMMEDIATE risk-tier count"
+	Order by IMMEDIATE risk-tier count.
 	"""
 	VULNERABILITY_PRIORITY_ACT_NOW
 	"""
-	Order by HIGH risk-tier count"
+	Order by HIGH risk-tier count.
 	"""
 	VULNERABILITY_PRIORITY_HIGH
 }
