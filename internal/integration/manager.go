@@ -297,7 +297,7 @@ func newGQLRunner(
 		return nil, nil, nil, fmt.Errorf("failed to configure graph: %w", err)
 	}
 
-	resolver := graph.NewResolver(topic)
+	resolver := graph.NewResolver(config.TenantName, topic)
 
 	hlog := logrus.New()
 	srv, err := graph.NewHandler(gengql.Config{
