@@ -180,6 +180,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 
 	graphHandler, err := graph.NewHandler(gengql.Config{
 		Resolvers: graph.NewResolver(
+			cfg.Tenant,
 			&graph.TopicWrapper{Topic: pubsubTopic},
 			graph.WithLogger(log),
 		),

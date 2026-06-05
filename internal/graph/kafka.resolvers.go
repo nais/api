@@ -3,8 +3,10 @@ package graph
 import (
 	"context"
 	"errors"
+	"strings"
 
 	"github.com/nais/api/internal/auth/authz"
+	"github.com/nais/api/internal/environmentmapper"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
@@ -79,6 +81,15 @@ func (r *kafkaTopicAclResolver) Workload(ctx context.Context, obj *kafkatopic.Ka
 
 	w, err := tryWorkload(ctx, slug.Slug(obj.TeamName), obj.EnvironmentName, obj.WorkloadName)
 	if errors.Is(err, &watcher.ErrorNotFound{}) {
+		if r.tenantName == "nav" {
+			// For Nav, workloads might exist in another environment. Topics are always in `-gcp`, but workloads might be in `-fss`.
+			fssEnv := strings.Replace(environmentmapper.EnvironmentName(obj.EnvironmentName), "-gcp", "-fss", 1)
+			w, err = tryWorkload(ctx, slug.Slug(obj.TeamName), fssEnv, obj.WorkloadName)
+			if errors.Is(err, &watcher.ErrorNotFound{}) {
+				return nil, nil
+			}
+			return w, err
+		}
 		return nil, nil
 	}
 	return w, err
