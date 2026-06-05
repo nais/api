@@ -21,6 +21,7 @@ import (
 )
 
 type Resolver struct {
+	tenantName  string
 	pubsubTopic PubsubTopic
 	log         logrus.FieldLogger
 }
@@ -33,8 +34,9 @@ func WithLogger(log logrus.FieldLogger) ResolverOption {
 	}
 }
 
-func NewResolver(topic PubsubTopic, opts ...ResolverOption) *Resolver {
+func NewResolver(tenantName string, topic PubsubTopic, opts ...ResolverOption) *Resolver {
 	resolver := &Resolver{
+		tenantName:  tenantName,
 		pubsubTopic: topic,
 	}
 
