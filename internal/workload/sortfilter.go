@@ -5,6 +5,7 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/sortfilter"
 )
 
@@ -33,6 +34,10 @@ func init() {
 			return true
 		}
 		return false
+	})
+
+	SortFilter.RegisterFilter(func(ctx context.Context, v Workload, filter *TeamWorkloadsFilter) bool {
+		return model.MatchesLabelFilters(v.GetLabels(), filter.Labels)
 	})
 
 	SortFilterEnvironment.RegisterSort("NAME", func(ctx context.Context, a, b Workload) int {

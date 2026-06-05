@@ -41,13 +41,18 @@ func (JobRunInstance) IsNode() {}
 
 type Job struct {
 	workload.Base
-	Spec *nais_io_v1.NaisjobSpec `json:"-"`
+	Labels []*model.ResourceLabel  `json:"labels"`
+	Spec   *nais_io_v1.NaisjobSpec `json:"-"`
 }
 
 func (Job) IsNode()           {}
 func (Job) IsSearchNode()     {}
 func (Job) IsWorkload()       {}
 func (Job) IsActivityLogger() {}
+
+func (j *Job) GetLabels() []*model.ResourceLabel {
+	return j.Labels
+}
 
 // GetSecrets returns a list of secret names used by the job
 func (j *Job) GetSecrets() []string {
@@ -378,7 +383,8 @@ func toGraphJob(job *nais_io_v1.Naisjob, environmentName string) *Job {
 			Type:                workload.TypeJob,
 			Logging:             logging,
 		},
-		Spec: &job.Spec,
+		Labels: model.UserLabels(job.GetLabels()),
+		Spec:   &job.Spec,
 	}
 }
 
@@ -549,9 +555,10 @@ type JobRunStatus struct {
 }
 
 type TeamJobsFilter struct {
-	Name         string     `json:"name"`
-	Environments []string   `json:"environments"`
-	States       []JobState `json:"states"`
+	Name         string               `json:"name"`
+	Environments []string             `json:"environments"`
+	States       []JobState           `json:"states"`
+	Labels       []*model.LabelFilter `json:"labels,omitempty"`
 }
 
 type JobFacets struct {

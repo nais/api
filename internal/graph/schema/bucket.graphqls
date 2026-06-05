@@ -69,6 +69,8 @@ type Bucket implements Persistence & Node {
 	publicAccessPrevention: String!
 	uniformBucketLevelAccess: Boolean!
 	workload: Workload
+	"User-defined labels attached to this bucket."
+	labels: [ResourceLabel!]!
 }
 
 type BucketConnection {
@@ -115,6 +117,9 @@ input BucketFilter {
 
 	"Filter by environments."
 	environments: [String!]
+
+	"Filter by user-defined labels. All listed labels must match."
+	labels: [LabelFilter!]
 }
 
 extend union SearchNode = Bucket

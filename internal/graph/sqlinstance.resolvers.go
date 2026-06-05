@@ -182,13 +182,13 @@ func (r *sqlInstanceMetricsResolver) Disk(ctx context.Context, obj *sqlinstance.
 	return sqlinstance.DiskForInstance(ctx, obj.ProjectID, obj.InstanceName)
 }
 
-func (r *teamResolver) SQLInstances(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *sqlinstance.SQLInstanceOrder) (*pagination.Connection[*sqlinstance.SQLInstance], error) {
+func (r *teamResolver) SQLInstances(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *sqlinstance.SQLInstanceOrder, filter *sqlinstance.SQLInstanceFilter) (*pagination.Connection[*sqlinstance.SQLInstance], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
 	}
 
-	return sqlinstance.ListForTeam(ctx, obj.Slug, page, orderBy)
+	return sqlinstance.ListForTeam(ctx, obj.Slug, page, orderBy, filter)
 }
 
 func (r *teamEnvironmentResolver) SQLInstance(ctx context.Context, obj *team.TeamEnvironment, name string) (*sqlinstance.SQLInstance, error) {

@@ -2,6 +2,9 @@ extend type Mutation {
 	"Create a new config."
 	createConfig(input: CreateConfigInput!): CreateConfigPayload!
 
+	"Update the user-defined labels of a config."
+	updateConfig(input: UpdateConfigInput!): UpdateConfigPayload!
+
 	"Add a value to a config."
 	addConfigValue(input: AddConfigValueInput!): AddConfigValuePayload!
 
@@ -56,6 +59,11 @@ input ConfigFilter {
 	Filter by environments.
 	"""
 	environments: [String!]
+
+	"""
+	Filter by user-defined labels. All provided labels must match (AND semantics).
+	"""
+	labels: [LabelFilter!]
 }
 
 extend type TeamEnvironment {
@@ -130,6 +138,9 @@ type Config implements Node & ActivityLogger {
 
 	"The values stored in the config."
 	values: [ConfigValue!]!
+
+	"User-defined labels attached to the config."
+	labels: [ResourceLabel!]!
 
 	"Applications that use the config."
 	applications(
@@ -295,6 +306,25 @@ input DeleteConfigInput {
 
 type CreateConfigPayload {
 	"The created config."
+	config: Config
+}
+
+input UpdateConfigInput {
+	"The name of the config."
+	name: String!
+
+	"The environment the config exists in."
+	environmentName: String!
+
+	"The team that owns the config."
+	teamSlug: Slug!
+
+	"The complete set of user-defined labels to apply. Existing user-defined labels are replaced; send an empty list to remove all labels."
+	labels: [ResourceLabelInput!]!
+}
+
+type UpdateConfigPayload {
+	"The updated config."
 	config: Config
 }
 

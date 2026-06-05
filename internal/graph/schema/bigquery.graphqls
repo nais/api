@@ -76,6 +76,8 @@ type BigQueryDataset implements Persistence & Node {
 	): BigQueryDatasetAccessConnection!
 	status: BigQueryDatasetStatus!
 	workload: Workload
+	"User-defined labels attached to this BigQuery dataset."
+	labels: [ResourceLabel!]!
 }
 
 type BigQueryDatasetAccess {
@@ -153,6 +155,9 @@ input BigQueryDatasetFilter {
 
 	"Filter by environments."
 	environments: [String!]
+
+	"Filter by user-defined labels. All listed labels must match."
+	labels: [LabelFilter!]
 }
 
 extend union SearchNode = BigQueryDataset

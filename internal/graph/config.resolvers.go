@@ -170,6 +170,21 @@ func (r *mutationResolver) CreateConfig(ctx context.Context, input config.Create
 	}, nil
 }
 
+func (r *mutationResolver) UpdateConfig(ctx context.Context, input config.UpdateConfigInput) (*config.UpdateConfigPayload, error) {
+	if err := authz.CanUpdateConfigs(ctx, input.TeamSlug); err != nil {
+		return nil, err
+	}
+
+	c, err := config.UpdateLabels(ctx, input.TeamSlug, input.EnvironmentName, input.Name, input.Labels)
+	if err != nil {
+		return nil, err
+	}
+
+	return &config.UpdateConfigPayload{
+		Config: c,
+	}, nil
+}
+
 func (r *mutationResolver) AddConfigValue(ctx context.Context, input config.AddConfigValueInput) (*config.AddConfigValuePayload, error) {
 	if err := authz.CanUpdateConfigs(ctx, input.TeamSlug); err != nil {
 		return nil, err

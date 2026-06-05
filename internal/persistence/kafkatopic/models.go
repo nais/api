@@ -29,15 +29,17 @@ type KafkaTopicFacets struct {
 }
 
 type KafkaTopicFilter struct {
-	Name         string   `json:"name"`
-	Environments []string `json:"environments"`
-	Pools        []string `json:"pools"`
+	Name         string               `json:"name"`
+	Environments []string             `json:"environments"`
+	Pools        []string             `json:"pools"`
+	Labels       []*model.LabelFilter `json:"labels,omitempty"`
 }
 
 type KafkaTopic struct {
 	Name            string                   `json:"name"`
 	Pool            string                   `json:"pool"`
 	Configuration   *KafkaTopicConfiguration `json:"configuration,omitempty"`
+	Labels          []*model.ResourceLabel   `json:"labels"`
 	ACLs            []*KafkaTopicACL         `json:"-"`
 	TeamSlug        slug.Slug                `json:"-"`
 	EnvironmentName string                   `json:"-"`
@@ -202,6 +204,7 @@ func toKafkaTopic(u *unstructured.Unstructured, envName string) (*KafkaTopic, er
 		Name:            obj.Name,
 		Pool:            obj.Spec.Pool,
 		Configuration:   toKafkaTopicConfiguration(obj.Spec.Config),
+		Labels:          model.UserLabels(obj.GetLabels()),
 		ACLs:            toKafkaTopicACLs(obj.Spec.ACL, teamSlug, envName, obj.Name),
 		TeamSlug:        teamSlug,
 		EnvironmentName: envName,

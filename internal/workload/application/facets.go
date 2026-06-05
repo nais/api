@@ -71,6 +71,10 @@ func matchesFilter(ctx context.Context, app *Application, filter *TeamApplicatio
 		}
 	}
 
+	if !model.MatchesLabelFilters(app.Labels, filter.Labels) {
+		return false
+	}
+
 	return true
 }
 

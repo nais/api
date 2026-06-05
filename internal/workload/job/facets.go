@@ -71,6 +71,10 @@ func matchesFilter(ctx context.Context, j *Job, filter *TeamJobsFilter) bool {
 		}
 	}
 
+	if !model.MatchesLabelFilters(j.Labels, filter.Labels) {
+		return false
+	}
+
 	return true
 }
 

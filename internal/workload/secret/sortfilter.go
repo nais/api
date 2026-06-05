@@ -5,6 +5,7 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/sortfilter"
 	"github.com/nais/api/internal/workload/application"
 	"github.com/nais/api/internal/workload/job"
@@ -33,6 +34,10 @@ func init() {
 	}, "NAME", "ENVIRONMENT")
 
 	SortFilter.RegisterFilter(func(ctx context.Context, v *Secret, filter *SecretFilter) bool {
+		if !model.MatchesLabelFilters(v.Labels, filter.Labels) {
+			return false
+		}
+
 		if filter.Name != "" {
 			if !strings.Contains(strings.ToLower(v.Name), strings.ToLower(filter.Name)) {
 				return false

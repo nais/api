@@ -66,6 +66,8 @@ type Valkey implements Persistence & Node {
 	team: Team!
 	environment: TeamEnvironment! @deprecated(reason: "Use the `teamEnvironment` field instead.")
 	teamEnvironment: TeamEnvironment!
+	"User-defined labels attached to the instance."
+	labels: [ResourceLabel!]!
 	access(
 		first: Int
 		after: Cursor
@@ -183,6 +185,9 @@ input ValkeyFilter {
 
 	"Filter by tier."
 	tiers: [ValkeyTier!]
+
+	"Filter by user-defined labels. All provided labels must match (AND semantics)."
+	labels: [LabelFilter!]
 }
 
 input ValkeyAccessOrder {
@@ -295,6 +300,8 @@ input UpdateValkeyInput {
 	notifyKeyspaceEvents: String
 	"Number of databases. Default is 16. Minimum 1, maximum 128. Changing this will cause a restart of the Valkey service."
 	databases: Int
+	"User-defined labels for the instance. When provided, replaces all existing user-defined labels. When omitted, labels are left unchanged."
+	labels: [ResourceLabelInput!]
 }
 
 type UpdateValkeyPayload {

@@ -30,9 +30,10 @@ type (
 )
 
 type ValkeyFilter struct {
-	Name         string       `json:"name"`
-	Environments []string     `json:"environments"`
-	Tiers        []ValkeyTier `json:"tiers"`
+	Name         string               `json:"name"`
+	Environments []string             `json:"environments"`
+	Tiers        []ValkeyTier         `json:"tiers"`
+	Labels       []*model.LabelFilter `json:"labels"`
 }
 
 type ValkeyConnection = pagination.FacetableConnection[*Valkey, *ValkeyFilter]
@@ -48,18 +49,19 @@ type ValkeyTierFacetItem struct {
 }
 
 type Valkey struct {
-	Name                  string                `json:"name"`
-	Status                *ValkeyStatus         `json:"status"`
-	TerminationProtection bool                  `json:"terminationProtection"`
-	Tier                  ValkeyTier            `json:"tier"`
-	Memory                ValkeyMemory          `json:"memory"`
-	MaxMemoryPolicy       ValkeyMaxMemoryPolicy `json:"maxMemoryPolicy,omitempty"`
-	NotifyKeyspaceEvents  string                `json:"notifyKeyspaceEvents,omitempty"`
-	Databases             int                   `json:"databases"`
-	TeamSlug              slug.Slug             `json:"-"`
-	EnvironmentName       string                `json:"-"`
-	WorkloadReference     *workload.Reference   `json:"-"`
-	AivenProject          string                `json:"-"`
+	Name                  string                 `json:"name"`
+	Status                *ValkeyStatus          `json:"status"`
+	TerminationProtection bool                   `json:"terminationProtection"`
+	Tier                  ValkeyTier             `json:"tier"`
+	Memory                ValkeyMemory           `json:"memory"`
+	MaxMemoryPolicy       ValkeyMaxMemoryPolicy  `json:"maxMemoryPolicy,omitempty"`
+	NotifyKeyspaceEvents  string                 `json:"notifyKeyspaceEvents,omitempty"`
+	Databases             int                    `json:"databases"`
+	Labels                []*model.ResourceLabel `json:"labels"`
+	TeamSlug              slug.Slug              `json:"-"`
+	EnvironmentName       string                 `json:"-"`
+	WorkloadReference     *workload.Reference    `json:"-"`
+	AivenProject          string                 `json:"-"`
 }
 
 func (Valkey) IsPersistence()    {}
@@ -217,6 +219,7 @@ func toValkey(u *unstructured.Unstructured, envName string) (*Valkey, error) {
 		MaxMemoryPolicy:      maxMemoryPolicy,
 		NotifyKeyspaceEvents: notifyKeyspaceEvents,
 		Databases:            int(numberOfDatabases),
+		Labels:               model.UserLabels(obj.GetLabels()),
 	}, nil
 }
 
@@ -265,6 +268,10 @@ type ValkeyInput struct {
 }
 
 func (v *ValkeyInput) Validate(ctx context.Context) error {
+	return v.ValidationErrors(ctx).NilIfEmpty()
+}
+
+func (v *ValkeyInput) ValidationErrors(ctx context.Context) *validate.ValidationErrors {
 	verr := v.ValkeyMetadataInput.ValidationErrors(ctx)
 
 	if !v.Tier.IsValid() {
@@ -284,7 +291,7 @@ func (v *ValkeyInput) Validate(ctx context.Context) error {
 		}
 	}
 
-	return verr.NilIfEmpty()
+	return verr
 }
 
 type CreateValkeyInput struct {
@@ -467,6 +474,34 @@ func (e ValkeyTier) MarshalGQL(w io.Writer) {
 
 type UpdateValkeyInput struct {
 	ValkeyInput
+	Labels []*model.ResourceLabel `json:"labels,omitempty"`
+}
+
+func (i *UpdateValkeyInput) Validate(ctx context.Context) error {
+	verr := i.ValkeyInput.ValidationErrors(ctx)
+	validateUserLabels(verr, i.Labels)
+	return verr.NilIfEmpty()
+}
+
+func validateUserLabels(verr *validate.ValidationErrors, labels []*model.ResourceLabel) {
+	seen := make(map[string]struct{}, len(labels))
+	for _, l := range labels {
+		if l == nil {
+			continue
+		}
+		if _, dup := seen[l.Key]; dup {
+			verr.Add("labels", "Duplicate label key %q.", l.Key)
+			continue
+		}
+		seen[l.Key] = struct{}{}
+
+		for _, msg := range validation.IsQualifiedName(model.UserLabelPrefix + l.Key) {
+			verr.Add("labels", "Invalid label key %q: %s.", l.Key, msg)
+		}
+		for _, msg := range validation.IsValidLabelValue(l.Value) {
+			verr.Add("labels", "Invalid value for label %q: %s.", l.Key, msg)
+		}
+	}
 }
 
 type UpdateValkeyPayload struct {

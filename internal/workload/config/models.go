@@ -22,11 +22,12 @@ type ConfigEdge = pagination.Edge[*Config]
 type ConfigConnection = pagination.FacetableConnection[*Config, *ConfigFilter]
 
 type Config struct {
-	Name                string            `json:"name"`
-	LastModifiedAt      *time.Time        `json:"lastModifiedAt"`
-	ModifiedByUserEmail *string           `json:"lastModifiedBy"`
-	Data                map[string]string `json:"-"` // ConfigMap data cached as-is (not sensitive)
-	BinaryData          map[string]string `json:"-"` // ConfigMap binaryData cached as base64 strings
+	Name                string                 `json:"name"`
+	LastModifiedAt      *time.Time             `json:"lastModifiedAt"`
+	ModifiedByUserEmail *string                `json:"lastModifiedBy"`
+	Data                map[string]string      `json:"-"` // ConfigMap data cached as-is (not sensitive)
+	BinaryData          map[string]string      `json:"-"` // ConfigMap binaryData cached as base64 strings
+	Labels              []*model.ResourceLabel `json:"labels"`
 
 	TeamSlug        slug.Slug `json:"-"`
 	EnvironmentName string    `json:"-"`
@@ -43,10 +44,10 @@ type CreateConfigPayload struct {
 }
 
 type UpdateConfigInput struct {
-	Name            string              `json:"name"`
-	EnvironmentName string              `json:"environmentName"`
-	TeamSlug        slug.Slug           `json:"teamSlug"`
-	Data            []*ConfigValueInput `json:"data"`
+	Name            string                 `json:"name"`
+	EnvironmentName string                 `json:"environmentName"`
+	TeamSlug        slug.Slug              `json:"teamSlug"`
+	Labels          []*model.ResourceLabel `json:"labels"`
 }
 
 type UpdateConfigPayload struct {
@@ -115,6 +116,7 @@ func toGraphConfig(o *unstructured.Unstructured, environmentName string) (*Confi
 		ModifiedByUserEmail: lastModifiedBy,
 		Data:                data,
 		BinaryData:          binaryData,
+		Labels:              model.UserLabels(o.GetLabels()),
 	}, true
 }
 
@@ -200,9 +202,10 @@ func (e ConfigOrderField) MarshalGQL(w io.Writer) {
 }
 
 type ConfigFilter struct {
-	Name         *string  `json:"name"`
-	InUse        *bool    `json:"inUse"`
-	Environments []string `json:"environments"`
+	Name         *string              `json:"name"`
+	InUse        *bool                `json:"inUse"`
+	Environments []string             `json:"environments"`
+	Labels       []*model.LabelFilter `json:"labels,omitempty"`
 }
 
 // IsActivityLogger implements the ActivityLogger interface.

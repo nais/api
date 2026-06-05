@@ -269,6 +269,8 @@ func Update(ctx context.Context, input UpdateValkeyInput) (*UpdateValkeyPayload,
 	}
 	changes = append(changes, res...)
 
+	changes = append(changes, updateLabels(valkey, input)...)
+
 	if len(changes) == 0 {
 		vk, err := toValkey(valkey, input.EnvironmentName)
 		if err != nil {
@@ -529,6 +531,40 @@ func updateDatabases(valkey *unstructured.Unstructured, input UpdateValkeyInput)
 	}
 
 	return changes, nil
+}
+
+func updateLabels(valkey *unstructured.Unstructured, input UpdateValkeyInput) []*ValkeyUpdatedActivityLogEntryDataUpdatedField {
+	if input.Labels == nil {
+		return nil
+	}
+
+	existing := valkey.GetLabels()
+	oldValue := formatUserLabels(model.UserLabels(existing))
+
+	merged := model.MergeUserLabels(existing, input.Labels)
+	newValue := formatUserLabels(model.UserLabels(merged))
+
+	if oldValue == newValue {
+		return nil
+	}
+
+	valkey.SetLabels(merged)
+
+	return []*ValkeyUpdatedActivityLogEntryDataUpdatedField{
+		{
+			Field:    "labels",
+			OldValue: &oldValue,
+			NewValue: &newValue,
+		},
+	}
+}
+
+func formatUserLabels(labels []*model.ResourceLabel) string {
+	parts := make([]string, 0, len(labels))
+	for _, l := range labels {
+		parts = append(parts, l.Key+"="+l.Value)
+	}
+	return strings.Join(parts, ", ")
 }
 
 func Delete(ctx context.Context, input DeleteValkeyInput) (*DeleteValkeyPayload, error) {

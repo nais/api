@@ -51,6 +51,21 @@ func (r *mutationResolver) CreateSecret(ctx context.Context, input secret.Create
 	}, nil
 }
 
+func (r *mutationResolver) UpdateSecret(ctx context.Context, input secret.UpdateSecretInput) (*secret.UpdateSecretPayload, error) {
+	if err := authz.CanUpdateSecrets(ctx, input.Team); err != nil {
+		return nil, err
+	}
+
+	s, err := secret.UpdateLabels(ctx, input.Team, input.Environment, input.Name, input.Labels)
+	if err != nil {
+		return nil, err
+	}
+
+	return &secret.UpdateSecretPayload{
+		Secret: s,
+	}, nil
+}
+
 func (r *mutationResolver) AddSecretValue(ctx context.Context, input secret.AddSecretValueInput) (*secret.AddSecretValuePayload, error) {
 	if err := authz.CanUpdateSecrets(ctx, input.Team); err != nil {
 		return nil, err

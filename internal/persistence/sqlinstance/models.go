@@ -30,14 +30,15 @@ type (
 )
 
 type SQLDatabase struct {
-	Name            string    `json:"name"`
-	Charset         *string   `json:"charset,omitempty"`
-	Collation       *string   `json:"collation,omitempty"`
-	DeletionPolicy  *string   `json:"deletionPolicy,omitempty"`
-	Healthy         bool      `json:"healthy"`
-	SQLInstanceName string    `json:"-"`
-	EnvironmentName string    `json:"-"`
-	TeamSlug        slug.Slug `json:"-"`
+	Name            string                 `json:"name"`
+	Charset         *string                `json:"charset,omitempty"`
+	Collation       *string                `json:"collation,omitempty"`
+	DeletionPolicy  *string                `json:"deletionPolicy,omitempty"`
+	Healthy         bool                   `json:"healthy"`
+	Labels          []*model.ResourceLabel `json:"labels"`
+	SQLInstanceName string                 `json:"-"`
+	EnvironmentName string                 `json:"-"`
+	TeamSlug        slug.Slug              `json:"-"`
 }
 
 func (SQLDatabase) IsPersistence() {}
@@ -76,10 +77,15 @@ type SQLInstance struct {
 	Tier                string                          `json:"tier"`
 	Version             *string                         `json:"version,omitempty"`
 	Status              *SQLInstanceStatus              `json:"status"`
+	Labels              []*model.ResourceLabel          `json:"labels"`
 	Flags               []*SQLInstanceFlag              `json:"-"`
 	EnvironmentName     string                          `json:"-"`
 	TeamSlug            slug.Slug                       `json:"-"`
 	WorkloadReference   *workload.Reference             `json:"-"`
+}
+
+type SQLInstanceFilter struct {
+	Labels []*model.LabelFilter `json:"labels,omitempty"`
 }
 
 func (SQLInstance) IsPersistence() {}
@@ -271,6 +277,7 @@ func toSQLDatabase(u *unstructured.Unstructured, environmentName string) (*SQLDa
 		Collation:       obj.Spec.Collation,
 		DeletionPolicy:  obj.Spec.DeletionPolicy,
 		Healthy:         healthy(obj.Status.Conditions),
+		Labels:          model.UserLabels(obj.GetLabels()),
 		SQLInstanceName: obj.Spec.InstanceRef.Name,
 		EnvironmentName: environmentName,
 		TeamSlug:        slug.Slug(obj.GetNamespace()),
@@ -307,6 +314,7 @@ func toSQLInstance(u *unstructured.Unstructured, environmentName string) (*SQLIn
 		Tier:                obj.Spec.Settings.Tier,
 		Version:             obj.Spec.DatabaseVersion,
 		Status:              toSQLInstanceStatus(obj.Status),
+		Labels:              model.UserLabels(obj.GetLabels()),
 		EnvironmentName:     environmentName,
 		TeamSlug:            slug.Slug(obj.GetNamespace()),
 		WorkloadReference:   workload.ReferenceFromOwnerReferences(obj.OwnerReferences),

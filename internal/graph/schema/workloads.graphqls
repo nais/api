@@ -109,6 +109,11 @@ interface Workload implements Node & ActivityLogger {
 	teamEnvironment: TeamEnvironment!
 
 	"""
+	User-defined labels attached to the workload.
+	"""
+	labels: [ResourceLabel!]!
+
+	"""
 	The container image of the workload.
 	"""
 	image: ContainerImage!
@@ -454,6 +459,11 @@ input TeamWorkloadsFilter {
 	Only return workloads from the given named environments.
 	"""
 	environments: [String!]
+
+	"""
+	Filter by user-defined labels. All listed labels must match.
+	"""
+	labels: [LabelFilter!]
 }
 
 """

@@ -33,6 +33,7 @@ type PostgresInstanceFilter struct {
 	States           []PostgresInstanceState `json:"states"`
 	HighAvailability *bool                   `json:"highAvailability"`
 	MajorVersions    []string                `json:"majorVersions"`
+	Labels           []*model.LabelFilter    `json:"labels,omitempty"`
 }
 
 type PostgresInstanceConnection = pagination.FacetableConnection[*PostgresInstance, *PostgresInstanceFilter]
@@ -60,6 +61,7 @@ type PostgresInstance struct {
 	MaintenanceWindow *PostgresInstanceMaintenanceWindow `json:"maintenanceWindow,omitempty"`
 	HighAvailability  bool                               `json:"highAvailability"`
 	State             PostgresInstanceState              `json:"state"`
+	Labels            []*model.ResourceLabel             `json:"labels"`
 }
 
 type PostgresInstanceState string
@@ -313,7 +315,8 @@ func toPostgres(u *unstructured.Unstructured, environmentName string) (*Postgres
 				Hour: hour,
 			}
 		}(),
-		State: state,
+		State:  state,
+		Labels: model.UserLabels(obj.GetLabels()),
 	}, nil
 }
 
