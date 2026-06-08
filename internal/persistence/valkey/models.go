@@ -30,10 +30,10 @@ type (
 )
 
 type ValkeyFilter struct {
-	Name         string               `json:"name"`
-	Environments []string             `json:"environments"`
-	Tiers        []ValkeyTier         `json:"tiers"`
-	Labels       []*model.LabelFilter `json:"labels"`
+	Name         string             `json:"name"`
+	Environments []string           `json:"environments"`
+	Tiers        []ValkeyTier       `json:"tiers"`
+	Labels       model.LabelFilters `json:"labels"`
 }
 
 type ValkeyConnection = pagination.FacetableConnection[*Valkey, *ValkeyFilter]

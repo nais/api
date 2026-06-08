@@ -197,7 +197,7 @@ func (r *teamEnvironmentResolver) SQLInstance(ctx context.Context, obj *team.Tea
 
 func (r *teamInventoryCountsResolver) SQLInstances(ctx context.Context, obj *team.TeamInventoryCounts) (*sqlinstance.TeamInventoryCountSQLInstances, error) {
 	return &sqlinstance.TeamInventoryCountSQLInstances{
-		Total: len(sqlinstance.ListAllForTeam(ctx, obj.TeamSlug)),
+		Total: len(sqlinstance.ListAllForTeam(ctx, obj.TeamSlug, nil)),
 	}, nil
 }
 

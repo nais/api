@@ -259,6 +259,15 @@ func (ec *executionContext) unmarshalNResourceLabelInput2ᚖgithubᚗcomᚋnais�
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalOLabelFilter2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFiltersᚄ(ctx context.Context, v any) (model.LabelFilters, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res model.LabelFilters
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalOLabelFilter2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFilterᚄ(ctx context.Context, v any) ([]*model.LabelFilter, error) {
 	if v == nil {
 		return nil, nil

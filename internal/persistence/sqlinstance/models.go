@@ -85,7 +85,7 @@ type SQLInstance struct {
 }
 
 type SQLInstanceFilter struct {
-	Labels []*model.LabelFilter `json:"labels,omitempty"`
+	Labels model.LabelFilters `json:"labels,omitempty"`
 }
 
 func (SQLInstance) IsPersistence() {}

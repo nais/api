@@ -5,7 +5,6 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/sortfilter"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/workload/application"
@@ -44,9 +43,9 @@ func init() {
 			}
 		}
 
-		if !model.MatchesLabelFilters(v.Labels, filter.Labels) {
-			return false
-		}
+		// if !model.MatchesLabelFilters(v.Labels, filter.Labels) {
+		// 	return false
+		// }
 
 		return true
 	})

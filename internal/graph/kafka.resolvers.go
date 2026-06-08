@@ -125,7 +125,7 @@ func (r *teamEnvironmentResolver) KafkaTopic(ctx context.Context, obj *team.Team
 
 func (r *teamInventoryCountsResolver) KafkaTopics(ctx context.Context, obj *team.TeamInventoryCounts) (*kafkatopic.TeamInventoryCountKafkaTopics, error) {
 	return &kafkatopic.TeamInventoryCountKafkaTopics{
-		Total: len(kafkatopic.ListAllForTeam(ctx, obj.TeamSlug)),
+		Total: len(kafkatopic.ListAllForTeam(ctx, obj.TeamSlug, nil)),
 	}, nil
 }
 

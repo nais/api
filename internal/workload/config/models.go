@@ -202,10 +202,10 @@ func (e ConfigOrderField) MarshalGQL(w io.Writer) {
 }
 
 type ConfigFilter struct {
-	Name         *string              `json:"name"`
-	InUse        *bool                `json:"inUse"`
-	Environments []string             `json:"environments"`
-	Labels       []*model.LabelFilter `json:"labels,omitempty"`
+	Name         *string            `json:"name"`
+	InUse        *bool              `json:"inUse"`
+	Environments []string           `json:"environments"`
+	Labels       model.LabelFilters `json:"labels,omitempty"`
 }
 
 // IsActivityLogger implements the ActivityLogger interface.

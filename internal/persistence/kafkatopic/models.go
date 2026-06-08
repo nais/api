@@ -29,10 +29,10 @@ type KafkaTopicFacets struct {
 }
 
 type KafkaTopicFilter struct {
-	Name         string               `json:"name"`
-	Environments []string             `json:"environments"`
-	Pools        []string             `json:"pools"`
-	Labels       []*model.LabelFilter `json:"labels,omitempty"`
+	Name         string             `json:"name"`
+	Environments []string           `json:"environments"`
+	Pools        []string           `json:"pools"`
+	Labels       model.LabelFilters `json:"labels,omitempty"`
 }
 
 type KafkaTopic struct {

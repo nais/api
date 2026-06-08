@@ -51,7 +51,7 @@ func Get(ctx context.Context, teamSlug slug.Slug, environment, name string) (*Va
 }
 
 func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *ValkeyOrder, filter *ValkeyFilter) (*ValkeyConnection, error) {
-	all := ListAllForTeam(ctx, teamSlug)
+	all := ListAllForTeam(ctx, teamSlug, filter)
 
 	if orderBy == nil {
 		orderBy = &ValkeyOrder{
@@ -63,8 +63,20 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 	return SortFilterValkey.PaginatedList(ctx, all, page, orderBy.Field, orderBy.Direction, filter), nil
 }
 
-func ListAllForTeam(ctx context.Context, teamSlug slug.Slug) []*Valkey {
-	all := fromContext(ctx).client.watcher.GetByNamespace(teamSlug.String(), watcher.WithoutDeleted())
+func ListAllForTeam(ctx context.Context, teamSlug slug.Slug, filter *ValkeyFilter) []*Valkey {
+	filters := []watcher.Filter{
+		watcher.WithoutDeleted(),
+	}
+	if filter != nil {
+		if len(filter.Environments) > 0 {
+			filters = append(filters, watcher.InCluster(filter.Environments...))
+		}
+		if len(filter.Labels) > 0 {
+			filters = append(filters, watcher.WithLabels(filter.Labels.Selector()))
+		}
+	}
+
+	all := fromContext(ctx).client.watcher.GetByNamespace(teamSlug.String(), filters...)
 	return watcher.Objects(all)
 }
 

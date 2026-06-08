@@ -92,7 +92,7 @@ func (r *teamEnvironmentResolver) BigQueryDataset(ctx context.Context, obj *team
 
 func (r *teamInventoryCountsResolver) BigQueryDatasets(ctx context.Context, obj *team.TeamInventoryCounts) (*bigquery.TeamInventoryCountBigQueryDatasets, error) {
 	return &bigquery.TeamInventoryCountBigQueryDatasets{
-		Total: len(bigquery.ListAllForTeam(ctx, obj.TeamSlug)),
+		Total: len(bigquery.ListAllForTeam(ctx, obj.TeamSlug, nil)),
 	}, nil
 }
 

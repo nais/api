@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/nais/api/internal/cost"
-	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/sortfilter"
 )
 
@@ -95,14 +94,6 @@ func init() {
 		}
 
 		return int(aDisk.Utilization * 100)
-	})
-
-	SortFilterSQLInstance.RegisterFilter(func(ctx context.Context, v *SQLInstance, filter *SQLInstanceFilter) bool {
-		if !model.MatchesLabelFilters(v.Labels, filter.Labels) {
-			return false
-		}
-
-		return true
 	})
 
 	// SQLInstanceUser

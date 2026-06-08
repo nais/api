@@ -62,7 +62,7 @@ func (r *teamEnvironmentResolver) Bucket(ctx context.Context, obj *team.TeamEnvi
 
 func (r *teamInventoryCountsResolver) Buckets(ctx context.Context, obj *team.TeamInventoryCounts) (*bucket.TeamInventoryCountBuckets, error) {
 	return &bucket.TeamInventoryCountBuckets{
-		Total: len(bucket.ListAllForTeam(ctx, obj.TeamSlug)),
+		Total: len(bucket.ListAllForTeam(ctx, obj.TeamSlug, nil)),
 	}, nil
 }
 

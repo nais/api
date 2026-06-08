@@ -84,7 +84,7 @@ func GetForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName, cl
 }
 
 func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *PostgresInstanceOrder, filter *PostgresInstanceFilter) (*PostgresInstanceConnection, error) {
-	all := ListAllForTeam(ctx, teamSlug)
+	all := ListAllForTeam(ctx, teamSlug, filter)
 
 	if orderBy == nil {
 		orderBy = &PostgresInstanceOrder{
@@ -96,8 +96,18 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 	return SortFilterPostgresInstance.PaginatedList(ctx, all, page, orderBy.Field, orderBy.Direction, filter), nil
 }
 
-func ListAllForTeam(ctx context.Context, teamSlug slug.Slug) []*PostgresInstance {
-	all := fromContext(ctx).zalandoPostgresWatcher.GetByNamespace(teamSlug.String())
+func ListAllForTeam(ctx context.Context, teamSlug slug.Slug, filter *PostgresInstanceFilter) []*PostgresInstance {
+	filters := make([]watcher.Filter, 0)
+	if filter != nil {
+		if len(filter.Environments) > 0 {
+			filters = append(filters, watcher.InCluster(filter.Environments...))
+		}
+		if len(filter.Labels) > 0 {
+			filters = append(filters, watcher.WithLabels(filter.Labels.Selector()))
+		}
+	}
+
+	all := fromContext(ctx).zalandoPostgresWatcher.GetByNamespace(teamSlug.String(), filters...)
 	return watcher.Objects(all)
 }
 

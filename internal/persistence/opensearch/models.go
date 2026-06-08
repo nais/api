@@ -33,10 +33,10 @@ type (
 )
 
 type OpenSearchFilter struct {
-	Name         string               `json:"name"`
-	Environments []string             `json:"environments"`
-	Tiers        []OpenSearchTier     `json:"tiers"`
-	Labels       []*model.LabelFilter `json:"labels,omitempty"`
+	Name         string             `json:"name"`
+	Environments []string           `json:"environments"`
+	Tiers        []OpenSearchTier   `json:"tiers"`
+	Labels       model.LabelFilters `json:"labels,omitempty"`
 }
 
 type OpenSearchConnection = pagination.FacetableConnection[*OpenSearch, *OpenSearchFilter]

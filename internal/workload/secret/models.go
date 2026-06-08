@@ -227,10 +227,10 @@ func (e SecretOrderField) MarshalGQL(w io.Writer) {
 }
 
 type SecretFilter struct {
-	Name         string               `json:"name"`
-	InUse        *bool                `json:"inUse"`
-	Environments []string             `json:"environments"`
-	Labels       []*model.LabelFilter `json:"labels,omitempty"`
+	Name         string             `json:"name"`
+	InUse        *bool              `json:"inUse"`
+	Environments []string           `json:"environments"`
+	Labels       model.LabelFilters `json:"labels,omitempty"`
 }
 
 type ViewSecretValuesInput struct {

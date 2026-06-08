@@ -29,7 +29,7 @@ func Get(ctx context.Context, teamSlug slug.Slug, environment, name string) (*Ka
 }
 
 func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *KafkaTopicOrder, filter *KafkaTopicFilter) (*KafkaTopicConnection, error) {
-	all := ListAllForTeam(ctx, teamSlug)
+	all := ListAllForTeam(ctx, teamSlug, filter)
 
 	if orderBy == nil {
 		orderBy = &KafkaTopicOrder{
@@ -41,8 +41,18 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 	return SortFilterTopic.PaginatedList(ctx, all, page, orderBy.Field, orderBy.Direction, filter), nil
 }
 
-func ListAllForTeam(ctx context.Context, teamSlug slug.Slug) []*KafkaTopic {
-	all := fromContext(ctx).watcher.GetByNamespace(teamSlug.String())
+func ListAllForTeam(ctx context.Context, teamSlug slug.Slug, filter *KafkaTopicFilter) []*KafkaTopic {
+	filters := make([]watcher.Filter, 0)
+	if filter != nil {
+		if len(filter.Environments) > 0 {
+			filters = append(filters, watcher.InCluster(filter.Environments...))
+		}
+		if len(filter.Labels) > 0 {
+			filters = append(filters, watcher.WithLabels(filter.Labels.Selector()))
+		}
+	}
+
+	all := fromContext(ctx).watcher.GetByNamespace(teamSlug.String(), filters...)
 	return watcher.Objects(all)
 }
 

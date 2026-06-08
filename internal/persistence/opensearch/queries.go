@@ -74,7 +74,7 @@ func State(ctx context.Context, os *OpenSearch) (OpenSearchState, error) {
 }
 
 func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *OpenSearchOrder, filter *OpenSearchFilter) (*OpenSearchConnection, error) {
-	all := ListAllForTeam(ctx, teamSlug)
+	all := ListAllForTeam(ctx, teamSlug, filter)
 
 	if orderBy == nil {
 		orderBy = &OpenSearchOrder{
@@ -86,8 +86,20 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 	return SortFilterOpenSearch.PaginatedList(ctx, all, page, orderBy.Field, orderBy.Direction, filter), nil
 }
 
-func ListAllForTeam(ctx context.Context, teamSlug slug.Slug) []*OpenSearch {
-	all := fromContext(ctx).client.watcher.GetByNamespace(teamSlug.String(), watcher.WithoutDeleted())
+func ListAllForTeam(ctx context.Context, teamSlug slug.Slug, filter *OpenSearchFilter) []*OpenSearch {
+	filters := []watcher.Filter{
+		watcher.WithoutDeleted(),
+	}
+	if filter != nil {
+		if len(filter.Environments) > 0 {
+			filters = append(filters, watcher.InCluster(filter.Environments...))
+		}
+		if len(filter.Labels) > 0 {
+			filters = append(filters, watcher.WithLabels(filter.Labels.Selector()))
+		}
+	}
+
+	all := fromContext(ctx).client.watcher.GetByNamespace(teamSlug.String(), filters...)
 	return watcher.Objects(all)
 }
 

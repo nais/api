@@ -25,7 +25,7 @@ func Get(ctx context.Context, teamSlug slug.Slug, environment, name string) (*Bu
 }
 
 func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *BucketOrder, filter *BucketFilter) (*BucketConnection, error) {
-	all := ListAllForTeam(ctx, teamSlug)
+	all := ListAllForTeam(ctx, teamSlug, filter)
 
 	if orderBy == nil {
 		orderBy = &BucketOrder{
@@ -37,8 +37,18 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 	return SortFilter.PaginatedList(ctx, all, page, orderBy.Field, orderBy.Direction, filter), nil
 }
 
-func ListAllForTeam(ctx context.Context, teamSlug slug.Slug) []*Bucket {
-	all := fromContext(ctx).watcher.GetByNamespace(teamSlug.String())
+func ListAllForTeam(ctx context.Context, teamSlug slug.Slug, filter *BucketFilter) []*Bucket {
+	filters := make([]watcher.Filter, 0)
+	if filter != nil {
+		if len(filter.Environments) > 0 {
+			filters = append(filters, watcher.InCluster(filter.Environments...))
+		}
+		if len(filter.Labels) > 0 {
+			filters = append(filters, watcher.WithLabels(filter.Labels.Selector()))
+		}
+	}
+
+	all := fromContext(ctx).watcher.GetByNamespace(teamSlug.String(), filters...)
 	return watcher.Objects(all)
 }
 

@@ -65,7 +65,7 @@ func (r *teamEnvironmentResolver) Valkey(ctx context.Context, obj *team.TeamEnvi
 
 func (r *teamInventoryCountsResolver) Valkeys(ctx context.Context, obj *team.TeamInventoryCounts) (*valkey.TeamInventoryCountValkeys, error) {
 	return &valkey.TeamInventoryCountValkeys{
-		Total: len(valkey.ListAllForTeam(ctx, obj.TeamSlug)),
+		Total: len(valkey.ListAllForTeam(ctx, obj.TeamSlug, nil)),
 	}, nil
 }
 

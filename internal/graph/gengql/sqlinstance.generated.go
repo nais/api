@@ -2644,7 +2644,7 @@ func (ec *executionContext) unmarshalInputSqlInstanceFilter(ctx context.Context,
 		switch k {
 		case "labels":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labels"))
-			data, err := ec.unmarshalOLabelFilter2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFilterᚄ(ctx, v)
+			data, err := ec.unmarshalOLabelFilter2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFiltersᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}

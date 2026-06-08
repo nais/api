@@ -33,7 +33,7 @@ type PostgresInstanceFilter struct {
 	States           []PostgresInstanceState `json:"states"`
 	HighAvailability *bool                   `json:"highAvailability"`
 	MajorVersions    []string                `json:"majorVersions"`
-	Labels           []*model.LabelFilter    `json:"labels,omitempty"`
+	Labels           model.LabelFilters      `json:"labels,omitempty"`
 }
 
 type PostgresInstanceConnection = pagination.FacetableConnection[*PostgresInstance, *PostgresInstanceFilter]

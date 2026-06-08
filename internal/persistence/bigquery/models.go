@@ -31,9 +31,9 @@ type BigQueryDatasetFacets struct {
 }
 
 type BigQueryDatasetFilter struct {
-	Name         string               `json:"name"`
-	Environments []string             `json:"environments"`
-	Labels       []*model.LabelFilter `json:"labels,omitempty"`
+	Name         string             `json:"name"`
+	Environments []string           `json:"environments"`
+	Labels       model.LabelFilters `json:"labels,omitempty"`
 }
 
 type BigQueryDataset struct {
