@@ -102,15 +102,15 @@ func (l *LabelFilters) UnmarshalGQL(v any) error {
 		}
 
 		key, _ := itemMap["key"].(string)
-		value, _ := itemMap["value"].(string)
 
 		if !strings.HasPrefix(key, UserLabelPrefix) {
 			return LabelValidationError{Message: fmt.Sprintf("label key %q must be prefixed with %q", key, UserLabelPrefix)}
 		}
 
 		var valuePtr *string
-		if value != "" {
-			valuePtr = &value
+		if val, ok := itemMap["value"]; ok && val != nil {
+			valStr, _ := val.(string)
+			valuePtr = &valStr
 		}
 
 		filters = append(filters, &LabelFilter{

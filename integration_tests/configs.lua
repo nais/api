@@ -1485,3 +1485,89 @@ Test.gql("Configs facets are correctly seeded and computed in two-tier manner", 
 		},
 	}
 end)
+
+Test.gql("Update config labels", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	-- First create a config to update labels on
+	t.query [[
+		mutation {
+			createConfig(input: {
+				name: "labels-test-config"
+				environmentName: "dev"
+				teamSlug: "myteam"
+			}) {
+				config { name labels { key value } }
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			createConfig = {
+				config = {
+					name = "labels-test-config",
+					labels = {},
+				},
+			},
+		},
+	}
+
+	-- Update labels successfully (fully qualified)
+	t.query [[
+		mutation {
+			updateConfig(input: {
+				name: "labels-test-config"
+				environmentName: "dev"
+				teamSlug: "myteam"
+				labels: [
+					{ key: "labels.nais.io/tag", value: "testing" }
+				]
+			}) {
+				config { name labels { key value } }
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			updateConfig = {
+				config = {
+					name = "labels-test-config",
+					labels = {
+						{ key = "labels.nais.io/tag", value = "testing" },
+					},
+				},
+			},
+		},
+	}
+
+	-- Try updating with an invalid key (no prefix) -> should fail validation
+	t.query [[
+		mutation {
+			updateConfig(input: {
+				name: "labels-test-config"
+				environmentName: "dev"
+				teamSlug: "myteam"
+				labels: [
+					{ key: "tag", value: "invalid" }
+				]
+			}) {
+				config { name }
+			}
+		}
+	]]
+
+	t.check {
+		errors = {
+			{
+				locations = NotNull(),
+				message = Contains("label key \"tag\" must be prefixed with \"labels.nais.io/\""),
+				path = {
+					"updateConfig",
+				},
+			},
+		},
+		data = Null,
+	}
+end)
