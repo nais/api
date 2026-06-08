@@ -94,11 +94,11 @@ func init() {
 			return 0
 		}
 
-		SortFilterSQLInstance.RegisterFilter(func(ctx context.Context, v *SQLInstance, filter *SQLInstanceFilter) bool {
-			return model.MatchesLabelFilters(v.Labels, filter.Labels)
-		})
-
 		return int(aDisk.Utilization * 100)
+	})
+
+	SortFilterSQLInstance.RegisterFilter(func(ctx context.Context, v *SQLInstance, filter *SQLInstanceFilter) bool {
+		return model.MatchesLabelFilters(v.Labels, filter.Labels)
 	})
 
 	// SQLInstanceUser

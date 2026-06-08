@@ -452,7 +452,7 @@ func RemoveSecretValue(ctx context.Context, teamSlug slug.Slug, environment, sec
 }
 
 func UpdateLabels(ctx context.Context, teamSlug slug.Slug, environment, name string, labels []*model.ResourceLabel) (*Secret, error) {
-	if err := validateUserLabels(labels); err != nil {
+	if err := model.ValidateUserLabels(labels); err != nil {
 		return nil, err
 	}
 
@@ -480,8 +480,8 @@ func UpdateLabels(ctx context.Context, teamSlug slug.Slug, environment, name str
 		return secretFromAPIResponse(obj, environment)
 	}
 
-	oldValue := formatUserLabels(model.UserLabels(existingLabels))
-	newValue := formatUserLabels(model.UserLabels(mergedLabels))
+	oldValue := model.FormatUserLabels(model.UserLabels(existingLabels))
+	newValue := model.FormatUserLabels(model.UserLabels(mergedLabels))
 
 	actor := authz.ActorFromContext(ctx)
 	mergedAnnotations := mergeAnnotations(obj, actor.User.Identity(), nil)
@@ -581,35 +581,6 @@ func validateSecretValue(value *SecretValueInput) error {
 	}
 
 	return nil
-}
-
-func validateUserLabels(labels []*model.ResourceLabel) error {
-	seen := make(map[string]struct{}, len(labels))
-	for _, l := range labels {
-		if l == nil {
-			continue
-		}
-		if _, dup := seen[l.Key]; dup {
-			return apierror.Errorf("Duplicate label key %q.", l.Key)
-		}
-		seen[l.Key] = struct{}{}
-
-		for _, msg := range validation.IsQualifiedName(model.UserLabelPrefix + l.Key) {
-			return apierror.Errorf("Invalid label key %q: %s.", l.Key, msg)
-		}
-		for _, msg := range validation.IsValidLabelValue(l.Value) {
-			return apierror.Errorf("Invalid value for label %q: %s.", l.Key, msg)
-		}
-	}
-	return nil
-}
-
-func formatUserLabels(labels []*model.ResourceLabel) string {
-	parts := make([]string, 0, len(labels))
-	for _, l := range labels {
-		parts = append(parts, l.Key+"="+l.Value)
-	}
-	return strings.Join(parts, ", ")
 }
 
 const annotationBinaryKeys = "nais.io/binary-keys"

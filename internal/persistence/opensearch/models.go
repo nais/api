@@ -558,23 +558,8 @@ func (i *UpdateOpenSearchInput) Validate(ctx context.Context) error {
 }
 
 func validateUserLabels(verr *validate.ValidationErrors, labels []*model.ResourceLabel) {
-	seen := make(map[string]struct{}, len(labels))
-	for _, l := range labels {
-		if l == nil {
-			continue
-		}
-		if _, dup := seen[l.Key]; dup {
-			verr.Add("labels", "Duplicate label key %q.", l.Key)
-			continue
-		}
-		seen[l.Key] = struct{}{}
-
-		for _, msg := range validation.IsQualifiedName(model.UserLabelPrefix + l.Key) {
-			verr.Add("labels", "Invalid label key %q: %s.", l.Key, msg)
-		}
-		for _, msg := range validation.IsValidLabelValue(l.Value) {
-			verr.Add("labels", "Invalid value for label %q: %s.", l.Key, msg)
-		}
+	if err := model.ValidateUserLabels(labels); err != nil {
+		verr.Add("labels", "%s", err.Error())
 	}
 }
 

@@ -520,3 +520,33 @@ Test.gql("Job filter by tag=target and priority=high", function(t)
 		},
 	}
 end)
+
+Test.gql("Valkey filter with invalid label prefix", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[
+		{
+			team(slug: "labelteam") {
+				valkeys(filter: { labels: [{ key: "tag", value: "target" }] }) {
+					pageInfo {
+						totalCount
+					}
+				}
+			}
+		}
+	]]
+
+	t.check {
+		errors = {
+			{
+				message = Contains("label key \"tag\" must be prefixed with \"labels.nais.io/\""),
+				path = {
+					"team",
+					"valkeys",
+					"filter",
+					"labels",
+				},
+			},
+		},
+		data = Null,
+	}
+end)

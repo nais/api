@@ -2,12 +2,14 @@ package model
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"slices"
 	"strings"
 
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/selection"
+	"k8s.io/apimachinery/pkg/util/validation"
 )
 
 // UserLabelPrefix is the namespace under which user-defined labels are stored on
@@ -48,6 +50,44 @@ func (l LabelFilters) Selector() labels.Selector {
 	return selector
 }
 
+type LabelValidationError struct {
+	Message string
+}
+
+func (e LabelValidationError) Error() string {
+	return e.Message
+}
+
+func (e LabelValidationError) GraphError() string {
+	return e.Message
+}
+
+// ValidateUserLabels validates that user labels are well-formed and carry the required prefix.
+func ValidateUserLabels(labels []*ResourceLabel) error {
+	seen := make(map[string]struct{}, len(labels))
+	for _, l := range labels {
+		if l == nil {
+			continue
+		}
+		if _, dup := seen[l.Key]; dup {
+			return LabelValidationError{Message: fmt.Sprintf("Duplicate label key %q.", l.Key)}
+		}
+		seen[l.Key] = struct{}{}
+
+		if !strings.HasPrefix(l.Key, UserLabelPrefix) {
+			return LabelValidationError{Message: fmt.Sprintf("label key %q must be prefixed with %q", l.Key, UserLabelPrefix)}
+		}
+
+		for _, msg := range validation.IsQualifiedName(l.Key) {
+			return LabelValidationError{Message: fmt.Sprintf("Invalid label key %q: %s.", l.Key, msg)}
+		}
+		for _, msg := range validation.IsValidLabelValue(l.Value) {
+			return LabelValidationError{Message: fmt.Sprintf("Invalid value for label %q: %s.", l.Key, msg)}
+		}
+	}
+	return nil
+}
+
 func (l *LabelFilters) UnmarshalGQL(v any) error {
 	inputList, ok := v.([]any)
 	if !ok {
@@ -63,6 +103,10 @@ func (l *LabelFilters) UnmarshalGQL(v any) error {
 
 		key, _ := itemMap["key"].(string)
 		value, _ := itemMap["value"].(string)
+
+		if !strings.HasPrefix(key, UserLabelPrefix) {
+			return LabelValidationError{Message: fmt.Sprintf("label key %q must be prefixed with %q", key, UserLabelPrefix)}
+		}
 
 		var valuePtr *string
 		if value != "" {
@@ -95,7 +139,7 @@ func (l LabelFilters) MarshalGQL(w io.Writer) {
 }
 
 // UserLabels extracts the user-defined labels from a Kubernetes label map. Only
-// labels prefixed with UserLabelPrefix are returned, with the prefix stripped.
+// labels prefixed with UserLabelPrefix are returned.
 // The result is sorted by key for stable output.
 func UserLabels(labels map[string]string) []*ResourceLabel {
 	out := make([]*ResourceLabel, 0, len(labels))
@@ -113,9 +157,21 @@ func UserLabels(labels map[string]string) []*ResourceLabel {
 	return out
 }
 
+// FormatUserLabels joins a slice of ResourceLabel into a string of the form "key1=value1, key2=value2"
+func FormatUserLabels(labels []*ResourceLabel) string {
+	parts := make([]string, 0, len(labels))
+	for _, l := range labels {
+		if l == nil {
+			continue
+		}
+		parts = append(parts, l.Key+"="+l.Value)
+	}
+	return strings.Join(parts, ", ")
+}
+
 // MatchesLabelFilters reports whether the given user labels satisfy all of the
 // provided filters (AND semantics). The label keys are compared in their
-// stripped form, i.e. without the UserLabelPrefix.
+// full form, i.e. including the UserLabelPrefix.
 func MatchesLabelFilters(labels []*ResourceLabel, filters []*LabelFilter) bool {
 	if len(filters) == 0 {
 		return true
@@ -162,7 +218,7 @@ func MergeUserLabels(existing map[string]string, desired []*ResourceLabel) map[s
 		if l == nil {
 			continue
 		}
-		out[UserLabelPrefix+l.Key] = l.Value
+		out[l.Key] = l.Value
 	}
 
 	return out
