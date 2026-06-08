@@ -166,6 +166,9 @@ func imageDigestForInstanceGroup(l *loaders, rs *appsv1.ReplicaSet, environmentN
 		watcher.WithLabels(selector),
 		watcher.InCluster(environmentName),
 	)
+	slices.SortFunc(pods, func(a, b *watcher.EnvironmentWrapper[*corev1.Pod]) int {
+		return b.Obj.CreationTimestamp.Compare(a.Obj.CreationTimestamp.Time)
+	})
 	for _, pod := range pods {
 		if digest := workload.DigestFromPodStatusByAppName(rs.Labels["app"], pod.Obj.Status.ContainerStatuses); digest != "" {
 			return digest

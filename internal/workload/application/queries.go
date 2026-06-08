@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/url"
+	"slices"
 	"strconv"
 	"time"
 
@@ -17,6 +18,7 @@ import (
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/workload"
 	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
+	corev1 "k8s.io/api/core/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -35,6 +37,10 @@ func imageDigestForApplication(l *loaders, appName, namespace, environmentName s
 		return ""
 	}
 	pods := l.podWatcher.GetByNamespace(namespace, watcher.InCluster(environmentName), watcher.WithLabels(labels.NewSelector().Add(*nameReq)))
+	// Sort newest first: during rollouts, the newest pod represents the target image.
+	slices.SortFunc(pods, func(a, b *watcher.EnvironmentWrapper[*corev1.Pod]) int {
+		return b.Obj.CreationTimestamp.Compare(a.Obj.CreationTimestamp.Time)
+	})
 	for _, pod := range pods {
 		if digest := workload.DigestFromPodStatusByAppName(appName, pod.Obj.Status.ContainerStatuses); digest != "" {
 			return digest
