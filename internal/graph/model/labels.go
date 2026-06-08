@@ -49,17 +49,16 @@ func (l LabelFilters) Selector() labels.Selector {
 }
 
 func (l *LabelFilters) UnmarshalGQL(v any) error {
-	// The GraphQL input is expected to be a list of objects with "key" and optional "value" fields. We need to convert this into our internal LabelFilters type.
 	inputList, ok := v.([]any)
 	if !ok {
-		return nil // or return an error if you prefer
+		return nil
 	}
 
 	var filters LabelFilters
 	for _, item := range inputList {
 		itemMap, ok := item.(map[string]any)
 		if !ok {
-			continue // skip invalid items
+			continue
 		}
 
 		key, _ := itemMap["key"].(string)
@@ -81,7 +80,6 @@ func (l *LabelFilters) UnmarshalGQL(v any) error {
 }
 
 func (l LabelFilters) MarshalGQL(w io.Writer) {
-	// Convert our internal LabelFilters type into a format suitable for GraphQL output, which is a list of objects with "key" and optional "value" fields.
 	var output []map[string]any
 	for _, filter := range l {
 		item := map[string]any{
