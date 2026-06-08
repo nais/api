@@ -31542,12 +31542,12 @@ type ContainerImage implements Node & ActivityLogger {
 	name: String!
 
 	"""
-	Tag of the container image.
+	Tag of the container image. Defaults to ` + "`" + `latest` + "`" + ` when the source image omits a tag.
 	"""
 	tag: String!
 
 	"""
-	Digest of the container image, when available.
+	Digest of the container image.
 	"""
 	digest: String
 
