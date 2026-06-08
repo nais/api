@@ -39,7 +39,7 @@ Test.gql("Check all Valkey instances (no filter)", function(t)
 							name = "valkey-one",
 							labels = {
 								{ key = "labels.nais.io/priority", value = "high" },
-								{ key = "labels.nais.io/tag", value = "target" },
+								{ key = "labels.nais.io/tag",      value = "target" },
 							},
 						},
 						{
@@ -168,7 +168,7 @@ Test.gql("Check all Postgres instances (no filter)", function(t)
 							name = "postgres-one",
 							labels = {
 								{ key = "labels.nais.io/priority", value = "high" },
-								{ key = "labels.nais.io/tag", value = "target" },
+								{ key = "labels.nais.io/tag",      value = "target" },
 							},
 						},
 						{
@@ -297,7 +297,7 @@ Test.gql("Check all applications (no filter)", function(t)
 							name = "app-one",
 							labels = {
 								{ key = "labels.nais.io/priority", value = "high" },
-								{ key = "labels.nais.io/tag", value = "target" },
+								{ key = "labels.nais.io/tag",      value = "target" },
 							},
 						},
 						{
@@ -426,7 +426,7 @@ Test.gql("Check all jobs (no filter)", function(t)
 							name = "job-one",
 							labels = {
 								{ key = "labels.nais.io/priority", value = "high" },
-								{ key = "labels.nais.io/tag", value = "target" },
+								{ key = "labels.nais.io/tag",      value = "target" },
 							},
 						},
 						{
@@ -520,4 +520,3 @@ Test.gql("Job filter by tag=target and priority=high", function(t)
 		},
 	}
 end)
-
