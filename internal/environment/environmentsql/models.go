@@ -4,6 +4,7 @@ package environmentsql
 
 // This table is used to store the environments that are available in the system. It will be emptied and repopulated when the system starts.
 type Environment struct {
-	Name string
-	Gcp  bool
+	Name          string
+	Gcp           bool
+	OidcIssuerUrl *string
 }

@@ -143,6 +143,29 @@ func (ec *executionContext) fieldContext_Environment_name(_ context.Context, fie
 	return graphql.NewScalarFieldContext("Environment", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
+func (ec *executionContext) _Environment_oidcIssuerURL(ctx context.Context, field graphql.CollectedField, obj *environment.Environment) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Environment_oidcIssuerURL(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.OIDCIssuerURL, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_Environment_oidcIssuerURL(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("Environment", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
 func (ec *executionContext) _Environment_metrics(ctx context.Context, field graphql.CollectedField, obj *environment.Environment) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -452,6 +475,8 @@ func (ec *executionContext) _Environment(ctx context.Context, sel ast.SelectionS
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "oidcIssuerURL":
+			out.Values[i] = ec._Environment_oidcIssuerURL(ctx, field, obj)
 		case "metrics":
 			field := field
 

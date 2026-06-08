@@ -125,7 +125,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 
 	environmentmapper.SetMapping(cfg.ReplaceEnvironmentNames)
 
-	if err := syncEnvironments(ctx, pool, cfg.K8s.ClusterList()); err != nil {
+	if err := syncEnvironments(ctx, pool, cfg.K8s.ClusterList(), cfg.K8s.OIDCIssuers); err != nil {
 		return err
 	}
 
