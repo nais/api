@@ -14,6 +14,11 @@ func ComputeFacets(ctx context.Context, allInstances []*Valkey, filter *ValkeyFi
 	environmentCounts := map[string]int{}
 	tierCounts := map[ValkeyTier]int{}
 
+	for _, inst := range allInstances {
+		environmentCounts[inst.EnvironmentName] = 0
+		tierCounts[inst.Tier] = 0
+	}
+
 	for _, inst := range filtered {
 		environmentCounts[inst.EnvironmentName]++
 		tierCounts[inst.Tier]++

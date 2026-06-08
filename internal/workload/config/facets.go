@@ -14,7 +14,12 @@ func ComputeFacets(ctx context.Context, allConfigs []*Config, filter *ConfigFilt
 	environmentCounts := map[string]int{}
 	inUseCounts := map[bool]int{}
 
-	inUseSet := buildConfigInUseSet(ctx, filtered)
+	inUseSet := buildConfigInUseSet(ctx, allConfigs)
+
+	for _, c := range allConfigs {
+		environmentCounts[c.EnvironmentName] = 0
+		inUseCounts[inUseSet[c.EnvironmentName+"/"+c.Name]] = 0
+	}
 
 	for _, c := range filtered {
 		environmentCounts[c.EnvironmentName]++
