@@ -36,7 +36,7 @@ func imageDigestForApplication(l *loaders, appName, namespace, environmentName s
 	}
 	pods := l.podWatcher.GetByNamespace(namespace, watcher.InCluster(environmentName), watcher.WithLabels(labels.NewSelector().Add(*nameReq)))
 	for _, pod := range pods {
-		if digest := workload.DigestFromPodStatus(pod.Obj.Spec.Containers, pod.Obj.Status.ContainerStatuses); digest != "" {
+		if digest := workload.DigestFromPodStatusByAppName(appName, pod.Obj.Status.ContainerStatuses); digest != "" {
 			return digest
 		}
 	}

@@ -156,10 +156,6 @@ func GetEnvironmentVariableByIdent(ctx context.Context, id ident.Ident) (*Instan
 }
 
 func imageDigestForInstanceGroup(l *loaders, rs *appsv1.ReplicaSet, environmentName string) string {
-	if len(rs.Spec.Template.Spec.Containers) == 0 {
-		return ""
-	}
-
 	selector, err := replicaSetPodSelector(rs)
 	if err != nil {
 		return ""
@@ -171,7 +167,7 @@ func imageDigestForInstanceGroup(l *loaders, rs *appsv1.ReplicaSet, environmentN
 		watcher.InCluster(environmentName),
 	)
 	for _, pod := range pods {
-		if digest := workload.DigestFromPodStatus(pod.Obj.Spec.Containers, pod.Obj.Status.ContainerStatuses); digest != "" {
+		if digest := workload.DigestFromPodStatusByAppName(rs.Name, pod.Obj.Status.ContainerStatuses); digest != "" {
 			return digest
 		}
 	}

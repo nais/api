@@ -169,6 +169,26 @@ func DigestFromImageID(imageID string) string {
 	return ""
 }
 
+// DigestFromPodStatusByAppName returns the digest for the container named appName,
+// falling back to any available digest if the named container is not found or has none.
+// This prevents sidecars from shadowing the main application container digest.
+func DigestFromPodStatusByAppName(appName string, statuses []corev1.ContainerStatus) string {
+	for _, cs := range statuses {
+		if cs.Name == appName {
+			if digest := DigestFromImageID(cs.ImageID); digest != "" {
+				return digest
+			}
+			break
+		}
+	}
+	for _, cs := range statuses {
+		if digest := DigestFromImageID(cs.ImageID); digest != "" {
+			return digest
+		}
+	}
+	return ""
+}
+
 func DigestFromPodStatus(containers []corev1.Container, statuses []corev1.ContainerStatus) string {
 	if len(statuses) == 0 {
 		return ""
