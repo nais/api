@@ -167,7 +167,7 @@ func imageDigestForInstanceGroup(l *loaders, rs *appsv1.ReplicaSet, environmentN
 		watcher.InCluster(environmentName),
 	)
 	for _, pod := range pods {
-		if digest := workload.DigestFromPodStatusByAppName(rs.Name, pod.Obj.Status.ContainerStatuses); digest != "" {
+		if digest := workload.DigestFromPodStatusByAppName(rs.Labels["app"], pod.Obj.Status.ContainerStatuses); digest != "" {
 			return digest
 		}
 	}
