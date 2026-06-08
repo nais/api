@@ -102,7 +102,7 @@ func ListAllForTeam(ctx context.Context, teamSlug slug.Slug, filter *SQLInstance
 		}
 	}
 
-	all := fromContext(ctx).sqlInstanceWatcher.GetByNamespace(teamSlug.String())
+	all := fromContext(ctx).sqlInstanceWatcher.GetByNamespace(teamSlug.String(), filters...)
 	return watcher.Objects(all)
 }
 
