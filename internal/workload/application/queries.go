@@ -29,11 +29,26 @@ import (
 	"sigs.k8s.io/yaml"
 )
 
+func imageDigestForApplication(l *loaders, appName, namespace, environmentName string) string {
+	nameReq, err := labels.NewRequirement("app", selection.Equals, []string{appName})
+	if err != nil {
+		return ""
+	}
+	pods := l.podWatcher.GetByNamespace(namespace, watcher.InCluster(environmentName), watcher.WithLabels(labels.NewSelector().Add(*nameReq)))
+	for _, pod := range pods {
+		if digest := workload.DigestFromPodStatus(pod.Obj.Spec.Containers, pod.Obj.Status.ContainerStatuses); digest != "" {
+			return digest
+		}
+	}
+	return ""
+}
+
 func ListAllForTeam(ctx context.Context, teamSlug slug.Slug, orderBy *ApplicationOrder, filter *TeamApplicationsFilter) []*Application {
-	allApplications := fromContext(ctx).appWatcher.GetByNamespace(teamSlug.String())
+	l := fromContext(ctx)
+	allApplications := l.appWatcher.GetByNamespace(teamSlug.String())
 	ret := make([]*Application, len(allApplications))
 	for i, obj := range allApplications {
-		ret[i] = toGraphApplication(obj.Obj, obj.Cluster)
+		ret[i] = toGraphApplication(obj.Obj, obj.Cluster, imageDigestForApplication(l, obj.Obj.Name, teamSlug.String(), obj.Cluster))
 	}
 
 	if filter != nil {
@@ -53,31 +68,33 @@ func ListAllForTeam(ctx context.Context, teamSlug slug.Slug, orderBy *Applicatio
 }
 
 func ListAllInEnvironment(ctx context.Context, environment string) []*Application {
-	apps := fromContext(ctx).appWatcher.GetByCluster(environment)
+	l := fromContext(ctx)
+	apps := l.appWatcher.GetByCluster(environment)
 	ret := make([]*Application, len(apps))
 	for i, obj := range apps {
-		ret[i] = toGraphApplication(obj.Obj, obj.Cluster)
+		ret[i] = toGraphApplication(obj.Obj, obj.Cluster, imageDigestForApplication(l, obj.Obj.Name, obj.Obj.Namespace, obj.Cluster))
 	}
 	return ret
 }
 
 func ListAllForTeamInEnvironment(ctx context.Context, teamSlug slug.Slug, environmentName string) []*Application {
-	k8s := fromContext(ctx).appWatcher
-	allApplications := k8s.GetByNamespace(teamSlug.String(), watcher.InCluster(environmentName))
+	l := fromContext(ctx)
+	allApplications := l.appWatcher.GetByNamespace(teamSlug.String(), watcher.InCluster(environmentName))
 
 	ret := make([]*Application, len(allApplications))
 	for i, obj := range allApplications {
-		ret[i] = toGraphApplication(obj.Obj, obj.Cluster)
+		ret[i] = toGraphApplication(obj.Obj, obj.Cluster, imageDigestForApplication(l, obj.Obj.Name, teamSlug.String(), obj.Cluster))
 	}
 	return ret
 }
 
 func Get(ctx context.Context, teamSlug slug.Slug, environment, name string) (*Application, error) {
-	a, err := fromContext(ctx).appWatcher.Get(environment, teamSlug.String(), name)
+	l := fromContext(ctx)
+	a, err := l.appWatcher.Get(environment, teamSlug.String(), name)
 	if err != nil {
 		return nil, err
 	}
-	return toGraphApplication(a, environment), nil
+	return toGraphApplication(a, environment, imageDigestForApplication(l, a.Name, teamSlug.String(), environment)), nil
 }
 
 func GetByIdent(ctx context.Context, id ident.Ident) (*Application, error) {
@@ -216,7 +233,7 @@ func Update(ctx context.Context, input UpdateApplicationInput) (*UpdateApplicati
 		}
 	}
 
-	if input.Image != nil {
+	if input.Image != nil && *input.Image != "" {
 		effectiveImage := app.Status.EffectiveImage
 		newImage := *input.Image
 		if newImage != effectiveImage {

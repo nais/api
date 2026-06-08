@@ -5,7 +5,6 @@ import (
 	"io"
 	"slices"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/nais/api/internal/graph/ident"
@@ -33,6 +32,7 @@ type InstanceGroup struct {
 	EnvironmentName string    `json:"-"`
 	TeamSlug        slug.Slug `json:"-"`
 	ApplicationName string    `json:"-"`
+	ImageDigest     string    `json:"-"`
 
 	// PodTemplateSpec holds the pod template from the ReplicaSet for extracting env/mounts.
 	PodTemplateSpec corev1.PodTemplateSpec `json:"-"`
@@ -45,11 +45,7 @@ func (ig InstanceGroup) ID() ident.Ident {
 }
 
 func (ig InstanceGroup) Image() *workload.ContainerImage {
-	name, tag, _ := strings.Cut(ig.ImageString, ":")
-	return &workload.ContainerImage{
-		Name: name,
-		Tag:  tag,
-	}
+	return workload.NewContainerImageWithDigest(ig.ImageString, ig.ImageDigest)
 }
 
 // InstanceGroupEnvironmentVariable represents an environment variable in an instance group.
@@ -132,7 +128,7 @@ func (e InstanceGroupValueSourceKind) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
-func toGraphInstanceGroup(rs *appsv1.ReplicaSet, environmentName string) *InstanceGroup {
+func toGraphInstanceGroup(rs *appsv1.ReplicaSet, environmentName string, imageDigest string) *InstanceGroup {
 	var desiredInstances int
 	if rs.Spec.Replicas != nil {
 		desiredInstances = int(*rs.Spec.Replicas)
@@ -154,6 +150,7 @@ func toGraphInstanceGroup(rs *appsv1.ReplicaSet, environmentName string) *Instan
 		EnvironmentName:  environmentName,
 		TeamSlug:         slug.Slug(rs.Namespace),
 		ApplicationName:  appName,
+		ImageDigest:      imageDigest,
 		PodTemplateSpec:  rs.Spec.Template,
 	}
 }
