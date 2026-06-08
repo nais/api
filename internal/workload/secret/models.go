@@ -53,10 +53,10 @@ type CreateSecretPayload struct {
 }
 
 type UpdateSecretInput struct {
-	Name        string                 `json:"name"`
-	Environment string                 `json:"environment"`
-	Team        slug.Slug              `json:"team"`
-	Labels      []*model.ResourceLabel `json:"labels"`
+	Name            string                 `json:"name"`
+	EnvironmentName string                 `json:"environmentName"`
+	TeamSlug        slug.Slug              `json:"teamSlug"`
+	Labels          []*model.ResourceLabel `json:"labels"`
 }
 
 type UpdateSecretPayload struct {

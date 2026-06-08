@@ -3179,7 +3179,7 @@ func (ec *executionContext) unmarshalInputUpdateSecretInput(ctx context.Context,
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "environment", "team", "labels"}
+	fieldsInOrder := [...]string{"name", "environmentName", "teamSlug", "labels"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -3193,20 +3193,20 @@ func (ec *executionContext) unmarshalInputUpdateSecretInput(ctx context.Context,
 				return it, err
 			}
 			it.Name = data
-		case "environment":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environment"))
+		case "environmentName":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environmentName"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Environment = data
-		case "team":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("team"))
+			it.EnvironmentName = data
+		case "teamSlug":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamSlug"))
 			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Team = data
+			it.TeamSlug = data
 		case "labels":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labels"))
 			data, err := ec.unmarshalNResourceLabelInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceLabelᚄ(ctx, v)

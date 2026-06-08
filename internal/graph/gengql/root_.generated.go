@@ -26449,10 +26449,10 @@ input UpdateSecretInput {
 	name: String!
 
 	"The environment the secret exists in."
-	environment: String!
+	environmentName: String!
 
 	"The team that owns the secret."
-	team: Slug!
+	teamSlug: Slug!
 
 	"The complete set of user-defined labels to apply. Existing user-defined labels are replaced; send an empty list to remove all labels."
 	labels: [ResourceLabelInput!]!
