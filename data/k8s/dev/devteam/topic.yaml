@@ -19,6 +19,7 @@ metadata:
   generation: 215
   labels:
     team: devteam
+    labels.nais.io/key: value
   name: rapido.the.first
   namespace: devteam
   resourceVersion: "4941946441"

@@ -1,0 +1,15 @@
+apiVersion: v1
+data:
+  KEY: value
+kind: ConfigMap
+metadata:
+  annotations:
+    console.nais.io/last-modified-at: "2026-04-29T11:37:54Z"
+    console.nais.io/last-modified-by: bob.ross@nais.io
+    reloader.stakater.com/match: "true"
+  labels:
+    labels.nais.io/key: value
+    app.kubernetes.io/managed-by: console
+    nais.io/managed-by: console
+  name: asdadasd
+  namespace: examples
