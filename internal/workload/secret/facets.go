@@ -14,7 +14,12 @@ func ComputeFacets(ctx context.Context, allSecrets []*Secret, filter *SecretFilt
 	environmentCounts := map[string]int{}
 	inUseCounts := map[bool]int{}
 
-	inUseSet := buildSecretInUseSet(ctx, filtered)
+	inUseSet := buildSecretInUseSet(ctx, allSecrets)
+
+	for _, s := range allSecrets {
+		environmentCounts[s.EnvironmentName] = 0
+		inUseCounts[inUseSet[s.EnvironmentName+"/"+s.Name]] = 0
+	}
 
 	for _, s := range filtered {
 		environmentCounts[s.EnvironmentName]++

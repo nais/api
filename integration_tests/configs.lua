@@ -1445,3 +1445,43 @@ Test.gql("Config CRUD creates activity log entries", function(t)
 		},
 	}
 end)
+
+Test.gql("Configs facets are correctly seeded and computed in two-tier manner", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query [[
+		{
+			team(slug: "myteam") {
+				configs(filter: { environments: ["dev"] }) {
+					facets {
+						environments {
+							value
+							count
+						}
+					}
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			team = {
+				configs = {
+					facets = {
+						environments = {
+							{
+								value = "dev",
+								count = 1,
+							},
+							{
+								value = "staging",
+								count = 0,
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+end)

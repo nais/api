@@ -932,3 +932,43 @@ Test.gql("viewSecretValues - logs access to activity log", function(t)
 		},
 	}
 end)
+
+Test.gql("Secrets facets are correctly seeded and computed in two-tier manner", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query [[
+		{
+			team(slug: "myteam") {
+				secrets(filter: { environments: ["dev"] }) {
+					facets {
+						environments {
+							value
+							count
+						}
+					}
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			team = {
+				secrets = {
+					facets = {
+						environments = {
+							{
+								value = "dev",
+								count = 3,
+							},
+							{
+								value = "staging",
+								count = 0,
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+end)

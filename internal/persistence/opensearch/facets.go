@@ -14,6 +14,11 @@ func ComputeFacets(ctx context.Context, allInstances []*OpenSearch, filter *Open
 	environmentCounts := map[string]int{}
 	tierCounts := map[OpenSearchTier]int{}
 
+	for _, inst := range allInstances {
+		environmentCounts[inst.EnvironmentName] = 0
+		tierCounts[inst.Tier] = 0
+	}
+
 	for _, inst := range filtered {
 		environmentCounts[inst.EnvironmentName]++
 		tierCounts[inst.Tier]++
