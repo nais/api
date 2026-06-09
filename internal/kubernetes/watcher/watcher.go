@@ -2,7 +2,6 @@ package watcher
 
 import (
 	"context"
-	"fmt"
 	"slices"
 	"strings"
 
@@ -54,13 +53,14 @@ type watcherSettings struct {
 type WatcherHook[T Object] func(cluster string, obj T)
 
 type Watcher[T Object] struct {
-	watchers        []*clusterWatcher[T]
-	log             logrus.FieldLogger
-	resourceCounter metric.Int64UpDownCounter
-	watchedType     string
-	onAdd           WatcherHook[T]
-	onUpdate        WatcherHook[T]
-	onRemove        WatcherHook[T]
+	watchers         []*clusterWatcher[T]
+	environmentNames []string
+	log              logrus.FieldLogger
+	resourceCounter  metric.Int64UpDownCounter
+	watchedType      string
+	onAdd            WatcherHook[T]
+	onUpdate         WatcherHook[T]
+	onRemove         WatcherHook[T]
 }
 
 func newWatcher[T Object](mgr *Manager, obj T, settings *watcherSettings, log logrus.FieldLogger) *Watcher[T] {
@@ -69,15 +69,16 @@ func newWatcher[T Object](mgr *Manager, obj T, settings *watcherSettings, log lo
 		resourceCounter: mgr.resourceCounter,
 	}
 	for cluster, client := range mgr.managers {
-		cluster = environmentmapper.EnvironmentName(cluster)
-		watcher, gvr := newClusterWatcher(client, cluster, w, obj, settings, log.WithField("cluster", cluster))
+		environmentName := environmentmapper.EnvironmentName(cluster)
+		watcher, gvr := newClusterWatcher(client, environmentName, w, obj, settings, log.WithField("cluster", environmentName))
 		if !watcher.isRegistered {
 			continue
 		}
 		w.watchedType = gvr.String()
 
 		w.watchers = append(w.watchers, watcher)
-		mgr.addCacheSync(cluster, gvr.String(), watcher.informer.Informer().HasSynced)
+		w.environmentNames = append(w.environmentNames, environmentName)
+		mgr.addCacheSync(environmentName, gvr.String(), watcher.informer.Informer().HasSynced)
 	}
 	return w
 }
@@ -297,7 +298,7 @@ func (w *Watcher[T]) ImpersonatedClient(ctx context.Context, cluster string, opt
 		}
 	}
 
-	return nil, fmt.Errorf("no watcher for cluster %s", cluster)
+	return nil, w.unknownEnvironmentError(cluster)
 }
 
 func (w *Watcher[T]) ImpersonatedClientWithNamespace(ctx context.Context, cluster, namespace string, opts ...ImpersonatedClientOption) (dynamic.ResourceInterface, error) {
@@ -316,7 +317,11 @@ func (w *Watcher[T]) SystemAuthenticatedClient(ctx context.Context, cluster stri
 		}
 	}
 
-	return nil, fmt.Errorf("no watcher for cluster %s", cluster)
+	return nil, w.unknownEnvironmentError(cluster)
+}
+
+func (w *Watcher[T]) unknownEnvironmentError(cluster string) error {
+	return &ErrorUnknownEnvironment{Environment: cluster, Valid: w.environmentNames}
 }
 
 func (w *Watcher[T]) OnRemove(fn WatcherHook[T]) {
