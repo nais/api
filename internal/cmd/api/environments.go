@@ -16,7 +16,8 @@ func syncEnvironments(ctx context.Context, pool *pgxpool.Pool, clusters ClusterL
 
 	issuerByEnv := make(map[string]string, len(oidcIssuers))
 	for _, iss := range oidcIssuers {
-		issuerByEnv[iss.Environment] = iss.Issuer
+		envName := environmentmapper.EnvironmentName(iss.Environment)
+		issuerByEnv[envName] = iss.Issuer
 	}
 
 	syncEnvs := make([]*environment.Environment, 0, len(clusters))
