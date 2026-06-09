@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+	"sync"
 
 	storage_cnrm_cloud_google_com_v1beta1 "github.com/GoogleCloudPlatform/k8s-config-connector/pkg/clients/generated/apis/storage/v1beta1"
 	"github.com/nais/api/internal/graph/ident"
@@ -26,7 +27,10 @@ type (
 type BucketConnection = pagination.FacetableConnection[*Bucket, *BucketFilter]
 
 type BucketFacets struct {
-	Environments []model.StringFacetItem `json:"environments"`
+	AllBuckets      []*Bucket
+	Filter          *BucketFilter
+	filteredOnce    sync.Once
+	filteredBuckets []*Bucket
 }
 
 type BucketFilter struct {

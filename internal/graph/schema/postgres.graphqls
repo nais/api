@@ -171,6 +171,9 @@ type PostgresInstanceFacets {
 
 	"Distribution of instances by major version."
 	majorVersions: [StringFacetItem!]!
+
+	"Distribution of instances by user-defined labels."
+	labels: [LabelFacetItem!]!
 }
 
 """

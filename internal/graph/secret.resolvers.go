@@ -236,7 +236,10 @@ func (r *secretResolver) ActivityLog(ctx context.Context, obj *secret.Secret, fi
 }
 
 func (r *secretConnectionResolver) Facets(ctx context.Context, obj *pagination.FacetableConnection[*secret.Secret, *secret.SecretFilter]) (*secret.SecretFacets, error) {
-	return secret.ComputeFacets(ctx, obj.GetAllItems(), obj.GetFilter()), nil
+	return &secret.SecretFacets{
+		AllSecrets: obj.GetAllItems(),
+		Filter:     obj.GetFilter(),
+	}, nil
 }
 
 // Secrets returns all secrets for a team.

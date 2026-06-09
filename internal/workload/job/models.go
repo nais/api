@@ -5,6 +5,7 @@ import (
 	"io"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/nais/api/internal/graph/ident"
@@ -562,8 +563,11 @@ type TeamJobsFilter struct {
 }
 
 type JobFacets struct {
-	Environments []model.StringFacetItem `json:"environments"`
-	States       []JobStateFacetItem     `json:"states"`
+	AllJobs []*Job
+	Filter  *TeamJobsFilter
+
+	filteredOnce sync.Once
+	filteredJobs []*Job
 }
 
 type JobStateFacetItem struct {

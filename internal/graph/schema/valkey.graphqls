@@ -160,6 +160,9 @@ type ValkeyFacets {
 
 	"Distribution of instances by tier."
 	tiers: [ValkeyTierFacetItem!]!
+
+	"Distribution of instances by user-defined labels."
+	labels: [LabelFacetItem!]!
 }
 
 """

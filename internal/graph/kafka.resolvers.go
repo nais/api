@@ -100,7 +100,10 @@ func (r *kafkaTopicAclResolver) Topic(ctx context.Context, obj *kafkatopic.Kafka
 }
 
 func (r *kafkaTopicConnectionResolver) Facets(ctx context.Context, obj *pagination.FacetableConnection[*kafkatopic.KafkaTopic, *kafkatopic.KafkaTopicFilter]) (*kafkatopic.KafkaTopicFacets, error) {
-	return kafkatopic.ComputeFacets(ctx, obj.GetAllItems(), obj.GetFilter()), nil
+	return &kafkatopic.KafkaTopicFacets{
+		AllTopics: obj.GetAllItems(),
+		Filter:    obj.GetFilter(),
+	}, nil
 }
 
 func (r *mutationResolver) CreateKafkaCredentials(ctx context.Context, input kafkatopic.CreateKafkaCredentialsInput) (*kafkatopic.CreateKafkaCredentialsPayload, error) {

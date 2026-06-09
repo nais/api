@@ -5,6 +5,7 @@ import (
 	"io"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/nais/api/internal/graph/ident"
@@ -27,8 +28,10 @@ type SecretEdge = pagination.Edge[*Secret]
 type SecretConnection = pagination.FacetableConnection[*Secret, *SecretFilter]
 
 type SecretFacets struct {
-	Environments []model.StringFacetItem  `json:"environments"`
-	InUse        []model.BooleanFacetItem `json:"inUse"`
+	AllSecrets      []*Secret
+	Filter          *SecretFilter
+	filteredOnce    sync.Once
+	filteredSecrets []*Secret
 }
 
 type Secret struct {
