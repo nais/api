@@ -812,7 +812,7 @@ func (ec *executionContext) unmarshalInputTeamWorkloadsFilter(ctx context.Contex
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"environments"}
+	fieldsInOrder := [...]string{"environments", "labels"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -826,6 +826,13 @@ func (ec *executionContext) unmarshalInputTeamWorkloadsFilter(ctx context.Contex
 				return it, err
 			}
 			it.Environments = data
+		case "labels":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labels"))
+			data, err := ec.unmarshalOLabelFilter2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFilterᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Labels = data
 		}
 	}
 	return it, nil

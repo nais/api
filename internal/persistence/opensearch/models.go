@@ -7,6 +7,7 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/nais/api/internal/graph/apierror"
@@ -33,16 +34,19 @@ type (
 )
 
 type OpenSearchFilter struct {
-	Name         string           `json:"name"`
-	Environments []string         `json:"environments"`
-	Tiers        []OpenSearchTier `json:"tiers"`
+	Name         string             `json:"name"`
+	Environments []string           `json:"environments"`
+	Tiers        []OpenSearchTier   `json:"tiers"`
+	Labels       model.LabelFilters `json:"labels,omitempty"`
 }
 
 type OpenSearchConnection = pagination.FacetableConnection[*OpenSearch, *OpenSearchFilter]
 
 type OpenSearchFacets struct {
-	Environments []model.StringFacetItem   `json:"environments"`
-	Tiers        []OpenSearchTierFacetItem `json:"tiers"`
+	AllOpenSearches      []*OpenSearch
+	Filter               *OpenSearchFilter
+	filteredOnce         sync.Once
+	filteredOpenSearches []*OpenSearch
 }
 
 type OpenSearchTierFacetItem struct {
@@ -57,6 +61,7 @@ type OpenSearch struct {
 	Tier                  OpenSearchTier         `json:"tier"`
 	Memory                OpenSearchMemory       `json:"memory"`
 	StorageGB             StorageGB              `json:"storageGB"`
+	Labels                []*model.ResourceLabel `json:"labels"`
 	TeamSlug              slug.Slug              `json:"-"`
 	EnvironmentName       string                 `json:"-"`
 	WorkloadReference     *workload.Reference    `json:"-"`
@@ -222,6 +227,7 @@ func toOpenSearch(u *unstructured.Unstructured, envName string) (*OpenSearch, er
 		Memory:            machine.Memory,
 		MajorVersion:      majorVersion,
 		StorageGB:         storageGB,
+		Labels:            model.UserLabels(obj.GetLabels()),
 	}, nil
 }
 
@@ -269,6 +275,10 @@ type OpenSearchInput struct {
 }
 
 func (o *OpenSearchInput) Validate(ctx context.Context) error {
+	return o.ValidationErrors(ctx).NilIfEmpty()
+}
+
+func (o *OpenSearchInput) ValidationErrors(ctx context.Context) *validate.ValidationErrors {
 	verr := o.OpenSearchMetadataInput.ValidationErrors(ctx)
 
 	if !o.Tier.IsValid() {
@@ -284,7 +294,7 @@ func (o *OpenSearchInput) Validate(ctx context.Context) error {
 	machine, err := machineTypeFromTierAndMemory(o.Tier, o.Memory)
 	if err != nil {
 		verr.Add("memory", "%s", err)
-		return verr.NilIfEmpty()
+		return verr
 	}
 
 	// hobbyist plan has a fixed storage capacity, so we override any provided value
@@ -311,7 +321,7 @@ func (o *OpenSearchInput) Validate(ctx context.Context) error {
 		)
 	}
 
-	return verr.NilIfEmpty()
+	return verr
 }
 
 type StorageGB int
@@ -539,7 +549,22 @@ func (e OpenSearchTier) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
-type UpdateOpenSearchInput struct{ OpenSearchInput }
+type UpdateOpenSearchInput struct {
+	OpenSearchInput
+	Labels []*model.ResourceLabel `json:"labels,omitempty"`
+}
+
+func (i *UpdateOpenSearchInput) Validate(ctx context.Context) error {
+	verr := i.OpenSearchInput.ValidationErrors(ctx)
+	validateUserLabels(verr, i.Labels)
+	return verr.NilIfEmpty()
+}
+
+func validateUserLabels(verr *validate.ValidationErrors, labels []*model.ResourceLabel) {
+	if err := model.ValidateUserLabels(labels); err != nil {
+		verr.Add("labels", "%s", err.Error())
+	}
+}
 
 type UpdateOpenSearchPayload struct {
 	OpenSearch *OpenSearch `json:"openSearch"`

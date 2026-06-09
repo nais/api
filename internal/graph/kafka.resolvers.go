@@ -100,7 +100,10 @@ func (r *kafkaTopicAclResolver) Topic(ctx context.Context, obj *kafkatopic.Kafka
 }
 
 func (r *kafkaTopicConnectionResolver) Facets(ctx context.Context, obj *pagination.FacetableConnection[*kafkatopic.KafkaTopic, *kafkatopic.KafkaTopicFilter]) (*kafkatopic.KafkaTopicFacets, error) {
-	return kafkatopic.ComputeFacets(ctx, obj.GetAllItems(), obj.GetFilter()), nil
+	return &kafkatopic.KafkaTopicFacets{
+		AllTopics: obj.GetAllItems(),
+		Filter:    obj.GetFilter(),
+	}, nil
 }
 
 func (r *mutationResolver) CreateKafkaCredentials(ctx context.Context, input kafkatopic.CreateKafkaCredentialsInput) (*kafkatopic.CreateKafkaCredentialsPayload, error) {
@@ -125,7 +128,7 @@ func (r *teamEnvironmentResolver) KafkaTopic(ctx context.Context, obj *team.Team
 
 func (r *teamInventoryCountsResolver) KafkaTopics(ctx context.Context, obj *team.TeamInventoryCounts) (*kafkatopic.TeamInventoryCountKafkaTopics, error) {
 	return &kafkatopic.TeamInventoryCountKafkaTopics{
-		Total: len(kafkatopic.ListAllForTeam(ctx, obj.TeamSlug)),
+		Total: len(kafkatopic.ListAllForTeam(ctx, obj.TeamSlug, nil)),
 	}, nil
 }
 

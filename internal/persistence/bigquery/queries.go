@@ -36,7 +36,7 @@ func Get(ctx context.Context, teamSlug slug.Slug, environment, name string) (*Bi
 }
 
 func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *BigQueryDatasetOrder, filter *BigQueryDatasetFilter) (*BigQueryDatasetConnection, error) {
-	all := ListAllForTeam(ctx, teamSlug)
+	all := ListAllForTeam(ctx, teamSlug, filter)
 
 	if orderBy == nil {
 		orderBy = &BigQueryDatasetOrder{
@@ -48,7 +48,7 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 	return SortFilter.PaginatedList(ctx, all, page, orderBy.Field, orderBy.Direction, filter), nil
 }
 
-func ListAllForTeam(ctx context.Context, teamSlug slug.Slug) []*BigQueryDataset {
+func ListAllForTeam(ctx context.Context, teamSlug slug.Slug, filter *BigQueryDatasetFilter) []*BigQueryDataset {
 	all := fromContext(ctx).watcher.GetByNamespace(teamSlug.String())
 	return watcher.Objects(all)
 }

@@ -8,6 +8,7 @@ import (
 	"io"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/nais/api/internal/graph/ident"
@@ -33,15 +34,16 @@ type PostgresInstanceFilter struct {
 	States           []PostgresInstanceState `json:"states"`
 	HighAvailability *bool                   `json:"highAvailability"`
 	MajorVersions    []string                `json:"majorVersions"`
+	Labels           model.LabelFilters      `json:"labels,omitempty"`
 }
 
 type PostgresInstanceConnection = pagination.FacetableConnection[*PostgresInstance, *PostgresInstanceFilter]
 
 type PostgresInstanceFacets struct {
-	Environments     []model.StringFacetItem          `json:"environments"`
-	States           []PostgresInstanceStateFacetItem `json:"states"`
-	HighAvailability []model.BooleanFacetItem         `json:"highAvailability"`
-	MajorVersions    []model.StringFacetItem          `json:"majorVersions"`
+	AllInstances      []*PostgresInstance
+	Filter            *PostgresInstanceFilter
+	filteredOnce      sync.Once
+	filteredInstances []*PostgresInstance
 }
 
 type PostgresInstanceStateFacetItem struct {
@@ -60,6 +62,7 @@ type PostgresInstance struct {
 	MaintenanceWindow *PostgresInstanceMaintenanceWindow `json:"maintenanceWindow,omitempty"`
 	HighAvailability  bool                               `json:"highAvailability"`
 	State             PostgresInstanceState              `json:"state"`
+	Labels            []*model.ResourceLabel             `json:"labels"`
 }
 
 type PostgresInstanceState string
@@ -313,7 +316,8 @@ func toPostgres(u *unstructured.Unstructured, environmentName string) (*Postgres
 				Hour: hour,
 			}
 		}(),
-		State: state,
+		State:  state,
+		Labels: model.UserLabels(obj.GetLabels()),
 	}, nil
 }
 

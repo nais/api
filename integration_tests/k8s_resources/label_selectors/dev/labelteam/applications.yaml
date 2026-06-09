@@ -1,0 +1,31 @@
+---
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: app-one
+  namespace: labelteam
+  labels:
+    labels.nais.io/tag: target
+    labels.nais.io/priority: high
+spec:
+  image: navikt/app-one:latest
+---
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: app-two
+  namespace: labelteam
+  labels:
+    labels.nais.io/tag: target
+spec:
+  image: navikt/app-two:latest
+---
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: app-three
+  namespace: labelteam
+  labels:
+    labels.nais.io/tag: other
+spec:
+  image: navikt/app-three:latest

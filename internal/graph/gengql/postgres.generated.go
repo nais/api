@@ -930,6 +930,38 @@ func (ec *executionContext) fieldContext_PostgresInstance_maintenanceWindow(_ co
 	return fc, nil
 }
 
+func (ec *executionContext) _PostgresInstance_labels(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstance) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresInstance_labels(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Labels, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []*model.ResourceLabel) graphql.Marshaler {
+			return ec.marshalNResourceLabel2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceLabelᚄ(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresInstance_labels(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresInstance",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_ResourceLabel(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _PostgresInstanceAudit_enabled(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstanceAudit) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -1191,7 +1223,7 @@ func (ec *executionContext) _PostgresInstanceFacets_environments(ctx context.Con
 			return ec.fieldContext_PostgresInstanceFacets_environments(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.Environments, nil
+			return obj.Environments(ctx), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []model.StringFacetItem) graphql.Marshaler {
@@ -1205,7 +1237,7 @@ func (ec *executionContext) fieldContext_PostgresInstanceFacets_environments(_ c
 	fc = &graphql.FieldContext{
 		Object:     "PostgresInstanceFacets",
 		Field:      field,
-		IsMethod:   false,
+		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return ec.childFields_StringFacetItem(ctx, field)
@@ -1223,7 +1255,7 @@ func (ec *executionContext) _PostgresInstanceFacets_states(ctx context.Context, 
 			return ec.fieldContext_PostgresInstanceFacets_states(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.States, nil
+			return obj.States(ctx), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []postgres.PostgresInstanceStateFacetItem) graphql.Marshaler {
@@ -1237,7 +1269,7 @@ func (ec *executionContext) fieldContext_PostgresInstanceFacets_states(_ context
 	fc = &graphql.FieldContext{
 		Object:     "PostgresInstanceFacets",
 		Field:      field,
-		IsMethod:   false,
+		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return ec.childFields_PostgresInstanceStateFacetItem(ctx, field)
@@ -1255,7 +1287,7 @@ func (ec *executionContext) _PostgresInstanceFacets_highAvailability(ctx context
 			return ec.fieldContext_PostgresInstanceFacets_highAvailability(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.HighAvailability, nil
+			return obj.HighAvailability(ctx), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []model.BooleanFacetItem) graphql.Marshaler {
@@ -1269,7 +1301,7 @@ func (ec *executionContext) fieldContext_PostgresInstanceFacets_highAvailability
 	fc = &graphql.FieldContext{
 		Object:     "PostgresInstanceFacets",
 		Field:      field,
-		IsMethod:   false,
+		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return ec.childFields_BooleanFacetItem(ctx, field)
@@ -1287,7 +1319,7 @@ func (ec *executionContext) _PostgresInstanceFacets_majorVersions(ctx context.Co
 			return ec.fieldContext_PostgresInstanceFacets_majorVersions(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.MajorVersions, nil
+			return obj.MajorVersions(ctx), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []model.StringFacetItem) graphql.Marshaler {
@@ -1301,10 +1333,42 @@ func (ec *executionContext) fieldContext_PostgresInstanceFacets_majorVersions(_ 
 	fc = &graphql.FieldContext{
 		Object:     "PostgresInstanceFacets",
 		Field:      field,
-		IsMethod:   false,
+		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return ec.childFields_StringFacetItem(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresInstanceFacets_labels(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstanceFacets) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresInstanceFacets_labels(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Labels(ctx), nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []model.LabelFacetItem) graphql.Marshaler {
+			return ec.marshalNLabelFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFacetItemᚄ(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresInstanceFacets_labels(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresInstanceFacets",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_LabelFacetItem(ctx, field)
 		},
 	}
 	return fc, nil
@@ -1611,7 +1675,7 @@ func (ec *executionContext) unmarshalInputPostgresInstanceFilter(ctx context.Con
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "environments", "states", "highAvailability", "majorVersions"}
+	fieldsInOrder := [...]string{"name", "environments", "states", "highAvailability", "majorVersions", "labels"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -1653,6 +1717,13 @@ func (ec *executionContext) unmarshalInputPostgresInstanceFilter(ctx context.Con
 				return it, err
 			}
 			it.MajorVersions = data
+		case "labels":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labels"))
+			data, err := ec.unmarshalOLabelFilter2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFiltersᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Labels = data
 		}
 	}
 	return it, nil
@@ -2158,6 +2229,11 @@ func (ec *executionContext) _PostgresInstance(ctx context.Context, sel ast.Selec
 			}
 		case "maintenanceWindow":
 			out.Values[i] = ec._PostgresInstance_maintenanceWindow(ctx, field, obj)
+		case "labels":
+			out.Values[i] = ec._PostgresInstance_labels(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -2393,25 +2469,185 @@ func (ec *executionContext) _PostgresInstanceFacets(ctx context.Context, sel ast
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("PostgresInstanceFacets")
 		case "environments":
-			out.Values[i] = ec._PostgresInstanceFacets_environments(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._PostgresInstanceFacets_environments(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "states":
-			out.Values[i] = ec._PostgresInstanceFacets_states(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._PostgresInstanceFacets_states(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "highAvailability":
-			out.Values[i] = ec._PostgresInstanceFacets_highAvailability(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._PostgresInstanceFacets_highAvailability(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "majorVersions":
-			out.Values[i] = ec._PostgresInstanceFacets_majorVersions(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._PostgresInstanceFacets_majorVersions(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "labels":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._PostgresInstanceFacets_labels(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

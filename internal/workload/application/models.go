@@ -6,6 +6,7 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/nais/api/internal/graph/ident"
@@ -30,7 +31,8 @@ type (
 
 type Application struct {
 	workload.Base
-	Spec *nais_io_v1alpha1.ApplicationSpec `json:"-"`
+	Labels []*model.ResourceLabel            `json:"labels"`
+	Spec   *nais_io_v1alpha1.ApplicationSpec `json:"-"`
 }
 
 func (Application) IsNode()           {}
@@ -40,6 +42,10 @@ func (Application) IsActivityLogger() {}
 
 func (a Application) ID() ident.Ident {
 	return newIdent(a.TeamSlug, a.EnvironmentName, a.Name)
+}
+
+func (a *Application) GetLabels() []*model.ResourceLabel {
+	return a.Labels
 }
 
 // GetSecrets returns a list of secret names used by the application
@@ -487,7 +493,8 @@ func toGraphApplication(application *nais_io_v1alpha1.Application, environmentNa
 			Type:                workload.TypeApplication,
 			Logging:             logging,
 		},
-		Spec: &application.Spec,
+		Labels: model.UserLabels(application.GetLabels()),
+		Spec:   &application.Spec,
 	}
 }
 
@@ -655,14 +662,18 @@ type ApplicationInstanceStatus struct {
 }
 
 type TeamApplicationsFilter struct {
-	Name         string             `json:"name"`
-	Environments []string           `json:"environments"`
-	States       []ApplicationState `json:"states"`
+	Name         string               `json:"name"`
+	Environments []string             `json:"environments"`
+	States       []ApplicationState   `json:"states"`
+	Labels       []*model.LabelFilter `json:"labels,omitempty"`
 }
 
 type ApplicationFacets struct {
-	Environments []model.StringFacetItem     `json:"environments"`
-	States       []ApplicationStateFacetItem `json:"states"`
+	AllApps []*Application
+	Filter  *TeamApplicationsFilter
+
+	filteredOnce sync.Once
+	filteredApps []*Application
 }
 
 type ApplicationStateFacetItem struct {

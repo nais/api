@@ -31,9 +31,9 @@ func WithLabels(lbls labels.Selector) Filter {
 	}
 }
 
-func InCluster(cluster string) Filter {
+func InCluster(cluster ...string) Filter {
 	return func(o *filterOptions) {
-		o.clusters = append(o.clusters, cluster)
+		o.clusters = append(o.clusters, cluster...)
 	}
 }
 

@@ -5,6 +5,7 @@ import (
 	"io"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/nais/api/internal/graph/ident"
@@ -27,15 +28,18 @@ type SecretEdge = pagination.Edge[*Secret]
 type SecretConnection = pagination.FacetableConnection[*Secret, *SecretFilter]
 
 type SecretFacets struct {
-	Environments []model.StringFacetItem  `json:"environments"`
-	InUse        []model.BooleanFacetItem `json:"inUse"`
+	AllSecrets      []*Secret
+	Filter          *SecretFilter
+	filteredOnce    sync.Once
+	filteredSecrets []*Secret
 }
 
 type Secret struct {
-	Name                string     `json:"name"`
-	LastModifiedAt      *time.Time `json:"lastModifiedAt"`
-	ModifiedByUserEmail *string    `json:"lastModifiedBy"`
-	Keys                []string   `json:"-"` // Cached key names from transformer
+	Name                string                 `json:"name"`
+	LastModifiedAt      *time.Time             `json:"lastModifiedAt"`
+	ModifiedByUserEmail *string                `json:"lastModifiedBy"`
+	Keys                []string               `json:"-"` // Cached key names from transformer
+	Labels              []*model.ResourceLabel `json:"labels"`
 
 	TeamSlug        slug.Slug `json:"-"`
 	EnvironmentName string    `json:"-"`
@@ -52,19 +56,14 @@ type CreateSecretPayload struct {
 }
 
 type UpdateSecretInput struct {
-	Name        string                 `json:"name"`
-	Environment string                 `json:"environment"`
-	Team        slug.Slug              `json:"team"`
-	Data        []*SecretVariableInput `json:"data"`
+	Name            string                 `json:"name"`
+	EnvironmentName string                 `json:"environmentName"`
+	TeamSlug        slug.Slug              `json:"teamSlug"`
+	Labels          []*model.ResourceLabel `json:"labels"`
 }
 
 type UpdateSecretPayload struct {
 	Secret *Secret `json:"secret"`
-}
-
-type SecretVariableInput struct {
-	Name  string `json:"name"`
-	Value string `json:"value"`
 }
 
 func (s *Secret) ID() ident.Ident {
@@ -124,6 +123,7 @@ func toGraphSecret(o *unstructured.Unstructured, environmentName string) (*Secre
 		LastModifiedAt:      lastModifiedAt,
 		ModifiedByUserEmail: lastModifiedBy,
 		Keys:                keys,
+		Labels:              model.UserLabels(o.GetLabels()),
 	}, true
 }
 
@@ -230,9 +230,10 @@ func (e SecretOrderField) MarshalGQL(w io.Writer) {
 }
 
 type SecretFilter struct {
-	Name         string   `json:"name"`
-	InUse        *bool    `json:"inUse"`
-	Environments []string `json:"environments"`
+	Name         string             `json:"name"`
+	InUse        *bool              `json:"inUse"`
+	Environments []string           `json:"environments"`
+	Labels       model.LabelFilters `json:"labels,omitempty"`
 }
 
 type ViewSecretValuesInput struct {

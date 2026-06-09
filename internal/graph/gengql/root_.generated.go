@@ -242,6 +242,7 @@ type ComplexityRoot struct {
 		Instances                 func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		Issues                    func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) int
 		KafkaTopicAcls            func(childComplexity int, orderBy *kafkatopic.KafkaTopicACLOrder) int
+		Labels                    func(childComplexity int) int
 		LogDestinations           func(childComplexity int) int
 		Manifest                  func(childComplexity int) int
 		Name                      func(childComplexity int) int
@@ -297,6 +298,7 @@ type ComplexityRoot struct {
 
 	ApplicationFacets struct {
 		Environments func(childComplexity int) int
+		Labels       func(childComplexity int) int
 		States       func(childComplexity int) int
 	}
 
@@ -431,6 +433,7 @@ type ComplexityRoot struct {
 		Description     func(childComplexity int) int
 		Environment     func(childComplexity int) int
 		ID              func(childComplexity int) int
+		Labels          func(childComplexity int) int
 		Name            func(childComplexity int) int
 		Status          func(childComplexity int) int
 		Team            func(childComplexity int) int
@@ -472,6 +475,7 @@ type ComplexityRoot struct {
 
 	BigQueryDatasetFacets struct {
 		Environments func(childComplexity int) int
+		Labels       func(childComplexity int) int
 	}
 
 	BigQueryDatasetStatus struct {
@@ -488,6 +492,7 @@ type ComplexityRoot struct {
 		CascadingDelete          func(childComplexity int) int
 		Environment              func(childComplexity int) int
 		ID                       func(childComplexity int) int
+		Labels                   func(childComplexity int) int
 		Name                     func(childComplexity int) int
 		PublicAccessPrevention   func(childComplexity int) int
 		Team                     func(childComplexity int) int
@@ -510,6 +515,7 @@ type ComplexityRoot struct {
 
 	BucketFacets struct {
 		Environments func(childComplexity int) int
+		Labels       func(childComplexity int) int
 	}
 
 	CPUScalingStrategy struct {
@@ -564,6 +570,7 @@ type ComplexityRoot struct {
 		Applications    func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		ID              func(childComplexity int) int
 		Jobs            func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Labels          func(childComplexity int) int
 		LastModifiedAt  func(childComplexity int) int
 		LastModifiedBy  func(childComplexity int) int
 		Name            func(childComplexity int) int
@@ -610,6 +617,7 @@ type ComplexityRoot struct {
 	ConfigFacets struct {
 		Environments func(childComplexity int) int
 		InUse        func(childComplexity int) int
+		Labels       func(childComplexity int) int
 	}
 
 	ConfigUpdatedActivityLogEntry struct {
@@ -1159,6 +1167,7 @@ type ComplexityRoot struct {
 		ImageVulnerabilityHistory func(childComplexity int, from scalar.Date) int
 		Issues                    func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) int
 		KafkaTopicAcls            func(childComplexity int, orderBy *kafkatopic.KafkaTopicACLOrder) int
+		Labels                    func(childComplexity int) int
 		LogDestinations           func(childComplexity int) int
 		Manifest                  func(childComplexity int) int
 		Name                      func(childComplexity int) int
@@ -1215,6 +1224,7 @@ type ComplexityRoot struct {
 
 	JobFacets struct {
 		Environments func(childComplexity int) int
+		Labels       func(childComplexity int) int
 		States       func(childComplexity int) int
 	}
 
@@ -1351,6 +1361,7 @@ type ComplexityRoot struct {
 		Configuration   func(childComplexity int) int
 		Environment     func(childComplexity int) int
 		ID              func(childComplexity int) int
+		Labels          func(childComplexity int) int
 		Name            func(childComplexity int) int
 		Pool            func(childComplexity int) int
 		Team            func(childComplexity int) int
@@ -1402,7 +1413,14 @@ type ComplexityRoot struct {
 
 	KafkaTopicFacets struct {
 		Environments func(childComplexity int) int
+		Labels       func(childComplexity int) int
 		Pools        func(childComplexity int) int
+	}
+
+	LabelFacetItem struct {
+		Count func(childComplexity int) int
+		Key   func(childComplexity int) int
+		Value func(childComplexity int) int
 	}
 
 	LastRunFailedIssue struct {
@@ -1527,10 +1545,12 @@ type ComplexityRoot struct {
 		StartValkeyMaintenance           func(childComplexity int, input servicemaintenance.StartValkeyMaintenanceInput) int
 		TriggerJob                       func(childComplexity int, input job.TriggerJobInput) int
 		UpdateApplication                func(childComplexity int, input application.UpdateApplicationInput) int
+		UpdateConfig                     func(childComplexity int, input config.UpdateConfigInput) int
 		UpdateConfigValue                func(childComplexity int, input config.UpdateConfigValueInput) int
 		UpdateImageVulnerability         func(childComplexity int, input vulnerability.UpdateImageVulnerabilityInput) int
 		UpdateJob                        func(childComplexity int, input job.UpdateJobInput) int
 		UpdateOpenSearch                 func(childComplexity int, input opensearch.UpdateOpenSearchInput) int
+		UpdateSecret                     func(childComplexity int, input secret.UpdateSecretInput) int
 		UpdateSecretValue                func(childComplexity int, input secret.UpdateSecretValueInput) int
 		UpdateServiceAccount             func(childComplexity int, input serviceaccount.UpdateServiceAccountInput) int
 		UpdateServiceAccountToken        func(childComplexity int, input serviceaccount.UpdateServiceAccountTokenInput) int
@@ -1569,6 +1589,7 @@ type ComplexityRoot struct {
 		Environment           func(childComplexity int) int
 		ID                    func(childComplexity int) int
 		Issues                func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) int
+		Labels                func(childComplexity int) int
 		Maintenance           func(childComplexity int) int
 		Memory                func(childComplexity int) int
 		Name                  func(childComplexity int) int
@@ -1646,6 +1667,7 @@ type ComplexityRoot struct {
 
 	OpenSearchFacets struct {
 		Environments func(childComplexity int) int
+		Labels       func(childComplexity int) int
 		Tiers        func(childComplexity int) int
 	}
 
@@ -1761,6 +1783,7 @@ type ComplexityRoot struct {
 		Environment       func(childComplexity int) int
 		HighAvailability  func(childComplexity int) int
 		ID                func(childComplexity int) int
+		Labels            func(childComplexity int) int
 		MaintenanceWindow func(childComplexity int) int
 		MajorVersion      func(childComplexity int) int
 		Name              func(childComplexity int) int
@@ -1792,6 +1815,7 @@ type ComplexityRoot struct {
 	PostgresInstanceFacets struct {
 		Environments     func(childComplexity int) int
 		HighAvailability func(childComplexity int) int
+		Labels           func(childComplexity int) int
 		MajorVersions    func(childComplexity int) int
 		States           func(childComplexity int) int
 	}
@@ -2025,6 +2049,11 @@ type ComplexityRoot struct {
 		OldValue func(childComplexity int) int
 	}
 
+	ResourceLabel struct {
+		Key   func(childComplexity int) int
+		Value func(childComplexity int) int
+	}
+
 	RestartApplicationPayload struct {
 		Application func(childComplexity int) int
 	}
@@ -2124,6 +2153,7 @@ type ComplexityRoot struct {
 		ID              func(childComplexity int) int
 		Jobs            func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		Keys            func(childComplexity int) int
+		Labels          func(childComplexity int) int
 		LastModifiedAt  func(childComplexity int) int
 		LastModifiedBy  func(childComplexity int) int
 		Name            func(childComplexity int) int
@@ -2169,6 +2199,29 @@ type ComplexityRoot struct {
 	SecretFacets struct {
 		Environments func(childComplexity int) int
 		InUse        func(childComplexity int) int
+		Labels       func(childComplexity int) int
+	}
+
+	SecretUpdatedActivityLogEntry struct {
+		Actor           func(childComplexity int) int
+		CreatedAt       func(childComplexity int) int
+		Data            func(childComplexity int) int
+		EnvironmentName func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Message         func(childComplexity int) int
+		ResourceName    func(childComplexity int) int
+		ResourceType    func(childComplexity int) int
+		TeamSlug        func(childComplexity int) int
+	}
+
+	SecretUpdatedActivityLogEntryData struct {
+		UpdatedFields func(childComplexity int) int
+	}
+
+	SecretUpdatedActivityLogEntryDataUpdatedField struct {
+		Field    func(childComplexity int) int
+		NewValue func(childComplexity int) int
+		OldValue func(childComplexity int) int
 	}
 
 	SecretValue struct {
@@ -2474,6 +2527,7 @@ type ComplexityRoot struct {
 		Environment     func(childComplexity int) int
 		Healthy         func(childComplexity int) int
 		ID              func(childComplexity int) int
+		Labels          func(childComplexity int) int
 		Name            func(childComplexity int) int
 		Team            func(childComplexity int) int
 		TeamEnvironment func(childComplexity int) int
@@ -2494,6 +2548,7 @@ type ComplexityRoot struct {
 		HighAvailability    func(childComplexity int) int
 		ID                  func(childComplexity int) int
 		Issues              func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) int
+		Labels              func(childComplexity int) int
 		MaintenanceVersion  func(childComplexity int) int
 		MaintenanceWindow   func(childComplexity int) int
 		Metrics             func(childComplexity int) int
@@ -2658,7 +2713,7 @@ type ComplexityRoot struct {
 		PostgresInstances         func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *postgres.PostgresInstanceOrder, filter *postgres.PostgresInstanceFilter) int
 		Purpose                   func(childComplexity int) int
 		Repositories              func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *repository.RepositoryOrder, filter *repository.TeamRepositoryFilter) int
-		SQLInstances              func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *sqlinstance.SQLInstanceOrder) int
+		SQLInstances              func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *sqlinstance.SQLInstanceOrder, filter *sqlinstance.SQLInstanceFilter) int
 		Secrets                   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *secret.SecretOrder, filter *secret.SecretFilter) int
 		ServiceAccounts           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		ServiceUtilization        func(childComplexity int) int
@@ -3201,6 +3256,10 @@ type ComplexityRoot struct {
 		Application func(childComplexity int) int
 	}
 
+	UpdateConfigPayload struct {
+		Config func(childComplexity int) int
+	}
+
 	UpdateConfigValuePayload struct {
 		Config func(childComplexity int) int
 	}
@@ -3215,6 +3274,10 @@ type ComplexityRoot struct {
 
 	UpdateOpenSearchPayload struct {
 		OpenSearch func(childComplexity int) int
+	}
+
+	UpdateSecretPayload struct {
+		Secret func(childComplexity int) int
 	}
 
 	UpdateSecretValuePayload struct {
@@ -3321,6 +3384,7 @@ type ComplexityRoot struct {
 		Environment           func(childComplexity int) int
 		ID                    func(childComplexity int) int
 		Issues                func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) int
+		Labels                func(childComplexity int) int
 		Maintenance           func(childComplexity int) int
 		MaxMemoryPolicy       func(childComplexity int) int
 		Memory                func(childComplexity int) int
@@ -3398,6 +3462,7 @@ type ComplexityRoot struct {
 
 	ValkeyFacets struct {
 		Environments func(childComplexity int) int
+		Labels       func(childComplexity int) int
 		Tiers        func(childComplexity int) int
 	}
 
@@ -3970,6 +4035,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Application.KafkaTopicAcls(childComplexity, args["orderBy"].(*kafkatopic.KafkaTopicACLOrder)), true
 
+	case "Application.labels":
+		if e.ComplexityRoot.Application.Labels == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Application.Labels(childComplexity), true
+
 	case "Application.logDestinations":
 		if e.ComplexityRoot.Application.LogDestinations == nil {
 			break
@@ -4274,6 +4346,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ApplicationFacets.Environments(childComplexity), true
+
+	case "ApplicationFacets.labels":
+		if e.ComplexityRoot.ApplicationFacets.Labels == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationFacets.Labels(childComplexity), true
 
 	case "ApplicationFacets.states":
 		if e.ComplexityRoot.ApplicationFacets.States == nil {
@@ -4824,6 +4903,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.BigQueryDataset.ID(childComplexity), true
 
+	case "BigQueryDataset.labels":
+		if e.ComplexityRoot.BigQueryDataset.Labels == nil {
+			break
+		}
+
+		return e.ComplexityRoot.BigQueryDataset.Labels(childComplexity), true
+
 	case "BigQueryDataset.name":
 		if e.ComplexityRoot.BigQueryDataset.Name == nil {
 			break
@@ -4964,6 +5050,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.BigQueryDatasetFacets.Environments(childComplexity), true
 
+	case "BigQueryDatasetFacets.labels":
+		if e.ComplexityRoot.BigQueryDatasetFacets.Labels == nil {
+			break
+		}
+
+		return e.ComplexityRoot.BigQueryDatasetFacets.Labels(childComplexity), true
+
 	case "BigQueryDatasetStatus.creationTime":
 		if e.ComplexityRoot.BigQueryDatasetStatus.CreationTime == nil {
 			break
@@ -5012,6 +5105,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Bucket.ID(childComplexity), true
+
+	case "Bucket.labels":
+		if e.ComplexityRoot.Bucket.Labels == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Bucket.Labels(childComplexity), true
 
 	case "Bucket.name":
 		if e.ComplexityRoot.Bucket.Name == nil {
@@ -5103,6 +5203,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.BucketFacets.Environments(childComplexity), true
+
+	case "BucketFacets.labels":
+		if e.ComplexityRoot.BucketFacets.Labels == nil {
+			break
+		}
+
+		return e.ComplexityRoot.BucketFacets.Labels(childComplexity), true
 
 	case "CPUScalingStrategy.threshold":
 		if e.ComplexityRoot.CPUScalingStrategy.Threshold == nil {
@@ -5334,6 +5441,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Config.Jobs(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
 
+	case "Config.labels":
+		if e.ComplexityRoot.Config.Labels == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Config.Labels(childComplexity), true
+
 	case "Config.lastModifiedAt":
 		if e.ComplexityRoot.Config.LastModifiedAt == nil {
 			break
@@ -5555,6 +5669,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ConfigFacets.InUse(childComplexity), true
+
+	case "ConfigFacets.labels":
+		if e.ComplexityRoot.ConfigFacets.Labels == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigFacets.Labels(childComplexity), true
 
 	case "ConfigUpdatedActivityLogEntry.actor":
 		if e.ComplexityRoot.ConfigUpdatedActivityLogEntry.Actor == nil {
@@ -7610,6 +7731,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Job.KafkaTopicAcls(childComplexity, args["orderBy"].(*kafkatopic.KafkaTopicACLOrder)), true
 
+	case "Job.labels":
+		if e.ComplexityRoot.Job.Labels == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Job.Labels(childComplexity), true
+
 	case "Job.logDestinations":
 		if e.ComplexityRoot.Job.LogDestinations == nil {
 			break
@@ -7926,6 +8054,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.JobFacets.Environments(childComplexity), true
+
+	case "JobFacets.labels":
+		if e.ComplexityRoot.JobFacets.Labels == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobFacets.Labels(childComplexity), true
 
 	case "JobFacets.states":
 		if e.ComplexityRoot.JobFacets.States == nil {
@@ -8469,6 +8604,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.KafkaTopic.ID(childComplexity), true
 
+	case "KafkaTopic.labels":
+		if e.ComplexityRoot.KafkaTopic.Labels == nil {
+			break
+		}
+
+		return e.ComplexityRoot.KafkaTopic.Labels(childComplexity), true
+
 	case "KafkaTopic.name":
 		if e.ComplexityRoot.KafkaTopic.Name == nil {
 			break
@@ -8679,12 +8821,40 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.KafkaTopicFacets.Environments(childComplexity), true
 
+	case "KafkaTopicFacets.labels":
+		if e.ComplexityRoot.KafkaTopicFacets.Labels == nil {
+			break
+		}
+
+		return e.ComplexityRoot.KafkaTopicFacets.Labels(childComplexity), true
+
 	case "KafkaTopicFacets.pools":
 		if e.ComplexityRoot.KafkaTopicFacets.Pools == nil {
 			break
 		}
 
 		return e.ComplexityRoot.KafkaTopicFacets.Pools(childComplexity), true
+
+	case "LabelFacetItem.count":
+		if e.ComplexityRoot.LabelFacetItem.Count == nil {
+			break
+		}
+
+		return e.ComplexityRoot.LabelFacetItem.Count(childComplexity), true
+
+	case "LabelFacetItem.key":
+		if e.ComplexityRoot.LabelFacetItem.Key == nil {
+			break
+		}
+
+		return e.ComplexityRoot.LabelFacetItem.Key(childComplexity), true
+
+	case "LabelFacetItem.value":
+		if e.ComplexityRoot.LabelFacetItem.Value == nil {
+			break
+		}
+
+		return e.ComplexityRoot.LabelFacetItem.Value(childComplexity), true
 
 	case "LastRunFailedIssue.id":
 		if e.ComplexityRoot.LastRunFailedIssue.ID == nil {
@@ -9515,6 +9685,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Mutation.UpdateApplication(childComplexity, args["input"].(application.UpdateApplicationInput)), true
 
+	case "Mutation.updateConfig":
+		if e.ComplexityRoot.Mutation.UpdateConfig == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateConfig_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Mutation.UpdateConfig(childComplexity, args["input"].(config.UpdateConfigInput)), true
+
 	case "Mutation.updateConfigValue":
 		if e.ComplexityRoot.Mutation.UpdateConfigValue == nil {
 			break
@@ -9562,6 +9744,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Mutation.UpdateOpenSearch(childComplexity, args["input"].(opensearch.UpdateOpenSearchInput)), true
+
+	case "Mutation.updateSecret":
+		if e.ComplexityRoot.Mutation.UpdateSecret == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateSecret_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Mutation.UpdateSecret(childComplexity, args["input"].(secret.UpdateSecretInput)), true
 
 	case "Mutation.updateSecretValue":
 		if e.ComplexityRoot.Mutation.UpdateSecretValue == nil {
@@ -9799,6 +9993,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.OpenSearch.Issues(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*issue.IssueOrder), args["filter"].(*issue.ResourceIssueFilter)), true
+
+	case "OpenSearch.labels":
+		if e.ComplexityRoot.OpenSearch.Labels == nil {
+			break
+		}
+
+		return e.ComplexityRoot.OpenSearch.Labels(childComplexity), true
 
 	case "OpenSearch.maintenance":
 		if e.ComplexityRoot.OpenSearch.Maintenance == nil {
@@ -10128,6 +10329,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.OpenSearchFacets.Environments(childComplexity), true
+
+	case "OpenSearchFacets.labels":
+		if e.ComplexityRoot.OpenSearchFacets.Labels == nil {
+			break
+		}
+
+		return e.ComplexityRoot.OpenSearchFacets.Labels(childComplexity), true
 
 	case "OpenSearchFacets.tiers":
 		if e.ComplexityRoot.OpenSearchFacets.Tiers == nil {
@@ -10603,6 +10811,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.PostgresInstance.ID(childComplexity), true
 
+	case "PostgresInstance.labels":
+		if e.ComplexityRoot.PostgresInstance.Labels == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresInstance.Labels(childComplexity), true
+
 	case "PostgresInstance.maintenanceWindow":
 		if e.ComplexityRoot.PostgresInstance.MaintenanceWindow == nil {
 			break
@@ -10740,6 +10955,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.PostgresInstanceFacets.HighAvailability(childComplexity), true
+
+	case "PostgresInstanceFacets.labels":
+		if e.ComplexityRoot.PostgresInstanceFacets.Labels == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresInstanceFacets.Labels(childComplexity), true
 
 	case "PostgresInstanceFacets.majorVersions":
 		if e.ComplexityRoot.PostgresInstanceFacets.MajorVersions == nil {
@@ -11838,6 +12060,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ResourceChangedField.OldValue(childComplexity), true
 
+	case "ResourceLabel.key":
+		if e.ComplexityRoot.ResourceLabel.Key == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ResourceLabel.Key(childComplexity), true
+
+	case "ResourceLabel.value":
+		if e.ComplexityRoot.ResourceLabel.Value == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ResourceLabel.Value(childComplexity), true
+
 	case "RestartApplicationPayload.application":
 		if e.ComplexityRoot.RestartApplicationPayload.Application == nil {
 			break
@@ -12245,6 +12481,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Secret.Keys(childComplexity), true
 
+	case "Secret.labels":
+		if e.ComplexityRoot.Secret.Labels == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Secret.Labels(childComplexity), true
+
 	case "Secret.lastModifiedAt":
 		if e.ComplexityRoot.Secret.LastModifiedAt == nil {
 			break
@@ -12459,6 +12702,104 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.SecretFacets.InUse(childComplexity), true
+
+	case "SecretFacets.labels":
+		if e.ComplexityRoot.SecretFacets.Labels == nil {
+			break
+		}
+
+		return e.ComplexityRoot.SecretFacets.Labels(childComplexity), true
+
+	case "SecretUpdatedActivityLogEntry.actor":
+		if e.ComplexityRoot.SecretUpdatedActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.SecretUpdatedActivityLogEntry.Actor(childComplexity), true
+
+	case "SecretUpdatedActivityLogEntry.createdAt":
+		if e.ComplexityRoot.SecretUpdatedActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.SecretUpdatedActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "SecretUpdatedActivityLogEntry.data":
+		if e.ComplexityRoot.SecretUpdatedActivityLogEntry.Data == nil {
+			break
+		}
+
+		return e.ComplexityRoot.SecretUpdatedActivityLogEntry.Data(childComplexity), true
+
+	case "SecretUpdatedActivityLogEntry.environmentName":
+		if e.ComplexityRoot.SecretUpdatedActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.SecretUpdatedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "SecretUpdatedActivityLogEntry.id":
+		if e.ComplexityRoot.SecretUpdatedActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.SecretUpdatedActivityLogEntry.ID(childComplexity), true
+
+	case "SecretUpdatedActivityLogEntry.message":
+		if e.ComplexityRoot.SecretUpdatedActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.SecretUpdatedActivityLogEntry.Message(childComplexity), true
+
+	case "SecretUpdatedActivityLogEntry.resourceName":
+		if e.ComplexityRoot.SecretUpdatedActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.SecretUpdatedActivityLogEntry.ResourceName(childComplexity), true
+
+	case "SecretUpdatedActivityLogEntry.resourceType":
+		if e.ComplexityRoot.SecretUpdatedActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.SecretUpdatedActivityLogEntry.ResourceType(childComplexity), true
+
+	case "SecretUpdatedActivityLogEntry.teamSlug":
+		if e.ComplexityRoot.SecretUpdatedActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.SecretUpdatedActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "SecretUpdatedActivityLogEntryData.updatedFields":
+		if e.ComplexityRoot.SecretUpdatedActivityLogEntryData.UpdatedFields == nil {
+			break
+		}
+
+		return e.ComplexityRoot.SecretUpdatedActivityLogEntryData.UpdatedFields(childComplexity), true
+
+	case "SecretUpdatedActivityLogEntryDataUpdatedField.field":
+		if e.ComplexityRoot.SecretUpdatedActivityLogEntryDataUpdatedField.Field == nil {
+			break
+		}
+
+		return e.ComplexityRoot.SecretUpdatedActivityLogEntryDataUpdatedField.Field(childComplexity), true
+
+	case "SecretUpdatedActivityLogEntryDataUpdatedField.newValue":
+		if e.ComplexityRoot.SecretUpdatedActivityLogEntryDataUpdatedField.NewValue == nil {
+			break
+		}
+
+		return e.ComplexityRoot.SecretUpdatedActivityLogEntryDataUpdatedField.NewValue(childComplexity), true
+
+	case "SecretUpdatedActivityLogEntryDataUpdatedField.oldValue":
+		if e.ComplexityRoot.SecretUpdatedActivityLogEntryDataUpdatedField.OldValue == nil {
+			break
+		}
+
+		return e.ComplexityRoot.SecretUpdatedActivityLogEntryDataUpdatedField.OldValue(childComplexity), true
 
 	case "SecretValue.encoding":
 		if e.ComplexityRoot.SecretValue.Encoding == nil {
@@ -13791,6 +14132,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.SqlDatabase.ID(childComplexity), true
 
+	case "SqlDatabase.labels":
+		if e.ComplexityRoot.SqlDatabase.Labels == nil {
+			break
+		}
+
+		return e.ComplexityRoot.SqlDatabase.Labels(childComplexity), true
+
 	case "SqlDatabase.name":
 		if e.ComplexityRoot.SqlDatabase.Name == nil {
 			break
@@ -13919,6 +14267,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.SqlInstance.Issues(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*issue.IssueOrder), args["filter"].(*issue.ResourceIssueFilter)), true
+
+	case "SqlInstance.labels":
+		if e.ComplexityRoot.SqlInstance.Labels == nil {
+			break
+		}
+
+		return e.ComplexityRoot.SqlInstance.Labels(childComplexity), true
 
 	case "SqlInstance.maintenanceVersion":
 		if e.ComplexityRoot.SqlInstance.MaintenanceVersion == nil {
@@ -14700,7 +15055,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Team.SQLInstances(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*sqlinstance.SQLInstanceOrder)), true
+		return e.ComplexityRoot.Team.SQLInstances(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*sqlinstance.SQLInstanceOrder), args["filter"].(*sqlinstance.SQLInstanceFilter)), true
 
 	case "Team.secrets":
 		if e.ComplexityRoot.Team.Secrets == nil {
@@ -17095,6 +17450,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.UpdateApplicationPayload.Application(childComplexity), true
 
+	case "UpdateConfigPayload.config":
+		if e.ComplexityRoot.UpdateConfigPayload.Config == nil {
+			break
+		}
+
+		return e.ComplexityRoot.UpdateConfigPayload.Config(childComplexity), true
+
 	case "UpdateConfigValuePayload.config":
 		if e.ComplexityRoot.UpdateConfigValuePayload.Config == nil {
 			break
@@ -17122,6 +17484,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.UpdateOpenSearchPayload.OpenSearch(childComplexity), true
+
+	case "UpdateSecretPayload.secret":
+		if e.ComplexityRoot.UpdateSecretPayload.Secret == nil {
+			break
+		}
+
+		return e.ComplexityRoot.UpdateSecretPayload.Secret(childComplexity), true
 
 	case "UpdateSecretValuePayload.secret":
 		if e.ComplexityRoot.UpdateSecretValuePayload.Secret == nil {
@@ -17528,6 +17897,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Valkey.Issues(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*issue.IssueOrder), args["filter"].(*issue.ResourceIssueFilter)), true
 
+	case "Valkey.labels":
+		if e.ComplexityRoot.Valkey.Labels == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Valkey.Labels(childComplexity), true
+
 	case "Valkey.maintenance":
 		if e.ComplexityRoot.Valkey.Maintenance == nil {
 			break
@@ -17856,6 +18232,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ValkeyFacets.Environments(childComplexity), true
+
+	case "ValkeyFacets.labels":
+		if e.ComplexityRoot.ValkeyFacets.Labels == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ValkeyFacets.Labels(childComplexity), true
 
 	case "ValkeyFacets.tiers":
 		if e.ComplexityRoot.ValkeyFacets.Tiers == nil {
@@ -18760,6 +19143,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputKafkaTopicAclOrder,
 		ec.unmarshalInputKafkaTopicFilter,
 		ec.unmarshalInputKafkaTopicOrder,
+		ec.unmarshalInputLabelFilter,
 		ec.unmarshalInputLogSubscriptionFilter,
 		ec.unmarshalInputLogSubscriptionInitialBatch,
 		ec.unmarshalInputMetricsQueryInput,
@@ -18778,6 +19162,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputRepositoryOrder,
 		ec.unmarshalInputRequestTeamDeletionInput,
 		ec.unmarshalInputResourceIssueFilter,
+		ec.unmarshalInputResourceLabelInput,
 		ec.unmarshalInputRestartApplicationInput,
 		ec.unmarshalInputRevokeRoleFromServiceAccountInput,
 		ec.unmarshalInputRevokeTeamAccessToUnleashInput,
@@ -18787,6 +19172,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputSecretOrder,
 		ec.unmarshalInputSecretValueInput,
 		ec.unmarshalInputSetTeamMemberRoleInput,
+		ec.unmarshalInputSqlInstanceFilter,
 		ec.unmarshalInputSqlInstanceOrder,
 		ec.unmarshalInputSqlInstanceUserOrder,
 		ec.unmarshalInputStartOpenSearchMaintenanceInput,
@@ -18804,10 +19190,12 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputTriggerJobInput,
 		ec.unmarshalInputUpdateApplicationInput,
 		ec.unmarshalInputUpdateApplicationReplicasInput,
+		ec.unmarshalInputUpdateConfigInput,
 		ec.unmarshalInputUpdateConfigValueInput,
 		ec.unmarshalInputUpdateImageVulnerabilityInput,
 		ec.unmarshalInputUpdateJobInput,
 		ec.unmarshalInputUpdateOpenSearchInput,
+		ec.unmarshalInputUpdateSecretInput,
 		ec.unmarshalInputUpdateSecretValueInput,
 		ec.unmarshalInputUpdateServiceAccountInput,
 		ec.unmarshalInputUpdateServiceAccountTokenInput,
@@ -19743,6 +20131,11 @@ type Application implements Node & Workload & ActivityLogger {
 	authIntegrations: [ApplicationAuthIntegrations!]!
 
 	"""
+	User-defined labels attached to this application.
+	"""
+	labels: [ResourceLabel!]!
+
+	"""
 	The application manifest.
 	"""
 	manifest: ApplicationManifest!
@@ -19887,6 +20280,11 @@ input TeamApplicationsFilter {
 	Filter by application state. When provided, only applications matching one of the given states are returned.
 	"""
 	states: [ApplicationState!]
+
+	"""
+	Filter by user-defined labels. All listed labels must match.
+	"""
+	labels: [LabelFilter!]
 }
 
 """
@@ -20033,6 +20431,11 @@ type ApplicationFacets {
 	Distribution of applications by state.
 	"""
 	states: [ApplicationStateFacetItem!]!
+
+	"""
+	Distribution of applications by user-defined labels.
+	"""
+	labels: [LabelFacetItem!]!
 }
 
 """
@@ -20801,6 +21204,8 @@ type BigQueryDataset implements Persistence & Node {
 	): BigQueryDatasetAccessConnection!
 	status: BigQueryDatasetStatus!
 	workload: Workload
+	"User-defined labels attached to this BigQuery dataset."
+	labels: [ResourceLabel!]!
 }
 
 type BigQueryDatasetAccess {
@@ -20847,6 +21252,9 @@ Facets for BigQuery datasets, providing distribution counts across different dim
 type BigQueryDatasetFacets {
 	"Distribution of datasets by environment."
 	environments: [StringFacetItem!]!
+
+	"Distribution of datasets by user-defined labels."
+	labels: [LabelFacetItem!]!
 }
 
 input BigQueryDatasetAccessOrder {
@@ -20878,6 +21286,9 @@ input BigQueryDatasetFilter {
 
 	"Filter by environments."
 	environments: [String!]
+
+	"Filter by user-defined labels. All listed labels must match."
+	labels: [LabelFilter!]
 }
 
 extend union SearchNode = BigQueryDataset
@@ -20957,6 +21368,8 @@ type Bucket implements Persistence & Node {
 	publicAccessPrevention: String!
 	uniformBucketLevelAccess: Boolean!
 	workload: Workload
+	"User-defined labels attached to this bucket."
+	labels: [ResourceLabel!]!
 }
 
 type BucketConnection {
@@ -20982,6 +21395,9 @@ Facets for buckets, providing distribution counts across different dimensions.
 type BucketFacets {
 	"Distribution of buckets by environment."
 	environments: [StringFacetItem!]!
+
+	"Distribution of buckets by user-defined labels."
+	labels: [LabelFacetItem!]!
 }
 
 input BucketOrder {
@@ -21003,6 +21419,9 @@ input BucketFilter {
 
 	"Filter by environments."
 	environments: [String!]
+
+	"Filter by user-defined labels. All listed labels must match."
+	labels: [LabelFilter!]
 }
 
 extend union SearchNode = Bucket
@@ -21061,6 +21480,9 @@ type ClusterAuditActivityLogEntryData {
 	"Create a new config."
 	createConfig(input: CreateConfigInput!): CreateConfigPayload!
 
+	"Update the user-defined labels of a config."
+	updateConfig(input: UpdateConfigInput!): UpdateConfigPayload!
+
 	"Add a value to a config."
 	addConfigValue(input: AddConfigValueInput!): AddConfigValuePayload!
 
@@ -21115,6 +21537,11 @@ input ConfigFilter {
 	Filter by environments.
 	"""
 	environments: [String!]
+
+	"""
+	Filter by user-defined labels. All provided labels must match (AND semantics).
+	"""
+	labels: [LabelFilter!]
 }
 
 extend type TeamEnvironment {
@@ -21189,6 +21616,9 @@ type Config implements Node & ActivityLogger {
 
 	"The values stored in the config."
 	values: [ConfigValue!]!
+
+	"User-defined labels attached to the config."
+	labels: [ResourceLabel!]!
 
 	"Applications that use the config."
 	applications(
@@ -21357,6 +21787,25 @@ type CreateConfigPayload {
 	config: Config
 }
 
+input UpdateConfigInput {
+	"The name of the config."
+	name: String!
+
+	"The environment the config exists in."
+	environmentName: String!
+
+	"The team that owns the config."
+	teamSlug: Slug!
+
+	"The complete set of user-defined labels to apply. Existing user-defined labels are replaced; send an empty list to remove all labels."
+	labels: [ResourceLabelInput!]!
+}
+
+type UpdateConfigPayload {
+	"The updated config."
+	config: Config
+}
+
 input ConfigOrder {
 	"The field to order items by."
 	field: ConfigOrderField!
@@ -21430,6 +21879,9 @@ type ConfigFacets {
 
 	"Distribution of configs by whether they are in use by any workload."
 	inUse: [BooleanFacetItem!]!
+
+	"Distribution of configs by user-defined labels."
+	labels: [LabelFacetItem!]!
 }
 
 type ConfigValue {
@@ -22353,6 +22805,20 @@ type StringFacetItem {
 	"Number of matching resources."
 	count: Int!
 }
+
+"""
+A shared facet item representing a label value distribution (key-value pairs).
+"""
+type LabelFacetItem {
+	"The label key."
+	key: String!
+
+	"The label value."
+	value: String!
+
+	"Number of matching resources."
+	count: Int!
+}
 `, BuiltIn: false},
 	{Name: "../schema/feature.graphqls", Input: `type Features implements Node {
 	"""
@@ -23001,6 +23467,11 @@ input TeamJobsFilter {
 	Filter by job state. When provided, only jobs matching one of the given states are returned.
 	"""
 	states: [JobState!]
+
+	"""
+	Filter by user-defined labels. All listed labels must match.
+	"""
+	labels: [LabelFilter!]
 }
 type Job implements Node & Workload & ActivityLogger {
 	"The globally unique ID of the job."
@@ -23026,6 +23497,11 @@ type Job implements Node & Workload & ActivityLogger {
 
 	"List of authentication and authorization for the job."
 	authIntegrations: [JobAuthIntegrations!]!
+
+	"""
+	User-defined labels attached to this job.
+	"""
+	labels: [ResourceLabel!]!
 
 	"Optional schedule for the job. Jobs with no schedule are run once."
 	schedule: JobSchedule
@@ -23286,6 +23762,11 @@ type JobFacets {
 	Distribution of jobs by state.
 	"""
 	states: [JobStateFacetItem!]!
+
+	"""
+	Distribution of jobs by user-defined labels.
+	"""
+	labels: [LabelFacetItem!]!
 }
 
 """
@@ -23710,6 +24191,8 @@ type KafkaTopic implements Persistence & Node {
 	): KafkaTopicAclConnection!
 	configuration: KafkaTopicConfiguration
 	pool: String!
+	"User-defined labels attached to this Kafka topic."
+	labels: [ResourceLabel!]!
 }
 
 type KafkaTopicAcl {
@@ -23769,6 +24252,9 @@ type KafkaTopicFacets {
 
 	"Distribution of topics by Kafka pool."
 	pools: [StringFacetItem!]!
+
+	"Distribution of topics by user-defined labels."
+	labels: [LabelFacetItem!]!
 }
 
 """
@@ -23783,6 +24269,9 @@ input KafkaTopicFilter {
 
 	"Filter by Kafka pool."
 	pools: [String!]
+
+	"Filter by user-defined labels. All listed labels must match."
+	labels: [LabelFilter!]
 }
 
 input KafkaTopicAclFilter {
@@ -23846,6 +24335,45 @@ type KafkaCredentials {
 type CreateKafkaCredentialsPayload {
 	"The generated credentials."
 	credentials: KafkaCredentials!
+}
+`, BuiltIn: false},
+	{Name: "../schema/labels.graphqls", Input: `"""
+A user-defined label attached to a resource.
+
+Labels are key-value pairs that teams can use to organize and filter their
+resources. Both the key and the value may contain letters, numbers, hyphens,
+underscores and dots, and may be at most 63 characters long.
+
+Keys must be prefixed with labels.nais.io/.
+"""
+type ResourceLabel {
+	"The label key."
+	key: String!
+
+	"The label value."
+	value: String!
+}
+
+"""
+Filter resources by a user-defined label.
+"""
+input LabelFilter {
+	"The label key to match."
+	key: String!
+
+	"The label value to match. When omitted, any resource carrying the key matches regardless of its value."
+	value: String
+}
+
+"""
+A user-defined label to set on a resource.
+"""
+input ResourceLabelInput {
+	"The label key."
+	key: String!
+
+	"The label value."
+	value: String!
 }
 `, BuiltIn: false},
 	{Name: "../schema/log.graphqls", Input: `extend type Subscription {
@@ -24221,6 +24749,8 @@ type OpenSearch implements Persistence & Node {
 	memory: OpenSearchMemory!
 	"Available storage in GB."
 	storageGB: Int!
+	"User-defined labels attached to the instance."
+	labels: [ResourceLabel!]!
 	"Issues that affects the instance."
 	issues(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
@@ -24293,6 +24823,9 @@ type OpenSearchFacets {
 
 	"Distribution of instances by tier."
 	tiers: [OpenSearchTierFacetItem!]!
+
+	"Distribution of instances by user-defined labels."
+	labels: [LabelFacetItem!]!
 }
 
 """
@@ -24318,6 +24851,9 @@ input OpenSearchFilter {
 
 	"Filter by tier."
 	tiers: [OpenSearchTier!]
+
+	"Filter by user-defined labels. All provided labels must match (AND semantics)."
+	labels: [LabelFilter!]
 }
 
 input OpenSearchAccessOrder {
@@ -24409,6 +24945,8 @@ input UpdateOpenSearchInput {
 	version: OpenSearchMajorVersion!
 	"Available storage in GB."
 	storageGB: Int!
+	"User-defined labels for the instance. When provided, replaces all existing user-defined labels. When omitted, labels are left unchanged."
+	labels: [ResourceLabelInput!]
 }
 
 type UpdateOpenSearchPayload {
@@ -24600,6 +25138,8 @@ type CreateOpenSearchCredentialsPayload {
 	team: Team!
 	environment: TeamEnvironment! @deprecated(reason: "Use the ` + "`" + `teamEnvironment` + "`" + ` field instead.")
 	teamEnvironment: TeamEnvironment!
+	"User-defined labels attached to the resource."
+	labels: [ResourceLabel!]!
 }
 `, BuiltIn: false},
 	{Name: "../schema/podlog.graphqls", Input: `extend type Subscription {
@@ -24716,6 +25256,9 @@ input PostgresInstanceFilter {
 
 	"Filter by major versions."
 	majorVersions: [String!]
+
+	"Filter by user-defined labels. All listed labels must match."
+	labels: [LabelFilter!]
 }
 
 enum PostgresInstanceOrderField {
@@ -24755,6 +25298,8 @@ type PostgresInstance implements Persistence & Node {
 	state: PostgresInstanceState!
 	"Maintenance window for the Postgres cluster, if configured."
 	maintenanceWindow: PostgresInstanceMaintenanceWindow
+	"User-defined labels attached to this instance."
+	labels: [ResourceLabel!]!
 }
 
 enum PostgresInstanceState {
@@ -24809,6 +25354,9 @@ type PostgresInstanceFacets {
 
 	"Distribution of instances by major version."
 	majorVersions: [StringFacetItem!]!
+
+	"Distribution of instances by user-defined labels."
+	labels: [LabelFacetItem!]!
 }
 
 """
@@ -25714,6 +26262,9 @@ enum SearchType {
 	"Create a new secret."
 	createSecret(input: CreateSecretInput!): CreateSecretPayload!
 
+	"Update the user-defined labels of a secret."
+	updateSecret(input: UpdateSecretInput!): UpdateSecretPayload!
+
 	"Add a secret value to a secret."
 	addSecretValue(input: AddSecretValueInput!): AddSecretValuePayload!
 
@@ -25774,6 +26325,11 @@ input SecretFilter {
 	Filter by environments.
 	"""
 	environments: [String!]
+
+	"""
+	Filter by user-defined labels. All provided labels must match (AND semantics).
+	"""
+	labels: [LabelFilter!]
 }
 
 extend type TeamEnvironment {
@@ -25851,6 +26407,9 @@ type Secret implements Node & ActivityLogger {
 
 	"The names of the keys in the secret. This does not require elevation to access."
 	keys: [String!]!
+
+	"User-defined labels attached to the secret."
+	labels: [ResourceLabel!]!
 
 	"Applications that use the secret."
 	applications(
@@ -26036,6 +26595,25 @@ type CreateSecretPayload {
 	secret: Secret
 }
 
+input UpdateSecretInput {
+	"The name of the secret."
+	name: String!
+
+	"The environment the secret exists in."
+	environmentName: String!
+
+	"The team that owns the secret."
+	teamSlug: Slug!
+
+	"The complete set of user-defined labels to apply. Existing user-defined labels are replaced; send an empty list to remove all labels."
+	labels: [ResourceLabelInput!]!
+}
+
+type UpdateSecretPayload {
+	"The updated secret."
+	secret: Secret
+}
+
 input SecretOrder {
 	"The field to order items by."
 	field: SecretOrderField!
@@ -26117,6 +26695,9 @@ type SecretFacets {
 
 	"Distribution of secrets by whether they are in use by any workload."
 	inUse: [BooleanFacetItem!]!
+
+	"Distribution of secrets by user-defined labels."
+	labels: [LabelFacetItem!]!
 }
 
 type SecretValue {
@@ -26159,6 +26740,51 @@ type SecretCreatedActivityLogEntry implements ActivityLogEntry & Node {
 
 	"The environment name that the entry belongs to."
 	environmentName: String
+}
+
+type SecretUpdatedActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: ActivityLogEntryResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+
+	"Data associated with the entry."
+	data: SecretUpdatedActivityLogEntryData!
+}
+
+type SecretUpdatedActivityLogEntryDataUpdatedField {
+	"The name of the field that was updated."
+	field: String!
+
+	"The old value of the field."
+	oldValue: String
+
+	"The new value of the field."
+	newValue: String
+}
+
+type SecretUpdatedActivityLogEntryData {
+	"The fields that were updated."
+	updatedFields: [SecretUpdatedActivityLogEntryDataUpdatedField!]!
 }
 
 type SecretValueAddedActivityLogEntry implements ActivityLogEntry & Node {
@@ -26292,6 +26918,8 @@ type SecretDeletedActivityLogEntry implements ActivityLogEntry & Node {
 extend enum ActivityLogActivityType {
 	"Secret was created."
 	SECRET_CREATED
+	"Secret was updated."
+	SECRET_UPDATED
 	"Secret value was added."
 	SECRET_VALUE_ADDED
 	"Secret value was updated."
@@ -27838,6 +28466,9 @@ type ServiceMaintenanceActivityLogEntry implements ActivityLogEntry & Node {
 
 		"Ordering options for items returned from the connection."
 		orderBy: SqlInstanceOrder
+
+		"Filtering options for items returned from the connection."
+		filter: SqlInstanceFilter
 	): SqlInstanceConnection!
 }
 
@@ -27917,6 +28548,8 @@ type SqlDatabase implements Persistence & Node {
 	collation: String
 	deletionPolicy: String
 	healthy: Boolean!
+	"User-defined labels attached to this database."
+	labels: [ResourceLabel!]!
 }
 
 type SqlInstance implements Persistence & Node {
@@ -27939,6 +28572,8 @@ type SqlInstance implements Persistence & Node {
 	tier: String!
 	version: String
 	status: SqlInstanceStatus!
+	"User-defined labels attached to this instance."
+	labels: [ResourceLabel!]!
 	database: SqlDatabase
 	flags(first: Int, after: Cursor, last: Int, before: Cursor): SqlInstanceFlagConnection!
 	users(
@@ -28044,6 +28679,11 @@ type SqlInstanceUserEdge {
 input SqlInstanceOrder {
 	field: SqlInstanceOrderField!
 	direction: OrderDirection!
+}
+
+input SqlInstanceFilter {
+	"Filter by user-defined labels. All listed labels must match."
+	labels: [LabelFilter!]
 }
 
 input SqlInstanceUserOrder {
@@ -30131,6 +30771,8 @@ type Valkey implements Persistence & Node {
 	team: Team!
 	environment: TeamEnvironment! @deprecated(reason: "Use the ` + "`" + `teamEnvironment` + "`" + ` field instead.")
 	teamEnvironment: TeamEnvironment!
+	"User-defined labels attached to the instance."
+	labels: [ResourceLabel!]!
 	access(
 		first: Int
 		after: Cursor
@@ -30223,6 +30865,9 @@ type ValkeyFacets {
 
 	"Distribution of instances by tier."
 	tiers: [ValkeyTierFacetItem!]!
+
+	"Distribution of instances by user-defined labels."
+	labels: [LabelFacetItem!]!
 }
 
 """
@@ -30248,6 +30893,9 @@ input ValkeyFilter {
 
 	"Filter by tier."
 	tiers: [ValkeyTier!]
+
+	"Filter by user-defined labels. All provided labels must match (AND semantics)."
+	labels: [LabelFilter!]
 }
 
 input ValkeyAccessOrder {
@@ -30360,6 +31008,8 @@ input UpdateValkeyInput {
 	notifyKeyspaceEvents: String
 	"Number of databases. Default is 16. Minimum 1, maximum 128. Changing this will cause a restart of the Valkey service."
 	databases: Int
+	"User-defined labels for the instance. When provided, replaces all existing user-defined labels. When omitted, labels are left unchanged."
+	labels: [ResourceLabelInput!]
 }
 
 type UpdateValkeyPayload {
@@ -31438,6 +32088,11 @@ interface Workload implements Node & ActivityLogger {
 	teamEnvironment: TeamEnvironment!
 
 	"""
+	User-defined labels attached to the workload.
+	"""
+	labels: [ResourceLabel!]!
+
+	"""
 	The container image of the workload.
 	"""
 	image: ContainerImage!
@@ -31783,6 +32438,11 @@ input TeamWorkloadsFilter {
 	Only return workloads from the given named environments.
 	"""
 	environments: [String!]
+
+	"""
+	Filter by user-defined labels. All listed labels must match.
+	"""
+	labels: [LabelFilter!]
 }
 
 """
@@ -31955,6 +32615,8 @@ func (ec *executionContext) childFields_Application(ctx context.Context, field g
 		return ec.fieldContext_Application_ingresses(ctx, field)
 	case "authIntegrations":
 		return ec.fieldContext_Application_authIntegrations(ctx, field)
+	case "labels":
+		return ec.fieldContext_Application_labels(ctx, field)
 	case "manifest":
 		return ec.fieldContext_Application_manifest(ctx, field)
 	case "instances":
@@ -32039,6 +32701,8 @@ func (ec *executionContext) childFields_ApplicationFacets(ctx context.Context, f
 		return ec.fieldContext_ApplicationFacets_environments(ctx, field)
 	case "states":
 		return ec.fieldContext_ApplicationFacets_states(ctx, field)
+	case "labels":
+		return ec.fieldContext_ApplicationFacets_labels(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type ApplicationFacets", field.Name)
 }
@@ -32221,6 +32885,8 @@ func (ec *executionContext) childFields_BigQueryDataset(ctx context.Context, fie
 		return ec.fieldContext_BigQueryDataset_status(ctx, field)
 	case "workload":
 		return ec.fieldContext_BigQueryDataset_workload(ctx, field)
+	case "labels":
+		return ec.fieldContext_BigQueryDataset_labels(ctx, field)
 	case "cost":
 		return ec.fieldContext_BigQueryDataset_cost(ctx, field)
 	}
@@ -32295,6 +32961,8 @@ func (ec *executionContext) childFields_BigQueryDatasetFacets(ctx context.Contex
 	switch field.Name {
 	case "environments":
 		return ec.fieldContext_BigQueryDatasetFacets_environments(ctx, field)
+	case "labels":
+		return ec.fieldContext_BigQueryDatasetFacets_labels(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type BigQueryDatasetFacets", field.Name)
 }
@@ -32339,6 +33007,8 @@ func (ec *executionContext) childFields_Bucket(ctx context.Context, field graphq
 		return ec.fieldContext_Bucket_uniformBucketLevelAccess(ctx, field)
 	case "workload":
 		return ec.fieldContext_Bucket_workload(ctx, field)
+	case "labels":
+		return ec.fieldContext_Bucket_labels(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type Bucket", field.Name)
 }
@@ -32371,6 +33041,8 @@ func (ec *executionContext) childFields_BucketFacets(ctx context.Context, field 
 	switch field.Name {
 	case "environments":
 		return ec.fieldContext_BucketFacets_environments(ctx, field)
+	case "labels":
+		return ec.fieldContext_BucketFacets_labels(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type BucketFacets", field.Name)
 }
@@ -32449,6 +33121,8 @@ func (ec *executionContext) childFields_Config(ctx context.Context, field graphq
 		return ec.fieldContext_Config_team(ctx, field)
 	case "values":
 		return ec.fieldContext_Config_values(ctx, field)
+	case "labels":
+		return ec.fieldContext_Config_labels(ctx, field)
 	case "applications":
 		return ec.fieldContext_Config_applications(ctx, field)
 	case "jobs":
@@ -32495,6 +33169,8 @@ func (ec *executionContext) childFields_ConfigFacets(ctx context.Context, field 
 		return ec.fieldContext_ConfigFacets_environments(ctx, field)
 	case "inUse":
 		return ec.fieldContext_ConfigFacets_inUse(ctx, field)
+	case "labels":
+		return ec.fieldContext_ConfigFacets_labels(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type ConfigFacets", field.Name)
 }
@@ -33363,6 +34039,8 @@ func (ec *executionContext) childFields_Job(ctx context.Context, field graphql.C
 		return ec.fieldContext_Job_resources(ctx, field)
 	case "authIntegrations":
 		return ec.fieldContext_Job_authIntegrations(ctx, field)
+	case "labels":
+		return ec.fieldContext_Job_labels(ctx, field)
 	case "schedule":
 		return ec.fieldContext_Job_schedule(ctx, field)
 	case "runs":
@@ -33443,6 +34121,8 @@ func (ec *executionContext) childFields_JobFacets(ctx context.Context, field gra
 		return ec.fieldContext_JobFacets_environments(ctx, field)
 	case "states":
 		return ec.fieldContext_JobFacets_states(ctx, field)
+	case "labels":
+		return ec.fieldContext_JobFacets_labels(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type JobFacets", field.Name)
 }
@@ -33639,6 +34319,8 @@ func (ec *executionContext) childFields_KafkaTopic(ctx context.Context, field gr
 		return ec.fieldContext_KafkaTopic_configuration(ctx, field)
 	case "pool":
 		return ec.fieldContext_KafkaTopic_pool(ctx, field)
+	case "labels":
+		return ec.fieldContext_KafkaTopic_labels(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type KafkaTopic", field.Name)
 }
@@ -33735,8 +34417,22 @@ func (ec *executionContext) childFields_KafkaTopicFacets(ctx context.Context, fi
 		return ec.fieldContext_KafkaTopicFacets_environments(ctx, field)
 	case "pools":
 		return ec.fieldContext_KafkaTopicFacets_pools(ctx, field)
+	case "labels":
+		return ec.fieldContext_KafkaTopicFacets_labels(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type KafkaTopicFacets", field.Name)
+}
+
+func (ec *executionContext) childFields_LabelFacetItem(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "key":
+		return ec.fieldContext_LabelFacetItem_key(ctx, field)
+	case "value":
+		return ec.fieldContext_LabelFacetItem_value(ctx, field)
+	case "count":
+		return ec.fieldContext_LabelFacetItem_count(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type LabelFacetItem", field.Name)
 }
 
 func (ec *executionContext) childFields_LogLine(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -33865,6 +34561,8 @@ func (ec *executionContext) childFields_OpenSearch(ctx context.Context, field gr
 		return ec.fieldContext_OpenSearch_memory(ctx, field)
 	case "storageGB":
 		return ec.fieldContext_OpenSearch_storageGB(ctx, field)
+	case "labels":
+		return ec.fieldContext_OpenSearch_labels(ctx, field)
 	case "issues":
 		return ec.fieldContext_OpenSearch_issues(ctx, field)
 	case "activityLog":
@@ -33963,6 +34661,8 @@ func (ec *executionContext) childFields_OpenSearchFacets(ctx context.Context, fi
 		return ec.fieldContext_OpenSearchFacets_environments(ctx, field)
 	case "tiers":
 		return ec.fieldContext_OpenSearchFacets_tiers(ctx, field)
+	case "labels":
+		return ec.fieldContext_OpenSearchFacets_labels(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type OpenSearchFacets", field.Name)
 }
@@ -34119,6 +34819,8 @@ func (ec *executionContext) childFields_PostgresInstance(ctx context.Context, fi
 		return ec.fieldContext_PostgresInstance_state(ctx, field)
 	case "maintenanceWindow":
 		return ec.fieldContext_PostgresInstance_maintenanceWindow(ctx, field)
+	case "labels":
+		return ec.fieldContext_PostgresInstance_labels(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type PostgresInstance", field.Name)
 }
@@ -34169,6 +34871,8 @@ func (ec *executionContext) childFields_PostgresInstanceFacets(ctx context.Conte
 		return ec.fieldContext_PostgresInstanceFacets_highAvailability(ctx, field)
 	case "majorVersions":
 		return ec.fieldContext_PostgresInstanceFacets_majorVersions(ctx, field)
+	case "labels":
+		return ec.fieldContext_PostgresInstanceFacets_labels(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type PostgresInstanceFacets", field.Name)
 }
@@ -34439,6 +35143,16 @@ func (ec *executionContext) childFields_ResourceChangedField(ctx context.Context
 	return nil, fmt.Errorf("no field named %q was found under type ResourceChangedField", field.Name)
 }
 
+func (ec *executionContext) childFields_ResourceLabel(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "key":
+		return ec.fieldContext_ResourceLabel_key(ctx, field)
+	case "value":
+		return ec.fieldContext_ResourceLabel_value(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ResourceLabel", field.Name)
+}
+
 func (ec *executionContext) childFields_RestartApplicationPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "application":
@@ -34549,6 +35263,8 @@ func (ec *executionContext) childFields_Secret(ctx context.Context, field graphq
 		return ec.fieldContext_Secret_team(ctx, field)
 	case "keys":
 		return ec.fieldContext_Secret_keys(ctx, field)
+	case "labels":
+		return ec.fieldContext_Secret_labels(ctx, field)
 	case "applications":
 		return ec.fieldContext_Secret_applications(ctx, field)
 	case "jobs":
@@ -34595,8 +35311,30 @@ func (ec *executionContext) childFields_SecretFacets(ctx context.Context, field 
 		return ec.fieldContext_SecretFacets_environments(ctx, field)
 	case "inUse":
 		return ec.fieldContext_SecretFacets_inUse(ctx, field)
+	case "labels":
+		return ec.fieldContext_SecretFacets_labels(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type SecretFacets", field.Name)
+}
+
+func (ec *executionContext) childFields_SecretUpdatedActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "updatedFields":
+		return ec.fieldContext_SecretUpdatedActivityLogEntryData_updatedFields(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type SecretUpdatedActivityLogEntryData", field.Name)
+}
+
+func (ec *executionContext) childFields_SecretUpdatedActivityLogEntryDataUpdatedField(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "field":
+		return ec.fieldContext_SecretUpdatedActivityLogEntryDataUpdatedField_field(ctx, field)
+	case "oldValue":
+		return ec.fieldContext_SecretUpdatedActivityLogEntryDataUpdatedField_oldValue(ctx, field)
+	case "newValue":
+		return ec.fieldContext_SecretUpdatedActivityLogEntryDataUpdatedField_newValue(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type SecretUpdatedActivityLogEntryDataUpdatedField", field.Name)
 }
 
 func (ec *executionContext) childFields_SecretValue(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -34905,6 +35643,8 @@ func (ec *executionContext) childFields_SqlDatabase(ctx context.Context, field g
 		return ec.fieldContext_SqlDatabase_deletionPolicy(ctx, field)
 	case "healthy":
 		return ec.fieldContext_SqlDatabase_healthy(ctx, field)
+	case "labels":
+		return ec.fieldContext_SqlDatabase_labels(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type SqlDatabase", field.Name)
 }
@@ -34949,6 +35689,8 @@ func (ec *executionContext) childFields_SqlInstance(ctx context.Context, field g
 		return ec.fieldContext_SqlInstance_version(ctx, field)
 	case "status":
 		return ec.fieldContext_SqlInstance_status(ctx, field)
+	case "labels":
+		return ec.fieldContext_SqlInstance_labels(ctx, field)
 	case "database":
 		return ec.fieldContext_SqlInstance_database(ctx, field)
 	case "flags":
@@ -35955,6 +36697,14 @@ func (ec *executionContext) childFields_UpdateApplicationPayload(ctx context.Con
 	return nil, fmt.Errorf("no field named %q was found under type UpdateApplicationPayload", field.Name)
 }
 
+func (ec *executionContext) childFields_UpdateConfigPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "config":
+		return ec.fieldContext_UpdateConfigPayload_config(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type UpdateConfigPayload", field.Name)
+}
+
 func (ec *executionContext) childFields_UpdateConfigValuePayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "config":
@@ -35985,6 +36735,14 @@ func (ec *executionContext) childFields_UpdateOpenSearchPayload(ctx context.Cont
 		return ec.fieldContext_UpdateOpenSearchPayload_openSearch(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type UpdateOpenSearchPayload", field.Name)
+}
+
+func (ec *executionContext) childFields_UpdateSecretPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "secret":
+		return ec.fieldContext_UpdateSecretPayload_secret(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type UpdateSecretPayload", field.Name)
 }
 
 func (ec *executionContext) childFields_UpdateSecretValuePayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -36135,6 +36893,8 @@ func (ec *executionContext) childFields_Valkey(ctx context.Context, field graphq
 		return ec.fieldContext_Valkey_environment(ctx, field)
 	case "teamEnvironment":
 		return ec.fieldContext_Valkey_teamEnvironment(ctx, field)
+	case "labels":
+		return ec.fieldContext_Valkey_labels(ctx, field)
 	case "access":
 		return ec.fieldContext_Valkey_access(ctx, field)
 	case "workload":
@@ -36249,6 +37009,8 @@ func (ec *executionContext) childFields_ValkeyFacets(ctx context.Context, field 
 		return ec.fieldContext_ValkeyFacets_environments(ctx, field)
 	case "tiers":
 		return ec.fieldContext_ValkeyFacets_tiers(ctx, field)
+	case "labels":
+		return ec.fieldContext_ValkeyFacets_labels(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type ValkeyFacets", field.Name)
 }

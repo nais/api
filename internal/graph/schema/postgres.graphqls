@@ -73,6 +73,9 @@ input PostgresInstanceFilter {
 
 	"Filter by major versions."
 	majorVersions: [String!]
+
+	"Filter by user-defined labels. All listed labels must match."
+	labels: [LabelFilter!]
 }
 
 enum PostgresInstanceOrderField {
@@ -112,6 +115,8 @@ type PostgresInstance implements Persistence & Node {
 	state: PostgresInstanceState!
 	"Maintenance window for the Postgres cluster, if configured."
 	maintenanceWindow: PostgresInstanceMaintenanceWindow
+	"User-defined labels attached to this instance."
+	labels: [ResourceLabel!]!
 }
 
 enum PostgresInstanceState {
@@ -166,6 +171,9 @@ type PostgresInstanceFacets {
 
 	"Distribution of instances by major version."
 	majorVersions: [StringFacetItem!]!
+
+	"Distribution of instances by user-defined labels."
+	labels: [LabelFacetItem!]!
 }
 
 """

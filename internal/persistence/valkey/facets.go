@@ -8,54 +8,52 @@ import (
 	"github.com/nais/api/internal/graph/model"
 )
 
-func ComputeFacets(ctx context.Context, allInstances []*Valkey, filter *ValkeyFilter) *ValkeyFacets {
-	filtered := SortFilterValkey.Filter(ctx, allInstances, filter)
+// Filtered returns the filtered Valkey instances, computing it exactly once per request.
+func (f *ValkeyFacets) Filtered(ctx context.Context) []*Valkey {
+	f.filteredOnce.Do(func() {
+		f.filteredValkeys = SortFilterValkey.Filter(ctx, f.AllValkeys, f.Filter)
+	})
+	return f.filteredValkeys
+}
 
-	environmentCounts := map[string]int{}
+// Environments computes environments facets for a Valkey query.
+func (f *ValkeyFacets) Environments(ctx context.Context) []model.StringFacetItem {
+	filtered := f.Filtered(ctx)
+	return model.ComputeEnvironmentsFacet(f.AllValkeys, filtered, func(inst *Valkey) string {
+		return inst.EnvironmentName
+	})
+}
+
+// Tiers computes tiers facets for a Valkey query.
+func (f *ValkeyFacets) Tiers(ctx context.Context) []ValkeyTierFacetItem {
 	tierCounts := map[ValkeyTier]int{}
-
-	for _, inst := range allInstances {
-		environmentCounts[inst.EnvironmentName] = 0
+	for _, inst := range f.AllValkeys {
 		tierCounts[inst.Tier] = 0
 	}
 
+	filtered := f.Filtered(ctx)
 	for _, inst := range filtered {
-		environmentCounts[inst.EnvironmentName]++
 		tierCounts[inst.Tier]++
 	}
 
-	return assembleFacets(environmentCounts, tierCounts)
-}
-
-func assembleFacets(
-	environmentCounts map[string]int,
-	tierCounts map[ValkeyTier]int,
-) *ValkeyFacets {
-	facets := &ValkeyFacets{
-		Environments: make([]model.StringFacetItem, 0, len(environmentCounts)),
-		Tiers:        make([]ValkeyTierFacetItem, 0, len(tierCounts)),
-	}
-
-	for env, count := range environmentCounts {
-		facets.Environments = append(facets.Environments, model.StringFacetItem{
-			Value: env,
-			Count: count,
-		})
-	}
-
+	tiers := make([]ValkeyTierFacetItem, 0, len(tierCounts))
 	for tier, count := range tierCounts {
-		facets.Tiers = append(facets.Tiers, ValkeyTierFacetItem{
+		tiers = append(tiers, ValkeyTierFacetItem{
 			Tier:  tier,
 			Count: count,
 		})
 	}
-
-	// Sort for stable ordering
-	model.SortStringFacetItems(facets.Environments)
-
-	slices.SortFunc(facets.Tiers, func(a, b ValkeyTierFacetItem) int {
+	slices.SortFunc(tiers, func(a, b ValkeyTierFacetItem) int {
 		return strings.Compare(a.Tier.String(), b.Tier.String())
 	})
 
-	return facets
+	return tiers
+}
+
+// Labels computes labels facets for a Valkey query.
+func (f *ValkeyFacets) Labels(ctx context.Context) []model.LabelFacetItem {
+	filtered := f.Filtered(ctx)
+	return model.ComputeLabelsFacet(f.AllValkeys, filtered, func(inst *Valkey) []*model.ResourceLabel {
+		return inst.Labels
+	})
 }

@@ -10,6 +10,7 @@ metadata:
     cnrm.cloud.google.com/state-into-spec: merge
     nais.io/deploymentCorrelationID: c53778c4-f03f-41a5-ae2f-0ca6a833019e
   labels:
+    labels.nais.io/key: value
     app: app-w-all-storage
     app.kubernetes.io/instance: app-w-all-storage
     app.kubernetes.io/managed-by: Helm

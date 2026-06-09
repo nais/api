@@ -8,17 +8,26 @@ import (
 	"github.com/nais/api/internal/graph/model"
 )
 
-// ComputeFacets computes facets for an application query.
-func ComputeFacets(ctx context.Context, allApps []*Application, filter *TeamApplicationsFilter) (*ApplicationFacets, error) {
-	environmentCounts := map[string]int{}
+// Filtered returns the filtered applications, computing it exactly once per request.
+func (f *ApplicationFacets) Filtered(ctx context.Context) []*Application {
+	f.filteredOnce.Do(func() {
+		f.filteredApps = SortFilter.Filter(ctx, f.AllApps, f.Filter)
+	})
+	return f.filteredApps
+}
+
+// Environments computes environments facets for an application query.
+func (f *ApplicationFacets) Environments(ctx context.Context) []model.StringFacetItem {
+	filtered := f.Filtered(ctx)
+	return model.ComputeEnvironmentsFacet(f.AllApps, filtered, func(app *Application) string {
+		return app.EnvironmentName
+	})
+}
+
+// States computes states facets for an application query.
+func (f *ApplicationFacets) States(ctx context.Context) []ApplicationStateFacetItem {
 	stateCounts := map[ApplicationState]int{}
-
-	// First pass: seed with all values that exist in scope (so items with 0 matches still appear)
-	for _, app := range allApps {
-		if _, ok := environmentCounts[app.EnvironmentName]; !ok {
-			environmentCounts[app.EnvironmentName] = 0
-		}
-
+	for _, app := range f.AllApps {
 		state, err := GetState(ctx, app)
 		if err != nil {
 			state = ApplicationStateUnknown
@@ -28,11 +37,8 @@ func ComputeFacets(ctx context.Context, allApps []*Application, filter *TeamAppl
 		}
 	}
 
-	// Second pass: count apps that match the full filter
-	filtered := SortFilter.Filter(ctx, allApps, filter)
+	filtered := f.Filtered(ctx)
 	for _, app := range filtered {
-		environmentCounts[app.EnvironmentName]++
-
 		state, err := GetState(ctx, app)
 		if err != nil {
 			state = ApplicationStateUnknown
@@ -40,7 +46,26 @@ func ComputeFacets(ctx context.Context, allApps []*Application, filter *TeamAppl
 		stateCounts[state]++
 	}
 
-	return assembleFacets(environmentCounts, stateCounts), nil
+	states := make([]ApplicationStateFacetItem, 0, len(stateCounts))
+	for state, count := range stateCounts {
+		states = append(states, ApplicationStateFacetItem{
+			State: state,
+			Count: count,
+		})
+	}
+	slices.SortFunc(states, func(a, b ApplicationStateFacetItem) int {
+		return strings.Compare(a.State.String(), b.State.String())
+	})
+
+	return states
+}
+
+// Labels computes labels facets for an application query.
+func (f *ApplicationFacets) Labels(ctx context.Context) []model.LabelFacetItem {
+	filtered := f.Filtered(ctx)
+	return model.ComputeLabelsFacet(f.AllApps, filtered, func(app *Application) []*model.ResourceLabel {
+		return app.Labels
+	})
 }
 
 func matchesFilter(ctx context.Context, app *Application, filter *TeamApplicationsFilter) bool {
@@ -71,35 +96,9 @@ func matchesFilter(ctx context.Context, app *Application, filter *TeamApplicatio
 		}
 	}
 
+	if !model.MatchesLabelFilters(app.Labels, filter.Labels) {
+		return false
+	}
+
 	return true
-}
-
-func assembleFacets(environmentCounts map[string]int, stateCounts map[ApplicationState]int) *ApplicationFacets {
-	facets := &ApplicationFacets{
-		Environments: make([]model.StringFacetItem, 0, len(environmentCounts)),
-		States:       make([]ApplicationStateFacetItem, 0, len(stateCounts)),
-	}
-
-	for env, count := range environmentCounts {
-		facets.Environments = append(facets.Environments, model.StringFacetItem{
-			Value: env,
-			Count: count,
-		})
-	}
-
-	for state, count := range stateCounts {
-		facets.States = append(facets.States, ApplicationStateFacetItem{
-			State: state,
-			Count: count,
-		})
-	}
-
-	// Sort alphabetically for stable ordering
-	model.SortStringFacetItems(facets.Environments)
-
-	slices.SortFunc(facets.States, func(a, b ApplicationStateFacetItem) int {
-		return strings.Compare(a.State.String(), b.State.String())
-	})
-
-	return facets
 }

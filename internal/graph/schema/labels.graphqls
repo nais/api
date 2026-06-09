@@ -1,0 +1,38 @@
+"""
+A user-defined label attached to a resource.
+
+Labels are key-value pairs that teams can use to organize and filter their
+resources. Both the key and the value may contain letters, numbers, hyphens,
+underscores and dots, and may be at most 63 characters long.
+
+Keys must be prefixed with labels.nais.io/.
+"""
+type ResourceLabel {
+	"The label key."
+	key: String!
+
+	"The label value."
+	value: String!
+}
+
+"""
+Filter resources by a user-defined label.
+"""
+input LabelFilter {
+	"The label key to match."
+	key: String!
+
+	"The label value to match. When omitted, any resource carrying the key matches regardless of its value."
+	value: String
+}
+
+"""
+A user-defined label to set on a resource.
+"""
+input ResourceLabelInput {
+	"The label key."
+	key: String!
+
+	"The label value."
+	value: String!
+}

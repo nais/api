@@ -98,7 +98,10 @@ func (r *jobResolver) Issues(ctx context.Context, obj *job.Job, first *int, afte
 }
 
 func (r *jobConnectionResolver) Facets(ctx context.Context, obj *pagination.FacetableConnection[*job.Job, *job.TeamJobsFilter]) (*job.JobFacets, error) {
-	return job.ComputeFacets(ctx, obj.GetAllItems(), obj.GetFilter())
+	return &job.JobFacets{
+		AllJobs: obj.GetAllItems(),
+		Filter:  obj.GetFilter(),
+	}, nil
 }
 
 func (r *jobRunResolver) Duration(ctx context.Context, obj *job.JobRun) (int, error) {

@@ -6,37 +6,26 @@ import (
 	"github.com/nais/api/internal/graph/model"
 )
 
-func ComputeFacets(ctx context.Context, allDatasets []*BigQueryDataset, filter *BigQueryDatasetFilter) *BigQueryDatasetFacets {
-	filtered := SortFilter.Filter(ctx, allDatasets, filter)
-
-	// Seed all possible values from allDatasets
-	environmentCounts := map[string]int{}
-
-	for _, d := range allDatasets {
-		environmentCounts[d.EnvironmentName] = 0
-	}
-
-	// Count only items matching the filter
-	for _, d := range filtered {
-		environmentCounts[d.EnvironmentName]++
-	}
-
-	return assembleFacets(environmentCounts)
+// Filtered returns the filtered BigQuery datasets, computing it exactly once per request.
+func (f *BigQueryDatasetFacets) Filtered(ctx context.Context) []*BigQueryDataset {
+	f.filteredOnce.Do(func() {
+		f.filteredDatasets = SortFilter.Filter(ctx, f.AllDatasets, f.Filter)
+	})
+	return f.filteredDatasets
 }
 
-func assembleFacets(environmentCounts map[string]int) *BigQueryDatasetFacets {
-	facets := &BigQueryDatasetFacets{
-		Environments: make([]model.StringFacetItem, 0, len(environmentCounts)),
-	}
+// Environments computes environments facets for a BigQuery dataset query.
+func (f *BigQueryDatasetFacets) Environments(ctx context.Context) []model.StringFacetItem {
+	filtered := f.Filtered(ctx)
+	return model.ComputeEnvironmentsFacet(f.AllDatasets, filtered, func(d *BigQueryDataset) string {
+		return d.EnvironmentName
+	})
+}
 
-	for env, count := range environmentCounts {
-		facets.Environments = append(facets.Environments, model.StringFacetItem{
-			Value: env,
-			Count: count,
-		})
-	}
-
-	model.SortStringFacetItems(facets.Environments)
-
-	return facets
+// Labels computes labels facets for a BigQuery dataset query.
+func (f *BigQueryDatasetFacets) Labels(ctx context.Context) []model.LabelFacetItem {
+	filtered := f.Filtered(ctx)
+	return model.ComputeLabelsFacet(f.AllDatasets, filtered, func(d *BigQueryDataset) []*model.ResourceLabel {
+		return d.Labels
+	})
 }

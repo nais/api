@@ -66,7 +66,10 @@ func (r *bigQueryDatasetResolver) Workload(ctx context.Context, obj *bigquery.Bi
 }
 
 func (r *bigQueryDatasetConnectionResolver) Facets(ctx context.Context, obj *pagination.FacetableConnection[*bigquery.BigQueryDataset, *bigquery.BigQueryDatasetFilter]) (*bigquery.BigQueryDatasetFacets, error) {
-	return bigquery.ComputeFacets(ctx, obj.GetAllItems(), obj.GetFilter()), nil
+	return &bigquery.BigQueryDatasetFacets{
+		AllDatasets: obj.GetAllItems(),
+		Filter:      obj.GetFilter(),
+	}, nil
 }
 
 func (r *jobResolver) BigQueryDatasets(ctx context.Context, obj *job.Job, orderBy *bigquery.BigQueryDatasetOrder) (*pagination.FacetableConnection[*bigquery.BigQueryDataset, *bigquery.BigQueryDatasetFilter], error) {
@@ -92,7 +95,7 @@ func (r *teamEnvironmentResolver) BigQueryDataset(ctx context.Context, obj *team
 
 func (r *teamInventoryCountsResolver) BigQueryDatasets(ctx context.Context, obj *team.TeamInventoryCounts) (*bigquery.TeamInventoryCountBigQueryDatasets, error) {
 	return &bigquery.TeamInventoryCountBigQueryDatasets{
-		Total: len(bigquery.ListAllForTeam(ctx, obj.TeamSlug)),
+		Total: len(bigquery.ListAllForTeam(ctx, obj.TeamSlug, nil)),
 	}, nil
 }
 

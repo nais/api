@@ -21,6 +21,18 @@ func init() {
 			return SecretCreatedActivityLogEntry{
 				GenericActivityLogEntry: entry.WithMessage("Created secret"),
 			}, nil
+		case activitylog.ActivityLogEntryActionUpdated:
+			data, err := activitylog.TransformData(entry, func(data *SecretUpdatedActivityLogEntryData) *SecretUpdatedActivityLogEntryData {
+				return data
+			})
+			if err != nil {
+				return nil, err
+			}
+
+			return SecretUpdatedActivityLogEntry{
+				GenericActivityLogEntry: entry.WithMessage("Updated secret"),
+				Data:                    data,
+			}, nil
 		case activitylog.ActivityLogEntryActionDeleted:
 			return SecretDeletedActivityLogEntry{
 				GenericActivityLogEntry: entry.WithMessage("Deleted secret"),
@@ -79,6 +91,7 @@ func init() {
 	})
 
 	activitylog.RegisterFilter("SECRET_CREATED", activitylog.ActivityLogEntryActionCreated, activityLogEntryResourceTypeSecret)
+	activitylog.RegisterFilter("SECRET_UPDATED", activitylog.ActivityLogEntryActionUpdated, activityLogEntryResourceTypeSecret)
 	activitylog.RegisterFilter("SECRET_DELETED", activitylog.ActivityLogEntryActionDeleted, activityLogEntryResourceTypeSecret)
 	activitylog.RegisterFilter("SECRET_VALUE_ADDED", activityLogEntryActionAddSecretValue, activityLogEntryResourceTypeSecret)
 	activitylog.RegisterFilter("SECRET_VALUE_UPDATED", activityLogEntryActionUpdateSecretValue, activityLogEntryResourceTypeSecret)
@@ -88,6 +101,21 @@ func init() {
 
 type SecretCreatedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
+}
+
+type SecretUpdatedActivityLogEntry struct {
+	activitylog.GenericActivityLogEntry
+	Data *SecretUpdatedActivityLogEntryData
+}
+
+type SecretUpdatedActivityLogEntryData struct {
+	UpdatedFields []*SecretUpdatedActivityLogEntryDataUpdatedField
+}
+
+type SecretUpdatedActivityLogEntryDataUpdatedField struct {
+	Field    string
+	OldValue *string
+	NewValue *string
 }
 
 type SecretValueAddedActivityLogEntry struct {

@@ -65,7 +65,7 @@ func (r *teamEnvironmentResolver) Valkey(ctx context.Context, obj *team.TeamEnvi
 
 func (r *teamInventoryCountsResolver) Valkeys(ctx context.Context, obj *team.TeamInventoryCounts) (*valkey.TeamInventoryCountValkeys, error) {
 	return &valkey.TeamInventoryCountValkeys{
-		Total: len(valkey.ListAllForTeam(ctx, obj.TeamSlug)),
+		Total: len(valkey.ListAllForTeam(ctx, obj.TeamSlug, nil)),
 	}, nil
 }
 
@@ -123,7 +123,10 @@ func (r *valkeyAccessResolver) Workload(ctx context.Context, obj *valkey.ValkeyA
 }
 
 func (r *valkeyConnectionResolver) Facets(ctx context.Context, obj *pagination.FacetableConnection[*valkey.Valkey, *valkey.ValkeyFilter]) (*valkey.ValkeyFacets, error) {
-	return valkey.ComputeFacets(ctx, obj.GetAllItems(), obj.GetFilter()), nil
+	return &valkey.ValkeyFacets{
+		AllValkeys: obj.GetAllItems(),
+		Filter:     obj.GetFilter(),
+	}, nil
 }
 
 func (r *Resolver) Valkey() gengql.ValkeyResolver { return &valkeyResolver{r} }
