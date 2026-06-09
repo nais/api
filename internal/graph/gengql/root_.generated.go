@@ -298,6 +298,7 @@ type ComplexityRoot struct {
 
 	ApplicationFacets struct {
 		Environments func(childComplexity int) int
+		Labels       func(childComplexity int) int
 		States       func(childComplexity int) int
 	}
 
@@ -474,6 +475,7 @@ type ComplexityRoot struct {
 
 	BigQueryDatasetFacets struct {
 		Environments func(childComplexity int) int
+		Labels       func(childComplexity int) int
 	}
 
 	BigQueryDatasetStatus struct {
@@ -513,6 +515,7 @@ type ComplexityRoot struct {
 
 	BucketFacets struct {
 		Environments func(childComplexity int) int
+		Labels       func(childComplexity int) int
 	}
 
 	CPUScalingStrategy struct {
@@ -614,6 +617,7 @@ type ComplexityRoot struct {
 	ConfigFacets struct {
 		Environments func(childComplexity int) int
 		InUse        func(childComplexity int) int
+		Labels       func(childComplexity int) int
 	}
 
 	ConfigUpdatedActivityLogEntry struct {
@@ -1220,6 +1224,7 @@ type ComplexityRoot struct {
 
 	JobFacets struct {
 		Environments func(childComplexity int) int
+		Labels       func(childComplexity int) int
 		States       func(childComplexity int) int
 	}
 
@@ -1408,7 +1413,14 @@ type ComplexityRoot struct {
 
 	KafkaTopicFacets struct {
 		Environments func(childComplexity int) int
+		Labels       func(childComplexity int) int
 		Pools        func(childComplexity int) int
+	}
+
+	LabelFacetItem struct {
+		Count func(childComplexity int) int
+		Key   func(childComplexity int) int
+		Value func(childComplexity int) int
 	}
 
 	LastRunFailedIssue struct {
@@ -1655,6 +1667,7 @@ type ComplexityRoot struct {
 
 	OpenSearchFacets struct {
 		Environments func(childComplexity int) int
+		Labels       func(childComplexity int) int
 		Tiers        func(childComplexity int) int
 	}
 
@@ -1802,6 +1815,7 @@ type ComplexityRoot struct {
 	PostgresInstanceFacets struct {
 		Environments     func(childComplexity int) int
 		HighAvailability func(childComplexity int) int
+		Labels           func(childComplexity int) int
 		MajorVersions    func(childComplexity int) int
 		States           func(childComplexity int) int
 	}
@@ -2185,6 +2199,7 @@ type ComplexityRoot struct {
 	SecretFacets struct {
 		Environments func(childComplexity int) int
 		InUse        func(childComplexity int) int
+		Labels       func(childComplexity int) int
 	}
 
 	SecretUpdatedActivityLogEntry struct {
@@ -3447,6 +3462,7 @@ type ComplexityRoot struct {
 
 	ValkeyFacets struct {
 		Environments func(childComplexity int) int
+		Labels       func(childComplexity int) int
 		Tiers        func(childComplexity int) int
 	}
 
@@ -4331,6 +4347,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ApplicationFacets.Environments(childComplexity), true
 
+	case "ApplicationFacets.labels":
+		if e.ComplexityRoot.ApplicationFacets.Labels == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationFacets.Labels(childComplexity), true
+
 	case "ApplicationFacets.states":
 		if e.ComplexityRoot.ApplicationFacets.States == nil {
 			break
@@ -5027,6 +5050,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.BigQueryDatasetFacets.Environments(childComplexity), true
 
+	case "BigQueryDatasetFacets.labels":
+		if e.ComplexityRoot.BigQueryDatasetFacets.Labels == nil {
+			break
+		}
+
+		return e.ComplexityRoot.BigQueryDatasetFacets.Labels(childComplexity), true
+
 	case "BigQueryDatasetStatus.creationTime":
 		if e.ComplexityRoot.BigQueryDatasetStatus.CreationTime == nil {
 			break
@@ -5173,6 +5203,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.BucketFacets.Environments(childComplexity), true
+
+	case "BucketFacets.labels":
+		if e.ComplexityRoot.BucketFacets.Labels == nil {
+			break
+		}
+
+		return e.ComplexityRoot.BucketFacets.Labels(childComplexity), true
 
 	case "CPUScalingStrategy.threshold":
 		if e.ComplexityRoot.CPUScalingStrategy.Threshold == nil {
@@ -5632,6 +5669,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ConfigFacets.InUse(childComplexity), true
+
+	case "ConfigFacets.labels":
+		if e.ComplexityRoot.ConfigFacets.Labels == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigFacets.Labels(childComplexity), true
 
 	case "ConfigUpdatedActivityLogEntry.actor":
 		if e.ComplexityRoot.ConfigUpdatedActivityLogEntry.Actor == nil {
@@ -8011,6 +8055,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.JobFacets.Environments(childComplexity), true
 
+	case "JobFacets.labels":
+		if e.ComplexityRoot.JobFacets.Labels == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobFacets.Labels(childComplexity), true
+
 	case "JobFacets.states":
 		if e.ComplexityRoot.JobFacets.States == nil {
 			break
@@ -8770,12 +8821,40 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.KafkaTopicFacets.Environments(childComplexity), true
 
+	case "KafkaTopicFacets.labels":
+		if e.ComplexityRoot.KafkaTopicFacets.Labels == nil {
+			break
+		}
+
+		return e.ComplexityRoot.KafkaTopicFacets.Labels(childComplexity), true
+
 	case "KafkaTopicFacets.pools":
 		if e.ComplexityRoot.KafkaTopicFacets.Pools == nil {
 			break
 		}
 
 		return e.ComplexityRoot.KafkaTopicFacets.Pools(childComplexity), true
+
+	case "LabelFacetItem.count":
+		if e.ComplexityRoot.LabelFacetItem.Count == nil {
+			break
+		}
+
+		return e.ComplexityRoot.LabelFacetItem.Count(childComplexity), true
+
+	case "LabelFacetItem.key":
+		if e.ComplexityRoot.LabelFacetItem.Key == nil {
+			break
+		}
+
+		return e.ComplexityRoot.LabelFacetItem.Key(childComplexity), true
+
+	case "LabelFacetItem.value":
+		if e.ComplexityRoot.LabelFacetItem.Value == nil {
+			break
+		}
+
+		return e.ComplexityRoot.LabelFacetItem.Value(childComplexity), true
 
 	case "LastRunFailedIssue.id":
 		if e.ComplexityRoot.LastRunFailedIssue.ID == nil {
@@ -10251,6 +10330,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.OpenSearchFacets.Environments(childComplexity), true
 
+	case "OpenSearchFacets.labels":
+		if e.ComplexityRoot.OpenSearchFacets.Labels == nil {
+			break
+		}
+
+		return e.ComplexityRoot.OpenSearchFacets.Labels(childComplexity), true
+
 	case "OpenSearchFacets.tiers":
 		if e.ComplexityRoot.OpenSearchFacets.Tiers == nil {
 			break
@@ -10869,6 +10955,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.PostgresInstanceFacets.HighAvailability(childComplexity), true
+
+	case "PostgresInstanceFacets.labels":
+		if e.ComplexityRoot.PostgresInstanceFacets.Labels == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresInstanceFacets.Labels(childComplexity), true
 
 	case "PostgresInstanceFacets.majorVersions":
 		if e.ComplexityRoot.PostgresInstanceFacets.MajorVersions == nil {
@@ -12609,6 +12702,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.SecretFacets.InUse(childComplexity), true
+
+	case "SecretFacets.labels":
+		if e.ComplexityRoot.SecretFacets.Labels == nil {
+			break
+		}
+
+		return e.ComplexityRoot.SecretFacets.Labels(childComplexity), true
 
 	case "SecretUpdatedActivityLogEntry.actor":
 		if e.ComplexityRoot.SecretUpdatedActivityLogEntry.Actor == nil {
@@ -18133,6 +18233,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ValkeyFacets.Environments(childComplexity), true
 
+	case "ValkeyFacets.labels":
+		if e.ComplexityRoot.ValkeyFacets.Labels == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ValkeyFacets.Labels(childComplexity), true
+
 	case "ValkeyFacets.tiers":
 		if e.ComplexityRoot.ValkeyFacets.Tiers == nil {
 			break
@@ -20324,6 +20431,11 @@ type ApplicationFacets {
 	Distribution of applications by state.
 	"""
 	states: [ApplicationStateFacetItem!]!
+
+	"""
+	Distribution of applications by user-defined labels.
+	"""
+	labels: [LabelFacetItem!]!
 }
 
 """
@@ -21140,6 +21252,9 @@ Facets for BigQuery datasets, providing distribution counts across different dim
 type BigQueryDatasetFacets {
 	"Distribution of datasets by environment."
 	environments: [StringFacetItem!]!
+
+	"Distribution of datasets by user-defined labels."
+	labels: [LabelFacetItem!]!
 }
 
 input BigQueryDatasetAccessOrder {
@@ -21280,6 +21395,9 @@ Facets for buckets, providing distribution counts across different dimensions.
 type BucketFacets {
 	"Distribution of buckets by environment."
 	environments: [StringFacetItem!]!
+
+	"Distribution of buckets by user-defined labels."
+	labels: [LabelFacetItem!]!
 }
 
 input BucketOrder {
@@ -21761,6 +21879,9 @@ type ConfigFacets {
 
 	"Distribution of configs by whether they are in use by any workload."
 	inUse: [BooleanFacetItem!]!
+
+	"Distribution of configs by user-defined labels."
+	labels: [LabelFacetItem!]!
 }
 
 type ConfigValue {
@@ -22684,6 +22805,21 @@ type StringFacetItem {
 	"Number of matching resources."
 	count: Int!
 }
+
+"""
+A shared facet item representing a label value distribution (key-value pairs).
+"""
+type LabelFacetItem {
+	"The label key."
+	key: String!
+
+	"The label value."
+	value: String!
+
+	"Number of matching resources."
+	count: Int!
+}
+
 `, BuiltIn: false},
 	{Name: "../schema/feature.graphqls", Input: `type Features implements Node {
 	"""
@@ -23627,6 +23763,11 @@ type JobFacets {
 	Distribution of jobs by state.
 	"""
 	states: [JobStateFacetItem!]!
+
+	"""
+	Distribution of jobs by user-defined labels.
+	"""
+	labels: [LabelFacetItem!]!
 }
 
 """
@@ -24112,6 +24253,9 @@ type KafkaTopicFacets {
 
 	"Distribution of topics by Kafka pool."
 	pools: [StringFacetItem!]!
+
+	"Distribution of topics by user-defined labels."
+	labels: [LabelFacetItem!]!
 }
 
 """
@@ -24680,6 +24824,9 @@ type OpenSearchFacets {
 
 	"Distribution of instances by tier."
 	tiers: [OpenSearchTierFacetItem!]!
+
+	"Distribution of instances by user-defined labels."
+	labels: [LabelFacetItem!]!
 }
 
 """
@@ -25208,6 +25355,9 @@ type PostgresInstanceFacets {
 
 	"Distribution of instances by major version."
 	majorVersions: [StringFacetItem!]!
+
+	"Distribution of instances by user-defined labels."
+	labels: [LabelFacetItem!]!
 }
 
 """
@@ -26546,6 +26696,9 @@ type SecretFacets {
 
 	"Distribution of secrets by whether they are in use by any workload."
 	inUse: [BooleanFacetItem!]!
+
+	"Distribution of secrets by user-defined labels."
+	labels: [LabelFacetItem!]!
 }
 
 type SecretValue {
@@ -30713,6 +30866,9 @@ type ValkeyFacets {
 
 	"Distribution of instances by tier."
 	tiers: [ValkeyTierFacetItem!]!
+
+	"Distribution of instances by user-defined labels."
+	labels: [LabelFacetItem!]!
 }
 
 """
@@ -32546,6 +32702,8 @@ func (ec *executionContext) childFields_ApplicationFacets(ctx context.Context, f
 		return ec.fieldContext_ApplicationFacets_environments(ctx, field)
 	case "states":
 		return ec.fieldContext_ApplicationFacets_states(ctx, field)
+	case "labels":
+		return ec.fieldContext_ApplicationFacets_labels(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type ApplicationFacets", field.Name)
 }
@@ -32804,6 +32962,8 @@ func (ec *executionContext) childFields_BigQueryDatasetFacets(ctx context.Contex
 	switch field.Name {
 	case "environments":
 		return ec.fieldContext_BigQueryDatasetFacets_environments(ctx, field)
+	case "labels":
+		return ec.fieldContext_BigQueryDatasetFacets_labels(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type BigQueryDatasetFacets", field.Name)
 }
@@ -32882,6 +33042,8 @@ func (ec *executionContext) childFields_BucketFacets(ctx context.Context, field 
 	switch field.Name {
 	case "environments":
 		return ec.fieldContext_BucketFacets_environments(ctx, field)
+	case "labels":
+		return ec.fieldContext_BucketFacets_labels(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type BucketFacets", field.Name)
 }
@@ -33008,6 +33170,8 @@ func (ec *executionContext) childFields_ConfigFacets(ctx context.Context, field 
 		return ec.fieldContext_ConfigFacets_environments(ctx, field)
 	case "inUse":
 		return ec.fieldContext_ConfigFacets_inUse(ctx, field)
+	case "labels":
+		return ec.fieldContext_ConfigFacets_labels(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type ConfigFacets", field.Name)
 }
@@ -33958,6 +34122,8 @@ func (ec *executionContext) childFields_JobFacets(ctx context.Context, field gra
 		return ec.fieldContext_JobFacets_environments(ctx, field)
 	case "states":
 		return ec.fieldContext_JobFacets_states(ctx, field)
+	case "labels":
+		return ec.fieldContext_JobFacets_labels(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type JobFacets", field.Name)
 }
@@ -34252,8 +34418,22 @@ func (ec *executionContext) childFields_KafkaTopicFacets(ctx context.Context, fi
 		return ec.fieldContext_KafkaTopicFacets_environments(ctx, field)
 	case "pools":
 		return ec.fieldContext_KafkaTopicFacets_pools(ctx, field)
+	case "labels":
+		return ec.fieldContext_KafkaTopicFacets_labels(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type KafkaTopicFacets", field.Name)
+}
+
+func (ec *executionContext) childFields_LabelFacetItem(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "key":
+		return ec.fieldContext_LabelFacetItem_key(ctx, field)
+	case "value":
+		return ec.fieldContext_LabelFacetItem_value(ctx, field)
+	case "count":
+		return ec.fieldContext_LabelFacetItem_count(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type LabelFacetItem", field.Name)
 }
 
 func (ec *executionContext) childFields_LogLine(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -34482,6 +34662,8 @@ func (ec *executionContext) childFields_OpenSearchFacets(ctx context.Context, fi
 		return ec.fieldContext_OpenSearchFacets_environments(ctx, field)
 	case "tiers":
 		return ec.fieldContext_OpenSearchFacets_tiers(ctx, field)
+	case "labels":
+		return ec.fieldContext_OpenSearchFacets_labels(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type OpenSearchFacets", field.Name)
 }
@@ -34690,6 +34872,8 @@ func (ec *executionContext) childFields_PostgresInstanceFacets(ctx context.Conte
 		return ec.fieldContext_PostgresInstanceFacets_highAvailability(ctx, field)
 	case "majorVersions":
 		return ec.fieldContext_PostgresInstanceFacets_majorVersions(ctx, field)
+	case "labels":
+		return ec.fieldContext_PostgresInstanceFacets_labels(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type PostgresInstanceFacets", field.Name)
 }
@@ -35128,6 +35312,8 @@ func (ec *executionContext) childFields_SecretFacets(ctx context.Context, field 
 		return ec.fieldContext_SecretFacets_environments(ctx, field)
 	case "inUse":
 		return ec.fieldContext_SecretFacets_inUse(ctx, field)
+	case "labels":
+		return ec.fieldContext_SecretFacets_labels(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type SecretFacets", field.Name)
 }
@@ -36824,6 +37010,8 @@ func (ec *executionContext) childFields_ValkeyFacets(ctx context.Context, field 
 		return ec.fieldContext_ValkeyFacets_environments(ctx, field)
 	case "tiers":
 		return ec.fieldContext_ValkeyFacets_tiers(ctx, field)
+	case "labels":
+		return ec.fieldContext_ValkeyFacets_labels(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type ValkeyFacets", field.Name)
 }

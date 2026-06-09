@@ -2341,11 +2341,11 @@ func (ec *executionContext) _ApplicationFacets_environments(ctx context.Context,
 			return ec.fieldContext_ApplicationFacets_environments(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.Environments, nil
+			return obj.Environments(ctx)
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v []model.StringFacetItem) graphql.Marshaler {
-			return ec.marshalNStringFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItemᚄ(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v []*model.StringFacetItem) graphql.Marshaler {
+			return ec.marshalNStringFacetItem2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItemᚄ(ctx, selections, v)
 		},
 		true,
 		true,
@@ -2355,7 +2355,7 @@ func (ec *executionContext) fieldContext_ApplicationFacets_environments(_ contex
 	fc = &graphql.FieldContext{
 		Object:     "ApplicationFacets",
 		Field:      field,
-		IsMethod:   false,
+		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return ec.childFields_StringFacetItem(ctx, field)
@@ -2373,11 +2373,11 @@ func (ec *executionContext) _ApplicationFacets_states(ctx context.Context, field
 			return ec.fieldContext_ApplicationFacets_states(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.States, nil
+			return obj.States(ctx)
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v []application.ApplicationStateFacetItem) graphql.Marshaler {
-			return ec.marshalNApplicationStateFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplicationStateFacetItemᚄ(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v []*application.ApplicationStateFacetItem) graphql.Marshaler {
+			return ec.marshalNApplicationStateFacetItem2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplicationStateFacetItemᚄ(ctx, selections, v)
 		},
 		true,
 		true,
@@ -2387,10 +2387,42 @@ func (ec *executionContext) fieldContext_ApplicationFacets_states(_ context.Cont
 	fc = &graphql.FieldContext{
 		Object:     "ApplicationFacets",
 		Field:      field,
-		IsMethod:   false,
+		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return ec.childFields_ApplicationStateFacetItem(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ApplicationFacets_labels(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationFacets) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ApplicationFacets_labels(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Labels(ctx)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []*model.LabelFacetItem) graphql.Marshaler {
+			return ec.marshalNLabelFacetItem2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFacetItemᚄ(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_ApplicationFacets_labels(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ApplicationFacets",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_LabelFacetItem(ctx, field)
 		},
 	}
 	return fc, nil
@@ -6163,15 +6195,113 @@ func (ec *executionContext) _ApplicationFacets(ctx context.Context, sel ast.Sele
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("ApplicationFacets")
 		case "environments":
-			out.Values[i] = ec._ApplicationFacets_environments(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ApplicationFacets_environments(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "states":
-			out.Values[i] = ec._ApplicationFacets_states(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ApplicationFacets_states(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "labels":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ApplicationFacets_labels(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -7882,15 +8012,11 @@ func (ec *executionContext) marshalNApplicationState2githubᚗcomᚋnaisᚋapi�
 	return v
 }
 
-func (ec *executionContext) marshalNApplicationStateFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplicationStateFacetItem(ctx context.Context, sel ast.SelectionSet, v application.ApplicationStateFacetItem) graphql.Marshaler {
-	return ec._ApplicationStateFacetItem(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNApplicationStateFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplicationStateFacetItemᚄ(ctx context.Context, sel ast.SelectionSet, v []application.ApplicationStateFacetItem) graphql.Marshaler {
+func (ec *executionContext) marshalNApplicationStateFacetItem2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplicationStateFacetItemᚄ(ctx context.Context, sel ast.SelectionSet, v []*application.ApplicationStateFacetItem) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNApplicationStateFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplicationStateFacetItem(ctx, sel, v[i])
+		return ec.marshalNApplicationStateFacetItem2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplicationStateFacetItem(ctx, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -7900,6 +8026,16 @@ func (ec *executionContext) marshalNApplicationStateFacetItem2ᚕgithubᚗcomᚋ
 	}
 
 	return ret
+}
+
+func (ec *executionContext) marshalNApplicationStateFacetItem2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplicationStateFacetItem(ctx context.Context, sel ast.SelectionSet, v *application.ApplicationStateFacetItem) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ApplicationStateFacetItem(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNApplicationUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplicationUpdatedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *application.ApplicationUpdatedActivityLogEntryData) graphql.Marshaler {

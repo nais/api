@@ -8,54 +8,68 @@ import (
 	"github.com/nais/api/internal/graph/model"
 )
 
-func ComputeFacets(ctx context.Context, allInstances []*OpenSearch, filter *OpenSearchFilter) *OpenSearchFacets {
-	filtered := SortFilterOpenSearch.Filter(ctx, allInstances, filter)
+// Filtered returns the filtered OpenSearch instances, computing it exactly once per request.
+func (f *OpenSearchFacets) Filtered(ctx context.Context) []*OpenSearch {
+	f.filteredOnce.Do(func() {
+		f.filteredOpenSearches = SortFilterOpenSearch.Filter(ctx, f.AllOpenSearches, f.Filter)
+	})
+	return f.filteredOpenSearches
+}
 
-	environmentCounts := map[string]int{}
+// Environments computes environments facets for an OpenSearch query.
+func (f *OpenSearchFacets) Environments(ctx context.Context) ([]*model.StringFacetItem, error) {
+	filtered := f.Filtered(ctx)
+	items := model.ComputeEnvironmentsFacet(f.AllOpenSearches, filtered, func(inst *OpenSearch) string {
+		return inst.EnvironmentName
+	})
+
+	ret := make([]*model.StringFacetItem, len(items))
+	for i := range items {
+		ret[i] = &items[i]
+	}
+	return ret, nil
+}
+
+// Tiers computes tiers facets for an OpenSearch query.
+func (f *OpenSearchFacets) Tiers(ctx context.Context) ([]*OpenSearchTierFacetItem, error) {
 	tierCounts := map[OpenSearchTier]int{}
-
-	for _, inst := range allInstances {
-		environmentCounts[inst.EnvironmentName] = 0
+	for _, inst := range f.AllOpenSearches {
 		tierCounts[inst.Tier] = 0
 	}
 
+	filtered := f.Filtered(ctx)
 	for _, inst := range filtered {
-		environmentCounts[inst.EnvironmentName]++
 		tierCounts[inst.Tier]++
 	}
 
-	return assembleFacets(environmentCounts, tierCounts)
-}
-
-func assembleFacets(
-	environmentCounts map[string]int,
-	tierCounts map[OpenSearchTier]int,
-) *OpenSearchFacets {
-	facets := &OpenSearchFacets{
-		Environments: make([]model.StringFacetItem, 0, len(environmentCounts)),
-		Tiers:        make([]OpenSearchTierFacetItem, 0, len(tierCounts)),
-	}
-
-	for env, count := range environmentCounts {
-		facets.Environments = append(facets.Environments, model.StringFacetItem{
-			Value: env,
-			Count: count,
-		})
-	}
-
+	tiers := make([]OpenSearchTierFacetItem, 0, len(tierCounts))
 	for tier, count := range tierCounts {
-		facets.Tiers = append(facets.Tiers, OpenSearchTierFacetItem{
+		tiers = append(tiers, OpenSearchTierFacetItem{
 			Tier:  tier,
 			Count: count,
 		})
 	}
-
-	// Sort for stable ordering
-	model.SortStringFacetItems(facets.Environments)
-
-	slices.SortFunc(facets.Tiers, func(a, b OpenSearchTierFacetItem) int {
+	slices.SortFunc(tiers, func(a, b OpenSearchTierFacetItem) int {
 		return strings.Compare(a.Tier.String(), b.Tier.String())
 	})
 
-	return facets
+	ret := make([]*OpenSearchTierFacetItem, len(tiers))
+	for i := range tiers {
+		ret[i] = &tiers[i]
+	}
+	return ret, nil
+}
+
+// Labels computes labels facets for an OpenSearch query.
+func (f *OpenSearchFacets) Labels(ctx context.Context) ([]*model.LabelFacetItem, error) {
+	filtered := f.Filtered(ctx)
+	items := model.ComputeLabelsFacet(f.AllOpenSearches, filtered, func(inst *OpenSearch) []*model.ResourceLabel {
+		return inst.Labels
+	})
+
+	ret := make([]*model.LabelFacetItem, len(items))
+	for i := range items {
+		ret[i] = &items[i]
+	}
+	return ret, nil
 }

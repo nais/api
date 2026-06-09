@@ -8,25 +8,70 @@ import (
 	"github.com/nais/api/internal/workload/job"
 )
 
-func ComputeFacets(ctx context.Context, allConfigs []*Config, filter *ConfigFilter) *ConfigFacets {
-	filtered := SortFilter.Filter(ctx, allConfigs, filter)
+// Filtered returns the filtered configs, computing it exactly once per request.
+func (f *ConfigFacets) Filtered(ctx context.Context) []*Config {
+	f.filteredOnce.Do(func() {
+		f.filteredConfigs = SortFilter.Filter(ctx, f.AllConfigs, f.Filter)
+	})
+	return f.filteredConfigs
+}
 
-	environmentCounts := map[string]int{}
+// Environments computes environments facets for a config query.
+func (f *ConfigFacets) Environments(ctx context.Context) ([]*model.StringFacetItem, error) {
+	filtered := f.Filtered(ctx)
+	items := model.ComputeEnvironmentsFacet(f.AllConfigs, filtered, func(c *Config) string {
+		return c.EnvironmentName
+	})
+
+	ret := make([]*model.StringFacetItem, len(items))
+	for i := range items {
+		ret[i] = &items[i]
+	}
+	return ret, nil
+}
+
+// InUse computes in-use facets for a config query.
+func (f *ConfigFacets) InUse(ctx context.Context) ([]*model.BooleanFacetItem, error) {
 	inUseCounts := map[bool]int{}
+	inUseSet := buildConfigInUseSet(ctx, f.AllConfigs)
 
-	inUseSet := buildConfigInUseSet(ctx, allConfigs)
-
-	for _, c := range allConfigs {
-		environmentCounts[c.EnvironmentName] = 0
+	for _, c := range f.AllConfigs {
 		inUseCounts[inUseSet[c.EnvironmentName+"/"+c.Name]] = 0
 	}
 
+	filtered := f.Filtered(ctx)
 	for _, c := range filtered {
-		environmentCounts[c.EnvironmentName]++
 		inUseCounts[inUseSet[c.EnvironmentName+"/"+c.Name]]++
 	}
 
-	return assembleFacets(environmentCounts, inUseCounts)
+	inUse := make([]model.BooleanFacetItem, 0, len(inUseCounts))
+	for val, count := range inUseCounts {
+		inUse = append(inUse, model.BooleanFacetItem{
+			Value: val,
+			Count: count,
+		})
+	}
+	model.SortBooleanFacetItems(inUse)
+
+	ret := make([]*model.BooleanFacetItem, len(inUse))
+	for i := range inUse {
+		ret[i] = &inUse[i]
+	}
+	return ret, nil
+}
+
+// Labels computes labels facets for a config query.
+func (f *ConfigFacets) Labels(ctx context.Context) ([]*model.LabelFacetItem, error) {
+	filtered := f.Filtered(ctx)
+	items := model.ComputeLabelsFacet(f.AllConfigs, filtered, func(c *Config) []*model.ResourceLabel {
+		return c.Labels
+	})
+
+	ret := make([]*model.LabelFacetItem, len(items))
+	for i := range items {
+		ret[i] = &items[i]
+	}
+	return ret, nil
 }
 
 func buildConfigInUseSet(ctx context.Context, configs []*Config) map[string]bool {
@@ -55,33 +100,4 @@ func buildConfigInUseSet(ctx context.Context, configs []*Config) map[string]bool
 	}
 
 	return referenced
-}
-
-func assembleFacets(
-	environmentCounts map[string]int,
-	inUseCounts map[bool]int,
-) *ConfigFacets {
-	facets := &ConfigFacets{
-		Environments: make([]model.StringFacetItem, 0, len(environmentCounts)),
-		InUse:        make([]model.BooleanFacetItem, 0, len(inUseCounts)),
-	}
-
-	for env, count := range environmentCounts {
-		facets.Environments = append(facets.Environments, model.StringFacetItem{
-			Value: env,
-			Count: count,
-		})
-	}
-
-	for inUse, count := range inUseCounts {
-		facets.InUse = append(facets.InUse, model.BooleanFacetItem{
-			Value: inUse,
-			Count: count,
-		})
-	}
-
-	model.SortStringFacetItems(facets.Environments)
-	model.SortBooleanFacetItems(facets.InUse)
-
-	return facets
 }

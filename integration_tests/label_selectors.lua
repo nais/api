@@ -550,3 +550,39 @@ Test.gql("Valkey filter with invalid label prefix", function(t)
 		data = Null,
 	}
 end)
+
+Test.gql("Check labels facets on Valkey connection", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[
+		{
+			team(slug: "labelteam") {
+				valkeys {
+					facets {
+						labels {
+							key
+							value
+							count
+						}
+					}
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			team = {
+				valkeys = {
+					facets = {
+						labels = {
+							{ key = "labels.nais.io/priority", value = "high", count = 1 },
+							{ key = "labels.nais.io/tag",      value = "other", count = 1 },
+							{ key = "labels.nais.io/tag",      value = "target", count = 2 },
+						},
+					},
+				},
+			},
+		},
+	}
+end)
+

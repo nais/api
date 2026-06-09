@@ -8,6 +8,7 @@ import (
 	"io"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/nais/api/internal/graph/ident"
@@ -39,10 +40,10 @@ type PostgresInstanceFilter struct {
 type PostgresInstanceConnection = pagination.FacetableConnection[*PostgresInstance, *PostgresInstanceFilter]
 
 type PostgresInstanceFacets struct {
-	Environments     []model.StringFacetItem          `json:"environments"`
-	States           []PostgresInstanceStateFacetItem `json:"states"`
-	HighAvailability []model.BooleanFacetItem         `json:"highAvailability"`
-	MajorVersions    []model.StringFacetItem          `json:"majorVersions"`
+	AllInstances      []*PostgresInstance
+	Filter            *PostgresInstanceFilter
+	filteredOnce      sync.Once
+	filteredInstances []*PostgresInstance
 }
 
 type PostgresInstanceStateFacetItem struct {

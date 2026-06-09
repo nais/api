@@ -401,6 +401,9 @@ type ConfigFacets {
 
 	"Distribution of configs by whether they are in use by any workload."
 	inUse: [BooleanFacetItem!]!
+
+	"Distribution of configs by user-defined labels."
+	labels: [LabelFacetItem!]!
 }
 
 type ConfigValue {

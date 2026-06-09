@@ -6,6 +6,7 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/nais/api/internal/graph/ident"
@@ -668,8 +669,11 @@ type TeamApplicationsFilter struct {
 }
 
 type ApplicationFacets struct {
-	Environments []model.StringFacetItem     `json:"environments"`
-	States       []ApplicationStateFacetItem `json:"states"`
+	AllApps []*Application
+	Filter  *TeamApplicationsFilter
+
+	filteredOnce sync.Once
+	filteredApps []*Application
 }
 
 type ApplicationStateFacetItem struct {

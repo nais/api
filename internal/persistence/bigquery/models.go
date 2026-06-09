@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/nais/api/internal/graph/ident"
@@ -27,7 +28,10 @@ type (
 type BigQueryDatasetConnection = pagination.FacetableConnection[*BigQueryDataset, *BigQueryDatasetFilter]
 
 type BigQueryDatasetFacets struct {
-	Environments []model.StringFacetItem `json:"environments"`
+	AllDatasets      []*BigQueryDataset
+	Filter           *BigQueryDatasetFilter
+	filteredOnce     sync.Once
+	filteredDatasets []*BigQueryDataset
 }
 
 type BigQueryDatasetFilter struct {

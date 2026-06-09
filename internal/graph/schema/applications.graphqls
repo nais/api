@@ -464,6 +464,11 @@ type ApplicationFacets {
 	Distribution of applications by state.
 	"""
 	states: [ApplicationStateFacetItem!]!
+
+	"""
+	Distribution of applications by user-defined labels.
+	"""
+	labels: [LabelFacetItem!]!
 }
 
 """

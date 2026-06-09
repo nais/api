@@ -7,6 +7,7 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/nais/api/internal/graph/apierror"
@@ -42,8 +43,10 @@ type OpenSearchFilter struct {
 type OpenSearchConnection = pagination.FacetableConnection[*OpenSearch, *OpenSearchFilter]
 
 type OpenSearchFacets struct {
-	Environments []model.StringFacetItem   `json:"environments"`
-	Tiers        []OpenSearchTierFacetItem `json:"tiers"`
+	AllOpenSearches      []*OpenSearch
+	Filter               *OpenSearchFilter
+	filteredOnce         sync.Once
+	filteredOpenSearches []*OpenSearch
 }
 
 type OpenSearchTierFacetItem struct {

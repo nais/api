@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/nais/api/internal/graph/ident"
@@ -216,6 +217,8 @@ type TeamInventoryCountConfigs struct {
 }
 
 type ConfigFacets struct {
-	Environments []model.StringFacetItem  `json:"environments"`
-	InUse        []model.BooleanFacetItem `json:"inUse"`
+	AllConfigs      []*Config
+	Filter          *ConfigFilter
+	filteredOnce    sync.Once
+	filteredConfigs []*Config
 }

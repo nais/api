@@ -367,6 +367,11 @@ type JobFacets {
 	Distribution of jobs by state.
 	"""
 	states: [JobStateFacetItem!]!
+
+	"""
+	Distribution of jobs by user-defined labels.
+	"""
+	labels: [LabelFacetItem!]!
 }
 
 """

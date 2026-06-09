@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+	"sync"
 
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/model"
@@ -24,8 +25,10 @@ type (
 type KafkaTopicConnection = pagination.FacetableConnection[*KafkaTopic, *KafkaTopicFilter]
 
 type KafkaTopicFacets struct {
-	Environments []model.StringFacetItem `json:"environments"`
-	Pools        []model.StringFacetItem `json:"pools"`
+	AllTopics      []*KafkaTopic
+	Filter         *KafkaTopicFilter
+	filteredOnce   sync.Once
+	filteredTopics []*KafkaTopic
 }
 
 type KafkaTopicFilter struct {

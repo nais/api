@@ -6,37 +6,38 @@ import (
 	"github.com/nais/api/internal/graph/model"
 )
 
-func ComputeFacets(ctx context.Context, allDatasets []*BigQueryDataset, filter *BigQueryDatasetFilter) *BigQueryDatasetFacets {
-	filtered := SortFilter.Filter(ctx, allDatasets, filter)
-
-	// Seed all possible values from allDatasets
-	environmentCounts := map[string]int{}
-
-	for _, d := range allDatasets {
-		environmentCounts[d.EnvironmentName] = 0
-	}
-
-	// Count only items matching the filter
-	for _, d := range filtered {
-		environmentCounts[d.EnvironmentName]++
-	}
-
-	return assembleFacets(environmentCounts)
+// Filtered returns the filtered BigQuery datasets, computing it exactly once per request.
+func (f *BigQueryDatasetFacets) Filtered(ctx context.Context) []*BigQueryDataset {
+	f.filteredOnce.Do(func() {
+		f.filteredDatasets = SortFilter.Filter(ctx, f.AllDatasets, f.Filter)
+	})
+	return f.filteredDatasets
 }
 
-func assembleFacets(environmentCounts map[string]int) *BigQueryDatasetFacets {
-	facets := &BigQueryDatasetFacets{
-		Environments: make([]model.StringFacetItem, 0, len(environmentCounts)),
+// Environments computes environments facets for a BigQuery dataset query.
+func (f *BigQueryDatasetFacets) Environments(ctx context.Context) ([]*model.StringFacetItem, error) {
+	filtered := f.Filtered(ctx)
+	items := model.ComputeEnvironmentsFacet(f.AllDatasets, filtered, func(d *BigQueryDataset) string {
+		return d.EnvironmentName
+	})
+
+	ret := make([]*model.StringFacetItem, len(items))
+	for i := range items {
+		ret[i] = &items[i]
 	}
+	return ret, nil
+}
 
-	for env, count := range environmentCounts {
-		facets.Environments = append(facets.Environments, model.StringFacetItem{
-			Value: env,
-			Count: count,
-		})
+// Labels computes labels facets for a BigQuery dataset query.
+func (f *BigQueryDatasetFacets) Labels(ctx context.Context) ([]*model.LabelFacetItem, error) {
+	filtered := f.Filtered(ctx)
+	items := model.ComputeLabelsFacet(f.AllDatasets, filtered, func(d *BigQueryDataset) []*model.ResourceLabel {
+		return d.Labels
+	})
+
+	ret := make([]*model.LabelFacetItem, len(items))
+	for i := range items {
+		ret[i] = &items[i]
 	}
-
-	model.SortStringFacetItems(facets.Environments)
-
-	return facets
+	return ret, nil
 }

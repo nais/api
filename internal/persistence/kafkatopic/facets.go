@@ -6,49 +6,66 @@ import (
 	"github.com/nais/api/internal/graph/model"
 )
 
-func ComputeFacets(ctx context.Context, allTopics []*KafkaTopic, filter *KafkaTopicFilter) *KafkaTopicFacets {
-	filtered := SortFilterTopic.Filter(ctx, allTopics, filter)
+// Filtered returns the filtered Kafka topics, computing it exactly once per request.
+func (f *KafkaTopicFacets) Filtered(ctx context.Context) []*KafkaTopic {
+	f.filteredOnce.Do(func() {
+		f.filteredTopics = SortFilterTopic.Filter(ctx, f.AllTopics, f.Filter)
+	})
+	return f.filteredTopics
+}
 
-	// Seed all possible values from allTopics
-	environmentCounts := map[string]int{}
+// Environments computes environments facets for a Kafka topic query.
+func (f *KafkaTopicFacets) Environments(ctx context.Context) ([]*model.StringFacetItem, error) {
+	filtered := f.Filtered(ctx)
+	items := model.ComputeEnvironmentsFacet(f.AllTopics, filtered, func(t *KafkaTopic) string {
+		return t.EnvironmentName
+	})
+
+	ret := make([]*model.StringFacetItem, len(items))
+	for i := range items {
+		ret[i] = &items[i]
+	}
+	return ret, nil
+}
+
+// Pools computes pools facets for a Kafka topic query.
+func (f *KafkaTopicFacets) Pools(ctx context.Context) ([]*model.StringFacetItem, error) {
 	poolCounts := map[string]int{}
-
-	for _, t := range allTopics {
-		environmentCounts[t.EnvironmentName] = 0
+	for _, t := range f.AllTopics {
 		poolCounts[t.Pool] = 0
 	}
 
-	// Count only items matching the filter
+	filtered := f.Filtered(ctx)
 	for _, t := range filtered {
-		environmentCounts[t.EnvironmentName]++
 		poolCounts[t.Pool]++
 	}
 
-	return assembleFacets(environmentCounts, poolCounts)
+	pools := make([]model.StringFacetItem, 0, len(poolCounts))
+	for val, count := range poolCounts {
+		pools = append(pools, model.StringFacetItem{
+			Value: val,
+			Count: count,
+		})
+	}
+	model.SortStringFacetItems(pools)
+
+	ret := make([]*model.StringFacetItem, len(pools))
+	for i := range pools {
+		ret[i] = &pools[i]
+	}
+	return ret, nil
 }
 
-func assembleFacets(environmentCounts map[string]int, poolCounts map[string]int) *KafkaTopicFacets {
-	facets := &KafkaTopicFacets{
-		Environments: make([]model.StringFacetItem, 0, len(environmentCounts)),
-		Pools:        make([]model.StringFacetItem, 0, len(poolCounts)),
+// Labels computes labels facets for a Kafka topic query.
+func (f *KafkaTopicFacets) Labels(ctx context.Context) ([]*model.LabelFacetItem, error) {
+	filtered := f.Filtered(ctx)
+	items := model.ComputeLabelsFacet(f.AllTopics, filtered, func(t *KafkaTopic) []*model.ResourceLabel {
+		return t.Labels
+	})
+
+	ret := make([]*model.LabelFacetItem, len(items))
+	for i := range items {
+		ret[i] = &items[i]
 	}
-
-	for env, count := range environmentCounts {
-		facets.Environments = append(facets.Environments, model.StringFacetItem{
-			Value: env,
-			Count: count,
-		})
-	}
-
-	for pool, count := range poolCounts {
-		facets.Pools = append(facets.Pools, model.StringFacetItem{
-			Value: pool,
-			Count: count,
-		})
-	}
-
-	model.SortStringFacetItems(facets.Environments)
-	model.SortStringFacetItems(facets.Pools)
-
-	return facets
+	return ret, nil
 }

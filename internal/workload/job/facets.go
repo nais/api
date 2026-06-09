@@ -8,17 +8,32 @@ import (
 	"github.com/nais/api/internal/graph/model"
 )
 
-// ComputeFacets computes facets for a job query.
-func ComputeFacets(ctx context.Context, allJobs []*Job, filter *TeamJobsFilter) (*JobFacets, error) {
-	environmentCounts := map[string]int{}
+// Filtered returns the filtered jobs, computing it exactly once per request.
+func (f *JobFacets) Filtered(ctx context.Context) []*Job {
+	f.filteredOnce.Do(func() {
+		f.filteredJobs = SortFilter.Filter(ctx, f.AllJobs, f.Filter)
+	})
+	return f.filteredJobs
+}
+
+// Environments computes environments facets for a job query.
+func (f *JobFacets) Environments(ctx context.Context) ([]*model.StringFacetItem, error) {
+	filtered := f.Filtered(ctx)
+	items := model.ComputeEnvironmentsFacet(f.AllJobs, filtered, func(j *Job) string {
+		return j.EnvironmentName
+	})
+
+	ret := make([]*model.StringFacetItem, len(items))
+	for i := range items {
+		ret[i] = &items[i]
+	}
+	return ret, nil
+}
+
+// States computes states facets for a job query.
+func (f *JobFacets) States(ctx context.Context) ([]*JobStateFacetItem, error) {
 	stateCounts := map[JobState]int{}
-
-	// First pass: seed with all values that exist in scope (so items with 0 matches still appear)
-	for _, j := range allJobs {
-		if _, ok := environmentCounts[j.EnvironmentName]; !ok {
-			environmentCounts[j.EnvironmentName] = 0
-		}
-
+	for _, j := range f.AllJobs {
 		state, err := GetState(ctx, j)
 		if err != nil {
 			state = JobStateUnknown
@@ -28,11 +43,8 @@ func ComputeFacets(ctx context.Context, allJobs []*Job, filter *TeamJobsFilter) 
 		}
 	}
 
-	// Second pass: count jobs that match the full filter
-	filtered := SortFilter.Filter(ctx, allJobs, filter)
+	filtered := f.Filtered(ctx)
 	for _, j := range filtered {
-		environmentCounts[j.EnvironmentName]++
-
 		state, err := GetState(ctx, j)
 		if err != nil {
 			state = JobStateUnknown
@@ -40,7 +52,36 @@ func ComputeFacets(ctx context.Context, allJobs []*Job, filter *TeamJobsFilter) 
 		stateCounts[state]++
 	}
 
-	return assembleFacets(environmentCounts, stateCounts), nil
+	states := make([]JobStateFacetItem, 0, len(stateCounts))
+	for state, count := range stateCounts {
+		states = append(states, JobStateFacetItem{
+			State: state,
+			Count: count,
+		})
+	}
+	slices.SortFunc(states, func(a, b JobStateFacetItem) int {
+		return strings.Compare(a.State.String(), b.State.String())
+	})
+
+	ret := make([]*JobStateFacetItem, len(states))
+	for i := range states {
+		ret[i] = &states[i]
+	}
+	return ret, nil
+}
+
+// Labels computes labels facets for a job query.
+func (f *JobFacets) Labels(ctx context.Context) ([]*model.LabelFacetItem, error) {
+	filtered := f.Filtered(ctx)
+	items := model.ComputeLabelsFacet(f.AllJobs, filtered, func(j *Job) []*model.ResourceLabel {
+		return j.Labels
+	})
+
+	ret := make([]*model.LabelFacetItem, len(items))
+	for i := range items {
+		ret[i] = &items[i]
+	}
+	return ret, nil
 }
 
 func matchesFilter(ctx context.Context, j *Job, filter *TeamJobsFilter) bool {
@@ -76,34 +117,4 @@ func matchesFilter(ctx context.Context, j *Job, filter *TeamJobsFilter) bool {
 	}
 
 	return true
-}
-
-func assembleFacets(environmentCounts map[string]int, stateCounts map[JobState]int) *JobFacets {
-	facets := &JobFacets{
-		Environments: make([]model.StringFacetItem, 0, len(environmentCounts)),
-		States:       make([]JobStateFacetItem, 0, len(stateCounts)),
-	}
-
-	for env, count := range environmentCounts {
-		facets.Environments = append(facets.Environments, model.StringFacetItem{
-			Value: env,
-			Count: count,
-		})
-	}
-
-	for state, count := range stateCounts {
-		facets.States = append(facets.States, JobStateFacetItem{
-			State: state,
-			Count: count,
-		})
-	}
-
-	// Sort alphabetically for stable ordering
-	model.SortStringFacetItems(facets.Environments)
-
-	slices.SortFunc(facets.States, func(a, b JobStateFacetItem) int {
-		return strings.Compare(a.State.String(), b.State.String())
-	})
-
-	return facets
 }

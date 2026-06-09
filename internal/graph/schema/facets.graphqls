@@ -19,3 +19,18 @@ type StringFacetItem {
 	"Number of matching resources."
 	count: Int!
 }
+
+"""
+A shared facet item representing a label value distribution (key-value pairs).
+"""
+type LabelFacetItem {
+	"The label key."
+	key: String!
+
+	"The label value."
+	value: String!
+
+	"Number of matching resources."
+	count: Int!
+}
+

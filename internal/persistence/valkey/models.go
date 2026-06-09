@@ -6,6 +6,7 @@ import (
 	"io"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/model"
@@ -39,8 +40,10 @@ type ValkeyFilter struct {
 type ValkeyConnection = pagination.FacetableConnection[*Valkey, *ValkeyFilter]
 
 type ValkeyFacets struct {
-	Environments []model.StringFacetItem `json:"environments"`
-	Tiers        []ValkeyTierFacetItem   `json:"tiers"`
+	AllValkeys      []*Valkey
+	Filter          *ValkeyFilter
+	filteredOnce    sync.Once
+	filteredValkeys []*Valkey
 }
 
 type ValkeyTierFacetItem struct {

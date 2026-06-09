@@ -143,7 +143,10 @@ func (r *configResolver) ActivityLog(ctx context.Context, obj *config.Config, fi
 }
 
 func (r *configConnectionResolver) Facets(ctx context.Context, obj *pagination.FacetableConnection[*config.Config, *config.ConfigFilter]) (*config.ConfigFacets, error) {
-	return config.ComputeFacets(ctx, obj.GetAllItems(), obj.GetFilter()), nil
+	return &config.ConfigFacets{
+		AllConfigs: obj.GetAllItems(),
+		Filter:     obj.GetFilter(),
+	}, nil
 }
 
 func (r *jobResolver) Configs(ctx context.Context, obj *job.Job, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.FacetableConnection[*config.Config, *config.ConfigFilter], error) {

@@ -8,25 +8,70 @@ import (
 	"github.com/nais/api/internal/workload/job"
 )
 
-func ComputeFacets(ctx context.Context, allSecrets []*Secret, filter *SecretFilter) *SecretFacets {
-	filtered := SortFilter.Filter(ctx, allSecrets, filter)
+// Filtered returns the filtered secrets, computing it exactly once per request.
+func (f *SecretFacets) Filtered(ctx context.Context) []*Secret {
+	f.filteredOnce.Do(func() {
+		f.filteredSecrets = SortFilter.Filter(ctx, f.AllSecrets, f.Filter)
+	})
+	return f.filteredSecrets
+}
 
-	environmentCounts := map[string]int{}
+// Environments computes environments facets for a secret query.
+func (f *SecretFacets) Environments(ctx context.Context) ([]*model.StringFacetItem, error) {
+	filtered := f.Filtered(ctx)
+	items := model.ComputeEnvironmentsFacet(f.AllSecrets, filtered, func(s *Secret) string {
+		return s.EnvironmentName
+	})
+
+	ret := make([]*model.StringFacetItem, len(items))
+	for i := range items {
+		ret[i] = &items[i]
+	}
+	return ret, nil
+}
+
+// InUse computes in-use facets for a secret query.
+func (f *SecretFacets) InUse(ctx context.Context) ([]*model.BooleanFacetItem, error) {
 	inUseCounts := map[bool]int{}
+	inUseSet := buildSecretInUseSet(ctx, f.AllSecrets)
 
-	inUseSet := buildSecretInUseSet(ctx, allSecrets)
-
-	for _, s := range allSecrets {
-		environmentCounts[s.EnvironmentName] = 0
+	for _, s := range f.AllSecrets {
 		inUseCounts[inUseSet[s.EnvironmentName+"/"+s.Name]] = 0
 	}
 
+	filtered := f.Filtered(ctx)
 	for _, s := range filtered {
-		environmentCounts[s.EnvironmentName]++
 		inUseCounts[inUseSet[s.EnvironmentName+"/"+s.Name]]++
 	}
 
-	return assembleFacets(environmentCounts, inUseCounts)
+	inUse := make([]model.BooleanFacetItem, 0, len(inUseCounts))
+	for val, count := range inUseCounts {
+		inUse = append(inUse, model.BooleanFacetItem{
+			Value: val,
+			Count: count,
+		})
+	}
+	model.SortBooleanFacetItems(inUse)
+
+	ret := make([]*model.BooleanFacetItem, len(inUse))
+	for i := range inUse {
+		ret[i] = &inUse[i]
+	}
+	return ret, nil
+}
+
+// Labels computes labels facets for a secret query.
+func (f *SecretFacets) Labels(ctx context.Context) ([]*model.LabelFacetItem, error) {
+	filtered := f.Filtered(ctx)
+	items := model.ComputeLabelsFacet(f.AllSecrets, filtered, func(s *Secret) []*model.ResourceLabel {
+		return s.Labels
+	})
+
+	ret := make([]*model.LabelFacetItem, len(items))
+	for i := range items {
+		ret[i] = &items[i]
+	}
+	return ret, nil
 }
 
 func buildSecretInUseSet(ctx context.Context, secrets []*Secret) map[string]bool {
@@ -55,33 +100,4 @@ func buildSecretInUseSet(ctx context.Context, secrets []*Secret) map[string]bool
 	}
 
 	return referenced
-}
-
-func assembleFacets(
-	environmentCounts map[string]int,
-	inUseCounts map[bool]int,
-) *SecretFacets {
-	facets := &SecretFacets{
-		Environments: make([]model.StringFacetItem, 0, len(environmentCounts)),
-		InUse:        make([]model.BooleanFacetItem, 0, len(inUseCounts)),
-	}
-
-	for env, count := range environmentCounts {
-		facets.Environments = append(facets.Environments, model.StringFacetItem{
-			Value: env,
-			Count: count,
-		})
-	}
-
-	for inUse, count := range inUseCounts {
-		facets.InUse = append(facets.InUse, model.BooleanFacetItem{
-			Value: inUse,
-			Count: count,
-		})
-	}
-
-	model.SortStringFacetItems(facets.Environments)
-	model.SortBooleanFacetItems(facets.InUse)
-
-	return facets
 }

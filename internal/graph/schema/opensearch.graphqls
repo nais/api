@@ -156,6 +156,9 @@ type OpenSearchFacets {
 
 	"Distribution of instances by tier."
 	tiers: [OpenSearchTierFacetItem!]!
+
+	"Distribution of instances by user-defined labels."
+	labels: [LabelFacetItem!]!
 }
 
 """

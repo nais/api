@@ -104,7 +104,10 @@ func (r *applicationResolver) History(ctx context.Context, obj *application.Appl
 }
 
 func (r *applicationConnectionResolver) Facets(ctx context.Context, obj *pagination.FacetableConnection[*application.Application, *application.TeamApplicationsFilter]) (*application.ApplicationFacets, error) {
-	return application.ComputeFacets(ctx, obj.GetAllItems(), obj.GetFilter())
+	return &application.ApplicationFacets{
+		AllApps: obj.GetAllItems(),
+		Filter:  obj.GetFilter(),
+	}, nil
 }
 
 func (r *deleteApplicationPayloadResolver) Team(ctx context.Context, obj *application.DeleteApplicationPayload) (*team.Team, error) {

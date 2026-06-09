@@ -141,6 +141,9 @@ type KafkaTopicFacets {
 
 	"Distribution of topics by Kafka pool."
 	pools: [StringFacetItem!]!
+
+	"Distribution of topics by user-defined labels."
+	labels: [LabelFacetItem!]!
 }
 
 """
