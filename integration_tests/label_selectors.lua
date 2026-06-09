@@ -575,8 +575,8 @@ Test.gql("Check labels facets on Valkey connection", function(t)
 				valkeys = {
 					facets = {
 						labels = {
-							{ key = "labels.nais.io/priority", value = "high", count = 1 },
-							{ key = "labels.nais.io/tag",      value = "other", count = 1 },
+							{ key = "labels.nais.io/priority", value = "high",   count = 1 },
+							{ key = "labels.nais.io/tag",      value = "other",  count = 1 },
 							{ key = "labels.nais.io/tag",      value = "target", count = 2 },
 						},
 					},
@@ -585,4 +585,3 @@ Test.gql("Check labels facets on Valkey connection", function(t)
 		},
 	}
 end)
-
