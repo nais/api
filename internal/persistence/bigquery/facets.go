@@ -15,29 +15,17 @@ func (f *BigQueryDatasetFacets) Filtered(ctx context.Context) []*BigQueryDataset
 }
 
 // Environments computes environments facets for a BigQuery dataset query.
-func (f *BigQueryDatasetFacets) Environments(ctx context.Context) ([]*model.StringFacetItem, error) {
+func (f *BigQueryDatasetFacets) Environments(ctx context.Context) []model.StringFacetItem {
 	filtered := f.Filtered(ctx)
-	items := model.ComputeEnvironmentsFacet(f.AllDatasets, filtered, func(d *BigQueryDataset) string {
+	return model.ComputeEnvironmentsFacet(f.AllDatasets, filtered, func(d *BigQueryDataset) string {
 		return d.EnvironmentName
 	})
-
-	ret := make([]*model.StringFacetItem, len(items))
-	for i := range items {
-		ret[i] = &items[i]
-	}
-	return ret, nil
 }
 
 // Labels computes labels facets for a BigQuery dataset query.
-func (f *BigQueryDatasetFacets) Labels(ctx context.Context) ([]*model.LabelFacetItem, error) {
+func (f *BigQueryDatasetFacets) Labels(ctx context.Context) []model.LabelFacetItem {
 	filtered := f.Filtered(ctx)
-	items := model.ComputeLabelsFacet(f.AllDatasets, filtered, func(d *BigQueryDataset) []*model.ResourceLabel {
+	return model.ComputeLabelsFacet(f.AllDatasets, filtered, func(d *BigQueryDataset) []*model.ResourceLabel {
 		return d.Labels
 	})
-
-	ret := make([]*model.LabelFacetItem, len(items))
-	for i := range items {
-		ret[i] = &items[i]
-	}
-	return ret, nil
 }

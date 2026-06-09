@@ -17,21 +17,15 @@ func (f *OpenSearchFacets) Filtered(ctx context.Context) []*OpenSearch {
 }
 
 // Environments computes environments facets for an OpenSearch query.
-func (f *OpenSearchFacets) Environments(ctx context.Context) ([]*model.StringFacetItem, error) {
+func (f *OpenSearchFacets) Environments(ctx context.Context) []model.StringFacetItem {
 	filtered := f.Filtered(ctx)
-	items := model.ComputeEnvironmentsFacet(f.AllOpenSearches, filtered, func(inst *OpenSearch) string {
+	return model.ComputeEnvironmentsFacet(f.AllOpenSearches, filtered, func(inst *OpenSearch) string {
 		return inst.EnvironmentName
 	})
-
-	ret := make([]*model.StringFacetItem, len(items))
-	for i := range items {
-		ret[i] = &items[i]
-	}
-	return ret, nil
 }
 
 // Tiers computes tiers facets for an OpenSearch query.
-func (f *OpenSearchFacets) Tiers(ctx context.Context) ([]*OpenSearchTierFacetItem, error) {
+func (f *OpenSearchFacets) Tiers(ctx context.Context) []OpenSearchTierFacetItem {
 	tierCounts := map[OpenSearchTier]int{}
 	for _, inst := range f.AllOpenSearches {
 		tierCounts[inst.Tier] = 0
@@ -53,23 +47,13 @@ func (f *OpenSearchFacets) Tiers(ctx context.Context) ([]*OpenSearchTierFacetIte
 		return strings.Compare(a.Tier.String(), b.Tier.String())
 	})
 
-	ret := make([]*OpenSearchTierFacetItem, len(tiers))
-	for i := range tiers {
-		ret[i] = &tiers[i]
-	}
-	return ret, nil
+	return tiers
 }
 
 // Labels computes labels facets for an OpenSearch query.
-func (f *OpenSearchFacets) Labels(ctx context.Context) ([]*model.LabelFacetItem, error) {
+func (f *OpenSearchFacets) Labels(ctx context.Context) []model.LabelFacetItem {
 	filtered := f.Filtered(ctx)
-	items := model.ComputeLabelsFacet(f.AllOpenSearches, filtered, func(inst *OpenSearch) []*model.ResourceLabel {
+	return model.ComputeLabelsFacet(f.AllOpenSearches, filtered, func(inst *OpenSearch) []*model.ResourceLabel {
 		return inst.Labels
 	})
-
-	ret := make([]*model.LabelFacetItem, len(items))
-	for i := range items {
-		ret[i] = &items[i]
-	}
-	return ret, nil
 }

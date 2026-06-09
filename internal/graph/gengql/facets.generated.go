@@ -342,11 +342,15 @@ func (ec *executionContext) _StringFacetItem(ctx context.Context, sel ast.Select
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) marshalNBooleanFacetItem2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBooleanFacetItemᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.BooleanFacetItem) graphql.Marshaler {
+func (ec *executionContext) marshalNBooleanFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBooleanFacetItem(ctx context.Context, sel ast.SelectionSet, v model.BooleanFacetItem) graphql.Marshaler {
+	return ec._BooleanFacetItem(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNBooleanFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBooleanFacetItemᚄ(ctx context.Context, sel ast.SelectionSet, v []model.BooleanFacetItem) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNBooleanFacetItem2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBooleanFacetItem(ctx, sel, v[i])
+		return ec.marshalNBooleanFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBooleanFacetItem(ctx, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -358,21 +362,15 @@ func (ec *executionContext) marshalNBooleanFacetItem2ᚕᚖgithubᚗcomᚋnais�
 	return ret
 }
 
-func (ec *executionContext) marshalNBooleanFacetItem2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBooleanFacetItem(ctx context.Context, sel ast.SelectionSet, v *model.BooleanFacetItem) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._BooleanFacetItem(ctx, sel, v)
+func (ec *executionContext) marshalNLabelFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFacetItem(ctx context.Context, sel ast.SelectionSet, v model.LabelFacetItem) graphql.Marshaler {
+	return ec._LabelFacetItem(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNLabelFacetItem2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFacetItemᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.LabelFacetItem) graphql.Marshaler {
+func (ec *executionContext) marshalNLabelFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFacetItemᚄ(ctx context.Context, sel ast.SelectionSet, v []model.LabelFacetItem) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNLabelFacetItem2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFacetItem(ctx, sel, v[i])
+		return ec.marshalNLabelFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFacetItem(ctx, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -382,16 +380,6 @@ func (ec *executionContext) marshalNLabelFacetItem2ᚕᚖgithubᚗcomᚋnaisᚋa
 	}
 
 	return ret
-}
-
-func (ec *executionContext) marshalNLabelFacetItem2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFacetItem(ctx context.Context, sel ast.SelectionSet, v *model.LabelFacetItem) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._LabelFacetItem(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNStringFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItem(ctx context.Context, sel ast.SelectionSet, v model.StringFacetItem) graphql.Marshaler {
@@ -412,32 +400,6 @@ func (ec *executionContext) marshalNStringFacetItem2ᚕgithubᚗcomᚋnaisᚋapi
 	}
 
 	return ret
-}
-
-func (ec *executionContext) marshalNStringFacetItem2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItemᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.StringFacetItem) graphql.Marshaler {
-	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
-		fc := graphql.GetFieldContext(ctx)
-		fc.Result = &v[i]
-		return ec.marshalNStringFacetItem2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItem(ctx, sel, v[i])
-	})
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
-func (ec *executionContext) marshalNStringFacetItem2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItem(ctx context.Context, sel ast.SelectionSet, v *model.StringFacetItem) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._StringFacetItem(ctx, sel, v)
 }
 
 // endregion ***************************** type.gotpl *****************************

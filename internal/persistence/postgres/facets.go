@@ -17,21 +17,15 @@ func (f *PostgresInstanceFacets) Filtered(ctx context.Context) []*PostgresInstan
 }
 
 // Environments computes environments facets for a Postgres query.
-func (f *PostgresInstanceFacets) Environments(ctx context.Context) ([]*model.StringFacetItem, error) {
+func (f *PostgresInstanceFacets) Environments(ctx context.Context) []model.StringFacetItem {
 	filtered := f.Filtered(ctx)
-	items := model.ComputeEnvironmentsFacet(f.AllInstances, filtered, func(inst *PostgresInstance) string {
+	return model.ComputeEnvironmentsFacet(f.AllInstances, filtered, func(inst *PostgresInstance) string {
 		return inst.EnvironmentName
 	})
-
-	ret := make([]*model.StringFacetItem, len(items))
-	for i := range items {
-		ret[i] = &items[i]
-	}
-	return ret, nil
 }
 
 // States computes states facets for a Postgres query.
-func (f *PostgresInstanceFacets) States(ctx context.Context) ([]*PostgresInstanceStateFacetItem, error) {
+func (f *PostgresInstanceFacets) States(ctx context.Context) []PostgresInstanceStateFacetItem {
 	stateCounts := map[PostgresInstanceState]int{}
 	for _, inst := range f.AllInstances {
 		stateCounts[inst.State] = 0
@@ -53,15 +47,11 @@ func (f *PostgresInstanceFacets) States(ctx context.Context) ([]*PostgresInstanc
 		return strings.Compare(a.State.String(), b.State.String())
 	})
 
-	ret := make([]*PostgresInstanceStateFacetItem, len(states))
-	for i := range states {
-		ret[i] = &states[i]
-	}
-	return ret, nil
+	return states
 }
 
 // HighAvailability computes high availability facets for a Postgres query.
-func (f *PostgresInstanceFacets) HighAvailability(ctx context.Context) ([]*model.BooleanFacetItem, error) {
+func (f *PostgresInstanceFacets) HighAvailability(ctx context.Context) []model.BooleanFacetItem {
 	haCounts := map[bool]int{}
 	for _, inst := range f.AllInstances {
 		haCounts[inst.HighAvailability] = 0
@@ -81,15 +71,11 @@ func (f *PostgresInstanceFacets) HighAvailability(ctx context.Context) ([]*model
 	}
 	model.SortBooleanFacetItems(ha)
 
-	ret := make([]*model.BooleanFacetItem, len(ha))
-	for i := range ha {
-		ret[i] = &ha[i]
-	}
-	return ret, nil
+	return ha
 }
 
 // MajorVersions computes major version facets for a Postgres query.
-func (f *PostgresInstanceFacets) MajorVersions(ctx context.Context) ([]*model.StringFacetItem, error) {
+func (f *PostgresInstanceFacets) MajorVersions(ctx context.Context) []model.StringFacetItem {
 	versionCounts := map[string]int{}
 	for _, inst := range f.AllInstances {
 		versionCounts[inst.MajorVersion] = 0
@@ -109,23 +95,13 @@ func (f *PostgresInstanceFacets) MajorVersions(ctx context.Context) ([]*model.St
 	}
 	model.SortStringFacetItems(versions)
 
-	ret := make([]*model.StringFacetItem, len(versions))
-	for i := range versions {
-		ret[i] = &versions[i]
-	}
-	return ret, nil
+	return versions
 }
 
 // Labels computes labels facets for a Postgres query.
-func (f *PostgresInstanceFacets) Labels(ctx context.Context) ([]*model.LabelFacetItem, error) {
+func (f *PostgresInstanceFacets) Labels(ctx context.Context) []model.LabelFacetItem {
 	filtered := f.Filtered(ctx)
-	items := model.ComputeLabelsFacet(f.AllInstances, filtered, func(inst *PostgresInstance) []*model.ResourceLabel {
+	return model.ComputeLabelsFacet(f.AllInstances, filtered, func(inst *PostgresInstance) []*model.ResourceLabel {
 		return inst.Labels
 	})
-
-	ret := make([]*model.LabelFacetItem, len(items))
-	for i := range items {
-		ret[i] = &items[i]
-	}
-	return ret, nil
 }

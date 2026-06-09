@@ -17,21 +17,15 @@ func (f *JobFacets) Filtered(ctx context.Context) []*Job {
 }
 
 // Environments computes environments facets for a job query.
-func (f *JobFacets) Environments(ctx context.Context) ([]*model.StringFacetItem, error) {
+func (f *JobFacets) Environments(ctx context.Context) []model.StringFacetItem {
 	filtered := f.Filtered(ctx)
-	items := model.ComputeEnvironmentsFacet(f.AllJobs, filtered, func(j *Job) string {
+	return model.ComputeEnvironmentsFacet(f.AllJobs, filtered, func(j *Job) string {
 		return j.EnvironmentName
 	})
-
-	ret := make([]*model.StringFacetItem, len(items))
-	for i := range items {
-		ret[i] = &items[i]
-	}
-	return ret, nil
 }
 
 // States computes states facets for a job query.
-func (f *JobFacets) States(ctx context.Context) ([]*JobStateFacetItem, error) {
+func (f *JobFacets) States(ctx context.Context) []JobStateFacetItem {
 	stateCounts := map[JobState]int{}
 	for _, j := range f.AllJobs {
 		state, err := GetState(ctx, j)
@@ -62,26 +56,15 @@ func (f *JobFacets) States(ctx context.Context) ([]*JobStateFacetItem, error) {
 	slices.SortFunc(states, func(a, b JobStateFacetItem) int {
 		return strings.Compare(a.State.String(), b.State.String())
 	})
-
-	ret := make([]*JobStateFacetItem, len(states))
-	for i := range states {
-		ret[i] = &states[i]
-	}
-	return ret, nil
+	return states
 }
 
 // Labels computes labels facets for a job query.
-func (f *JobFacets) Labels(ctx context.Context) ([]*model.LabelFacetItem, error) {
+func (f *JobFacets) Labels(ctx context.Context) []model.LabelFacetItem {
 	filtered := f.Filtered(ctx)
-	items := model.ComputeLabelsFacet(f.AllJobs, filtered, func(j *Job) []*model.ResourceLabel {
+	return model.ComputeLabelsFacet(f.AllJobs, filtered, func(j *Job) []*model.ResourceLabel {
 		return j.Labels
 	})
-
-	ret := make([]*model.LabelFacetItem, len(items))
-	for i := range items {
-		ret[i] = &items[i]
-	}
-	return ret, nil
 }
 
 func matchesFilter(ctx context.Context, j *Job, filter *TeamJobsFilter) bool {

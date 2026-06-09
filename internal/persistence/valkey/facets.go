@@ -17,21 +17,15 @@ func (f *ValkeyFacets) Filtered(ctx context.Context) []*Valkey {
 }
 
 // Environments computes environments facets for a Valkey query.
-func (f *ValkeyFacets) Environments(ctx context.Context) ([]*model.StringFacetItem, error) {
+func (f *ValkeyFacets) Environments(ctx context.Context) []model.StringFacetItem {
 	filtered := f.Filtered(ctx)
-	items := model.ComputeEnvironmentsFacet(f.AllValkeys, filtered, func(inst *Valkey) string {
+	return model.ComputeEnvironmentsFacet(f.AllValkeys, filtered, func(inst *Valkey) string {
 		return inst.EnvironmentName
 	})
-
-	ret := make([]*model.StringFacetItem, len(items))
-	for i := range items {
-		ret[i] = &items[i]
-	}
-	return ret, nil
 }
 
 // Tiers computes tiers facets for a Valkey query.
-func (f *ValkeyFacets) Tiers(ctx context.Context) ([]*ValkeyTierFacetItem, error) {
+func (f *ValkeyFacets) Tiers(ctx context.Context) []ValkeyTierFacetItem {
 	tierCounts := map[ValkeyTier]int{}
 	for _, inst := range f.AllValkeys {
 		tierCounts[inst.Tier] = 0
@@ -53,23 +47,13 @@ func (f *ValkeyFacets) Tiers(ctx context.Context) ([]*ValkeyTierFacetItem, error
 		return strings.Compare(a.Tier.String(), b.Tier.String())
 	})
 
-	ret := make([]*ValkeyTierFacetItem, len(tiers))
-	for i := range tiers {
-		ret[i] = &tiers[i]
-	}
-	return ret, nil
+	return tiers
 }
 
 // Labels computes labels facets for a Valkey query.
-func (f *ValkeyFacets) Labels(ctx context.Context) ([]*model.LabelFacetItem, error) {
+func (f *ValkeyFacets) Labels(ctx context.Context) []model.LabelFacetItem {
 	filtered := f.Filtered(ctx)
-	items := model.ComputeLabelsFacet(f.AllValkeys, filtered, func(inst *Valkey) []*model.ResourceLabel {
+	return model.ComputeLabelsFacet(f.AllValkeys, filtered, func(inst *Valkey) []*model.ResourceLabel {
 		return inst.Labels
 	})
-
-	ret := make([]*model.LabelFacetItem, len(items))
-	for i := range items {
-		ret[i] = &items[i]
-	}
-	return ret, nil
 }

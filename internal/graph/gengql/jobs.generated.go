@@ -2355,11 +2355,11 @@ func (ec *executionContext) _JobFacets_environments(ctx context.Context, field g
 			return ec.fieldContext_JobFacets_environments(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.Environments(ctx)
+			return obj.Environments(ctx), nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v []*model.StringFacetItem) graphql.Marshaler {
-			return ec.marshalNStringFacetItem2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItemᚄ(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v []model.StringFacetItem) graphql.Marshaler {
+			return ec.marshalNStringFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItemᚄ(ctx, selections, v)
 		},
 		true,
 		true,
@@ -2387,11 +2387,11 @@ func (ec *executionContext) _JobFacets_states(ctx context.Context, field graphql
 			return ec.fieldContext_JobFacets_states(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.States(ctx)
+			return obj.States(ctx), nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v []*job.JobStateFacetItem) graphql.Marshaler {
-			return ec.marshalNJobStateFacetItem2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobStateFacetItemᚄ(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v []job.JobStateFacetItem) graphql.Marshaler {
+			return ec.marshalNJobStateFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobStateFacetItemᚄ(ctx, selections, v)
 		},
 		true,
 		true,
@@ -2419,11 +2419,11 @@ func (ec *executionContext) _JobFacets_labels(ctx context.Context, field graphql
 			return ec.fieldContext_JobFacets_labels(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.Labels(ctx)
+			return obj.Labels(ctx), nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v []*model.LabelFacetItem) graphql.Marshaler {
-			return ec.marshalNLabelFacetItem2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFacetItemᚄ(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v []model.LabelFacetItem) graphql.Marshaler {
+			return ec.marshalNLabelFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFacetItemᚄ(ctx, selections, v)
 		},
 		true,
 		true,
@@ -7537,11 +7537,15 @@ func (ec *executionContext) marshalNJobState2githubᚗcomᚋnaisᚋapiᚋinterna
 	return v
 }
 
-func (ec *executionContext) marshalNJobStateFacetItem2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobStateFacetItemᚄ(ctx context.Context, sel ast.SelectionSet, v []*job.JobStateFacetItem) graphql.Marshaler {
+func (ec *executionContext) marshalNJobStateFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobStateFacetItem(ctx context.Context, sel ast.SelectionSet, v job.JobStateFacetItem) graphql.Marshaler {
+	return ec._JobStateFacetItem(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNJobStateFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobStateFacetItemᚄ(ctx context.Context, sel ast.SelectionSet, v []job.JobStateFacetItem) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNJobStateFacetItem2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobStateFacetItem(ctx, sel, v[i])
+		return ec.marshalNJobStateFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobStateFacetItem(ctx, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -7551,16 +7555,6 @@ func (ec *executionContext) marshalNJobStateFacetItem2ᚕᚖgithubᚗcomᚋnais�
 	}
 
 	return ret
-}
-
-func (ec *executionContext) marshalNJobStateFacetItem2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobStateFacetItem(ctx context.Context, sel ast.SelectionSet, v *job.JobStateFacetItem) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._JobStateFacetItem(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNJobUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobUpdatedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *job.JobUpdatedActivityLogEntryData) graphql.Marshaler {

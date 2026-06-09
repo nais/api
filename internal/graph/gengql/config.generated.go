@@ -1213,11 +1213,11 @@ func (ec *executionContext) _ConfigFacets_environments(ctx context.Context, fiel
 			return ec.fieldContext_ConfigFacets_environments(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.Environments(ctx)
+			return obj.Environments(ctx), nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v []*model.StringFacetItem) graphql.Marshaler {
-			return ec.marshalNStringFacetItem2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItemᚄ(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v []model.StringFacetItem) graphql.Marshaler {
+			return ec.marshalNStringFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItemᚄ(ctx, selections, v)
 		},
 		true,
 		true,
@@ -1245,11 +1245,11 @@ func (ec *executionContext) _ConfigFacets_inUse(ctx context.Context, field graph
 			return ec.fieldContext_ConfigFacets_inUse(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.InUse(ctx)
+			return obj.InUse(ctx), nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v []*model.BooleanFacetItem) graphql.Marshaler {
-			return ec.marshalNBooleanFacetItem2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBooleanFacetItemᚄ(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v []model.BooleanFacetItem) graphql.Marshaler {
+			return ec.marshalNBooleanFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBooleanFacetItemᚄ(ctx, selections, v)
 		},
 		true,
 		true,
@@ -1277,11 +1277,11 @@ func (ec *executionContext) _ConfigFacets_labels(ctx context.Context, field grap
 			return ec.fieldContext_ConfigFacets_labels(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.Labels(ctx)
+			return obj.Labels(ctx), nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v []*model.LabelFacetItem) graphql.Marshaler {
-			return ec.marshalNLabelFacetItem2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFacetItemᚄ(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v []model.LabelFacetItem) graphql.Marshaler {
+			return ec.marshalNLabelFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFacetItemᚄ(ctx, selections, v)
 		},
 		true,
 		true,

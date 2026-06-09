@@ -1792,11 +1792,11 @@ func (ec *executionContext) _ValkeyFacets_environments(ctx context.Context, fiel
 			return ec.fieldContext_ValkeyFacets_environments(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.Environments(ctx)
+			return obj.Environments(ctx), nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v []*model.StringFacetItem) graphql.Marshaler {
-			return ec.marshalNStringFacetItem2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItemᚄ(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v []model.StringFacetItem) graphql.Marshaler {
+			return ec.marshalNStringFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItemᚄ(ctx, selections, v)
 		},
 		true,
 		true,
@@ -1824,11 +1824,11 @@ func (ec *executionContext) _ValkeyFacets_tiers(ctx context.Context, field graph
 			return ec.fieldContext_ValkeyFacets_tiers(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.Tiers(ctx)
+			return obj.Tiers(ctx), nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v []*valkey.ValkeyTierFacetItem) graphql.Marshaler {
-			return ec.marshalNValkeyTierFacetItem2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyTierFacetItemᚄ(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v []valkey.ValkeyTierFacetItem) graphql.Marshaler {
+			return ec.marshalNValkeyTierFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyTierFacetItemᚄ(ctx, selections, v)
 		},
 		true,
 		true,
@@ -1856,11 +1856,11 @@ func (ec *executionContext) _ValkeyFacets_labels(ctx context.Context, field grap
 			return ec.fieldContext_ValkeyFacets_labels(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.Labels(ctx)
+			return obj.Labels(ctx), nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v []*model.LabelFacetItem) graphql.Marshaler {
-			return ec.marshalNLabelFacetItem2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFacetItemᚄ(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v []model.LabelFacetItem) graphql.Marshaler {
+			return ec.marshalNLabelFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFacetItemᚄ(ctx, selections, v)
 		},
 		true,
 		true,
@@ -4385,11 +4385,15 @@ func (ec *executionContext) marshalNValkeyTier2githubᚗcomᚋnaisᚋapiᚋinter
 	return v
 }
 
-func (ec *executionContext) marshalNValkeyTierFacetItem2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyTierFacetItemᚄ(ctx context.Context, sel ast.SelectionSet, v []*valkey.ValkeyTierFacetItem) graphql.Marshaler {
+func (ec *executionContext) marshalNValkeyTierFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyTierFacetItem(ctx context.Context, sel ast.SelectionSet, v valkey.ValkeyTierFacetItem) graphql.Marshaler {
+	return ec._ValkeyTierFacetItem(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNValkeyTierFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyTierFacetItemᚄ(ctx context.Context, sel ast.SelectionSet, v []valkey.ValkeyTierFacetItem) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNValkeyTierFacetItem2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyTierFacetItem(ctx, sel, v[i])
+		return ec.marshalNValkeyTierFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyTierFacetItem(ctx, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -4399,16 +4403,6 @@ func (ec *executionContext) marshalNValkeyTierFacetItem2ᚕᚖgithubᚗcomᚋnai
 	}
 
 	return ret
-}
-
-func (ec *executionContext) marshalNValkeyTierFacetItem2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyTierFacetItem(ctx context.Context, sel ast.SelectionSet, v *valkey.ValkeyTierFacetItem) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._ValkeyTierFacetItem(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNValkeyUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyUpdatedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *valkey.ValkeyUpdatedActivityLogEntryData) graphql.Marshaler {

@@ -17,21 +17,15 @@ func (f *ConfigFacets) Filtered(ctx context.Context) []*Config {
 }
 
 // Environments computes environments facets for a config query.
-func (f *ConfigFacets) Environments(ctx context.Context) ([]*model.StringFacetItem, error) {
+func (f *ConfigFacets) Environments(ctx context.Context) []model.StringFacetItem {
 	filtered := f.Filtered(ctx)
-	items := model.ComputeEnvironmentsFacet(f.AllConfigs, filtered, func(c *Config) string {
+	return model.ComputeEnvironmentsFacet(f.AllConfigs, filtered, func(c *Config) string {
 		return c.EnvironmentName
 	})
-
-	ret := make([]*model.StringFacetItem, len(items))
-	for i := range items {
-		ret[i] = &items[i]
-	}
-	return ret, nil
 }
 
 // InUse computes in-use facets for a config query.
-func (f *ConfigFacets) InUse(ctx context.Context) ([]*model.BooleanFacetItem, error) {
+func (f *ConfigFacets) InUse(ctx context.Context) []model.BooleanFacetItem {
 	inUseCounts := map[bool]int{}
 	inUseSet := buildConfigInUseSet(ctx, f.AllConfigs)
 
@@ -53,25 +47,15 @@ func (f *ConfigFacets) InUse(ctx context.Context) ([]*model.BooleanFacetItem, er
 	}
 	model.SortBooleanFacetItems(inUse)
 
-	ret := make([]*model.BooleanFacetItem, len(inUse))
-	for i := range inUse {
-		ret[i] = &inUse[i]
-	}
-	return ret, nil
+	return inUse
 }
 
 // Labels computes labels facets for a config query.
-func (f *ConfigFacets) Labels(ctx context.Context) ([]*model.LabelFacetItem, error) {
+func (f *ConfigFacets) Labels(ctx context.Context) []model.LabelFacetItem {
 	filtered := f.Filtered(ctx)
-	items := model.ComputeLabelsFacet(f.AllConfigs, filtered, func(c *Config) []*model.ResourceLabel {
+	return model.ComputeLabelsFacet(f.AllConfigs, filtered, func(c *Config) []*model.ResourceLabel {
 		return c.Labels
 	})
-
-	ret := make([]*model.LabelFacetItem, len(items))
-	for i := range items {
-		ret[i] = &items[i]
-	}
-	return ret, nil
 }
 
 func buildConfigInUseSet(ctx context.Context, configs []*Config) map[string]bool {

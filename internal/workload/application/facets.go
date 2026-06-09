@@ -17,21 +17,15 @@ func (f *ApplicationFacets) Filtered(ctx context.Context) []*Application {
 }
 
 // Environments computes environments facets for an application query.
-func (f *ApplicationFacets) Environments(ctx context.Context) ([]*model.StringFacetItem, error) {
+func (f *ApplicationFacets) Environments(ctx context.Context) []model.StringFacetItem {
 	filtered := f.Filtered(ctx)
-	items := model.ComputeEnvironmentsFacet(f.AllApps, filtered, func(app *Application) string {
+	return model.ComputeEnvironmentsFacet(f.AllApps, filtered, func(app *Application) string {
 		return app.EnvironmentName
 	})
-
-	ret := make([]*model.StringFacetItem, len(items))
-	for i := range items {
-		ret[i] = &items[i]
-	}
-	return ret, nil
 }
 
 // States computes states facets for an application query.
-func (f *ApplicationFacets) States(ctx context.Context) ([]*ApplicationStateFacetItem, error) {
+func (f *ApplicationFacets) States(ctx context.Context) []ApplicationStateFacetItem {
 	stateCounts := map[ApplicationState]int{}
 	for _, app := range f.AllApps {
 		state, err := GetState(ctx, app)
@@ -63,25 +57,15 @@ func (f *ApplicationFacets) States(ctx context.Context) ([]*ApplicationStateFace
 		return strings.Compare(a.State.String(), b.State.String())
 	})
 
-	ret := make([]*ApplicationStateFacetItem, len(states))
-	for i := range states {
-		ret[i] = &states[i]
-	}
-	return ret, nil
+	return states
 }
 
 // Labels computes labels facets for an application query.
-func (f *ApplicationFacets) Labels(ctx context.Context) ([]*model.LabelFacetItem, error) {
+func (f *ApplicationFacets) Labels(ctx context.Context) []model.LabelFacetItem {
 	filtered := f.Filtered(ctx)
-	items := model.ComputeLabelsFacet(f.AllApps, filtered, func(app *Application) []*model.ResourceLabel {
+	return model.ComputeLabelsFacet(f.AllApps, filtered, func(app *Application) []*model.ResourceLabel {
 		return app.Labels
 	})
-
-	ret := make([]*model.LabelFacetItem, len(items))
-	for i := range items {
-		ret[i] = &items[i]
-	}
-	return ret, nil
 }
 
 func matchesFilter(ctx context.Context, app *Application, filter *TeamApplicationsFilter) bool {

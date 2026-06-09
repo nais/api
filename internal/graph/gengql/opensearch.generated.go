@@ -1724,11 +1724,11 @@ func (ec *executionContext) _OpenSearchFacets_environments(ctx context.Context, 
 			return ec.fieldContext_OpenSearchFacets_environments(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.Environments(ctx)
+			return obj.Environments(ctx), nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v []*model.StringFacetItem) graphql.Marshaler {
-			return ec.marshalNStringFacetItem2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItemᚄ(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v []model.StringFacetItem) graphql.Marshaler {
+			return ec.marshalNStringFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItemᚄ(ctx, selections, v)
 		},
 		true,
 		true,
@@ -1756,11 +1756,11 @@ func (ec *executionContext) _OpenSearchFacets_tiers(ctx context.Context, field g
 			return ec.fieldContext_OpenSearchFacets_tiers(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.Tiers(ctx)
+			return obj.Tiers(ctx), nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v []*opensearch.OpenSearchTierFacetItem) graphql.Marshaler {
-			return ec.marshalNOpenSearchTierFacetItem2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchTierFacetItemᚄ(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v []opensearch.OpenSearchTierFacetItem) graphql.Marshaler {
+			return ec.marshalNOpenSearchTierFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchTierFacetItemᚄ(ctx, selections, v)
 		},
 		true,
 		true,
@@ -1788,11 +1788,11 @@ func (ec *executionContext) _OpenSearchFacets_labels(ctx context.Context, field 
 			return ec.fieldContext_OpenSearchFacets_labels(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.Labels(ctx)
+			return obj.Labels(ctx), nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v []*model.LabelFacetItem) graphql.Marshaler {
-			return ec.marshalNLabelFacetItem2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFacetItemᚄ(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v []model.LabelFacetItem) graphql.Marshaler {
+			return ec.marshalNLabelFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFacetItemᚄ(ctx, selections, v)
 		},
 		true,
 		true,
@@ -4454,11 +4454,15 @@ func (ec *executionContext) marshalNOpenSearchTier2githubᚗcomᚋnaisᚋapiᚋi
 	return v
 }
 
-func (ec *executionContext) marshalNOpenSearchTierFacetItem2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchTierFacetItemᚄ(ctx context.Context, sel ast.SelectionSet, v []*opensearch.OpenSearchTierFacetItem) graphql.Marshaler {
+func (ec *executionContext) marshalNOpenSearchTierFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchTierFacetItem(ctx context.Context, sel ast.SelectionSet, v opensearch.OpenSearchTierFacetItem) graphql.Marshaler {
+	return ec._OpenSearchTierFacetItem(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNOpenSearchTierFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchTierFacetItemᚄ(ctx context.Context, sel ast.SelectionSet, v []opensearch.OpenSearchTierFacetItem) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNOpenSearchTierFacetItem2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchTierFacetItem(ctx, sel, v[i])
+		return ec.marshalNOpenSearchTierFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchTierFacetItem(ctx, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -4468,16 +4472,6 @@ func (ec *executionContext) marshalNOpenSearchTierFacetItem2ᚕᚖgithubᚗcom�
 	}
 
 	return ret
-}
-
-func (ec *executionContext) marshalNOpenSearchTierFacetItem2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchTierFacetItem(ctx context.Context, sel ast.SelectionSet, v *opensearch.OpenSearchTierFacetItem) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._OpenSearchTierFacetItem(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNOpenSearchUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchUpdatedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *opensearch.OpenSearchUpdatedActivityLogEntryData) graphql.Marshaler {

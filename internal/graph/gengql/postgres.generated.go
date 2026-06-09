@@ -1223,11 +1223,11 @@ func (ec *executionContext) _PostgresInstanceFacets_environments(ctx context.Con
 			return ec.fieldContext_PostgresInstanceFacets_environments(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.Environments(ctx)
+			return obj.Environments(ctx), nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v []*model.StringFacetItem) graphql.Marshaler {
-			return ec.marshalNStringFacetItem2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItemᚄ(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v []model.StringFacetItem) graphql.Marshaler {
+			return ec.marshalNStringFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItemᚄ(ctx, selections, v)
 		},
 		true,
 		true,
@@ -1255,11 +1255,11 @@ func (ec *executionContext) _PostgresInstanceFacets_states(ctx context.Context, 
 			return ec.fieldContext_PostgresInstanceFacets_states(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.States(ctx)
+			return obj.States(ctx), nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v []*postgres.PostgresInstanceStateFacetItem) graphql.Marshaler {
-			return ec.marshalNPostgresInstanceStateFacetItem2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceStateFacetItemᚄ(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v []postgres.PostgresInstanceStateFacetItem) graphql.Marshaler {
+			return ec.marshalNPostgresInstanceStateFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceStateFacetItemᚄ(ctx, selections, v)
 		},
 		true,
 		true,
@@ -1287,11 +1287,11 @@ func (ec *executionContext) _PostgresInstanceFacets_highAvailability(ctx context
 			return ec.fieldContext_PostgresInstanceFacets_highAvailability(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.HighAvailability(ctx)
+			return obj.HighAvailability(ctx), nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v []*model.BooleanFacetItem) graphql.Marshaler {
-			return ec.marshalNBooleanFacetItem2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBooleanFacetItemᚄ(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v []model.BooleanFacetItem) graphql.Marshaler {
+			return ec.marshalNBooleanFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBooleanFacetItemᚄ(ctx, selections, v)
 		},
 		true,
 		true,
@@ -1319,11 +1319,11 @@ func (ec *executionContext) _PostgresInstanceFacets_majorVersions(ctx context.Co
 			return ec.fieldContext_PostgresInstanceFacets_majorVersions(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.MajorVersions(ctx)
+			return obj.MajorVersions(ctx), nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v []*model.StringFacetItem) graphql.Marshaler {
-			return ec.marshalNStringFacetItem2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItemᚄ(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v []model.StringFacetItem) graphql.Marshaler {
+			return ec.marshalNStringFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItemᚄ(ctx, selections, v)
 		},
 		true,
 		true,
@@ -1351,11 +1351,11 @@ func (ec *executionContext) _PostgresInstanceFacets_labels(ctx context.Context, 
 			return ec.fieldContext_PostgresInstanceFacets_labels(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.Labels(ctx)
+			return obj.Labels(ctx), nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v []*model.LabelFacetItem) graphql.Marshaler {
-			return ec.marshalNLabelFacetItem2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFacetItemᚄ(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v []model.LabelFacetItem) graphql.Marshaler {
+			return ec.marshalNLabelFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFacetItemᚄ(ctx, selections, v)
 		},
 		true,
 		true,
@@ -2997,11 +2997,15 @@ func (ec *executionContext) marshalNPostgresInstanceState2githubᚗcomᚋnaisᚋ
 	return v
 }
 
-func (ec *executionContext) marshalNPostgresInstanceStateFacetItem2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceStateFacetItemᚄ(ctx context.Context, sel ast.SelectionSet, v []*postgres.PostgresInstanceStateFacetItem) graphql.Marshaler {
+func (ec *executionContext) marshalNPostgresInstanceStateFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceStateFacetItem(ctx context.Context, sel ast.SelectionSet, v postgres.PostgresInstanceStateFacetItem) graphql.Marshaler {
+	return ec._PostgresInstanceStateFacetItem(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNPostgresInstanceStateFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceStateFacetItemᚄ(ctx context.Context, sel ast.SelectionSet, v []postgres.PostgresInstanceStateFacetItem) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNPostgresInstanceStateFacetItem2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceStateFacetItem(ctx, sel, v[i])
+		return ec.marshalNPostgresInstanceStateFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceStateFacetItem(ctx, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -3011,16 +3015,6 @@ func (ec *executionContext) marshalNPostgresInstanceStateFacetItem2ᚕᚖgithub�
 	}
 
 	return ret
-}
-
-func (ec *executionContext) marshalNPostgresInstanceStateFacetItem2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceStateFacetItem(ctx context.Context, sel ast.SelectionSet, v *postgres.PostgresInstanceStateFacetItem) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._PostgresInstanceStateFacetItem(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNTeamInventoryCountPostgresInstances2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐTeamInventoryCountPostgresInstances(ctx context.Context, sel ast.SelectionSet, v postgres.TeamInventoryCountPostgresInstances) graphql.Marshaler {

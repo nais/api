@@ -2341,11 +2341,11 @@ func (ec *executionContext) _ApplicationFacets_environments(ctx context.Context,
 			return ec.fieldContext_ApplicationFacets_environments(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.Environments(ctx)
+			return obj.Environments(ctx), nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v []*model.StringFacetItem) graphql.Marshaler {
-			return ec.marshalNStringFacetItem2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItemᚄ(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v []model.StringFacetItem) graphql.Marshaler {
+			return ec.marshalNStringFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItemᚄ(ctx, selections, v)
 		},
 		true,
 		true,
@@ -2373,11 +2373,11 @@ func (ec *executionContext) _ApplicationFacets_states(ctx context.Context, field
 			return ec.fieldContext_ApplicationFacets_states(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.States(ctx)
+			return obj.States(ctx), nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v []*application.ApplicationStateFacetItem) graphql.Marshaler {
-			return ec.marshalNApplicationStateFacetItem2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplicationStateFacetItemᚄ(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v []application.ApplicationStateFacetItem) graphql.Marshaler {
+			return ec.marshalNApplicationStateFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplicationStateFacetItemᚄ(ctx, selections, v)
 		},
 		true,
 		true,
@@ -2405,11 +2405,11 @@ func (ec *executionContext) _ApplicationFacets_labels(ctx context.Context, field
 			return ec.fieldContext_ApplicationFacets_labels(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.Labels(ctx)
+			return obj.Labels(ctx), nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v []*model.LabelFacetItem) graphql.Marshaler {
-			return ec.marshalNLabelFacetItem2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFacetItemᚄ(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v []model.LabelFacetItem) graphql.Marshaler {
+			return ec.marshalNLabelFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFacetItemᚄ(ctx, selections, v)
 		},
 		true,
 		true,
@@ -8012,11 +8012,15 @@ func (ec *executionContext) marshalNApplicationState2githubᚗcomᚋnaisᚋapi�
 	return v
 }
 
-func (ec *executionContext) marshalNApplicationStateFacetItem2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplicationStateFacetItemᚄ(ctx context.Context, sel ast.SelectionSet, v []*application.ApplicationStateFacetItem) graphql.Marshaler {
+func (ec *executionContext) marshalNApplicationStateFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplicationStateFacetItem(ctx context.Context, sel ast.SelectionSet, v application.ApplicationStateFacetItem) graphql.Marshaler {
+	return ec._ApplicationStateFacetItem(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNApplicationStateFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplicationStateFacetItemᚄ(ctx context.Context, sel ast.SelectionSet, v []application.ApplicationStateFacetItem) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNApplicationStateFacetItem2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplicationStateFacetItem(ctx, sel, v[i])
+		return ec.marshalNApplicationStateFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplicationStateFacetItem(ctx, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -8026,16 +8030,6 @@ func (ec *executionContext) marshalNApplicationStateFacetItem2ᚕᚖgithubᚗcom
 	}
 
 	return ret
-}
-
-func (ec *executionContext) marshalNApplicationStateFacetItem2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplicationStateFacetItem(ctx context.Context, sel ast.SelectionSet, v *application.ApplicationStateFacetItem) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._ApplicationStateFacetItem(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNApplicationUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplicationUpdatedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *application.ApplicationUpdatedActivityLogEntryData) graphql.Marshaler {
