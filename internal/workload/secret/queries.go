@@ -68,16 +68,7 @@ func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName st
 }
 
 func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *SecretOrder, filter *SecretFilter) (*SecretConnection, error) {
-	filters := make([]watcher.Filter, 0)
-	if filter != nil {
-		if len(filter.Environments) > 0 {
-			filters = append(filters, watcher.InCluster(filter.Environments...))
-		}
-		if len(filter.Labels) > 0 {
-			filters = append(filters, watcher.WithLabels(filter.Labels.Selector()))
-		}
-	}
-	allSecrets := watcher.Objects(fromContext(ctx).Watcher().GetByNamespace(teamSlug.String(), filters...))
+	allSecrets := watcher.Objects(fromContext(ctx).Watcher().GetByNamespace(teamSlug.String()))
 
 	if orderBy == nil {
 		orderBy = &SecretOrder{

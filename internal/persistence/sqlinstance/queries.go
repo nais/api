@@ -95,14 +95,7 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 }
 
 func ListAllForTeam(ctx context.Context, teamSlug slug.Slug, filter *SQLInstanceFilter) []*SQLInstance {
-	filters := make([]watcher.Filter, 0)
-	if filter != nil {
-		if len(filter.Labels) > 0 {
-			filters = append(filters, watcher.WithLabels(filter.Labels.Selector()))
-		}
-	}
-
-	all := fromContext(ctx).sqlInstanceWatcher.GetByNamespace(teamSlug.String(), filters...)
+	all := fromContext(ctx).sqlInstanceWatcher.GetByNamespace(teamSlug.String())
 	return watcher.Objects(all)
 }
 

@@ -97,17 +97,7 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 }
 
 func ListAllForTeam(ctx context.Context, teamSlug slug.Slug, filter *PostgresInstanceFilter) []*PostgresInstance {
-	filters := make([]watcher.Filter, 0)
-	if filter != nil {
-		if len(filter.Environments) > 0 {
-			filters = append(filters, watcher.InCluster(filter.Environments...))
-		}
-		if len(filter.Labels) > 0 {
-			filters = append(filters, watcher.WithLabels(filter.Labels.Selector()))
-		}
-	}
-
-	all := fromContext(ctx).zalandoPostgresWatcher.GetByNamespace(teamSlug.String(), filters...)
+	all := fromContext(ctx).zalandoPostgresWatcher.GetByNamespace(teamSlug.String())
 	return watcher.Objects(all)
 }
 

@@ -87,19 +87,7 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 }
 
 func ListAllForTeam(ctx context.Context, teamSlug slug.Slug, filter *OpenSearchFilter) []*OpenSearch {
-	filters := []watcher.Filter{
-		watcher.WithoutDeleted(),
-	}
-	if filter != nil {
-		if len(filter.Environments) > 0 {
-			filters = append(filters, watcher.InCluster(filter.Environments...))
-		}
-		if len(filter.Labels) > 0 {
-			filters = append(filters, watcher.WithLabels(filter.Labels.Selector()))
-		}
-	}
-
-	all := fromContext(ctx).client.watcher.GetByNamespace(teamSlug.String(), filters...)
+	all := fromContext(ctx).client.watcher.GetByNamespace(teamSlug.String(), watcher.WithoutDeleted())
 	return watcher.Objects(all)
 }
 
