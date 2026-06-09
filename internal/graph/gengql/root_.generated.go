@@ -1099,6 +1099,7 @@ type ComplexityRoot struct {
 	ImageVulnerabilitySummary struct {
 		Critical         func(childComplexity int) int
 		High             func(childComplexity int) int
+		HighEpssCount    func(childComplexity int) int
 		LastUpdated      func(childComplexity int) int
 		Low              func(childComplexity int) int
 		Medium           func(childComplexity int) int
@@ -1106,8 +1107,10 @@ type ComplexityRoot struct {
 		PriorityElevated func(childComplexity int) int
 		PriorityHigh     func(childComplexity int) int
 		PriorityMonitor  func(childComplexity int) int
+		RansomwareCount  func(childComplexity int) int
 		RiskScore        func(childComplexity int) int
 		StaleImageTag    func(childComplexity int) int
+		TopRiskTier      func(childComplexity int) int
 		Total            func(childComplexity int) int
 		Unassigned       func(childComplexity int) int
 	}
@@ -7455,6 +7458,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ImageVulnerabilitySummary.High(childComplexity), true
 
+	case "ImageVulnerabilitySummary.highEpssCount":
+		if e.ComplexityRoot.ImageVulnerabilitySummary.HighEpssCount == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImageVulnerabilitySummary.HighEpssCount(childComplexity), true
+
 	case "ImageVulnerabilitySummary.lastUpdated":
 		if e.ComplexityRoot.ImageVulnerabilitySummary.LastUpdated == nil {
 			break
@@ -7504,6 +7514,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ImageVulnerabilitySummary.PriorityMonitor(childComplexity), true
 
+	case "ImageVulnerabilitySummary.ransomwareCount":
+		if e.ComplexityRoot.ImageVulnerabilitySummary.RansomwareCount == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImageVulnerabilitySummary.RansomwareCount(childComplexity), true
+
 	case "ImageVulnerabilitySummary.riskScore":
 		if e.ComplexityRoot.ImageVulnerabilitySummary.RiskScore == nil {
 			break
@@ -7517,6 +7534,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ImageVulnerabilitySummary.StaleImageTag(childComplexity), true
+
+	case "ImageVulnerabilitySummary.topRiskTier":
+		if e.ComplexityRoot.ImageVulnerabilitySummary.TopRiskTier == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImageVulnerabilitySummary.TopRiskTier(childComplexity), true
 
 	case "ImageVulnerabilitySummary.total":
 		if e.ComplexityRoot.ImageVulnerabilitySummary.Total == nil {
@@ -31960,6 +31984,15 @@ type ImageVulnerabilitySummary {
 	"Number of vulnerabilities with risk tier MONITOR."
 	priorityMonitor: Int!
 
+	"Number of vulnerabilities associated with known ransomware campaigns."
+	ransomwareCount: Int!
+
+	"Number of vulnerabilities with a high EPSS percentile (≥ 0.90)."
+	highEpssCount: Int!
+
+	"The highest risk tier among vulnerabilities in this summary."
+	topRiskTier: CVEPriority
+
 	"Timestamp of the last update of the vulnerability summary."
 	lastUpdated: Time
 
@@ -34447,6 +34480,12 @@ func (ec *executionContext) childFields_ImageVulnerabilitySummary(ctx context.Co
 		return ec.fieldContext_ImageVulnerabilitySummary_priorityElevated(ctx, field)
 	case "priorityMonitor":
 		return ec.fieldContext_ImageVulnerabilitySummary_priorityMonitor(ctx, field)
+	case "ransomwareCount":
+		return ec.fieldContext_ImageVulnerabilitySummary_ransomwareCount(ctx, field)
+	case "highEpssCount":
+		return ec.fieldContext_ImageVulnerabilitySummary_highEpssCount(ctx, field)
+	case "topRiskTier":
+		return ec.fieldContext_ImageVulnerabilitySummary_topRiskTier(ctx, field)
 	case "lastUpdated":
 		return ec.fieldContext_ImageVulnerabilitySummary_lastUpdated(ctx, field)
 	case "staleImageTag":
