@@ -1,10 +1,10 @@
 package job
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/nais/api/internal/graph/ident"
@@ -102,6 +102,7 @@ type JobRun struct {
 	TeamSlug        slug.Slug      `json:"-"`
 	Failed          bool           `json:"-"`
 	Message         string         `json:"-"`
+	ImageDigest     string         `json:"-"`
 
 	spec *batchv1.Job
 }
@@ -171,11 +172,22 @@ func (j *JobRun) CompletionTime() *time.Time {
 }
 
 func (j *JobRun) Image() *workload.ContainerImage {
-	name, tag, _ := strings.Cut(j.spec.Spec.Template.Spec.Containers[0].Image, ":")
-	return &workload.ContainerImage{
-		Name: name,
-		Tag:  tag,
+	return workload.NewContainerImageWithDigest(j.spec.Spec.Template.Spec.Containers[0].Image, j.ImageDigest)
+}
+
+func jobRunImageDigest(ctx context.Context, teamSlug slug.Slug, environmentName, runName string) string {
+	pods, err := workload.ListAllPodsForJob(ctx, environmentName, teamSlug, runName)
+	if err != nil {
+		return ""
 	}
+
+	for _, pod := range pods {
+		if digest := workload.DigestFromPodStatus(pod.Spec.Containers, pod.Status.ContainerStatuses); digest != "" {
+			return digest
+		}
+	}
+
+	return ""
 }
 
 // Duration returns the duration of the job run.
@@ -382,7 +394,7 @@ func toGraphJob(job *nais_io_v1.Naisjob, environmentName string) *Job {
 	}
 }
 
-func ToGraphJobRun(job *batchv1.Job, environmentName string) *JobRun {
+func ToGraphJobRun(job *batchv1.Job, environmentName string, imageDigest string) *JobRun {
 	var startTime *time.Time
 
 	if job.Status.StartTime != nil {
@@ -398,6 +410,7 @@ func ToGraphJobRun(job *batchv1.Job, environmentName string) *JobRun {
 		Trigger:         trigger(job),
 		Failed:          failed(job),
 		Message:         statusMessage(job),
+		ImageDigest:     imageDigest,
 		spec:            job,
 	}
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/nais/api/internal/kubernetes/watcher"
 	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	batchv1 "k8s.io/api/batch/v1"
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
@@ -15,10 +16,11 @@ type ctxKey int
 
 const loadersKey ctxKey = iota
 
-func NewLoaderContext(ctx context.Context, jobWatcher *watcher.Watcher[*nais_io_v1.Naisjob], runWatcher *watcher.Watcher[*batchv1.Job]) context.Context {
+func NewLoaderContext(ctx context.Context, jobWatcher *watcher.Watcher[*nais_io_v1.Naisjob], runWatcher *watcher.Watcher[*batchv1.Job], podWatcher *watcher.Watcher[*corev1.Pod]) context.Context {
 	return context.WithValue(ctx, loadersKey, &loaders{
 		jobWatcher: jobWatcher,
 		runWatcher: runWatcher,
+		podWatcher: podWatcher,
 	})
 }
 
@@ -41,6 +43,7 @@ func fromContext(ctx context.Context) *loaders {
 type loaders struct {
 	jobWatcher *watcher.Watcher[*nais_io_v1.Naisjob]
 	runWatcher *watcher.Watcher[*batchv1.Job]
+	podWatcher *watcher.Watcher[*corev1.Pod]
 }
 
 func transformJob(in any) (any, error) {

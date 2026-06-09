@@ -20,6 +20,7 @@ import (
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/utilization"
+	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
 	promv1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	prom "github.com/prometheus/common/model"
@@ -214,7 +215,7 @@ func TestFakeQueryAll(t *testing.T) {
 	}
 
 	prometheusClient := NewFakeClient(nil, nil)
-	ctx = application.NewLoaderContext(ctx, application.NewWatcher(ctx, mgr), application.NewIngressWatcher(ctx, mgr), prometheusClient, logrus.New())
+	ctx = application.NewLoaderContext(ctx, application.NewWatcher(ctx, mgr), application.NewIngressWatcher(ctx, mgr), workload.NewWatcher(ctx, mgr), prometheusClient, logrus.New())
 	ctx = team.NewLoaderContext(ctx, pool, nil)
 
 	ctxWait, cancel := context.WithTimeout(ctx, 1*time.Second)

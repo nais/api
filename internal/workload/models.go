@@ -14,6 +14,7 @@ import (
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/slug"
 	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -50,6 +51,7 @@ type Base struct {
 	EnvironmentName     string                   `json:"-"`
 	TeamSlug            slug.Slug                `json:"-"`
 	ImageString         string                   `json:"-"`
+	ImageDigest         string                   `json:"-"`
 	Conditions          []metav1.Condition       `json:"-"`
 	AccessPolicy        *nais_io_v1.AccessPolicy `json:"-"`
 	Annotations         map[string]string        `json:"-"`
@@ -60,11 +62,7 @@ type Base struct {
 }
 
 func (b Base) Image() *ContainerImage {
-	name, tag, _ := strings.Cut(b.ImageString, ":")
-	return &ContainerImage{
-		Name: name,
-		Tag:  tag,
-	}
+	return NewContainerImageWithDigest(b.ImageString, b.ImageDigest)
 }
 
 func (b Base) GetName() string                           { return b.Name }
@@ -79,20 +77,147 @@ func (b Base) GetType() Type                             { return b.Type }
 func (b Base) GetLogging() *nais_io_v1.Logging           { return b.Logging }
 
 type ContainerImage struct {
-	Name string `json:"name"`
-	Tag  string `json:"tag"`
+	Name   string  `json:"name"`
+	Tag    string  `json:"tag"`
+	Digest *string `json:"digest,omitempty"`
+	HasTag bool    `json:"-"`
 }
 
 func (ContainerImage) IsNode() {}
 func (c ContainerImage) Ref() string {
-	return c.Name + ":" + c.Tag
+	ref := c.Name
+	if c.HasTag {
+		ref += ":" + c.Tag
+	}
+	if c.Digest != nil && *c.Digest != "" {
+		ref += "@" + *c.Digest
+	}
+	return ref
 }
 
 func (c ContainerImage) ID() ident.Ident {
-	return newImageIdent(c.Ref())
+	return newImageIdent(c.stableRef())
 }
 
 func (ContainerImage) IsActivityLogger() {}
+
+func (c ContainerImage) stableRef() string {
+	if c.HasTag {
+		return c.Name + ":" + c.Tag
+	}
+	return c.Name + ":"
+}
+
+func NewContainerImage(image string) *ContainerImage {
+	name, tag, digest, hasTag := SplitImage(image)
+	ret := &ContainerImage{
+		Name:   name,
+		Tag:    tag,
+		HasTag: hasTag,
+	}
+	if digest != "" {
+		ret.Digest = &digest
+	}
+	return ret
+}
+
+func NewContainerImageWithDigest(image, imageID string) *ContainerImage {
+	ret := NewContainerImage(image)
+	if digest := DigestFromImageID(imageID); digest != "" {
+		ret.Digest = &digest
+	}
+	return ret
+}
+
+func SplitImage(image string) (name, tag, digest string, hasTag bool) {
+	before, after, ok := strings.Cut(image, "@")
+	if ok {
+		image = before
+		digest = after
+	}
+
+	name = image
+	tag = "latest"
+
+	lastSlash := strings.LastIndex(image, "/")
+	lastColon := strings.LastIndex(image, ":")
+	if lastColon > lastSlash {
+		name = image[:lastColon]
+		tagPart := image[lastColon+1:]
+		if tagPart != "" {
+			tag = tagPart
+			hasTag = true
+		}
+	}
+	return name, tag, digest, hasTag
+}
+
+func DigestFromImageID(imageID string) string {
+	_, digest, ok := strings.Cut(imageID, "@")
+	if ok {
+		return digest
+	}
+
+	if _, after, ok := strings.Cut(imageID, "://"); ok {
+		imageID = after
+	}
+
+	if strings.HasPrefix(imageID, "sha256:") {
+		return imageID
+	}
+
+	return ""
+}
+
+// DigestFromPodStatusByAppName returns the digest for the container named appName,
+// falling back to any available digest if the named container is not found or has none.
+// This prevents sidecars from shadowing the main application container digest.
+func DigestFromPodStatusByAppName(appName string, statuses []corev1.ContainerStatus) string {
+	for _, cs := range statuses {
+		if cs.Name == appName {
+			if digest := DigestFromImageID(cs.ImageID); digest != "" {
+				return digest
+			}
+			break
+		}
+	}
+	for _, cs := range statuses {
+		if digest := DigestFromImageID(cs.ImageID); digest != "" {
+			return digest
+		}
+	}
+	return ""
+}
+
+func DigestFromPodStatus(containers []corev1.Container, statuses []corev1.ContainerStatus) string {
+	if len(statuses) == 0 {
+		return ""
+	}
+
+	expectedContainer := ""
+	if len(containers) > 0 {
+		expectedContainer = containers[0].Name
+	}
+
+	if expectedContainer != "" {
+		for _, cs := range statuses {
+			if cs.Name != expectedContainer {
+				continue
+			}
+			if digest := DigestFromImageID(cs.ImageID); digest != "" {
+				return digest
+			}
+		}
+	}
+
+	for _, cs := range statuses {
+		if digest := DigestFromImageID(cs.ImageID); digest != "" {
+			return digest
+		}
+	}
+
+	return ""
+}
 
 type WorkloadResources interface {
 	IsWorkloadResources()

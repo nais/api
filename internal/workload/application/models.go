@@ -265,12 +265,23 @@ func toGraphInstance(pod *corev1.Pod, teamSlug slug.Slug, environmentName string
 		}
 	}
 
+	imageString := ""
+	for _, c := range pod.Spec.Containers {
+		if c.Name == applicationName {
+			imageString = c.Image
+			break
+		}
+	}
+	if imageString == "" && len(pod.Spec.Containers) > 0 {
+		imageString = pod.Spec.Containers[0].Image
+	}
+
 	ret := &ApplicationInstance{
 		Name:                       pod.Name,
 		Restarts:                   int(containerStatus.RestartCount),
 		Created:                    pod.CreationTimestamp.Time,
 		EnvironmentName:            environmentName,
-		ImageString:                pod.Spec.Containers[0].Image,
+		ImageString:                imageString,
 		TeamSlug:                   teamSlug,
 		ApplicationName:            applicationName,
 		ApplicationContainerStatus: containerStatus,
@@ -280,11 +291,7 @@ func toGraphInstance(pod *corev1.Pod, teamSlug slug.Slug, environmentName string
 }
 
 func (i ApplicationInstance) Image() *workload.ContainerImage {
-	name, tag, _ := strings.Cut(i.ImageString, ":")
-	return &workload.ContainerImage{
-		Name: name,
-		Tag:  tag,
-	}
+	return workload.NewContainerImageWithDigest(i.ImageString, i.ApplicationContainerStatus.ImageID)
 }
 
 type ApplicationManifest struct {
@@ -449,7 +456,7 @@ func (a *Application) Resources() *ApplicationResources {
 	return ret
 }
 
-func toGraphApplication(application *nais_io_v1alpha1.Application, environmentName string) *Application {
+func toGraphApplication(application *nais_io_v1alpha1.Application, environmentName, imageDigest string) *Application {
 	getConditions := func(status nais_io_v1.Status) []metav1.Condition {
 		if status.Conditions == nil {
 			return nil
@@ -480,6 +487,7 @@ func toGraphApplication(application *nais_io_v1alpha1.Application, environmentNa
 			EnvironmentName:     environmentName,
 			TeamSlug:            slug.Slug(application.Namespace),
 			ImageString:         imageString,
+			ImageDigest:         imageDigest,
 			Conditions:          getConditions(application.Status),
 			AccessPolicy:        application.Spec.AccessPolicy,
 			Annotations:         application.GetAnnotations(),

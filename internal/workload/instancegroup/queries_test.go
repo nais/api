@@ -7,8 +7,10 @@ import (
 	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
 	"github.com/sirupsen/logrus"
+	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
 )
 
 // makeIG creates a minimal InstanceGroup for testing.
@@ -222,5 +224,37 @@ func TestInlineEnvVarClassificationWithNilAppWatcher(t *testing.T) {
 
 	if result[0].Source.Kind != InstanceGroupValueSourceKindNais {
 		t.Errorf("expected NAIS when Application CRD not found, got %v", result[0].Source.Kind)
+	}
+}
+
+func TestReplicaSetPodSelectorUsesReplicaSetSelector(t *testing.T) {
+	rs := &appsv1.ReplicaSet{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "my-app-123",
+			Namespace: "my-team",
+			Labels: map[string]string{
+				"app": "my-app",
+			},
+		},
+		Spec: appsv1.ReplicaSetSpec{
+			Selector: &metav1.LabelSelector{
+				MatchLabels: map[string]string{
+					"app":               "my-app",
+					"pod-template-hash": "abc123",
+				},
+			},
+		},
+	}
+
+	selector, err := replicaSetPodSelector(rs)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if !selector.Matches(labels.Set{"app": "my-app", "pod-template-hash": "abc123"}) {
+		t.Fatal("expected selector to match the ReplicaSet pod labels")
+	}
+	if selector.Matches(labels.Set{"app": "my-app", "pod-template-hash": "other"}) {
+		t.Fatal("expected selector to reject pods from a different ReplicaSet")
 	}
 }

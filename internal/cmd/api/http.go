@@ -338,10 +338,10 @@ func ConfigureGraph(
 
 	setupContext := func(ctx context.Context) context.Context {
 		ctx = podlog.NewLoaderContext(ctx, podLogStreamer)
-		ctx = application.NewLoaderContext(ctx, watchers.AppWatcher, watchers.IngressWatcher, prometheusClient, log)
+		ctx = application.NewLoaderContext(ctx, watchers.AppWatcher, watchers.IngressWatcher, watchers.PodWatcher, prometheusClient, log)
 		ctx = bigquery.NewLoaderContext(ctx, watchers.BqWatcher)
 		ctx = bucket.NewLoaderContext(ctx, watchers.BucketWatcher)
-		ctx = job.NewLoaderContext(ctx, watchers.JobWatcher, watchers.RunWatcher)
+		ctx = job.NewLoaderContext(ctx, watchers.JobWatcher, watchers.RunWatcher, watchers.PodWatcher)
 		ctx = kafkatopic.NewLoaderContext(ctx, watchers.KafkaTopicWatcher)
 		ctx = workload.NewLoaderContext(ctx, watchers.PodWatcher)
 		ctx = secret.NewLoaderContext(ctx, watchers.SecretWatcher, secretClientCreator, dynamicClients, clusters, log)

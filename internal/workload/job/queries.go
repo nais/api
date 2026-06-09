@@ -97,7 +97,7 @@ func GetJobRun(ctx context.Context, teamSlug slug.Slug, environment, name string
 	if err != nil {
 		return nil, err
 	}
-	return ToGraphJobRun(run, environment), nil
+	return ToGraphJobRun(run, environment, jobRunImageDigest(ctx, teamSlug, environment, name)), nil
 }
 
 func GetByIdent(ctx context.Context, id ident.Ident) (*Job, error) {
@@ -267,7 +267,7 @@ func Trigger(ctx context.Context, teamSlug slug.Slug, environmentName, name, run
 		return nil, err
 	}
 
-	return ToGraphJobRun(jobRunBatch, environmentName), nil
+	return ToGraphJobRun(jobRunBatch, environmentName, jobRunImageDigest(ctx, slug.Slug(jobRunBatch.Namespace), environmentName, jobRunBatch.Name)), nil
 }
 
 func Update(ctx context.Context, input UpdateJobInput) (*UpdateJobPayload, error) {
@@ -394,10 +394,11 @@ func allRuns(ctx context.Context, teamSlug slug.Slug, environment string, jobNam
 	selector := labels.NewSelector().Add(*nameReq)
 
 	runs := fromContext(ctx).runWatcher.GetByNamespace(teamSlug.String(), watcher.InCluster(environment), watcher.WithLabels(selector))
+	digests := jobRunImageDigests(ctx, teamSlug, environment, runs)
 
 	ret := make([]*JobRun, len(runs))
 	for i, run := range runs {
-		ret[i] = ToGraphJobRun(run.Obj, run.Cluster)
+		ret[i] = ToGraphJobRun(run.Obj, run.Cluster, digests[run.Obj.Name])
 	}
 
 	slices.SortStableFunc(ret, func(a, b *JobRun) int {
@@ -411,6 +412,41 @@ func allRuns(ctx context.Context, teamSlug slug.Slug, environment string, jobNam
 		return b.StartTime.Compare(*a.StartTime)
 	})
 	return ret, nil
+}
+
+func jobRunImageDigests(ctx context.Context, teamSlug slug.Slug, environment string, runs []*watcher.EnvironmentWrapper[*batchv1.Job]) map[string]string {
+	digests := make(map[string]string)
+	if len(runs) == 0 {
+		return digests
+	}
+
+	runNames := make([]string, 0, len(runs))
+	for _, run := range runs {
+		runNames = append(runNames, run.Obj.Name)
+	}
+
+	nameReq, err := labels.NewRequirement("job-name", selection.In, runNames)
+	if err != nil {
+		return digests
+	}
+
+	pods := fromContext(ctx).podWatcher.GetByNamespace(
+		teamSlug.String(),
+		watcher.InCluster(environment),
+		watcher.WithLabels(labels.NewSelector().Add(*nameReq)),
+	)
+	for _, pod := range pods {
+		runName := pod.Obj.Labels["job-name"]
+		if runName == "" {
+			continue
+		}
+		if digest := workload.DigestFromPodStatus(pod.Obj.Spec.Containers, pod.Obj.Status.ContainerStatuses); digest != "" {
+			if _, ok := digests[runName]; !ok {
+				digests[runName] = digest
+			}
+		}
+	}
+	return digests
 }
 
 // createJobFromCronJob creates a Job from a CronJob.

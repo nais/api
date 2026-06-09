@@ -8,6 +8,7 @@ import (
 	"github.com/nais/api/internal/kubernetes/watcher"
 	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
 	"github.com/sirupsen/logrus"
+	corev1 "k8s.io/api/core/v1"
 	netv1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
@@ -16,8 +17,8 @@ type ctxKey int
 
 const loadersKey ctxKey = iota
 
-func NewLoaderContext(ctx context.Context, appWatcher *watcher.Watcher[*nais_io_v1alpha1.Application], ingressWatcher *watcher.Watcher[*netv1.Ingress], client IngressMetricsClient, log logrus.FieldLogger) context.Context {
-	return context.WithValue(ctx, loadersKey, newLoaders(appWatcher, ingressWatcher, client, log))
+func NewLoaderContext(ctx context.Context, appWatcher *watcher.Watcher[*nais_io_v1alpha1.Application], ingressWatcher *watcher.Watcher[*netv1.Ingress], podWatcher *watcher.Watcher[*corev1.Pod], client IngressMetricsClient, log logrus.FieldLogger) context.Context {
+	return context.WithValue(ctx, loadersKey, newLoaders(appWatcher, ingressWatcher, podWatcher, client, log))
 }
 
 func NewWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watcher[*nais_io_v1alpha1.Application] {
@@ -39,14 +40,16 @@ func fromContext(ctx context.Context) *loaders {
 type loaders struct {
 	appWatcher     *watcher.Watcher[*nais_io_v1alpha1.Application]
 	ingressWatcher *watcher.Watcher[*netv1.Ingress]
+	podWatcher     *watcher.Watcher[*corev1.Pod]
 	client         IngressMetricsClient
 	log            logrus.FieldLogger
 }
 
-func newLoaders(appWatcher *watcher.Watcher[*nais_io_v1alpha1.Application], ingressWatcher *watcher.Watcher[*netv1.Ingress], client IngressMetricsClient, log logrus.FieldLogger) *loaders {
+func newLoaders(appWatcher *watcher.Watcher[*nais_io_v1alpha1.Application], ingressWatcher *watcher.Watcher[*netv1.Ingress], podWatcher *watcher.Watcher[*corev1.Pod], client IngressMetricsClient, log logrus.FieldLogger) *loaders {
 	return &loaders{
 		appWatcher:     appWatcher,
 		ingressWatcher: ingressWatcher,
+		podWatcher:     podWatcher,
 		client:         client,
 		log:            log,
 	}

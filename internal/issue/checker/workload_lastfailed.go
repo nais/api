@@ -53,8 +53,9 @@ func (w Workload) lastRun(jobName, team, env string) (*job.JobRun, error) {
 	var latestTime time.Time
 	var latest *job.JobRun
 
+	const noDigest = ""
 	for _, run := range runs {
-		j := job.ToGraphJobRun(run.Obj, env)
+		j := job.ToGraphJobRun(run.Obj, env, noDigest)
 		if j.StartTime != nil && j.StartTime.After(latestTime) {
 			latestTime = *j.StartTime
 			latest = j

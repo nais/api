@@ -10,6 +10,7 @@ import (
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
 	"github.com/nais/api/internal/workload/secret"
 	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
@@ -41,7 +42,7 @@ func ListForApplication(ctx context.Context, teamSlug slug.Slug, environmentName
 
 	ret := make([]*InstanceGroup, 0, len(replicaSets))
 	for _, rs := range replicaSets {
-		ig := toGraphInstanceGroup(rs.Obj, rs.Cluster)
+		ig := toGraphInstanceGroup(rs.Obj, rs.Cluster, imageDigestForInstanceGroup(l, rs.Obj, rs.Cluster))
 		// Only include groups that have running or desired instances
 		if ig.DesiredInstances > 0 || ig.ReadyInstances > 0 {
 			ret = append(ret, ig)
@@ -78,7 +79,12 @@ func ImageHistory(ctx context.Context, teamSlug slug.Slug, environmentName, appN
 	ret := make([]*ApplicationHistory, 0, len(replicaSets))
 
 	for _, rs := range replicaSets {
-		image := ""
+		if len(rs.Spec.Template.Spec.Containers) == 0 {
+			continue
+		}
+		// By Nais convention the main container shares the app name.
+		// Fall back to the first container when no match is found.
+		image := rs.Spec.Template.Spec.Containers[0].Image
 		for _, c := range rs.Spec.Template.Spec.Containers {
 			if c.Name == appName {
 				image = c.Image
@@ -114,7 +120,7 @@ func GetByIdent(ctx context.Context, id ident.Ident) (*InstanceGroup, error) {
 		return nil, err
 	}
 
-	return toGraphInstanceGroup(rs, env), nil
+	return toGraphInstanceGroup(rs, env, imageDigestForInstanceGroup(l, rs, env)), nil
 }
 
 // GetEnvironmentVariableByIdent returns an environment variable by its ident.
@@ -130,7 +136,7 @@ func GetEnvironmentVariableByIdent(ctx context.Context, id ident.Ident) (*Instan
 		return nil, err
 	}
 
-	ig := toGraphInstanceGroup(rs, env)
+	ig := toGraphInstanceGroup(rs, env, imageDigestForInstanceGroup(l, rs, env))
 	if ig.ApplicationName != appName {
 		return nil, fmt.Errorf("instance group %q does not belong to application %q", igName, appName)
 	}
@@ -147,6 +153,49 @@ func GetEnvironmentVariableByIdent(ctx context.Context, id ident.Ident) (*Instan
 	}
 
 	return nil, fmt.Errorf("environment variable %q not found in instance group %q", envVarName, igName)
+}
+
+func imageDigestForInstanceGroup(l *loaders, rs *appsv1.ReplicaSet, environmentName string) string {
+	selector, err := replicaSetPodSelector(rs)
+	if err != nil {
+		return ""
+	}
+
+	pods := l.podWatcher.GetByNamespace(
+		rs.Namespace,
+		watcher.WithLabels(selector),
+		watcher.InCluster(environmentName),
+	)
+	slices.SortFunc(pods, func(a, b *watcher.EnvironmentWrapper[*corev1.Pod]) int {
+		return b.Obj.CreationTimestamp.Compare(a.Obj.CreationTimestamp.Time)
+	})
+	for _, pod := range pods {
+		if digest := workload.DigestFromPodStatusByAppName(rs.Labels["app"], pod.Obj.Status.ContainerStatuses); digest != "" {
+			return digest
+		}
+	}
+	return ""
+}
+
+func replicaSetPodSelector(rs *appsv1.ReplicaSet) (labels.Selector, error) {
+	if rs.Spec.Selector != nil {
+		selector, err := metav1.LabelSelectorAsSelector(rs.Spec.Selector)
+		if err == nil {
+			return selector, nil
+		}
+		return nil, err
+	}
+
+	appName := rs.Labels["app"]
+	if appName == "" {
+		return nil, fmt.Errorf("replicaset %q has no pod selector", rs.Name)
+	}
+
+	req, err := labels.NewRequirement("app", selection.Equals, []string{appName})
+	if err != nil {
+		return nil, err
+	}
+	return labels.NewSelector().Add(*req), nil
 }
 
 // ListEnvironmentVariables extracts environment variables from the instance group's pod template.
