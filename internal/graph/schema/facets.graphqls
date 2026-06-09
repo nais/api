@@ -33,4 +33,3 @@ type LabelFacetItem {
 	"Number of matching resources."
 	count: Int!
 }
-

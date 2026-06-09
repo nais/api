@@ -22819,7 +22819,6 @@ type LabelFacetItem {
 	"Number of matching resources."
 	count: Int!
 }
-
 `, BuiltIn: false},
 	{Name: "../schema/feature.graphqls", Input: `type Features implements Node {
 	"""
