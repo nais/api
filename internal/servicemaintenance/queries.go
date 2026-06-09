@@ -12,6 +12,7 @@ import (
 	"github.com/nais/api/internal/persistence/opensearch"
 	"github.com/nais/api/internal/persistence/valkey"
 	servicemaintenanceal "github.com/nais/api/internal/servicemaintenance/activitylog"
+	"github.com/nais/api/internal/thirdparty/aiven"
 )
 
 func StartValkeyMaintenance(ctx context.Context, input StartValkeyMaintenanceInput) error {
@@ -20,7 +21,12 @@ func StartValkeyMaintenance(ctx context.Context, input StartValkeyMaintenanceInp
 		return err
 	}
 
-	if err := fromContext(ctx).maintenanceMutator.aivenClient.ServiceMaintenanceStart(ctx, vk.AivenProject, vk.FullyQualifiedName()); err != nil {
+	project, err := aiven.GetProject(ctx, input.EnvironmentName)
+	if err != nil {
+		return err
+	}
+
+	if err := fromContext(ctx).maintenanceMutator.aivenClient.ServiceMaintenanceStart(ctx, project.ID, vk.FullyQualifiedName()); err != nil {
 		fromContext(ctx).log.WithError(err).Error("Failed to start Valkey maintenance")
 		return err
 	}
@@ -41,7 +47,11 @@ func StartOpenSearchMaintenance(ctx context.Context, input StartOpenSearchMainte
 		return err
 	}
 
-	if err := fromContext(ctx).maintenanceMutator.aivenClient.ServiceMaintenanceStart(ctx, instance.AivenProject, instance.FullyQualifiedName()); err != nil {
+	project, err := aiven.GetProject(ctx, input.EnvironmentName)
+	if err != nil {
+		return err
+	}
+	if err := fromContext(ctx).maintenanceMutator.aivenClient.ServiceMaintenanceStart(ctx, project.ID, instance.FullyQualifiedName()); err != nil {
 		fromContext(ctx).log.WithError(err).Error("Failed to start OpenSearch maintenance")
 		return err
 	}

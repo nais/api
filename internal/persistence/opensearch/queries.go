@@ -2,6 +2,7 @@ package opensearch
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -19,16 +20,25 @@ import (
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/thirdparty/aiven"
 	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
+	"github.com/nais/pgrator/pkg/api"
+	naiscrd "github.com/nais/pgrator/pkg/api/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/utils/ptr"
 )
 
 var (
 	specDiskSpace             = []string{"spec", "disk_space"}
-	specPlan                  = []string{"spec", "plan"}
 	specTerminationProtection = []string{"spec", "terminationProtection"}
 	specOpenSearchVersion     = []string{"spec", "userConfig", "opensearch_version"}
+
+	specShardIndexingPressureEnabled  = []string{"spec", "userConfig", "opensearch", "shard_indexing_pressure", "enabled"}
+	specShardIndexingPressureEnforced = []string{"spec", "userConfig", "opensearch", "shard_indexing_pressure", "enforced"}
+
+	specIndicesQueryBoolMaxClauseCount = []string{"spec", "userConfig", "opensearch", "indices_query_bool_max_clause_count"}
+
+	specHTTPMaxContentLength = []string{"spec", "userConfig", "opensearch", "http_max_content_length"}
 )
 
 func GetByIdent(ctx context.Context, id ident.Ident) (*OpenSearch, error) {
@@ -41,15 +51,23 @@ func GetByIdent(ctx context.Context, id ident.Ident) (*OpenSearch, error) {
 }
 
 func Get(ctx context.Context, teamSlug slug.Slug, environment, name string) (*OpenSearch, error) {
-	prefix := instanceNamer(teamSlug, "")
-	if !strings.HasPrefix(name, prefix) {
-		name = instanceNamer(teamSlug, name)
+	v, err := fromContext(ctx).naisWatcher.Get(environment, teamSlug.String(), name)
+	if errors.Is(err, &watcher.ErrorNotFound{}) {
+		prefix := instanceNamer(teamSlug, "")
+		if !strings.HasPrefix(name, prefix) {
+			name = instanceNamer(teamSlug, name)
+		}
+		v, err = fromContext(ctx).watcher.Get(environment, teamSlug.String(), name)
 	}
-	return fromContext(ctx).client.watcher.Get(environment, teamSlug.String(), name)
+	return v, err
 }
 
 func State(ctx context.Context, os *OpenSearch) (OpenSearchState, error) {
-	s, err := fromContext(ctx).aivenClient.ServiceGet(ctx, os.AivenProject, os.FullyQualifiedName())
+	project, err := aiven.GetProject(ctx, os.EnvironmentName)
+	if err != nil {
+		return OpenSearchStateUnknown, err
+	}
+	s, err := fromContext(ctx).aivenClient.ServiceGet(ctx, project.ID, os.FullyQualifiedName())
 	if err != nil {
 		// The OpenSearch instance may not have been created in Aiven yet, or it has been deleted.
 		// In both cases, we return "unknown" state rather than an error.
@@ -87,7 +105,9 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 }
 
 func ListAllForTeam(ctx context.Context, teamSlug slug.Slug) []*OpenSearch {
-	all := fromContext(ctx).client.watcher.GetByNamespace(teamSlug.String(), watcher.WithoutDeleted())
+	all := fromContext(ctx).watcher.GetByNamespace(teamSlug.String(), watcher.WithoutDeleted())
+	allNais := fromContext(ctx).naisWatcher.GetByNamespace(teamSlug.String(), watcher.WithoutDeleted())
+	all = append(all, allNais...)
 	return watcher.Objects(all)
 }
 
@@ -121,8 +141,12 @@ func ListAccess(ctx context.Context, openSearch *OpenSearch, page *pagination.Pa
 }
 
 func GetOpenSearchVersion(ctx context.Context, os *OpenSearch) (*OpenSearchVersion, error) {
+	project, err := aiven.GetProject(ctx, os.EnvironmentName)
+	if err != nil {
+		return nil, err
+	}
 	key := AivenDataLoaderKey{
-		Project:     os.AivenProject,
+		Project:     project.ID,
 		ServiceName: os.FullyQualifiedName(),
 	}
 
@@ -141,7 +165,7 @@ func GetOpenSearchVersion(ctx context.Context, os *OpenSearch) (*OpenSearchVersi
 	}
 
 	if major == "" {
-		major = OpenSearchMajorVersionV2
+		major = OpenSearchMajorVersionV3_3
 	}
 
 	return &OpenSearchVersion{
@@ -155,7 +179,7 @@ func GetForWorkload(ctx context.Context, teamSlug slug.Slug, environment string,
 		return nil, nil
 	}
 
-	return fromContext(ctx).client.watcher.Get(environment, teamSlug.String(), instanceNamer(teamSlug, reference.Instance))
+	return Get(ctx, teamSlug, environment, reference.Instance)
 }
 
 func Create(ctx context.Context, input CreateOpenSearchInput) (*CreateOpenSearchPayload, error) {
@@ -163,62 +187,70 @@ func Create(ctx context.Context, input CreateOpenSearchInput) (*CreateOpenSearch
 		return nil, err
 	}
 
-	namespace := input.TeamSlug.String()
-	client, err := fromContext(ctx).watcher.ImpersonatedClientWithNamespace(ctx, input.EnvironmentName, namespace)
+	client, err := newK8sClient(ctx, input.EnvironmentName, input.TeamSlug)
 	if err != nil {
 		return nil, err
 	}
 
-	machine, err := machineTypeFromTierAndMemory(input.Tier, input.Memory)
-	if err != nil {
-		return nil, err
+	// Ensure there's no existing Aiven OpenSearch with the same name
+	// This can be removed when we manage all opensearches through Console
+	_, err = fromContext(ctx).watcher.Get(input.EnvironmentName, input.TeamSlug.String(), instanceNamer(input.TeamSlug, input.Name))
+	if !errors.Is(err, &watcher.ErrorNotFound{}) {
+		return nil, apierror.Errorf("OpenSearch with the name %q already exists, but are not yet managed through Console.", input.Name)
 	}
 
-	res := &unstructured.Unstructured{}
-	res.SetAPIVersion("aiven.io/v1alpha1")
-	res.SetKind("OpenSearch")
-	res.SetName(instanceNamer(input.TeamSlug, input.Name))
-	res.SetNamespace(namespace)
+	res := &naiscrd.OpenSearch{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "OpenSearch",
+			APIVersion: "nais.io/v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      input.Name,
+			Namespace: input.TeamSlug.String(),
+		},
+		Spec: naiscrd.OpenSearchSpec{
+			Tier:      toMapperatorTier(input.Tier),
+			Memory:    toMapperatorMemory(input.Memory),
+			Version:   toMapperatorVersion(input.Version),
+			StorageGB: int(input.StorageGB),
+		},
+	}
 	res.SetAnnotations(kubernetes.WithCommonAnnotations(nil, authz.ActorFromContext(ctx).User.Identity()))
 	kubernetes.SetManagedByConsoleLabel(res)
 
-	aivenProject, err := aiven.GetProject(ctx, input.EnvironmentName)
-	if err != nil {
-		return nil, err
+	if input.ShardIndexingPressureEnabled != nil || input.ShardIndexingPressureEnforced != nil {
+		res.Spec.ShardIndexingPressure = &naiscrd.OpenSearchShardIndexingPressure{
+			Enabled:  ptr.Deref(input.ShardIndexingPressureEnabled, false),
+			Enforced: ptr.Deref(input.ShardIndexingPressureEnforced, false),
+		}
 	}
-	version, err := input.Version.ToAivenString()
+
+	if input.IndicesQueryBoolMaxClauseCount != nil {
+		res.Spec.Indices = &naiscrd.OpenSearchIndices{
+			QueryBoolMaxClauseCount: input.IndicesQueryBoolMaxClauseCount,
+		}
+	}
+
+	if input.HTTPMaxContentLength != nil {
+		q, err := resource.ParseQuantity(*input.HTTPMaxContentLength)
+		if err != nil {
+			return nil, err
+		}
+		res.Spec.Http = &naiscrd.OpenSearchHttp{
+			MaxContentLength: &q,
+		}
+	}
+
+	obj, err := kubernetes.ToUnstructured(res)
 	if err != nil {
 		return nil, err
 	}
 
-	res.Object["spec"] = map[string]any{
-		"cloudName":             "google-europe-north1",
-		"plan":                  machine.AivenPlan,
-		"project":               aivenProject.ID,
-		"projectVpcId":          aivenProject.VPC,
-		"disk_space":            input.StorageGB.ToAivenString(),
-		"terminationProtection": true,
-		"tags": map[string]any{
-			"environment": input.EnvironmentName,
-			"team":        namespace,
-			"tenant":      fromContext(ctx).tenantName,
-		},
-		"userConfig": map[string]any{
-			"opensearch_version": version,
-		},
-	}
-
-	ret, err := client.Create(ctx, res, metav1.CreateOptions{})
-	if err != nil {
+	if _, err = client.Create(ctx, obj, metav1.CreateOptions{}); err != nil {
 		if k8serrors.IsAlreadyExists(err) {
 			return nil, apierror.ErrAlreadyExists
 		}
 		return nil, err
-	}
-
-	err = aiven.UpsertPrometheusServiceIntegration(ctx, fromContext(ctx).watcher, ret, aivenProject, input.EnvironmentName)
-	if err != nil {
-		return nil, fmt.Errorf("creating Prometheus service integration: %w", err)
 	}
 
 	err = activitylog.Create(ctx, activitylog.CreateInput{
@@ -233,7 +265,7 @@ func Create(ctx context.Context, input CreateOpenSearchInput) (*CreateOpenSearch
 		return nil, err
 	}
 
-	os, err := toOpenSearch(ret, input.EnvironmentName)
+	os, err := toOpenSearchFromNais(res, input.EnvironmentName)
 	if err != nil {
 		return nil, err
 	}
@@ -248,41 +280,41 @@ func Update(ctx context.Context, input UpdateOpenSearchInput) (*UpdateOpenSearch
 		return nil, err
 	}
 
-	client, err := fromContext(ctx).watcher.ImpersonatedClientWithNamespace(ctx, input.EnvironmentName, input.TeamSlug.String())
+	client, err := newK8sClient(ctx, input.EnvironmentName, input.TeamSlug)
 	if err != nil {
 		return nil, err
 	}
 
-	openSearch, err := client.Get(ctx, instanceNamer(input.TeamSlug, input.Name), metav1.GetOptions{})
+	openSearch, err := client.Get(ctx, input.Name, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
-	if !kubernetes.HasManagedByConsoleLabel(openSearch) {
-		return nil, apierror.Errorf("OpenSearch %s/%s is not managed by Console", input.TeamSlug, input.Name)
+
+	concreteOpenSearch, err := kubernetes.ToConcrete[naiscrd.OpenSearch](openSearch)
+	if err != nil {
+		return nil, err
 	}
 
 	changes := make([]*OpenSearchUpdatedActivityLogEntryDataUpdatedField, 0)
-
-	res, err := updatePlan(openSearch, input)
-	if err != nil {
-		return nil, err
+	updateFuncs := []func(*naiscrd.OpenSearch, UpdateOpenSearchInput) ([]*OpenSearchUpdatedActivityLogEntryDataUpdatedField, error){
+		updateTier,
+		updateMemory,
+		updateVersion,
+		updateStorage,
+		updateShardIndexingPressure,
+		updateIndices,
+		updateHTTP,
 	}
-	changes = append(changes, res...)
 
-	res, err = updateVersion(ctx, openSearch, input)
-	if err != nil {
-		return nil, err
+	for _, f := range updateFuncs {
+		res, err := f(concreteOpenSearch, input)
+		if err != nil {
+			return nil, err
+		}
+		changes = append(changes, res...)
 	}
-	changes = append(changes, res...)
-
-	res, err = updateStorage(openSearch, input)
-	if err != nil {
-		return nil, err
-	}
-	changes = append(changes, res...)
 
 	if len(changes) == 0 {
-		// No changes to update
 		os, err := toOpenSearch(openSearch, input.EnvironmentName)
 		if err != nil {
 			return nil, err
@@ -293,21 +325,16 @@ func Update(ctx context.Context, input UpdateOpenSearchInput) (*UpdateOpenSearch
 		}, nil
 	}
 
-	openSearch.SetAnnotations(kubernetes.WithCommonAnnotations(openSearch.GetAnnotations(), authz.ActorFromContext(ctx).User.Identity()))
-
-	ret, err := client.Update(ctx, openSearch, metav1.UpdateOptions{})
+	obj, err := kubernetes.ToUnstructured(concreteOpenSearch)
 	if err != nil {
 		return nil, err
 	}
 
-	aivenProject, err := aiven.GetProject(ctx, input.EnvironmentName)
+	obj.SetAnnotations(kubernetes.WithCommonAnnotations(obj.GetAnnotations(), authz.ActorFromContext(ctx).User.Identity()))
+
+	ret, err := client.Update(ctx, obj, metav1.UpdateOptions{})
 	if err != nil {
 		return nil, err
-	}
-
-	err = aiven.UpsertPrometheusServiceIntegration(ctx, fromContext(ctx).watcher, ret, aivenProject, input.EnvironmentName)
-	if err != nil {
-		return nil, fmt.Errorf("creating Prometheus service integration: %w", err)
 	}
 
 	err = activitylog.Create(ctx, activitylog.CreateInput{
@@ -325,13 +352,18 @@ func Update(ctx context.Context, input UpdateOpenSearchInput) (*UpdateOpenSearch
 		return nil, err
 	}
 
-	os, err := toOpenSearch(ret, input.EnvironmentName)
+	retOpenSearch, err := kubernetes.ToConcrete[naiscrd.OpenSearch](ret)
+	if err != nil {
+		return nil, err
+	}
+
+	osUpdated, err := toOpenSearchFromNais(retOpenSearch, input.EnvironmentName)
 	if err != nil {
 		return nil, err
 	}
 
 	return &UpdateOpenSearchPayload{
-		OpenSearch: os,
+		OpenSearch: osUpdated,
 	}, nil
 }
 
@@ -376,149 +408,210 @@ func CreateOpenSearchCredentials(ctx context.Context, input CreateOpenSearchCred
 	return &CreateOpenSearchCredentialsPayload{Credentials: result.(*OpenSearchCredentials)}, nil
 }
 
-func updatePlan(openSearch *unstructured.Unstructured, input UpdateOpenSearchInput) ([]*OpenSearchUpdatedActivityLogEntryDataUpdatedField, error) {
+func updateTier(openSearch *naiscrd.OpenSearch, input UpdateOpenSearchInput) ([]*OpenSearchUpdatedActivityLogEntryDataUpdatedField, error) {
 	changes := make([]*OpenSearchUpdatedActivityLogEntryDataUpdatedField, 0)
 
-	desired, err := machineTypeFromTierAndMemory(input.Tier, input.Memory)
-	if err != nil {
-		return nil, err
-	}
-
-	oldPlan, found, err := unstructured.NestedString(openSearch.Object, specPlan...)
-	if err != nil {
-		return nil, err
-	}
-	if !found {
-		// .spec.plan is a required field
-		return nil, fmt.Errorf("missing .spec.plan in OpenSearch resource")
-	}
-
-	if oldPlan == desired.AivenPlan {
-		return changes, nil
-	}
-
-	oldMachine, err := machineTypeFromPlan(oldPlan)
-	if err != nil {
-		return nil, err
-	}
-
-	if input.Tier != oldMachine.Tier {
+	origTier := fromMapperatorTier(openSearch.Spec.Tier)
+	if input.Tier != origTier {
 		changes = append(changes, &OpenSearchUpdatedActivityLogEntryDataUpdatedField{
 			Field:    "tier",
-			OldValue: new(oldMachine.Tier.String()),
+			OldValue: new(origTier.String()),
 			NewValue: new(input.Tier.String()),
 		})
 	}
 
-	if input.Memory != oldMachine.Memory {
+	openSearch.Spec.Tier = toMapperatorTier(input.Tier)
+
+	return changes, nil
+}
+
+func updateMemory(openSearch *naiscrd.OpenSearch, input UpdateOpenSearchInput) ([]*OpenSearchUpdatedActivityLogEntryDataUpdatedField, error) {
+	changes := make([]*OpenSearchUpdatedActivityLogEntryDataUpdatedField, 0)
+
+	origMemory := fromMapperatorMemory(openSearch.Spec.Memory)
+	if input.Memory != origMemory {
 		changes = append(changes, &OpenSearchUpdatedActivityLogEntryDataUpdatedField{
 			Field:    "memory",
-			OldValue: new(oldMachine.Memory.String()),
+			OldValue: new(origMemory.String()),
 			NewValue: new(input.Memory.String()),
 		})
 	}
 
-	if err := unstructured.SetNestedField(openSearch.Object, desired.AivenPlan, specPlan...); err != nil {
-		return nil, err
-	}
+	openSearch.Spec.Memory = toMapperatorMemory(input.Memory)
+
 	return changes, nil
 }
 
-func updateVersion(ctx context.Context, openSearch *unstructured.Unstructured, input UpdateOpenSearchInput) ([]*OpenSearchUpdatedActivityLogEntryDataUpdatedField, error) {
+func updateVersion(openSearch *naiscrd.OpenSearch, input UpdateOpenSearchInput) ([]*OpenSearchUpdatedActivityLogEntryDataUpdatedField, error) {
+	origVersion := fromMapperatorVersion(openSearch.Spec.Version)
+
+	if origVersion == input.Version {
+		return nil, nil
+	}
+
+	if err := input.Version.ValidateUpgradePath(origVersion); err != nil {
+		return nil, err
+	}
+
 	changes := make([]*OpenSearchUpdatedActivityLogEntryDataUpdatedField, 0)
 
-	oldVersion, found, err := unstructured.NestedString(openSearch.Object, specOpenSearchVersion...)
-	if err != nil {
-		return nil, err
-	}
-	if !found {
-		os, err := toOpenSearch(openSearch, input.EnvironmentName)
-		if err != nil {
-			return nil, err
-		}
-		version, err := GetOpenSearchVersion(ctx, os)
-		if err != nil {
-			return nil, err
-		}
-
-		oldVersion = *version.Actual
-	}
-
-	oldMajorVersion, err := OpenSearchMajorVersionFromAivenString(oldVersion)
-	if err != nil {
-		return nil, err
-	}
-
-	if oldMajorVersion == input.Version {
-		return changes, nil
-	}
-
-	if err := input.Version.ValidateUpgradePath(oldMajorVersion); err != nil {
-		return nil, err
+	var oldValue *string
+	if origVersion != "" {
+		oldValue = new(origVersion.String())
 	}
 
 	changes = append(changes, &OpenSearchUpdatedActivityLogEntryDataUpdatedField{
-		Field: "version",
-		OldValue: func() *string {
-			if found {
-				return new(oldVersion)
-			}
-			return nil
-		}(),
+		Field:    "version",
+		OldValue: oldValue,
 		NewValue: new(input.Version.String()),
 	})
 
-	version, err := input.Version.ToAivenString()
-	if err != nil {
-		return nil, err
-	}
+	openSearch.Spec.Version = toMapperatorVersion(input.Version)
 
-	if err := unstructured.SetNestedField(openSearch.Object, version, specOpenSearchVersion...); err != nil {
-		return nil, err
-	}
 	return changes, nil
 }
 
-func updateStorage(openSearch *unstructured.Unstructured, input UpdateOpenSearchInput) ([]*OpenSearchUpdatedActivityLogEntryDataUpdatedField, error) {
-	changes := make([]*OpenSearchUpdatedActivityLogEntryDataUpdatedField, 0)
-
-	desired, err := machineTypeFromTierAndMemory(input.Tier, input.Memory)
-	if err != nil {
-		return nil, err
-	}
-
-	oldAivenDiskSpace, found, err := unstructured.NestedString(openSearch.Object, specDiskSpace...)
-	if err != nil {
-		return nil, err
-	}
-	// default to minimum storage capacity for the selected plan, in case the field is not set explicitly
-	oldStorageGB := desired.StorageMin
-	if found {
-		oldStorageGB, err = StorageGBFromAivenString(oldAivenDiskSpace)
-		if err != nil {
-			return nil, err
-		}
-	}
+func updateStorage(openSearch *naiscrd.OpenSearch, input UpdateOpenSearchInput) ([]*OpenSearchUpdatedActivityLogEntryDataUpdatedField, error) {
+	oldStorageGB := StorageGB(openSearch.Spec.StorageGB)
 
 	if oldStorageGB == input.StorageGB {
-		return changes, nil
+		return nil, nil
+	}
+
+	changes := make([]*OpenSearchUpdatedActivityLogEntryDataUpdatedField, 0)
+
+	var oldValue *string
+	if oldStorageGB > 0 {
+		oldValue = new(oldStorageGB.String())
 	}
 
 	changes = append(changes, &OpenSearchUpdatedActivityLogEntryDataUpdatedField{
-		Field: "storageGB",
-		OldValue: func() *string {
-			if found {
-				return new(oldStorageGB.String())
-			}
-			return nil
-		}(),
+		Field:    "storageGB",
+		OldValue: oldValue,
 		NewValue: new(input.StorageGB.String()),
 	})
 
-	if err := unstructured.SetNestedField(openSearch.Object, input.StorageGB.ToAivenString(), specDiskSpace...); err != nil {
+	openSearch.Spec.StorageGB = int(input.StorageGB)
+
+	return changes, nil
+}
+
+func updateShardIndexingPressure(openSearch *naiscrd.OpenSearch, input UpdateOpenSearchInput) ([]*OpenSearchUpdatedActivityLogEntryDataUpdatedField, error) {
+	if input.ShardIndexingPressureEnabled == nil && input.ShardIndexingPressureEnforced == nil {
+		return nil, nil
+	}
+
+	var oldEnabled, oldEnforced bool
+	if openSearch.Spec.ShardIndexingPressure != nil {
+		oldEnabled = openSearch.Spec.ShardIndexingPressure.Enabled
+		oldEnforced = openSearch.Spec.ShardIndexingPressure.Enforced
+	}
+
+	newEnabled := ptr.Deref(input.ShardIndexingPressureEnabled, oldEnabled)
+	newEnforced := ptr.Deref(input.ShardIndexingPressureEnforced, oldEnforced)
+
+	changes := make([]*OpenSearchUpdatedActivityLogEntryDataUpdatedField, 0)
+
+	if oldEnabled != newEnabled {
+		changes = append(changes, &OpenSearchUpdatedActivityLogEntryDataUpdatedField{
+			Field:    "shardIndexingPressureEnabled",
+			OldValue: new(strconv.FormatBool(oldEnabled)),
+			NewValue: new(strconv.FormatBool(newEnabled)),
+		})
+	}
+	if oldEnforced != newEnforced {
+		changes = append(changes, &OpenSearchUpdatedActivityLogEntryDataUpdatedField{
+			Field:    "shardIndexingPressureEnforced",
+			OldValue: new(strconv.FormatBool(oldEnforced)),
+			NewValue: new(strconv.FormatBool(newEnforced)),
+		})
+	}
+
+	if len(changes) == 0 {
+		return nil, nil
+	}
+
+	openSearch.Spec.ShardIndexingPressure = &naiscrd.OpenSearchShardIndexingPressure{
+		Enabled:  newEnabled,
+		Enforced: newEnforced,
+	}
+
+	return changes, nil
+}
+
+func updateIndices(openSearch *naiscrd.OpenSearch, input UpdateOpenSearchInput) ([]*OpenSearchUpdatedActivityLogEntryDataUpdatedField, error) {
+	if input.IndicesQueryBoolMaxClauseCount == nil {
+		return nil, nil
+	}
+
+	var oldCount *int
+	if openSearch.Spec.Indices != nil {
+		oldCount = openSearch.Spec.Indices.QueryBoolMaxClauseCount
+	}
+	newCount := input.IndicesQueryBoolMaxClauseCount
+
+	if equalIntPtr(oldCount, newCount) {
+		return nil, nil
+	}
+
+	openSearch.Spec.Indices = &naiscrd.OpenSearchIndices{
+		QueryBoolMaxClauseCount: newCount,
+	}
+
+	return []*OpenSearchUpdatedActivityLogEntryDataUpdatedField{
+		{
+			Field:    "indicesQueryBoolMaxClauseCount",
+			OldValue: intPtrToStringPtr(oldCount),
+			NewValue: intPtrToStringPtr(newCount),
+		},
+	}, nil
+}
+
+func updateHTTP(openSearch *naiscrd.OpenSearch, input UpdateOpenSearchInput) ([]*OpenSearchUpdatedActivityLogEntryDataUpdatedField, error) {
+	if input.HTTPMaxContentLength == nil {
+		return nil, nil
+	}
+
+	newQ, err := resource.ParseQuantity(*input.HTTPMaxContentLength)
+	if err != nil {
 		return nil, err
 	}
-	return changes, nil
+
+	var oldValue *string
+	if openSearch.Spec.Http != nil && openSearch.Spec.Http.MaxContentLength != nil {
+		old := openSearch.Spec.Http.MaxContentLength
+		if old.Cmp(newQ) == 0 {
+			return nil, nil
+		}
+		s := old.String()
+		oldValue = &s
+	}
+
+	openSearch.Spec.Http = &naiscrd.OpenSearchHttp{
+		MaxContentLength: &newQ,
+	}
+
+	return []*OpenSearchUpdatedActivityLogEntryDataUpdatedField{
+		{
+			Field:    "httpMaxContentLength",
+			OldValue: oldValue,
+			NewValue: new(newQ.String()),
+		},
+	}, nil
+}
+
+func equalIntPtr(a, b *int) bool {
+	if a == nil || b == nil {
+		return a == b
+	}
+	return *a == *b
+}
+
+func intPtrToStringPtr(v *int) *string {
+	if v == nil {
+		return nil
+	}
+	return new(strconv.Itoa(*v))
 }
 
 func Delete(ctx context.Context, input DeleteOpenSearchInput) (*DeleteOpenSearchPayload, error) {
@@ -526,36 +619,35 @@ func Delete(ctx context.Context, input DeleteOpenSearchInput) (*DeleteOpenSearch
 		return nil, err
 	}
 
-	name := instanceNamer(input.TeamSlug, input.Name)
-	client, err := fromContext(ctx).watcher.ImpersonatedClientWithNamespace(ctx, input.EnvironmentName, input.TeamSlug.String())
+	client, err := newK8sClient(ctx, input.EnvironmentName, input.TeamSlug)
 	if err != nil {
 		return nil, err
 	}
 
-	os, err := client.Get(ctx, name, metav1.GetOptions{})
+	openSearch, err := client.Get(ctx, input.Name, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
 
-	if !kubernetes.HasManagedByConsoleLabel(os) {
+	if !kubernetes.HasManagedByConsoleLabel(openSearch) {
 		return nil, apierror.Errorf("OpenSearch %s/%s is not managed by Console", input.TeamSlug, input.Name)
 	}
 
-	terminationProtection, found, err := unstructured.NestedBool(os.Object, specTerminationProtection...)
-	if err != nil {
-		return nil, err
+	annotations := openSearch.GetAnnotations()
+	if annotations == nil {
+		annotations = make(map[string]string)
 	}
-	if found && terminationProtection {
-		if err := unstructured.SetNestedField(os.Object, false, specTerminationProtection...); err != nil {
-			return nil, err
-		}
+	if annotations[api.AllowDeletionAnnotation] != "true" {
+		annotations[api.AllowDeletionAnnotation] = "true"
+		openSearch.SetAnnotations(annotations)
 
-		if _, err = client.Update(ctx, os, metav1.UpdateOptions{}); err != nil {
-			return nil, fmt.Errorf("removing deletion protection: %w", err)
+		_, err = client.Update(ctx, openSearch, metav1.UpdateOptions{})
+		if err != nil {
+			return nil, fmt.Errorf("set allow deletion annotation: %w", err)
 		}
 	}
 
-	if err := fromContext(ctx).watcher.Delete(ctx, input.EnvironmentName, input.TeamSlug.String(), name); err != nil {
+	if err := client.Delete(ctx, input.Name, metav1.DeleteOptions{}); err != nil {
 		return nil, err
 	}
 
@@ -573,4 +665,94 @@ func Delete(ctx context.Context, input DeleteOpenSearchInput) (*DeleteOpenSearch
 	return &DeleteOpenSearchPayload{
 		OpenSearchDeleted: new(true),
 	}, nil
+}
+
+func toMapperatorTier(tier OpenSearchTier) naiscrd.OpenSearchTier {
+	switch tier {
+	case OpenSearchTierSingleNode:
+		return naiscrd.OpenSearchTierSingleNode
+	case OpenSearchTierHighAvailability:
+		return naiscrd.OpenSearchTierHighAvailability
+	default:
+		return ""
+	}
+}
+
+func fromMapperatorTier(tier naiscrd.OpenSearchTier) OpenSearchTier {
+	switch tier {
+	case naiscrd.OpenSearchTierSingleNode:
+		return OpenSearchTierSingleNode
+	case naiscrd.OpenSearchTierHighAvailability:
+		return OpenSearchTierHighAvailability
+	default:
+		return ""
+	}
+}
+
+func toMapperatorMemory(memory OpenSearchMemory) naiscrd.OpenSearchMemory {
+	switch memory {
+	case OpenSearchMemoryGB2:
+		return naiscrd.OpenSearchMemory2GB
+	case OpenSearchMemoryGB4:
+		return naiscrd.OpenSearchMemory4GB
+	case OpenSearchMemoryGB8:
+		return naiscrd.OpenSearchMemory8GB
+	case OpenSearchMemoryGB16:
+		return naiscrd.OpenSearchMemory16GB
+	case OpenSearchMemoryGB32:
+		return naiscrd.OpenSearchMemory32GB
+	case OpenSearchMemoryGB64:
+		return naiscrd.OpenSearchMemory64GB
+	default:
+		return ""
+	}
+}
+
+func fromMapperatorMemory(memory naiscrd.OpenSearchMemory) OpenSearchMemory {
+	switch memory {
+	case naiscrd.OpenSearchMemory2GB:
+		return OpenSearchMemoryGB2
+	case naiscrd.OpenSearchMemory4GB:
+		return OpenSearchMemoryGB4
+	case naiscrd.OpenSearchMemory8GB:
+		return OpenSearchMemoryGB8
+	case naiscrd.OpenSearchMemory16GB:
+		return OpenSearchMemoryGB16
+	case naiscrd.OpenSearchMemory32GB:
+		return OpenSearchMemoryGB32
+	case naiscrd.OpenSearchMemory64GB:
+		return OpenSearchMemoryGB64
+	default:
+		return ""
+	}
+}
+
+func toMapperatorVersion(version OpenSearchMajorVersion) naiscrd.OpenSearchVersion {
+	switch version {
+	case OpenSearchMajorVersionV1:
+		return naiscrd.OpenSearchVersionV1
+	case OpenSearchMajorVersionV2:
+		return naiscrd.OpenSearchVersionV2
+	case OpenSearchMajorVersionV2_19:
+		return naiscrd.OpenSearchVersionV2_19
+	case OpenSearchMajorVersionV3_3:
+		return naiscrd.OpenSearchVersionV3_3
+	default:
+		return ""
+	}
+}
+
+func fromMapperatorVersion(version naiscrd.OpenSearchVersion) OpenSearchMajorVersion {
+	switch version {
+	case naiscrd.OpenSearchVersionV1:
+		return OpenSearchMajorVersionV1
+	case naiscrd.OpenSearchVersionV2:
+		return OpenSearchMajorVersionV2
+	case naiscrd.OpenSearchVersionV2_19:
+		return OpenSearchMajorVersionV2_19
+	case naiscrd.OpenSearchVersionV3_3:
+		return OpenSearchMajorVersionV3_3
+	default:
+		return ""
+	}
 }

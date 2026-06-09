@@ -82,6 +82,14 @@ type OpenSearch implements Persistence & Node {
 	memory: OpenSearchMemory!
 	"Available storage in GB."
 	storageGB: Int!
+	"Whether shard indexing back pressure is enabled."
+	shardIndexingPressureEnabled: Boolean!
+	"Whether shard indexing back pressure runs in enforced mode. In enforced mode requests that may degrade cluster performance are rejected; in shadow mode (enforced false) metrics are tracked but no requests are rejected."
+	shardIndexingPressureEnforced: Boolean!
+	"Maximum number of clauses a Lucene BooleanQuery can contain. When not set, the instance uses the default of 1024. Increasing this value may cause performance issues."
+	indicesQueryBoolMaxClauseCount: Int
+	"Maximum content length, in a human-readable quantity (e.g. \"100Mi\", \"1Gi\"), for requests to the OpenSearch HTTP API. When not set, the instance uses the default of 100Mi."
+	httpMaxContentLength: String
 	"Issues that affects the instance."
 	issues(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
@@ -248,6 +256,14 @@ input CreateOpenSearchInput {
 	version: OpenSearchMajorVersion!
 	"Available storage in GB."
 	storageGB: Int!
+	"Enable shard indexing back pressure. Defaults to false."
+	shardIndexingPressureEnabled: Boolean
+	"Run shard indexing back pressure in enforced mode. Defaults to false (shadow mode)."
+	shardIndexingPressureEnforced: Boolean
+	"Maximum number of clauses a Lucene BooleanQuery can contain. Must be between 64 and 4096. When not set, the instance uses the default of 1024."
+	indicesQueryBoolMaxClauseCount: Int
+	"Maximum content length for requests to the OpenSearch HTTP API. Specified as a human-readable quantity (e.g. \"100Mi\", \"1Gi\"); unitless values are interpreted as bytes. Must be between 1 byte and 2147483647 bytes (around 2047Mi). When not set, the instance uses the default of 100Mi."
+	httpMaxContentLength: String
 }
 
 type CreateOpenSearchPayload {
@@ -270,6 +286,14 @@ input UpdateOpenSearchInput {
 	version: OpenSearchMajorVersion!
 	"Available storage in GB."
 	storageGB: Int!
+	"Enable shard indexing back pressure. Defaults to false."
+	shardIndexingPressureEnabled: Boolean
+	"Run shard indexing back pressure in enforced mode. Defaults to false (shadow mode)."
+	shardIndexingPressureEnforced: Boolean
+	"Maximum number of clauses a Lucene BooleanQuery can contain. Must be between 64 and 4096. When not set, the instance uses the default of 1024."
+	indicesQueryBoolMaxClauseCount: Int
+	"Maximum content length for requests to the OpenSearch HTTP API. Specified as a human-readable quantity (e.g. \"100Mi\", \"1Gi\"); unitless values are interpreted as bytes. Must be between 1 byte and 2147483647 bytes (around 2047Mi). When not set, the instance uses the default of 100Mi."
+	httpMaxContentLength: String
 }
 
 type UpdateOpenSearchPayload {

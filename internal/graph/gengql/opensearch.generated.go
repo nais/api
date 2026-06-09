@@ -659,6 +659,98 @@ func (ec *executionContext) fieldContext_OpenSearch_storageGB(_ context.Context,
 	return graphql.NewScalarFieldContext("OpenSearch", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
+func (ec *executionContext) _OpenSearch_shardIndexingPressureEnabled(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearch) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_OpenSearch_shardIndexingPressureEnabled(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.ShardIndexingPressureEnabled, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
+			return ec.marshalNBoolean2bool(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_OpenSearch_shardIndexingPressureEnabled(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("OpenSearch", field, false, false, errors.New("field of type Boolean does not have child fields"))
+}
+
+func (ec *executionContext) _OpenSearch_shardIndexingPressureEnforced(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearch) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_OpenSearch_shardIndexingPressureEnforced(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.ShardIndexingPressureEnforced, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
+			return ec.marshalNBoolean2bool(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_OpenSearch_shardIndexingPressureEnforced(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("OpenSearch", field, false, false, errors.New("field of type Boolean does not have child fields"))
+}
+
+func (ec *executionContext) _OpenSearch_indicesQueryBoolMaxClauseCount(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearch) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_OpenSearch_indicesQueryBoolMaxClauseCount(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.IndicesQueryBoolMaxClauseCount, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *int) graphql.Marshaler {
+			return ec.marshalOInt2ᚖint(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_OpenSearch_indicesQueryBoolMaxClauseCount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("OpenSearch", field, false, false, errors.New("field of type Int does not have child fields"))
+}
+
+func (ec *executionContext) _OpenSearch_httpMaxContentLength(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearch) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_OpenSearch_httpMaxContentLength(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.HTTPMaxContentLength, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_OpenSearch_httpMaxContentLength(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("OpenSearch", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
 func (ec *executionContext) _OpenSearch_issues(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearch) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -2284,7 +2376,7 @@ func (ec *executionContext) unmarshalInputCreateOpenSearchInput(ctx context.Cont
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "environmentName", "teamSlug", "tier", "memory", "version", "storageGB"}
+	fieldsInOrder := [...]string{"name", "environmentName", "teamSlug", "tier", "memory", "version", "storageGB", "shardIndexingPressureEnabled", "shardIndexingPressureEnforced", "indicesQueryBoolMaxClauseCount", "httpMaxContentLength"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -2340,6 +2432,34 @@ func (ec *executionContext) unmarshalInputCreateOpenSearchInput(ctx context.Cont
 				return it, err
 			}
 			it.StorageGB = data
+		case "shardIndexingPressureEnabled":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("shardIndexingPressureEnabled"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ShardIndexingPressureEnabled = data
+		case "shardIndexingPressureEnforced":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("shardIndexingPressureEnforced"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ShardIndexingPressureEnforced = data
+		case "indicesQueryBoolMaxClauseCount":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("indicesQueryBoolMaxClauseCount"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IndicesQueryBoolMaxClauseCount = data
+		case "httpMaxContentLength":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("httpMaxContentLength"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HTTPMaxContentLength = data
 		}
 	}
 	return it, nil
@@ -2518,7 +2638,7 @@ func (ec *executionContext) unmarshalInputUpdateOpenSearchInput(ctx context.Cont
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "environmentName", "teamSlug", "tier", "memory", "version", "storageGB"}
+	fieldsInOrder := [...]string{"name", "environmentName", "teamSlug", "tier", "memory", "version", "storageGB", "shardIndexingPressureEnabled", "shardIndexingPressureEnforced", "indicesQueryBoolMaxClauseCount", "httpMaxContentLength"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -2574,6 +2694,34 @@ func (ec *executionContext) unmarshalInputUpdateOpenSearchInput(ctx context.Cont
 				return it, err
 			}
 			it.StorageGB = data
+		case "shardIndexingPressureEnabled":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("shardIndexingPressureEnabled"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ShardIndexingPressureEnabled = data
+		case "shardIndexingPressureEnforced":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("shardIndexingPressureEnforced"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ShardIndexingPressureEnforced = data
+		case "indicesQueryBoolMaxClauseCount":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("indicesQueryBoolMaxClauseCount"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IndicesQueryBoolMaxClauseCount = data
+		case "httpMaxContentLength":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("httpMaxContentLength"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HTTPMaxContentLength = data
 		}
 	}
 	return it, nil
@@ -2991,6 +3139,20 @@ func (ec *executionContext) _OpenSearch(ctx context.Context, sel ast.SelectionSe
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "shardIndexingPressureEnabled":
+			out.Values[i] = ec._OpenSearch_shardIndexingPressureEnabled(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "shardIndexingPressureEnforced":
+			out.Values[i] = ec._OpenSearch_shardIndexingPressureEnforced(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "indicesQueryBoolMaxClauseCount":
+			out.Values[i] = ec._OpenSearch_indicesQueryBoolMaxClauseCount(ctx, field, obj)
+		case "httpMaxContentLength":
+			out.Values[i] = ec._OpenSearch_httpMaxContentLength(ctx, field, obj)
 		case "issues":
 			field := field
 

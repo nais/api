@@ -86,12 +86,10 @@ Test.gql("Create valkey as team member", function(t)
 		      teamSlug: "someteamname"
 		      tier: SINGLE_NODE
 		      memory: GB_14
-		      databases: 32
 		    }
 		  ) {
 		    valkey {
 		      name
-		      databases
 		    }
 		  }
 		}
@@ -102,7 +100,6 @@ Test.gql("Create valkey as team member", function(t)
 			createValkey = {
 				valkey = {
 					name = "foobar",
-					databases = 32,
 				},
 			},
 		},
@@ -133,7 +130,7 @@ Test.gql("Create valkey as team member with existing name", function(t)
 		errors = {
 			{
 				locations = NotNull(),
-				message = "Resource already exists.",
+				message = "Valkey with the name \"not-managed\" already exists, but are not yet managed through Console.",
 				path = {
 					"createValkey",
 				},
@@ -218,72 +215,24 @@ Test.gql("Create valkey with databases above maximum", function(t)
 end)
 
 Test.k8s("Validate Valkey resource", function(t)
-	local resourceName = string.format("valkey-%s-foobar", mainTeam:slug())
-
-	t.check("aiven.io/v1alpha1", "valkeys", "dev", mainTeam:slug(), resourceName, {
-		apiVersion = "aiven.io/v1alpha1",
+	t.check("nais.io/v1", "valkeys", "dev", mainTeam:slug(), "foobar", {
+		apiVersion = "nais.io/v1",
 		kind = "Valkey",
 		metadata = {
-			name = resourceName,
-			namespace = mainTeam:slug(),
 			annotations = {
 				["console.nais.io/last-modified-at"] = NotNull(),
-				["console.nais.io/last-modified-by"] = user:email(),
+				["console.nais.io/last-modified-by"] = "user@usersen.com",
 			},
 			labels = {
 				["app.kubernetes.io/managed-by"] = "console",
 				["nais.io/managed-by"] = "console",
 			},
+			name = "foobar",
+			namespace = "someteamname",
 		},
 		spec = {
-			project = "aiven-dev",
-			projectVpcId = "aiven-vpc",
-			plan = "startup-14",
-			cloudName = "google-europe-north1",
-			terminationProtection = true,
-			userConfig = {
-				valkey_number_of_databases = 32,
-			},
-			tags = {
-				environment = "dev",
-				team = mainTeam:slug(),
-				tenant = "some-tenant",
-			},
-		},
-	})
-end)
-
-Test.k8s("Validate serviceintegration", function(t)
-	local resourceName = string.format("valkey-%s-foobar", mainTeam:slug())
-
-	t.check("aiven.io/v1alpha1", "serviceintegrations", "dev", mainTeam:slug(), resourceName, {
-		apiVersion = "aiven.io/v1alpha1",
-		kind = "ServiceIntegration",
-		metadata = {
-			name = resourceName,
-			namespace = mainTeam:slug(),
-			annotations = {
-				["console.nais.io/last-modified-at"] = NotNull(),
-				["console.nais.io/last-modified-by"] = user:email(),
-			},
-			labels = {
-				["app.kubernetes.io/managed-by"] = "console",
-				["nais.io/managed-by"] = "console",
-			},
-			ownerReferences = {
-				{
-					apiVersion = "aiven.io/v1alpha1",
-					kind = "Valkey",
-					name = resourceName,
-					uid = NotNull(),
-				},
-			},
-		},
-		spec = {
-			project = "aiven-dev",
-			destinationEndpointId = "endpoint-id",
-			integrationType = "prometheus",
-			sourceServiceName = resourceName,
+			memory = "14GB",
+			tier = "SingleNode",
 		},
 	})
 end)
@@ -370,11 +319,13 @@ Test.gql("Update Valkey as team-member", function(t)
 		      maxMemoryPolicy: ALLKEYS_RANDOM
 		      notifyKeyspaceEvents: "Exd"
 		      databases: 64
+		      persistenceDisabled: true
 		    }
 		  ) {
 		    valkey {
 		      name
 		      databases
+		      persistenceDisabled
 		    }
 		  }
 		}
@@ -386,6 +337,7 @@ Test.gql("Update Valkey as team-member", function(t)
 				valkey = {
 					name = "foobar",
 					databases = 64,
+					persistenceDisabled = true,
 				},
 			},
 		},
@@ -393,39 +345,30 @@ Test.gql("Update Valkey as team-member", function(t)
 end)
 
 Test.k8s("Validate Valkey resource after update", function(t)
-	local resourceName = string.format("valkey-%s-foobar", mainTeam:slug())
-
-	t.check("aiven.io/v1alpha1", "valkeys", "dev", mainTeam:slug(), resourceName, {
-		apiVersion = "aiven.io/v1alpha1",
+	t.check("nais.io/v1", "valkeys", "dev", mainTeam:slug(), "foobar", {
+		apiVersion = "nais.io/v1",
 		kind = "Valkey",
 		metadata = {
-			name = resourceName,
-			namespace = mainTeam:slug(),
 			annotations = {
 				["console.nais.io/last-modified-at"] = NotNull(),
-				["console.nais.io/last-modified-by"] = user:email(),
+				["console.nais.io/last-modified-by"] = "user@usersen.com",
 			},
 			labels = {
 				["app.kubernetes.io/managed-by"] = "console",
 				["nais.io/managed-by"] = "console",
 			},
+			name = "foobar",
+			namespace = "someteamname",
 		},
 		spec = {
-			project = "aiven-dev",
-			projectVpcId = "aiven-vpc",
-			plan = "business-4",
-			cloudName = "google-europe-north1",
-			terminationProtection = true,
-			userConfig = {
-				valkey_maxmemory_policy = "allkeys-random",
-				valkey_notify_keyspace_events = "Exd",
-				valkey_number_of_databases = 64,
+			databases = 64,
+			maxMemoryPolicy = "allkeys-random",
+			memory = "4GB",
+			notifyKeyspaceEvents = "Exd",
+			persistence = {
+				disabled = true,
 			},
-			tags = {
-				environment = "dev",
-				team = mainTeam:slug(),
-				tenant = "some-tenant",
-			},
+			tier = "HighAvailability",
 		},
 	})
 end)
@@ -461,70 +404,26 @@ Test.gql("Create valkey with tier and memory equivalent to hobbyist plan", funct
 	}
 end)
 
+-- TODO: Do we need this?
 Test.k8s("Validate hobbyist Valkey resource", function(t)
-	local resourceName = string.format("valkey-%s-foobar-hobbyist", mainTeam:slug())
-
-	t.check("aiven.io/v1alpha1", "valkeys", "dev", mainTeam:slug(), resourceName, {
-		apiVersion = "aiven.io/v1alpha1",
+	t.check("nais.io/v1", "valkeys", "dev", mainTeam:slug(), "foobar-hobbyist", {
+		apiVersion = "nais.io/v1",
 		kind = "Valkey",
 		metadata = {
-			name = resourceName,
-			namespace = mainTeam:slug(),
 			annotations = {
 				["console.nais.io/last-modified-at"] = NotNull(),
-				["console.nais.io/last-modified-by"] = user:email(),
+				["console.nais.io/last-modified-by"] = "user@usersen.com",
 			},
 			labels = {
 				["app.kubernetes.io/managed-by"] = "console",
 				["nais.io/managed-by"] = "console",
 			},
+			name = "foobar-hobbyist",
+			namespace = "someteamname",
 		},
 		spec = {
-			project = "aiven-dev",
-			projectVpcId = "aiven-vpc",
-			plan = "hobbyist",
-			cloudName = "google-europe-north1",
-			terminationProtection = true,
-			tags = {
-				environment = "dev",
-				team = mainTeam:slug(),
-				tenant = "some-tenant",
-			},
-		},
-	})
-end)
-
-Test.k8s("Validate hobbyist serviceintegration", function(t)
-	local resourceName = string.format("valkey-%s-foobar-hobbyist", mainTeam:slug())
-
-	t.check("aiven.io/v1alpha1", "serviceintegrations", "dev", mainTeam:slug(), resourceName, {
-		apiVersion = "aiven.io/v1alpha1",
-		kind = "ServiceIntegration",
-		metadata = {
-			name = resourceName,
-			namespace = mainTeam:slug(),
-			annotations = {
-				["console.nais.io/last-modified-at"] = NotNull(),
-				["console.nais.io/last-modified-by"] = user:email(),
-			},
-			labels = {
-				["app.kubernetes.io/managed-by"] = "console",
-				["nais.io/managed-by"] = "console",
-			},
-			ownerReferences = {
-				{
-					apiVersion = "aiven.io/v1alpha1",
-					kind = "Valkey",
-					name = resourceName,
-					uid = NotNull(),
-				},
-			},
-		},
-		spec = {
-			project = "aiven-dev",
-			destinationEndpointId = "endpoint-id",
-			integrationType = "prometheus",
-			sourceServiceName = resourceName,
+			memory = "1GB",
+			tier = "SingleNode",
 		},
 	})
 end)
@@ -543,6 +442,7 @@ Test.gql("List valkeys for team", function(t)
 		        maxMemoryPolicy
 		        notifyKeyspaceEvents
 		        databases
+		        persistenceDisabled
 		      }
 		    }
 		  }
@@ -561,6 +461,7 @@ Test.gql("List valkeys for team", function(t)
 							maxMemoryPolicy = "ALLKEYS_RANDOM",
 							notifyKeyspaceEvents = "Exd",
 							databases = 64,
+							persistenceDisabled = true,
 						},
 						{
 							name = "foobar-hobbyist",
@@ -569,6 +470,7 @@ Test.gql("List valkeys for team", function(t)
 							maxMemoryPolicy = "",
 							notifyKeyspaceEvents = "",
 							databases = 16,
+							persistenceDisabled = false,
 						},
 						{
 							name = "valkey-someteamname-hobbyist-not-managed",
@@ -577,6 +479,7 @@ Test.gql("List valkeys for team", function(t)
 							maxMemoryPolicy = "",
 							notifyKeyspaceEvents = "",
 							databases = 16,
+							persistenceDisabled = false,
 						},
 						{
 							name = "valkey-someteamname-not-managed",
@@ -585,47 +488,12 @@ Test.gql("List valkeys for team", function(t)
 							maxMemoryPolicy = "",
 							notifyKeyspaceEvents = "",
 							databases = 16,
+							persistenceDisabled = true,
 						},
 					},
 				},
 			},
 		},
-	}
-end)
-
-Test.gql("Update non-console managed Valkey as team-member", function(t)
-	t.addHeader("x-user-email", user:email())
-	t.query [[
-		mutation UpdateValkey {
-		  updateValkey(
-		    input: {
-		      name: "not-managed"
-		      environmentName: "dev"
-		      teamSlug: "someteamname"
-		      tier: HIGH_AVAILABILITY
-		      memory: GB_4
-		      maxMemoryPolicy: ALLKEYS_RANDOM
-		      notifyKeyspaceEvents: "Exd"
-		    }
-		  ) {
-		    valkey {
-		      name
-		    }
-		  }
-		}
-	]]
-
-	t.check {
-		errors = {
-			{
-				locations = NotNull(),
-				message = "Valkey someteamname/not-managed is not managed by Console",
-				path = {
-					"updateValkey",
-				},
-			},
-		},
-		data = Null,
 	}
 end)
 
@@ -663,39 +531,30 @@ Test.gql("Update Valkey with tier and memory equivalent to hobbyist plan", funct
 end)
 
 Test.k8s("Validate hobbyist Valkey resource after update", function(t)
-	local resourceName = string.format("valkey-%s-foobar", mainTeam:slug())
-
-	t.check("aiven.io/v1alpha1", "valkeys", "dev", mainTeam:slug(), resourceName, {
-		apiVersion = "aiven.io/v1alpha1",
+	t.check("nais.io/v1", "valkeys", "dev", mainTeam:slug(), "foobar", {
+		apiVersion = "nais.io/v1",
 		kind = "Valkey",
 		metadata = {
-			name = resourceName,
-			namespace = mainTeam:slug(),
 			annotations = {
 				["console.nais.io/last-modified-at"] = NotNull(),
-				["console.nais.io/last-modified-by"] = user:email(),
+				["console.nais.io/last-modified-by"] = "user@usersen.com",
 			},
 			labels = {
 				["app.kubernetes.io/managed-by"] = "console",
 				["nais.io/managed-by"] = "console",
 			},
+			name = "foobar",
+			namespace = "someteamname",
 		},
 		spec = {
-			project = "aiven-dev",
-			projectVpcId = "aiven-vpc",
-			plan = "hobbyist",
-			cloudName = "google-europe-north1",
-			terminationProtection = true,
-			userConfig = {
-				valkey_maxmemory_policy = "allkeys-random",
-				valkey_notify_keyspace_events = "Exd",
-				valkey_number_of_databases = 64,
+			databases = 64,
+			maxMemoryPolicy = "allkeys-random",
+			memory = "1GB",
+			notifyKeyspaceEvents = "Exd",
+			persistence = {
+				disabled = true,
 			},
-			tags = {
-				environment = "dev",
-				team = mainTeam:slug(),
-				tenant = "some-tenant",
-			},
+			tier = "SingleNode",
 		},
 	})
 end)
@@ -830,36 +689,6 @@ Test.gql("Verify activity log after deleting valkey", function(t)
 	}
 end)
 
-Test.gql("Delete non-managed valkey as team-member", function(t)
-	t.addHeader("x-user-email", user:email())
-	t.query [[
-		mutation DeleteValkey {
-		  deleteValkey(
-		    input: {
-		      name: "not-managed"
-		      environmentName: "dev"
-		      teamSlug: "someteamname"
-		    }
-		  ) {
-		    valkeyDeleted
-		  }
-		}
-	]]
-
-	t.check {
-		errors = {
-			{
-				locations = NotNull(),
-				message = "Valkey someteamname/not-managed is not managed by Console",
-				path = {
-					"deleteValkey",
-				},
-			},
-		},
-		data = Null,
-	}
-end)
-
 Test.gql("Verify activity log for valkey operations", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query(string.format([[
@@ -972,8 +801,13 @@ Test.gql("Verify activity log for valkey operations", function(t)
 									},
 									{
 										field = "databases",
-										oldValue = "32",
+										oldValue = Null,
 										newValue = "64",
+									},
+									{
+										field = "persistenceDisabled",
+										oldValue = "false",
+										newValue = "true",
 									},
 								},
 							},
