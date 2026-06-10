@@ -31658,6 +31658,11 @@ input TeamVulnerabilitySummaryFilter {
 	"""
 	environments: [String!]
 		@deprecated(reason: "Use environmentName instead. Only one value is supported.")
+
+	"""
+	Only return vulnerability summaries at or above the given risk tier.
+	"""
+	riskTier: CVEPriority
 }
 
 """
