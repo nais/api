@@ -1229,9 +1229,11 @@ Test.gql("Update Valkey labels to specify app.kubernetes.io/managed-by: Helm", f
 	}
 end)
 
-Test.gql("Update Valkey labels again -> app.kubernetes.io/managed-by: Helm must be removed because value is not console!", function(t)
-	t.addHeader("x-user-email", user:email())
-	t.query [[
+Test.gql(
+	"Update Valkey labels again -> app.kubernetes.io/managed-by: Helm must be removed because value is not console!",
+	function(t)
+		t.addHeader("x-user-email", user:email())
+		t.query [[
 		mutation UpdateValkey {
 		  updateValkey(
 		    input: {
@@ -1256,19 +1258,19 @@ Test.gql("Update Valkey labels again -> app.kubernetes.io/managed-by: Helm must 
 		}
 	]]
 
-	t.check {
-		data = {
-			updateValkey = {
-				valkey = {
-					name = "labels-valkey",
-					labels = {
-						{ key = "my-custom-key", value = "second-test" },
+		t.check {
+			data = {
+				updateValkey = {
+					valkey = {
+						name = "labels-valkey",
+						labels = {
+							{ key = "my-custom-key", value = "second-test" },
+						},
 					},
 				},
 			},
-		},
-	}
-end)
+		}
+	end)
 
 Test.k8s("Validate Valkey labels after update", function(t)
 	local resourceName = string.format("valkey-%s-labels-valkey", mainTeam:slug())

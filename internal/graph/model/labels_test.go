@@ -8,9 +8,9 @@ import (
 
 func TestHiddenLabelKey(t *testing.T) {
 	tests := []struct {
-		key   string
-		val   string
-		want  bool
+		key  string
+		val  string
+		want bool
 	}{
 		{"app", "foo", true},
 		{"team", "bar", true},
