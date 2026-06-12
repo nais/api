@@ -38,20 +38,20 @@ Test.gql("Check all Valkey instances (no filter)", function(t)
 						{
 							name = "valkey-one",
 							labels = {
-								{ key = "labels.nais.io/priority", value = "high" },
-								{ key = "labels.nais.io/tag",      value = "target" },
+								{ key = "priority", value = "high" },
+								{ key = "tag",      value = "target" },
 							},
 						},
 						{
 							name = "valkey-three",
 							labels = {
-								{ key = "labels.nais.io/tag", value = "other" },
+								{ key = "tag", value = "other" },
 							},
 						},
 						{
 							name = "valkey-two",
 							labels = {
-								{ key = "labels.nais.io/tag", value = "target" },
+								{ key = "tag", value = "target" },
 							},
 						},
 					},
@@ -66,7 +66,7 @@ Test.gql("Valkey filter by tag=target", function(t)
 	t.query [[
 		{
 			team(slug: "labelteam") {
-				valkeys(filter: { labels: [{ key: "labels.nais.io/tag", value: "target" }] }) {
+				valkeys(filter: { labels: [{ key: "tag", value: "target" }] }) {
 					pageInfo {
 						totalCount
 					}
@@ -102,8 +102,8 @@ Test.gql("Valkey filter by tag=target and priority=high", function(t)
 			team(slug: "labelteam") {
 				valkeys(filter: {
 					labels: [
-						{ key: "labels.nais.io/tag", value: "target" },
-						{ key: "labels.nais.io/priority", value: "high" }
+						{ key: "tag", value: "target" },
+						{ key: "priority", value: "high" }
 					]
 				}) {
 					pageInfo {
@@ -167,20 +167,20 @@ Test.gql("Check all Postgres instances (no filter)", function(t)
 						{
 							name = "postgres-one",
 							labels = {
-								{ key = "labels.nais.io/priority", value = "high" },
-								{ key = "labels.nais.io/tag",      value = "target" },
+								{ key = "priority", value = "high" },
+								{ key = "tag",      value = "target" },
 							},
 						},
 						{
 							name = "postgres-three",
 							labels = {
-								{ key = "labels.nais.io/tag", value = "other" },
+								{ key = "tag", value = "other" },
 							},
 						},
 						{
 							name = "postgres-two",
 							labels = {
-								{ key = "labels.nais.io/tag", value = "target" },
+								{ key = "tag", value = "target" },
 							},
 						},
 					},
@@ -195,7 +195,7 @@ Test.gql("Postgres filter by tag=target", function(t)
 	t.query [[
 		{
 			team(slug: "labelteam") {
-				postgresInstances(filter: { labels: [{ key: "labels.nais.io/tag", value: "target" }] }) {
+				postgresInstances(filter: { labels: [{ key: "tag", value: "target" }] }) {
 					pageInfo {
 						totalCount
 					}
@@ -231,8 +231,8 @@ Test.gql("Postgres filter by tag=target and priority=high", function(t)
 			team(slug: "labelteam") {
 				postgresInstances(filter: {
 					labels: [
-						{ key: "labels.nais.io/tag", value: "target" },
-						{ key: "labels.nais.io/priority", value: "high" }
+						{ key: "tag", value: "target" },
+						{ key: "priority", value: "high" }
 					]
 				}) {
 					pageInfo {
@@ -296,20 +296,20 @@ Test.gql("Check all applications (no filter)", function(t)
 						{
 							name = "app-one",
 							labels = {
-								{ key = "labels.nais.io/priority", value = "high" },
-								{ key = "labels.nais.io/tag",      value = "target" },
+								{ key = "priority", value = "high" },
+								{ key = "tag",      value = "target" },
 							},
 						},
 						{
 							name = "app-three",
 							labels = {
-								{ key = "labels.nais.io/tag", value = "other" },
+								{ key = "tag", value = "other" },
 							},
 						},
 						{
 							name = "app-two",
 							labels = {
-								{ key = "labels.nais.io/tag", value = "target" },
+								{ key = "tag", value = "target" },
 							},
 						},
 					},
@@ -324,7 +324,7 @@ Test.gql("Application filter by tag=target", function(t)
 	t.query [[
 		{
 			team(slug: "labelteam") {
-				applications(filter: { labels: [{ key: "labels.nais.io/tag", value: "target" }] }) {
+				applications(filter: { labels: [{ key: "tag", value: "target" }] }) {
 					pageInfo {
 						totalCount
 					}
@@ -360,8 +360,8 @@ Test.gql("Application filter by tag=target and priority=high", function(t)
 			team(slug: "labelteam") {
 				applications(filter: {
 					labels: [
-						{ key: "labels.nais.io/tag", value: "target" },
-						{ key: "labels.nais.io/priority", value: "high" }
+						{ key: "tag", value: "target" },
+						{ key: "priority", value: "high" }
 					]
 				}) {
 					pageInfo {
@@ -425,20 +425,20 @@ Test.gql("Check all jobs (no filter)", function(t)
 						{
 							name = "job-one",
 							labels = {
-								{ key = "labels.nais.io/priority", value = "high" },
-								{ key = "labels.nais.io/tag",      value = "target" },
+								{ key = "priority", value = "high" },
+								{ key = "tag",      value = "target" },
 							},
 						},
 						{
 							name = "job-three",
 							labels = {
-								{ key = "labels.nais.io/tag", value = "other" },
+								{ key = "tag", value = "other" },
 							},
 						},
 						{
 							name = "job-two",
 							labels = {
-								{ key = "labels.nais.io/tag", value = "target" },
+								{ key = "tag", value = "target" },
 							},
 						},
 					},
@@ -453,7 +453,7 @@ Test.gql("Job filter by tag=target", function(t)
 	t.query [[
 		{
 			team(slug: "labelteam") {
-				jobs(filter: { name: "", labels: [{ key: "labels.nais.io/tag", value: "target" }] }) {
+				jobs(filter: { name: "", labels: [{ key: "tag", value: "target" }] }) {
 					pageInfo {
 						totalCount
 					}
@@ -490,8 +490,8 @@ Test.gql("Job filter by tag=target and priority=high", function(t)
 				jobs(filter: {
 					name: ""
 					labels: [
-						{ key: "labels.nais.io/tag", value: "target" },
-						{ key: "labels.nais.io/priority", value: "high" }
+						{ key: "tag", value: "target" },
+						{ key: "priority", value: "high" }
 					]
 				}) {
 					pageInfo {
@@ -521,12 +521,12 @@ Test.gql("Job filter by tag=target and priority=high", function(t)
 	}
 end)
 
-Test.gql("Valkey filter with invalid label prefix", function(t)
+Test.gql("Valkey filter with reserved label key", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[
 		{
 			team(slug: "labelteam") {
-				valkeys(filter: { labels: [{ key: "tag", value: "target" }] }) {
+				valkeys(filter: { labels: [{ key: "app", value: "target" }] }) {
 					pageInfo {
 						totalCount
 					}
@@ -538,7 +538,7 @@ Test.gql("Valkey filter with invalid label prefix", function(t)
 	t.check {
 		errors = {
 			{
-				message = Contains("label key \"tag\" must be prefixed with \"labels.nais.io/\""),
+				message = Contains("Label key \"app\" is reserved and cannot be used"),
 				path = {
 					"team",
 					"valkeys",
@@ -575,9 +575,9 @@ Test.gql("Check labels facets on Valkey connection", function(t)
 				valkeys = {
 					facets = {
 						labels = {
-							{ key = "labels.nais.io/priority", value = "high",   count = 1 },
-							{ key = "labels.nais.io/tag",      value = "other",  count = 1 },
-							{ key = "labels.nais.io/tag",      value = "target", count = 2 },
+							{ key = "priority", value = "high",   count = 1 },
+							{ key = "tag",      value = "other",  count = 1 },
+							{ key = "tag",      value = "target", count = 2 },
 						},
 					},
 				},

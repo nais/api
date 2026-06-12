@@ -2,7 +2,7 @@ apiVersion: nais.io/v1alpha1
 kind: Application
 metadata:
   labels:
-    labels.nais.io/key: value
+    key: value
   annotations:
     deploy.nais.io/client-version: 2023-01-23-7071cd7
     nais.io/deploymentCorrelationID: f8c04f82-6a84-4a8e-9f8b-563b5894d0cf

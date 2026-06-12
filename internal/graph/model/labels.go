@@ -12,11 +12,6 @@ import (
 	"k8s.io/apimachinery/pkg/util/validation"
 )
 
-// UserLabelPrefix is the namespace under which user-defined labels are stored on
-// Nais resources. Only labels with this prefix are user-editable and exposed
-// through the API; all other labels are considered platform-internal.
-const UserLabelPrefix = "labels.nais.io/"
-
 type ResourceLabel struct {
 	Key   string `json:"key"`
 	Value string `json:"value"`
@@ -74,8 +69,8 @@ func ValidateUserLabels(labels []*ResourceLabel) error {
 		}
 		seen[l.Key] = struct{}{}
 
-		if !strings.HasPrefix(l.Key, UserLabelPrefix) {
-			return LabelValidationError{Message: fmt.Sprintf("label key %q must be prefixed with %q", l.Key, UserLabelPrefix)}
+		if HiddenLabelKey(l.Key, l.Value) {
+			return LabelValidationError{Message: fmt.Sprintf("Label key %q is reserved", l.Key)}
 		}
 
 		for _, msg := range validation.IsQualifiedName(l.Key) {
@@ -103,14 +98,16 @@ func (l *LabelFilters) UnmarshalGQL(v any) error {
 
 		key, _ := itemMap["key"].(string)
 
-		if !strings.HasPrefix(key, UserLabelPrefix) {
-			return LabelValidationError{Message: fmt.Sprintf("label key %q must be prefixed with %q", key, UserLabelPrefix)}
-		}
-
+		var value string
 		var valuePtr *string
 		if val, ok := itemMap["value"]; ok && val != nil {
 			valStr, _ := val.(string)
 			valuePtr = &valStr
+			value = valStr
+		}
+
+		if HiddenLabelKey(key, value) {
+			return LabelValidationError{Message: fmt.Sprintf("Label key %q is reserved and cannot be used", key)}
 		}
 
 		filters = append(filters, &LabelFilter{
@@ -144,7 +141,7 @@ func (l LabelFilters) MarshalGQL(w io.Writer) {
 func UserLabels(labels map[string]string) []*ResourceLabel {
 	out := make([]*ResourceLabel, 0, len(labels))
 	for k, v := range labels {
-		if !strings.HasPrefix(k, UserLabelPrefix) && k != UserLabelPrefix {
+		if HiddenLabelKey(k, v) {
 			continue
 		}
 		out = append(out, &ResourceLabel{Key: k, Value: v})
@@ -208,7 +205,7 @@ func MatchesLabelFilters(labels []*ResourceLabel, filters []*LabelFilter) bool {
 func MergeUserLabels(existing map[string]string, desired []*ResourceLabel) map[string]string {
 	out := make(map[string]string, len(existing)+len(desired))
 	for k, v := range existing {
-		if strings.HasPrefix(k, UserLabelPrefix) {
+		if !HiddenLabelKey(k, v) {
 			continue
 		}
 		out[k] = v
@@ -222,4 +219,16 @@ func MergeUserLabels(existing map[string]string, desired []*ResourceLabel) map[s
 	}
 
 	return out
+}
+
+// HiddenLabelKey return true if the label key is considered managed by the platform
+func HiddenLabelKey(key, value string) bool {
+	switch key {
+	case "app", "team", "euthanaisa.nais.io/kill-after":
+		return true
+	case "app.kubernetes.io/managed-by":
+		return value == "console"
+	}
+
+	return strings.Contains(key, "nais.io/")
 }

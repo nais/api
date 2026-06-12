@@ -1071,3 +1071,245 @@ Test.gql("Verify otherTeam activity log is isolated from mainTeam", function(t)
 		},
 	}
 end)
+
+Test.gql("Create Valkey to test labels", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[
+		mutation CreateValkey {
+		  createValkey(
+		    input: {
+		      name: "labels-valkey"
+		      environmentName: "dev"
+		      teamSlug: "someteamname"
+		      tier: SINGLE_NODE
+		      memory: GB_14
+		    }
+		  ) {
+		    valkey {
+		      name
+		      labels {
+		        key
+		        value
+		      }
+		    }
+		  }
+		}
+	]]
+
+	t.check {
+		data = {
+			createValkey = {
+				valkey = {
+					name = "labels-valkey",
+					labels = {},
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("Update Valkey labels successfully", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[
+		mutation UpdateValkey {
+		  updateValkey(
+		    input: {
+		      name: "labels-valkey"
+		      environmentName: "dev"
+		      teamSlug: "someteamname"
+		      tier: SINGLE_NODE
+		      memory: GB_14
+		      labels: [
+		        { key: "my-custom-key", value: "testing" }
+		      ]
+		    }
+		  ) {
+		    valkey {
+		      name
+		      labels {
+		        key
+		        value
+		      }
+		    }
+		  }
+		}
+	]]
+
+	t.check {
+		data = {
+			updateValkey = {
+				valkey = {
+					name = "labels-valkey",
+					labels = {
+						{ key = "my-custom-key", value = "testing" },
+					},
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("Update Valkey labels with reserved key -> should fail validation", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[
+		mutation UpdateValkey {
+		  updateValkey(
+		    input: {
+		      name: "labels-valkey"
+		      environmentName: "dev"
+		      teamSlug: "someteamname"
+		      tier: SINGLE_NODE
+		      memory: GB_14
+		      labels: [
+		        { key: "app", value: "invalid" }
+		      ]
+		    }
+		  ) {
+		    valkey {
+		      name
+		    }
+		  }
+		}
+	]]
+
+	t.check {
+		errors = {
+			{
+				message = Contains("is reserved"),
+				path = {
+					"updateValkey",
+				},
+				extensions = {
+					field = "labels",
+				},
+			},
+		},
+		data = Null,
+	}
+end)
+
+Test.gql("Update Valkey labels to specify app.kubernetes.io/managed-by: Helm", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[
+		mutation UpdateValkey {
+		  updateValkey(
+		    input: {
+		      name: "labels-valkey"
+		      environmentName: "dev"
+		      teamSlug: "someteamname"
+		      tier: SINGLE_NODE
+		      memory: GB_14
+		      labels: [
+		        { key: "app.kubernetes.io/managed-by", value: "Helm" }
+		      ]
+		    }
+		  ) {
+		    valkey {
+		      name
+		      labels {
+		        key
+		        value
+		      }
+		    }
+		  }
+		}
+	]]
+
+	t.check {
+		data = {
+			updateValkey = {
+				valkey = {
+					name = "labels-valkey",
+					labels = {
+						{ key = "app.kubernetes.io/managed-by", value = "Helm" },
+					},
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("Update Valkey labels again -> app.kubernetes.io/managed-by: Helm must be removed because value is not console!", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[
+		mutation UpdateValkey {
+		  updateValkey(
+		    input: {
+		      name: "labels-valkey"
+		      environmentName: "dev"
+		      teamSlug: "someteamname"
+		      tier: SINGLE_NODE
+		      memory: GB_14
+		      labels: [
+		        { key: "my-custom-key", value: "second-test" }
+		      ]
+		    }
+		  ) {
+		    valkey {
+		      name
+		      labels {
+		        key
+		        value
+		      }
+		    }
+		  }
+		}
+	]]
+
+	t.check {
+		data = {
+			updateValkey = {
+				valkey = {
+					name = "labels-valkey",
+					labels = {
+						{ key = "my-custom-key", value = "second-test" },
+					},
+				},
+			},
+		},
+	}
+end)
+
+Test.k8s("Validate Valkey labels after update", function(t)
+	local resourceName = string.format("valkey-%s-labels-valkey", mainTeam:slug())
+
+	t.check("aiven.io/v1alpha1", "valkeys", "dev", mainTeam:slug(), resourceName, {
+		apiVersion = "aiven.io/v1alpha1",
+		kind = "Valkey",
+		metadata = {
+			name = resourceName,
+			namespace = mainTeam:slug(),
+			annotations = Ignore(),
+			labels = {
+				["nais.io/managed-by"] = "console",
+				["my-custom-key"] = "second-test",
+			},
+		},
+		spec = Ignore(),
+	})
+end)
+
+Test.gql("Clean up labels Valkey", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[
+		mutation DeleteValkey {
+		  deleteValkey(
+		    input: {
+		      name: "labels-valkey"
+		      environmentName: "dev"
+		      teamSlug: "someteamname"
+		    }
+		  ) {
+		    valkeyDeleted
+		  }
+		}
+	]]
+
+	t.check {
+		data = {
+			deleteValkey = {
+				valkeyDeleted = true,
+			},
+		},
+	}
+end)

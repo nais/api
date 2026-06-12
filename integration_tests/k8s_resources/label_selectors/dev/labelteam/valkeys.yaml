@@ -5,8 +5,8 @@ metadata:
   name: valkey-one
   namespace: labelteam
   labels:
-    labels.nais.io/tag: target
-    labels.nais.io/priority: high
+    tag: target
+    priority: high
 spec:
   plan: startup-4
 ---
@@ -16,7 +16,7 @@ metadata:
   name: valkey-two
   namespace: labelteam
   labels:
-    labels.nais.io/tag: target
+    tag: target
 spec:
   plan: startup-4
 ---
@@ -26,6 +26,6 @@ metadata:
   name: valkey-three
   namespace: labelteam
   labels:
-    labels.nais.io/tag: other
+    tag: other
 spec:
   plan: startup-4

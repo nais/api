@@ -6,7 +6,7 @@ metadata:
     - bqrator.nais.io/finalizer
   generation: 1
   labels:
-    labels.nais.io/key: value
+    key: value
     app: app-w-all-storage
     team: devteam
   name: app-w-all-storage-deleteme_bq-23424asf324

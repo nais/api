@@ -5,8 +5,8 @@ metadata:
   name: app-one
   namespace: labelteam
   labels:
-    labels.nais.io/tag: target
-    labels.nais.io/priority: high
+    tag: target
+    priority: high
 spec:
   image: navikt/app-one:latest
 ---
@@ -16,7 +16,7 @@ metadata:
   name: app-two
   namespace: labelteam
   labels:
-    labels.nais.io/tag: target
+    tag: target
 spec:
   image: navikt/app-two:latest
 ---
@@ -26,6 +26,6 @@ metadata:
   name: app-three
   namespace: labelteam
   labels:
-    labels.nais.io/tag: other
+    tag: other
 spec:
   image: navikt/app-three:latest
