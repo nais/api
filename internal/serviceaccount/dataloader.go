@@ -2,6 +2,7 @@ package serviceaccount
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -28,6 +29,7 @@ type loaders struct {
 	serviceAccountLoader        *dataloadgen.Loader[uuid.UUID, *ServiceAccount]
 	serviceAccountTokenLoader   *dataloadgen.Loader[uuid.UUID, *ServiceAccountToken]
 	serviceAccountBindingLoader *dataloadgen.Loader[uuid.UUID, *ServiceAccountWorkloadBinding]
+	lastUsedAtLoader            *dataloadgen.Loader[uuid.UUID, *time.Time]
 }
 
 func newLoaders(dbConn *pgxpool.Pool) *loaders {
@@ -39,6 +41,7 @@ func newLoaders(dbConn *pgxpool.Pool) *loaders {
 		serviceAccountLoader:        dataloadgen.NewLoader(serviceAccountLoader.list, loader.DefaultDataLoaderOptions...),
 		serviceAccountTokenLoader:   dataloadgen.NewLoader(serviceAccountLoader.listTokens, loader.DefaultDataLoaderOptions...),
 		serviceAccountBindingLoader: dataloadgen.NewLoader(serviceAccountLoader.listBindings, loader.DefaultDataLoaderOptions...),
+		lastUsedAtLoader:            dataloadgen.NewLoader(serviceAccountLoader.lastUsedAt, loader.DefaultDataLoaderOptions...),
 	}
 }
 
@@ -59,6 +62,36 @@ func (l dataloader) listTokens(ctx context.Context, serviceAccountTokenIDs []uui
 func (l dataloader) listBindings(ctx context.Context, ids []uuid.UUID) ([]*ServiceAccountWorkloadBinding, []error) {
 	makeKey := func(obj *ServiceAccountWorkloadBinding) uuid.UUID { return obj.UUID }
 	return loader.LoadModels(ctx, ids, l.db.GetBindingsByIDs, toGraphServiceAccountWorkloadBinding, makeKey)
+}
+
+// lastUsedAt batches the aggregate last-used timestamp per service account. The value is the most recent usage
+// across all of the account's tokens and workload bindings. Accounts that have never been used resolve to nil
+// (not an error).
+func (l dataloader) lastUsedAt(ctx context.Context, ids []uuid.UUID) ([]*time.Time, []error) {
+	rows, err := l.db.LastUsedAtForServiceAccounts(ctx, ids)
+	if err != nil {
+		errs := make([]error, len(ids))
+		for i := range errs {
+			errs[i] = err
+		}
+		return make([]*time.Time, len(ids)), errs
+	}
+
+	byID := make(map[uuid.UUID]time.Time, len(rows))
+	for _, row := range rows {
+		if row.LastUsedAt.Valid {
+			byID[row.ServiceAccountID] = row.LastUsedAt.Time
+		}
+	}
+
+	ret := make([]*time.Time, len(ids))
+	for i, id := range ids {
+		if ts, ok := byID[id]; ok {
+			t := ts
+			ret[i] = &t
+		}
+	}
+	return ret, make([]error, len(ids))
 }
 
 func db(ctx context.Context) *serviceaccountsql.Queries {

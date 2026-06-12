@@ -404,6 +404,27 @@ end)
 -- Test: Token is usable for authentication (Bearer header)
 local bearerHeader = string.format("Bearer %s", State.tokenSecret1)
 
+-- Before the token is used, the service account aggregate lastUsedAt must be null.
+Test.gql("Service account lastUsedAt is null before any token use", function(t)
+	t.addHeader("x-user-email", admin:email())
+
+	t.query(string.format([[
+		query {
+			serviceAccount(id: "%s") {
+				lastUsedAt
+			}
+		}
+	]], State.saID))
+
+	t.check {
+		data = {
+			serviceAccount = {
+				lastUsedAt = Null,
+			},
+		},
+	}
+end)
+
 Test.gql("Authenticate as service account using token", function(t)
 	t.addHeader("authorization", bearerHeader)
 
@@ -421,6 +442,27 @@ Test.gql("Authenticate as service account using token", function(t)
 		data = {
 			me = {
 				name = "token-test-sa",
+			},
+		},
+	}
+end)
+
+-- After authenticating with a token, the service account aggregate lastUsedAt reflects that usage.
+Test.gql("Service account lastUsedAt reflects token usage", function(t)
+	t.addHeader("x-user-email", admin:email())
+
+	t.query(string.format([[
+		query {
+			serviceAccount(id: "%s") {
+				lastUsedAt
+			}
+		}
+	]], State.saID))
+
+	t.check {
+		data = {
+			serviceAccount = {
+				lastUsedAt = NotNull(),
 			},
 		},
 	}

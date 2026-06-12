@@ -271,20 +271,55 @@ func (q *Queries) GetTokensByIDs(ctx context.Context, ids []uuid.UUID) ([]*Servi
 	return items, nil
 }
 
-const lastUsedAt = `-- name: LastUsedAt :one
+const lastUsedAtForServiceAccounts = `-- name: LastUsedAtForServiceAccounts :many
 SELECT
+	service_account_id,
 	MAX(last_used_at)::TIMESTAMPTZ AS last_used_at
 FROM
-	service_account_tokens
+	(
+		SELECT
+			service_account_id,
+			last_used_at
+		FROM
+			service_account_tokens
+		UNION ALL
+		SELECT
+			service_account_id,
+			last_used_at
+		FROM
+			service_account_workload_bindings
+	) AS usage
 WHERE
-	service_account_id = $1
+	service_account_id = ANY ($1::UUID[])
+GROUP BY
+	service_account_id
+ORDER BY
+	service_account_id
 `
 
-func (q *Queries) LastUsedAt(ctx context.Context, serviceAccountID uuid.UUID) (pgtype.Timestamptz, error) {
-	row := q.db.QueryRow(ctx, lastUsedAt, serviceAccountID)
-	var last_used_at pgtype.Timestamptz
-	err := row.Scan(&last_used_at)
-	return last_used_at, err
+type LastUsedAtForServiceAccountsRow struct {
+	ServiceAccountID uuid.UUID
+	LastUsedAt       pgtype.Timestamptz
+}
+
+func (q *Queries) LastUsedAtForServiceAccounts(ctx context.Context, ids []uuid.UUID) ([]*LastUsedAtForServiceAccountsRow, error) {
+	rows, err := q.db.Query(ctx, lastUsedAtForServiceAccounts, ids)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*LastUsedAtForServiceAccountsRow{}
+	for rows.Next() {
+		var i LastUsedAtForServiceAccountsRow
+		if err := rows.Scan(&i.ServiceAccountID, &i.LastUsedAt); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const list = `-- name: List :many
