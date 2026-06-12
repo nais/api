@@ -548,14 +548,5 @@ func RevokeRole(ctx context.Context, input RevokeRoleFromServiceAccountInput) (*
 }
 
 func LastUsedAt(ctx context.Context, id uuid.UUID) (*time.Time, error) {
-	ts, err := db(ctx).LastUsedAt(ctx, id)
-	if err != nil {
-		return nil, err
-	}
-
-	if !ts.Valid {
-		return nil, nil
-	}
-
-	return &ts.Time, nil
+	return fromContext(ctx).lastUsedAtLoader.Load(ctx, id)
 }
