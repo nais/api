@@ -5,8 +5,8 @@ metadata:
   name: postgres-one
   namespace: labelteam
   labels:
-    labels.nais.io/tag: target
-    labels.nais.io/priority: high
+    tag: target
+    priority: high
 spec:
   cluster:
     majorVersion: "17"
@@ -23,7 +23,7 @@ metadata:
   name: postgres-two
   namespace: labelteam
   labels:
-    labels.nais.io/tag: target
+    tag: target
 spec:
   cluster:
     majorVersion: "17"
@@ -40,7 +40,7 @@ metadata:
   name: postgres-three
   namespace: labelteam
   labels:
-    labels.nais.io/tag: other
+    tag: other
 spec:
   cluster:
     majorVersion: "17"

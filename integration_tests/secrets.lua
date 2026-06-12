@@ -1008,7 +1008,7 @@ Test.gql("Update secret labels", function(t)
 				environmentName: "dev"
 				teamSlug: "myteam"
 				labels: [
-					{ key: "labels.nais.io/tag", value: "testing" }
+					{ key: "tag", value: "testing" }
 				]
 			}) {
 				secret { name labels { key value } }
@@ -1022,14 +1022,14 @@ Test.gql("Update secret labels", function(t)
 				secret = {
 					name = "labels-test-secret",
 					labels = {
-						{ key = "labels.nais.io/tag", value = "testing" },
+						{ key = "tag", value = "testing" },
 					},
 				},
 			},
 		},
 	}
 
-	-- Try updating with an invalid key (no prefix) -> should fail validation
+	-- Try updating with a reserved key -> should fail validation
 	t.query [[
 		mutation {
 			updateSecret(input: {
@@ -1037,7 +1037,7 @@ Test.gql("Update secret labels", function(t)
 				environmentName: "dev"
 				teamSlug: "myteam"
 				labels: [
-					{ key: "tag", value: "invalid" }
+					{ key: "app", value: "invalid" }
 				]
 			}) {
 				secret { name }
@@ -1049,7 +1049,7 @@ Test.gql("Update secret labels", function(t)
 		errors = {
 			{
 				locations = NotNull(),
-				message = Contains("label key \"tag\" must be prefixed with \"labels.nais.io/\""),
+				message = Contains("is reserved"),
 				path = {
 					"updateSecret",
 				},

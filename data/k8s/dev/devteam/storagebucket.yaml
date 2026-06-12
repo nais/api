@@ -15,7 +15,7 @@ metadata:
   labels:
     app: app-w-all-storage
     team: devteam
-    labels.nais.io/key: value
+    key: value
   name: uniquebucketname-bucket
   namespace: dev
 spec:

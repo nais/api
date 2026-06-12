@@ -17,7 +17,7 @@ metadata:
       name: app-w-all-storage
       uid: 5d684281-5621-4c87-aee7-fca257550790
   labels:
-    labels.nais.io/key: value
+    key: value
     team: devteam
     app: app-w-all-storage
     "nais.io/managed-by": console
