@@ -182,6 +182,15 @@ func convert(issue *issuesql.Issue) (Issue, error) {
 			Base: base,
 			ExternalIngressCriticalVulnerabilityIssueDetails: *d,
 		}, nil
+	case IssueTypeExternalIngressActNowVulnerability:
+		d, err := unmarshal[ExternalIngressActNowVulnerabilityIssueDetails](issue.IssueDetails)
+		if err != nil {
+			return nil, err
+		}
+		return &ExternalIngressActNowVulnerabilityIssue{
+			Base: base,
+			ExternalIngressActNowVulnerabilityIssueDetails: *d,
+		}, nil
 	case IssueTypeUnleashReleaseChannel:
 		d, err := unmarshal[UnleashReleaseChannelIssueDetails](issue.IssueDetails)
 		if err != nil {
