@@ -4,6 +4,7 @@ metadata:
   name: postgres-1
   namespace: devteam
   labels:
+    key: value
     team: devteam
 spec:
   cluster:

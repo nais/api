@@ -143,7 +143,10 @@ func (r *configResolver) ActivityLog(ctx context.Context, obj *config.Config, fi
 }
 
 func (r *configConnectionResolver) Facets(ctx context.Context, obj *pagination.FacetableConnection[*config.Config, *config.ConfigFilter]) (*config.ConfigFacets, error) {
-	return config.ComputeFacets(ctx, obj.GetAllItems(), obj.GetFilter()), nil
+	return &config.ConfigFacets{
+		AllConfigs: obj.GetAllItems(),
+		Filter:     obj.GetFilter(),
+	}, nil
 }
 
 func (r *jobResolver) Configs(ctx context.Context, obj *job.Job, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.FacetableConnection[*config.Config, *config.ConfigFilter], error) {
@@ -166,6 +169,21 @@ func (r *mutationResolver) CreateConfig(ctx context.Context, input config.Create
 	}
 
 	return &config.CreateConfigPayload{
+		Config: c,
+	}, nil
+}
+
+func (r *mutationResolver) UpdateConfig(ctx context.Context, input config.UpdateConfigInput) (*config.UpdateConfigPayload, error) {
+	if err := authz.CanUpdateConfigs(ctx, input.TeamSlug); err != nil {
+		return nil, err
+	}
+
+	c, err := config.UpdateLabels(ctx, input.TeamSlug, input.EnvironmentName, input.Name, input.Labels)
+	if err != nil {
+		return nil, err
+	}
+
+	return &config.UpdateConfigPayload{
 		Config: c,
 	}, nil
 }

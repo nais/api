@@ -5,6 +5,8 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"fmt"
+	"maps"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -100,7 +102,8 @@ func getClient(ctx context.Context, environmentName string) (dynamic.Interface, 
 	clusterName := environmentmapper.ClusterName(environmentName)
 	client, ok := l.dynamicClients[clusterName]
 	if !ok {
-		return nil, fmt.Errorf("unknown environment: %s", environmentName)
+		valid := strings.Join(slices.Collect(maps.Keys(l.dynamicClients)), ", ")
+		return nil, apierror.Errorf("Unknown environment %q. Valid values are [%s]", environmentName, valid)
 	}
 	return client, nil
 }

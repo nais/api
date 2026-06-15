@@ -1,36 +1,8 @@
 package watcher
 
-import "k8s.io/apimachinery/pkg/labels"
-
-type ErrorNotFound struct {
-	Cluster   string
-	Namespace string
-	Name      string
-}
-
-func (e *ErrorNotFound) Error() string {
-	return "not found: " + e.Cluster + "/" + e.Namespace + "/" + e.Name
-}
-
-func (e *ErrorNotFound) GraphError() string {
-	return "Resource not found: " + e.Cluster + "/" + e.Namespace + "/" + e.Name
-}
-
-func (e *ErrorNotFound) As(v any) bool {
-	if _, ok := v.(*ErrorNotFound); ok {
-		return true
-	}
-
-	return false
-}
-
-func (e *ErrorNotFound) Is(v error) bool {
-	if _, ok := v.(*ErrorNotFound); ok {
-		return true
-	}
-
-	return false
-}
+import (
+	"k8s.io/apimachinery/pkg/labels"
+)
 
 type EnvironmentWrapper[T Object] struct {
 	Cluster string
@@ -59,9 +31,9 @@ func WithLabels(lbls labels.Selector) Filter {
 	}
 }
 
-func InCluster(cluster string) Filter {
+func InCluster(cluster ...string) Filter {
 	return func(o *filterOptions) {
-		o.clusters = append(o.clusters, cluster)
+		o.clusters = append(o.clusters, cluster...)
 	}
 }
 

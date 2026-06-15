@@ -72,6 +72,11 @@ input TeamJobsFilter {
 	Filter by job state. When provided, only jobs matching one of the given states are returned.
 	"""
 	states: [JobState!]
+
+	"""
+	Filter by user-defined labels. All listed labels must match.
+	"""
+	labels: [LabelFilter!]
 }
 type Job implements Node & Workload & ActivityLogger {
 	"The globally unique ID of the job."
@@ -97,6 +102,11 @@ type Job implements Node & Workload & ActivityLogger {
 
 	"List of authentication and authorization for the job."
 	authIntegrations: [JobAuthIntegrations!]!
+
+	"""
+	User-defined labels attached to this job.
+	"""
+	labels: [ResourceLabel!]!
 
 	"Optional schedule for the job. Jobs with no schedule are run once."
 	schedule: JobSchedule
@@ -357,6 +367,11 @@ type JobFacets {
 	Distribution of jobs by state.
 	"""
 	states: [JobStateFacetItem!]!
+
+	"""
+	Distribution of jobs by user-defined labels.
+	"""
+	labels: [LabelFacetItem!]!
 }
 
 """

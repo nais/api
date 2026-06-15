@@ -15,6 +15,7 @@ metadata:
   labels:
     app: app-w-all-storage
     team: devteam
+    key: value
   name: uniquebucketname-bucket
   namespace: dev
 spec:

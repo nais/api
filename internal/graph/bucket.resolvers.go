@@ -37,7 +37,10 @@ func (r *bucketResolver) Workload(ctx context.Context, obj *bucket.Bucket) (work
 }
 
 func (r *bucketConnectionResolver) Facets(ctx context.Context, obj *pagination.FacetableConnection[*bucket.Bucket, *bucket.BucketFilter]) (*bucket.BucketFacets, error) {
-	return bucket.ComputeFacets(ctx, obj.GetAllItems(), obj.GetFilter()), nil
+	return &bucket.BucketFacets{
+		AllBuckets: obj.GetAllItems(),
+		Filter:     obj.GetFilter(),
+	}, nil
 }
 
 func (r *jobResolver) Buckets(ctx context.Context, obj *job.Job, orderBy *bucket.BucketOrder) (*pagination.FacetableConnection[*bucket.Bucket, *bucket.BucketFilter], error) {
@@ -62,7 +65,7 @@ func (r *teamEnvironmentResolver) Bucket(ctx context.Context, obj *team.TeamEnvi
 
 func (r *teamInventoryCountsResolver) Buckets(ctx context.Context, obj *team.TeamInventoryCounts) (*bucket.TeamInventoryCountBuckets, error) {
 	return &bucket.TeamInventoryCountBuckets{
-		Total: len(bucket.ListAllForTeam(ctx, obj.TeamSlug)),
+		Total: len(bucket.ListAllForTeam(ctx, obj.TeamSlug, nil)),
 	}, nil
 }
 

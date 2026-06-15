@@ -510,6 +510,94 @@ func RemoveConfigValue(ctx context.Context, teamSlug slug.Slug, environment, con
 	return retVal, nil
 }
 
+func UpdateLabels(ctx context.Context, teamSlug slug.Slug, environment, name string, labels []*model.ResourceLabel) (*Config, error) {
+	if err := model.ValidateUserLabels(labels); err != nil {
+		return nil, err
+	}
+
+	w := fromContext(ctx).Watcher()
+	client, err := w.ImpersonatedClient(ctx, environment)
+	if err != nil {
+		return nil, err
+	}
+
+	// Check if the config exists and is managed by console
+	obj, err := client.Namespace(teamSlug.String()).Get(ctx, name, v1.GetOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	if !configIsManagedByConsole(obj) {
+		return nil, ErrUnmanaged
+	}
+
+	existingLabels := obj.GetLabels()
+	mergedLabels := model.MergeUserLabels(existingLabels, labels)
+
+	// Nothing changed — return the current state without writing.
+	if maps.Equal(mergedLabels, existingLabels) {
+		retVal, ok := toGraphConfig(obj, environment)
+		if !ok {
+			return nil, fmt.Errorf("failed to convert config")
+		}
+		return retVal, nil
+	}
+
+	oldValue := model.FormatUserLabels(model.UserLabels(existingLabels))
+	newValue := model.FormatUserLabels(model.UserLabels(mergedLabels))
+
+	actor := authz.ActorFromContext(ctx)
+	mergedAnnotations := mergeAnnotations(obj.GetAnnotations(), actor.User.Identity(), nil)
+
+	patch := []map[string]any{
+		{"op": "replace", "path": "/metadata/labels", "value": mergedLabels},
+		{"op": "replace", "path": "/metadata/annotations", "value": mergedAnnotations},
+	}
+
+	patchBytes, err := json.Marshal(patch)
+	if err != nil {
+		return nil, fmt.Errorf("marshaling patch: %w", err)
+	}
+
+	_, err = client.Namespace(teamSlug.String()).Patch(ctx, name, types.JSONPatchType, patchBytes, v1.PatchOptions{})
+	if err != nil {
+		return nil, fmt.Errorf("patching config: %w", err)
+	}
+
+	err = activitylog.Create(ctx, activitylog.CreateInput{
+		Action:          activitylog.ActivityLogEntryActionUpdated,
+		Actor:           actor.User,
+		EnvironmentName: &environment,
+		ResourceType:    activityLogEntryResourceTypeConfig,
+		ResourceName:    name,
+		TeamSlug:        &teamSlug,
+		Data: ConfigUpdatedActivityLogEntryData{
+			UpdatedFields: []*ConfigUpdatedActivityLogEntryDataUpdatedField{
+				{
+					Field:    "labels",
+					OldValue: &oldValue,
+					NewValue: &newValue,
+				},
+			},
+		},
+	})
+	if err != nil {
+		fromContext(ctx).log.WithError(err).Errorf("unable to create activity log entry")
+	}
+
+	// Re-fetch from the K8s API to return up-to-date data
+	updated, err := client.Namespace(teamSlug.String()).Get(ctx, name, v1.GetOptions{})
+	if err != nil {
+		return nil, fmt.Errorf("fetching updated config: %w", err)
+	}
+
+	retVal, ok := toGraphConfig(updated, environment)
+	if !ok {
+		return nil, fmt.Errorf("failed to convert config")
+	}
+	return retVal, nil
+}
+
 func Delete(ctx context.Context, teamSlug slug.Slug, environment, name string) error {
 	w := fromContext(ctx).Watcher()
 	client, err := w.ImpersonatedClient(ctx, environment)

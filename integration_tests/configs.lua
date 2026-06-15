@@ -1485,3 +1485,163 @@ Test.gql("Configs facets are correctly seeded and computed in two-tier manner", 
 		},
 	}
 end)
+
+Test.gql("Update config labels", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	-- First create a config to update labels on
+	t.query [[
+		mutation {
+			createConfig(input: {
+				name: "labels-test-config"
+				environmentName: "dev"
+				teamSlug: "myteam"
+			}) {
+				config { name labels { key value } }
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			createConfig = {
+				config = {
+					name = "labels-test-config",
+					labels = {},
+				},
+			},
+		},
+	}
+
+	-- Update labels successfully with a custom label (non-reserved)
+	t.query [[
+		mutation {
+			updateConfig(input: {
+				name: "labels-test-config"
+				environmentName: "dev"
+				teamSlug: "myteam"
+				labels: [
+					{ key: "my-custom-key", value: "testing" }
+				]
+			}) {
+				config { name labels { key value } }
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			updateConfig = {
+				config = {
+					name = "labels-test-config",
+					labels = {
+						{ key = "my-custom-key", value = "testing" },
+					},
+				},
+			},
+		},
+	}
+
+	-- Try updating with a reserved key -> should fail validation
+	t.query [[
+		mutation {
+			updateConfig(input: {
+				name: "labels-test-config"
+				environmentName: "dev"
+				teamSlug: "myteam"
+				labels: [
+					{ key: "app", value: "invalid" }
+				]
+			}) {
+				config { name }
+			}
+		}
+	]]
+
+	t.check {
+		errors = {
+			{
+				locations = NotNull(),
+				message = Contains("is reserved"),
+				path = {
+					"updateConfig",
+				},
+			},
+		},
+		data = Null,
+	}
+
+	-- Update labels and explicitly specify app.kubernetes.io/managed-by: Helm (value is not console, so it's a valid user label and gets set)
+	t.query [[
+		mutation {
+			updateConfig(input: {
+				name: "labels-test-config"
+				environmentName: "dev"
+				teamSlug: "myteam"
+				labels: [
+					{ key: "app.kubernetes.io/managed-by", value: "Helm" }
+				]
+			}) {
+				config { name labels { key value } }
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			updateConfig = {
+				config = {
+					name = "labels-test-config",
+					labels = {
+						{ key = "app.kubernetes.io/managed-by", value = "Helm" },
+					},
+				},
+			},
+		},
+	}
+
+	-- Update labels again with another custom label -> app.kubernetes.io/managed-by: Helm must be removed because value is not console!
+	t.query [[
+		mutation {
+			updateConfig(input: {
+				name: "labels-test-config"
+				environmentName: "dev"
+				teamSlug: "myteam"
+				labels: [
+					{ key: "my-custom-key", value: "second-test" }
+				]
+			}) {
+				config { name labels { key value } }
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			updateConfig = {
+				config = {
+					name = "labels-test-config",
+					labels = {
+						{ key = "my-custom-key", value = "second-test" },
+					},
+				},
+			},
+		},
+	}
+end)
+
+Test.k8s("Validate config labels after update", function(t)
+	t.check("v1", "configmaps", "dev", "myteam", "labels-test-config", {
+		apiVersion = Ignore(),
+		kind = Ignore(),
+		metadata = {
+			name = "labels-test-config",
+			namespace = "myteam",
+			annotations = Ignore(),
+			labels = {
+				["nais.io/managed-by"] = "console",
+				["my-custom-key"] = "second-test",
+			},
+		},
+	})
+end)

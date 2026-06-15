@@ -1,0 +1,31 @@
+---
+apiVersion: nais.io/v1
+kind: Naisjob
+metadata:
+  name: job-one
+  namespace: labelteam
+  labels:
+    tag: target
+    priority: high
+spec:
+  image: navikt/job-one:latest
+---
+apiVersion: nais.io/v1
+kind: Naisjob
+metadata:
+  name: job-two
+  namespace: labelteam
+  labels:
+    tag: target
+spec:
+  image: navikt/job-two:latest
+---
+apiVersion: nais.io/v1
+kind: Naisjob
+metadata:
+  name: job-three
+  namespace: labelteam
+  labels:
+    tag: other
+spec:
+  image: navikt/job-three:latest

@@ -51,7 +51,7 @@ func Get(ctx context.Context, teamSlug slug.Slug, environment, name string) (*Va
 }
 
 func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *ValkeyOrder, filter *ValkeyFilter) (*ValkeyConnection, error) {
-	all := ListAllForTeam(ctx, teamSlug)
+	all := ListAllForTeam(ctx, teamSlug, filter)
 
 	if orderBy == nil {
 		orderBy = &ValkeyOrder{
@@ -63,7 +63,7 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 	return SortFilterValkey.PaginatedList(ctx, all, page, orderBy.Field, orderBy.Direction, filter), nil
 }
 
-func ListAllForTeam(ctx context.Context, teamSlug slug.Slug) []*Valkey {
+func ListAllForTeam(ctx context.Context, teamSlug slug.Slug, filter *ValkeyFilter) []*Valkey {
 	all := fromContext(ctx).client.watcher.GetByNamespace(teamSlug.String(), watcher.WithoutDeleted())
 	return watcher.Objects(all)
 }
@@ -268,6 +268,8 @@ func Update(ctx context.Context, input UpdateValkeyInput) (*UpdateValkeyPayload,
 		return nil, err
 	}
 	changes = append(changes, res...)
+
+	changes = append(changes, updateLabels(valkey, input)...)
 
 	if len(changes) == 0 {
 		vk, err := toValkey(valkey, input.EnvironmentName)
@@ -529,6 +531,40 @@ func updateDatabases(valkey *unstructured.Unstructured, input UpdateValkeyInput)
 	}
 
 	return changes, nil
+}
+
+func updateLabels(valkey *unstructured.Unstructured, input UpdateValkeyInput) []*ValkeyUpdatedActivityLogEntryDataUpdatedField {
+	if input.Labels == nil {
+		return nil
+	}
+
+	existing := valkey.GetLabels()
+	oldValue := formatUserLabels(model.UserLabels(existing))
+
+	merged := model.MergeUserLabels(existing, input.Labels)
+	newValue := formatUserLabels(model.UserLabels(merged))
+
+	if oldValue == newValue {
+		return nil
+	}
+
+	valkey.SetLabels(merged)
+
+	return []*ValkeyUpdatedActivityLogEntryDataUpdatedField{
+		{
+			Field:    "labels",
+			OldValue: &oldValue,
+			NewValue: &newValue,
+		},
+	}
+}
+
+func formatUserLabels(labels []*model.ResourceLabel) string {
+	parts := make([]string, 0, len(labels))
+	for _, l := range labels {
+		parts = append(parts, l.Key+"="+l.Value)
+	}
+	return strings.Join(parts, ", ")
 }
 
 func Delete(ctx context.Context, input DeleteValkeyInput) (*DeleteValkeyPayload, error) {

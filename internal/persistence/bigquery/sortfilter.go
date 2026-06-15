@@ -5,6 +5,7 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/sortfilter"
 )
 
@@ -52,6 +53,10 @@ func init() {
 			if !slices.Contains(filter.Environments, v.EnvironmentName) {
 				return false
 			}
+		}
+
+		if !model.MatchesLabelFilters(v.Labels, filter.Labels) {
+			return false
 		}
 
 		return true

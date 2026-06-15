@@ -972,3 +972,89 @@ Test.gql("Secrets facets are correctly seeded and computed in two-tier manner", 
 		},
 	}
 end)
+
+Test.gql("Update secret labels", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	-- First create a secret to update labels on
+	t.query [[
+		mutation {
+			createSecret(input: {
+				name: "labels-test-secret"
+				environment: "dev"
+				team: "myteam"
+			}) {
+				secret { name labels { key value } }
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			createSecret = {
+				secret = {
+					name = "labels-test-secret",
+					labels = {},
+				},
+			},
+		},
+	}
+
+	-- Update labels successfully (fully qualified)
+	t.query [[
+		mutation {
+			updateSecret(input: {
+				name: "labels-test-secret"
+				environmentName: "dev"
+				teamSlug: "myteam"
+				labels: [
+					{ key: "tag", value: "testing" }
+				]
+			}) {
+				secret { name labels { key value } }
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			updateSecret = {
+				secret = {
+					name = "labels-test-secret",
+					labels = {
+						{ key = "tag", value = "testing" },
+					},
+				},
+			},
+		},
+	}
+
+	-- Try updating with a reserved key -> should fail validation
+	t.query [[
+		mutation {
+			updateSecret(input: {
+				name: "labels-test-secret"
+				environmentName: "dev"
+				teamSlug: "myteam"
+				labels: [
+					{ key: "app", value: "invalid" }
+				]
+			}) {
+				secret { name }
+			}
+		}
+	]]
+
+	t.check {
+		errors = {
+			{
+				locations = NotNull(),
+				message = Contains("is reserved"),
+				path = {
+					"updateSecret",
+				},
+			},
+		},
+		data = Null,
+	}
+end)

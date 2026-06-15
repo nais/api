@@ -698,6 +698,13 @@ func (ec *executionContext) _ActivityLogEntry(ctx context.Context, sel ast.Selec
 			return graphql.Null
 		}
 		return ec._SecretValueAddedActivityLogEntry(ctx, sel, obj)
+	case secret.SecretUpdatedActivityLogEntry:
+		return ec._SecretUpdatedActivityLogEntry(ctx, sel, &obj)
+	case *secret.SecretUpdatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SecretUpdatedActivityLogEntry(ctx, sel, obj)
 	case secret.SecretDeletedActivityLogEntry:
 		return ec._SecretDeletedActivityLogEntry(ctx, sel, &obj)
 	case *secret.SecretDeletedActivityLogEntry:

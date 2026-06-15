@@ -229,7 +229,7 @@ func NewComplexityRoot() ComplexityRoot {
 	c.Team.Repositories = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *repository.RepositoryOrder, filter *repository.TeamRepositoryFilter) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
-	c.Team.SQLInstances = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *sqlinstance.SQLInstanceOrder) int {
+	c.Team.SQLInstances = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *sqlinstance.SQLInstanceOrder, filter *sqlinstance.SQLInstanceFilter) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.Team.Secrets = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *secret.SecretOrder, filter *secret.SecretFilter) int {

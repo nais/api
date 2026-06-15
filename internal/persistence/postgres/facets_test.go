@@ -211,22 +211,29 @@ func TestComputeFacets(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			ctx := context.Background()
-			got := ComputeFacets(ctx, tt.instances, tt.filter)
-
-			if !reflect.DeepEqual(got.Environments, tt.wantEnvironments) {
-				t.Errorf("Environments =\n  %v\nwant\n  %v", got.Environments, tt.wantEnvironments)
+			got := &PostgresInstanceFacets{
+				AllInstances: tt.instances,
+				Filter:       tt.filter,
 			}
 
-			if !reflect.DeepEqual(got.States, tt.wantStates) {
-				t.Errorf("States =\n  %v\nwant\n  %v", got.States, tt.wantStates)
+			gotEnvironments := got.Environments(ctx)
+			if !reflect.DeepEqual(gotEnvironments, tt.wantEnvironments) {
+				t.Errorf("Environments =\n  %v\nwant\n  %v", gotEnvironments, tt.wantEnvironments)
 			}
 
-			if !reflect.DeepEqual(got.HighAvailability, tt.wantHA) {
-				t.Errorf("HighAvailability =\n  %v\nwant\n  %v", got.HighAvailability, tt.wantHA)
+			gotStates := got.States(ctx)
+			if !reflect.DeepEqual(gotStates, tt.wantStates) {
+				t.Errorf("States =\n  %v\nwant\n  %v", gotStates, tt.wantStates)
 			}
 
-			if !reflect.DeepEqual(got.MajorVersions, tt.wantMajorVersions) {
-				t.Errorf("MajorVersions =\n  %v\nwant\n  %v", got.MajorVersions, tt.wantMajorVersions)
+			gotHA := got.HighAvailability(ctx)
+			if !reflect.DeepEqual(gotHA, tt.wantHA) {
+				t.Errorf("HighAvailability =\n  %v\nwant\n  %v", gotHA, tt.wantHA)
+			}
+
+			gotVersions := got.MajorVersions(ctx)
+			if !reflect.DeepEqual(gotVersions, tt.wantMajorVersions) {
+				t.Errorf("MajorVersions =\n  %v\nwant\n  %v", gotVersions, tt.wantMajorVersions)
 			}
 		})
 	}

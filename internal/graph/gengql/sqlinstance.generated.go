@@ -12,6 +12,7 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/nais/api/internal/cost"
 	"github.com/nais/api/internal/graph/ident"
+	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/issue"
 	"github.com/nais/api/internal/persistence/sqlinstance"
@@ -458,6 +459,38 @@ func (ec *executionContext) _SqlDatabase_healthy(ctx context.Context, field grap
 }
 func (ec *executionContext) fieldContext_SqlDatabase_healthy(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SqlDatabase", field, false, false, errors.New("field of type Boolean does not have child fields"))
+}
+
+func (ec *executionContext) _SqlDatabase_labels(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLDatabase) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_SqlDatabase_labels(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Labels, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []*model.ResourceLabel) graphql.Marshaler {
+			return ec.marshalNResourceLabel2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceLabelᚄ(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_SqlDatabase_labels(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SqlDatabase",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_ResourceLabel(ctx, field)
+		},
+	}
+	return fc, nil
 }
 
 func (ec *executionContext) _SqlInstance_id(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
@@ -955,6 +988,38 @@ func (ec *executionContext) fieldContext_SqlInstance_status(_ context.Context, f
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return ec.childFields_SqlInstanceStatus(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SqlInstance_labels(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_SqlInstance_labels(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Labels, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []*model.ResourceLabel) graphql.Marshaler {
+			return ec.marshalNResourceLabel2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceLabelᚄ(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_SqlInstance_labels(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SqlInstance",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_ResourceLabel(ctx, field)
 		},
 	}
 	return fc, nil
@@ -2559,6 +2624,36 @@ func (ec *executionContext) fieldContext_TeamServiceUtilizationSqlInstancesMemor
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputSqlInstanceFilter(ctx context.Context, obj any) (sqlinstance.SQLInstanceFilter, error) {
+	var it sqlinstance.SQLInstanceFilter
+	if obj == nil {
+		return it, nil
+	}
+
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"labels"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "labels":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labels"))
+			data, err := ec.unmarshalOLabelFilter2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFiltersᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Labels = data
+		}
+	}
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputSqlInstanceOrder(ctx context.Context, obj any) (sqlinstance.SQLInstanceOrder, error) {
 	var it sqlinstance.SQLInstanceOrder
 	if obj == nil {
@@ -2820,6 +2915,11 @@ func (ec *executionContext) _SqlDatabase(ctx context.Context, sel ast.SelectionS
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "labels":
+			out.Values[i] = ec._SqlDatabase_labels(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3046,6 +3146,11 @@ func (ec *executionContext) _SqlInstance(ctx context.Context, sel ast.SelectionS
 			out.Values[i] = ec._SqlInstance_version(ctx, field, obj)
 		case "status":
 			out.Values[i] = ec._SqlInstance_status(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "labels":
+			out.Values[i] = ec._SqlInstance_labels(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -4829,6 +4934,14 @@ func (ec *executionContext) marshalOSqlInstanceBackupConfiguration2ᚖgithubᚗc
 		return graphql.Null
 	}
 	return ec._SqlInstanceBackupConfiguration(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOSqlInstanceFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceFilter(ctx context.Context, v any) (*sqlinstance.SQLInstanceFilter, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputSqlInstanceFilter(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOSqlInstanceMaintenanceWindow2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceMaintenanceWindow(ctx context.Context, sel ast.SelectionSet, v *sqlinstance.SQLInstanceMaintenanceWindow) graphql.Marshaler {

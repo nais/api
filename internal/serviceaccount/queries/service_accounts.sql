@@ -170,13 +170,30 @@ WHERE
 	id = @id
 ;
 
--- name: LastUsedAt :one
+-- name: LastUsedAtForServiceAccounts :many
 SELECT
+	service_account_id,
 	MAX(last_used_at)::TIMESTAMPTZ AS last_used_at
 FROM
-	service_account_tokens
+	(
+		SELECT
+			service_account_id,
+			last_used_at
+		FROM
+			service_account_tokens
+		UNION ALL
+		SELECT
+			service_account_id,
+			last_used_at
+		FROM
+			service_account_workload_bindings
+	) AS usage
 WHERE
-	service_account_id = @service_account_id
+	service_account_id = ANY (@ids::UUID[])
+GROUP BY
+	service_account_id
+ORDER BY
+	service_account_id
 ;
 
 -- TODO: Remove once static service accounts has been removed

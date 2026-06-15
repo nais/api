@@ -34,6 +34,7 @@ type Workload interface {
 	GetAccessPolicy() *nais_io_v1.AccessPolicy
 	GetConditions() []metav1.Condition
 	GetAnnotations() map[string]string
+	GetLabels() []*model.ResourceLabel
 	GetRolloutCompleteTime() int64
 	GetType() Type
 	GetLogging() *nais_io_v1.Logging
@@ -399,9 +400,10 @@ func ReferenceFromOwnerReferences(ownerReferences []metav1.OwnerReference) *Refe
 }
 
 type TeamWorkloadsFilter struct {
-	Environments             []string `json:"environments,omitempty"`
-	States                   []string `json:"states,omitempty"`
-	WorkloadStatusErrorTypes []string `json:"workloadStatusErrorTypes,omitempty"`
+	Environments             []string             `json:"environments,omitempty"`
+	States                   []string             `json:"states,omitempty"`
+	WorkloadStatusErrorTypes []string             `json:"workloadStatusErrorTypes,omitempty"`
+	Labels                   []*model.LabelFilter `json:"labels,omitempty"`
 }
 
 type UpdateWorkloadEnvironmentVariableInput struct {

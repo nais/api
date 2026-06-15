@@ -80,6 +80,8 @@ type KafkaTopic implements Persistence & Node {
 	): KafkaTopicAclConnection!
 	configuration: KafkaTopicConfiguration
 	pool: String!
+	"User-defined labels attached to this Kafka topic."
+	labels: [ResourceLabel!]!
 }
 
 type KafkaTopicAcl {
@@ -139,6 +141,9 @@ type KafkaTopicFacets {
 
 	"Distribution of topics by Kafka pool."
 	pools: [StringFacetItem!]!
+
+	"Distribution of topics by user-defined labels."
+	labels: [LabelFacetItem!]!
 }
 
 """
@@ -153,6 +158,9 @@ input KafkaTopicFilter {
 
 	"Filter by Kafka pool."
 	pools: [String!]
+
+	"Filter by user-defined labels. All listed labels must match."
+	labels: [LabelFilter!]
 }
 
 input KafkaTopicAclFilter {

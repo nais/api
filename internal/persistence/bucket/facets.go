@@ -6,37 +6,26 @@ import (
 	"github.com/nais/api/internal/graph/model"
 )
 
-func ComputeFacets(ctx context.Context, allBuckets []*Bucket, filter *BucketFilter) *BucketFacets {
-	filtered := SortFilter.Filter(ctx, allBuckets, filter)
-
-	// Seed all possible values from allBuckets
-	environmentCounts := map[string]int{}
-
-	for _, b := range allBuckets {
-		environmentCounts[b.EnvironmentName] = 0
-	}
-
-	// Count only items matching the filter
-	for _, b := range filtered {
-		environmentCounts[b.EnvironmentName]++
-	}
-
-	return assembleFacets(environmentCounts)
+// Filtered returns the filtered buckets, computing it exactly once per request.
+func (f *BucketFacets) Filtered(ctx context.Context) []*Bucket {
+	f.filteredOnce.Do(func() {
+		f.filteredBuckets = SortFilter.Filter(ctx, f.AllBuckets, f.Filter)
+	})
+	return f.filteredBuckets
 }
 
-func assembleFacets(environmentCounts map[string]int) *BucketFacets {
-	facets := &BucketFacets{
-		Environments: make([]model.StringFacetItem, 0, len(environmentCounts)),
-	}
+// Environments computes environments facets for a bucket query.
+func (f *BucketFacets) Environments(ctx context.Context) []model.StringFacetItem {
+	filtered := f.Filtered(ctx)
+	return model.ComputeEnvironmentsFacet(f.AllBuckets, filtered, func(b *Bucket) string {
+		return b.EnvironmentName
+	})
+}
 
-	for env, count := range environmentCounts {
-		facets.Environments = append(facets.Environments, model.StringFacetItem{
-			Value: env,
-			Count: count,
-		})
-	}
-
-	model.SortStringFacetItems(facets.Environments)
-
-	return facets
+// Labels computes labels facets for a bucket query.
+func (f *BucketFacets) Labels(ctx context.Context) []model.LabelFacetItem {
+	filtered := f.Filtered(ctx)
+	return model.ComputeLabelsFacet(f.AllBuckets, filtered, func(b *Bucket) []*model.ResourceLabel {
+		return b.Labels
+	})
 }

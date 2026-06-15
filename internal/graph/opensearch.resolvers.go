@@ -108,7 +108,10 @@ func (r *openSearchAccessResolver) Workload(ctx context.Context, obj *opensearch
 }
 
 func (r *openSearchConnectionResolver) Facets(ctx context.Context, obj *pagination.FacetableConnection[*opensearch.OpenSearch, *opensearch.OpenSearchFilter]) (*opensearch.OpenSearchFacets, error) {
-	return opensearch.ComputeFacets(ctx, obj.GetAllItems(), obj.GetFilter()), nil
+	return &opensearch.OpenSearchFacets{
+		AllOpenSearches: obj.GetAllItems(),
+		Filter:          obj.GetFilter(),
+	}, nil
 }
 
 func (r *teamResolver) OpenSearches(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *opensearch.OpenSearchOrder, filter *opensearch.OpenSearchFilter) (*pagination.FacetableConnection[*opensearch.OpenSearch, *opensearch.OpenSearchFilter], error) {
@@ -126,7 +129,7 @@ func (r *teamEnvironmentResolver) OpenSearch(ctx context.Context, obj *team.Team
 
 func (r *teamInventoryCountsResolver) OpenSearches(ctx context.Context, obj *team.TeamInventoryCounts) (*opensearch.TeamInventoryCountOpenSearches, error) {
 	return &opensearch.TeamInventoryCountOpenSearches{
-		Total: len(opensearch.ListAllForTeam(ctx, obj.TeamSlug)),
+		Total: len(opensearch.ListAllForTeam(ctx, obj.TeamSlug, nil)),
 	}, nil
 }
 

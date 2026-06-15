@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/nais/api/internal/graph/ident"
@@ -27,12 +28,16 @@ type (
 type BigQueryDatasetConnection = pagination.FacetableConnection[*BigQueryDataset, *BigQueryDatasetFilter]
 
 type BigQueryDatasetFacets struct {
-	Environments []model.StringFacetItem `json:"environments"`
+	AllDatasets      []*BigQueryDataset
+	Filter           *BigQueryDatasetFilter
+	filteredOnce     sync.Once
+	filteredDatasets []*BigQueryDataset
 }
 
 type BigQueryDatasetFilter struct {
-	Name         string   `json:"name"`
-	Environments []string `json:"environments"`
+	Name         string             `json:"name"`
+	Environments []string           `json:"environments"`
+	Labels       model.LabelFilters `json:"labels,omitempty"`
 }
 
 type BigQueryDataset struct {
@@ -41,6 +46,7 @@ type BigQueryDataset struct {
 	Description       *string                  `json:"description,omitempty"`
 	CascadingDelete   bool                     `json:"cascadingDelete"`
 	Location          string                   `json:"location"`
+	Labels            []*model.ResourceLabel   `json:"labels"`
 	Status            *BigQueryDatasetStatus   `json:"status"`
 	Access            []*BigQueryDatasetAccess `json:"-"`
 	TeamSlug          slug.Slug                `json:"-"`
@@ -184,6 +190,7 @@ func toBigQueryDataset(u *unstructured.Unstructured, environmentName string) (*B
 		CascadingDelete:   obj.Spec.CascadingDelete,
 		Access:            toBigQueryDatasetAccess(obj.Spec.Access),
 		Location:          obj.Spec.Location,
+		Labels:            model.UserLabels(obj.GetLabels()),
 		Status:            toBigQueryDatasetStatus(obj.Status),
 		TeamSlug:          slug.Slug(obj.GetNamespace()),
 		EnvironmentName:   environmentName,

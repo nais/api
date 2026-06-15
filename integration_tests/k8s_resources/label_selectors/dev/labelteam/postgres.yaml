@@ -1,0 +1,52 @@
+---
+apiVersion: data.nais.io/v1
+kind: Postgres
+metadata:
+  name: postgres-one
+  namespace: labelteam
+  labels:
+    tag: target
+    priority: high
+spec:
+  cluster:
+    majorVersion: "17"
+    resources:
+      cpu: 100m
+      diskSize: 2Gi
+      memory: 2G
+  database:
+    collation: nb_NO
+---
+apiVersion: data.nais.io/v1
+kind: Postgres
+metadata:
+  name: postgres-two
+  namespace: labelteam
+  labels:
+    tag: target
+spec:
+  cluster:
+    majorVersion: "17"
+    resources:
+      cpu: 100m
+      diskSize: 2Gi
+      memory: 2G
+  database:
+    collation: nb_NO
+---
+apiVersion: data.nais.io/v1
+kind: Postgres
+metadata:
+  name: postgres-three
+  namespace: labelteam
+  labels:
+    tag: other
+spec:
+  cluster:
+    majorVersion: "17"
+    resources:
+      cpu: 100m
+      diskSize: 2Gi
+      memory: 2G
+  database:
+    collation: nb_NO

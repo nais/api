@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+	"sync"
 
 	storage_cnrm_cloud_google_com_v1beta1 "github.com/GoogleCloudPlatform/k8s-config-connector/pkg/clients/generated/apis/storage/v1beta1"
 	"github.com/nais/api/internal/graph/ident"
@@ -26,25 +27,30 @@ type (
 type BucketConnection = pagination.FacetableConnection[*Bucket, *BucketFilter]
 
 type BucketFacets struct {
-	Environments []model.StringFacetItem `json:"environments"`
+	AllBuckets      []*Bucket
+	Filter          *BucketFilter
+	filteredOnce    sync.Once
+	filteredBuckets []*Bucket
 }
 
 type BucketFilter struct {
-	Name         string   `json:"name"`
-	Environments []string `json:"environments"`
+	Name         string             `json:"name"`
+	Environments []string           `json:"environments"`
+	Labels       model.LabelFilters `json:"labels,omitempty"`
 }
 
 type Bucket struct {
-	Name                     string              `json:"name"`
-	CascadingDelete          bool                `json:"cascadingDelete"`
-	PublicAccessPrevention   string              `json:"publicAccessPrevention"`
-	UniformBucketLevelAccess bool                `json:"uniformBucketLevelAccess"`
-	Status                   *BucketStatus       `json:"status"`
-	Cors                     []*BucketCors       `json:"-"`
-	TeamSlug                 slug.Slug           `json:"-"`
-	EnvironmentName          string              `json:"-"`
-	WorkloadReference        *workload.Reference `json:"-"`
-	ProjectID                string              `json:"-"`
+	Name                     string                 `json:"name"`
+	CascadingDelete          bool                   `json:"cascadingDelete"`
+	PublicAccessPrevention   string                 `json:"publicAccessPrevention"`
+	UniformBucketLevelAccess bool                   `json:"uniformBucketLevelAccess"`
+	Labels                   []*model.ResourceLabel `json:"labels"`
+	Status                   *BucketStatus          `json:"status"`
+	Cors                     []*BucketCors          `json:"-"`
+	TeamSlug                 slug.Slug              `json:"-"`
+	EnvironmentName          string                 `json:"-"`
+	WorkloadReference        *workload.Reference    `json:"-"`
+	ProjectID                string                 `json:"-"`
 }
 
 func (Bucket) IsPersistence()     {}
@@ -184,6 +190,7 @@ func toBucket(u *unstructured.Unstructured, env string) (*Bucket, error) {
 		EnvironmentName:          env,
 		ProjectID:                projectID,
 		UniformBucketLevelAccess: ptr.Deref(obj.Spec.UniformBucketLevelAccess, false),
+		Labels:                   model.UserLabels(obj.GetLabels()),
 		Cors:                     toBucketCors(obj.Spec.Cors),
 		Status:                   toBucketStatus(obj.Status),
 	}, nil

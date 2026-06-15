@@ -1,0 +1,31 @@
+---
+apiVersion: aiven.io/v1alpha1
+kind: Valkey
+metadata:
+  name: valkey-one
+  namespace: labelteam
+  labels:
+    tag: target
+    priority: high
+spec:
+  plan: startup-4
+---
+apiVersion: aiven.io/v1alpha1
+kind: Valkey
+metadata:
+  name: valkey-two
+  namespace: labelteam
+  labels:
+    tag: target
+spec:
+  plan: startup-4
+---
+apiVersion: aiven.io/v1alpha1
+kind: Valkey
+metadata:
+  name: valkey-three
+  namespace: labelteam
+  labels:
+    tag: other
+spec:
+  plan: startup-4

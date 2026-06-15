@@ -51,6 +51,21 @@ func (r *mutationResolver) CreateSecret(ctx context.Context, input secret.Create
 	}, nil
 }
 
+func (r *mutationResolver) UpdateSecret(ctx context.Context, input secret.UpdateSecretInput) (*secret.UpdateSecretPayload, error) {
+	if err := authz.CanUpdateSecrets(ctx, input.TeamSlug); err != nil {
+		return nil, err
+	}
+
+	s, err := secret.UpdateLabels(ctx, input.TeamSlug, input.EnvironmentName, input.Name, input.Labels)
+	if err != nil {
+		return nil, err
+	}
+
+	return &secret.UpdateSecretPayload{
+		Secret: s,
+	}, nil
+}
+
 func (r *mutationResolver) AddSecretValue(ctx context.Context, input secret.AddSecretValueInput) (*secret.AddSecretValuePayload, error) {
 	if err := authz.CanUpdateSecrets(ctx, input.Team); err != nil {
 		return nil, err
@@ -221,7 +236,10 @@ func (r *secretResolver) ActivityLog(ctx context.Context, obj *secret.Secret, fi
 }
 
 func (r *secretConnectionResolver) Facets(ctx context.Context, obj *pagination.FacetableConnection[*secret.Secret, *secret.SecretFilter]) (*secret.SecretFacets, error) {
-	return secret.ComputeFacets(ctx, obj.GetAllItems(), obj.GetFilter()), nil
+	return &secret.SecretFacets{
+		AllSecrets: obj.GetAllItems(),
+		Filter:     obj.GetFilter(),
+	}, nil
 }
 
 // Secrets returns all secrets for a team.

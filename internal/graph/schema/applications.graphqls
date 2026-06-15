@@ -164,6 +164,11 @@ type Application implements Node & Workload & ActivityLogger {
 	authIntegrations: [ApplicationAuthIntegrations!]!
 
 	"""
+	User-defined labels attached to this application.
+	"""
+	labels: [ResourceLabel!]!
+
+	"""
 	The application manifest.
 	"""
 	manifest: ApplicationManifest!
@@ -308,6 +313,11 @@ input TeamApplicationsFilter {
 	Filter by application state. When provided, only applications matching one of the given states are returned.
 	"""
 	states: [ApplicationState!]
+
+	"""
+	Filter by user-defined labels. All listed labels must match.
+	"""
+	labels: [LabelFilter!]
 }
 
 """
@@ -454,6 +464,11 @@ type ApplicationFacets {
 	Distribution of applications by state.
 	"""
 	states: [ApplicationStateFacetItem!]!
+
+	"""
+	Distribution of applications by user-defined labels.
+	"""
+	labels: [LabelFacetItem!]!
 }
 
 """

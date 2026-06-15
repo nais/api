@@ -69,6 +69,7 @@ type MutationResolver interface {
 	RestartApplication(ctx context.Context, input application.RestartApplicationInput) (*application.RestartApplicationPayload, error)
 	UpdateApplication(ctx context.Context, input application.UpdateApplicationInput) (*application.UpdateApplicationPayload, error)
 	CreateConfig(ctx context.Context, input config.CreateConfigInput) (*config.CreateConfigPayload, error)
+	UpdateConfig(ctx context.Context, input config.UpdateConfigInput) (*config.UpdateConfigPayload, error)
 	AddConfigValue(ctx context.Context, input config.AddConfigValueInput) (*config.AddConfigValuePayload, error)
 	UpdateConfigValue(ctx context.Context, input config.UpdateConfigValueInput) (*config.UpdateConfigValuePayload, error)
 	RemoveConfigValue(ctx context.Context, input config.RemoveConfigValueInput) (*config.RemoveConfigValuePayload, error)
@@ -91,6 +92,7 @@ type MutationResolver interface {
 	AddRepositoryToTeam(ctx context.Context, input repository.AddRepositoryToTeamInput) (*repository.AddRepositoryToTeamPayload, error)
 	RemoveRepositoryFromTeam(ctx context.Context, input repository.RemoveRepositoryFromTeamInput) (*repository.RemoveRepositoryFromTeamPayload, error)
 	CreateSecret(ctx context.Context, input secret.CreateSecretInput) (*secret.CreateSecretPayload, error)
+	UpdateSecret(ctx context.Context, input secret.UpdateSecretInput) (*secret.UpdateSecretPayload, error)
 	AddSecretValue(ctx context.Context, input secret.AddSecretValueInput) (*secret.AddSecretValuePayload, error)
 	UpdateSecretValue(ctx context.Context, input secret.UpdateSecretValueInput) (*secret.UpdateSecretValuePayload, error)
 	RemoveSecretValue(ctx context.Context, input secret.RemoveSecretValueInput) (*secret.RemoveSecretValuePayload, error)
@@ -893,6 +895,20 @@ func (ec *executionContext) field_Mutation_updateConfigValue_args(ctx context.Co
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_updateConfig_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input",
+		func(ctx context.Context, v any) (config.UpdateConfigInput, error) {
+			return ec.unmarshalNUpdateConfigInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐUpdateConfigInput(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_updateImageVulnerability_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -941,6 +957,20 @@ func (ec *executionContext) field_Mutation_updateSecretValue_args(ctx context.Co
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input",
 		func(ctx context.Context, v any) (secret.UpdateSecretValueInput, error) {
 			return ec.unmarshalNUpdateSecretValueInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐUpdateSecretValueInput(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_updateSecret_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input",
+		func(ctx context.Context, v any) (secret.UpdateSecretInput, error) {
+			return ec.unmarshalNUpdateSecretInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐUpdateSecretInput(ctx, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1835,6 +1865,50 @@ func (ec *executionContext) fieldContext_Mutation_createConfig(ctx context.Conte
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_createConfig_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_updateConfig(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Mutation_updateConfig(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.Resolvers.Mutation().UpdateConfig(ctx, fc.Args["input"].(config.UpdateConfigInput))
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *config.UpdateConfigPayload) graphql.Marshaler {
+			return ec.marshalNUpdateConfigPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐUpdateConfigPayload(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Mutation_updateConfig(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_UpdateConfigPayload(ctx, field)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_updateConfig_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -2803,6 +2877,50 @@ func (ec *executionContext) fieldContext_Mutation_createSecret(ctx context.Conte
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_createSecret_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_updateSecret(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Mutation_updateSecret(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.Resolvers.Mutation().UpdateSecret(ctx, fc.Args["input"].(secret.UpdateSecretInput))
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *secret.UpdateSecretPayload) graphql.Marshaler {
+			return ec.marshalNUpdateSecretPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐUpdateSecretPayload(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Mutation_updateSecret(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_UpdateSecretPayload(ctx, field)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_updateSecret_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -6132,6 +6250,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._SecretValueAddedActivityLogEntry(ctx, sel, obj)
+	case secret.SecretUpdatedActivityLogEntry:
+		return ec._SecretUpdatedActivityLogEntry(ctx, sel, &obj)
+	case *secret.SecretUpdatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SecretUpdatedActivityLogEntry(ctx, sel, obj)
 	case secret.SecretDeletedActivityLogEntry:
 		return ec._SecretDeletedActivityLogEntry(ctx, sel, &obj)
 	case *secret.SecretDeletedActivityLogEntry:
@@ -6813,6 +6938,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "updateConfig":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updateConfig(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "addConfigValue":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_addConfigValue(ctx, field)
@@ -6963,6 +7095,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "createSecret":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createSecret(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "updateSecret":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updateSecret(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++

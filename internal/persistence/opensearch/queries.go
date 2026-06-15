@@ -74,7 +74,7 @@ func State(ctx context.Context, os *OpenSearch) (OpenSearchState, error) {
 }
 
 func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *OpenSearchOrder, filter *OpenSearchFilter) (*OpenSearchConnection, error) {
-	all := ListAllForTeam(ctx, teamSlug)
+	all := ListAllForTeam(ctx, teamSlug, filter)
 
 	if orderBy == nil {
 		orderBy = &OpenSearchOrder{
@@ -86,7 +86,7 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 	return SortFilterOpenSearch.PaginatedList(ctx, all, page, orderBy.Field, orderBy.Direction, filter), nil
 }
 
-func ListAllForTeam(ctx context.Context, teamSlug slug.Slug) []*OpenSearch {
+func ListAllForTeam(ctx context.Context, teamSlug slug.Slug, filter *OpenSearchFilter) []*OpenSearch {
 	all := fromContext(ctx).client.watcher.GetByNamespace(teamSlug.String(), watcher.WithoutDeleted())
 	return watcher.Objects(all)
 }
@@ -280,6 +280,8 @@ func Update(ctx context.Context, input UpdateOpenSearchInput) (*UpdateOpenSearch
 		return nil, err
 	}
 	changes = append(changes, res...)
+
+	changes = append(changes, updateLabels(openSearch, input)...)
 
 	if len(changes) == 0 {
 		// No changes to update
@@ -519,6 +521,33 @@ func updateStorage(openSearch *unstructured.Unstructured, input UpdateOpenSearch
 		return nil, err
 	}
 	return changes, nil
+}
+
+func updateLabels(openSearch *unstructured.Unstructured, input UpdateOpenSearchInput) []*OpenSearchUpdatedActivityLogEntryDataUpdatedField {
+	if input.Labels == nil {
+		return nil
+	}
+
+	existing := openSearch.GetLabels()
+	oldValue := formatUserLabels(model.UserLabels(existing))
+	merged := model.MergeUserLabels(existing, input.Labels)
+	newValue := formatUserLabels(model.UserLabels(merged))
+	if oldValue == newValue {
+		return nil
+	}
+
+	openSearch.SetLabels(merged)
+	return []*OpenSearchUpdatedActivityLogEntryDataUpdatedField{
+		{Field: "labels", OldValue: &oldValue, NewValue: &newValue},
+	}
+}
+
+func formatUserLabels(labels []*model.ResourceLabel) string {
+	parts := make([]string, 0, len(labels))
+	for _, l := range labels {
+		parts = append(parts, l.Key+"="+l.Value)
+	}
+	return strings.Join(parts, ", ")
 }
 
 func Delete(ctx context.Context, input DeleteOpenSearchInput) (*DeleteOpenSearchPayload, error) {

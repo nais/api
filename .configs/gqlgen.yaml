@@ -106,6 +106,10 @@ models:
     model:
       - github.com/nais/api/internal/graph/ident.Ident
 
+  ResourceLabelInput:
+    model:
+      - github.com/nais/api/internal/graph/model.ResourceLabel
+
   UUID:
     model:
       - github.com/99designs/gqlgen/graphql.UUID

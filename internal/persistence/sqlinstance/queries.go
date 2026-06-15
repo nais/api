@@ -85,15 +85,16 @@ func orderSQLInstances(ctx context.Context, instances []*SQLInstance, orderBy *S
 	SortFilterSQLInstance.Sort(ctx, instances, orderBy.Field, orderBy.Direction)
 }
 
-func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *SQLInstanceOrder) (*SQLInstanceConnection, error) {
-	all := ListAllForTeam(ctx, teamSlug)
+func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *SQLInstanceOrder, filter *SQLInstanceFilter) (*SQLInstanceConnection, error) {
+	all := ListAllForTeam(ctx, teamSlug, filter)
+	all = SortFilterSQLInstance.Filter(ctx, all, filter)
 	orderSQLInstances(ctx, all, orderBy)
 
 	instances := pagination.Slice(all, page)
 	return pagination.NewConnection(instances, page, len(all)), nil
 }
 
-func ListAllForTeam(ctx context.Context, teamSlug slug.Slug) []*SQLInstance {
+func ListAllForTeam(ctx context.Context, teamSlug slug.Slug, filter *SQLInstanceFilter) []*SQLInstance {
 	all := fromContext(ctx).sqlInstanceWatcher.GetByNamespace(teamSlug.String())
 	return watcher.Objects(all)
 }
