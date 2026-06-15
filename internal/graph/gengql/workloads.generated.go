@@ -25,6 +25,7 @@ import (
 // region    ************************** generated!.gotpl **************************
 
 type ContainerImageResolver interface {
+	Digest(ctx context.Context, obj *workload.ContainerImage) (*string, error)
 	ActivityLog(ctx context.Context, obj *workload.ContainerImage, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*activitylog.ActivityLogEntryConnection, error)
 	Sbom(ctx context.Context, obj *workload.ContainerImage) (*vulnerability.ContainerImageSBOM, error)
 	HasSbom(ctx context.Context, obj *workload.ContainerImage) (bool, error)
@@ -250,6 +251,29 @@ func (ec *executionContext) _ContainerImage_tag(ctx context.Context, field graph
 }
 func (ec *executionContext) fieldContext_ContainerImage_tag(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ContainerImage", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _ContainerImage_digest(ctx context.Context, field graphql.CollectedField, obj *workload.ContainerImage) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ContainerImage_digest(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.ContainerImage().Digest(ctx, obj)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_ContainerImage_digest(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("ContainerImage", field, true, true, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _ContainerImage_activityLog(ctx context.Context, field graphql.CollectedField, obj *workload.ContainerImage) (ret graphql.Marshaler) {
@@ -1064,6 +1088,39 @@ func (ec *executionContext) _ContainerImage(ctx context.Context, sel ast.Selecti
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "digest":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ContainerImage_digest(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "activityLog":
 			field := field
 

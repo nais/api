@@ -63,8 +63,9 @@ type Base struct {
 func (b Base) Image() *ContainerImage {
 	name, tag, _ := strings.Cut(b.ImageString, ":")
 	return &ContainerImage{
-		Name: name,
-		Tag:  tag,
+		Name:     name,
+		Tag:      tag,
+		Workload: b,
 	}
 }
 
@@ -80,8 +81,9 @@ func (b Base) GetType() Type                             { return b.Type }
 func (b Base) GetLogging() *nais_io_v1.Logging           { return b.Logging }
 
 type ContainerImage struct {
-	Name string `json:"name"`
-	Tag  string `json:"tag"`
+	Name     string `json:"name"`
+	Tag      string `json:"tag"`
+	Workload Base   `json:"-"`
 }
 
 func (ContainerImage) IsNode() {}

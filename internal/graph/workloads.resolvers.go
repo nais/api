@@ -2,6 +2,8 @@ package graph
 
 import (
 	"context"
+	"slices"
+	"strings"
 
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/environment"
@@ -12,7 +14,54 @@ import (
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
 	"github.com/nais/api/internal/workload/job"
+	corev1 "k8s.io/api/core/v1"
 )
+
+func (r *containerImageResolver) Digest(ctx context.Context, obj *workload.ContainerImage) (*string, error) {
+	var pods []*corev1.Pod
+	var err error
+	switch obj.Workload.Type {
+	case workload.TypeApplication:
+		pods, err = workload.ListAllPods(ctx, obj.Workload.EnvironmentName, obj.Workload.TeamSlug, obj.Workload.Name)
+	case workload.TypeJob:
+		pods, err = workload.ListAllPodsForJob(ctx, obj.Workload.EnvironmentName, obj.Workload.TeamSlug, obj.Workload.Name)
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	activePods := make([]*corev1.Pod, 0)
+	for _, pod := range pods {
+		if pod.DeletionTimestamp != nil {
+			continue
+		}
+		for _, c := range pod.Spec.Containers {
+			if c.Image == obj.Ref() {
+				activePods = append(activePods, pod)
+				break
+			}
+		}
+	}
+
+	// Sort newest first: during rollouts, the newest pod represents the target image.
+	slices.SortFunc(activePods, func(a, b *corev1.Pod) int {
+		return b.CreationTimestamp.Compare(a.CreationTimestamp.Time)
+	})
+
+	for _, pod := range activePods {
+		for _, status := range pod.Status.ContainerStatuses {
+			if status.Image == obj.Ref() {
+				_, digest, ok := strings.Cut(status.ImageID, "@")
+				if ok {
+					return &digest, nil
+				}
+			}
+		}
+	}
+
+	return nil, nil
+}
 
 func (r *containerImageResolver) ActivityLog(ctx context.Context, obj *workload.ContainerImage, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*activitylog.ActivityLogEntryConnection, error) {
 	page, err := pagination.ParsePage(first, after, last, before)
