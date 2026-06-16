@@ -555,7 +555,7 @@ Test.gql("VulnerableImageIssue", function(t)
 					nodes = {
 						{
 							__typename = "VulnerableImageIssue",
-							message = "Image 'vulnerable-image' has 2 IMMEDIATE and 3 HIGH risk-tier vulnerabilities",
+							message = "Image 'vulnerable-image' has 2 immediate vulnerabilities",
 							severity = "CRITICAL",
 							critical = 5,
 							riskScore = 250,
