@@ -186,23 +186,18 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 		}
 
 		summary := node.VulnerabilitySummary
-		if summary != nil && (summary.ActNow > 0 || summary.HighRisk > 0) {
-			severity := issue.SeverityWarning
-			if summary.ActNow > 0 {
-				severity = issue.SeverityCritical
-			}
+		if summary != nil && summary.ActNow > 0 {
 			ret = append(ret, &Issue{
 				IssueType:    issue.IssueTypeVulnerableImage,
 				ResourceType: workloadType,
 				ResourceName: node.Workload.GetName(),
 				Team:         node.Workload.GetNamespace(),
 				Env:          environmentmapper.EnvironmentName(node.Workload.GetCluster()),
-				Severity:     severity,
+				Severity:     issue.SeverityCritical,
 				Message: fmt.Sprintf(
-					"Image '%s' has %d IMMEDIATE and %d HIGH risk-tier vulnerabilities",
+					"Image '%s' has %d immediate vulnerabilities",
 					node.Workload.ImageName,
 					summary.ActNow,
-					summary.HighRisk,
 				),
 				IssueDetails: issue.VulnerableImageIssueDetails{
 					Critical:  int(summary.Critical),
@@ -320,7 +315,7 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 			Env:          env,
 			Severity:     issue.SeverityCritical,
 			Message: fmt.Sprintf(
-				"Workload with external ingresses %s has %d IMMEDIATE risk-tier vulnerabilities",
+				"Workload with external ingresses %s has %d immediate vulnerabilities",
 				strings.Join(externalIngresses, ", "),
 				node.VulnerabilitySummary.ActNow,
 			),
