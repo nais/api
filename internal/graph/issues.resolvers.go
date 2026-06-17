@@ -48,14 +48,6 @@ func (r *externalIngressActNowVulnerabilityIssueResolver) Workload(ctx context.C
 	return getWorkloadByResourceType(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ResourceName, obj.ResourceType)
 }
 
-func (r *externalIngressCriticalVulnerabilityIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.ExternalIngressCriticalVulnerabilityIssue) (*team.TeamEnvironment, error) {
-	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
-}
-
-func (r *externalIngressCriticalVulnerabilityIssueResolver) Workload(ctx context.Context, obj *issue.ExternalIngressCriticalVulnerabilityIssue) (workload.Workload, error) {
-	return getWorkloadByResourceType(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ResourceName, obj.ResourceType)
-}
-
 func (r *failedSynchronizationIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.FailedSynchronizationIssue) (*team.TeamEnvironment, error) {
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
@@ -169,10 +161,6 @@ func (r *Resolver) ExternalIngressActNowVulnerabilityIssue() gengql.ExternalIngr
 	return &externalIngressActNowVulnerabilityIssueResolver{r}
 }
 
-func (r *Resolver) ExternalIngressCriticalVulnerabilityIssue() gengql.ExternalIngressCriticalVulnerabilityIssueResolver {
-	return &externalIngressCriticalVulnerabilityIssueResolver{r}
-}
-
 func (r *Resolver) FailedSynchronizationIssue() gengql.FailedSynchronizationIssueResolver {
 	return &failedSynchronizationIssueResolver{r}
 }
@@ -216,20 +204,19 @@ func (r *Resolver) VulnerableImageIssue() gengql.VulnerableImageIssueResolver {
 }
 
 type (
-	applicationRestartLoopIssueResolver               struct{ *Resolver }
-	deprecatedIngressIssueResolver                    struct{ *Resolver }
-	deprecatedRegistryIssueResolver                   struct{ *Resolver }
-	externalIngressActNowVulnerabilityIssueResolver   struct{ *Resolver }
-	externalIngressCriticalVulnerabilityIssueResolver struct{ *Resolver }
-	failedSynchronizationIssueResolver                struct{ *Resolver }
-	invalidSpecIssueResolver                          struct{ *Resolver }
-	lastRunFailedIssueResolver                        struct{ *Resolver }
-	missingSbomIssueResolver                          struct{ *Resolver }
-	noRunningInstancesIssueResolver                   struct{ *Resolver }
-	openSearchIssueResolver                           struct{ *Resolver }
-	sqlInstanceStateIssueResolver                     struct{ *Resolver }
-	sqlInstanceVersionIssueResolver                   struct{ *Resolver }
-	unleashReleaseChannelIssueResolver                struct{ *Resolver }
-	valkeyIssueResolver                               struct{ *Resolver }
-	vulnerableImageIssueResolver                      struct{ *Resolver }
+	applicationRestartLoopIssueResolver             struct{ *Resolver }
+	deprecatedIngressIssueResolver                  struct{ *Resolver }
+	deprecatedRegistryIssueResolver                 struct{ *Resolver }
+	externalIngressActNowVulnerabilityIssueResolver struct{ *Resolver }
+	failedSynchronizationIssueResolver              struct{ *Resolver }
+	invalidSpecIssueResolver                        struct{ *Resolver }
+	lastRunFailedIssueResolver                      struct{ *Resolver }
+	missingSbomIssueResolver                        struct{ *Resolver }
+	noRunningInstancesIssueResolver                 struct{ *Resolver }
+	openSearchIssueResolver                         struct{ *Resolver }
+	sqlInstanceStateIssueResolver                   struct{ *Resolver }
+	sqlInstanceVersionIssueResolver                 struct{ *Resolver }
+	unleashReleaseChannelIssueResolver              struct{ *Resolver }
+	valkeyIssueResolver                             struct{ *Resolver }
+	vulnerableImageIssueResolver                    struct{ *Resolver }
 )
