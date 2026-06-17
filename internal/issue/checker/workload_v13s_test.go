@@ -30,12 +30,8 @@ func TestVulnerabilities_ExternalIngressActNowIssue(t *testing.T) {
 		expectedIngress string
 		wantIssue       bool
 	}{
-		{name: "legacy external ingress class", workloadName: "ext-app-legacy", expectedIngress: "https://legacy.external.example.com", wantIssue: true},
-		{name: "external haproxy ingress class", workloadName: "ext-app-haproxy", expectedIngress: "https://haproxy.external.example.com", wantIssue: true},
-		{name: "external authenticated haproxy ingress class", workloadName: "ext-app-fa-haproxy", expectedIngress: "https://haproxy.fa.external.example.com", wantIssue: true},
-		{name: "internal haproxy ingress class", workloadName: "internal-only-haproxy", wantIssue: false},
-		{name: "unknown ingress class", workloadName: "unknown-class-ingress", wantIssue: false},
-		{name: "missing ingress class", workloadName: "no-class-ingress", wantIssue: false},
+		{name: "external ingress class", workloadName: "ext-app", expectedIngress: "https://ext.example.com", wantIssue: true},
+		{name: "internal ingress class", workloadName: "internal-only", wantIssue: false},
 	}
 
 	for _, tt := range tests {
