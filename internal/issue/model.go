@@ -184,11 +184,6 @@ type VulnerableImageIssueDetails struct {
 	Critical  int `json:"critical"`
 }
 
-type ExternalIngressCriticalVulnerabilityIssueDetails struct {
-	CvssScore float64  `json:"cvssScore"`
-	Ingresses []string `json:"ingresses"`
-}
-
 type ExternalIngressActNowVulnerabilityIssueDetails struct {
 	PriorityActNow int      `json:"priorityActNow"`
 	Ingresses      []string `json:"ingresses"`
@@ -197,6 +192,7 @@ type ExternalIngressActNowVulnerabilityIssueDetails struct {
 type IssueType string
 
 const (
+<<<<<<< HEAD
 	IssueTypeOpenSearch         IssueType = "OPENSEARCH"
 	IssueTypeValkey             IssueType = "VALKEY"
 	IssueTypeSqlInstanceState   IssueType = "SQLINSTANCE_STATE"
@@ -216,6 +212,23 @@ const (
 	IssueTypeExternalIngressActNowVulnerability   IssueType = "EXTERNAL_INGRESS_ACT_NOW_VULNERABILITY"
 	IssueTypeUnleashReleaseChannel                IssueType = "UNLEASH_RELEASE_CHANNEL"
 	IssueTypeApplicationRestartLoop               IssueType = "APPLICATION_RESTART_LOOP"
+=======
+	IssueTypeOpenSearch                         IssueType = "OPENSEARCH"
+	IssueTypeValkey                             IssueType = "VALKEY"
+	IssueTypeSqlInstanceState                   IssueType = "SQLINSTANCE_STATE"
+	IssueTypeSqlInstanceVersion                 IssueType = "SQLINSTANCE_VERSION"
+	IssueTypeDeprecatedIngress                  IssueType = "DEPRECATED_INGRESS"
+	IssueTypeDeprecatedRegistry                 IssueType = "DEPRECATED_REGISTRY"
+	IssueTypeNoRunningInstances                 IssueType = "NO_RUNNING_INSTANCES"
+	IssueTypeLastRunFailed                      IssueType = "LAST_RUN_FAILED"
+	IssueTypeFailedSynchronization              IssueType = "FAILED_SYNCHRONIZATION"
+	IssueTypeInvalidSpec                        IssueType = "INVALID_SPEC"
+	IssueTypeVulnerableImage                    IssueType = "VULNERABLE_IMAGE"
+	IssueTypeMissingSBOM                        IssueType = "MISSING_SBOM"
+	IssueTypeExternalIngressActNowVulnerability IssueType = "EXTERNAL_INGRESS_ACT_NOW_VULNERABILITY"
+	IssueTypeUnleashReleaseChannel              IssueType = "UNLEASH_RELEASE_CHANNEL"
+	IssueTypeApplicationRestartLoop             IssueType = "APPLICATION_RESTART_LOOP"
+>>>>>>> 48bfc261 (refactor(vulnerability): hard-remove priority summary extras)
 )
 
 var AllIssueType = []IssueType{
@@ -232,7 +245,6 @@ var AllIssueType = []IssueType{
 	IssueTypeFailedSynchronization,
 	IssueTypeVulnerableImage,
 	IssueTypeMissingSBOM,
-	IssueTypeExternalIngressCriticalVulnerability,
 	IssueTypeExternalIngressActNowVulnerability,
 	IssueTypeUnleashReleaseChannel,
 	IssueTypeApplicationRestartLoop,
@@ -502,15 +514,6 @@ type VulnerableImageIssue struct {
 func (VulnerableImageIssue) IsIssue() {}
 
 func (VulnerableImageIssue) IsNode() {}
-
-type ExternalIngressCriticalVulnerabilityIssue struct {
-	Base
-	ExternalIngressCriticalVulnerabilityIssueDetails
-}
-
-func (ExternalIngressCriticalVulnerabilityIssue) IsIssue() {}
-
-func (ExternalIngressCriticalVulnerabilityIssue) IsNode() {}
 
 type ExternalIngressActNowVulnerabilityIssue struct {
 	Base
