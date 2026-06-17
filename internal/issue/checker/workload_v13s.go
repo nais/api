@@ -19,7 +19,6 @@ const (
 
 type V13sClient interface {
 	ListVulnerabilitySummaries(ctx context.Context, opts ...vulnerabilities.Option) (*vulnerabilities.ListVulnerabilitySummariesResponse, error)
-	ListWorkloadsForVulnerability(ctx context.Context, vulnerabilityFilter vulnerabilities.VulnerabilityFilter, opts ...vulnerabilities.Option) (*vulnerabilities.ListWorkloadsForVulnerabilityResponse, error)
 }
 
 type fakeV13sClient struct{}
@@ -113,47 +112,6 @@ func (f fakeV13sClient) ListVulnerabilitySummaries(ctx context.Context, opts ...
 	}, nil
 }
 
-func (f fakeV13sClient) ListWorkloadsForVulnerability(ctx context.Context, vulnerabilityFilter vulnerabilities.VulnerabilityFilter, opts ...vulnerabilities.Option) (*vulnerabilities.ListWorkloadsForVulnerabilityResponse, error) {
-	if vulnerabilityFilter.CvssScore == nil || *vulnerabilityFilter.CvssScore != 10.0 {
-		return &vulnerabilities.ListWorkloadsForVulnerabilityResponse{}, nil
-	}
-
-	return &vulnerabilities.ListWorkloadsForVulnerabilityResponse{
-		Nodes: []*vulnerabilities.WorkloadForVulnerability{
-			{
-				WorkloadRef: &vulnerabilities.Workload{
-					Cluster:   "dev-gcp",
-					Namespace: "devteam",
-					Type:      "app",
-					Name:      "vulnerable",
-				},
-				Vulnerability: &vulnerabilities.Vulnerability{
-					Cve: &vulnerabilities.Cve{
-						Id:        "CVE-FAKE-0001",
-						CvssScore: new(10.0),
-					},
-					CvssScore: new(10.0),
-				},
-			},
-			{
-				WorkloadRef: &vulnerabilities.Workload{
-					Cluster:   "dev-gcp",
-					Namespace: "fake-team",
-					Type:      "app",
-					Name:      "fake-external-app",
-				},
-				Vulnerability: &vulnerabilities.Vulnerability{
-					Cve: &vulnerabilities.Cve{
-						Id:        "CVE-FAKE-0002",
-						CvssScore: new(10.0),
-					},
-					CvssScore: new(10.0),
-				},
-			},
-		},
-	}, nil
-}
-
 func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 	mapType := func(s string) (issue.ResourceType, bool) {
 		if s == "job" {
@@ -226,63 +184,7 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 		}
 	}
 
-	cvss := 10.0
-	workloadsForVulnerability, err := w.V13sClient.ListWorkloadsForVulnerability(
-		ctx,
-		vulnerabilities.VulnerabilityFilter{CvssScore: &cvss},
-		vulnerabilities.Limit(v13sQueryLimit),
-		vulnerabilities.ExcludeClustersFilter("management"),
-	)
-	if err != nil {
-		w.log.WithError(err).Error("fetch workloads for vulnerabilities with cvss score")
-		return ret
-	}
-
 	externalIngressesByWorkload := w.externalIngressesByWorkload()
-
-	seen := map[string]struct{}{}
-	for _, node := range workloadsForVulnerability.GetNodes() {
-		workloadRef := node.GetWorkloadRef()
-		vulnerability := node.GetVulnerability()
-		if workloadRef == nil || vulnerability == nil {
-			continue
-		}
-
-		workloadType, ok := mapType(workloadRef.GetType())
-		if !ok || workloadType != issue.ResourceTypeApplication {
-			continue
-		}
-
-		env := environmentmapper.EnvironmentName(workloadRef.GetCluster())
-		key := workloadKey(env, workloadRef.GetNamespace(), workloadRef.GetName())
-		if _, exists := seen[key]; exists {
-			continue
-		}
-
-		externalIngresses := externalIngressesByWorkload[key]
-		if len(externalIngresses) == 0 {
-			continue
-		}
-		seen[key] = struct{}{}
-
-		ret = append(ret, &Issue{
-			IssueType:    issue.IssueTypeExternalIngressCriticalVulnerability,
-			ResourceType: workloadType,
-			ResourceName: workloadRef.GetName(),
-			Team:         workloadRef.GetNamespace(),
-			Env:          env,
-			Severity:     issue.SeverityCritical,
-			Message: fmt.Sprintf(
-				"Workload with external ingresses %s has a vulnerability with CVSS score %.1f",
-				strings.Join(externalIngresses, ", "),
-				cvss,
-			),
-			IssueDetails: issue.ExternalIngressCriticalVulnerabilityIssueDetails{
-				CvssScore: cvss,
-				Ingresses: externalIngresses,
-			},
-		})
-	}
 
 	seenActNow := map[string]struct{}{}
 	for _, node := range resp.GetNodes() {
