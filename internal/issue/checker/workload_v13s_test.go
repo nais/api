@@ -28,6 +28,28 @@ func (s staticV13sClient) ListWorkloadsForVulnerability(ctx context.Context, vul
 }
 
 func TestVulnerabilities_ExternalIngressCriticalIssue(t *testing.T) {
+	tests := []struct {
+		name             string
+		workloadName     string
+		expectedIngress  string
+		wantIssue        bool
+	}{
+		{name: "legacy external ingress class", workloadName: "ext-app-legacy", expectedIngress: "https://legacy.external.example.com", wantIssue: true},
+		{name: "external haproxy ingress class", workloadName: "ext-app-haproxy", expectedIngress: "https://haproxy.external.example.com", wantIssue: true},
+		{name: "external authenticated haproxy ingress class", workloadName: "ext-app-fa-haproxy", expectedIngress: "https://haproxy.fa.external.example.com", wantIssue: true},
+		{name: "internal haproxy ingress class", workloadName: "internal-only-haproxy", wantIssue: false},
+		{name: "unknown ingress class", workloadName: "unknown-class-ingress", wantIssue: false},
+		{name: "missing ingress class", workloadName: "no-class-ingress", wantIssue: false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			testVulnerabilitiesExternalIngressCriticalIssue(t, tt.workloadName, tt.expectedIngress, tt.wantIssue)
+		})
+	}
+}
+
+func testVulnerabilitiesExternalIngressCriticalIssue(t *testing.T, workloadName, expectedIngress string, wantIssue bool) {
 	ctx := context.Background()
 
 	scheme, err := kubernetes.NewScheme()
@@ -60,19 +82,19 @@ func TestVulnerabilities_ExternalIngressCriticalIssue(t *testing.T) {
 		IngressWatcher: *ingressWatcher,
 		V13sClient: staticV13sClient{workloads: []*vulnerabilities.WorkloadForVulnerability{
 			{
-				WorkloadRef:   &vulnerabilities.Workload{Cluster: "dev-gcp", Namespace: "devteam", Type: "app", Name: "ext-app"},
+				WorkloadRef:   &vulnerabilities.Workload{Cluster: "dev-gcp", Namespace: "devteam", Type: "app", Name: workloadName},
 				Vulnerability: &vulnerabilities.Vulnerability{CvssScore: new(10.0), Cve: &vulnerabilities.Cve{CvssScore: new(10.0)}},
 			},
 			{
-				WorkloadRef:   &vulnerabilities.Workload{Cluster: "dev-gcp", Namespace: "devteam", Type: "app", Name: "ext-app"},
+				WorkloadRef:   &vulnerabilities.Workload{Cluster: "dev-gcp", Namespace: "devteam", Type: "app", Name: workloadName},
 				Vulnerability: &vulnerabilities.Vulnerability{CvssScore: new(10.0), Cve: &vulnerabilities.Cve{CvssScore: new(10.0)}},
 			},
 			{
-				WorkloadRef:   &vulnerabilities.Workload{Cluster: "dev-gcp", Namespace: "devteam", Type: "app", Name: "internal-only"},
+				WorkloadRef:   &vulnerabilities.Workload{Cluster: "dev-gcp", Namespace: "devteam", Type: "app", Name: "non-existing-workload"},
 				Vulnerability: &vulnerabilities.Vulnerability{CvssScore: new(10.0), Cve: &vulnerabilities.Cve{CvssScore: new(10.0)}},
 			},
 			{
-				WorkloadRef:   &vulnerabilities.Workload{Cluster: "dev-gcp", Namespace: "devteam", Type: "app", Name: "ext-app"},
+				WorkloadRef:   &vulnerabilities.Workload{Cluster: "dev-gcp", Namespace: "devteam", Type: "app", Name: workloadName},
 				Vulnerability: &vulnerabilities.Vulnerability{CvssScore: new(9.9), Cve: &vulnerabilities.Cve{CvssScore: new(9.9)}},
 			},
 		}},
@@ -80,6 +102,13 @@ func TestVulnerabilities_ExternalIngressCriticalIssue(t *testing.T) {
 	}
 
 	issues := workload.vulnerabilities(ctx)
+
+	if !wantIssue {
+		if len(issues) != 0 {
+			t.Fatalf("expected 0 issues, got %d", len(issues))
+		}
+		return
+	}
 
 	if len(issues) != 1 {
 		t.Fatalf("expected 1 issue, got %d", len(issues))
@@ -90,8 +119,8 @@ func TestVulnerabilities_ExternalIngressCriticalIssue(t *testing.T) {
 		t.Fatalf("expected issue type %s, got %s", issue.IssueTypeExternalIngressCriticalVulnerability, got.IssueType)
 	}
 
-	if got.ResourceName != "ext-app" {
-		t.Fatalf("expected resource ext-app, got %s", got.ResourceName)
+	if got.ResourceName != workloadName {
+		t.Fatalf("expected resource %s, got %s", workloadName, got.ResourceName)
 	}
 
 	details, ok := got.IssueDetails.(issue.ExternalIngressCriticalVulnerabilityIssueDetails)
@@ -103,7 +132,7 @@ func TestVulnerabilities_ExternalIngressCriticalIssue(t *testing.T) {
 		t.Fatalf("expected CVSS 10.0, got %v", details.CvssScore)
 	}
 
-	if len(details.Ingresses) != 1 || details.Ingresses[0] != "https://ext.example.com" {
+	if len(details.Ingresses) != 1 || details.Ingresses[0] != expectedIngress {
 		t.Fatalf("expected only external ingress URL, got %+v", details.Ingresses)
 	}
 }

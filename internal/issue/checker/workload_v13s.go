@@ -8,13 +8,12 @@ import (
 
 	"github.com/nais/api/internal/environmentmapper"
 	"github.com/nais/api/internal/issue"
+	"github.com/nais/api/internal/workload/application"
 	"github.com/nais/v13s/pkg/api/vulnerabilities"
-	"k8s.io/utils/ptr"
 )
 
 const (
-	externalIngressClassName = "nais-ingress-external"
-	v13sQueryLimit           = 69000
+	v13sQueryLimit = 69000
 )
 
 type V13sClient interface {
@@ -377,7 +376,12 @@ func (w Workload) externalIngressHostsByWorkload() map[string]map[string]struct{
 	ret := map[string]map[string]struct{}{}
 
 	for _, ing := range w.IngressWatcher.All() {
-		if ptr.Deref(ing.Obj.Spec.IngressClassName, "") != externalIngressClassName {
+		ingressClassName := ""
+		if ing.Obj.Spec.IngressClassName != nil {
+			ingressClassName = *ing.Obj.Spec.IngressClassName
+		}
+
+		if !application.IsIngressClassExternallyExposed(ingressClassName) {
 			continue
 		}
 

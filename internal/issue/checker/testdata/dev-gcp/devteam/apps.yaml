@@ -1,51 +1,118 @@
 apiVersion: nais.io/v1alpha1
 kind: Application
 metadata:
-  name: ext-app
+  name: ext-app-legacy
 spec:
-  image: ghcr.io/nais/ext-app:latest
+  image: ghcr.io/nais/ext-app-legacy:latest
   ingresses:
-    - https://ext.example.com
-    - https://internal.example.com
+    - https://legacy.external.example.com
 ---
 apiVersion: nais.io/v1alpha1
 kind: Application
 metadata:
-  name: internal-only
+  name: ext-app-haproxy
 spec:
-  image: ghcr.io/nais/internal-only:latest
+  image: ghcr.io/nais/ext-app-haproxy:latest
   ingresses:
-    - https://internal-only.example.com
+    - https://haproxy.external.example.com
+---
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: ext-app-fa-haproxy
+spec:
+  image: ghcr.io/nais/ext-app-fa-haproxy:latest
+  ingresses:
+    - https://haproxy.fa.external.example.com
+---
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: internal-only-haproxy
+spec:
+  image: ghcr.io/nais/internal-only-haproxy:latest
+  ingresses:
+    - https://internal-only.haproxy.example.com
+---
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: unknown-class-ingress
+spec:
+  image: ghcr.io/nais/unknown-class-ingress:latest
+  ingresses:
+    - https://unknown-class.example.com
+---
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: no-class-ingress
+spec:
+  image: ghcr.io/nais/no-class-ingress:latest
+  ingresses:
+    - https://no-class.example.com
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ext-app-external
+  name: ext-app-legacy-external
   labels:
-    app: ext-app
+    app: ext-app-legacy
 spec:
   ingressClassName: nais-ingress-external
   rules:
-    - host: ext.example.com
+    - host: legacy.external.example.com
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ext-app-internal
+  name: ext-app-haproxy-external
   labels:
-    app: ext-app
+    app: ext-app-haproxy
 spec:
-  ingressClassName: nais-ingress
+  ingressClassName: external-haproxy
   rules:
-    - host: internal.example.com
+    - host: haproxy.external.example.com
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: internal-only-internal
+  name: ext-app-fa-haproxy-external
   labels:
-    app: internal-only
+    app: ext-app-fa-haproxy
 spec:
-  ingressClassName: nais-ingress
+  ingressClassName: external-fa-haproxy
   rules:
-    - host: internal-only.example.com
+    - host: haproxy.fa.external.example.com
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: internal-only-haproxy-internal
+  labels:
+    app: internal-only-haproxy
+spec:
+  ingressClassName: internal-haproxy
+  rules:
+    - host: internal-only.haproxy.example.com
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: unknown-class-ingress
+  labels:
+    app: unknown-class-ingress
+spec:
+  ingressClassName: unknown-ingress-class
+  rules:
+    - host: unknown-class.example.com
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: no-class-ingress
+  labels:
+    app: no-class-ingress
+spec:
+  rules:
+    - host: no-class.example.com
