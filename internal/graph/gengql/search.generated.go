@@ -188,7 +188,7 @@ func (ec *executionContext) unmarshalInputSearchFilter(ctx context.Context, obj 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"query", "type", "types", "teams"}
+	fieldsInOrder := [...]string{"query", "types", "teams"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -202,13 +202,6 @@ func (ec *executionContext) unmarshalInputSearchFilter(ctx context.Context, obj 
 				return it, err
 			}
 			it.Query = data
-		case "type":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
-			data, err := ec.unmarshalOSearchType2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋsearchᚐSearchType(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Type = data
 		case "types":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("types"))
 			data, err := ec.unmarshalOSearchType2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋsearchᚐSearchTypeᚄ(ctx, v)
@@ -524,22 +517,6 @@ func (ec *executionContext) marshalOSearchType2ᚕgithubᚗcomᚋnaisᚋapiᚋin
 	}
 
 	return ret
-}
-
-func (ec *executionContext) unmarshalOSearchType2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋsearchᚐSearchType(ctx context.Context, v any) (*search.SearchType, error) {
-	if v == nil {
-		return nil, nil
-	}
-	var res = new(search.SearchType)
-	err := res.UnmarshalGQL(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOSearchType2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋsearchᚐSearchType(ctx context.Context, sel ast.SelectionSet, v *search.SearchType) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return v
 }
 
 // endregion ***************************** type.gotpl *****************************

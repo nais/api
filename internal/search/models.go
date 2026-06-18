@@ -27,7 +27,6 @@ type Result struct {
 
 type SearchFilter struct {
 	Query string       `json:"query"`
-	Type  *SearchType  `json:"type,omitempty"`
 	Types []SearchType `json:"types,omitempty"`
 	Teams []slug.Slug  `json:"teams,omitempty"`
 }
