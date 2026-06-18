@@ -141,8 +141,10 @@ Test.gql("Secrets with workloads", function(t)
 						workloads {
 							nodes {
 								name
-								environment {
-									name
+								teamEnvironment {
+									environment {
+										name
+									}
 								}
 							}
 						}
@@ -164,8 +166,10 @@ Test.gql("Secrets with workloads", function(t)
 								nodes = {
 									{
 										name = "app-with-secrets-via-envfrom",
-										environment = {
-											name = "dev",
+										teamEnvironment = {
+											environment = {
+												name = "dev",
+											},
 										},
 									},
 								},
@@ -183,8 +187,10 @@ Test.gql("Secrets with workloads", function(t)
 								nodes = {
 									{
 										name = "app-with-secrets-via-filesfrom",
-										environment = {
-											name = "staging",
+										teamEnvironment = {
+											environment = {
+												name = "staging",
+											},
 										},
 									},
 								},
