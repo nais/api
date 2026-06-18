@@ -232,7 +232,6 @@ type ComplexityRoot struct {
 		Cost                      func(childComplexity int) int
 		DeletionStartedAt         func(childComplexity int) int
 		Deployments               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		Environment               func(childComplexity int) int
 		History                   func(childComplexity int) int
 		ID                        func(childComplexity int) int
 		Image                     func(childComplexity int) int
@@ -431,7 +430,6 @@ type ComplexityRoot struct {
 		CascadingDelete func(childComplexity int) int
 		Cost            func(childComplexity int) int
 		Description     func(childComplexity int) int
-		Environment     func(childComplexity int) int
 		ID              func(childComplexity int) int
 		Labels          func(childComplexity int) int
 		Name            func(childComplexity int) int
@@ -490,7 +488,6 @@ type ComplexityRoot struct {
 
 	Bucket struct {
 		CascadingDelete          func(childComplexity int) int
-		Environment              func(childComplexity int) int
 		ID                       func(childComplexity int) int
 		Labels                   func(childComplexity int) int
 		Name                     func(childComplexity int) int
@@ -1161,7 +1158,6 @@ type ComplexityRoot struct {
 		Cost                      func(childComplexity int) int
 		DeletionStartedAt         func(childComplexity int) int
 		Deployments               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		Environment               func(childComplexity int) int
 		ID                        func(childComplexity int) int
 		Image                     func(childComplexity int) int
 		ImageVulnerabilityHistory func(childComplexity int, from scalar.Date) int
@@ -1359,7 +1355,6 @@ type ComplexityRoot struct {
 	KafkaTopic struct {
 		ACL             func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *kafkatopic.KafkaTopicACLFilter, orderBy *kafkatopic.KafkaTopicACLOrder) int
 		Configuration   func(childComplexity int) int
-		Environment     func(childComplexity int) int
 		ID              func(childComplexity int) int
 		Labels          func(childComplexity int) int
 		Name            func(childComplexity int) int
@@ -1586,7 +1581,6 @@ type ComplexityRoot struct {
 		Access                func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *opensearch.OpenSearchAccessOrder) int
 		ActivityLog           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int
 		Cost                  func(childComplexity int) int
-		Environment           func(childComplexity int) int
 		ID                    func(childComplexity int) int
 		Issues                func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) int
 		Labels                func(childComplexity int) int
@@ -1780,7 +1774,6 @@ type ComplexityRoot struct {
 
 	PostgresInstance struct {
 		Audit             func(childComplexity int) int
-		Environment       func(childComplexity int) int
 		HighAvailability  func(childComplexity int) int
 		ID                func(childComplexity int) int
 		Labels            func(childComplexity int) int
@@ -2149,7 +2142,6 @@ type ComplexityRoot struct {
 	Secret struct {
 		ActivityLog     func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int
 		Applications    func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		Environment     func(childComplexity int) int
 		ID              func(childComplexity int) int
 		Jobs            func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		Keys            func(childComplexity int) int
@@ -2524,7 +2516,6 @@ type ComplexityRoot struct {
 		Charset         func(childComplexity int) int
 		Collation       func(childComplexity int) int
 		DeletionPolicy  func(childComplexity int) int
-		Environment     func(childComplexity int) int
 		Healthy         func(childComplexity int) int
 		ID              func(childComplexity int) int
 		Labels          func(childComplexity int) int
@@ -2542,7 +2533,6 @@ type ComplexityRoot struct {
 		Database            func(childComplexity int) int
 		DiskAutoresize      func(childComplexity int) int
 		DiskAutoresizeLimit func(childComplexity int) int
-		Environment         func(childComplexity int) int
 		Flags               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		Healthy             func(childComplexity int) int
 		HighAvailability    func(childComplexity int) int
@@ -3082,7 +3072,6 @@ type ComplexityRoot struct {
 	}
 
 	TeamUtilizationData struct {
-		Environment     func(childComplexity int) int
 		Requested       func(childComplexity int) int
 		Team            func(childComplexity int) int
 		TeamEnvironment func(childComplexity int) int
@@ -3381,7 +3370,6 @@ type ComplexityRoot struct {
 		ActivityLog           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int
 		Cost                  func(childComplexity int) int
 		Databases             func(childComplexity int) int
-		Environment           func(childComplexity int) int
 		ID                    func(childComplexity int) int
 		Issues                func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) int
 		Labels                func(childComplexity int) int
@@ -3944,13 +3932,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Application.Deployments(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
-
-	case "Application.environment":
-		if e.ComplexityRoot.Application.Environment == nil {
-			break
-		}
-
-		return e.ComplexityRoot.Application.Environment(childComplexity), true
 
 	case "Application.history":
 		if e.ComplexityRoot.Application.History == nil {
@@ -4889,13 +4870,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.BigQueryDataset.Description(childComplexity), true
 
-	case "BigQueryDataset.environment":
-		if e.ComplexityRoot.BigQueryDataset.Environment == nil {
-			break
-		}
-
-		return e.ComplexityRoot.BigQueryDataset.Environment(childComplexity), true
-
 	case "BigQueryDataset.id":
 		if e.ComplexityRoot.BigQueryDataset.ID == nil {
 			break
@@ -5091,13 +5065,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Bucket.CascadingDelete(childComplexity), true
-
-	case "Bucket.environment":
-		if e.ComplexityRoot.Bucket.Environment == nil {
-			break
-		}
-
-		return e.ComplexityRoot.Bucket.Environment(childComplexity), true
 
 	case "Bucket.id":
 		if e.ComplexityRoot.Bucket.ID == nil {
@@ -7674,13 +7641,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Job.Deployments(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
 
-	case "Job.environment":
-		if e.ComplexityRoot.Job.Environment == nil {
-			break
-		}
-
-		return e.ComplexityRoot.Job.Environment(childComplexity), true
-
 	case "Job.id":
 		if e.ComplexityRoot.Job.ID == nil {
 			break
@@ -8589,13 +8549,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.KafkaTopic.Configuration(childComplexity), true
-
-	case "KafkaTopic.environment":
-		if e.ComplexityRoot.KafkaTopic.Environment == nil {
-			break
-		}
-
-		return e.ComplexityRoot.KafkaTopic.Environment(childComplexity), true
 
 	case "KafkaTopic.id":
 		if e.ComplexityRoot.KafkaTopic.ID == nil {
@@ -9968,13 +9921,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.OpenSearch.Cost(childComplexity), true
 
-	case "OpenSearch.environment":
-		if e.ComplexityRoot.OpenSearch.Environment == nil {
-			break
-		}
-
-		return e.ComplexityRoot.OpenSearch.Environment(childComplexity), true
-
 	case "OpenSearch.id":
 		if e.ComplexityRoot.OpenSearch.ID == nil {
 			break
@@ -10789,13 +10735,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.PostgresInstance.Audit(childComplexity), true
-
-	case "PostgresInstance.environment":
-		if e.ComplexityRoot.PostgresInstance.Environment == nil {
-			break
-		}
-
-		return e.ComplexityRoot.PostgresInstance.Environment(childComplexity), true
 
 	case "PostgresInstance.highAvailability":
 		if e.ComplexityRoot.PostgresInstance.HighAvailability == nil {
@@ -12447,13 +12386,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Secret.Applications(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
-
-	case "Secret.environment":
-		if e.ComplexityRoot.Secret.Environment == nil {
-			break
-		}
-
-		return e.ComplexityRoot.Secret.Environment(childComplexity), true
 
 	case "Secret.id":
 		if e.ComplexityRoot.Secret.ID == nil {
@@ -14111,13 +14043,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.SqlDatabase.DeletionPolicy(childComplexity), true
 
-	case "SqlDatabase.environment":
-		if e.ComplexityRoot.SqlDatabase.Environment == nil {
-			break
-		}
-
-		return e.ComplexityRoot.SqlDatabase.Environment(childComplexity), true
-
 	case "SqlDatabase.healthy":
 		if e.ComplexityRoot.SqlDatabase.Healthy == nil {
 			break
@@ -14215,13 +14140,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.SqlInstance.DiskAutoresizeLimit(childComplexity), true
-
-	case "SqlInstance.environment":
-		if e.ComplexityRoot.SqlInstance.Environment == nil {
-			break
-		}
-
-		return e.ComplexityRoot.SqlInstance.Environment(childComplexity), true
 
 	case "SqlInstance.flags":
 		if e.ComplexityRoot.SqlInstance.Flags == nil {
@@ -16640,13 +16558,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.TeamUpdatedActivityLogEntryDataUpdatedField.OldValue(childComplexity), true
 
-	case "TeamUtilizationData.environment":
-		if e.ComplexityRoot.TeamUtilizationData.Environment == nil {
-			break
-		}
-
-		return e.ComplexityRoot.TeamUtilizationData.Environment(childComplexity), true
-
 	case "TeamUtilizationData.requested":
 		if e.ComplexityRoot.TeamUtilizationData.Requested == nil {
 			break
@@ -17870,13 +17781,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Valkey.Databases(childComplexity), true
-
-	case "Valkey.environment":
-		if e.ComplexityRoot.Valkey.Environment == nil {
-			break
-		}
-
-		return e.ComplexityRoot.Valkey.Environment(childComplexity), true
 
 	case "Valkey.id":
 		if e.ComplexityRoot.Valkey.ID == nil {
@@ -20101,11 +20005,6 @@ type Application implements Node & Workload & ActivityLogger {
 	team: Team!
 
 	"""
-	The environment the application is deployed in.
-	"""
-	environment: TeamEnvironment! @deprecated(reason: "Use the ` + "`" + `teamEnvironment` + "`" + ` field instead.")
-
-	"""
 	The team environment for the application.
 	"""
 	teamEnvironment: TeamEnvironment!
@@ -21191,7 +21090,6 @@ type BigQueryDataset implements Persistence & Node {
 	id: ID!
 	name: String!
 	team: Team!
-	environment: TeamEnvironment! @deprecated(reason: "Use the ` + "`" + `teamEnvironment` + "`" + ` field instead.")
 	teamEnvironment: TeamEnvironment!
 	cascadingDelete: Boolean!
 	description: String
@@ -21362,7 +21260,6 @@ type Bucket implements Persistence & Node {
 	id: ID!
 	name: String!
 	team: Team!
-	environment: TeamEnvironment! @deprecated(reason: "Use the ` + "`" + `teamEnvironment` + "`" + ` field instead.")
 	teamEnvironment: TeamEnvironment!
 	cascadingDelete: Boolean!
 	publicAccessPrevention: String!
@@ -23492,9 +23389,6 @@ type Job implements Node & Workload & ActivityLogger {
 	"The team that owns the job."
 	team: Team!
 
-	"The environment the job is deployed in."
-	environment: TeamEnvironment! @deprecated(reason: "Use the ` + "`" + `teamEnvironment` + "`" + ` field instead.")
-
 	"The team environment for the job."
 	teamEnvironment: TeamEnvironment!
 
@@ -24188,7 +24082,6 @@ type KafkaTopic implements Persistence & Node {
 	id: ID!
 	name: String!
 	team: Team!
-	environment: TeamEnvironment! @deprecated(reason: "Use the ` + "`" + `teamEnvironment` + "`" + ` field instead.")
 	teamEnvironment: TeamEnvironment!
 	acl(
 		first: Int
@@ -24735,7 +24628,6 @@ type OpenSearch implements Persistence & Node {
 	id: ID!
 	name: String!
 	team: Team!
-	environment: TeamEnvironment! @deprecated(reason: "Use the ` + "`" + `teamEnvironment` + "`" + ` field instead.")
 	teamEnvironment: TeamEnvironment!
 	terminationProtection: Boolean!
 	state: OpenSearchState!
@@ -25143,7 +25035,6 @@ type CreateOpenSearchCredentialsPayload {
 	id: ID!
 	name: String!
 	team: Team!
-	environment: TeamEnvironment! @deprecated(reason: "Use the ` + "`" + `teamEnvironment` + "`" + ` field instead.")
 	teamEnvironment: TeamEnvironment!
 	"User-defined labels attached to the resource."
 	labels: [ResourceLabel!]!
@@ -25277,7 +25168,6 @@ type PostgresInstance implements Persistence & Node {
 	id: ID!
 	name: String!
 	team: Team!
-	environment: TeamEnvironment! @deprecated(reason: "Use the ` + "`" + `teamEnvironment` + "`" + ` field instead.")
 	teamEnvironment: TeamEnvironment!
 	"Workloads that reference the Postgres instance."
 	workloads(
@@ -26402,9 +26292,6 @@ type Secret implements Node & ActivityLogger {
 
 	"The name of the secret."
 	name: String!
-
-	"The environment the secret exists in."
-	environment: TeamEnvironment! @deprecated(reason: "Use the ` + "`" + `teamEnvironment` + "`" + ` field instead.")
 
 	"The environment the secret exists in."
 	teamEnvironment: TeamEnvironment!
@@ -28549,7 +28436,6 @@ type SqlDatabase implements Persistence & Node {
 	id: ID!
 	name: String!
 	team: Team!
-	environment: TeamEnvironment! @deprecated(reason: "Use the ` + "`" + `teamEnvironment` + "`" + ` field instead.")
 	teamEnvironment: TeamEnvironment!
 	charset: String
 	collation: String
@@ -28563,7 +28449,6 @@ type SqlInstance implements Persistence & Node {
 	id: ID!
 	name: String!
 	team: Team!
-	environment: TeamEnvironment! @deprecated(reason: "Use the ` + "`" + `teamEnvironment` + "`" + ` field instead.")
 	teamEnvironment: TeamEnvironment!
 	workload: Workload
 	cascadingDelete: Boolean!
@@ -30699,9 +30584,6 @@ type TeamUtilizationData {
 	used: Float!
 
 	"The environment for the utilization data."
-	environment: TeamEnvironment! @deprecated(reason: "Use the ` + "`" + `teamEnvironment` + "`" + ` field instead.")
-
-	"The environment for the utilization data."
 	teamEnvironment: TeamEnvironment!
 }
 
@@ -30776,7 +30658,6 @@ type Valkey implements Persistence & Node {
 	name: String!
 	terminationProtection: Boolean!
 	team: Team!
-	environment: TeamEnvironment! @deprecated(reason: "Use the ` + "`" + `teamEnvironment` + "`" + ` field instead.")
 	teamEnvironment: TeamEnvironment!
 	"User-defined labels attached to the instance."
 	labels: [ResourceLabel!]!
@@ -32085,11 +31966,6 @@ interface Workload implements Node & ActivityLogger {
 	team: Team!
 
 	"""
-	The environment the workload is deployed in.
-	"""
-	environment: TeamEnvironment! @deprecated(reason: "Use the ` + "`" + `teamEnvironment` + "`" + ` field instead.")
-
-	"""
 	The team environment for the workload.
 	"""
 	teamEnvironment: TeamEnvironment!
@@ -32610,8 +32486,6 @@ func (ec *executionContext) childFields_Application(ctx context.Context, field g
 		return ec.fieldContext_Application_name(ctx, field)
 	case "team":
 		return ec.fieldContext_Application_team(ctx, field)
-	case "environment":
-		return ec.fieldContext_Application_environment(ctx, field)
 	case "teamEnvironment":
 		return ec.fieldContext_Application_teamEnvironment(ctx, field)
 	case "image":
@@ -32878,8 +32752,6 @@ func (ec *executionContext) childFields_BigQueryDataset(ctx context.Context, fie
 		return ec.fieldContext_BigQueryDataset_name(ctx, field)
 	case "team":
 		return ec.fieldContext_BigQueryDataset_team(ctx, field)
-	case "environment":
-		return ec.fieldContext_BigQueryDataset_environment(ctx, field)
 	case "teamEnvironment":
 		return ec.fieldContext_BigQueryDataset_teamEnvironment(ctx, field)
 	case "cascadingDelete":
@@ -33002,8 +32874,6 @@ func (ec *executionContext) childFields_Bucket(ctx context.Context, field graphq
 		return ec.fieldContext_Bucket_name(ctx, field)
 	case "team":
 		return ec.fieldContext_Bucket_team(ctx, field)
-	case "environment":
-		return ec.fieldContext_Bucket_environment(ctx, field)
 	case "teamEnvironment":
 		return ec.fieldContext_Bucket_teamEnvironment(ctx, field)
 	case "cascadingDelete":
@@ -34036,8 +33906,6 @@ func (ec *executionContext) childFields_Job(ctx context.Context, field graphql.C
 		return ec.fieldContext_Job_name(ctx, field)
 	case "team":
 		return ec.fieldContext_Job_team(ctx, field)
-	case "environment":
-		return ec.fieldContext_Job_environment(ctx, field)
 	case "teamEnvironment":
 		return ec.fieldContext_Job_teamEnvironment(ctx, field)
 	case "image":
@@ -34316,8 +34184,6 @@ func (ec *executionContext) childFields_KafkaTopic(ctx context.Context, field gr
 		return ec.fieldContext_KafkaTopic_name(ctx, field)
 	case "team":
 		return ec.fieldContext_KafkaTopic_team(ctx, field)
-	case "environment":
-		return ec.fieldContext_KafkaTopic_environment(ctx, field)
 	case "teamEnvironment":
 		return ec.fieldContext_KafkaTopic_teamEnvironment(ctx, field)
 	case "acl":
@@ -34548,8 +34414,6 @@ func (ec *executionContext) childFields_OpenSearch(ctx context.Context, field gr
 		return ec.fieldContext_OpenSearch_name(ctx, field)
 	case "team":
 		return ec.fieldContext_OpenSearch_team(ctx, field)
-	case "environment":
-		return ec.fieldContext_OpenSearch_environment(ctx, field)
 	case "teamEnvironment":
 		return ec.fieldContext_OpenSearch_teamEnvironment(ctx, field)
 	case "terminationProtection":
@@ -34808,8 +34672,6 @@ func (ec *executionContext) childFields_PostgresInstance(ctx context.Context, fi
 		return ec.fieldContext_PostgresInstance_name(ctx, field)
 	case "team":
 		return ec.fieldContext_PostgresInstance_team(ctx, field)
-	case "environment":
-		return ec.fieldContext_PostgresInstance_environment(ctx, field)
 	case "teamEnvironment":
 		return ec.fieldContext_PostgresInstance_teamEnvironment(ctx, field)
 	case "workloads":
@@ -35262,8 +35124,6 @@ func (ec *executionContext) childFields_Secret(ctx context.Context, field graphq
 		return ec.fieldContext_Secret_id(ctx, field)
 	case "name":
 		return ec.fieldContext_Secret_name(ctx, field)
-	case "environment":
-		return ec.fieldContext_Secret_environment(ctx, field)
 	case "teamEnvironment":
 		return ec.fieldContext_Secret_teamEnvironment(ctx, field)
 	case "team":
@@ -35638,8 +35498,6 @@ func (ec *executionContext) childFields_SqlDatabase(ctx context.Context, field g
 		return ec.fieldContext_SqlDatabase_name(ctx, field)
 	case "team":
 		return ec.fieldContext_SqlDatabase_team(ctx, field)
-	case "environment":
-		return ec.fieldContext_SqlDatabase_environment(ctx, field)
 	case "teamEnvironment":
 		return ec.fieldContext_SqlDatabase_teamEnvironment(ctx, field)
 	case "charset":
@@ -35664,8 +35522,6 @@ func (ec *executionContext) childFields_SqlInstance(ctx context.Context, field g
 		return ec.fieldContext_SqlInstance_name(ctx, field)
 	case "team":
 		return ec.fieldContext_SqlInstance_team(ctx, field)
-	case "environment":
-		return ec.fieldContext_SqlInstance_environment(ctx, field)
 	case "teamEnvironment":
 		return ec.fieldContext_SqlInstance_teamEnvironment(ctx, field)
 	case "workload":
@@ -36508,8 +36364,6 @@ func (ec *executionContext) childFields_TeamUtilizationData(ctx context.Context,
 		return ec.fieldContext_TeamUtilizationData_requested(ctx, field)
 	case "used":
 		return ec.fieldContext_TeamUtilizationData_used(ctx, field)
-	case "environment":
-		return ec.fieldContext_TeamUtilizationData_environment(ctx, field)
 	case "teamEnvironment":
 		return ec.fieldContext_TeamUtilizationData_teamEnvironment(ctx, field)
 	}
@@ -36896,8 +36750,6 @@ func (ec *executionContext) childFields_Valkey(ctx context.Context, field graphq
 		return ec.fieldContext_Valkey_terminationProtection(ctx, field)
 	case "team":
 		return ec.fieldContext_Valkey_team(ctx, field)
-	case "environment":
-		return ec.fieldContext_Valkey_environment(ctx, field)
 	case "teamEnvironment":
 		return ec.fieldContext_Valkey_teamEnvironment(ctx, field)
 	case "labels":

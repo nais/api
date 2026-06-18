@@ -73,10 +73,6 @@ func (r *valkeyResolver) Team(ctx context.Context, obj *valkey.Valkey) (*team.Te
 	return team.Get(ctx, obj.TeamSlug)
 }
 
-func (r *valkeyResolver) Environment(ctx context.Context, obj *valkey.Valkey) (*team.TeamEnvironment, error) {
-	return r.TeamEnvironment(ctx, obj)
-}
-
 func (r *valkeyResolver) TeamEnvironment(ctx context.Context, obj *valkey.Valkey) (*team.TeamEnvironment, error) {
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }

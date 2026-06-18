@@ -99,11 +99,6 @@ interface Workload implements Node & ActivityLogger {
 	team: Team!
 
 	"""
-	The environment the workload is deployed in.
-	"""
-	environment: TeamEnvironment! @deprecated(reason: "Use the `teamEnvironment` field instead.")
-
-	"""
 	The team environment for the workload.
 	"""
 	teamEnvironment: TeamEnvironment!

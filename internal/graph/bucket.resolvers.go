@@ -24,10 +24,6 @@ func (r *bucketResolver) Team(ctx context.Context, obj *bucket.Bucket) (*team.Te
 	return team.Get(ctx, obj.TeamSlug)
 }
 
-func (r *bucketResolver) Environment(ctx context.Context, obj *bucket.Bucket) (*team.TeamEnvironment, error) {
-	return r.TeamEnvironment(ctx, obj)
-}
-
 func (r *bucketResolver) TeamEnvironment(ctx context.Context, obj *bucket.Bucket) (*team.TeamEnvironment, error) {
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }

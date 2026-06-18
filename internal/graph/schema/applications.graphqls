@@ -134,11 +134,6 @@ type Application implements Node & Workload & ActivityLogger {
 	team: Team!
 
 	"""
-	The environment the application is deployed in.
-	"""
-	environment: TeamEnvironment! @deprecated(reason: "Use the `teamEnvironment` field instead.")
-
-	"""
 	The team environment for the application.
 	"""
 	teamEnvironment: TeamEnvironment!

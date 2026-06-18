@@ -25,7 +25,6 @@ import (
 
 type BigQueryDatasetResolver interface {
 	Team(ctx context.Context, obj *bigquery.BigQueryDataset) (*team.Team, error)
-	Environment(ctx context.Context, obj *bigquery.BigQueryDataset) (*team.TeamEnvironment, error)
 	TeamEnvironment(ctx context.Context, obj *bigquery.BigQueryDataset) (*team.TeamEnvironment, error)
 
 	Access(ctx context.Context, obj *bigquery.BigQueryDataset, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bigquery.BigQueryDatasetAccessOrder) (*pagination.Connection[*bigquery.BigQueryDatasetAccess], error)
@@ -169,38 +168,6 @@ func (ec *executionContext) fieldContext_BigQueryDataset_team(_ context.Context,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return ec.childFields_Team(ctx, field)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _BigQueryDataset_environment(ctx context.Context, field graphql.CollectedField, obj *bigquery.BigQueryDataset) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_BigQueryDataset_environment(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return ec.Resolvers.BigQueryDataset().Environment(ctx, obj)
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *team.TeamEnvironment) graphql.Marshaler {
-			return ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_BigQueryDataset_environment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "BigQueryDataset",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamEnvironment(ctx, field)
 		},
 	}
 	return fc, nil
@@ -1130,42 +1097,6 @@ func (ec *executionContext) _BigQueryDataset(ctx context.Context, sel ast.Select
 					}
 				}()
 				res = ec._BigQueryDataset_team(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "environment":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._BigQueryDataset_environment(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
