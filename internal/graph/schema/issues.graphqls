@@ -246,7 +246,7 @@ type VulnerableImageIssue implements Issue & Node {
 	critical: Int!
 }
 
-"Raised when a workload with external ingresses has one or more IMMEDIATE vulnerability-priority findings."
+"Raised when a workload with external ingresses has one or more ACT_NOW vulnerability-priority findings."
 type ExternalIngressActNowVulnerabilityIssue implements Issue & Node {
 	id: ID!
 	teamEnvironment: TeamEnvironment!
