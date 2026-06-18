@@ -2,6 +2,7 @@ package unleash
 
 import (
 	"context"
+	"strings"
 	"testing"
 	"time"
 
@@ -42,7 +43,7 @@ func TestUpdateUnleashInstanceInput_Validate(t *testing.T) {
 			if tt.wantErr {
 				if err == nil {
 					t.Error("expected error but got nil")
-				} else if tt.errContains != "" && !containsString(err.Error(), tt.errContains) {
+				} else if tt.errContains != "" && !strings.Contains(err.Error(), tt.errContains) {
 					t.Errorf("error %q should contain %q", err.Error(), tt.errContains)
 				}
 			} else {
@@ -287,18 +288,4 @@ func TestToReleaseChannel(t *testing.T) {
 			}
 		})
 	}
-}
-
-// Helper functions
-func containsString(s, substr string) bool {
-	return len(s) >= len(substr) && (s == substr || len(s) > 0 && containsStringHelper(s, substr))
-}
-
-func containsStringHelper(s, substr string) bool {
-	for i := 0; i <= len(s)-len(substr); i++ {
-		if s[i:i+len(substr)] == substr {
-			return true
-		}
-	}
-	return false
 }
