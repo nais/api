@@ -23371,7 +23371,7 @@ type VulnerableImageIssue implements Issue & Node {
 	critical: Int!
 }
 
-"Raised when a workload with external ingresses has one or more IMMEDIATE vulnerability-priority findings."
+"Raised when a workload with external ingresses has one or more ACT_NOW vulnerability-priority findings."
 type ExternalIngressActNowVulnerabilityIssue implements Issue & Node {
 	id: ID!
 	teamEnvironment: TeamEnvironment!
@@ -31618,7 +31618,7 @@ type ImageVulnerabilitySummary {
 	"Number of vulnerabilities with severity UNASSIGNED."
 	unassigned: Int!
 
-	"Number of vulnerabilities with vulnerability priority IMMEDIATE."
+	"Number of vulnerabilities with vulnerability priority ACT_NOW."
 	priorityActNow: Int!
 
 	"Number of vulnerabilities with vulnerability priority HIGH."
@@ -31743,7 +31743,7 @@ type ImageVulnerability implements Node {
 
 enum CVEPriority {
 	"Vulnerability is known to be actively exploited and requires immediate action."
-	IMMEDIATE
+	ACT_NOW
 	"Vulnerability is associated with ransomware or has a high EPSS percentile."
 	HIGH
 	"Vulnerability has a critical or high severity and elevated EPSS percentile."
@@ -31966,7 +31966,7 @@ enum VulnerabilitySummaryOrderByField {
 	"""
 	VULNERABILITY_SEVERITY_UNASSIGNED
 	"""
-	Order by IMMEDIATE vulnerability-priority count.
+	Order by ACT_NOW vulnerability-priority count.
 	"""
 	VULNERABILITY_PRIORITY_ACT_NOW
 	"""
