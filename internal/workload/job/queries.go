@@ -247,7 +247,8 @@ func Trigger(ctx context.Context, teamSlug slug.Slug, environmentName, name, run
 		return nil, fmt.Errorf("creating job client: %w", err)
 	}
 
-	if _, err = jobClient.Namespace(teamSlug.String()).Create(ctx, jobRun, metav1.CreateOptions{}); err != nil {
+	newRun, err := jobClient.Namespace(teamSlug.String()).Create(ctx, jobRun, metav1.CreateOptions{})
+	if err != nil {
 		return nil, err
 	}
 
@@ -263,7 +264,7 @@ func Trigger(ctx context.Context, teamSlug slug.Slug, environmentName, name, run
 	}
 
 	jobRunBatch := &batchv1.Job{}
-	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(jobRun.Object, jobRunBatch); err != nil {
+	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(newRun.Object, jobRunBatch); err != nil {
 		return nil, err
 	}
 
