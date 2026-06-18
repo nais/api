@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 
@@ -393,7 +394,7 @@ func TestBifrostClient_ErrorHandling_CreateInstance(t *testing.T) {
 				return
 			}
 
-			if !containsString(err.Error(), tt.wantErrContains) {
+			if !strings.Contains(err.Error(), tt.wantErrContains) {
 				t.Errorf("error message = %q, want to contain %q", err.Error(), tt.wantErrContains)
 			}
 		})
@@ -421,7 +422,7 @@ func TestBifrostClient_ErrorHandling_UpdateInstance(t *testing.T) {
 		return
 	}
 
-	if !containsString(err.Error(), "does not exist") {
+	if !strings.Contains(err.Error(), "does not exist") {
 		t.Errorf("error message = %q, want to contain 'does not exist'", err.Error())
 	}
 }
@@ -444,16 +445,7 @@ func TestBifrostClient_ErrorHandling_ListChannels(t *testing.T) {
 		return
 	}
 
-	if !containsString(err.Error(), "Failed to fetch release channels") {
+	if !strings.Contains(err.Error(), "Failed to fetch release channels") {
 		t.Errorf("error message = %q, want to contain 'Failed to fetch release channels'", err.Error())
 	}
-}
-
-func containsString(s, substr string) bool {
-	for i := 0; i <= len(s)-len(substr); i++ {
-		if s[i:i+len(substr)] == substr {
-			return true
-		}
-	}
-	return false
 }
