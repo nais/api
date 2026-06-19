@@ -58,6 +58,7 @@ import (
 	"github.com/nais/api/internal/usersync"
 	"github.com/nais/api/internal/utilization"
 	"github.com/nais/api/internal/vulnerability"
+	"github.com/nais/api/internal/webhook"
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
 	"github.com/nais/api/internal/workload/config"
@@ -223,6 +224,7 @@ func ConfigureGraph(
 	lokiClient loki.Client,
 	auditLogProjectID string,
 	auditLogLocation string,
+	webhookDispatcher *webhook.Dispatcher,
 	log logrus.FieldLogger,
 ) (func(http.Handler) http.Handler, error) {
 	logStep := func(name string, fn func() error) error {
@@ -405,6 +407,7 @@ func ConfigureGraph(
 		ctx = tunnel.WithLoaders(ctx, tunnel.NewLoaders(watchers.TunnelWatcher))
 		ctx = logging.NewPackageContext(ctx, tenantName, environmentDestinations)
 		ctx = environment.NewLoaderContext(ctx, pool)
+		ctx = webhook.NewLoaderContext(ctx, pool, webhookDispatcher)
 		unleashAvailable := unleashCfg.Enabled && watchers.UnleashWatcher != nil && watchers.UnleashWatcher.Enabled()
 		ctx = feature.NewLoaderContext(
 			ctx,

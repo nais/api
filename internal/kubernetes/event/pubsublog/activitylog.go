@@ -13,7 +13,7 @@ const (
 )
 
 func init() {
-	activitylog.RegisterFilter(activityLogActivityTypeClusterAudit, activityLogEntryActionClusterAudit, ActivityLogEntryResourceTypeClusterAudit)
+	activitylog.RegisterActivityType(activityLogActivityTypeClusterAudit, activityLogEntryActionClusterAudit, ActivityLogEntryResourceTypeClusterAudit, activitylog.GlobalOnly())
 
 	activitylog.RegisterTransformer(ActivityLogEntryResourceTypeClusterAudit, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
 		data, err := activitylog.UnmarshalData[ClusterAuditActivityLogEntryData](entry)
