@@ -691,15 +691,6 @@ func Update(ctx context.Context, input UpdateConfigInput) (*Config, error) {
 	return retVal, nil
 }
 
-func UpdateLabels(ctx context.Context, teamSlug slug.Slug, environment, name string, labels []*model.ResourceLabel) (*Config, error) {
-	return Update(ctx, UpdateConfigInput{
-		Name:            name,
-		EnvironmentName: environment,
-		TeamSlug:        teamSlug,
-		Labels:          labels,
-	})
-}
-
 func Delete(ctx context.Context, teamSlug slug.Slug, environment, name string) error {
 	w := fromContext(ctx).Watcher()
 	client, err := w.ImpersonatedClient(ctx, environment)
