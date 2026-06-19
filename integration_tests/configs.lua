@@ -1879,7 +1879,7 @@ Test.gql("Update config - mixed plain text and base64 values", function(t)
 					name = "config-with-values",
 					values = {
 						{ name = "binary", value = "d29ybGQ=", encoding = "BASE64" },
-						{ name = "plain", value = "hello", encoding = "PLAIN_TEXT" },
+						{ name = "plain",  value = "hello",    encoding = "PLAIN_TEXT" },
 					},
 				},
 			},
