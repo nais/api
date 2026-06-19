@@ -595,11 +595,11 @@ func Update(ctx context.Context, input UpdateConfigInput) (*Config, error) {
 		return nil, ErrUnmanaged
 	}
 
-	actor := authz.ActorFromContext(ctx)
-	mergedAnnotations := mergeAnnotations(obj.GetAnnotations(), actor.User.Identity(), nil)
+	existingConfig, ok := toGraphConfig(obj, input.EnvironmentName)
+	if !ok {
+		return nil, fmt.Errorf("failed to convert config")
+	}
 
-	// Build patch operations
-	var patch []map[string]any
 	var updatedFields []*ConfigUpdatedActivityLogEntryDataUpdatedField
 
 	// Labels
@@ -607,7 +607,7 @@ func Update(ctx context.Context, input UpdateConfigInput) (*Config, error) {
 		existingLabels := obj.GetLabels()
 		mergedLabels := model.MergeUserLabels(existingLabels, input.Labels)
 		if !maps.Equal(mergedLabels, existingLabels) {
-			patch = append(patch, map[string]any{"op": "replace", "path": "/metadata/labels", "value": mergedLabels})
+			obj.SetLabels(mergedLabels)
 			oldValue := model.FormatUserLabels(model.UserLabels(existingLabels))
 			newValue := model.FormatUserLabels(model.UserLabels(mergedLabels))
 			updatedFields = append(updatedFields, &ConfigUpdatedActivityLogEntryDataUpdatedField{
@@ -637,44 +637,30 @@ func Update(ctx context.Context, input UpdateConfigInput) (*Config, error) {
 			}
 		}
 
-		existingData, _, _ := unstructured.NestedStringMap(obj.Object, "data")
-		existingBinaryData, _, _ := unstructured.NestedStringMap(obj.Object, "binaryData")
-
-		dataChanged := !stringMapEqualAny(existingData, newData)
-		binaryDataChanged := !stringMapEqualAny(existingBinaryData, newBinaryData)
-
-		if dataChanged || binaryDataChanged {
-			// Use "add" instead of "replace" because /data and /binaryData may not exist on the ConfigMap
-			patch = append(patch,
-				map[string]any{"op": "add", "path": "/data", "value": newData},
-				map[string]any{"op": "add", "path": "/binaryData", "value": newBinaryData},
-			)
-			updatedFields = append(updatedFields, &ConfigUpdatedActivityLogEntryDataUpdatedField{
-				Field: "values",
-			})
+		if !stringMapEqualAny(existingConfig.Data, newData) || !stringMapEqualAny(existingConfig.BinaryData, newBinaryData) {
+			if err := unstructured.SetNestedStringMap(obj.Object, anyMapToStringMap(newData), "data"); err != nil {
+				return nil, fmt.Errorf("setting data: %w", err)
+			}
+			if err := unstructured.SetNestedStringMap(obj.Object, anyMapToStringMap(newBinaryData), "binaryData"); err != nil {
+				return nil, fmt.Errorf("setting binaryData: %w", err)
+			}
+			updatedFields = append(updatedFields, valuesUpdatedFields(existingConfig, newData, newBinaryData)...)
 		}
 	}
 
 	// Nothing changed — return the current state without writing.
-	if len(patch) == 0 {
-		retVal, ok := toGraphConfig(obj, input.EnvironmentName)
-		if !ok {
-			return nil, fmt.Errorf("failed to convert config")
-		}
-		return retVal, nil
+	if len(updatedFields) == 0 {
+		return existingConfig, nil
 	}
 
-	// Always update annotations when something changed
-	patch = append(patch, map[string]any{"op": "replace", "path": "/metadata/annotations", "value": mergedAnnotations})
+	// Update annotations
+	actor := authz.ActorFromContext(ctx)
+	mergedAnnotations := mergeAnnotations(obj.GetAnnotations(), actor.User.Identity(), nil)
+	obj.SetAnnotations(mergedAnnotations)
 
-	patchBytes, err := json.Marshal(patch)
+	_, err = client.Namespace(input.TeamSlug.String()).Update(ctx, obj, v1.UpdateOptions{})
 	if err != nil {
-		return nil, fmt.Errorf("marshaling patch: %w", err)
-	}
-
-	_, err = client.Namespace(input.TeamSlug.String()).Patch(ctx, input.Name, types.JSONPatchType, patchBytes, v1.PatchOptions{})
-	if err != nil {
-		return nil, fmt.Errorf("patching config: %w", err)
+		return nil, fmt.Errorf("updating config: %w", err)
 	}
 
 	err = activitylog.Create(ctx, activitylog.CreateInput{
@@ -828,7 +814,7 @@ func mergeAnnotations(existingAnnotations map[string]string, user string, extraA
 }
 
 // stringMapEqualAny compares a map[string]string (from Kubernetes) with a map[string]any
-// (built for a JSON Patch). Returns true if they have the same keys and values.
+// (built for storage). Returns true if they have the same keys and values.
 func stringMapEqualAny(existing map[string]string, new map[string]any) bool {
 	if len(existing) != len(new) {
 		return false
@@ -843,4 +829,70 @@ func stringMapEqualAny(existing map[string]string, new map[string]any) bool {
 		}
 	}
 	return true
+}
+
+// anyMapToStringMap converts a map[string]any (where all values are strings) to map[string]string.
+func anyMapToStringMap(m map[string]any) map[string]string {
+	result := make(map[string]string, len(m))
+	for k, v := range m {
+		result[k] = v.(string)
+	}
+	return result
+}
+
+// valuesUpdatedFields computes detailed activity log entries for changed config values,
+// reporting which keys were added, removed, or changed.
+func valuesUpdatedFields(existing *Config, newData, newBinaryData map[string]any) []*ConfigUpdatedActivityLogEntryDataUpdatedField {
+	var fields []*ConfigUpdatedActivityLogEntryDataUpdatedField
+
+	// Combine existing values into a single map for comparison
+	oldValues := make(map[string]string, len(existing.Data)+len(existing.BinaryData))
+	for k, v := range existing.Data {
+		oldValues[k] = v
+	}
+	for k, v := range existing.BinaryData {
+		oldValues[k] = v
+	}
+
+	// Combine new values into a single map
+	newValues := make(map[string]string, len(newData)+len(newBinaryData))
+	for k, v := range newData {
+		newValues[k] = v.(string)
+	}
+	for k, v := range newBinaryData {
+		newValues[k] = v.(string)
+	}
+
+	// Check for added or changed keys
+	for k, nv := range newValues {
+		ov, existed := oldValues[k]
+		if !existed {
+			v := nv
+			fields = append(fields, &ConfigUpdatedActivityLogEntryDataUpdatedField{
+				Field:    k,
+				NewValue: &v,
+			})
+		} else if ov != nv {
+			oldVal := ov
+			newVal := nv
+			fields = append(fields, &ConfigUpdatedActivityLogEntryDataUpdatedField{
+				Field:    k,
+				OldValue: &oldVal,
+				NewValue: &newVal,
+			})
+		}
+	}
+
+	// Check for removed keys
+	for k, ov := range oldValues {
+		if _, exists := newValues[k]; !exists {
+			oldVal := ov
+			fields = append(fields, &ConfigUpdatedActivityLogEntryDataUpdatedField{
+				Field:    k,
+				OldValue: &oldVal,
+			})
+		}
+	}
+
+	return fields
 }
