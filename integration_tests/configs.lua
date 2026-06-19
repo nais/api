@@ -1886,3 +1886,190 @@ Test.gql("Update config - mixed plain text and base64 values", function(t)
 		},
 	}
 end)
+
+Test.gql("Create config with labels and values", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query [[
+		mutation {
+			createConfig(input: {
+				name: "config-labels-values"
+				environmentName: "dev"
+				teamSlug: "myteam"
+				labels: [
+					{ key: "team-label", value: "my-team" }
+				]
+				values: [
+					{ name: "app-name", value: "my-app" }
+				]
+			}) {
+				config {
+					name
+					labels { key value }
+					values { name value encoding }
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			createConfig = {
+				config = {
+					name = "config-labels-values",
+					labels = {
+						{ key = "team-label", value = "my-team" },
+					},
+					values = {
+						{ name = "app-name", value = "my-app", encoding = "PLAIN_TEXT" },
+					},
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("Update config values - activity log records individual key changes", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	-- Replace values: removes "app-name", adds "key-a" and "key-b"
+	t.query [[
+		mutation {
+			updateConfig(input: {
+				name: "config-labels-values"
+				environmentName: "dev"
+				teamSlug: "myteam"
+				values: [
+					{ name: "key-a", value: "val-a" }
+					{ name: "key-b", value: "val-b" }
+				]
+			}) {
+				config {
+					name
+					values { name value }
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			updateConfig = {
+				config = {
+					name = "config-labels-values",
+					values = {
+						{ name = "key-a", value = "val-a" },
+						{ name = "key-b", value = "val-b" },
+					},
+				},
+			},
+		},
+	}
+
+	-- Verify activity log shows individual field changes
+	t.query [[
+		query {
+			team(slug: "myteam") {
+				activityLog(first: 1, filter: { activityTypes: [CONFIG_UPDATED] }) {
+					nodes {
+						... on ConfigUpdatedActivityLogEntry {
+							message
+							resourceName
+							data {
+								updatedFields {
+									field
+									oldValue
+									newValue
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			team = {
+				activityLog = {
+					nodes = {
+						{
+							message = Contains("Updated config"),
+							resourceName = "config-labels-values",
+							data = {
+								updatedFields = Contains(
+									{ field = "key-a", oldValue = Null, newValue = "val-a" }
+								),
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("Create config with invalid base64 value fails", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query [[
+		mutation {
+			createConfig(input: {
+				name: "config-invalid-b64"
+				environmentName: "dev"
+				teamSlug: "myteam"
+				values: [
+					{ name: "bad", value: "not-valid-base64!!!", encoding: BASE64 }
+				]
+			}) {
+				config { name }
+			}
+		}
+	]]
+
+	t.check {
+		errors = {
+			{
+				locations = NotNull(),
+				message = Contains("not valid base64"),
+				path = {
+					"createConfig",
+				},
+			},
+		},
+		data = Null,
+	}
+end)
+
+Test.gql("Update config with invalid base64 value fails", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query [[
+		mutation {
+			updateConfig(input: {
+				name: "config-labels-values"
+				environmentName: "dev"
+				teamSlug: "myteam"
+				values: [
+					{ name: "bad-cert", value: "%%%invalid%%%", encoding: BASE64 }
+				]
+			}) {
+				config { name }
+			}
+		}
+	]]
+
+	t.check {
+		errors = {
+			{
+				locations = NotNull(),
+				message = Contains("not valid base64"),
+				path = {
+					"updateConfig",
+				},
+			},
+		},
+		data = Null,
+	}
+end)
