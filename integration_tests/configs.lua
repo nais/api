@@ -1932,7 +1932,7 @@ end)
 Test.gql("Update config values - activity log records individual key changes", function(t)
 	t.addHeader("x-user-email", user:email())
 
-	-- Replace values: removes "app-name", adds "key-a" and "key-b"
+	-- Update with a single changed value: "app-name" goes from "my-app" to "updated-app"
 	t.query [[
 		mutation {
 			updateConfig(input: {
@@ -1940,8 +1940,7 @@ Test.gql("Update config values - activity log records individual key changes", f
 				environmentName: "dev"
 				teamSlug: "myteam"
 				values: [
-					{ name: "key-a", value: "val-a" }
-					{ name: "key-b", value: "val-b" }
+					{ name: "app-name", value: "updated-app" }
 				]
 			}) {
 				config {
@@ -1958,15 +1957,14 @@ Test.gql("Update config values - activity log records individual key changes", f
 				config = {
 					name = "config-labels-values",
 					values = {
-						{ name = "key-a", value = "val-a" },
-						{ name = "key-b", value = "val-b" },
+						{ name = "app-name", value = "updated-app" },
 					},
 				},
 			},
 		},
 	}
 
-	-- Verify activity log shows individual field changes
+	-- Verify activity log shows the individual field change
 	t.query [[
 		query {
 			team(slug: "myteam") {
@@ -1998,9 +1996,13 @@ Test.gql("Update config values - activity log records individual key changes", f
 							message = Contains("Updated config"),
 							resourceName = "config-labels-values",
 							data = {
-								updatedFields = Contains(
-									{ field = "key-a", oldValue = Null, newValue = "val-a" }
-								),
+								updatedFields = {
+									{
+										field = "app-name",
+										oldValue = "my-app",
+										newValue = "updated-app",
+									},
+								},
 							},
 						},
 					},

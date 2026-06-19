@@ -783,7 +783,7 @@ func encodeValueForStorage(input *ConfigValueInput) (string, error) {
 	case secret.ValueEncodingBase64:
 		// Validate that the value is valid base64
 		if _, err := base64.StdEncoding.DecodeString(input.Value); err != nil {
-			return "", fmt.Errorf("value is not valid base64: %w", err)
+			return "", apierror.Errorf("Value for key %q is not valid base64.", input.Name)
 		}
 		// The value is already base64-encoded, which is what Kubernetes binaryData expects
 		return input.Value, nil
