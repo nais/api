@@ -40,6 +40,7 @@ import (
 	"github.com/nais/api/internal/user"
 	"github.com/nais/api/internal/utilization"
 	"github.com/nais/api/internal/vulnerability"
+	"github.com/nais/api/internal/webhook"
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
 	"github.com/nais/api/internal/workload/config"
@@ -149,6 +150,7 @@ type ResolverRoot interface {
 	ValkeyIssue() ValkeyIssueResolver
 	ValkeyMaintenance() ValkeyMaintenanceResolver
 	VulnerableImageIssue() VulnerableImageIssueResolver
+	WebhookSubscription() WebhookSubscriptionResolver
 	WorkloadCost() WorkloadCostResolver
 	WorkloadCostSample() WorkloadCostSampleResolver
 	WorkloadProblemIssue() WorkloadProblemIssueResolver
@@ -750,6 +752,10 @@ type ComplexityRoot struct {
 		Valkey func(childComplexity int) int
 	}
 
+	CreateWebhookPayload struct {
+		Webhook func(childComplexity int) int
+	}
+
 	CredentialsActivityLogEntry struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
@@ -822,6 +828,10 @@ type ComplexityRoot struct {
 
 	DeleteValkeyPayload struct {
 		ValkeyDeleted func(childComplexity int) int
+	}
+
+	DeleteWebhookPayload struct {
+		WebhookID func(childComplexity int) int
 	}
 
 	Deployment struct {
@@ -1536,6 +1546,7 @@ type ComplexityRoot struct {
 		CreateUnleashForTeam             func(childComplexity int, input unleash.CreateUnleashForTeamInput) int
 		CreateValkey                     func(childComplexity int, input valkey.CreateValkeyInput) int
 		CreateValkeyCredentials          func(childComplexity int, input valkey.CreateValkeyCredentialsInput) int
+		CreateWebhook                    func(childComplexity int, input webhook.CreateWebhookInput) int
 		DeleteApplication                func(childComplexity int, input application.DeleteApplicationInput) int
 		DeleteConfig                     func(childComplexity int, input config.DeleteConfigInput) int
 		DeleteJob                        func(childComplexity int, input job.DeleteJobInput) int
@@ -1548,6 +1559,7 @@ type ComplexityRoot struct {
 		DeleteTunnel                     func(childComplexity int, input tunnel.DeleteTunnelInput) int
 		DeleteUnleashInstance            func(childComplexity int, input unleash.DeleteUnleashInstanceInput) int
 		DeleteValkey                     func(childComplexity int, input valkey.DeleteValkeyInput) int
+		DeleteWebhook                    func(childComplexity int, input webhook.DeleteWebhookInput) int
 		DisableReconciler                func(childComplexity int, input reconciler.DisableReconcilerInput) int
 		EnableReconciler                 func(childComplexity int, input reconciler.EnableReconcilerInput) int
 		GrantPostgresAccess              func(childComplexity int, input postgres.GrantPostgresAccessInput) int
@@ -1578,6 +1590,7 @@ type ComplexityRoot struct {
 		UpdateTeamEnvironment            func(childComplexity int, input team.UpdateTeamEnvironmentInput) int
 		UpdateUnleashInstance            func(childComplexity int, input unleash.UpdateUnleashInstanceInput) int
 		UpdateValkey                     func(childComplexity int, input valkey.UpdateValkeyInput) int
+		UpdateWebhook                    func(childComplexity int, input webhook.UpdateWebhookInput) int
 		ViewSecretValues                 func(childComplexity int, input secret.ViewSecretValuesInput) int
 	}
 
@@ -1889,6 +1902,7 @@ type ComplexityRoot struct {
 		Environment               func(childComplexity int, name string) int
 		Environments              func(childComplexity int, orderBy *environment.EnvironmentOrder) int
 		Features                  func(childComplexity int) int
+		GlobalWebhooks            func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		ImageVulnerabilityHistory func(childComplexity int, from scalar.Date) int
 		Me                        func(childComplexity int) int
 		Node                      func(childComplexity int, id ident.Ident) int
@@ -1906,6 +1920,7 @@ type ComplexityRoot struct {
 		Users                     func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *user.UserOrder) int
 		VulnerabilityFixHistory   func(childComplexity int, from scalar.Date) int
 		VulnerabilitySummary      func(childComplexity int) int
+		WebhookEventTypes         func(childComplexity int) int
 	}
 
 	Reconciler struct {
@@ -2746,6 +2761,7 @@ type ComplexityRoot struct {
 		VulnerabilityFixHistory   func(childComplexity int, from scalar.Date) int
 		VulnerabilitySummaries    func(childComplexity int, filter *vulnerability.TeamVulnerabilitySummaryFilter, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *vulnerability.VulnerabilitySummaryOrder) int
 		VulnerabilitySummary      func(childComplexity int, filter *vulnerability.TeamVulnerabilitySummaryFilter) int
+		Webhooks                  func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		WorkloadUtilization       func(childComplexity int, resourceType utilization.UtilizationResourceType) int
 		Workloads                 func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *workload.WorkloadOrder, filter *workload.TeamWorkloadsFilter) int
 	}
@@ -3329,6 +3345,10 @@ type ComplexityRoot struct {
 		Valkey func(childComplexity int) int
 	}
 
+	UpdateWebhookPayload struct {
+		Webhook func(childComplexity int) int
+	}
+
 	User struct {
 		Email      func(childComplexity int) int
 		ExternalID func(childComplexity int) int
@@ -3589,6 +3609,62 @@ type ComplexityRoot struct {
 		Severity        func(childComplexity int) int
 		TeamEnvironment func(childComplexity int) int
 		Workload        func(childComplexity int) int
+	}
+
+	WebhookDelivery struct {
+		CreatedAt      func(childComplexity int) int
+		DurationMs     func(childComplexity int) int
+		EventType      func(childComplexity int) int
+		ID             func(childComplexity int) int
+		RequestBody    func(childComplexity int) int
+		ResponseBody   func(childComplexity int) int
+		ResponseStatus func(childComplexity int) int
+		Success        func(childComplexity int) int
+	}
+
+	WebhookDeliveryConnection struct {
+		Edges    func(childComplexity int) int
+		Nodes    func(childComplexity int) int
+		PageInfo func(childComplexity int) int
+	}
+
+	WebhookDeliveryEdge struct {
+		Cursor func(childComplexity int) int
+		Node   func(childComplexity int) int
+	}
+
+	WebhookEventTypeInfo struct {
+		CloudEventType func(childComplexity int) int
+		Description    func(childComplexity int) int
+		Group          func(childComplexity int) int
+		TeamScoped     func(childComplexity int) int
+		Type           func(childComplexity int) int
+	}
+
+	WebhookSubscription struct {
+		ConsecutiveFailures func(childComplexity int) int
+		CreatedAt           func(childComplexity int) int
+		CreatedBy           func(childComplexity int) int
+		Deliveries          func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		DisabledAt          func(childComplexity int) int
+		Enabled             func(childComplexity int) int
+		EventTypes          func(childComplexity int) int
+		ID                  func(childComplexity int) int
+		MaskedSecret        func(childComplexity int) int
+		TeamSlug            func(childComplexity int) int
+		URL                 func(childComplexity int) int
+		UpdatedAt           func(childComplexity int) int
+	}
+
+	WebhookSubscriptionConnection struct {
+		Edges    func(childComplexity int) int
+		Nodes    func(childComplexity int) int
+		PageInfo func(childComplexity int) int
+	}
+
+	WebhookSubscriptionEdge struct {
+		Cursor func(childComplexity int) int
+		Node   func(childComplexity int) int
 	}
 
 	WorkloadConnection struct {
@@ -6092,6 +6168,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.CreateValkeyPayload.Valkey(childComplexity), true
 
+	case "CreateWebhookPayload.webhook":
+		if e.ComplexityRoot.CreateWebhookPayload.Webhook == nil {
+			break
+		}
+
+		return e.ComplexityRoot.CreateWebhookPayload.Webhook(childComplexity), true
+
 	case "CredentialsActivityLogEntry.actor":
 		if e.ComplexityRoot.CredentialsActivityLogEntry.Actor == nil {
 			break
@@ -6294,6 +6377,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.DeleteValkeyPayload.ValkeyDeleted(childComplexity), true
+
+	case "DeleteWebhookPayload.webhookID":
+		if e.ComplexityRoot.DeleteWebhookPayload.WebhookID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.DeleteWebhookPayload.WebhookID(childComplexity), true
 
 	case "Deployment.commitSha":
 		if e.ComplexityRoot.Deployment.CommitSha == nil {
@@ -9403,6 +9493,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Mutation.CreateValkeyCredentials(childComplexity, args["input"].(valkey.CreateValkeyCredentialsInput)), true
 
+	case "Mutation.createWebhook":
+		if e.ComplexityRoot.Mutation.CreateWebhook == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createWebhook_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Mutation.CreateWebhook(childComplexity, args["input"].(webhook.CreateWebhookInput)), true
+
 	case "Mutation.deleteApplication":
 		if e.ComplexityRoot.Mutation.DeleteApplication == nil {
 			break
@@ -9546,6 +9648,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Mutation.DeleteValkey(childComplexity, args["input"].(valkey.DeleteValkeyInput)), true
+
+	case "Mutation.deleteWebhook":
+		if e.ComplexityRoot.Mutation.DeleteWebhook == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deleteWebhook_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Mutation.DeleteWebhook(childComplexity, args["input"].(webhook.DeleteWebhookInput)), true
 
 	case "Mutation.disableReconciler":
 		if e.ComplexityRoot.Mutation.DisableReconciler == nil {
@@ -9906,6 +10020,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Mutation.UpdateValkey(childComplexity, args["input"].(valkey.UpdateValkeyInput)), true
+
+	case "Mutation.updateWebhook":
+		if e.ComplexityRoot.Mutation.UpdateWebhook == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateWebhook_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Mutation.UpdateWebhook(childComplexity, args["input"].(webhook.UpdateWebhookInput)), true
 
 	case "Mutation.viewSecretValues":
 		if e.ComplexityRoot.Mutation.ViewSecretValues == nil {
@@ -11288,6 +11414,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Query.Features(childComplexity), true
 
+	case "Query.globalWebhooks":
+		if e.ComplexityRoot.Query.GlobalWebhooks == nil {
+			break
+		}
+
+		args, err := ec.field_Query_globalWebhooks_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Query.GlobalWebhooks(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
+
 	case "Query.imageVulnerabilityHistory":
 		if e.ComplexityRoot.Query.ImageVulnerabilityHistory == nil {
 			break
@@ -11476,6 +11614,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Query.VulnerabilitySummary(childComplexity), true
+
+	case "Query.webhookEventTypes":
+		if e.ComplexityRoot.Query.WebhookEventTypes == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Query.WebhookEventTypes(childComplexity), true
 
 	case "Reconciler.activityLog":
 		if e.ComplexityRoot.Reconciler.ActivityLog == nil {
@@ -15247,6 +15392,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Team.VulnerabilitySummary(childComplexity, args["filter"].(*vulnerability.TeamVulnerabilitySummaryFilter)), true
 
+	case "Team.webhooks":
+		if e.ComplexityRoot.Team.Webhooks == nil {
+			break
+		}
+
+		args, err := ec.field_Team_webhooks_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Team.Webhooks(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
+
 	case "Team.workloadUtilization":
 		if e.ComplexityRoot.Team.WorkloadUtilization == nil {
 			break
@@ -17624,6 +17781,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.UpdateValkeyPayload.Valkey(childComplexity), true
 
+	case "UpdateWebhookPayload.webhook":
+		if e.ComplexityRoot.UpdateWebhookPayload.Webhook == nil {
+			break
+		}
+
+		return e.ComplexityRoot.UpdateWebhookPayload.Webhook(childComplexity), true
+
 	case "User.email":
 		if e.ComplexityRoot.User.Email == nil {
 			break
@@ -18748,6 +18912,256 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.VulnerableImageIssue.Workload(childComplexity), true
 
+	case "WebhookDelivery.createdAt":
+		if e.ComplexityRoot.WebhookDelivery.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDelivery.CreatedAt(childComplexity), true
+
+	case "WebhookDelivery.durationMs":
+		if e.ComplexityRoot.WebhookDelivery.DurationMs == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDelivery.DurationMs(childComplexity), true
+
+	case "WebhookDelivery.eventType":
+		if e.ComplexityRoot.WebhookDelivery.EventType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDelivery.EventType(childComplexity), true
+
+	case "WebhookDelivery.id":
+		if e.ComplexityRoot.WebhookDelivery.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDelivery.ID(childComplexity), true
+
+	case "WebhookDelivery.requestBody":
+		if e.ComplexityRoot.WebhookDelivery.RequestBody == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDelivery.RequestBody(childComplexity), true
+
+	case "WebhookDelivery.responseBody":
+		if e.ComplexityRoot.WebhookDelivery.ResponseBody == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDelivery.ResponseBody(childComplexity), true
+
+	case "WebhookDelivery.responseStatus":
+		if e.ComplexityRoot.WebhookDelivery.ResponseStatus == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDelivery.ResponseStatus(childComplexity), true
+
+	case "WebhookDelivery.success":
+		if e.ComplexityRoot.WebhookDelivery.Success == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDelivery.Success(childComplexity), true
+
+	case "WebhookDeliveryConnection.edges":
+		if e.ComplexityRoot.WebhookDeliveryConnection.Edges == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDeliveryConnection.Edges(childComplexity), true
+
+	case "WebhookDeliveryConnection.nodes":
+		if e.ComplexityRoot.WebhookDeliveryConnection.Nodes == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDeliveryConnection.Nodes(childComplexity), true
+
+	case "WebhookDeliveryConnection.pageInfo":
+		if e.ComplexityRoot.WebhookDeliveryConnection.PageInfo == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDeliveryConnection.PageInfo(childComplexity), true
+
+	case "WebhookDeliveryEdge.cursor":
+		if e.ComplexityRoot.WebhookDeliveryEdge.Cursor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDeliveryEdge.Cursor(childComplexity), true
+
+	case "WebhookDeliveryEdge.node":
+		if e.ComplexityRoot.WebhookDeliveryEdge.Node == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDeliveryEdge.Node(childComplexity), true
+
+	case "WebhookEventTypeInfo.cloudEventType":
+		if e.ComplexityRoot.WebhookEventTypeInfo.CloudEventType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookEventTypeInfo.CloudEventType(childComplexity), true
+
+	case "WebhookEventTypeInfo.description":
+		if e.ComplexityRoot.WebhookEventTypeInfo.Description == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookEventTypeInfo.Description(childComplexity), true
+
+	case "WebhookEventTypeInfo.group":
+		if e.ComplexityRoot.WebhookEventTypeInfo.Group == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookEventTypeInfo.Group(childComplexity), true
+
+	case "WebhookEventTypeInfo.teamScoped":
+		if e.ComplexityRoot.WebhookEventTypeInfo.TeamScoped == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookEventTypeInfo.TeamScoped(childComplexity), true
+
+	case "WebhookEventTypeInfo.type":
+		if e.ComplexityRoot.WebhookEventTypeInfo.Type == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookEventTypeInfo.Type(childComplexity), true
+
+	case "WebhookSubscription.consecutiveFailures":
+		if e.ComplexityRoot.WebhookSubscription.ConsecutiveFailures == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookSubscription.ConsecutiveFailures(childComplexity), true
+
+	case "WebhookSubscription.createdAt":
+		if e.ComplexityRoot.WebhookSubscription.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookSubscription.CreatedAt(childComplexity), true
+
+	case "WebhookSubscription.createdBy":
+		if e.ComplexityRoot.WebhookSubscription.CreatedBy == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookSubscription.CreatedBy(childComplexity), true
+
+	case "WebhookSubscription.deliveries":
+		if e.ComplexityRoot.WebhookSubscription.Deliveries == nil {
+			break
+		}
+
+		args, err := ec.field_WebhookSubscription_deliveries_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.WebhookSubscription.Deliveries(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
+
+	case "WebhookSubscription.disabledAt":
+		if e.ComplexityRoot.WebhookSubscription.DisabledAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookSubscription.DisabledAt(childComplexity), true
+
+	case "WebhookSubscription.enabled":
+		if e.ComplexityRoot.WebhookSubscription.Enabled == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookSubscription.Enabled(childComplexity), true
+
+	case "WebhookSubscription.eventTypes":
+		if e.ComplexityRoot.WebhookSubscription.EventTypes == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookSubscription.EventTypes(childComplexity), true
+
+	case "WebhookSubscription.id":
+		if e.ComplexityRoot.WebhookSubscription.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookSubscription.ID(childComplexity), true
+
+	case "WebhookSubscription.maskedSecret":
+		if e.ComplexityRoot.WebhookSubscription.MaskedSecret == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookSubscription.MaskedSecret(childComplexity), true
+
+	case "WebhookSubscription.teamSlug":
+		if e.ComplexityRoot.WebhookSubscription.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookSubscription.TeamSlug(childComplexity), true
+
+	case "WebhookSubscription.url":
+		if e.ComplexityRoot.WebhookSubscription.URL == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookSubscription.URL(childComplexity), true
+
+	case "WebhookSubscription.updatedAt":
+		if e.ComplexityRoot.WebhookSubscription.UpdatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookSubscription.UpdatedAt(childComplexity), true
+
+	case "WebhookSubscriptionConnection.edges":
+		if e.ComplexityRoot.WebhookSubscriptionConnection.Edges == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookSubscriptionConnection.Edges(childComplexity), true
+
+	case "WebhookSubscriptionConnection.nodes":
+		if e.ComplexityRoot.WebhookSubscriptionConnection.Nodes == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookSubscriptionConnection.Nodes(childComplexity), true
+
+	case "WebhookSubscriptionConnection.pageInfo":
+		if e.ComplexityRoot.WebhookSubscriptionConnection.PageInfo == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookSubscriptionConnection.PageInfo(childComplexity), true
+
+	case "WebhookSubscriptionEdge.cursor":
+		if e.ComplexityRoot.WebhookSubscriptionEdge.Cursor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookSubscriptionEdge.Cursor(childComplexity), true
+
+	case "WebhookSubscriptionEdge.node":
+		if e.ComplexityRoot.WebhookSubscriptionEdge.Node == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookSubscriptionEdge.Node(childComplexity), true
+
 	case "WorkloadConnection.edges":
 		if e.ComplexityRoot.WorkloadConnection.Edges == nil {
 			break
@@ -19232,6 +19646,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputCreateUnleashForTeamInput,
 		ec.unmarshalInputCreateValkeyCredentialsInput,
 		ec.unmarshalInputCreateValkeyInput,
+		ec.unmarshalInputCreateWebhookInput,
 		ec.unmarshalInputDeleteApplicationInput,
 		ec.unmarshalInputDeleteConfigInput,
 		ec.unmarshalInputDeleteJobInput,
@@ -19244,6 +19659,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputDeleteTunnelInput,
 		ec.unmarshalInputDeleteUnleashInstanceInput,
 		ec.unmarshalInputDeleteValkeyInput,
+		ec.unmarshalInputDeleteWebhookInput,
 		ec.unmarshalInputDeploymentFilter,
 		ec.unmarshalInputDeploymentOrder,
 		ec.unmarshalInputDisableReconcilerInput,
@@ -19320,6 +19736,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputUpdateTeamInput,
 		ec.unmarshalInputUpdateUnleashInstanceInput,
 		ec.unmarshalInputUpdateValkeyInput,
+		ec.unmarshalInputUpdateWebhookInput,
 		ec.unmarshalInputUpdateWorkloadEnvironmentVariableInput,
 		ec.unmarshalInputUserOrder,
 		ec.unmarshalInputUserTeamOrder,
@@ -32225,6 +32642,272 @@ enum SBOMStatus {
 	FAILED
 }
 `, BuiltIn: false},
+	{Name: "../schema/webhooks.graphqls", Input: `"""
+A webhook subscription that receives HTTP callbacks when activity log events occur.
+Webhooks can be scoped to a specific team or registered globally.
+"""
+type WebhookSubscription implements Node {
+	"Globally unique ID of the webhook subscription."
+	id: ID!
+
+	"The team this webhook is scoped to. Null for global webhooks."
+	teamSlug: Slug
+
+	"The URL that will receive webhook HTTP POST requests."
+	url: String!
+
+	"The event types this webhook is subscribed to. Use '*' to subscribe to all events."
+	eventTypes: [String!]!
+
+	"Whether the webhook is currently enabled."
+	enabled: Boolean!
+
+	"Number of consecutive delivery failures. Resets to 0 on a successful delivery."
+	consecutiveFailures: Int!
+
+	"When the webhook was automatically disabled due to repeated failures. Null if not auto-disabled."
+	disabledAt: Time
+
+	"The identity of the user who created this webhook."
+	createdBy: String!
+
+	"When the webhook was created."
+	createdAt: Time!
+
+	"When the webhook was last updated."
+	updatedAt: Time!
+
+	"The masked signing secret. Only the last 4 characters are visible."
+	maskedSecret: String!
+
+	"Recent delivery attempts for this webhook."
+	deliveries(
+		"Get the first n items in the connection."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+	): WebhookDeliveryConnection!
+}
+
+"A paginated list of webhook subscriptions."
+type WebhookSubscriptionConnection {
+	"Pagination information."
+	pageInfo: PageInfo!
+
+	"The webhook subscriptions in this page."
+	nodes: [WebhookSubscription!]!
+
+	"The webhook subscription edges in this page."
+	edges: [WebhookSubscriptionEdge!]!
+}
+
+"An edge in a webhook subscription connection."
+type WebhookSubscriptionEdge {
+	"The cursor for this edge."
+	cursor: Cursor!
+
+	"The webhook subscription at this edge."
+	node: WebhookSubscription!
+}
+
+"""
+A record of a webhook delivery attempt, including the request sent and the response received.
+"""
+type WebhookDelivery implements Node {
+	"Globally unique ID of the delivery."
+	id: ID!
+
+	"The event type that triggered this delivery."
+	eventType: String!
+
+	"The CloudEvents JSON payload that was sent."
+	requestBody: String!
+
+	"The HTTP status code returned by the webhook endpoint. Null if the request failed before receiving a response."
+	responseStatus: Int
+
+	"The response body returned by the webhook endpoint. Null if the request failed."
+	responseBody: String
+
+	"How long the delivery took in milliseconds."
+	durationMs: Int!
+
+	"Whether the delivery was successful (HTTP 2xx response)."
+	success: Boolean!
+
+	"When the delivery was attempted."
+	createdAt: Time!
+}
+
+"A paginated list of webhook deliveries."
+type WebhookDeliveryConnection {
+	"Pagination information."
+	pageInfo: PageInfo!
+
+	"The webhook deliveries in this page."
+	nodes: [WebhookDelivery!]!
+
+	"The webhook delivery edges in this page."
+	edges: [WebhookDeliveryEdge!]!
+}
+
+"An edge in a webhook delivery connection."
+type WebhookDeliveryEdge {
+	"The cursor for this edge."
+	cursor: Cursor!
+
+	"The webhook delivery at this edge."
+	node: WebhookDelivery!
+}
+
+extend type Team {
+	"Webhook subscriptions registered for this team."
+	webhooks(
+		"Get the first n items in the connection."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+	): WebhookSubscriptionConnection!
+}
+
+extend type Query {
+	"List all globally registered webhook subscriptions. Only accessible by admins."
+	globalWebhooks(
+		"Get the first n items in the connection."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+	): WebhookSubscriptionConnection!
+
+	"""
+	List all supported webhook event types with human-readable descriptions and grouping.
+	Use the 'type' field value when registering event_types on a webhook subscription.
+	"""
+	webhookEventTypes: [WebhookEventTypeInfo!]!
+}
+
+"""
+Metadata about a webhook-subscribable event type.
+"""
+type WebhookEventTypeInfo {
+	"The identifier to use in webhook subscription eventTypes (e.g. 'TEAM_MEMBER_ADDED')."
+	type: String!
+
+	"The CloudEvents 1.0 type string that will appear in delivered payloads (e.g. 'io.nais.team.member.added')."
+	cloudEventType: String!
+
+	"A human-readable description of the event (e.g. 'Team member added')."
+	description: String!
+
+	"Logical group for UI display (e.g. 'Team', 'Service Account')."
+	group: String!
+
+	"Indicates if this event type is subscribable by team-scoped webhooks."
+	teamScoped: Boolean!
+}
+
+extend type Mutation {
+	"""
+	Create a new webhook subscription.
+
+	If a team slug is provided, the webhook will only receive events for that team.
+	If no team slug is provided, the webhook is global and receives all events (admin only).
+	"""
+	createWebhook(input: CreateWebhookInput!): CreateWebhookPayload!
+
+	"""
+	Update an existing webhook subscription.
+
+	Can be used to change the URL, secret, event types, or enabled status.
+	"""
+	updateWebhook(input: UpdateWebhookInput!): UpdateWebhookPayload!
+
+	"""
+	Delete a webhook subscription.
+
+	All associated delivery records will also be deleted.
+	"""
+	deleteWebhook(input: DeleteWebhookInput!): DeleteWebhookPayload!
+}
+
+"Input for creating a new webhook subscription."
+input CreateWebhookInput {
+	"The team slug to scope this webhook to. Omit for a global webhook."
+	teamSlug: Slug
+
+	"The URL that will receive webhook HTTP POST requests."
+	url: String!
+
+	"The secret used for HMAC-SHA256 signing of webhook payloads."
+	secret: String!
+
+	"The event types to subscribe to. Use '*' to subscribe to all events."
+	eventTypes: [String!]!
+}
+
+"Payload returned after creating a webhook."
+type CreateWebhookPayload {
+	"The created webhook subscription."
+	webhook: WebhookSubscription!
+}
+
+"Input for updating an existing webhook subscription."
+input UpdateWebhookInput {
+	"The ID of the webhook subscription to update."
+	id: ID!
+
+	"The new URL for the webhook. Null to keep the current value."
+	url: String
+
+	"The new secret for signing. Null to keep the current value."
+	secret: String
+
+	"The new event types to subscribe to. Null to keep the current value."
+	eventTypes: [String!]
+
+	"Whether the webhook should be enabled. Null to keep the current value."
+	enabled: Boolean
+}
+
+"Payload returned after updating a webhook."
+type UpdateWebhookPayload {
+	"The updated webhook subscription."
+	webhook: WebhookSubscription!
+}
+
+"Input for deleting a webhook subscription."
+input DeleteWebhookInput {
+	"The ID of the webhook subscription to delete."
+	id: ID!
+}
+
+"Payload returned after deleting a webhook."
+type DeleteWebhookPayload {
+	"The ID of the deleted webhook subscription."
+	webhookID: ID!
+}
+`, BuiltIn: false},
 	{Name: "../schema/workloads.graphqls", Input: `extend type Team {
 	"""
 	Nais workloads owned by the team.
@@ -33667,6 +34350,14 @@ func (ec *executionContext) childFields_CreateValkeyPayload(ctx context.Context,
 	return nil, fmt.Errorf("no field named %q was found under type CreateValkeyPayload", field.Name)
 }
 
+func (ec *executionContext) childFields_CreateWebhookPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "webhook":
+		return ec.fieldContext_CreateWebhookPayload_webhook(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type CreateWebhookPayload", field.Name)
+}
+
 func (ec *executionContext) childFields_CredentialsActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "permission":
@@ -33789,6 +34480,14 @@ func (ec *executionContext) childFields_DeleteValkeyPayload(ctx context.Context,
 		return ec.fieldContext_DeleteValkeyPayload_valkeyDeleted(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type DeleteValkeyPayload", field.Name)
+}
+
+func (ec *executionContext) childFields_DeleteWebhookPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "webhookID":
+		return ec.fieldContext_DeleteWebhookPayload_webhookID(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type DeleteWebhookPayload", field.Name)
 }
 
 func (ec *executionContext) childFields_Deployment(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -36287,6 +36986,8 @@ func (ec *executionContext) childFields_Team(ctx context.Context, field graphql.
 		return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 	case "vulnerabilitySummaries":
 		return ec.fieldContext_Team_vulnerabilitySummaries(ctx, field)
+	case "webhooks":
+		return ec.fieldContext_Team_webhooks(ctx, field)
 	case "workloads":
 		return ec.fieldContext_Team_workloads(ctx, field)
 	}
@@ -37097,6 +37798,14 @@ func (ec *executionContext) childFields_UpdateValkeyPayload(ctx context.Context,
 	return nil, fmt.Errorf("no field named %q was found under type UpdateValkeyPayload", field.Name)
 }
 
+func (ec *executionContext) childFields_UpdateWebhookPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "webhook":
+		return ec.fieldContext_UpdateWebhookPayload_webhook(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type UpdateWebhookPayload", field.Name)
+}
+
 func (ec *executionContext) childFields_User(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "id":
@@ -37431,6 +38140,118 @@ func (ec *executionContext) childFields_VulnerabilityFixSample(ctx context.Conte
 		return ec.fieldContext_VulnerabilityFixSample_totalWorkloads(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type VulnerabilityFixSample", field.Name)
+}
+
+func (ec *executionContext) childFields_WebhookDelivery(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_WebhookDelivery_id(ctx, field)
+	case "eventType":
+		return ec.fieldContext_WebhookDelivery_eventType(ctx, field)
+	case "requestBody":
+		return ec.fieldContext_WebhookDelivery_requestBody(ctx, field)
+	case "responseStatus":
+		return ec.fieldContext_WebhookDelivery_responseStatus(ctx, field)
+	case "responseBody":
+		return ec.fieldContext_WebhookDelivery_responseBody(ctx, field)
+	case "durationMs":
+		return ec.fieldContext_WebhookDelivery_durationMs(ctx, field)
+	case "success":
+		return ec.fieldContext_WebhookDelivery_success(ctx, field)
+	case "createdAt":
+		return ec.fieldContext_WebhookDelivery_createdAt(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type WebhookDelivery", field.Name)
+}
+
+func (ec *executionContext) childFields_WebhookDeliveryConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pageInfo":
+		return ec.fieldContext_WebhookDeliveryConnection_pageInfo(ctx, field)
+	case "nodes":
+		return ec.fieldContext_WebhookDeliveryConnection_nodes(ctx, field)
+	case "edges":
+		return ec.fieldContext_WebhookDeliveryConnection_edges(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type WebhookDeliveryConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_WebhookDeliveryEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_WebhookDeliveryEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_WebhookDeliveryEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type WebhookDeliveryEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_WebhookEventTypeInfo(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "type":
+		return ec.fieldContext_WebhookEventTypeInfo_type(ctx, field)
+	case "cloudEventType":
+		return ec.fieldContext_WebhookEventTypeInfo_cloudEventType(ctx, field)
+	case "description":
+		return ec.fieldContext_WebhookEventTypeInfo_description(ctx, field)
+	case "group":
+		return ec.fieldContext_WebhookEventTypeInfo_group(ctx, field)
+	case "teamScoped":
+		return ec.fieldContext_WebhookEventTypeInfo_teamScoped(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type WebhookEventTypeInfo", field.Name)
+}
+
+func (ec *executionContext) childFields_WebhookSubscription(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_WebhookSubscription_id(ctx, field)
+	case "teamSlug":
+		return ec.fieldContext_WebhookSubscription_teamSlug(ctx, field)
+	case "url":
+		return ec.fieldContext_WebhookSubscription_url(ctx, field)
+	case "eventTypes":
+		return ec.fieldContext_WebhookSubscription_eventTypes(ctx, field)
+	case "enabled":
+		return ec.fieldContext_WebhookSubscription_enabled(ctx, field)
+	case "consecutiveFailures":
+		return ec.fieldContext_WebhookSubscription_consecutiveFailures(ctx, field)
+	case "disabledAt":
+		return ec.fieldContext_WebhookSubscription_disabledAt(ctx, field)
+	case "createdBy":
+		return ec.fieldContext_WebhookSubscription_createdBy(ctx, field)
+	case "createdAt":
+		return ec.fieldContext_WebhookSubscription_createdAt(ctx, field)
+	case "updatedAt":
+		return ec.fieldContext_WebhookSubscription_updatedAt(ctx, field)
+	case "maskedSecret":
+		return ec.fieldContext_WebhookSubscription_maskedSecret(ctx, field)
+	case "deliveries":
+		return ec.fieldContext_WebhookSubscription_deliveries(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type WebhookSubscription", field.Name)
+}
+
+func (ec *executionContext) childFields_WebhookSubscriptionConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pageInfo":
+		return ec.fieldContext_WebhookSubscriptionConnection_pageInfo(ctx, field)
+	case "nodes":
+		return ec.fieldContext_WebhookSubscriptionConnection_nodes(ctx, field)
+	case "edges":
+		return ec.fieldContext_WebhookSubscriptionConnection_edges(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type WebhookSubscriptionConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_WebhookSubscriptionEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_WebhookSubscriptionEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_WebhookSubscriptionEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type WebhookSubscriptionEdge", field.Name)
 }
 
 func (ec *executionContext) childFields_WorkloadConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {

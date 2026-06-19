@@ -43,11 +43,11 @@ func init() {
 		}
 	})
 
-	activitylog.RegisterFilter("OPENSEARCH_CREATED", activitylog.ActivityLogEntryActionCreated, ActivityLogEntryResourceTypeOpenSearch)
-	activitylog.RegisterFilter("OPENSEARCH_UPDATED", activitylog.ActivityLogEntryActionUpdated, ActivityLogEntryResourceTypeOpenSearch)
-	activitylog.RegisterFilter("OPENSEARCH_DELETED", activitylog.ActivityLogEntryActionDeleted, ActivityLogEntryResourceTypeOpenSearch)
-	activitylog.RegisterFilter("OPENSEARCH_MAINTENANCE_STARTED", servicemaintenanceal.ActivityLogEntryActionMaintenanceStarted, ActivityLogEntryResourceTypeOpenSearch)
-	activitylog.RegisterFilter(aivencredentials.ActivityLogActivityTypeCredentialsCreated, aivencredentials.ActivityLogEntryActionCredentialsCreated, ActivityLogEntryResourceTypeOpenSearch)
+	activitylog.RegisterActivityType("OPENSEARCH_CREATED", activitylog.ActivityLogEntryActionCreated, ActivityLogEntryResourceTypeOpenSearch)
+	activitylog.RegisterActivityType("OPENSEARCH_UPDATED", activitylog.ActivityLogEntryActionUpdated, ActivityLogEntryResourceTypeOpenSearch)
+	activitylog.RegisterActivityType("OPENSEARCH_DELETED", activitylog.ActivityLogEntryActionDeleted, ActivityLogEntryResourceTypeOpenSearch)
+	activitylog.RegisterActivityType("OPENSEARCH_MAINTENANCE_STARTED", servicemaintenanceal.ActivityLogEntryActionMaintenanceStarted, ActivityLogEntryResourceTypeOpenSearch)
+	activitylog.RegisterActivityType(aivencredentials.ActivityLogActivityTypeCredentialsCreated, aivencredentials.ActivityLogEntryActionCredentialsCreated, ActivityLogEntryResourceTypeOpenSearch)
 }
 
 type OpenSearchCreatedActivityLogEntry struct {

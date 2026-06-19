@@ -97,14 +97,14 @@ func init() {
 		}
 	})
 
-	activitylog.RegisterFilter("TEAM_CREATED", activitylog.ActivityLogEntryActionCreated, activityLogEntryResourceTypeTeam)
-	activitylog.RegisterFilter("TEAM_UPDATED", activitylog.ActivityLogEntryActionUpdated, activityLogEntryResourceTypeTeam)
-	activitylog.RegisterFilter("TEAM_CREATE_DELETE_KEY", activityLogEntryActionCreateDeleteKey, activityLogEntryResourceTypeTeam)
-	activitylog.RegisterFilter("TEAM_CONFIRM_DELETE_KEY", activityLogEntryActionConfirmDeleteKey, activityLogEntryResourceTypeTeam)
-	activitylog.RegisterFilter("TEAM_MEMBER_ADDED", activitylog.ActivityLogEntryActionAdded, activityLogEntryResourceTypeTeam)
-	activitylog.RegisterFilter("TEAM_MEMBER_REMOVED", activitylog.ActivityLogEntryActionRemoved, activityLogEntryResourceTypeTeam)
-	activitylog.RegisterFilter("TEAM_MEMBER_SET_ROLE", activityLogEntryActionSetMemberRole, activityLogEntryResourceTypeTeam)
-	activitylog.RegisterFilter("TEAM_ENVIRONMENT_UPDATED", activityLogEntryActionUpdateEnvironment, activityLogEntryResourceTypeTeam)
+	activitylog.RegisterActivityType("TEAM_CREATED", activitylog.ActivityLogEntryActionCreated, activityLogEntryResourceTypeTeam)
+	activitylog.RegisterActivityType("TEAM_UPDATED", activitylog.ActivityLogEntryActionUpdated, activityLogEntryResourceTypeTeam)
+	activitylog.RegisterActivityType("TEAM_CREATE_DELETE_KEY", activityLogEntryActionCreateDeleteKey, activityLogEntryResourceTypeTeam)
+	activitylog.RegisterActivityType("TEAM_CONFIRM_DELETE_KEY", activityLogEntryActionConfirmDeleteKey, activityLogEntryResourceTypeTeam)
+	activitylog.RegisterActivityType("TEAM_MEMBER_ADDED", activitylog.ActivityLogEntryActionAdded, activityLogEntryResourceTypeTeam)
+	activitylog.RegisterActivityType("TEAM_MEMBER_REMOVED", activitylog.ActivityLogEntryActionRemoved, activityLogEntryResourceTypeTeam)
+	activitylog.RegisterActivityType("TEAM_MEMBER_SET_ROLE", activityLogEntryActionSetMemberRole, activityLogEntryResourceTypeTeam)
+	activitylog.RegisterActivityType("TEAM_ENVIRONMENT_UPDATED", activityLogEntryActionUpdateEnvironment, activityLogEntryResourceTypeTeam)
 }
 
 type TeamCreatedActivityLogEntry struct {

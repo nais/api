@@ -42,6 +42,7 @@ import (
 	fakehookd "github.com/nais/api/internal/thirdparty/hookd/fake"
 	"github.com/nais/api/internal/unleash"
 	"github.com/nais/api/internal/vulnerability"
+	"github.com/nais/api/internal/webhook"
 	"github.com/sethvargo/go-envconfig"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
@@ -255,6 +256,10 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	notifier := notify.New(pool, log.WithField("subsystem", "notifier"))
 	go notifier.Run(ctx)
 
+	// Webhook dispatcher — drains the webhook_events outbox table on PG NOTIFY
+	webhookDispatcher := webhook.NewDispatcher(pool, notifier, "https://"+cfg.TenantDomain+"/api", log)
+	go webhookDispatcher.Run(ctx)
+
 	if !cfg.Fakes.WithFakeKubernetes {
 		k8sClients, err := kubernetes.NewClientSets(clusterConfig)
 		if err != nil {
@@ -330,6 +335,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		lokiClient,
 		cfg.AuditLog.ProjectID,
 		cfg.AuditLog.Location,
+		webhookDispatcher,
 		log.WithField("subsystem", "http"),
 	)
 	if err != nil {

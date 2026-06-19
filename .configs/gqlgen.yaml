@@ -81,6 +81,7 @@ autobind:
   - "github.com/nais/api/internal/workload/config"
   - "github.com/nais/api/internal/workload/instancegroup"
   - "github.com/nais/api/internal/workload/secret"
+  - "github.com/nais/api/internal/webhook"
 
 # Don't generate Get<FieldName> functions for fields included in the GraphQL interfaces
 omit_getters: true

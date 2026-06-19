@@ -232,3 +232,12 @@ sql:
         <<: *default_go
         package: "restteamsapisql"
         out: "../internal/rest/restteamsapi/restteamsapisql"
+
+  - <<: *default_domain
+    name: "Webhook SQL"
+    queries: "../internal/webhook/queries"
+    gen:
+      go:
+        <<: *default_go
+        package: "webhooksql"
+        out: "../internal/webhook/webhooksql"

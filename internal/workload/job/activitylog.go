@@ -76,12 +76,12 @@ func init() {
 		}
 	})
 
-	activitylog.RegisterFilter("JOB_DELETED", activitylog.ActivityLogEntryActionDeleted, ActivityLogEntryResourceTypeJob)
-	activitylog.RegisterFilter("JOB_RUN_DELETED", activityLogEntryActionDeleteJobRun, ActivityLogEntryResourceTypeJob)
-	activitylog.RegisterFilter("JOB_TRIGGERED", activityLogEntryActionTriggerJob, ActivityLogEntryResourceTypeJob)
-	activitylog.RegisterFilter("DEPLOYMENT", deploymentactivity.ActivityLogEntryActionDeployment, ActivityLogEntryResourceTypeJob)
-	activitylog.RegisterFilter("GENERIC_KUBERNETES_RESOURCE_CREATED", activitylog.ActivityLogEntryActionCreated, ActivityLogEntryResourceTypeJob)
-	activitylog.RegisterFilter("JOB_UPDATED", activitylog.ActivityLogEntryActionUpdated, ActivityLogEntryResourceTypeJob)
+	activitylog.RegisterActivityType("JOB_DELETED", activitylog.ActivityLogEntryActionDeleted, ActivityLogEntryResourceTypeJob)
+	activitylog.RegisterActivityType("JOB_RUN_DELETED", activityLogEntryActionDeleteJobRun, ActivityLogEntryResourceTypeJob)
+	activitylog.RegisterActivityType("JOB_TRIGGERED", activityLogEntryActionTriggerJob, ActivityLogEntryResourceTypeJob)
+	activitylog.RegisterActivityType("DEPLOYMENT", deploymentactivity.ActivityLogEntryActionDeployment, ActivityLogEntryResourceTypeJob)
+	activitylog.RegisterActivityType("GENERIC_KUBERNETES_RESOURCE_CREATED", activitylog.ActivityLogEntryActionCreated, ActivityLogEntryResourceTypeJob)
+	activitylog.RegisterActivityType("JOB_UPDATED", activitylog.ActivityLogEntryActionUpdated, ActivityLogEntryResourceTypeJob)
 }
 
 type JobTriggeredActivityLogEntry struct {

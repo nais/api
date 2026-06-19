@@ -90,13 +90,13 @@ func init() {
 		}
 	})
 
-	activitylog.RegisterFilter("SECRET_CREATED", activitylog.ActivityLogEntryActionCreated, activityLogEntryResourceTypeSecret)
-	activitylog.RegisterFilter("SECRET_UPDATED", activitylog.ActivityLogEntryActionUpdated, activityLogEntryResourceTypeSecret)
-	activitylog.RegisterFilter("SECRET_DELETED", activitylog.ActivityLogEntryActionDeleted, activityLogEntryResourceTypeSecret)
-	activitylog.RegisterFilter("SECRET_VALUE_ADDED", activityLogEntryActionAddSecretValue, activityLogEntryResourceTypeSecret)
-	activitylog.RegisterFilter("SECRET_VALUE_UPDATED", activityLogEntryActionUpdateSecretValue, activityLogEntryResourceTypeSecret)
-	activitylog.RegisterFilter("SECRET_VALUE_REMOVED", activityLogEntryActionRemoveSecretValue, activityLogEntryResourceTypeSecret)
-	activitylog.RegisterFilter("SECRET_VALUES_VIEWED", activityLogEntryActionViewSecretValues, activityLogEntryResourceTypeSecret)
+	activitylog.RegisterActivityType("SECRET_CREATED", activitylog.ActivityLogEntryActionCreated, activityLogEntryResourceTypeSecret)
+	activitylog.RegisterActivityType("SECRET_UPDATED", activitylog.ActivityLogEntryActionUpdated, activityLogEntryResourceTypeSecret)
+	activitylog.RegisterActivityType("SECRET_DELETED", activitylog.ActivityLogEntryActionDeleted, activityLogEntryResourceTypeSecret)
+	activitylog.RegisterActivityType("SECRET_VALUE_ADDED", activityLogEntryActionAddSecretValue, activityLogEntryResourceTypeSecret)
+	activitylog.RegisterActivityType("SECRET_VALUE_UPDATED", activityLogEntryActionUpdateSecretValue, activityLogEntryResourceTypeSecret)
+	activitylog.RegisterActivityType("SECRET_VALUE_REMOVED", activityLogEntryActionRemoveSecretValue, activityLogEntryResourceTypeSecret)
+	activitylog.RegisterActivityType("SECRET_VALUES_VIEWED", activityLogEntryActionViewSecretValues, activityLogEntryResourceTypeSecret)
 }
 
 type SecretCreatedActivityLogEntry struct {

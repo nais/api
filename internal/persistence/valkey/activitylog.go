@@ -44,11 +44,11 @@ func init() {
 		}
 	})
 
-	activitylog.RegisterFilter("VALKEY_CREATED", activitylog.ActivityLogEntryActionCreated, ActivityLogEntryResourceTypeValkey)
-	activitylog.RegisterFilter("VALKEY_UPDATED", activitylog.ActivityLogEntryActionUpdated, ActivityLogEntryResourceTypeValkey)
-	activitylog.RegisterFilter("VALKEY_DELETED", activitylog.ActivityLogEntryActionDeleted, ActivityLogEntryResourceTypeValkey)
-	activitylog.RegisterFilter("VALKEY_MAINTENANCE_STARTED", servicemaintenanceal.ActivityLogEntryActionMaintenanceStarted, ActivityLogEntryResourceTypeValkey)
-	activitylog.RegisterFilter(aivencredentials.ActivityLogActivityTypeCredentialsCreated, aivencredentials.ActivityLogEntryActionCredentialsCreated, ActivityLogEntryResourceTypeValkey)
+	activitylog.RegisterActivityType("VALKEY_CREATED", activitylog.ActivityLogEntryActionCreated, ActivityLogEntryResourceTypeValkey)
+	activitylog.RegisterActivityType("VALKEY_UPDATED", activitylog.ActivityLogEntryActionUpdated, ActivityLogEntryResourceTypeValkey)
+	activitylog.RegisterActivityType("VALKEY_DELETED", activitylog.ActivityLogEntryActionDeleted, ActivityLogEntryResourceTypeValkey)
+	activitylog.RegisterActivityType("VALKEY_MAINTENANCE_STARTED", servicemaintenanceal.ActivityLogEntryActionMaintenanceStarted, ActivityLogEntryResourceTypeValkey)
+	activitylog.RegisterActivityType(aivencredentials.ActivityLogActivityTypeCredentialsCreated, aivencredentials.ActivityLogEntryActionCredentialsCreated, ActivityLogEntryResourceTypeValkey)
 }
 
 type ValkeyCreatedActivityLogEntry struct {
