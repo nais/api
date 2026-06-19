@@ -162,7 +162,11 @@ func Create(ctx context.Context, input CreateConfigInput) (*Config, error) {
 
 			isBinary := v.Encoding != nil && *v.Encoding == secret.ValueEncodingBase64
 			if isBinary {
-				binaryData[v.Name] = []byte(encodedValue)
+				decoded, err := base64.StdEncoding.DecodeString(encodedValue)
+				if err != nil {
+					return nil, fmt.Errorf("decoding base64 value for key %q: %w", v.Name, err)
+				}
+				binaryData[v.Name] = decoded
 			} else {
 				data[v.Name] = encodedValue
 			}
