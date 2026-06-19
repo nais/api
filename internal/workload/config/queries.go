@@ -112,25 +112,61 @@ func configValuesFromConfig(config *Config) []*ConfigValue {
 	return values
 }
 
-func Create(ctx context.Context, teamSlug slug.Slug, environment, name string) (*Config, error) {
+func Create(ctx context.Context, input CreateConfigInput) (*Config, error) {
 	w := fromContext(ctx).Watcher()
-	client, err := w.ImpersonatedClient(ctx, environment)
+	client, err := w.ImpersonatedClient(ctx, input.EnvironmentName)
 	if err != nil {
 		return nil, err
 	}
 
-	if nameErrs := validation.IsDNS1123Subdomain(name); len(nameErrs) > 0 {
-		return nil, fmt.Errorf("invalid name %q: %s", name, strings.Join(nameErrs, ", "))
+	if nameErrs := validation.IsDNS1123Subdomain(input.Name); len(nameErrs) > 0 {
+		return nil, fmt.Errorf("invalid name %q: %s", input.Name, strings.Join(nameErrs, ", "))
+	}
+
+	// Validate values
+	if input.Values != nil {
+		for _, v := range input.Values {
+			if err := validateConfigValue(v); err != nil {
+				return nil, err
+			}
+		}
 	}
 
 	actor := authz.ActorFromContext(ctx)
 
 	cm := &corev1.ConfigMap{
 		ObjectMeta: v1.ObjectMeta{
-			Name:        name,
-			Namespace:   teamSlug.String(),
+			Name:        input.Name,
+			Namespace:   input.TeamSlug.String(),
 			Annotations: annotations(actor.User.Identity()),
 		},
+	}
+
+	// Populate data and binaryData from values
+	if input.Values != nil {
+		data := make(map[string]string)
+		binaryData := make(map[string][]byte)
+
+		for _, v := range input.Values {
+			encodedValue, err := encodeValueForStorage(v)
+			if err != nil {
+				return nil, err
+			}
+
+			isBinary := v.Encoding != nil && *v.Encoding == secret.ValueEncodingBase64
+			if isBinary {
+				binaryData[v.Name] = []byte(encodedValue)
+			} else {
+				data[v.Name] = encodedValue
+			}
+		}
+
+		if len(data) > 0 {
+			cm.Data = data
+		}
+		if len(binaryData) > 0 {
+			cm.BinaryData = binaryData
+		}
 	}
 
 	kubernetes.SetManagedByConsoleLabel(cm)
@@ -140,7 +176,7 @@ func Create(ctx context.Context, teamSlug slug.Slug, environment, name string) (
 		return nil, err
 	}
 
-	created, err := client.Namespace(teamSlug.String()).Create(ctx, &unstructured.Unstructured{Object: u}, v1.CreateOptions{})
+	created, err := client.Namespace(input.TeamSlug.String()).Create(ctx, &unstructured.Unstructured{Object: u}, v1.CreateOptions{})
 	if err != nil {
 		if k8serrors.IsAlreadyExists(err) {
 			return nil, ErrAlreadyExists
@@ -151,16 +187,16 @@ func Create(ctx context.Context, teamSlug slug.Slug, environment, name string) (
 	err = activitylog.Create(ctx, activitylog.CreateInput{
 		Action:          activitylog.ActivityLogEntryActionCreated,
 		Actor:           actor.User,
-		EnvironmentName: &environment,
+		EnvironmentName: &input.EnvironmentName,
 		ResourceType:    activityLogEntryResourceTypeConfig,
-		ResourceName:    name,
-		TeamSlug:        &teamSlug,
+		ResourceName:    input.Name,
+		TeamSlug:        &input.TeamSlug,
 	})
 	if err != nil {
 		fromContext(ctx).log.WithError(err).Errorf("unable to create activity log entry")
 	}
 
-	retVal, ok := toGraphConfig(created, environment)
+	retVal, ok := toGraphConfig(created, input.EnvironmentName)
 	if !ok {
 		return nil, fmt.Errorf("failed to convert config")
 	}
@@ -511,8 +547,10 @@ func RemoveConfigValue(ctx context.Context, teamSlug slug.Slug, environment, con
 }
 
 func Update(ctx context.Context, input UpdateConfigInput) (*Config, error) {
-	if err := model.ValidateUserLabels(input.Labels); err != nil {
-		return nil, err
+	if input.Labels != nil {
+		if err := model.ValidateUserLabels(input.Labels); err != nil {
+			return nil, err
+		}
 	}
 
 	// Validate values
@@ -548,17 +586,19 @@ func Update(ctx context.Context, input UpdateConfigInput) (*Config, error) {
 	var updatedFields []*ConfigUpdatedActivityLogEntryDataUpdatedField
 
 	// Labels
-	existingLabels := obj.GetLabels()
-	mergedLabels := model.MergeUserLabels(existingLabels, input.Labels)
-	if !maps.Equal(mergedLabels, existingLabels) {
-		patch = append(patch, map[string]any{"op": "replace", "path": "/metadata/labels", "value": mergedLabels})
-		oldValue := model.FormatUserLabels(model.UserLabels(existingLabels))
-		newValue := model.FormatUserLabels(model.UserLabels(mergedLabels))
-		updatedFields = append(updatedFields, &ConfigUpdatedActivityLogEntryDataUpdatedField{
-			Field:    "labels",
-			OldValue: &oldValue,
-			NewValue: &newValue,
-		})
+	if input.Labels != nil {
+		existingLabels := obj.GetLabels()
+		mergedLabels := model.MergeUserLabels(existingLabels, input.Labels)
+		if !maps.Equal(mergedLabels, existingLabels) {
+			patch = append(patch, map[string]any{"op": "replace", "path": "/metadata/labels", "value": mergedLabels})
+			oldValue := model.FormatUserLabels(model.UserLabels(existingLabels))
+			newValue := model.FormatUserLabels(model.UserLabels(mergedLabels))
+			updatedFields = append(updatedFields, &ConfigUpdatedActivityLogEntryDataUpdatedField{
+				Field:    "labels",
+				OldValue: &oldValue,
+				NewValue: &newValue,
+			})
+		}
 	}
 
 	// Values — split into data (plain text) and binaryData (base64) based on encoding

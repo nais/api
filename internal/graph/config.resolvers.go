@@ -163,7 +163,7 @@ func (r *mutationResolver) CreateConfig(ctx context.Context, input config.Create
 		return nil, err
 	}
 
-	c, err := config.Create(ctx, input.TeamSlug, input.EnvironmentName, input.Name)
+	c, err := config.Create(ctx, input)
 	if err != nil {
 		return nil, err
 	}

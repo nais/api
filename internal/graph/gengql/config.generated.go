@@ -2062,7 +2062,7 @@ func (ec *executionContext) unmarshalInputCreateConfigInput(ctx context.Context,
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "environmentName", "teamSlug"}
+	fieldsInOrder := [...]string{"name", "environmentName", "teamSlug", "values"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -2090,6 +2090,13 @@ func (ec *executionContext) unmarshalInputCreateConfigInput(ctx context.Context,
 				return it, err
 			}
 			it.TeamSlug = data
+		case "values":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("values"))
+			data, err := ec.unmarshalOConfigValueInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigValueInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Values = data
 		}
 	}
 	return it, nil
@@ -2231,7 +2238,7 @@ func (ec *executionContext) unmarshalInputUpdateConfigInput(ctx context.Context,
 			it.TeamSlug = data
 		case "labels":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labels"))
-			data, err := ec.unmarshalNResourceLabelInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceLabelᚄ(ctx, v)
+			data, err := ec.unmarshalOResourceLabelInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceLabelᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
