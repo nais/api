@@ -112,35 +112,88 @@ func configValuesFromConfig(config *Config) []*ConfigValue {
 	return values
 }
 
-func Create(ctx context.Context, teamSlug slug.Slug, environment, name string) (*Config, error) {
+func Create(ctx context.Context, input CreateConfigInput) (*Config, error) {
 	w := fromContext(ctx).Watcher()
-	client, err := w.ImpersonatedClient(ctx, environment)
+	client, err := w.ImpersonatedClient(ctx, input.EnvironmentName)
 	if err != nil {
 		return nil, err
 	}
 
-	if nameErrs := validation.IsDNS1123Subdomain(name); len(nameErrs) > 0 {
-		return nil, fmt.Errorf("invalid name %q: %s", name, strings.Join(nameErrs, ", "))
+	if nameErrs := validation.IsDNS1123Subdomain(input.Name); len(nameErrs) > 0 {
+		return nil, fmt.Errorf("invalid name %q: %s", input.Name, strings.Join(nameErrs, ", "))
+	}
+
+	// Validate labels
+	if input.Labels != nil {
+		if err := model.ValidateUserLabels(input.Labels); err != nil {
+			return nil, err
+		}
+	}
+
+	// Validate values
+	if input.Values != nil {
+		for _, v := range input.Values {
+			if err := validateConfigValue(v); err != nil {
+				return nil, err
+			}
+		}
 	}
 
 	actor := authz.ActorFromContext(ctx)
 
 	cm := &corev1.ConfigMap{
 		ObjectMeta: v1.ObjectMeta{
-			Name:        name,
-			Namespace:   teamSlug.String(),
+			Name:        input.Name,
+			Namespace:   input.TeamSlug.String(),
 			Annotations: annotations(actor.User.Identity()),
 		},
 	}
 
+	// Populate data and binaryData from values
+	if input.Values != nil {
+		data := make(map[string]string)
+		binaryData := make(map[string][]byte)
+
+		for _, v := range input.Values {
+			encodedValue, err := encodeValueForStorage(v)
+			if err != nil {
+				return nil, err
+			}
+
+			isBinary := v.Encoding != nil && *v.Encoding == secret.ValueEncodingBase64
+			if isBinary {
+				decoded, err := base64.StdEncoding.DecodeString(encodedValue)
+				if err != nil {
+					return nil, fmt.Errorf("decoding base64 value for key %q: %w", v.Name, err)
+				}
+				binaryData[v.Name] = decoded
+			} else {
+				data[v.Name] = encodedValue
+			}
+		}
+
+		if len(data) > 0 {
+			cm.Data = data
+		}
+		if len(binaryData) > 0 {
+			cm.BinaryData = binaryData
+		}
+	}
+
 	kubernetes.SetManagedByConsoleLabel(cm)
+
+	// Apply user-defined labels
+	if input.Labels != nil {
+		mergedLabels := model.MergeUserLabels(cm.GetLabels(), input.Labels)
+		cm.SetLabels(mergedLabels)
+	}
 
 	u, err := runtime.DefaultUnstructuredConverter.ToUnstructured(cm)
 	if err != nil {
 		return nil, err
 	}
 
-	created, err := client.Namespace(teamSlug.String()).Create(ctx, &unstructured.Unstructured{Object: u}, v1.CreateOptions{})
+	created, err := client.Namespace(input.TeamSlug.String()).Create(ctx, &unstructured.Unstructured{Object: u}, v1.CreateOptions{})
 	if err != nil {
 		if k8serrors.IsAlreadyExists(err) {
 			return nil, ErrAlreadyExists
@@ -151,16 +204,16 @@ func Create(ctx context.Context, teamSlug slug.Slug, environment, name string) (
 	err = activitylog.Create(ctx, activitylog.CreateInput{
 		Action:          activitylog.ActivityLogEntryActionCreated,
 		Actor:           actor.User,
-		EnvironmentName: &environment,
+		EnvironmentName: &input.EnvironmentName,
 		ResourceType:    activityLogEntryResourceTypeConfig,
-		ResourceName:    name,
-		TeamSlug:        &teamSlug,
+		ResourceName:    input.Name,
+		TeamSlug:        &input.TeamSlug,
 	})
 	if err != nil {
 		fromContext(ctx).log.WithError(err).Errorf("unable to create activity log entry")
 	}
 
-	retVal, ok := toGraphConfig(created, environment)
+	retVal, ok := toGraphConfig(created, input.EnvironmentName)
 	if !ok {
 		return nil, fmt.Errorf("failed to convert config")
 	}
@@ -510,19 +563,30 @@ func RemoveConfigValue(ctx context.Context, teamSlug slug.Slug, environment, con
 	return retVal, nil
 }
 
-func UpdateLabels(ctx context.Context, teamSlug slug.Slug, environment, name string, labels []*model.ResourceLabel) (*Config, error) {
-	if err := model.ValidateUserLabels(labels); err != nil {
-		return nil, err
+func Update(ctx context.Context, input UpdateConfigInput) (*Config, error) {
+	if input.Labels != nil {
+		if err := model.ValidateUserLabels(input.Labels); err != nil {
+			return nil, err
+		}
+	}
+
+	// Validate values
+	if input.Values != nil {
+		for _, v := range input.Values {
+			if err := validateConfigValue(v); err != nil {
+				return nil, err
+			}
+		}
 	}
 
 	w := fromContext(ctx).Watcher()
-	client, err := w.ImpersonatedClient(ctx, environment)
+	client, err := w.ImpersonatedClient(ctx, input.EnvironmentName)
 	if err != nil {
 		return nil, err
 	}
 
 	// Check if the config exists and is managed by console
-	obj, err := client.Namespace(teamSlug.String()).Get(ctx, name, v1.GetOptions{})
+	obj, err := client.Namespace(input.TeamSlug.String()).Get(ctx, input.Name, v1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -531,54 +595,83 @@ func UpdateLabels(ctx context.Context, teamSlug slug.Slug, environment, name str
 		return nil, ErrUnmanaged
 	}
 
-	existingLabels := obj.GetLabels()
-	mergedLabels := model.MergeUserLabels(existingLabels, labels)
+	existingConfig, ok := toGraphConfig(obj, input.EnvironmentName)
+	if !ok {
+		return nil, fmt.Errorf("failed to convert config")
+	}
+
+	var updatedFields []*ConfigUpdatedActivityLogEntryDataUpdatedField
+
+	// Labels
+	if input.Labels != nil {
+		existingLabels := obj.GetLabels()
+		mergedLabels := model.MergeUserLabels(existingLabels, input.Labels)
+		if !maps.Equal(mergedLabels, existingLabels) {
+			obj.SetLabels(mergedLabels)
+			oldValue := model.FormatUserLabels(model.UserLabels(existingLabels))
+			newValue := model.FormatUserLabels(model.UserLabels(mergedLabels))
+			updatedFields = append(updatedFields, &ConfigUpdatedActivityLogEntryDataUpdatedField{
+				Field:    "labels",
+				OldValue: &oldValue,
+				NewValue: &newValue,
+			})
+		}
+	}
+
+	// Values — split into data (plain text) and binaryData (base64) based on encoding
+	if input.Values != nil {
+		newData := make(map[string]any)
+		newBinaryData := make(map[string]any)
+
+		for _, v := range input.Values {
+			encodedValue, err := encodeValueForStorage(v)
+			if err != nil {
+				return nil, err
+			}
+
+			isBinary := v.Encoding != nil && *v.Encoding == secret.ValueEncodingBase64
+			if isBinary {
+				newBinaryData[v.Name] = encodedValue
+			} else {
+				newData[v.Name] = encodedValue
+			}
+		}
+
+		if !stringMapEqualAny(existingConfig.Data, newData) || !stringMapEqualAny(existingConfig.BinaryData, newBinaryData) {
+			if err := unstructured.SetNestedStringMap(obj.Object, anyMapToStringMap(newData), "data"); err != nil {
+				return nil, fmt.Errorf("setting data: %w", err)
+			}
+			if err := unstructured.SetNestedStringMap(obj.Object, anyMapToStringMap(newBinaryData), "binaryData"); err != nil {
+				return nil, fmt.Errorf("setting binaryData: %w", err)
+			}
+			updatedFields = append(updatedFields, valuesUpdatedFields(existingConfig, newData, newBinaryData)...)
+		}
+	}
 
 	// Nothing changed — return the current state without writing.
-	if maps.Equal(mergedLabels, existingLabels) {
-		retVal, ok := toGraphConfig(obj, environment)
-		if !ok {
-			return nil, fmt.Errorf("failed to convert config")
-		}
-		return retVal, nil
+	if len(updatedFields) == 0 {
+		return existingConfig, nil
 	}
 
-	oldValue := model.FormatUserLabels(model.UserLabels(existingLabels))
-	newValue := model.FormatUserLabels(model.UserLabels(mergedLabels))
-
+	// Update annotations
 	actor := authz.ActorFromContext(ctx)
 	mergedAnnotations := mergeAnnotations(obj.GetAnnotations(), actor.User.Identity(), nil)
+	obj.SetAnnotations(mergedAnnotations)
 
-	patch := []map[string]any{
-		{"op": "replace", "path": "/metadata/labels", "value": mergedLabels},
-		{"op": "replace", "path": "/metadata/annotations", "value": mergedAnnotations},
-	}
-
-	patchBytes, err := json.Marshal(patch)
+	_, err = client.Namespace(input.TeamSlug.String()).Update(ctx, obj, v1.UpdateOptions{})
 	if err != nil {
-		return nil, fmt.Errorf("marshaling patch: %w", err)
-	}
-
-	_, err = client.Namespace(teamSlug.String()).Patch(ctx, name, types.JSONPatchType, patchBytes, v1.PatchOptions{})
-	if err != nil {
-		return nil, fmt.Errorf("patching config: %w", err)
+		return nil, fmt.Errorf("updating config: %w", err)
 	}
 
 	err = activitylog.Create(ctx, activitylog.CreateInput{
 		Action:          activitylog.ActivityLogEntryActionUpdated,
 		Actor:           actor.User,
-		EnvironmentName: &environment,
+		EnvironmentName: &input.EnvironmentName,
 		ResourceType:    activityLogEntryResourceTypeConfig,
-		ResourceName:    name,
-		TeamSlug:        &teamSlug,
+		ResourceName:    input.Name,
+		TeamSlug:        &input.TeamSlug,
 		Data: ConfigUpdatedActivityLogEntryData{
-			UpdatedFields: []*ConfigUpdatedActivityLogEntryDataUpdatedField{
-				{
-					Field:    "labels",
-					OldValue: &oldValue,
-					NewValue: &newValue,
-				},
-			},
+			UpdatedFields: updatedFields,
 		},
 	})
 	if err != nil {
@@ -586,12 +679,12 @@ func UpdateLabels(ctx context.Context, teamSlug slug.Slug, environment, name str
 	}
 
 	// Re-fetch from the K8s API to return up-to-date data
-	updated, err := client.Namespace(teamSlug.String()).Get(ctx, name, v1.GetOptions{})
+	updated, err := client.Namespace(input.TeamSlug.String()).Get(ctx, input.Name, v1.GetOptions{})
 	if err != nil {
 		return nil, fmt.Errorf("fetching updated config: %w", err)
 	}
 
-	retVal, ok := toGraphConfig(updated, environment)
+	retVal, ok := toGraphConfig(updated, input.EnvironmentName)
 	if !ok {
 		return nil, fmt.Errorf("failed to convert config")
 	}
@@ -681,7 +774,7 @@ func encodeValueForStorage(input *ConfigValueInput) (string, error) {
 	case secret.ValueEncodingBase64:
 		// Validate that the value is valid base64
 		if _, err := base64.StdEncoding.DecodeString(input.Value); err != nil {
-			return "", fmt.Errorf("value is not valid base64: %w", err)
+			return "", apierror.Errorf("Value for key %q is not valid base64.", input.Name)
 		}
 		// The value is already base64-encoded, which is what Kubernetes binaryData expects
 		return input.Value, nil
@@ -709,4 +802,88 @@ func mergeAnnotations(existingAnnotations map[string]string, user string, extraA
 		}
 	}
 	return merged
+}
+
+// stringMapEqualAny compares a map[string]string (from Kubernetes) with a map[string]any
+// (built for storage). Returns true if they have the same keys and values.
+func stringMapEqualAny(existing map[string]string, new map[string]any) bool {
+	if len(existing) != len(new) {
+		return false
+	}
+	for k, v := range new {
+		ev, ok := existing[k]
+		if !ok {
+			return false
+		}
+		if s, ok := v.(string); !ok || s != ev {
+			return false
+		}
+	}
+	return true
+}
+
+// anyMapToStringMap converts a map[string]any (where all values are strings) to map[string]string.
+func anyMapToStringMap(m map[string]any) map[string]string {
+	result := make(map[string]string, len(m))
+	for k, v := range m {
+		result[k] = v.(string)
+	}
+	return result
+}
+
+// valuesUpdatedFields computes detailed activity log entries for changed config values,
+// reporting which keys were added, removed, or changed.
+func valuesUpdatedFields(existing *Config, newData, newBinaryData map[string]any) []*ConfigUpdatedActivityLogEntryDataUpdatedField {
+	var fields []*ConfigUpdatedActivityLogEntryDataUpdatedField
+
+	// Combine existing values into a single map for comparison
+	oldValues := make(map[string]string, len(existing.Data)+len(existing.BinaryData))
+	for k, v := range existing.Data {
+		oldValues[k] = v
+	}
+	for k, v := range existing.BinaryData {
+		oldValues[k] = v
+	}
+
+	// Combine new values into a single map
+	newValues := make(map[string]string, len(newData)+len(newBinaryData))
+	for k, v := range newData {
+		newValues[k] = v.(string)
+	}
+	for k, v := range newBinaryData {
+		newValues[k] = v.(string)
+	}
+
+	// Check for added or changed keys
+	for k, nv := range newValues {
+		ov, existed := oldValues[k]
+		if !existed {
+			v := nv
+			fields = append(fields, &ConfigUpdatedActivityLogEntryDataUpdatedField{
+				Field:    k,
+				NewValue: &v,
+			})
+		} else if ov != nv {
+			oldVal := ov
+			newVal := nv
+			fields = append(fields, &ConfigUpdatedActivityLogEntryDataUpdatedField{
+				Field:    k,
+				OldValue: &oldVal,
+				NewValue: &newVal,
+			})
+		}
+	}
+
+	// Check for removed keys
+	for k, ov := range oldValues {
+		if _, exists := newValues[k]; !exists {
+			oldVal := ov
+			fields = append(fields, &ConfigUpdatedActivityLogEntryDataUpdatedField{
+				Field:    k,
+				OldValue: &oldVal,
+			})
+		}
+	}
+
+	return fields
 }
