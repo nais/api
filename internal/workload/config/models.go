@@ -49,6 +49,7 @@ type UpdateConfigInput struct {
 	EnvironmentName string                 `json:"environmentName"`
 	TeamSlug        slug.Slug              `json:"teamSlug"`
 	Labels          []*model.ResourceLabel `json:"labels"`
+	Values          []*ConfigValueInput    `json:"values"`
 }
 
 type UpdateConfigPayload struct {

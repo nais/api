@@ -510,19 +510,28 @@ func RemoveConfigValue(ctx context.Context, teamSlug slug.Slug, environment, con
 	return retVal, nil
 }
 
-func UpdateLabels(ctx context.Context, teamSlug slug.Slug, environment, name string, labels []*model.ResourceLabel) (*Config, error) {
-	if err := model.ValidateUserLabels(labels); err != nil {
+func Update(ctx context.Context, input UpdateConfigInput) (*Config, error) {
+	if err := model.ValidateUserLabels(input.Labels); err != nil {
 		return nil, err
 	}
 
+	// Validate values
+	if input.Values != nil {
+		for _, v := range input.Values {
+			if err := validateConfigValue(v); err != nil {
+				return nil, err
+			}
+		}
+	}
+
 	w := fromContext(ctx).Watcher()
-	client, err := w.ImpersonatedClient(ctx, environment)
+	client, err := w.ImpersonatedClient(ctx, input.EnvironmentName)
 	if err != nil {
 		return nil, err
 	}
 
 	// Check if the config exists and is managed by console
-	obj, err := client.Namespace(teamSlug.String()).Get(ctx, name, v1.GetOptions{})
+	obj, err := client.Namespace(input.TeamSlug.String()).Get(ctx, input.Name, v1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -531,35 +540,73 @@ func UpdateLabels(ctx context.Context, teamSlug slug.Slug, environment, name str
 		return nil, ErrUnmanaged
 	}
 
+	actor := authz.ActorFromContext(ctx)
+	mergedAnnotations := mergeAnnotations(obj.GetAnnotations(), actor.User.Identity(), nil)
+
+	// Build patch operations
+	var patch []map[string]any
+	var updatedFields []*ConfigUpdatedActivityLogEntryDataUpdatedField
+
+	// Labels
 	existingLabels := obj.GetLabels()
-	mergedLabels := model.MergeUserLabels(existingLabels, labels)
+	mergedLabels := model.MergeUserLabels(existingLabels, input.Labels)
+	if !maps.Equal(mergedLabels, existingLabels) {
+		patch = append(patch, map[string]any{"op": "replace", "path": "/metadata/labels", "value": mergedLabels})
+		oldValue := model.FormatUserLabels(model.UserLabels(existingLabels))
+		newValue := model.FormatUserLabels(model.UserLabels(mergedLabels))
+		updatedFields = append(updatedFields, &ConfigUpdatedActivityLogEntryDataUpdatedField{
+			Field:    "labels",
+			OldValue: &oldValue,
+			NewValue: &newValue,
+		})
+	}
+
+	// Values — split into data (plain text) and binaryData (base64) based on encoding
+	if input.Values != nil {
+		newData := make(map[string]any)
+		newBinaryData := make(map[string]any)
+
+		for _, v := range input.Values {
+			encodedValue, err := encodeValueForStorage(v)
+			if err != nil {
+				return nil, err
+			}
+
+			isBinary := v.Encoding != nil && *v.Encoding == secret.ValueEncodingBase64
+			if isBinary {
+				newBinaryData[v.Name] = encodedValue
+			} else {
+				newData[v.Name] = encodedValue
+			}
+		}
+
+		patch = append(patch,
+			map[string]any{"op": "replace", "path": "/data", "value": newData},
+			map[string]any{"op": "replace", "path": "/binaryData", "value": newBinaryData},
+		)
+		updatedFields = append(updatedFields, &ConfigUpdatedActivityLogEntryDataUpdatedField{
+			Field: "values",
+		})
+	}
 
 	// Nothing changed — return the current state without writing.
-	if maps.Equal(mergedLabels, existingLabels) {
-		retVal, ok := toGraphConfig(obj, environment)
+	if len(patch) == 0 {
+		retVal, ok := toGraphConfig(obj, input.EnvironmentName)
 		if !ok {
 			return nil, fmt.Errorf("failed to convert config")
 		}
 		return retVal, nil
 	}
 
-	oldValue := model.FormatUserLabels(model.UserLabels(existingLabels))
-	newValue := model.FormatUserLabels(model.UserLabels(mergedLabels))
-
-	actor := authz.ActorFromContext(ctx)
-	mergedAnnotations := mergeAnnotations(obj.GetAnnotations(), actor.User.Identity(), nil)
-
-	patch := []map[string]any{
-		{"op": "replace", "path": "/metadata/labels", "value": mergedLabels},
-		{"op": "replace", "path": "/metadata/annotations", "value": mergedAnnotations},
-	}
+	// Always update annotations when something changed
+	patch = append(patch, map[string]any{"op": "replace", "path": "/metadata/annotations", "value": mergedAnnotations})
 
 	patchBytes, err := json.Marshal(patch)
 	if err != nil {
 		return nil, fmt.Errorf("marshaling patch: %w", err)
 	}
 
-	_, err = client.Namespace(teamSlug.String()).Patch(ctx, name, types.JSONPatchType, patchBytes, v1.PatchOptions{})
+	_, err = client.Namespace(input.TeamSlug.String()).Patch(ctx, input.Name, types.JSONPatchType, patchBytes, v1.PatchOptions{})
 	if err != nil {
 		return nil, fmt.Errorf("patching config: %w", err)
 	}
@@ -567,18 +614,12 @@ func UpdateLabels(ctx context.Context, teamSlug slug.Slug, environment, name str
 	err = activitylog.Create(ctx, activitylog.CreateInput{
 		Action:          activitylog.ActivityLogEntryActionUpdated,
 		Actor:           actor.User,
-		EnvironmentName: &environment,
+		EnvironmentName: &input.EnvironmentName,
 		ResourceType:    activityLogEntryResourceTypeConfig,
-		ResourceName:    name,
-		TeamSlug:        &teamSlug,
+		ResourceName:    input.Name,
+		TeamSlug:        &input.TeamSlug,
 		Data: ConfigUpdatedActivityLogEntryData{
-			UpdatedFields: []*ConfigUpdatedActivityLogEntryDataUpdatedField{
-				{
-					Field:    "labels",
-					OldValue: &oldValue,
-					NewValue: &newValue,
-				},
-			},
+			UpdatedFields: updatedFields,
 		},
 	})
 	if err != nil {
@@ -586,16 +627,25 @@ func UpdateLabels(ctx context.Context, teamSlug slug.Slug, environment, name str
 	}
 
 	// Re-fetch from the K8s API to return up-to-date data
-	updated, err := client.Namespace(teamSlug.String()).Get(ctx, name, v1.GetOptions{})
+	updated, err := client.Namespace(input.TeamSlug.String()).Get(ctx, input.Name, v1.GetOptions{})
 	if err != nil {
 		return nil, fmt.Errorf("fetching updated config: %w", err)
 	}
 
-	retVal, ok := toGraphConfig(updated, environment)
+	retVal, ok := toGraphConfig(updated, input.EnvironmentName)
 	if !ok {
 		return nil, fmt.Errorf("failed to convert config")
 	}
 	return retVal, nil
+}
+
+func UpdateLabels(ctx context.Context, teamSlug slug.Slug, environment, name string, labels []*model.ResourceLabel) (*Config, error) {
+	return Update(ctx, UpdateConfigInput{
+		Name:            name,
+		EnvironmentName: environment,
+		TeamSlug:        teamSlug,
+		Labels:          labels,
+	})
 }
 
 func Delete(ctx context.Context, teamSlug slug.Slug, environment, name string) error {

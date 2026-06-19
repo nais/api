@@ -178,7 +178,7 @@ func (r *mutationResolver) UpdateConfig(ctx context.Context, input config.Update
 		return nil, err
 	}
 
-	c, err := config.UpdateLabels(ctx, input.TeamSlug, input.EnvironmentName, input.Name, input.Labels)
+	c, err := config.Update(ctx, input)
 	if err != nil {
 		return nil, err
 	}

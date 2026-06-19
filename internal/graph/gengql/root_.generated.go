@@ -21799,6 +21799,9 @@ input UpdateConfigInput {
 
 	"The complete set of user-defined labels to apply. Existing user-defined labels are replaced; send an empty list to remove all labels."
 	labels: [ResourceLabelInput!]!
+
+	"The complete set of config values. When set, replaces all existing data and binaryData entries; use an empty list to remove all values. When null, existing values are left unchanged. The encoding field on each value determines whether it is stored as plain-text data or binary data."
+	values: [ConfigValueInput!]
 }
 
 type UpdateConfigPayload {
