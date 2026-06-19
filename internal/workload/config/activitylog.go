@@ -36,9 +36,9 @@ func init() {
 		}
 	})
 
-	activitylog.RegisterFilter("CONFIG_CREATED", activitylog.ActivityLogEntryActionCreated, activityLogEntryResourceTypeConfig)
-	activitylog.RegisterFilter("CONFIG_UPDATED", activitylog.ActivityLogEntryActionUpdated, activityLogEntryResourceTypeConfig)
-	activitylog.RegisterFilter("CONFIG_DELETED", activitylog.ActivityLogEntryActionDeleted, activityLogEntryResourceTypeConfig)
+	activitylog.RegisterActivityType("CONFIG_CREATED", activitylog.ActivityLogEntryActionCreated, activityLogEntryResourceTypeConfig)
+	activitylog.RegisterActivityType("CONFIG_UPDATED", activitylog.ActivityLogEntryActionUpdated, activityLogEntryResourceTypeConfig)
+	activitylog.RegisterActivityType("CONFIG_DELETED", activitylog.ActivityLogEntryActionDeleted, activityLogEntryResourceTypeConfig)
 }
 
 type ConfigCreatedActivityLogEntry struct {

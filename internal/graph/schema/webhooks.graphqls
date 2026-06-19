@@ -1,0 +1,265 @@
+"""
+A webhook subscription that receives HTTP callbacks when activity log events occur.
+Webhooks can be scoped to a specific team or registered globally.
+"""
+type WebhookSubscription implements Node {
+	"Globally unique ID of the webhook subscription."
+	id: ID!
+
+	"The team this webhook is scoped to. Null for global webhooks."
+	teamSlug: Slug
+
+	"The URL that will receive webhook HTTP POST requests."
+	url: String!
+
+	"The event types this webhook is subscribed to. Use '*' to subscribe to all events."
+	eventTypes: [String!]!
+
+	"Whether the webhook is currently enabled."
+	enabled: Boolean!
+
+	"Number of consecutive delivery failures. Resets to 0 on a successful delivery."
+	consecutiveFailures: Int!
+
+	"When the webhook was automatically disabled due to repeated failures. Null if not auto-disabled."
+	disabledAt: Time
+
+	"The identity of the user who created this webhook."
+	createdBy: String!
+
+	"When the webhook was created."
+	createdAt: Time!
+
+	"When the webhook was last updated."
+	updatedAt: Time!
+
+	"The masked signing secret. Only the last 4 characters are visible."
+	maskedSecret: String!
+
+	"Recent delivery attempts for this webhook."
+	deliveries(
+		"Get the first n items in the connection."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+	): WebhookDeliveryConnection!
+}
+
+"A paginated list of webhook subscriptions."
+type WebhookSubscriptionConnection {
+	"Pagination information."
+	pageInfo: PageInfo!
+
+	"The webhook subscriptions in this page."
+	nodes: [WebhookSubscription!]!
+
+	"The webhook subscription edges in this page."
+	edges: [WebhookSubscriptionEdge!]!
+}
+
+"An edge in a webhook subscription connection."
+type WebhookSubscriptionEdge {
+	"The cursor for this edge."
+	cursor: Cursor!
+
+	"The webhook subscription at this edge."
+	node: WebhookSubscription!
+}
+
+"""
+A record of a webhook delivery attempt, including the request sent and the response received.
+"""
+type WebhookDelivery implements Node {
+	"Globally unique ID of the delivery."
+	id: ID!
+
+	"The event type that triggered this delivery."
+	eventType: String!
+
+	"The CloudEvents JSON payload that was sent."
+	requestBody: String!
+
+	"The HTTP status code returned by the webhook endpoint. Null if the request failed before receiving a response."
+	responseStatus: Int
+
+	"The response body returned by the webhook endpoint. Null if the request failed."
+	responseBody: String
+
+	"How long the delivery took in milliseconds."
+	durationMs: Int!
+
+	"Whether the delivery was successful (HTTP 2xx response)."
+	success: Boolean!
+
+	"When the delivery was attempted."
+	createdAt: Time!
+}
+
+"A paginated list of webhook deliveries."
+type WebhookDeliveryConnection {
+	"Pagination information."
+	pageInfo: PageInfo!
+
+	"The webhook deliveries in this page."
+	nodes: [WebhookDelivery!]!
+
+	"The webhook delivery edges in this page."
+	edges: [WebhookDeliveryEdge!]!
+}
+
+"An edge in a webhook delivery connection."
+type WebhookDeliveryEdge {
+	"The cursor for this edge."
+	cursor: Cursor!
+
+	"The webhook delivery at this edge."
+	node: WebhookDelivery!
+}
+
+extend type Team {
+	"Webhook subscriptions registered for this team."
+	webhooks(
+		"Get the first n items in the connection."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+	): WebhookSubscriptionConnection!
+}
+
+extend type Query {
+	"List all globally registered webhook subscriptions. Only accessible by admins."
+	globalWebhooks(
+		"Get the first n items in the connection."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+	): WebhookSubscriptionConnection!
+
+	"""
+	List all supported webhook event types with human-readable descriptions and grouping.
+	Use the 'type' field value when registering event_types on a webhook subscription.
+	"""
+	webhookEventTypes: [WebhookEventTypeInfo!]!
+}
+
+"""
+Metadata about a webhook-subscribable event type.
+"""
+type WebhookEventTypeInfo {
+	"The identifier to use in webhook subscription eventTypes (e.g. 'TEAM_MEMBER_ADDED')."
+	type: String!
+
+	"The CloudEvents 1.0 type string that will appear in delivered payloads (e.g. 'io.nais.team.member.added')."
+	cloudEventType: String!
+
+	"A human-readable description of the event (e.g. 'Team member added')."
+	description: String!
+
+	"Logical group for UI display (e.g. 'Team', 'Service Account')."
+	group: String!
+
+	"Indicates if this event type is subscribable by team-scoped webhooks."
+	teamScoped: Boolean!
+}
+
+extend type Mutation {
+	"""
+	Create a new webhook subscription.
+
+	If a team slug is provided, the webhook will only receive events for that team.
+	If no team slug is provided, the webhook is global and receives all events (admin only).
+	"""
+	createWebhook(input: CreateWebhookInput!): CreateWebhookPayload!
+
+	"""
+	Update an existing webhook subscription.
+
+	Can be used to change the URL, secret, event types, or enabled status.
+	"""
+	updateWebhook(input: UpdateWebhookInput!): UpdateWebhookPayload!
+
+	"""
+	Delete a webhook subscription.
+
+	All associated delivery records will also be deleted.
+	"""
+	deleteWebhook(input: DeleteWebhookInput!): DeleteWebhookPayload!
+}
+
+"Input for creating a new webhook subscription."
+input CreateWebhookInput {
+	"The team slug to scope this webhook to. Omit for a global webhook."
+	teamSlug: Slug
+
+	"The URL that will receive webhook HTTP POST requests."
+	url: String!
+
+	"The secret used for HMAC-SHA256 signing of webhook payloads."
+	secret: String!
+
+	"The event types to subscribe to. Use '*' to subscribe to all events."
+	eventTypes: [String!]!
+}
+
+"Payload returned after creating a webhook."
+type CreateWebhookPayload {
+	"The created webhook subscription."
+	webhook: WebhookSubscription!
+}
+
+"Input for updating an existing webhook subscription."
+input UpdateWebhookInput {
+	"The ID of the webhook subscription to update."
+	id: ID!
+
+	"The new URL for the webhook. Null to keep the current value."
+	url: String
+
+	"The new secret for signing. Null to keep the current value."
+	secret: String
+
+	"The new event types to subscribe to. Null to keep the current value."
+	eventTypes: [String!]
+
+	"Whether the webhook should be enabled. Null to keep the current value."
+	enabled: Boolean
+}
+
+"Payload returned after updating a webhook."
+type UpdateWebhookPayload {
+	"The updated webhook subscription."
+	webhook: WebhookSubscription!
+}
+
+"Input for deleting a webhook subscription."
+input DeleteWebhookInput {
+	"The ID of the webhook subscription to delete."
+	id: ID!
+}
+
+"Payload returned after deleting a webhook."
+type DeleteWebhookPayload {
+	"The ID of the deleted webhook subscription."
+	webhookID: ID!
+}

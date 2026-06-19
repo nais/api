@@ -41,8 +41,8 @@ func init() {
 		}
 	})
 
-	activitylog.RegisterFilter("KAFKA_CREDENTIALS_CREATED", activitylog.ActivityLogEntryActionCredentialsCreated, ActivityLogEntryResourceTypeKafkaTopic)
-	activitylog.RegisterFilter("KAFKA_TOPIC_UPDATED", activitylog.ActivityLogEntryActionUpdated, ActivityLogEntryResourceTypeKafkaTopic)
+	activitylog.RegisterActivityType("KAFKA_CREDENTIALS_CREATED", activitylog.ActivityLogEntryActionCredentialsCreated, ActivityLogEntryResourceTypeKafkaTopic)
+	activitylog.RegisterActivityType("KAFKA_TOPIC_UPDATED", activitylog.ActivityLogEntryActionUpdated, ActivityLogEntryResourceTypeKafkaTopic)
 }
 
 type KafkaTopicUpdatedActivityLogEntry struct {

@@ -27,8 +27,8 @@ func init() {
 		}
 	})
 
-	activitylog.RegisterFilter("REPOSITORY_ADDED", activitylog.ActivityLogEntryActionAdded, activityLogEntryResourceTypeRepository)
-	activitylog.RegisterFilter("REPOSITORY_REMOVED", activitylog.ActivityLogEntryActionRemoved, activityLogEntryResourceTypeRepository)
+	activitylog.RegisterActivityType("REPOSITORY_ADDED", activitylog.ActivityLogEntryActionAdded, activityLogEntryResourceTypeRepository)
+	activitylog.RegisterActivityType("REPOSITORY_REMOVED", activitylog.ActivityLogEntryActionRemoved, activityLogEntryResourceTypeRepository)
 }
 
 type RepositoryAddedActivityLogEntry struct {
