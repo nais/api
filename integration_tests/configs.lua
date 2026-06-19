@@ -1645,3 +1645,244 @@ Test.k8s("Validate config labels after update", function(t)
 		},
 	})
 end)
+
+Test.gql("Create config with initial values", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query [[
+		mutation {
+			createConfig(input: {
+				name: "config-with-values"
+				environmentName: "dev"
+				teamSlug: "myteam"
+				values: [
+					{ name: "key1", value: "val1" }
+					{ name: "key2", value: "val2" }
+				]
+			}) {
+				config {
+					name
+					values {
+						name
+						value
+						encoding
+					}
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			createConfig = {
+				config = {
+					name = "config-with-values",
+					values = {
+						{ name = "key1", value = "val1", encoding = "PLAIN_TEXT" },
+						{ name = "key2", value = "val2", encoding = "PLAIN_TEXT" },
+					},
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("Create config with initial binary value", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query [[
+		mutation {
+			createConfig(input: {
+				name: "config-with-binary"
+				environmentName: "dev"
+				teamSlug: "myteam"
+				values: [
+					{ name: "cert", value: "dGVzdA==", encoding: BASE64 }
+				]
+			}) {
+				config {
+					name
+					values {
+						name
+						value
+						encoding
+					}
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			createConfig = {
+				config = {
+					name = "config-with-binary",
+					values = {
+						{ name = "cert", value = "dGVzdA==", encoding = "BASE64" },
+					},
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("Update config - replace all values", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query [[
+		mutation {
+			updateConfig(input: {
+				name: "config-with-values"
+				environmentName: "dev"
+				teamSlug: "myteam"
+				values: [
+					{ name: "new-key", value: "new-val" }
+				]
+			}) {
+				config {
+					name
+					values {
+						name
+						value
+						encoding
+					}
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			updateConfig = {
+				config = {
+					name = "config-with-values",
+					values = {
+						{ name = "new-key", value = "new-val", encoding = "PLAIN_TEXT" },
+					},
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("Update config - null values leaves existing values unchanged", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	-- Update only labels, values should remain unchanged
+	t.query [[
+		mutation {
+			updateConfig(input: {
+				name: "config-with-values"
+				environmentName: "dev"
+				teamSlug: "myteam"
+				labels: [
+					{ key: "some-label", value: "some-value" }
+				]
+			}) {
+				config {
+					name
+					values {
+						name
+						value
+						encoding
+					}
+					labels {
+						key
+						value
+					}
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			updateConfig = {
+				config = {
+					name = "config-with-values",
+					values = {
+						{ name = "new-key", value = "new-val", encoding = "PLAIN_TEXT" },
+					},
+					labels = {
+						{ key = "some-label", value = "some-value" },
+					},
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("Update config - empty values list removes all values", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query [[
+		mutation {
+			updateConfig(input: {
+				name: "config-with-values"
+				environmentName: "dev"
+				teamSlug: "myteam"
+				values: []
+			}) {
+				config {
+					name
+					values {
+						name
+						value
+					}
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			updateConfig = {
+				config = {
+					name = "config-with-values",
+					values = {},
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("Update config - mixed plain text and base64 values", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query [[
+		mutation {
+			updateConfig(input: {
+				name: "config-with-values"
+				environmentName: "dev"
+				teamSlug: "myteam"
+				values: [
+					{ name: "plain", value: "hello" }
+					{ name: "binary", value: "d29ybGQ=", encoding: BASE64 }
+				]
+			}) {
+				config {
+					name
+					values {
+						name
+						value
+						encoding
+					}
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			updateConfig = {
+				config = {
+					name = "config-with-values",
+					values = {
+						{ name = "binary", value = "d29ybGQ=", encoding = "BASE64" },
+						{ name = "plain", value = "hello", encoding = "PLAIN_TEXT" },
+					},
+				},
+			},
+		},
+	}
+end)

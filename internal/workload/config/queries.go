@@ -123,6 +123,13 @@ func Create(ctx context.Context, input CreateConfigInput) (*Config, error) {
 		return nil, fmt.Errorf("invalid name %q: %s", input.Name, strings.Join(nameErrs, ", "))
 	}
 
+	// Validate labels
+	if input.Labels != nil {
+		if err := model.ValidateUserLabels(input.Labels); err != nil {
+			return nil, err
+		}
+	}
+
 	// Validate values
 	if input.Values != nil {
 		for _, v := range input.Values {
@@ -170,6 +177,12 @@ func Create(ctx context.Context, input CreateConfigInput) (*Config, error) {
 	}
 
 	kubernetes.SetManagedByConsoleLabel(cm)
+
+	// Apply user-defined labels
+	if input.Labels != nil {
+		mergedLabels := model.MergeUserLabels(cm.GetLabels(), input.Labels)
+		cm.SetLabels(mergedLabels)
+	}
 
 	u, err := runtime.DefaultUnstructuredConverter.ToUnstructured(cm)
 	if err != nil {
@@ -620,13 +633,22 @@ func Update(ctx context.Context, input UpdateConfigInput) (*Config, error) {
 			}
 		}
 
-		patch = append(patch,
-			map[string]any{"op": "replace", "path": "/data", "value": newData},
-			map[string]any{"op": "replace", "path": "/binaryData", "value": newBinaryData},
-		)
-		updatedFields = append(updatedFields, &ConfigUpdatedActivityLogEntryDataUpdatedField{
-			Field: "values",
-		})
+		existingData, _, _ := unstructured.NestedStringMap(obj.Object, "data")
+		existingBinaryData, _, _ := unstructured.NestedStringMap(obj.Object, "binaryData")
+
+		dataChanged := !stringMapEqualAny(existingData, newData)
+		binaryDataChanged := !stringMapEqualAny(existingBinaryData, newBinaryData)
+
+		if dataChanged || binaryDataChanged {
+			// Use "add" instead of "replace" because /data and /binaryData may not exist on the ConfigMap
+			patch = append(patch,
+				map[string]any{"op": "add", "path": "/data", "value": newData},
+				map[string]any{"op": "add", "path": "/binaryData", "value": newBinaryData},
+			)
+			updatedFields = append(updatedFields, &ConfigUpdatedActivityLogEntryDataUpdatedField{
+				Field: "values",
+			})
+		}
 	}
 
 	// Nothing changed — return the current state without writing.
@@ -799,4 +821,22 @@ func mergeAnnotations(existingAnnotations map[string]string, user string, extraA
 		}
 	}
 	return merged
+}
+
+// stringMapEqualAny compares a map[string]string (from Kubernetes) with a map[string]any
+// (built for a JSON Patch). Returns true if they have the same keys and values.
+func stringMapEqualAny(existing map[string]string, new map[string]any) bool {
+	if len(existing) != len(new) {
+		return false
+	}
+	for k, v := range new {
+		ev, ok := existing[k]
+		if !ok {
+			return false
+		}
+		if s, ok := v.(string); !ok || s != ev {
+			return false
+		}
+	}
+	return true
 }

@@ -250,6 +250,9 @@ input CreateConfigInput {
 	"The team that owns the config."
 	teamSlug: Slug!
 
+	"Initial user-defined labels to apply."
+	labels: [ResourceLabelInput!]
+
 	"Initial config values. The encoding field on each value determines whether it is stored as plain-text data or binary data."
 	values: [ConfigValueInput!]
 }
@@ -325,7 +328,7 @@ input UpdateConfigInput {
 	"The complete set of user-defined labels to apply. When set, existing user-defined labels are replaced; use an empty list to remove all labels. When null, existing labels are left unchanged."
 	labels: [ResourceLabelInput!]
 
-	"The complete set of config values. When set, replaces all existing data and binaryData entries; use an empty list to remove all values. When null, existing values are left unchanged. The encoding field on each value determines whether it is stored as plain-text data or binary data."
+	"The complete set of config values. When set, replaces all existing values; use an empty list to remove all values. When null, existing values are left unchanged. The encoding field on each value determines whether it is stored as plain text or binary (base64-encoded)."
 	values: [ConfigValueInput!]
 }
 

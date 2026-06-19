@@ -35,10 +35,11 @@ type Config struct {
 }
 
 type CreateConfigInput struct {
-	Name            string              `json:"name"`
-	EnvironmentName string              `json:"environmentName"`
-	TeamSlug        slug.Slug           `json:"teamSlug"`
-	Values          []*ConfigValueInput `json:"values"`
+	Name            string                 `json:"name"`
+	EnvironmentName string                 `json:"environmentName"`
+	TeamSlug        slug.Slug              `json:"teamSlug"`
+	Labels          []*model.ResourceLabel `json:"labels"`
+	Values          []*ConfigValueInput    `json:"values"`
 }
 
 type CreateConfigPayload struct {
