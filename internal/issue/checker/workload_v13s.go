@@ -153,7 +153,7 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 				Env:          environmentmapper.EnvironmentName(node.Workload.GetCluster()),
 				Severity:     issue.SeverityCritical,
 				Message: fmt.Sprintf(
-					"Image '%s' has %d immediate vulnerabilities",
+					"Image '%s' has %d ACT_NOW vulnerabilities",
 					node.Workload.ImageName,
 					summary.ActNow,
 				),
@@ -217,7 +217,7 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 			Env:          env,
 			Severity:     issue.SeverityCritical,
 			Message: fmt.Sprintf(
-				"Workload with external ingresses %s has %d immediate vulnerabilities",
+				"Workload with external ingresses %s has %d ACT_NOW vulnerabilities",
 				strings.Join(externalIngresses, ", "),
 				node.VulnerabilitySummary.ActNow,
 			),
