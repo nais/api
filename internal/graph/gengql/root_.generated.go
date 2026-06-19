@@ -1070,7 +1070,6 @@ type ComplexityRoot struct {
 	ImageVulnerabilitySummary struct {
 		Critical                 func(childComplexity int) int
 		High                     func(childComplexity int) int
-		HighEpssCount            func(childComplexity int) int
 		LastUpdated              func(childComplexity int) int
 		Low                      func(childComplexity int) int
 		Medium                   func(childComplexity int) int
@@ -7343,13 +7342,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ImageVulnerabilitySummary.High(childComplexity), true
-
-	case "ImageVulnerabilitySummary.highEpssCount":
-		if e.ComplexityRoot.ImageVulnerabilitySummary.HighEpssCount == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ImageVulnerabilitySummary.HighEpssCount(childComplexity), true
 
 	case "ImageVulnerabilitySummary.lastUpdated":
 		if e.ComplexityRoot.ImageVulnerabilitySummary.LastUpdated == nil {
@@ -32120,7 +32112,7 @@ input TeamVulnerabilitySummaryFilter {
 	"""
 	Only return vulnerability summaries at or above the given vulnerability priority.
 	"""
-	riskTier: CVEPriority
+	priority: CVEPriority
 }
 
 """
@@ -32167,9 +32159,6 @@ type ImageVulnerabilitySummary {
 
 	"Number of vulnerabilities with vulnerability priority MONITOR."
 	priorityMonitor: Int!
-
-	"Number of vulnerabilities with a high EPSS percentile (≥ 0.90)."
-	highEpssCount: Int!
 
 	"The highest priority among vulnerabilities in this summary."
 	topVulnerabilityPriority: CVEPriority
@@ -34662,8 +34651,6 @@ func (ec *executionContext) childFields_ImageVulnerabilitySummary(ctx context.Co
 		return ec.fieldContext_ImageVulnerabilitySummary_priorityElevated(ctx, field)
 	case "priorityMonitor":
 		return ec.fieldContext_ImageVulnerabilitySummary_priorityMonitor(ctx, field)
-	case "highEpssCount":
-		return ec.fieldContext_ImageVulnerabilitySummary_highEpssCount(ctx, field)
 	case "topVulnerabilityPriority":
 		return ec.fieldContext_ImageVulnerabilitySummary_topVulnerabilityPriority(ctx, field)
 	case "lastUpdated":
