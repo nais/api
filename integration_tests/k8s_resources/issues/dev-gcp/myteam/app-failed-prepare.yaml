@@ -1,0 +1,23 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: app-failed-prepare
+  namespace: myteam
+spec:
+  # Intentionally no image: the workload failed to prepare because the image
+  # could not be resolved, so neither spec.image nor status.effectiveImage is set.
+  replicas:
+    min: 0
+    max: 0
+  env:
+    - name: SOME_ENV
+      value: some-value
+status:
+  conditions:
+    - type: "SynchronizationState"
+      reason: "FailedPrepare"
+      message: "get wanted image: myteam/app-failed-prepare: external image resource not found"
+  problems:
+    - type: Error
+      message: "get wanted image: myteam/app-failed-prepare: external image resource not found"
+  synchronizationState: FailedPrepare

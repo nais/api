@@ -266,6 +266,16 @@ Test.gql("WorkloadProblemIssue", function(t)
 						},
 						{
 							__typename = "WorkloadProblemIssue",
+							message = "get wanted image: myteam/app-failed-prepare: external image resource not found",
+							problemType = "ERROR",
+							severity = "CRITICAL",
+							workload = {
+								__typename = "Application",
+								name = "app-failed-prepare",
+							},
+						},
+						{
+							__typename = "WorkloadProblemIssue",
 							message = "Human text from the operator, received from yaml",
 							problemType = "ERROR",
 							severity = "CRITICAL",

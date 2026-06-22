@@ -37,32 +37,29 @@ type Workload struct {
 
 func (w Workload) Run(ctx context.Context) ([]Issue, error) {
 	var ret []Issue
-	w.AppWatcher.All()
 	for _, app := range w.AppWatcher.All() {
-		image, ok := image(app.Obj)
-		if !ok {
-			w.log.WithField("application", app.Obj.GetName()).WithField("namespace", app.Obj.GetNamespace()).Warn("application has no image")
-			continue
-		}
 		env := environmentmapper.EnvironmentName(app.Cluster)
 
 		pods := w.appPods(app.Obj, app.Obj.GetNamespace(), env)
 
 		ret = appendIssues(ret, deprecatedIngress(app.Obj, env))
-		ret = appendIssues(ret, deprecatedRegistry(image, app.Obj.GetName(), app.Obj.GetNamespace(), env, issue.ResourceTypeApplication))
+		// The image may be absent (e.g. when the workload failed to prepare and
+		// the image could not be resolved), so the registry check is best-effort.
+		if image, ok := image(app.Obj); ok {
+			ret = appendIssues(ret, deprecatedRegistry(image, app.Obj.GetName(), app.Obj.GetNamespace(), env, issue.ResourceTypeApplication))
+		}
 		ret = appendIssues(ret, w.noRunningInstances(app.Obj, watcher.Objects(pods), app.Obj.GetNamespace(), env))
 		ret = appendIssues(ret, w.restartLoop(app.Obj, watcher.Objects(pods), app.Obj.GetNamespace(), env))
 		ret = appendIssues(ret, w.workloadProblems(app.Obj, env, issue.ResourceTypeApplication)...)
 	}
 
 	for _, job := range w.JobWatcher.All() {
-		image, ok := image(job.Obj)
-		if !ok {
-			w.log.WithField("job", job.Obj.GetName()).WithField("namespace", job.Obj.GetNamespace()).Warn("job has no image")
-			continue
-		}
 		env := environmentmapper.EnvironmentName(job.Cluster)
-		ret = appendIssues(ret, deprecatedRegistry(image, job.Obj.Name, job.Obj.Namespace, env, issue.ResourceTypeJob))
+		// The image may be absent (e.g. when the workload failed to prepare and
+		// the image could not be resolved), so the registry check is best-effort.
+		if image, ok := image(job.Obj); ok {
+			ret = appendIssues(ret, deprecatedRegistry(image, job.Obj.Name, job.Obj.Namespace, env, issue.ResourceTypeJob))
+		}
 		ret = appendIssues(ret, w.lastRunFailed(job.GetName(), job.GetNamespace(), env))
 		ret = appendIssues(ret, w.workloadProblems(job.Obj, env, issue.ResourceTypeJob)...)
 	}
