@@ -23196,7 +23196,7 @@ enum IssueType {
 	DEPRECATED_REGISTRY
 	NO_RUNNING_INSTANCES
 	LAST_RUN_FAILED
-	"Raised when the platform reports a problem in a workload's status, such as an invalid spec, a failed synchronization or a deprecation."
+	"Raised when the platform reports a problem in a workload, such as an invalid spec, a failed synchronization or a deprecation."
 	WORKLOAD_PROBLEM
 	FAILED_SYNCHRONIZATION @deprecated(reason: "Use WORKLOAD_PROBLEM instead.")
 	INVALID_SPEC @deprecated(reason: "Use WORKLOAD_PROBLEM instead.")
@@ -23249,7 +23249,7 @@ type WorkloadProblemIssue implements Issue & Node {
 	workload: Workload!
 	"The kind of problem as reported by the platform."
 	problemType: WorkloadProblemType!
-	"The spec field that triggered the problem, e.g. ` + "`" + `.spec.image` + "`" + `, if known."
+	"The workload manifest field path that triggered the problem (for example ` + "`" + `image` + "`" + `), if known."
 	source: String
 	"For deprecations, the end-of-life date, if known."
 	endOfLife: Date

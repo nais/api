@@ -404,20 +404,12 @@ func (e WorkloadProblemType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
-// WorkloadProblemIssueDetails holds details about a problem reported by the
-// platform for a workload.
 type WorkloadProblemIssueDetails struct {
-	// ProblemType is the severity/kind of the problem as reported by the platform.
 	ProblemType WorkloadProblemType `json:"problemType"`
-	// Source is the spec field that triggered the problem, e.g. `.spec.image`, if known.
-	Source *string `json:"source,omitempty"`
-	// EndOfLife is the end-of-life date for a deprecation, if known.
-	EndOfLife *scalar.Date `json:"endOfLife,omitempty"`
+	Source      *string             `json:"source,omitempty"`
+	EndOfLife   *scalar.Date        `json:"endOfLife,omitempty"`
 }
 
-// WorkloadProblemIssue surfaces a problem reported by the platform (naiserator)
-// in a workload's `.status.problems[]`, such as an invalid spec, a failed
-// synchronization or a deprecation.
 type WorkloadProblemIssue struct {
 	Base
 	WorkloadProblemIssueDetails
