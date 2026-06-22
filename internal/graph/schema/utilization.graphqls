@@ -97,9 +97,6 @@ type TeamUtilizationData {
 	used: Float!
 
 	"The environment for the utilization data."
-	environment: TeamEnvironment! @deprecated(reason: "Use the `teamEnvironment` field instead.")
-
-	"The environment for the utilization data."
 	teamEnvironment: TeamEnvironment!
 }
 

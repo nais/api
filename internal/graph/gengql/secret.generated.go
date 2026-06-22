@@ -28,7 +28,6 @@ import (
 // region    ************************** generated!.gotpl **************************
 
 type SecretResolver interface {
-	Environment(ctx context.Context, obj *secret.Secret) (*team.TeamEnvironment, error)
 	TeamEnvironment(ctx context.Context, obj *secret.Secret) (*team.TeamEnvironment, error)
 	Team(ctx context.Context, obj *secret.Secret) (*team.Team, error)
 
@@ -378,38 +377,6 @@ func (ec *executionContext) _Secret_name(ctx context.Context, field graphql.Coll
 }
 func (ec *executionContext) fieldContext_Secret_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("Secret", field, false, false, errors.New("field of type String does not have child fields"))
-}
-
-func (ec *executionContext) _Secret_environment(ctx context.Context, field graphql.CollectedField, obj *secret.Secret) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Secret_environment(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return ec.Resolvers.Secret().Environment(ctx, obj)
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *team.TeamEnvironment) graphql.Marshaler {
-			return ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_Secret_environment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Secret",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamEnvironment(ctx, field)
-		},
-	}
-	return fc, nil
 }
 
 func (ec *executionContext) _Secret_teamEnvironment(ctx context.Context, field graphql.CollectedField, obj *secret.Secret) (ret graphql.Marshaler) {
@@ -3526,42 +3493,6 @@ func (ec *executionContext) _Secret(ctx context.Context, sel ast.SelectionSet, o
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "environment":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Secret_environment(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "teamEnvironment":
 			field := field
 

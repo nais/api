@@ -64,7 +64,6 @@ type Valkey implements Persistence & Node {
 	name: String!
 	terminationProtection: Boolean!
 	team: Team!
-	environment: TeamEnvironment! @deprecated(reason: "Use the `teamEnvironment` field instead.")
 	teamEnvironment: TeamEnvironment!
 	"User-defined labels attached to the instance."
 	labels: [ResourceLabel!]!

@@ -25,10 +25,6 @@ func (r *applicationResolver) Team(ctx context.Context, obj *application.Applica
 	return team, err
 }
 
-func (r *applicationResolver) Environment(ctx context.Context, obj *application.Application) (*team.TeamEnvironment, error) {
-	return r.TeamEnvironment(ctx, obj)
-}
-
 func (r *applicationResolver) TeamEnvironment(ctx context.Context, obj *application.Application) (*team.TeamEnvironment, error) {
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }

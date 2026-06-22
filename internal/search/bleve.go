@@ -186,10 +186,6 @@ func (b *bleveSearcher) Search(ctx context.Context, page *pagination.Pagination,
 		))
 	}
 
-	if filter.Type != nil {
-		filter.Types = append(filter.Types, *filter.Type)
-	}
-
 	if len(filter.Types) > 0 {
 		typesQuery := bleve.NewDisjunctionQuery()
 		for _, t := range filter.Types {
@@ -212,7 +208,8 @@ func (b *bleveSearcher) Search(ctx context.Context, page *pagination.Pagination,
 
 	var q query.Query = bleve.NewConjunctionQuery(queries...)
 
-	if len(slugs) > 0 && (filter.Type == nil || (filter.Type != nil && *filter.Type != "TEAM")) {
+	filteredByTeamOnly := len(filter.Types) == 1 && slices.Contains(filter.Types, "TEAM")
+	if len(slugs) > 0 && !filteredByTeamOnly {
 		teamSlugs := make([]string, 0, len(slugs))
 		for _, slug := range slugs {
 			teamSlugs = append(teamSlugs, slug.String())

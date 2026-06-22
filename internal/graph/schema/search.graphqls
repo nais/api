@@ -45,11 +45,6 @@ input SearchFilter {
 	query: String!
 
 	"""
-	The type of entities to search for. If not specified, all types will be searched.
-	"""
-	type: SearchType @deprecated(reason: "Use the 'types' field instead.")
-
-	"""
 	The types of entities to search for. If not specified, all types will be searched.
 	"""
 	types: [SearchType!]

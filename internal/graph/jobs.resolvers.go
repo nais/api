@@ -30,10 +30,6 @@ func (r *jobResolver) Team(ctx context.Context, obj *job.Job) (*team.Team, error
 	return team.Get(ctx, obj.TeamSlug)
 }
 
-func (r *jobResolver) Environment(ctx context.Context, obj *job.Job) (*team.TeamEnvironment, error) {
-	return r.TeamEnvironment(ctx, obj)
-}
-
 func (r *jobResolver) TeamEnvironment(ctx context.Context, obj *job.Job) (*team.TeamEnvironment, error) {
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }

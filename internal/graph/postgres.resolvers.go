@@ -74,10 +74,6 @@ func (r *postgresInstanceResolver) Team(ctx context.Context, obj *postgres.Postg
 	return team.Get(ctx, obj.TeamSlug)
 }
 
-func (r *postgresInstanceResolver) Environment(ctx context.Context, obj *postgres.PostgresInstance) (*team.TeamEnvironment, error) {
-	return r.TeamEnvironment(ctx, obj)
-}
-
 func (r *postgresInstanceResolver) TeamEnvironment(ctx context.Context, obj *postgres.PostgresInstance) (*team.TeamEnvironment, error) {
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }

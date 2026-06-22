@@ -88,9 +88,6 @@ type Job implements Node & Workload & ActivityLogger {
 	"The team that owns the job."
 	team: Team!
 
-	"The environment the job is deployed in."
-	environment: TeamEnvironment! @deprecated(reason: "Use the `teamEnvironment` field instead.")
-
 	"The team environment for the job."
 	teamEnvironment: TeamEnvironment!
 
