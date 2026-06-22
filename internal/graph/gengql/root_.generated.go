@@ -150,6 +150,7 @@ type ResolverRoot interface {
 	VulnerableImageIssue() VulnerableImageIssueResolver
 	WorkloadCost() WorkloadCostResolver
 	WorkloadCostSample() WorkloadCostSampleResolver
+	WorkloadProblemIssue() WorkloadProblemIssueResolver
 	WorkloadUtilization() WorkloadUtilizationResolver
 	WorkloadUtilizationData() WorkloadUtilizationDataResolver
 	WorkloadVulnerabilitySummary() WorkloadVulnerabilitySummaryResolver
@@ -3598,6 +3599,17 @@ type ComplexityRoot struct {
 		Instance func(childComplexity int) int
 		Message  func(childComplexity int) int
 		Time     func(childComplexity int) int
+	}
+
+	WorkloadProblemIssue struct {
+		EndOfLife       func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Message         func(childComplexity int) int
+		ProblemType     func(childComplexity int) int
+		Severity        func(childComplexity int) int
+		Source          func(childComplexity int) int
+		TeamEnvironment func(childComplexity int) int
+		Workload        func(childComplexity int) int
 	}
 
 	WorkloadResourceQuantity struct {
@@ -18721,6 +18733,62 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.WorkloadLogLine.Time(childComplexity), true
 
+	case "WorkloadProblemIssue.endOfLife":
+		if e.ComplexityRoot.WorkloadProblemIssue.EndOfLife == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadProblemIssue.EndOfLife(childComplexity), true
+
+	case "WorkloadProblemIssue.id":
+		if e.ComplexityRoot.WorkloadProblemIssue.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadProblemIssue.ID(childComplexity), true
+
+	case "WorkloadProblemIssue.message":
+		if e.ComplexityRoot.WorkloadProblemIssue.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadProblemIssue.Message(childComplexity), true
+
+	case "WorkloadProblemIssue.problemType":
+		if e.ComplexityRoot.WorkloadProblemIssue.ProblemType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadProblemIssue.ProblemType(childComplexity), true
+
+	case "WorkloadProblemIssue.severity":
+		if e.ComplexityRoot.WorkloadProblemIssue.Severity == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadProblemIssue.Severity(childComplexity), true
+
+	case "WorkloadProblemIssue.source":
+		if e.ComplexityRoot.WorkloadProblemIssue.Source == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadProblemIssue.Source(childComplexity), true
+
+	case "WorkloadProblemIssue.teamEnvironment":
+		if e.ComplexityRoot.WorkloadProblemIssue.TeamEnvironment == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadProblemIssue.TeamEnvironment(childComplexity), true
+
+	case "WorkloadProblemIssue.workload":
+		if e.ComplexityRoot.WorkloadProblemIssue.Workload == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadProblemIssue.Workload(childComplexity), true
+
 	case "WorkloadResourceQuantity.cpu":
 		if e.ComplexityRoot.WorkloadResourceQuantity.CPU == nil {
 			break
@@ -23128,8 +23196,10 @@ enum IssueType {
 	DEPRECATED_REGISTRY
 	NO_RUNNING_INSTANCES
 	LAST_RUN_FAILED
-	FAILED_SYNCHRONIZATION
-	INVALID_SPEC
+	"Raised when the platform reports a problem in a workload's status, such as an invalid spec, a failed synchronization or a deprecation."
+	WORKLOAD_PROBLEM
+	FAILED_SYNCHRONIZATION @deprecated(reason: "Use WORKLOAD_PROBLEM instead.")
+	INVALID_SPEC @deprecated(reason: "Use WORKLOAD_PROBLEM instead.")
 	MISSING_SBOM
 	VULNERABLE_IMAGE
 	EXTERNAL_INGRESS_CRITICAL_VULNERABILITY
@@ -23169,22 +23239,54 @@ type MissingSbomIssue implements Issue & Node {
 	workload: Workload!
 }
 
-type InvalidSpecIssue implements Issue & Node {
+"An issue surfacing a problem reported by the platform in a workload's status."
+type WorkloadProblemIssue implements Issue & Node {
 	id: ID!
 	teamEnvironment: TeamEnvironment!
 	severity: Severity!
 	message: String!
 
 	workload: Workload!
+	"The kind of problem as reported by the platform."
+	problemType: WorkloadProblemType!
+	"The spec field that triggered the problem, e.g. ` + "`" + `.spec.image` + "`" + `, if known."
+	source: String
+	"For deprecations, the end-of-life date, if known."
+	endOfLife: Date
 }
 
-type FailedSynchronizationIssue implements Issue & Node {
-	id: ID!
-	teamEnvironment: TeamEnvironment!
-	severity: Severity!
-	message: String!
+"The kind of a problem reported by the platform for a workload."
+enum WorkloadProblemType {
+	"A permanent error that prevents the workload from being deployed, e.g. an invalid spec or a failed synchronization."
+	ERROR
+	"A warning about something that might be wrongly configured."
+	WARNING
+	"A feature in use that will be changed or removed in the future."
+	DEPRECATION
+}
 
-	workload: Workload!
+"""
+Deprecated: superseded by WorkloadProblemIssue. No longer produced; retained for backwards compatibility.
+"""
+type InvalidSpecIssue implements Issue & Node {
+	id: ID! @deprecated(reason: "Use WorkloadProblemIssue instead.")
+	teamEnvironment: TeamEnvironment! @deprecated(reason: "Use WorkloadProblemIssue instead.")
+	severity: Severity! @deprecated(reason: "Use WorkloadProblemIssue instead.")
+	message: String! @deprecated(reason: "Use WorkloadProblemIssue instead.")
+
+	workload: Workload! @deprecated(reason: "Use WorkloadProblemIssue instead.")
+}
+
+"""
+Deprecated: superseded by WorkloadProblemIssue. No longer produced; retained for backwards compatibility.
+"""
+type FailedSynchronizationIssue implements Issue & Node {
+	id: ID! @deprecated(reason: "Use WorkloadProblemIssue instead.")
+	teamEnvironment: TeamEnvironment! @deprecated(reason: "Use WorkloadProblemIssue instead.")
+	severity: Severity! @deprecated(reason: "Use WorkloadProblemIssue instead.")
+	message: String! @deprecated(reason: "Use WorkloadProblemIssue instead.")
+
+	workload: Workload! @deprecated(reason: "Use WorkloadProblemIssue instead.")
 }
 
 type OpenSearchIssue implements Issue & Node {

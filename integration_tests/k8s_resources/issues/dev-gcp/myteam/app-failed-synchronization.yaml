@@ -12,6 +12,9 @@ status:
     - type: "SynchronizationState"
       reason: "FailedSynchronization"
       message: "Human text from the operator, received from yaml"
+  problems:
+    - type: Error
+      message: "Human text from the operator, received from yaml"
 
 ---
 apiVersion: v1

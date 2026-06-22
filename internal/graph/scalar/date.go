@@ -39,6 +39,33 @@ func (d *Date) UnmarshalGQLContext(_ context.Context, v any) error {
 	return nil
 }
 
+// MarshalJSON encodes the Date as a quoted YYYY-MM-DD string, matching its
+// GraphQL representation. This is needed because `type Date time.Time` does not
+// inherit time.Time's JSON methods.
+func (d Date) MarshalJSON() ([]byte, error) {
+	return []byte(strconv.Quote(d.String())), nil
+}
+
+// UnmarshalJSON decodes a quoted YYYY-MM-DD string into a Date.
+func (d *Date) UnmarshalJSON(data []byte) error {
+	s, err := strconv.Unquote(string(data))
+	if err != nil {
+		return fmt.Errorf("date must be a quoted string: %w", err)
+	}
+
+	if s == "" {
+		return nil
+	}
+
+	t, err := time.Parse(time.DateOnly, s)
+	if err != nil {
+		return fmt.Errorf("invalid date format: %q", s)
+	}
+
+	*d = Date(t)
+	return nil
+}
+
 // NewDate returns a Date from a time.Time
 func NewDate(t time.Time) Date {
 	return Date(t.UTC())

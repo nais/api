@@ -48,18 +48,22 @@ func (r *externalIngressCriticalVulnerabilityIssueResolver) Workload(ctx context
 	return getWorkloadByResourceType(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ResourceName, obj.ResourceType)
 }
 
+// Deprecated: superseded by WorkloadProblemIssue. Kept for GraphQL backwards compatibility.
 func (r *failedSynchronizationIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.FailedSynchronizationIssue) (*team.TeamEnvironment, error) {
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
 
+// Deprecated: superseded by WorkloadProblemIssue. Kept for GraphQL backwards compatibility.
 func (r *failedSynchronizationIssueResolver) Workload(ctx context.Context, obj *issue.FailedSynchronizationIssue) (workload.Workload, error) {
 	return getWorkloadByResourceType(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ResourceName, obj.ResourceType)
 }
 
+// Deprecated: superseded by WorkloadProblemIssue. Kept for GraphQL backwards compatibility.
 func (r *invalidSpecIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.InvalidSpecIssue) (*team.TeamEnvironment, error) {
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
 
+// Deprecated: superseded by WorkloadProblemIssue. Kept for GraphQL backwards compatibility.
 func (r *invalidSpecIssueResolver) Workload(ctx context.Context, obj *issue.InvalidSpecIssue) (workload.Workload, error) {
 	return getWorkloadByResourceType(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ResourceName, obj.ResourceType)
 }
@@ -145,6 +149,14 @@ func (r *vulnerableImageIssueResolver) Workload(ctx context.Context, obj *issue.
 	return getWorkloadByResourceType(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ResourceName, obj.ResourceType)
 }
 
+func (r *workloadProblemIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.WorkloadProblemIssue) (*team.TeamEnvironment, error) {
+	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
+}
+
+func (r *workloadProblemIssueResolver) Workload(ctx context.Context, obj *issue.WorkloadProblemIssue) (workload.Workload, error) {
+	return getWorkloadByResourceType(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ResourceName, obj.ResourceType)
+}
+
 func (r *Resolver) ApplicationRestartLoopIssue() gengql.ApplicationRestartLoopIssueResolver {
 	return &applicationRestartLoopIssueResolver{r}
 }
@@ -203,6 +215,10 @@ func (r *Resolver) VulnerableImageIssue() gengql.VulnerableImageIssueResolver {
 	return &vulnerableImageIssueResolver{r}
 }
 
+func (r *Resolver) WorkloadProblemIssue() gengql.WorkloadProblemIssueResolver {
+	return &workloadProblemIssueResolver{r}
+}
+
 type (
 	applicationRestartLoopIssueResolver               struct{ *Resolver }
 	deprecatedIngressIssueResolver                    struct{ *Resolver }
@@ -219,4 +235,5 @@ type (
 	unleashReleaseChannelIssueResolver                struct{ *Resolver }
 	valkeyIssueResolver                               struct{ *Resolver }
 	vulnerableImageIssueResolver                      struct{ *Resolver }
+	workloadProblemIssueResolver                      struct{ *Resolver }
 )

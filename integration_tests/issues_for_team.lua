@@ -216,7 +216,7 @@ Test.gql("LastRunFailedIssue", function(t)
 	}
 end)
 
-Test.gql("FailedSynchronizationIssue", function(t)
+Test.gql("WorkloadProblemIssue", function(t)
 	checker:runChecks()
 	t.addHeader("x-user-email", user:email())
 
@@ -225,65 +225,19 @@ Test.gql("FailedSynchronizationIssue", function(t)
 			team(slug: "myteam") {
 				issues(
 					filter: {
-						issueType: FAILED_SYNCHRONIZATION
-					},
-				) {
-					nodes {
-						__typename
-						severity
-						message
-						... on FailedSynchronizationIssue {
-							workload {
-								name
-							}
-						}
-					}
-				}
-			}
-		}
-	]]
-
-	t.check {
-		data = {
-			team = {
-				issues = {
-					nodes = {
-						{
-							__typename = "FailedSynchronizationIssue",
-							message = "Human text from the operator, received from yaml",
-							severity = "WARNING",
-							workload = {
-								name = "failed-synchronization",
-							},
-						},
-					},
-				},
-			},
-		},
-	}
-end)
-
-Test.gql("InvalidSpecIssue", function(t)
-	checker:runChecks()
-	t.addHeader("x-user-email", user:email())
-
-	t.query [[
-		query {
-			team(slug: "myteam") {
-				issues(
-					filter: {
-						issueType: INVALID_SPEC
+						issueType: WORKLOAD_PROBLEM
 					},
 					orderBy: {
 						field: RESOURCE_NAME
-						direction:ASC
+						direction: ASC
 					}
 				) {
 					nodes {
 						__typename
 						severity
 						message
-						... on InvalidSpecIssue {
+						... on WorkloadProblemIssue {
+							problemType
 							workload {
 								__typename
 								name
@@ -301,8 +255,9 @@ Test.gql("InvalidSpecIssue", function(t)
 				issues = {
 					nodes = {
 						{
-							__typename = "InvalidSpecIssue",
+							__typename = "WorkloadProblemIssue",
 							message = "Human readable text from the operator",
+							problemType = "ERROR",
 							severity = "CRITICAL",
 							workload = {
 								__typename = "Application",
@@ -310,8 +265,19 @@ Test.gql("InvalidSpecIssue", function(t)
 							},
 						},
 						{
-							__typename = "InvalidSpecIssue",
+							__typename = "WorkloadProblemIssue",
+							message = "Human text from the operator, received from yaml",
+							problemType = "ERROR",
+							severity = "CRITICAL",
+							workload = {
+								__typename = "Application",
+								name = "failed-synchronization",
+							},
+						},
+						{
+							__typename = "WorkloadProblemIssue",
 							message = "Human readable text from the operator",
+							problemType = "ERROR",
 							severity = "CRITICAL",
 							workload = {
 								__typename = "Job",

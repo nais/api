@@ -159,8 +159,10 @@ enum IssueType {
 	DEPRECATED_REGISTRY
 	NO_RUNNING_INSTANCES
 	LAST_RUN_FAILED
-	FAILED_SYNCHRONIZATION
-	INVALID_SPEC
+	"Raised when the platform reports a problem in a workload's status, such as an invalid spec, a failed synchronization or a deprecation."
+	WORKLOAD_PROBLEM
+	FAILED_SYNCHRONIZATION @deprecated(reason: "Use WORKLOAD_PROBLEM instead.")
+	INVALID_SPEC @deprecated(reason: "Use WORKLOAD_PROBLEM instead.")
 	MISSING_SBOM
 	VULNERABLE_IMAGE
 	EXTERNAL_INGRESS_CRITICAL_VULNERABILITY
@@ -200,22 +202,54 @@ type MissingSbomIssue implements Issue & Node {
 	workload: Workload!
 }
 
-type InvalidSpecIssue implements Issue & Node {
+"An issue surfacing a problem reported by the platform in a workload's status."
+type WorkloadProblemIssue implements Issue & Node {
 	id: ID!
 	teamEnvironment: TeamEnvironment!
 	severity: Severity!
 	message: String!
 
 	workload: Workload!
+	"The kind of problem as reported by the platform."
+	problemType: WorkloadProblemType!
+	"The spec field that triggered the problem, e.g. `.spec.image`, if known."
+	source: String
+	"For deprecations, the end-of-life date, if known."
+	endOfLife: Date
 }
 
-type FailedSynchronizationIssue implements Issue & Node {
-	id: ID!
-	teamEnvironment: TeamEnvironment!
-	severity: Severity!
-	message: String!
+"The kind of a problem reported by the platform for a workload."
+enum WorkloadProblemType {
+	"A permanent error that prevents the workload from being deployed, e.g. an invalid spec or a failed synchronization."
+	ERROR
+	"A warning about something that might be wrongly configured."
+	WARNING
+	"A feature in use that will be changed or removed in the future."
+	DEPRECATION
+}
 
-	workload: Workload!
+"""
+Deprecated: superseded by WorkloadProblemIssue. No longer produced; retained for backwards compatibility.
+"""
+type InvalidSpecIssue implements Issue & Node {
+	id: ID! @deprecated(reason: "Use WorkloadProblemIssue instead.")
+	teamEnvironment: TeamEnvironment! @deprecated(reason: "Use WorkloadProblemIssue instead.")
+	severity: Severity! @deprecated(reason: "Use WorkloadProblemIssue instead.")
+	message: String! @deprecated(reason: "Use WorkloadProblemIssue instead.")
+
+	workload: Workload! @deprecated(reason: "Use WorkloadProblemIssue instead.")
+}
+
+"""
+Deprecated: superseded by WorkloadProblemIssue. No longer produced; retained for backwards compatibility.
+"""
+type FailedSynchronizationIssue implements Issue & Node {
+	id: ID! @deprecated(reason: "Use WorkloadProblemIssue instead.")
+	teamEnvironment: TeamEnvironment! @deprecated(reason: "Use WorkloadProblemIssue instead.")
+	severity: Severity! @deprecated(reason: "Use WorkloadProblemIssue instead.")
+	message: String! @deprecated(reason: "Use WorkloadProblemIssue instead.")
+
+	workload: Workload! @deprecated(reason: "Use WorkloadProblemIssue instead.")
 }
 
 type OpenSearchIssue implements Issue & Node {

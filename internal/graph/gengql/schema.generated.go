@@ -5951,6 +5951,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Application(ctx, sel, obj)
+	case issue.WorkloadProblemIssue:
+		return ec._WorkloadProblemIssue(ctx, sel, &obj)
+	case *issue.WorkloadProblemIssue:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._WorkloadProblemIssue(ctx, sel, obj)
 	case workload.Workload:
 		if obj == nil {
 			return graphql.Null
