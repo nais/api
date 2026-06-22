@@ -152,10 +152,23 @@ func convert(issue *issuesql.Issue) (Issue, error) {
 		return &LastRunFailedIssue{
 			Base: base,
 		}, nil
+	case IssueTypeWorkloadProblem:
+		d, err := unmarshal[WorkloadProblemIssueDetails](issue.IssueDetails)
+		if err != nil {
+			return nil, err
+		}
+		return &WorkloadProblemIssue{
+			Base:                        base,
+			WorkloadProblemIssueDetails: *d,
+		}, nil
+	// Deprecated: superseded by IssueTypeWorkloadProblem. Kept for backwards
+	// compatibility; no longer produced by the issue checker.
 	case IssueTypeInvalidSpec:
 		return &InvalidSpecIssue{
 			Base: base,
 		}, nil
+	// Deprecated: superseded by IssueTypeWorkloadProblem. Kept for backwards
+	// compatibility; no longer produced by the issue checker.
 	case IssueTypeFailedSynchronization:
 		return &FailedSynchronizationIssue{
 			Base: base,

@@ -52,7 +52,7 @@ func (w Workload) Run(ctx context.Context) ([]Issue, error) {
 		ret = appendIssues(ret, deprecatedRegistry(image, app.Obj.GetName(), app.Obj.GetNamespace(), env, issue.ResourceTypeApplication))
 		ret = appendIssues(ret, w.noRunningInstances(app.Obj, watcher.Objects(pods), app.Obj.GetNamespace(), env))
 		ret = appendIssues(ret, w.restartLoop(app.Obj, watcher.Objects(pods), app.Obj.GetNamespace(), env))
-		ret = appendIssues(ret, w.specErrors(app.Obj, env, issue.ResourceTypeApplication))
+		ret = appendIssues(ret, w.workloadProblems(app.Obj, env, issue.ResourceTypeApplication)...)
 	}
 
 	for _, job := range w.JobWatcher.All() {
@@ -64,7 +64,7 @@ func (w Workload) Run(ctx context.Context) ([]Issue, error) {
 		env := environmentmapper.EnvironmentName(job.Cluster)
 		ret = appendIssues(ret, deprecatedRegistry(image, job.Obj.Name, job.Obj.Namespace, env, issue.ResourceTypeJob))
 		ret = appendIssues(ret, w.lastRunFailed(job.GetName(), job.GetNamespace(), env))
-		ret = appendIssues(ret, w.specErrors(job.Obj, env, issue.ResourceTypeJob))
+		ret = appendIssues(ret, w.workloadProblems(job.Obj, env, issue.ResourceTypeJob)...)
 	}
 
 	ret = appendIssues(ret, w.vulnerabilities(ctx)...)

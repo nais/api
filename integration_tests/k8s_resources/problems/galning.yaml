@@ -1,0 +1,70 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  creationTimestamp: "2026-06-22T08:54:15Z"
+  finalizers:
+    - naiserator.nais.io/finalizer
+  generation: 1
+  labels:
+    team: the-g-team
+  name: galning
+  namespace: the-g-team
+  resourceVersion: "1782118457615535017"
+  uid: 85aaa13b-c293-493c-a92e-e5fa47019781
+spec:
+  env:
+    - name: BIGQUERY_PROJECT
+      value: the-g-team-prod-9be4
+    - name: BIGQUERY_DATASET
+      value: galning
+    - name: BIGQUERY_TABLE
+      value: audit_events
+    - name: GITHUB_ORG
+      value: navikt
+    - name: GITHUB_CALLBACK_URL
+      value: https://galning.nav.no/api/callback
+    - name: GITHUB_TOKEN_SECRET
+      value: projects/the-g-team-prod-9be4/secrets/galning-oauth-tokens
+  envFrom:
+    - secret: galning-ingest
+  gcp:
+    bigQueryDatasets:
+      - name: galning
+        permission: READWRITE
+    permissions:
+      - resource:
+          apiVersion: secretmanager.cnrm.cloud.google.com/v1beta1
+          kind: SecretManagerSecret
+          name: galning-oauth-tokens
+        role: roles/secretmanager.secretAccessor
+      - resource:
+          apiVersion: secretmanager.cnrm.cloud.google.com/v1beta1
+          kind: SecretManagerSecret
+          name: galning-oauth-tokens
+        role: roles/secretmanager.secretVersionAdder
+  ingresses:
+    - https://galning.nav.no/api/callback
+    - https://galning.intern.nav.no/internal/api/authorize
+  liveness:
+    initialDelay: 5
+    path: /healthz
+  readiness:
+    initialDelay: 5
+    path: /healthz
+  resources:
+    limits:
+      memory: 128Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi
+status:
+  conditions:
+    - lastTransitionTime: "2026-06-22T08:54:17Z"
+      message: "get wanted image: the-g-team/galning: external image resource not found"
+      reason: FailedPrepare
+      status: "True"
+      type: SynchronizationState
+  problems:
+    - message: "get wanted image: the-g-team/galning: external image resource not found"
+      type: Error
+  synchronizationState: FailedPrepare

@@ -14,6 +14,7 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/pagination"
+	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/issue"
 	"github.com/nais/api/internal/persistence/opensearch"
 	"github.com/nais/api/internal/persistence/sqlinstance"
@@ -102,6 +103,11 @@ type VulnerableImageIssueResolver interface {
 	TeamEnvironment(ctx context.Context, obj *issue.VulnerableImageIssue) (*team.TeamEnvironment, error)
 
 	Workload(ctx context.Context, obj *issue.VulnerableImageIssue) (workload.Workload, error)
+}
+type WorkloadProblemIssueResolver interface {
+	TeamEnvironment(ctx context.Context, obj *issue.WorkloadProblemIssue) (*team.TeamEnvironment, error)
+
+	Workload(ctx context.Context, obj *issue.WorkloadProblemIssue) (workload.Workload, error)
 }
 
 // endregion ************************** generated!.gotpl **************************
@@ -2584,6 +2590,208 @@ func (ec *executionContext) fieldContext_VulnerableImageIssue_critical(_ context
 	return graphql.NewScalarFieldContext("VulnerableImageIssue", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
+func (ec *executionContext) _WorkloadProblemIssue_id(ctx context.Context, field graphql.CollectedField, obj *issue.WorkloadProblemIssue) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_WorkloadProblemIssue_id(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.ID, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
+			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_WorkloadProblemIssue_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("WorkloadProblemIssue", field, false, false, errors.New("field of type ID does not have child fields"))
+}
+
+func (ec *executionContext) _WorkloadProblemIssue_teamEnvironment(ctx context.Context, field graphql.CollectedField, obj *issue.WorkloadProblemIssue) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_WorkloadProblemIssue_teamEnvironment(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.WorkloadProblemIssue().TeamEnvironment(ctx, obj)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *team.TeamEnvironment) graphql.Marshaler {
+			return ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_WorkloadProblemIssue_teamEnvironment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkloadProblemIssue",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_TeamEnvironment(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WorkloadProblemIssue_severity(ctx context.Context, field graphql.CollectedField, obj *issue.WorkloadProblemIssue) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_WorkloadProblemIssue_severity(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Severity, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v issue.Severity) graphql.Marshaler {
+			return ec.marshalNSeverity2githubᚗcomᚋnaisᚋapiᚋinternalᚋissueᚐSeverity(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_WorkloadProblemIssue_severity(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("WorkloadProblemIssue", field, false, false, errors.New("field of type Severity does not have child fields"))
+}
+
+func (ec *executionContext) _WorkloadProblemIssue_message(ctx context.Context, field graphql.CollectedField, obj *issue.WorkloadProblemIssue) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_WorkloadProblemIssue_message(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Message, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_WorkloadProblemIssue_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("WorkloadProblemIssue", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _WorkloadProblemIssue_workload(ctx context.Context, field graphql.CollectedField, obj *issue.WorkloadProblemIssue) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_WorkloadProblemIssue_workload(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.WorkloadProblemIssue().Workload(ctx, obj)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v workload.Workload) graphql.Marshaler {
+			return ec.marshalNWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_WorkloadProblemIssue_workload(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkloadProblemIssue",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WorkloadProblemIssue_problemType(ctx context.Context, field graphql.CollectedField, obj *issue.WorkloadProblemIssue) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_WorkloadProblemIssue_problemType(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.ProblemType, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v issue.WorkloadProblemType) graphql.Marshaler {
+			return ec.marshalNWorkloadProblemType2githubᚗcomᚋnaisᚋapiᚋinternalᚋissueᚐWorkloadProblemType(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_WorkloadProblemIssue_problemType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("WorkloadProblemIssue", field, false, false, errors.New("field of type WorkloadProblemType does not have child fields"))
+}
+
+func (ec *executionContext) _WorkloadProblemIssue_source(ctx context.Context, field graphql.CollectedField, obj *issue.WorkloadProblemIssue) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_WorkloadProblemIssue_source(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Source, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_WorkloadProblemIssue_source(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("WorkloadProblemIssue", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _WorkloadProblemIssue_endOfLife(ctx context.Context, field graphql.CollectedField, obj *issue.WorkloadProblemIssue) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_WorkloadProblemIssue_endOfLife(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.EndOfLife, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *scalar.Date) graphql.Marshaler {
+			return ec.marshalODate2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_WorkloadProblemIssue_endOfLife(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("WorkloadProblemIssue", field, false, false, errors.New("field of type Date does not have child fields"))
+}
+
 // endregion **************************** field.gotpl *****************************
 
 // region    **************************** input.gotpl *****************************
@@ -2728,6 +2936,13 @@ func (ec *executionContext) _Issue(ctx context.Context, sel ast.SelectionSet, ob
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
+	case issue.WorkloadProblemIssue:
+		return ec._WorkloadProblemIssue(ctx, sel, &obj)
+	case *issue.WorkloadProblemIssue:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._WorkloadProblemIssue(ctx, sel, obj)
 	case issue.VulnerableImageIssue:
 		return ec._VulnerableImageIssue(ctx, sel, &obj)
 	case *issue.VulnerableImageIssue:
@@ -4824,6 +5039,136 @@ func (ec *executionContext) _VulnerableImageIssue(ctx context.Context, sel ast.S
 	return out
 }
 
+var workloadProblemIssueImplementors = []string{"WorkloadProblemIssue", "Issue", "Node"}
+
+func (ec *executionContext) _WorkloadProblemIssue(ctx context.Context, sel ast.SelectionSet, obj *issue.WorkloadProblemIssue) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, workloadProblemIssueImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("WorkloadProblemIssue")
+		case "id":
+			out.Values[i] = ec._WorkloadProblemIssue_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "teamEnvironment":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._WorkloadProblemIssue_teamEnvironment(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "severity":
+			out.Values[i] = ec._WorkloadProblemIssue_severity(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "message":
+			out.Values[i] = ec._WorkloadProblemIssue_message(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "workload":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._WorkloadProblemIssue_workload(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "problemType":
+			out.Values[i] = ec._WorkloadProblemIssue_problemType(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "source":
+			out.Values[i] = ec._WorkloadProblemIssue_source(ctx, field, obj)
+		case "endOfLife":
+			out.Values[i] = ec._WorkloadProblemIssue_endOfLife(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 // endregion **************************** object.gotpl ****************************
 
 // region    ***************************** type.gotpl *****************************
@@ -4905,6 +5250,16 @@ func (ec *executionContext) unmarshalNSeverity2githubᚗcomᚋnaisᚋapiᚋinter
 }
 
 func (ec *executionContext) marshalNSeverity2githubᚗcomᚋnaisᚋapiᚋinternalᚋissueᚐSeverity(ctx context.Context, sel ast.SelectionSet, v issue.Severity) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalNWorkloadProblemType2githubᚗcomᚋnaisᚋapiᚋinternalᚋissueᚐWorkloadProblemType(ctx context.Context, v any) (issue.WorkloadProblemType, error) {
+	var res issue.WorkloadProblemType
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNWorkloadProblemType2githubᚗcomᚋnaisᚋapiᚋinternalᚋissueᚐWorkloadProblemType(ctx context.Context, sel ast.SelectionSet, v issue.WorkloadProblemType) graphql.Marshaler {
 	return v
 }
 

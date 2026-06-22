@@ -10,6 +10,7 @@ import (
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
+	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/persistence/sqlinstance"
 	"github.com/nais/api/internal/slug"
 )
@@ -191,15 +192,18 @@ type ExternalIngressCriticalVulnerabilityIssueDetails struct {
 type IssueType string
 
 const (
-	IssueTypeOpenSearch                           IssueType = "OPENSEARCH"
-	IssueTypeValkey                               IssueType = "VALKEY"
-	IssueTypeSqlInstanceState                     IssueType = "SQLINSTANCE_STATE"
-	IssueTypeSqlInstanceVersion                   IssueType = "SQLINSTANCE_VERSION"
-	IssueTypeDeprecatedIngress                    IssueType = "DEPRECATED_INGRESS"
-	IssueTypeDeprecatedRegistry                   IssueType = "DEPRECATED_REGISTRY"
-	IssueTypeNoRunningInstances                   IssueType = "NO_RUNNING_INSTANCES"
-	IssueTypeLastRunFailed                        IssueType = "LAST_RUN_FAILED"
-	IssueTypeFailedSynchronization                IssueType = "FAILED_SYNCHRONIZATION"
+	IssueTypeOpenSearch         IssueType = "OPENSEARCH"
+	IssueTypeValkey             IssueType = "VALKEY"
+	IssueTypeSqlInstanceState   IssueType = "SQLINSTANCE_STATE"
+	IssueTypeSqlInstanceVersion IssueType = "SQLINSTANCE_VERSION"
+	IssueTypeDeprecatedIngress  IssueType = "DEPRECATED_INGRESS"
+	IssueTypeDeprecatedRegistry IssueType = "DEPRECATED_REGISTRY"
+	IssueTypeNoRunningInstances IssueType = "NO_RUNNING_INSTANCES"
+	IssueTypeLastRunFailed      IssueType = "LAST_RUN_FAILED"
+	IssueTypeWorkloadProblem    IssueType = "WORKLOAD_PROBLEM"
+	// Deprecated: superseded by IssueTypeWorkloadProblem.
+	IssueTypeFailedSynchronization IssueType = "FAILED_SYNCHRONIZATION"
+	// Deprecated: superseded by IssueTypeWorkloadProblem.
 	IssueTypeInvalidSpec                          IssueType = "INVALID_SPEC"
 	IssueTypeVulnerableImage                      IssueType = "VULNERABLE_IMAGE"
 	IssueTypeMissingSBOM                          IssueType = "MISSING_SBOM"
@@ -217,6 +221,7 @@ var AllIssueType = []IssueType{
 	IssueTypeDeprecatedRegistry,
 	IssueTypeNoRunningInstances,
 	IssueTypeLastRunFailed,
+	IssueTypeWorkloadProblem,
 	IssueTypeInvalidSpec,
 	IssueTypeFailedSynchronization,
 	IssueTypeVulnerableImage,
@@ -228,7 +233,12 @@ var AllIssueType = []IssueType{
 
 func (e IssueType) IsValid() bool {
 	switch e {
-	case IssueTypeOpenSearch, IssueTypeValkey, IssueTypeSqlInstanceState, IssueTypeSqlInstanceVersion, IssueTypeDeprecatedIngress, IssueTypeDeprecatedRegistry, IssueTypeNoRunningInstances, IssueTypeLastRunFailed, IssueTypeInvalidSpec, IssueTypeFailedSynchronization, IssueTypeVulnerableImage, IssueTypeMissingSBOM, IssueTypeExternalIngressCriticalVulnerability, IssueTypeUnleashReleaseChannel, IssueTypeApplicationRestartLoop:
+	case IssueTypeOpenSearch, IssueTypeValkey, IssueTypeSqlInstanceState,
+		IssueTypeSqlInstanceVersion, IssueTypeDeprecatedIngress, IssueTypeDeprecatedRegistry,
+		IssueTypeNoRunningInstances, IssueTypeLastRunFailed, IssueTypeWorkloadProblem,
+		IssueTypeInvalidSpec, IssueTypeFailedSynchronization, IssueTypeVulnerableImage,
+		IssueTypeMissingSBOM, IssueTypeExternalIngressCriticalVulnerability,
+		IssueTypeUnleashReleaseChannel, IssueTypeApplicationRestartLoop:
 		return true
 	}
 	return false
@@ -351,6 +361,66 @@ func (LastRunFailedIssue) IsIssue() {}
 
 func (LastRunFailedIssue) IsNode() {}
 
+type WorkloadProblemType string
+
+const (
+	WorkloadProblemTypeError       WorkloadProblemType = "ERROR"
+	WorkloadProblemTypeWarning     WorkloadProblemType = "WARNING"
+	WorkloadProblemTypeDeprecation WorkloadProblemType = "DEPRECATION"
+)
+
+var AllWorkloadProblemType = []WorkloadProblemType{
+	WorkloadProblemTypeError,
+	WorkloadProblemTypeWarning,
+	WorkloadProblemTypeDeprecation,
+}
+
+func (e WorkloadProblemType) IsValid() bool {
+	switch e {
+	case WorkloadProblemTypeError, WorkloadProblemTypeWarning, WorkloadProblemTypeDeprecation:
+		return true
+	}
+	return false
+}
+
+func (e WorkloadProblemType) String() string {
+	return string(e)
+}
+
+func (e *WorkloadProblemType) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = WorkloadProblemType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid WorkloadProblemType", str)
+	}
+	return nil
+}
+
+func (e WorkloadProblemType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type WorkloadProblemIssueDetails struct {
+	ProblemType WorkloadProblemType `json:"problemType"`
+	Source      *string             `json:"source,omitempty"`
+	EndOfLife   *scalar.Date        `json:"endOfLife,omitempty"`
+}
+
+type WorkloadProblemIssue struct {
+	Base
+	WorkloadProblemIssueDetails
+}
+
+func (WorkloadProblemIssue) IsIssue() {}
+
+func (WorkloadProblemIssue) IsNode() {}
+
+// Deprecated: superseded by WorkloadProblemIssue. Kept for GraphQL backwards
+// compatibility; no longer produced by the issue checker.
 type InvalidSpecIssue struct {
 	Base
 }
@@ -359,6 +429,8 @@ func (InvalidSpecIssue) IsIssue() {}
 
 func (InvalidSpecIssue) IsNode() {}
 
+// Deprecated: superseded by WorkloadProblemIssue. Kept for GraphQL backwards
+// compatibility; no longer produced by the issue checker.
 type FailedSynchronizationIssue struct {
 	Base
 }
