@@ -62,6 +62,7 @@ func (h *handler) Login(w http.ResponseWriter, r *http.Request) {
 			Value:    redirectURI,
 			Path:     "/",
 			Expires:  time.Now().Add(30 * time.Minute),
+			SameSite: http.SameSiteLaxMode,
 			Secure:   true,
 			HttpOnly: true,
 		})
@@ -73,6 +74,7 @@ func (h *handler) Login(w http.ResponseWriter, r *http.Request) {
 		Value:    oauthState,
 		Path:     "/",
 		Expires:  time.Now().Add(30 * time.Minute),
+		SameSite: http.SameSiteLaxMode,
 		Secure:   true,
 		HttpOnly: true,
 	})
@@ -202,6 +204,7 @@ func (h *handler) SetSessionCookie(w http.ResponseWriter, session *session.Sessi
 		Value:    session.ID.String(),
 		Path:     "/",
 		Expires:  session.Expires,
+		SameSite: http.SameSiteLaxMode,
 		Secure:   true,
 		HttpOnly: true,
 	})
@@ -213,6 +216,7 @@ func (h *handler) DeleteCookie(w http.ResponseWriter, name string) {
 		Value:    "",
 		Path:     "/",
 		Expires:  time.Unix(0, 0),
+		SameSite: http.SameSiteLaxMode,
 		Secure:   true,
 		HttpOnly: true,
 	})
