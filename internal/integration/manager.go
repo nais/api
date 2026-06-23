@@ -146,7 +146,7 @@ func newManager(_ context.Context, container *postgres.PostgresContainer, connSt
 
 		watchers := watchers.SetupWatchers(ctx, watcherMgr, managementWatcherMgr)
 
-		lokiClient, err := loki.NewClient(clusters(), "tenant", log.WithField("subsystem", "loki_client"), loki.WithLocalLoki("http://127.0.0.1:3100"))
+		lokiClient, err := loki.NewClient("tenant", log.WithField("subsystem", "loki_client"), loki.WithLocalLoki("http://127.0.0.1:3100"))
 		if err != nil {
 			done()
 			return ctx, nil, nil, err
