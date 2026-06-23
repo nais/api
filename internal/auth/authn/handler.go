@@ -56,12 +56,13 @@ type claims struct {
 
 func (h *handler) Login(w http.ResponseWriter, r *http.Request) {
 	redirectURI := r.URL.Query().Get("redirect_uri")
-	if len(redirectURI) > 0 && strings.HasPrefix(redirectURI, "/") {
+	if isValidRedirectPath(redirectURI) {
 		http.SetCookie(w, &http.Cookie{
 			Name:     RedirectURICookie,
 			Value:    redirectURI,
 			Path:     "/",
 			Expires:  time.Now().Add(30 * time.Minute),
+			SameSite: http.SameSiteLaxMode,
 			Secure:   true,
 			HttpOnly: true,
 		})
@@ -73,6 +74,7 @@ func (h *handler) Login(w http.ResponseWriter, r *http.Request) {
 		Value:    oauthState,
 		Path:     "/",
 		Expires:  time.Now().Add(30 * time.Minute),
+		SameSite: http.SameSiteLaxMode,
 		Secure:   true,
 		HttpOnly: true,
 	})
@@ -96,7 +98,9 @@ func (h *handler) Callback(w http.ResponseWriter, r *http.Request) {
 	redirectURIRaw, err := r.Cookie(RedirectURICookie)
 	if err == nil {
 		if redirectPath, err := url.QueryUnescape(redirectURIRaw.Value); err == nil {
-			frontendURL = redirectPath
+			if isValidRedirectPath(redirectPath) {
+				frontendURL = redirectPath
+			}
 		}
 	}
 
@@ -200,6 +204,7 @@ func (h *handler) SetSessionCookie(w http.ResponseWriter, session *session.Sessi
 		Value:    session.ID.String(),
 		Path:     "/",
 		Expires:  session.Expires,
+		SameSite: http.SameSiteLaxMode,
 		Secure:   true,
 		HttpOnly: true,
 	})
@@ -211,7 +216,22 @@ func (h *handler) DeleteCookie(w http.ResponseWriter, name string) {
 		Value:    "",
 		Path:     "/",
 		Expires:  time.Unix(0, 0),
+		SameSite: http.SameSiteLaxMode,
 		Secure:   true,
 		HttpOnly: true,
 	})
+}
+
+// isValidRedirectPath checks that the value is a relative path-only URL
+// (starts with "/", no scheme, no host, no "//" prefix, no backslashes) to prevent open redirects.
+func isValidRedirectPath(s string) bool {
+	u, err := url.Parse(s)
+	if err != nil {
+		return false
+	}
+	return u.Scheme == "" &&
+		u.Host == "" &&
+		strings.HasPrefix(u.Path, "/") &&
+		!strings.HasPrefix(u.Path, "//") &&
+		!strings.ContainsRune(u.Path, '\\')
 }
