@@ -8,9 +8,14 @@ import (
 	"time"
 
 	"github.com/grafana/loki/v3/pkg/loghttp"
+	"github.com/grafana/loki/v3/pkg/logql/syntax"
 	"github.com/nais/api/internal/environment"
+	"github.com/nais/api/internal/environmentmapper"
 	"github.com/nais/api/internal/validate"
+	"github.com/prometheus/prometheus/model/labels"
 )
+
+const clusterNameLabel = "k8s_cluster_name"
 
 type LogLine struct {
 	Time    time.Time       `json:"time"`
@@ -45,8 +50,11 @@ func (f *LogSubscriptionFilter) Validate(ctx context.Context) error {
 		verr.Add("environmentName", "Environment does not exist.")
 	}
 
-	if _, err := loghttp.ParseTailQuery(&http.Request{Form: f.lokiQueryParameters()}); err != nil {
-		verr.Add("query", "Unable to parse log query.")
+	values, err := f.lokiQueryParameters()
+	if err != nil {
+		verr.Add("query", "Unable to parse log query: %v.", err.Error())
+	} else if _, err := loghttp.ParseTailQuery(&http.Request{Form: values}); err != nil {
+		verr.Add("query", "Unable to parse log query: %v.", err.Error())
 	}
 
 	if f.InitialBatch.Start.After(time.Now()) {
@@ -56,12 +64,46 @@ func (f *LogSubscriptionFilter) Validate(ctx context.Context) error {
 	return verr.NilIfEmpty()
 }
 
-func (f *LogSubscriptionFilter) lokiQueryParameters() url.Values {
+func (f *LogSubscriptionFilter) lokiQueryParameters() (url.Values, error) {
 	values := url.Values{}
 
-	values.Set("query", f.Query)
+	q, err := injectEnvLabel(f.Query, f.EnvironmentName)
+	if err != nil {
+		return nil, err
+	}
+	values.Set("query", q)
 	values.Set("limit", fmt.Sprintf("%d", f.InitialBatch.Limit))
 	values.Set("start", fmt.Sprintf("%d", f.InitialBatch.Start.UnixNano()))
 
-	return values
+	return values, nil
+}
+
+func injectEnvLabel(query, clusterName string) (string, error) {
+	expr, err := syntax.ParseExpr(query)
+	if err != nil {
+		return "", err
+	}
+
+	expr.Walk(func(e syntax.Expr) bool {
+		matchers, ok := e.(*syntax.MatchersExpr)
+		if !ok {
+			return true
+		}
+
+		for _, m := range matchers.Matchers() {
+			if m.Name == clusterNameLabel {
+				return true
+			}
+		}
+
+		matchers.AppendMatchers([]*labels.Matcher{{
+			Type:  labels.MatchEqual,
+			Name:  clusterNameLabel,
+			Value: environmentmapper.ClusterName(clusterName),
+		}})
+
+		return true
+	})
+
+	return expr.String(), nil
 }

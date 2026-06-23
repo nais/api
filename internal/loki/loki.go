@@ -5,13 +5,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"net/url"
 	"strings"
 	"time"
 
 	"github.com/gorilla/websocket"
 	"github.com/grafana/loki/v3/pkg/loghttp"
-	"github.com/nais/api/internal/environmentmapper"
 	"github.com/sirupsen/logrus"
 )
 
@@ -21,12 +21,8 @@ type Client interface {
 	Tail(context.Context, *LogSubscriptionFilter) (<-chan *LogLine, error)
 }
 
-func DefaultLokiUrlGenerator(clusterName, tenant string) (*url.URL, error) {
-	if tenant == "nav" {
-		clusterName = strings.TrimSuffix(clusterName, "-fss")
-	}
-
-	u, err := url.Parse(fmt.Sprintf("http://loki.%s.%s.cloud.nais.io", clusterName, tenant))
+func DefaultLokiUrlGenerator(tenant string) (*url.URL, error) {
+	u, err := url.Parse(fmt.Sprintf("wss://loki.%s.cloud.nais.io", tenant))
 	if err != nil {
 		return nil, fmt.Errorf("parse loki URL: %w", err)
 	}
@@ -34,12 +30,11 @@ func DefaultLokiUrlGenerator(clusterName, tenant string) (*url.URL, error) {
 }
 
 type querier struct {
-	// lokis is a map from environment names to Loki URLs
-	lokis map[string]url.URL
-	log   logrus.FieldLogger
+	loki *url.URL
+	log  logrus.FieldLogger
 }
 
-type lokiUrlGeneratorFunc func(clusterName, tenant string) (*url.URL, error)
+type lokiUrlGeneratorFunc func(tenant string) (*url.URL, error)
 
 type setup struct {
 	urlGenerator lokiUrlGeneratorFunc
@@ -50,13 +45,13 @@ type OptionFunc func(*setup)
 func WithLocalLoki(addr string) OptionFunc {
 	u, err := url.Parse(addr)
 	return func(s *setup) {
-		s.urlGenerator = func(string, string) (*url.URL, error) {
+		s.urlGenerator = func(string) (*url.URL, error) {
 			return u, err
 		}
 	}
 }
 
-func NewClient(clusters []string, tenant string, log logrus.FieldLogger, opts ...OptionFunc) (Client, error) {
+func NewClient(tenant string, log logrus.FieldLogger, opts ...OptionFunc) (Client, error) {
 	s := &setup{}
 	for _, opt := range opts {
 		opt(s)
@@ -66,37 +61,26 @@ func NewClient(clusters []string, tenant string, log logrus.FieldLogger, opts ..
 		s.urlGenerator = DefaultLokiUrlGenerator
 	}
 
-	lokis := make(map[string]url.URL, len(clusters))
-	for _, cluster := range clusters {
-		u, err := s.urlGenerator(cluster, tenant)
-		if err != nil {
-			return nil, fmt.Errorf("unable to generate Loki URL for cluster %q and tenant %q: %v", cluster, tenant, err)
-		}
-
-		lokis[environmentmapper.EnvironmentName(cluster)] = *u
+	lokiUrl, err := s.urlGenerator(tenant)
+	if err != nil {
+		return nil, fmt.Errorf("unable to generate Loki URL for tenant %q: %v", tenant, err)
 	}
 
 	return &querier{
-		lokis: lokis,
-		log:   log,
+		loki: lokiUrl,
+		log:  log,
 	}, nil
 }
 
 func (q *querier) Tail(ctx context.Context, filter *LogSubscriptionFilter) (<-chan *LogLine, error) {
-	lokiURL, ok := q.lokis[filter.EnvironmentName]
-	if !ok {
-		return nil, fmt.Errorf("unable to select Loki for cluster %q", filter.EnvironmentName)
+	query, err := filter.lokiQueryParameters()
+	if err != nil {
+		return nil, err
 	}
+	lokiURL := q.loki.JoinPath("loki", "api", "v1", "tail")
+	lokiURL.RawQuery = query.Encode()
 
-	lokiURL.Scheme = "wss"
-	if strings.HasPrefix(lokiURL.Host, "localhost") || strings.HasPrefix(lokiURL.Host, "127.0.0.1") {
-		lokiURL.Scheme = "ws"
-	}
-
-	lokiURL.Path = "/loki/api/v1/tail"
-	lokiURL.RawQuery = filter.lokiQueryParameters().Encode()
-
-	conn, err := connect(ctx, lokiURL, q.log)
+	conn, err := connect(ctx, lokiURL.String(), q.log)
 	if err != nil {
 		q.log.
 			WithError(err).
@@ -122,8 +106,9 @@ func (q *querier) Tail(ctx context.Context, filter *LogSubscriptionFilter) (<-ch
 	return logLines, nil
 }
 
-func connect(ctx context.Context, u url.URL, log logrus.FieldLogger) (*websocket.Conn, error) {
-	conn, _, err := websocket.DefaultDialer.DialContext(ctx, u.String(), nil)
+func connect(ctx context.Context, urlStr string, log logrus.FieldLogger) (*websocket.Conn, error) {
+	scopeHeader := http.Header{"X-Scope-OrgID": []string{"tenant"}}
+	conn, _, err := websocket.DefaultDialer.DialContext(ctx, urlStr, scopeHeader)
 	if err != nil {
 		return nil, fmt.Errorf("connect to loki: %w", err)
 	}
