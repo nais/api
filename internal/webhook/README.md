@@ -107,3 +107,26 @@ events, the subscription is automatically disabled (`enabled = false`, `disabled
 | Team-scoped webhook | Team owner                                 |
 | Global webhook      | Admin (Go-level check, not a DB role)      |
 | Update / delete     | Owner of the subscription's team, or admin |
+
+## Monitoring & Metrics
+
+The webhook domain exports telemetry using native OpenTelemetry metrics under the meter name `webhook`:
+
+### PromQL Alerts Examples
+
+1. **Increasing outbox queue size** (Potential worker blockage or overload):
+   ```promql
+   sum(webhook_queue_size{status="pending"}) > 100
+   ```
+   *Trigger conditions*: Only the **leader pod** queries the database for `webhook_queue_size` to prevent double-counting in multi-replica deployments.
+
+2. **High webhook delivery failure rate**:
+   ```promql
+   sum(rate(webhook_deliveries_total{success="false"}[5m])) / sum(rate(webhook_deliveries_total[5m])) * 100 > 10
+   ```
+
+3. **Auto-disabled subscriptions rate**:
+   ```promql
+   sum(rate(webhook_subscriptions_auto_disabled_total[1h])) > 0
+   ```
+

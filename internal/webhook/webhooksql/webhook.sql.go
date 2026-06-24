@@ -12,36 +12,36 @@ import (
 )
 
 const claimPendingEvents = `-- name: ClaimPendingEvents :many
-WITH updated_events AS (
-	UPDATE webhook_events
-	SET
-		status = 'completed'
-	WHERE
-		id IN (
-			SELECT
-				id
-			FROM
-				webhook_events
-			WHERE
-				status = 'pending'
-				AND run_at <= NOW()
-			ORDER BY
-				run_at ASC
-			LIMIT
-				$1
-			FOR UPDATE
-				SKIP LOCKED
-		)
-	RETURNING
-		id, activity_log_entries_id, status, retry_count, run_at, created_at
-)
+WITH
+	updated_events AS (
+		UPDATE webhook_events
+		SET
+			status = 'completed'
+		WHERE
+			id IN (
+				SELECT
+					id
+				FROM
+					webhook_events
+				WHERE
+					status = 'pending'
+					AND run_at <= NOW()
+				ORDER BY
+					run_at ASC
+				LIMIT
+					$1
+				FOR UPDATE
+					SKIP LOCKED
+			)
+		RETURNING
+			id, activity_log_entries_id, status, retry_count, run_at, created_at
+	)
 SELECT
 	webhook_events.id, webhook_events.activity_log_entries_id, webhook_events.status, webhook_events.retry_count, webhook_events.run_at, webhook_events.created_at,
 	activity_log_entries.id, activity_log_entries.created_at, activity_log_entries.actor, activity_log_entries.action, activity_log_entries.resource_type, activity_log_entries.resource_name, activity_log_entries.team_slug, activity_log_entries.data, activity_log_entries.environment
 FROM
-    updated_events webhook_events
-JOIN
-    activity_log_entries ON webhook_events.activity_log_entries_id = activity_log_entries.id
+	updated_events webhook_events
+	JOIN activity_log_entries ON webhook_events.activity_log_entries_id = activity_log_entries.id
 `
 
 type ClaimPendingEventsRow struct {
@@ -242,6 +242,43 @@ func (q *Queries) GetDelivery(ctx context.Context, id uuid.UUID) (*WebhookDelive
 		&i.CreatedAt,
 	)
 	return &i, err
+}
+
+const getQueueSizeByStatus = `-- name: GetQueueSizeByStatus :many
+SELECT
+	status,
+	COUNT(*) AS count
+FROM
+	webhook_events
+GROUP BY
+	status
+ORDER BY
+	status
+`
+
+type GetQueueSizeByStatusRow struct {
+	Status WebhookEventStatus
+	Count  int64
+}
+
+func (q *Queries) GetQueueSizeByStatus(ctx context.Context) ([]*GetQueueSizeByStatusRow, error) {
+	rows, err := q.db.Query(ctx, getQueueSizeByStatus)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*GetQueueSizeByStatusRow{}
+	for rows.Next() {
+		var i GetQueueSizeByStatusRow
+		if err := rows.Scan(&i.Status, &i.Count); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getSubscription = `-- name: GetSubscription :one
