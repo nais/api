@@ -246,3 +246,15 @@ WHERE
 	created_at < @before
 	AND status IN ('completed', 'failed')
 ;
+
+-- name: GetQueueSizeByStatus :many
+SELECT
+	status,
+	COUNT(*) AS count
+FROM
+	webhook_events
+GROUP BY
+	status
+ORDER BY
+	status
+;

@@ -294,7 +294,7 @@ func newGQLRunner(
 		lokiClient,
 		"test-audit-project", // auditLogProjectID for testing
 		"test-location",      // auditLogLocation for testing
-		nil,
+		nil,                  // webhookDispatcher
 		log,
 	)
 	if err != nil {
