@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
@@ -16,6 +17,8 @@ import (
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/webhook/webhooksql"
 	"github.com/sirupsen/logrus"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/metric"
 )
 
 const (
@@ -48,10 +51,17 @@ type Dispatcher struct {
 	log        logrus.FieldLogger
 	source     string
 	httpClient *http.Client
+	metrics    *webhookMetrics
 }
 
 // NewDispatcher creates a new webhook dispatcher that drains events from the outbox table.
-func NewDispatcher(pool *pgxpool.Pool, notifier *notify.Notifier, source string, log logrus.FieldLogger) *Dispatcher {
+func NewDispatcher(pool *pgxpool.Pool, notifier *notify.Notifier, source string, log logrus.FieldLogger) (*Dispatcher, error) {
+	q := webhooksql.New(pool)
+	m, err := newWebhookMetrics(q)
+	if err != nil {
+		return nil, fmt.Errorf("setting up webhook metrics: %w", err)
+	}
+
 	return &Dispatcher{
 		pool:     pool,
 		notifier: notifier,
@@ -60,7 +70,8 @@ func NewDispatcher(pool *pgxpool.Pool, notifier *notify.Notifier, source string,
 		httpClient: &http.Client{
 			Timeout: defaultTimeout,
 		},
-	}
+		metrics: m,
+	}, nil
 }
 
 // Run starts the dispatcher. It listens for PG NOTIFY on "webhook_events" and
@@ -177,11 +188,21 @@ func (d *Dispatcher) processEvent(ctx context.Context, q *webhooksql.Queries, ev
 			}); err != nil {
 				d.log.WithError(err).Error("requeueing webhook event")
 			}
+			d.metrics.processedCounter.Add(ctx, 1, metric.WithAttributes(
+				attribute.String("status", "requeued"),
+			))
 		} else {
 			if err := q.MarkEventFailed(ctx, evt.ID); err != nil {
 				d.log.WithError(err).Error("marking webhook event as failed")
 			}
+			d.metrics.processedCounter.Add(ctx, 1, metric.WithAttributes(
+				attribute.String("status", "failed"),
+			))
 		}
+	} else {
+		d.metrics.processedCounter.Add(ctx, 1, metric.WithAttributes(
+			attribute.String("status", "completed"),
+		))
 	}
 }
 
@@ -200,7 +221,8 @@ func (d *Dispatcher) deliver(ctx context.Context, q *webhooksql.Queries, sub *we
 
 	start := time.Now()
 	resp, err := d.httpClient.Do(req)
-	durationMs := int32(time.Since(start).Milliseconds())
+	durationSeconds := time.Since(start).Seconds()
+	durationMs := int32(durationSeconds * 1000)
 
 	var (
 		responseStatus *int32
@@ -208,6 +230,7 @@ func (d *Dispatcher) deliver(ctx context.Context, q *webhooksql.Queries, sub *we
 		success        bool
 	)
 
+	statusStr := "network_error"
 	if err != nil {
 		errMsg := err.Error()
 		responseBody = &errMsg
@@ -215,6 +238,7 @@ func (d *Dispatcher) deliver(ctx context.Context, q *webhooksql.Queries, sub *we
 		defer resp.Body.Close()
 		status := int32(resp.StatusCode)
 		responseStatus = &status
+		statusStr = strconv.Itoa(int(resp.StatusCode))
 		success = resp.StatusCode >= 200 && resp.StatusCode < 300
 
 		body, readErr := io.ReadAll(io.LimitReader(resp.Body, 1024*10)) // 10KB max
@@ -223,6 +247,23 @@ func (d *Dispatcher) deliver(ctx context.Context, q *webhooksql.Queries, sub *we
 			responseBody = &bodyStr
 		}
 	}
+
+	successStr := "false"
+	if success {
+		successStr = "true"
+	}
+
+	d.metrics.deliveriesCounter.Add(ctx, 1, metric.WithAttributes(
+		attribute.String("subscription_id", sub.ID.String()),
+		attribute.String("event_type", eventType),
+		attribute.String("status_code", statusStr),
+		attribute.String("success", successStr),
+	))
+
+	d.metrics.durationHistogram.Record(ctx, durationSeconds, metric.WithAttributes(
+		attribute.String("subscription_id", sub.ID.String()),
+		attribute.String("event_type", eventType),
+	))
 
 	// Record delivery attempt
 	if _, recordErr := q.CreateDelivery(ctx, webhooksql.CreateDeliveryParams{
@@ -253,6 +294,9 @@ func (d *Dispatcher) deliver(ctx context.Context, q *webhooksql.Queries, sub *we
 			if err := q.DisableSubscription(ctx, sub.ID); err != nil {
 				d.log.WithError(err).Error("disabling webhook subscription")
 			}
+			d.metrics.autoDisabledCounter.Add(ctx, 1, metric.WithAttributes(
+				attribute.String("subscription_id", sub.ID.String()),
+			))
 		}
 	}
 

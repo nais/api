@@ -16,6 +16,7 @@ type Querier interface {
 	DeleteSubscription(ctx context.Context, id uuid.UUID) error
 	DisableSubscription(ctx context.Context, id uuid.UUID) error
 	GetDelivery(ctx context.Context, id uuid.UUID) (*WebhookDelivery, error)
+	GetQueueSizeByStatus(ctx context.Context) ([]*GetQueueSizeByStatusRow, error)
 	GetSubscription(ctx context.Context, id uuid.UUID) (*WebhookSubscription, error)
 	IncrementConsecutiveFailures(ctx context.Context, id uuid.UUID) (*WebhookSubscription, error)
 	ListDeliveriesByIDs(ctx context.Context, ids []uuid.UUID) ([]*WebhookDelivery, error)
