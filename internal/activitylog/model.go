@@ -45,6 +45,7 @@ func (c *ActivityLogEntryConnection) GetFilter() *ActivityLogFilter { return c.f
 
 // ActivityLogScope defines the base scope for an activity log query.
 type ActivityLogScope struct {
+	Tenant          bool
 	TeamSlug        *slug.Slug
 	ResourceType    *string
 	ResourceName    *string
@@ -57,6 +58,7 @@ type ActivityLogFacets struct {
 	ActivityTypes []ActivityLogActivityTypeFacetItem `json:"activityTypes"`
 	ResourceTypes []ActivityLogResourceTypeFacetItem `json:"resourceTypes"`
 	Environments  []model.StringFacetItem            `json:"environments"`
+	Teams         []model.StringFacetItem            `json:"teams"`
 }
 
 type ActivityLogActivityTypeFacetItem struct {
@@ -121,6 +123,8 @@ type ActivityLogFilter struct {
 	ActivityTypes []ActivityLogActivityType      `json:"activityTypes,omitempty"`
 	ResourceTypes []ActivityLogEntryResourceType `json:"resourceTypes,omitempty"`
 	Environments  []string                       `json:"environments,omitempty"`
+	From          *time.Time                     `json:"from,omitempty"`
+	To            *time.Time                     `json:"to,omitempty"`
 }
 
 type ActivityLogActivityType string

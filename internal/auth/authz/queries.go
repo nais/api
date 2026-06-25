@@ -174,6 +174,36 @@ func CanCreateServiceAccounts(ctx context.Context, teamSlug *slug.Slug) error {
 	return requireAuthorization(ctx, "service_accounts:create", teamSlug)
 }
 
+func CanReadActivityLogs(ctx context.Context) error {
+	user := ActorFromContext(ctx).User
+	var (
+		authorized bool
+		err        error
+	)
+
+	if user.IsServiceAccount() {
+		authorized, err = db(ctx).ServiceAccountHasAnyAuthorization(ctx, authzsql.ServiceAccountHasAnyAuthorizationParams{
+			ServiceAccountID:  user.GetID(),
+			AuthorizationName: "activity_logs:read",
+		})
+	} else {
+		authorized, err = db(ctx).HasAnyAuthorization(ctx, authzsql.HasAnyAuthorizationParams{
+			UserID:            user.GetID(),
+			AuthorizationName: "activity_logs:read",
+		})
+	}
+
+	if err != nil {
+		return err
+	}
+
+	if authorized {
+		return nil
+	}
+
+	return newMissingAuthorizationError("activity_logs:read")
+}
+
 func CanUpdateServiceAccounts(ctx context.Context, teamSlug *slug.Slug) error {
 	return requireAuthorization(ctx, "service_accounts:update", teamSlug)
 }

@@ -17,9 +17,13 @@ func ComputeFacets(ctx context.Context, scope *ActivityLogScope, filter *Activit
 		ResourceType:        scopeField(scope, func(s *ActivityLogScope) *string { return s.ResourceType }),
 		ResourceName:        scopeField(scope, func(s *ActivityLogScope) *string { return s.ResourceName }),
 		EnvironmentName:     scopeField(scope, func(s *ActivityLogScope) *string { return s.EnvironmentName }),
+		From:                withFrom(filter),
+		To:                  withTo(filter),
 		Filter:              withFilters(filter),
 		FilterResourceTypes: withResourceTypes(filter),
 		FilterEnvironments:  withEnvironments(filter),
+		FilterFrom:          withFrom(filter),
+		FilterTo:            withTo(filter),
 	})
 	if err != nil {
 		return nil, err
@@ -39,6 +43,7 @@ func buildFacets(rows []*activitylogsql.FacetsRow) *ActivityLogFacets {
 	activityTypeCounts := map[ActivityLogActivityType]int{}
 	resourceTypeCounts := map[ActivityLogEntryResourceType]int{}
 	environmentCounts := map[string]int{}
+	teamCounts := map[string]int{}
 
 	for _, row := range rows {
 		// Seed with total_count to ensure all values that exist in this scope are present
@@ -50,6 +55,13 @@ func buildFacets(rows []*activitylogsql.FacetsRow) *ActivityLogFacets {
 		if row.Environment != "" {
 			if _, ok := environmentCounts[row.Environment]; !ok {
 				environmentCounts[row.Environment] = 0
+			}
+		}
+
+		if row.TeamSlug != nil {
+			teamSlug := row.TeamSlug.String()
+			if _, ok := teamCounts[teamSlug]; !ok {
+				teamCounts[teamSlug] = 0
 			}
 		}
 
@@ -67,19 +79,24 @@ func buildFacets(rows []*activitylogsql.FacetsRow) *ActivityLogFacets {
 			environmentCounts[row.Environment] += filteredCount
 		}
 
+		if row.TeamSlug != nil {
+			teamCounts[row.TeamSlug.String()] += filteredCount
+		}
+
 		for _, at := range LookupActivityTypes(row.ResourceType, row.Action) {
 			activityTypeCounts[at] += filteredCount
 		}
 	}
 
-	return assembleFacets(activityTypeCounts, resourceTypeCounts, environmentCounts)
+	return assembleFacets(activityTypeCounts, resourceTypeCounts, environmentCounts, teamCounts)
 }
 
-func assembleFacets(activityTypeCounts map[ActivityLogActivityType]int, resourceTypeCounts map[ActivityLogEntryResourceType]int, environmentCounts map[string]int) *ActivityLogFacets {
+func assembleFacets(activityTypeCounts map[ActivityLogActivityType]int, resourceTypeCounts map[ActivityLogEntryResourceType]int, environmentCounts map[string]int, teamCounts map[string]int) *ActivityLogFacets {
 	facets := &ActivityLogFacets{
 		ActivityTypes: make([]ActivityLogActivityTypeFacetItem, 0, len(activityTypeCounts)),
 		ResourceTypes: make([]ActivityLogResourceTypeFacetItem, 0, len(resourceTypeCounts)),
 		Environments:  make([]model.StringFacetItem, 0, len(environmentCounts)),
+		Teams:         make([]model.StringFacetItem, 0, len(teamCounts)),
 	}
 
 	for at, count := range activityTypeCounts {
@@ -103,6 +120,13 @@ func assembleFacets(activityTypeCounts map[ActivityLogActivityType]int, resource
 		})
 	}
 
+	for teamSlug, count := range teamCounts {
+		facets.Teams = append(facets.Teams, model.StringFacetItem{
+			Value: teamSlug,
+			Count: count,
+		})
+	}
+
 	// Sort alphabetically for stable ordering (items don't jump around when filters change)
 	slices.SortFunc(facets.ActivityTypes, func(a, b ActivityLogActivityTypeFacetItem) int {
 		return strings.Compare(string(a.ActivityType), string(b.ActivityType))
@@ -113,6 +137,7 @@ func assembleFacets(activityTypeCounts map[ActivityLogActivityType]int, resource
 	})
 
 	model.SortStringFacetItems(facets.Environments)
+	model.SortStringFacetItems(facets.Teams)
 
 	return facets
 }

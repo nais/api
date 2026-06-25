@@ -86,6 +86,8 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 		Filter:        withFilters(filter),
 		ResourceTypes: withResourceTypes(filter),
 		Environments:  withEnvironments(filter),
+		From:          withFrom(filter),
+		To:            withTo(filter),
 	})
 	if err != nil {
 		return nil, err
@@ -110,6 +112,41 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 	}, nil
 }
 
+func ListForTenant(ctx context.Context, page *pagination.Pagination, filter *ActivityLogFilter) (*ActivityLogEntryConnection, error) {
+	q := db(ctx)
+
+	ret, err := q.ListForTenant(ctx, activitylogsql.ListForTenantParams{
+		Offset:        page.Offset(),
+		Limit:         page.Limit(),
+		Filter:        withFilters(filter),
+		ResourceTypes: withResourceTypes(filter),
+		Environments:  withEnvironments(filter),
+		From:          withFrom(filter),
+		To:            withTo(filter),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	var total int64
+	if len(ret) > 0 {
+		total = ret[0].TotalCount
+	}
+
+	conn, err := pagination.NewConvertConnectionWithError(ret, page, total, func(from *activitylogsql.ListForTenantRow) (ActivityLogEntry, error) {
+		return toGraphActivityLogEntry(&from.ActivityLogCombinedView)
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &ActivityLogEntryConnection{
+		Connection: *conn,
+		scope:      &ActivityLogScope{Tenant: true},
+		filter:     filter,
+	}, nil
+}
+
 func ListForResource(ctx context.Context, resourceType ActivityLogEntryResourceType, resourceName string, page *pagination.Pagination, filter *ActivityLogFilter) (*ActivityLogEntryConnection, error) {
 	q := db(ctx)
 
@@ -121,6 +158,8 @@ func ListForResource(ctx context.Context, resourceType ActivityLogEntryResourceT
 		Filter:        withFilters(filter),
 		ResourceTypes: withResourceTypes(filter),
 		Environments:  withEnvironments(filter),
+		From:          withFrom(filter),
+		To:            withTo(filter),
 	})
 	if err != nil {
 		return nil, err
@@ -158,6 +197,8 @@ func ListForResourceTeamAndEnvironment(ctx context.Context, resourceType Activit
 		Filter:          withFilters(filter),
 		ResourceTypes:   withResourceTypes(filter),
 		Environments:    withEnvironments(filter),
+		From:            withFrom(filter),
+		To:              withTo(filter),
 	})
 	if err != nil {
 		return nil, err
