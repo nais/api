@@ -9,7 +9,6 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/google/uuid"
 	"github.com/lestrrat-go/httprc/v3"
 	"github.com/lestrrat-go/jwx/v3/jwk"
 	"github.com/lestrrat-go/jwx/v3/jwt"
@@ -178,14 +177,12 @@ func (k *k8sSAAuth) handler(next http.Handler) http.Handler {
 			entry.environment,
 			claims.TeamSlug,
 			claims.ServiceAccountName,
-			claims.ServiceAccountUID,
 		)
 		if err != nil {
 			k.log.WithError(err).WithFields(logrus.Fields{
 				"environment": entry.environment,
 				"team":        claims.TeamSlug,
 				"sa_name":     claims.ServiceAccountName,
-				"sa_uid":      claims.ServiceAccountUID,
 			}).Debug("k8s sa auth: lookup binding")
 			next.ServeHTTP(w, r)
 			return
@@ -213,7 +210,6 @@ func getJWTIssuer(token string) (string, bool) {
 type k8sClaims struct {
 	TeamSlug           slug.Slug
 	ServiceAccountName string
-	ServiceAccountUID  uuid.UUID
 }
 
 // extractK8sServiceAccount pulls (namespace, sa-name, sa-uid) out of the standard "kubernetes.io" claim that
@@ -230,7 +226,6 @@ func extractK8sServiceAccount(t string) (*k8sClaims, error) {
 			Namespace      string `json:"namespace"`
 			ServiceAccount struct {
 				Name string `json:"name"`
-				UID  string `json:"uid"`
 			} `json:"serviceaccount"`
 		} `json:"kubernetes.io"`
 	}
@@ -244,18 +239,12 @@ func extractK8sServiceAccount(t string) (*k8sClaims, error) {
 		return nil, fmt.Errorf("unmarshaling kubernetes.io claim: %w", err)
 	}
 
-	if claims.Kubernetes.Namespace == "" || claims.Kubernetes.ServiceAccount.Name == "" || claims.Kubernetes.ServiceAccount.UID == "" {
+	if claims.Kubernetes.Namespace == "" || claims.Kubernetes.ServiceAccount.Name == "" {
 		return nil, fmt.Errorf("missing fields in kubernetes.io claim")
-	}
-
-	uid, err := uuid.Parse(claims.Kubernetes.ServiceAccount.UID)
-	if err != nil {
-		return nil, fmt.Errorf("parsing service account UID as UUID: %w", err)
 	}
 
 	return &k8sClaims{
 		TeamSlug:           slug.Slug(claims.Kubernetes.Namespace),
 		ServiceAccountName: claims.Kubernetes.ServiceAccount.Name,
-		ServiceAccountUID:  uid,
 	}, nil
 }

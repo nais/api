@@ -26,7 +26,7 @@ VALUES
 		$4
 	)
 RETURNING
-	id, created_at, updated_at, last_used_at, service_account_id, environment, team_slug, workload_name, kubernetes_service_account_uid
+	id, created_at, updated_at, last_used_at, service_account_id, environment, team_slug, workload_name
 `
 
 type CreateBindingParams struct {
@@ -53,7 +53,6 @@ func (q *Queries) CreateBinding(ctx context.Context, arg CreateBindingParams) (*
 		&i.Environment,
 		&i.TeamSlug,
 		&i.WorkloadName,
-		&i.KubernetesServiceAccountUid,
 	)
 	return &i, err
 }
@@ -71,7 +70,7 @@ func (q *Queries) DeleteBinding(ctx context.Context, id uuid.UUID) error {
 
 const getBindingByID = `-- name: GetBindingByID :one
 SELECT
-	id, created_at, updated_at, last_used_at, service_account_id, environment, team_slug, workload_name, kubernetes_service_account_uid
+	id, created_at, updated_at, last_used_at, service_account_id, environment, team_slug, workload_name
 FROM
 	service_account_workload_bindings
 WHERE
@@ -90,14 +89,13 @@ func (q *Queries) GetBindingByID(ctx context.Context, id uuid.UUID) (*ServiceAcc
 		&i.Environment,
 		&i.TeamSlug,
 		&i.WorkloadName,
-		&i.KubernetesServiceAccountUid,
 	)
 	return &i, err
 }
 
 const getBindingByWorkload = `-- name: GetBindingByWorkload :one
 SELECT
-	id, created_at, updated_at, last_used_at, service_account_id, environment, team_slug, workload_name, kubernetes_service_account_uid
+	id, created_at, updated_at, last_used_at, service_account_id, environment, team_slug, workload_name
 FROM
 	service_account_workload_bindings
 WHERE
@@ -124,14 +122,13 @@ func (q *Queries) GetBindingByWorkload(ctx context.Context, arg GetBindingByWork
 		&i.Environment,
 		&i.TeamSlug,
 		&i.WorkloadName,
-		&i.KubernetesServiceAccountUid,
 	)
 	return &i, err
 }
 
 const getBindingsByIDs = `-- name: GetBindingsByIDs :many
 SELECT
-	id, created_at, updated_at, last_used_at, service_account_id, environment, team_slug, workload_name, kubernetes_service_account_uid
+	id, created_at, updated_at, last_used_at, service_account_id, environment, team_slug, workload_name
 FROM
 	service_account_workload_bindings
 WHERE
@@ -158,7 +155,6 @@ func (q *Queries) GetBindingsByIDs(ctx context.Context, ids []uuid.UUID) ([]*Ser
 			&i.Environment,
 			&i.TeamSlug,
 			&i.WorkloadName,
-			&i.KubernetesServiceAccountUid,
 		); err != nil {
 			return nil, err
 		}
@@ -172,7 +168,7 @@ func (q *Queries) GetBindingsByIDs(ctx context.Context, ids []uuid.UUID) ([]*Ser
 
 const listBindingsForServiceAccount = `-- name: ListBindingsForServiceAccount :many
 SELECT
-	service_account_workload_bindings.id, service_account_workload_bindings.created_at, service_account_workload_bindings.updated_at, service_account_workload_bindings.last_used_at, service_account_workload_bindings.service_account_id, service_account_workload_bindings.environment, service_account_workload_bindings.team_slug, service_account_workload_bindings.workload_name, service_account_workload_bindings.kubernetes_service_account_uid,
+	service_account_workload_bindings.id, service_account_workload_bindings.created_at, service_account_workload_bindings.updated_at, service_account_workload_bindings.last_used_at, service_account_workload_bindings.service_account_id, service_account_workload_bindings.environment, service_account_workload_bindings.team_slug, service_account_workload_bindings.workload_name,
 	COUNT(*) OVER () AS total_count
 FROM
 	service_account_workload_bindings
@@ -217,7 +213,6 @@ func (q *Queries) ListBindingsForServiceAccount(ctx context.Context, arg ListBin
 			&i.ServiceAccountWorkloadBinding.Environment,
 			&i.ServiceAccountWorkloadBinding.TeamSlug,
 			&i.ServiceAccountWorkloadBinding.WorkloadName,
-			&i.ServiceAccountWorkloadBinding.KubernetesServiceAccountUid,
 			&i.TotalCount,
 		); err != nil {
 			return nil, err
@@ -228,28 +223,6 @@ func (q *Queries) ListBindingsForServiceAccount(ctx context.Context, arg ListBin
 		return nil, err
 	}
 	return items, nil
-}
-
-const setBindingKubernetesUID = `-- name: SetBindingKubernetesUID :execrows
-UPDATE service_account_workload_bindings
-SET
-	kubernetes_service_account_uid = $1
-WHERE
-	id = $2
-	AND kubernetes_service_account_uid IS NULL
-`
-
-type SetBindingKubernetesUIDParams struct {
-	KubernetesServiceAccountUid *uuid.UUID
-	ID                          uuid.UUID
-}
-
-func (q *Queries) SetBindingKubernetesUID(ctx context.Context, arg SetBindingKubernetesUIDParams) (int64, error) {
-	result, err := q.db.Exec(ctx, setBindingKubernetesUID, arg.KubernetesServiceAccountUid, arg.ID)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected(), nil
 }
 
 const updateBindingLastUsedAt = `-- name: UpdateBindingLastUsedAt :exec
