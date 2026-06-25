@@ -2,7 +2,6 @@ package workload
 
 import (
 	"context"
-	"strings"
 
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/kubernetes/watcher"
@@ -19,11 +18,7 @@ func getImageByIdent(_ context.Context, id ident.Ident) (*ContainerImage, error)
 		return nil, err
 	}
 
-	name, tag, _ := strings.Cut(name, ":")
-	return &ContainerImage{
-		Name: name,
-		Tag:  tag,
-	}, nil
+	return ParseContainerImage(name), nil
 }
 
 func GetMaskinPortenAuthIntegration(mp *nais_io_v1.Maskinporten) *MaskinportenAuthIntegration {

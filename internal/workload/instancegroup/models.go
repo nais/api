@@ -5,7 +5,6 @@ import (
 	"io"
 	"slices"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/nais/api/internal/graph/ident"
@@ -45,11 +44,7 @@ func (ig InstanceGroup) ID() ident.Ident {
 }
 
 func (ig InstanceGroup) Image() *workload.ContainerImage {
-	name, tag, _ := strings.Cut(ig.ImageString, ":")
-	return &workload.ContainerImage{
-		Name: name,
-		Tag:  tag,
-	}
+	return workload.ParseContainerImage(ig.ImageString)
 }
 
 // InstanceGroupEnvironmentVariable represents an environment variable in an instance group.

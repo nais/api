@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 	"strconv"
-	"strings"
 	"sync"
 	"time"
 
@@ -177,11 +176,7 @@ func (j *JobRun) CompletionTime() *time.Time {
 }
 
 func (j *JobRun) Image() *workload.ContainerImage {
-	name, tag, _ := strings.Cut(j.spec.Spec.Template.Spec.Containers[0].Image, ":")
-	return &workload.ContainerImage{
-		Name: name,
-		Tag:  tag,
-	}
+	return workload.ParseContainerImage(j.spec.Spec.Template.Spec.Containers[0].Image)
 }
 
 // Duration returns the duration of the job run.
