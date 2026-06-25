@@ -1857,6 +1857,7 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
+		ActivityLog               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int
 		CVE                       func(childComplexity int, identifier string) int
 		CostMonthlySummary        func(childComplexity int, from scalar.Date, to scalar.Date) int
 		CurrentUnitPrices         func(childComplexity int) int
@@ -1876,7 +1877,6 @@ type ComplexityRoot struct {
 		Team                      func(childComplexity int, slug slug.Slug) int
 		Teams                     func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.TeamOrder, filter *team.TeamFilter) int
 		TeamsUtilization          func(childComplexity int, resourceType utilization.UtilizationResourceType) int
-		TenantActivityLog         func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int
 		UnleashReleaseChannels    func(childComplexity int) int
 		User                      func(childComplexity int, email *string) int
 		UserSyncLog               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
@@ -11098,6 +11098,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.PrometheusAlert.TeamEnvironment(childComplexity), true
 
+	case "Query.activityLog":
+		if e.ComplexityRoot.Query.ActivityLog == nil {
+			break
+		}
+
+		args, err := ec.field_Query_activityLog_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Query.ActivityLog(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["filter"].(*activitylog.ActivityLogFilter)), true
+
 	case "Query.cve":
 		if e.ComplexityRoot.Query.CVE == nil {
 			break
@@ -11310,18 +11322,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Query.TeamsUtilization(childComplexity, args["resourceType"].(utilization.UtilizationResourceType)), true
-
-	case "Query.tenantActivityLog":
-		if e.ComplexityRoot.Query.TenantActivityLog == nil {
-			break
-		}
-
-		args, err := ec.field_Query_tenantActivityLog_args(ctx, rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.ComplexityRoot.Query.TenantActivityLog(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["filter"].(*activitylog.ActivityLogFilter)), true
 
 	case "Query.unleashReleaseChannels":
 		if e.ComplexityRoot.Query.UnleashReleaseChannels == nil {
@@ -19303,7 +19303,7 @@ var sources = []*ast.Source{
 	"""
 	Activity log across all teams in the tenant.
 	"""
-	tenantActivityLog(
+	activityLog(
 		"""
 		Get the first n items in the connection. This can be used in combination with the after parameter.
 		"""

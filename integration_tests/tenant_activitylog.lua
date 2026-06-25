@@ -59,7 +59,7 @@ Test.gql("Tenant activity log returns facets with teams and pagination metadata"
 
 	t.query [[
 		query {
-			tenantActivityLog(first: 10, filter: { activityTypes: [REPOSITORY_ADDED] }) {
+			activityLog(first: 10, filter: { activityTypes: [REPOSITORY_ADDED] }) {
 				nodes {
 					resourceName
 					teamSlug
@@ -92,7 +92,7 @@ Test.gql("Tenant activity log returns facets with teams and pagination metadata"
 
 	t.check {
 		data = {
-			tenantActivityLog = {
+			activityLog = {
 				nodes = {
 					{
 						resourceName = "nais/api-team-two",
@@ -142,7 +142,7 @@ Test.gql("Tenant activity log supports time filtering", function(t)
 
 	t.query [[
 		query {
-			tenantActivityLog(
+			activityLog(
 				first: 10
 				filter: { activityTypes: [REPOSITORY_ADDED], from: "9999-01-01T00:00:00Z" }
 			) {
@@ -158,7 +158,7 @@ Test.gql("Tenant activity log supports time filtering", function(t)
 
 	t.check {
 		data = {
-			tenantActivityLog = {
+			activityLog = {
 				nodes = {},
 				pageInfo = {
 					totalCount = 0,
