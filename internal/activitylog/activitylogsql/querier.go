@@ -16,6 +16,7 @@ type Querier interface {
 	ListForResource(ctx context.Context, arg ListForResourceParams) ([]*ListForResourceRow, error)
 	ListForResourceTeamAndEnvironment(ctx context.Context, arg ListForResourceTeamAndEnvironmentParams) ([]*ListForResourceTeamAndEnvironmentRow, error)
 	ListForTeam(ctx context.Context, arg ListForTeamParams) ([]*ListForTeamRow, error)
+	ListForTenant(ctx context.Context, arg ListForTenantParams) ([]*ListForTenantRow, error)
 	RefreshMaterializedView(ctx context.Context) error
 }
 

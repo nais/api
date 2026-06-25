@@ -12,7 +12,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
-	activitylog1 "github.com/nais/api/internal/activitylog"
+	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/alerts"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/cost"
@@ -42,7 +42,7 @@ import (
 	"github.com/nais/api/internal/search"
 	"github.com/nais/api/internal/serviceaccount"
 	"github.com/nais/api/internal/servicemaintenance"
-	"github.com/nais/api/internal/servicemaintenance/activitylog"
+	activitylog1 "github.com/nais/api/internal/servicemaintenance/activitylog"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/tunnel"
@@ -133,6 +133,7 @@ type MutationResolver interface {
 }
 type QueryResolver interface {
 	Node(ctx context.Context, id ident.Ident) (model.Node, error)
+	TenantActivityLog(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*activitylog.ActivityLogEntryConnection, error)
 	Roles(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *authz.RoleFilter) (*pagination.Connection[*authz.Role], error)
 	CostMonthlySummary(ctx context.Context, from scalar.Date, to scalar.Date) (*cost.CostMonthlySummary, error)
 	Deployments(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *deployment.DeploymentOrder, filter *deployment.DeploymentFilter) (*pagination.Connection[*deployment.Deployment], error)
@@ -1544,6 +1545,52 @@ func (ec *executionContext) field_Query_teams_args(ctx context.Context, rawArgs 
 		return nil, err
 	}
 	args["filter"] = arg5
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_tenantActivityLog_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
+		func(ctx context.Context, v any) (*int, error) {
+			return ec.unmarshalOInt2ᚖint(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["first"] = arg0
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
+		func(ctx context.Context, v any) (*pagination.Cursor, error) {
+			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["after"] = arg1
+	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
+		func(ctx context.Context, v any) (*int, error) {
+			return ec.unmarshalOInt2ᚖint(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["last"] = arg2
+	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
+		func(ctx context.Context, v any) (*pagination.Cursor, error) {
+			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["before"] = arg3
+	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "filter",
+		func(ctx context.Context, v any) (*activitylog.ActivityLogFilter, error) {
+			return ec.unmarshalOActivityLogFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogFilter(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["filter"] = arg4
 	return args, nil
 }
 
@@ -4760,6 +4807,50 @@ func (ec *executionContext) fieldContext_Query_node(ctx context.Context, field g
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_tenantActivityLog(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Query_tenantActivityLog(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.Resolvers.Query().TenantActivityLog(ctx, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["filter"].(*activitylog.ActivityLogFilter))
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *activitylog.ActivityLogEntryConnection) graphql.Marshaler {
+			return ec.marshalNActivityLogEntryConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryConnection(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Query_tenantActivityLog(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_ActivityLogEntryConnection(ctx, field)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_tenantActivityLog_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_roles(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -6166,9 +6257,9 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._SqlDatabase(ctx, sel, obj)
-	case activitylog.ServiceMaintenanceActivityLogEntry:
+	case activitylog1.ServiceMaintenanceActivityLogEntry:
 		return ec._ServiceMaintenanceActivityLogEntry(ctx, sel, &obj)
-	case *activitylog.ServiceMaintenanceActivityLogEntry:
+	case *activitylog1.ServiceMaintenanceActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
@@ -6502,9 +6593,9 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._InvalidSpecIssue(ctx, sel, obj)
-	case activitylog1.GenericKubernetesResourceActivityLogEntry:
+	case activitylog.GenericKubernetesResourceActivityLogEntry:
 		return ec._GenericKubernetesResourceActivityLogEntry(ctx, sel, &obj)
-	case *activitylog1.GenericKubernetesResourceActivityLogEntry:
+	case *activitylog.GenericKubernetesResourceActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
@@ -6880,7 +6971,7 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Alert(ctx, sel, obj)
-	case activitylog1.ActivityLogEntry:
+	case activitylog.ActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
@@ -7481,6 +7572,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_node(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "tenantActivityLog":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_tenantActivityLog(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
 				return res
 			}
 

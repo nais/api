@@ -379,6 +379,38 @@ func (ec *executionContext) fieldContext_ActivityLogFacets_environments(_ contex
 	return fc, nil
 }
 
+func (ec *executionContext) _ActivityLogFacets_teams(ctx context.Context, field graphql.CollectedField, obj *activitylog.ActivityLogFacets) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ActivityLogFacets_teams(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Teams, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []model.StringFacetItem) graphql.Marshaler {
+			return ec.marshalNStringFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItemᚄ(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_ActivityLogFacets_teams(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ActivityLogFacets",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_StringFacetItem(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ActivityLogResourceTypeFacetItem_resourceType(ctx context.Context, field graphql.CollectedField, obj *activitylog.ActivityLogResourceTypeFacetItem) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -440,7 +472,7 @@ func (ec *executionContext) unmarshalInputActivityLogFilter(ctx context.Context,
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"activityTypes", "resourceTypes", "environments"}
+	fieldsInOrder := [...]string{"activityTypes", "resourceTypes", "environments", "from", "to"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -468,6 +500,20 @@ func (ec *executionContext) unmarshalInputActivityLogFilter(ctx context.Context,
 				return it, err
 			}
 			it.Environments = data
+		case "from":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("from"))
+			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.From = data
+		case "to":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("to"))
+			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.To = data
 		}
 	}
 	return it, nil
@@ -1209,6 +1255,11 @@ func (ec *executionContext) _ActivityLogFacets(ctx context.Context, sel ast.Sele
 			}
 		case "environments":
 			out.Values[i] = ec._ActivityLogFacets_environments(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "teams":
+			out.Values[i] = ec._ActivityLogFacets_teams(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}

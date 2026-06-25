@@ -181,6 +181,7 @@ type ComplexityRoot struct {
 		ActivityTypes func(childComplexity int) int
 		Environments  func(childComplexity int) int
 		ResourceTypes func(childComplexity int) int
+		Teams         func(childComplexity int) int
 	}
 
 	ActivityLogResourceTypeFacetItem struct {
@@ -1875,6 +1876,7 @@ type ComplexityRoot struct {
 		Team                      func(childComplexity int, slug slug.Slug) int
 		Teams                     func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.TeamOrder, filter *team.TeamFilter) int
 		TeamsUtilization          func(childComplexity int, resourceType utilization.UtilizationResourceType) int
+		TenantActivityLog         func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int
 		UnleashReleaseChannels    func(childComplexity int) int
 		User                      func(childComplexity int, email *string) int
 		UserSyncLog               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
@@ -3765,6 +3767,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ActivityLogFacets.ResourceTypes(childComplexity), true
+
+	case "ActivityLogFacets.teams":
+		if e.ComplexityRoot.ActivityLogFacets.Teams == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ActivityLogFacets.Teams(childComplexity), true
 
 	case "ActivityLogResourceTypeFacetItem.count":
 		if e.ComplexityRoot.ActivityLogResourceTypeFacetItem.Count == nil {
@@ -11301,6 +11310,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Query.TeamsUtilization(childComplexity, args["resourceType"].(utilization.UtilizationResourceType)), true
+
+	case "Query.tenantActivityLog":
+		if e.ComplexityRoot.Query.TenantActivityLog == nil {
+			break
+		}
+
+		args, err := ec.field_Query_tenantActivityLog_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Query.TenantActivityLog(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["filter"].(*activitylog.ActivityLogFilter)), true
 
 	case "Query.unleashReleaseChannels":
 		if e.ComplexityRoot.Query.UnleashReleaseChannels == nil {
@@ -19278,7 +19299,39 @@ func newExecutionContext(
 }
 
 var sources = []*ast.Source{
-	{Name: "../schema/activitylog.graphqls", Input: `extend type Team implements ActivityLogger {
+	{Name: "../schema/activitylog.graphqls", Input: `extend type Query {
+	"""
+	Activity log across all teams in the tenant.
+	"""
+	tenantActivityLog(
+		"""
+		Get the first n items in the connection. This can be used in combination with the after parameter.
+		"""
+		first: Int
+
+		"""
+		Get items after this cursor.
+		"""
+		after: Cursor
+
+		"""
+		Get the last n items in the connection. This can be used in combination with the before parameter.
+		"""
+		last: Int
+
+		"""
+		Get items before this cursor.
+		"""
+		before: Cursor
+
+		"""
+		Filter items.
+		"""
+		filter: ActivityLogFilter
+	): ActivityLogEntryConnection!
+}
+
+extend type Team implements ActivityLogger {
 	"""
 	Activity log associated with the team.
 	"""
@@ -19454,6 +19507,18 @@ input ActivityLogFilter {
 	When combined with other fields in this input, entries must match this filter as well as the other selected filters.
 	"""
 	environments: [String!]
+
+	"""
+	Only include entries created at or after this timestamp.
+	When combined with other fields in this input, entries must match this filter as well as the other selected filters.
+	"""
+	from: Time
+
+	"""
+	Only include entries created before this timestamp.
+	When combined with other fields in this input, entries must match this filter as well as the other selected filters.
+	"""
+	to: Time
 }
 
 enum ActivityLogActivityType
@@ -19557,6 +19622,11 @@ type ActivityLogFacets {
 	Distribution of entries by environment.
 	"""
 	environments: [StringFacetItem!]!
+
+	"""
+	Distribution of entries by team slug.
+	"""
+	teams: [StringFacetItem!]!
 }
 
 """
@@ -32476,6 +32546,8 @@ func (ec *executionContext) childFields_ActivityLogFacets(ctx context.Context, f
 		return ec.fieldContext_ActivityLogFacets_resourceTypes(ctx, field)
 	case "environments":
 		return ec.fieldContext_ActivityLogFacets_environments(ctx, field)
+	case "teams":
+		return ec.fieldContext_ActivityLogFacets_teams(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type ActivityLogFacets", field.Name)
 }
