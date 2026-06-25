@@ -36,6 +36,24 @@ func TestParseContainerImageRoundTrip(t *testing.T) {
 			wantName: "registry/repo/app",
 			wantTag:  "1.2.3@sha256:abc",
 		},
+		{
+			name:     "registry with port and tag",
+			image:    "registry.com:443/image/name:tag",
+			wantName: "registry.com:443/image/name",
+			wantTag:  "tag",
+		},
+		{
+			name:     "registry with port and digest",
+			image:    "registry.com:443/image/name@sha256:abc",
+			wantName: "registry.com:443/image/name",
+			wantTag:  "sha256:abc",
+		},
+		{
+			name:     "registry with port tag and digest",
+			image:    "registry.com:443/image/name:tag@sha256:abc",
+			wantName: "registry.com:443/image/name",
+			wantTag:  "tag@sha256:abc",
+		},
 	}
 
 	for _, tt := range tests {
