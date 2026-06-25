@@ -229,6 +229,7 @@ enum IssueType {
 	INVALID_SPEC @deprecated(reason: "Use WORKLOAD_PROBLEM instead.")
 	MISSING_SBOM
 	VULNERABLE_IMAGE
+	EXTERNAL_INGRESS_CRITICAL_VULNERABILITY @deprecated(reason: "Use EXTERNAL_INGRESS_ACT_NOW_VULNERABILITY.")
 	EXTERNAL_INGRESS_ACT_NOW_VULNERABILITY
 	UNLEASH_RELEASE_CHANNEL
 	"Raised when an application is stuck in a restart loop."
@@ -244,6 +245,18 @@ type VulnerableImageIssue implements Issue & Node {
 	workload: Workload!
 	riskScore: Int!
 	critical: Int!
+}
+
+"Deprecated: use ExternalIngressActNowVulnerabilityIssue."
+type ExternalIngressCriticalVulnerabilityIssue implements Issue & Node {
+	id: ID!
+	teamEnvironment: TeamEnvironment!
+	severity: Severity!
+	message: String!
+
+	workload: Workload!
+	cvssScore: Float!
+	ingresses: [String!]!
 }
 
 "Raised when a workload with external ingresses has one or more ACT_NOW vulnerability-priority findings."
