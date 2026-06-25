@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/nais/api/internal/activitylog"
-	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/environmentmapper"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/pagination"
@@ -36,10 +35,6 @@ func (r *openSearchResolver) ActivityLog(ctx context.Context, obj *opensearch.Op
 }
 
 func (r *queryResolver) TenantActivityLog(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*activitylog.ActivityLogEntryConnection, error) {
-	if err := authz.CanReadActivityLogs(ctx); err != nil {
-		return nil, err
-	}
-
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err

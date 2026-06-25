@@ -1,7 +1,6 @@
 local admin = User.new()
 admin:admin(true)
 local member = User.new()
-local nonMember = User.new()
 local teamOne = Team.new("slug-1", "purpose", "#channel")
 local teamTwo = Team.new("slug-2", "purpose", "#channel")
 teamOne:addMember(member)
@@ -164,31 +163,6 @@ Test.gql("Tenant activity log supports time filtering", function(t)
 				pageInfo = {
 					totalCount = 0,
 				},
-			},
-		},
-	}
-end)
-
-Test.gql("Tenant activity log requires activity_logs read authorization", function(t)
-	t.addHeader("x-user-email", nonMember:email())
-
-	t.query [[
-		query {
-			tenantActivityLog(first: 1) {
-				nodes {
-					id
-				}
-			}
-		}
-	]]
-
-	t.check {
-		data = Null,
-		errors = {
-			{
-				locations = NotNull(),
-				message = Contains('you need the "activity_logs:read"'),
-				path = { "tenantActivityLog" },
 			},
 		},
 	}
