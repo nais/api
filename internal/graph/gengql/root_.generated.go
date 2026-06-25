@@ -83,6 +83,7 @@ type ResolverRoot interface {
 	DeprecatedRegistryIssue() DeprecatedRegistryIssueResolver
 	Environment() EnvironmentResolver
 	ExternalIngressActNowVulnerabilityIssue() ExternalIngressActNowVulnerabilityIssueResolver
+	ExternalIngressCriticalVulnerabilityIssue() ExternalIngressCriticalVulnerabilityIssueResolver
 	FailedSynchronizationIssue() FailedSynchronizationIssueResolver
 	Ingress() IngressResolver
 	IngressMetrics() IngressMetricsResolver
@@ -957,6 +958,16 @@ type ComplexityRoot struct {
 		Ingresses       func(childComplexity int) int
 		Message         func(childComplexity int) int
 		PriorityActNow  func(childComplexity int) int
+		Severity        func(childComplexity int) int
+		TeamEnvironment func(childComplexity int) int
+		Workload        func(childComplexity int) int
+	}
+
+	ExternalIngressCriticalVulnerabilityIssue struct {
+		CvssScore       func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Ingresses       func(childComplexity int) int
+		Message         func(childComplexity int) int
 		Severity        func(childComplexity int) int
 		TeamEnvironment func(childComplexity int) int
 		Workload        func(childComplexity int) int
@@ -6898,6 +6909,55 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ExternalIngressActNowVulnerabilityIssue.Workload(childComplexity), true
+
+	case "ExternalIngressCriticalVulnerabilityIssue.cvssScore":
+		if e.ComplexityRoot.ExternalIngressCriticalVulnerabilityIssue.CvssScore == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ExternalIngressCriticalVulnerabilityIssue.CvssScore(childComplexity), true
+
+	case "ExternalIngressCriticalVulnerabilityIssue.id":
+		if e.ComplexityRoot.ExternalIngressCriticalVulnerabilityIssue.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ExternalIngressCriticalVulnerabilityIssue.ID(childComplexity), true
+
+	case "ExternalIngressCriticalVulnerabilityIssue.ingresses":
+		if e.ComplexityRoot.ExternalIngressCriticalVulnerabilityIssue.Ingresses == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ExternalIngressCriticalVulnerabilityIssue.Ingresses(childComplexity), true
+
+	case "ExternalIngressCriticalVulnerabilityIssue.message":
+		if e.ComplexityRoot.ExternalIngressCriticalVulnerabilityIssue.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ExternalIngressCriticalVulnerabilityIssue.Message(childComplexity), true
+
+	case "ExternalIngressCriticalVulnerabilityIssue.severity":
+		if e.ComplexityRoot.ExternalIngressCriticalVulnerabilityIssue.Severity == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ExternalIngressCriticalVulnerabilityIssue.Severity(childComplexity), true
+
+	case "ExternalIngressCriticalVulnerabilityIssue.teamEnvironment":
+		if e.ComplexityRoot.ExternalIngressCriticalVulnerabilityIssue.TeamEnvironment == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ExternalIngressCriticalVulnerabilityIssue.TeamEnvironment(childComplexity), true
+
+	case "ExternalIngressCriticalVulnerabilityIssue.workload":
+		if e.ComplexityRoot.ExternalIngressCriticalVulnerabilityIssue.Workload == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ExternalIngressCriticalVulnerabilityIssue.Workload(childComplexity), true
 
 	case "ExternalNetworkPolicyHost.ports":
 		if e.ComplexityRoot.ExternalNetworkPolicyHost.Ports == nil {
@@ -23627,6 +23687,7 @@ enum IssueType {
 	INVALID_SPEC @deprecated(reason: "Use WORKLOAD_PROBLEM instead.")
 	MISSING_SBOM
 	VULNERABLE_IMAGE
+	EXTERNAL_INGRESS_CRITICAL_VULNERABILITY @deprecated(reason: "Use EXTERNAL_INGRESS_ACT_NOW_VULNERABILITY.")
 	EXTERNAL_INGRESS_ACT_NOW_VULNERABILITY
 	UNLEASH_RELEASE_CHANNEL
 	"Raised when an application is stuck in a restart loop."
@@ -23642,6 +23703,18 @@ type VulnerableImageIssue implements Issue & Node {
 	workload: Workload!
 	riskScore: Int!
 	critical: Int!
+}
+
+"Deprecated: use ExternalIngressActNowVulnerabilityIssue."
+type ExternalIngressCriticalVulnerabilityIssue implements Issue & Node {
+	id: ID!
+	teamEnvironment: TeamEnvironment!
+	severity: Severity!
+	message: String!
+
+	workload: Workload!
+	cvssScore: Float!
+	ingresses: [String!]!
 }
 
 "Raised when a workload with external ingresses has one or more ACT_NOW vulnerability-priority findings."
