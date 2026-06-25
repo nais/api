@@ -286,11 +286,7 @@ func toGraphInstance(pod *corev1.Pod, teamSlug slug.Slug, environmentName string
 }
 
 func (i ApplicationInstance) Image() *workload.ContainerImage {
-	name, tag, _ := strings.Cut(i.ImageString, ":")
-	return &workload.ContainerImage{
-		Name: name,
-		Tag:  tag,
-	}
+	return workload.ParseContainerImage(i.ImageString)
 }
 
 type ApplicationManifest struct {

@@ -61,11 +61,7 @@ type Base struct {
 }
 
 func (b Base) Image() *ContainerImage {
-	name, tag, _ := strings.Cut(b.ImageString, ":")
-	return &ContainerImage{
-		Name: name,
-		Tag:  tag,
-	}
+	return ParseContainerImage(b.ImageString)
 }
 
 func (b Base) GetName() string                           { return b.Name }
@@ -86,6 +82,14 @@ type ContainerImage struct {
 
 func (ContainerImage) IsNode() {}
 func (c ContainerImage) Ref() string {
+	if c.Tag == "" {
+		return c.Name
+	}
+
+	if !strings.Contains(c.Tag, "@") && strings.Contains(c.Tag, ":") {
+		return c.Name + "@" + c.Tag
+	}
+
 	return c.Name + ":" + c.Tag
 }
 
@@ -94,6 +98,37 @@ func (c ContainerImage) ID() ident.Ident {
 }
 
 func (ContainerImage) IsActivityLogger() {}
+
+func ParseContainerImage(image string) *ContainerImage {
+	name, tag := splitContainerImage(image)
+	return &ContainerImage{
+		Name: name,
+		Tag:  tag,
+	}
+}
+
+func splitContainerImage(image string) (name, tag string) {
+	before, after, ok := strings.Cut(image, "@")
+	if ok {
+		image = before
+		if name, tag = splitContainerImageNameTag(image); tag != "" {
+			return name, tag + "@" + after
+		}
+		return name, after
+	}
+
+	return splitContainerImageNameTag(image)
+}
+
+func splitContainerImageNameTag(image string) (name, tag string) {
+	lastSlash := strings.LastIndex(image, "/")
+	segment := image[lastSlash+1:]
+	if before, after, ok := strings.Cut(segment, ":"); ok {
+		return image[:lastSlash+1] + before, after
+	}
+
+	return image, ""
+}
 
 type WorkloadResources interface {
 	IsWorkloadResources()
