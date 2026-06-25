@@ -235,44 +235,6 @@ func (q *Queries) GitHubAuthorizationRoleCheck(ctx context.Context, arg GitHubAu
 	return column_1, err
 }
 
-const hasAnyAuthorization = `-- name: HasAnyAuthorization :one
-SELECT
-	(
-		EXISTS (
-			SELECT
-				1
-			FROM
-				authorizations a
-				INNER JOIN role_authorizations ra ON ra.authorization_name = a.name
-				INNER JOIN user_roles ur ON ur.role_name = ra.role_name
-			WHERE
-				ur.user_id = $1
-				AND a.name = $2
-		)
-		OR EXISTS (
-			SELECT
-				1
-			FROM
-				users
-			WHERE
-				id = $1
-				AND admin = TRUE
-		)
-	)::BOOLEAN
-`
-
-type HasAnyAuthorizationParams struct {
-	UserID            uuid.UUID
-	AuthorizationName string
-}
-
-func (q *Queries) HasAnyAuthorization(ctx context.Context, arg HasAnyAuthorizationParams) (bool, error) {
-	row := q.db.QueryRow(ctx, hasAnyAuthorization, arg.UserID, arg.AuthorizationName)
-	var column_1 bool
-	err := row.Scan(&column_1)
-	return column_1, err
-}
-
 const hasGlobalAuthorization = `-- name: HasGlobalAuthorization :one
 SELECT
 	(
@@ -539,34 +501,6 @@ type ServiceAccountCanAssignRoleParams struct {
 
 func (q *Queries) ServiceAccountCanAssignRole(ctx context.Context, arg ServiceAccountCanAssignRoleParams) (bool, error) {
 	row := q.db.QueryRow(ctx, serviceAccountCanAssignRole, arg.RoleName, arg.ServiceAccountID, arg.TeamSlug)
-	var column_1 bool
-	err := row.Scan(&column_1)
-	return column_1, err
-}
-
-const serviceAccountHasAnyAuthorization = `-- name: ServiceAccountHasAnyAuthorization :one
-SELECT
-	(
-		EXISTS (
-			SELECT
-				1
-			FROM
-				role_authorizations ra
-				INNER JOIN service_account_roles sar ON sar.role_name = ra.role_name
-			WHERE
-				sar.service_account_id = $1
-				AND ra.authorization_name = $2
-		)
-	)::BOOLEAN
-`
-
-type ServiceAccountHasAnyAuthorizationParams struct {
-	ServiceAccountID  uuid.UUID
-	AuthorizationName string
-}
-
-func (q *Queries) ServiceAccountHasAnyAuthorization(ctx context.Context, arg ServiceAccountHasAnyAuthorizationParams) (bool, error) {
-	row := q.db.QueryRow(ctx, serviceAccountHasAnyAuthorization, arg.ServiceAccountID, arg.AuthorizationName)
 	var column_1 bool
 	err := row.Scan(&column_1)
 	return column_1, err

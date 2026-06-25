@@ -19,7 +19,6 @@ type Querier interface {
 	// TODO: This should be rewritten to fetch rows from the roles table instead as it uses the authz.Role struct, which reflects rows from the roles table.
 	GetRolesForUsers(ctx context.Context, userIds []uuid.UUID) ([]*GetRolesForUsersRow, error)
 	GitHubAuthorizationRoleCheck(ctx context.Context, arg GitHubAuthorizationRoleCheckParams) (bool, error)
-	HasAnyAuthorization(ctx context.Context, arg HasAnyAuthorizationParams) (bool, error)
 	HasGlobalAuthorization(ctx context.Context, arg HasGlobalAuthorizationParams) (bool, error)
 	HasTeamAuthorization(ctx context.Context, arg HasTeamAuthorizationParams) (bool, error)
 	// Strict team membership check WITHOUT admin bypass
@@ -29,7 +28,6 @@ type Querier interface {
 	ListRolesForServiceAccount(ctx context.Context, arg ListRolesForServiceAccountParams) ([]*Role, error)
 	RevokeRoleFromServiceAccount(ctx context.Context, arg RevokeRoleFromServiceAccountParams) error
 	ServiceAccountCanAssignRole(ctx context.Context, arg ServiceAccountCanAssignRoleParams) (bool, error)
-	ServiceAccountHasAnyAuthorization(ctx context.Context, arg ServiceAccountHasAnyAuthorizationParams) (bool, error)
 	ServiceAccountHasGlobalAuthorization(ctx context.Context, arg ServiceAccountHasGlobalAuthorizationParams) (bool, error)
 	ServiceAccountHasRole(ctx context.Context, arg ServiceAccountHasRoleParams) (bool, error)
 	ServiceAccountHasTeamAuthorization(ctx context.Context, arg ServiceAccountHasTeamAuthorizationParams) (bool, error)

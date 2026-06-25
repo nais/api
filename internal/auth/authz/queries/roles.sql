@@ -227,32 +227,6 @@ SELECT
 	)::BOOLEAN
 ;
 
--- name: HasAnyAuthorization :one
-SELECT
-	(
-		EXISTS (
-			SELECT
-				1
-			FROM
-				authorizations a
-				INNER JOIN role_authorizations ra ON ra.authorization_name = a.name
-				INNER JOIN user_roles ur ON ur.role_name = ra.role_name
-			WHERE
-				ur.user_id = @user_id
-				AND a.name = @authorization_name
-		)
-		OR EXISTS (
-			SELECT
-				1
-			FROM
-				users
-			WHERE
-				id = @user_id
-				AND admin = TRUE
-		)
-	)::BOOLEAN
-;
-
 -- name: ServiceAccountHasTeamAuthorization :one
 SELECT
 	(
@@ -288,22 +262,6 @@ SELECT
 				sa.id = @service_account_id
 				AND ra.authorization_name = @authorization_name
 				AND sa.team_slug IS NULL
-		)
-	)::BOOLEAN
-;
-
--- name: ServiceAccountHasAnyAuthorization :one
-SELECT
-	(
-		EXISTS (
-			SELECT
-				1
-			FROM
-				role_authorizations ra
-				INNER JOIN service_account_roles sar ON sar.role_name = ra.role_name
-			WHERE
-				sar.service_account_id = @service_account_id
-				AND ra.authorization_name = @authorization_name
 		)
 	)::BOOLEAN
 ;
