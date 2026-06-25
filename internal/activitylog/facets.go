@@ -60,8 +60,10 @@ func buildFacets(rows []*activitylogsql.FacetsRow) *ActivityLogFacets {
 
 		if row.TeamSlug != nil {
 			teamSlug := row.TeamSlug.String()
-			if _, ok := teamCounts[teamSlug]; !ok {
-				teamCounts[teamSlug] = 0
+			if teamSlug != "" {
+				if _, ok := teamCounts[teamSlug]; !ok {
+					teamCounts[teamSlug] = 0
+				}
 			}
 		}
 
@@ -80,7 +82,10 @@ func buildFacets(rows []*activitylogsql.FacetsRow) *ActivityLogFacets {
 		}
 
 		if row.TeamSlug != nil {
-			teamCounts[row.TeamSlug.String()] += filteredCount
+			teamSlug := row.TeamSlug.String()
+			if teamSlug != "" {
+				teamCounts[teamSlug] += filteredCount
+			}
 		}
 
 		for _, at := range LookupActivityTypes(row.ResourceType, row.Action) {

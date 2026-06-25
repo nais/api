@@ -192,7 +192,7 @@ ORDER BY
 SELECT
 	resource_type,
 	action,
-	COALESCE(team_slug, '') AS team_slug,
+	team_slug,
 	COALESCE(environment, '') AS environment,
 	COUNT(*) AS total_count,
 	COUNT(*) FILTER (
