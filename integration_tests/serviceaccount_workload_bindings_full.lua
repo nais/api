@@ -385,7 +385,7 @@ Test.gql("Add duplicate binding returns error", function(t)
 		errors = {
 			{
 				locations = NotNull(),
-				message = Contains("already bound to a service account"),
+				message = Contains("already bound to service account"),
 				path = {
 					"addWorkloadToServiceAccount",
 				},

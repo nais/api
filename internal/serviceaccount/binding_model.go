@@ -18,15 +18,14 @@ type (
 // ServiceAccountWorkloadBinding represents a binding between a Nais service account and a Nais workload, allowing
 // the workload to authenticate as the service account using its Kubernetes ServiceAccount token.
 type ServiceAccountWorkloadBinding struct {
-	UUID                        uuid.UUID  `json:"-"`
-	ServiceAccountID            uuid.UUID  `json:"-"`
-	Environment                 string     `json:"environment"`
-	TeamSlug                    slug.Slug  `json:"teamSlug"`
-	WorkloadName                string     `json:"workloadName"`
-	KubernetesServiceAccountUID *uuid.UUID `json:"kubernetesServiceAccountUID,omitempty"`
-	CreatedAt                   time.Time  `json:"createdAt"`
-	UpdatedAt                   time.Time  `json:"updatedAt"`
-	LastUsedAt                  *time.Time `json:"lastUsedAt,omitempty"`
+	UUID             uuid.UUID  `json:"-"`
+	ServiceAccountID uuid.UUID  `json:"-"`
+	Environment      string     `json:"environment"`
+	TeamSlug         slug.Slug  `json:"teamSlug"`
+	WorkloadName     string     `json:"workloadName"`
+	CreatedAt        time.Time  `json:"createdAt"`
+	UpdatedAt        time.Time  `json:"updatedAt"`
+	LastUsedAt       *time.Time `json:"lastUsedAt,omitempty"`
 }
 
 func (ServiceAccountWorkloadBinding) IsNode() {}
@@ -62,14 +61,13 @@ func toGraphServiceAccountWorkloadBinding(b *serviceaccountsql.ServiceAccountWor
 		lastUsed = &b.LastUsedAt.Time
 	}
 	return &ServiceAccountWorkloadBinding{
-		UUID:                        b.ID,
-		ServiceAccountID:            b.ServiceAccountID,
-		Environment:                 b.Environment,
-		TeamSlug:                    b.TeamSlug,
-		WorkloadName:                b.WorkloadName,
-		KubernetesServiceAccountUID: b.KubernetesServiceAccountUid,
-		CreatedAt:                   b.CreatedAt.Time,
-		UpdatedAt:                   b.UpdatedAt.Time,
-		LastUsedAt:                  lastUsed,
+		UUID:             b.ID,
+		ServiceAccountID: b.ServiceAccountID,
+		Environment:      b.Environment,
+		TeamSlug:         b.TeamSlug,
+		WorkloadName:     b.WorkloadName,
+		CreatedAt:        b.CreatedAt.Time,
+		UpdatedAt:        b.UpdatedAt.Time,
+		LastUsedAt:       lastUsed,
 	}
 }

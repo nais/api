@@ -79,7 +79,11 @@ func AddWorkloadBinding(ctx context.Context, input AddWorkloadToServiceAccountIn
 			return nil, nil, err
 		}
 	} else if existing != nil {
-		return nil, nil, apierror.Errorf("The workload %q in team %q is already bound to a service account.", input.WorkloadName, input.TeamSlug)
+		boundSA, err := Get(ctx, existing.ServiceAccountID)
+		if err != nil {
+			return nil, nil, err
+		}
+		return nil, nil, apierror.Errorf("The workload %q in team %q is already bound to service account %q.", input.WorkloadName, input.TeamSlug, boundSA.Name)
 	}
 
 	var binding *serviceaccountsql.ServiceAccountWorkloadBinding
@@ -183,10 +187,10 @@ type AuthLookupResult struct {
 	Binding        *ServiceAccountWorkloadBinding
 }
 
-// AuthenticateKubernetesServiceAccount looks up a binding by (environment, namespace, k8s sa name) and validates the
-// kubernetes service account UID using trust-on-first-use semantics. On a successful match, last_used_at is updated
-// (subject to throttling).
-func AuthenticateKubernetesServiceAccount(ctx context.Context, environment string, teamSlug slug.Slug, k8sServiceAccountName string, k8sServiceAccountUID uuid.UUID) (*AuthLookupResult, error) {
+// AuthenticateKubernetesServiceAccount looks up a binding by (environment, namespace, k8s serviceaccount name).
+// This assumes that service accounts are unique by this combination, i.e. there cannot be multiple service accounts with the exact same name for a given environment and namespace.
+// We do not track the service account UID, so if a service account is deleted and recreated with the same name, the binding will still be valid.
+func AuthenticateKubernetesServiceAccount(ctx context.Context, environment string, teamSlug slug.Slug, k8sServiceAccountName string) (*AuthLookupResult, error) {
 	q := db(ctx)
 	row, err := q.GetBindingByWorkload(ctx, serviceaccountsql.GetBindingByWorkloadParams{
 		Environment:  environment,
@@ -195,34 +199,6 @@ func AuthenticateKubernetesServiceAccount(ctx context.Context, environment strin
 	})
 	if err != nil {
 		return nil, handleBindingError(err)
-	}
-
-	if row.KubernetesServiceAccountUid == nil {
-		// Trust on first use: atomically pin the UID only if still NULL.
-		rowsAffected, err := q.SetBindingKubernetesUID(ctx, serviceaccountsql.SetBindingKubernetesUIDParams{
-			KubernetesServiceAccountUid: &k8sServiceAccountUID,
-			ID:                          row.ID,
-		})
-		if err != nil {
-			return nil, err
-		}
-
-		if rowsAffected == 0 {
-			// Another request pinned the UID concurrently. Re-read and verify.
-			row, err = q.GetBindingByWorkload(ctx, serviceaccountsql.GetBindingByWorkloadParams{
-				Environment:  environment,
-				TeamSlug:     teamSlug,
-				WorkloadName: k8sServiceAccountName,
-			})
-			if err != nil {
-				return nil, handleBindingError(err)
-			}
-			if row.KubernetesServiceAccountUid == nil || *row.KubernetesServiceAccountUid != k8sServiceAccountUID {
-				return nil, ErrUIDMismatch
-			}
-		}
-	} else if *row.KubernetesServiceAccountUid != k8sServiceAccountUID {
-		return nil, ErrUIDMismatch
 	}
 
 	sa, err := Get(ctx, row.ServiceAccountID)

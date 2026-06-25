@@ -72,15 +72,6 @@ ORDER BY
 	created_at
 ;
 
--- name: SetBindingKubernetesUID :execrows
-UPDATE service_account_workload_bindings
-SET
-	kubernetes_service_account_uid = @kubernetes_service_account_uid
-WHERE
-	id = @id
-	AND kubernetes_service_account_uid IS NULL
-;
-
 -- name: UpdateBindingLastUsedAt :exec
 UPDATE service_account_workload_bindings
 SET
