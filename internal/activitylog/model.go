@@ -45,7 +45,6 @@ func (c *ActivityLogEntryConnection) GetFilter() *ActivityLogFilter { return c.f
 
 // ActivityLogScope defines the base scope for an activity log query.
 type ActivityLogScope struct {
-	Tenant          bool
 	TeamSlug        *slug.Slug
 	ResourceType    *string
 	ResourceName    *string

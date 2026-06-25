@@ -72,14 +72,14 @@ func Create(ctx context.Context, input CreateServiceAccountInput) (*ServiceAccou
 		return nil, err
 	}
 
-	if input.TeamSlug != nil {
-		if _, err := team.Get(ctx, *input.TeamSlug); err != nil {
-			return nil, err
-		}
-	}
-
 	var sa *serviceaccountsql.ServiceAccount
 	err := database.Transaction(ctx, func(ctx context.Context) error {
+		if input.TeamSlug != nil {
+			if _, err := team.Get(ctx, *input.TeamSlug); err != nil {
+				return err
+			}
+		}
+
 		var err error
 		sa, err = db(ctx).Create(ctx, serviceaccountsql.CreateParams{
 			Name:        input.Name,

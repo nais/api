@@ -142,7 +142,7 @@ func ListForTenant(ctx context.Context, page *pagination.Pagination, filter *Act
 
 	return &ActivityLogEntryConnection{
 		Connection: *conn,
-		scope:      &ActivityLogScope{Tenant: true},
+		scope:      &ActivityLogScope{},
 		filter:     filter,
 	}, nil
 }
