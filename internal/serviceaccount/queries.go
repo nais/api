@@ -14,6 +14,7 @@ import (
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/serviceaccount/serviceaccountsql"
 	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/team"
 )
 
 func Get(ctx context.Context, serviceAccountID uuid.UUID) (*ServiceAccount, error) {
@@ -69,6 +70,12 @@ func GetTokenByIdent(ctx context.Context, ident ident.Ident) (*ServiceAccountTok
 func Create(ctx context.Context, input CreateServiceAccountInput) (*ServiceAccount, error) {
 	if err := authz.CanCreateServiceAccounts(ctx, input.TeamSlug); err != nil {
 		return nil, err
+	}
+
+	if input.TeamSlug != nil {
+		if _, err := team.Get(ctx, *input.TeamSlug); err != nil {
+			return nil, err
+		}
 	}
 
 	var sa *serviceaccountsql.ServiceAccount
@@ -402,12 +409,12 @@ func ListTokensForServiceAccount(ctx context.Context, page *pagination.Paginatio
 	}), nil
 }
 
-// TODO: Remove once static service accounts has been removed
+// DeleteStaticServiceAccounts removes all static service accounts.
 func DeleteStaticServiceAccounts(ctx context.Context) error {
 	return db(ctx).DeleteStaticServiceAccounts(ctx)
 }
 
-// TODO: Remove once static service accounts has been removed
+// CreateStaticServiceAccount creates a static service account.
 func CreateStaticServiceAccount(ctx context.Context, name string, roles []string, secret string) error {
 	return database.Transaction(ctx, func(ctx context.Context) error {
 		sa, err := db(ctx).Create(ctx, serviceaccountsql.CreateParams{

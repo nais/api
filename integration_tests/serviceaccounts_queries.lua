@@ -437,7 +437,7 @@ Test.gql("Create service account with non-existent team slug", function(t)
 		errors = {
 			{
 				locations = NotNull(),
-				message = Contains("database encountered an error"),
+				message = Contains("The specified team was not found."),
 				path = {
 					"createServiceAccount",
 				},
