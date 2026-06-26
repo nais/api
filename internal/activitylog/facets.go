@@ -17,6 +17,9 @@ func ComputeFacets(ctx context.Context, scope *ActivityLogScope, filter *Activit
 		ResourceType:        scopeField(scope, func(s *ActivityLogScope) *string { return s.ResourceType }),
 		ResourceName:        scopeField(scope, func(s *ActivityLogScope) *string { return s.ResourceName }),
 		EnvironmentName:     scopeField(scope, func(s *ActivityLogScope) *string { return s.EnvironmentName }),
+		// From/To narrow the outer WHERE scope (which rows are candidates).
+		// FilterFrom/FilterTo narrow the inner COUNT(*) FILTER (which rows count as "selected").
+		// Both are set to the same time range: the user's time filter applies to both.
 		From:                withFrom(filter),
 		To:                  withTo(filter),
 		Filter:              withFilters(filter),

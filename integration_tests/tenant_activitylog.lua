@@ -1,10 +1,7 @@
 local admin = User.new()
 admin:admin(true)
-local member = User.new()
 local teamOne = Team.new("slug-1", "purpose", "#channel")
 local teamTwo = Team.new("slug-2", "purpose", "#channel")
-teamOne:addMember(member)
-teamTwo:addMember(member)
 
 Test.gql("Create repository event for team one", function(t)
 	t.addHeader("x-user-email", admin:email())
