@@ -322,10 +322,6 @@ type ActivityLogFacets {
 	"""
 	environments: [StringFacetItem!]!
 
-	"""
-	Distribution of entries by team slug.
-	"""
-	teams: [StringFacetItem!]!
 }
 
 """

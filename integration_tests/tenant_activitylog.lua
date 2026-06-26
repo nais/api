@@ -51,7 +51,7 @@ Test.gql("Create repository event for team two", function(t)
 	}
 end)
 
-Test.gql("Tenant activity log returns facets with teams and pagination metadata", function(t)
+Test.gql("Tenant activity log returns facets and pagination metadata", function(t)
 	t.addHeader("x-user-email", admin:email())
 
 	t.query [[
@@ -75,10 +75,6 @@ Test.gql("Tenant activity log returns facets with teams and pagination metadata"
 						count
 					}
 					environments {
-						value
-						count
-					}
-					teams {
 						value
 						count
 					}
@@ -118,16 +114,6 @@ Test.gql("Tenant activity log returns facets with teams and pagination metadata"
 						},
 					},
 					environments = {},
-					teams = {
-						{
-							value = "slug-1",
-							count = 1,
-						},
-						{
-							value = "slug-2",
-							count = 1,
-						},
-					},
 				},
 			},
 		},

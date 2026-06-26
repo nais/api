@@ -379,38 +379,6 @@ func (ec *executionContext) fieldContext_ActivityLogFacets_environments(_ contex
 	return fc, nil
 }
 
-func (ec *executionContext) _ActivityLogFacets_teams(ctx context.Context, field graphql.CollectedField, obj *activitylog.ActivityLogFacets) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ActivityLogFacets_teams(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return obj.Teams, nil
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v []model.StringFacetItem) graphql.Marshaler {
-			return ec.marshalNStringFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItemᚄ(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_ActivityLogFacets_teams(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ActivityLogFacets",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_StringFacetItem(ctx, field)
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _ActivityLogResourceTypeFacetItem_resourceType(ctx context.Context, field graphql.CollectedField, obj *activitylog.ActivityLogResourceTypeFacetItem) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -1255,11 +1223,6 @@ func (ec *executionContext) _ActivityLogFacets(ctx context.Context, sel ast.Sele
 			}
 		case "environments":
 			out.Values[i] = ec._ActivityLogFacets_environments(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "teams":
-			out.Values[i] = ec._ActivityLogFacets_teams(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}

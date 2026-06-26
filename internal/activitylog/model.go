@@ -57,7 +57,6 @@ type ActivityLogFacets struct {
 	ActivityTypes []ActivityLogActivityTypeFacetItem `json:"activityTypes"`
 	ResourceTypes []ActivityLogResourceTypeFacetItem `json:"resourceTypes"`
 	Environments  []model.StringFacetItem            `json:"environments"`
-	Teams         []model.StringFacetItem            `json:"teams"`
 }
 
 type ActivityLogActivityTypeFacetItem struct {

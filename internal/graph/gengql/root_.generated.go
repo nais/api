@@ -181,7 +181,6 @@ type ComplexityRoot struct {
 		ActivityTypes func(childComplexity int) int
 		Environments  func(childComplexity int) int
 		ResourceTypes func(childComplexity int) int
-		Teams         func(childComplexity int) int
 	}
 
 	ActivityLogResourceTypeFacetItem struct {
@@ -3767,13 +3766,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ActivityLogFacets.ResourceTypes(childComplexity), true
-
-	case "ActivityLogFacets.teams":
-		if e.ComplexityRoot.ActivityLogFacets.Teams == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ActivityLogFacets.Teams(childComplexity), true
 
 	case "ActivityLogResourceTypeFacetItem.count":
 		if e.ComplexityRoot.ActivityLogResourceTypeFacetItem.Count == nil {
@@ -19623,10 +19615,6 @@ type ActivityLogFacets {
 	"""
 	environments: [StringFacetItem!]!
 
-	"""
-	Distribution of entries by team slug.
-	"""
-	teams: [StringFacetItem!]!
 }
 
 """
@@ -32546,8 +32534,6 @@ func (ec *executionContext) childFields_ActivityLogFacets(ctx context.Context, f
 		return ec.fieldContext_ActivityLogFacets_resourceTypes(ctx, field)
 	case "environments":
 		return ec.fieldContext_ActivityLogFacets_environments(ctx, field)
-	case "teams":
-		return ec.fieldContext_ActivityLogFacets_teams(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type ActivityLogFacets", field.Name)
 }

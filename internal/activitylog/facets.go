@@ -32,29 +32,7 @@ func ComputeFacets(ctx context.Context, scope *ActivityLogScope, filter *Activit
 		return nil, err
 	}
 
-	// Team facets are only computed at tenant scope (when no team is specified),
-	// since a single-team scope always produces a trivial single-entry result.
-	// This avoids a multiplicative cardinality explosion (teams × resource_types × actions × environments).
-	var teamRows []*activitylogsql.FacetsForTeamsRow
-	if scope == nil || scope.TeamSlug == nil {
-		teamRows, err = q.FacetsForTeams(ctx, activitylogsql.FacetsForTeamsParams{
-			ResourceType:        scopeField(scope, func(s *ActivityLogScope) *string { return s.ResourceType }),
-			ResourceName:        scopeField(scope, func(s *ActivityLogScope) *string { return s.ResourceName }),
-			EnvironmentName:     scopeField(scope, func(s *ActivityLogScope) *string { return s.EnvironmentName }),
-			From:                withFrom(filter),
-			To:                  withTo(filter),
-			Filter:              withFilters(filter),
-			FilterResourceTypes: withResourceTypes(filter),
-			FilterEnvironments:  withEnvironments(filter),
-			FilterFrom:          withFrom(filter),
-			FilterTo:            withTo(filter),
-		})
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return buildFacets(activityTypeRows, teamRows), nil
+	return buildFacets(activityTypeRows), nil
 }
 
 func scopeField(scope *ActivityLogScope, fn func(*ActivityLogScope) *string) *string {
@@ -64,11 +42,10 @@ func scopeField(scope *ActivityLogScope, fn func(*ActivityLogScope) *string) *st
 	return fn(scope)
 }
 
-func buildFacets(activityTypeRows []*activitylogsql.FacetsForActivityTypesRow, teamRows []*activitylogsql.FacetsForTeamsRow) *ActivityLogFacets {
+func buildFacets(activityTypeRows []*activitylogsql.FacetsForActivityTypesRow) *ActivityLogFacets {
 	activityTypeCounts := map[ActivityLogActivityType]int{}
 	resourceTypeCounts := map[ActivityLogEntryResourceType]int{}
 	environmentCounts := map[string]int{}
-	teamCounts := map[string]int{}
 
 	for _, row := range activityTypeRows {
 		// Seed with 0 to ensure all values that exist in this scope are present
@@ -101,29 +78,14 @@ func buildFacets(activityTypeRows []*activitylogsql.FacetsForActivityTypesRow, t
 		}
 	}
 
-	for _, row := range teamRows {
-		if row.TeamSlug == nil {
-			continue
-		}
-		teamSlug := row.TeamSlug.String()
-		if teamSlug == "" {
-			continue
-		}
-		if _, ok := teamCounts[teamSlug]; !ok {
-			teamCounts[teamSlug] = 0
-		}
-		teamCounts[teamSlug] += int(row.FilteredCount)
-	}
-
-	return assembleFacets(activityTypeCounts, resourceTypeCounts, environmentCounts, teamCounts)
+	return assembleFacets(activityTypeCounts, resourceTypeCounts, environmentCounts)
 }
 
-func assembleFacets(activityTypeCounts map[ActivityLogActivityType]int, resourceTypeCounts map[ActivityLogEntryResourceType]int, environmentCounts map[string]int, teamCounts map[string]int) *ActivityLogFacets {
+func assembleFacets(activityTypeCounts map[ActivityLogActivityType]int, resourceTypeCounts map[ActivityLogEntryResourceType]int, environmentCounts map[string]int) *ActivityLogFacets {
 	facets := &ActivityLogFacets{
 		ActivityTypes: make([]ActivityLogActivityTypeFacetItem, 0, len(activityTypeCounts)),
 		ResourceTypes: make([]ActivityLogResourceTypeFacetItem, 0, len(resourceTypeCounts)),
 		Environments:  make([]model.StringFacetItem, 0, len(environmentCounts)),
-		Teams:         make([]model.StringFacetItem, 0, len(teamCounts)),
 	}
 
 	for at, count := range activityTypeCounts {
@@ -147,13 +109,6 @@ func assembleFacets(activityTypeCounts map[ActivityLogActivityType]int, resource
 		})
 	}
 
-	for teamSlug, count := range teamCounts {
-		facets.Teams = append(facets.Teams, model.StringFacetItem{
-			Value: teamSlug,
-			Count: count,
-		})
-	}
-
 	// Sort alphabetically for stable ordering (items don't jump around when filters change)
 	slices.SortFunc(facets.ActivityTypes, func(a, b ActivityLogActivityTypeFacetItem) int {
 		return strings.Compare(string(a.ActivityType), string(b.ActivityType))
@@ -164,7 +119,6 @@ func assembleFacets(activityTypeCounts map[ActivityLogActivityType]int, resource
 	})
 
 	model.SortStringFacetItems(facets.Environments)
-	model.SortStringFacetItems(facets.Teams)
 
 	return facets
 }
