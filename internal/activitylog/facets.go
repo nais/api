@@ -12,9 +12,6 @@ import (
 func ComputeFacets(ctx context.Context, scope *ActivityLogScope, filter *ActivityLogFilter) (*ActivityLogFacets, error) {
 	q := db(ctx)
 
-	// From/To narrow the outer WHERE scope (which rows are candidates).
-	// FilterFrom/FilterTo narrow the inner COUNT(*) FILTER (which rows count as "selected").
-	// Both are set to the same time range: the user's time filter applies to both.
 	activityTypeRows, err := q.FacetsForActivityTypes(ctx, activitylogsql.FacetsForActivityTypesParams{
 		TeamSlug:            scopeField(scope, func(s *ActivityLogScope) *string { return (*string)(s.TeamSlug) }),
 		ResourceType:        scopeField(scope, func(s *ActivityLogScope) *string { return s.ResourceType }),
