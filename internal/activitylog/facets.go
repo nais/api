@@ -12,14 +12,14 @@ import (
 func ComputeFacets(ctx context.Context, scope *ActivityLogScope, filter *ActivityLogFilter) (*ActivityLogFacets, error) {
 	q := db(ctx)
 
-	rows, err := q.Facets(ctx, activitylogsql.FacetsParams{
-		TeamSlug:        scopeField(scope, func(s *ActivityLogScope) *string { return (*string)(s.TeamSlug) }),
-		ResourceType:    scopeField(scope, func(s *ActivityLogScope) *string { return s.ResourceType }),
-		ResourceName:    scopeField(scope, func(s *ActivityLogScope) *string { return s.ResourceName }),
-		EnvironmentName: scopeField(scope, func(s *ActivityLogScope) *string { return s.EnvironmentName }),
-		// From/To narrow the outer WHERE scope (which rows are candidates).
-		// FilterFrom/FilterTo narrow the inner COUNT(*) FILTER (which rows count as "selected").
-		// Both are set to the same time range: the user's time filter applies to both.
+	// From/To narrow the outer WHERE scope (which rows are candidates).
+	// FilterFrom/FilterTo narrow the inner COUNT(*) FILTER (which rows count as "selected").
+	// Both are set to the same time range: the user's time filter applies to both.
+	activityTypeRows, err := q.FacetsForActivityTypes(ctx, activitylogsql.FacetsForActivityTypesParams{
+		TeamSlug:            scopeField(scope, func(s *ActivityLogScope) *string { return (*string)(s.TeamSlug) }),
+		ResourceType:        scopeField(scope, func(s *ActivityLogScope) *string { return s.ResourceType }),
+		ResourceName:        scopeField(scope, func(s *ActivityLogScope) *string { return s.ResourceName }),
+		EnvironmentName:     scopeField(scope, func(s *ActivityLogScope) *string { return s.EnvironmentName }),
 		From:                withFrom(filter),
 		To:                  withTo(filter),
 		Filter:              withFilters(filter),
@@ -32,7 +32,29 @@ func ComputeFacets(ctx context.Context, scope *ActivityLogScope, filter *Activit
 		return nil, err
 	}
 
-	return buildFacets(rows), nil
+	// Team facets are only computed at tenant scope (when no team is specified),
+	// since a single-team scope always produces a trivial single-entry result.
+	// This avoids a multiplicative cardinality explosion (teams × resource_types × actions × environments).
+	var teamRows []*activitylogsql.FacetsForTeamsRow
+	if scope == nil || scope.TeamSlug == nil {
+		teamRows, err = q.FacetsForTeams(ctx, activitylogsql.FacetsForTeamsParams{
+			ResourceType:        scopeField(scope, func(s *ActivityLogScope) *string { return s.ResourceType }),
+			ResourceName:        scopeField(scope, func(s *ActivityLogScope) *string { return s.ResourceName }),
+			EnvironmentName:     scopeField(scope, func(s *ActivityLogScope) *string { return s.EnvironmentName }),
+			From:                withFrom(filter),
+			To:                  withTo(filter),
+			Filter:              withFilters(filter),
+			FilterResourceTypes: withResourceTypes(filter),
+			FilterEnvironments:  withEnvironments(filter),
+			FilterFrom:          withFrom(filter),
+			FilterTo:            withTo(filter),
+		})
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return buildFacets(activityTypeRows, teamRows), nil
 }
 
 func scopeField(scope *ActivityLogScope, fn func(*ActivityLogScope) *string) *string {
@@ -42,14 +64,14 @@ func scopeField(scope *ActivityLogScope, fn func(*ActivityLogScope) *string) *st
 	return fn(scope)
 }
 
-func buildFacets(rows []*activitylogsql.FacetsRow) *ActivityLogFacets {
+func buildFacets(activityTypeRows []*activitylogsql.FacetsForActivityTypesRow, teamRows []*activitylogsql.FacetsForTeamsRow) *ActivityLogFacets {
 	activityTypeCounts := map[ActivityLogActivityType]int{}
 	resourceTypeCounts := map[ActivityLogEntryResourceType]int{}
 	environmentCounts := map[string]int{}
 	teamCounts := map[string]int{}
 
-	for _, row := range rows {
-		// Seed with total_count to ensure all values that exist in this scope are present
+	for _, row := range activityTypeRows {
+		// Seed with 0 to ensure all values that exist in this scope are present
 		rt := ActivityLogEntryResourceType(row.ResourceType)
 		if _, ok := resourceTypeCounts[rt]; !ok {
 			resourceTypeCounts[rt] = 0
@@ -61,22 +83,12 @@ func buildFacets(rows []*activitylogsql.FacetsRow) *ActivityLogFacets {
 			}
 		}
 
-		if row.TeamSlug != nil {
-			teamSlug := row.TeamSlug.String()
-			if teamSlug != "" {
-				if _, ok := teamCounts[teamSlug]; !ok {
-					teamCounts[teamSlug] = 0
-				}
-			}
-		}
-
 		for _, at := range LookupActivityTypes(row.ResourceType, row.Action) {
 			if _, ok := activityTypeCounts[at]; !ok {
 				activityTypeCounts[at] = 0
 			}
 		}
 
-		// Now add the filtered counts
 		filteredCount := int(row.FilteredCount)
 		resourceTypeCounts[rt] += filteredCount
 
@@ -84,16 +96,23 @@ func buildFacets(rows []*activitylogsql.FacetsRow) *ActivityLogFacets {
 			environmentCounts[row.Environment] += filteredCount
 		}
 
-		if row.TeamSlug != nil {
-			teamSlug := row.TeamSlug.String()
-			if teamSlug != "" {
-				teamCounts[teamSlug] += filteredCount
-			}
-		}
-
 		for _, at := range LookupActivityTypes(row.ResourceType, row.Action) {
 			activityTypeCounts[at] += filteredCount
 		}
+	}
+
+	for _, row := range teamRows {
+		if row.TeamSlug == nil {
+			continue
+		}
+		teamSlug := row.TeamSlug.String()
+		if teamSlug == "" {
+			continue
+		}
+		if _, ok := teamCounts[teamSlug]; !ok {
+			teamCounts[teamSlug] = 0
+		}
+		teamCounts[teamSlug] += int(row.FilteredCount)
 	}
 
 	return assembleFacets(activityTypeCounts, resourceTypeCounts, environmentCounts, teamCounts)

@@ -57,11 +57,10 @@ func (q *Queries) Create(ctx context.Context, arg CreateParams) error {
 	return err
 }
 
-const facets = `-- name: Facets :many
+const facetsForActivityTypes = `-- name: FacetsForActivityTypes :many
 SELECT
 	resource_type,
 	action,
-	team_slug,
 	COALESCE(environment, '') AS environment,
 	COUNT(*) AS total_count,
 	COUNT(*) FILTER (
@@ -117,16 +116,14 @@ WHERE
 GROUP BY
 	resource_type,
 	action,
-	team_slug,
 	environment
 ORDER BY
 	resource_type,
 	action,
-	team_slug,
 	environment
 `
 
-type FacetsParams struct {
+type FacetsForActivityTypesParams struct {
 	Filter              []string
 	FilterResourceTypes []string
 	FilterEnvironments  []string
@@ -140,17 +137,16 @@ type FacetsParams struct {
 	To                  pgtype.Timestamptz
 }
 
-type FacetsRow struct {
+type FacetsForActivityTypesRow struct {
 	ResourceType  string
 	Action        string
-	TeamSlug      *slug.Slug
 	Environment   string
 	TotalCount    int64
 	FilteredCount int64
 }
 
-func (q *Queries) Facets(ctx context.Context, arg FacetsParams) ([]*FacetsRow, error) {
-	rows, err := q.db.Query(ctx, facets,
+func (q *Queries) FacetsForActivityTypes(ctx context.Context, arg FacetsForActivityTypesParams) ([]*FacetsForActivityTypesRow, error) {
+	rows, err := q.db.Query(ctx, facetsForActivityTypes,
 		arg.Filter,
 		arg.FilterResourceTypes,
 		arg.FilterEnvironments,
@@ -167,17 +163,123 @@ func (q *Queries) Facets(ctx context.Context, arg FacetsParams) ([]*FacetsRow, e
 		return nil, err
 	}
 	defer rows.Close()
-	items := []*FacetsRow{}
+	items := []*FacetsForActivityTypesRow{}
 	for rows.Next() {
-		var i FacetsRow
+		var i FacetsForActivityTypesRow
 		if err := rows.Scan(
 			&i.ResourceType,
 			&i.Action,
-			&i.TeamSlug,
 			&i.Environment,
 			&i.TotalCount,
 			&i.FilteredCount,
 		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const facetsForTeams = `-- name: FacetsForTeams :many
+SELECT
+	team_slug,
+	COUNT(*) AS total_count,
+	COUNT(*) FILTER (
+		WHERE
+			(
+				$1::TEXT[] IS NULL
+				OR (resource_type || ':' || action) = ANY ($1::TEXT[])
+			)
+			AND (
+				$2::TEXT[] IS NULL
+				OR resource_type = ANY ($2::TEXT[])
+			)
+			AND (
+				$3::TEXT[] IS NULL
+				OR environment = ANY ($3::TEXT[])
+			)
+			AND (
+				$4::TIMESTAMPTZ IS NULL
+				OR created_at >= $4::TIMESTAMPTZ
+			)
+			AND (
+				$5::TIMESTAMPTZ IS NULL
+				OR created_at < $5::TIMESTAMPTZ
+			)
+	) AS filtered_count
+FROM
+	activity_log_combined_view
+WHERE
+	team_slug IS NOT NULL
+	AND (
+		$6::TEXT IS NULL
+		OR resource_type = $6
+	)
+	AND (
+		$7::TEXT IS NULL
+		OR resource_name = $7
+	)
+	AND (
+		$8::TEXT IS NULL
+		OR environment = $8
+	)
+	AND (
+		$9::TIMESTAMPTZ IS NULL
+		OR created_at >= $9::TIMESTAMPTZ
+	)
+	AND (
+		$10::TIMESTAMPTZ IS NULL
+		OR created_at < $10::TIMESTAMPTZ
+	)
+GROUP BY
+	team_slug
+ORDER BY
+	team_slug
+`
+
+type FacetsForTeamsParams struct {
+	Filter              []string
+	FilterResourceTypes []string
+	FilterEnvironments  []string
+	FilterFrom          pgtype.Timestamptz
+	FilterTo            pgtype.Timestamptz
+	ResourceType        *string
+	ResourceName        *string
+	EnvironmentName     *string
+	From                pgtype.Timestamptz
+	To                  pgtype.Timestamptz
+}
+
+type FacetsForTeamsRow struct {
+	TeamSlug      *slug.Slug
+	TotalCount    int64
+	FilteredCount int64
+}
+
+func (q *Queries) FacetsForTeams(ctx context.Context, arg FacetsForTeamsParams) ([]*FacetsForTeamsRow, error) {
+	rows, err := q.db.Query(ctx, facetsForTeams,
+		arg.Filter,
+		arg.FilterResourceTypes,
+		arg.FilterEnvironments,
+		arg.FilterFrom,
+		arg.FilterTo,
+		arg.ResourceType,
+		arg.ResourceName,
+		arg.EnvironmentName,
+		arg.From,
+		arg.To,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*FacetsForTeamsRow{}
+	for rows.Next() {
+		var i FacetsForTeamsRow
+		if err := rows.Scan(&i.TeamSlug, &i.TotalCount, &i.FilteredCount); err != nil {
 			return nil, err
 		}
 		items = append(items, &i)

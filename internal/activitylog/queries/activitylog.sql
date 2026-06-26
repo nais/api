@@ -188,11 +188,10 @@ ORDER BY
 	created_at DESC
 ;
 
--- name: Facets :many
+-- name: FacetsForActivityTypes :many
 SELECT
 	resource_type,
 	action,
-	team_slug,
 	COALESCE(environment, '') AS environment,
 	COUNT(*) AS total_count,
 	COUNT(*) FILTER (
@@ -248,13 +247,68 @@ WHERE
 GROUP BY
 	resource_type,
 	action,
-	team_slug,
 	environment
 ORDER BY
 	resource_type,
 	action,
-	team_slug,
 	environment
+;
+
+-- name: FacetsForTeams :many
+SELECT
+	team_slug,
+	COUNT(*) AS total_count,
+	COUNT(*) FILTER (
+		WHERE
+			(
+				sqlc.narg('filter')::TEXT[] IS NULL
+				OR (resource_type || ':' || action) = ANY (sqlc.narg('filter')::TEXT[])
+			)
+			AND (
+				sqlc.narg('filter_resource_types')::TEXT[] IS NULL
+				OR resource_type = ANY (sqlc.narg('filter_resource_types')::TEXT[])
+			)
+			AND (
+				sqlc.narg('filter_environments')::TEXT[] IS NULL
+				OR environment = ANY (sqlc.narg('filter_environments')::TEXT[])
+			)
+			AND (
+				sqlc.narg('filter_from')::TIMESTAMPTZ IS NULL
+				OR created_at >= sqlc.narg('filter_from')::TIMESTAMPTZ
+			)
+			AND (
+				sqlc.narg('filter_to')::TIMESTAMPTZ IS NULL
+				OR created_at < sqlc.narg('filter_to')::TIMESTAMPTZ
+			)
+	) AS filtered_count
+FROM
+	activity_log_combined_view
+WHERE
+	team_slug IS NOT NULL
+	AND (
+		sqlc.narg('resource_type')::TEXT IS NULL
+		OR resource_type = sqlc.narg('resource_type')
+	)
+	AND (
+		sqlc.narg('resource_name')::TEXT IS NULL
+		OR resource_name = sqlc.narg('resource_name')
+	)
+	AND (
+		sqlc.narg('environment_name')::TEXT IS NULL
+		OR environment = sqlc.narg('environment_name')
+	)
+	AND (
+		sqlc.narg('from')::TIMESTAMPTZ IS NULL
+		OR created_at >= sqlc.narg('from')::TIMESTAMPTZ
+	)
+	AND (
+		sqlc.narg('to')::TIMESTAMPTZ IS NULL
+		OR created_at < sqlc.narg('to')::TIMESTAMPTZ
+	)
+GROUP BY
+	team_slug
+ORDER BY
+	team_slug
 ;
 
 -- name: RefreshMaterializedView :exec
