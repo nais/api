@@ -2,9 +2,11 @@ package serviceaccount
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
@@ -14,7 +16,6 @@ import (
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/serviceaccount/serviceaccountsql"
 	"github.com/nais/api/internal/slug"
-	"github.com/nais/api/internal/team"
 )
 
 func Get(ctx context.Context, serviceAccountID uuid.UUID) (*ServiceAccount, error) {
@@ -74,12 +75,6 @@ func Create(ctx context.Context, input CreateServiceAccountInput) (*ServiceAccou
 
 	var sa *serviceaccountsql.ServiceAccount
 	err := database.Transaction(ctx, func(ctx context.Context) error {
-		if input.TeamSlug != nil {
-			if _, err := team.Get(ctx, *input.TeamSlug); err != nil {
-				return err
-			}
-		}
-
 		var err error
 		sa, err = db(ctx).Create(ctx, serviceaccountsql.CreateParams{
 			Name:        input.Name,
@@ -87,6 +82,10 @@ func Create(ctx context.Context, input CreateServiceAccountInput) (*ServiceAccou
 			TeamSlug:    input.TeamSlug,
 		})
 		if err != nil {
+			var pgErr *pgconn.PgError
+			if errors.As(err, &pgErr) && pgErr.Code == "23503" && input.TeamSlug != nil {
+				return apierror.Errorf("The specified team was not found.")
+			}
 			return err
 		}
 
