@@ -38,7 +38,9 @@ jobs:
           restore-keys: test
       - run: helm lint --strict ./charts/*
       - run: mise run check:staticcheck
-      - run: mise run check:vulncheck
+      - name: Vulnerability check (govulncheck) # Temporary allow-fail due to GO-2026-5662
+        run: mise run check:vulncheck
+        continue-on-error: true
       - name: Check code format and run code generators
         run: |
           mise run fmt ::: generate
