@@ -34,6 +34,15 @@ func (r *openSearchResolver) ActivityLog(ctx context.Context, obj *opensearch.Op
 	)
 }
 
+func (r *queryResolver) ActivityLog(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*activitylog.ActivityLogEntryConnection, error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+
+	return activitylog.ListForTenant(ctx, page, filter)
+}
+
 func (r *reconcilerResolver) ActivityLog(ctx context.Context, obj *reconciler.Reconciler, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*activitylog.ActivityLogEntryConnection, error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {

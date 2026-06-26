@@ -2,9 +2,11 @@ package serviceaccount
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
@@ -80,6 +82,10 @@ func Create(ctx context.Context, input CreateServiceAccountInput) (*ServiceAccou
 			TeamSlug:    input.TeamSlug,
 		})
 		if err != nil {
+			var pgErr *pgconn.PgError
+			if errors.As(err, &pgErr) && pgErr.Code == "23503" && input.TeamSlug != nil {
+				return apierror.Errorf("The specified team was not found.")
+			}
 			return err
 		}
 

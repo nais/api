@@ -1,6 +1,6 @@
 module github.com/nais/api
 
-go 1.26.3
+go 1.26.4
 
 tool (
 	github.com/99designs/gqlgen
@@ -406,7 +406,7 @@ require (
 	github.com/zeebo/xxh3 v1.1.0 // indirect
 	github.com/zitadel/logging v0.6.1 // indirect
 	github.com/zitadel/schema v1.3.0 // indirect
-	go.etcd.io/bbolt v1.4.3 // indirect
+	go.etcd.io/bbolt v1.5.0 // indirect
 	go.etcd.io/etcd/api/v3 v3.6.7 // indirect
 	go.etcd.io/etcd/client/pkg/v3 v3.6.7 // indirect
 	go.etcd.io/etcd/client/v3 v3.6.7 // indirect

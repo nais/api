@@ -124,6 +124,9 @@ func NewComplexityRoot() ComplexityRoot {
 	c.PostgresInstance.Workloads = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
+	c.Query.ActivityLog = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int {
+		return cursorComplexity(first, last) * childComplexity
+	}
 	c.Query.Cves = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *vulnerability.CVEOrder) int {
 		return cursorComplexity(first, last) * childComplexity
 	}

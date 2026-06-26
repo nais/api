@@ -18,6 +18,49 @@ WHERE
 		sqlc.narg('environments')::TEXT[] IS NULL
 		OR environment = ANY (sqlc.narg('environments')::TEXT[])
 	)
+	AND (
+		sqlc.narg('from')::TIMESTAMPTZ IS NULL
+		OR created_at >= sqlc.narg('from')::TIMESTAMPTZ
+	)
+	AND (
+		sqlc.narg('to')::TIMESTAMPTZ IS NULL
+		OR created_at < sqlc.narg('to')::TIMESTAMPTZ
+	)
+ORDER BY
+	created_at DESC
+LIMIT
+	sqlc.arg('limit')
+OFFSET
+	sqlc.arg('offset')
+;
+
+-- name: ListForTenant :many
+SELECT
+	sqlc.embed(activity_log_combined_view),
+	COUNT(*) OVER () AS total_count
+FROM
+	activity_log_combined_view
+WHERE
+	(
+		sqlc.narg('filter')::TEXT[] IS NULL
+		OR (resource_type || ':' || action) = ANY (sqlc.narg('filter')::TEXT[])
+	)
+	AND (
+		sqlc.narg('resource_types')::TEXT[] IS NULL
+		OR resource_type = ANY (sqlc.narg('resource_types')::TEXT[])
+	)
+	AND (
+		sqlc.narg('environments')::TEXT[] IS NULL
+		OR environment = ANY (sqlc.narg('environments')::TEXT[])
+	)
+	AND (
+		sqlc.narg('from')::TIMESTAMPTZ IS NULL
+		OR created_at >= sqlc.narg('from')::TIMESTAMPTZ
+	)
+	AND (
+		sqlc.narg('to')::TIMESTAMPTZ IS NULL
+		OR created_at < sqlc.narg('to')::TIMESTAMPTZ
+	)
 ORDER BY
 	created_at DESC
 LIMIT
@@ -46,6 +89,14 @@ WHERE
 	AND (
 		sqlc.narg('environments')::TEXT[] IS NULL
 		OR environment = ANY (sqlc.narg('environments')::TEXT[])
+	)
+	AND (
+		sqlc.narg('from')::TIMESTAMPTZ IS NULL
+		OR created_at >= sqlc.narg('from')::TIMESTAMPTZ
+	)
+	AND (
+		sqlc.narg('to')::TIMESTAMPTZ IS NULL
+		OR created_at < sqlc.narg('to')::TIMESTAMPTZ
 	)
 ORDER BY
 	created_at DESC
@@ -77,6 +128,14 @@ WHERE
 	AND (
 		sqlc.narg('environments')::TEXT[] IS NULL
 		OR activity_log_combined_view.environment = ANY (sqlc.narg('environments')::TEXT[])
+	)
+	AND (
+		sqlc.narg('from')::TIMESTAMPTZ IS NULL
+		OR created_at >= sqlc.narg('from')::TIMESTAMPTZ
+	)
+	AND (
+		sqlc.narg('to')::TIMESTAMPTZ IS NULL
+		OR created_at < sqlc.narg('to')::TIMESTAMPTZ
 	)
 ORDER BY
 	created_at DESC
@@ -129,7 +188,7 @@ ORDER BY
 	created_at DESC
 ;
 
--- name: Facets :many
+-- name: FacetsForActivityTypes :many
 SELECT
 	resource_type,
 	action,
@@ -148,6 +207,14 @@ SELECT
 			AND (
 				sqlc.narg('filter_environments')::TEXT[] IS NULL
 				OR environment = ANY (sqlc.narg('filter_environments')::TEXT[])
+			)
+			AND (
+				sqlc.narg('filter_from')::TIMESTAMPTZ IS NULL
+				OR created_at >= sqlc.narg('filter_from')::TIMESTAMPTZ
+			)
+			AND (
+				sqlc.narg('filter_to')::TIMESTAMPTZ IS NULL
+				OR created_at < sqlc.narg('filter_to')::TIMESTAMPTZ
 			)
 	) AS filtered_count
 FROM
@@ -168,6 +235,14 @@ WHERE
 	AND (
 		sqlc.narg('environment_name')::TEXT IS NULL
 		OR environment = sqlc.narg('environment_name')
+	)
+	AND (
+		sqlc.narg('from')::TIMESTAMPTZ IS NULL
+		OR created_at >= sqlc.narg('from')::TIMESTAMPTZ
+	)
+	AND (
+		sqlc.narg('to')::TIMESTAMPTZ IS NULL
+		OR created_at < sqlc.narg('to')::TIMESTAMPTZ
 	)
 GROUP BY
 	resource_type,

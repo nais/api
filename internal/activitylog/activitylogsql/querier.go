@@ -10,12 +10,13 @@ import (
 
 type Querier interface {
 	Create(ctx context.Context, arg CreateParams) error
-	Facets(ctx context.Context, arg FacetsParams) ([]*FacetsRow, error)
+	FacetsForActivityTypes(ctx context.Context, arg FacetsForActivityTypesParams) ([]*FacetsForActivityTypesRow, error)
 	Get(ctx context.Context, id uuid.UUID) (*ActivityLogCombinedView, error)
 	ListByIDs(ctx context.Context, ids []uuid.UUID) ([]*ActivityLogCombinedView, error)
 	ListForResource(ctx context.Context, arg ListForResourceParams) ([]*ListForResourceRow, error)
 	ListForResourceTeamAndEnvironment(ctx context.Context, arg ListForResourceTeamAndEnvironmentParams) ([]*ListForResourceTeamAndEnvironmentRow, error)
 	ListForTeam(ctx context.Context, arg ListForTeamParams) ([]*ListForTeamRow, error)
+	ListForTenant(ctx context.Context, arg ListForTenantParams) ([]*ListForTenantRow, error)
 	RefreshMaterializedView(ctx context.Context) error
 }
 

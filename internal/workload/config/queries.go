@@ -838,12 +838,8 @@ func valuesUpdatedFields(existing *Config, newData, newBinaryData map[string]any
 
 	// Combine existing values into a single map for comparison
 	oldValues := make(map[string]string, len(existing.Data)+len(existing.BinaryData))
-	for k, v := range existing.Data {
-		oldValues[k] = v
-	}
-	for k, v := range existing.BinaryData {
-		oldValues[k] = v
-	}
+	maps.Copy(oldValues, existing.Data)
+	maps.Copy(oldValues, existing.BinaryData)
 
 	// Combine new values into a single map
 	newValues := make(map[string]string, len(newData)+len(newBinaryData))

@@ -12,20 +12,24 @@ import (
 func ComputeFacets(ctx context.Context, scope *ActivityLogScope, filter *ActivityLogFilter) (*ActivityLogFacets, error) {
 	q := db(ctx)
 
-	rows, err := q.Facets(ctx, activitylogsql.FacetsParams{
+	activityTypeRows, err := q.FacetsForActivityTypes(ctx, activitylogsql.FacetsForActivityTypesParams{
 		TeamSlug:            scopeField(scope, func(s *ActivityLogScope) *string { return (*string)(s.TeamSlug) }),
 		ResourceType:        scopeField(scope, func(s *ActivityLogScope) *string { return s.ResourceType }),
 		ResourceName:        scopeField(scope, func(s *ActivityLogScope) *string { return s.ResourceName }),
 		EnvironmentName:     scopeField(scope, func(s *ActivityLogScope) *string { return s.EnvironmentName }),
+		From:                withFrom(filter),
+		To:                  withTo(filter),
 		Filter:              withFilters(filter),
 		FilterResourceTypes: withResourceTypes(filter),
 		FilterEnvironments:  withEnvironments(filter),
+		FilterFrom:          withFrom(filter),
+		FilterTo:            withTo(filter),
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	return buildFacets(rows), nil
+	return buildFacets(activityTypeRows), nil
 }
 
 func scopeField(scope *ActivityLogScope, fn func(*ActivityLogScope) *string) *string {
@@ -35,13 +39,13 @@ func scopeField(scope *ActivityLogScope, fn func(*ActivityLogScope) *string) *st
 	return fn(scope)
 }
 
-func buildFacets(rows []*activitylogsql.FacetsRow) *ActivityLogFacets {
+func buildFacets(activityTypeRows []*activitylogsql.FacetsForActivityTypesRow) *ActivityLogFacets {
 	activityTypeCounts := map[ActivityLogActivityType]int{}
 	resourceTypeCounts := map[ActivityLogEntryResourceType]int{}
 	environmentCounts := map[string]int{}
 
-	for _, row := range rows {
-		// Seed with total_count to ensure all values that exist in this scope are present
+	for _, row := range activityTypeRows {
+		// Seed with 0 to ensure all values that exist in this scope are present
 		rt := ActivityLogEntryResourceType(row.ResourceType)
 		if _, ok := resourceTypeCounts[rt]; !ok {
 			resourceTypeCounts[rt] = 0
@@ -59,7 +63,6 @@ func buildFacets(rows []*activitylogsql.FacetsRow) *ActivityLogFacets {
 			}
 		}
 
-		// Now add the filtered counts
 		filteredCount := int(row.FilteredCount)
 		resourceTypeCounts[rt] += filteredCount
 

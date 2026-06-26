@@ -121,6 +121,8 @@ type ActivityLogFilter struct {
 	ActivityTypes []ActivityLogActivityType      `json:"activityTypes,omitempty"`
 	ResourceTypes []ActivityLogEntryResourceType `json:"resourceTypes,omitempty"`
 	Environments  []string                       `json:"environments,omitempty"`
+	From          *time.Time                     `json:"from,omitempty"`
+	To            *time.Time                     `json:"to,omitempty"`
 }
 
 type ActivityLogActivityType string

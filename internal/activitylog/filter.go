@@ -2,6 +2,8 @@ package activitylog
 
 import (
 	"slices"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type filter struct {
@@ -89,4 +91,20 @@ func withEnvironments(filter *ActivityLogFilter) []string {
 	}
 
 	return filter.Environments
+}
+
+func withFrom(filter *ActivityLogFilter) pgtype.Timestamptz {
+	if filter == nil || filter.From == nil {
+		return pgtype.Timestamptz{Valid: false}
+	}
+
+	return pgtype.Timestamptz{Time: *filter.From, Valid: true}
+}
+
+func withTo(filter *ActivityLogFilter) pgtype.Timestamptz {
+	if filter == nil || filter.To == nil {
+		return pgtype.Timestamptz{Valid: false}
+	}
+
+	return pgtype.Timestamptz{Time: *filter.To, Valid: true}
 }

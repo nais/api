@@ -440,7 +440,7 @@ func (ec *executionContext) unmarshalInputActivityLogFilter(ctx context.Context,
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"activityTypes", "resourceTypes", "environments"}
+	fieldsInOrder := [...]string{"activityTypes", "resourceTypes", "environments", "from", "to"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -468,6 +468,20 @@ func (ec *executionContext) unmarshalInputActivityLogFilter(ctx context.Context,
 				return it, err
 			}
 			it.Environments = data
+		case "from":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("from"))
+			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.From = data
+		case "to":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("to"))
+			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.To = data
 		}
 	}
 	return it, nil

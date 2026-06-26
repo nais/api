@@ -1856,6 +1856,7 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
+		ActivityLog               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int
 		CVE                       func(childComplexity int, identifier string) int
 		CostMonthlySummary        func(childComplexity int, from scalar.Date, to scalar.Date) int
 		CurrentUnitPrices         func(childComplexity int) int
@@ -11089,6 +11090,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.PrometheusAlert.TeamEnvironment(childComplexity), true
 
+	case "Query.activityLog":
+		if e.ComplexityRoot.Query.ActivityLog == nil {
+			break
+		}
+
+		args, err := ec.field_Query_activityLog_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Query.ActivityLog(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["filter"].(*activitylog.ActivityLogFilter)), true
+
 	case "Query.cve":
 		if e.ComplexityRoot.Query.CVE == nil {
 			break
@@ -19278,7 +19291,39 @@ func newExecutionContext(
 }
 
 var sources = []*ast.Source{
-	{Name: "../schema/activitylog.graphqls", Input: `extend type Team implements ActivityLogger {
+	{Name: "../schema/activitylog.graphqls", Input: `extend type Query {
+	"""
+	Activity log across all teams in the tenant.
+	"""
+	activityLog(
+		"""
+		Get the first n items in the connection. This can be used in combination with the after parameter.
+		"""
+		first: Int
+
+		"""
+		Get items after this cursor.
+		"""
+		after: Cursor
+
+		"""
+		Get the last n items in the connection. This can be used in combination with the before parameter.
+		"""
+		last: Int
+
+		"""
+		Get items before this cursor.
+		"""
+		before: Cursor
+
+		"""
+		Filter items.
+		"""
+		filter: ActivityLogFilter
+	): ActivityLogEntryConnection!
+}
+
+extend type Team implements ActivityLogger {
 	"""
 	Activity log associated with the team.
 	"""
@@ -19454,6 +19499,18 @@ input ActivityLogFilter {
 	When combined with other fields in this input, entries must match this filter as well as the other selected filters.
 	"""
 	environments: [String!]
+
+	"""
+	Only include entries created at or after this timestamp.
+	When combined with other fields in this input, entries must match this filter as well as the other selected filters.
+	"""
+	from: Time
+
+	"""
+	Only include entries created before this timestamp.
+	When combined with other fields in this input, entries must match this filter as well as the other selected filters.
+	"""
+	to: Time
 }
 
 enum ActivityLogActivityType
