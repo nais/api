@@ -408,12 +408,12 @@ func ListTokensForServiceAccount(ctx context.Context, page *pagination.Paginatio
 	}), nil
 }
 
-// DeleteStaticServiceAccounts removes all static service accounts.
+// TODO: Remove once static service accounts has been removed
 func DeleteStaticServiceAccounts(ctx context.Context) error {
 	return db(ctx).DeleteStaticServiceAccounts(ctx)
 }
 
-// CreateStaticServiceAccount creates a static service account.
+// TODO: Remove once static service accounts has been removed
 func CreateStaticServiceAccount(ctx context.Context, name string, roles []string, secret string) error {
 	return database.Transaction(ctx, func(ctx context.Context) error {
 		sa, err := db(ctx).Create(ctx, serviceaccountsql.CreateParams{
