@@ -19614,7 +19614,6 @@ type ActivityLogFacets {
 	Distribution of entries by environment.
 	"""
 	environments: [StringFacetItem!]!
-
 }
 
 """
