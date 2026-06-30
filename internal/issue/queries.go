@@ -43,7 +43,7 @@ func GetByIdent(ctx context.Context, id ident.Ident) (Issue, error) {
 	return convert(issue)
 }
 
-func ListIssues(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *IssueOrder, filter *IssueFilter) (*IssueConnection, error) {
+func ListIssues(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *IssueOrder, scope *IssueScope, filter *IssueFilter) (*IssueConnection, error) {
 	params := issuesql.ListIssuesParams{
 		Team:    teamSlug.String(),
 		Offset:  page.Offset(),
@@ -51,11 +51,21 @@ func ListIssues(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagina
 		OrderBy: orderBy.String(),
 	}
 
+	if scope != nil {
+		params.ResourceName = &scope.ResourceName
+		params.ResourceType = (*string)(&scope.ResourceType)
+		params.Env = []string{scope.Env}
+	}
+
 	if filter != nil {
-		params.Env = filter.Environments
-		params.ResourceType = (*string)(filter.ResourceType)
+		if scope == nil {
+			if len(filter.Environments) > 0 {
+				params.Env = filter.Environments
+			}
+			params.ResourceType = (*string)(filter.ResourceType)
+			params.ResourceName = filter.ResourceName
+		}
 		params.IssueType = (*string)(filter.IssueType)
-		params.ResourceName = filter.ResourceName
 		if filter.Severity != nil {
 			params.Severity = new(issuesql.SeverityLevel(*filter.Severity))
 		}
@@ -93,6 +103,7 @@ func ListIssues(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagina
 	return &IssueConnection{
 		Connection: *conn,
 		teamSlug:   teamSlug,
+		scope:      scope,
 		filter:     filter,
 	}, nil
 }

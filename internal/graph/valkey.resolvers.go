@@ -100,18 +100,17 @@ func (r *valkeyResolver) Issues(ctx context.Context, obj *valkey.Valkey, first *
 		return nil, err
 	}
 
-	t := issue.ResourceTypeValkey
-	f := &issue.IssueFilter{
-		ResourceName: &obj.Name,
-		ResourceType: &t,
-		Environments: []string{obj.EnvironmentName},
+	scope := &issue.IssueScope{
+		ResourceName: obj.Name,
+		ResourceType: issue.ResourceTypeValkey,
+		Env:          obj.EnvironmentName,
 	}
+	var f *issue.IssueFilter
 	if filter != nil {
-		f.Severity = filter.Severity
-		f.IssueType = filter.IssueType
+		f = &issue.IssueFilter{ResourceIssueFilter: issue.ResourceIssueFilter{Severity: filter.Severity, IssueType: filter.IssueType}}
 	}
 
-	return issue.ListIssues(ctx, obj.TeamSlug, page, orderBy, f)
+	return issue.ListIssues(ctx, obj.TeamSlug, page, orderBy, scope, f)
 }
 
 func (r *valkeyAccessResolver) Workload(ctx context.Context, obj *valkey.ValkeyAccess) (workload.Workload, error) {
