@@ -229,7 +229,8 @@ enum IssueType {
 	INVALID_SPEC @deprecated(reason: "Use WORKLOAD_PROBLEM instead.")
 	MISSING_SBOM
 	VULNERABLE_IMAGE
-	EXTERNAL_INGRESS_CRITICAL_VULNERABILITY @deprecated(reason: "Use EXTERNAL_INGRESS_URGENT_VULNERABILITY.")
+	EXTERNAL_INGRESS_CRITICAL_VULNERABILITY
+		@deprecated(reason: "Use EXTERNAL_INGRESS_URGENT_VULNERABILITY.")
 	EXTERNAL_INGRESS_URGENT_VULNERABILITY
 	UNLEASH_RELEASE_CHANNEL
 	"Raised when an application is stuck in a restart loop."
@@ -250,7 +251,8 @@ type VulnerableImageIssue implements Issue & Node {
 "Deprecated: use ExternalIngressUrgentVulnerabilityIssue."
 type ExternalIngressCriticalVulnerabilityIssue implements Issue & Node {
 	id: ID! @deprecated(reason: "Use ExternalIngressUrgentVulnerabilityIssue instead.")
-	teamEnvironment: TeamEnvironment! @deprecated(reason: "Use ExternalIngressUrgentVulnerabilityIssue instead.")
+	teamEnvironment: TeamEnvironment!
+		@deprecated(reason: "Use ExternalIngressUrgentVulnerabilityIssue instead.")
 	severity: Severity! @deprecated(reason: "Use ExternalIngressUrgentVulnerabilityIssue instead.")
 	message: String! @deprecated(reason: "Use ExternalIngressUrgentVulnerabilityIssue instead.")
 
