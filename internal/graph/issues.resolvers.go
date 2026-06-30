@@ -68,6 +68,10 @@ func (r *invalidSpecIssueResolver) Workload(ctx context.Context, obj *issue.Inva
 	return getWorkloadByResourceType(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ResourceName, obj.ResourceType)
 }
 
+func (r *issueConnectionResolver) Facets(ctx context.Context, obj *issue.IssueConnection) (*issue.IssueFacets, error) {
+	return issue.ComputeFacets(ctx, obj.GetTeamSlug(), obj.GetFilter())
+}
+
 func (r *lastRunFailedIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.LastRunFailedIssue) (*team.TeamEnvironment, error) {
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
@@ -116,7 +120,7 @@ func (r *sqlInstanceVersionIssueResolver) SQLInstance(ctx context.Context, obj *
 	return sqlinstance.Get(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ResourceName)
 }
 
-func (r *teamResolver) Issues(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.IssueFilter) (*pagination.Connection[issue.Issue], error) {
+func (r *teamResolver) Issues(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.IssueFilter) (*issue.IssueConnection, error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
@@ -181,6 +185,10 @@ func (r *Resolver) InvalidSpecIssue() gengql.InvalidSpecIssueResolver {
 	return &invalidSpecIssueResolver{r}
 }
 
+func (r *Resolver) IssueConnection() gengql.IssueConnectionResolver {
+	return &issueConnectionResolver{r}
+}
+
 func (r *Resolver) LastRunFailedIssue() gengql.LastRunFailedIssueResolver {
 	return &lastRunFailedIssueResolver{r}
 }
@@ -226,6 +234,7 @@ type (
 	externalIngressCriticalVulnerabilityIssueResolver struct{ *Resolver }
 	failedSynchronizationIssueResolver                struct{ *Resolver }
 	invalidSpecIssueResolver                          struct{ *Resolver }
+	issueConnectionResolver                           struct{ *Resolver }
 	lastRunFailedIssueResolver                        struct{ *Resolver }
 	missingSbomIssueResolver                          struct{ *Resolver }
 	noRunningInstancesIssueResolver                   struct{ *Resolver }

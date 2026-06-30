@@ -76,6 +76,70 @@ type IssueConnection {
 
 	"List of edges."
 	edges: [IssueEdge!]!
+
+	"""
+	Facets for the issues. Provides distribution counts to help narrow down results.
+	Facet counts are computed over the full result set (ignoring pagination) but respect the current filter.
+	"""
+	facets: IssueFacets
+}
+
+"""
+Facets for issues, providing distribution counts across different dimensions.
+"""
+type IssueFacets {
+	"""
+	Distribution of issues by environment.
+	"""
+	environments: [StringFacetItem!]!
+
+	"""
+	Distribution of issues by severity.
+	"""
+	severities: [SeverityFacetItem!]!
+
+	"""
+	Distribution of issues by resource type.
+	"""
+	resourceTypes: [ResourceTypeFacetItem!]!
+
+	"""
+	Distribution of issues by issue type.
+	"""
+	issueTypes: [IssueTypeFacetItem!]!
+}
+
+"""
+A single facet item for issue severities.
+"""
+type SeverityFacetItem {
+	"The severity."
+	severity: Severity!
+
+	"Number of matching issues."
+	count: Int!
+}
+
+"""
+A single facet item for resource types.
+"""
+type ResourceTypeFacetItem {
+	"The resource type."
+	resourceType: ResourceType!
+
+	"Number of matching issues."
+	count: Int!
+}
+
+"""
+A single facet item for issue types.
+"""
+type IssueTypeFacetItem {
+	"The issue type."
+	issueType: IssueType!
+
+	"Number of matching issues."
+	count: Int!
 }
 
 type IssueEdge {
