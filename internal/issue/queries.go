@@ -206,14 +206,14 @@ func convert(issue *issuesql.Issue) (Issue, error) {
 		return &MissingSbomIssue{
 			Base: base,
 		}, nil
-	case IssueTypeExternalIngressActNowVulnerability:
-		d, err := unmarshal[ExternalIngressActNowVulnerabilityIssueDetails](issue.IssueDetails)
+	case IssueTypeExternalIngressUrgentVulnerability:
+		d, err := unmarshal[ExternalIngressUrgentVulnerabilityIssueDetails](issue.IssueDetails)
 		if err != nil {
 			return nil, err
 		}
-		return &ExternalIngressActNowVulnerabilityIssue{
+		return &ExternalIngressUrgentVulnerabilityIssue{
 			Base: base,
-			ExternalIngressActNowVulnerabilityIssueDetails: *d,
+			ExternalIngressUrgentVulnerabilityIssueDetails: *d,
 		}, nil
 	case IssueTypeExternalIngressCriticalVulnerability:
 		d, err := unmarshal[ExternalIngressCriticalVulnerabilityIssueDetails](issue.IssueDetails)

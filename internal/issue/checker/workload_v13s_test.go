@@ -110,7 +110,7 @@ func testVulnerabilitiesExternalIngressActNowIssue(t *testing.T, workloadName, e
 	issues := workload.vulnerabilities(ctx)
 	actNowIssues := make([]*Issue, 0)
 	for i := range issues {
-		if issues[i].IssueType == issue.IssueTypeExternalIngressActNowVulnerability {
+		if issues[i].IssueType == issue.IssueTypeExternalIngressUrgentVulnerability {
 			actNowIssues = append(actNowIssues, issues[i])
 		}
 	}
@@ -127,21 +127,21 @@ func testVulnerabilitiesExternalIngressActNowIssue(t *testing.T, workloadName, e
 	}
 
 	got := actNowIssues[0]
-	if got.IssueType != issue.IssueTypeExternalIngressActNowVulnerability {
-		t.Fatalf("expected issue type %s, got %s", issue.IssueTypeExternalIngressActNowVulnerability, got.IssueType)
+	if got.IssueType != issue.IssueTypeExternalIngressUrgentVulnerability {
+		t.Fatalf("expected issue type %s, got %s", issue.IssueTypeExternalIngressUrgentVulnerability, got.IssueType)
 	}
 
 	if got.ResourceName != workloadName {
 		t.Fatalf("expected resource %s, got %s", workloadName, got.ResourceName)
 	}
 
-	details, ok := got.IssueDetails.(issue.ExternalIngressActNowVulnerabilityIssueDetails)
+	details, ok := got.IssueDetails.(issue.ExternalIngressUrgentVulnerabilityIssueDetails)
 	if !ok {
 		t.Fatalf("expected external ingress act-now details, got %T", got.IssueDetails)
 	}
 
-	if details.PriorityActNow != 2 {
-		t.Fatalf("expected priorityActNow 2, got %v", details.PriorityActNow)
+	if details.PriorityUrgent != 2 {
+		t.Fatalf("expected priorityUrgent 2, got %v", details.PriorityUrgent)
 	}
 
 	if len(details.Ingresses) != 1 || details.Ingresses[0] != expectedIngress {
