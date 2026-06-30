@@ -40,19 +40,19 @@ func (r *deprecatedRegistryIssueResolver) Workload(ctx context.Context, obj *iss
 	return getWorkloadByResourceType(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ResourceName, obj.ResourceType)
 }
 
-func (r *externalIngressActNowVulnerabilityIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.ExternalIngressActNowVulnerabilityIssue) (*team.TeamEnvironment, error) {
-	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
-}
-
-func (r *externalIngressActNowVulnerabilityIssueResolver) Workload(ctx context.Context, obj *issue.ExternalIngressActNowVulnerabilityIssue) (workload.Workload, error) {
-	return getWorkloadByResourceType(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ResourceName, obj.ResourceType)
-}
-
 func (r *externalIngressCriticalVulnerabilityIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.ExternalIngressCriticalVulnerabilityIssue) (*team.TeamEnvironment, error) {
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
 
 func (r *externalIngressCriticalVulnerabilityIssueResolver) Workload(ctx context.Context, obj *issue.ExternalIngressCriticalVulnerabilityIssue) (workload.Workload, error) {
+	return getWorkloadByResourceType(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ResourceName, obj.ResourceType)
+}
+
+func (r *externalIngressUrgentVulnerabilityIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.ExternalIngressUrgentVulnerabilityIssue) (*team.TeamEnvironment, error) {
+	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
+}
+
+func (r *externalIngressUrgentVulnerabilityIssueResolver) Workload(ctx context.Context, obj *issue.ExternalIngressUrgentVulnerabilityIssue) (workload.Workload, error) {
 	return getWorkloadByResourceType(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ResourceName, obj.ResourceType)
 }
 
@@ -181,12 +181,12 @@ func (r *Resolver) DeprecatedRegistryIssue() gengql.DeprecatedRegistryIssueResol
 	return &deprecatedRegistryIssueResolver{r}
 }
 
-func (r *Resolver) ExternalIngressActNowVulnerabilityIssue() gengql.ExternalIngressActNowVulnerabilityIssueResolver {
-	return &externalIngressActNowVulnerabilityIssueResolver{r}
-}
-
 func (r *Resolver) ExternalIngressCriticalVulnerabilityIssue() gengql.ExternalIngressCriticalVulnerabilityIssueResolver {
 	return &externalIngressCriticalVulnerabilityIssueResolver{r}
+}
+
+func (r *Resolver) ExternalIngressUrgentVulnerabilityIssue() gengql.ExternalIngressUrgentVulnerabilityIssueResolver {
+	return &externalIngressUrgentVulnerabilityIssueResolver{r}
 }
 
 func (r *Resolver) FailedSynchronizationIssue() gengql.FailedSynchronizationIssueResolver {
@@ -243,8 +243,8 @@ type (
 	applicationRestartLoopIssueResolver               struct{ *Resolver }
 	deprecatedIngressIssueResolver                    struct{ *Resolver }
 	deprecatedRegistryIssueResolver                   struct{ *Resolver }
-	externalIngressActNowVulnerabilityIssueResolver   struct{ *Resolver }
 	externalIngressCriticalVulnerabilityIssueResolver struct{ *Resolver }
+	externalIngressUrgentVulnerabilityIssueResolver   struct{ *Resolver }
 	failedSynchronizationIssueResolver                struct{ *Resolver }
 	invalidSpecIssueResolver                          struct{ *Resolver }
 	issueConnectionResolver                           struct{ *Resolver }

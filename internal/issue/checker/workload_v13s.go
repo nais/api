@@ -210,19 +210,19 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 		seenActNow[key] = struct{}{}
 
 		ret = append(ret, &Issue{
-			IssueType:    issue.IssueTypeExternalIngressActNowVulnerability,
+			IssueType:    issue.IssueTypeExternalIngressUrgentVulnerability,
 			ResourceType: workloadType,
 			ResourceName: node.Workload.GetName(),
 			Team:         node.Workload.GetNamespace(),
 			Env:          env,
 			Severity:     issue.SeverityCritical,
 			Message: fmt.Sprintf(
-				"Workload with external ingresses %s has %d urgent vulnerabilities",
-				strings.Join(externalIngresses, ", "),
+				"Workload '%s' (exposed via external ingress) has %d urgent vulnerabilities",
+				node.Workload.GetName(),
 				node.VulnerabilitySummary.ActNow,
 			),
-			IssueDetails: issue.ExternalIngressActNowVulnerabilityIssueDetails{
-				PriorityActNow: int(node.VulnerabilitySummary.ActNow),
+			IssueDetails: issue.ExternalIngressUrgentVulnerabilityIssueDetails{
+				PriorityUrgent: int(node.VulnerabilitySummary.ActNow),
 				Ingresses:      externalIngresses,
 			},
 		})

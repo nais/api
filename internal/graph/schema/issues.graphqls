@@ -229,8 +229,8 @@ enum IssueType {
 	INVALID_SPEC @deprecated(reason: "Use WORKLOAD_PROBLEM instead.")
 	MISSING_SBOM
 	VULNERABLE_IMAGE
-	EXTERNAL_INGRESS_CRITICAL_VULNERABILITY @deprecated(reason: "Use EXTERNAL_INGRESS_ACT_NOW_VULNERABILITY.")
-	EXTERNAL_INGRESS_ACT_NOW_VULNERABILITY
+	EXTERNAL_INGRESS_CRITICAL_VULNERABILITY @deprecated(reason: "Use EXTERNAL_INGRESS_URGENT_VULNERABILITY.")
+	EXTERNAL_INGRESS_URGENT_VULNERABILITY
 	UNLEASH_RELEASE_CHANNEL
 	"Raised when an application is stuck in a restart loop."
 	APPLICATION_RESTART_LOOP
@@ -247,27 +247,27 @@ type VulnerableImageIssue implements Issue & Node {
 	critical: Int!
 }
 
-"Deprecated: use ExternalIngressActNowVulnerabilityIssue."
+"Deprecated: use ExternalIngressUrgentVulnerabilityIssue."
 type ExternalIngressCriticalVulnerabilityIssue implements Issue & Node {
-	id: ID!
-	teamEnvironment: TeamEnvironment!
-	severity: Severity!
-	message: String!
+	id: ID! @deprecated(reason: "Use ExternalIngressUrgentVulnerabilityIssue instead.")
+	teamEnvironment: TeamEnvironment! @deprecated(reason: "Use ExternalIngressUrgentVulnerabilityIssue instead.")
+	severity: Severity! @deprecated(reason: "Use ExternalIngressUrgentVulnerabilityIssue instead.")
+	message: String! @deprecated(reason: "Use ExternalIngressUrgentVulnerabilityIssue instead.")
 
-	workload: Workload!
-	cvssScore: Float!
-	ingresses: [String!]!
+	workload: Workload! @deprecated(reason: "Use ExternalIngressUrgentVulnerabilityIssue instead.")
+	cvssScore: Float! @deprecated(reason: "Use ExternalIngressUrgentVulnerabilityIssue instead.")
+	ingresses: [String!]! @deprecated(reason: "Use ExternalIngressUrgentVulnerabilityIssue instead.")
 }
 
-"Raised when a workload with external ingresses has one or more ACT_NOW vulnerability-priority findings."
-type ExternalIngressActNowVulnerabilityIssue implements Issue & Node {
+"Raised when a workload with external ingresses has one or more urgent vulnerability-priority findings."
+type ExternalIngressUrgentVulnerabilityIssue implements Issue & Node {
 	id: ID!
 	teamEnvironment: TeamEnvironment!
 	severity: Severity!
 	message: String!
 
 	workload: Workload!
-	priorityActNow: Int!
+	priorityUrgent: Int!
 	ingresses: [String!]!
 }
 

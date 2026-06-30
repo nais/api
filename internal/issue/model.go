@@ -184,8 +184,8 @@ type VulnerableImageIssueDetails struct {
 	Critical  int `json:"critical"`
 }
 
-type ExternalIngressActNowVulnerabilityIssueDetails struct {
-	PriorityActNow int      `json:"priorityActNow"`
+type ExternalIngressUrgentVulnerabilityIssueDetails struct {
+	PriorityUrgent int      `json:"priorityUrgent"`
 	Ingresses      []string `json:"ingresses"`
 }
 
@@ -213,7 +213,7 @@ const (
 	IssueTypeVulnerableImage                      IssueType = "VULNERABLE_IMAGE"
 	IssueTypeMissingSBOM                          IssueType = "MISSING_SBOM"
 	IssueTypeExternalIngressCriticalVulnerability IssueType = "EXTERNAL_INGRESS_CRITICAL_VULNERABILITY"
-	IssueTypeExternalIngressActNowVulnerability   IssueType = "EXTERNAL_INGRESS_ACT_NOW_VULNERABILITY"
+	IssueTypeExternalIngressUrgentVulnerability   IssueType = "EXTERNAL_INGRESS_URGENT_VULNERABILITY"
 	IssueTypeUnleashReleaseChannel                IssueType = "UNLEASH_RELEASE_CHANNEL"
 	IssueTypeApplicationRestartLoop               IssueType = "APPLICATION_RESTART_LOOP"
 )
@@ -233,7 +233,7 @@ var AllIssueType = []IssueType{
 	IssueTypeVulnerableImage,
 	IssueTypeMissingSBOM,
 	IssueTypeExternalIngressCriticalVulnerability,
-	IssueTypeExternalIngressActNowVulnerability,
+	IssueTypeExternalIngressUrgentVulnerability,
 	IssueTypeUnleashReleaseChannel,
 	IssueTypeApplicationRestartLoop,
 }
@@ -245,7 +245,7 @@ func (e IssueType) IsValid() bool {
 		IssueTypeNoRunningInstances, IssueTypeLastRunFailed, IssueTypeWorkloadProblem,
 		IssueTypeInvalidSpec, IssueTypeFailedSynchronization, IssueTypeVulnerableImage,
 		IssueTypeMissingSBOM, IssueTypeExternalIngressCriticalVulnerability,
-		IssueTypeExternalIngressActNowVulnerability, IssueTypeUnleashReleaseChannel,
+		IssueTypeExternalIngressUrgentVulnerability, IssueTypeUnleashReleaseChannel,
 		IssueTypeApplicationRestartLoop:
 		return true
 	}
@@ -503,14 +503,14 @@ func (VulnerableImageIssue) IsIssue() {}
 
 func (VulnerableImageIssue) IsNode() {}
 
-type ExternalIngressActNowVulnerabilityIssue struct {
+type ExternalIngressUrgentVulnerabilityIssue struct {
 	Base
-	ExternalIngressActNowVulnerabilityIssueDetails
+	ExternalIngressUrgentVulnerabilityIssueDetails
 }
 
-func (ExternalIngressActNowVulnerabilityIssue) IsIssue() {}
+func (ExternalIngressUrgentVulnerabilityIssue) IsIssue() {}
 
-func (ExternalIngressActNowVulnerabilityIssue) IsNode() {}
+func (ExternalIngressUrgentVulnerabilityIssue) IsNode() {}
 
 type ExternalIngressCriticalVulnerabilityIssue struct {
 	Base
