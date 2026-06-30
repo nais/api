@@ -1,6 +1,7 @@
 package activitylog
 
 import (
+	"fmt"
 	"slices"
 	"strings"
 
@@ -29,6 +30,8 @@ type WebhookEventTypeInfo struct {
 	Group string `json:"group"`
 	// TeamScoped indicates if this event type can be subscribed to by team-scoped webhooks.
 	TeamScoped bool `json:"teamScoped"`
+
+	ignoreWebhook bool // internal flag to indicate that this event type should not be exposed in the webhook catalogue
 }
 
 type ActivityTypeOption func(*WebhookEventTypeInfo)
@@ -51,6 +54,13 @@ func WithGroup(group string) ActivityTypeOption {
 func GlobalOnly() ActivityTypeOption {
 	return func(info *WebhookEventTypeInfo) {
 		info.TeamScoped = false
+	}
+}
+
+// GlobalOnly marks the event type as global-only (not team-scoped).
+func IgnoreWebhook() ActivityTypeOption {
+	return func(info *WebhookEventTypeInfo) {
+		info.ignoreWebhook = true
 	}
 }
 
@@ -122,6 +132,7 @@ func KnownEventTypes() []WebhookEventTypeInfo {
 	for at := range knownFilters {
 		info, ok := eventTypeInfos[at]
 		if !ok {
+			fmt.Println("Warning: activity type", at, "is registered but has no WebhookEventTypeInfo; using auto-generated description and group")
 			desc, grp := autoGroupAndDescription(at)
 			info = WebhookEventTypeInfo{
 				Type:           at,
@@ -130,6 +141,10 @@ func KnownEventTypes() []WebhookEventTypeInfo {
 				Group:          grp,
 				TeamScoped:     true,
 			}
+		}
+
+		if info.ignoreWebhook {
+			continue
 		}
 		result = append(result, info)
 	}
@@ -182,19 +197,13 @@ func RegisterActivityType(activityType ActivityLogActivityType, action ActivityL
 		rebuildReverseFilters()
 	}
 
-	// Default teamScoped based on resourceType
-	teamScoped := true
-	if resourceType == "RECONCILER" || resourceType == "CLUSTER_AUDIT" {
-		teamScoped = false
-	}
-
 	desc, grp := autoGroupAndDescription(activityType)
 	info := &WebhookEventTypeInfo{
 		Type:           activityType,
 		CloudEventType: CloudEventType(activityType),
 		Description:    desc,
 		Group:          grp,
-		TeamScoped:     teamScoped,
+		TeamScoped:     true,
 	}
 
 	for _, opt := range opts {
