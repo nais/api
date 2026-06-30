@@ -23741,7 +23741,8 @@ enum IssueType {
 	INVALID_SPEC @deprecated(reason: "Use WORKLOAD_PROBLEM instead.")
 	MISSING_SBOM
 	VULNERABLE_IMAGE
-	EXTERNAL_INGRESS_CRITICAL_VULNERABILITY @deprecated(reason: "Use EXTERNAL_INGRESS_URGENT_VULNERABILITY.")
+	EXTERNAL_INGRESS_CRITICAL_VULNERABILITY
+		@deprecated(reason: "Use EXTERNAL_INGRESS_URGENT_VULNERABILITY.")
 	EXTERNAL_INGRESS_URGENT_VULNERABILITY
 	UNLEASH_RELEASE_CHANNEL
 	"Raised when an application is stuck in a restart loop."
@@ -23762,7 +23763,8 @@ type VulnerableImageIssue implements Issue & Node {
 "Deprecated: use ExternalIngressUrgentVulnerabilityIssue."
 type ExternalIngressCriticalVulnerabilityIssue implements Issue & Node {
 	id: ID! @deprecated(reason: "Use ExternalIngressUrgentVulnerabilityIssue instead.")
-	teamEnvironment: TeamEnvironment! @deprecated(reason: "Use ExternalIngressUrgentVulnerabilityIssue instead.")
+	teamEnvironment: TeamEnvironment!
+		@deprecated(reason: "Use ExternalIngressUrgentVulnerabilityIssue instead.")
 	severity: Severity! @deprecated(reason: "Use ExternalIngressUrgentVulnerabilityIssue instead.")
 	message: String! @deprecated(reason: "Use ExternalIngressUrgentVulnerabilityIssue instead.")
 
@@ -32015,24 +32017,19 @@ type ImageVulnerabilitySummary {
 	countsByPriority: ImageVulnerabilitySummaryCountsByPriority!
 
 	"Number of vulnerabilities with severity LOW."
-	low: Int!
-		@deprecated(reason: "Use countsBySeverity.low instead.")
+	low: Int! @deprecated(reason: "Use countsBySeverity.low instead.")
 
 	"Number of vulnerabilities with severity MEDIUM."
-	medium: Int!
-		@deprecated(reason: "Use countsBySeverity.medium instead.")
+	medium: Int! @deprecated(reason: "Use countsBySeverity.medium instead.")
 
 	"Number of vulnerabilities with severity HIGH."
-	high: Int!
-		@deprecated(reason: "Use countsBySeverity.high instead.")
+	high: Int! @deprecated(reason: "Use countsBySeverity.high instead.")
 
 	"Number of vulnerabilities with severity CRITICAL."
-	critical: Int!
-		@deprecated(reason: "Use countsBySeverity.critical instead.")
+	critical: Int! @deprecated(reason: "Use countsBySeverity.critical instead.")
 
 	"Number of vulnerabilities with severity UNASSIGNED."
-	unassigned: Int!
-		@deprecated(reason: "Use countsBySeverity.unassigned instead.")
+	unassigned: Int! @deprecated(reason: "Use countsBySeverity.unassigned instead.")
 
 	"Timestamp of the last update of the vulnerability summary."
 	lastUpdated: Time
