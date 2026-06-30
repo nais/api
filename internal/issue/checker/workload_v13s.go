@@ -188,7 +188,12 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 
 	seenActNow := map[string]struct{}{}
 	for _, node := range resp.GetNodes() {
-		workloadType, ok := mapType(node.Workload.GetType())
+		workloadRef := node.GetWorkload()
+		if workloadRef == nil {
+			continue
+		}
+
+		workloadType, ok := mapType(workloadRef.GetType())
 		if !ok || workloadType != issue.ResourceTypeApplication {
 			continue
 		}
@@ -197,8 +202,8 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 			continue
 		}
 
-		env := environmentmapper.EnvironmentName(node.Workload.GetCluster())
-		key := workloadKey(env, node.Workload.GetNamespace(), node.Workload.GetName())
+		env := environmentmapper.EnvironmentName(workloadRef.GetCluster())
+		key := workloadKey(env, workloadRef.GetNamespace(), workloadRef.GetName())
 		if _, exists := seenActNow[key]; exists {
 			continue
 		}
@@ -212,13 +217,13 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 		ret = append(ret, &Issue{
 			IssueType:    issue.IssueTypeExternalIngressUrgentVulnerability,
 			ResourceType: workloadType,
-			ResourceName: node.Workload.GetName(),
-			Team:         node.Workload.GetNamespace(),
+			ResourceName: workloadRef.GetName(),
+			Team:         workloadRef.GetNamespace(),
 			Env:          env,
 			Severity:     issue.SeverityCritical,
 			Message: fmt.Sprintf(
 				"Workload '%s' (exposed via external ingress) has %d urgent vulnerabilities",
-				node.Workload.GetName(),
+				workloadRef.GetName(),
 				node.VulnerabilitySummary.ActNow,
 			),
 			IssueDetails: issue.ExternalIngressUrgentVulnerabilityIssueDetails{
