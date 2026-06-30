@@ -43,7 +43,7 @@ func GetByIdent(ctx context.Context, id ident.Ident) (Issue, error) {
 	return convert(issue)
 }
 
-func ListIssues(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *IssueOrder, filter *IssueFilter) (*pagination.Connection[Issue], error) {
+func ListIssues(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *IssueOrder, filter *IssueFilter) (*IssueConnection, error) {
 	params := issuesql.ListIssuesParams{
 		Team:    teamSlug.String(),
 		Offset:  page.Offset(),
@@ -71,7 +71,7 @@ func ListIssues(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagina
 		total = ret[0].TotalCount
 	}
 
-	return pagination.NewConvertConnectionWithError(ret, page, total, func(from *issuesql.ListIssuesRow) (Issue, error) {
+	conn, err := pagination.NewConvertConnectionWithError(ret, page, total, func(from *issuesql.ListIssuesRow) (Issue, error) {
 		iss := &issuesql.Issue{
 			ID:           from.ID,
 			IssueType:    from.IssueType,
@@ -86,6 +86,15 @@ func ListIssues(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagina
 		}
 		return convert(iss)
 	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &IssueConnection{
+		Connection: *conn,
+		teamSlug:   teamSlug,
+		filter:     filter,
+	}, nil
 }
 
 func convert(issue *issuesql.Issue) (Issue, error) {

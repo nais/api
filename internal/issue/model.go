@@ -266,9 +266,40 @@ func (e IssueType) MarshalGQL(w io.Writer) {
 }
 
 type (
-	IssueConnection = pagination.Connection[Issue]
-	IssueEdge       = pagination.Edge[Issue]
+	IssueEdge = pagination.Edge[Issue]
 )
+
+type IssueConnection struct {
+	pagination.Connection[Issue]
+
+	teamSlug slug.Slug
+	filter   *IssueFilter
+}
+
+func (c *IssueConnection) GetTeamSlug() slug.Slug  { return c.teamSlug }
+func (c *IssueConnection) GetFilter() *IssueFilter { return c.filter }
+
+type IssueFacets struct {
+	Environments  []model.StringFacetItem `json:"environments"`
+	Severities    []SeverityFacetItem     `json:"severities"`
+	ResourceTypes []ResourceTypeFacetItem `json:"resourceTypes"`
+	IssueTypes    []IssueTypeFacetItem    `json:"issueTypes"`
+}
+
+type SeverityFacetItem struct {
+	Severity Severity `json:"severity"`
+	Count    int      `json:"count"`
+}
+
+type ResourceTypeFacetItem struct {
+	ResourceType ResourceType `json:"resourceType"`
+	Count        int          `json:"count"`
+}
+
+type IssueTypeFacetItem struct {
+	IssueType IssueType `json:"issueType"`
+	Count     int       `json:"count"`
+}
 
 type IssueOrder struct {
 	// Order by this field.

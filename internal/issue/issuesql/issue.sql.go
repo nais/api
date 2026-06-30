@@ -10,6 +10,104 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const facetsForIssues = `-- name: FacetsForIssues :many
+SELECT
+	severity,
+	resource_type,
+	env,
+	issue_type,
+	COUNT(*) AS total_count,
+	COUNT(*) FILTER (
+		WHERE
+			(
+				$1::TEXT[] IS NULL
+				OR env = ANY ($1::TEXT[])
+			)
+			AND (
+				$2::TEXT IS NULL
+				OR issue_type = $2::TEXT
+			)
+			AND (
+				$3::severity_level IS NULL
+				OR severity = $3::severity_level
+			)
+			AND (
+				$4::TEXT IS NULL
+				OR resource_type = $4::TEXT
+			)
+			AND (
+				$5::TEXT IS NULL
+				OR resource_name = $5::TEXT
+			)
+	) AS filtered_count
+FROM
+	issues
+WHERE
+	team = $6
+GROUP BY
+	severity,
+	resource_type,
+	env,
+	issue_type
+ORDER BY
+	severity,
+	resource_type,
+	env,
+	issue_type
+`
+
+type FacetsForIssuesParams struct {
+	Env          []string
+	IssueType    *string
+	Severity     *SeverityLevel
+	ResourceType *string
+	ResourceName *string
+	Team         string
+}
+
+type FacetsForIssuesRow struct {
+	Severity      SeverityLevel
+	ResourceType  string
+	Env           string
+	IssueType     string
+	TotalCount    int64
+	FilteredCount int64
+}
+
+func (q *Queries) FacetsForIssues(ctx context.Context, arg FacetsForIssuesParams) ([]*FacetsForIssuesRow, error) {
+	rows, err := q.db.Query(ctx, facetsForIssues,
+		arg.Env,
+		arg.IssueType,
+		arg.Severity,
+		arg.ResourceType,
+		arg.ResourceName,
+		arg.Team,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*FacetsForIssuesRow{}
+	for rows.Next() {
+		var i FacetsForIssuesRow
+		if err := rows.Scan(
+			&i.Severity,
+			&i.ResourceType,
+			&i.Env,
+			&i.IssueType,
+			&i.TotalCount,
+			&i.FilteredCount,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getIssueByID = `-- name: GetIssueByID :one
 SELECT
 	id, issue_type, resource_name, resource_type, team, env, severity, message, issue_details, created_at

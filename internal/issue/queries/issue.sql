@@ -92,3 +92,49 @@ OFFSET
 LIMIT
 	sqlc.arg('limit')
 ;
+
+-- name: FacetsForIssues :many
+SELECT
+	severity,
+	resource_type,
+	env,
+	issue_type,
+	COUNT(*) AS total_count,
+	COUNT(*) FILTER (
+		WHERE
+			(
+				sqlc.narg('env')::TEXT[] IS NULL
+				OR env = ANY (sqlc.narg('env')::TEXT[])
+			)
+			AND (
+				sqlc.narg('issue_type')::TEXT IS NULL
+				OR issue_type = sqlc.narg('issue_type')::TEXT
+			)
+			AND (
+				sqlc.narg('severity')::severity_level IS NULL
+				OR severity = sqlc.narg('severity')::severity_level
+			)
+			AND (
+				sqlc.narg('resource_type')::TEXT IS NULL
+				OR resource_type = sqlc.narg('resource_type')::TEXT
+			)
+			AND (
+				sqlc.narg('resource_name')::TEXT IS NULL
+				OR resource_name = sqlc.narg('resource_name')::TEXT
+			)
+	) AS filtered_count
+FROM
+	issues
+WHERE
+	team = @team
+GROUP BY
+	severity,
+	resource_type,
+	env,
+	issue_type
+ORDER BY
+	severity,
+	resource_type,
+	env,
+	issue_type
+;
