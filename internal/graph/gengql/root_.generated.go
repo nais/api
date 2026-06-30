@@ -84,7 +84,6 @@ type ResolverRoot interface {
 	ExternalIngressCriticalVulnerabilityIssue() ExternalIngressCriticalVulnerabilityIssueResolver
 	FailedSynchronizationIssue() FailedSynchronizationIssueResolver
 	Ingress() IngressResolver
-	IngressMetrics() IngressMetricsResolver
 	InstanceGroup() InstanceGroupResolver
 	InvalidSpecIssue() InvalidSpecIssueResolver
 	Job() JobResolver
@@ -1083,20 +1082,8 @@ type ComplexityRoot struct {
 	}
 
 	Ingress struct {
-		Metrics func(childComplexity int) int
-		Type    func(childComplexity int) int
-		URL     func(childComplexity int) int
-	}
-
-	IngressMetricSample struct {
-		Timestamp func(childComplexity int) int
-		Value     func(childComplexity int) int
-	}
-
-	IngressMetrics struct {
-		ErrorsPerSecond   func(childComplexity int) int
-		RequestsPerSecond func(childComplexity int) int
-		Series            func(childComplexity int, input application.IngressMetricsInput) int
+		Type func(childComplexity int) int
+		URL  func(childComplexity int) int
 	}
 
 	InstanceGroup struct {
@@ -7302,13 +7289,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.InboundNetworkPolicy.Rules(childComplexity), true
 
-	case "Ingress.metrics":
-		if e.ComplexityRoot.Ingress.Metrics == nil {
-			break
-		}
-
-		return e.ComplexityRoot.Ingress.Metrics(childComplexity), true
-
 	case "Ingress.type":
 		if e.ComplexityRoot.Ingress.Type == nil {
 			break
@@ -7322,46 +7302,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Ingress.URL(childComplexity), true
-
-	case "IngressMetricSample.timestamp":
-		if e.ComplexityRoot.IngressMetricSample.Timestamp == nil {
-			break
-		}
-
-		return e.ComplexityRoot.IngressMetricSample.Timestamp(childComplexity), true
-
-	case "IngressMetricSample.value":
-		if e.ComplexityRoot.IngressMetricSample.Value == nil {
-			break
-		}
-
-		return e.ComplexityRoot.IngressMetricSample.Value(childComplexity), true
-
-	case "IngressMetrics.errorsPerSecond":
-		if e.ComplexityRoot.IngressMetrics.ErrorsPerSecond == nil {
-			break
-		}
-
-		return e.ComplexityRoot.IngressMetrics.ErrorsPerSecond(childComplexity), true
-
-	case "IngressMetrics.requestsPerSecond":
-		if e.ComplexityRoot.IngressMetrics.RequestsPerSecond == nil {
-			break
-		}
-
-		return e.ComplexityRoot.IngressMetrics.RequestsPerSecond(childComplexity), true
-
-	case "IngressMetrics.series":
-		if e.ComplexityRoot.IngressMetrics.Series == nil {
-			break
-		}
-
-		args, err := ec.field_IngressMetrics_series_args(ctx, rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.ComplexityRoot.IngressMetrics.Series(childComplexity, args["input"].(application.IngressMetricsInput)), true
 
 	case "InstanceGroup.created":
 		if e.ComplexityRoot.InstanceGroup.Created == nil {
@@ -19120,7 +19060,6 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputGrantPostgresAccessInput,
 		ec.unmarshalInputImageVulnerabilityFilter,
 		ec.unmarshalInputImageVulnerabilityOrder,
-		ec.unmarshalInputIngressMetricsInput,
 		ec.unmarshalInputIssueFilter,
 		ec.unmarshalInputIssueOrder,
 		ec.unmarshalInputJobOrder,
@@ -20644,68 +20583,6 @@ type Ingress {
 	Type of ingress.
 	"""
 	type: IngressType!
-
-	"""
-	Metrics for the ingress.
-	"""
-	metrics: IngressMetrics!
-}
-
-type IngressMetrics {
-	"""
-	Number of requests to the ingress per second.
-	"""
-	requestsPerSecond: Float!
-
-	"""
-	Number of errors in the ingress per second.
-	"""
-	errorsPerSecond: Float!
-	"""
-	Ingress metrics between start and end with step size.
-	"""
-	series(input: IngressMetricsInput!): [IngressMetricSample!]!
-}
-
-input IngressMetricsInput {
-	"""
-	Fetch metrics from this timestamp.
-	"""
-	start: Time!
-
-	"""
-	Fetch metrics until this timestamp.
-	"""
-	end: Time!
-
-	"""
-	Type of metric to fetch.
-	"""
-	type: IngressMetricsType!
-}
-
-"""
-Type of ingress metrics to fetch.
-"""
-enum IngressMetricsType {
-	"""
-	Number of requests to the ingress per second.
-	"""
-	REQUESTS_PER_SECOND
-	"""
-	Number of errors in the ingress per second.
-	"""
-	ERRORS_PER_SECOND
-}
-
-"""
-Ingress metric type.
-"""
-type IngressMetricSample {
-	"Timestamp of the value."
-	timestamp: Time!
-	"Value of the IngressMetricsType at the given timestamp."
-	value: Float!
 }
 
 enum IngressType {
@@ -33925,32 +33802,8 @@ func (ec *executionContext) childFields_Ingress(ctx context.Context, field graph
 		return ec.fieldContext_Ingress_url(ctx, field)
 	case "type":
 		return ec.fieldContext_Ingress_type(ctx, field)
-	case "metrics":
-		return ec.fieldContext_Ingress_metrics(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type Ingress", field.Name)
-}
-
-func (ec *executionContext) childFields_IngressMetricSample(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-	switch field.Name {
-	case "timestamp":
-		return ec.fieldContext_IngressMetricSample_timestamp(ctx, field)
-	case "value":
-		return ec.fieldContext_IngressMetricSample_value(ctx, field)
-	}
-	return nil, fmt.Errorf("no field named %q was found under type IngressMetricSample", field.Name)
-}
-
-func (ec *executionContext) childFields_IngressMetrics(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-	switch field.Name {
-	case "requestsPerSecond":
-		return ec.fieldContext_IngressMetrics_requestsPerSecond(ctx, field)
-	case "errorsPerSecond":
-		return ec.fieldContext_IngressMetrics_errorsPerSecond(ctx, field)
-	case "series":
-		return ec.fieldContext_IngressMetrics_series(ctx, field)
-	}
-	return nil, fmt.Errorf("no field named %q was found under type IngressMetrics", field.Name)
 }
 
 func (ec *executionContext) childFields_InstanceGroup(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
