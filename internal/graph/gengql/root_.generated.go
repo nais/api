@@ -31780,10 +31780,15 @@ input CVEOrder {
 }
 
 enum CVEOrderField {
+	"Order by CVE identifier."
 	IDENTIFIER
+	"Order by CVE severity."
 	SEVERITY
+	"Order by CVSS score."
 	CVSS_SCORE
+	"Order by number of affected workloads."
 	AFFECTED_WORKLOADS_COUNT
+	"Order by CVE priority derived from threat intelligence signals."
 	PRIORITY
 }
 
@@ -32319,12 +32324,19 @@ input ImageVulnerabilityOrder {
 }
 
 enum ImageVulnerabilityOrderField {
+	"Order by vulnerability identifier."
 	IDENTIFIER
+	"Order by vulnerability severity."
 	SEVERITY
+	"Order by when the vulnerability received its current severity."
 	SEVERITY_SINCE
+	"Order by affected package name."
 	PACKAGE
+	"Order by suppression state."
 	STATE
+	"Order by whether the vulnerability is suppressed."
 	SUPPRESSED
+	"Order by vulnerability priority derived from threat intelligence signals."
 	PRIORITY
 }
 
