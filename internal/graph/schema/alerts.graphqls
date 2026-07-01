@@ -197,6 +197,34 @@ type AlertConnection {
 	List of edges.
 	"""
 	edges: [AlertEdge!]!
+
+	"""
+	Facets for alerts. Provides distribution counts to help narrow down results.
+	Facet counts are computed over the full result set (ignoring pagination) but respect the current filter.
+	"""
+	facets: AlertFacets
+}
+
+"""
+Facets for alerts, providing distribution counts across different dimensions.
+"""
+type AlertFacets {
+	"Distribution of alerts by environment."
+	environments: [StringFacetItem!]!
+
+	"Distribution of alerts by state."
+	states: [AlertStateFacetItem!]!
+}
+
+"""
+A single facet item for alert states.
+"""
+type AlertStateFacetItem {
+	"The alert state."
+	state: AlertState!
+
+	"Number of matching alerts."
+	count: Int!
 }
 
 """

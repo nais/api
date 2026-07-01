@@ -79,24 +79,23 @@ func (r *openSearchResolver) Version(ctx context.Context, obj *opensearch.OpenSe
 	return opensearch.GetOpenSearchVersion(ctx, obj)
 }
 
-func (r *openSearchResolver) Issues(ctx context.Context, obj *opensearch.OpenSearch, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) (*pagination.Connection[issue.Issue], error) {
+func (r *openSearchResolver) Issues(ctx context.Context, obj *opensearch.OpenSearch, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) (*issue.IssueConnection, error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
 	}
 
-	t := issue.ResourceTypeOpensearch
-	f := &issue.IssueFilter{
-		ResourceName: &obj.Name,
-		ResourceType: &t,
-		Environments: []string{obj.EnvironmentName},
+	scope := &issue.IssueScope{
+		ResourceName: obj.Name,
+		ResourceType: issue.ResourceTypeOpensearch,
+		Env:          obj.EnvironmentName,
 	}
+	var f *issue.IssueFilter
 	if filter != nil {
-		f.Severity = filter.Severity
-		f.IssueType = filter.IssueType
+		f = &issue.IssueFilter{ResourceIssueFilter: issue.ResourceIssueFilter{Severity: filter.Severity, IssueType: filter.IssueType}}
 	}
 
-	return issue.ListIssues(ctx, obj.TeamSlug, page, orderBy, f)
+	return issue.ListIssues(ctx, obj.TeamSlug, page, orderBy, scope, f)
 }
 
 func (r *openSearchAccessResolver) Workload(ctx context.Context, obj *opensearch.OpenSearchAccess) (workload.Workload, error) {

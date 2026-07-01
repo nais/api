@@ -59,6 +59,7 @@ type Config = graphql.Config[ResolverRoot, DirectiveRoot, ComplexityRoot]
 
 type ResolverRoot interface {
 	ActivityLogEntryConnection() ActivityLogEntryConnectionResolver
+	AlertConnection() AlertConnectionResolver
 	Application() ApplicationResolver
 	ApplicationConnection() ApplicationConnectionResolver
 	ApplicationInstance() ApplicationInstanceResolver
@@ -87,6 +88,7 @@ type ResolverRoot interface {
 	IngressMetrics() IngressMetricsResolver
 	InstanceGroup() InstanceGroupResolver
 	InvalidSpecIssue() InvalidSpecIssueResolver
+	IssueConnection() IssueConnectionResolver
 	Job() JobResolver
 	JobConnection() JobConnectionResolver
 	JobRun() JobRunResolver
@@ -211,6 +213,7 @@ type ComplexityRoot struct {
 
 	AlertConnection struct {
 		Edges    func(childComplexity int) int
+		Facets   func(childComplexity int) int
 		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
 	}
@@ -218,6 +221,16 @@ type ComplexityRoot struct {
 	AlertEdge struct {
 		Cursor func(childComplexity int) int
 		Node   func(childComplexity int) int
+	}
+
+	AlertFacets struct {
+		Environments func(childComplexity int) int
+		States       func(childComplexity int) int
+	}
+
+	AlertStateFacetItem struct {
+		Count func(childComplexity int) int
+		State func(childComplexity int) int
 	}
 
 	AllowTeamAccessToUnleashPayload struct {
@@ -1141,6 +1154,7 @@ type ComplexityRoot struct {
 
 	IssueConnection struct {
 		Edges    func(childComplexity int) int
+		Facets   func(childComplexity int) int
 		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
 	}
@@ -1148,6 +1162,28 @@ type ComplexityRoot struct {
 	IssueEdge struct {
 		Cursor func(childComplexity int) int
 		Node   func(childComplexity int) int
+	}
+
+	IssueFacets struct {
+		Environments  func(childComplexity int) int
+		IssueTypes    func(childComplexity int) int
+		ResourceTypes func(childComplexity int) int
+		Severities    func(childComplexity int) int
+	}
+
+	IssueResourceTypeFacetItem struct {
+		Count        func(childComplexity int) int
+		ResourceType func(childComplexity int) int
+	}
+
+	IssueSeverityFacetItem struct {
+		Count    func(childComplexity int) int
+		Severity func(childComplexity int) int
+	}
+
+	IssueTypeFacetItem struct {
+		Count     func(childComplexity int) int
+		IssueType func(childComplexity int) int
 	}
 
 	Job struct {
@@ -3830,6 +3866,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.AlertConnection.Edges(childComplexity), true
 
+	case "AlertConnection.facets":
+		if e.ComplexityRoot.AlertConnection.Facets == nil {
+			break
+		}
+
+		return e.ComplexityRoot.AlertConnection.Facets(childComplexity), true
+
 	case "AlertConnection.nodes":
 		if e.ComplexityRoot.AlertConnection.Nodes == nil {
 			break
@@ -3857,6 +3900,34 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.AlertEdge.Node(childComplexity), true
+
+	case "AlertFacets.environments":
+		if e.ComplexityRoot.AlertFacets.Environments == nil {
+			break
+		}
+
+		return e.ComplexityRoot.AlertFacets.Environments(childComplexity), true
+
+	case "AlertFacets.states":
+		if e.ComplexityRoot.AlertFacets.States == nil {
+			break
+		}
+
+		return e.ComplexityRoot.AlertFacets.States(childComplexity), true
+
+	case "AlertStateFacetItem.count":
+		if e.ComplexityRoot.AlertStateFacetItem.Count == nil {
+			break
+		}
+
+		return e.ComplexityRoot.AlertStateFacetItem.Count(childComplexity), true
+
+	case "AlertStateFacetItem.state":
+		if e.ComplexityRoot.AlertStateFacetItem.State == nil {
+			break
+		}
+
+		return e.ComplexityRoot.AlertStateFacetItem.State(childComplexity), true
 
 	case "AllowTeamAccessToUnleashPayload.unleash":
 		if e.ComplexityRoot.AllowTeamAccessToUnleashPayload.Unleash == nil {
@@ -7545,6 +7616,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.IssueConnection.Edges(childComplexity), true
 
+	case "IssueConnection.facets":
+		if e.ComplexityRoot.IssueConnection.Facets == nil {
+			break
+		}
+
+		return e.ComplexityRoot.IssueConnection.Facets(childComplexity), true
+
 	case "IssueConnection.nodes":
 		if e.ComplexityRoot.IssueConnection.Nodes == nil {
 			break
@@ -7572,6 +7650,76 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.IssueEdge.Node(childComplexity), true
+
+	case "IssueFacets.environments":
+		if e.ComplexityRoot.IssueFacets.Environments == nil {
+			break
+		}
+
+		return e.ComplexityRoot.IssueFacets.Environments(childComplexity), true
+
+	case "IssueFacets.issueTypes":
+		if e.ComplexityRoot.IssueFacets.IssueTypes == nil {
+			break
+		}
+
+		return e.ComplexityRoot.IssueFacets.IssueTypes(childComplexity), true
+
+	case "IssueFacets.resourceTypes":
+		if e.ComplexityRoot.IssueFacets.ResourceTypes == nil {
+			break
+		}
+
+		return e.ComplexityRoot.IssueFacets.ResourceTypes(childComplexity), true
+
+	case "IssueFacets.severities":
+		if e.ComplexityRoot.IssueFacets.Severities == nil {
+			break
+		}
+
+		return e.ComplexityRoot.IssueFacets.Severities(childComplexity), true
+
+	case "IssueResourceTypeFacetItem.count":
+		if e.ComplexityRoot.IssueResourceTypeFacetItem.Count == nil {
+			break
+		}
+
+		return e.ComplexityRoot.IssueResourceTypeFacetItem.Count(childComplexity), true
+
+	case "IssueResourceTypeFacetItem.resourceType":
+		if e.ComplexityRoot.IssueResourceTypeFacetItem.ResourceType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.IssueResourceTypeFacetItem.ResourceType(childComplexity), true
+
+	case "IssueSeverityFacetItem.count":
+		if e.ComplexityRoot.IssueSeverityFacetItem.Count == nil {
+			break
+		}
+
+		return e.ComplexityRoot.IssueSeverityFacetItem.Count(childComplexity), true
+
+	case "IssueSeverityFacetItem.severity":
+		if e.ComplexityRoot.IssueSeverityFacetItem.Severity == nil {
+			break
+		}
+
+		return e.ComplexityRoot.IssueSeverityFacetItem.Severity(childComplexity), true
+
+	case "IssueTypeFacetItem.count":
+		if e.ComplexityRoot.IssueTypeFacetItem.Count == nil {
+			break
+		}
+
+		return e.ComplexityRoot.IssueTypeFacetItem.Count(childComplexity), true
+
+	case "IssueTypeFacetItem.issueType":
+		if e.ComplexityRoot.IssueTypeFacetItem.IssueType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.IssueTypeFacetItem.IssueType(childComplexity), true
 
 	case "Job.activityLog":
 		if e.ComplexityRoot.Job.ActivityLog == nil {
@@ -19909,6 +20057,34 @@ type AlertConnection {
 	List of edges.
 	"""
 	edges: [AlertEdge!]!
+
+	"""
+	Facets for alerts. Provides distribution counts to help narrow down results.
+	Facet counts are computed over the full result set (ignoring pagination) but respect the current filter.
+	"""
+	facets: AlertFacets
+}
+
+"""
+Facets for alerts, providing distribution counts across different dimensions.
+"""
+type AlertFacets {
+	"Distribution of alerts by environment."
+	environments: [StringFacetItem!]!
+
+	"Distribution of alerts by state."
+	states: [AlertStateFacetItem!]!
+}
+
+"""
+A single facet item for alert states.
+"""
+type AlertStateFacetItem {
+	"The alert state."
+	state: AlertState!
+
+	"Number of matching alerts."
+	count: Int!
 }
 
 """
@@ -23170,6 +23346,70 @@ type IssueConnection {
 
 	"List of edges."
 	edges: [IssueEdge!]!
+
+	"""
+	Facets for the issues. Provides distribution counts to help narrow down results.
+	Facet counts are computed over the full result set (ignoring pagination) but respect the current filter.
+	"""
+	facets: IssueFacets
+}
+
+"""
+Facets for issues, providing distribution counts across different dimensions.
+"""
+type IssueFacets {
+	"""
+	Distribution of issues by environment.
+	"""
+	environments: [StringFacetItem!]!
+
+	"""
+	Distribution of issues by severity.
+	"""
+	severities: [IssueSeverityFacetItem!]!
+
+	"""
+	Distribution of issues by resource type.
+	"""
+	resourceTypes: [IssueResourceTypeFacetItem!]!
+
+	"""
+	Distribution of issues by issue type.
+	"""
+	issueTypes: [IssueTypeFacetItem!]!
+}
+
+"""
+A single facet item for issue severities.
+"""
+type IssueSeverityFacetItem {
+	"The severity."
+	severity: Severity!
+
+	"Number of matching issues."
+	count: Int!
+}
+
+"""
+A single facet item for resource types.
+"""
+type IssueResourceTypeFacetItem {
+	"The resource type."
+	resourceType: ResourceType!
+
+	"Number of matching issues."
+	count: Int!
+}
+
+"""
+A single facet item for issue types.
+"""
+type IssueTypeFacetItem {
+	"The issue type."
+	issueType: IssueType!
+
+	"Number of matching issues."
+	count: Int!
 }
 
 type IssueEdge {
@@ -32597,6 +32837,8 @@ func (ec *executionContext) childFields_AlertConnection(ctx context.Context, fie
 		return ec.fieldContext_AlertConnection_nodes(ctx, field)
 	case "edges":
 		return ec.fieldContext_AlertConnection_edges(ctx, field)
+	case "facets":
+		return ec.fieldContext_AlertConnection_facets(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type AlertConnection", field.Name)
 }
@@ -32609,6 +32851,26 @@ func (ec *executionContext) childFields_AlertEdge(ctx context.Context, field gra
 		return ec.fieldContext_AlertEdge_node(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type AlertEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_AlertFacets(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "environments":
+		return ec.fieldContext_AlertFacets_environments(ctx, field)
+	case "states":
+		return ec.fieldContext_AlertFacets_states(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type AlertFacets", field.Name)
+}
+
+func (ec *executionContext) childFields_AlertStateFacetItem(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "state":
+		return ec.fieldContext_AlertStateFacetItem_state(ctx, field)
+	case "count":
+		return ec.fieldContext_AlertStateFacetItem_count(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type AlertStateFacetItem", field.Name)
 }
 
 func (ec *executionContext) childFields_AllowTeamAccessToUnleashPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -34025,6 +34287,8 @@ func (ec *executionContext) childFields_IssueConnection(ctx context.Context, fie
 		return ec.fieldContext_IssueConnection_nodes(ctx, field)
 	case "edges":
 		return ec.fieldContext_IssueConnection_edges(ctx, field)
+	case "facets":
+		return ec.fieldContext_IssueConnection_facets(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type IssueConnection", field.Name)
 }
@@ -34037,6 +34301,50 @@ func (ec *executionContext) childFields_IssueEdge(ctx context.Context, field gra
 		return ec.fieldContext_IssueEdge_node(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type IssueEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_IssueFacets(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "environments":
+		return ec.fieldContext_IssueFacets_environments(ctx, field)
+	case "severities":
+		return ec.fieldContext_IssueFacets_severities(ctx, field)
+	case "resourceTypes":
+		return ec.fieldContext_IssueFacets_resourceTypes(ctx, field)
+	case "issueTypes":
+		return ec.fieldContext_IssueFacets_issueTypes(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type IssueFacets", field.Name)
+}
+
+func (ec *executionContext) childFields_IssueResourceTypeFacetItem(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "resourceType":
+		return ec.fieldContext_IssueResourceTypeFacetItem_resourceType(ctx, field)
+	case "count":
+		return ec.fieldContext_IssueResourceTypeFacetItem_count(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type IssueResourceTypeFacetItem", field.Name)
+}
+
+func (ec *executionContext) childFields_IssueSeverityFacetItem(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "severity":
+		return ec.fieldContext_IssueSeverityFacetItem_severity(ctx, field)
+	case "count":
+		return ec.fieldContext_IssueSeverityFacetItem_count(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type IssueSeverityFacetItem", field.Name)
+}
+
+func (ec *executionContext) childFields_IssueTypeFacetItem(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "issueType":
+		return ec.fieldContext_IssueTypeFacetItem_issueType(ctx, field)
+	case "count":
+		return ec.fieldContext_IssueTypeFacetItem_count(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type IssueTypeFacetItem", field.Name)
 }
 
 func (ec *executionContext) childFields_Job(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {

@@ -73,24 +73,23 @@ func (r *jobResolver) State(ctx context.Context, obj *job.Job) (job.JobState, er
 	return job.GetState(ctx, obj)
 }
 
-func (r *jobResolver) Issues(ctx context.Context, obj *job.Job, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) (*pagination.Connection[issue.Issue], error) {
+func (r *jobResolver) Issues(ctx context.Context, obj *job.Job, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) (*issue.IssueConnection, error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
 	}
 
-	jobType := issue.ResourceTypeJob
-	f := &issue.IssueFilter{
-		ResourceName: &obj.Name,
-		ResourceType: &jobType,
-		Environments: []string{obj.EnvironmentName},
+	scope := &issue.IssueScope{
+		ResourceName: obj.Name,
+		ResourceType: issue.ResourceTypeJob,
+		Env:          obj.EnvironmentName,
 	}
+	var f *issue.IssueFilter
 	if filter != nil {
-		f.Severity = filter.Severity
-		f.IssueType = filter.IssueType
+		f = &issue.IssueFilter{ResourceIssueFilter: issue.ResourceIssueFilter{Severity: filter.Severity, IssueType: filter.IssueType}}
 	}
 
-	return issue.ListIssues(ctx, obj.TeamSlug, page, orderBy, f)
+	return issue.ListIssues(ctx, obj.TeamSlug, page, orderBy, scope, f)
 }
 
 func (r *jobConnectionResolver) Facets(ctx context.Context, obj *pagination.FacetableConnection[*job.Job, *job.TeamJobsFilter]) (*job.JobFacets, error) {

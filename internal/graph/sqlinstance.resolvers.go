@@ -96,24 +96,23 @@ func (r *sqlInstanceResolver) State(ctx context.Context, obj *sqlinstance.SQLIns
 	return sqlinstance.GetState(ctx, obj.ProjectID, obj.Name)
 }
 
-func (r *sqlInstanceResolver) Issues(ctx context.Context, obj *sqlinstance.SQLInstance, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) (*pagination.Connection[issue.Issue], error) {
+func (r *sqlInstanceResolver) Issues(ctx context.Context, obj *sqlinstance.SQLInstance, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) (*issue.IssueConnection, error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
 	}
 
-	t := issue.ResourceTypeSQLInstance
-	f := &issue.IssueFilter{
-		ResourceName: &obj.Name,
-		ResourceType: &t,
-		Environments: []string{obj.EnvironmentName},
+	scope := &issue.IssueScope{
+		ResourceName: obj.Name,
+		ResourceType: issue.ResourceTypeSQLInstance,
+		Env:          obj.EnvironmentName,
 	}
+	var f *issue.IssueFilter
 	if filter != nil {
-		f.Severity = filter.Severity
-		f.IssueType = filter.IssueType
+		f = &issue.IssueFilter{ResourceIssueFilter: issue.ResourceIssueFilter{Severity: filter.Severity, IssueType: filter.IssueType}}
 	}
 
-	return issue.ListIssues(ctx, obj.TeamSlug, page, orderBy, f)
+	return issue.ListIssues(ctx, obj.TeamSlug, page, orderBy, scope, f)
 }
 
 func (r *sqlInstanceResolver) AuditLog(ctx context.Context, obj *sqlinstance.SQLInstance) (*sqlinstance.AuditLog, error) {

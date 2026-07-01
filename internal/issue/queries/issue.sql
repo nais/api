@@ -92,3 +92,60 @@ OFFSET
 LIMIT
 	sqlc.arg('limit')
 ;
+
+-- name: FacetsForIssues :many
+SELECT
+	severity,
+	resource_type,
+	env,
+	issue_type,
+	COUNT(*) FILTER (
+		WHERE
+			(
+				sqlc.narg('env')::TEXT[] IS NULL
+				OR env = ANY (sqlc.narg('env')::TEXT[])
+			)
+			AND (
+				sqlc.narg('issue_type')::TEXT IS NULL
+				OR issue_type = sqlc.narg('issue_type')::TEXT
+			)
+			AND (
+				sqlc.narg('severity')::severity_level IS NULL
+				OR severity = sqlc.narg('severity')::severity_level
+			)
+			AND (
+				sqlc.narg('filter_resource_type')::TEXT IS NULL
+				OR resource_type = sqlc.narg('filter_resource_type')::TEXT
+			)
+			AND (
+				sqlc.narg('filter_resource_name')::TEXT IS NULL
+				OR resource_name = sqlc.narg('filter_resource_name')::TEXT
+			)
+	) AS filtered_count
+FROM
+	issues
+WHERE
+	team = @team
+	AND (
+		sqlc.narg('scope_resource_type')::TEXT IS NULL
+		OR resource_type = sqlc.narg('scope_resource_type')::TEXT
+	)
+	AND (
+		sqlc.narg('scope_resource_name')::TEXT IS NULL
+		OR resource_name = sqlc.narg('scope_resource_name')::TEXT
+	)
+	AND (
+		sqlc.narg('scope_env')::TEXT IS NULL
+		OR env = sqlc.narg('scope_env')::TEXT
+	)
+GROUP BY
+	severity,
+	resource_type,
+	env,
+	issue_type
+ORDER BY
+	severity,
+	resource_type,
+	env,
+	issue_type
+;

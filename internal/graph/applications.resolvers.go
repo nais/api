@@ -75,24 +75,23 @@ func (r *applicationResolver) State(ctx context.Context, obj *application.Applic
 	return application.GetState(ctx, obj)
 }
 
-func (r *applicationResolver) Issues(ctx context.Context, obj *application.Application, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) (*pagination.Connection[issue.Issue], error) {
+func (r *applicationResolver) Issues(ctx context.Context, obj *application.Application, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) (*issue.IssueConnection, error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
 	}
 
-	t := issue.ResourceTypeApplication
-	f := &issue.IssueFilter{
-		ResourceName: &obj.Name,
-		ResourceType: &t,
-		Environments: []string{obj.EnvironmentName},
+	scope := &issue.IssueScope{
+		ResourceName: obj.Name,
+		ResourceType: issue.ResourceTypeApplication,
+		Env:          obj.EnvironmentName,
 	}
+	var f *issue.IssueFilter
 	if filter != nil {
-		f.Severity = filter.Severity
-		f.IssueType = filter.IssueType
+		f = &issue.IssueFilter{ResourceIssueFilter: issue.ResourceIssueFilter{Severity: filter.Severity, IssueType: filter.IssueType}}
 	}
 
-	return issue.ListIssues(ctx, obj.TeamSlug, page, orderBy, f)
+	return issue.ListIssues(ctx, obj.TeamSlug, page, orderBy, scope, f)
 }
 
 func (r *applicationResolver) History(ctx context.Context, obj *application.Application) ([]*instancegroup.ApplicationHistory, error) {

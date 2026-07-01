@@ -11,6 +11,13 @@ import (
 	"github.com/nais/api/internal/team"
 )
 
+func (r *alertConnectionResolver) Facets(ctx context.Context, obj *pagination.FacetableConnection[alerts.Alert, *alerts.TeamAlertsFilter]) (*alerts.AlertFacets, error) {
+	return &alerts.AlertFacets{
+		AllAlerts: obj.GetAllItems(),
+		Filter:    obj.GetFilter(),
+	}, nil
+}
+
 func (r *prometheusAlertResolver) Team(ctx context.Context, obj *alerts.PrometheusAlert) (*team.Team, error) {
 	team, err := team.Get(ctx, obj.TeamSlug)
 	if err != nil {
@@ -24,7 +31,7 @@ func (r *prometheusAlertResolver) TeamEnvironment(ctx context.Context, obj *aler
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
 
-func (r *teamResolver) Alerts(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *alerts.AlertOrder, filter *alerts.TeamAlertsFilter) (*pagination.Connection[alerts.Alert], error) {
+func (r *teamResolver) Alerts(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *alerts.AlertOrder, filter *alerts.TeamAlertsFilter) (*pagination.FacetableConnection[alerts.Alert, *alerts.TeamAlertsFilter], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
@@ -40,20 +47,13 @@ func (r *teamResolver) Alerts(ctx context.Context, obj *team.Team, first *int, a
 		a = append(a, alert)
 	}
 
-	filtered := alerts.SortFilter.Filter(ctx, a, filter)
 	if orderBy == nil {
-		orderBy = &alerts.AlertOrder{
-			Field:     "NAME",
-			Direction: model.OrderDirectionAsc,
-		}
+		orderBy = &alerts.AlertOrder{Field: "NAME", Direction: model.OrderDirectionAsc}
 	}
-	alerts.SortFilter.Sort(ctx, filtered, orderBy.Field, orderBy.Direction)
-
-	ret := pagination.Slice(filtered, page)
-	return pagination.NewConnection(ret, page, len(filtered)), nil
+	return alerts.SortFilter.PaginatedList(ctx, a, page, orderBy.Field, orderBy.Direction, filter), nil
 }
 
-func (r *teamEnvironmentResolver) Alerts(ctx context.Context, obj *team.TeamEnvironment, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *alerts.AlertOrder, filter *alerts.TeamAlertsFilter) (*pagination.Connection[alerts.Alert], error) {
+func (r *teamEnvironmentResolver) Alerts(ctx context.Context, obj *team.TeamEnvironment, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *alerts.AlertOrder, filter *alerts.TeamAlertsFilter) (*pagination.FacetableConnection[alerts.Alert, *alerts.TeamAlertsFilter], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
@@ -69,21 +69,21 @@ func (r *teamEnvironmentResolver) Alerts(ctx context.Context, obj *team.TeamEnvi
 		a = append(a, alert)
 	}
 
-	filtered := alerts.SortFilter.Filter(ctx, a, filter)
 	if orderBy == nil {
-		orderBy = &alerts.AlertOrder{
-			Field:     "NAME",
-			Direction: model.OrderDirectionAsc,
-		}
+		orderBy = &alerts.AlertOrder{Field: "NAME", Direction: model.OrderDirectionAsc}
 	}
-	alerts.SortFilter.Sort(ctx, filtered, orderBy.Field, orderBy.Direction)
+	return alerts.SortFilter.PaginatedList(ctx, a, page, orderBy.Field, orderBy.Direction, filter), nil
+}
 
-	ret := pagination.Slice(filtered, page)
-	return pagination.NewConnection(ret, page, len(filtered)), nil
+func (r *Resolver) AlertConnection() gengql.AlertConnectionResolver {
+	return &alertConnectionResolver{r}
 }
 
 func (r *Resolver) PrometheusAlert() gengql.PrometheusAlertResolver {
 	return &prometheusAlertResolver{r}
 }
 
-type prometheusAlertResolver struct{ *Resolver }
+type (
+	alertConnectionResolver struct{ *Resolver }
+	prometheusAlertResolver struct{ *Resolver }
+)
