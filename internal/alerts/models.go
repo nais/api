@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/nais/api/internal/graph/ident"
@@ -15,9 +16,21 @@ import (
 )
 
 type (
-	AlertConnection = pagination.Connection[Alert]
+	AlertConnection = pagination.FacetableConnection[Alert, *TeamAlertsFilter]
 	AlertEdge       = pagination.Edge[Alert]
 )
+
+type AlertFacets struct {
+	AllAlerts      []Alert
+	Filter         *TeamAlertsFilter
+	filteredOnce   sync.Once
+	filteredAlerts []Alert
+}
+
+type AlertStateFacetItem struct {
+	State AlertState `json:"state"`
+	Count int        `json:"count"`
+}
 
 type Alert interface {
 	model.Node

@@ -61,7 +61,7 @@ type TeamResolver interface {
 	DeleteKey(ctx context.Context, obj *team.Team, key string) (*team.TeamDeleteKey, error)
 	InventoryCounts(ctx context.Context, obj *team.Team) (*team.TeamInventoryCounts, error)
 	ActivityLog(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*activitylog.ActivityLogEntryConnection, error)
-	Alerts(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *alerts.AlertOrder, filter *alerts.TeamAlertsFilter) (*pagination.Connection[alerts.Alert], error)
+	Alerts(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *alerts.AlertOrder, filter *alerts.TeamAlertsFilter) (*pagination.FacetableConnection[alerts.Alert, *alerts.TeamAlertsFilter], error)
 	Applications(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *application.ApplicationOrder, filter *application.TeamApplicationsFilter) (*pagination.FacetableConnection[*application.Application, *application.TeamApplicationsFilter], error)
 	BigQueryDatasets(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bigquery.BigQueryDatasetOrder, filter *bigquery.BigQueryDatasetFilter) (*pagination.FacetableConnection[*bigquery.BigQueryDataset, *bigquery.BigQueryDatasetFilter], error)
 	Buckets(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bucket.BucketOrder, filter *bucket.BucketFilter) (*pagination.FacetableConnection[*bucket.Bucket, *bucket.BucketFilter], error)
@@ -94,7 +94,7 @@ type TeamDeleteKeyResolver interface {
 }
 type TeamEnvironmentResolver interface {
 	Team(ctx context.Context, obj *team.TeamEnvironment) (*team.Team, error)
-	Alerts(ctx context.Context, obj *team.TeamEnvironment, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *alerts.AlertOrder, filter *alerts.TeamAlertsFilter) (*pagination.Connection[alerts.Alert], error)
+	Alerts(ctx context.Context, obj *team.TeamEnvironment, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *alerts.AlertOrder, filter *alerts.TeamAlertsFilter) (*pagination.FacetableConnection[alerts.Alert, *alerts.TeamAlertsFilter], error)
 	Application(ctx context.Context, obj *team.TeamEnvironment, name string) (*application.Application, error)
 	BigQueryDataset(ctx context.Context, obj *team.TeamEnvironment, name string) (*bigquery.BigQueryDataset, error)
 	Bucket(ctx context.Context, obj *team.TeamEnvironment, name string) (*bucket.Bucket, error)
@@ -2238,8 +2238,8 @@ func (ec *executionContext) _Team_alerts(ctx context.Context, field graphql.Coll
 			return ec.Resolvers.Team().Alerts(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*alerts.AlertOrder), fc.Args["filter"].(*alerts.TeamAlertsFilter))
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[alerts.Alert]) graphql.Marshaler {
-			return ec.marshalNAlertConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *pagination.FacetableConnection[alerts.Alert, *alerts.TeamAlertsFilter]) graphql.Marshaler {
+			return ec.marshalNAlertConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, selections, v)
 		},
 		true,
 		true,
@@ -4340,8 +4340,8 @@ func (ec *executionContext) _TeamEnvironment_alerts(ctx context.Context, field g
 			return ec.Resolvers.TeamEnvironment().Alerts(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*alerts.AlertOrder), fc.Args["filter"].(*alerts.TeamAlertsFilter))
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[alerts.Alert]) graphql.Marshaler {
-			return ec.marshalNAlertConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *pagination.FacetableConnection[alerts.Alert, *alerts.TeamAlertsFilter]) graphql.Marshaler {
+			return ec.marshalNAlertConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, selections, v)
 		},
 		true,
 		true,
