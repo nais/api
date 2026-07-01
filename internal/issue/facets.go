@@ -74,19 +74,19 @@ func buildFacets(rows []*issuesql.FacetsForIssuesRow) *IssueFacets {
 		issueTypeCounts[it] += filtered
 	}
 
-	severities := make([]SeverityFacetItem, 0, len(severityCounts))
+	severities := make([]IssueSeverityFacetItem, 0, len(severityCounts))
 	for sev, count := range severityCounts {
-		severities = append(severities, SeverityFacetItem{Severity: sev, Count: count})
+		severities = append(severities, IssueSeverityFacetItem{Severity: sev, Count: count})
 	}
-	slices.SortFunc(severities, func(a, b SeverityFacetItem) int {
+	slices.SortFunc(severities, func(a, b IssueSeverityFacetItem) int {
 		return strings.Compare(a.Severity.String(), b.Severity.String())
 	})
 
-	resourceTypes := make([]ResourceTypeFacetItem, 0, len(resourceTypeCounts))
+	resourceTypes := make([]IssueResourceTypeFacetItem, 0, len(resourceTypeCounts))
 	for rt, count := range resourceTypeCounts {
-		resourceTypes = append(resourceTypes, ResourceTypeFacetItem{ResourceType: rt, Count: count})
+		resourceTypes = append(resourceTypes, IssueResourceTypeFacetItem{ResourceType: rt, Count: count})
 	}
-	slices.SortFunc(resourceTypes, func(a, b ResourceTypeFacetItem) int {
+	slices.SortFunc(resourceTypes, func(a, b IssueResourceTypeFacetItem) int {
 		return strings.Compare(a.ResourceType.String(), b.ResourceType.String())
 	})
 

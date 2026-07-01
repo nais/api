@@ -96,12 +96,12 @@ type IssueFacets {
 	"""
 	Distribution of issues by severity.
 	"""
-	severities: [SeverityFacetItem!]!
+	severities: [IssueSeverityFacetItem!]!
 
 	"""
 	Distribution of issues by resource type.
 	"""
-	resourceTypes: [ResourceTypeFacetItem!]!
+	resourceTypes: [IssueResourceTypeFacetItem!]!
 
 	"""
 	Distribution of issues by issue type.
@@ -112,7 +112,7 @@ type IssueFacets {
 """
 A single facet item for issue severities.
 """
-type SeverityFacetItem {
+type IssueSeverityFacetItem {
 	"The severity."
 	severity: Severity!
 
@@ -123,7 +123,7 @@ type SeverityFacetItem {
 """
 A single facet item for resource types.
 """
-type ResourceTypeFacetItem {
+type IssueResourceTypeFacetItem {
 	"The resource type."
 	resourceType: ResourceType!
 

@@ -288,18 +288,18 @@ func (c *IssueConnection) GetScope() *IssueScope   { return c.scope }
 func (c *IssueConnection) GetFilter() *IssueFilter { return c.filter }
 
 type IssueFacets struct {
-	Environments  []model.StringFacetItem `json:"environments"`
-	Severities    []SeverityFacetItem     `json:"severities"`
-	ResourceTypes []ResourceTypeFacetItem `json:"resourceTypes"`
-	IssueTypes    []IssueTypeFacetItem    `json:"issueTypes"`
+	Environments  []model.StringFacetItem      `json:"environments"`
+	Severities    []IssueSeverityFacetItem     `json:"severities"`
+	ResourceTypes []IssueResourceTypeFacetItem `json:"resourceTypes"`
+	IssueTypes    []IssueTypeFacetItem         `json:"issueTypes"`
 }
 
-type SeverityFacetItem struct {
+type IssueSeverityFacetItem struct {
 	Severity Severity `json:"severity"`
 	Count    int      `json:"count"`
 }
 
-type ResourceTypeFacetItem struct {
+type IssueResourceTypeFacetItem struct {
 	ResourceType ResourceType `json:"resourceType"`
 	Count        int          `json:"count"`
 }

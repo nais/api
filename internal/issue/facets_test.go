@@ -19,20 +19,20 @@ func TestBuildFacets(t *testing.T) {
 	tests := []struct {
 		name              string
 		rows              []*issuesql.FacetsForIssuesRow
-		wantSeverities    []SeverityFacetItem
-		wantResourceTypes []ResourceTypeFacetItem
+		wantSeverities    []IssueSeverityFacetItem
+		wantResourceTypes []IssueResourceTypeFacetItem
 		wantEnvironments  []model.StringFacetItem
 		wantIssueTypes    []IssueTypeFacetItem
 	}{
 		{
 			name: "mixed rows: seeded values with zero filtered_count are included",
 			rows: rows,
-			wantSeverities: []SeverityFacetItem{
+			wantSeverities: []IssueSeverityFacetItem{
 				{Severity: SeverityCritical, Count: 4},
 				{Severity: SeverityTodo, Count: 0},
 				{Severity: SeverityWarning, Count: 2},
 			},
-			wantResourceTypes: []ResourceTypeFacetItem{
+			wantResourceTypes: []IssueResourceTypeFacetItem{
 				{ResourceType: ResourceTypeApplication, Count: 4},
 				{ResourceType: ResourceTypeJob, Count: 2},
 				{ResourceType: ResourceTypeSQLInstance, Count: 0},
@@ -53,11 +53,11 @@ func TestBuildFacets(t *testing.T) {
 				{Severity: "CRITICAL", ResourceType: "APPLICATION", Env: "prod", IssueType: "DEPRECATED_INGRESS", TotalCount: 3, FilteredCount: 3},
 				{Severity: "WARNING", ResourceType: "JOB", Env: "dev", IssueType: "LAST_RUN_FAILED", TotalCount: 1, FilteredCount: 0},
 			},
-			wantSeverities: []SeverityFacetItem{
+			wantSeverities: []IssueSeverityFacetItem{
 				{Severity: SeverityCritical, Count: 3},
 				{Severity: SeverityWarning, Count: 0},
 			},
-			wantResourceTypes: []ResourceTypeFacetItem{
+			wantResourceTypes: []IssueResourceTypeFacetItem{
 				{ResourceType: ResourceTypeApplication, Count: 3},
 				{ResourceType: ResourceTypeJob, Count: 0},
 			},
@@ -73,8 +73,8 @@ func TestBuildFacets(t *testing.T) {
 		{
 			name:              "empty rows returns empty facets",
 			rows:              nil,
-			wantSeverities:    []SeverityFacetItem{},
-			wantResourceTypes: []ResourceTypeFacetItem{},
+			wantSeverities:    []IssueSeverityFacetItem{},
+			wantResourceTypes: []IssueResourceTypeFacetItem{},
 			wantEnvironments:  []model.StringFacetItem{},
 			wantIssueTypes:    []IssueTypeFacetItem{},
 		},
