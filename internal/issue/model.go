@@ -269,22 +269,14 @@ type (
 	IssueEdge = pagination.Edge[Issue]
 )
 
-type IssueScope struct {
-	ResourceName string
-	ResourceType ResourceType
-	Env          string
-}
-
 type IssueConnection struct {
 	pagination.Connection[Issue]
 
 	teamSlug slug.Slug
-	scope    *IssueScope
 	filter   *IssueFilter
 }
 
 func (c *IssueConnection) GetTeamSlug() slug.Slug  { return c.teamSlug }
-func (c *IssueConnection) GetScope() *IssueScope   { return c.scope }
 func (c *IssueConnection) GetFilter() *IssueFilter { return c.filter }
 
 type IssueFacets struct {

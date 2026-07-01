@@ -145,6 +145,7 @@ func (ec *executionContext) _ApplicationRestartLoopIssue_id(ctx context.Context,
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_ApplicationRestartLoopIssue_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ApplicationRestartLoopIssue", field, false, false, errors.New("field of type ID does not have child fields"))
 }
@@ -168,6 +169,7 @@ func (ec *executionContext) _ApplicationRestartLoopIssue_teamEnvironment(ctx con
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_ApplicationRestartLoopIssue_teamEnvironment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ApplicationRestartLoopIssue",
@@ -200,6 +202,7 @@ func (ec *executionContext) _ApplicationRestartLoopIssue_severity(ctx context.Co
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_ApplicationRestartLoopIssue_severity(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ApplicationRestartLoopIssue", field, false, false, errors.New("field of type Severity does not have child fields"))
 }
@@ -223,6 +226,7 @@ func (ec *executionContext) _ApplicationRestartLoopIssue_message(ctx context.Con
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_ApplicationRestartLoopIssue_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ApplicationRestartLoopIssue", field, false, false, errors.New("field of type String does not have child fields"))
 }
@@ -246,6 +250,7 @@ func (ec *executionContext) _ApplicationRestartLoopIssue_workload(ctx context.Co
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_ApplicationRestartLoopIssue_workload(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ApplicationRestartLoopIssue",
@@ -278,6 +283,7 @@ func (ec *executionContext) _ApplicationRestartLoopIssue_restartCount(ctx contex
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_ApplicationRestartLoopIssue_restartCount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ApplicationRestartLoopIssue", field, false, false, errors.New("field of type Int does not have child fields"))
 }
@@ -301,6 +307,7 @@ func (ec *executionContext) _ApplicationRestartLoopIssue_lastExitReason(ctx cont
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_ApplicationRestartLoopIssue_lastExitReason(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ApplicationRestartLoopIssue", field, false, false, errors.New("field of type String does not have child fields"))
 }
@@ -324,6 +331,7 @@ func (ec *executionContext) _ApplicationRestartLoopIssue_lastExitTimestamp(ctx c
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_ApplicationRestartLoopIssue_lastExitTimestamp(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ApplicationRestartLoopIssue", field, false, false, errors.New("field of type Time does not have child fields"))
 }
@@ -347,6 +355,7 @@ func (ec *executionContext) _DeprecatedIngressIssue_id(ctx context.Context, fiel
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_DeprecatedIngressIssue_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("DeprecatedIngressIssue", field, false, false, errors.New("field of type ID does not have child fields"))
 }
@@ -370,6 +379,7 @@ func (ec *executionContext) _DeprecatedIngressIssue_teamEnvironment(ctx context.
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_DeprecatedIngressIssue_teamEnvironment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "DeprecatedIngressIssue",
@@ -402,6 +412,7 @@ func (ec *executionContext) _DeprecatedIngressIssue_severity(ctx context.Context
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_DeprecatedIngressIssue_severity(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("DeprecatedIngressIssue", field, false, false, errors.New("field of type Severity does not have child fields"))
 }
@@ -425,6 +436,7 @@ func (ec *executionContext) _DeprecatedIngressIssue_message(ctx context.Context,
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_DeprecatedIngressIssue_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("DeprecatedIngressIssue", field, false, false, errors.New("field of type String does not have child fields"))
 }
@@ -448,6 +460,7 @@ func (ec *executionContext) _DeprecatedIngressIssue_ingresses(ctx context.Contex
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_DeprecatedIngressIssue_ingresses(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("DeprecatedIngressIssue", field, false, false, errors.New("field of type String does not have child fields"))
 }
@@ -471,6 +484,7 @@ func (ec *executionContext) _DeprecatedIngressIssue_application(ctx context.Cont
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_DeprecatedIngressIssue_application(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "DeprecatedIngressIssue",
@@ -503,6 +517,7 @@ func (ec *executionContext) _DeprecatedRegistryIssue_id(ctx context.Context, fie
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_DeprecatedRegistryIssue_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("DeprecatedRegistryIssue", field, false, false, errors.New("field of type ID does not have child fields"))
 }
@@ -526,6 +541,7 @@ func (ec *executionContext) _DeprecatedRegistryIssue_teamEnvironment(ctx context
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_DeprecatedRegistryIssue_teamEnvironment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "DeprecatedRegistryIssue",
@@ -558,6 +574,7 @@ func (ec *executionContext) _DeprecatedRegistryIssue_severity(ctx context.Contex
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_DeprecatedRegistryIssue_severity(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("DeprecatedRegistryIssue", field, false, false, errors.New("field of type Severity does not have child fields"))
 }
@@ -581,6 +598,7 @@ func (ec *executionContext) _DeprecatedRegistryIssue_message(ctx context.Context
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_DeprecatedRegistryIssue_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("DeprecatedRegistryIssue", field, false, false, errors.New("field of type String does not have child fields"))
 }
@@ -604,6 +622,7 @@ func (ec *executionContext) _DeprecatedRegistryIssue_workload(ctx context.Contex
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_DeprecatedRegistryIssue_workload(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "DeprecatedRegistryIssue",
@@ -636,6 +655,7 @@ func (ec *executionContext) _ExternalIngressCriticalVulnerabilityIssue_id(ctx co
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_ExternalIngressCriticalVulnerabilityIssue_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ExternalIngressCriticalVulnerabilityIssue", field, false, false, errors.New("field of type ID does not have child fields"))
 }
@@ -659,6 +679,7 @@ func (ec *executionContext) _ExternalIngressCriticalVulnerabilityIssue_teamEnvir
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_ExternalIngressCriticalVulnerabilityIssue_teamEnvironment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ExternalIngressCriticalVulnerabilityIssue",
@@ -691,6 +712,7 @@ func (ec *executionContext) _ExternalIngressCriticalVulnerabilityIssue_severity(
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_ExternalIngressCriticalVulnerabilityIssue_severity(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ExternalIngressCriticalVulnerabilityIssue", field, false, false, errors.New("field of type Severity does not have child fields"))
 }
@@ -714,6 +736,7 @@ func (ec *executionContext) _ExternalIngressCriticalVulnerabilityIssue_message(c
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_ExternalIngressCriticalVulnerabilityIssue_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ExternalIngressCriticalVulnerabilityIssue", field, false, false, errors.New("field of type String does not have child fields"))
 }
@@ -737,6 +760,7 @@ func (ec *executionContext) _ExternalIngressCriticalVulnerabilityIssue_workload(
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_ExternalIngressCriticalVulnerabilityIssue_workload(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ExternalIngressCriticalVulnerabilityIssue",
@@ -769,6 +793,7 @@ func (ec *executionContext) _ExternalIngressCriticalVulnerabilityIssue_cvssScore
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_ExternalIngressCriticalVulnerabilityIssue_cvssScore(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ExternalIngressCriticalVulnerabilityIssue", field, false, false, errors.New("field of type Float does not have child fields"))
 }
@@ -792,6 +817,7 @@ func (ec *executionContext) _ExternalIngressCriticalVulnerabilityIssue_ingresses
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_ExternalIngressCriticalVulnerabilityIssue_ingresses(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ExternalIngressCriticalVulnerabilityIssue", field, false, false, errors.New("field of type String does not have child fields"))
 }
@@ -815,6 +841,7 @@ func (ec *executionContext) _FailedSynchronizationIssue_id(ctx context.Context, 
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_FailedSynchronizationIssue_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("FailedSynchronizationIssue", field, false, false, errors.New("field of type ID does not have child fields"))
 }
@@ -838,6 +865,7 @@ func (ec *executionContext) _FailedSynchronizationIssue_teamEnvironment(ctx cont
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_FailedSynchronizationIssue_teamEnvironment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "FailedSynchronizationIssue",
@@ -870,6 +898,7 @@ func (ec *executionContext) _FailedSynchronizationIssue_severity(ctx context.Con
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_FailedSynchronizationIssue_severity(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("FailedSynchronizationIssue", field, false, false, errors.New("field of type Severity does not have child fields"))
 }
@@ -893,6 +922,7 @@ func (ec *executionContext) _FailedSynchronizationIssue_message(ctx context.Cont
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_FailedSynchronizationIssue_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("FailedSynchronizationIssue", field, false, false, errors.New("field of type String does not have child fields"))
 }
@@ -916,6 +946,7 @@ func (ec *executionContext) _FailedSynchronizationIssue_workload(ctx context.Con
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_FailedSynchronizationIssue_workload(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "FailedSynchronizationIssue",
@@ -948,6 +979,7 @@ func (ec *executionContext) _InvalidSpecIssue_id(ctx context.Context, field grap
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_InvalidSpecIssue_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("InvalidSpecIssue", field, false, false, errors.New("field of type ID does not have child fields"))
 }
@@ -971,6 +1003,7 @@ func (ec *executionContext) _InvalidSpecIssue_teamEnvironment(ctx context.Contex
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_InvalidSpecIssue_teamEnvironment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "InvalidSpecIssue",
@@ -1003,6 +1036,7 @@ func (ec *executionContext) _InvalidSpecIssue_severity(ctx context.Context, fiel
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_InvalidSpecIssue_severity(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("InvalidSpecIssue", field, false, false, errors.New("field of type Severity does not have child fields"))
 }
@@ -1026,6 +1060,7 @@ func (ec *executionContext) _InvalidSpecIssue_message(ctx context.Context, field
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_InvalidSpecIssue_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("InvalidSpecIssue", field, false, false, errors.New("field of type String does not have child fields"))
 }
@@ -1049,6 +1084,7 @@ func (ec *executionContext) _InvalidSpecIssue_workload(ctx context.Context, fiel
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_InvalidSpecIssue_workload(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "InvalidSpecIssue",
@@ -1081,6 +1117,7 @@ func (ec *executionContext) _IssueConnection_pageInfo(ctx context.Context, field
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_IssueConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "IssueConnection",
@@ -1113,6 +1150,7 @@ func (ec *executionContext) _IssueConnection_nodes(ctx context.Context, field gr
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_IssueConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "IssueConnection",
@@ -1145,6 +1183,7 @@ func (ec *executionContext) _IssueConnection_edges(ctx context.Context, field gr
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_IssueConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "IssueConnection",
@@ -1177,6 +1216,7 @@ func (ec *executionContext) _IssueConnection_facets(ctx context.Context, field g
 		false,
 	)
 }
+
 func (ec *executionContext) fieldContext_IssueConnection_facets(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "IssueConnection",
@@ -1209,6 +1249,7 @@ func (ec *executionContext) _IssueEdge_cursor(ctx context.Context, field graphql
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_IssueEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("IssueEdge", field, false, false, errors.New("field of type Cursor does not have child fields"))
 }
@@ -1232,6 +1273,7 @@ func (ec *executionContext) _IssueEdge_node(ctx context.Context, field graphql.C
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_IssueEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "IssueEdge",
@@ -1264,6 +1306,7 @@ func (ec *executionContext) _IssueFacets_environments(ctx context.Context, field
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_IssueFacets_environments(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "IssueFacets",
@@ -1296,6 +1339,7 @@ func (ec *executionContext) _IssueFacets_severities(ctx context.Context, field g
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_IssueFacets_severities(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "IssueFacets",
@@ -1328,6 +1372,7 @@ func (ec *executionContext) _IssueFacets_resourceTypes(ctx context.Context, fiel
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_IssueFacets_resourceTypes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "IssueFacets",
@@ -1360,6 +1405,7 @@ func (ec *executionContext) _IssueFacets_issueTypes(ctx context.Context, field g
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_IssueFacets_issueTypes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "IssueFacets",
@@ -1392,6 +1438,7 @@ func (ec *executionContext) _IssueResourceTypeFacetItem_resourceType(ctx context
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_IssueResourceTypeFacetItem_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("IssueResourceTypeFacetItem", field, false, false, errors.New("field of type ResourceType does not have child fields"))
 }
@@ -1415,6 +1462,7 @@ func (ec *executionContext) _IssueResourceTypeFacetItem_count(ctx context.Contex
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_IssueResourceTypeFacetItem_count(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("IssueResourceTypeFacetItem", field, false, false, errors.New("field of type Int does not have child fields"))
 }
@@ -1438,6 +1486,7 @@ func (ec *executionContext) _IssueSeverityFacetItem_severity(ctx context.Context
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_IssueSeverityFacetItem_severity(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("IssueSeverityFacetItem", field, false, false, errors.New("field of type Severity does not have child fields"))
 }
@@ -1461,6 +1510,7 @@ func (ec *executionContext) _IssueSeverityFacetItem_count(ctx context.Context, f
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_IssueSeverityFacetItem_count(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("IssueSeverityFacetItem", field, false, false, errors.New("field of type Int does not have child fields"))
 }
@@ -1484,6 +1534,7 @@ func (ec *executionContext) _IssueTypeFacetItem_issueType(ctx context.Context, f
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_IssueTypeFacetItem_issueType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("IssueTypeFacetItem", field, false, false, errors.New("field of type IssueType does not have child fields"))
 }
@@ -1507,6 +1558,7 @@ func (ec *executionContext) _IssueTypeFacetItem_count(ctx context.Context, field
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_IssueTypeFacetItem_count(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("IssueTypeFacetItem", field, false, false, errors.New("field of type Int does not have child fields"))
 }
@@ -1530,6 +1582,7 @@ func (ec *executionContext) _LastRunFailedIssue_id(ctx context.Context, field gr
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_LastRunFailedIssue_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("LastRunFailedIssue", field, false, false, errors.New("field of type ID does not have child fields"))
 }
@@ -1553,6 +1606,7 @@ func (ec *executionContext) _LastRunFailedIssue_teamEnvironment(ctx context.Cont
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_LastRunFailedIssue_teamEnvironment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "LastRunFailedIssue",
@@ -1585,6 +1639,7 @@ func (ec *executionContext) _LastRunFailedIssue_severity(ctx context.Context, fi
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_LastRunFailedIssue_severity(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("LastRunFailedIssue", field, false, false, errors.New("field of type Severity does not have child fields"))
 }
@@ -1608,6 +1663,7 @@ func (ec *executionContext) _LastRunFailedIssue_message(ctx context.Context, fie
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_LastRunFailedIssue_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("LastRunFailedIssue", field, false, false, errors.New("field of type String does not have child fields"))
 }
@@ -1631,6 +1687,7 @@ func (ec *executionContext) _LastRunFailedIssue_job(ctx context.Context, field g
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_LastRunFailedIssue_job(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "LastRunFailedIssue",
@@ -1663,6 +1720,7 @@ func (ec *executionContext) _MissingSbomIssue_id(ctx context.Context, field grap
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_MissingSbomIssue_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("MissingSbomIssue", field, false, false, errors.New("field of type ID does not have child fields"))
 }
@@ -1686,6 +1744,7 @@ func (ec *executionContext) _MissingSbomIssue_teamEnvironment(ctx context.Contex
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_MissingSbomIssue_teamEnvironment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "MissingSbomIssue",
@@ -1718,6 +1777,7 @@ func (ec *executionContext) _MissingSbomIssue_severity(ctx context.Context, fiel
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_MissingSbomIssue_severity(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("MissingSbomIssue", field, false, false, errors.New("field of type Severity does not have child fields"))
 }
@@ -1741,6 +1801,7 @@ func (ec *executionContext) _MissingSbomIssue_message(ctx context.Context, field
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_MissingSbomIssue_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("MissingSbomIssue", field, false, false, errors.New("field of type String does not have child fields"))
 }
@@ -1764,6 +1825,7 @@ func (ec *executionContext) _MissingSbomIssue_workload(ctx context.Context, fiel
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_MissingSbomIssue_workload(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "MissingSbomIssue",
@@ -1796,6 +1858,7 @@ func (ec *executionContext) _NoRunningInstancesIssue_id(ctx context.Context, fie
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_NoRunningInstancesIssue_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("NoRunningInstancesIssue", field, false, false, errors.New("field of type ID does not have child fields"))
 }
@@ -1819,6 +1882,7 @@ func (ec *executionContext) _NoRunningInstancesIssue_teamEnvironment(ctx context
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_NoRunningInstancesIssue_teamEnvironment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "NoRunningInstancesIssue",
@@ -1851,6 +1915,7 @@ func (ec *executionContext) _NoRunningInstancesIssue_severity(ctx context.Contex
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_NoRunningInstancesIssue_severity(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("NoRunningInstancesIssue", field, false, false, errors.New("field of type Severity does not have child fields"))
 }
@@ -1874,6 +1939,7 @@ func (ec *executionContext) _NoRunningInstancesIssue_message(ctx context.Context
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_NoRunningInstancesIssue_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("NoRunningInstancesIssue", field, false, false, errors.New("field of type String does not have child fields"))
 }
@@ -1897,6 +1963,7 @@ func (ec *executionContext) _NoRunningInstancesIssue_workload(ctx context.Contex
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_NoRunningInstancesIssue_workload(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "NoRunningInstancesIssue",
@@ -1929,6 +1996,7 @@ func (ec *executionContext) _OpenSearchIssue_id(ctx context.Context, field graph
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_OpenSearchIssue_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("OpenSearchIssue", field, false, false, errors.New("field of type ID does not have child fields"))
 }
@@ -1952,6 +2020,7 @@ func (ec *executionContext) _OpenSearchIssue_teamEnvironment(ctx context.Context
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_OpenSearchIssue_teamEnvironment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "OpenSearchIssue",
@@ -1984,6 +2053,7 @@ func (ec *executionContext) _OpenSearchIssue_severity(ctx context.Context, field
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_OpenSearchIssue_severity(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("OpenSearchIssue", field, false, false, errors.New("field of type Severity does not have child fields"))
 }
@@ -2007,6 +2077,7 @@ func (ec *executionContext) _OpenSearchIssue_message(ctx context.Context, field 
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_OpenSearchIssue_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("OpenSearchIssue", field, false, false, errors.New("field of type String does not have child fields"))
 }
@@ -2030,6 +2101,7 @@ func (ec *executionContext) _OpenSearchIssue_openSearch(ctx context.Context, fie
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_OpenSearchIssue_openSearch(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "OpenSearchIssue",
@@ -2062,6 +2134,7 @@ func (ec *executionContext) _OpenSearchIssue_event(ctx context.Context, field gr
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_OpenSearchIssue_event(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("OpenSearchIssue", field, false, false, errors.New("field of type String does not have child fields"))
 }
@@ -2085,6 +2158,7 @@ func (ec *executionContext) _SqlInstanceStateIssue_id(ctx context.Context, field
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_SqlInstanceStateIssue_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SqlInstanceStateIssue", field, false, false, errors.New("field of type ID does not have child fields"))
 }
@@ -2108,6 +2182,7 @@ func (ec *executionContext) _SqlInstanceStateIssue_teamEnvironment(ctx context.C
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_SqlInstanceStateIssue_teamEnvironment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SqlInstanceStateIssue",
@@ -2140,6 +2215,7 @@ func (ec *executionContext) _SqlInstanceStateIssue_severity(ctx context.Context,
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_SqlInstanceStateIssue_severity(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SqlInstanceStateIssue", field, false, false, errors.New("field of type Severity does not have child fields"))
 }
@@ -2163,6 +2239,7 @@ func (ec *executionContext) _SqlInstanceStateIssue_message(ctx context.Context, 
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_SqlInstanceStateIssue_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SqlInstanceStateIssue", field, false, false, errors.New("field of type String does not have child fields"))
 }
@@ -2186,6 +2263,7 @@ func (ec *executionContext) _SqlInstanceStateIssue_state(ctx context.Context, fi
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_SqlInstanceStateIssue_state(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SqlInstanceStateIssue", field, false, false, errors.New("field of type SqlInstanceState does not have child fields"))
 }
@@ -2209,6 +2287,7 @@ func (ec *executionContext) _SqlInstanceStateIssue_sqlInstance(ctx context.Conte
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_SqlInstanceStateIssue_sqlInstance(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SqlInstanceStateIssue",
@@ -2241,6 +2320,7 @@ func (ec *executionContext) _SqlInstanceVersionIssue_id(ctx context.Context, fie
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_SqlInstanceVersionIssue_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SqlInstanceVersionIssue", field, false, false, errors.New("field of type ID does not have child fields"))
 }
@@ -2264,6 +2344,7 @@ func (ec *executionContext) _SqlInstanceVersionIssue_teamEnvironment(ctx context
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_SqlInstanceVersionIssue_teamEnvironment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SqlInstanceVersionIssue",
@@ -2296,6 +2377,7 @@ func (ec *executionContext) _SqlInstanceVersionIssue_severity(ctx context.Contex
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_SqlInstanceVersionIssue_severity(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SqlInstanceVersionIssue", field, false, false, errors.New("field of type Severity does not have child fields"))
 }
@@ -2319,6 +2401,7 @@ func (ec *executionContext) _SqlInstanceVersionIssue_message(ctx context.Context
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_SqlInstanceVersionIssue_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SqlInstanceVersionIssue", field, false, false, errors.New("field of type String does not have child fields"))
 }
@@ -2342,6 +2425,7 @@ func (ec *executionContext) _SqlInstanceVersionIssue_sqlInstance(ctx context.Con
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_SqlInstanceVersionIssue_sqlInstance(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SqlInstanceVersionIssue",
@@ -2374,6 +2458,7 @@ func (ec *executionContext) _UnleashReleaseChannelIssue_id(ctx context.Context, 
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_UnleashReleaseChannelIssue_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("UnleashReleaseChannelIssue", field, false, false, errors.New("field of type ID does not have child fields"))
 }
@@ -2397,6 +2482,7 @@ func (ec *executionContext) _UnleashReleaseChannelIssue_teamEnvironment(ctx cont
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_UnleashReleaseChannelIssue_teamEnvironment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "UnleashReleaseChannelIssue",
@@ -2429,6 +2515,7 @@ func (ec *executionContext) _UnleashReleaseChannelIssue_severity(ctx context.Con
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_UnleashReleaseChannelIssue_severity(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("UnleashReleaseChannelIssue", field, false, false, errors.New("field of type Severity does not have child fields"))
 }
@@ -2452,6 +2539,7 @@ func (ec *executionContext) _UnleashReleaseChannelIssue_message(ctx context.Cont
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_UnleashReleaseChannelIssue_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("UnleashReleaseChannelIssue", field, false, false, errors.New("field of type String does not have child fields"))
 }
@@ -2475,6 +2563,7 @@ func (ec *executionContext) _UnleashReleaseChannelIssue_unleash(ctx context.Cont
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_UnleashReleaseChannelIssue_unleash(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "UnleashReleaseChannelIssue",
@@ -2507,6 +2596,7 @@ func (ec *executionContext) _UnleashReleaseChannelIssue_channelName(ctx context.
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_UnleashReleaseChannelIssue_channelName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("UnleashReleaseChannelIssue", field, false, false, errors.New("field of type String does not have child fields"))
 }
@@ -2530,6 +2620,7 @@ func (ec *executionContext) _UnleashReleaseChannelIssue_majorVersion(ctx context
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_UnleashReleaseChannelIssue_majorVersion(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("UnleashReleaseChannelIssue", field, false, false, errors.New("field of type Int does not have child fields"))
 }
@@ -2553,6 +2644,7 @@ func (ec *executionContext) _UnleashReleaseChannelIssue_currentMajorVersion(ctx 
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_UnleashReleaseChannelIssue_currentMajorVersion(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("UnleashReleaseChannelIssue", field, false, false, errors.New("field of type Int does not have child fields"))
 }
@@ -2576,6 +2668,7 @@ func (ec *executionContext) _ValkeyIssue_id(ctx context.Context, field graphql.C
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_ValkeyIssue_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ValkeyIssue", field, false, false, errors.New("field of type ID does not have child fields"))
 }
@@ -2599,6 +2692,7 @@ func (ec *executionContext) _ValkeyIssue_teamEnvironment(ctx context.Context, fi
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_ValkeyIssue_teamEnvironment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ValkeyIssue",
@@ -2631,6 +2725,7 @@ func (ec *executionContext) _ValkeyIssue_severity(ctx context.Context, field gra
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_ValkeyIssue_severity(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ValkeyIssue", field, false, false, errors.New("field of type Severity does not have child fields"))
 }
@@ -2654,6 +2749,7 @@ func (ec *executionContext) _ValkeyIssue_message(ctx context.Context, field grap
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_ValkeyIssue_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ValkeyIssue", field, false, false, errors.New("field of type String does not have child fields"))
 }
@@ -2677,6 +2773,7 @@ func (ec *executionContext) _ValkeyIssue_valkey(ctx context.Context, field graph
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_ValkeyIssue_valkey(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ValkeyIssue",
@@ -2709,6 +2806,7 @@ func (ec *executionContext) _ValkeyIssue_event(ctx context.Context, field graphq
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_ValkeyIssue_event(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ValkeyIssue", field, false, false, errors.New("field of type String does not have child fields"))
 }
@@ -2732,6 +2830,7 @@ func (ec *executionContext) _VulnerableImageIssue_id(ctx context.Context, field 
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_VulnerableImageIssue_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("VulnerableImageIssue", field, false, false, errors.New("field of type ID does not have child fields"))
 }
@@ -2755,6 +2854,7 @@ func (ec *executionContext) _VulnerableImageIssue_teamEnvironment(ctx context.Co
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_VulnerableImageIssue_teamEnvironment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "VulnerableImageIssue",
@@ -2787,6 +2887,7 @@ func (ec *executionContext) _VulnerableImageIssue_severity(ctx context.Context, 
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_VulnerableImageIssue_severity(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("VulnerableImageIssue", field, false, false, errors.New("field of type Severity does not have child fields"))
 }
@@ -2810,6 +2911,7 @@ func (ec *executionContext) _VulnerableImageIssue_message(ctx context.Context, f
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_VulnerableImageIssue_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("VulnerableImageIssue", field, false, false, errors.New("field of type String does not have child fields"))
 }
@@ -2833,6 +2935,7 @@ func (ec *executionContext) _VulnerableImageIssue_workload(ctx context.Context, 
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_VulnerableImageIssue_workload(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "VulnerableImageIssue",
@@ -2865,6 +2968,7 @@ func (ec *executionContext) _VulnerableImageIssue_riskScore(ctx context.Context,
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_VulnerableImageIssue_riskScore(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("VulnerableImageIssue", field, false, false, errors.New("field of type Int does not have child fields"))
 }
@@ -2888,6 +2992,7 @@ func (ec *executionContext) _VulnerableImageIssue_critical(ctx context.Context, 
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_VulnerableImageIssue_critical(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("VulnerableImageIssue", field, false, false, errors.New("field of type Int does not have child fields"))
 }
@@ -2911,6 +3016,7 @@ func (ec *executionContext) _WorkloadProblemIssue_id(ctx context.Context, field 
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_WorkloadProblemIssue_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("WorkloadProblemIssue", field, false, false, errors.New("field of type ID does not have child fields"))
 }
@@ -2934,6 +3040,7 @@ func (ec *executionContext) _WorkloadProblemIssue_teamEnvironment(ctx context.Co
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_WorkloadProblemIssue_teamEnvironment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "WorkloadProblemIssue",
@@ -2966,6 +3073,7 @@ func (ec *executionContext) _WorkloadProblemIssue_severity(ctx context.Context, 
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_WorkloadProblemIssue_severity(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("WorkloadProblemIssue", field, false, false, errors.New("field of type Severity does not have child fields"))
 }
@@ -2989,6 +3097,7 @@ func (ec *executionContext) _WorkloadProblemIssue_message(ctx context.Context, f
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_WorkloadProblemIssue_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("WorkloadProblemIssue", field, false, false, errors.New("field of type String does not have child fields"))
 }
@@ -3012,6 +3121,7 @@ func (ec *executionContext) _WorkloadProblemIssue_workload(ctx context.Context, 
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_WorkloadProblemIssue_workload(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "WorkloadProblemIssue",
@@ -3044,6 +3154,7 @@ func (ec *executionContext) _WorkloadProblemIssue_problemType(ctx context.Contex
 		true,
 	)
 }
+
 func (ec *executionContext) fieldContext_WorkloadProblemIssue_problemType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("WorkloadProblemIssue", field, false, false, errors.New("field of type WorkloadProblemType does not have child fields"))
 }
@@ -3067,6 +3178,7 @@ func (ec *executionContext) _WorkloadProblemIssue_source(ctx context.Context, fi
 		false,
 	)
 }
+
 func (ec *executionContext) fieldContext_WorkloadProblemIssue_source(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("WorkloadProblemIssue", field, false, false, errors.New("field of type String does not have child fields"))
 }
@@ -3090,6 +3202,7 @@ func (ec *executionContext) _WorkloadProblemIssue_endOfLife(ctx context.Context,
 		false,
 	)
 }
+
 func (ec *executionContext) fieldContext_WorkloadProblemIssue_endOfLife(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("WorkloadProblemIssue", field, false, false, errors.New("field of type Date does not have child fields"))
 }
@@ -5891,7 +6004,7 @@ func (ec *executionContext) unmarshalOIssueType2ᚖgithubᚗcomᚋnaisᚋapiᚋi
 	if v == nil {
 		return nil, nil
 	}
-	var res = new(issue.IssueType)
+	res := new(issue.IssueType)
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
@@ -5915,7 +6028,7 @@ func (ec *executionContext) unmarshalOResourceType2ᚖgithubᚗcomᚋnaisᚋapi�
 	if v == nil {
 		return nil, nil
 	}
-	var res = new(issue.ResourceType)
+	res := new(issue.ResourceType)
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
@@ -5931,7 +6044,7 @@ func (ec *executionContext) unmarshalOSeverity2ᚖgithubᚗcomᚋnaisᚋapiᚋin
 	if v == nil {
 		return nil, nil
 	}
-	var res = new(issue.Severity)
+	res := new(issue.Severity)
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
