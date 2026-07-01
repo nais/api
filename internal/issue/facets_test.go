@@ -25,7 +25,7 @@ func TestBuildFacets(t *testing.T) {
 		wantIssueTypes    []IssueTypeFacetItem
 	}{
 		{
-			name: "no filter: filtered_count equals total_count",
+			name: "mixed rows: seeded values with zero filtered_count are included",
 			rows: rows,
 			wantSeverities: []SeverityFacetItem{
 				{Severity: SeverityCritical, Count: 4},
