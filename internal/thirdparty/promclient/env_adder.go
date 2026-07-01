@@ -6,6 +6,10 @@ import (
 )
 
 func injectEnvToQuery(query, env string) (string, error) {
+	if env == "" {
+		return query, nil
+	}
+
 	p := parser.NewParser(parser.Options{})
 	expr, err := p.ParseExpr(query)
 	if err != nil {

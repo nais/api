@@ -89,12 +89,9 @@ func (c *RealClient) Query(ctx context.Context, environmentName string, query st
 		fn(opt)
 	}
 
-	if environmentName != "" {
-		var err error
-		query, err = injectEnvToQuery(query, environmentName)
-		if err != nil {
-			return nil, err
-		}
+	query, err := injectEnvToQuery(query, environmentName)
+	if err != nil {
+		return nil, err
 	}
 
 	v, warnings, err := client.Query(ctx, query, opt.Time)
@@ -119,6 +116,12 @@ func (c *RealClient) Query(ctx context.Context, environmentName string, query st
 
 func (c *RealClient) QueryRange(ctx context.Context, environment string, query string, promRange promv1.Range) (prom.Value, promv1.Warnings, error) {
 	client := c.mimirMetrics
+
+	query, err := injectEnvToQuery(query, environment)
+	if err != nil {
+		return nil, nil, err
+	}
+
 	return client.QueryRange(ctx, query, promRange)
 }
 
