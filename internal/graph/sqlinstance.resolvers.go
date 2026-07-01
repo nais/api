@@ -102,17 +102,17 @@ func (r *sqlInstanceResolver) Issues(ctx context.Context, obj *sqlinstance.SQLIn
 		return nil, err
 	}
 
-	rt := issue.ResourceTypeSQLInstance
-	f := &issue.IssueFilter{
-		ResourceName: &obj.Name,
-		ResourceType: &rt,
-		Environments: []string{obj.EnvironmentName},
+	scope := &issue.IssueScope{
+		ResourceName: obj.Name,
+		ResourceType: issue.ResourceTypeSQLInstance,
+		Env:          obj.EnvironmentName,
 	}
+	var f *issue.IssueFilter
 	if filter != nil {
-		f.ResourceIssueFilter = issue.ResourceIssueFilter{Severity: filter.Severity, IssueType: filter.IssueType}
+		f = &issue.IssueFilter{ResourceIssueFilter: issue.ResourceIssueFilter{Severity: filter.Severity, IssueType: filter.IssueType}}
 	}
 
-	return issue.ListIssues(ctx, obj.TeamSlug, page, orderBy, f)
+	return issue.ListIssues(ctx, obj.TeamSlug, page, orderBy, scope, f)
 }
 
 func (r *sqlInstanceResolver) AuditLog(ctx context.Context, obj *sqlinstance.SQLInstance) (*sqlinstance.AuditLog, error) {

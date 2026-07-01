@@ -10,17 +10,25 @@ import (
 	"github.com/nais/api/internal/slug"
 )
 
-func ComputeFacets(ctx context.Context, teamSlug slug.Slug, filter *IssueFilter) (*IssueFacets, error) {
+func ComputeFacets(ctx context.Context, teamSlug slug.Slug, scope *IssueScope, filter *IssueFilter) (*IssueFacets, error) {
 	params := issuesql.FacetsForIssuesParams{
 		Team: teamSlug.String(),
 	}
 
+	if scope != nil {
+		params.ScopeResourceName = &scope.ResourceName
+		params.ScopeResourceType = (*string)(&scope.ResourceType)
+		params.ScopeEnv = &scope.Env
+	}
+
 	if filter != nil {
-		if len(filter.Environments) > 0 {
-			params.Env = filter.Environments
+		if scope == nil {
+			if len(filter.Environments) > 0 {
+				params.Env = filter.Environments
+			}
+			params.FilterResourceType = (*string)(filter.ResourceType)
+			params.FilterResourceName = filter.ResourceName
 		}
-		params.ResourceType = (*string)(filter.ResourceType)
-		params.ResourceName = filter.ResourceName
 		params.IssueType = (*string)(filter.IssueType)
 		if filter.Severity != nil {
 			params.Severity = new(issuesql.SeverityLevel(*filter.Severity))

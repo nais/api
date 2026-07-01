@@ -79,17 +79,17 @@ func (r *jobResolver) Issues(ctx context.Context, obj *job.Job, first *int, afte
 		return nil, err
 	}
 
-	rt := issue.ResourceTypeJob
-	f := &issue.IssueFilter{
-		ResourceName: &obj.Name,
-		ResourceType: &rt,
-		Environments: []string{obj.EnvironmentName},
+	scope := &issue.IssueScope{
+		ResourceName: obj.Name,
+		ResourceType: issue.ResourceTypeJob,
+		Env:          obj.EnvironmentName,
 	}
+	var f *issue.IssueFilter
 	if filter != nil {
-		f.ResourceIssueFilter = issue.ResourceIssueFilter{Severity: filter.Severity, IssueType: filter.IssueType}
+		f = &issue.IssueFilter{ResourceIssueFilter: issue.ResourceIssueFilter{Severity: filter.Severity, IssueType: filter.IssueType}}
 	}
 
-	return issue.ListIssues(ctx, obj.TeamSlug, page, orderBy, f)
+	return issue.ListIssues(ctx, obj.TeamSlug, page, orderBy, scope, f)
 }
 
 func (r *jobConnectionResolver) Facets(ctx context.Context, obj *pagination.FacetableConnection[*job.Job, *job.TeamJobsFilter]) (*job.JobFacets, error) {

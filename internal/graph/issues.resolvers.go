@@ -69,7 +69,7 @@ func (r *invalidSpecIssueResolver) Workload(ctx context.Context, obj *issue.Inva
 }
 
 func (r *issueConnectionResolver) Facets(ctx context.Context, obj *issue.IssueConnection) (*issue.IssueFacets, error) {
-	return issue.ComputeFacets(ctx, obj.GetTeamSlug(), obj.GetFilter())
+	return issue.ComputeFacets(ctx, obj.GetTeamSlug(), obj.GetScope(), obj.GetFilter())
 }
 
 func (r *lastRunFailedIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.LastRunFailedIssue) (*team.TeamEnvironment, error) {
@@ -126,7 +126,7 @@ func (r *teamResolver) Issues(ctx context.Context, obj *team.Team, first *int, a
 		return nil, err
 	}
 
-	return issue.ListIssues(ctx, obj.Slug, page, orderBy, filter)
+	return issue.ListIssues(ctx, obj.Slug, page, orderBy, nil, filter)
 }
 
 func (r *unleashReleaseChannelIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.UnleashReleaseChannelIssue) (*team.TeamEnvironment, error) {

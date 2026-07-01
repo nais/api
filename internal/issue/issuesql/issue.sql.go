@@ -44,6 +44,18 @@ FROM
 	issues
 WHERE
 	team = $6
+	AND (
+		$7::TEXT IS NULL
+		OR resource_type = $7::TEXT
+	)
+	AND (
+		$8::TEXT IS NULL
+		OR resource_name = $8::TEXT
+	)
+	AND (
+		$9::TEXT IS NULL
+		OR env = $9::TEXT
+	)
 GROUP BY
 	severity,
 	resource_type,
@@ -57,12 +69,15 @@ ORDER BY
 `
 
 type FacetsForIssuesParams struct {
-	Env          []string
-	IssueType    *string
-	Severity     *SeverityLevel
-	ResourceType *string
-	ResourceName *string
-	Team         string
+	Env                []string
+	IssueType          *string
+	Severity           *SeverityLevel
+	FilterResourceType *string
+	FilterResourceName *string
+	Team               string
+	ScopeResourceType  *string
+	ScopeResourceName  *string
+	ScopeEnv           *string
 }
 
 type FacetsForIssuesRow struct {
@@ -79,9 +94,12 @@ func (q *Queries) FacetsForIssues(ctx context.Context, arg FacetsForIssuesParams
 		arg.Env,
 		arg.IssueType,
 		arg.Severity,
-		arg.ResourceType,
-		arg.ResourceName,
+		arg.FilterResourceType,
+		arg.FilterResourceName,
 		arg.Team,
+		arg.ScopeResourceType,
+		arg.ScopeResourceName,
+		arg.ScopeEnv,
 	)
 	if err != nil {
 		return nil, err
