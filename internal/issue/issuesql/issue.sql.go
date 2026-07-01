@@ -16,7 +16,6 @@ SELECT
 	resource_type,
 	env,
 	issue_type,
-	COUNT(*) AS total_count,
 	COUNT(*) FILTER (
 		WHERE
 			(
@@ -85,7 +84,6 @@ type FacetsForIssuesRow struct {
 	ResourceType  string
 	Env           string
 	IssueType     string
-	TotalCount    int64
 	FilteredCount int64
 }
 
@@ -113,7 +111,6 @@ func (q *Queries) FacetsForIssues(ctx context.Context, arg FacetsForIssuesParams
 			&i.ResourceType,
 			&i.Env,
 			&i.IssueType,
-			&i.TotalCount,
 			&i.FilteredCount,
 		); err != nil {
 			return nil, err

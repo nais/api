@@ -99,7 +99,6 @@ SELECT
 	resource_type,
 	env,
 	issue_type,
-	COUNT(*) AS total_count,
 	COUNT(*) FILTER (
 		WHERE
 			(

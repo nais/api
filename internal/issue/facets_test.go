@@ -10,10 +10,10 @@ import (
 
 func TestBuildFacets(t *testing.T) {
 	rows := []*issuesql.FacetsForIssuesRow{
-		{Severity: "CRITICAL", ResourceType: "APPLICATION", Env: "prod", IssueType: "DEPRECATED_INGRESS", TotalCount: 3, FilteredCount: 3},
-		{Severity: "CRITICAL", ResourceType: "APPLICATION", Env: "dev", IssueType: "DEPRECATED_INGRESS", TotalCount: 1, FilteredCount: 1},
-		{Severity: "WARNING", ResourceType: "JOB", Env: "prod", IssueType: "LAST_RUN_FAILED", TotalCount: 2, FilteredCount: 2},
-		{Severity: "TODO", ResourceType: "SQLINSTANCE", Env: "prod", IssueType: "SQLINSTANCE_VERSION", TotalCount: 1, FilteredCount: 0},
+		{Severity: "CRITICAL", ResourceType: "APPLICATION", Env: "prod", IssueType: "DEPRECATED_INGRESS", FilteredCount: 3},
+		{Severity: "CRITICAL", ResourceType: "APPLICATION", Env: "dev", IssueType: "DEPRECATED_INGRESS", FilteredCount: 1},
+		{Severity: "WARNING", ResourceType: "JOB", Env: "prod", IssueType: "LAST_RUN_FAILED", FilteredCount: 2},
+		{Severity: "TODO", ResourceType: "SQLINSTANCE", Env: "prod", IssueType: "SQLINSTANCE_VERSION", FilteredCount: 0},
 	}
 
 	tests := []struct {
@@ -50,8 +50,8 @@ func TestBuildFacets(t *testing.T) {
 		{
 			name: "with filter: TODO row has filtered_count=0 but is still seeded",
 			rows: []*issuesql.FacetsForIssuesRow{
-				{Severity: "CRITICAL", ResourceType: "APPLICATION", Env: "prod", IssueType: "DEPRECATED_INGRESS", TotalCount: 3, FilteredCount: 3},
-				{Severity: "WARNING", ResourceType: "JOB", Env: "dev", IssueType: "LAST_RUN_FAILED", TotalCount: 1, FilteredCount: 0},
+				{Severity: "CRITICAL", ResourceType: "APPLICATION", Env: "prod", IssueType: "DEPRECATED_INGRESS", FilteredCount: 3},
+				{Severity: "WARNING", ResourceType: "JOB", Env: "dev", IssueType: "LAST_RUN_FAILED", FilteredCount: 0},
 			},
 			wantSeverities: []IssueSeverityFacetItem{
 				{Severity: SeverityCritical, Count: 3},
