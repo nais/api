@@ -338,7 +338,7 @@ func ConfigureGraph(
 
 	setupContext := func(ctx context.Context) context.Context {
 		ctx = podlog.NewLoaderContext(ctx, podLogStreamer)
-		ctx = application.NewLoaderContext(ctx, watchers.AppWatcher, watchers.IngressWatcher, prometheusClient, log)
+		ctx = application.NewLoaderContext(ctx, watchers.AppWatcher, watchers.IngressWatcher, log)
 		ctx = bigquery.NewLoaderContext(ctx, watchers.BqWatcher)
 		ctx = bucket.NewLoaderContext(ctx, watchers.BucketWatcher)
 		ctx = job.NewLoaderContext(ctx, watchers.JobWatcher, watchers.RunWatcher)

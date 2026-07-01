@@ -213,8 +213,7 @@ func TestFakeQueryAll(t *testing.T) {
 		t.Fatalf("failed to create watcher manager: %v", err)
 	}
 
-	prometheusClient := NewFakeClient(nil, nil)
-	ctx = application.NewLoaderContext(ctx, application.NewWatcher(ctx, mgr), application.NewIngressWatcher(ctx, mgr), prometheusClient, logrus.New())
+	ctx = application.NewLoaderContext(ctx, application.NewWatcher(ctx, mgr), application.NewIngressWatcher(ctx, mgr), logrus.New())
 	ctx = team.NewLoaderContext(ctx, pool, nil)
 
 	ctxWait, cancel := context.WithTimeout(ctx, 1*time.Second)
