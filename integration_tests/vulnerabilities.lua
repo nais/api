@@ -55,6 +55,7 @@ Test.gql("List vulnerability summaries for team", function(t)
 					image{
 					  name
 					  tag
+					  digest
 					  hasSBOM
 				  sbom {
 					status
@@ -84,7 +85,8 @@ Test.gql("List vulnerability summaries for team", function(t)
 						{
 							image = {
 								name = "europe-north1-docker.pkg.dev/nais/navikt/app-name",
-								tag = "latest@sha256:deadbeef",
+								tag = "latest",
+								digest = "sha256:deadbeef",
 								hasSBOM = true,
 								sbom = {
 									status = "READY",

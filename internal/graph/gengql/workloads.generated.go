@@ -252,6 +252,29 @@ func (ec *executionContext) fieldContext_ContainerImage_tag(_ context.Context, f
 	return graphql.NewScalarFieldContext("ContainerImage", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
+func (ec *executionContext) _ContainerImage_digest(ctx context.Context, field graphql.CollectedField, obj *workload.ContainerImage) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ContainerImage_digest(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Digest, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_ContainerImage_digest(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("ContainerImage", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
 func (ec *executionContext) _ContainerImage_activityLog(ctx context.Context, field graphql.CollectedField, obj *workload.ContainerImage) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -1064,6 +1087,8 @@ func (ec *executionContext) _ContainerImage(ctx context.Context, sel ast.Selecti
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "digest":
+			out.Values[i] = ec._ContainerImage_digest(ctx, field, obj)
 		case "activityLog":
 			field := field
 
