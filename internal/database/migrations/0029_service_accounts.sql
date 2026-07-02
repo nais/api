@@ -141,7 +141,7 @@ CREATE TABLE role_authorizations (
 ;
 
 CREATE TABLE service_accounts (
-	id UUID DEFAULT gen_random_uuid () PRIMARY KEY,
+	id UUID DEFAULT GEN_RANDOM_UUID() PRIMARY KEY,
 	created_at TIMESTAMP WITH TIME ZONE DEFAULT CLOCK_TIMESTAMP() NOT NULL,
 	updated_at TIMESTAMP WITH TIME ZONE DEFAULT CLOCK_TIMESTAMP() NOT NULL,
 	name TEXT NOT NULL CONSTRAINT name_length CHECK (CHAR_LENGTH(name) <= 80),
@@ -246,13 +246,13 @@ VALUES
 CREATE UNIQUE INDEX ON service_accounts USING btree (name, team_slug) NULLS NOT DISTINCT
 ;
 
-CREATE TRIGGER service_accounts_set_updated BEFORE
-UPDATE ON service_accounts FOR EACH ROW
+CREATE TRIGGER service_accounts_set_updated
+BEFORE UPDATE ON service_accounts FOR EACH ROW
 EXECUTE PROCEDURE set_updated_at ()
 ;
 
 CREATE TABLE service_account_tokens (
-	id UUID DEFAULT gen_random_uuid () PRIMARY KEY,
+	id UUID DEFAULT GEN_RANDOM_UUID() PRIMARY KEY,
 	created_at TIMESTAMP WITH TIME ZONE DEFAULT CLOCK_TIMESTAMP() NOT NULL,
 	updated_at TIMESTAMP WITH TIME ZONE DEFAULT CLOCK_TIMESTAMP() NOT NULL,
 	last_used_at TIMESTAMP WITH TIME ZONE,
@@ -267,8 +267,8 @@ CREATE TABLE service_account_tokens (
 CREATE UNIQUE INDEX ON service_account_tokens USING btree (service_account_id, name)
 ;
 
-CREATE TRIGGER service_account_tokens_set_updated BEFORE
-UPDATE ON service_account_tokens FOR EACH ROW
+CREATE TRIGGER service_account_tokens_set_updated
+BEFORE UPDATE ON service_account_tokens FOR EACH ROW
 EXECUTE PROCEDURE set_updated_at ()
 ;
 

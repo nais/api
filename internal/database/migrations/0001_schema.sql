@@ -54,7 +54,7 @@ CREATE TABLE api_keys (
 ;
 
 CREATE TABLE audit_logs (
-	id UUID DEFAULT gen_random_uuid () PRIMARY KEY,
+	id UUID DEFAULT GEN_RANDOM_UUID() PRIMARY KEY,
 	created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	correlation_id UUID NOT NULL,
 	component_name TEXT NOT NULL,
@@ -139,7 +139,7 @@ CREATE TABLE reconciler_opt_outs (
 ;
 
 CREATE TABLE reconciler_states (
-	id UUID DEFAULT gen_random_uuid () NOT NULL PRIMARY KEY,
+	id UUID DEFAULT GEN_RANDOM_UUID() NOT NULL PRIMARY KEY,
 	reconciler_name TEXT NOT NULL,
 	team_slug slug NOT NULL,
 	value bytea NOT NULL,
@@ -207,20 +207,20 @@ CREATE TABLE service_account_roles (
 ;
 
 CREATE TABLE service_accounts (
-	id UUID DEFAULT gen_random_uuid () PRIMARY KEY,
+	id UUID DEFAULT GEN_RANDOM_UUID() PRIMARY KEY,
 	name TEXT NOT NULL UNIQUE
 )
 ;
 
 CREATE TABLE sessions (
-	id UUID DEFAULT gen_random_uuid () PRIMARY KEY,
+	id UUID DEFAULT GEN_RANDOM_UUID() PRIMARY KEY,
 	user_id UUID NOT NULL,
 	expires TIMESTAMP WITH TIME ZONE NOT NULL
 )
 ;
 
 CREATE TABLE team_delete_keys (
-	key UUID DEFAULT gen_random_uuid () PRIMARY KEY,
+	key UUID DEFAULT GEN_RANDOM_UUID() PRIMARY KEY,
 	team_slug slug NOT NULL,
 	created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	created_by UUID NOT NULL,
@@ -251,7 +251,7 @@ CREATE TABLE teams (
 ;
 
 CREATE TABLE team_environments (
-	id UUID DEFAULT gen_random_uuid () PRIMARY KEY,
+	id UUID DEFAULT GEN_RANDOM_UUID() PRIMARY KEY,
 	team_slug slug NOT NULL,
 	environment TEXT NOT NULL,
 	slack_alerts_channel TEXT,
@@ -282,7 +282,7 @@ CREATE TABLE user_roles (
 ;
 
 CREATE TABLE users (
-	id UUID DEFAULT gen_random_uuid () PRIMARY KEY,
+	id UUID DEFAULT GEN_RANDOM_UUID() PRIMARY KEY,
 	email TEXT NOT NULL UNIQUE,
 	name TEXT NOT NULL,
 	external_id TEXT NOT NULL UNIQUE
@@ -290,7 +290,7 @@ CREATE TABLE users (
 ;
 
 CREATE TABLE vulnerability_metrics (
-	id UUID DEFAULT gen_random_uuid () PRIMARY KEY,
+	id UUID DEFAULT GEN_RANDOM_UUID() PRIMARY KEY,
 	date date NOT NULL,
 	dependencytrack_project_id UUID NOT NULL,
 	critical INTEGER NOT NULL,
@@ -310,7 +310,7 @@ CREATE VIEW team_all_environments AS (
 		environments.name AS environment,
 		environments.gcp AS gcp,
 		team_environments.gcp_project_id,
-		COALESCE(team_environments.id, gen_random_uuid ())::UUID AS id,
+		COALESCE(team_environments.id, GEN_RANDOM_UUID())::UUID AS id,
 		COALESCE(
 			team_environments.slack_alerts_channel,
 			teams.slack_channel
@@ -468,7 +468,7 @@ ADD FOREIGN KEY (team_slug) REFERENCES teams (slug) ON DELETE CASCADE
 ;
 
 -- triggers
-CREATE TRIGGER reconciler_states_set_updated BEFORE
-UPDATE ON reconciler_states FOR EACH ROW
+CREATE TRIGGER reconciler_states_set_updated
+BEFORE UPDATE ON reconciler_states FOR EACH ROW
 EXECUTE PROCEDURE set_updated_at ()
 ;

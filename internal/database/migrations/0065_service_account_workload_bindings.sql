@@ -1,6 +1,6 @@
 -- +goose Up
 CREATE TABLE service_account_workload_bindings (
-	id UUID DEFAULT gen_random_uuid () PRIMARY KEY,
+	id UUID DEFAULT GEN_RANDOM_UUID() PRIMARY KEY,
 	created_at TIMESTAMP WITH TIME ZONE DEFAULT CLOCK_TIMESTAMP() NOT NULL,
 	updated_at TIMESTAMP WITH TIME ZONE DEFAULT CLOCK_TIMESTAMP() NOT NULL,
 	last_used_at TIMESTAMP WITH TIME ZONE,
@@ -24,7 +24,7 @@ CREATE UNIQUE INDEX ON service_account_workload_bindings (environment, team_slug
 CREATE INDEX ON service_account_workload_bindings (service_account_id)
 ;
 
-CREATE TRIGGER service_account_workload_bindings_set_updated BEFORE
-UPDATE ON service_account_workload_bindings FOR EACH ROW
+CREATE TRIGGER service_account_workload_bindings_set_updated
+BEFORE UPDATE ON service_account_workload_bindings FOR EACH ROW
 EXECUTE PROCEDURE set_updated_at ()
 ;

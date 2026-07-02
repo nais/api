@@ -41,9 +41,6 @@ $$ LANGUAGE plpgsql
 
 -- +goose StatementEnd
 CREATE OR REPLACE TRIGGER teams_notify
-AFTER INSERT
-OR
-UPDATE
-OR DELETE ON teams FOR EACH ROW
+AFTER INSERT OR UPDATE OR DELETE ON teams FOR EACH ROW
 EXECUTE PROCEDURE api_notify ("slug", "purpose")
 ;

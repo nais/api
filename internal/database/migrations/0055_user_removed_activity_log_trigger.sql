@@ -29,6 +29,7 @@ $$ LANGUAGE plpgsql
 DROP TRIGGER IF EXISTS user_deletion_trigger ON users
 ;
 
-CREATE TRIGGER user_deletion_trigger BEFORE DELETE ON users FOR EACH ROW
+CREATE TRIGGER user_deletion_trigger
+BEFORE DELETE ON users FOR EACH ROW
 EXECUTE FUNCTION log_user_deletion ()
 ;

@@ -1,6 +1,6 @@
 -- +goose Up
 CREATE TABLE issues (
-	id UUID DEFAULT gen_random_uuid () PRIMARY KEY,
+	id UUID DEFAULT GEN_RANDOM_UUID() PRIMARY KEY,
 	issue_type TEXT NOT NULL,
 	resource_name TEXT NOT NULL,
 	resource_type TEXT NOT NULL,

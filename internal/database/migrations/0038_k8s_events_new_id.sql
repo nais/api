@@ -1,7 +1,7 @@
 -- +goose Up
 ALTER TABLE k8s_events
 DROP CONSTRAINT k8s_events_pkey,
-ADD COLUMN id UUID NOT NULL DEFAULT gen_random_uuid () PRIMARY KEY
+ADD COLUMN id UUID NOT NULL DEFAULT GEN_RANDOM_UUID() PRIMARY KEY
 ;
 
 CREATE UNIQUE INDEX ON k8s_events (uid, triggered_at)
