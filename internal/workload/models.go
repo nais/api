@@ -125,7 +125,7 @@ func (p ParsedImageReference) DigestPtr() *string {
 		return nil
 	}
 
-	return &p.Digest
+	return new(p.Digest)
 }
 
 func ParseImageReference(image string) ParsedImageReference {
