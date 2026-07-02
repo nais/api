@@ -11,7 +11,7 @@ CREATE TYPE deployment_state AS ENUM(
 ;
 
 CREATE TABLE deployments (
-	id UUID DEFAULT gen_random_uuid () PRIMARY KEY,
+	id UUID DEFAULT GEN_RANDOM_UUID() PRIMARY KEY,
 	external_id TEXT UNIQUE,
 	created_at TIMESTAMP WITH TIME ZONE DEFAULT CLOCK_TIMESTAMP() NOT NULL,
 	team_slug slug NOT NULL,
@@ -24,7 +24,7 @@ CREATE TABLE deployments (
 ;
 
 CREATE TABLE deployment_k8s_resources (
-	id UUID DEFAULT gen_random_uuid () PRIMARY KEY,
+	id UUID DEFAULT GEN_RANDOM_UUID() PRIMARY KEY,
 	created_at TIMESTAMP WITH TIME ZONE DEFAULT CLOCK_TIMESTAMP() NOT NULL,
 	deployment_id UUID NOT NULL,
 	"group" TEXT NOT NULL,
@@ -36,7 +36,7 @@ CREATE TABLE deployment_k8s_resources (
 ;
 
 CREATE TABLE deployment_statuses (
-	id UUID DEFAULT gen_random_uuid () PRIMARY KEY,
+	id UUID DEFAULT GEN_RANDOM_UUID() PRIMARY KEY,
 	created_at TIMESTAMP WITH TIME ZONE DEFAULT CLOCK_TIMESTAMP() NOT NULL,
 	deployment_id UUID NOT NULL,
 	state deployment_state NOT NULL,

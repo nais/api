@@ -47,7 +47,8 @@ $register_team_slug$ LANGUAGE plpgsql
 ;
 
 -- +goose StatementEnd
-CREATE TRIGGER unique_team_slug BEFORE INSERT ON teams FOR EACH ROW
+CREATE TRIGGER unique_team_slug
+BEFORE INSERT ON teams FOR EACH ROW
 EXECUTE PROCEDURE unique_team_slug ()
 ;
 

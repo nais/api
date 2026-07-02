@@ -6,4 +6,3 @@ spec:
   image: ghcr.io/navikt/app-name:latest
   schedule: "0 0 * * *"
 ---
-

@@ -12,7 +12,7 @@ CREATE TYPE usersync_log_entry_action AS ENUM(
 ;
 
 CREATE TABLE usersync_log_entries (
-	id UUID DEFAULT gen_random_uuid () PRIMARY KEY,
+	id UUID DEFAULT GEN_RANDOM_UUID() PRIMARY KEY,
 	created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	action usersync_log_entry_action NOT NULL,
 	user_id UUID NOT NULL,

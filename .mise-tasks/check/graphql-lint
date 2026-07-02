@@ -3,4 +3,4 @@
 
 set -e
 
-npx eslint --cache
+pnpm exec eslint --cache

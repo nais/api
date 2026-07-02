@@ -3,5 +3,4 @@
 
 set -e
 
-npm ci
-npx prettier --write .
+pnpm exec prettier --write .

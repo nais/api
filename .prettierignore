@@ -1,3 +1,4 @@
 charts
 *.go
 *.tar.xz
+pnpm-lock.yaml
