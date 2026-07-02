@@ -5,7 +5,15 @@ import (
 	"testing"
 )
 
-func stringPtr(s string) *string { return &s }
+var (
+	digestABC      = new(string)
+	digestDeadbeef = new(string)
+)
+
+func init() {
+	*digestABC = "sha256:abc"
+	*digestDeadbeef = "sha256:deadbeef"
+}
 
 func TestParseContainerImageRoundTrip(t *testing.T) {
 	tests := []struct {
@@ -55,21 +63,21 @@ func TestParseContainerImageRoundTrip(t *testing.T) {
 			image:      "registry/repo/app@sha256:abc",
 			wantName:   "registry/repo/app",
 			wantTag:    "",
-			wantDigest: stringPtr("sha256:abc"),
+			wantDigest: digestABC,
 		},
 		{
 			name:       "tag and digest",
 			image:      "registry/repo/app:1.2.3@sha256:abc",
 			wantName:   "registry/repo/app",
 			wantTag:    "1.2.3",
-			wantDigest: stringPtr("sha256:abc"),
+			wantDigest: digestABC,
 		},
 		{
 			name:       "explicit latest and digest",
 			image:      "registry/repo/app:latest@sha256:abc",
 			wantName:   "registry/repo/app",
 			wantTag:    "latest",
-			wantDigest: stringPtr("sha256:abc"),
+			wantDigest: digestABC,
 		},
 		{
 			name:       "nested path no tag",
@@ -90,14 +98,14 @@ func TestParseContainerImageRoundTrip(t *testing.T) {
 			image:      "europe-north1-docker.pkg.dev/my-project/my-repo/my-app@sha256:deadbeef",
 			wantName:   "europe-north1-docker.pkg.dev/my-project/my-repo/my-app",
 			wantTag:    "",
-			wantDigest: stringPtr("sha256:deadbeef"),
+			wantDigest: digestDeadbeef,
 		},
 		{
 			name:       "nested path tag and digest",
 			image:      "europe-north1-docker.pkg.dev/my-project/my-repo/my-app:v2.0.0@sha256:deadbeef",
 			wantName:   "europe-north1-docker.pkg.dev/my-project/my-repo/my-app",
 			wantTag:    "v2.0.0",
-			wantDigest: stringPtr("sha256:deadbeef"),
+			wantDigest: digestDeadbeef,
 		},
 		{
 			name:       "registry with port and tag",
@@ -111,7 +119,7 @@ func TestParseContainerImageRoundTrip(t *testing.T) {
 			image:      "registry.com:443/image/name@sha256:abc",
 			wantName:   "registry.com:443/image/name",
 			wantTag:    "",
-			wantDigest: stringPtr("sha256:abc"),
+			wantDigest: digestABC,
 		},
 		{
 			name:       "registry with port and no tag",
@@ -132,7 +140,7 @@ func TestParseContainerImageRoundTrip(t *testing.T) {
 			image:      "registry.com:443/image/name:tag@sha256:abc",
 			wantName:   "registry.com:443/image/name",
 			wantTag:    "tag",
-			wantDigest: stringPtr("sha256:abc"),
+			wantDigest: digestABC,
 		},
 	}
 
