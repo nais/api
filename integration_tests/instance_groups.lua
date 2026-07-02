@@ -18,6 +18,7 @@ Test.gql("Application with instance groups", function(t)
 							image {
 								name
 								tag
+								digest
 							}
 							readyInstances
 							desiredInstances
@@ -45,6 +46,7 @@ Test.gql("Application with instance groups", function(t)
 									image = {
 										name = "ghcr.io/navikt/myapp",
 										tag = "v1.2.3",
+										digest = Null,
 									},
 									readyInstances = 2,
 									desiredInstances = 2,

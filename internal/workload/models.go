@@ -76,21 +76,26 @@ func (b Base) GetType() Type                             { return b.Type }
 func (b Base) GetLogging() *nais_io_v1.Logging           { return b.Logging }
 
 type ContainerImage struct {
-	Name string `json:"name"`
-	Tag  string `json:"tag"`
+	Name   string  `json:"name"`
+	Tag    string  `json:"tag"`
+	Digest *string `json:"digest,omitempty"`
 }
 
 func (ContainerImage) IsNode() {}
 func (c ContainerImage) Ref() string {
-	if c.Tag == "" {
+	if c.Tag == "" && c.Digest == nil {
 		return c.Name
 	}
 
-	if !strings.Contains(c.Tag, "@") && strings.Contains(c.Tag, ":") {
-		return c.Name + "@" + c.Tag
+	if c.Tag == "" {
+		return c.Name + "@" + *c.Digest
 	}
 
-	return c.Name + ":" + c.Tag
+	if c.Digest == nil {
+		return c.Name + ":" + c.Tag
+	}
+
+	return c.Name + ":" + c.Tag + "@" + *c.Digest
 }
 
 func (c ContainerImage) ID() ident.Ident {
@@ -100,34 +105,50 @@ func (c ContainerImage) ID() ident.Ident {
 func (ContainerImage) IsActivityLogger() {}
 
 func ParseContainerImage(image string) *ContainerImage {
-	name, tag := splitContainerImage(image)
+	parsed := ParseImageReference(image)
 	return &ContainerImage{
-		Name: name,
-		Tag:  tag,
+		Name:   parsed.Name,
+		Tag:    parsed.Tag,
+		Digest: parsed.DigestPtr(),
 	}
 }
 
-func splitContainerImage(image string) (name, tag string) {
-	before, after, ok := strings.Cut(image, "@")
-	if ok {
+type ParsedImageReference struct {
+	Name           string
+	Tag            string
+	Digest         string
+	HasExplicitTag bool
+}
+
+func (p ParsedImageReference) DigestPtr() *string {
+	if p.Digest == "" {
+		return nil
+	}
+
+	return &p.Digest
+}
+
+func ParseImageReference(image string) ParsedImageReference {
+	before, digest, hasDigest := strings.Cut(image, "@")
+	if hasDigest {
 		image = before
-		if name, tag = splitContainerImageNameTag(image); tag != "" {
-			return name, tag + "@" + after
-		}
-		return name, after
 	}
 
-	return splitContainerImageNameTag(image)
-}
-
-func splitContainerImageNameTag(image string) (name, tag string) {
 	lastSlash := strings.LastIndex(image, "/")
 	segment := image[lastSlash+1:]
 	if before, after, ok := strings.Cut(segment, ":"); ok {
-		return image[:lastSlash+1] + before, after
+		return ParsedImageReference{
+			Name:           image[:lastSlash+1] + before,
+			Tag:            after,
+			Digest:         digest,
+			HasExplicitTag: true,
+		}
 	}
 
-	return image, ""
+	return ParsedImageReference{
+		Name:   image,
+		Digest: digest,
+	}
 }
 
 type WorkloadResources interface {

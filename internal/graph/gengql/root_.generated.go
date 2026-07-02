@@ -665,6 +665,7 @@ type ComplexityRoot struct {
 
 	ContainerImage struct {
 		ActivityLog          func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int
+		Digest               func(childComplexity int) int
 		HasSbom              func(childComplexity int) int
 		ID                   func(childComplexity int) int
 		Name                 func(childComplexity int) int
@@ -5858,6 +5859,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ContainerImage.ActivityLog(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["filter"].(*activitylog.ActivityLogFilter)), true
+
+	case "ContainerImage.digest":
+		if e.ComplexityRoot.ContainerImage.Digest == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ContainerImage.Digest(childComplexity), true
 
 	case "ContainerImage.hasSBOM":
 		if e.ComplexityRoot.ContainerImage.HasSbom == nil {
@@ -32458,6 +32466,11 @@ type ContainerImage implements Node & ActivityLogger {
 	tag: String!
 
 	"""
+	Digest of the container image, if present.
+	"""
+	digest: String
+
+	"""
 	Activity log associated with the container image.
 	"""
 	activityLog(
@@ -33503,6 +33516,8 @@ func (ec *executionContext) childFields_ContainerImage(ctx context.Context, fiel
 		return ec.fieldContext_ContainerImage_name(ctx, field)
 	case "tag":
 		return ec.fieldContext_ContainerImage_tag(ctx, field)
+	case "digest":
+		return ec.fieldContext_ContainerImage_digest(ctx, field)
 	case "activityLog":
 		return ec.fieldContext_ContainerImage_activityLog(ctx, field)
 	case "sbom":

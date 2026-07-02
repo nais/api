@@ -210,6 +210,11 @@ type ContainerImage implements Node & ActivityLogger {
 	tag: String!
 
 	"""
+	Digest of the container image, if present.
+	"""
+	digest: String
+
+	"""
 	Activity log associated with the container image.
 	"""
 	activityLog(
