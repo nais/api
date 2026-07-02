@@ -32461,7 +32461,8 @@ type ContainerImage implements Node & ActivityLogger {
 	name: String!
 
 	"""
-	Tag of the container image.
+	Tag of the container image. Empty when the image reference has no explicit tag,
+	for example when it is referenced by digest only.
 	"""
 	tag: String!
 

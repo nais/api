@@ -151,6 +151,22 @@ func ParseImageReference(image string) ParsedImageReference {
 	}
 }
 
+func FormatImageReferenceForLookup(image string) (name, tag string) {
+	parsed := ParseImageReference(image)
+	name = parsed.Name
+
+	switch {
+	case parsed.Digest != "" && parsed.HasExplicitTag && parsed.Tag != "":
+		return name, parsed.Tag + "@" + parsed.Digest
+	case parsed.Digest != "":
+		return name, parsed.Digest
+	case parsed.Tag == "":
+		return name, "latest"
+	default:
+		return name, parsed.Tag
+	}
+}
+
 type WorkloadResources interface {
 	IsWorkloadResources()
 }
