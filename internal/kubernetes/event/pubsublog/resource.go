@@ -22,7 +22,7 @@ func (r Resource) Empty() bool {
 // The expected format is "group/version/namespaces/namespace/kind/name(/extra)"
 func parseResourceName(s string) (Resource, error) {
 	parts := strings.Split(s, "/")
-	if len(parts) < 5 {
+	if len(parts) < 6 {
 		return Resource{}, fmt.Errorf("invalid resource name format: %s", s)
 	}
 
