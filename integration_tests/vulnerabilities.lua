@@ -63,6 +63,19 @@ Test.gql("List vulnerability summaries for team", function(t)
 				  }
 					  vulnerabilitySummary{
 						total
+						countsBySeverity {
+							critical
+							high
+							medium
+							low
+							unassigned
+						}
+						countsByPriority {
+							urgent
+							highRisk
+							elevatedRisk
+							monitor
+						}
 						critical
 						high
 						medium
@@ -94,6 +107,19 @@ Test.gql("List vulnerability summaries for team", function(t)
 								},
 								vulnerabilitySummary = {
 									total = NotNull(),
+									countsBySeverity = {
+										critical = NotNull(),
+										high = NotNull(),
+										medium = NotNull(),
+										low = NotNull(),
+										unassigned = NotNull(),
+									},
+									countsByPriority = {
+										urgent = NotNull(),
+										highRisk = NotNull(),
+										elevatedRisk = NotNull(),
+										monitor = NotNull(),
+									},
 									critical = NotNull(),
 									high = NotNull(),
 									medium = NotNull(),

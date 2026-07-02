@@ -16,18 +16,32 @@ import (
 )
 
 type staticV13sClient struct {
-	workloads []*vulnerabilities.WorkloadForVulnerability
+	summaries []*vulnerabilities.WorkloadSummary
 }
 
 func (s staticV13sClient) ListVulnerabilitySummaries(ctx context.Context, opts ...vulnerabilities.Option) (*vulnerabilities.ListVulnerabilitySummariesResponse, error) {
-	return &vulnerabilities.ListVulnerabilitySummariesResponse{}, nil
+	return &vulnerabilities.ListVulnerabilitySummariesResponse{Nodes: s.summaries}, nil
 }
 
-func (s staticV13sClient) ListWorkloadsForVulnerability(ctx context.Context, vulnerabilityFilter vulnerabilities.VulnerabilityFilter, opts ...vulnerabilities.Option) (*vulnerabilities.ListWorkloadsForVulnerabilityResponse, error) {
-	return &vulnerabilities.ListWorkloadsForVulnerabilityResponse{Nodes: s.workloads}, nil
+func TestVulnerabilities_ExternalIngressActNowIssue(t *testing.T) {
+	tests := []struct {
+		name            string
+		workloadName    string
+		expectedIngress string
+		wantIssue       bool
+	}{
+		{name: "external ingress class", workloadName: "ext-app", expectedIngress: "https://ext.example.com", wantIssue: true},
+		{name: "internal ingress class", workloadName: "internal-only", wantIssue: false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			testVulnerabilitiesExternalIngressActNowIssue(t, tt.workloadName, tt.expectedIngress, tt.wantIssue)
+		})
+	}
 }
 
-func TestVulnerabilities_ExternalIngressCriticalIssue(t *testing.T) {
+func testVulnerabilitiesExternalIngressActNowIssue(t *testing.T, workloadName, expectedIngress string, wantIssue bool) {
 	ctx := context.Background()
 
 	scheme, err := kubernetes.NewScheme()
@@ -58,52 +72,79 @@ func TestVulnerabilities_ExternalIngressCriticalIssue(t *testing.T) {
 	workload := Workload{
 		AppWatcher:     *appWatcher,
 		IngressWatcher: *ingressWatcher,
-		V13sClient: staticV13sClient{workloads: []*vulnerabilities.WorkloadForVulnerability{
+		V13sClient: staticV13sClient{summaries: []*vulnerabilities.WorkloadSummary{
 			{
-				WorkloadRef:   &vulnerabilities.Workload{Cluster: "dev-gcp", Namespace: "devteam", Type: "app", Name: "ext-app"},
-				Vulnerability: &vulnerabilities.Vulnerability{CvssScore: new(10.0), Cve: &vulnerabilities.Cve{CvssScore: new(10.0)}},
+				Workload: &vulnerabilities.Workload{Cluster: "dev-gcp", Namespace: "devteam", Type: "app", Name: workloadName},
+				VulnerabilitySummary: &vulnerabilities.Summary{
+					Critical:  2,
+					RiskScore: 100,
+					ActNow:    2,
+				},
 			},
 			{
-				WorkloadRef:   &vulnerabilities.Workload{Cluster: "dev-gcp", Namespace: "devteam", Type: "app", Name: "ext-app"},
-				Vulnerability: &vulnerabilities.Vulnerability{CvssScore: new(10.0), Cve: &vulnerabilities.Cve{CvssScore: new(10.0)}},
+				Workload: &vulnerabilities.Workload{Cluster: "dev-gcp", Namespace: "devteam", Type: "app", Name: workloadName},
+				VulnerabilitySummary: &vulnerabilities.Summary{
+					Critical:  2,
+					RiskScore: 100,
+					ActNow:    2,
+				},
 			},
 			{
-				WorkloadRef:   &vulnerabilities.Workload{Cluster: "dev-gcp", Namespace: "devteam", Type: "app", Name: "internal-only"},
-				Vulnerability: &vulnerabilities.Vulnerability{CvssScore: new(10.0), Cve: &vulnerabilities.Cve{CvssScore: new(10.0)}},
+				Workload: &vulnerabilities.Workload{Cluster: "dev-gcp", Namespace: "devteam", Type: "app", Name: "non-existing-workload"},
+				VulnerabilitySummary: &vulnerabilities.Summary{
+					Critical:  2,
+					RiskScore: 100,
+					ActNow:    2,
+				},
 			},
 			{
-				WorkloadRef:   &vulnerabilities.Workload{Cluster: "dev-gcp", Namespace: "devteam", Type: "app", Name: "ext-app"},
-				Vulnerability: &vulnerabilities.Vulnerability{CvssScore: new(9.9), Cve: &vulnerabilities.Cve{CvssScore: new(9.9)}},
+				Workload: &vulnerabilities.Workload{Cluster: "dev-gcp", Namespace: "devteam", Type: "app", Name: workloadName},
+				VulnerabilitySummary: &vulnerabilities.Summary{
+					ActNow: 0,
+				},
 			},
 		}},
 		log: logrus.New(),
 	}
 
 	issues := workload.vulnerabilities(ctx)
-
-	if len(issues) != 1 {
-		t.Fatalf("expected 1 issue, got %d", len(issues))
+	actNowIssues := make([]*Issue, 0)
+	for i := range issues {
+		if issues[i].IssueType == issue.IssueTypeExternalIngressUrgentVulnerability {
+			actNowIssues = append(actNowIssues, issues[i])
+		}
 	}
 
-	got := issues[0]
-	if got.IssueType != issue.IssueTypeExternalIngressCriticalVulnerability {
-		t.Fatalf("expected issue type %s, got %s", issue.IssueTypeExternalIngressCriticalVulnerability, got.IssueType)
+	if !wantIssue {
+		if len(actNowIssues) != 0 {
+			t.Fatalf("expected 0 external ingress act-now issues, got %d", len(actNowIssues))
+		}
+		return
 	}
 
-	if got.ResourceName != "ext-app" {
-		t.Fatalf("expected resource ext-app, got %s", got.ResourceName)
+	if len(actNowIssues) != 1 {
+		t.Fatalf("expected 1 external ingress act-now issue, got %d", len(actNowIssues))
 	}
 
-	details, ok := got.IssueDetails.(issue.ExternalIngressCriticalVulnerabilityIssueDetails)
+	got := actNowIssues[0]
+	if got.IssueType != issue.IssueTypeExternalIngressUrgentVulnerability {
+		t.Fatalf("expected issue type %s, got %s", issue.IssueTypeExternalIngressUrgentVulnerability, got.IssueType)
+	}
+
+	if got.ResourceName != workloadName {
+		t.Fatalf("expected resource %s, got %s", workloadName, got.ResourceName)
+	}
+
+	details, ok := got.IssueDetails.(issue.ExternalIngressUrgentVulnerabilityIssueDetails)
 	if !ok {
-		t.Fatalf("expected external ingress critical details, got %T", got.IssueDetails)
+		t.Fatalf("expected external ingress act-now details, got %T", got.IssueDetails)
 	}
 
-	if details.CvssScore != 10.0 {
-		t.Fatalf("expected CVSS 10.0, got %v", details.CvssScore)
+	if details.PriorityUrgent != 2 {
+		t.Fatalf("expected priorityUrgent 2, got %v", details.PriorityUrgent)
 	}
 
-	if len(details.Ingresses) != 1 || details.Ingresses[0] != "https://ext.example.com" {
+	if len(details.Ingresses) != 1 || details.Ingresses[0] != expectedIngress {
 		t.Fatalf("expected only external ingress URL, got %+v", details.Ingresses)
 	}
 }

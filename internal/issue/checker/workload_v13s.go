@@ -19,7 +19,6 @@ const (
 
 type V13sClient interface {
 	ListVulnerabilitySummaries(ctx context.Context, opts ...vulnerabilities.Option) (*vulnerabilities.ListVulnerabilitySummariesResponse, error)
-	ListWorkloadsForVulnerability(ctx context.Context, vulnerabilityFilter vulnerabilities.VulnerabilityFilter, opts ...vulnerabilities.Option) (*vulnerabilities.ListWorkloadsForVulnerabilityResponse, error)
 }
 
 type fakeV13sClient struct{}
@@ -40,6 +39,8 @@ func (f fakeV13sClient) ListVulnerabilitySummaries(ctx context.Context, opts ...
 				VulnerabilitySummary: &vulnerabilities.Summary{
 					Critical:  5,
 					RiskScore: 250,
+					ActNow:    2,
+					HighRisk:  3,
 				},
 				SbomStatus: &vulnerabilities.SbomStatusInfo{
 					Status: vulnerabilities.SbomStatus_SBOM_STATUS_READY,
@@ -72,6 +73,8 @@ func (f fakeV13sClient) ListVulnerabilitySummaries(ctx context.Context, opts ...
 				VulnerabilitySummary: &vulnerabilities.Summary{
 					Critical:  5,
 					RiskScore: 250,
+					ActNow:    2,
+					HighRisk:  3,
 				},
 				SbomStatus: &vulnerabilities.SbomStatusInfo{
 					Status: vulnerabilities.SbomStatus_SBOM_STATUS_READY,
@@ -109,47 +112,6 @@ func (f fakeV13sClient) ListVulnerabilitySummaries(ctx context.Context, opts ...
 	}, nil
 }
 
-func (f fakeV13sClient) ListWorkloadsForVulnerability(ctx context.Context, vulnerabilityFilter vulnerabilities.VulnerabilityFilter, opts ...vulnerabilities.Option) (*vulnerabilities.ListWorkloadsForVulnerabilityResponse, error) {
-	if vulnerabilityFilter.CvssScore == nil || *vulnerabilityFilter.CvssScore != 10.0 {
-		return &vulnerabilities.ListWorkloadsForVulnerabilityResponse{}, nil
-	}
-
-	return &vulnerabilities.ListWorkloadsForVulnerabilityResponse{
-		Nodes: []*vulnerabilities.WorkloadForVulnerability{
-			{
-				WorkloadRef: &vulnerabilities.Workload{
-					Cluster:   "dev-gcp",
-					Namespace: "devteam",
-					Type:      "app",
-					Name:      "vulnerable",
-				},
-				Vulnerability: &vulnerabilities.Vulnerability{
-					Cve: &vulnerabilities.Cve{
-						Id:        "CVE-FAKE-0001",
-						CvssScore: new(10.0),
-					},
-					CvssScore: new(10.0),
-				},
-			},
-			{
-				WorkloadRef: &vulnerabilities.Workload{
-					Cluster:   "dev-gcp",
-					Namespace: "fake-team",
-					Type:      "app",
-					Name:      "fake-external-app",
-				},
-				Vulnerability: &vulnerabilities.Vulnerability{
-					Cve: &vulnerabilities.Cve{
-						Id:        "CVE-FAKE-0002",
-						CvssScore: new(10.0),
-					},
-					CvssScore: new(10.0),
-				},
-			},
-		},
-	}, nil
-}
-
 func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 	mapType := func(s string) (issue.ResourceType, bool) {
 		if s == "job" {
@@ -181,23 +143,23 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 			continue
 		}
 
-		if node.VulnerabilitySummary != nil && (node.VulnerabilitySummary.Critical > 0 || node.VulnerabilitySummary.RiskScore > 100) {
+		summary := node.VulnerabilitySummary
+		if summary != nil && summary.ActNow > 0 {
 			ret = append(ret, &Issue{
 				IssueType:    issue.IssueTypeVulnerableImage,
 				ResourceType: workloadType,
 				ResourceName: node.Workload.GetName(),
 				Team:         node.Workload.GetNamespace(),
 				Env:          environmentmapper.EnvironmentName(node.Workload.GetCluster()),
-				Severity:     issue.SeverityWarning,
+				Severity:     issue.SeverityCritical,
 				Message: fmt.Sprintf(
-					"Image '%s' has %d critical vulnerabilities and a risk score of %d",
+					"Image '%s' has %d urgent vulnerabilities",
 					node.Workload.ImageName,
-					node.VulnerabilitySummary.Critical,
-					node.VulnerabilitySummary.RiskScore,
+					summary.ActNow,
 				),
 				IssueDetails: issue.VulnerableImageIssueDetails{
-					Critical:  int(node.VulnerabilitySummary.Critical),
-					RiskScore: int(node.VulnerabilitySummary.RiskScore),
+					Critical:  int(summary.Critical),
+					RiskScore: int(summary.RiskScore),
 				},
 			})
 		}
@@ -222,25 +184,12 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 		}
 	}
 
-	cvss := 10.0
-	workloadsForVulnerability, err := w.V13sClient.ListWorkloadsForVulnerability(
-		ctx,
-		vulnerabilities.VulnerabilityFilter{CvssScore: &cvss},
-		vulnerabilities.Limit(v13sQueryLimit),
-		vulnerabilities.ExcludeClustersFilter("management"),
-	)
-	if err != nil {
-		w.log.WithError(err).Error("fetch workloads for vulnerabilities with cvss score")
-		return ret
-	}
-
 	externalIngressesByWorkload := w.externalIngressesByWorkload()
 
-	seen := map[string]struct{}{}
-	for _, node := range workloadsForVulnerability.GetNodes() {
-		workloadRef := node.GetWorkloadRef()
-		vulnerability := node.GetVulnerability()
-		if workloadRef == nil || vulnerability == nil {
+	seenActNow := map[string]struct{}{}
+	for _, node := range resp.GetNodes() {
+		workloadRef := node.GetWorkload()
+		if workloadRef == nil {
 			continue
 		}
 
@@ -249,9 +198,13 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 			continue
 		}
 
+		if node.VulnerabilitySummary == nil || node.VulnerabilitySummary.ActNow == 0 {
+			continue
+		}
+
 		env := environmentmapper.EnvironmentName(workloadRef.GetCluster())
 		key := workloadKey(env, workloadRef.GetNamespace(), workloadRef.GetName())
-		if _, exists := seen[key]; exists {
+		if _, exists := seenActNow[key]; exists {
 			continue
 		}
 
@@ -259,23 +212,23 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 		if len(externalIngresses) == 0 {
 			continue
 		}
-		seen[key] = struct{}{}
+		seenActNow[key] = struct{}{}
 
 		ret = append(ret, &Issue{
-			IssueType:    issue.IssueTypeExternalIngressCriticalVulnerability,
+			IssueType:    issue.IssueTypeExternalIngressUrgentVulnerability,
 			ResourceType: workloadType,
 			ResourceName: workloadRef.GetName(),
 			Team:         workloadRef.GetNamespace(),
 			Env:          env,
 			Severity:     issue.SeverityCritical,
 			Message: fmt.Sprintf(
-				"Workload with external ingresses %s has a vulnerability with CVSS score %.1f",
-				strings.Join(externalIngresses, ", "),
-				cvss,
+				"Workload '%s' (exposed via external ingress) has %d urgent vulnerabilities",
+				workloadRef.GetName(),
+				node.VulnerabilitySummary.ActNow,
 			),
-			IssueDetails: issue.ExternalIngressCriticalVulnerabilityIssueDetails{
-				CvssScore: cvss,
-				Ingresses: externalIngresses,
+			IssueDetails: issue.ExternalIngressUrgentVulnerabilityIssueDetails{
+				PriorityUrgent: int(node.VulnerabilitySummary.ActNow),
+				Ingresses:      externalIngresses,
 			},
 		})
 	}
