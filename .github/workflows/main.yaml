@@ -42,10 +42,18 @@ jobs:
         run: mise run check:vulncheck
         continue-on-error: true
       - name: Check code format and run code generators
+        id: check-format-and-generate
         run: |
           mise run fmt ::: generate
-          echo "checking for diff after running generators and formatters, if this fails, run 'mise run fmt'"
+          echo "checking for diff after running generators and formatters, if this fails, run 'mise run generate' and 'mise run fmt' locally and commit the changes"
           git diff --exit-code --name-only
+      - name: Report failure
+        if: failure() && steps.check-format-and-generate.outcome == 'failure'
+        run: |
+          echo "Linting failed. Please fix the issues and try again."
+          echo "You can run 'mise run generate' and 'mise run fmt' locally to fix formatting and code generation issues."
+          echo "In some instances, there might be other issues that need manual intervention. See the changed files in the previous step for more details."
+          exit 1
 
   build_push:
     permissions:
