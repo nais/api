@@ -32,6 +32,23 @@ func TestSearchEmptyQueryReturnsUserTeamDefaults(t *testing.T) {
 	assertSameElements(t, want, got)
 }
 
+func TestSearchEmptyQueryRanksTeamsFirst(t *testing.T) {
+	searcher := newTestSearcher(t, []slug.Slug{"team-a"}, []Document{
+		newTestDocument("app-a", "APPLICATION", "app-a", withTeam("team-a")),
+		newTestDocument("job-a", "JOB", "job-a", withTeam("team-a")),
+		newTestDocument("team-a", "TEAM", "team-a"),
+	})
+
+	result, err := searcher.Search(newTestContext(), newTestPage(t, 10), SearchFilter{Query: ""})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	got := testNodeIDs(result.Nodes())
+	want := []string{"team-a", "app-a", "job-a"}
+	assertEqual(t, want, got)
+}
+
 func TestSearchEmptyQueryAppliesTeamFilterWithinUserTeams(t *testing.T) {
 	searcher := newTestSearcher(t, []slug.Slug{"team-a", "team-b"}, []Document{
 		newTestDocument("team-a", "TEAM", "team-a"),
@@ -234,6 +251,20 @@ func assertSameElements(t *testing.T, want []string, got []string) {
 	for _, value := range got {
 		wantCounts[value]--
 		if wantCounts[value] < 0 {
+			t.Fatalf("expected %v, got %v", want, got)
+		}
+	}
+}
+
+func assertEqual(t *testing.T, want []string, got []string) {
+	t.Helper()
+
+	if len(want) != len(got) {
+		t.Fatalf("expected %v, got %v", want, got)
+	}
+
+	for i := range want {
+		if want[i] != got[i] {
 			t.Fatalf("expected %v, got %v", want, got)
 		}
 	}
