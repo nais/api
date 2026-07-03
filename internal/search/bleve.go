@@ -184,6 +184,18 @@ func (b *bleveSearcher) Search(ctx context.Context, page *pagination.Pagination,
 			qq,
 			term,
 		))
+	} else {
+		if len(slugs) == 0 {
+			return pagination.NewConnection([]SearchNode{}, page, 0), nil
+		}
+
+		userTeamsQuery := bleve.NewDisjunctionQuery()
+		for _, team := range slugs {
+			teamQ := bleve.NewTermQuery(team.String())
+			teamQ.FieldVal = "team"
+			userTeamsQuery.AddQuery(teamQ)
+		}
+		queries = append(queries, userTeamsQuery)
 	}
 
 	if len(filter.Types) > 0 {
@@ -215,13 +227,29 @@ func (b *bleveSearcher) Search(ctx context.Context, page *pagination.Pagination,
 			teamSlugs = append(teamSlugs, slug.String())
 		}
 
-		q = bleveext.NewBoostingQuery(q, []string{"team"}, func(field string, term []byte, isPartOfMatch bool) *query.Boost {
-			v := 1
-			if slices.Contains(teamSlugs, string(term)) {
-				v *= 1000
+		boostFields := []string{"team"}
+		if filter.Query == "" {
+			boostFields = append(boostFields, "kind")
+		}
+
+		q = bleveext.NewBoostingQuery(q, boostFields, func(field string, term []byte, isPartOfMatch bool) *query.Boost {
+			switch field {
+			case "team":
+				v := 1
+				if slices.Contains(teamSlugs, string(term)) {
+					v *= 1000
+				}
+				b := query.Boost(v)
+				return &b
+			case "kind":
+				if filter.Query != "" {
+					return nil
+				}
+				b := query.Boost(defaultSearchKindBoost(SearchType(term)))
+				return &b
+			default:
+				return nil
 			}
-			b := query.Boost(v)
-			return &b
 		})
 	}
 
@@ -278,4 +306,17 @@ func (b *bleveSearcher) Search(ctx context.Context, page *pagination.Pagination,
 	}
 
 	return pagination.NewConnection(ret, page, results.Total), nil
+}
+
+func defaultSearchKindBoost(kind SearchType) float64 {
+	switch kind {
+	case "TEAM":
+		return 100
+	case "APPLICATION":
+		return 20
+	case "JOB":
+		return 10
+	default:
+		return 1
+	}
 }
