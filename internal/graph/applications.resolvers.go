@@ -117,24 +117,6 @@ func (r *ingressResolver) Type(ctx context.Context, obj *application.Ingress) (a
 	return application.GetIngressType(ctx, obj), nil
 }
 
-func (r *ingressResolver) Metrics(ctx context.Context, obj *application.Ingress) (*application.IngressMetrics, error) {
-	return &application.IngressMetrics{
-		Ingress: obj,
-	}, nil
-}
-
-func (r *ingressMetricsResolver) RequestsPerSecond(ctx context.Context, obj *application.IngressMetrics) (float64, error) {
-	return application.RequestsPerSecondForIngress(ctx, obj)
-}
-
-func (r *ingressMetricsResolver) ErrorsPerSecond(ctx context.Context, obj *application.IngressMetrics) (float64, error) {
-	return application.ErrorsPerSecondForIngress(ctx, obj)
-}
-
-func (r *ingressMetricsResolver) Series(ctx context.Context, obj *application.IngressMetrics, input application.IngressMetricsInput) ([]*application.IngressMetricSample, error) {
-	return application.SeriesForIngress(ctx, obj, input)
-}
-
 func (r *mutationResolver) DeleteApplication(ctx context.Context, input application.DeleteApplicationInput) (*application.DeleteApplicationPayload, error) {
 	if err := authz.CanDeleteApplications(ctx, input.TeamSlug); err != nil {
 		return nil, err
@@ -225,8 +207,6 @@ func (r *Resolver) DeleteApplicationPayload() gengql.DeleteApplicationPayloadRes
 
 func (r *Resolver) Ingress() gengql.IngressResolver { return &ingressResolver{r} }
 
-func (r *Resolver) IngressMetrics() gengql.IngressMetricsResolver { return &ingressMetricsResolver{r} }
-
 func (r *Resolver) RestartApplicationPayload() gengql.RestartApplicationPayloadResolver {
 	return &restartApplicationPayloadResolver{r}
 }
@@ -241,7 +221,6 @@ type (
 	applicationInstanceResolver       struct{ *Resolver }
 	deleteApplicationPayloadResolver  struct{ *Resolver }
 	ingressResolver                   struct{ *Resolver }
-	ingressMetricsResolver            struct{ *Resolver }
 	restartApplicationPayloadResolver struct{ *Resolver }
 	updateApplicationPayloadResolver  struct{ *Resolver }
 )
