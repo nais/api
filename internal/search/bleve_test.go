@@ -70,6 +70,68 @@ func TestSearchEmptyQueryAppliesTeamFilterWithinUserTeams(t *testing.T) {
 	assertSameElements(t, want, got)
 }
 
+func TestSearchEmptyQueryUsesTeamFilterAsScope(t *testing.T) {
+	searcher := newTestSearcher(t, []slug.Slug{"team-a"}, []Document{
+		newTestDocument("team-a", "TEAM", "team-a"),
+		newTestDocument("team-b", "TEAM", "team-b"),
+		newTestDocument("app-a", "APPLICATION", "app-a", withTeam("team-a")),
+		newTestDocument("app-b", "APPLICATION", "app-b", withTeam("team-b")),
+	})
+
+	result, err := searcher.Search(newTestContext(), newTestPage(t, 10), SearchFilter{
+		Query: "",
+		Teams: []slug.Slug{"team-b"},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	got := testNodeIDs(result.Nodes())
+	want := []string{"team-b", "app-b"}
+	assertSameElements(t, want, got)
+}
+
+func TestSearchEmptyQueryWithTeamFilterAppliesTypeFilter(t *testing.T) {
+	searcher := newTestSearcher(t, nil, []Document{
+		newTestDocument("team-b", "TEAM", "team-b"),
+		newTestDocument("app-b", "APPLICATION", "app-b", withTeam("team-b")),
+		newTestDocument("job-b", "JOB", "job-b", withTeam("team-b")),
+	})
+
+	result, err := searcher.Search(newTestContext(), newTestPage(t, 10), SearchFilter{
+		Query: "",
+		Teams: []slug.Slug{"team-b"},
+		Types: []SearchType{"APPLICATION"},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	got := testNodeIDs(result.Nodes())
+	want := []string{"app-b"}
+	assertEqual(t, want, got)
+}
+
+func TestSearchEmptyQueryWithTeamFilterRanksTeamsFirst(t *testing.T) {
+	searcher := newTestSearcher(t, nil, []Document{
+		newTestDocument("app-b", "APPLICATION", "app-b", withTeam("team-b")),
+		newTestDocument("job-b", "JOB", "job-b", withTeam("team-b")),
+		newTestDocument("team-b", "TEAM", "team-b"),
+	})
+
+	result, err := searcher.Search(newTestContext(), newTestPage(t, 10), SearchFilter{
+		Query: "",
+		Teams: []slug.Slug{"team-b"},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	got := testNodeIDs(result.Nodes())
+	want := []string{"team-b", "app-b", "job-b"}
+	assertEqual(t, want, got)
+}
+
 func TestSearchEmptyQueryWithoutUserTeamsReturnsNoDefaults(t *testing.T) {
 	searcher := newTestSearcher(t, nil, []Document{
 		newTestDocument("team-a", "TEAM", "team-a"),

@@ -17,6 +17,7 @@ import (
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/search/bleveext"
 	"github.com/nais/api/internal/search/searchsql"
+	"github.com/nais/api/internal/slug"
 	"github.com/sirupsen/logrus"
 )
 
@@ -185,17 +186,13 @@ func (b *bleveSearcher) Search(ctx context.Context, page *pagination.Pagination,
 			term,
 		))
 	} else {
-		if len(slugs) == 0 {
+		if len(filter.Teams) > 0 {
+			queries = append(queries, teamDisjunctionQuery(filter.Teams))
+		} else if len(slugs) == 0 {
 			return pagination.NewConnection([]SearchNode{}, page, 0), nil
+		} else {
+			queries = append(queries, teamDisjunctionQuery(slugs))
 		}
-
-		userTeamsQuery := bleve.NewDisjunctionQuery()
-		for _, team := range slugs {
-			teamQ := bleve.NewTermQuery(team.String())
-			teamQ.FieldVal = "team"
-			userTeamsQuery.AddQuery(teamQ)
-		}
-		queries = append(queries, userTeamsQuery)
 	}
 
 	if len(filter.Types) > 0 {
@@ -208,20 +205,14 @@ func (b *bleveSearcher) Search(ctx context.Context, page *pagination.Pagination,
 		queries = append(queries, typesQuery)
 	}
 
-	if len(filter.Teams) > 0 {
-		teamQuery := bleve.NewDisjunctionQuery()
-		for _, team := range filter.Teams {
-			teamQ := bleve.NewTermQuery(team.String())
-			teamQ.FieldVal = "team"
-			teamQuery.AddQuery(teamQ)
-		}
-		queries = append(queries, teamQuery)
+	if filter.Query != "" && len(filter.Teams) > 0 {
+		queries = append(queries, teamDisjunctionQuery(filter.Teams))
 	}
 
 	var q query.Query = bleve.NewConjunctionQuery(queries...)
 
 	filteredByTeamOnly := len(filter.Types) == 1 && slices.Contains(filter.Types, "TEAM")
-	if len(slugs) > 0 && !filteredByTeamOnly {
+	if !filteredByTeamOnly && (len(slugs) > 0 || filter.Query == "") {
 		teamSlugs := make([]string, 0, len(slugs))
 		for _, slug := range slugs {
 			teamSlugs = append(teamSlugs, slug.String())
@@ -319,4 +310,14 @@ func defaultSearchKindBoost(kind SearchType) float64 {
 	default:
 		return 1
 	}
+}
+
+func teamDisjunctionQuery(teams []slug.Slug) query.Query {
+	teamQuery := bleve.NewDisjunctionQuery()
+	for _, team := range teams {
+		teamQ := bleve.NewTermQuery(team.String())
+		teamQ.FieldVal = "team"
+		teamQuery.AddQuery(teamQ)
+	}
+	return teamQuery
 }
