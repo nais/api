@@ -184,6 +184,18 @@ func (b *bleveSearcher) Search(ctx context.Context, page *pagination.Pagination,
 			qq,
 			term,
 		))
+	} else {
+		if len(slugs) == 0 {
+			return pagination.NewConnection([]SearchNode{}, page, 0), nil
+		}
+
+		userTeamsQuery := bleve.NewDisjunctionQuery()
+		for _, team := range slugs {
+			teamQ := bleve.NewTermQuery(team.String())
+			teamQ.FieldVal = "team"
+			userTeamsQuery.AddQuery(teamQ)
+		}
+		queries = append(queries, userTeamsQuery)
 	}
 
 	if len(filter.Types) > 0 {
