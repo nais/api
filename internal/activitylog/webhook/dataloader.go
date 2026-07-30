@@ -5,9 +5,9 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/nais/api/internal/activitylog/webhook/webhooksql"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/graph/loader"
-	"github.com/nais/api/internal/webhook/webhooksql"
 	"github.com/vikstrous/dataloadgen"
 )
 

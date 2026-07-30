@@ -54,8 +54,8 @@ Every registered activity type is automatically available as a subscribable even
 ```go
 // Any domain package's init():
 activitylog.RegisterActivityType(
-    "TEAM_MEMBER_ADDED", 
-    activitylog.ActivityLogEntryActionAdded, 
+    "TEAM_MEMBER_ADDED",
+    activitylog.ActivityLogEntryActionAdded,
     resourceType,
     activitylog.WithDescription("A user was added to the team"), // Custom description
     activitylog.WithGroup("Team"),                               // Custom UI grouping
@@ -115,12 +115,15 @@ The webhook domain exports telemetry using native OpenTelemetry metrics under th
 ### PromQL Alerts Examples
 
 1. **Increasing outbox queue size** (Potential worker blockage or overload):
+
    ```promql
    sum(webhook_queue_size{status="pending"}) > 100
    ```
-   *Trigger conditions*: Only the **leader pod** queries the database for `webhook_queue_size` to prevent double-counting in multi-replica deployments.
+
+   _Trigger conditions_: Only the **leader pod** queries the database for `webhook_queue_size` to prevent double-counting in multi-replica deployments.
 
 2. **High webhook delivery failure rate**:
+
    ```promql
    sum(rate(webhook_deliveries_total{success="false"}[5m])) / sum(rate(webhook_deliveries_total[5m])) * 100 > 10
    ```
@@ -129,4 +132,3 @@ The webhook domain exports telemetry using native OpenTelemetry metrics under th
    ```promql
    sum(rate(webhook_subscriptions_auto_disabled_total[1h])) > 0
    ```
-
