@@ -126,6 +126,7 @@ WHERE
 INSERT INTO
 	webhook_deliveries (
 		subscription_id,
+		webhook_event_delivery_id,
 		event_type,
 		request_body,
 		response_status,
@@ -136,6 +137,7 @@ INSERT INTO
 VALUES
 	(
 		@subscription_id,
+		sqlc.narg(webhook_event_delivery_id),
 		@event_type,
 		@request_body,
 		@response_status,
@@ -189,10 +191,48 @@ WHERE
 	created_at < @before
 ;
 
--- name: ClaimPendingEvents :many
+-- name: ClaimOutboxEventsForFanout :many
+-- Claims outbox events pending fan-out. FOR UPDATE SKIP LOCKED lets multiple dispatcher
+-- instances claim batches concurrently without claiming the same row. Rows are marked
+-- completed by the caller after fan-out succeeds, not by this query.
+SELECT
+	sqlc.embed(webhook_events),
+	sqlc.embed(activity_log_entries)
+FROM
+	webhook_events
+	JOIN activity_log_entries ON webhook_events.activity_log_entries_id = activity_log_entries.id
+WHERE
+	webhook_events.status = 'pending'
+ORDER BY
+	webhook_events.created_at ASC
+LIMIT
+	sqlc.arg('batch_size')
+FOR UPDATE OF
+	webhook_events SKIP LOCKED
+;
+
+-- name: MarkOutboxEventsCompleted :exec
+UPDATE webhook_events
+SET
+	status = 'completed'
+WHERE
+	id = ANY (@ids::UUID[])
+;
+
+-- name: CreateEventDelivery :exec
+INSERT INTO
+	webhook_event_deliveries (webhook_event_id, subscription_id)
+VALUES
+	(@webhook_event_id, @subscription_id)
+ON CONFLICT (webhook_event_id, subscription_id) DO NOTHING
+;
+
+-- name: ClaimPendingDeliveries :many
+-- Claims per-(event, subscription) delivery rows for processing, using the same
+-- FOR UPDATE SKIP LOCKED pattern as ClaimOutboxEventsForFanout.
 WITH
-	updated_events AS (
-		UPDATE webhook_events
+	claimed_deliveries AS (
+		UPDATE webhook_event_deliveries
 		SET
 			status = 'completed'
 		WHERE
@@ -200,14 +240,14 @@ WITH
 				SELECT
 					id
 				FROM
-					webhook_events
+					webhook_event_deliveries
 				WHERE
 					status = 'pending'
 					AND run_at <= NOW()
 				ORDER BY
 					run_at ASC
 				LIMIT
-					@batch_size
+					sqlc.arg('batch_size')
 				FOR UPDATE
 					SKIP LOCKED
 			)
@@ -215,15 +255,18 @@ WITH
 			*
 	)
 SELECT
-	sqlc.embed(webhook_events),
+	sqlc.embed(webhook_event_deliveries),
+	sqlc.embed(webhook_subscriptions),
 	sqlc.embed(activity_log_entries)
 FROM
-	updated_events webhook_events
+	claimed_deliveries webhook_event_deliveries
+	JOIN webhook_subscriptions ON webhook_event_deliveries.subscription_id = webhook_subscriptions.id
+	JOIN webhook_events ON webhook_event_deliveries.webhook_event_id = webhook_events.id
 	JOIN activity_log_entries ON webhook_events.activity_log_entries_id = activity_log_entries.id
 ;
 
--- name: RequeueEvent :exec
-UPDATE webhook_events
+-- name: RequeueDelivery :exec
+UPDATE webhook_event_deliveries
 SET
 	status = 'pending',
 	retry_count = @retry_count,
@@ -232,16 +275,34 @@ WHERE
 	id = @id
 ;
 
--- name: MarkEventFailed :exec
-UPDATE webhook_events
+-- name: MarkDeliveryFailed :exec
+UPDATE webhook_event_deliveries
 SET
 	status = 'failed'
 WHERE
 	id = @id
 ;
 
--- name: PruneOldEvents :exec
+-- name: PruneOldOutboxEvents :exec
+-- Prunes outbox events whose deliveries have all reached a terminal state (a delete
+-- cascades to webhook_event_deliveries, so pending rows must be excluded).
 DELETE FROM webhook_events
+WHERE
+	webhook_events.created_at < @before
+	AND webhook_events.status = 'completed'
+	AND NOT EXISTS (
+		SELECT
+			1
+		FROM
+			webhook_event_deliveries
+		WHERE
+			webhook_event_deliveries.webhook_event_id = webhook_events.id
+			AND webhook_event_deliveries.status = 'pending'
+	)
+;
+
+-- name: PruneOldEventDeliveries :exec
+DELETE FROM webhook_event_deliveries
 WHERE
 	created_at < @before
 	AND status IN ('completed', 'failed')
@@ -252,7 +313,7 @@ SELECT
 	status,
 	COUNT(*) AS count
 FROM
-	webhook_events
+	webhook_event_deliveries
 GROUP BY
 	status
 ORDER BY

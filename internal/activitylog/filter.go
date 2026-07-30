@@ -1,11 +1,11 @@
 package activitylog
 
 import (
-	"fmt"
 	"slices"
 	"strings"
 
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/sirupsen/logrus"
 )
 
 type filter struct {
@@ -57,7 +57,7 @@ func GlobalOnly() ActivityTypeOption {
 	}
 }
 
-// GlobalOnly marks the event type as global-only (not team-scoped).
+// IgnoreWebhook excludes the event type from the webhook event type catalogue entirely.
 func IgnoreWebhook() ActivityTypeOption {
 	return func(info *WebhookEventTypeInfo) {
 		info.ignoreWebhook = true
@@ -132,7 +132,7 @@ func KnownEventTypes() []WebhookEventTypeInfo {
 	for at := range knownFilters {
 		info, ok := eventTypeInfos[at]
 		if !ok {
-			fmt.Println("Warning: activity type", at, "is registered but has no WebhookEventTypeInfo; using auto-generated description and group")
+			logrus.WithField("activity_type", at).Warn("activity type registered without webhook event type info; using auto-generated description and group")
 			desc, grp := autoGroupAndDescription(at)
 			info = WebhookEventTypeInfo{
 				Type:           at,

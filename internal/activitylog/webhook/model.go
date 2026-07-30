@@ -25,7 +25,7 @@ type WebhookSubscription struct {
 
 func (WebhookSubscription) IsNode() {}
 
-func (w WebhookSubscription) GetID() ident.Ident {
+func (w WebhookSubscription) ID() ident.Ident {
 	return newSubscriptionIdent(w.UUID)
 }
 
@@ -48,7 +48,7 @@ type WebhookDelivery struct {
 
 func (WebhookDelivery) IsNode() {}
 
-func (w WebhookDelivery) GetID() ident.Ident {
+func (w WebhookDelivery) ID() ident.Ident {
 	return newDeliveryIdent(w.UUID)
 }
 
@@ -130,7 +130,3 @@ func (w *WebhookSubscription) MatchesEvent(event WebhookEvent) bool {
 
 	return false
 }
-
-// Node interface compatibility
-func (w WebhookSubscription) ID() ident.Ident { return w.GetID() }
-func (w WebhookDelivery) ID() ident.Ident     { return w.GetID() }

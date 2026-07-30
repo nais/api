@@ -5,7 +5,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/nais/api/internal/activitylog"
 )
 
@@ -45,7 +44,10 @@ func cloudEventTypeFromEvent(event WebhookEvent) string {
 }
 
 // BuildCloudEvent creates a CloudEvents 1.0 envelope from a webhook event.
-func BuildCloudEvent(source string, event WebhookEvent) ([]byte, error) {
+//
+// id must be stable across redeliveries of the same logical (event, subscriber) delivery
+// attempt.
+func BuildCloudEvent(source, id string, event WebhookEvent) ([]byte, error) {
 	var teamSlug *string
 	if event.TeamSlug != nil {
 		s := event.TeamSlug.String()
@@ -73,7 +75,7 @@ func BuildCloudEvent(source string, event WebhookEvent) ([]byte, error) {
 
 	ce := CloudEvent{
 		SpecVersion:     "1.0",
-		ID:              uuid.New().String(),
+		ID:              id,
 		Source:          source,
 		Type:            cloudEventTypeFromEvent(event),
 		Subject:         subject,

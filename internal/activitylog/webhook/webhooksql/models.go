@@ -11,64 +11,122 @@ import (
 	"github.com/nais/api/internal/slug"
 )
 
-type WebhookEventStatus string
+type WebhookDeliveryStatus string
 
 const (
-	WebhookEventStatusPending   WebhookEventStatus = "pending"
-	WebhookEventStatusCompleted WebhookEventStatus = "completed"
-	WebhookEventStatusFailed    WebhookEventStatus = "failed"
+	WebhookDeliveryStatusPending   WebhookDeliveryStatus = "pending"
+	WebhookDeliveryStatusCompleted WebhookDeliveryStatus = "completed"
+	WebhookDeliveryStatusFailed    WebhookDeliveryStatus = "failed"
 )
 
-func (e *WebhookEventStatus) Scan(src interface{}) error {
+func (e *WebhookDeliveryStatus) Scan(src interface{}) error {
 	switch s := src.(type) {
 	case []byte:
-		*e = WebhookEventStatus(s)
+		*e = WebhookDeliveryStatus(s)
 	case string:
-		*e = WebhookEventStatus(s)
+		*e = WebhookDeliveryStatus(s)
 	default:
-		return fmt.Errorf("unsupported scan type for WebhookEventStatus: %T", src)
+		return fmt.Errorf("unsupported scan type for WebhookDeliveryStatus: %T", src)
 	}
 	return nil
 }
 
-type NullWebhookEventStatus struct {
-	WebhookEventStatus WebhookEventStatus
-	Valid              bool // Valid is true if WebhookEventStatus is not NULL
+type NullWebhookDeliveryStatus struct {
+	WebhookDeliveryStatus WebhookDeliveryStatus
+	Valid                 bool // Valid is true if WebhookDeliveryStatus is not NULL
 }
 
 // Scan implements the Scanner interface.
-func (ns *NullWebhookEventStatus) Scan(value interface{}) error {
+func (ns *NullWebhookDeliveryStatus) Scan(value interface{}) error {
 	if value == nil {
-		ns.WebhookEventStatus, ns.Valid = "", false
+		ns.WebhookDeliveryStatus, ns.Valid = "", false
 		return nil
 	}
 	ns.Valid = true
-	return ns.WebhookEventStatus.Scan(value)
+	return ns.WebhookDeliveryStatus.Scan(value)
 }
 
 // Value implements the driver Valuer interface.
-func (ns NullWebhookEventStatus) Value() (driver.Value, error) {
+func (ns NullWebhookDeliveryStatus) Value() (driver.Value, error) {
 	if !ns.Valid {
 		return nil, nil
 	}
-	return string(ns.WebhookEventStatus), nil
+	return string(ns.WebhookDeliveryStatus), nil
 }
 
-func (e WebhookEventStatus) Valid() bool {
+func (e WebhookDeliveryStatus) Valid() bool {
 	switch e {
-	case WebhookEventStatusPending,
-		WebhookEventStatusCompleted,
-		WebhookEventStatusFailed:
+	case WebhookDeliveryStatusPending,
+		WebhookDeliveryStatusCompleted,
+		WebhookDeliveryStatusFailed:
 		return true
 	}
 	return false
 }
 
-func AllWebhookEventStatusValues() []WebhookEventStatus {
-	return []WebhookEventStatus{
-		WebhookEventStatusPending,
-		WebhookEventStatusCompleted,
-		WebhookEventStatusFailed,
+func AllWebhookDeliveryStatusValues() []WebhookDeliveryStatus {
+	return []WebhookDeliveryStatus{
+		WebhookDeliveryStatusPending,
+		WebhookDeliveryStatusCompleted,
+		WebhookDeliveryStatusFailed,
+	}
+}
+
+type WebhookOutboxStatus string
+
+const (
+	WebhookOutboxStatusPending   WebhookOutboxStatus = "pending"
+	WebhookOutboxStatusCompleted WebhookOutboxStatus = "completed"
+)
+
+func (e *WebhookOutboxStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = WebhookOutboxStatus(s)
+	case string:
+		*e = WebhookOutboxStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for WebhookOutboxStatus: %T", src)
+	}
+	return nil
+}
+
+type NullWebhookOutboxStatus struct {
+	WebhookOutboxStatus WebhookOutboxStatus
+	Valid               bool // Valid is true if WebhookOutboxStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullWebhookOutboxStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.WebhookOutboxStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.WebhookOutboxStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullWebhookOutboxStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.WebhookOutboxStatus), nil
+}
+
+func (e WebhookOutboxStatus) Valid() bool {
+	switch e {
+	case WebhookOutboxStatusPending,
+		WebhookOutboxStatusCompleted:
+		return true
+	}
+	return false
+}
+
+func AllWebhookOutboxStatusValues() []WebhookOutboxStatus {
+	return []WebhookOutboxStatus{
+		WebhookOutboxStatusPending,
+		WebhookOutboxStatusCompleted,
 	}
 }
 
@@ -85,24 +143,33 @@ type ActivityLogEntry struct {
 }
 
 type WebhookDelivery struct {
-	ID             uuid.UUID
-	SubscriptionID uuid.UUID
-	EventType      string
-	RequestBody    []byte
-	ResponseStatus *int32
-	ResponseBody   *string
-	DurationMs     int32
-	Success        bool
-	CreatedAt      pgtype.Timestamptz
+	ID                     uuid.UUID
+	SubscriptionID         uuid.UUID
+	WebhookEventDeliveryID *uuid.UUID
+	EventType              string
+	RequestBody            []byte
+	ResponseStatus         *int32
+	ResponseBody           *string
+	DurationMs             int32
+	Success                bool
+	CreatedAt              pgtype.Timestamptz
 }
 
 type WebhookEvent struct {
 	ID                   uuid.UUID
 	ActivityLogEntriesID uuid.UUID
-	Status               WebhookEventStatus
-	RetryCount           int32
-	RunAt                pgtype.Timestamptz
+	Status               WebhookOutboxStatus
 	CreatedAt            pgtype.Timestamptz
+}
+
+type WebhookEventDelivery struct {
+	ID             uuid.UUID
+	WebhookEventID uuid.UUID
+	SubscriptionID uuid.UUID
+	Status         WebhookDeliveryStatus
+	RetryCount     int32
+	RunAt          pgtype.Timestamptz
+	CreatedAt      pgtype.Timestamptz
 }
 
 type WebhookSubscription struct {

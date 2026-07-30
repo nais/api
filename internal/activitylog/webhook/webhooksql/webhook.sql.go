@@ -11,10 +11,69 @@ import (
 	"github.com/nais/api/internal/slug"
 )
 
-const claimPendingEvents = `-- name: ClaimPendingEvents :many
+const claimOutboxEventsForFanout = `-- name: ClaimOutboxEventsForFanout :many
+SELECT
+	webhook_events.id, webhook_events.activity_log_entries_id, webhook_events.status, webhook_events.created_at,
+	activity_log_entries.id, activity_log_entries.created_at, activity_log_entries.actor, activity_log_entries.action, activity_log_entries.resource_type, activity_log_entries.resource_name, activity_log_entries.team_slug, activity_log_entries.data, activity_log_entries.environment
+FROM
+	webhook_events
+	JOIN activity_log_entries ON webhook_events.activity_log_entries_id = activity_log_entries.id
+WHERE
+	webhook_events.status = 'pending'
+ORDER BY
+	webhook_events.created_at ASC
+LIMIT
+	$1
+FOR UPDATE OF
+	webhook_events SKIP LOCKED
+`
+
+type ClaimOutboxEventsForFanoutRow struct {
+	WebhookEvent     WebhookEvent
+	ActivityLogEntry ActivityLogEntry
+}
+
+// Claims outbox events pending fan-out. FOR UPDATE SKIP LOCKED lets multiple dispatcher
+// instances claim batches concurrently without claiming the same row. Rows are marked
+// completed by the caller after fan-out succeeds, not by this query.
+func (q *Queries) ClaimOutboxEventsForFanout(ctx context.Context, batchSize int32) ([]*ClaimOutboxEventsForFanoutRow, error) {
+	rows, err := q.db.Query(ctx, claimOutboxEventsForFanout, batchSize)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*ClaimOutboxEventsForFanoutRow{}
+	for rows.Next() {
+		var i ClaimOutboxEventsForFanoutRow
+		if err := rows.Scan(
+			&i.WebhookEvent.ID,
+			&i.WebhookEvent.ActivityLogEntriesID,
+			&i.WebhookEvent.Status,
+			&i.WebhookEvent.CreatedAt,
+			&i.ActivityLogEntry.ID,
+			&i.ActivityLogEntry.CreatedAt,
+			&i.ActivityLogEntry.Actor,
+			&i.ActivityLogEntry.Action,
+			&i.ActivityLogEntry.ResourceType,
+			&i.ActivityLogEntry.ResourceName,
+			&i.ActivityLogEntry.TeamSlug,
+			&i.ActivityLogEntry.Data,
+			&i.ActivityLogEntry.Environment,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const claimPendingDeliveries = `-- name: ClaimPendingDeliveries :many
 WITH
-	updated_events AS (
-		UPDATE webhook_events
+	claimed_deliveries AS (
+		UPDATE webhook_event_deliveries
 		SET
 			status = 'completed'
 		WHERE
@@ -22,7 +81,7 @@ WITH
 				SELECT
 					id
 				FROM
-					webhook_events
+					webhook_event_deliveries
 				WHERE
 					status = 'pending'
 					AND run_at <= NOW()
@@ -34,37 +93,55 @@ WITH
 					SKIP LOCKED
 			)
 		RETURNING
-			id, activity_log_entries_id, status, retry_count, run_at, created_at
+			id, webhook_event_id, subscription_id, status, retry_count, run_at, created_at
 	)
 SELECT
-	webhook_events.id, webhook_events.activity_log_entries_id, webhook_events.status, webhook_events.retry_count, webhook_events.run_at, webhook_events.created_at,
+	webhook_event_deliveries.id, webhook_event_deliveries.webhook_event_id, webhook_event_deliveries.subscription_id, webhook_event_deliveries.status, webhook_event_deliveries.retry_count, webhook_event_deliveries.run_at, webhook_event_deliveries.created_at,
+	webhook_subscriptions.id, webhook_subscriptions.team_slug, webhook_subscriptions.url, webhook_subscriptions.secret, webhook_subscriptions.event_types, webhook_subscriptions.enabled, webhook_subscriptions.consecutive_failures, webhook_subscriptions.disabled_at, webhook_subscriptions.created_by, webhook_subscriptions.created_at, webhook_subscriptions.updated_at,
 	activity_log_entries.id, activity_log_entries.created_at, activity_log_entries.actor, activity_log_entries.action, activity_log_entries.resource_type, activity_log_entries.resource_name, activity_log_entries.team_slug, activity_log_entries.data, activity_log_entries.environment
 FROM
-	updated_events webhook_events
+	claimed_deliveries webhook_event_deliveries
+	JOIN webhook_subscriptions ON webhook_event_deliveries.subscription_id = webhook_subscriptions.id
+	JOIN webhook_events ON webhook_event_deliveries.webhook_event_id = webhook_events.id
 	JOIN activity_log_entries ON webhook_events.activity_log_entries_id = activity_log_entries.id
 `
 
-type ClaimPendingEventsRow struct {
-	WebhookEvent     WebhookEvent
-	ActivityLogEntry ActivityLogEntry
+type ClaimPendingDeliveriesRow struct {
+	WebhookEventDelivery WebhookEventDelivery
+	WebhookSubscription  WebhookSubscription
+	ActivityLogEntry     ActivityLogEntry
 }
 
-func (q *Queries) ClaimPendingEvents(ctx context.Context, batchSize int32) ([]*ClaimPendingEventsRow, error) {
-	rows, err := q.db.Query(ctx, claimPendingEvents, batchSize)
+// Claims per-(event, subscription) delivery rows for processing, using the same
+// FOR UPDATE SKIP LOCKED pattern as ClaimOutboxEventsForFanout.
+func (q *Queries) ClaimPendingDeliveries(ctx context.Context, batchSize int32) ([]*ClaimPendingDeliveriesRow, error) {
+	rows, err := q.db.Query(ctx, claimPendingDeliveries, batchSize)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []*ClaimPendingEventsRow{}
+	items := []*ClaimPendingDeliveriesRow{}
 	for rows.Next() {
-		var i ClaimPendingEventsRow
+		var i ClaimPendingDeliveriesRow
 		if err := rows.Scan(
-			&i.WebhookEvent.ID,
-			&i.WebhookEvent.ActivityLogEntriesID,
-			&i.WebhookEvent.Status,
-			&i.WebhookEvent.RetryCount,
-			&i.WebhookEvent.RunAt,
-			&i.WebhookEvent.CreatedAt,
+			&i.WebhookEventDelivery.ID,
+			&i.WebhookEventDelivery.WebhookEventID,
+			&i.WebhookEventDelivery.SubscriptionID,
+			&i.WebhookEventDelivery.Status,
+			&i.WebhookEventDelivery.RetryCount,
+			&i.WebhookEventDelivery.RunAt,
+			&i.WebhookEventDelivery.CreatedAt,
+			&i.WebhookSubscription.ID,
+			&i.WebhookSubscription.TeamSlug,
+			&i.WebhookSubscription.Url,
+			&i.WebhookSubscription.Secret,
+			&i.WebhookSubscription.EventTypes,
+			&i.WebhookSubscription.Enabled,
+			&i.WebhookSubscription.ConsecutiveFailures,
+			&i.WebhookSubscription.DisabledAt,
+			&i.WebhookSubscription.CreatedBy,
+			&i.WebhookSubscription.CreatedAt,
+			&i.WebhookSubscription.UpdatedAt,
 			&i.ActivityLogEntry.ID,
 			&i.ActivityLogEntry.CreatedAt,
 			&i.ActivityLogEntry.Actor,
@@ -89,6 +166,7 @@ const createDelivery = `-- name: CreateDelivery :one
 INSERT INTO
 	webhook_deliveries (
 		subscription_id,
+		webhook_event_delivery_id,
 		event_type,
 		request_body,
 		response_status,
@@ -104,25 +182,28 @@ VALUES
 		$4,
 		$5,
 		$6,
-		$7
+		$7,
+		$8
 	)
 RETURNING
-	id, subscription_id, event_type, request_body, response_status, response_body, duration_ms, success, created_at
+	id, subscription_id, webhook_event_delivery_id, event_type, request_body, response_status, response_body, duration_ms, success, created_at
 `
 
 type CreateDeliveryParams struct {
-	SubscriptionID uuid.UUID
-	EventType      string
-	RequestBody    []byte
-	ResponseStatus *int32
-	ResponseBody   *string
-	DurationMs     int32
-	Success        bool
+	SubscriptionID         uuid.UUID
+	WebhookEventDeliveryID *uuid.UUID
+	EventType              string
+	RequestBody            []byte
+	ResponseStatus         *int32
+	ResponseBody           *string
+	DurationMs             int32
+	Success                bool
 }
 
 func (q *Queries) CreateDelivery(ctx context.Context, arg CreateDeliveryParams) (*WebhookDelivery, error) {
 	row := q.db.QueryRow(ctx, createDelivery,
 		arg.SubscriptionID,
+		arg.WebhookEventDeliveryID,
 		arg.EventType,
 		arg.RequestBody,
 		arg.ResponseStatus,
@@ -134,6 +215,7 @@ func (q *Queries) CreateDelivery(ctx context.Context, arg CreateDeliveryParams) 
 	err := row.Scan(
 		&i.ID,
 		&i.SubscriptionID,
+		&i.WebhookEventDeliveryID,
 		&i.EventType,
 		&i.RequestBody,
 		&i.ResponseStatus,
@@ -143,6 +225,24 @@ func (q *Queries) CreateDelivery(ctx context.Context, arg CreateDeliveryParams) 
 		&i.CreatedAt,
 	)
 	return &i, err
+}
+
+const createEventDelivery = `-- name: CreateEventDelivery :exec
+INSERT INTO
+	webhook_event_deliveries (webhook_event_id, subscription_id)
+VALUES
+	($1, $2)
+ON CONFLICT (webhook_event_id, subscription_id) DO NOTHING
+`
+
+type CreateEventDeliveryParams struct {
+	WebhookEventID uuid.UUID
+	SubscriptionID uuid.UUID
+}
+
+func (q *Queries) CreateEventDelivery(ctx context.Context, arg CreateEventDeliveryParams) error {
+	_, err := q.db.Exec(ctx, createEventDelivery, arg.WebhookEventID, arg.SubscriptionID)
+	return err
 }
 
 const createSubscription = `-- name: CreateSubscription :one
@@ -220,7 +320,7 @@ func (q *Queries) DisableSubscription(ctx context.Context, id uuid.UUID) error {
 
 const getDelivery = `-- name: GetDelivery :one
 SELECT
-	id, subscription_id, event_type, request_body, response_status, response_body, duration_ms, success, created_at
+	id, subscription_id, webhook_event_delivery_id, event_type, request_body, response_status, response_body, duration_ms, success, created_at
 FROM
 	webhook_deliveries
 WHERE
@@ -233,6 +333,7 @@ func (q *Queries) GetDelivery(ctx context.Context, id uuid.UUID) (*WebhookDelive
 	err := row.Scan(
 		&i.ID,
 		&i.SubscriptionID,
+		&i.WebhookEventDeliveryID,
 		&i.EventType,
 		&i.RequestBody,
 		&i.ResponseStatus,
@@ -249,7 +350,7 @@ SELECT
 	status,
 	COUNT(*) AS count
 FROM
-	webhook_events
+	webhook_event_deliveries
 GROUP BY
 	status
 ORDER BY
@@ -257,7 +358,7 @@ ORDER BY
 `
 
 type GetQueueSizeByStatusRow struct {
-	Status WebhookEventStatus
+	Status WebhookDeliveryStatus
 	Count  int64
 }
 
@@ -340,7 +441,7 @@ func (q *Queries) IncrementConsecutiveFailures(ctx context.Context, id uuid.UUID
 
 const listDeliveriesByIDs = `-- name: ListDeliveriesByIDs :many
 SELECT
-	id, subscription_id, event_type, request_body, response_status, response_body, duration_ms, success, created_at
+	id, subscription_id, webhook_event_delivery_id, event_type, request_body, response_status, response_body, duration_ms, success, created_at
 FROM
 	webhook_deliveries
 WHERE
@@ -361,6 +462,7 @@ func (q *Queries) ListDeliveriesByIDs(ctx context.Context, ids []uuid.UUID) ([]*
 		if err := rows.Scan(
 			&i.ID,
 			&i.SubscriptionID,
+			&i.WebhookEventDeliveryID,
 			&i.EventType,
 			&i.RequestBody,
 			&i.ResponseStatus,
@@ -381,7 +483,7 @@ func (q *Queries) ListDeliveriesByIDs(ctx context.Context, ids []uuid.UUID) ([]*
 
 const listDeliveriesForSubscription = `-- name: ListDeliveriesForSubscription :many
 SELECT
-	webhook_deliveries.id, webhook_deliveries.subscription_id, webhook_deliveries.event_type, webhook_deliveries.request_body, webhook_deliveries.response_status, webhook_deliveries.response_body, webhook_deliveries.duration_ms, webhook_deliveries.success, webhook_deliveries.created_at,
+	webhook_deliveries.id, webhook_deliveries.subscription_id, webhook_deliveries.webhook_event_delivery_id, webhook_deliveries.event_type, webhook_deliveries.request_body, webhook_deliveries.response_status, webhook_deliveries.response_body, webhook_deliveries.duration_ms, webhook_deliveries.success, webhook_deliveries.created_at,
 	COUNT(*) OVER () AS total_count
 FROM
 	webhook_deliveries
@@ -418,6 +520,7 @@ func (q *Queries) ListDeliveriesForSubscription(ctx context.Context, arg ListDel
 		if err := rows.Scan(
 			&i.WebhookDelivery.ID,
 			&i.WebhookDelivery.SubscriptionID,
+			&i.WebhookDelivery.WebhookEventDeliveryID,
 			&i.WebhookDelivery.EventType,
 			&i.WebhookDelivery.RequestBody,
 			&i.WebhookDelivery.ResponseStatus,
@@ -642,16 +745,29 @@ func (q *Queries) ListSubscriptionsForTeam(ctx context.Context, arg ListSubscrip
 	return items, nil
 }
 
-const markEventFailed = `-- name: MarkEventFailed :exec
-UPDATE webhook_events
+const markDeliveryFailed = `-- name: MarkDeliveryFailed :exec
+UPDATE webhook_event_deliveries
 SET
 	status = 'failed'
 WHERE
 	id = $1
 `
 
-func (q *Queries) MarkEventFailed(ctx context.Context, id uuid.UUID) error {
-	_, err := q.db.Exec(ctx, markEventFailed, id)
+func (q *Queries) MarkDeliveryFailed(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.Exec(ctx, markDeliveryFailed, id)
+	return err
+}
+
+const markOutboxEventsCompleted = `-- name: MarkOutboxEventsCompleted :exec
+UPDATE webhook_events
+SET
+	status = 'completed'
+WHERE
+	id = ANY ($1::UUID[])
+`
+
+func (q *Queries) MarkOutboxEventsCompleted(ctx context.Context, ids []uuid.UUID) error {
+	_, err := q.db.Exec(ctx, markOutboxEventsCompleted, ids)
 	return err
 }
 
@@ -666,20 +782,43 @@ func (q *Queries) PruneDeliveries(ctx context.Context, before pgtype.Timestamptz
 	return err
 }
 
-const pruneOldEvents = `-- name: PruneOldEvents :exec
-DELETE FROM webhook_events
+const pruneOldEventDeliveries = `-- name: PruneOldEventDeliveries :exec
+DELETE FROM webhook_event_deliveries
 WHERE
 	created_at < $1
 	AND status IN ('completed', 'failed')
 `
 
-func (q *Queries) PruneOldEvents(ctx context.Context, before pgtype.Timestamptz) error {
-	_, err := q.db.Exec(ctx, pruneOldEvents, before)
+func (q *Queries) PruneOldEventDeliveries(ctx context.Context, before pgtype.Timestamptz) error {
+	_, err := q.db.Exec(ctx, pruneOldEventDeliveries, before)
 	return err
 }
 
-const requeueEvent = `-- name: RequeueEvent :exec
-UPDATE webhook_events
+const pruneOldOutboxEvents = `-- name: PruneOldOutboxEvents :exec
+DELETE FROM webhook_events
+WHERE
+	webhook_events.created_at < $1
+	AND webhook_events.status = 'completed'
+	AND NOT EXISTS (
+		SELECT
+			1
+		FROM
+			webhook_event_deliveries
+		WHERE
+			webhook_event_deliveries.webhook_event_id = webhook_events.id
+			AND webhook_event_deliveries.status = 'pending'
+	)
+`
+
+// Prunes outbox events whose deliveries have all reached a terminal state (a delete
+// cascades to webhook_event_deliveries, so pending rows must be excluded).
+func (q *Queries) PruneOldOutboxEvents(ctx context.Context, before pgtype.Timestamptz) error {
+	_, err := q.db.Exec(ctx, pruneOldOutboxEvents, before)
+	return err
+}
+
+const requeueDelivery = `-- name: RequeueDelivery :exec
+UPDATE webhook_event_deliveries
 SET
 	status = 'pending',
 	retry_count = $1,
@@ -688,14 +827,14 @@ WHERE
 	id = $3
 `
 
-type RequeueEventParams struct {
+type RequeueDeliveryParams struct {
 	RetryCount int32
 	RunAt      pgtype.Timestamptz
 	ID         uuid.UUID
 }
 
-func (q *Queries) RequeueEvent(ctx context.Context, arg RequeueEventParams) error {
-	_, err := q.db.Exec(ctx, requeueEvent, arg.RetryCount, arg.RunAt, arg.ID)
+func (q *Queries) RequeueDelivery(ctx context.Context, arg RequeueDeliveryParams) error {
+	_, err := q.db.Exec(ctx, requeueDelivery, arg.RetryCount, arg.RunAt, arg.ID)
 	return err
 }
 

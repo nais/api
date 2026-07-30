@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/nais/api/internal/activitylog/webhook/webhooksql"
-	"github.com/nais/api/internal/leaderelection"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
@@ -41,7 +40,7 @@ func newWebhookMetrics(q *webhooksql.Queries) (*webhookMetrics, error) {
 
 	processedCounter, err := meter.Int64Counter(
 		"nais_api_webhook_events_processed_total",
-		metric.WithDescription("Total number of outbox webhook events processed by the dispatcher."),
+		metric.WithDescription("Total number of outbox webhook deliveries processed by the dispatcher."),
 	)
 	if err != nil {
 		return nil, fmt.Errorf("create processed counter: %w", err)
@@ -62,26 +61,20 @@ func newWebhookMetrics(q *webhooksql.Queries) (*webhookMetrics, error) {
 		autoDisabledCounter: autoDisabledCounter,
 	}
 
-	// Register the asynchronous gauge for queue size (runs on demand when scraped)
 	queueSizeGauge, err := meter.Int64ObservableGauge(
 		"nais_api_webhook_queue_size",
-		metric.WithDescription("Current size of the webhook outbox queue grouped by status."),
+		metric.WithDescription("Current size of the webhook delivery queue grouped by status. Reported identically by every replica; aggregate with max()/avg(), not sum()."),
 		metric.WithInt64Callback(func(ctx context.Context, observer metric.Int64Observer) error {
-			// ONLY the leader pod queries the database to avoid replica double-counting
-			if !leaderelection.IsLeader() {
-				return nil
-			}
-
 			rows, err := q.GetQueueSizeByStatus(ctx)
 			if err != nil {
 				return err
 			}
 
-			// Active map to track existing statuses to report (reporting 0 if none exist is helpful)
-			statuses := map[webhooksql.WebhookEventStatus]int64{
-				webhooksql.WebhookEventStatusPending:   0,
-				webhooksql.WebhookEventStatusCompleted: 0,
-				webhooksql.WebhookEventStatusFailed:    0,
+			// Ensure every known status is reported, even if its count is currently 0.
+			statuses := map[webhooksql.WebhookDeliveryStatus]int64{
+				webhooksql.WebhookDeliveryStatusPending:   0,
+				webhooksql.WebhookDeliveryStatusCompleted: 0,
+				webhooksql.WebhookDeliveryStatusFailed:    0,
 			}
 
 			for _, row := range rows {
