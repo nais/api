@@ -69,10 +69,10 @@ func init() {
 		activitylog.WithDescription("Triggered when service maintenance is started for a Valkey."),
 	)
 	activitylog.RegisterActivityType(
-		"VALKEY_CREDENTIALS_CREATED",
+		"CREDENTIALS_CREATED",
 		aivencredentials.ActivityLogEntryActionCredentialsCreated,
 		ActivityLogEntryResourceTypeValkey,
-		activitylog.WithDescription("Triggered when credentials are created for a Valkey."),
+		activitylog.WithDescription("Triggered when credentials are created for an OpenSearch instance or a Valkey."),
 	)
 }
 

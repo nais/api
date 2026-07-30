@@ -12,10 +12,10 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/nais/api/internal/activitylog"
+	"github.com/nais/api/internal/activitylog/webhook"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/slug"
-	"github.com/nais/api/internal/webhook"
 	"github.com/vektah/gqlparser/v2/ast"
 )
 
@@ -89,7 +89,7 @@ func (ec *executionContext) _CreateWebhookPayload_webhook(ctx context.Context, f
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *webhook.WebhookSubscription) graphql.Marshaler {
-			return ec.marshalNWebhookSubscription2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋwebhookᚐWebhookSubscription(ctx, selections, v)
+			return ec.marshalNWebhookSubscription2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚋwebhookᚐWebhookSubscription(ctx, selections, v)
 		},
 		true,
 		true,
@@ -144,7 +144,7 @@ func (ec *executionContext) _UpdateWebhookPayload_webhook(ctx context.Context, f
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *webhook.WebhookSubscription) graphql.Marshaler {
-			return ec.marshalNWebhookSubscription2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋwebhookᚐWebhookSubscription(ctx, selections, v)
+			return ec.marshalNWebhookSubscription2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚋwebhookᚐWebhookSubscription(ctx, selections, v)
 		},
 		true,
 		true,
@@ -392,7 +392,7 @@ func (ec *executionContext) _WebhookDeliveryConnection_nodes(ctx context.Context
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []*webhook.WebhookDelivery) graphql.Marshaler {
-			return ec.marshalNWebhookDelivery2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋwebhookᚐWebhookDeliveryᚄ(ctx, selections, v)
+			return ec.marshalNWebhookDelivery2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚋwebhookᚐWebhookDeliveryᚄ(ctx, selections, v)
 		},
 		true,
 		true,
@@ -479,7 +479,7 @@ func (ec *executionContext) _WebhookDeliveryEdge_node(ctx context.Context, field
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *webhook.WebhookDelivery) graphql.Marshaler {
-			return ec.marshalNWebhookDelivery2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋwebhookᚐWebhookDelivery(ctx, selections, v)
+			return ec.marshalNWebhookDelivery2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚋwebhookᚐWebhookDelivery(ctx, selections, v)
 		},
 		true,
 		true,
@@ -955,7 +955,7 @@ func (ec *executionContext) _WebhookSubscriptionConnection_nodes(ctx context.Con
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []*webhook.WebhookSubscription) graphql.Marshaler {
-			return ec.marshalNWebhookSubscription2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋwebhookᚐWebhookSubscriptionᚄ(ctx, selections, v)
+			return ec.marshalNWebhookSubscription2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚋwebhookᚐWebhookSubscriptionᚄ(ctx, selections, v)
 		},
 		true,
 		true,
@@ -1042,7 +1042,7 @@ func (ec *executionContext) _WebhookSubscriptionEdge_node(ctx context.Context, f
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *webhook.WebhookSubscription) graphql.Marshaler {
-			return ec.marshalNWebhookSubscription2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋwebhookᚐWebhookSubscription(ctx, selections, v)
+			return ec.marshalNWebhookSubscription2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚋwebhookᚐWebhookSubscription(ctx, selections, v)
 		},
 		true,
 		true,
@@ -1796,16 +1796,16 @@ func (ec *executionContext) _WebhookSubscriptionEdge(ctx context.Context, sel as
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) unmarshalNCreateWebhookInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋwebhookᚐCreateWebhookInput(ctx context.Context, v any) (webhook.CreateWebhookInput, error) {
+func (ec *executionContext) unmarshalNCreateWebhookInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚋwebhookᚐCreateWebhookInput(ctx context.Context, v any) (webhook.CreateWebhookInput, error) {
 	res, err := ec.unmarshalInputCreateWebhookInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNCreateWebhookPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋwebhookᚐCreateWebhookPayload(ctx context.Context, sel ast.SelectionSet, v webhook.CreateWebhookPayload) graphql.Marshaler {
+func (ec *executionContext) marshalNCreateWebhookPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚋwebhookᚐCreateWebhookPayload(ctx context.Context, sel ast.SelectionSet, v webhook.CreateWebhookPayload) graphql.Marshaler {
 	return ec._CreateWebhookPayload(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNCreateWebhookPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋwebhookᚐCreateWebhookPayload(ctx context.Context, sel ast.SelectionSet, v *webhook.CreateWebhookPayload) graphql.Marshaler {
+func (ec *executionContext) marshalNCreateWebhookPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚋwebhookᚐCreateWebhookPayload(ctx context.Context, sel ast.SelectionSet, v *webhook.CreateWebhookPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
@@ -1815,16 +1815,16 @@ func (ec *executionContext) marshalNCreateWebhookPayload2ᚖgithubᚗcomᚋnais�
 	return ec._CreateWebhookPayload(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNDeleteWebhookInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋwebhookᚐDeleteWebhookInput(ctx context.Context, v any) (webhook.DeleteWebhookInput, error) {
+func (ec *executionContext) unmarshalNDeleteWebhookInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚋwebhookᚐDeleteWebhookInput(ctx context.Context, v any) (webhook.DeleteWebhookInput, error) {
 	res, err := ec.unmarshalInputDeleteWebhookInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNDeleteWebhookPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋwebhookᚐDeleteWebhookPayload(ctx context.Context, sel ast.SelectionSet, v webhook.DeleteWebhookPayload) graphql.Marshaler {
+func (ec *executionContext) marshalNDeleteWebhookPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚋwebhookᚐDeleteWebhookPayload(ctx context.Context, sel ast.SelectionSet, v webhook.DeleteWebhookPayload) graphql.Marshaler {
 	return ec._DeleteWebhookPayload(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNDeleteWebhookPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋwebhookᚐDeleteWebhookPayload(ctx context.Context, sel ast.SelectionSet, v *webhook.DeleteWebhookPayload) graphql.Marshaler {
+func (ec *executionContext) marshalNDeleteWebhookPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚋwebhookᚐDeleteWebhookPayload(ctx context.Context, sel ast.SelectionSet, v *webhook.DeleteWebhookPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
@@ -1834,16 +1834,16 @@ func (ec *executionContext) marshalNDeleteWebhookPayload2ᚖgithubᚗcomᚋnais�
 	return ec._DeleteWebhookPayload(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNUpdateWebhookInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋwebhookᚐUpdateWebhookInput(ctx context.Context, v any) (webhook.UpdateWebhookInput, error) {
+func (ec *executionContext) unmarshalNUpdateWebhookInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚋwebhookᚐUpdateWebhookInput(ctx context.Context, v any) (webhook.UpdateWebhookInput, error) {
 	res, err := ec.unmarshalInputUpdateWebhookInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNUpdateWebhookPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋwebhookᚐUpdateWebhookPayload(ctx context.Context, sel ast.SelectionSet, v webhook.UpdateWebhookPayload) graphql.Marshaler {
+func (ec *executionContext) marshalNUpdateWebhookPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚋwebhookᚐUpdateWebhookPayload(ctx context.Context, sel ast.SelectionSet, v webhook.UpdateWebhookPayload) graphql.Marshaler {
 	return ec._UpdateWebhookPayload(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNUpdateWebhookPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋwebhookᚐUpdateWebhookPayload(ctx context.Context, sel ast.SelectionSet, v *webhook.UpdateWebhookPayload) graphql.Marshaler {
+func (ec *executionContext) marshalNUpdateWebhookPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚋwebhookᚐUpdateWebhookPayload(ctx context.Context, sel ast.SelectionSet, v *webhook.UpdateWebhookPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
@@ -1853,11 +1853,11 @@ func (ec *executionContext) marshalNUpdateWebhookPayload2ᚖgithubᚗcomᚋnais�
 	return ec._UpdateWebhookPayload(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNWebhookDelivery2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋwebhookᚐWebhookDeliveryᚄ(ctx context.Context, sel ast.SelectionSet, v []*webhook.WebhookDelivery) graphql.Marshaler {
+func (ec *executionContext) marshalNWebhookDelivery2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚋwebhookᚐWebhookDeliveryᚄ(ctx context.Context, sel ast.SelectionSet, v []*webhook.WebhookDelivery) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNWebhookDelivery2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋwebhookᚐWebhookDelivery(ctx, sel, v[i])
+		return ec.marshalNWebhookDelivery2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚋwebhookᚐWebhookDelivery(ctx, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -1869,7 +1869,7 @@ func (ec *executionContext) marshalNWebhookDelivery2ᚕᚖgithubᚗcomᚋnaisᚋ
 	return ret
 }
 
-func (ec *executionContext) marshalNWebhookDelivery2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋwebhookᚐWebhookDelivery(ctx context.Context, sel ast.SelectionSet, v *webhook.WebhookDelivery) graphql.Marshaler {
+func (ec *executionContext) marshalNWebhookDelivery2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚋwebhookᚐWebhookDelivery(ctx context.Context, sel ast.SelectionSet, v *webhook.WebhookDelivery) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
@@ -1939,11 +1939,11 @@ func (ec *executionContext) marshalNWebhookEventTypeInfo2ᚖgithubᚗcomᚋnais�
 	return ec._WebhookEventTypeInfo(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNWebhookSubscription2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋwebhookᚐWebhookSubscriptionᚄ(ctx context.Context, sel ast.SelectionSet, v []*webhook.WebhookSubscription) graphql.Marshaler {
+func (ec *executionContext) marshalNWebhookSubscription2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚋwebhookᚐWebhookSubscriptionᚄ(ctx context.Context, sel ast.SelectionSet, v []*webhook.WebhookSubscription) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNWebhookSubscription2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋwebhookᚐWebhookSubscription(ctx, sel, v[i])
+		return ec.marshalNWebhookSubscription2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚋwebhookᚐWebhookSubscription(ctx, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -1955,7 +1955,7 @@ func (ec *executionContext) marshalNWebhookSubscription2ᚕᚖgithubᚗcomᚋnai
 	return ret
 }
 
-func (ec *executionContext) marshalNWebhookSubscription2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋwebhookᚐWebhookSubscription(ctx context.Context, sel ast.SelectionSet, v *webhook.WebhookSubscription) graphql.Marshaler {
+func (ec *executionContext) marshalNWebhookSubscription2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚋwebhookᚐWebhookSubscription(ctx context.Context, sel ast.SelectionSet, v *webhook.WebhookSubscription) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")

@@ -1,6 +1,6 @@
 -- +goose Up
 CREATE TABLE webhook_subscriptions (
-	id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
+	id UUID PRIMARY KEY DEFAULT GEN_RANDOM_UUID(),
 	team_slug slug REFERENCES teams (slug) ON DELETE CASCADE,
 	url TEXT NOT NULL,
 	secret TEXT NOT NULL,
@@ -14,8 +14,8 @@ CREATE TABLE webhook_subscriptions (
 )
 ;
 
-CREATE TRIGGER webhook_subscriptions_updated_at BEFORE
-UPDATE ON webhook_subscriptions FOR EACH ROW
+CREATE TRIGGER webhook_subscriptions_updated_at
+BEFORE UPDATE ON webhook_subscriptions FOR EACH ROW
 EXECUTE FUNCTION set_updated_at ()
 ;
 
@@ -33,7 +33,7 @@ WHERE
 ;
 
 CREATE TABLE webhook_deliveries (
-	id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
+	id UUID PRIMARY KEY DEFAULT GEN_RANDOM_UUID(),
 	subscription_id UUID NOT NULL REFERENCES webhook_subscriptions (id) ON DELETE CASCADE,
 	event_type TEXT NOT NULL,
 	request_body JSONB NOT NULL,
@@ -54,7 +54,7 @@ CREATE TYPE webhook_event_status AS ENUM('pending', 'completed', 'failed')
 ;
 
 CREATE TABLE webhook_events (
-	id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
+	id UUID PRIMARY KEY DEFAULT GEN_RANDOM_UUID(),
 	activity_log_entries_id UUID NOT NULL REFERENCES activity_log_entries (id) ON DELETE CASCADE,
 	status webhook_event_status NOT NULL DEFAULT 'pending',
 	retry_count INT NOT NULL DEFAULT 0,

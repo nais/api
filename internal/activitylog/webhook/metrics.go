@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/nais/api/internal/activitylog/webhook/webhooksql"
 	"github.com/nais/api/internal/leaderelection"
-	"github.com/nais/api/internal/webhook/webhooksql"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"

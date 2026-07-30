@@ -4,11 +4,11 @@ import (
 	"context"
 
 	"github.com/nais/api/internal/activitylog"
+	"github.com/nais/api/internal/activitylog/webhook"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/team"
-	"github.com/nais/api/internal/webhook"
 )
 
 func (r *mutationResolver) CreateWebhook(ctx context.Context, input webhook.CreateWebhookInput) (*webhook.CreateWebhookPayload, error) {

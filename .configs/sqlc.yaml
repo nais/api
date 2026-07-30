@@ -235,9 +235,9 @@ sql:
 
   - <<: *default_domain
     name: "Webhook SQL"
-    queries: "../internal/webhook/queries"
+    queries: "../internal/activitylog/webhook/queries"
     gen:
       go:
         <<: *default_go
         package: "webhooksql"
-        out: "../internal/webhook/webhooksql"
+        out: "../internal/activitylog/webhook/webhooksql"

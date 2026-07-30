@@ -67,13 +67,11 @@ func init() {
 		ActivityLogEntryResourceTypeOpenSearch,
 		activitylog.WithDescription("Triggered when service maintenance is started for an OpenSearch instance."),
 	)
-	// TODO(thokra): Inspect if we can just remove aivencredentials.ActivityLogActivityTypeCredentialsCreated
 	activitylog.RegisterActivityType(
-		"OPENSEARCH_CREDENTIALS_CREATED",
+		"CREDENTIALS_CREATED",
 		aivencredentials.ActivityLogEntryActionCredentialsCreated,
 		ActivityLogEntryResourceTypeOpenSearch,
-		activitylog.WithGroup("OpenSearch"),
-		activitylog.WithDescription("Triggered when credentials are created for an OpenSearch instance."),
+		activitylog.WithDescription("Triggered when credentials are created for an OpenSearch instance or a Valkey."),
 	)
 }
 

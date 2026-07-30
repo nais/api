@@ -10,6 +10,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/nais/api/internal/activitylog"
+	"github.com/nais/api/internal/activitylog/webhook"
 	"github.com/nais/api/internal/alerts"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/cost"
@@ -40,7 +41,6 @@ import (
 	"github.com/nais/api/internal/user"
 	"github.com/nais/api/internal/utilization"
 	"github.com/nais/api/internal/vulnerability"
-	"github.com/nais/api/internal/webhook"
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
 	"github.com/nais/api/internal/workload/config"
