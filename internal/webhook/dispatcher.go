@@ -254,14 +254,12 @@ func (d *Dispatcher) deliver(ctx context.Context, q *webhooksql.Queries, sub *we
 	}
 
 	d.metrics.deliveriesCounter.Add(ctx, 1, metric.WithAttributes(
-		attribute.String("subscription_id", sub.ID.String()),
 		attribute.String("event_type", eventType),
 		attribute.String("status_code", statusStr),
 		attribute.String("success", successStr),
 	))
 
 	d.metrics.durationHistogram.Record(ctx, durationSeconds, metric.WithAttributes(
-		attribute.String("subscription_id", sub.ID.String()),
 		attribute.String("event_type", eventType),
 	))
 
