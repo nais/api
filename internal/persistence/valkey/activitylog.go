@@ -44,11 +44,36 @@ func init() {
 		}
 	})
 
-	activitylog.RegisterActivityType("VALKEY_CREATED", activitylog.ActivityLogEntryActionCreated, ActivityLogEntryResourceTypeValkey)
-	activitylog.RegisterActivityType("VALKEY_UPDATED", activitylog.ActivityLogEntryActionUpdated, ActivityLogEntryResourceTypeValkey)
-	activitylog.RegisterActivityType("VALKEY_DELETED", activitylog.ActivityLogEntryActionDeleted, ActivityLogEntryResourceTypeValkey)
-	activitylog.RegisterActivityType("VALKEY_MAINTENANCE_STARTED", servicemaintenanceal.ActivityLogEntryActionMaintenanceStarted, ActivityLogEntryResourceTypeValkey)
-	activitylog.RegisterActivityType(aivencredentials.ActivityLogActivityTypeCredentialsCreated, aivencredentials.ActivityLogEntryActionCredentialsCreated, ActivityLogEntryResourceTypeValkey)
+	activitylog.RegisterActivityType(
+		"VALKEY_CREATED",
+		activitylog.ActivityLogEntryActionCreated,
+		ActivityLogEntryResourceTypeValkey,
+		activitylog.WithDescription("Triggered when a Valkey is created."),
+	)
+	activitylog.RegisterActivityType(
+		"VALKEY_UPDATED",
+		activitylog.ActivityLogEntryActionUpdated,
+		ActivityLogEntryResourceTypeValkey,
+		activitylog.WithDescription("Triggered when a Valkey is updated."),
+	)
+	activitylog.RegisterActivityType(
+		"VALKEY_DELETED",
+		activitylog.ActivityLogEntryActionDeleted,
+		ActivityLogEntryResourceTypeValkey,
+		activitylog.WithDescription("Triggered when a Valkey is deleted."),
+	)
+	activitylog.RegisterActivityType(
+		"VALKEY_MAINTENANCE_STARTED",
+		servicemaintenanceal.ActivityLogEntryActionMaintenanceStarted,
+		ActivityLogEntryResourceTypeValkey,
+		activitylog.WithDescription("Triggered when service maintenance is started for a Valkey."),
+	)
+	activitylog.RegisterActivityType(
+		"VALKEY_CREDENTIALS_CREATED",
+		aivencredentials.ActivityLogEntryActionCredentialsCreated,
+		ActivityLogEntryResourceTypeValkey,
+		activitylog.WithDescription("Triggered when credentials are created for a Valkey."),
+	)
 }
 
 type ValkeyCreatedActivityLogEntry struct {

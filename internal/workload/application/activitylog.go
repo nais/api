@@ -79,12 +79,42 @@ func init() {
 		}
 	})
 
-	activitylog.RegisterActivityType("APPLICATION_DELETED", activitylog.ActivityLogEntryActionDeleted, ActivityLogEntryResourceTypeApplication)
-	activitylog.RegisterActivityType("APPLICATION_RESTARTED", activityLogEntryActionRestartApplication, ActivityLogEntryResourceTypeApplication)
-	activitylog.RegisterActivityType("APPLICATION_SCALED", activityLogEntryActionAutoScaleApplication, ActivityLogEntryResourceTypeApplication)
-	activitylog.RegisterActivityType("DEPLOYMENT", deploymentactivity.ActivityLogEntryActionDeployment, ActivityLogEntryResourceTypeApplication)
-	activitylog.RegisterActivityType("GENERIC_KUBERNETES_RESOURCE_CREATED", activitylog.ActivityLogEntryActionCreated, ActivityLogEntryResourceTypeApplication)
-	activitylog.RegisterActivityType("APPLICATION_UPDATED", activitylog.ActivityLogEntryActionUpdated, ActivityLogEntryResourceTypeApplication)
+	activitylog.RegisterActivityType(
+		"APPLICATION_DELETED",
+		activitylog.ActivityLogEntryActionDeleted,
+		ActivityLogEntryResourceTypeApplication,
+		activitylog.WithDescription("Triggered when an application is deleted."),
+	)
+	activitylog.RegisterActivityType(
+		"APPLICATION_RESTARTED",
+		activityLogEntryActionRestartApplication,
+		ActivityLogEntryResourceTypeApplication,
+		activitylog.WithDescription("Triggered when an application is restarted."),
+	)
+	activitylog.RegisterActivityType(
+		"APPLICATION_SCALED",
+		activityLogEntryActionAutoScaleApplication,
+		ActivityLogEntryResourceTypeApplication,
+		activitylog.WithDescription("Triggered when an application is scaled."),
+	)
+	activitylog.RegisterActivityType(
+		"DEPLOYMENT",
+		deploymentactivity.ActivityLogEntryActionDeployment,
+		ActivityLogEntryResourceTypeApplication,
+		activitylog.WithDescription("Triggered when a resource is deployed using the nais/deploy action."),
+	)
+	activitylog.RegisterActivityType(
+		"GENERIC_KUBERNETES_RESOURCE_CREATED",
+		activitylog.ActivityLogEntryActionCreated,
+		ActivityLogEntryResourceTypeApplication,
+		activitylog.WithDescription("Triggered when a generic Kubernetes resource is created."),
+	)
+	activitylog.RegisterActivityType(
+		"APPLICATION_UPDATED",
+		activitylog.ActivityLogEntryActionUpdated,
+		ActivityLogEntryResourceTypeApplication,
+		activitylog.WithDescription("Triggered when an application is updated."),
+	)
 }
 
 type ApplicationRestartedActivityLogEntry struct {

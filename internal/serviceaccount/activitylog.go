@@ -137,16 +137,66 @@ func init() {
 		}
 	})
 
-	activitylog.RegisterActivityType("SERVICE_ACCOUNT_CREATED", activitylog.ActivityLogEntryActionCreated, ActivityLogEntryResourceTypeServiceAccount)
-	activitylog.RegisterActivityType("SERVICE_ACCOUNT_UPDATED", activitylog.ActivityLogEntryActionUpdated, ActivityLogEntryResourceTypeServiceAccount)
-	activitylog.RegisterActivityType("SERVICE_ACCOUNT_DELETED", activitylog.ActivityLogEntryActionDeleted, ActivityLogEntryResourceTypeServiceAccount)
-	activitylog.RegisterActivityType("SERVICE_ACCOUNT_TOKEN_CREATED", activityLogEntryActionCreateServiceAccountToken, ActivityLogEntryResourceTypeServiceAccount)
-	activitylog.RegisterActivityType("SERVICE_ACCOUNT_TOKEN_UPDATED", activityLogEntryActionUpdateServiceAccountToken, ActivityLogEntryResourceTypeServiceAccount)
-	activitylog.RegisterActivityType("SERVICE_ACCOUNT_TOKEN_DELETED", activityLogEntryActionDeleteServiceAccountToken, ActivityLogEntryResourceTypeServiceAccount)
-	activitylog.RegisterActivityType("SERVICE_ACCOUNT_ROLE_ASSIGNED", activityLogEntryActionAssignServiceAccountRole, ActivityLogEntryResourceTypeServiceAccount)
-	activitylog.RegisterActivityType("SERVICE_ACCOUNT_ROLE_REVOKED", activityLogEntryActionRevokeServiceAccountRole, ActivityLogEntryResourceTypeServiceAccount)
-	activitylog.RegisterActivityType("SERVICE_ACCOUNT_WORKLOAD_BINDING_ADDED", activityLogEntryActionAddServiceAccountWorkloadBinding, ActivityLogEntryResourceTypeServiceAccount)
-	activitylog.RegisterActivityType("SERVICE_ACCOUNT_WORKLOAD_BINDING_REMOVED", activityLogEntryActionRemoveServiceAccountWorkloadBinding, ActivityLogEntryResourceTypeServiceAccount)
+	activitylog.RegisterActivityType(
+		"SERVICE_ACCOUNT_CREATED",
+		activitylog.ActivityLogEntryActionCreated,
+		ActivityLogEntryResourceTypeServiceAccount,
+		activitylog.WithDescription("Triggered when a service account is created."),
+	)
+	activitylog.RegisterActivityType(
+		"SERVICE_ACCOUNT_UPDATED",
+		activitylog.ActivityLogEntryActionUpdated,
+		ActivityLogEntryResourceTypeServiceAccount,
+		activitylog.WithDescription("Triggered when a service account is updated."),
+	)
+	activitylog.RegisterActivityType(
+		"SERVICE_ACCOUNT_DELETED",
+		activitylog.ActivityLogEntryActionDeleted,
+		ActivityLogEntryResourceTypeServiceAccount,
+		activitylog.WithDescription("Triggered when a service account is deleted."),
+	)
+	activitylog.RegisterActivityType(
+		"SERVICE_ACCOUNT_TOKEN_CREATED",
+		activityLogEntryActionCreateServiceAccountToken,
+		ActivityLogEntryResourceTypeServiceAccount,
+		activitylog.WithDescription("Triggered when a service account token is created."),
+	)
+	activitylog.RegisterActivityType(
+		"SERVICE_ACCOUNT_TOKEN_UPDATED",
+		activityLogEntryActionUpdateServiceAccountToken,
+		ActivityLogEntryResourceTypeServiceAccount,
+		activitylog.WithDescription("Triggered when a service account token is updated."),
+	)
+	activitylog.RegisterActivityType(
+		"SERVICE_ACCOUNT_TOKEN_DELETED",
+		activityLogEntryActionDeleteServiceAccountToken,
+		ActivityLogEntryResourceTypeServiceAccount,
+		activitylog.WithDescription("Triggered when a service account token is deleted."),
+	)
+	activitylog.RegisterActivityType(
+		"SERVICE_ACCOUNT_ROLE_ASSIGNED",
+		activityLogEntryActionAssignServiceAccountRole,
+		ActivityLogEntryResourceTypeServiceAccount,
+		activitylog.WithDescription("Triggered when a role is assigned to a service account."),
+	)
+	activitylog.RegisterActivityType(
+		"SERVICE_ACCOUNT_ROLE_REVOKED",
+		activityLogEntryActionRevokeServiceAccountRole,
+		ActivityLogEntryResourceTypeServiceAccount,
+		activitylog.WithDescription("Triggered when a role is revoked from a service account."),
+	)
+	activitylog.RegisterActivityType(
+		"SERVICE_ACCOUNT_WORKLOAD_BINDING_ADDED",
+		activityLogEntryActionAddServiceAccountWorkloadBinding,
+		ActivityLogEntryResourceTypeServiceAccount,
+		activitylog.WithDescription("Triggered when a workload binding is added to a service account."),
+	)
+	activitylog.RegisterActivityType(
+		"SERVICE_ACCOUNT_WORKLOAD_BINDING_REMOVED",
+		activityLogEntryActionRemoveServiceAccountWorkloadBinding,
+		ActivityLogEntryResourceTypeServiceAccount,
+		activitylog.WithDescription("Triggered when a workload binding is removed from a service account."),
+	)
 }
 
 type RoleAssignedToServiceAccountActivityLogEntry struct {
