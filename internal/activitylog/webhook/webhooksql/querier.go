@@ -10,8 +10,15 @@ import (
 )
 
 type Querier interface {
-	ClaimPendingEvents(ctx context.Context, batchSize int32) ([]*ClaimPendingEventsRow, error)
+	// Claims outbox events pending fan-out. FOR UPDATE SKIP LOCKED lets multiple dispatcher
+	// instances claim batches concurrently without claiming the same row. Rows are marked
+	// completed by the caller after fan-out succeeds, not by this query.
+	ClaimOutboxEventsForFanout(ctx context.Context, batchSize int32) ([]*ClaimOutboxEventsForFanoutRow, error)
+	// Claims per-(event, subscription) delivery rows for processing, using the same
+	// FOR UPDATE SKIP LOCKED pattern as ClaimOutboxEventsForFanout.
+	ClaimPendingDeliveries(ctx context.Context, batchSize int32) ([]*ClaimPendingDeliveriesRow, error)
 	CreateDelivery(ctx context.Context, arg CreateDeliveryParams) (*WebhookDelivery, error)
+	CreateEventDelivery(ctx context.Context, arg CreateEventDeliveryParams) error
 	CreateSubscription(ctx context.Context, arg CreateSubscriptionParams) (*WebhookSubscription, error)
 	DeleteSubscription(ctx context.Context, id uuid.UUID) error
 	DisableSubscription(ctx context.Context, id uuid.UUID) error
@@ -25,10 +32,14 @@ type Querier interface {
 	ListGlobalSubscriptions(ctx context.Context, arg ListGlobalSubscriptionsParams) ([]*ListGlobalSubscriptionsRow, error)
 	ListSubscriptionsByIDs(ctx context.Context, ids []uuid.UUID) ([]*WebhookSubscription, error)
 	ListSubscriptionsForTeam(ctx context.Context, arg ListSubscriptionsForTeamParams) ([]*ListSubscriptionsForTeamRow, error)
-	MarkEventFailed(ctx context.Context, id uuid.UUID) error
+	MarkDeliveryFailed(ctx context.Context, id uuid.UUID) error
+	MarkOutboxEventsCompleted(ctx context.Context, ids []uuid.UUID) error
 	PruneDeliveries(ctx context.Context, before pgtype.Timestamptz) error
-	PruneOldEvents(ctx context.Context, before pgtype.Timestamptz) error
-	RequeueEvent(ctx context.Context, arg RequeueEventParams) error
+	PruneOldEventDeliveries(ctx context.Context, before pgtype.Timestamptz) error
+	// Prunes outbox events whose deliveries have all reached a terminal state (a delete
+	// cascades to webhook_event_deliveries, so pending rows must be excluded).
+	PruneOldOutboxEvents(ctx context.Context, before pgtype.Timestamptz) error
+	RequeueDelivery(ctx context.Context, arg RequeueDeliveryParams) error
 	ResetConsecutiveFailures(ctx context.Context, id uuid.UUID) error
 	UpdateSubscription(ctx context.Context, arg UpdateSubscriptionParams) (*WebhookSubscription, error)
 }

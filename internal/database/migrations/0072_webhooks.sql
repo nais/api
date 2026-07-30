@@ -32,9 +32,55 @@ WHERE
 	enabled = TRUE
 ;
 
+-- Outbox table for durable webhook event processing. Rows are inserted by a trigger on
+-- activity_log_entries. Subscription matching (event type wildcards, team scoping) happens
+-- in the dispatcher, which fans each row out into per-subscription rows in
+-- webhook_event_deliveries below.
+CREATE TYPE webhook_outbox_status AS ENUM('pending', 'completed')
+;
+
+CREATE TABLE webhook_events (
+	id UUID PRIMARY KEY DEFAULT GEN_RANDOM_UUID(),
+	activity_log_entries_id UUID NOT NULL REFERENCES activity_log_entries (id) ON DELETE CASCADE,
+	status webhook_outbox_status NOT NULL DEFAULT 'pending',
+	created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+)
+;
+
+CREATE INDEX idx_webhook_events_pending ON webhook_events (created_at ASC)
+WHERE
+	status = 'pending'
+;
+
+-- Per-(event, subscription) delivery queue; this is the unit of retry and backoff.
+CREATE TYPE webhook_delivery_status AS ENUM('pending', 'completed', 'failed')
+;
+
+CREATE TABLE webhook_event_deliveries (
+	id UUID PRIMARY KEY DEFAULT GEN_RANDOM_UUID(),
+	webhook_event_id UUID NOT NULL REFERENCES webhook_events (id) ON DELETE CASCADE,
+	subscription_id UUID NOT NULL REFERENCES webhook_subscriptions (id) ON DELETE CASCADE,
+	status webhook_delivery_status NOT NULL DEFAULT 'pending',
+	retry_count INT NOT NULL DEFAULT 0,
+	run_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+	created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+	UNIQUE (webhook_event_id, subscription_id)
+)
+;
+
+CREATE INDEX idx_webhook_event_deliveries_pending ON webhook_event_deliveries (run_at ASC)
+WHERE
+	status = 'pending'
+;
+
+CREATE INDEX idx_webhook_event_deliveries_event ON webhook_event_deliveries (webhook_event_id)
+;
+
+-- Audit log of every actual HTTP delivery attempt.
 CREATE TABLE webhook_deliveries (
 	id UUID PRIMARY KEY DEFAULT GEN_RANDOM_UUID(),
 	subscription_id UUID NOT NULL REFERENCES webhook_subscriptions (id) ON DELETE CASCADE,
+	webhook_event_delivery_id UUID REFERENCES webhook_event_deliveries (id) ON DELETE SET NULL,
 	event_type TEXT NOT NULL,
 	request_body JSONB NOT NULL,
 	response_status INT,
@@ -46,26 +92,6 @@ CREATE TABLE webhook_deliveries (
 ;
 
 CREATE INDEX idx_webhook_deliveries_subscription ON webhook_deliveries (subscription_id, created_at DESC)
-;
-
--- Outbox table for durable webhook event processing.
--- Rows are inserted by a trigger on activity_log_entries and consumed by the dispatcher.
-CREATE TYPE webhook_event_status AS ENUM('pending', 'completed', 'failed')
-;
-
-CREATE TABLE webhook_events (
-	id UUID PRIMARY KEY DEFAULT GEN_RANDOM_UUID(),
-	activity_log_entries_id UUID NOT NULL REFERENCES activity_log_entries (id) ON DELETE CASCADE,
-	status webhook_event_status NOT NULL DEFAULT 'pending',
-	retry_count INT NOT NULL DEFAULT 0,
-	run_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-	created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-)
-;
-
-CREATE INDEX idx_webhook_events_pending ON webhook_events (run_at ASC)
-WHERE
-	status = 'pending'
 ;
 
 -- +goose StatementBegin
@@ -111,41 +137,4 @@ VALUES
 	('Team owner', 'webhooks:create'),
 	('Team owner', 'webhooks:update'),
 	('Team owner', 'webhooks:delete')
-;
-
--- +goose Down
-DROP TRIGGER IF EXISTS activity_log_webhook_notify ON activity_log_entries
-;
-
-DROP FUNCTION IF EXISTS webhook_events_notify
-;
-
-DROP TABLE IF EXISTS webhook_events
-;
-
-DROP TYPE IF EXISTS webhook_event_status
-;
-
-DELETE FROM role_authorizations
-WHERE
-	authorization_name IN (
-		'webhooks:create',
-		'webhooks:update',
-		'webhooks:delete'
-	)
-;
-
-DELETE FROM authorizations
-WHERE
-	name IN (
-		'webhooks:create',
-		'webhooks:update',
-		'webhooks:delete'
-	)
-;
-
-DROP TABLE IF EXISTS webhook_deliveries
-;
-
-DROP TABLE IF EXISTS webhook_subscriptions
 ;

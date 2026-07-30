@@ -7,7 +7,8 @@ import (
 )
 
 const (
-	ActivityLogEntryActionCredentialsCreated activitylog.ActivityLogEntryAction = "CREDENTIALS_CREATED"
+	ActivityLogActivityTypeCredentialsCreated activitylog.ActivityLogActivityType = "CREDENTIALS_CREATED"
+	ActivityLogEntryActionCredentialsCreated  activitylog.ActivityLogEntryAction  = "CREDENTIALS_CREATED"
 )
 
 func GetActivityLogEntry(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {

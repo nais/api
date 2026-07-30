@@ -68,7 +68,7 @@ func init() {
 		activitylog.WithDescription("Triggered when service maintenance is started for an OpenSearch instance."),
 	)
 	activitylog.RegisterActivityType(
-		"CREDENTIALS_CREATED",
+		aivencredentials.ActivityLogActivityTypeCredentialsCreated,
 		aivencredentials.ActivityLogEntryActionCredentialsCreated,
 		ActivityLogEntryResourceTypeOpenSearch,
 		activitylog.WithDescription("Triggered when credentials are created for an OpenSearch instance or a Valkey."),

@@ -424,6 +424,11 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	})
 
 	wg.Go(func() error {
+		webhook.RunCleaner(ctx, pool, log.WithField("subsystem", "webhook_cleaner"))
+		return nil
+	})
+
+	wg.Go(func() error {
 		activitylog.RunRefresher(ctx, pool, log.WithField("subsystem", "activitylog_refresher"))
 		return nil
 	})
