@@ -13,6 +13,7 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
 	"github.com/nais/api/internal/activitylog"
+	"github.com/nais/api/internal/activitylog/webhook"
 	"github.com/nais/api/internal/alerts"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/cost"
@@ -51,7 +52,6 @@ import (
 	"github.com/nais/api/internal/usersync"
 	"github.com/nais/api/internal/utilization"
 	"github.com/nais/api/internal/vulnerability"
-	"github.com/nais/api/internal/webhook"
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
 	"github.com/nais/api/internal/workload/config"
@@ -520,7 +520,7 @@ func (ec *executionContext) field_Mutation_createWebhook_args(ctx context.Contex
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input",
 		func(ctx context.Context, v any) (webhook.CreateWebhookInput, error) {
-			return ec.unmarshalNCreateWebhookInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋwebhookᚐCreateWebhookInput(ctx, v)
+			return ec.unmarshalNCreateWebhookInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚋwebhookᚐCreateWebhookInput(ctx, v)
 		})
 	if err != nil {
 		return nil, err
@@ -702,7 +702,7 @@ func (ec *executionContext) field_Mutation_deleteWebhook_args(ctx context.Contex
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input",
 		func(ctx context.Context, v any) (webhook.DeleteWebhookInput, error) {
-			return ec.unmarshalNDeleteWebhookInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋwebhookᚐDeleteWebhookInput(ctx, v)
+			return ec.unmarshalNDeleteWebhookInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚋwebhookᚐDeleteWebhookInput(ctx, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1150,7 +1150,7 @@ func (ec *executionContext) field_Mutation_updateWebhook_args(ctx context.Contex
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input",
 		func(ctx context.Context, v any) (webhook.UpdateWebhookInput, error) {
-			return ec.unmarshalNUpdateWebhookInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋwebhookᚐUpdateWebhookInput(ctx, v)
+			return ec.unmarshalNUpdateWebhookInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚋwebhookᚐUpdateWebhookInput(ctx, v)
 		})
 	if err != nil {
 		return nil, err
@@ -5011,7 +5011,7 @@ func (ec *executionContext) _Mutation_createWebhook(ctx context.Context, field g
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *webhook.CreateWebhookPayload) graphql.Marshaler {
-			return ec.marshalNCreateWebhookPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋwebhookᚐCreateWebhookPayload(ctx, selections, v)
+			return ec.marshalNCreateWebhookPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚋwebhookᚐCreateWebhookPayload(ctx, selections, v)
 		},
 		true,
 		true,
@@ -5055,7 +5055,7 @@ func (ec *executionContext) _Mutation_updateWebhook(ctx context.Context, field g
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *webhook.UpdateWebhookPayload) graphql.Marshaler {
-			return ec.marshalNUpdateWebhookPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋwebhookᚐUpdateWebhookPayload(ctx, selections, v)
+			return ec.marshalNUpdateWebhookPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚋwebhookᚐUpdateWebhookPayload(ctx, selections, v)
 		},
 		true,
 		true,
@@ -5099,7 +5099,7 @@ func (ec *executionContext) _Mutation_deleteWebhook(ctx context.Context, field g
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *webhook.DeleteWebhookPayload) graphql.Marshaler {
-			return ec.marshalNDeleteWebhookPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋwebhookᚐDeleteWebhookPayload(ctx, selections, v)
+			return ec.marshalNDeleteWebhookPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚋwebhookᚐDeleteWebhookPayload(ctx, selections, v)
 		},
 		true,
 		true,

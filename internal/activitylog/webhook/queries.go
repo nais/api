@@ -7,11 +7,11 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/activitylog"
+	"github.com/nais/api/internal/activitylog/webhook/webhooksql"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/slug"
-	"github.com/nais/api/internal/webhook/webhooksql"
 )
 
 func GetSubscription(ctx context.Context, id uuid.UUID) (*WebhookSubscription, error) {
