@@ -21,6 +21,17 @@ func tryWorkload(ctx context.Context, teamSlug slug.Slug, environmentName, workl
 	return job.Get(ctx, teamSlug, environmentName, workloadName)
 }
 
+// workloadOrNil resolves a name-based workload reference, returning nil when no workload matches. Unlike
+// [tryWorkload] it never returns a nil pointer wrapped in a non-nil interface, so callers can compare the
+// result against nil. Used for references that are allowed to dangle, such as service account bindings.
+func workloadOrNil(ctx context.Context, teamSlug slug.Slug, environmentName, workloadName string) workload.Workload {
+	w, err := tryWorkload(ctx, teamSlug, environmentName, workloadName)
+	if err != nil {
+		return nil
+	}
+	return w
+}
+
 func getWorkload(ctx context.Context, workloadReference *workload.Reference, teamSlug slug.Slug, environmentName string) (workload.Workload, error) {
 	if workloadReference == nil {
 		return nil, nil

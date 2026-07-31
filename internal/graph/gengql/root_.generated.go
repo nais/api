@@ -118,6 +118,8 @@ type ResolverRoot interface {
 	SecretConnection() SecretConnectionResolver
 	ServiceAccount() ServiceAccountResolver
 	ServiceAccountWorkloadBinding() ServiceAccountWorkloadBindingResolver
+	ServiceAccountWorkloadBindingAddedActivityLogEntryData() ServiceAccountWorkloadBindingAddedActivityLogEntryDataResolver
+	ServiceAccountWorkloadBindingRemovedActivityLogEntryData() ServiceAccountWorkloadBindingRemovedActivityLogEntryDataResolver
 	SqlDatabase() SqlDatabaseResolver
 	SqlInstance() SqlInstanceResolver
 	SqlInstanceMetrics() SqlInstanceMetricsResolver
@@ -2483,6 +2485,7 @@ type ComplexityRoot struct {
 
 	ServiceAccountWorkloadBindingAddedActivityLogEntryData struct {
 		TeamSlug     func(childComplexity int) int
+		Workload     func(childComplexity int) int
 		WorkloadName func(childComplexity int) int
 	}
 
@@ -2511,6 +2514,7 @@ type ComplexityRoot struct {
 
 	ServiceAccountWorkloadBindingRemovedActivityLogEntryData struct {
 		TeamSlug     func(childComplexity int) int
+		Workload     func(childComplexity int) int
 		WorkloadName func(childComplexity int) int
 	}
 
@@ -13947,6 +13951,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ServiceAccountWorkloadBindingAddedActivityLogEntryData.TeamSlug(childComplexity), true
 
+	case "ServiceAccountWorkloadBindingAddedActivityLogEntryData.workload":
+		if e.ComplexityRoot.ServiceAccountWorkloadBindingAddedActivityLogEntryData.Workload == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ServiceAccountWorkloadBindingAddedActivityLogEntryData.Workload(childComplexity), true
+
 	case "ServiceAccountWorkloadBindingAddedActivityLogEntryData.workloadName":
 		if e.ComplexityRoot.ServiceAccountWorkloadBindingAddedActivityLogEntryData.WorkloadName == nil {
 			break
@@ -14058,6 +14069,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ServiceAccountWorkloadBindingRemovedActivityLogEntryData.TeamSlug(childComplexity), true
+
+	case "ServiceAccountWorkloadBindingRemovedActivityLogEntryData.workload":
+		if e.ComplexityRoot.ServiceAccountWorkloadBindingRemovedActivityLogEntryData.Workload == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ServiceAccountWorkloadBindingRemovedActivityLogEntryData.Workload(childComplexity), true
 
 	case "ServiceAccountWorkloadBindingRemovedActivityLogEntryData.workloadName":
 		if e.ComplexityRoot.ServiceAccountWorkloadBindingRemovedActivityLogEntryData.WorkloadName == nil {
@@ -27425,6 +27443,11 @@ type ServiceAccountWorkloadBindingAddedActivityLogEntryData {
 	The name of the workload.
 	"""
 	workloadName: String!
+
+	"""
+	The workload the binding refers to. Null if the workload no longer exists, or has not been deployed yet.
+	"""
+	workload: Workload
 }
 
 type ServiceAccountWorkloadBindingRemovedActivityLogEntry implements ActivityLogEntry & Node {
@@ -27484,6 +27507,11 @@ type ServiceAccountWorkloadBindingRemovedActivityLogEntryData {
 	The name of the workload.
 	"""
 	workloadName: String!
+
+	"""
+	The workload the binding refers to. Null if the workload no longer exists, or has not been deployed yet.
+	"""
+	workload: Workload
 }
 
 extend enum ActivityLogActivityType {
@@ -35812,6 +35840,8 @@ func (ec *executionContext) childFields_ServiceAccountWorkloadBindingAddedActivi
 		return ec.fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntryData_teamSlug(ctx, field)
 	case "workloadName":
 		return ec.fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntryData_workloadName(ctx, field)
+	case "workload":
+		return ec.fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntryData_workload(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type ServiceAccountWorkloadBindingAddedActivityLogEntryData", field.Name)
 }
@@ -35844,6 +35874,8 @@ func (ec *executionContext) childFields_ServiceAccountWorkloadBindingRemovedActi
 		return ec.fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntryData_teamSlug(ctx, field)
 	case "workloadName":
 		return ec.fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntryData_workloadName(ctx, field)
+	case "workload":
+		return ec.fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntryData_workload(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type ServiceAccountWorkloadBindingRemovedActivityLogEntryData", field.Name)
 }
