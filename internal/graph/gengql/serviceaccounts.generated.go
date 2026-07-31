@@ -2815,6 +2815,29 @@ func (ec *executionContext) fieldContext_ServiceAccountTokenUpdatedActivityLogEn
 	return fc, nil
 }
 
+func (ec *executionContext) _ServiceAccountTokenUpdatedActivityLogEntryData_tokenName(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountTokenUpdatedActivityLogEntryData) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ServiceAccountTokenUpdatedActivityLogEntryData_tokenName(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.TokenName, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_ServiceAccountTokenUpdatedActivityLogEntryData_tokenName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("ServiceAccountTokenUpdatedActivityLogEntryData", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
 func (ec *executionContext) _ServiceAccountTokenUpdatedActivityLogEntryData_updatedFields(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountTokenUpdatedActivityLogEntryData) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -5059,6 +5082,8 @@ func (ec *executionContext) _ServiceAccountTokenUpdatedActivityLogEntryData(ctx 
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("ServiceAccountTokenUpdatedActivityLogEntryData")
+		case "tokenName":
+			out.Values[i] = ec._ServiceAccountTokenUpdatedActivityLogEntryData_tokenName(ctx, field, obj)
 		case "updatedFields":
 			out.Values[i] = ec._ServiceAccountTokenUpdatedActivityLogEntryData_updatedFields(ctx, field, obj)
 			if out.Values[i] == graphql.Null {

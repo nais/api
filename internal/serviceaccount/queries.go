@@ -290,15 +290,10 @@ func UpdateToken(ctx context.Context, input UpdateServiceAccountTokenInput) (*Se
 			ResourceType: ActivityLogEntryResourceTypeServiceAccount,
 			ResourceName: sa.Name,
 			TeamSlug:     sa.TeamSlug,
-			Data: func(fields []*ServiceAccountTokenUpdatedActivityLogEntryDataUpdatedField) *ServiceAccountTokenUpdatedActivityLogEntryData {
-				if len(fields) == 0 {
-					return nil
-				}
-
-				return &ServiceAccountTokenUpdatedActivityLogEntryData{
-					UpdatedFields: fields,
-				}
-			}(updatedFields),
+			Data: &ServiceAccountTokenUpdatedActivityLogEntryData{
+				TokenName:     &t.Name,
+				UpdatedFields: updatedFields,
+			},
 		})
 	})
 	if err != nil {

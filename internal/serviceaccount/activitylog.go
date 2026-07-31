@@ -59,7 +59,7 @@ func init() {
 		case activityLogEntryActionUpdateServiceAccountToken:
 			data, err := activitylog.TransformData(entry, func(data *ServiceAccountTokenUpdatedActivityLogEntryData) *ServiceAccountTokenUpdatedActivityLogEntryData {
 				if len(data.UpdatedFields) == 0 {
-					return &ServiceAccountTokenUpdatedActivityLogEntryData{}
+					return &ServiceAccountTokenUpdatedActivityLogEntryData{TokenName: data.TokenName}
 				}
 				return data
 			})
@@ -194,6 +194,8 @@ type ServiceAccountTokenUpdatedActivityLogEntry struct {
 }
 
 type ServiceAccountTokenUpdatedActivityLogEntryData struct {
+	// Nil for entries written before this field existed.
+	TokenName     *string                                                       `json:"tokenName,omitempty"`
 	UpdatedFields []*ServiceAccountTokenUpdatedActivityLogEntryDataUpdatedField `json:"updatedFields"`
 }
 

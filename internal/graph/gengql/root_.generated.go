@@ -2425,6 +2425,7 @@ type ComplexityRoot struct {
 	}
 
 	ServiceAccountTokenUpdatedActivityLogEntryData struct {
+		TokenName     func(childComplexity int) int
 		UpdatedFields func(childComplexity int) int
 	}
 
@@ -13686,6 +13687,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ServiceAccountTokenUpdatedActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "ServiceAccountTokenUpdatedActivityLogEntryData.tokenName":
+		if e.ComplexityRoot.ServiceAccountTokenUpdatedActivityLogEntryData.TokenName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ServiceAccountTokenUpdatedActivityLogEntryData.TokenName(childComplexity), true
 
 	case "ServiceAccountTokenUpdatedActivityLogEntryData.updatedFields":
 		if e.ComplexityRoot.ServiceAccountTokenUpdatedActivityLogEntryData.UpdatedFields == nil {
@@ -28389,6 +28397,11 @@ type ServiceAccountTokenUpdatedActivityLogEntry implements ActivityLogEntry & No
 
 type ServiceAccountTokenUpdatedActivityLogEntryData {
 	"""
+	The name of the service account token that was updated. Null if the entry predates this field being recorded.
+	"""
+	tokenName: String
+
+	"""
 	Fields that were updated.
 	"""
 	updatedFields: [ServiceAccountTokenUpdatedActivityLogEntryDataUpdatedField!]!
@@ -35729,6 +35742,8 @@ func (ec *executionContext) childFields_ServiceAccountTokenEdge(ctx context.Cont
 
 func (ec *executionContext) childFields_ServiceAccountTokenUpdatedActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
+	case "tokenName":
+		return ec.fieldContext_ServiceAccountTokenUpdatedActivityLogEntryData_tokenName(ctx, field)
 	case "updatedFields":
 		return ec.fieldContext_ServiceAccountTokenUpdatedActivityLogEntryData_updatedFields(ctx, field)
 	}
