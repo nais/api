@@ -18,17 +18,18 @@ func tryWorkload(ctx context.Context, teamSlug slug.Slug, environmentName, workl
 		return app, nil
 	}
 
-	return job.Get(ctx, teamSlug, environmentName, workloadName)
+	j, err := job.Get(ctx, teamSlug, environmentName, workloadName)
+	if err != nil {
+		// Returning j here would wrap a nil pointer in a non-nil interface.
+		return nil, err
+	}
+	return j, nil
 }
 
-// workloadOrNil resolves a name-based workload reference, returning nil when no workload matches. Unlike
-// [tryWorkload] it never returns a nil pointer wrapped in a non-nil interface, so callers can compare the
-// result against nil. Used for references that are allowed to dangle, such as service account bindings.
+// workloadOrNil resolves a workload reference that is allowed to dangle, such as a service account
+// binding.
 func workloadOrNil(ctx context.Context, teamSlug slug.Slug, environmentName, workloadName string) workload.Workload {
-	w, err := tryWorkload(ctx, teamSlug, environmentName, workloadName)
-	if err != nil {
-		return nil
-	}
+	w, _ := tryWorkload(ctx, teamSlug, environmentName, workloadName)
 	return w
 }
 
