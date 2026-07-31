@@ -480,16 +480,16 @@ func (ec *executionContext) _AuthenticatedUser(ctx context.Context, sel ast.Sele
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
-	case *user.User:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._User(ctx, sel, obj)
 	case *serviceaccount.ServiceAccount:
 		if obj == nil {
 			return graphql.Null
 		}
 		return ec._ServiceAccount(ctx, sel, obj)
+	case *user.User:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._User(ctx, sel, obj)
 	default:
 		if typedObj, ok := obj.(graphql.Marshaler); ok {
 			return typedObj

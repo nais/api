@@ -102,7 +102,7 @@ func AddWorkloadBinding(ctx context.Context, input AddWorkloadToServiceAccountIn
 		return activitylog.Create(ctx, activitylog.CreateInput{
 			Action:          activityLogEntryActionAddServiceAccountWorkloadBinding,
 			Actor:           authz.ActorFromContext(ctx).User,
-			ResourceType:    activityLogEntryResourceTypeServiceAccount,
+			ResourceType:    ActivityLogEntryResourceTypeServiceAccount,
 			ResourceName:    sa.Name,
 			TeamSlug:        sa.TeamSlug,
 			EnvironmentName: &input.Environment,
@@ -145,7 +145,7 @@ func RemoveWorkloadBinding(ctx context.Context, input RemoveWorkloadFromServiceA
 		return activitylog.Create(ctx, activitylog.CreateInput{
 			Action:          activityLogEntryActionRemoveServiceAccountWorkloadBinding,
 			Actor:           authz.ActorFromContext(ctx).User,
-			ResourceType:    activityLogEntryResourceTypeServiceAccount,
+			ResourceType:    ActivityLogEntryResourceTypeServiceAccount,
 			ResourceName:    sa.Name,
 			TeamSlug:        sa.TeamSlug,
 			EnvironmentName: &env,

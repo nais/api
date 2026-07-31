@@ -184,6 +184,51 @@ func ListForResource(ctx context.Context, resourceType ActivityLogEntryResourceT
 	}, nil
 }
 
+// ListForResourceAndTeam lists entries for one resource owned by teamSlug. A nil teamSlug means the
+// tenant-wide resource, making it safe for names that are only unique within a team.
+func ListForResourceAndTeam(ctx context.Context, resourceType ActivityLogEntryResourceType, teamSlug *slug.Slug, resourceName string, page *pagination.Pagination, filter *ActivityLogFilter) (*ActivityLogEntryConnection, error) {
+	q := db(ctx)
+
+	ret, err := q.ListForResourceAndTeam(ctx, activitylogsql.ListForResourceAndTeamParams{
+		ResourceType:  string(resourceType),
+		ResourceName:  resourceName,
+		TeamSlug:      (*string)(teamSlug),
+		Offset:        page.Offset(),
+		Limit:         page.Limit(),
+		Filter:        withFilters(filter),
+		ResourceTypes: withResourceTypes(filter),
+		Environments:  withEnvironments(filter),
+		From:          withFrom(filter),
+		To:            withTo(filter),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	var total int64
+	if len(ret) > 0 {
+		total = ret[0].TotalCount
+	}
+
+	conn, err := pagination.NewConvertConnectionWithError(ret, page, total, func(from *activitylogsql.ListForResourceAndTeamRow) (ActivityLogEntry, error) {
+		return toGraphActivityLogEntry(&from.ActivityLogCombinedView)
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &ActivityLogEntryConnection{
+		Connection: *conn,
+		scope: &ActivityLogScope{
+			TeamSlug:      teamSlug,
+			ResourceType:  new(string(resourceType)),
+			ResourceName:  &resourceName,
+			MatchNullTeam: true,
+		},
+		filter: filter,
+	}, nil
+}
+
 func ListForResourceTeamAndEnvironment(ctx context.Context, resourceType ActivityLogEntryResourceType, teamSlug slug.Slug, resourceName, environmentName string, page *pagination.Pagination, filter *ActivityLogFilter) (*ActivityLogEntryConnection, error) {
 	q := db(ctx)
 

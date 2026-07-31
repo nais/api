@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	activityLogEntryResourceTypeServiceAccount                activitylog.ActivityLogEntryResourceType = "SERVICE_ACCOUNT"
+	ActivityLogEntryResourceTypeServiceAccount                activitylog.ActivityLogEntryResourceType = "SERVICE_ACCOUNT"
 	activityLogEntryActionAssignServiceAccountRole            activitylog.ActivityLogEntryAction       = "ASSIGN_SERVICE_ACCOUNT_TOKEN_ROLE"
 	activityLogEntryActionRevokeServiceAccountRole            activitylog.ActivityLogEntryAction       = "REVOKE_SERVICE_ACCOUNT_TOKEN_ROLE"
 	activityLogEntryActionCreateServiceAccountToken           activitylog.ActivityLogEntryAction       = "CREATE_SERVICE_ACCOUNT_TOKEN"
@@ -19,7 +19,7 @@ const (
 )
 
 func init() {
-	activitylog.RegisterTransformer(activityLogEntryResourceTypeServiceAccount, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
+	activitylog.RegisterTransformer(ActivityLogEntryResourceTypeServiceAccount, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
 		switch entry.Action {
 		case activitylog.ActivityLogEntryActionCreated:
 			return ServiceAccountCreatedActivityLogEntry{
@@ -136,16 +136,16 @@ func init() {
 		}
 	})
 
-	activitylog.RegisterFilter("SERVICE_ACCOUNT_CREATED", activitylog.ActivityLogEntryActionCreated, activityLogEntryResourceTypeServiceAccount)
-	activitylog.RegisterFilter("SERVICE_ACCOUNT_UPDATED", activitylog.ActivityLogEntryActionUpdated, activityLogEntryResourceTypeServiceAccount)
-	activitylog.RegisterFilter("SERVICE_ACCOUNT_DELETED", activitylog.ActivityLogEntryActionDeleted, activityLogEntryResourceTypeServiceAccount)
-	activitylog.RegisterFilter("SERVICE_ACCOUNT_TOKEN_CREATED", activityLogEntryActionCreateServiceAccountToken, activityLogEntryResourceTypeServiceAccount)
-	activitylog.RegisterFilter("SERVICE_ACCOUNT_TOKEN_UPDATED", activityLogEntryActionUpdateServiceAccountToken, activityLogEntryResourceTypeServiceAccount)
-	activitylog.RegisterFilter("SERVICE_ACCOUNT_TOKEN_DELETED", activityLogEntryActionDeleteServiceAccountToken, activityLogEntryResourceTypeServiceAccount)
-	activitylog.RegisterFilter("SERVICE_ACCOUNT_ROLE_ASSIGNED", activityLogEntryActionAssignServiceAccountRole, activityLogEntryResourceTypeServiceAccount)
-	activitylog.RegisterFilter("SERVICE_ACCOUNT_ROLE_REVOKED", activityLogEntryActionRevokeServiceAccountRole, activityLogEntryResourceTypeServiceAccount)
-	activitylog.RegisterFilter("SERVICE_ACCOUNT_WORKLOAD_BINDING_ADDED", activityLogEntryActionAddServiceAccountWorkloadBinding, activityLogEntryResourceTypeServiceAccount)
-	activitylog.RegisterFilter("SERVICE_ACCOUNT_WORKLOAD_BINDING_REMOVED", activityLogEntryActionRemoveServiceAccountWorkloadBinding, activityLogEntryResourceTypeServiceAccount)
+	activitylog.RegisterFilter("SERVICE_ACCOUNT_CREATED", activitylog.ActivityLogEntryActionCreated, ActivityLogEntryResourceTypeServiceAccount)
+	activitylog.RegisterFilter("SERVICE_ACCOUNT_UPDATED", activitylog.ActivityLogEntryActionUpdated, ActivityLogEntryResourceTypeServiceAccount)
+	activitylog.RegisterFilter("SERVICE_ACCOUNT_DELETED", activitylog.ActivityLogEntryActionDeleted, ActivityLogEntryResourceTypeServiceAccount)
+	activitylog.RegisterFilter("SERVICE_ACCOUNT_TOKEN_CREATED", activityLogEntryActionCreateServiceAccountToken, ActivityLogEntryResourceTypeServiceAccount)
+	activitylog.RegisterFilter("SERVICE_ACCOUNT_TOKEN_UPDATED", activityLogEntryActionUpdateServiceAccountToken, ActivityLogEntryResourceTypeServiceAccount)
+	activitylog.RegisterFilter("SERVICE_ACCOUNT_TOKEN_DELETED", activityLogEntryActionDeleteServiceAccountToken, ActivityLogEntryResourceTypeServiceAccount)
+	activitylog.RegisterFilter("SERVICE_ACCOUNT_ROLE_ASSIGNED", activityLogEntryActionAssignServiceAccountRole, ActivityLogEntryResourceTypeServiceAccount)
+	activitylog.RegisterFilter("SERVICE_ACCOUNT_ROLE_REVOKED", activityLogEntryActionRevokeServiceAccountRole, ActivityLogEntryResourceTypeServiceAccount)
+	activitylog.RegisterFilter("SERVICE_ACCOUNT_WORKLOAD_BINDING_ADDED", activityLogEntryActionAddServiceAccountWorkloadBinding, ActivityLogEntryResourceTypeServiceAccount)
+	activitylog.RegisterFilter("SERVICE_ACCOUNT_WORKLOAD_BINDING_REMOVED", activityLogEntryActionRemoveServiceAccountWorkloadBinding, ActivityLogEntryResourceTypeServiceAccount)
 }
 
 type RoleAssignedToServiceAccountActivityLogEntry struct {

@@ -6320,6 +6320,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._ServiceAccountCreatedActivityLogEntry(ctx, sel, obj)
+	case serviceaccount.ServiceAccount:
+		return ec._ServiceAccount(ctx, sel, &obj)
+	case *serviceaccount.ServiceAccount:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ServiceAccount(ctx, sel, obj)
 	case secret.SecretValuesViewedActivityLogEntry:
 		return ec._SecretValuesViewedActivityLogEntry(ctx, sel, &obj)
 	case *secret.SecretValuesViewedActivityLogEntry:
@@ -6801,13 +6808,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._ServiceAccountToken(ctx, sel, obj)
-	case serviceaccount.ServiceAccount:
-		return ec._ServiceAccount(ctx, sel, &obj)
-	case *serviceaccount.ServiceAccount:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._ServiceAccount(ctx, sel, obj)
 	case *authz.Role:
 		if obj == nil {
 			return graphql.Null

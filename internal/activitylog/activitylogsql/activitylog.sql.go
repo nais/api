@@ -90,28 +90,33 @@ FROM
 	activity_log_combined_view
 WHERE
 	(
-		$6::TEXT IS NULL
-		OR team_slug = $6
-	)
-	AND (
-		$7::TEXT IS NULL
-		OR resource_type = $7
+		CASE
+		-- When match_null_team is set, a NULL team_slug scopes to tenant-wide resources instead of
+		-- meaning "any team". Keeps facet counts consistent with ListForResourceAndTeam.
+			WHEN $6::BOOLEAN THEN team_slug IS NOT DISTINCT FROM $7::TEXT
+			WHEN $7::TEXT IS NULL THEN TRUE
+			ELSE team_slug = $7
+		END
 	)
 	AND (
 		$8::TEXT IS NULL
-		OR resource_name = $8
+		OR resource_type = $8
 	)
 	AND (
 		$9::TEXT IS NULL
-		OR environment = $9
+		OR resource_name = $9
 	)
 	AND (
-		$10::TIMESTAMPTZ IS NULL
-		OR created_at >= $10::TIMESTAMPTZ
+		$10::TEXT IS NULL
+		OR environment = $10
 	)
 	AND (
 		$11::TIMESTAMPTZ IS NULL
-		OR created_at < $11::TIMESTAMPTZ
+		OR created_at >= $11::TIMESTAMPTZ
+	)
+	AND (
+		$12::TIMESTAMPTZ IS NULL
+		OR created_at < $12::TIMESTAMPTZ
 	)
 GROUP BY
 	resource_type,
@@ -129,6 +134,7 @@ type FacetsForActivityTypesParams struct {
 	FilterEnvironments  []string
 	FilterFrom          pgtype.Timestamptz
 	FilterTo            pgtype.Timestamptz
+	MatchNullTeam       bool
 	TeamSlug            *string
 	ResourceType        *string
 	ResourceName        *string
@@ -152,6 +158,7 @@ func (q *Queries) FacetsForActivityTypes(ctx context.Context, arg FacetsForActiv
 		arg.FilterEnvironments,
 		arg.FilterFrom,
 		arg.FilterTo,
+		arg.MatchNullTeam,
 		arg.TeamSlug,
 		arg.ResourceType,
 		arg.ResourceName,
@@ -323,6 +330,108 @@ func (q *Queries) ListForResource(ctx context.Context, arg ListForResourceParams
 	items := []*ListForResourceRow{}
 	for rows.Next() {
 		var i ListForResourceRow
+		if err := rows.Scan(
+			&i.ActivityLogCombinedView.ID,
+			&i.ActivityLogCombinedView.CreatedAt,
+			&i.ActivityLogCombinedView.Actor,
+			&i.ActivityLogCombinedView.Action,
+			&i.ActivityLogCombinedView.ResourceType,
+			&i.ActivityLogCombinedView.ResourceName,
+			&i.ActivityLogCombinedView.TeamSlug,
+			&i.ActivityLogCombinedView.Data,
+			&i.ActivityLogCombinedView.Environment,
+			&i.TotalCount,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listForResourceAndTeam = `-- name: ListForResourceAndTeam :many
+SELECT
+	activity_log_combined_view.id, activity_log_combined_view.created_at, activity_log_combined_view.actor, activity_log_combined_view.action, activity_log_combined_view.resource_type, activity_log_combined_view.resource_name, activity_log_combined_view.team_slug, activity_log_combined_view.data, activity_log_combined_view.environment,
+	COUNT(*) OVER () AS total_count
+FROM
+	activity_log_combined_view
+WHERE
+	resource_type = $1
+	AND resource_name = $2
+	AND team_slug IS NOT DISTINCT FROM $3::TEXT
+	AND (
+		$4::TEXT[] IS NULL
+		OR (resource_type || ':' || action) = ANY ($4::TEXT[])
+	)
+	AND (
+		$5::TEXT[] IS NULL
+		OR resource_type = ANY ($5::TEXT[])
+	)
+	AND (
+		$6::TEXT[] IS NULL
+		OR environment = ANY ($6::TEXT[])
+	)
+	AND (
+		$7::TIMESTAMPTZ IS NULL
+		OR created_at >= $7::TIMESTAMPTZ
+	)
+	AND (
+		$8::TIMESTAMPTZ IS NULL
+		OR created_at < $8::TIMESTAMPTZ
+	)
+ORDER BY
+	created_at DESC
+LIMIT
+	$10
+OFFSET
+	$9
+`
+
+type ListForResourceAndTeamParams struct {
+	ResourceType  string
+	ResourceName  string
+	TeamSlug      *string
+	Filter        []string
+	ResourceTypes []string
+	Environments  []string
+	From          pgtype.Timestamptz
+	To            pgtype.Timestamptz
+	Offset        int32
+	Limit         int32
+}
+
+type ListForResourceAndTeamRow struct {
+	ActivityLogCombinedView ActivityLogCombinedView
+	TotalCount              int64
+}
+
+// Scopes entries to a single resource owned by a specific team. Unlike ListForResource, a NULL team_slug
+// matches only entries with a NULL team_slug (tenant-wide resources) rather than every team. This mirrors
+// the "NULLS NOT DISTINCT" unique index on service_accounts (name, team_slug), where the name alone is not
+// unique across the tenant.
+func (q *Queries) ListForResourceAndTeam(ctx context.Context, arg ListForResourceAndTeamParams) ([]*ListForResourceAndTeamRow, error) {
+	rows, err := q.db.Query(ctx, listForResourceAndTeam,
+		arg.ResourceType,
+		arg.ResourceName,
+		arg.TeamSlug,
+		arg.Filter,
+		arg.ResourceTypes,
+		arg.Environments,
+		arg.From,
+		arg.To,
+		arg.Offset,
+		arg.Limit,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*ListForResourceAndTeamRow{}
+	for rows.Next() {
+		var i ListForResourceAndTeamRow
 		if err := rows.Scan(
 			&i.ActivityLogCombinedView.ID,
 			&i.ActivityLogCombinedView.CreatedAt,

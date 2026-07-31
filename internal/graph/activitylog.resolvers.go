@@ -10,6 +10,7 @@ import (
 	"github.com/nais/api/internal/persistence/opensearch"
 	"github.com/nais/api/internal/persistence/valkey"
 	"github.com/nais/api/internal/reconciler"
+	"github.com/nais/api/internal/serviceaccount"
 	"github.com/nais/api/internal/team"
 )
 
@@ -50,6 +51,22 @@ func (r *reconcilerResolver) ActivityLog(ctx context.Context, obj *reconciler.Re
 	}
 
 	return activitylog.ListForResource(ctx, reconciler.ActivityLogEntryResourceTypeReconciler, obj.Name, page, filter)
+}
+
+func (r *serviceAccountResolver) ActivityLog(ctx context.Context, obj *serviceaccount.ServiceAccount, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*activitylog.ActivityLogEntryConnection, error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+
+	return activitylog.ListForResourceAndTeam(
+		ctx,
+		serviceaccount.ActivityLogEntryResourceTypeServiceAccount,
+		obj.TeamSlug,
+		obj.Name,
+		page,
+		filter,
+	)
 }
 
 func (r *teamResolver) ActivityLog(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*activitylog.ActivityLogEntryConnection, error) {

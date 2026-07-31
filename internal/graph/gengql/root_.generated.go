@@ -2313,6 +2313,7 @@ type ComplexityRoot struct {
 	}
 
 	ServiceAccount struct {
+		ActivityLog      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int
 		CreatedAt        func(childComplexity int) int
 		Description      func(childComplexity int) int
 		ID               func(childComplexity int) int
@@ -13155,6 +13156,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.SecretValuesViewedActivityLogEntryData.Reason(childComplexity), true
 
+	case "ServiceAccount.activityLog":
+		if e.ComplexityRoot.ServiceAccount.ActivityLog == nil {
+			break
+		}
+
+		args, err := ec.field_ServiceAccount_activityLog_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.ServiceAccount.ActivityLog(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["filter"].(*activitylog.ActivityLogFilter)), true
+
 	case "ServiceAccount.createdAt":
 		if e.ComplexityRoot.ServiceAccount.CreatedAt == nil {
 			break
@@ -19549,6 +19562,38 @@ extend type OpenSearch implements ActivityLogger {
 extend type Valkey implements ActivityLogger {
 	"""
 	Activity log associated with the reconciler.
+	"""
+	activityLog(
+		"""
+		Get the first n items in the connection. This can be used in combination with the after parameter.
+		"""
+		first: Int
+
+		"""
+		Get items after this cursor.
+		"""
+		after: Cursor
+
+		"""
+		Get the last n items in the connection. This can be used in combination with the before parameter.
+		"""
+		last: Int
+
+		"""
+		Get items before this cursor.
+		"""
+		before: Cursor
+
+		"""
+		Filter items.
+		"""
+		filter: ActivityLogFilter
+	): ActivityLogEntryConnection!
+}
+
+extend type ServiceAccount implements ActivityLogger {
+	"""
+	Activity log associated with the service account.
 	"""
 	activityLog(
 		"""
@@ -35594,6 +35639,8 @@ func (ec *executionContext) childFields_ServiceAccount(ctx context.Context, fiel
 		return ec.fieldContext_ServiceAccount_roles(ctx, field)
 	case "tokens":
 		return ec.fieldContext_ServiceAccount_tokens(ctx, field)
+	case "activityLog":
+		return ec.fieldContext_ServiceAccount_activityLog(ctx, field)
 	case "workloadBindings":
 		return ec.fieldContext_ServiceAccount_workloadBindings(ctx, field)
 	}

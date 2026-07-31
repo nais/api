@@ -29,6 +29,7 @@ type ServiceAccount struct {
 }
 
 func (ServiceAccount) IsNode()                   {}
+func (ServiceAccount) IsActivityLogger()         {}
 func (s *ServiceAccount) GetID() uuid.UUID       { return s.UUID }
 func (s *ServiceAccount) Identity() string       { return s.Name }
 func (s *ServiceAccount) IsServiceAccount() bool { return true }
