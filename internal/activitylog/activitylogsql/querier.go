@@ -14,10 +14,8 @@ type Querier interface {
 	Get(ctx context.Context, id uuid.UUID) (*ActivityLogCombinedView, error)
 	ListByIDs(ctx context.Context, ids []uuid.UUID) ([]*ActivityLogCombinedView, error)
 	ListForResource(ctx context.Context, arg ListForResourceParams) ([]*ListForResourceRow, error)
-	// Scopes entries to a single resource owned by a specific team. Unlike ListForResource, a NULL team_slug
-	// matches only entries with a NULL team_slug (tenant-wide resources) rather than every team. This mirrors
-	// the "NULLS NOT DISTINCT" unique index on service_accounts (name, team_slug), where the name alone is not
-	// unique across the tenant.
+	// A NULL team_slug matches tenant-wide resources only, not every team, mirroring the NULLS NOT DISTINCT
+	// index on service_accounts (name, team_slug).
 	ListForResourceAndTeam(ctx context.Context, arg ListForResourceAndTeamParams) ([]*ListForResourceAndTeamRow, error)
 	ListForResourceTeamAndEnvironment(ctx context.Context, arg ListForResourceTeamAndEnvironmentParams) ([]*ListForResourceTeamAndEnvironmentRow, error)
 	ListForTeam(ctx context.Context, arg ListForTeamParams) ([]*ListForTeamRow, error)

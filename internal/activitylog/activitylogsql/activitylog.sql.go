@@ -91,8 +91,7 @@ FROM
 WHERE
 	(
 		CASE
-		-- When match_null_team is set, a NULL team_slug scopes to tenant-wide resources instead of
-		-- meaning "any team". Keeps facet counts consistent with ListForResourceAndTeam.
+		-- match_null_team keeps facet counts consistent with ListForResourceAndTeam.
 			WHEN $6::BOOLEAN THEN team_slug IS NOT DISTINCT FROM $7::TEXT
 			WHEN $7::TEXT IS NULL THEN TRUE
 			ELSE team_slug = $7
@@ -408,10 +407,8 @@ type ListForResourceAndTeamRow struct {
 	TotalCount              int64
 }
 
-// Scopes entries to a single resource owned by a specific team. Unlike ListForResource, a NULL team_slug
-// matches only entries with a NULL team_slug (tenant-wide resources) rather than every team. This mirrors
-// the "NULLS NOT DISTINCT" unique index on service_accounts (name, team_slug), where the name alone is not
-// unique across the tenant.
+// A NULL team_slug matches tenant-wide resources only, not every team, mirroring the NULLS NOT DISTINCT
+// index on service_accounts (name, team_slug).
 func (q *Queries) ListForResourceAndTeam(ctx context.Context, arg ListForResourceAndTeamParams) ([]*ListForResourceAndTeamRow, error) {
 	rows, err := q.db.Query(ctx, listForResourceAndTeam,
 		arg.ResourceType,
