@@ -220,6 +220,14 @@ rules:
       - list
       - watch
   - apiGroups:
+      - aiven.io
+    resources:
+      - opensearches
+      - valkeys
+    verbs:
+      - list
+      - watch
+  - apiGroups:
       - ""
     resources:
       - users
