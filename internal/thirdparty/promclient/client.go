@@ -167,12 +167,12 @@ func filterRulesByTeam(in promv1.RulesResult, env string, teamSlug slug.Slug) pr
 
 	for _, g := range in.Groups {
 		splittedFile := strings.Split(g.File, "/")
-		if len(splittedFile) < 2 {
+		if len(splittedFile) < 3 {
 			continue
 		}
 
 		cluster := splittedFile[0]
-		namespace := splittedFile[1]
+		namespace := splittedFile[2]
 
 		var filtered promv1.Rules
 		if namespace == teamSlug.String() {
