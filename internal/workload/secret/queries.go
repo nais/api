@@ -745,9 +745,27 @@ func ViewSecretValues(ctx context.Context, input ViewSecretValuesInput) (*ViewSe
 		return nil, fmt.Errorf("creating impersonated client: %w", err)
 	}
 
-	u, err := impersonatedClient.Namespace(input.Team.String()).Get(ctx, input.Name, v1.GetOptions{})
-	if err != nil {
-		return nil, fmt.Errorf("reading secret: %w", err)
+	// Retry the read with backoff to allow Kubernetes RBAC to propagate.
+	// The temporary Role/RoleBinding we just created may not be visible to the
+	// API server immediately.
+	var u *unstructured.Unstructured
+	backoff := []time.Duration{100 * time.Millisecond, 250 * time.Millisecond, 500 * time.Millisecond, 1000 * time.Millisecond}
+	for attempt := range len(backoff) + 1 {
+		u, err = impersonatedClient.Namespace(input.Team.String()).Get(ctx, input.Name, v1.GetOptions{})
+		if err == nil {
+			break
+		}
+		if !k8serrors.IsForbidden(err) {
+			return nil, fmt.Errorf("reading secret: %w", err)
+		}
+		if attempt == len(backoff) {
+			return nil, fmt.Errorf("reading secret: %w", err)
+		}
+		select {
+		case <-time.After(backoff[attempt]):
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		}
 	}
 
 	data, _, err := unstructured.NestedStringMap(u.Object, "data")
