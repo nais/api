@@ -758,7 +758,7 @@ func ViewSecretValues(ctx context.Context, input ViewSecretValuesInput) (*ViewSe
 		if !k8serrors.IsForbidden(err) {
 			return nil, fmt.Errorf("reading secret: %w", err)
 		}
-		if attempt == len(backoff) {
+		if attempt >= len(backoff) {
 			return nil, fmt.Errorf("reading secret: %w", err)
 		}
 		select {
