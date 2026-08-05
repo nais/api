@@ -23852,13 +23852,20 @@ type ExternalIngressCriticalVulnerabilityIssue implements Issue & Node {
 
 "Raised when a workload with external ingresses has one or more urgent vulnerability-priority findings."
 type ExternalIngressUrgentVulnerabilityIssue implements Issue & Node {
+	"The globally unique identifier for this issue."
 	id: ID!
+	"The team environment where the affected workload is deployed."
 	teamEnvironment: TeamEnvironment!
+	"The severity assigned to this issue."
 	severity: Severity!
+	"A human-readable description of the issue."
 	message: String!
 
+	"The workload with urgent vulnerabilities and external ingresses."
 	workload: Workload!
+	"Number of urgent vulnerabilities on the workload."
 	priorityUrgent: Int!
+	"External ingress URLs that expose the workload."
 	ingresses: [String!]!
 }
 
