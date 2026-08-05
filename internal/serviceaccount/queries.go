@@ -92,7 +92,7 @@ func Create(ctx context.Context, input CreateServiceAccountInput) (*ServiceAccou
 		return activitylog.Create(ctx, activitylog.CreateInput{
 			Action:       activitylog.ActivityLogEntryActionCreated,
 			Actor:        authz.ActorFromContext(ctx).User,
-			ResourceType: activityLogEntryResourceTypeServiceAccount,
+			ResourceType: ActivityLogEntryResourceTypeServiceAccount,
 			ResourceName: sa.Name,
 			TeamSlug:     sa.TeamSlug,
 		})
@@ -137,7 +137,7 @@ func Update(ctx context.Context, input UpdateServiceAccountInput) (*ServiceAccou
 		return activitylog.Create(ctx, activitylog.CreateInput{
 			Action:       activitylog.ActivityLogEntryActionUpdated,
 			Actor:        authz.ActorFromContext(ctx).User,
-			ResourceType: activityLogEntryResourceTypeServiceAccount,
+			ResourceType: ActivityLogEntryResourceTypeServiceAccount,
 			ResourceName: sa.Name,
 			TeamSlug:     sa.TeamSlug,
 			Data: func(fields []*ServiceAccountUpdatedActivityLogEntryDataUpdatedField) *ServiceAccountUpdatedActivityLogEntryData {
@@ -176,7 +176,7 @@ func Delete(ctx context.Context, input DeleteServiceAccountInput) error {
 		return activitylog.Create(ctx, activitylog.CreateInput{
 			Action:       activitylog.ActivityLogEntryActionDeleted,
 			Actor:        authz.ActorFromContext(ctx).User,
-			ResourceType: activityLogEntryResourceTypeServiceAccount,
+			ResourceType: ActivityLogEntryResourceTypeServiceAccount,
 			ResourceName: existingSA.Name,
 			TeamSlug:     existingSA.TeamSlug,
 		})
@@ -226,7 +226,7 @@ func CreateToken(ctx context.Context, input CreateServiceAccountTokenInput) (*Se
 		return activitylog.Create(ctx, activitylog.CreateInput{
 			Action:       activityLogEntryActionCreateServiceAccountToken,
 			Actor:        authz.ActorFromContext(ctx).User,
-			ResourceType: activityLogEntryResourceTypeServiceAccount,
+			ResourceType: ActivityLogEntryResourceTypeServiceAccount,
 			ResourceName: sa.Name,
 			TeamSlug:     sa.TeamSlug,
 			Data: &ServiceAccountTokenCreatedActivityLogEntryData{
@@ -287,18 +287,13 @@ func UpdateToken(ctx context.Context, input UpdateServiceAccountTokenInput) (*Se
 		return activitylog.Create(ctx, activitylog.CreateInput{
 			Action:       activityLogEntryActionUpdateServiceAccountToken,
 			Actor:        authz.ActorFromContext(ctx).User,
-			ResourceType: activityLogEntryResourceTypeServiceAccount,
+			ResourceType: ActivityLogEntryResourceTypeServiceAccount,
 			ResourceName: sa.Name,
 			TeamSlug:     sa.TeamSlug,
-			Data: func(fields []*ServiceAccountTokenUpdatedActivityLogEntryDataUpdatedField) *ServiceAccountTokenUpdatedActivityLogEntryData {
-				if len(fields) == 0 {
-					return nil
-				}
-
-				return &ServiceAccountTokenUpdatedActivityLogEntryData{
-					UpdatedFields: fields,
-				}
-			}(updatedFields),
+			Data: &ServiceAccountTokenUpdatedActivityLogEntryData{
+				TokenName:     &t.Name,
+				UpdatedFields: updatedFields,
+			},
 		})
 	})
 	if err != nil {
@@ -331,7 +326,7 @@ func DeleteToken(ctx context.Context, input DeleteServiceAccountTokenInput) (*Se
 		return activitylog.Create(ctx, activitylog.CreateInput{
 			Action:       activityLogEntryActionDeleteServiceAccountToken,
 			Actor:        authz.ActorFromContext(ctx).User,
-			ResourceType: activityLogEntryResourceTypeServiceAccount,
+			ResourceType: ActivityLogEntryResourceTypeServiceAccount,
 			ResourceName: sa.Name,
 			TeamSlug:     sa.TeamSlug,
 			Data: &ServiceAccountTokenDeletedActivityLogEntryData{
@@ -488,7 +483,7 @@ func AssignRole(ctx context.Context, input AssignRoleToServiceAccountInput) (*Se
 		return activitylog.Create(ctx, activitylog.CreateInput{
 			Action:       activityLogEntryActionAssignServiceAccountRole,
 			Actor:        authz.ActorFromContext(ctx).User,
-			ResourceType: activityLogEntryResourceTypeServiceAccount,
+			ResourceType: ActivityLogEntryResourceTypeServiceAccount,
 			ResourceName: sa.Name,
 			TeamSlug:     sa.TeamSlug,
 			Data: &RoleAssignedToServiceAccountActivityLogEntryData{
@@ -538,7 +533,7 @@ func RevokeRole(ctx context.Context, input RevokeRoleFromServiceAccountInput) (*
 		return activitylog.Create(ctx, activitylog.CreateInput{
 			Action:       activityLogEntryActionRevokeServiceAccountRole,
 			Actor:        authz.ActorFromContext(ctx).User,
-			ResourceType: activityLogEntryResourceTypeServiceAccount,
+			ResourceType: ActivityLogEntryResourceTypeServiceAccount,
 			ResourceName: sa.Name,
 			TeamSlug:     sa.TeamSlug,
 			Data: &RoleRevokedFromServiceAccountActivityLogEntryData{

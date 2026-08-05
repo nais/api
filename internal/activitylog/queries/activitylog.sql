@@ -106,6 +106,46 @@ OFFSET
 	sqlc.arg('offset')
 ;
 
+-- A NULL team_slug matches tenant-wide resources only, not every team, mirroring the NULLS NOT DISTINCT
+-- index on service_accounts (name, team_slug).
+-- name: ListForResourceAndTeam :many
+SELECT
+	sqlc.embed(activity_log_combined_view),
+	COUNT(*) OVER () AS total_count
+FROM
+	activity_log_combined_view
+WHERE
+	resource_type = @resource_type
+	AND resource_name = @resource_name
+	AND team_slug IS NOT DISTINCT FROM sqlc.narg('team_slug')::TEXT
+	AND (
+		sqlc.narg('filter')::TEXT[] IS NULL
+		OR (resource_type || ':' || action) = ANY (sqlc.narg('filter')::TEXT[])
+	)
+	AND (
+		sqlc.narg('resource_types')::TEXT[] IS NULL
+		OR resource_type = ANY (sqlc.narg('resource_types')::TEXT[])
+	)
+	AND (
+		sqlc.narg('environments')::TEXT[] IS NULL
+		OR environment = ANY (sqlc.narg('environments')::TEXT[])
+	)
+	AND (
+		sqlc.narg('from')::TIMESTAMPTZ IS NULL
+		OR created_at >= sqlc.narg('from')::TIMESTAMPTZ
+	)
+	AND (
+		sqlc.narg('to')::TIMESTAMPTZ IS NULL
+		OR created_at < sqlc.narg('to')::TIMESTAMPTZ
+	)
+ORDER BY
+	created_at DESC
+LIMIT
+	sqlc.arg('limit')
+OFFSET
+	sqlc.arg('offset')
+;
+
 -- name: ListForResourceTeamAndEnvironment :many
 SELECT
 	sqlc.embed(activity_log_combined_view),
@@ -221,8 +261,12 @@ FROM
 	activity_log_combined_view
 WHERE
 	(
-		sqlc.narg('team_slug')::TEXT IS NULL
-		OR team_slug = sqlc.narg('team_slug')
+		CASE
+		-- match_null_team keeps facet counts consistent with ListForResourceAndTeam.
+			WHEN sqlc.arg('match_null_team')::BOOLEAN THEN team_slug IS NOT DISTINCT FROM sqlc.narg('team_slug')::TEXT
+			WHEN sqlc.narg('team_slug')::TEXT IS NULL THEN TRUE
+			ELSE team_slug = sqlc.narg('team_slug')
+		END
 	)
 	AND (
 		sqlc.narg('resource_type')::TEXT IS NULL

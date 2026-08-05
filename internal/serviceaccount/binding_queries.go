@@ -12,8 +12,12 @@ import (
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/pagination"
+	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/serviceaccount/serviceaccountsql"
 	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/workload"
+	"github.com/nais/api/internal/workload/application"
+	"github.com/nais/api/internal/workload/job"
 )
 
 // throttleLastUsedAt determines how often the last_used_at column may be updated. We avoid a write per
@@ -86,6 +90,11 @@ func AddWorkloadBinding(ctx context.Context, input AddWorkloadToServiceAccountIn
 		return nil, nil, apierror.Errorf("The workload %q in team %q is already bound to service account %q.", input.WorkloadName, input.TeamSlug, boundSA.Name)
 	}
 
+	workloadType, err := resolveWorkloadType(ctx, input.TeamSlug, input.Environment, input.WorkloadName)
+	if err != nil {
+		return nil, nil, err
+	}
+
 	var binding *serviceaccountsql.ServiceAccountWorkloadBinding
 	err = database.Transaction(ctx, func(ctx context.Context) error {
 		var err error
@@ -102,13 +111,14 @@ func AddWorkloadBinding(ctx context.Context, input AddWorkloadToServiceAccountIn
 		return activitylog.Create(ctx, activitylog.CreateInput{
 			Action:          activityLogEntryActionAddServiceAccountWorkloadBinding,
 			Actor:           authz.ActorFromContext(ctx).User,
-			ResourceType:    activityLogEntryResourceTypeServiceAccount,
+			ResourceType:    ActivityLogEntryResourceTypeServiceAccount,
 			ResourceName:    sa.Name,
 			TeamSlug:        sa.TeamSlug,
 			EnvironmentName: &input.Environment,
 			Data: &ServiceAccountWorkloadBindingAddedActivityLogEntryData{
 				TeamSlug:     input.TeamSlug,
 				WorkloadName: input.WorkloadName,
+				WorkloadType: workloadType,
 			},
 		})
 	})
@@ -136,6 +146,11 @@ func RemoveWorkloadBinding(ctx context.Context, input RemoveWorkloadFromServiceA
 		return nil, err
 	}
 
+	workloadType, err := resolveWorkloadType(ctx, binding.TeamSlug, binding.Environment, binding.WorkloadName)
+	if err != nil {
+		return nil, err
+	}
+
 	err = database.Transaction(ctx, func(ctx context.Context) error {
 		if err := db(ctx).DeleteBinding(ctx, binding.UUID); err != nil {
 			return err
@@ -145,13 +160,14 @@ func RemoveWorkloadBinding(ctx context.Context, input RemoveWorkloadFromServiceA
 		return activitylog.Create(ctx, activitylog.CreateInput{
 			Action:          activityLogEntryActionRemoveServiceAccountWorkloadBinding,
 			Actor:           authz.ActorFromContext(ctx).User,
-			ResourceType:    activityLogEntryResourceTypeServiceAccount,
+			ResourceType:    ActivityLogEntryResourceTypeServiceAccount,
 			ResourceName:    sa.Name,
 			TeamSlug:        sa.TeamSlug,
 			EnvironmentName: &env,
 			Data: &ServiceAccountWorkloadBindingRemovedActivityLogEntryData{
 				TeamSlug:     binding.TeamSlug,
 				WorkloadName: binding.WorkloadName,
+				WorkloadType: workloadType,
 			},
 		})
 	})
@@ -216,4 +232,25 @@ func AuthenticateKubernetesServiceAccount(ctx context.Context, environment strin
 		ServiceAccount: sa,
 		Binding:        toGraphServiceAccountWorkloadBinding(row),
 	}, nil
+}
+
+// resolveWorkloadType returns the workload type for the given workload reference, or nil if not found.
+func resolveWorkloadType(ctx context.Context, teamSlug slug.Slug, environment, workloadName string) (*workload.Type, error) {
+	app, err := application.Get(ctx, teamSlug, environment, workloadName)
+	if err != nil && !errors.Is(err, &watcher.ErrorNotFound{}) {
+		return nil, err
+	}
+	if app != nil {
+		t := app.GetType()
+		return &t, nil
+	}
+	j, err := job.Get(ctx, teamSlug, environment, workloadName)
+	if err != nil && !errors.Is(err, &watcher.ErrorNotFound{}) {
+		return nil, err
+	}
+	if j != nil {
+		t := j.GetType()
+		return &t, nil
+	}
+	return nil, nil
 }

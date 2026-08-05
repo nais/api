@@ -137,3 +137,199 @@ Test.gql("Query service account through workload interface", function(t)
 		},
 	}
 end)
+
+-- Binding entries resolve the workload by name, so a caller can tell an application from a job.
+Test.gql("Bind service account to a workload that does not exist", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query(string.format([[
+		mutation {
+			addWorkloadToServiceAccount(input: {
+				serviceAccountID: "%s"
+				environment: "dev"
+				teamSlug: "myteam"
+				workloadName: "no-such-workload"
+			}) {
+				binding {
+					isBroken
+				}
+			}
+		}
+	]], State.serviceAccountID))
+
+	t.check {
+		data = {
+			addWorkloadToServiceAccount = {
+				binding = {
+					isBroken = true,
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("Binding added entries retain workload details", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query(string.format([[
+		query {
+			serviceAccount(id: "%s") {
+				activityLog(
+					first: 10
+					filter: { activityTypes: [SERVICE_ACCOUNT_WORKLOAD_BINDING_ADDED] }
+				) {
+					nodes {
+						... on ServiceAccountWorkloadBindingAddedActivityLogEntry {
+							environmentName
+							data {
+								teamSlug
+								workloadName
+								workloadType
+							}
+						}
+					}
+				}
+			}
+		}
+	]], State.serviceAccountID))
+
+	t.check {
+		data = {
+			serviceAccount = {
+				activityLog = {
+					nodes = {
+						{
+							environmentName = "dev",
+							data = {
+								teamSlug = "myteam",
+								workloadName = "no-such-workload",
+								workloadType = Null,
+							},
+						},
+						{
+							environmentName = "dev",
+							data = {
+								teamSlug = "myteam",
+								workloadName = "job-running",
+								workloadType = "JOB",
+							},
+						},
+						{
+							environmentName = "dev",
+							data = {
+								teamSlug = "myteam",
+								workloadName = "app-running",
+								workloadType = "APPLICATION",
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("List bindings to find the application binding", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query(string.format([[
+		query {
+			serviceAccount(id: "%s") {
+				workloadBindings(first: 10) {
+					nodes {
+						id
+						workloadName
+					}
+				}
+			}
+		}
+	]], State.serviceAccountID))
+
+	t.check {
+		data = {
+			serviceAccount = {
+				workloadBindings = {
+					nodes = {
+						{
+							id = Save("appBindingID"),
+							workloadName = "app-running",
+						},
+						{
+							id = NotNull(),
+							workloadName = "job-running",
+						},
+						{
+							id = NotNull(),
+							workloadName = "no-such-workload",
+						},
+					},
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("Remove the application binding", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query(string.format([[
+		mutation {
+			removeWorkloadFromServiceAccount(input: { bindingID: "%s" }) {
+				bindingDeleted
+			}
+		}
+	]], State.appBindingID))
+
+	t.check {
+		data = {
+			removeWorkloadFromServiceAccount = {
+				bindingDeleted = true,
+			},
+		},
+	}
+end)
+
+Test.gql("Binding removed entries retain workload details", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query(string.format([[
+		query {
+			serviceAccount(id: "%s") {
+				activityLog(
+					first: 10
+					filter: { activityTypes: [SERVICE_ACCOUNT_WORKLOAD_BINDING_REMOVED] }
+				) {
+					nodes {
+						... on ServiceAccountWorkloadBindingRemovedActivityLogEntry {
+							environmentName
+							data {
+								teamSlug
+								workloadName
+								workloadType
+							}
+						}
+					}
+				}
+			}
+		}
+	]], State.serviceAccountID))
+
+	t.check {
+		data = {
+			serviceAccount = {
+				activityLog = {
+					nodes = {
+						{
+							environmentName = "dev",
+							data = {
+								teamSlug = "myteam",
+								workloadName = "app-running",
+								workloadType = "APPLICATION",
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+end)

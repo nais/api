@@ -49,6 +49,10 @@ type ActivityLogScope struct {
 	ResourceType    *string
 	ResourceName    *string
 	EnvironmentName *string
+
+	// MatchNullTeam reads a nil TeamSlug as "no team" rather than "any team". Required where a resource
+	// name is only unique within a team.
+	MatchNullTeam bool
 }
 
 type ActivityLogEntryEdge = pagination.Edge[ActivityLogEntry]

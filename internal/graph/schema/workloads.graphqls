@@ -442,6 +442,17 @@ enum EnvironmentWorkloadOrderField {
 }
 
 """
+The type of a workload.
+"""
+enum WorkloadType {
+	"The workload is an application."
+	APPLICATION
+
+	"The workload is a job."
+	JOB
+}
+
+"""
 Encoding of a secret or config value.
 """
 enum ValueEncoding {

@@ -5,10 +5,11 @@ import (
 
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/workload"
 )
 
 const (
-	activityLogEntryResourceTypeServiceAccount                activitylog.ActivityLogEntryResourceType = "SERVICE_ACCOUNT"
+	ActivityLogEntryResourceTypeServiceAccount                activitylog.ActivityLogEntryResourceType = "SERVICE_ACCOUNT"
 	activityLogEntryActionAssignServiceAccountRole            activitylog.ActivityLogEntryAction       = "ASSIGN_SERVICE_ACCOUNT_TOKEN_ROLE"
 	activityLogEntryActionRevokeServiceAccountRole            activitylog.ActivityLogEntryAction       = "REVOKE_SERVICE_ACCOUNT_TOKEN_ROLE"
 	activityLogEntryActionCreateServiceAccountToken           activitylog.ActivityLogEntryAction       = "CREATE_SERVICE_ACCOUNT_TOKEN"
@@ -19,7 +20,7 @@ const (
 )
 
 func init() {
-	activitylog.RegisterTransformer(activityLogEntryResourceTypeServiceAccount, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
+	activitylog.RegisterTransformer(ActivityLogEntryResourceTypeServiceAccount, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
 		switch entry.Action {
 		case activitylog.ActivityLogEntryActionCreated:
 			return ServiceAccountCreatedActivityLogEntry{
@@ -59,7 +60,7 @@ func init() {
 		case activityLogEntryActionUpdateServiceAccountToken:
 			data, err := activitylog.TransformData(entry, func(data *ServiceAccountTokenUpdatedActivityLogEntryData) *ServiceAccountTokenUpdatedActivityLogEntryData {
 				if len(data.UpdatedFields) == 0 {
-					return &ServiceAccountTokenUpdatedActivityLogEntryData{}
+					return &ServiceAccountTokenUpdatedActivityLogEntryData{TokenName: data.TokenName}
 				}
 				return data
 			})
@@ -136,16 +137,16 @@ func init() {
 		}
 	})
 
-	activitylog.RegisterFilter("SERVICE_ACCOUNT_CREATED", activitylog.ActivityLogEntryActionCreated, activityLogEntryResourceTypeServiceAccount)
-	activitylog.RegisterFilter("SERVICE_ACCOUNT_UPDATED", activitylog.ActivityLogEntryActionUpdated, activityLogEntryResourceTypeServiceAccount)
-	activitylog.RegisterFilter("SERVICE_ACCOUNT_DELETED", activitylog.ActivityLogEntryActionDeleted, activityLogEntryResourceTypeServiceAccount)
-	activitylog.RegisterFilter("SERVICE_ACCOUNT_TOKEN_CREATED", activityLogEntryActionCreateServiceAccountToken, activityLogEntryResourceTypeServiceAccount)
-	activitylog.RegisterFilter("SERVICE_ACCOUNT_TOKEN_UPDATED", activityLogEntryActionUpdateServiceAccountToken, activityLogEntryResourceTypeServiceAccount)
-	activitylog.RegisterFilter("SERVICE_ACCOUNT_TOKEN_DELETED", activityLogEntryActionDeleteServiceAccountToken, activityLogEntryResourceTypeServiceAccount)
-	activitylog.RegisterFilter("SERVICE_ACCOUNT_ROLE_ASSIGNED", activityLogEntryActionAssignServiceAccountRole, activityLogEntryResourceTypeServiceAccount)
-	activitylog.RegisterFilter("SERVICE_ACCOUNT_ROLE_REVOKED", activityLogEntryActionRevokeServiceAccountRole, activityLogEntryResourceTypeServiceAccount)
-	activitylog.RegisterFilter("SERVICE_ACCOUNT_WORKLOAD_BINDING_ADDED", activityLogEntryActionAddServiceAccountWorkloadBinding, activityLogEntryResourceTypeServiceAccount)
-	activitylog.RegisterFilter("SERVICE_ACCOUNT_WORKLOAD_BINDING_REMOVED", activityLogEntryActionRemoveServiceAccountWorkloadBinding, activityLogEntryResourceTypeServiceAccount)
+	activitylog.RegisterFilter("SERVICE_ACCOUNT_CREATED", activitylog.ActivityLogEntryActionCreated, ActivityLogEntryResourceTypeServiceAccount)
+	activitylog.RegisterFilter("SERVICE_ACCOUNT_UPDATED", activitylog.ActivityLogEntryActionUpdated, ActivityLogEntryResourceTypeServiceAccount)
+	activitylog.RegisterFilter("SERVICE_ACCOUNT_DELETED", activitylog.ActivityLogEntryActionDeleted, ActivityLogEntryResourceTypeServiceAccount)
+	activitylog.RegisterFilter("SERVICE_ACCOUNT_TOKEN_CREATED", activityLogEntryActionCreateServiceAccountToken, ActivityLogEntryResourceTypeServiceAccount)
+	activitylog.RegisterFilter("SERVICE_ACCOUNT_TOKEN_UPDATED", activityLogEntryActionUpdateServiceAccountToken, ActivityLogEntryResourceTypeServiceAccount)
+	activitylog.RegisterFilter("SERVICE_ACCOUNT_TOKEN_DELETED", activityLogEntryActionDeleteServiceAccountToken, ActivityLogEntryResourceTypeServiceAccount)
+	activitylog.RegisterFilter("SERVICE_ACCOUNT_ROLE_ASSIGNED", activityLogEntryActionAssignServiceAccountRole, ActivityLogEntryResourceTypeServiceAccount)
+	activitylog.RegisterFilter("SERVICE_ACCOUNT_ROLE_REVOKED", activityLogEntryActionRevokeServiceAccountRole, ActivityLogEntryResourceTypeServiceAccount)
+	activitylog.RegisterFilter("SERVICE_ACCOUNT_WORKLOAD_BINDING_ADDED", activityLogEntryActionAddServiceAccountWorkloadBinding, ActivityLogEntryResourceTypeServiceAccount)
+	activitylog.RegisterFilter("SERVICE_ACCOUNT_WORKLOAD_BINDING_REMOVED", activityLogEntryActionRemoveServiceAccountWorkloadBinding, ActivityLogEntryResourceTypeServiceAccount)
 }
 
 type RoleAssignedToServiceAccountActivityLogEntry struct {
@@ -194,6 +195,8 @@ type ServiceAccountTokenUpdatedActivityLogEntry struct {
 }
 
 type ServiceAccountTokenUpdatedActivityLogEntryData struct {
+	// Nil for entries written before this field existed.
+	TokenName     *string                                                       `json:"tokenName,omitempty"`
 	UpdatedFields []*ServiceAccountTokenUpdatedActivityLogEntryDataUpdatedField `json:"updatedFields"`
 }
 
@@ -228,8 +231,9 @@ type ServiceAccountWorkloadBindingAddedActivityLogEntry struct {
 }
 
 type ServiceAccountWorkloadBindingAddedActivityLogEntryData struct {
-	TeamSlug     slug.Slug `json:"teamSlug"`
-	WorkloadName string    `json:"workloadName"`
+	TeamSlug     slug.Slug      `json:"teamSlug"`
+	WorkloadName string         `json:"workloadName"`
+	WorkloadType *workload.Type `json:"workloadType,omitempty"`
 }
 
 type ServiceAccountWorkloadBindingRemovedActivityLogEntry struct {
@@ -238,6 +242,7 @@ type ServiceAccountWorkloadBindingRemovedActivityLogEntry struct {
 }
 
 type ServiceAccountWorkloadBindingRemovedActivityLogEntryData struct {
-	TeamSlug     slug.Slug `json:"teamSlug"`
-	WorkloadName string    `json:"workloadName"`
+	TeamSlug     slug.Slug      `json:"teamSlug"`
+	WorkloadName string         `json:"workloadName"`
+	WorkloadType *workload.Type `json:"workloadType,omitempty"`
 }

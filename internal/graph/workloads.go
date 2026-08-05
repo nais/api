@@ -18,7 +18,19 @@ func tryWorkload(ctx context.Context, teamSlug slug.Slug, environmentName, workl
 		return app, nil
 	}
 
-	return job.Get(ctx, teamSlug, environmentName, workloadName)
+	j, err := job.Get(ctx, teamSlug, environmentName, workloadName)
+	if err != nil {
+		// Returning j here would wrap a nil pointer in a non-nil interface.
+		return nil, err
+	}
+	return j, nil
+}
+
+// workloadOrNil resolves a workload reference that is allowed to dangle, such as a service account
+// binding.
+func workloadOrNil(ctx context.Context, teamSlug slug.Slug, environmentName, workloadName string) workload.Workload {
+	w, _ := tryWorkload(ctx, teamSlug, environmentName, workloadName)
+	return w
 }
 
 func getWorkload(ctx context.Context, workloadReference *workload.Reference, teamSlug slug.Slug, environmentName string) (workload.Workload, error) {

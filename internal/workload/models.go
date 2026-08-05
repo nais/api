@@ -1,6 +1,7 @@
 package workload
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"slices"
@@ -279,6 +280,58 @@ func TypeFromString(s string) (Type, error) {
 		return TypeJob, nil
 	default:
 		return -1, fmt.Errorf("unknown workload type: %s", s)
+	}
+}
+
+func (t Type) MarshalGQL(w io.Writer) {
+	value, err := t.gqlString()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Fprint(w, strconv.Quote(value))
+}
+
+func (t *Type) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("WorkloadType must be a string")
+	}
+	switch str {
+	case "APPLICATION":
+		*t = TypeApplication
+	case "JOB":
+		*t = TypeJob
+	default:
+		return fmt.Errorf("%q is not a valid WorkloadType", str)
+	}
+	return nil
+}
+
+func (t Type) MarshalJSON() ([]byte, error) {
+	value, err := t.gqlString()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(value)
+}
+
+func (t *Type) UnmarshalJSON(data []byte) error {
+	var value string
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	return t.UnmarshalGQL(value)
+}
+
+// gqlString returns the GraphQL enum string for the workload type.
+func (t Type) gqlString() (string, error) {
+	switch t {
+	case TypeApplication:
+		return "APPLICATION", nil
+	case TypeJob:
+		return "JOB", nil
+	default:
+		return "", fmt.Errorf("%d is not a valid WorkloadType", t)
 	}
 }
 

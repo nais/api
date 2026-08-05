@@ -14,6 +14,7 @@ func ComputeFacets(ctx context.Context, scope *ActivityLogScope, filter *Activit
 
 	activityTypeRows, err := q.FacetsForActivityTypes(ctx, activitylogsql.FacetsForActivityTypesParams{
 		TeamSlug:            scopeField(scope, func(s *ActivityLogScope) *string { return (*string)(s.TeamSlug) }),
+		MatchNullTeam:       scope != nil && scope.MatchNullTeam,
 		ResourceType:        scopeField(scope, func(s *ActivityLogScope) *string { return s.ResourceType }),
 		ResourceName:        scopeField(scope, func(s *ActivityLogScope) *string { return s.ResourceName }),
 		EnvironmentName:     scopeField(scope, func(s *ActivityLogScope) *string { return s.EnvironmentName }),

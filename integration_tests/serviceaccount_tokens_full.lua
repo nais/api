@@ -618,3 +618,134 @@ Test.gql("Create token for deleted service account", function(t)
 		},
 	}
 end)
+
+-- Uses a dedicated service account to isolate these entries from the tests above.
+Test.gql("Create service account for token activity log tests", function(t)
+	t.addHeader("x-user-email", admin:email())
+
+	t.query [[
+		mutation {
+			createServiceAccount(
+				input: { name: "token-log-sa", description: "SA for token activity log" }
+			) {
+				serviceAccount {
+					id
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			createServiceAccount = {
+				serviceAccount = {
+					id = Save("logSaID"),
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("Create a token to rename", function(t)
+	t.addHeader("x-user-email", admin:email())
+
+	t.query(string.format([[
+		mutation {
+			createServiceAccountToken(
+				input: {
+					serviceAccountID: "%s"
+					name: "original-token"
+					description: "to be renamed"
+				}
+			) {
+				serviceAccountToken {
+					id
+				}
+			}
+		}
+	]], State.logSaID))
+
+	t.check {
+		data = {
+			createServiceAccountToken = {
+				serviceAccountToken = {
+					id = Save("logTokenID"),
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("Rename a token to produce an updated entry", function(t)
+	t.addHeader("x-user-email", admin:email())
+
+	t.query(string.format([[
+		mutation {
+			updateServiceAccountToken(
+				input: { serviceAccountTokenID: "%s", name: "renamed-token" }
+			) {
+				serviceAccountToken {
+					id
+				}
+			}
+		}
+	]], State.logTokenID))
+
+	t.check {
+		data = {
+			updateServiceAccountToken = {
+				serviceAccountToken = {
+					id = State.logTokenID,
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("Token updated entries name the token that changed", function(t)
+	t.addHeader("x-user-email", admin:email())
+
+	t.query(string.format([[
+		query {
+			serviceAccount(id: "%s") {
+				activityLog(first: 10, filter: { activityTypes: [SERVICE_ACCOUNT_TOKEN_UPDATED] }) {
+					nodes {
+						... on ServiceAccountTokenUpdatedActivityLogEntry {
+							data {
+								tokenName
+								updatedFields {
+									field
+									oldValue
+									newValue
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	]], State.logSaID))
+
+	t.check {
+		data = {
+			serviceAccount = {
+				activityLog = {
+					nodes = {
+						{
+							data = {
+								tokenName = "renamed-token",
+								updatedFields = {
+									{
+										field = "name",
+										oldValue = "original-token",
+										newValue = "renamed-token",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+end)

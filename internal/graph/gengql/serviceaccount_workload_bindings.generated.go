@@ -647,6 +647,29 @@ func (ec *executionContext) fieldContext_ServiceAccountWorkloadBindingAddedActiv
 	return graphql.NewScalarFieldContext("ServiceAccountWorkloadBindingAddedActivityLogEntryData", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
+func (ec *executionContext) _ServiceAccountWorkloadBindingAddedActivityLogEntryData_workloadType(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingAddedActivityLogEntryData) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntryData_workloadType(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.WorkloadType, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *workload.Type) graphql.Marshaler {
+			return ec.marshalOWorkloadType2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐType(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntryData_workloadType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("ServiceAccountWorkloadBindingAddedActivityLogEntryData", field, false, false, errors.New("field of type WorkloadType does not have child fields"))
+}
+
 func (ec *executionContext) _ServiceAccountWorkloadBindingConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*serviceaccount.ServiceAccountWorkloadBinding]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -1058,6 +1081,29 @@ func (ec *executionContext) _ServiceAccountWorkloadBindingRemovedActivityLogEntr
 }
 func (ec *executionContext) fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntryData_workloadName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ServiceAccountWorkloadBindingRemovedActivityLogEntryData", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _ServiceAccountWorkloadBindingRemovedActivityLogEntryData_workloadType(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingRemovedActivityLogEntryData) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntryData_workloadType(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.WorkloadType, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *workload.Type) graphql.Marshaler {
+			return ec.marshalOWorkloadType2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐType(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntryData_workloadType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("ServiceAccountWorkloadBindingRemovedActivityLogEntryData", field, false, false, errors.New("field of type WorkloadType does not have child fields"))
 }
 
 // endregion **************************** field.gotpl *****************************
@@ -1489,6 +1535,8 @@ func (ec *executionContext) _ServiceAccountWorkloadBindingAddedActivityLogEntryD
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "workloadType":
+			out.Values[i] = ec._ServiceAccountWorkloadBindingAddedActivityLogEntryData_workloadType(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -1699,6 +1747,8 @@ func (ec *executionContext) _ServiceAccountWorkloadBindingRemovedActivityLogEntr
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "workloadType":
+			out.Values[i] = ec._ServiceAccountWorkloadBindingRemovedActivityLogEntryData_workloadType(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

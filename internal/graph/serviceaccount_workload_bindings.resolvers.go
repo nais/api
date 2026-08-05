@@ -9,8 +9,6 @@ import (
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/serviceaccount"
 	"github.com/nais/api/internal/workload"
-	"github.com/nais/api/internal/workload/application"
-	"github.com/nais/api/internal/workload/job"
 )
 
 func (r *mutationResolver) AddWorkloadToServiceAccount(ctx context.Context, input serviceaccount.AddWorkloadToServiceAccountInput) (*serviceaccount.AddWorkloadToServiceAccountPayload, error) {
@@ -48,14 +46,7 @@ func (r *serviceAccountWorkloadBindingResolver) ServiceAccount(ctx context.Conte
 }
 
 func (r *serviceAccountWorkloadBindingResolver) Workload(ctx context.Context, obj *serviceaccount.ServiceAccountWorkloadBinding) (workload.Workload, error) {
-	if app, err := application.Get(ctx, obj.TeamSlug, obj.Environment, obj.WorkloadName); err == nil {
-		return app, nil
-	}
-	if j, err := job.Get(ctx, obj.TeamSlug, obj.Environment, obj.WorkloadName); err == nil {
-		return j, nil
-	}
-	// No matching workload — binding is dangling.
-	return nil, nil
+	return workloadOrNil(ctx, obj.TeamSlug, obj.Environment, obj.WorkloadName), nil
 }
 
 func (r *serviceAccountWorkloadBindingResolver) IsBroken(ctx context.Context, obj *serviceaccount.ServiceAccountWorkloadBinding) (bool, error) {
