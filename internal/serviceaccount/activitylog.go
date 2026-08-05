@@ -5,6 +5,7 @@ import (
 
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/workload"
 )
 
 const (
@@ -109,9 +110,6 @@ func init() {
 			}, nil
 		case activityLogEntryActionAddServiceAccountWorkloadBinding:
 			data, err := activitylog.TransformData(entry, func(data *ServiceAccountWorkloadBindingAddedActivityLogEntryData) *ServiceAccountWorkloadBindingAddedActivityLogEntryData {
-				if entry.EnvironmentName != nil {
-					data.Environment = *entry.EnvironmentName
-				}
 				return data
 			})
 			if err != nil {
@@ -124,9 +122,6 @@ func init() {
 			}, nil
 		case activityLogEntryActionRemoveServiceAccountWorkloadBinding:
 			data, err := activitylog.TransformData(entry, func(data *ServiceAccountWorkloadBindingRemovedActivityLogEntryData) *ServiceAccountWorkloadBindingRemovedActivityLogEntryData {
-				if entry.EnvironmentName != nil {
-					data.Environment = *entry.EnvironmentName
-				}
 				return data
 			})
 			if err != nil {
@@ -236,11 +231,9 @@ type ServiceAccountWorkloadBindingAddedActivityLogEntry struct {
 }
 
 type ServiceAccountWorkloadBindingAddedActivityLogEntryData struct {
-	TeamSlug     slug.Slug `json:"teamSlug"`
-	WorkloadName string    `json:"workloadName"`
-
-	// Sourced from the entry rather than the payload, so existing entries keep working.
-	Environment string `json:"-"`
+	TeamSlug     slug.Slug      `json:"teamSlug"`
+	WorkloadName string         `json:"workloadName"`
+	WorkloadType *workload.Type `json:"workloadType,omitempty"`
 }
 
 type ServiceAccountWorkloadBindingRemovedActivityLogEntry struct {
@@ -249,9 +242,7 @@ type ServiceAccountWorkloadBindingRemovedActivityLogEntry struct {
 }
 
 type ServiceAccountWorkloadBindingRemovedActivityLogEntryData struct {
-	TeamSlug     slug.Slug `json:"teamSlug"`
-	WorkloadName string    `json:"workloadName"`
-
-	// Sourced from the entry rather than the payload, so existing entries keep working.
-	Environment string `json:"-"`
+	TeamSlug     slug.Slug      `json:"teamSlug"`
+	WorkloadName string         `json:"workloadName"`
+	WorkloadType *workload.Type `json:"workloadType,omitempty"`
 }

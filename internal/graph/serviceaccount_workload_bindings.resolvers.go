@@ -57,28 +57,8 @@ func (r *serviceAccountWorkloadBindingResolver) IsBroken(ctx context.Context, ob
 	return w == nil, nil
 }
 
-func (r *serviceAccountWorkloadBindingAddedActivityLogEntryDataResolver) Workload(ctx context.Context, obj *serviceaccount.ServiceAccountWorkloadBindingAddedActivityLogEntryData) (workload.Workload, error) {
-	return workloadOrNil(ctx, obj.TeamSlug, obj.Environment, obj.WorkloadName), nil
-}
-
-func (r *serviceAccountWorkloadBindingRemovedActivityLogEntryDataResolver) Workload(ctx context.Context, obj *serviceaccount.ServiceAccountWorkloadBindingRemovedActivityLogEntryData) (workload.Workload, error) {
-	return workloadOrNil(ctx, obj.TeamSlug, obj.Environment, obj.WorkloadName), nil
-}
-
 func (r *Resolver) ServiceAccountWorkloadBinding() gengql.ServiceAccountWorkloadBindingResolver {
 	return &serviceAccountWorkloadBindingResolver{r}
 }
 
-func (r *Resolver) ServiceAccountWorkloadBindingAddedActivityLogEntryData() gengql.ServiceAccountWorkloadBindingAddedActivityLogEntryDataResolver {
-	return &serviceAccountWorkloadBindingAddedActivityLogEntryDataResolver{r}
-}
-
-func (r *Resolver) ServiceAccountWorkloadBindingRemovedActivityLogEntryData() gengql.ServiceAccountWorkloadBindingRemovedActivityLogEntryDataResolver {
-	return &serviceAccountWorkloadBindingRemovedActivityLogEntryDataResolver{r}
-}
-
-type (
-	serviceAccountWorkloadBindingResolver                            struct{ *Resolver }
-	serviceAccountWorkloadBindingAddedActivityLogEntryDataResolver   struct{ *Resolver }
-	serviceAccountWorkloadBindingRemovedActivityLogEntryDataResolver struct{ *Resolver }
-)
+type serviceAccountWorkloadBindingResolver struct{ *Resolver }

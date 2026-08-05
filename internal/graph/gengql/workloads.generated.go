@@ -1796,4 +1796,20 @@ func (ec *executionContext) unmarshalOWorkloadOrder2ᚖgithubᚗcomᚋnaisᚋapi
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalOWorkloadType2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐType(ctx context.Context, v any) (*workload.Type, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(workload.Type)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOWorkloadType2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐType(ctx context.Context, sel ast.SelectionSet, v *workload.Type) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
+}
+
 // endregion ***************************** type.gotpl *****************************

@@ -168,7 +168,7 @@ Test.gql("Bind service account to a workload that does not exist", function(t)
 	}
 end)
 
-Test.gql("Binding added entries resolve the bound workload", function(t)
+Test.gql("Binding added entries retain workload details", function(t)
 	t.addHeader("x-user-email", user:email())
 
 	t.query(string.format([[
@@ -180,12 +180,11 @@ Test.gql("Binding added entries resolve the bound workload", function(t)
 				) {
 					nodes {
 						... on ServiceAccountWorkloadBindingAddedActivityLogEntry {
+							environmentName
 							data {
+								teamSlug
 								workloadName
-								workload {
-									__typename
-									name
-								}
+								workloadType
 							}
 						}
 					}
@@ -200,27 +199,27 @@ Test.gql("Binding added entries resolve the bound workload", function(t)
 				activityLog = {
 					nodes = {
 						{
+							environmentName = "dev",
 							data = {
+								teamSlug = "myteam",
 								workloadName = "no-such-workload",
-								workload = Null,
+								workloadType = Null,
 							},
 						},
 						{
+							environmentName = "dev",
 							data = {
+								teamSlug = "myteam",
 								workloadName = "job-running",
-								workload = {
-									__typename = "Job",
-									name = "job-running",
-								},
+								workloadType = "JOB",
 							},
 						},
 						{
+							environmentName = "dev",
 							data = {
+								teamSlug = "myteam",
 								workloadName = "app-running",
-								workload = {
-									__typename = "Application",
-									name = "app-running",
-								},
+								workloadType = "APPLICATION",
 							},
 						},
 					},
@@ -290,7 +289,7 @@ Test.gql("Remove the application binding", function(t)
 	}
 end)
 
-Test.gql("Binding removed entries resolve the workload that is still deployed", function(t)
+Test.gql("Binding removed entries retain workload details", function(t)
 	t.addHeader("x-user-email", user:email())
 
 	t.query(string.format([[
@@ -302,12 +301,11 @@ Test.gql("Binding removed entries resolve the workload that is still deployed", 
 				) {
 					nodes {
 						... on ServiceAccountWorkloadBindingRemovedActivityLogEntry {
+							environmentName
 							data {
+								teamSlug
 								workloadName
-								workload {
-									__typename
-									name
-								}
+								workloadType
 							}
 						}
 					}
@@ -322,12 +320,11 @@ Test.gql("Binding removed entries resolve the workload that is still deployed", 
 				activityLog = {
 					nodes = {
 						{
+							environmentName = "dev",
 							data = {
+								teamSlug = "myteam",
 								workloadName = "app-running",
-								workload = {
-									__typename = "Application",
-									name = "app-running",
-								},
+								workloadType = "APPLICATION",
 							},
 						},
 					},
