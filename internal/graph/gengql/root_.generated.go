@@ -25150,7 +25150,7 @@ enum OpenSearchMemory {
 }
 
 enum OpenSearchMajorVersion {
-  "OpenSearch Version 3.6.x"
+	"OpenSearch Version 3.6.x"
 	V3_6
 	"OpenSearch Version 3.3.x"
 	V3_3
