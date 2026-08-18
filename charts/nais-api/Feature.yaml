@@ -200,6 +200,16 @@ values:
       template: |
         {{ .Management.bifrost_unleash_namespace | quote }}
 
+  unleash.bifrostApiKey:
+    displayName: Bifrost API pre-shared key
+    description: Pre-shared key authenticating nais-api to the bifrost API. Same value the bifrost deployment accepts.
+    config:
+      type: string
+      secret: true
+    computed:
+      template: |
+        {{ .Management.bifrost_api_key | quote }}
+
   replaceEnvironmentNames:
     displayName: Replace environment names
     description: Mapping of environment names from current name to expected name. Format `currentName1:expectedName1,currentName2:expectedName2`
