@@ -323,6 +323,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		cfg.K8s.AllClusterNames(),
 		hookdClient,
 		cfg.Unleash.BifrostAPIURL,
+		cfg.Unleash.BifrostAPIKey,
 		cfg.K8s.AllClusterNames(),
 		cfg.Logging.DefaultLogDestinations(),
 		notifier,
@@ -428,7 +429,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	if cfg.Unleash.BifrostAPIURL == unleash.FakeBifrostURL {
 		bifrostClient = unleash.NewFakeBifrostClient(watchers.UnleashWatcher)
 	} else {
-		bifrostClient = unleash.NewBifrostClient(cfg.Unleash.BifrostAPIURL, log.WithField("subsystem", "bifrost_client"))
+		bifrostClient = unleash.NewBifrostClient(cfg.Unleash.BifrostAPIURL, cfg.Unleash.BifrostAPIKey, log.WithField("subsystem", "bifrost_client"))
 	}
 
 	issueChecker, err := checker.New(

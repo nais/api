@@ -91,7 +91,7 @@ func TestBifrostClient_CreateInstance(t *testing.T) {
 	defer s.Close()
 
 	logger, _ := test.NewNullLogger()
-	bifrostClient := unleash.NewBifrostClient(s.URL, logger)
+	bifrostClient := unleash.NewBifrostClient(s.URL, "", logger)
 
 	name := "test"
 	allowedTeams := "team1,team2"
@@ -182,7 +182,7 @@ func TestBifrostClient_UpdateInstance(t *testing.T) {
 	defer s.Close()
 
 	logger, _ := test.NewNullLogger()
-	client := unleash.NewBifrostClient(s.URL, logger)
+	client := unleash.NewBifrostClient(s.URL, "", logger)
 
 	releaseChannel := "rapid"
 	req := bifrostclient.UnleashConfigRequest{
@@ -240,7 +240,7 @@ func TestBifrostClient_GetInstance(t *testing.T) {
 	defer s.Close()
 
 	logger, _ := test.NewNullLogger()
-	client := unleash.NewBifrostClient(s.URL, logger)
+	client := unleash.NewBifrostClient(s.URL, "", logger)
 
 	resp, err := client.GetInstance(context.Background(), "my-team")
 	if err != nil {
@@ -271,7 +271,7 @@ func TestBifrostClient_DeleteInstance(t *testing.T) {
 	defer s.Close()
 
 	logger, _ := test.NewNullLogger()
-	client := unleash.NewBifrostClient(s.URL, logger)
+	client := unleash.NewBifrostClient(s.URL, "", logger)
 
 	_, err := client.DeleteInstance(context.Background(), "my-team")
 	if err != nil {
@@ -322,7 +322,7 @@ func TestBifrostClient_ListChannels(t *testing.T) {
 	defer s.Close()
 
 	logger, _ := test.NewNullLogger()
-	client := unleash.NewBifrostClient(s.URL, logger)
+	client := unleash.NewBifrostClient(s.URL, "", logger)
 
 	resp, err := client.ListChannels(context.Background())
 	if err != nil {
@@ -382,7 +382,7 @@ func TestBifrostClient_ErrorHandling_CreateInstance(t *testing.T) {
 			defer s.Close()
 
 			logger, _ := test.NewNullLogger()
-			client := unleash.NewBifrostClient(s.URL, logger)
+			client := unleash.NewBifrostClient(s.URL, "", logger)
 
 			name := "test"
 			_, err := client.CreateInstance(context.Background(), bifrostclient.UnleashConfigRequest{
@@ -410,7 +410,7 @@ func TestBifrostClient_ErrorHandling_UpdateInstance(t *testing.T) {
 	defer s.Close()
 
 	logger, _ := test.NewNullLogger()
-	client := unleash.NewBifrostClient(s.URL, logger)
+	client := unleash.NewBifrostClient(s.URL, "", logger)
 
 	releaseChannel := "stable"
 	_, err := client.UpdateInstance(context.Background(), "my-team", bifrostclient.UnleashConfigRequest{
@@ -436,7 +436,7 @@ func TestBifrostClient_ErrorHandling_ListChannels(t *testing.T) {
 	defer s.Close()
 
 	logger, _ := test.NewNullLogger()
-	client := unleash.NewBifrostClient(s.URL, logger)
+	client := unleash.NewBifrostClient(s.URL, "", logger)
 
 	_, err := client.ListChannels(context.Background())
 

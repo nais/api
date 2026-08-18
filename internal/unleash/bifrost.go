@@ -29,12 +29,30 @@ type bifrostClientImpl struct {
 
 // NewBifrostClient creates a new BifrostClient with the given base URL and logger.
 // The client uses OpenTelemetry-instrumented HTTP transport for tracing.
-func NewBifrostClient(baseURL string, log logrus.FieldLogger) BifrostClient {
+//
+// apiKey is the pre-shared key bifrost authenticates with. It is sent as
+// "Authorization: Bearer <key>" on every request. An empty key sends no header,
+// which bifrost currently accepts and logs — that is the accept-then-enforce
+// phase. Once bifrost sets auth.enforced, an empty key means every call is
+// rejected with 401, so the key must be configured before that flag is flipped.
+func NewBifrostClient(baseURL, apiKey string, log logrus.FieldLogger) BifrostClient {
 	httpClient := &http.Client{
 		Transport: otelhttp.NewTransport(http.DefaultTransport),
 	}
 
-	client, err := bifrostclient.NewClientWithResponses(baseURL, bifrostclient.WithHTTPClient(httpClient))
+	opts := []bifrostclient.ClientOption{bifrostclient.WithHTTPClient(httpClient)}
+	if apiKey != "" {
+		opts = append(opts, bifrostclient.WithRequestEditorFn(
+			func(ctx context.Context, req *http.Request) error {
+				req.Header.Set("Authorization", "Bearer "+apiKey)
+				return nil
+			},
+		))
+	} else {
+		log.Warn("No bifrost API key configured; requests will be unauthenticated. This fails once bifrost enforces authentication.")
+	}
+
+	client, err := bifrostclient.NewClientWithResponses(baseURL, opts...)
 	if err != nil {
 		// This should only fail if the base URL is invalid
 		log.WithError(err).Fatal("failed to create bifrost client")

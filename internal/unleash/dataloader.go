@@ -38,8 +38,8 @@ func (r mimirRoundTrip) RoundTrip(req *http.Request) (*http.Response, error) {
 
 // NewLoaderContext creates a new context with a loaders value.
 // If *fake* is provided as bifrostAPIURL, a fake client will be used.
-func NewLoaderContext(ctx context.Context, tenantName string, appWatcher *watcher.Watcher[*UnleashInstance], bifrostAPIURL string, allowedClusters []string, log logrus.FieldLogger) context.Context {
-	return context.WithValue(ctx, loadersKey, newLoaders(tenantName, appWatcher, bifrostAPIURL, allowedClusters, log))
+func NewLoaderContext(ctx context.Context, tenantName string, appWatcher *watcher.Watcher[*UnleashInstance], bifrostAPIURL, bifrostAPIKey string, allowedClusters []string, log logrus.FieldLogger) context.Context {
+	return context.WithValue(ctx, loadersKey, newLoaders(tenantName, appWatcher, bifrostAPIURL, bifrostAPIKey, allowedClusters, log))
 }
 
 func NewWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watcher[*UnleashInstance] {
@@ -60,14 +60,14 @@ type loaders struct {
 	log             logrus.FieldLogger
 }
 
-func newLoaders(tenantName string, appWatcher *watcher.Watcher[*UnleashInstance], bifrostAPIURL string, allowedClusters []string, log logrus.FieldLogger) *loaders {
+func newLoaders(tenantName string, appWatcher *watcher.Watcher[*UnleashInstance], bifrostAPIURL, bifrostAPIKey string, allowedClusters []string, log logrus.FieldLogger) *loaders {
 	var client BifrostClient
 	var prometheus Prometheus
 	if bifrostAPIURL == FakeBifrostURL {
 		client = NewFakeBifrostClient(appWatcher)
 		prometheus = NewFakePrometheusClient()
 	} else {
-		client = NewBifrostClient(bifrostAPIURL, log)
+		client = NewBifrostClient(bifrostAPIURL, bifrostAPIKey, log)
 		promClient, err := promapi.NewClient(promapi.Config{Address: prometheusURL, RoundTripper: mimirRoundTrip{HeaderValue: "nais"}})
 		if err != nil {
 			panic(fmt.Errorf("failed to create prometheus client: %w", err))

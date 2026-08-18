@@ -105,6 +105,10 @@ type oAuthConfig struct {
 type unleashConfig struct {
 	// BifrostApiEndpoint is the endpoint for the Bifrost API
 	BifrostAPIURL string `env:"UNLEASH_BIFROST_API_URL,default=*fake*"`
+	// BifrostAPIKey is the pre-shared key sent to the Bifrost API. Provisioned
+	// via fasit to both deployments; empty means unauthenticated requests, which
+	// bifrost accepts only until it enables enforcement.
+	BifrostAPIKey string `env:"UNLEASH_BIFROST_API_KEY"`
 }
 
 type loggingConfig struct {
