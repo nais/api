@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/nais/bifrost/pkg/bifrostclient"
 	"github.com/sirupsen/logrus"
@@ -27,30 +28,44 @@ type bifrostClientImpl struct {
 	log    logrus.FieldLogger
 }
 
+// ActiveBifrostAPIKey returns the key to present to bifrost, given the
+// configured value.
+//
+// bifrost and nais-api read the same fasit value, and bifrost accepts a
+// comma-separated list so keys can be rotated without downtime. A client must
+// send exactly one of them, so the first entry is the active key. Rotation is
+// therefore: set "new,old" (bifrost accepts both, nais-api presents new), then
+// drop the old one. Sending the list verbatim would match nothing.
+func ActiveBifrostAPIKey(configured string) string {
+	first, _, _ := strings.Cut(configured, ",")
+	return strings.TrimSpace(first)
+}
+
 // NewBifrostClient creates a new BifrostClient with the given base URL and logger.
 // The client uses OpenTelemetry-instrumented HTTP transport for tracing.
 //
-// apiKey is the pre-shared key bifrost authenticates with. It is sent as
-// "Authorization: Bearer <key>" on every request. An empty key sends no header,
-// which bifrost currently accepts and logs — that is the accept-then-enforce
-// phase. Once bifrost sets auth.enforced, an empty key means every call is
-// rejected with 401, so the key must be configured before that flag is flipped.
+// apiKey is the pre-shared key bifrost authenticates with, sent as
+// "Authorization: Bearer <key>" on every request. An empty key sends no header
+// at all — not an empty one — which bifrost accepts and counts during the
+// accept-then-enforce phase. Once bifrost sets auth.enforced, an empty key
+// means every call is rejected, so the key must be in place before that flip.
 func NewBifrostClient(baseURL, apiKey string, log logrus.FieldLogger) BifrostClient {
 	httpClient := &http.Client{
 		Transport: otelhttp.NewTransport(http.DefaultTransport),
 	}
 
 	opts := []bifrostclient.ClientOption{bifrostclient.WithHTTPClient(httpClient)}
-	if apiKey != "" {
+	if key := ActiveBifrostAPIKey(apiKey); key != "" {
 		opts = append(opts, bifrostclient.WithRequestEditorFn(
 			func(ctx context.Context, req *http.Request) error {
-				req.Header.Set("Authorization", "Bearer "+apiKey)
+				req.Header.Set("Authorization", "Bearer "+key)
 				return nil
 			},
 		))
-	} else {
-		log.Warn("No bifrost API key configured; requests will be unauthenticated. This fails once bifrost enforces authentication.")
 	}
+	// No warning here: this constructor runs per request via the dataloader, so
+	// logging the missing-key state would emit a line on every GraphQL call.
+	// It is reported once at startup instead.
 
 	client, err := bifrostclient.NewClientWithResponses(baseURL, opts...)
 	if err != nil {
