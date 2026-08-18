@@ -148,7 +148,7 @@ func RevokeTeamAccess(ctx context.Context, input RevokeTeamAccessToUnleashInput)
 		return nil, err
 	}
 
-	if !hasAccessToUnleash(input.TeamSlug, unleash) {
+	if !hasAccessToUnleash(input.RevokedTeamSlug, unleash) {
 		return unleash, nil
 	}
 
