@@ -180,7 +180,12 @@ func (i *DeleteUnleashInstanceInput) Validate(ctx context.Context) error {
 		return verr.NilIfEmpty()
 	}
 
-	if len(instance.AllowedTeamSlugs) > 1 {
+	existing, err := team.ListBySlugs(ctx, instance.AllowedTeamSlugs, nil)
+	if err != nil {
+		return err
+	}
+
+	if existing.PageInfo.TotalCount > 1 {
 		verr.Add("unleash", "Revoke access for all other teams before deleting the unleash instance.")
 	}
 
