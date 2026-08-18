@@ -202,10 +202,7 @@ values:
 
   unleash.bifrostApiKey:
     displayName: Bifrost API pre-shared key
-    description: Pre-shared key authenticating nais-api to the bifrost API. Same value the bifrost deployment accepts.
-    config:
-      type: string
-      secret: true
+    description: Pre-shared key authenticating nais-api to the bifrost API — the same value the bifrost deployment accepts.
     computed:
       template: |
         {{ .Management.bifrost_api_key | quote }}
