@@ -373,6 +373,7 @@ const (
 	OpenSearchMajorVersionV2    OpenSearchMajorVersion = "V2"
 	OpenSearchMajorVersionV2_19 OpenSearchMajorVersion = "V2_19"
 	OpenSearchMajorVersionV3_3  OpenSearchMajorVersion = "V3_3"
+	OpenSearchMajorVersionV3_6  OpenSearchMajorVersion = "V3_6"
 )
 
 type upgradePath []OpenSearchMajorVersion
@@ -388,8 +389,9 @@ func (u upgradePath) String() string {
 var upgradePaths = map[OpenSearchMajorVersion]upgradePath{
 	OpenSearchMajorVersionV1:    {OpenSearchMajorVersionV2, OpenSearchMajorVersionV2_19},
 	OpenSearchMajorVersionV2:    {OpenSearchMajorVersionV2_19},
-	OpenSearchMajorVersionV2_19: {OpenSearchMajorVersionV3_3},
-	OpenSearchMajorVersionV3_3:  {},
+	OpenSearchMajorVersionV2_19: {OpenSearchMajorVersionV3_3, OpenSearchMajorVersionV3_6},
+	OpenSearchMajorVersionV3_3:  {OpenSearchMajorVersionV3_6},
+	OpenSearchMajorVersionV3_6:  {},
 }
 
 func (e OpenSearchMajorVersion) ValidateUpgradePath(other OpenSearchMajorVersion) error {
@@ -415,7 +417,8 @@ func (e OpenSearchMajorVersion) IsValid() bool {
 		OpenSearchMajorVersionV1,
 		OpenSearchMajorVersionV2,
 		OpenSearchMajorVersionV2_19,
-		OpenSearchMajorVersionV3_3:
+		OpenSearchMajorVersionV3_3,
+		OpenSearchMajorVersionV3_6:
 		return true
 	}
 	return false
@@ -453,6 +456,8 @@ func (e OpenSearchMajorVersion) ToAivenString() (string, error) {
 		return "2.19", nil
 	case OpenSearchMajorVersionV3_3:
 		return "3.3", nil
+	case OpenSearchMajorVersionV3_6:
+		return "3.6", nil
 	default:
 		return "", fmt.Errorf("unexpected OpenSearch major version: %q", e)
 	}
@@ -468,6 +473,8 @@ func OpenSearchMajorVersionFromAivenString(s string) (OpenSearchMajorVersion, er
 		return OpenSearchMajorVersionV2, nil
 	case strings.HasPrefix(s, "3.3"):
 		return OpenSearchMajorVersionV3_3, nil
+	case strings.HasPrefix(s, "3.6"):
+		return OpenSearchMajorVersionV3_6, nil
 	default:
 		return "", fmt.Errorf("unsupported Aiven OpenSearch version: %q", s)
 	}
