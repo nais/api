@@ -284,6 +284,7 @@ func newGQLRunner(
 		clusters(),
 		fakeHookd.New(),
 		unleash.FakeBifrostURL,
+		"", // bifrost API key: the harness uses the fake client, which needs none
 		[]string{"dev", "staging", "dev-fss", "dev-gcp"},
 		[]logging.SupportedLogDestination{logging.Loki},
 		notifier,

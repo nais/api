@@ -102,7 +102,7 @@ func TestAllowedClustersMapping(t *testing.T) {
 			logger, _ := test.NewNullLogger()
 
 			// Create a bifrost client
-			client := NewBifrostClient(s.URL, logger)
+			client := NewBifrostClient(s.URL, "", logger)
 
 			// Simulate what happens in newLoaders function
 			mappedClusters := make([]string, len(tt.clusters))

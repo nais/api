@@ -74,6 +74,9 @@ unleash:
   enabled: false
   namespace: "bifrost-unleash"
   bifrostApiUrl: "http://bifrost-backend"
+  # Pre-shared key for the bifrost API; provisioned in fasit as
+  # bifrost_api_key and shared with the bifrost deployment.
+  bifrostApiKey: ""
 
 replicas: 2
 

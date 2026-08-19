@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/nais/bifrost/pkg/bifrostclient"
 	"github.com/sirupsen/logrus"
@@ -27,14 +28,46 @@ type bifrostClientImpl struct {
 	log    logrus.FieldLogger
 }
 
+// ActiveBifrostAPIKey returns the key to present to bifrost, given the
+// configured value.
+//
+// bifrost and nais-api read the same fasit value, and bifrost accepts a
+// comma-separated list so keys can be rotated without downtime. A client must
+// send exactly one of them, so the first entry is the active key. Rotation is
+// therefore: set "new,old" (bifrost accepts both, nais-api presents new), then
+// drop the old one. Sending the list verbatim would match nothing.
+func ActiveBifrostAPIKey(configured string) string {
+	first, _, _ := strings.Cut(configured, ",")
+	return strings.TrimSpace(first)
+}
+
 // NewBifrostClient creates a new BifrostClient with the given base URL and logger.
 // The client uses OpenTelemetry-instrumented HTTP transport for tracing.
-func NewBifrostClient(baseURL string, log logrus.FieldLogger) BifrostClient {
+//
+// apiKey is the pre-shared key bifrost authenticates with, sent as
+// "Authorization: Bearer <key>" on every request. An empty key sends no header
+// at all — not an empty one — which bifrost accepts and counts during the
+// accept-then-enforce phase. Once bifrost sets auth.enforced, an empty key
+// means every call is rejected, so the key must be in place before that flip.
+func NewBifrostClient(baseURL, apiKey string, log logrus.FieldLogger) BifrostClient {
 	httpClient := &http.Client{
 		Transport: otelhttp.NewTransport(http.DefaultTransport),
 	}
 
-	client, err := bifrostclient.NewClientWithResponses(baseURL, bifrostclient.WithHTTPClient(httpClient))
+	opts := []bifrostclient.ClientOption{bifrostclient.WithHTTPClient(httpClient)}
+	if key := ActiveBifrostAPIKey(apiKey); key != "" {
+		opts = append(opts, bifrostclient.WithRequestEditorFn(
+			func(ctx context.Context, req *http.Request) error {
+				req.Header.Set("Authorization", "Bearer "+key)
+				return nil
+			},
+		))
+	}
+	// No warning here: this constructor runs per request via the dataloader, so
+	// logging the missing-key state would emit a line on every GraphQL call.
+	// It is reported once at startup instead.
+
+	client, err := bifrostclient.NewClientWithResponses(baseURL, opts...)
 	if err != nil {
 		// This should only fail if the base URL is invalid
 		log.WithError(err).Fatal("failed to create bifrost client")
