@@ -44,8 +44,8 @@ func init() {
 		}
 	})
 
-	activitylog.RegisterFilter("TUNNEL_CREATED", activitylog.ActivityLogEntryActionCreated, ActivityLogEntryResourceTypeTunnel)
-	activitylog.RegisterFilter("TUNNEL_DELETED", activitylog.ActivityLogEntryActionDeleted, ActivityLogEntryResourceTypeTunnel)
+	activitylog.RegisterActivityType("TUNNEL_CREATED", activitylog.ActivityLogEntryActionCreated, ActivityLogEntryResourceTypeTunnel, activitylog.IgnoreWebhook())
+	activitylog.RegisterActivityType("TUNNEL_DELETED", activitylog.ActivityLogEntryActionDeleted, ActivityLogEntryResourceTypeTunnel, activitylog.IgnoreWebhook())
 }
 
 type tunnelCreatedData struct {

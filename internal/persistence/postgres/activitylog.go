@@ -40,8 +40,16 @@ func init() {
 		}
 	})
 
-	activitylog.RegisterFilter("POSTGRES_GRANT_ACCESS", activityLogEntryActionGrantAccess, activityLogEntryResourceTypePostgres)
-	activitylog.RegisterFilter("POSTGRES_DELETED", activitylog.ActivityLogEntryActionDeleted, activityLogEntryResourceTypePostgres)
+	activitylog.RegisterActivityType("POSTGRES_GRANT_ACCESS",
+		activityLogEntryActionGrantAccess,
+		activityLogEntryResourceTypePostgres,
+		activitylog.WithDescription("Triggered when user access to a Postgres instance is granted."),
+	)
+	activitylog.RegisterActivityType("POSTGRES_DELETED",
+		activitylog.ActivityLogEntryActionDeleted,
+		activityLogEntryResourceTypePostgres,
+		activitylog.WithDescription("Triggered when a Postgres instance is deleted."),
+	)
 }
 
 type PostgresDeletedActivityLogEntry struct {

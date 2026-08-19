@@ -97,14 +97,56 @@ func init() {
 		}
 	})
 
-	activitylog.RegisterFilter("TEAM_CREATED", activitylog.ActivityLogEntryActionCreated, activityLogEntryResourceTypeTeam)
-	activitylog.RegisterFilter("TEAM_UPDATED", activitylog.ActivityLogEntryActionUpdated, activityLogEntryResourceTypeTeam)
-	activitylog.RegisterFilter("TEAM_CREATE_DELETE_KEY", activityLogEntryActionCreateDeleteKey, activityLogEntryResourceTypeTeam)
-	activitylog.RegisterFilter("TEAM_CONFIRM_DELETE_KEY", activityLogEntryActionConfirmDeleteKey, activityLogEntryResourceTypeTeam)
-	activitylog.RegisterFilter("TEAM_MEMBER_ADDED", activitylog.ActivityLogEntryActionAdded, activityLogEntryResourceTypeTeam)
-	activitylog.RegisterFilter("TEAM_MEMBER_REMOVED", activitylog.ActivityLogEntryActionRemoved, activityLogEntryResourceTypeTeam)
-	activitylog.RegisterFilter("TEAM_MEMBER_SET_ROLE", activityLogEntryActionSetMemberRole, activityLogEntryResourceTypeTeam)
-	activitylog.RegisterFilter("TEAM_ENVIRONMENT_UPDATED", activityLogEntryActionUpdateEnvironment, activityLogEntryResourceTypeTeam)
+	activitylog.RegisterActivityType(
+		"TEAM_CREATED",
+		activitylog.ActivityLogEntryActionCreated,
+		activityLogEntryResourceTypeTeam,
+		activitylog.GlobalOnly(),
+		activitylog.WithDescription("Triggered when a team is created."),
+	)
+	activitylog.RegisterActivityType(
+		"TEAM_UPDATED",
+		activitylog.ActivityLogEntryActionUpdated,
+		activityLogEntryResourceTypeTeam,
+		activitylog.WithDescription("Triggered when a team is updated."),
+	)
+	activitylog.RegisterActivityType(
+		"TEAM_CREATE_DELETE_KEY",
+		activityLogEntryActionCreateDeleteKey,
+		activityLogEntryResourceTypeTeam,
+		activitylog.WithDescription("Triggered when a delete key is created for a team."),
+	)
+	activitylog.RegisterActivityType(
+		"TEAM_CONFIRM_DELETE_KEY",
+		activityLogEntryActionConfirmDeleteKey,
+		activityLogEntryResourceTypeTeam,
+		activitylog.GlobalOnly(),
+		activitylog.WithDescription("Triggered when a delete key is confirmed for a team and the team is deleted."),
+	)
+	activitylog.RegisterActivityType(
+		"TEAM_MEMBER_ADDED",
+		activitylog.ActivityLogEntryActionAdded,
+		activityLogEntryResourceTypeTeam,
+		activitylog.WithDescription("Triggered when a member is added to a team."),
+	)
+	activitylog.RegisterActivityType(
+		"TEAM_MEMBER_REMOVED",
+		activitylog.ActivityLogEntryActionRemoved,
+		activityLogEntryResourceTypeTeam,
+		activitylog.WithDescription("Triggered when a member is removed from a team."),
+	)
+	activitylog.RegisterActivityType(
+		"TEAM_MEMBER_SET_ROLE",
+		activityLogEntryActionSetMemberRole,
+		activityLogEntryResourceTypeTeam,
+		activitylog.WithDescription("Triggered when a member's role is modified in a team."),
+	)
+	activitylog.RegisterActivityType(
+		"TEAM_ENVIRONMENT_UPDATED",
+		activityLogEntryActionUpdateEnvironment,
+		activityLogEntryResourceTypeTeam,
+		activitylog.WithDescription("Triggered when a team's environment is updated."),
+	)
 }
 
 type TeamCreatedActivityLogEntry struct {

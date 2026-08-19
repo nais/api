@@ -43,9 +43,9 @@ func init() {
 		}
 	})
 
-	activitylog.RegisterFilter("UNLEASH_INSTANCE_CREATED", activitylog.ActivityLogEntryActionCreated, activityLogEntryResourceTypeUnleash)
-	activitylog.RegisterFilter("UNLEASH_INSTANCE_UPDATED", activitylog.ActivityLogEntryActionUpdated, activityLogEntryResourceTypeUnleash)
-	activitylog.RegisterFilter("UNLEASH_INSTANCE_DELETED", activitylog.ActivityLogEntryActionDeleted, activityLogEntryResourceTypeUnleash)
+	activitylog.RegisterActivityType("UNLEASH_INSTANCE_CREATED", activitylog.ActivityLogEntryActionCreated, activityLogEntryResourceTypeUnleash, activitylog.IgnoreWebhook())
+	activitylog.RegisterActivityType("UNLEASH_INSTANCE_UPDATED", activitylog.ActivityLogEntryActionUpdated, activityLogEntryResourceTypeUnleash, activitylog.IgnoreWebhook())
+	activitylog.RegisterActivityType("UNLEASH_INSTANCE_DELETED", activitylog.ActivityLogEntryActionDeleted, activityLogEntryResourceTypeUnleash, activitylog.IgnoreWebhook())
 }
 
 type UnleashInstanceCreatedActivityLogEntry struct {

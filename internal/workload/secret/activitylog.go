@@ -90,13 +90,48 @@ func init() {
 		}
 	})
 
-	activitylog.RegisterFilter("SECRET_CREATED", activitylog.ActivityLogEntryActionCreated, activityLogEntryResourceTypeSecret)
-	activitylog.RegisterFilter("SECRET_UPDATED", activitylog.ActivityLogEntryActionUpdated, activityLogEntryResourceTypeSecret)
-	activitylog.RegisterFilter("SECRET_DELETED", activitylog.ActivityLogEntryActionDeleted, activityLogEntryResourceTypeSecret)
-	activitylog.RegisterFilter("SECRET_VALUE_ADDED", activityLogEntryActionAddSecretValue, activityLogEntryResourceTypeSecret)
-	activitylog.RegisterFilter("SECRET_VALUE_UPDATED", activityLogEntryActionUpdateSecretValue, activityLogEntryResourceTypeSecret)
-	activitylog.RegisterFilter("SECRET_VALUE_REMOVED", activityLogEntryActionRemoveSecretValue, activityLogEntryResourceTypeSecret)
-	activitylog.RegisterFilter("SECRET_VALUES_VIEWED", activityLogEntryActionViewSecretValues, activityLogEntryResourceTypeSecret)
+	activitylog.RegisterActivityType(
+		"SECRET_CREATED",
+		activitylog.ActivityLogEntryActionCreated,
+		activityLogEntryResourceTypeSecret,
+		activitylog.WithDescription("Triggered when a secret is created."),
+	)
+	activitylog.RegisterActivityType(
+		"SECRET_UPDATED",
+		activitylog.ActivityLogEntryActionUpdated,
+		activityLogEntryResourceTypeSecret,
+		activitylog.WithDescription("Triggered when a secret is updated."),
+	)
+	activitylog.RegisterActivityType(
+		"SECRET_DELETED",
+		activitylog.ActivityLogEntryActionDeleted,
+		activityLogEntryResourceTypeSecret,
+		activitylog.WithDescription("Triggered when a secret is deleted."),
+	)
+	activitylog.RegisterActivityType(
+		"SECRET_VALUE_ADDED",
+		activityLogEntryActionAddSecretValue,
+		activityLogEntryResourceTypeSecret,
+		activitylog.WithDescription("Triggered when a secret value is added."),
+	)
+	activitylog.RegisterActivityType(
+		"SECRET_VALUE_UPDATED",
+		activityLogEntryActionUpdateSecretValue,
+		activityLogEntryResourceTypeSecret,
+		activitylog.WithDescription("Triggered when a secret value is updated."),
+	)
+	activitylog.RegisterActivityType(
+		"SECRET_VALUE_REMOVED",
+		activityLogEntryActionRemoveSecretValue,
+		activityLogEntryResourceTypeSecret,
+		activitylog.WithDescription("Triggered when a secret value is removed."),
+	)
+	activitylog.RegisterActivityType(
+		"SECRET_VALUES_VIEWED",
+		activityLogEntryActionViewSecretValues,
+		activityLogEntryResourceTypeSecret,
+		activitylog.WithDescription("Triggered when secret values are viewed."),
+	)
 }
 
 type SecretCreatedActivityLogEntry struct {

@@ -36,9 +36,24 @@ func init() {
 		}
 	})
 
-	activitylog.RegisterFilter("CONFIG_CREATED", activitylog.ActivityLogEntryActionCreated, activityLogEntryResourceTypeConfig)
-	activitylog.RegisterFilter("CONFIG_UPDATED", activitylog.ActivityLogEntryActionUpdated, activityLogEntryResourceTypeConfig)
-	activitylog.RegisterFilter("CONFIG_DELETED", activitylog.ActivityLogEntryActionDeleted, activityLogEntryResourceTypeConfig)
+	activitylog.RegisterActivityType(
+		"CONFIG_CREATED",
+		activitylog.ActivityLogEntryActionCreated,
+		activityLogEntryResourceTypeConfig,
+		activitylog.WithDescription("Triggered when a config is created."),
+	)
+	activitylog.RegisterActivityType(
+		"CONFIG_UPDATED",
+		activitylog.ActivityLogEntryActionUpdated,
+		activityLogEntryResourceTypeConfig,
+		activitylog.WithDescription("Triggered when a config is updated."),
+	)
+	activitylog.RegisterActivityType(
+		"CONFIG_DELETED",
+		activitylog.ActivityLogEntryActionDeleted,
+		activityLogEntryResourceTypeConfig,
+		activitylog.WithDescription("Triggered when a config is deleted."),
+	)
 }
 
 type ConfigCreatedActivityLogEntry struct {

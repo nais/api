@@ -44,9 +44,9 @@ func init() {
 		}
 	})
 
-	activitylog.RegisterFilter("RECONCILER_ENABLED", activityLogEntryActionEnableReconciler, ActivityLogEntryResourceTypeReconciler)
-	activitylog.RegisterFilter("RECONCILER_DISABLED", activityLogEntryActionDisableReconciler, ActivityLogEntryResourceTypeReconciler)
-	activitylog.RegisterFilter("RECONCILER_CONFIGURED", activityLogEntryActionConfigureReconciler, ActivityLogEntryResourceTypeReconciler)
+	activitylog.RegisterActivityType("RECONCILER_ENABLED", activityLogEntryActionEnableReconciler, ActivityLogEntryResourceTypeReconciler, activitylog.GlobalOnly())
+	activitylog.RegisterActivityType("RECONCILER_DISABLED", activityLogEntryActionDisableReconciler, ActivityLogEntryResourceTypeReconciler, activitylog.GlobalOnly())
+	activitylog.RegisterActivityType("RECONCILER_CONFIGURED", activityLogEntryActionConfigureReconciler, ActivityLogEntryResourceTypeReconciler, activitylog.GlobalOnly())
 }
 
 type ReconcilerEnabledActivityLogEntry struct {
