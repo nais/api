@@ -1,6 +1,7 @@
 package webhook
 
 import (
+	"slices"
 	"time"
 
 	"github.com/google/uuid"
@@ -121,10 +122,8 @@ func (w *WebhookSubscription) MatchesEvent(event WebhookEvent) bool {
 		if subType == "*" {
 			return true
 		}
-		for _, at := range event.ActivityTypes {
-			if subType == at {
-				return true
-			}
+		if slices.Contains(event.ActivityTypes, subType) {
+			return true
 		}
 	}
 

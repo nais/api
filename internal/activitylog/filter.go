@@ -93,11 +93,11 @@ func autoGroupAndDescription(at ActivityLogActivityType) (description, group str
 		group = longestGroup
 	} else {
 		// Single-word group: first token, title-cased
-		idx := strings.Index(s, "_")
-		if idx < 0 {
+		before, _, ok := strings.Cut(s, "_")
+		if !ok {
 			group = titleCase(s)
 		} else {
-			group = titleCase(s[:idx])
+			group = titleCase(before)
 		}
 	}
 
