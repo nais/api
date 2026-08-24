@@ -389,7 +389,7 @@ Test.gql("Activity log returns credentials entries without panic", function(t)
 	t.query(string.format([[
 		{
 		  team(slug: "%s") {
-		    activityLog(first: 10, filter: { activityTypes: [CREDENTIALS_CREATED] }) {
+		    activityLog(first: 10, filter: { activityTypes: [VALKEY_CREDENTIALS_CREATED, OPENSEARCH_CREDENTIALS_CREATED] }) {
 		      nodes {
 		        __typename
 		        message
@@ -397,7 +397,13 @@ Test.gql("Activity log returns credentials entries without panic", function(t)
 		        resourceType
 		        resourceName
 		        environmentName
-		        ... on CredentialsActivityLogEntry {
+		        ... on ValkeyCredentialsActivityLogEntry {
+		          data {
+		            permission
+		            ttl
+		          }
+		        }
+		        ... on OpenSearchCredentialsActivityLogEntry {
 		          data {
 		            permission
 		            ttl
@@ -415,8 +421,8 @@ Test.gql("Activity log returns credentials entries without panic", function(t)
 				activityLog = {
 					nodes = {
 						{
-							__typename = "CredentialsActivityLogEntry",
-							message = "Created VALKEY credentials for my-valkey (TTL: 7d)",
+							__typename = "ValkeyCredentialsActivityLogEntry",
+							message = "Created credentials for \"my-valkey\" (TTL: 7d)",
 							actor = user:email(),
 							resourceType = "VALKEY",
 							resourceName = "my-valkey",
@@ -427,8 +433,8 @@ Test.gql("Activity log returns credentials entries without panic", function(t)
 							},
 						},
 						{
-							__typename = "CredentialsActivityLogEntry",
-							message = "Created OPENSEARCH credentials for my-instance with READ permission (TTL: 1d)",
+							__typename = "OpenSearchCredentialsActivityLogEntry",
+							message = "Created credentials for \"my-instance\" with \"read\" permission (TTL: 1d)",
 							actor = user:email(),
 							resourceType = "OPENSEARCH",
 							resourceName = "my-instance",

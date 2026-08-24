@@ -29,7 +29,6 @@ import (
 	"github.com/nais/api/internal/kubernetes/event/pubsublog"
 	"github.com/nais/api/internal/loki"
 	"github.com/nais/api/internal/persistence"
-	"github.com/nais/api/internal/persistence/aivencredentials"
 	"github.com/nais/api/internal/persistence/bigquery"
 	"github.com/nais/api/internal/persistence/bucket"
 	"github.com/nais/api/internal/persistence/kafkatopic"
@@ -6089,6 +6088,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._ValkeyDeletedActivityLogEntry(ctx, sel, obj)
+	case valkey.ValkeyCredentialsActivityLogEntry:
+		return ec._ValkeyCredentialsActivityLogEntry(ctx, sel, &obj)
+	case *valkey.ValkeyCredentialsActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ValkeyCredentialsActivityLogEntry(ctx, sel, obj)
 	case valkey.ValkeyCreatedActivityLogEntry:
 		return ec._ValkeyCreatedActivityLogEntry(ctx, sel, &obj)
 	case *valkey.ValkeyCreatedActivityLogEntry:
@@ -6502,6 +6508,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._OpenSearchDeletedActivityLogEntry(ctx, sel, obj)
+	case opensearch.OpenSearchCredentialsActivityLogEntry:
+		return ec._OpenSearchCredentialsActivityLogEntry(ctx, sel, &obj)
+	case *opensearch.OpenSearchCredentialsActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._OpenSearchCredentialsActivityLogEntry(ctx, sel, obj)
 	case opensearch.OpenSearchCreatedActivityLogEntry:
 		return ec._OpenSearchCreatedActivityLogEntry(ctx, sel, &obj)
 	case *opensearch.OpenSearchCreatedActivityLogEntry:
@@ -6642,13 +6655,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._DeploymentActivityLogEntry(ctx, sel, obj)
-	case aivencredentials.CredentialsActivityLogEntry:
-		return ec._CredentialsActivityLogEntry(ctx, sel, &obj)
-	case *aivencredentials.CredentialsActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._CredentialsActivityLogEntry(ctx, sel, obj)
 	case workload.ContainerImage:
 		return ec._ContainerImage(ctx, sel, &obj)
 	case *workload.ContainerImage:

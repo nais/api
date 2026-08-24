@@ -17,6 +17,7 @@ import (
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/issue"
+	"github.com/nais/api/internal/persistence/aivencredentials"
 	"github.com/nais/api/internal/persistence/valkey"
 	"github.com/nais/api/internal/servicemaintenance"
 	"github.com/nais/api/internal/slug"
@@ -1511,6 +1512,268 @@ func (ec *executionContext) fieldContext_ValkeyCredentials_uri(_ context.Context
 	return graphql.NewScalarFieldContext("ValkeyCredentials", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
+func (ec *executionContext) _ValkeyCredentialsActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyCredentialsActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyCredentialsActivityLogEntry_id(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.ID(), nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
+			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_ValkeyCredentialsActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("ValkeyCredentialsActivityLogEntry", field, true, false, errors.New("field of type ID does not have child fields"))
+}
+
+func (ec *executionContext) _ValkeyCredentialsActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyCredentialsActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyCredentialsActivityLogEntry_actor(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Actor, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_ValkeyCredentialsActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("ValkeyCredentialsActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _ValkeyCredentialsActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyCredentialsActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyCredentialsActivityLogEntry_createdAt(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.CreatedAt, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
+			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_ValkeyCredentialsActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("ValkeyCredentialsActivityLogEntry", field, false, false, errors.New("field of type Time does not have child fields"))
+}
+
+func (ec *executionContext) _ValkeyCredentialsActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyCredentialsActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyCredentialsActivityLogEntry_message(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Message, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_ValkeyCredentialsActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("ValkeyCredentialsActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _ValkeyCredentialsActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyCredentialsActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyCredentialsActivityLogEntry_resourceType(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.ResourceType, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v activitylog.ActivityLogEntryResourceType) graphql.Marshaler {
+			return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_ValkeyCredentialsActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("ValkeyCredentialsActivityLogEntry", field, false, false, errors.New("field of type ActivityLogEntryResourceType does not have child fields"))
+}
+
+func (ec *executionContext) _ValkeyCredentialsActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyCredentialsActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyCredentialsActivityLogEntry_resourceName(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.ResourceName, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_ValkeyCredentialsActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("ValkeyCredentialsActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _ValkeyCredentialsActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyCredentialsActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyCredentialsActivityLogEntry_teamSlug(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.TeamSlug, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *slug.Slug) graphql.Marshaler {
+			return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_ValkeyCredentialsActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("ValkeyCredentialsActivityLogEntry", field, false, false, errors.New("field of type Slug does not have child fields"))
+}
+
+func (ec *executionContext) _ValkeyCredentialsActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyCredentialsActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyCredentialsActivityLogEntry_environmentName(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.EnvironmentName, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_ValkeyCredentialsActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("ValkeyCredentialsActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _ValkeyCredentialsActivityLogEntry_data(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyCredentialsActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyCredentialsActivityLogEntry_data(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Data, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *valkey.ValkeyCredentialsActivityLogEntryData) graphql.Marshaler {
+			return ec.marshalNValkeyCredentialsActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyCredentialsActivityLogEntryData(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_ValkeyCredentialsActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ValkeyCredentialsActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_ValkeyCredentialsActivityLogEntryData(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ValkeyCredentialsActivityLogEntryData_permission(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyCredentialsActivityLogEntryData) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyCredentialsActivityLogEntryData_permission(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Permission, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalOString2string(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_ValkeyCredentialsActivityLogEntryData_permission(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("ValkeyCredentialsActivityLogEntryData", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _ValkeyCredentialsActivityLogEntryData_ttl(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyCredentialsActivityLogEntryData) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyCredentialsActivityLogEntryData_ttl(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.TTL, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_ValkeyCredentialsActivityLogEntryData_ttl(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("ValkeyCredentialsActivityLogEntryData", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
 func (ec *executionContext) _ValkeyDeletedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyDeletedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -2254,7 +2517,7 @@ func (ec *executionContext) unmarshalInputCreateValkeyCredentialsInput(ctx conte
 			it.InstanceName = data
 		case "permission":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("permission"))
-			data, err := ec.unmarshalNCredentialPermission2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋaivencredentialsᚐCredentialPermission(ctx, v)
+			data, err := ec.unmarshalNValkeyPermission2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋaivencredentialsᚐCredentialPermission(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -3579,6 +3842,123 @@ func (ec *executionContext) _ValkeyCredentials(ctx context.Context, sel ast.Sele
 	return out
 }
 
+var valkeyCredentialsActivityLogEntryImplementors = []string{"ValkeyCredentialsActivityLogEntry", "ActivityLogEntry", "Node"}
+
+func (ec *executionContext) _ValkeyCredentialsActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *valkey.ValkeyCredentialsActivityLogEntry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, valkeyCredentialsActivityLogEntryImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ValkeyCredentialsActivityLogEntry")
+		case "id":
+			out.Values[i] = ec._ValkeyCredentialsActivityLogEntry_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "actor":
+			out.Values[i] = ec._ValkeyCredentialsActivityLogEntry_actor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "createdAt":
+			out.Values[i] = ec._ValkeyCredentialsActivityLogEntry_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "message":
+			out.Values[i] = ec._ValkeyCredentialsActivityLogEntry_message(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "resourceType":
+			out.Values[i] = ec._ValkeyCredentialsActivityLogEntry_resourceType(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "resourceName":
+			out.Values[i] = ec._ValkeyCredentialsActivityLogEntry_resourceName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "teamSlug":
+			out.Values[i] = ec._ValkeyCredentialsActivityLogEntry_teamSlug(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "environmentName":
+			out.Values[i] = ec._ValkeyCredentialsActivityLogEntry_environmentName(ctx, field, obj)
+		case "data":
+			out.Values[i] = ec._ValkeyCredentialsActivityLogEntry_data(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var valkeyCredentialsActivityLogEntryDataImplementors = []string{"ValkeyCredentialsActivityLogEntryData"}
+
+func (ec *executionContext) _ValkeyCredentialsActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, obj *valkey.ValkeyCredentialsActivityLogEntryData) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, valkeyCredentialsActivityLogEntryDataImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ValkeyCredentialsActivityLogEntryData")
+		case "permission":
+			out.Values[i] = ec._ValkeyCredentialsActivityLogEntryData_permission(ctx, field, obj)
+		case "ttl":
+			out.Values[i] = ec._ValkeyCredentialsActivityLogEntryData_ttl(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var valkeyDeletedActivityLogEntryImplementors = []string{"ValkeyDeletedActivityLogEntry", "ActivityLogEntry", "Node"}
 
 func (ec *executionContext) _ValkeyDeletedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *valkey.ValkeyDeletedActivityLogEntry) graphql.Marshaler {
@@ -4256,6 +4636,16 @@ func (ec *executionContext) marshalNValkeyCredentials2ᚖgithubᚗcomᚋnaisᚋa
 	return ec._ValkeyCredentials(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNValkeyCredentialsActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyCredentialsActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *valkey.ValkeyCredentialsActivityLogEntryData) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ValkeyCredentialsActivityLogEntryData(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNValkeyEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[*valkey.Valkey]) graphql.Marshaler {
 	return ec._ValkeyEdge(ctx, sel, &v)
 }
@@ -4293,6 +4683,16 @@ func (ec *executionContext) unmarshalNValkeyOrderField2githubᚗcomᚋnaisᚋapi
 }
 
 func (ec *executionContext) marshalNValkeyOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyOrderField(ctx context.Context, sel ast.SelectionSet, v valkey.ValkeyOrderField) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalNValkeyPermission2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋaivencredentialsᚐCredentialPermission(ctx context.Context, v any) (aivencredentials.CredentialPermission, error) {
+	var res aivencredentials.CredentialPermission
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNValkeyPermission2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋaivencredentialsᚐCredentialPermission(ctx context.Context, sel ast.SelectionSet, v aivencredentials.CredentialPermission) graphql.Marshaler {
 	return v
 }
 

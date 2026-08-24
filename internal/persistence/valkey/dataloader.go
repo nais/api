@@ -5,6 +5,7 @@ import (
 
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/thirdparty/aiven"
+	"github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 )
@@ -13,8 +14,8 @@ type ctxKey int
 
 const loadersKey ctxKey = iota
 
-func NewLoaderContext(ctx context.Context, tenantName string, valkeyWatcher *watcher.Watcher[*Valkey], aivenClient aiven.AivenClient) context.Context {
-	return context.WithValue(ctx, loadersKey, newLoaders(tenantName, valkeyWatcher, aivenClient))
+func NewLoaderContext(ctx context.Context, tenantName string, valkeyWatcher *watcher.Watcher[*Valkey], aivenClient aiven.AivenClient, logger logrus.FieldLogger) context.Context {
+	return context.WithValue(ctx, loadersKey, newLoaders(tenantName, valkeyWatcher, aivenClient, logger))
 }
 
 func NewWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watcher[*Valkey] {
@@ -42,9 +43,10 @@ type loaders struct {
 	tenantName  string
 	watcher     *watcher.Watcher[*Valkey]
 	aivenClient aiven.AivenClient
+	log         logrus.FieldLogger
 }
 
-func newLoaders(tenantName string, watcher *watcher.Watcher[*Valkey], aivenClient aiven.AivenClient) *loaders {
+func newLoaders(tenantName string, watcher *watcher.Watcher[*Valkey], aivenClient aiven.AivenClient, logger logrus.FieldLogger) *loaders {
 	client := &client{
 		watcher: watcher,
 	}
@@ -54,5 +56,6 @@ func newLoaders(tenantName string, watcher *watcher.Watcher[*Valkey], aivenClien
 		tenantName:  tenantName,
 		watcher:     watcher,
 		aivenClient: aivenClient,
+		log:         logger,
 	}
 }

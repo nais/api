@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/nais/api/internal/activitylog"
-	"github.com/nais/api/internal/persistence/aivencredentials"
 	servicemaintenanceal "github.com/nais/api/internal/servicemaintenance/activitylog"
 )
 
@@ -37,8 +36,21 @@ func init() {
 			return servicemaintenanceal.ServiceMaintenanceActivityLogEntry{
 				GenericActivityLogEntry: entry.WithMessage("Started service maintenance"),
 			}, nil
-		case aivencredentials.ActivityLogEntryActionCredentialsCreated:
-			return aivencredentials.GetActivityLogEntry(entry)
+		case activitylog.ActivityLogEntryActionCredentialsCreated:
+			data, err := activitylog.UnmarshalData[ValkeyCredentialsActivityLogEntryData](entry)
+			if err != nil {
+				return nil, fmt.Errorf("failed to unmarshal Valkey credentials creation activity log entry data: %w", err)
+			}
+			msg := fmt.Sprintf("Created credentials for %q", entry.ResourceName)
+			if data.Permission != "" {
+				msg += fmt.Sprintf(" with %q permission", ValkeyPermission(data.Permission).AivenAccess())
+			}
+			msg += fmt.Sprintf(" (TTL: %s)", data.TTL)
+
+			return ValkeyCredentialsActivityLogEntry{
+				GenericActivityLogEntry: entry.WithMessage(msg),
+				Data:                    data,
+			}, nil
 		default:
 			return nil, fmt.Errorf("unsupported valkey activity log entry action: %q", entry.Action)
 		}
@@ -48,7 +60,7 @@ func init() {
 	activitylog.RegisterFilter("VALKEY_UPDATED", activitylog.ActivityLogEntryActionUpdated, ActivityLogEntryResourceTypeValkey)
 	activitylog.RegisterFilter("VALKEY_DELETED", activitylog.ActivityLogEntryActionDeleted, ActivityLogEntryResourceTypeValkey)
 	activitylog.RegisterFilter("VALKEY_MAINTENANCE_STARTED", servicemaintenanceal.ActivityLogEntryActionMaintenanceStarted, ActivityLogEntryResourceTypeValkey)
-	activitylog.RegisterFilter(aivencredentials.ActivityLogActivityTypeCredentialsCreated, aivencredentials.ActivityLogEntryActionCredentialsCreated, ActivityLogEntryResourceTypeValkey)
+	activitylog.RegisterFilter("VALKEY_CREDENTIALS_CREATED", activitylog.ActivityLogEntryActionCredentialsCreated, ActivityLogEntryResourceTypeValkey)
 }
 
 type ValkeyCreatedActivityLogEntry struct {
@@ -72,4 +84,15 @@ type ValkeyUpdatedActivityLogEntryDataUpdatedField struct {
 
 type ValkeyDeletedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
+}
+
+type ValkeyCredentialsActivityLogEntry struct {
+	activitylog.GenericActivityLogEntry
+
+	Data *ValkeyCredentialsActivityLogEntryData `json:"data"`
+}
+
+type ValkeyCredentialsActivityLogEntryData struct {
+	Permission string `json:"permission,omitempty"`
+	TTL        string `json:"ttl"`
 }

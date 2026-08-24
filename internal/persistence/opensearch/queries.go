@@ -374,7 +374,23 @@ func CreateOpenSearchCredentials(ctx context.Context, input CreateOpenSearchCred
 	if err != nil {
 		return nil, err
 	}
-	aivencredentials.LogCredentialCreation(ctx, ActivityLogEntryResourceTypeOpenSearch, req)
+
+	err = activitylog.Create(ctx, activitylog.CreateInput{
+		Action:          activitylog.ActivityLogEntryActionCredentialsCreated,
+		Actor:           authz.ActorFromContext(ctx).User,
+		ResourceType:    ActivityLogEntryResourceTypeOpenSearch,
+		ResourceName:    req.InstanceName,
+		EnvironmentName: &req.EnvironmentName,
+		TeamSlug:        &req.TeamSlug,
+		Data: OpenSearchCredentialsActivityLogEntryData{
+			Permission: req.Permission,
+			TTL:        req.TTL,
+		},
+	})
+	if err != nil {
+		fromContext(ctx).log.WithError(err).Warn("failed to create activity log entry")
+	}
+
 	return &CreateOpenSearchCredentialsPayload{Credentials: result.(*OpenSearchCredentials)}, nil
 }
 
