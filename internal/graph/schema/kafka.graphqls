@@ -263,3 +263,8 @@ extend enum ActivityLogActivityType {
 	"Filter for Kafka credential creation events."
 	KAFKA_CREDENTIALS_CREATED
 }
+
+extend enum ActivityLogEntryResourceType {
+	"All activity log entries related to Kafka topics will use this resource type."
+	KAFKA_TOPIC
+}

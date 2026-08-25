@@ -24761,6 +24761,11 @@ extend enum ActivityLogActivityType {
 	"Filter for Kafka credential creation events."
 	KAFKA_CREDENTIALS_CREATED
 }
+
+extend enum ActivityLogEntryResourceType {
+	"All activity log entries related to Kafka topics will use this resource type."
+	KAFKA_TOPIC
+}
 `, BuiltIn: false},
 	{Name: "../schema/labels.graphqls", Input: `"""
 A user-defined label attached to a resource.
