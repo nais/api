@@ -499,7 +499,7 @@ type CreateValkeyCredentialsPayload {
 	credentials: ValkeyCredentials!
 }
 
-type ValkeyCredentialsActivityLogEntry implements ActivityLogEntry & Node {
+type ValkeyCredentialsCreatedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -525,10 +525,10 @@ type ValkeyCredentialsActivityLogEntry implements ActivityLogEntry & Node {
 	environmentName: String
 
 	"Data associated with the credential creation."
-	data: ValkeyCredentialsActivityLogEntryData!
+	data: ValkeyCredentialsCreatedActivityLogEntryData!
 }
 
-type ValkeyCredentialsActivityLogEntryData {
+type ValkeyCredentialsCreatedActivityLogEntryData {
 	"The permission level, if applicable."
 	permission: String
 	"The TTL that was requested for the credentials."

@@ -372,7 +372,7 @@ func CreateValkeyCredentials(ctx context.Context, input CreateValkeyCredentialsI
 		ResourceName:    req.InstanceName,
 		EnvironmentName: &req.EnvironmentName,
 		TeamSlug:        &req.TeamSlug,
-		Data: ValkeyCredentialsActivityLogEntryData{
+		Data: ValkeyCredentialsCreatedActivityLogEntryData{
 			Permission: req.Permission,
 			TTL:        req.TTL,
 		},

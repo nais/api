@@ -6088,13 +6088,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._ValkeyDeletedActivityLogEntry(ctx, sel, obj)
-	case valkey.ValkeyCredentialsActivityLogEntry:
-		return ec._ValkeyCredentialsActivityLogEntry(ctx, sel, &obj)
-	case *valkey.ValkeyCredentialsActivityLogEntry:
+	case valkey.ValkeyCredentialsCreatedActivityLogEntry:
+		return ec._ValkeyCredentialsCreatedActivityLogEntry(ctx, sel, &obj)
+	case *valkey.ValkeyCredentialsCreatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ValkeyCredentialsActivityLogEntry(ctx, sel, obj)
+		return ec._ValkeyCredentialsCreatedActivityLogEntry(ctx, sel, obj)
 	case valkey.ValkeyCreatedActivityLogEntry:
 		return ec._ValkeyCreatedActivityLogEntry(ctx, sel, &obj)
 	case *valkey.ValkeyCreatedActivityLogEntry:
@@ -6508,13 +6508,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._OpenSearchDeletedActivityLogEntry(ctx, sel, obj)
-	case opensearch.OpenSearchCredentialsActivityLogEntry:
-		return ec._OpenSearchCredentialsActivityLogEntry(ctx, sel, &obj)
-	case *opensearch.OpenSearchCredentialsActivityLogEntry:
+	case opensearch.OpenSearchCredentialsCreatedActivityLogEntry:
+		return ec._OpenSearchCredentialsCreatedActivityLogEntry(ctx, sel, &obj)
+	case *opensearch.OpenSearchCredentialsCreatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._OpenSearchCredentialsActivityLogEntry(ctx, sel, obj)
+		return ec._OpenSearchCredentialsCreatedActivityLogEntry(ctx, sel, obj)
 	case opensearch.OpenSearchCreatedActivityLogEntry:
 		return ec._OpenSearchCreatedActivityLogEntry(ctx, sel, &obj)
 	case *opensearch.OpenSearchCreatedActivityLogEntry:
@@ -6571,6 +6571,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._KafkaTopic(ctx, sel, obj)
+	case kafkatopic.KafkaCredentialsCreatedActivityLogEntry:
+		return ec._KafkaCredentialsCreatedActivityLogEntry(ctx, sel, &obj)
+	case *kafkatopic.KafkaCredentialsCreatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._KafkaCredentialsCreatedActivityLogEntry(ctx, sel, obj)
 	case job.JobUpdatedActivityLogEntry:
 		return ec._JobUpdatedActivityLogEntry(ctx, sel, &obj)
 	case *job.JobUpdatedActivityLogEntry:

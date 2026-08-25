@@ -1444,13 +1444,13 @@ func (ec *executionContext) fieldContext_OpenSearchCredentials_uri(_ context.Con
 	return graphql.NewScalarFieldContext("OpenSearchCredentials", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _OpenSearchCredentialsActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearchCredentialsActivityLogEntry) (ret graphql.Marshaler) {
+func (ec *executionContext) _OpenSearchCredentialsCreatedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearchCredentialsCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_OpenSearchCredentialsActivityLogEntry_id(ctx, field)
+			return ec.fieldContext_OpenSearchCredentialsCreatedActivityLogEntry_id(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
@@ -1463,17 +1463,17 @@ func (ec *executionContext) _OpenSearchCredentialsActivityLogEntry_id(ctx contex
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_OpenSearchCredentialsActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("OpenSearchCredentialsActivityLogEntry", field, true, false, errors.New("field of type ID does not have child fields"))
+func (ec *executionContext) fieldContext_OpenSearchCredentialsCreatedActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("OpenSearchCredentialsCreatedActivityLogEntry", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _OpenSearchCredentialsActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearchCredentialsActivityLogEntry) (ret graphql.Marshaler) {
+func (ec *executionContext) _OpenSearchCredentialsCreatedActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearchCredentialsCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_OpenSearchCredentialsActivityLogEntry_actor(ctx, field)
+			return ec.fieldContext_OpenSearchCredentialsCreatedActivityLogEntry_actor(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Actor, nil
@@ -1486,17 +1486,17 @@ func (ec *executionContext) _OpenSearchCredentialsActivityLogEntry_actor(ctx con
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_OpenSearchCredentialsActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("OpenSearchCredentialsActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
+func (ec *executionContext) fieldContext_OpenSearchCredentialsCreatedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("OpenSearchCredentialsCreatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _OpenSearchCredentialsActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearchCredentialsActivityLogEntry) (ret graphql.Marshaler) {
+func (ec *executionContext) _OpenSearchCredentialsCreatedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearchCredentialsCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_OpenSearchCredentialsActivityLogEntry_createdAt(ctx, field)
+			return ec.fieldContext_OpenSearchCredentialsCreatedActivityLogEntry_createdAt(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.CreatedAt, nil
@@ -1509,17 +1509,17 @@ func (ec *executionContext) _OpenSearchCredentialsActivityLogEntry_createdAt(ctx
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_OpenSearchCredentialsActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("OpenSearchCredentialsActivityLogEntry", field, false, false, errors.New("field of type Time does not have child fields"))
+func (ec *executionContext) fieldContext_OpenSearchCredentialsCreatedActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("OpenSearchCredentialsCreatedActivityLogEntry", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _OpenSearchCredentialsActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearchCredentialsActivityLogEntry) (ret graphql.Marshaler) {
+func (ec *executionContext) _OpenSearchCredentialsCreatedActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearchCredentialsCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_OpenSearchCredentialsActivityLogEntry_message(ctx, field)
+			return ec.fieldContext_OpenSearchCredentialsCreatedActivityLogEntry_message(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Message, nil
@@ -1532,17 +1532,17 @@ func (ec *executionContext) _OpenSearchCredentialsActivityLogEntry_message(ctx c
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_OpenSearchCredentialsActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("OpenSearchCredentialsActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
+func (ec *executionContext) fieldContext_OpenSearchCredentialsCreatedActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("OpenSearchCredentialsCreatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _OpenSearchCredentialsActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearchCredentialsActivityLogEntry) (ret graphql.Marshaler) {
+func (ec *executionContext) _OpenSearchCredentialsCreatedActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearchCredentialsCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_OpenSearchCredentialsActivityLogEntry_resourceType(ctx, field)
+			return ec.fieldContext_OpenSearchCredentialsCreatedActivityLogEntry_resourceType(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceType, nil
@@ -1555,17 +1555,17 @@ func (ec *executionContext) _OpenSearchCredentialsActivityLogEntry_resourceType(
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_OpenSearchCredentialsActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("OpenSearchCredentialsActivityLogEntry", field, false, false, errors.New("field of type ActivityLogEntryResourceType does not have child fields"))
+func (ec *executionContext) fieldContext_OpenSearchCredentialsCreatedActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("OpenSearchCredentialsCreatedActivityLogEntry", field, false, false, errors.New("field of type ActivityLogEntryResourceType does not have child fields"))
 }
 
-func (ec *executionContext) _OpenSearchCredentialsActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearchCredentialsActivityLogEntry) (ret graphql.Marshaler) {
+func (ec *executionContext) _OpenSearchCredentialsCreatedActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearchCredentialsCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_OpenSearchCredentialsActivityLogEntry_resourceName(ctx, field)
+			return ec.fieldContext_OpenSearchCredentialsCreatedActivityLogEntry_resourceName(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceName, nil
@@ -1578,17 +1578,17 @@ func (ec *executionContext) _OpenSearchCredentialsActivityLogEntry_resourceName(
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_OpenSearchCredentialsActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("OpenSearchCredentialsActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
+func (ec *executionContext) fieldContext_OpenSearchCredentialsCreatedActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("OpenSearchCredentialsCreatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _OpenSearchCredentialsActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearchCredentialsActivityLogEntry) (ret graphql.Marshaler) {
+func (ec *executionContext) _OpenSearchCredentialsCreatedActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearchCredentialsCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_OpenSearchCredentialsActivityLogEntry_teamSlug(ctx, field)
+			return ec.fieldContext_OpenSearchCredentialsCreatedActivityLogEntry_teamSlug(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.TeamSlug, nil
@@ -1601,17 +1601,17 @@ func (ec *executionContext) _OpenSearchCredentialsActivityLogEntry_teamSlug(ctx 
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_OpenSearchCredentialsActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("OpenSearchCredentialsActivityLogEntry", field, false, false, errors.New("field of type Slug does not have child fields"))
+func (ec *executionContext) fieldContext_OpenSearchCredentialsCreatedActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("OpenSearchCredentialsCreatedActivityLogEntry", field, false, false, errors.New("field of type Slug does not have child fields"))
 }
 
-func (ec *executionContext) _OpenSearchCredentialsActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearchCredentialsActivityLogEntry) (ret graphql.Marshaler) {
+func (ec *executionContext) _OpenSearchCredentialsCreatedActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearchCredentialsCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_OpenSearchCredentialsActivityLogEntry_environmentName(ctx, field)
+			return ec.fieldContext_OpenSearchCredentialsCreatedActivityLogEntry_environmentName(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.EnvironmentName, nil
@@ -1624,49 +1624,49 @@ func (ec *executionContext) _OpenSearchCredentialsActivityLogEntry_environmentNa
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_OpenSearchCredentialsActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("OpenSearchCredentialsActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
+func (ec *executionContext) fieldContext_OpenSearchCredentialsCreatedActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("OpenSearchCredentialsCreatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _OpenSearchCredentialsActivityLogEntry_data(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearchCredentialsActivityLogEntry) (ret graphql.Marshaler) {
+func (ec *executionContext) _OpenSearchCredentialsCreatedActivityLogEntry_data(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearchCredentialsCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_OpenSearchCredentialsActivityLogEntry_data(ctx, field)
+			return ec.fieldContext_OpenSearchCredentialsCreatedActivityLogEntry_data(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Data, nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *opensearch.OpenSearchCredentialsActivityLogEntryData) graphql.Marshaler {
-			return ec.marshalNOpenSearchCredentialsActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchCredentialsActivityLogEntryData(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *opensearch.OpenSearchCredentialsCreatedActivityLogEntryData) graphql.Marshaler {
+			return ec.marshalNOpenSearchCredentialsCreatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchCredentialsCreatedActivityLogEntryData(ctx, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_OpenSearchCredentialsActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_OpenSearchCredentialsCreatedActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "OpenSearchCredentialsActivityLogEntry",
+		Object:     "OpenSearchCredentialsCreatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_OpenSearchCredentialsActivityLogEntryData(ctx, field)
+			return ec.childFields_OpenSearchCredentialsCreatedActivityLogEntryData(ctx, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _OpenSearchCredentialsActivityLogEntryData_permission(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearchCredentialsActivityLogEntryData) (ret graphql.Marshaler) {
+func (ec *executionContext) _OpenSearchCredentialsCreatedActivityLogEntryData_permission(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearchCredentialsCreatedActivityLogEntryData) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_OpenSearchCredentialsActivityLogEntryData_permission(ctx, field)
+			return ec.fieldContext_OpenSearchCredentialsCreatedActivityLogEntryData_permission(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Permission, nil
@@ -1679,17 +1679,17 @@ func (ec *executionContext) _OpenSearchCredentialsActivityLogEntryData_permissio
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_OpenSearchCredentialsActivityLogEntryData_permission(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("OpenSearchCredentialsActivityLogEntryData", field, false, false, errors.New("field of type String does not have child fields"))
+func (ec *executionContext) fieldContext_OpenSearchCredentialsCreatedActivityLogEntryData_permission(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("OpenSearchCredentialsCreatedActivityLogEntryData", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _OpenSearchCredentialsActivityLogEntryData_ttl(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearchCredentialsActivityLogEntryData) (ret graphql.Marshaler) {
+func (ec *executionContext) _OpenSearchCredentialsCreatedActivityLogEntryData_ttl(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearchCredentialsCreatedActivityLogEntryData) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_OpenSearchCredentialsActivityLogEntryData_ttl(ctx, field)
+			return ec.fieldContext_OpenSearchCredentialsCreatedActivityLogEntryData_ttl(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.TTL, nil
@@ -1702,8 +1702,8 @@ func (ec *executionContext) _OpenSearchCredentialsActivityLogEntryData_ttl(ctx c
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_OpenSearchCredentialsActivityLogEntryData_ttl(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("OpenSearchCredentialsActivityLogEntryData", field, false, false, errors.New("field of type String does not have child fields"))
+func (ec *executionContext) fieldContext_OpenSearchCredentialsCreatedActivityLogEntryData_ttl(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("OpenSearchCredentialsCreatedActivityLogEntryData", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _OpenSearchDeletedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearchDeletedActivityLogEntry) (ret graphql.Marshaler) {
@@ -3815,56 +3815,56 @@ func (ec *executionContext) _OpenSearchCredentials(ctx context.Context, sel ast.
 	return out
 }
 
-var openSearchCredentialsActivityLogEntryImplementors = []string{"OpenSearchCredentialsActivityLogEntry", "ActivityLogEntry", "Node"}
+var openSearchCredentialsCreatedActivityLogEntryImplementors = []string{"OpenSearchCredentialsCreatedActivityLogEntry", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _OpenSearchCredentialsActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *opensearch.OpenSearchCredentialsActivityLogEntry) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, openSearchCredentialsActivityLogEntryImplementors)
+func (ec *executionContext) _OpenSearchCredentialsCreatedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *opensearch.OpenSearchCredentialsCreatedActivityLogEntry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, openSearchCredentialsCreatedActivityLogEntryImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("OpenSearchCredentialsActivityLogEntry")
+			out.Values[i] = graphql.MarshalString("OpenSearchCredentialsCreatedActivityLogEntry")
 		case "id":
-			out.Values[i] = ec._OpenSearchCredentialsActivityLogEntry_id(ctx, field, obj)
+			out.Values[i] = ec._OpenSearchCredentialsCreatedActivityLogEntry_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._OpenSearchCredentialsActivityLogEntry_actor(ctx, field, obj)
+			out.Values[i] = ec._OpenSearchCredentialsCreatedActivityLogEntry_actor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "createdAt":
-			out.Values[i] = ec._OpenSearchCredentialsActivityLogEntry_createdAt(ctx, field, obj)
+			out.Values[i] = ec._OpenSearchCredentialsCreatedActivityLogEntry_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._OpenSearchCredentialsActivityLogEntry_message(ctx, field, obj)
+			out.Values[i] = ec._OpenSearchCredentialsCreatedActivityLogEntry_message(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._OpenSearchCredentialsActivityLogEntry_resourceType(ctx, field, obj)
+			out.Values[i] = ec._OpenSearchCredentialsCreatedActivityLogEntry_resourceType(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._OpenSearchCredentialsActivityLogEntry_resourceName(ctx, field, obj)
+			out.Values[i] = ec._OpenSearchCredentialsCreatedActivityLogEntry_resourceName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._OpenSearchCredentialsActivityLogEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = ec._OpenSearchCredentialsCreatedActivityLogEntry_teamSlug(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._OpenSearchCredentialsActivityLogEntry_environmentName(ctx, field, obj)
+			out.Values[i] = ec._OpenSearchCredentialsCreatedActivityLogEntry_environmentName(ctx, field, obj)
 		case "data":
-			out.Values[i] = ec._OpenSearchCredentialsActivityLogEntry_data(ctx, field, obj)
+			out.Values[i] = ec._OpenSearchCredentialsCreatedActivityLogEntry_data(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -3891,21 +3891,21 @@ func (ec *executionContext) _OpenSearchCredentialsActivityLogEntry(ctx context.C
 	return out
 }
 
-var openSearchCredentialsActivityLogEntryDataImplementors = []string{"OpenSearchCredentialsActivityLogEntryData"}
+var openSearchCredentialsCreatedActivityLogEntryDataImplementors = []string{"OpenSearchCredentialsCreatedActivityLogEntryData"}
 
-func (ec *executionContext) _OpenSearchCredentialsActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, obj *opensearch.OpenSearchCredentialsActivityLogEntryData) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, openSearchCredentialsActivityLogEntryDataImplementors)
+func (ec *executionContext) _OpenSearchCredentialsCreatedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, obj *opensearch.OpenSearchCredentialsCreatedActivityLogEntryData) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, openSearchCredentialsCreatedActivityLogEntryDataImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("OpenSearchCredentialsActivityLogEntryData")
+			out.Values[i] = graphql.MarshalString("OpenSearchCredentialsCreatedActivityLogEntryData")
 		case "permission":
-			out.Values[i] = ec._OpenSearchCredentialsActivityLogEntryData_permission(ctx, field, obj)
+			out.Values[i] = ec._OpenSearchCredentialsCreatedActivityLogEntryData_permission(ctx, field, obj)
 		case "ttl":
-			out.Values[i] = ec._OpenSearchCredentialsActivityLogEntryData_ttl(ctx, field, obj)
+			out.Values[i] = ec._OpenSearchCredentialsCreatedActivityLogEntryData_ttl(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -4695,14 +4695,14 @@ func (ec *executionContext) marshalNOpenSearchCredentials2ᚖgithubᚗcomᚋnais
 	return ec._OpenSearchCredentials(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNOpenSearchCredentialsActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchCredentialsActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *opensearch.OpenSearchCredentialsActivityLogEntryData) graphql.Marshaler {
+func (ec *executionContext) marshalNOpenSearchCredentialsCreatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchCredentialsCreatedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *opensearch.OpenSearchCredentialsCreatedActivityLogEntryData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._OpenSearchCredentialsActivityLogEntryData(ctx, sel, v)
+	return ec._OpenSearchCredentialsCreatedActivityLogEntryData(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNOpenSearchEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[*opensearch.OpenSearch]) graphql.Marshaler {

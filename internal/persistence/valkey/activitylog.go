@@ -37,7 +37,7 @@ func init() {
 				GenericActivityLogEntry: entry.WithMessage("Started service maintenance"),
 			}, nil
 		case activitylog.ActivityLogEntryActionCredentialsCreated:
-			data, err := activitylog.UnmarshalData[ValkeyCredentialsActivityLogEntryData](entry)
+			data, err := activitylog.UnmarshalData[ValkeyCredentialsCreatedActivityLogEntryData](entry)
 			if err != nil {
 				return nil, fmt.Errorf("failed to unmarshal Valkey credentials creation activity log entry data: %w", err)
 			}
@@ -47,7 +47,7 @@ func init() {
 			}
 			msg += fmt.Sprintf(" (TTL: %s)", data.TTL)
 
-			return ValkeyCredentialsActivityLogEntry{
+			return ValkeyCredentialsCreatedActivityLogEntry{
 				GenericActivityLogEntry: entry.WithMessage(msg),
 				Data:                    data,
 			}, nil
@@ -86,13 +86,13 @@ type ValkeyDeletedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
 }
 
-type ValkeyCredentialsActivityLogEntry struct {
+type ValkeyCredentialsCreatedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
 
-	Data *ValkeyCredentialsActivityLogEntryData `json:"data"`
+	Data *ValkeyCredentialsCreatedActivityLogEntryData `json:"data"`
 }
 
-type ValkeyCredentialsActivityLogEntryData struct {
+type ValkeyCredentialsCreatedActivityLogEntryData struct {
 	Permission string `json:"permission,omitempty"`
 	TTL        string `json:"ttl"`
 }

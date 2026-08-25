@@ -478,7 +478,7 @@ type CreateOpenSearchCredentialsPayload {
 	credentials: OpenSearchCredentials!
 }
 
-type OpenSearchCredentialsActivityLogEntry implements ActivityLogEntry & Node {
+type OpenSearchCredentialsCreatedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -504,10 +504,10 @@ type OpenSearchCredentialsActivityLogEntry implements ActivityLogEntry & Node {
 	environmentName: String
 
 	"Data associated with the credential creation."
-	data: OpenSearchCredentialsActivityLogEntryData!
+	data: OpenSearchCredentialsCreatedActivityLogEntryData!
 }
 
-type OpenSearchCredentialsActivityLogEntryData {
+type OpenSearchCredentialsCreatedActivityLogEntryData {
 	"The permission level, if applicable."
 	permission: String
 	"The TTL that was requested for the credentials."

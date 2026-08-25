@@ -382,7 +382,7 @@ func CreateOpenSearchCredentials(ctx context.Context, input CreateOpenSearchCred
 		ResourceName:    req.InstanceName,
 		EnvironmentName: &req.EnvironmentName,
 		TeamSlug:        &req.TeamSlug,
-		Data: OpenSearchCredentialsActivityLogEntryData{
+		Data: OpenSearchCredentialsCreatedActivityLogEntryData{
 			Permission: req.Permission,
 			TTL:        req.TTL,
 		},

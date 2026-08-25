@@ -36,7 +36,7 @@ func init() {
 				GenericActivityLogEntry: entry.WithMessage("Started service maintenance"),
 			}, nil
 		case activitylog.ActivityLogEntryActionCredentialsCreated:
-			data, err := activitylog.UnmarshalData[OpenSearchCredentialsActivityLogEntryData](entry)
+			data, err := activitylog.UnmarshalData[OpenSearchCredentialsCreatedActivityLogEntryData](entry)
 			if err != nil {
 				return nil, fmt.Errorf("failed to unmarshal OpenSearch credentials creation activity log entry data: %w", err)
 			}
@@ -47,7 +47,7 @@ func init() {
 			}
 			msg += fmt.Sprintf(" (TTL: %s)", data.TTL)
 
-			return OpenSearchCredentialsActivityLogEntry{
+			return OpenSearchCredentialsCreatedActivityLogEntry{
 				GenericActivityLogEntry: entry.WithMessage(msg),
 				Data:                    data,
 			}, nil
@@ -86,13 +86,13 @@ type OpenSearchDeletedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
 }
 
-type OpenSearchCredentialsActivityLogEntry struct {
+type OpenSearchCredentialsCreatedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
 
-	Data *OpenSearchCredentialsActivityLogEntryData `json:"data"`
+	Data *OpenSearchCredentialsCreatedActivityLogEntryData `json:"data"`
 }
 
-type OpenSearchCredentialsActivityLogEntryData struct {
+type OpenSearchCredentialsCreatedActivityLogEntryData struct {
 	Permission string `json:"permission,omitempty"`
 	TTL        string `json:"ttl"`
 }
