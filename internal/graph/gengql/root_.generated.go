@@ -1052,6 +1052,7 @@ type ComplexityRoot struct {
 		Identifier               func(childComplexity int) int
 		KnownRansomwareUse       func(childComplexity int) int
 		Package                  func(childComplexity int) int
+		Priority                 func(childComplexity int) int
 		Severity                 func(childComplexity int) int
 		SeveritySince            func(childComplexity int) int
 		Suppression              func(childComplexity int) int
@@ -7316,6 +7317,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ImageVulnerability.Package(childComplexity), true
+
+	case "ImageVulnerability.priority":
+		if e.ComplexityRoot.ImageVulnerability.Priority == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImageVulnerability.Priority(childComplexity), true
 
 	case "ImageVulnerability.severity":
 		if e.ComplexityRoot.ImageVulnerability.Severity == nil {
@@ -23839,14 +23847,21 @@ type VulnerableImageIssue implements Issue & Node {
 
 "Deprecated: use ExternalIngressUrgentVulnerabilityIssue."
 type ExternalIngressCriticalVulnerabilityIssue implements Issue & Node {
+	"The globally unique identifier for this issue."
 	id: ID! @deprecated(reason: "Use ExternalIngressUrgentVulnerabilityIssue instead.")
+	"The team environment where the affected workload is deployed."
 	teamEnvironment: TeamEnvironment!
 		@deprecated(reason: "Use ExternalIngressUrgentVulnerabilityIssue instead.")
+	"The severity assigned to this issue."
 	severity: Severity! @deprecated(reason: "Use ExternalIngressUrgentVulnerabilityIssue instead.")
+	"A human-readable description of the issue."
 	message: String! @deprecated(reason: "Use ExternalIngressUrgentVulnerabilityIssue instead.")
 
+	"The workload with critical vulnerabilities and external ingresses."
 	workload: Workload! @deprecated(reason: "Use ExternalIngressUrgentVulnerabilityIssue instead.")
+	"The highest CVSS score among vulnerabilities relevant to this issue."
 	cvssScore: Float! @deprecated(reason: "Use ExternalIngressUrgentVulnerabilityIssue instead.")
+	"External ingress URLs that expose the workload."
 	ingresses: [String!]! @deprecated(reason: "Use ExternalIngressUrgentVulnerabilityIssue instead.")
 }
 
@@ -32306,6 +32321,7 @@ type ImageVulnerabilitySummary {
 	staleImageTag: String
 }
 
+"Vulnerability counts grouped by severity."
 type ImageVulnerabilitySummaryCountsBySeverity {
 	"Number of vulnerabilities with severity CRITICAL."
 	critical: Int!
@@ -32323,6 +32339,7 @@ type ImageVulnerabilitySummaryCountsBySeverity {
 	unassigned: Int!
 }
 
+"Vulnerability counts grouped by operational priority."
 type ImageVulnerabilitySummaryCountsByPriority {
 	"Known-exploited vulnerabilities that require immediate action."
 	urgent: Int!
@@ -32398,6 +32415,9 @@ type ImageVulnerability implements Node {
 	"Severity of the vulnerability."
 	severity: ImageVulnerabilitySeverity!
 
+	"Priority of the vulnerability based on threat intelligence signals."
+	priority: CVEPriority!
+
 	"Description of the vulnerability."
 	description: String!
 
@@ -32431,9 +32451,10 @@ type ImageVulnerability implements Node {
 	knownRansomwareUse: Boolean!
 }
 
+"Operational priority levels for vulnerabilities and CVEs."
 enum CVEPriority {
 	"Vulnerability is known to be actively exploited and requires immediate action."
-	ACT_NOW
+	URGENT
 	"Vulnerability is associated with ransomware or has a high EPSS percentile."
 	HIGH
 	"Vulnerability has a critical or high severity and elevated EPSS percentile."
@@ -34751,6 +34772,8 @@ func (ec *executionContext) childFields_ImageVulnerability(ctx context.Context, 
 		return ec.fieldContext_ImageVulnerability_identifier(ctx, field)
 	case "severity":
 		return ec.fieldContext_ImageVulnerability_severity(ctx, field)
+	case "priority":
+		return ec.fieldContext_ImageVulnerability_priority(ctx, field)
 	case "description":
 		return ec.fieldContext_ImageVulnerability_description(ctx, field)
 	case "package":

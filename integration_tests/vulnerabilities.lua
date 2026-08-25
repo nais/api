@@ -56,6 +56,12 @@ Test.gql("List vulnerability summaries for team", function(t)
 					  name
 					  tag
 					  digest
+					  vulnerabilities(first: 10) {
+					  	nodes {
+					  		identifier
+					  		priority
+					  	}
+					  }
 					  hasSBOM
 				  sbom {
 					status
@@ -100,6 +106,22 @@ Test.gql("List vulnerability summaries for team", function(t)
 								name = "europe-north1-docker.pkg.dev/nais/navikt/app-name",
 								tag = "latest",
 								digest = "sha256:deadbeef",
+								vulnerabilities = {
+									nodes = {
+										{
+											identifier = NotNull(),
+											priority = NotNull(),
+										},
+										{
+											identifier = NotNull(),
+											priority = NotNull(),
+										},
+										{
+											identifier = NotNull(),
+											priority = NotNull(),
+										},
+									},
+								},
 								hasSBOM = true,
 								sbom = {
 									status = "READY",
@@ -210,6 +232,7 @@ Test.gql("Get CVE workloads without filter", function(t)
 		{
 			cve(identifier: "CVE-2024-12345") {
 				identifier
+				priority
 				workloads(first: 10) {
 					pageInfo {
 						totalCount
@@ -228,6 +251,7 @@ Test.gql("Get CVE workloads without filter", function(t)
 		data = {
 			cve = {
 				identifier = "CVE-2024-12345",
+				priority = NotNull(),
 				workloads = {
 					pageInfo = { totalCount = 1 },
 					nodes = {
