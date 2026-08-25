@@ -13,7 +13,6 @@ import (
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/persistence/aivencredentials"
 	"github.com/nais/api/internal/slug"
-	"github.com/sirupsen/logrus"
 )
 
 const maxTTLKafka = 365 * 24 * time.Hour // 365 days — used by Kafka
@@ -109,7 +108,7 @@ func CreateKafkaCredentials(ctx context.Context, input CreateKafkaCredentialsInp
 			TTL: input.TTL,
 		},
 	}); err != nil {
-		logrus.WithError(err).Warn("failed to create activity log entry for kafka credentials creation")
+		fromContext(ctx).log.WithError(err).Warn("failed to create activity log entry for kafka credentials creation")
 	}
 
 	return &CreateKafkaCredentialsPayload{Credentials: result.(*KafkaCredentials)}, nil

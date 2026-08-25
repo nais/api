@@ -343,7 +343,7 @@ func ConfigureGraph(
 		ctx = bigquery.NewLoaderContext(ctx, watchers.BqWatcher)
 		ctx = bucket.NewLoaderContext(ctx, watchers.BucketWatcher)
 		ctx = job.NewLoaderContext(ctx, watchers.JobWatcher, watchers.RunWatcher)
-		ctx = kafkatopic.NewLoaderContext(ctx, watchers.KafkaTopicWatcher)
+		ctx = kafkatopic.NewLoaderContext(ctx, watchers.KafkaTopicWatcher, log)
 		ctx = workload.NewLoaderContext(ctx, watchers.PodWatcher)
 		ctx = secret.NewLoaderContext(ctx, watchers.SecretWatcher, secretClientCreator, dynamicClients, clusters, log)
 		ctx = config.NewLoaderContext(ctx, watchers.ConfigWatcher, log)
