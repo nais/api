@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/nais/api/internal/activitylog"
-	"github.com/nais/api/internal/persistence/aivencredentials"
 	servicemaintenanceal "github.com/nais/api/internal/servicemaintenance/activitylog"
 )
 
@@ -36,8 +35,22 @@ func init() {
 			return servicemaintenanceal.ServiceMaintenanceActivityLogEntry{
 				GenericActivityLogEntry: entry.WithMessage("Started service maintenance"),
 			}, nil
-		case aivencredentials.ActivityLogEntryActionCredentialsCreated:
-			return aivencredentials.GetActivityLogEntry(entry)
+		case activitylog.ActivityLogEntryActionCredentialsCreated:
+			data, err := activitylog.UnmarshalData[OpenSearchCredentialsCreatedActivityLogEntryData](entry)
+			if err != nil {
+				return nil, fmt.Errorf("failed to unmarshal OpenSearch credentials creation activity log entry data: %w", err)
+			}
+
+			msg := fmt.Sprintf("Created credentials for %q", entry.ResourceName)
+			if data.Permission != "" {
+				msg += fmt.Sprintf(" with %q permission", OpenSearchPermission(data.Permission).AivenAccess())
+			}
+			msg += fmt.Sprintf(" (TTL: %s)", data.TTL)
+
+			return OpenSearchCredentialsCreatedActivityLogEntry{
+				GenericActivityLogEntry: entry.WithMessage(msg),
+				Data:                    data,
+			}, nil
 		default:
 			return nil, fmt.Errorf("unsupported opensearch activity log entry action: %q", entry.Action)
 		}
@@ -47,7 +60,7 @@ func init() {
 	activitylog.RegisterFilter("OPENSEARCH_UPDATED", activitylog.ActivityLogEntryActionUpdated, ActivityLogEntryResourceTypeOpenSearch)
 	activitylog.RegisterFilter("OPENSEARCH_DELETED", activitylog.ActivityLogEntryActionDeleted, ActivityLogEntryResourceTypeOpenSearch)
 	activitylog.RegisterFilter("OPENSEARCH_MAINTENANCE_STARTED", servicemaintenanceal.ActivityLogEntryActionMaintenanceStarted, ActivityLogEntryResourceTypeOpenSearch)
-	activitylog.RegisterFilter(aivencredentials.ActivityLogActivityTypeCredentialsCreated, aivencredentials.ActivityLogEntryActionCredentialsCreated, ActivityLogEntryResourceTypeOpenSearch)
+	activitylog.RegisterFilter("OPENSEARCH_CREDENTIALS_CREATED", activitylog.ActivityLogEntryActionCredentialsCreated, ActivityLogEntryResourceTypeOpenSearch)
 }
 
 type OpenSearchCreatedActivityLogEntry struct {
@@ -71,4 +84,15 @@ type OpenSearchUpdatedActivityLogEntryDataUpdatedField struct {
 
 type OpenSearchDeletedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
+}
+
+type OpenSearchCredentialsCreatedActivityLogEntry struct {
+	activitylog.GenericActivityLogEntry
+
+	Data *OpenSearchCredentialsCreatedActivityLogEntryData `json:"data"`
+}
+
+type OpenSearchCredentialsCreatedActivityLogEntryData struct {
+	Permission string `json:"permission,omitempty"`
+	TTL        string `json:"ttl"`
 }

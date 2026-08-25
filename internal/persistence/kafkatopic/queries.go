@@ -5,6 +5,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/nais/api/internal/activitylog"
+	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
@@ -75,7 +77,7 @@ func CreateKafkaCredentials(ctx context.Context, input CreateKafkaCredentialsInp
 				"protected": true,
 				"expiresAt": expiresAt.Format(time.RFC3339),
 				"kafka": map[string]any{
-					"pool":       "nav-" + input.EnvironmentName,
+					"pool":       "nav-" + input.EnvironmentName, // @TODO(chredvar): this will only work for Nav
 					"secretName": secretName,
 				},
 			}
@@ -93,6 +95,20 @@ func CreateKafkaCredentials(ctx context.Context, input CreateKafkaCredentialsInp
 	})
 	if err != nil {
 		return nil, err
+	}
+
+	if err = activitylog.Create(ctx, activitylog.CreateInput{
+		Action:          activitylog.ActivityLogEntryActionCredentialsCreated,
+		Actor:           authz.ActorFromContext(ctx).User,
+		ResourceType:    ActivityLogEntryResourceTypeKafkaTopic,
+		ResourceName:    input.EnvironmentName,
+		EnvironmentName: &input.EnvironmentName,
+		TeamSlug:        &input.TeamSlug,
+		Data: KafkaCredentialsCreatedActivityLogEntryData{
+			TTL: input.TTL,
+		},
+	}); err != nil {
+		fromContext(ctx).log.WithError(err).Warn("failed to create activity log entry for kafka credentials creation")
 	}
 
 	return &CreateKafkaCredentialsPayload{Credentials: result.(*KafkaCredentials)}, nil

@@ -750,23 +750,6 @@ type ComplexityRoot struct {
 		Valkey func(childComplexity int) int
 	}
 
-	CredentialsActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		Data            func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
-	}
-
-	CredentialsActivityLogEntryData struct {
-		Permission func(childComplexity int) int
-		TTL        func(childComplexity int) int
-	}
-
 	CurrentUnitPrices struct {
 		CPU    func(childComplexity int) int
 		Memory func(childComplexity int) int
@@ -1371,6 +1354,22 @@ type ComplexityRoot struct {
 		Username       func(childComplexity int) int
 	}
 
+	KafkaCredentialsCreatedActivityLogEntry struct {
+		Actor           func(childComplexity int) int
+		CreatedAt       func(childComplexity int) int
+		Data            func(childComplexity int) int
+		EnvironmentName func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Message         func(childComplexity int) int
+		ResourceName    func(childComplexity int) int
+		ResourceType    func(childComplexity int) int
+		TeamSlug        func(childComplexity int) int
+	}
+
+	KafkaCredentialsCreatedActivityLogEntryData struct {
+		TTL func(childComplexity int) int
+	}
+
 	KafkaLagScalingStrategy struct {
 		ConsumerGroup func(childComplexity int) int
 		Threshold     func(childComplexity int) int
@@ -1666,6 +1665,23 @@ type ComplexityRoot struct {
 		Port     func(childComplexity int) int
 		URI      func(childComplexity int) int
 		Username func(childComplexity int) int
+	}
+
+	OpenSearchCredentialsCreatedActivityLogEntry struct {
+		Actor           func(childComplexity int) int
+		CreatedAt       func(childComplexity int) int
+		Data            func(childComplexity int) int
+		EnvironmentName func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Message         func(childComplexity int) int
+		ResourceName    func(childComplexity int) int
+		ResourceType    func(childComplexity int) int
+		TeamSlug        func(childComplexity int) int
+	}
+
+	OpenSearchCredentialsCreatedActivityLogEntryData struct {
+		Permission func(childComplexity int) int
+		TTL        func(childComplexity int) int
 	}
 
 	OpenSearchDeletedActivityLogEntry struct {
@@ -3460,6 +3476,23 @@ type ComplexityRoot struct {
 		Port     func(childComplexity int) int
 		URI      func(childComplexity int) int
 		Username func(childComplexity int) int
+	}
+
+	ValkeyCredentialsCreatedActivityLogEntry struct {
+		Actor           func(childComplexity int) int
+		CreatedAt       func(childComplexity int) int
+		Data            func(childComplexity int) int
+		EnvironmentName func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Message         func(childComplexity int) int
+		ResourceName    func(childComplexity int) int
+		ResourceType    func(childComplexity int) int
+		TeamSlug        func(childComplexity int) int
+	}
+
+	ValkeyCredentialsCreatedActivityLogEntryData struct {
+		Permission func(childComplexity int) int
+		TTL        func(childComplexity int) int
 	}
 
 	ValkeyDeletedActivityLogEntry struct {
@@ -6092,83 +6125,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.CreateValkeyPayload.Valkey(childComplexity), true
 
-	case "CredentialsActivityLogEntry.actor":
-		if e.ComplexityRoot.CredentialsActivityLogEntry.Actor == nil {
-			break
-		}
-
-		return e.ComplexityRoot.CredentialsActivityLogEntry.Actor(childComplexity), true
-
-	case "CredentialsActivityLogEntry.createdAt":
-		if e.ComplexityRoot.CredentialsActivityLogEntry.CreatedAt == nil {
-			break
-		}
-
-		return e.ComplexityRoot.CredentialsActivityLogEntry.CreatedAt(childComplexity), true
-
-	case "CredentialsActivityLogEntry.data":
-		if e.ComplexityRoot.CredentialsActivityLogEntry.Data == nil {
-			break
-		}
-
-		return e.ComplexityRoot.CredentialsActivityLogEntry.Data(childComplexity), true
-
-	case "CredentialsActivityLogEntry.environmentName":
-		if e.ComplexityRoot.CredentialsActivityLogEntry.EnvironmentName == nil {
-			break
-		}
-
-		return e.ComplexityRoot.CredentialsActivityLogEntry.EnvironmentName(childComplexity), true
-
-	case "CredentialsActivityLogEntry.id":
-		if e.ComplexityRoot.CredentialsActivityLogEntry.ID == nil {
-			break
-		}
-
-		return e.ComplexityRoot.CredentialsActivityLogEntry.ID(childComplexity), true
-
-	case "CredentialsActivityLogEntry.message":
-		if e.ComplexityRoot.CredentialsActivityLogEntry.Message == nil {
-			break
-		}
-
-		return e.ComplexityRoot.CredentialsActivityLogEntry.Message(childComplexity), true
-
-	case "CredentialsActivityLogEntry.resourceName":
-		if e.ComplexityRoot.CredentialsActivityLogEntry.ResourceName == nil {
-			break
-		}
-
-		return e.ComplexityRoot.CredentialsActivityLogEntry.ResourceName(childComplexity), true
-
-	case "CredentialsActivityLogEntry.resourceType":
-		if e.ComplexityRoot.CredentialsActivityLogEntry.ResourceType == nil {
-			break
-		}
-
-		return e.ComplexityRoot.CredentialsActivityLogEntry.ResourceType(childComplexity), true
-
-	case "CredentialsActivityLogEntry.teamSlug":
-		if e.ComplexityRoot.CredentialsActivityLogEntry.TeamSlug == nil {
-			break
-		}
-
-		return e.ComplexityRoot.CredentialsActivityLogEntry.TeamSlug(childComplexity), true
-
-	case "CredentialsActivityLogEntryData.permission":
-		if e.ComplexityRoot.CredentialsActivityLogEntryData.Permission == nil {
-			break
-		}
-
-		return e.ComplexityRoot.CredentialsActivityLogEntryData.Permission(childComplexity), true
-
-	case "CredentialsActivityLogEntryData.ttl":
-		if e.ComplexityRoot.CredentialsActivityLogEntryData.TTL == nil {
-			break
-		}
-
-		return e.ComplexityRoot.CredentialsActivityLogEntryData.TTL(childComplexity), true
-
 	case "CurrentUnitPrices.cpu":
 		if e.ComplexityRoot.CurrentUnitPrices.CPU == nil {
 			break
@@ -8623,6 +8579,76 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.KafkaCredentials.Username(childComplexity), true
 
+	case "KafkaCredentialsCreatedActivityLogEntry.actor":
+		if e.ComplexityRoot.KafkaCredentialsCreatedActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.KafkaCredentialsCreatedActivityLogEntry.Actor(childComplexity), true
+
+	case "KafkaCredentialsCreatedActivityLogEntry.createdAt":
+		if e.ComplexityRoot.KafkaCredentialsCreatedActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.KafkaCredentialsCreatedActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "KafkaCredentialsCreatedActivityLogEntry.data":
+		if e.ComplexityRoot.KafkaCredentialsCreatedActivityLogEntry.Data == nil {
+			break
+		}
+
+		return e.ComplexityRoot.KafkaCredentialsCreatedActivityLogEntry.Data(childComplexity), true
+
+	case "KafkaCredentialsCreatedActivityLogEntry.environmentName":
+		if e.ComplexityRoot.KafkaCredentialsCreatedActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.KafkaCredentialsCreatedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "KafkaCredentialsCreatedActivityLogEntry.id":
+		if e.ComplexityRoot.KafkaCredentialsCreatedActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.KafkaCredentialsCreatedActivityLogEntry.ID(childComplexity), true
+
+	case "KafkaCredentialsCreatedActivityLogEntry.message":
+		if e.ComplexityRoot.KafkaCredentialsCreatedActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.KafkaCredentialsCreatedActivityLogEntry.Message(childComplexity), true
+
+	case "KafkaCredentialsCreatedActivityLogEntry.resourceName":
+		if e.ComplexityRoot.KafkaCredentialsCreatedActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.KafkaCredentialsCreatedActivityLogEntry.ResourceName(childComplexity), true
+
+	case "KafkaCredentialsCreatedActivityLogEntry.resourceType":
+		if e.ComplexityRoot.KafkaCredentialsCreatedActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.KafkaCredentialsCreatedActivityLogEntry.ResourceType(childComplexity), true
+
+	case "KafkaCredentialsCreatedActivityLogEntry.teamSlug":
+		if e.ComplexityRoot.KafkaCredentialsCreatedActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.KafkaCredentialsCreatedActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "KafkaCredentialsCreatedActivityLogEntryData.ttl":
+		if e.ComplexityRoot.KafkaCredentialsCreatedActivityLogEntryData.TTL == nil {
+			break
+		}
+
+		return e.ComplexityRoot.KafkaCredentialsCreatedActivityLogEntryData.TTL(childComplexity), true
+
 	case "KafkaLagScalingStrategy.consumerGroup":
 		if e.ComplexityRoot.KafkaLagScalingStrategy.ConsumerGroup == nil {
 			break
@@ -10311,6 +10337,83 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.OpenSearchCredentials.Username(childComplexity), true
+
+	case "OpenSearchCredentialsCreatedActivityLogEntry.actor":
+		if e.ComplexityRoot.OpenSearchCredentialsCreatedActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.OpenSearchCredentialsCreatedActivityLogEntry.Actor(childComplexity), true
+
+	case "OpenSearchCredentialsCreatedActivityLogEntry.createdAt":
+		if e.ComplexityRoot.OpenSearchCredentialsCreatedActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.OpenSearchCredentialsCreatedActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "OpenSearchCredentialsCreatedActivityLogEntry.data":
+		if e.ComplexityRoot.OpenSearchCredentialsCreatedActivityLogEntry.Data == nil {
+			break
+		}
+
+		return e.ComplexityRoot.OpenSearchCredentialsCreatedActivityLogEntry.Data(childComplexity), true
+
+	case "OpenSearchCredentialsCreatedActivityLogEntry.environmentName":
+		if e.ComplexityRoot.OpenSearchCredentialsCreatedActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.OpenSearchCredentialsCreatedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "OpenSearchCredentialsCreatedActivityLogEntry.id":
+		if e.ComplexityRoot.OpenSearchCredentialsCreatedActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.OpenSearchCredentialsCreatedActivityLogEntry.ID(childComplexity), true
+
+	case "OpenSearchCredentialsCreatedActivityLogEntry.message":
+		if e.ComplexityRoot.OpenSearchCredentialsCreatedActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.OpenSearchCredentialsCreatedActivityLogEntry.Message(childComplexity), true
+
+	case "OpenSearchCredentialsCreatedActivityLogEntry.resourceName":
+		if e.ComplexityRoot.OpenSearchCredentialsCreatedActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.OpenSearchCredentialsCreatedActivityLogEntry.ResourceName(childComplexity), true
+
+	case "OpenSearchCredentialsCreatedActivityLogEntry.resourceType":
+		if e.ComplexityRoot.OpenSearchCredentialsCreatedActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.OpenSearchCredentialsCreatedActivityLogEntry.ResourceType(childComplexity), true
+
+	case "OpenSearchCredentialsCreatedActivityLogEntry.teamSlug":
+		if e.ComplexityRoot.OpenSearchCredentialsCreatedActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.OpenSearchCredentialsCreatedActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "OpenSearchCredentialsCreatedActivityLogEntryData.permission":
+		if e.ComplexityRoot.OpenSearchCredentialsCreatedActivityLogEntryData.Permission == nil {
+			break
+		}
+
+		return e.ComplexityRoot.OpenSearchCredentialsCreatedActivityLogEntryData.Permission(childComplexity), true
+
+	case "OpenSearchCredentialsCreatedActivityLogEntryData.ttl":
+		if e.ComplexityRoot.OpenSearchCredentialsCreatedActivityLogEntryData.TTL == nil {
+			break
+		}
+
+		return e.ComplexityRoot.OpenSearchCredentialsCreatedActivityLogEntryData.TTL(childComplexity), true
 
 	case "OpenSearchDeletedActivityLogEntry.actor":
 		if e.ComplexityRoot.OpenSearchDeletedActivityLogEntry.Actor == nil {
@@ -18218,6 +18321,83 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ValkeyCredentials.Username(childComplexity), true
 
+	case "ValkeyCredentialsCreatedActivityLogEntry.actor":
+		if e.ComplexityRoot.ValkeyCredentialsCreatedActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ValkeyCredentialsCreatedActivityLogEntry.Actor(childComplexity), true
+
+	case "ValkeyCredentialsCreatedActivityLogEntry.createdAt":
+		if e.ComplexityRoot.ValkeyCredentialsCreatedActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ValkeyCredentialsCreatedActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "ValkeyCredentialsCreatedActivityLogEntry.data":
+		if e.ComplexityRoot.ValkeyCredentialsCreatedActivityLogEntry.Data == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ValkeyCredentialsCreatedActivityLogEntry.Data(childComplexity), true
+
+	case "ValkeyCredentialsCreatedActivityLogEntry.environmentName":
+		if e.ComplexityRoot.ValkeyCredentialsCreatedActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ValkeyCredentialsCreatedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "ValkeyCredentialsCreatedActivityLogEntry.id":
+		if e.ComplexityRoot.ValkeyCredentialsCreatedActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ValkeyCredentialsCreatedActivityLogEntry.ID(childComplexity), true
+
+	case "ValkeyCredentialsCreatedActivityLogEntry.message":
+		if e.ComplexityRoot.ValkeyCredentialsCreatedActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ValkeyCredentialsCreatedActivityLogEntry.Message(childComplexity), true
+
+	case "ValkeyCredentialsCreatedActivityLogEntry.resourceName":
+		if e.ComplexityRoot.ValkeyCredentialsCreatedActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ValkeyCredentialsCreatedActivityLogEntry.ResourceName(childComplexity), true
+
+	case "ValkeyCredentialsCreatedActivityLogEntry.resourceType":
+		if e.ComplexityRoot.ValkeyCredentialsCreatedActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ValkeyCredentialsCreatedActivityLogEntry.ResourceType(childComplexity), true
+
+	case "ValkeyCredentialsCreatedActivityLogEntry.teamSlug":
+		if e.ComplexityRoot.ValkeyCredentialsCreatedActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ValkeyCredentialsCreatedActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "ValkeyCredentialsCreatedActivityLogEntryData.permission":
+		if e.ComplexityRoot.ValkeyCredentialsCreatedActivityLogEntryData.Permission == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ValkeyCredentialsCreatedActivityLogEntryData.Permission(childComplexity), true
+
+	case "ValkeyCredentialsCreatedActivityLogEntryData.ttl":
+		if e.ComplexityRoot.ValkeyCredentialsCreatedActivityLogEntryData.TTL == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ValkeyCredentialsCreatedActivityLogEntryData.TTL(childComplexity), true
+
 	case "ValkeyDeletedActivityLogEntry.actor":
 		if e.ComplexityRoot.ValkeyDeletedActivityLogEntry.Actor == nil {
 			break
@@ -19823,55 +20003,6 @@ type ActivityLogEntryEdge {
 	The log entry.
 	"""
 	node: ActivityLogEntry!
-}
-`, BuiltIn: false},
-	{Name: "../schema/aiven_credentials.graphqls", Input: `"Permission level for OpenSearch and Valkey credentials."
-enum CredentialPermission {
-	READ
-	WRITE
-	READWRITE
-	ADMIN
-}
-
-type CredentialsActivityLogEntry implements ActivityLogEntry & Node {
-	"ID of the entry."
-	id: ID!
-
-	"The identity of the actor who performed the action."
-	actor: String!
-
-	"Creation time of the entry."
-	createdAt: Time!
-
-	"Message that summarizes the entry."
-	message: String!
-
-	"Type of the resource that was affected by the action."
-	resourceType: ActivityLogEntryResourceType!
-
-	"Name of the resource that was affected by the action."
-	resourceName: String!
-
-	"The team slug that the entry belongs to."
-	teamSlug: Slug!
-
-	"The environment name that the entry belongs to."
-	environmentName: String
-
-	"Data associated with the credential creation."
-	data: CredentialsActivityLogEntryData!
-}
-
-type CredentialsActivityLogEntryData {
-	"The permission level, if applicable."
-	permission: String
-	"The TTL that was requested for the credentials."
-	ttl: String!
-}
-
-extend enum ActivityLogActivityType {
-	"Filter for credential creation events."
-	CREDENTIALS_CREATED
 }
 `, BuiltIn: false},
 	{Name: "../schema/alerts.graphqls", Input: `extend type TeamEnvironment {
@@ -24591,6 +24722,50 @@ type CreateKafkaCredentialsPayload {
 	"The generated credentials."
 	credentials: KafkaCredentials!
 }
+
+type KafkaCredentialsCreatedActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: ActivityLogEntryResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+
+	"Data associated with the credential creation."
+	data: KafkaCredentialsCreatedActivityLogEntryData!
+}
+
+type KafkaCredentialsCreatedActivityLogEntryData {
+	"The TTL that was requested for the credentials."
+	ttl: String!
+}
+
+extend enum ActivityLogActivityType {
+	"Filter for Kafka credential creation events."
+	KAFKA_CREDENTIALS_CREATED
+}
+
+extend enum ActivityLogEntryResourceType {
+	"All activity log entries related to Kafka topics will use this resource type."
+	KAFKA_TOPIC
+}
 `, BuiltIn: false},
 	{Name: "../schema/labels.graphqls", Input: `"""
 A user-defined label attached to a resource.
@@ -25025,6 +25200,18 @@ type OpenSearch implements Persistence & Node {
 	): IssueConnection!
 }
 
+"Permission level for OpenSearch credentials."
+enum OpenSearchPermission {
+	"Read-only access."
+	READ
+	"Write-only access."
+	WRITE
+	"Read and write access."
+	READWRITE
+	"Administrative access."
+	ADMIN
+}
+
 enum OpenSearchState {
 	POWEROFF
 	REBALANCING
@@ -25363,7 +25550,7 @@ input CreateOpenSearchCredentialsInput {
 	"Name of the OpenSearch instance."
 	instanceName: String!
 	"Permission level for the credentials."
-	permission: CredentialPermission!
+	permission: OpenSearchPermission!
 	"Time-to-live for the credentials (e.g. '1d', '7d'). Maximum 30 days."
 	ttl: String!
 }
@@ -25384,6 +25571,47 @@ type OpenSearchCredentials {
 type CreateOpenSearchCredentialsPayload {
 	"The generated credentials."
 	credentials: OpenSearchCredentials!
+}
+
+type OpenSearchCredentialsCreatedActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: ActivityLogEntryResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+
+	"Data associated with the credential creation."
+	data: OpenSearchCredentialsCreatedActivityLogEntryData!
+}
+
+type OpenSearchCredentialsCreatedActivityLogEntryData {
+	"The permission level, if applicable."
+	permission: String
+	"The TTL that was requested for the credentials."
+	ttl: String!
+}
+
+extend enum ActivityLogActivityType {
+	"Filter for credential creation events."
+	OPENSEARCH_CREDENTIALS_CREATED
 }
 `, BuiltIn: false},
 	{Name: "../schema/persistence.graphqls", Input: `interface Persistence implements Node {
@@ -31163,6 +31391,18 @@ input ValkeyOrder {
 	direction: OrderDirection!
 }
 
+"Permission level for Valkey credentials."
+enum ValkeyPermission {
+	"Read-only access."
+	READ
+	"Write-only access."
+	WRITE
+	"Read and write access."
+	READWRITE
+	"Administrative access."
+	ADMIN
+}
+
 enum ValkeyAccessOrderField {
 	ACCESS
 	WORKLOAD
@@ -31425,7 +31665,7 @@ input CreateValkeyCredentialsInput {
 	"Name of the Valkey instance."
 	instanceName: String!
 	"Permission level for the credentials."
-	permission: CredentialPermission!
+	permission: ValkeyPermission!
 	"Time-to-live for the credentials (e.g. '1d', '7d'). Maximum 30 days."
 	ttl: String!
 }
@@ -31446,6 +31686,47 @@ type ValkeyCredentials {
 type CreateValkeyCredentialsPayload {
 	"The generated credentials."
 	credentials: ValkeyCredentials!
+}
+
+type ValkeyCredentialsCreatedActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: ActivityLogEntryResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+
+	"Data associated with the credential creation."
+	data: ValkeyCredentialsCreatedActivityLogEntryData!
+}
+
+type ValkeyCredentialsCreatedActivityLogEntryData {
+	"The permission level, if applicable."
+	permission: String
+	"The TTL that was requested for the credentials."
+	ttl: String!
+}
+
+extend enum ActivityLogActivityType {
+	"Filter for credential creation events."
+	VALKEY_CREDENTIALS_CREATED
 }
 `, BuiltIn: false},
 	{Name: "../schema/vulnerability.graphqls", Input: `extend type Mutation {
@@ -33667,16 +33948,6 @@ func (ec *executionContext) childFields_CreateValkeyPayload(ctx context.Context,
 	return nil, fmt.Errorf("no field named %q was found under type CreateValkeyPayload", field.Name)
 }
 
-func (ec *executionContext) childFields_CredentialsActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-	switch field.Name {
-	case "permission":
-		return ec.fieldContext_CredentialsActivityLogEntryData_permission(ctx, field)
-	case "ttl":
-		return ec.fieldContext_CredentialsActivityLogEntryData_ttl(ctx, field)
-	}
-	return nil, fmt.Errorf("no field named %q was found under type CredentialsActivityLogEntryData", field.Name)
-}
-
 func (ec *executionContext) childFields_CurrentUnitPrices(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "cpu":
@@ -34599,6 +34870,14 @@ func (ec *executionContext) childFields_KafkaCredentials(ctx context.Context, fi
 	return nil, fmt.Errorf("no field named %q was found under type KafkaCredentials", field.Name)
 }
 
+func (ec *executionContext) childFields_KafkaCredentialsCreatedActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "ttl":
+		return ec.fieldContext_KafkaCredentialsCreatedActivityLogEntryData_ttl(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type KafkaCredentialsCreatedActivityLogEntryData", field.Name)
+}
+
 func (ec *executionContext) childFields_KafkaTopic(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "id":
@@ -34937,6 +35216,16 @@ func (ec *executionContext) childFields_OpenSearchCredentials(ctx context.Contex
 		return ec.fieldContext_OpenSearchCredentials_uri(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type OpenSearchCredentials", field.Name)
+}
+
+func (ec *executionContext) childFields_OpenSearchCredentialsCreatedActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "permission":
+		return ec.fieldContext_OpenSearchCredentialsCreatedActivityLogEntryData_permission(ctx, field)
+	case "ttl":
+		return ec.fieldContext_OpenSearchCredentialsCreatedActivityLogEntryData_ttl(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type OpenSearchCredentialsCreatedActivityLogEntryData", field.Name)
 }
 
 func (ec *executionContext) childFields_OpenSearchEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -37281,6 +37570,16 @@ func (ec *executionContext) childFields_ValkeyCredentials(ctx context.Context, f
 		return ec.fieldContext_ValkeyCredentials_uri(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type ValkeyCredentials", field.Name)
+}
+
+func (ec *executionContext) childFields_ValkeyCredentialsCreatedActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "permission":
+		return ec.fieldContext_ValkeyCredentialsCreatedActivityLogEntryData_permission(ctx, field)
+	case "ttl":
+		return ec.fieldContext_ValkeyCredentialsCreatedActivityLogEntryData_ttl(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ValkeyCredentialsCreatedActivityLogEntryData", field.Name)
 }
 
 func (ec *executionContext) childFields_ValkeyEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {

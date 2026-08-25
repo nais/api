@@ -20,11 +20,12 @@ type (
 )
 
 const (
-	ActivityLogEntryActionAdded   ActivityLogEntryAction = "ADDED"
-	ActivityLogEntryActionCreated ActivityLogEntryAction = "CREATED"
-	ActivityLogEntryActionDeleted ActivityLogEntryAction = "DELETED"
-	ActivityLogEntryActionRemoved ActivityLogEntryAction = "REMOVED"
-	ActivityLogEntryActionUpdated ActivityLogEntryAction = "UPDATED"
+	ActivityLogEntryActionAdded              ActivityLogEntryAction = "ADDED"
+	ActivityLogEntryActionCreated            ActivityLogEntryAction = "CREATED"
+	ActivityLogEntryActionDeleted            ActivityLogEntryAction = "DELETED"
+	ActivityLogEntryActionRemoved            ActivityLogEntryAction = "REMOVED"
+	ActivityLogEntryActionUpdated            ActivityLogEntryAction = "UPDATED"
+	ActivityLogEntryActionCredentialsCreated ActivityLogEntryAction = "CREDENTIALS_CREATED"
 )
 
 type ActivityLogEntry interface {
