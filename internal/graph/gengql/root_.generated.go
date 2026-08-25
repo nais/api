@@ -25070,10 +25070,15 @@ type OpenSearch implements Persistence & Node {
 	): IssueConnection!
 }
 
+"Permission level for OpenSearch credentials."
 enum OpenSearchPermission {
+	"Read-only access."
 	READ
+	"Write-only access."
 	WRITE
+	"Read and write access."
 	READWRITE
+	"Administrative access."
 	ADMIN
 }
 
@@ -31256,10 +31261,15 @@ input ValkeyOrder {
 	direction: OrderDirection!
 }
 
+"Permission level for Valkey credentials."
 enum ValkeyPermission {
+	"Read-only access."
 	READ
+	"Write-only access."
 	WRITE
+	"Read and write access."
 	READWRITE
+	"Administrative access."
 	ADMIN
 }
 
