@@ -381,15 +381,16 @@ Helper.SQLExec(string.format([[
 	INSERT INTO activity_log_entries (actor, action, resource_type, resource_name, team_slug, environment, data, created_at)
 	VALUES
 		('%s', 'CREDENTIALS_CREATED', 'OPENSEARCH', 'my-instance', '%s', 'dev', '{"permission":"READ","ttl":"1d"}', NOW() - INTERVAL '2 minutes'),
-		('%s', 'CREDENTIALS_CREATED', 'VALKEY', 'my-valkey', '%s', 'dev', '{"ttl":"7d"}', NOW() - INTERVAL '1 minute')
-]], user:email(), team:slug(), user:email(), team:slug()))
+		('%s', 'CREDENTIALS_CREATED', 'VALKEY', 'my-valkey', '%s', 'dev', '{"ttl":"7d"}', NOW() - INTERVAL '1 minute'),
+		('%s', 'CREDENTIALS_CREATED', 'KAFKA_TOPIC', 'dev', '%s', 'dev', '{"ttl":"7d"}', NOW() - INTERVAL '5 minute')
+]], user:email(), team:slug(), user:email(), team:slug(), user:email(), team:slug()))
 
 Test.gql("Activity log returns credentials entries without panic", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query(string.format([[
 		{
 		  team(slug: "%s") {
-		    activityLog(first: 10, filter: { activityTypes: [VALKEY_CREDENTIALS_CREATED, OPENSEARCH_CREDENTIALS_CREATED] }) {
+		    activityLog(first: 10, filter: { activityTypes: [VALKEY_CREDENTIALS_CREATED, OPENSEARCH_CREDENTIALS_CREATED, KAFKA_CREDENTIALS_CREATED] }) {
 		      nodes {
 		        __typename
 		        message
@@ -397,16 +398,21 @@ Test.gql("Activity log returns credentials entries without panic", function(t)
 		        resourceType
 		        resourceName
 		        environmentName
-		        ... on ValkeyCredentialsActivityLogEntry {
+		        ... on ValkeyCredentialsCreatedActivityLogEntry {
 		          data {
 		            permission
 		            ttl
 		          }
 		        }
-		        ... on OpenSearchCredentialsActivityLogEntry {
+		        ... on OpenSearchCredentialsCreatedActivityLogEntry {
 		          data {
 		            permission
 		            ttl
+		          }
+		        }
+		        ... on KafkaCredentialsCreatedActivityLogEntry {
+		          data {
+                ttl
 		          }
 		        }
 		      }
@@ -421,7 +427,7 @@ Test.gql("Activity log returns credentials entries without panic", function(t)
 				activityLog = {
 					nodes = {
 						{
-							__typename = "ValkeyCredentialsActivityLogEntry",
+							__typename = "ValkeyCredentialsCreatedActivityLogEntry",
 							message = "Created credentials for \"my-valkey\" (TTL: 7d)",
 							actor = user:email(),
 							resourceType = "VALKEY",
@@ -433,7 +439,7 @@ Test.gql("Activity log returns credentials entries without panic", function(t)
 							},
 						},
 						{
-							__typename = "OpenSearchCredentialsActivityLogEntry",
+							__typename = "OpenSearchCredentialsCreatedActivityLogEntry",
 							message = "Created credentials for \"my-instance\" with \"read\" permission (TTL: 1d)",
 							actor = user:email(),
 							resourceType = "OPENSEARCH",
@@ -442,6 +448,17 @@ Test.gql("Activity log returns credentials entries without panic", function(t)
 							data = {
 								permission = "READ",
 								ttl = "1d",
+							},
+						},
+						{
+							__typename = "KafkaCredentialsCreatedActivityLogEntry",
+							message = "Created credentials for \"dev\" (TTL: 7d)",
+							actor = user:email(),
+							resourceType = "KAFKA_TOPIC",
+							resourceName = "dev",
+							environmentName = "dev",
+							data = {
+								ttl = "7d",
 							},
 						},
 					},
