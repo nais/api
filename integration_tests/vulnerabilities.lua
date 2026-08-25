@@ -163,6 +163,19 @@ Test.gql("Get vulnerability summary for tenant", function(t)
 	t.query(string.format([[
 		{
 			vulnerabilitySummary{
+				countsBySeverity {
+					critical
+					high
+					medium
+					low
+					unassigned
+				}
+				countsByPriority {
+					urgent
+					highRisk
+					elevatedRisk
+					monitor
+				}
 				critical
 				high
 				medium
@@ -178,6 +191,19 @@ Test.gql("Get vulnerability summary for tenant", function(t)
 	t.check {
 		data = {
 			vulnerabilitySummary = {
+				countsBySeverity = {
+					critical = NotNull(),
+					high = NotNull(),
+					medium = NotNull(),
+					low = NotNull(),
+					unassigned = NotNull(),
+				},
+				countsByPriority = {
+					urgent = NotNull(),
+					highRisk = NotNull(),
+					elevatedRisk = NotNull(),
+					monitor = NotNull(),
+				},
 				critical = NotNull(),
 				high = NotNull(),
 				medium = NotNull(),
@@ -197,6 +223,19 @@ Test.gql("Get vulnerability summary for team", function(t)
 		{
 			team(slug: "%s") {
 			  vulnerabilitySummary{
+				countsBySeverity {
+					critical
+					high
+					medium
+					low
+					unassigned
+				}
+				countsByPriority {
+					urgent
+					highRisk
+					elevatedRisk
+					monitor
+				}
 				critical
 				high
 				medium
@@ -213,6 +252,19 @@ Test.gql("Get vulnerability summary for team", function(t)
 		data = {
 			team = {
 				vulnerabilitySummary = {
+					countsBySeverity = {
+						critical = NotNull(),
+						high = NotNull(),
+						medium = NotNull(),
+						low = NotNull(),
+						unassigned = NotNull(),
+					},
+					countsByPriority = {
+						urgent = NotNull(),
+						highRisk = NotNull(),
+						elevatedRisk = NotNull(),
+						monitor = NotNull(),
+					},
 					critical = NotNull(),
 					high = NotNull(),
 					medium = NotNull(),

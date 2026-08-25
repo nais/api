@@ -3164,28 +3164,32 @@ type ComplexityRoot struct {
 	}
 
 	TeamVulnerabilitySummary struct {
-		Coverage       func(childComplexity int) int
-		Critical       func(childComplexity int) int
-		High           func(childComplexity int) int
-		LastUpdated    func(childComplexity int) int
-		Low            func(childComplexity int) int
-		Medium         func(childComplexity int) int
-		RiskScore      func(childComplexity int) int
-		RiskScoreTrend func(childComplexity int) int
-		SBOMCount      func(childComplexity int) int
-		Unassigned     func(childComplexity int) int
+		CountsByPriority func(childComplexity int) int
+		CountsBySeverity func(childComplexity int) int
+		Coverage         func(childComplexity int) int
+		Critical         func(childComplexity int) int
+		High             func(childComplexity int) int
+		LastUpdated      func(childComplexity int) int
+		Low              func(childComplexity int) int
+		Medium           func(childComplexity int) int
+		RiskScore        func(childComplexity int) int
+		RiskScoreTrend   func(childComplexity int) int
+		SBOMCount        func(childComplexity int) int
+		Unassigned       func(childComplexity int) int
 	}
 
 	TenantVulnerabilitySummary struct {
-		Coverage    func(childComplexity int) int
-		Critical    func(childComplexity int) int
-		High        func(childComplexity int) int
-		LastUpdated func(childComplexity int) int
-		Low         func(childComplexity int) int
-		Medium      func(childComplexity int) int
-		RiskScore   func(childComplexity int) int
-		SbomCount   func(childComplexity int) int
-		Unassigned  func(childComplexity int) int
+		CountsByPriority func(childComplexity int) int
+		CountsBySeverity func(childComplexity int) int
+		Coverage         func(childComplexity int) int
+		Critical         func(childComplexity int) int
+		High             func(childComplexity int) int
+		LastUpdated      func(childComplexity int) int
+		Low              func(childComplexity int) int
+		Medium           func(childComplexity int) int
+		RiskScore        func(childComplexity int) int
+		SbomCount        func(childComplexity int) int
+		Unassigned       func(childComplexity int) int
 	}
 
 	TokenXAuthIntegration struct {
@@ -17089,6 +17093,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.TeamUtilizationData.Used(childComplexity), true
 
+	case "TeamVulnerabilitySummary.countsByPriority":
+		if e.ComplexityRoot.TeamVulnerabilitySummary.CountsByPriority == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TeamVulnerabilitySummary.CountsByPriority(childComplexity), true
+
+	case "TeamVulnerabilitySummary.countsBySeverity":
+		if e.ComplexityRoot.TeamVulnerabilitySummary.CountsBySeverity == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TeamVulnerabilitySummary.CountsBySeverity(childComplexity), true
+
 	case "TeamVulnerabilitySummary.coverage":
 		if e.ComplexityRoot.TeamVulnerabilitySummary.Coverage == nil {
 			break
@@ -17158,6 +17176,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.TeamVulnerabilitySummary.Unassigned(childComplexity), true
+
+	case "TenantVulnerabilitySummary.countsByPriority":
+		if e.ComplexityRoot.TenantVulnerabilitySummary.CountsByPriority == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TenantVulnerabilitySummary.CountsByPriority(childComplexity), true
+
+	case "TenantVulnerabilitySummary.countsBySeverity":
+		if e.ComplexityRoot.TenantVulnerabilitySummary.CountsBySeverity == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TenantVulnerabilitySummary.CountsBySeverity(childComplexity), true
 
 	case "TenantVulnerabilitySummary.coverage":
 		if e.ComplexityRoot.TenantVulnerabilitySummary.Coverage == nil {
@@ -32716,20 +32748,34 @@ enum VulnerabilitySummaryOrderByField {
 type TenantVulnerabilitySummary {
 	"Risk score of the tenant."
 	riskScore: Int!
+
+	"Vulnerability counts grouped by severity."
+	countsBySeverity: ImageVulnerabilitySummaryCountsBySeverity!
+
+	"Vulnerability counts grouped by operational priority."
+	countsByPriority: ImageVulnerabilitySummaryCountsByPriority!
+
 	"Number of vulnerabilities with severity CRITICAL."
-	critical: Int!
+	critical: Int! @deprecated(reason: "Use countsBySeverity.critical instead.")
+
 	"Number of vulnerabilities with severity HIGH."
-	high: Int!
+	high: Int! @deprecated(reason: "Use countsBySeverity.high instead.")
+
 	"Number of vulnerabilities with severity MEDIUM."
-	medium: Int!
+	medium: Int! @deprecated(reason: "Use countsBySeverity.medium instead.")
+
 	"Number of vulnerabilities with severity LOW."
-	low: Int!
+	low: Int! @deprecated(reason: "Use countsBySeverity.low instead.")
+
 	"Number of vulnerabilities with severity UNASSIGNED."
-	unassigned: Int!
+	unassigned: Int! @deprecated(reason: "Use countsBySeverity.unassigned instead.")
+
 	"Number of workloads with a software bill of materials (SBOM) attached."
 	sbomCount: Int!
+
 	"SBOM Coverage of the tenant."
 	coverage: Float!
+
 	"Timestamp of the last update of the vulnerability summary."
 	lastUpdated: Time
 }
@@ -32737,22 +32783,37 @@ type TenantVulnerabilitySummary {
 type TeamVulnerabilitySummary {
 	"Risk score of the team."
 	riskScore: Int!
+
+	"Vulnerability counts grouped by severity."
+	countsBySeverity: ImageVulnerabilitySummaryCountsBySeverity!
+
+	"Vulnerability counts grouped by operational priority."
+	countsByPriority: ImageVulnerabilitySummaryCountsByPriority!
+
 	"Number of vulnerabilities with severity CRITICAL."
-	critical: Int!
+	critical: Int! @deprecated(reason: "Use countsBySeverity.critical instead.")
+
 	"Number of vulnerabilities with severity HIGH."
-	high: Int!
+	high: Int! @deprecated(reason: "Use countsBySeverity.high instead.")
+
 	"Number of vulnerabilities with severity MEDIUM."
-	medium: Int!
+	medium: Int! @deprecated(reason: "Use countsBySeverity.medium instead.")
+
 	"Number of vulnerabilities with severity LOW."
-	low: Int!
+	low: Int! @deprecated(reason: "Use countsBySeverity.low instead.")
+
 	"Number of vulnerabilities with severity UNASSIGNED."
-	unassigned: Int!
+	unassigned: Int! @deprecated(reason: "Use countsBySeverity.unassigned instead.")
+
 	"Number of workloads with a software bill of materials (SBOM) attached."
 	sbomCount: Int!
+
 	"Coverage of the team."
 	coverage: Float!
+
 	"Timestamp of the last update of the vulnerability summary."
 	lastUpdated: Time
+
 	"Trend of vulnerability status for the team."
 	riskScoreTrend: TeamVulnerabilityRiskScoreTrend!
 }
@@ -37560,6 +37621,10 @@ func (ec *executionContext) childFields_TeamVulnerabilitySummary(ctx context.Con
 	switch field.Name {
 	case "riskScore":
 		return ec.fieldContext_TeamVulnerabilitySummary_riskScore(ctx, field)
+	case "countsBySeverity":
+		return ec.fieldContext_TeamVulnerabilitySummary_countsBySeverity(ctx, field)
+	case "countsByPriority":
+		return ec.fieldContext_TeamVulnerabilitySummary_countsByPriority(ctx, field)
 	case "critical":
 		return ec.fieldContext_TeamVulnerabilitySummary_critical(ctx, field)
 	case "high":
@@ -37586,6 +37651,10 @@ func (ec *executionContext) childFields_TenantVulnerabilitySummary(ctx context.C
 	switch field.Name {
 	case "riskScore":
 		return ec.fieldContext_TenantVulnerabilitySummary_riskScore(ctx, field)
+	case "countsBySeverity":
+		return ec.fieldContext_TenantVulnerabilitySummary_countsBySeverity(ctx, field)
+	case "countsByPriority":
+		return ec.fieldContext_TenantVulnerabilitySummary_countsByPriority(ctx, field)
 	case "critical":
 		return ec.fieldContext_TenantVulnerabilitySummary_critical(ctx, field)
 	case "high":

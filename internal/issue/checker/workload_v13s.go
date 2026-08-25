@@ -15,6 +15,7 @@ import (
 const (
 	externalIngressClassName = "nais-ingress-external"
 	v13sQueryLimit           = 69000
+	legacyCriticalCvssScore  = 9.0
 )
 
 type V13sClient interface {
@@ -229,6 +230,24 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 			IssueDetails: issue.ExternalIngressUrgentVulnerabilityIssueDetails{
 				PriorityUrgent: int(node.VulnerabilitySummary.ActNow),
 				Ingresses:      externalIngresses,
+			},
+		})
+
+		ret = append(ret, &Issue{
+			IssueType:    issue.IssueTypeExternalIngressCriticalVulnerability,
+			ResourceType: workloadType,
+			ResourceName: workloadRef.GetName(),
+			Team:         workloadRef.GetNamespace(),
+			Env:          env,
+			Severity:     issue.SeverityCritical,
+			Message: fmt.Sprintf(
+				"Workload '%s' (exposed via external ingress) has %d urgent vulnerabilities",
+				workloadRef.GetName(),
+				node.VulnerabilitySummary.ActNow,
+			),
+			IssueDetails: issue.ExternalIngressCriticalVulnerabilityIssueDetails{
+				CvssScore: legacyCriticalCvssScore,
+				Ingresses: externalIngresses,
 			},
 		})
 	}

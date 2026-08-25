@@ -109,9 +109,13 @@ func testVulnerabilitiesExternalIngressActNowIssue(t *testing.T, workloadName, e
 
 	issues := workload.vulnerabilities(ctx)
 	actNowIssues := make([]*Issue, 0)
+	criticalIssues := make([]*Issue, 0)
 	for i := range issues {
 		if issues[i].IssueType == issue.IssueTypeExternalIngressUrgentVulnerability {
 			actNowIssues = append(actNowIssues, issues[i])
+		}
+		if issues[i].IssueType == issue.IssueTypeExternalIngressCriticalVulnerability {
+			criticalIssues = append(criticalIssues, issues[i])
 		}
 	}
 
@@ -119,11 +123,17 @@ func testVulnerabilitiesExternalIngressActNowIssue(t *testing.T, workloadName, e
 		if len(actNowIssues) != 0 {
 			t.Fatalf("expected 0 external ingress act-now issues, got %d", len(actNowIssues))
 		}
+		if len(criticalIssues) != 0 {
+			t.Fatalf("expected 0 external ingress critical issues, got %d", len(criticalIssues))
+		}
 		return
 	}
 
 	if len(actNowIssues) != 1 {
 		t.Fatalf("expected 1 external ingress act-now issue, got %d", len(actNowIssues))
+	}
+	if len(criticalIssues) != 1 {
+		t.Fatalf("expected 1 external ingress critical issue, got %d", len(criticalIssues))
 	}
 
 	got := actNowIssues[0]
@@ -146,5 +156,17 @@ func testVulnerabilitiesExternalIngressActNowIssue(t *testing.T, workloadName, e
 
 	if len(details.Ingresses) != 1 || details.Ingresses[0] != expectedIngress {
 		t.Fatalf("expected only external ingress URL, got %+v", details.Ingresses)
+	}
+
+	criticalDetails, ok := criticalIssues[0].IssueDetails.(issue.ExternalIngressCriticalVulnerabilityIssueDetails)
+	if !ok {
+		t.Fatalf("expected external ingress critical details, got %T", criticalIssues[0].IssueDetails)
+	}
+
+	if len(criticalDetails.Ingresses) != 1 || criticalDetails.Ingresses[0] != expectedIngress {
+		t.Fatalf("expected only external ingress URL on critical issue, got %+v", criticalDetails.Ingresses)
+	}
+	if criticalDetails.CvssScore != legacyCriticalCvssScore {
+		t.Fatalf("expected cvssScore %.1f on critical issue, got %v", legacyCriticalCvssScore, criticalDetails.CvssScore)
 	}
 }
