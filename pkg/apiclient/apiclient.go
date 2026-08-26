@@ -36,6 +36,10 @@ func (a *APIClient) Deployments() protoapi.DeploymentsClient {
 	return protoapi.NewDeploymentsClient(a.conn)
 }
 
+func (a *APIClient) Databases() protoapi.DatabasesClient {
+	return protoapi.NewDatabasesClient(a.conn)
+}
+
 func (a *APIClient) Close() error {
 	return a.conn.Close()
 }
