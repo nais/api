@@ -231,6 +231,7 @@ enum IssueType {
 	VULNERABLE_IMAGE
 	EXTERNAL_INGRESS_CRITICAL_VULNERABILITY
 		@deprecated(reason: "Use EXTERNAL_INGRESS_URGENT_VULNERABILITY.")
+	"Raised when a workload has external ingress exposure and urgent vulnerabilities."
 	EXTERNAL_INGRESS_URGENT_VULNERABILITY
 	UNLEASH_RELEASE_CHANNEL
 	"Raised when an application is stuck in a restart loop."

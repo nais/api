@@ -4,6 +4,8 @@ metadata:
   name: vulnerable
 spec:
   image: europe-north1-docker.pkg.dev/nais/navikt/app-name:latest
+  ingresses:
+    - https://vulnerable.example.com
 ---
 apiVersion: v1
 kind: Pod
@@ -24,6 +26,17 @@ status:
       state:
         running:
           startedAt: "2022-07-06T09:45:18Z"
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: vulnerable-external
+  labels:
+    app: vulnerable
+spec:
+  ingressClassName: nais-ingress-external
+  rules:
+    - host: vulnerable.example.com
 ---
 apiVersion: nais.io/v1alpha1
 kind: Application
