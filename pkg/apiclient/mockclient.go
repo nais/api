@@ -63,6 +63,7 @@ type MockServers struct {
 	Teams       *protoapi.MockTeamsServer
 	Users       *protoapi.MockUsersServer
 	Deployments *protoapi.MockDeploymentsServer
+	Databases   *protoapi.MockDatabasesServer
 }
 
 func NewMockClient(t testing.TB) (*APIClient, *MockServers) {
@@ -83,12 +84,14 @@ func NewMockClient(t testing.TB) (*APIClient, *MockServers) {
 		Teams:       protoapi.NewMockTeamsServer(th),
 		Users:       protoapi.NewMockUsersServer(th),
 		Deployments: protoapi.NewMockDeploymentsServer(th),
+		Databases:   protoapi.NewMockDatabasesServer(th),
 	}
 
 	protoapi.RegisterReconcilersServer(s, mockServers.Reconcilers)
 	protoapi.RegisterTeamsServer(s, mockServers.Teams)
 	protoapi.RegisterUsersServer(s, mockServers.Users)
 	protoapi.RegisterDeploymentsServer(s, mockServers.Deployments)
+	protoapi.RegisterDatabasesServer(s, mockServers.Databases)
 
 	listener := bufconn.Listen(1024 * 1024)
 	dialer := func(_ context.Context, s string) (net.Conn, error) {
