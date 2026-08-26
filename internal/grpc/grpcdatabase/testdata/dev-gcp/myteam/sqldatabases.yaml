@@ -1,0 +1,15 @@
+apiVersion: sql.cnrm.cloud.google.com/v1beta1
+kind: SQLDatabase
+metadata:
+  name: db-b
+spec:
+  instanceRef:
+    name: instance-a
+---
+apiVersion: sql.cnrm.cloud.google.com/v1beta1
+kind: SQLDatabase
+metadata:
+  name: db-a
+spec:
+  instanceRef:
+    name: instance-a

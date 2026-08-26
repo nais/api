@@ -78,6 +78,33 @@ func (t *Server) List(ctx context.Context, req *protoapi.ListTeamsRequest) (*pro
 	return resp, nil
 }
 
+func (t *Server) ListForUserByEmail(ctx context.Context, req *protoapi.ListForUserByEmailRequest) (*protoapi.ListTeamsResponse, error) {
+	limit, offset := grpcpagination.Pagination(req)
+	teams, err := t.querier.ListForUserByEmail(ctx, grpcteamsql.ListForUserByEmailParams{
+		Offset: offset,
+		Limit:  limit,
+		Email:  req.Email,
+	})
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to list teams for user: %s", err)
+	}
+
+	total, err := t.querier.Count(ctx)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to get teams count for user: %s", err)
+	}
+
+	resp := &protoapi.ListTeamsResponse{
+		PageInfo: grpcpagination.PageInfo(req, int(total)),
+		Nodes:    make([]*protoapi.Team, len(teams)),
+	}
+	for i, team := range teams {
+		resp.Nodes[i] = toProtoTeam(team)
+	}
+
+	return resp, nil
+}
+
 func (t *Server) Members(ctx context.Context, req *protoapi.ListTeamMembersRequest) (*protoapi.ListTeamMembersResponse, error) {
 	limit, offset := grpcpagination.Pagination(req)
 	users, err := t.querier.ListMembers(ctx, grpcteamsql.ListMembersParams{
