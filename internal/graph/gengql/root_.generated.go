@@ -32292,13 +32292,6 @@ input TeamVulnerabilitySummaryFilter {
 	environmentName: String
 
 	"""
-	Deprecated: use environmentName instead.
-	Only one environment is supported if this list is used.
-	"""
-	environments: [String!]
-		@deprecated(reason: "Use environmentName instead. Only one value is supported.")
-
-	"""
 	Only return vulnerability summaries at or above the given vulnerability priority.
 	"""
 	priority: CVEPriority
