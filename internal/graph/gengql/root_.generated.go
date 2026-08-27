@@ -83,6 +83,7 @@ type ResolverRoot interface {
 	DeprecatedRegistryIssue() DeprecatedRegistryIssueResolver
 	Environment() EnvironmentResolver
 	ExternalIngressCriticalVulnerabilityIssue() ExternalIngressCriticalVulnerabilityIssueResolver
+	ExternalIngressUrgentVulnerabilityIssue() ExternalIngressUrgentVulnerabilityIssueResolver
 	FailedSynchronizationIssue() FailedSynchronizationIssueResolver
 	Ingress() IngressResolver
 	InstanceGroup() InstanceGroupResolver
@@ -533,14 +534,19 @@ type ComplexityRoot struct {
 	}
 
 	CVE struct {
-		CVSSScore   func(childComplexity int) int
-		Description func(childComplexity int) int
-		DetailsLink func(childComplexity int) int
-		ID          func(childComplexity int) int
-		Identifier  func(childComplexity int) int
-		Severity    func(childComplexity int) int
-		Title       func(childComplexity int) int
-		Workloads   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *vulnerability.CVEWorkloadsFilter) int
+		CVSSScore          func(childComplexity int) int
+		Description        func(childComplexity int) int
+		DetailsLink        func(childComplexity int) int
+		EpssPercentile     func(childComplexity int) int
+		EpssScore          func(childComplexity int) int
+		HasKevEntry        func(childComplexity int) int
+		ID                 func(childComplexity int) int
+		Identifier         func(childComplexity int) int
+		KnownRansomwareUse func(childComplexity int) int
+		Priority           func(childComplexity int) int
+		Severity           func(childComplexity int) int
+		Title              func(childComplexity int) int
+		Workloads          func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *vulnerability.CVEWorkloadsFilter) int
 	}
 
 	CVEConnection struct {
@@ -939,6 +945,16 @@ type ComplexityRoot struct {
 		Workload        func(childComplexity int) int
 	}
 
+	ExternalIngressUrgentVulnerabilityIssue struct {
+		ID              func(childComplexity int) int
+		Ingresses       func(childComplexity int) int
+		Message         func(childComplexity int) int
+		PriorityUrgent  func(childComplexity int) int
+		Severity        func(childComplexity int) int
+		TeamEnvironment func(childComplexity int) int
+		Workload        func(childComplexity int) int
+	}
+
 	ExternalNetworkPolicyHost struct {
 		Ports  func(childComplexity int) int
 		Target func(childComplexity int) int
@@ -1028,9 +1044,15 @@ type ComplexityRoot struct {
 	ImageVulnerability struct {
 		CvssScore                func(childComplexity int) int
 		Description              func(childComplexity int) int
+		EpssPercentile           func(childComplexity int) int
+		EpssScore                func(childComplexity int) int
+		FixVersion               func(childComplexity int) int
+		HasKevEntry              func(childComplexity int) int
 		ID                       func(childComplexity int) int
 		Identifier               func(childComplexity int) int
+		KnownRansomwareUse       func(childComplexity int) int
 		Package                  func(childComplexity int) int
+		Priority                 func(childComplexity int) int
 		Severity                 func(childComplexity int) int
 		SeveritySince            func(childComplexity int) int
 		Suppression              func(childComplexity int) int
@@ -1058,15 +1080,32 @@ type ComplexityRoot struct {
 	}
 
 	ImageVulnerabilitySummary struct {
-		Critical      func(childComplexity int) int
-		High          func(childComplexity int) int
-		LastUpdated   func(childComplexity int) int
-		Low           func(childComplexity int) int
-		Medium        func(childComplexity int) int
-		RiskScore     func(childComplexity int) int
-		StaleImageTag func(childComplexity int) int
-		Total         func(childComplexity int) int
-		Unassigned    func(childComplexity int) int
+		CountsByPriority func(childComplexity int) int
+		CountsBySeverity func(childComplexity int) int
+		Critical         func(childComplexity int) int
+		High             func(childComplexity int) int
+		LastUpdated      func(childComplexity int) int
+		Low              func(childComplexity int) int
+		Medium           func(childComplexity int) int
+		RiskScore        func(childComplexity int) int
+		StaleImageTag    func(childComplexity int) int
+		Total            func(childComplexity int) int
+		Unassigned       func(childComplexity int) int
+	}
+
+	ImageVulnerabilitySummaryCountsByPriority struct {
+		ElevatedRisk func(childComplexity int) int
+		HighRisk     func(childComplexity int) int
+		Monitor      func(childComplexity int) int
+		Urgent       func(childComplexity int) int
+	}
+
+	ImageVulnerabilitySummaryCountsBySeverity struct {
+		Critical   func(childComplexity int) int
+		High       func(childComplexity int) int
+		Low        func(childComplexity int) int
+		Medium     func(childComplexity int) int
+		Unassigned func(childComplexity int) int
 	}
 
 	ImageVulnerabilitySuppression struct {
@@ -3125,28 +3164,32 @@ type ComplexityRoot struct {
 	}
 
 	TeamVulnerabilitySummary struct {
-		Coverage       func(childComplexity int) int
-		Critical       func(childComplexity int) int
-		High           func(childComplexity int) int
-		LastUpdated    func(childComplexity int) int
-		Low            func(childComplexity int) int
-		Medium         func(childComplexity int) int
-		RiskScore      func(childComplexity int) int
-		RiskScoreTrend func(childComplexity int) int
-		SBOMCount      func(childComplexity int) int
-		Unassigned     func(childComplexity int) int
+		CountsByPriority func(childComplexity int) int
+		CountsBySeverity func(childComplexity int) int
+		Coverage         func(childComplexity int) int
+		Critical         func(childComplexity int) int
+		High             func(childComplexity int) int
+		LastUpdated      func(childComplexity int) int
+		Low              func(childComplexity int) int
+		Medium           func(childComplexity int) int
+		RiskScore        func(childComplexity int) int
+		RiskScoreTrend   func(childComplexity int) int
+		SBOMCount        func(childComplexity int) int
+		Unassigned       func(childComplexity int) int
 	}
 
 	TenantVulnerabilitySummary struct {
-		Coverage    func(childComplexity int) int
-		Critical    func(childComplexity int) int
-		High        func(childComplexity int) int
-		LastUpdated func(childComplexity int) int
-		Low         func(childComplexity int) int
-		Medium      func(childComplexity int) int
-		RiskScore   func(childComplexity int) int
-		SbomCount   func(childComplexity int) int
-		Unassigned  func(childComplexity int) int
+		CountsByPriority func(childComplexity int) int
+		CountsBySeverity func(childComplexity int) int
+		Coverage         func(childComplexity int) int
+		Critical         func(childComplexity int) int
+		High             func(childComplexity int) int
+		LastUpdated      func(childComplexity int) int
+		Low              func(childComplexity int) int
+		Medium           func(childComplexity int) int
+		RiskScore        func(childComplexity int) int
+		SbomCount        func(childComplexity int) int
+		Unassigned       func(childComplexity int) int
 	}
 
 	TokenXAuthIntegration struct {
@@ -5315,6 +5358,27 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.CVE.DetailsLink(childComplexity), true
 
+	case "CVE.epssPercentile":
+		if e.ComplexityRoot.CVE.EpssPercentile == nil {
+			break
+		}
+
+		return e.ComplexityRoot.CVE.EpssPercentile(childComplexity), true
+
+	case "CVE.epssScore":
+		if e.ComplexityRoot.CVE.EpssScore == nil {
+			break
+		}
+
+		return e.ComplexityRoot.CVE.EpssScore(childComplexity), true
+
+	case "CVE.hasKevEntry":
+		if e.ComplexityRoot.CVE.HasKevEntry == nil {
+			break
+		}
+
+		return e.ComplexityRoot.CVE.HasKevEntry(childComplexity), true
+
 	case "CVE.id":
 		if e.ComplexityRoot.CVE.ID == nil {
 			break
@@ -5328,6 +5392,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.CVE.Identifier(childComplexity), true
+
+	case "CVE.knownRansomwareUse":
+		if e.ComplexityRoot.CVE.KnownRansomwareUse == nil {
+			break
+		}
+
+		return e.ComplexityRoot.CVE.KnownRansomwareUse(childComplexity), true
+
+	case "CVE.priority":
+		if e.ComplexityRoot.CVE.Priority == nil {
+			break
+		}
+
+		return e.ComplexityRoot.CVE.Priority(childComplexity), true
 
 	case "CVE.severity":
 		if e.ComplexityRoot.CVE.Severity == nil {
@@ -6796,6 +6874,55 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ExternalIngressCriticalVulnerabilityIssue.Workload(childComplexity), true
 
+	case "ExternalIngressUrgentVulnerabilityIssue.id":
+		if e.ComplexityRoot.ExternalIngressUrgentVulnerabilityIssue.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ExternalIngressUrgentVulnerabilityIssue.ID(childComplexity), true
+
+	case "ExternalIngressUrgentVulnerabilityIssue.ingresses":
+		if e.ComplexityRoot.ExternalIngressUrgentVulnerabilityIssue.Ingresses == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ExternalIngressUrgentVulnerabilityIssue.Ingresses(childComplexity), true
+
+	case "ExternalIngressUrgentVulnerabilityIssue.message":
+		if e.ComplexityRoot.ExternalIngressUrgentVulnerabilityIssue.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ExternalIngressUrgentVulnerabilityIssue.Message(childComplexity), true
+
+	case "ExternalIngressUrgentVulnerabilityIssue.priorityUrgent":
+		if e.ComplexityRoot.ExternalIngressUrgentVulnerabilityIssue.PriorityUrgent == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ExternalIngressUrgentVulnerabilityIssue.PriorityUrgent(childComplexity), true
+
+	case "ExternalIngressUrgentVulnerabilityIssue.severity":
+		if e.ComplexityRoot.ExternalIngressUrgentVulnerabilityIssue.Severity == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ExternalIngressUrgentVulnerabilityIssue.Severity(childComplexity), true
+
+	case "ExternalIngressUrgentVulnerabilityIssue.teamEnvironment":
+		if e.ComplexityRoot.ExternalIngressUrgentVulnerabilityIssue.TeamEnvironment == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ExternalIngressUrgentVulnerabilityIssue.TeamEnvironment(childComplexity), true
+
+	case "ExternalIngressUrgentVulnerabilityIssue.workload":
+		if e.ComplexityRoot.ExternalIngressUrgentVulnerabilityIssue.Workload == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ExternalIngressUrgentVulnerabilityIssue.Workload(childComplexity), true
+
 	case "ExternalNetworkPolicyHost.ports":
 		if e.ComplexityRoot.ExternalNetworkPolicyHost.Ports == nil {
 			break
@@ -7139,6 +7266,34 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ImageVulnerability.Description(childComplexity), true
 
+	case "ImageVulnerability.epssPercentile":
+		if e.ComplexityRoot.ImageVulnerability.EpssPercentile == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImageVulnerability.EpssPercentile(childComplexity), true
+
+	case "ImageVulnerability.epssScore":
+		if e.ComplexityRoot.ImageVulnerability.EpssScore == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImageVulnerability.EpssScore(childComplexity), true
+
+	case "ImageVulnerability.fixVersion":
+		if e.ComplexityRoot.ImageVulnerability.FixVersion == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImageVulnerability.FixVersion(childComplexity), true
+
+	case "ImageVulnerability.hasKevEntry":
+		if e.ComplexityRoot.ImageVulnerability.HasKevEntry == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImageVulnerability.HasKevEntry(childComplexity), true
+
 	case "ImageVulnerability.id":
 		if e.ComplexityRoot.ImageVulnerability.ID == nil {
 			break
@@ -7153,12 +7308,26 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ImageVulnerability.Identifier(childComplexity), true
 
+	case "ImageVulnerability.knownRansomwareUse":
+		if e.ComplexityRoot.ImageVulnerability.KnownRansomwareUse == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImageVulnerability.KnownRansomwareUse(childComplexity), true
+
 	case "ImageVulnerability.package":
 		if e.ComplexityRoot.ImageVulnerability.Package == nil {
 			break
 		}
 
 		return e.ComplexityRoot.ImageVulnerability.Package(childComplexity), true
+
+	case "ImageVulnerability.priority":
+		if e.ComplexityRoot.ImageVulnerability.Priority == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImageVulnerability.Priority(childComplexity), true
 
 	case "ImageVulnerability.severity":
 		if e.ComplexityRoot.ImageVulnerability.Severity == nil {
@@ -7244,6 +7413,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ImageVulnerabilitySample.Summary(childComplexity), true
 
+	case "ImageVulnerabilitySummary.countsByPriority":
+		if e.ComplexityRoot.ImageVulnerabilitySummary.CountsByPriority == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImageVulnerabilitySummary.CountsByPriority(childComplexity), true
+
+	case "ImageVulnerabilitySummary.countsBySeverity":
+		if e.ComplexityRoot.ImageVulnerabilitySummary.CountsBySeverity == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImageVulnerabilitySummary.CountsBySeverity(childComplexity), true
+
 	case "ImageVulnerabilitySummary.critical":
 		if e.ComplexityRoot.ImageVulnerabilitySummary.Critical == nil {
 			break
@@ -7306,6 +7489,69 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ImageVulnerabilitySummary.Unassigned(childComplexity), true
+
+	case "ImageVulnerabilitySummaryCountsByPriority.elevatedRisk":
+		if e.ComplexityRoot.ImageVulnerabilitySummaryCountsByPriority.ElevatedRisk == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImageVulnerabilitySummaryCountsByPriority.ElevatedRisk(childComplexity), true
+
+	case "ImageVulnerabilitySummaryCountsByPriority.highRisk":
+		if e.ComplexityRoot.ImageVulnerabilitySummaryCountsByPriority.HighRisk == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImageVulnerabilitySummaryCountsByPriority.HighRisk(childComplexity), true
+
+	case "ImageVulnerabilitySummaryCountsByPriority.monitor":
+		if e.ComplexityRoot.ImageVulnerabilitySummaryCountsByPriority.Monitor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImageVulnerabilitySummaryCountsByPriority.Monitor(childComplexity), true
+
+	case "ImageVulnerabilitySummaryCountsByPriority.urgent":
+		if e.ComplexityRoot.ImageVulnerabilitySummaryCountsByPriority.Urgent == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImageVulnerabilitySummaryCountsByPriority.Urgent(childComplexity), true
+
+	case "ImageVulnerabilitySummaryCountsBySeverity.critical":
+		if e.ComplexityRoot.ImageVulnerabilitySummaryCountsBySeverity.Critical == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImageVulnerabilitySummaryCountsBySeverity.Critical(childComplexity), true
+
+	case "ImageVulnerabilitySummaryCountsBySeverity.high":
+		if e.ComplexityRoot.ImageVulnerabilitySummaryCountsBySeverity.High == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImageVulnerabilitySummaryCountsBySeverity.High(childComplexity), true
+
+	case "ImageVulnerabilitySummaryCountsBySeverity.low":
+		if e.ComplexityRoot.ImageVulnerabilitySummaryCountsBySeverity.Low == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImageVulnerabilitySummaryCountsBySeverity.Low(childComplexity), true
+
+	case "ImageVulnerabilitySummaryCountsBySeverity.medium":
+		if e.ComplexityRoot.ImageVulnerabilitySummaryCountsBySeverity.Medium == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImageVulnerabilitySummaryCountsBySeverity.Medium(childComplexity), true
+
+	case "ImageVulnerabilitySummaryCountsBySeverity.unassigned":
+		if e.ComplexityRoot.ImageVulnerabilitySummaryCountsBySeverity.Unassigned == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImageVulnerabilitySummaryCountsBySeverity.Unassigned(childComplexity), true
 
 	case "ImageVulnerabilitySuppression.reason":
 		if e.ComplexityRoot.ImageVulnerabilitySuppression.Reason == nil {
@@ -16847,6 +17093,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.TeamUtilizationData.Used(childComplexity), true
 
+	case "TeamVulnerabilitySummary.countsByPriority":
+		if e.ComplexityRoot.TeamVulnerabilitySummary.CountsByPriority == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TeamVulnerabilitySummary.CountsByPriority(childComplexity), true
+
+	case "TeamVulnerabilitySummary.countsBySeverity":
+		if e.ComplexityRoot.TeamVulnerabilitySummary.CountsBySeverity == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TeamVulnerabilitySummary.CountsBySeverity(childComplexity), true
+
 	case "TeamVulnerabilitySummary.coverage":
 		if e.ComplexityRoot.TeamVulnerabilitySummary.Coverage == nil {
 			break
@@ -16916,6 +17176,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.TeamVulnerabilitySummary.Unassigned(childComplexity), true
+
+	case "TenantVulnerabilitySummary.countsByPriority":
+		if e.ComplexityRoot.TenantVulnerabilitySummary.CountsByPriority == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TenantVulnerabilitySummary.CountsByPriority(childComplexity), true
+
+	case "TenantVulnerabilitySummary.countsBySeverity":
+		if e.ComplexityRoot.TenantVulnerabilitySummary.CountsBySeverity == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TenantVulnerabilitySummary.CountsBySeverity(childComplexity), true
 
 	case "TenantVulnerabilitySummary.coverage":
 		if e.ComplexityRoot.TenantVulnerabilitySummary.Coverage == nil {
@@ -23585,6 +23859,9 @@ enum IssueType {
 	MISSING_SBOM
 	VULNERABLE_IMAGE
 	EXTERNAL_INGRESS_CRITICAL_VULNERABILITY
+		@deprecated(reason: "Use EXTERNAL_INGRESS_URGENT_VULNERABILITY.")
+	"Raised when a workload has external ingress exposure and urgent vulnerabilities."
+	EXTERNAL_INGRESS_URGENT_VULNERABILITY
 	UNLEASH_RELEASE_CHANNEL
 	"Raised when an application is stuck in a restart loop."
 	APPLICATION_RESTART_LOOP
@@ -23601,14 +23878,42 @@ type VulnerableImageIssue implements Issue & Node {
 	critical: Int!
 }
 
+"Deprecated: use ExternalIngressUrgentVulnerabilityIssue."
 type ExternalIngressCriticalVulnerabilityIssue implements Issue & Node {
-	id: ID!
+	"The globally unique identifier for this issue."
+	id: ID! @deprecated(reason: "Use ExternalIngressUrgentVulnerabilityIssue instead.")
+	"The team environment where the affected workload is deployed."
 	teamEnvironment: TeamEnvironment!
+		@deprecated(reason: "Use ExternalIngressUrgentVulnerabilityIssue instead.")
+	"The severity assigned to this issue."
+	severity: Severity! @deprecated(reason: "Use ExternalIngressUrgentVulnerabilityIssue instead.")
+	"A human-readable description of the issue."
+	message: String! @deprecated(reason: "Use ExternalIngressUrgentVulnerabilityIssue instead.")
+
+	"The workload with critical vulnerabilities and external ingresses."
+	workload: Workload! @deprecated(reason: "Use ExternalIngressUrgentVulnerabilityIssue instead.")
+	"The highest CVSS score among vulnerabilities relevant to this issue."
+	cvssScore: Float! @deprecated(reason: "Use ExternalIngressUrgentVulnerabilityIssue instead.")
+	"External ingress URLs that expose the workload."
+	ingresses: [String!]! @deprecated(reason: "Use ExternalIngressUrgentVulnerabilityIssue instead.")
+}
+
+"Raised when a workload with external ingresses has one or more urgent vulnerability-priority findings."
+type ExternalIngressUrgentVulnerabilityIssue implements Issue & Node {
+	"The globally unique identifier for this issue."
+	id: ID!
+	"The team environment where the affected workload is deployed."
+	teamEnvironment: TeamEnvironment!
+	"The severity assigned to this issue."
 	severity: Severity!
+	"A human-readable description of the issue."
 	message: String!
 
+	"The workload with urgent vulnerabilities and external ingresses."
 	workload: Workload!
-	cvssScore: Float!
+	"Number of urgent vulnerabilities on the workload."
+	priorityUrgent: Int!
+	"External ingress URLs that expose the workload."
 	ingresses: [String!]!
 }
 
@@ -31782,10 +32087,16 @@ input CVEOrder {
 }
 
 enum CVEOrderField {
+	"Order by CVE identifier."
 	IDENTIFIER
+	"Order by CVE severity."
 	SEVERITY
+	"Order by CVSS score."
 	CVSS_SCORE
+	"Order by number of affected workloads."
 	AFFECTED_WORKLOADS_COUNT
+	"Order by CVE priority derived from threat intelligence signals."
+	PRIORITY
 }
 
 extend interface Workload {
@@ -31979,6 +32290,11 @@ input TeamVulnerabilitySummaryFilter {
 	Only return vulnerability summaries for the given environment.
 	"""
 	environmentName: String
+
+	"""
+	Only return vulnerability summaries at or above the given vulnerability priority.
+	"""
+	priority: CVEPriority
 }
 
 """
@@ -31999,20 +32315,26 @@ type ImageVulnerabilitySummary {
 	"Risk score of the image."
 	riskScore: Int!
 
+	"Vulnerability counts grouped by severity."
+	countsBySeverity: ImageVulnerabilitySummaryCountsBySeverity!
+
+	"Vulnerability counts grouped by operational priority."
+	countsByPriority: ImageVulnerabilitySummaryCountsByPriority!
+
 	"Number of vulnerabilities with severity LOW."
-	low: Int!
+	low: Int! @deprecated(reason: "Use countsBySeverity.low instead.")
 
 	"Number of vulnerabilities with severity MEDIUM."
-	medium: Int!
+	medium: Int! @deprecated(reason: "Use countsBySeverity.medium instead.")
 
 	"Number of vulnerabilities with severity HIGH."
-	high: Int!
+	high: Int! @deprecated(reason: "Use countsBySeverity.high instead.")
 
 	"Number of vulnerabilities with severity CRITICAL."
-	critical: Int!
+	critical: Int! @deprecated(reason: "Use countsBySeverity.critical instead.")
 
 	"Number of vulnerabilities with severity UNASSIGNED."
-	unassigned: Int!
+	unassigned: Int! @deprecated(reason: "Use countsBySeverity.unassigned instead.")
 
 	"Timestamp of the last update of the vulnerability summary."
 	lastUpdated: Time
@@ -32023,6 +32345,39 @@ type ImageVulnerabilitySummary {
 	still being scanned). The value is the tag the stale data originates from.
 	"""
 	staleImageTag: String
+}
+
+"Vulnerability counts grouped by severity."
+type ImageVulnerabilitySummaryCountsBySeverity {
+	"Number of vulnerabilities with severity CRITICAL."
+	critical: Int!
+
+	"Number of vulnerabilities with severity HIGH."
+	high: Int!
+
+	"Number of vulnerabilities with severity MEDIUM."
+	medium: Int!
+
+	"Number of vulnerabilities with severity LOW."
+	low: Int!
+
+	"Number of vulnerabilities with severity UNASSIGNED."
+	unassigned: Int!
+}
+
+"Vulnerability counts grouped by operational priority."
+type ImageVulnerabilitySummaryCountsByPriority {
+	"Known-exploited vulnerabilities that require immediate action."
+	urgent: Int!
+
+	"Vulnerabilities with strong exploitation indicators."
+	highRisk: Int!
+
+	"Vulnerabilities with elevated exploitation risk."
+	elevatedRisk: Int!
+
+	"Vulnerabilities that should be monitored."
+	monitor: Int!
 }
 
 type ImageVulnerabilityConnection {
@@ -32086,11 +32441,17 @@ type ImageVulnerability implements Node {
 	"Severity of the vulnerability."
 	severity: ImageVulnerabilitySeverity!
 
+	"Priority of the vulnerability based on threat intelligence signals."
+	priority: CVEPriority!
+
 	"Description of the vulnerability."
 	description: String!
 
 	"Package name of the vulnerability."
 	package: String!
+
+	"First known package version that contains a fix."
+	fixVersion: String
 
 	suppression: ImageVulnerabilitySuppression
 
@@ -32102,6 +32463,30 @@ type ImageVulnerability implements Node {
 
 	"CVSS score of the vulnerability."
 	cvssScore: Float
+
+	"EPSS score of the vulnerability."
+	epssScore: Float
+
+	"EPSS percentile of the vulnerability (0-1)."
+	epssPercentile: Float
+
+	"Whether the vulnerability has a CISA KEV entry."
+	hasKevEntry: Boolean!
+
+	"Whether the vulnerability has known ransomware use."
+	knownRansomwareUse: Boolean!
+}
+
+"Operational priority levels for vulnerabilities and CVEs."
+enum CVEPriority {
+	"Vulnerability is known to be actively exploited and requires immediate action."
+	URGENT
+	"Vulnerability is associated with ransomware or has a high EPSS percentile."
+	HIGH
+	"Vulnerability has a critical or high severity and elevated EPSS percentile."
+	ELEVATED
+	"Vulnerability requires monitoring but no immediate action."
+	MONITOR
 }
 
 type CVE implements Node {
@@ -32125,6 +32510,21 @@ type CVE implements Node {
 
 	"CVSS score of the CVE."
 	cvssScore: Float
+
+	"Priority of the CVE based on threat intelligence signals."
+	priority: CVEPriority!
+
+	"EPSS score of the CVE (probability of exploitation)."
+	epssScore: Float
+
+	"EPSS percentile of the CVE."
+	epssPercentile: Float
+
+	"Whether the CVE has a Known Exploited Vulnerability (KEV) entry."
+	hasKevEntry: Boolean!
+
+	"Whether the CVE is known to be used in ransomware attacks."
+	knownRansomwareUse: Boolean!
 
 	"Affected workloads"
 	workloads(
@@ -32230,12 +32630,20 @@ input ImageVulnerabilityOrder {
 }
 
 enum ImageVulnerabilityOrderField {
+	"Order by vulnerability identifier."
 	IDENTIFIER
+	"Order by vulnerability severity."
 	SEVERITY
+	"Order by when the vulnerability received its current severity."
 	SEVERITY_SINCE
+	"Order by affected package name."
 	PACKAGE
+	"Order by suppression state."
 	STATE
+	"Order by whether the vulnerability is suppressed."
 	SUPPRESSED
+	"Order by vulnerability priority derived from threat intelligence signals."
+	PRIORITY
 }
 
 type WorkloadVulnerabilitySummary implements Node {
@@ -32278,48 +32686,90 @@ enum VulnerabilitySummaryOrderByField {
 	"""
 	ENVIRONMENT
 	"""
-	Order by risk score"
+	Order by risk score.
 	"""
 	VULNERABILITY_RISK_SCORE
 	"""
-	Order by vulnerability severity critical"
+	Order by vulnerability severity critical.
 	"""
 	VULNERABILITY_SEVERITY_CRITICAL
 	"""
-	Order by vulnerability severity high"
+	Order by vulnerability severity high.
 	"""
 	VULNERABILITY_SEVERITY_HIGH
 	"""
-	Order by vulnerability severity medium"
+	Order by vulnerability severity medium.
 	"""
 	VULNERABILITY_SEVERITY_MEDIUM
 	"""
-	Order by vulnerability severity low"
+	Order by vulnerability severity low.
 	"""
 	VULNERABILITY_SEVERITY_LOW
 	"""
-	Order by vulnerability severity unassigned"
+	Order by vulnerability severity unassigned.
 	"""
 	VULNERABILITY_SEVERITY_UNASSIGNED
+	"""
+	Order by the number of urgent vulnerabilities.
+
+	Urgent vulnerabilities are known to be actively exploited and should be
+	prioritized for immediate action.
+	"""
+	VULNERABILITY_PRIORITY_URGENT
+	"""
+	Order by the number of high-risk vulnerabilities.
+
+	High-risk vulnerabilities are not known exploited, but have strong
+	exploitation indicators such as known ransomware use or very high EPSS.
+	"""
+	VULNERABILITY_PRIORITY_HIGH_RISK
+	"""
+	Order by the number of elevated-risk vulnerabilities.
+
+	Elevated-risk vulnerabilities are lower priority than high-risk, but still
+	have meaningful exploitation risk signals.
+	"""
+	VULNERABILITY_PRIORITY_ELEVATED_RISK
+	"""
+	Order by the number of monitor vulnerabilities.
+
+	Monitor vulnerabilities should be tracked, but do not currently indicate the
+	same operational urgency as the higher priority buckets.
+	"""
+	VULNERABILITY_PRIORITY_MONITOR
 }
 
 type TenantVulnerabilitySummary {
 	"Risk score of the tenant."
 	riskScore: Int!
+
+	"Vulnerability counts grouped by severity."
+	countsBySeverity: ImageVulnerabilitySummaryCountsBySeverity!
+
+	"Vulnerability counts grouped by operational priority."
+	countsByPriority: ImageVulnerabilitySummaryCountsByPriority!
+
 	"Number of vulnerabilities with severity CRITICAL."
-	critical: Int!
+	critical: Int! @deprecated(reason: "Use countsBySeverity.critical instead.")
+
 	"Number of vulnerabilities with severity HIGH."
-	high: Int!
+	high: Int! @deprecated(reason: "Use countsBySeverity.high instead.")
+
 	"Number of vulnerabilities with severity MEDIUM."
-	medium: Int!
+	medium: Int! @deprecated(reason: "Use countsBySeverity.medium instead.")
+
 	"Number of vulnerabilities with severity LOW."
-	low: Int!
+	low: Int! @deprecated(reason: "Use countsBySeverity.low instead.")
+
 	"Number of vulnerabilities with severity UNASSIGNED."
-	unassigned: Int!
+	unassigned: Int! @deprecated(reason: "Use countsBySeverity.unassigned instead.")
+
 	"Number of workloads with a software bill of materials (SBOM) attached."
 	sbomCount: Int!
+
 	"SBOM Coverage of the tenant."
 	coverage: Float!
+
 	"Timestamp of the last update of the vulnerability summary."
 	lastUpdated: Time
 }
@@ -32327,22 +32777,37 @@ type TenantVulnerabilitySummary {
 type TeamVulnerabilitySummary {
 	"Risk score of the team."
 	riskScore: Int!
+
+	"Vulnerability counts grouped by severity."
+	countsBySeverity: ImageVulnerabilitySummaryCountsBySeverity!
+
+	"Vulnerability counts grouped by operational priority."
+	countsByPriority: ImageVulnerabilitySummaryCountsByPriority!
+
 	"Number of vulnerabilities with severity CRITICAL."
-	critical: Int!
+	critical: Int! @deprecated(reason: "Use countsBySeverity.critical instead.")
+
 	"Number of vulnerabilities with severity HIGH."
-	high: Int!
+	high: Int! @deprecated(reason: "Use countsBySeverity.high instead.")
+
 	"Number of vulnerabilities with severity MEDIUM."
-	medium: Int!
+	medium: Int! @deprecated(reason: "Use countsBySeverity.medium instead.")
+
 	"Number of vulnerabilities with severity LOW."
-	low: Int!
+	low: Int! @deprecated(reason: "Use countsBySeverity.low instead.")
+
 	"Number of vulnerabilities with severity UNASSIGNED."
-	unassigned: Int!
+	unassigned: Int! @deprecated(reason: "Use countsBySeverity.unassigned instead.")
+
 	"Number of workloads with a software bill of materials (SBOM) attached."
 	sbomCount: Int!
+
 	"Coverage of the team."
 	coverage: Float!
+
 	"Timestamp of the last update of the vulnerability summary."
 	lastUpdated: Time
+
 	"Trend of vulnerability status for the team."
 	riskScoreTrend: TeamVulnerabilityRiskScoreTrend!
 }
@@ -33620,6 +34085,16 @@ func (ec *executionContext) childFields_CVE(ctx context.Context, field graphql.C
 		return ec.fieldContext_CVE_detailsLink(ctx, field)
 	case "cvssScore":
 		return ec.fieldContext_CVE_cvssScore(ctx, field)
+	case "priority":
+		return ec.fieldContext_CVE_priority(ctx, field)
+	case "epssScore":
+		return ec.fieldContext_CVE_epssScore(ctx, field)
+	case "epssPercentile":
+		return ec.fieldContext_CVE_epssPercentile(ctx, field)
+	case "hasKevEntry":
+		return ec.fieldContext_CVE_hasKevEntry(ctx, field)
+	case "knownRansomwareUse":
+		return ec.fieldContext_CVE_knownRansomwareUse(ctx, field)
 	case "workloads":
 		return ec.fieldContext_CVE_workloads(ctx, field)
 	}
@@ -34352,10 +34827,14 @@ func (ec *executionContext) childFields_ImageVulnerability(ctx context.Context, 
 		return ec.fieldContext_ImageVulnerability_identifier(ctx, field)
 	case "severity":
 		return ec.fieldContext_ImageVulnerability_severity(ctx, field)
+	case "priority":
+		return ec.fieldContext_ImageVulnerability_priority(ctx, field)
 	case "description":
 		return ec.fieldContext_ImageVulnerability_description(ctx, field)
 	case "package":
 		return ec.fieldContext_ImageVulnerability_package(ctx, field)
+	case "fixVersion":
+		return ec.fieldContext_ImageVulnerability_fixVersion(ctx, field)
 	case "suppression":
 		return ec.fieldContext_ImageVulnerability_suppression(ctx, field)
 	case "severitySince":
@@ -34364,6 +34843,14 @@ func (ec *executionContext) childFields_ImageVulnerability(ctx context.Context, 
 		return ec.fieldContext_ImageVulnerability_vulnerabilityDetailsLink(ctx, field)
 	case "cvssScore":
 		return ec.fieldContext_ImageVulnerability_cvssScore(ctx, field)
+	case "epssScore":
+		return ec.fieldContext_ImageVulnerability_epssScore(ctx, field)
+	case "epssPercentile":
+		return ec.fieldContext_ImageVulnerability_epssPercentile(ctx, field)
+	case "hasKevEntry":
+		return ec.fieldContext_ImageVulnerability_hasKevEntry(ctx, field)
+	case "knownRansomwareUse":
+		return ec.fieldContext_ImageVulnerability_knownRansomwareUse(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type ImageVulnerability", field.Name)
 }
@@ -34414,6 +34901,10 @@ func (ec *executionContext) childFields_ImageVulnerabilitySummary(ctx context.Co
 		return ec.fieldContext_ImageVulnerabilitySummary_total(ctx, field)
 	case "riskScore":
 		return ec.fieldContext_ImageVulnerabilitySummary_riskScore(ctx, field)
+	case "countsBySeverity":
+		return ec.fieldContext_ImageVulnerabilitySummary_countsBySeverity(ctx, field)
+	case "countsByPriority":
+		return ec.fieldContext_ImageVulnerabilitySummary_countsByPriority(ctx, field)
 	case "low":
 		return ec.fieldContext_ImageVulnerabilitySummary_low(ctx, field)
 	case "medium":
@@ -34430,6 +34921,36 @@ func (ec *executionContext) childFields_ImageVulnerabilitySummary(ctx context.Co
 		return ec.fieldContext_ImageVulnerabilitySummary_staleImageTag(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type ImageVulnerabilitySummary", field.Name)
+}
+
+func (ec *executionContext) childFields_ImageVulnerabilitySummaryCountsByPriority(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "urgent":
+		return ec.fieldContext_ImageVulnerabilitySummaryCountsByPriority_urgent(ctx, field)
+	case "highRisk":
+		return ec.fieldContext_ImageVulnerabilitySummaryCountsByPriority_highRisk(ctx, field)
+	case "elevatedRisk":
+		return ec.fieldContext_ImageVulnerabilitySummaryCountsByPriority_elevatedRisk(ctx, field)
+	case "monitor":
+		return ec.fieldContext_ImageVulnerabilitySummaryCountsByPriority_monitor(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ImageVulnerabilitySummaryCountsByPriority", field.Name)
+}
+
+func (ec *executionContext) childFields_ImageVulnerabilitySummaryCountsBySeverity(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "critical":
+		return ec.fieldContext_ImageVulnerabilitySummaryCountsBySeverity_critical(ctx, field)
+	case "high":
+		return ec.fieldContext_ImageVulnerabilitySummaryCountsBySeverity_high(ctx, field)
+	case "medium":
+		return ec.fieldContext_ImageVulnerabilitySummaryCountsBySeverity_medium(ctx, field)
+	case "low":
+		return ec.fieldContext_ImageVulnerabilitySummaryCountsBySeverity_low(ctx, field)
+	case "unassigned":
+		return ec.fieldContext_ImageVulnerabilitySummaryCountsBySeverity_unassigned(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ImageVulnerabilitySummaryCountsBySeverity", field.Name)
 }
 
 func (ec *executionContext) childFields_ImageVulnerabilitySuppression(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -37094,6 +37615,10 @@ func (ec *executionContext) childFields_TeamVulnerabilitySummary(ctx context.Con
 	switch field.Name {
 	case "riskScore":
 		return ec.fieldContext_TeamVulnerabilitySummary_riskScore(ctx, field)
+	case "countsBySeverity":
+		return ec.fieldContext_TeamVulnerabilitySummary_countsBySeverity(ctx, field)
+	case "countsByPriority":
+		return ec.fieldContext_TeamVulnerabilitySummary_countsByPriority(ctx, field)
 	case "critical":
 		return ec.fieldContext_TeamVulnerabilitySummary_critical(ctx, field)
 	case "high":
@@ -37120,6 +37645,10 @@ func (ec *executionContext) childFields_TenantVulnerabilitySummary(ctx context.C
 	switch field.Name {
 	case "riskScore":
 		return ec.fieldContext_TenantVulnerabilitySummary_riskScore(ctx, field)
+	case "countsBySeverity":
+		return ec.fieldContext_TenantVulnerabilitySummary_countsBySeverity(ctx, field)
+	case "countsByPriority":
+		return ec.fieldContext_TenantVulnerabilitySummary_countsByPriority(ctx, field)
 	case "critical":
 		return ec.fieldContext_TenantVulnerabilitySummary_critical(ctx, field)
 	case "high":

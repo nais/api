@@ -184,6 +184,13 @@ type VulnerableImageIssueDetails struct {
 	Critical  int `json:"critical"`
 }
 
+type ExternalIngressUrgentVulnerabilityIssueDetails struct {
+	PriorityUrgent int      `json:"priorityUrgent"`
+	Ingresses      []string `json:"ingresses"`
+}
+
+// Deprecated: superseded by ExternalIngressUrgentVulnerabilityIssueDetails. Kept
+// for GraphQL backwards compatibility during the migration window.
 type ExternalIngressCriticalVulnerabilityIssueDetails struct {
 	CvssScore float64  `json:"cvssScore"`
 	Ingresses []string `json:"ingresses"`
@@ -204,10 +211,13 @@ const (
 	// Deprecated: superseded by IssueTypeWorkloadProblem.
 	IssueTypeFailedSynchronization IssueType = "FAILED_SYNCHRONIZATION"
 	// Deprecated: superseded by IssueTypeWorkloadProblem.
-	IssueTypeInvalidSpec                          IssueType = "INVALID_SPEC"
-	IssueTypeVulnerableImage                      IssueType = "VULNERABLE_IMAGE"
-	IssueTypeMissingSBOM                          IssueType = "MISSING_SBOM"
+	IssueTypeInvalidSpec     IssueType = "INVALID_SPEC"
+	IssueTypeVulnerableImage IssueType = "VULNERABLE_IMAGE"
+	IssueTypeMissingSBOM     IssueType = "MISSING_SBOM"
+	// Deprecated: superseded by IssueTypeExternalIngressUrgentVulnerability. Kept
+	// for GraphQL backwards compatibility during the migration window.
 	IssueTypeExternalIngressCriticalVulnerability IssueType = "EXTERNAL_INGRESS_CRITICAL_VULNERABILITY"
+	IssueTypeExternalIngressUrgentVulnerability   IssueType = "EXTERNAL_INGRESS_URGENT_VULNERABILITY"
 	IssueTypeUnleashReleaseChannel                IssueType = "UNLEASH_RELEASE_CHANNEL"
 	IssueTypeApplicationRestartLoop               IssueType = "APPLICATION_RESTART_LOOP"
 )
@@ -227,6 +237,7 @@ var AllIssueType = []IssueType{
 	IssueTypeVulnerableImage,
 	IssueTypeMissingSBOM,
 	IssueTypeExternalIngressCriticalVulnerability,
+	IssueTypeExternalIngressUrgentVulnerability,
 	IssueTypeUnleashReleaseChannel,
 	IssueTypeApplicationRestartLoop,
 }
@@ -238,7 +249,8 @@ func (e IssueType) IsValid() bool {
 		IssueTypeNoRunningInstances, IssueTypeLastRunFailed, IssueTypeWorkloadProblem,
 		IssueTypeInvalidSpec, IssueTypeFailedSynchronization, IssueTypeVulnerableImage,
 		IssueTypeMissingSBOM, IssueTypeExternalIngressCriticalVulnerability,
-		IssueTypeUnleashReleaseChannel, IssueTypeApplicationRestartLoop:
+		IssueTypeExternalIngressUrgentVulnerability, IssueTypeUnleashReleaseChannel,
+		IssueTypeApplicationRestartLoop:
 		return true
 	}
 	return false
@@ -494,6 +506,15 @@ type VulnerableImageIssue struct {
 func (VulnerableImageIssue) IsIssue() {}
 
 func (VulnerableImageIssue) IsNode() {}
+
+type ExternalIngressUrgentVulnerabilityIssue struct {
+	Base
+	ExternalIngressUrgentVulnerabilityIssueDetails
+}
+
+func (ExternalIngressUrgentVulnerabilityIssue) IsIssue() {}
+
+func (ExternalIngressUrgentVulnerabilityIssue) IsNode() {}
 
 type ExternalIngressCriticalVulnerabilityIssue struct {
 	Base

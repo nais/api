@@ -48,6 +48,14 @@ func (r *externalIngressCriticalVulnerabilityIssueResolver) Workload(ctx context
 	return getWorkloadByResourceType(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ResourceName, obj.ResourceType)
 }
 
+func (r *externalIngressUrgentVulnerabilityIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.ExternalIngressUrgentVulnerabilityIssue) (*team.TeamEnvironment, error) {
+	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
+}
+
+func (r *externalIngressUrgentVulnerabilityIssueResolver) Workload(ctx context.Context, obj *issue.ExternalIngressUrgentVulnerabilityIssue) (workload.Workload, error) {
+	return getWorkloadByResourceType(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ResourceName, obj.ResourceType)
+}
+
 // Deprecated: superseded by WorkloadProblemIssue. Kept for GraphQL backwards compatibility.
 func (r *failedSynchronizationIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.FailedSynchronizationIssue) (*team.TeamEnvironment, error) {
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
@@ -177,6 +185,10 @@ func (r *Resolver) ExternalIngressCriticalVulnerabilityIssue() gengql.ExternalIn
 	return &externalIngressCriticalVulnerabilityIssueResolver{r}
 }
 
+func (r *Resolver) ExternalIngressUrgentVulnerabilityIssue() gengql.ExternalIngressUrgentVulnerabilityIssueResolver {
+	return &externalIngressUrgentVulnerabilityIssueResolver{r}
+}
+
 func (r *Resolver) FailedSynchronizationIssue() gengql.FailedSynchronizationIssueResolver {
 	return &failedSynchronizationIssueResolver{r}
 }
@@ -232,6 +244,7 @@ type (
 	deprecatedIngressIssueResolver                    struct{ *Resolver }
 	deprecatedRegistryIssueResolver                   struct{ *Resolver }
 	externalIngressCriticalVulnerabilityIssueResolver struct{ *Resolver }
+	externalIngressUrgentVulnerabilityIssueResolver   struct{ *Resolver }
 	failedSynchronizationIssueResolver                struct{ *Resolver }
 	invalidSpecIssueResolver                          struct{ *Resolver }
 	issueConnectionResolver                           struct{ *Resolver }
