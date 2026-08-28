@@ -3472,6 +3472,7 @@ type ComplexityRoot struct {
 		TeamEnvironment       func(childComplexity int) int
 		TerminationProtection func(childComplexity int) int
 		Tier                  func(childComplexity int) int
+		Version               func(childComplexity int) int
 		Workload              func(childComplexity int) int
 	}
 
@@ -3617,6 +3618,11 @@ type ComplexityRoot struct {
 		Field    func(childComplexity int) int
 		NewValue func(childComplexity int) int
 		OldValue func(childComplexity int) int
+	}
+
+	ValkeyVersion struct {
+		Actual       func(childComplexity int) int
+		DesiredMajor func(childComplexity int) int
 	}
 
 	ViewSecretValuesPayload struct {
@@ -18413,6 +18419,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Valkey.Tier(childComplexity), true
 
+	case "Valkey.version":
+		if e.ComplexityRoot.Valkey.Version == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Valkey.Version(childComplexity), true
+
 	case "Valkey.workload":
 		if e.ComplexityRoot.Valkey.Workload == nil {
 			break
@@ -18991,6 +19004,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ValkeyUpdatedActivityLogEntryDataUpdatedField.OldValue(childComplexity), true
+
+	case "ValkeyVersion.actual":
+		if e.ComplexityRoot.ValkeyVersion.Actual == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ValkeyVersion.Actual(childComplexity), true
+
+	case "ValkeyVersion.desiredMajor":
+		if e.ComplexityRoot.ValkeyVersion.DesiredMajor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ValkeyVersion.DesiredMajor(childComplexity), true
 
 	case "ViewSecretValuesPayload.values":
 		if e.ComplexityRoot.ViewSecretValuesPayload.Values == nil {
@@ -25642,16 +25669,14 @@ enum OpenSearchMemory {
 }
 
 enum OpenSearchMajorVersion {
-	"OpenSearch Version 3.6.x"
+	"OpenSearch Version 3.6 LTS"
 	V3_6
 	"OpenSearch Version 3.3.x"
-	V3_3
-	"OpenSearch Version 2.19.x"
+	V3_3 @deprecated(reason: "Vendor support disappears 2027-02-01")
+	"OpenSearch Version 2.19 LTS"
 	V2_19
-	"OpenSearch Version 2.17.x"
-	V2
-	"OpenSearch Version 1.3.x"
-	V1
+	"OpenSearch Version 2.19 LTS - backwards compatible"
+	V2 @deprecated(reason: "Use ` + "`" + `V2_19` + "`" + ` instead")
 }
 
 input CreateOpenSearchInput {
@@ -25666,7 +25691,7 @@ input CreateOpenSearchInput {
 	"Available memory for the OpenSearch instance."
 	memory: OpenSearchMemory!
 	"Major version of the OpenSearch instance."
-	version: OpenSearchMajorVersion!
+	version: OpenSearchMajorVersion
 	"Available storage in GB."
 	storageGB: Int!
 }
@@ -31553,6 +31578,24 @@ type TeamInventoryCountValkeys {
 	total: Int!
 }
 
+"Version information for a Valkey instance."
+type ValkeyVersion {
+	"The full version string of the Valkey instance. This will be available after the instance is created."
+	actual: String
+	"The desired major version of the Valkey instance."
+	desiredMajor: ValkeyMajorVersion!
+}
+
+"Major version of a Valkey instance."
+enum ValkeyMajorVersion {
+	"Valkey Version 9.1.x"
+	V9_1
+	"Valkey Version 9.0.x"
+	V9_0 @deprecated(reason: "No longer supported by back-end services")
+	"Valkey Version 8.1.x"
+	V8_1
+}
+
 type Valkey implements Persistence & Node {
 	id: ID!
 	name: String!
@@ -31581,6 +31624,8 @@ type Valkey implements Persistence & Node {
 	notifyKeyspaceEvents: String
 	"Number of databases the Valkey instance is configured with. Default is 16. Minimum 1, maximum 128. Changing this will cause a restart of the Valkey service."
 	databases: Int!
+	"Fetch version for the Valkey instance."
+	version: ValkeyVersion!
 	"Issues that affects the instance."
 	issues(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
@@ -31778,6 +31823,8 @@ input CreateValkeyInput {
 	tier: ValkeyTier!
 	"Available memory for the Valkey instance."
 	memory: ValkeyMemory!
+	"Major version of the Valkey instance."
+	version: ValkeyMajorVersion
 	"Maximum memory policy for the Valkey instance."
 	maxMemoryPolicy: ValkeyMaxMemoryPolicy
 	"Configure keyspace notifications for the Valkey instance. See https://valkey.io/topics/notifications/ for details."
@@ -31802,6 +31849,8 @@ input UpdateValkeyInput {
 	tier: ValkeyTier!
 	"Available memory for the Valkey instance."
 	memory: ValkeyMemory!
+	"Major version of the Valkey instance."
+	version: ValkeyMajorVersion!
 	"Maximum memory policy for the Valkey instance."
 	maxMemoryPolicy: ValkeyMaxMemoryPolicy
 	"Configure keyspace notifications for the Valkey instance. See https://valkey.io/topics/notifications/ for details."
@@ -38019,6 +38068,8 @@ func (ec *executionContext) childFields_Valkey(ctx context.Context, field graphq
 		return ec.fieldContext_Valkey_notifyKeyspaceEvents(ctx, field)
 	case "databases":
 		return ec.fieldContext_Valkey_databases(ctx, field)
+	case "version":
+		return ec.fieldContext_Valkey_version(ctx, field)
 	case "issues":
 		return ec.fieldContext_Valkey_issues(ctx, field)
 	case "activityLog":
@@ -38207,6 +38258,16 @@ func (ec *executionContext) childFields_ValkeyUpdatedActivityLogEntryDataUpdated
 		return ec.fieldContext_ValkeyUpdatedActivityLogEntryDataUpdatedField_newValue(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type ValkeyUpdatedActivityLogEntryDataUpdatedField", field.Name)
+}
+
+func (ec *executionContext) childFields_ValkeyVersion(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "actual":
+		return ec.fieldContext_ValkeyVersion_actual(ctx, field)
+	case "desiredMajor":
+		return ec.fieldContext_ValkeyVersion_desiredMajor(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ValkeyVersion", field.Name)
 }
 
 func (ec *executionContext) childFields_ViewSecretValuesPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {

@@ -10,12 +10,14 @@ import (
 	"sync"
 
 	"github.com/99designs/gqlgen/graphql"
+	"github.com/Masterminds/semver/v3"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/persistence/aivencredentials"
+	"github.com/nais/api/internal/persistence/aivenversion"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/validate"
 	"github.com/nais/api/internal/workload"
@@ -197,12 +199,10 @@ func toOpenSearch(u *unstructured.Unstructured, envName string) (*OpenSearch, er
 		name = strings.TrimPrefix(obj.GetName(), NamePrefix(slug.Slug(obj.GetNamespace())))
 	}
 
-	majorVersion := OpenSearchMajorVersion("")
-	if v, found, _ := unstructured.NestedString(u.Object, specOpenSearchVersion...); found {
-		version, err := OpenSearchMajorVersionFromAivenString(v)
-		if err == nil {
-			majorVersion = version
-		}
+	pinnedVersion, _, _ := unstructured.NestedString(u.Object, specOpenSearchVersion...)
+	majorVersion, err := aivenversion.MatchPin(pinnedVersion, allMajorVersions, OpenSearchMajorVersion.ToAivenString)
+	if err != nil {
+		majorVersion = ""
 	}
 
 	// default to minimum storage capacity for the selected plan, in case the field is not set explicitly
@@ -227,8 +227,8 @@ func toOpenSearch(u *unstructured.Unstructured, envName string) (*OpenSearch, er
 		AivenProject:      obj.Spec.Project,
 		Tier:              machine.Tier,
 		Memory:            machine.Memory,
-		MajorVersion:      majorVersion,
 		StorageGB:         storageGB,
+		MajorVersion:      majorVersion,
 		Labels:            model.UserLabels(obj.GetLabels()),
 	}, nil
 }
@@ -270,10 +270,10 @@ func (o *OpenSearchMetadataInput) ValidationErrors(ctx context.Context) *validat
 
 type OpenSearchInput struct {
 	OpenSearchMetadataInput
-	Tier      OpenSearchTier         `json:"tier"`
-	Memory    OpenSearchMemory       `json:"memory"`
-	Version   OpenSearchMajorVersion `json:"version"`
-	StorageGB StorageGB              `json:"storageGB"`
+	Tier      OpenSearchTier          `json:"tier"`
+	Memory    OpenSearchMemory        `json:"memory"`
+	Version   *OpenSearchMajorVersion `json:"version,omitempty"`
+	StorageGB StorageGB               `json:"storageGB"`
 }
 
 func (o *OpenSearchInput) Validate(ctx context.Context) error {
@@ -289,8 +289,12 @@ func (o *OpenSearchInput) ValidationErrors(ctx context.Context) *validate.Valida
 	if !o.Memory.IsValid() {
 		verr.Add("memory", "Invalid OpenSearch memory: %s.", o.Memory)
 	}
-	if !o.Version.IsValid() {
-		verr.Add("version", "Invalid OpenSearch version: %s.", o.Version.String())
+	if o.Version != nil {
+		if !o.Version.IsValid() {
+			verr.Add("version", "Invalid OpenSearch version: %s.", o.Version.String())
+		} else if reason, deprecated := o.Version.DeprecationReason(); deprecated {
+			verr.Add("version", "OpenSearch version %s is deprecated: %s.", o.Version.String(), reason)
+		}
 	}
 
 	machine, err := machineTypeFromTierAndMemory(o.Tier, o.Memory)
@@ -371,7 +375,6 @@ type CreateOpenSearchPayload struct {
 type OpenSearchMajorVersion string
 
 const (
-	OpenSearchMajorVersionV1    OpenSearchMajorVersion = "V1"
 	OpenSearchMajorVersionV2    OpenSearchMajorVersion = "V2"
 	OpenSearchMajorVersionV2_19 OpenSearchMajorVersion = "V2_19"
 	OpenSearchMajorVersionV3_3  OpenSearchMajorVersion = "V3_3"
@@ -389,7 +392,6 @@ func (u upgradePath) String() string {
 }
 
 var upgradePaths = map[OpenSearchMajorVersion]upgradePath{
-	OpenSearchMajorVersionV1:    {OpenSearchMajorVersionV2, OpenSearchMajorVersionV2_19},
 	OpenSearchMajorVersionV2:    {OpenSearchMajorVersionV2_19},
 	OpenSearchMajorVersionV2_19: {OpenSearchMajorVersionV3_3, OpenSearchMajorVersionV3_6},
 	OpenSearchMajorVersionV3_3:  {OpenSearchMajorVersionV3_6},
@@ -413,17 +415,57 @@ func (e OpenSearchMajorVersion) ValidateUpgradePath(other OpenSearchMajorVersion
 	return apierror.Errorf("Cannot change OpenSearch version from %v to %v. New version must be one of [%s]", other, e, path)
 }
 
-func (e OpenSearchMajorVersion) IsValid() bool {
-	switch e {
-	case
-		OpenSearchMajorVersionV1,
-		OpenSearchMajorVersionV2,
-		OpenSearchMajorVersionV2_19,
-		OpenSearchMajorVersionV3_3,
-		OpenSearchMajorVersionV3_6:
-		return true
+// newestMajorVersion returns the highest version the codebase knows about, derived
+// from the versions themselves so that adding one to upgradePaths is enough.
+func newestMajorVersion() (OpenSearchMajorVersion, error) {
+	var newest OpenSearchMajorVersion
+	var highest *semver.Version
+
+	for v := range upgradePaths {
+		s, err := v.ToAivenString()
+		if err != nil {
+			return "", err
+		}
+		parsed, err := semver.NewVersion(s)
+		if err != nil {
+			return "", fmt.Errorf("parsing OpenSearch version %q: %w", s, err)
+		}
+		if highest == nil || parsed.GreaterThan(highest) {
+			highest, newest = parsed, v
+		}
 	}
-	return false
+
+	if newest == "" {
+		return "", fmt.Errorf("no OpenSearch versions defined")
+	}
+	return newest, nil
+}
+
+// allMajorVersions is the one list the enum is both validated and matched against, so
+// adding a version cannot leave the two disagreeing.
+var allMajorVersions = []OpenSearchMajorVersion{
+	OpenSearchMajorVersionV2,
+	OpenSearchMajorVersionV2_19,
+	OpenSearchMajorVersionV3_3,
+	OpenSearchMajorVersionV3_6,
+}
+
+func (e OpenSearchMajorVersion) IsValid() bool {
+	return slices.Contains(allMajorVersions, e)
+}
+
+// deprecatedMajorVersions name versions Aiven still runs, so they stay valid for reads
+// and remain in the GraphQL enum. No client may choose one. Each carries its own reason
+// because versions are deprecated for different causes, and refusing without saying why
+// leaves the caller guessing.
+var deprecatedMajorVersions = map[OpenSearchMajorVersion]string{
+	OpenSearchMajorVersionV2:   "use V2_19 instead",
+	OpenSearchMajorVersionV3_3: "vendor support disappears 2027-02-01",
+}
+
+func (e OpenSearchMajorVersion) DeprecationReason() (string, bool) {
+	reason, ok := deprecatedMajorVersions[e]
+	return reason, ok
 }
 
 func (e OpenSearchMajorVersion) String() string {
@@ -447,14 +489,10 @@ func (e OpenSearchMajorVersion) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
-// ToAivenString returns the version string without the "V" prefix, e.g. "2" or "1".
+// ToAivenString returns the version as Aiven writes it in userConfig, e.g. "2.19".
 func (e OpenSearchMajorVersion) ToAivenString() (string, error) {
 	switch e {
-	case OpenSearchMajorVersionV1:
-		return "1", nil
-	case OpenSearchMajorVersionV2:
-		return "2", nil
-	case OpenSearchMajorVersionV2_19:
+	case OpenSearchMajorVersionV2, OpenSearchMajorVersionV2_19:
 		return "2.19", nil
 	case OpenSearchMajorVersionV3_3:
 		return "3.3", nil
@@ -466,20 +504,7 @@ func (e OpenSearchMajorVersion) ToAivenString() (string, error) {
 }
 
 func OpenSearchMajorVersionFromAivenString(s string) (OpenSearchMajorVersion, error) {
-	switch {
-	case strings.HasPrefix(s, "1"):
-		return OpenSearchMajorVersionV1, nil
-	case strings.HasPrefix(s, "2.19"):
-		return OpenSearchMajorVersionV2_19, nil
-	case strings.HasPrefix(s, "2"):
-		return OpenSearchMajorVersionV2, nil
-	case strings.HasPrefix(s, "3.3"):
-		return OpenSearchMajorVersionV3_3, nil
-	case strings.HasPrefix(s, "3.6"):
-		return OpenSearchMajorVersionV3_6, nil
-	default:
-		return "", fmt.Errorf("unsupported Aiven OpenSearch version: %q", s)
-	}
+	return aivenversion.Match(s, allMajorVersions, upgradePaths)
 }
 
 type OpenSearchMemory string
