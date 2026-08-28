@@ -91,7 +91,11 @@ func (r *valkeyResolver) Workload(ctx context.Context, obj *valkey.Valkey) (work
 }
 
 func (r *valkeyResolver) State(ctx context.Context, obj *valkey.Valkey) (valkey.ValkeyState, error) {
-	return valkey.State(ctx, obj)
+	return valkey.State(obj), nil
+}
+
+func (r *valkeyResolver) Version(ctx context.Context, obj *valkey.Valkey) (*valkey.ValkeyVersion, error) {
+	return valkey.GetValkeyVersion(obj)
 }
 
 func (r *valkeyResolver) Issues(ctx context.Context, obj *valkey.Valkey, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) (*issue.IssueConnection, error) {

@@ -22,12 +22,7 @@ func init() {
 		return strings.Compare(a.EnvironmentName, b.EnvironmentName)
 	}, "NAME")
 	SortFilterOpenSearch.RegisterConcurrentSort("STATE", func(ctx context.Context, a *OpenSearch) int {
-		s, err := State(ctx, a)
-		if err != nil {
-			return int(OpenSearchStateUnknown)
-		}
-
-		return int(s)
+		return int(State(a))
 	}, "NAME")
 
 	SortFilterOpenSearch.RegisterFilter(func(ctx context.Context, v *OpenSearch, filter *OpenSearchFilter) bool {

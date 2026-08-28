@@ -36,6 +36,7 @@ spec:
     tenant: nav
   terminationProtection: true
 status:
+  version: "2.19.3"
   conditions:
     - lastTransitionTime: "2023-11-08T10:24:54Z"
       message: Instance was created or update on Aiven side
@@ -79,6 +80,7 @@ spec:
     tenant: nav
   terminationProtection: true
 status:
+  version: "2.19.3"
   conditions:
     - lastTransitionTime: "2023-11-08T10:24:54Z"
       message: Instance was created or update on Aiven side

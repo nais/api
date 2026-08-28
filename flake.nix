@@ -20,16 +20,16 @@
               (
                 final: prev:
                 let
-                  version = "1.24.2";
+                  version = "1.26.7";
                   newerGoVersion = prev.go.overrideAttrs (old: {
                     inherit version;
                     src = prev.fetchurl {
                       url = "https://go.dev/dl/go${version}.src.tar.gz";
-                      hash = "sha256-ncd/+twW2DehvzLZnGJMtN8GR87nsRnt2eexvMBfLgA=";
+                      hash = "";
                     };
                   });
                   nixpkgsVersion = prev.go.version;
-                  newVersionNotInNixpkgs = -1 == builtins.compareVersions nixpkgsVersion version;
+                  newVersionNotInNixpkgs = -1 == prev.lib.compareVersions nixpkgsVersion version;
                 in
                 {
                   go = if newVersionNotInNixpkgs then newerGoVersion else prev.go;
@@ -70,7 +70,7 @@
                 nodejs_22
 
                 mise
-                nodePackages.prettier
+                prettier
               ]
               ++ [ gqlgen ];
           };

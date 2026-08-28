@@ -36,6 +36,7 @@ type ValkeyResolver interface {
 	Workload(ctx context.Context, obj *valkey.Valkey) (workload.Workload, error)
 	State(ctx context.Context, obj *valkey.Valkey) (valkey.ValkeyState, error)
 
+	Version(ctx context.Context, obj *valkey.Valkey) (*valkey.ValkeyVersion, error)
 	Issues(ctx context.Context, obj *valkey.Valkey, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) (*issue.IssueConnection, error)
 	ActivityLog(ctx context.Context, obj *valkey.Valkey, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*activitylog.ActivityLogEntryConnection, error)
 	Cost(ctx context.Context, obj *valkey.Valkey) (*cost.ValkeyCost, error)
@@ -725,6 +726,38 @@ func (ec *executionContext) _Valkey_databases(ctx context.Context, field graphql
 }
 func (ec *executionContext) fieldContext_Valkey_databases(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("Valkey", field, false, false, errors.New("field of type Int does not have child fields"))
+}
+
+func (ec *executionContext) _Valkey_version(ctx context.Context, field graphql.CollectedField, obj *valkey.Valkey) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Valkey_version(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.Valkey().Version(ctx, obj)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *valkey.ValkeyVersion) graphql.Marshaler {
+			return ec.marshalNValkeyVersion2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyVersion(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Valkey_version(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Valkey",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_ValkeyVersion(ctx, field)
+		},
+	}
+	return fc, nil
 }
 
 func (ec *executionContext) _Valkey_issues(ctx context.Context, field graphql.CollectedField, obj *valkey.Valkey) (ret graphql.Marshaler) {
@@ -2472,6 +2505,52 @@ func (ec *executionContext) fieldContext_ValkeyUpdatedActivityLogEntryDataUpdate
 	return graphql.NewScalarFieldContext("ValkeyUpdatedActivityLogEntryDataUpdatedField", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
+func (ec *executionContext) _ValkeyVersion_actual(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyVersion) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyVersion_actual(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Actual, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_ValkeyVersion_actual(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("ValkeyVersion", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _ValkeyVersion_desiredMajor(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyVersion) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ValkeyVersion_desiredMajor(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.DesiredMajor, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v valkey.ValkeyMajorVersion) graphql.Marshaler {
+			return ec.marshalNValkeyMajorVersion2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyMajorVersion(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_ValkeyVersion_desiredMajor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("ValkeyVersion", field, false, false, errors.New("field of type ValkeyMajorVersion does not have child fields"))
+}
+
 // endregion **************************** field.gotpl *****************************
 
 // region    **************************** input.gotpl *****************************
@@ -2545,7 +2624,7 @@ func (ec *executionContext) unmarshalInputCreateValkeyInput(ctx context.Context,
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "environmentName", "teamSlug", "tier", "memory", "maxMemoryPolicy", "notifyKeyspaceEvents", "databases"}
+	fieldsInOrder := [...]string{"name", "environmentName", "teamSlug", "tier", "memory", "version", "maxMemoryPolicy", "notifyKeyspaceEvents", "databases"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -2587,6 +2666,13 @@ func (ec *executionContext) unmarshalInputCreateValkeyInput(ctx context.Context,
 				return it, err
 			}
 			it.Memory = data
+		case "version":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("version"))
+			data, err := ec.unmarshalOValkeyMajorVersion2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyMajorVersion(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Version = data
 		case "maxMemoryPolicy":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxMemoryPolicy"))
 			data, err := ec.unmarshalOValkeyMaxMemoryPolicy2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyMaxMemoryPolicy(ctx, v)
@@ -2668,7 +2754,7 @@ func (ec *executionContext) unmarshalInputUpdateValkeyInput(ctx context.Context,
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "environmentName", "teamSlug", "tier", "memory", "maxMemoryPolicy", "notifyKeyspaceEvents", "databases", "labels"}
+	fieldsInOrder := [...]string{"name", "environmentName", "teamSlug", "tier", "memory", "version", "maxMemoryPolicy", "notifyKeyspaceEvents", "databases", "labels"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -2710,6 +2796,13 @@ func (ec *executionContext) unmarshalInputUpdateValkeyInput(ctx context.Context,
 				return it, err
 			}
 			it.Memory = data
+		case "version":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("version"))
+			data, err := ec.unmarshalNValkeyMajorVersion2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyMajorVersion(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Version = data
 		case "maxMemoryPolicy":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxMemoryPolicy"))
 			data, err := ec.unmarshalOValkeyMaxMemoryPolicy2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyMaxMemoryPolicy(ctx, v)
@@ -3295,6 +3388,42 @@ func (ec *executionContext) _Valkey(ctx context.Context, sel ast.SelectionSet, o
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "version":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Valkey_version(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "issues":
 			field := field
 
@@ -4418,6 +4547,47 @@ func (ec *executionContext) _ValkeyUpdatedActivityLogEntryDataUpdatedField(ctx c
 	return out
 }
 
+var valkeyVersionImplementors = []string{"ValkeyVersion"}
+
+func (ec *executionContext) _ValkeyVersion(ctx context.Context, sel ast.SelectionSet, obj *valkey.ValkeyVersion) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, valkeyVersionImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ValkeyVersion")
+		case "actual":
+			out.Values[i] = ec._ValkeyVersion_actual(ctx, field, obj)
+		case "desiredMajor":
+			out.Values[i] = ec._ValkeyVersion_desiredMajor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 // endregion **************************** object.gotpl ****************************
 
 // region    ***************************** type.gotpl *****************************
@@ -4666,6 +4836,16 @@ func (ec *executionContext) marshalNValkeyEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋin
 	return ret
 }
 
+func (ec *executionContext) unmarshalNValkeyMajorVersion2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyMajorVersion(ctx context.Context, v any) (valkey.ValkeyMajorVersion, error) {
+	var res valkey.ValkeyMajorVersion
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNValkeyMajorVersion2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyMajorVersion(ctx context.Context, sel ast.SelectionSet, v valkey.ValkeyMajorVersion) graphql.Marshaler {
+	return v
+}
+
 func (ec *executionContext) unmarshalNValkeyMemory2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyMemory(ctx context.Context, v any) (valkey.ValkeyMemory, error) {
 	var res valkey.ValkeyMemory
 	err := res.UnmarshalGQL(v)
@@ -4772,6 +4952,20 @@ func (ec *executionContext) marshalNValkeyUpdatedActivityLogEntryDataUpdatedFiel
 	return ec._ValkeyUpdatedActivityLogEntryDataUpdatedField(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNValkeyVersion2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyVersion(ctx context.Context, sel ast.SelectionSet, v valkey.ValkeyVersion) graphql.Marshaler {
+	return ec._ValkeyVersion(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNValkeyVersion2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyVersion(ctx context.Context, sel ast.SelectionSet, v *valkey.ValkeyVersion) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ValkeyVersion(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalOValkeyAccessOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyAccessOrder(ctx context.Context, v any) (*valkey.ValkeyAccessOrder, error) {
 	if v == nil {
 		return nil, nil
@@ -4793,6 +4987,22 @@ func (ec *executionContext) unmarshalOValkeyFilter2ᚖgithubᚗcomᚋnaisᚋapi�
 	}
 	res, err := ec.unmarshalInputValkeyFilter(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOValkeyMajorVersion2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyMajorVersion(ctx context.Context, v any) (*valkey.ValkeyMajorVersion, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(valkey.ValkeyMajorVersion)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOValkeyMajorVersion2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyMajorVersion(ctx context.Context, sel ast.SelectionSet, v *valkey.ValkeyMajorVersion) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
 }
 
 func (ec *executionContext) unmarshalOValkeyMaxMemoryPolicy2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyMaxMemoryPolicy(ctx context.Context, v any) (valkey.ValkeyMaxMemoryPolicy, error) {

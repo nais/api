@@ -31,6 +31,7 @@ var (
 	specMaxMemoryPolicy       = []string{"spec", "userConfig", "valkey_maxmemory_policy"}
 	specNotifyKeyspaceEvents  = []string{"spec", "userConfig", "valkey_notify_keyspace_events"}
 	specNumberOfDatabases     = []string{"spec", "userConfig", "valkey_number_of_databases"}
+	specValkeyVersion         = []string{"spec", "userConfig", "valkey_version"}
 )
 
 func GetByIdent(ctx context.Context, id ident.Ident) (*Valkey, error) {
@@ -97,6 +98,31 @@ func ListAccess(ctx context.Context, valkey *Valkey, page *pagination.Pagination
 	return pagination.NewConnection(ret, page, len(all)), nil
 }
 
+func GetValkeyVersion(v *Valkey) (*ValkeyVersion, error) {
+	if v.ReportedVersion == "" {
+		// Kubernetes is only eventually consistent with Aiven: the CR exists here before
+		// the service exists there, and lingers after it is deleted. The operator has no
+		// version to record in that window, so fall back to the version pinned in the CR
+		// rather than failing the whole query. Actual stays nil, which the schema
+		// documents as "available after the instance is created".
+		if v.MajorVersion == "" {
+			return nil, fmt.Errorf("no Valkey version known for service %q", v.FullyQualifiedName())
+		}
+		return &ValkeyVersion{DesiredMajor: v.MajorVersion}, nil
+	}
+
+	actual := v.ReportedVersion
+	major, err := ValkeyMajorVersionFromAivenString(actual)
+	if err != nil {
+		return nil, err
+	}
+
+	return &ValkeyVersion{
+		Actual:       &actual,
+		DesiredMajor: major,
+	}, nil
+}
+
 func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName string, references []nais_io_v1.Valkey, orderBy *ValkeyOrder) (*ValkeyConnection, error) {
 	all := fromContext(ctx).client.watcher.GetByNamespace(teamSlug.String(), watcher.InCluster(environmentName))
 	ret := make([]*Valkey, 0)
@@ -154,6 +180,19 @@ func Create(ctx context.Context, input CreateValkeyInput) (*CreateValkeyPayload,
 		return nil, err
 	}
 
+	desired := input.Version
+	if desired == nil {
+		newest, err := newestMajorVersion()
+		if err != nil {
+			return nil, err
+		}
+		desired = &newest
+	}
+	version, err := desired.ToAivenString()
+	if err != nil {
+		return nil, err
+	}
+
 	res.Object["spec"] = map[string]any{
 		"cloudName":             "google-europe-north1",
 		"plan":                  machine.AivenPlan,
@@ -165,6 +204,10 @@ func Create(ctx context.Context, input CreateValkeyInput) (*CreateValkeyPayload,
 			"team":        namespace,
 			"tenant":      fromContext(ctx).tenantName,
 		},
+	}
+
+	if err := unstructured.SetNestedField(res.Object, version, specValkeyVersion...); err != nil {
+		return nil, err
 	}
 
 	if input.MaxMemoryPolicy != nil {
@@ -246,6 +289,12 @@ func Update(ctx context.Context, input UpdateValkeyInput) (*UpdateValkeyPayload,
 	changes := make([]*ValkeyUpdatedActivityLogEntryDataUpdatedField, 0)
 
 	res, err := updatePlan(valkey, input)
+	if err != nil {
+		return nil, err
+	}
+	changes = append(changes, res...)
+
+	res, err = updateValkeyVersion(valkey, input)
 	if err != nil {
 		return nil, err
 	}
@@ -483,6 +532,53 @@ func updateMaxMemoryPolicy(valkey *unstructured.Unstructured, input UpdateValkey
 	return changes, nil
 }
 
+func updateValkeyVersion(valkey *unstructured.Unstructured, input UpdateValkeyInput) ([]*ValkeyUpdatedActivityLogEntryDataUpdatedField, error) {
+	changes := make([]*ValkeyUpdatedActivityLogEntryDataUpdatedField, 0)
+
+	newValue, err := input.Version.ToAivenString()
+	if err != nil {
+		return nil, err
+	}
+
+	v, err := toValkey(valkey, input.EnvironmentName)
+	if err != nil {
+		return nil, err
+	}
+
+	// Only the running version can judge whether the requested change is legal, and the
+	// operator records it once it has observed the service. The CR's own pin says what
+	// was asked for, so it cannot stand in.
+	if v.ReportedVersion == "" {
+		return nil, apierror.Errorf("The running version of %q is not known yet. Try again shortly.", v.Name)
+	}
+
+	oldValue := v.ReportedVersion
+	oldMajor, err := ValkeyMajorVersionFromAivenString(oldValue)
+	if err != nil {
+		return nil, err
+	}
+
+	if oldMajor == input.Version {
+		return changes, nil
+	}
+
+	if err := input.Version.ValidateUpgradePath(oldMajor); err != nil {
+		return nil, err
+	}
+
+	changes = append(changes, &ValkeyUpdatedActivityLogEntryDataUpdatedField{
+		Field:    "version",
+		OldValue: &oldValue,
+		NewValue: new(newValue),
+	})
+
+	if err := unstructured.SetNestedField(valkey.Object, newValue, specValkeyVersion...); err != nil {
+		return nil, err
+	}
+
+	return changes, nil
+}
+
 func updateNotifyKeyspaceEvents(valkey *unstructured.Unstructured, input UpdateValkeyInput) ([]*ValkeyUpdatedActivityLogEntryDataUpdatedField, error) {
 	changes := make([]*ValkeyUpdatedActivityLogEntryDataUpdatedField, 0)
 
@@ -638,27 +734,19 @@ func Delete(ctx context.Context, input DeleteValkeyInput) (*DeleteValkeyPayload,
 	}, nil
 }
 
-func State(ctx context.Context, v *Valkey) (ValkeyState, error) {
-	s, err := fromContext(ctx).aivenClient.ServiceGet(ctx, v.AivenProject, v.FullyQualifiedName())
-	if err != nil {
-		// The Valkey instance may not have been created in Aiven yet, or it has been deleted.
-		// In both cases, we return "unknown" state rather than an error.
-		if aiven.IsNotFound(err) {
-			return ValkeyStateUnknown, nil
-		}
-		return ValkeyStateUnknown, err
-	}
-
-	switch s.State {
+// State reports the state the operator last observed. An instance Aiven has not created
+// yet, or has already deleted, has no state recorded and reads as unknown.
+func State(v *Valkey) ValkeyState {
+	switch v.Status.State {
 	case "RUNNING":
-		return ValkeyStateRunning, nil
+		return ValkeyStateRunning
 	case "REBALANCING":
-		return ValkeyStateRebalancing, nil
+		return ValkeyStateRebalancing
 	case "REBUILDING":
-		return ValkeyStateRebuilding, nil
+		return ValkeyStateRebuilding
 	case "POWEROFF":
-		return ValkeyStatePoweroff, nil
+		return ValkeyStatePoweroff
 	default:
-		return ValkeyStateUnknown, nil
+		return ValkeyStateUnknown
 	}
 }

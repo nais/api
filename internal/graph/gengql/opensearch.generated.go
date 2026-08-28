@@ -2622,7 +2622,7 @@ func (ec *executionContext) unmarshalInputCreateOpenSearchInput(ctx context.Cont
 			it.Memory = data
 		case "version":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("version"))
-			data, err := ec.unmarshalNOpenSearchMajorVersion2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchMajorVersion(ctx, v)
+			data, err := ec.unmarshalOOpenSearchMajorVersion2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchMajorVersion(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -2863,7 +2863,7 @@ func (ec *executionContext) unmarshalInputUpdateOpenSearchInput(ctx context.Cont
 			it.Memory = data
 		case "version":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("version"))
-			data, err := ec.unmarshalNOpenSearchMajorVersion2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchMajorVersion(ctx, v)
+			data, err := ec.unmarshalNOpenSearchMajorVersion2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchMajorVersion(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4735,6 +4735,22 @@ func (ec *executionContext) marshalNOpenSearchMajorVersion2githubᚗcomᚋnais�
 	return v
 }
 
+func (ec *executionContext) unmarshalNOpenSearchMajorVersion2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchMajorVersion(ctx context.Context, v any) (*opensearch.OpenSearchMajorVersion, error) {
+	var res = new(opensearch.OpenSearchMajorVersion)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNOpenSearchMajorVersion2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchMajorVersion(ctx context.Context, sel ast.SelectionSet, v *opensearch.OpenSearchMajorVersion) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return v
+}
+
 func (ec *executionContext) unmarshalNOpenSearchMemory2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchMemory(ctx context.Context, v any) (opensearch.OpenSearchMemory, error) {
 	var res opensearch.OpenSearchMemory
 	err := res.UnmarshalGQL(v)
@@ -4916,6 +4932,22 @@ func (ec *executionContext) unmarshalOOpenSearchFilter2ᚖgithubᚗcomᚋnaisᚋ
 	}
 	res, err := ec.unmarshalInputOpenSearchFilter(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOOpenSearchMajorVersion2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchMajorVersion(ctx context.Context, v any) (*opensearch.OpenSearchMajorVersion, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(opensearch.OpenSearchMajorVersion)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOOpenSearchMajorVersion2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchMajorVersion(ctx context.Context, sel ast.SelectionSet, v *opensearch.OpenSearchMajorVersion) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
 }
 
 func (ec *executionContext) unmarshalOOpenSearchOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchOrder(ctx context.Context, v any) (*opensearch.OpenSearchOrder, error) {

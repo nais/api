@@ -2,13 +2,13 @@ Helper.readK8sResources("./k8s_resources/simple")
 local user = User.new()
 local team = Team.new("slug-1", "purpose", "#channel")
 
-Test.gql("Show version of OpenSearch instance", function(t)
+Test.gql("Show version of Valkey instance", function(t)
 	t.addHeader("x-user-email", user:email())
 
 	t.query(string.format([[
 {
   team(slug: "%s") {
-    openSearches {
+    valkeys {
       nodes {
         name
         version {
@@ -23,13 +23,13 @@ Test.gql("Show version of OpenSearch instance", function(t)
 	t.check {
 		data = {
 			team = {
-				openSearches = {
+				valkeys = {
 					nodes = {
 						{
-							name = "opensearch-slug-1-opensearch",
+							name = "valkey-slug-1-contests",
 							version = {
-								actual = "2.19.3",
-								desiredMajor = "V2_19",
+								actual = "9.1.0",
+								desiredMajor = "V9_1",
 							},
 						},
 					},

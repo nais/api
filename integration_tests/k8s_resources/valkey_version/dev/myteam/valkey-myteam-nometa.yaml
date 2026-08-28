@@ -1,36 +1,24 @@
----
 apiVersion: aiven.io/v1alpha1
-kind: OpenSearch
+kind: Valkey
 metadata:
   annotations:
-    controllers.aiven.io/generation-was-processed: "2"
+    controllers.aiven.io/generation-was-processed: "1"
     controllers.aiven.io/instance-is-running: "true"
   labels:
-    app: app-name
-  name: opensearch-slug-1-opensearch
+    nais.io/managed-by: console
+  name: valkey-myteam-nometa
 spec:
   cloudName: google-europe-north1
   connInfoSecretTarget:
     name: ""
-  disk_space: 525G
-  plan: business-8
+  plan: hobbyist
   project: nav-dev
   projectVpcId: fff21e17-95d5-408b-8df5-15aacf38f5de
-  tags:
-    environment: dev
-    team: slug-1
-    tenant: nav
   terminationProtection: true
   userConfig:
-    opensearch_version: "2"
+    valkey_version: "8.1"
 status:
-  version: "2.19.3"
   conditions:
-    - lastTransitionTime: "2023-11-08T10:36:06Z"
-      message: Instance was created or update on Aiven side
-      reason: Updated
-      status: "True"
-      type: Initialized
     - lastTransitionTime: "2024-01-10T09:40:58Z"
       message: Instance is running on Aiven side
       reason: CheckRunning

@@ -59,7 +59,7 @@ func (r *openSearchResolver) TeamEnvironment(ctx context.Context, obj *opensearc
 }
 
 func (r *openSearchResolver) State(ctx context.Context, obj *opensearch.OpenSearch) (opensearch.OpenSearchState, error) {
-	return opensearch.State(ctx, obj)
+	return opensearch.State(obj), nil
 }
 
 func (r *openSearchResolver) Workload(ctx context.Context, obj *opensearch.OpenSearch) (workload.Workload, error) {
@@ -76,7 +76,7 @@ func (r *openSearchResolver) Access(ctx context.Context, obj *opensearch.OpenSea
 }
 
 func (r *openSearchResolver) Version(ctx context.Context, obj *opensearch.OpenSearch) (*opensearch.OpenSearchVersion, error) {
-	return opensearch.GetOpenSearchVersion(ctx, obj)
+	return opensearch.GetOpenSearchVersion(obj)
 }
 
 func (r *openSearchResolver) Issues(ctx context.Context, obj *opensearch.OpenSearch, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) (*issue.IssueConnection, error) {

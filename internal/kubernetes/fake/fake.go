@@ -219,6 +219,17 @@ func NewDynamicClient(scheme *runtime.Scheme) *dynfake.FakeDynamicClient {
 			nais_io_v1alpha1.GroupVersion.WithResource("tunnels"):                 "TunnelList",
 		})
 
+	client.PrependReactor("create", "*", func(action k8stesting.Action) (handled bool, ret runtime.Object, err error) {
+		createAction, ok := action.(k8stesting.CreateAction)
+		if !ok {
+			return false, nil, nil
+		}
+		if o, ok := createAction.GetObject().(*unstructured.Unstructured); ok {
+			observeAivenVersion(o)
+		}
+		return false, nil, nil
+	})
+
 	client.PrependReactor("patch", "*", func(action k8stesting.Action) (handled bool, ret runtime.Object, err error) {
 		patchAction, ok := action.(k8stesting.PatchAction)
 		if !ok {
@@ -378,4 +389,23 @@ func newDynamicClient(scheme *runtime.Scheme, objs ...runtime.Object) dynamic.In
 	fc := NewDynamicClient(scheme)
 	AddObjectToDynamicClient(scheme, fc, objs...)
 	return fc
+}
+
+// observeAivenVersion stands in for the Aiven operator's first reconcile, which records
+// the version the service reports in status. Only the create path needs it: fixtures
+// declare status.version themselves, and the ones that deliberately omit it are the
+// cases where the operator has not observed the service yet.
+func observeAivenVersion(o *unstructured.Unstructured) {
+	kind := strings.ToLower(o.GetKind())
+	if kind != "valkey" && kind != "opensearch" {
+		return
+	}
+	if v, _, _ := unstructured.NestedString(o.Object, "status", "version"); v != "" {
+		return
+	}
+	pinned, ok, _ := unstructured.NestedString(o.Object, "spec", "userConfig", kind+"_version")
+	if !ok || pinned == "" {
+		return
+	}
+	_ = unstructured.SetNestedField(o.Object, pinned, "status", "version")
 }

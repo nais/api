@@ -9,7 +9,7 @@ type ctxKey int
 const loadersKey ctxKey = iota
 
 func NewLoaderContext(ctx context.Context, projects Projects) context.Context {
-	return context.WithValue(ctx, loadersKey, newLoaders(projects))
+	return context.WithValue(ctx, loadersKey, &loaders{projects: projects})
 }
 
 func fromContext(ctx context.Context) *loaders {
@@ -18,10 +18,4 @@ func fromContext(ctx context.Context) *loaders {
 
 type loaders struct {
 	projects Projects
-}
-
-func newLoaders(projects Projects) *loaders {
-	return &loaders{
-		projects: projects,
-	}
 }

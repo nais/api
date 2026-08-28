@@ -23,12 +23,7 @@ func init() {
 	}, "NAME")
 
 	SortFilterValkey.RegisterConcurrentSort("STATE", func(ctx context.Context, a *Valkey) int {
-		s, err := State(ctx, a)
-		if err != nil {
-			return int(ValkeyStateUnknown)
-		}
-
-		return int(s)
+		return int(State(a))
 	}, "NAME")
 
 	SortFilterValkey.RegisterFilter(func(ctx context.Context, v *Valkey, filter *ValkeyFilter) bool {

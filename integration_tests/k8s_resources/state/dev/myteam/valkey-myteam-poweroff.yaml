@@ -18,3 +18,5 @@ spec:
     team: slug-1
     tenant: nav
   terminationProtection: true
+status:
+  state: POWEROFF

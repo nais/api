@@ -21,6 +21,7 @@ require (
 	cloud.google.com/go/pubsub v1.50.1
 	github.com/99designs/gqlgen v0.17.90
 	github.com/GoogleCloudPlatform/k8s-config-connector v1.128.0
+	github.com/Masterminds/semver/v3 v3.4.0
 	github.com/aiven/go-client-codegen v0.106.0
 	github.com/blevesearch/bleve/v2 v2.5.0
 	github.com/blevesearch/bleve_index_api v1.2.7
@@ -108,7 +109,6 @@ require (
 	github.com/BurntSushi/toml v1.6.0 // indirect
 	github.com/DataDog/sketches-go v1.4.8 // indirect
 	github.com/Masterminds/goutils v1.1.1 // indirect
-	github.com/Masterminds/semver/v3 v3.4.0 // indirect
 	github.com/Masterminds/sprig/v3 v3.3.0 // indirect
 	github.com/Microsoft/go-winio v0.6.2 // indirect
 	github.com/RoaringBitmap/roaring/v2 v2.4.5 // indirect
