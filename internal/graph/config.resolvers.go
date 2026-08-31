@@ -116,8 +116,7 @@ func (r *configResolver) LastModifiedBy(ctx context.Context, obj *config.Config)
 
 	u, err := user.GetByEmail(ctx, *obj.ModifiedByUserEmail)
 	if err != nil {
-		var notFound user.ErrNotFound
-		if errors.As(err, &notFound) {
+		if _, ok := errors.AsType[user.ErrNotFound](err); ok {
 			return nil, nil
 		}
 		return nil, err
