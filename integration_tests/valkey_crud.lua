@@ -1107,10 +1107,10 @@ Test.gql(
 	end)
 
 Test.k8s("Validate Valkey labels after update", function(t)
-	local resourceName = string.format("valkey-%s-labels-valkey", mainTeam:slug())
+	local resourceName = "labels-valkey"
 
-	t.check("aiven.io/v1alpha1", "valkeys", "dev", mainTeam:slug(), resourceName, {
-		apiVersion = "aiven.io/v1alpha1",
+	t.check("nais.io/v1", "valkeys", "dev", mainTeam:slug(), resourceName, {
+		apiVersion = "nais.io/v1",
 		kind = "Valkey",
 		metadata = {
 			name = resourceName,
