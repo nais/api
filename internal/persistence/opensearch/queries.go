@@ -25,7 +25,6 @@ import (
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/utils/ptr"
 )
 
@@ -305,6 +304,7 @@ func Update(ctx context.Context, input UpdateOpenSearchInput) (*UpdateOpenSearch
 		updateShardIndexingPressure,
 		updateIndices,
 		updateHTTP,
+		updateLabels,
 	}
 
 	for _, f := range updateFuncs {
@@ -314,8 +314,6 @@ func Update(ctx context.Context, input UpdateOpenSearchInput) (*UpdateOpenSearch
 		}
 		changes = append(changes, res...)
 	}
-
-	changes = append(changes, updateLabels(openSearch, input)...)
 
 	if len(changes) == 0 {
 		os, err := toOpenSearch(openSearch, input.EnvironmentName)
@@ -515,9 +513,9 @@ func updateStorage(openSearch *naiscrd.OpenSearch, input UpdateOpenSearchInput) 
 	return changes, nil
 }
 
-func updateLabels(openSearch *unstructured.Unstructured, input UpdateOpenSearchInput) []*OpenSearchUpdatedActivityLogEntryDataUpdatedField {
+func updateLabels(openSearch *naiscrd.OpenSearch, input UpdateOpenSearchInput) ([]*OpenSearchUpdatedActivityLogEntryDataUpdatedField, error) {
 	if input.Labels == nil {
-		return nil
+		return nil, nil
 	}
 
 	existing := openSearch.GetLabels()
@@ -525,13 +523,13 @@ func updateLabels(openSearch *unstructured.Unstructured, input UpdateOpenSearchI
 	merged := model.MergeUserLabels(existing, input.Labels)
 	newValue := formatUserLabels(model.UserLabels(merged))
 	if oldValue == newValue {
-		return nil
+		return nil, nil
 	}
 
 	openSearch.SetLabels(merged)
 	return []*OpenSearchUpdatedActivityLogEntryDataUpdatedField{
 		{Field: "labels", OldValue: &oldValue, NewValue: &newValue},
-	}
+	}, nil
 }
 
 func formatUserLabels(labels []*model.ResourceLabel) string {

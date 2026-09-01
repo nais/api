@@ -257,6 +257,7 @@ func Update(ctx context.Context, input UpdateValkeyInput) (*UpdateValkeyPayload,
 		updateNotifyKeyspaceEvents,
 		updateDatabases,
 		updatePersistence,
+		updateLabels,
 	}
 
 	for _, f := range updateFuncs {
@@ -265,12 +266,6 @@ func Update(ctx context.Context, input UpdateValkeyInput) (*UpdateValkeyPayload,
 			return nil, err
 		}
 		changes = append(changes, res...)
-	}
-
-	changes = append(changes, updateLabels(valkey, input)...)
-
-	if input.Databases != nil {
-		concreteValkey.Spec.Databases = input.Databases
 	}
 
 	if len(changes) == 0 {
@@ -498,7 +493,7 @@ func updateDatabases(valkey *naiscrd.Valkey, input UpdateValkeyInput) ([]*Valkey
 	}
 
 	oldValue := valkey.Spec.Databases
-	if oldValue == input.Databases {
+	if oldValue != nil && *oldValue == *input.Databases {
 		return changes, nil
 	}
 
@@ -513,12 +508,14 @@ func updateDatabases(valkey *naiscrd.Valkey, input UpdateValkeyInput) ([]*Valkey
 		NewValue: new(strconv.Itoa(*input.Databases)),
 	})
 
+	valkey.Spec.Databases = input.Databases
+
 	return changes, nil
 }
 
-func updateLabels(valkey *unstructured.Unstructured, input UpdateValkeyInput) []*ValkeyUpdatedActivityLogEntryDataUpdatedField {
+func updateLabels(valkey *naiscrd.Valkey, input UpdateValkeyInput) ([]*ValkeyUpdatedActivityLogEntryDataUpdatedField, error) {
 	if input.Labels == nil {
-		return nil
+		return nil, nil
 	}
 
 	existing := valkey.GetLabels()
@@ -528,7 +525,7 @@ func updateLabels(valkey *unstructured.Unstructured, input UpdateValkeyInput) []
 	newValue := formatUserLabels(model.UserLabels(merged))
 
 	if oldValue == newValue {
-		return nil
+		return nil, nil
 	}
 
 	valkey.SetLabels(merged)
@@ -539,7 +536,7 @@ func updateLabels(valkey *unstructured.Unstructured, input UpdateValkeyInput) []
 			OldValue: &oldValue,
 			NewValue: &newValue,
 		},
-	}
+	}, nil
 }
 
 func formatUserLabels(labels []*model.ResourceLabel) string {

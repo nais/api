@@ -275,6 +275,7 @@ func toValkeyFromNais(v *naiscrd.Valkey, envName string) (*Valkey, error) {
 		MaxMemoryPolicy:      mmp,
 		Databases:            databases,
 		PersistenceDisabled:  persistenceDisabled,
+		Labels:               model.UserLabels(v.GetLabels()),
 	}, nil
 }
 
