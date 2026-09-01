@@ -64,6 +64,8 @@ func GetErrorPresenter(log logrus.FieldLogger) graphql.ErrorPresenterFunc {
 		case k8serrors.IsNotFound(unwrappedError):
 			unwrappedError = ErrNotFound
 		case k8serrors.IsForbidden(unwrappedError):
+			log.WithError(unwrappedError).Errorf("kubernetes api permission error")
+
 			unwrappedError = ErrForbidden
 		}
 

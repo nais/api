@@ -3,16 +3,13 @@ package valkey
 import (
 	"context"
 
-	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
 	"github.com/nais/api/internal/workload/job"
 )
 
-type client struct {
-	watcher *watcher.Watcher[*Valkey]
-}
+type client struct{}
 
 // NamePrefix returns the Kubernetes resource name prefix for Valkey instances
 // belonging to the given team (e.g. "valkey-myteam-").

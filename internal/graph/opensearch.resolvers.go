@@ -124,7 +124,7 @@ func (r *teamEnvironmentResolver) OpenSearch(ctx context.Context, obj *team.Team
 
 func (r *teamInventoryCountsResolver) OpenSearches(ctx context.Context, obj *team.TeamInventoryCounts) (*opensearch.TeamInventoryCountOpenSearches, error) {
 	return &opensearch.TeamInventoryCountOpenSearches{
-		Total: len(opensearch.ListAllForTeam(ctx, obj.TeamSlug, nil)),
+		Total: len(opensearch.ListAllForTeam(ctx, obj.TeamSlug)),
 	}, nil
 }
 

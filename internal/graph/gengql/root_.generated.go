@@ -1641,23 +1641,27 @@ type ComplexityRoot struct {
 	}
 
 	OpenSearch struct {
-		Access                func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *opensearch.OpenSearchAccessOrder) int
-		ActivityLog           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int
-		Cost                  func(childComplexity int) int
-		ID                    func(childComplexity int) int
-		Issues                func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) int
-		Labels                func(childComplexity int) int
-		Maintenance           func(childComplexity int) int
-		Memory                func(childComplexity int) int
-		Name                  func(childComplexity int) int
-		State                 func(childComplexity int) int
-		StorageGB             func(childComplexity int) int
-		Team                  func(childComplexity int) int
-		TeamEnvironment       func(childComplexity int) int
-		TerminationProtection func(childComplexity int) int
-		Tier                  func(childComplexity int) int
-		Version               func(childComplexity int) int
-		Workload              func(childComplexity int) int
+		Access                         func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *opensearch.OpenSearchAccessOrder) int
+		ActivityLog                    func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int
+		Cost                           func(childComplexity int) int
+		HTTPMaxContentLength           func(childComplexity int) int
+		ID                             func(childComplexity int) int
+		IndicesQueryBoolMaxClauseCount func(childComplexity int) int
+		Issues                         func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) int
+		Labels                         func(childComplexity int) int
+		Maintenance                    func(childComplexity int) int
+		Memory                         func(childComplexity int) int
+		Name                           func(childComplexity int) int
+		ShardIndexingPressureEnabled   func(childComplexity int) int
+		ShardIndexingPressureEnforced  func(childComplexity int) int
+		State                          func(childComplexity int) int
+		StorageGB                      func(childComplexity int) int
+		Team                           func(childComplexity int) int
+		TeamEnvironment                func(childComplexity int) int
+		TerminationProtection          func(childComplexity int) int
+		Tier                           func(childComplexity int) int
+		Version                        func(childComplexity int) int
+		Workload                       func(childComplexity int) int
 	}
 
 	OpenSearchAccess struct {
@@ -3467,6 +3471,7 @@ type ComplexityRoot struct {
 		Memory                func(childComplexity int) int
 		Name                  func(childComplexity int) int
 		NotifyKeyspaceEvents  func(childComplexity int) int
+		PersistenceDisabled   func(childComplexity int) int
 		State                 func(childComplexity int) int
 		Team                  func(childComplexity int) int
 		TeamEnvironment       func(childComplexity int) int
@@ -10306,12 +10311,26 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.OpenSearch.Cost(childComplexity), true
 
+	case "OpenSearch.httpMaxContentLength":
+		if e.ComplexityRoot.OpenSearch.HTTPMaxContentLength == nil {
+			break
+		}
+
+		return e.ComplexityRoot.OpenSearch.HTTPMaxContentLength(childComplexity), true
+
 	case "OpenSearch.id":
 		if e.ComplexityRoot.OpenSearch.ID == nil {
 			break
 		}
 
 		return e.ComplexityRoot.OpenSearch.ID(childComplexity), true
+
+	case "OpenSearch.indicesQueryBoolMaxClauseCount":
+		if e.ComplexityRoot.OpenSearch.IndicesQueryBoolMaxClauseCount == nil {
+			break
+		}
+
+		return e.ComplexityRoot.OpenSearch.IndicesQueryBoolMaxClauseCount(childComplexity), true
 
 	case "OpenSearch.issues":
 		if e.ComplexityRoot.OpenSearch.Issues == nil {
@@ -10352,6 +10371,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.OpenSearch.Name(childComplexity), true
+
+	case "OpenSearch.shardIndexingPressureEnabled":
+		if e.ComplexityRoot.OpenSearch.ShardIndexingPressureEnabled == nil {
+			break
+		}
+
+		return e.ComplexityRoot.OpenSearch.ShardIndexingPressureEnabled(childComplexity), true
+
+	case "OpenSearch.shardIndexingPressureEnforced":
+		if e.ComplexityRoot.OpenSearch.ShardIndexingPressureEnforced == nil {
+			break
+		}
+
+		return e.ComplexityRoot.OpenSearch.ShardIndexingPressureEnforced(childComplexity), true
 
 	case "OpenSearch.state":
 		if e.ComplexityRoot.OpenSearch.State == nil {
@@ -18378,6 +18411,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Valkey.NotifyKeyspaceEvents(childComplexity), true
 
+	case "Valkey.persistenceDisabled":
+		if e.ComplexityRoot.Valkey.PersistenceDisabled == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Valkey.PersistenceDisabled(childComplexity), true
+
 	case "Valkey.state":
 		if e.ComplexityRoot.Valkey.State == nil {
 			break
@@ -25483,6 +25523,14 @@ type OpenSearch implements Persistence & Node {
 	storageGB: Int!
 	"User-defined labels attached to the instance."
 	labels: [ResourceLabel!]!
+	"Whether shard indexing back pressure is enabled."
+	shardIndexingPressureEnabled: Boolean!
+	"Whether shard indexing back pressure runs in enforced mode. In enforced mode requests that may degrade cluster performance are rejected; in shadow mode (enforced false) metrics are tracked but no requests are rejected."
+	shardIndexingPressureEnforced: Boolean!
+	"Maximum number of clauses a Lucene BooleanQuery can contain. When not set, the instance uses the default of 1024. Increasing this value may cause performance issues."
+	indicesQueryBoolMaxClauseCount: Int
+	"Maximum content length, in a human-readable quantity (e.g. \"100Mi\", \"1Gi\"), for requests to the OpenSearch HTTP API. When not set, the instance uses the default of 100Mi."
+	httpMaxContentLength: String
 	"Issues that affects the instance."
 	issues(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
@@ -25669,6 +25717,14 @@ input CreateOpenSearchInput {
 	version: OpenSearchMajorVersion!
 	"Available storage in GB."
 	storageGB: Int!
+	"Enable shard indexing back pressure. Defaults to false."
+	shardIndexingPressureEnabled: Boolean
+	"Run shard indexing back pressure in enforced mode. Defaults to false (shadow mode)."
+	shardIndexingPressureEnforced: Boolean
+	"Maximum number of clauses a Lucene BooleanQuery can contain. Must be between 64 and 4096. When not set, the instance uses the default of 1024."
+	indicesQueryBoolMaxClauseCount: Int
+	"Maximum content length for requests to the OpenSearch HTTP API. Specified as a human-readable quantity (e.g. \"100Mi\", \"1Gi\"); unitless values are interpreted as bytes. Must be between 1 byte and 2147483647 bytes (around 2047Mi). When not set, the instance uses the default of 100Mi."
+	httpMaxContentLength: String
 }
 
 type CreateOpenSearchPayload {
@@ -25693,6 +25749,14 @@ input UpdateOpenSearchInput {
 	storageGB: Int!
 	"User-defined labels for the instance. When provided, replaces all existing user-defined labels. When omitted, labels are left unchanged."
 	labels: [ResourceLabelInput!]
+	"Enable shard indexing back pressure. Defaults to false."
+	shardIndexingPressureEnabled: Boolean
+	"Run shard indexing back pressure in enforced mode. Defaults to false (shadow mode)."
+	shardIndexingPressureEnforced: Boolean
+	"Maximum number of clauses a Lucene BooleanQuery can contain. Must be between 64 and 4096. When not set, the instance uses the default of 1024."
+	indicesQueryBoolMaxClauseCount: Int
+	"Maximum content length for requests to the OpenSearch HTTP API. Specified as a human-readable quantity (e.g. \"100Mi\", \"1Gi\"); unitless values are interpreted as bytes. Must be between 1 byte and 2147483647 bytes (around 2047Mi). When not set, the instance uses the default of 100Mi."
+	httpMaxContentLength: String
 }
 
 type UpdateOpenSearchPayload {
@@ -31581,6 +31645,8 @@ type Valkey implements Persistence & Node {
 	notifyKeyspaceEvents: String
 	"Number of databases the Valkey instance is configured with. Default is 16. Minimum 1, maximum 128. Changing this will cause a restart of the Valkey service."
 	databases: Int!
+	"Whether persistence (RDB dumps and backups) is disabled. If true, all data is lost if the instance is restarted for any reason."
+	persistenceDisabled: Boolean!
 	"Issues that affects the instance."
 	issues(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
@@ -31784,6 +31850,8 @@ input CreateValkeyInput {
 	notifyKeyspaceEvents: String
 	"Number of databases. Default is 16. Minimum 1, maximum 128. Changing this will cause a restart of the Valkey service."
 	databases: Int
+	"Disable persistence (RDB dumps and backups). Defaults to false."
+	persistenceDisabled: Boolean
 }
 
 type CreateValkeyPayload {
@@ -31810,6 +31878,8 @@ input UpdateValkeyInput {
 	databases: Int
 	"User-defined labels for the instance. When provided, replaces all existing user-defined labels. When omitted, labels are left unchanged."
 	labels: [ResourceLabelInput!]
+	"Disable persistence (RDB dumps and backups). Defaults to false."
+	persistenceDisabled: Boolean
 }
 
 type UpdateValkeyPayload {
@@ -35657,6 +35727,14 @@ func (ec *executionContext) childFields_OpenSearch(ctx context.Context, field gr
 		return ec.fieldContext_OpenSearch_storageGB(ctx, field)
 	case "labels":
 		return ec.fieldContext_OpenSearch_labels(ctx, field)
+	case "shardIndexingPressureEnabled":
+		return ec.fieldContext_OpenSearch_shardIndexingPressureEnabled(ctx, field)
+	case "shardIndexingPressureEnforced":
+		return ec.fieldContext_OpenSearch_shardIndexingPressureEnforced(ctx, field)
+	case "indicesQueryBoolMaxClauseCount":
+		return ec.fieldContext_OpenSearch_indicesQueryBoolMaxClauseCount(ctx, field)
+	case "httpMaxContentLength":
+		return ec.fieldContext_OpenSearch_httpMaxContentLength(ctx, field)
 	case "issues":
 		return ec.fieldContext_OpenSearch_issues(ctx, field)
 	case "activityLog":
@@ -38019,6 +38097,8 @@ func (ec *executionContext) childFields_Valkey(ctx context.Context, field graphq
 		return ec.fieldContext_Valkey_notifyKeyspaceEvents(ctx, field)
 	case "databases":
 		return ec.fieldContext_Valkey_databases(ctx, field)
+	case "persistenceDisabled":
+		return ec.fieldContext_Valkey_persistenceDisabled(ctx, field)
 	case "issues":
 		return ec.fieldContext_Valkey_issues(ctx, field)
 	case "activityLog":

@@ -11,6 +11,7 @@ import (
 	"github.com/nais/api/internal/persistence/opensearch"
 	"github.com/nais/api/internal/persistence/valkey"
 	"github.com/nais/api/internal/servicemaintenance"
+	"github.com/nais/api/internal/thirdparty/aiven"
 )
 
 func (r *mutationResolver) StartValkeyMaintenance(ctx context.Context, input servicemaintenance.StartValkeyMaintenanceInput) (*servicemaintenance.StartValkeyMaintenancePayload, error) {
@@ -42,8 +43,12 @@ func (r *mutationResolver) StartOpenSearchMaintenance(ctx context.Context, input
 }
 
 func (r *openSearchResolver) Maintenance(ctx context.Context, obj *opensearch.OpenSearch) (*servicemaintenance.OpenSearchMaintenance, error) {
+	project, err := aiven.GetProject(ctx, obj.EnvironmentName)
+	if err != nil {
+		return nil, err
+	}
 	return &servicemaintenance.OpenSearchMaintenance{
-		AivenProject: obj.AivenProject,
+		AivenProject: project.ID,
 		ServiceName:  obj.FullyQualifiedName(),
 	}, nil
 }
@@ -88,8 +93,12 @@ func (r *openSearchMaintenanceResolver) Updates(ctx context.Context, obj *servic
 }
 
 func (r *valkeyResolver) Maintenance(ctx context.Context, obj *valkey.Valkey) (*servicemaintenance.ValkeyMaintenance, error) {
+	project, err := aiven.GetProject(ctx, obj.EnvironmentName)
+	if err != nil {
+		return nil, err
+	}
 	return &servicemaintenance.ValkeyMaintenance{
-		AivenProject: obj.AivenProject,
+		AivenProject: project.ID,
 		ServiceName:  obj.FullyQualifiedName(),
 	}, nil
 }
