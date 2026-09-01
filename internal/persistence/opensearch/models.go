@@ -298,6 +298,7 @@ func toOpenSearchFromNais(o *naiscrd.OpenSearch, envName string) (*OpenSearch, e
 		Memory:                         fromMapperatorMemory(o.Spec.Memory),
 		MajorVersion:                   majorVersion,
 		StorageGB:                      StorageGB(o.Spec.StorageGB),
+		Labels:                         model.UserLabels(o.GetLabels()),
 		ShardIndexingPressureEnabled:   shardIndexingPressureEnabled,
 		ShardIndexingPressureEnforced:  shardIndexingPressureEnforced,
 		IndicesQueryBoolMaxClauseCount: queryBoolMaxClauseCount,

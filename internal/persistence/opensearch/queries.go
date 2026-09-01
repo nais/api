@@ -316,7 +316,7 @@ func Update(ctx context.Context, input UpdateOpenSearchInput) (*UpdateOpenSearch
 	}
 
 	if len(changes) == 0 {
-		os, err := toOpenSearch(openSearch, input.EnvironmentName)
+		os, err := toOpenSearchFromNais(concreteOpenSearch, input.EnvironmentName)
 		if err != nil {
 			return nil, err
 		}
