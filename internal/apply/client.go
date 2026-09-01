@@ -68,8 +68,9 @@ func ApplyResource(
 		types.ApplyPatchType,
 		data,
 		metav1.PatchOptions{
-			FieldManager: fieldManager,
-			Force:        new(true),
+			FieldManager:    fieldManager,
+			Force:           new(true),
+			FieldValidation: metav1.FieldValidationStrict,
 		},
 	)
 	if err != nil {
