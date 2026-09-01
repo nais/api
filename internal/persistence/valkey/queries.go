@@ -269,14 +269,8 @@ func Update(ctx context.Context, input UpdateValkeyInput) (*UpdateValkeyPayload,
 
 	changes = append(changes, updateLabels(valkey, input)...)
 
-	// TODO: fix
-	databases := concreteValkey.Spec.Databases
 	if input.Databases != nil {
-		databases = input.Databases
-	}
-	// Must be stored and read as float64 for the integration tests to work.
-	if err := unstructured.SetNestedField(valkey.Object, float64(*databases), "spec", "databases"); err != nil {
-		return nil, err
+		concreteValkey.Spec.Databases = input.Databases
 	}
 
 	if len(changes) == 0 {
@@ -296,12 +290,6 @@ func Update(ctx context.Context, input UpdateValkeyInput) (*UpdateValkeyPayload,
 
 	obj, err := kubernetes.ToUnstructured(concreteValkey)
 	if err != nil {
-		return nil, err
-	}
-
-	// TODO: fix
-	// Must be stored and read as float64 for the integration tests to work.
-	if err := unstructured.SetNestedField(obj.Object, float64(*databases), "spec", "databases"); err != nil {
 		return nil, err
 	}
 
