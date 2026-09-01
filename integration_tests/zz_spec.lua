@@ -116,6 +116,9 @@ function TestFunctionTk8s.check(apiVersion, resource, cluster, namespace, name, 
 	print("check")
 end
 
+---@class TestFunctionTaiven
+local TestFunctionTaiven = {}
+
 ---@class TestFunctionTrest
 local TestFunctionTrest = {}
 
@@ -147,6 +150,7 @@ end
 ---@field sql fun(name: string, fn: fun(t: TestFunctionTsql))
 ---@field pubsub fun(name: string, fn: fun(t: TestFunctionTpubsub))
 ---@field k8s fun(name: string, fn: fun(t: TestFunctionTk8s))
+---@field aiven fun(name: string, fn: fun(t: TestFunctionTaiven))
 ---@field rest fun(name: string, fn: fun(t: TestFunctionTrest))
 Test = {}
 
@@ -189,6 +193,13 @@ end
 ---@param dir string
 function Helper.readK8sResources(dir)
 	print("readK8sResources")
+end
+
+--- Set the version Aiven reports as running for a service
+---@param serviceName string
+---@param version string
+function Helper.setAivenVersion(serviceName, version)
+	print("setAivenVersion")
 end
 
 --- Type metatables

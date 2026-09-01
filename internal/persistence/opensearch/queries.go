@@ -121,32 +121,31 @@ func ListAccess(ctx context.Context, openSearch *OpenSearch, page *pagination.Pa
 }
 
 func GetOpenSearchVersion(ctx context.Context, os *OpenSearch) (*OpenSearchVersion, error) {
-	key := AivenDataLoaderKey{
+	actual, err := aiven.ServiceVersion(ctx, aiven.ServiceKey{
 		Project:     os.AivenProject,
 		ServiceName: os.FullyQualifiedName(),
-	}
-
-	major := os.MajorVersion
-	var versionString *string
-	v, err := fromContext(ctx).versionLoader.Load(ctx, &key)
-	if err == nil {
-		versionString = new(v)
-		if major == "" {
-			mv, err := OpenSearchMajorVersionFromAivenString(v)
-			if err != nil {
-				return nil, err
-			}
-			major = mv
+		ServiceType: "opensearch",
+	})
+	if err != nil {
+		// Kubernetes is only eventually consistent with Aiven: the CR exists here before
+		// the service exists there, and lingers after it is deleted. Aiven has no version
+		// to report in that window, so fall back to the version pinned in the CR rather
+		// than failing the whole query. Actual stays nil, which the schema documents as
+		// "available after the instance is created".
+		if os.MajorVersion == "" {
+			return nil, err
 		}
+		return &OpenSearchVersion{DesiredMajor: os.MajorVersion}, nil
 	}
 
-	if major == "" {
-		major = OpenSearchMajorVersionV2
+	major, err := OpenSearchMajorVersionFromAivenString(*actual)
+	if err != nil {
+		return nil, err
 	}
 
 	return &OpenSearchVersion{
 		DesiredMajor: major,
-		Actual:       versionString,
+		Actual:       actual,
 	}, nil
 }
 
@@ -186,7 +185,15 @@ func Create(ctx context.Context, input CreateOpenSearchInput) (*CreateOpenSearch
 	if err != nil {
 		return nil, err
 	}
-	version, err := input.Version.ToAivenString()
+	desired := input.Version
+	if desired == nil {
+		newest, err := newestMajorVersion()
+		if err != nil {
+			return nil, err
+		}
+		desired = &newest
+	}
+	version, err := desired.ToAivenString()
 	if err != nil {
 		return nil, err
 	}
@@ -445,29 +452,32 @@ func updatePlan(openSearch *unstructured.Unstructured, input UpdateOpenSearchInp
 func updateVersion(ctx context.Context, openSearch *unstructured.Unstructured, input UpdateOpenSearchInput) ([]*OpenSearchUpdatedActivityLogEntryDataUpdatedField, error) {
 	changes := make([]*OpenSearchUpdatedActivityLogEntryDataUpdatedField, 0)
 
-	oldVersion, found, err := unstructured.NestedString(openSearch.Object, specOpenSearchVersion...)
-	if err != nil {
-		return nil, err
-	}
-	if !found {
-		os, err := toOpenSearch(openSearch, input.EnvironmentName)
-		if err != nil {
-			return nil, err
-		}
-		version, err := GetOpenSearchVersion(ctx, os)
-		if err != nil {
-			return nil, err
-		}
-
-		oldVersion = *version.Actual
-	}
-
-	oldMajorVersion, err := OpenSearchMajorVersionFromAivenString(oldVersion)
+	os, err := toOpenSearch(openSearch, input.EnvironmentName)
 	if err != nil {
 		return nil, err
 	}
 
-	if oldMajorVersion == input.Version {
+	// Only Aiven knows what the instance is actually running. The CR records what was
+	// asked for, so it cannot judge whether the requested change is legal.
+	oldVersion, err := aiven.ServiceVersion(ctx, aiven.ServiceKey{
+		Project:     os.AivenProject,
+		ServiceName: os.FullyQualifiedName(),
+		ServiceType: "opensearch",
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	oldMajorVersion, err := OpenSearchMajorVersionFromAivenString(*oldVersion)
+	if err != nil {
+		return nil, err
+	}
+
+	if input.Version == nil {
+		return nil, fmt.Errorf("no OpenSearch version supplied")
+	}
+
+	if oldMajorVersion == *input.Version {
 		return changes, nil
 	}
 
@@ -476,13 +486,8 @@ func updateVersion(ctx context.Context, openSearch *unstructured.Unstructured, i
 	}
 
 	changes = append(changes, &OpenSearchUpdatedActivityLogEntryDataUpdatedField{
-		Field: "version",
-		OldValue: func() *string {
-			if found {
-				return new(oldVersion)
-			}
-			return nil
-		}(),
+		Field:    "version",
+		OldValue: oldVersion,
 		NewValue: new(input.Version.String()),
 	})
 

@@ -242,16 +242,14 @@ enum OpenSearchMemory {
 }
 
 enum OpenSearchMajorVersion {
-	"OpenSearch Version 3.6.x"
+	"OpenSearch Version 3.6 LTS"
 	V3_6
 	"OpenSearch Version 3.3.x"
-	V3_3
-	"OpenSearch Version 2.19.x"
+	V3_3 @deprecated(reason: "Vendor support disappears 2027-02-01")
+	"OpenSearch Version 2.19 LTS"
 	V2_19
-	"OpenSearch Version 2.17.x"
-	V2
-	"OpenSearch Version 1.3.x"
-	V1
+	"OpenSearch Version 2.19 LTS - backwards compatible"
+	V2 @deprecated(reason: "Use `V2_19` instead")
 }
 
 input CreateOpenSearchInput {
@@ -266,7 +264,7 @@ input CreateOpenSearchInput {
 	"Available memory for the OpenSearch instance."
 	memory: OpenSearchMemory!
 	"Major version of the OpenSearch instance."
-	version: OpenSearchMajorVersion!
+	version: OpenSearchMajorVersion
 	"Available storage in GB."
 	storageGB: Int!
 }

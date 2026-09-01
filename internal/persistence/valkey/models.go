@@ -4,15 +4,19 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"slices"
 	"strconv"
 	"strings"
 	"sync"
 
+	"github.com/Masterminds/semver/v3"
+	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/persistence/aivencredentials"
+	"github.com/nais/api/internal/persistence/aivenversion"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/validate"
 	"github.com/nais/api/internal/workload"
@@ -67,6 +71,7 @@ type Valkey struct {
 	EnvironmentName       string                 `json:"-"`
 	WorkloadReference     *workload.Reference    `json:"-"`
 	AivenProject          string                 `json:"-"`
+	MajorVersion          ValkeyMajorVersion     `json:"-"`
 }
 
 func (Valkey) IsPersistence()    {}
@@ -191,6 +196,12 @@ func toValkey(u *unstructured.Unstructured, envName string) (*Valkey, error) {
 		maxMemoryPolicy = ""
 	}
 
+	pinnedVersion, _, _ := unstructured.NestedString(u.Object, specValkeyVersion...)
+	majorVersion, err := aivenversion.MatchPin(pinnedVersion, allMajorVersions, ValkeyMajorVersion.ToAivenString)
+	if err != nil {
+		majorVersion = ""
+	}
+
 	notifyKeyspaceEvents, _, _ := unstructured.NestedString(u.Object, specNotifyKeyspaceEvents...)
 
 	numberOfDatabases, found, _ := unstructured.NestedNumberAsFloat64(u.Object, specNumberOfDatabases...)
@@ -224,6 +235,7 @@ func toValkey(u *unstructured.Unstructured, envName string) (*Valkey, error) {
 		MaxMemoryPolicy:      maxMemoryPolicy,
 		NotifyKeyspaceEvents: notifyKeyspaceEvents,
 		Databases:            int(numberOfDatabases),
+		MajorVersion:         majorVersion,
 		Labels:               model.UserLabels(obj.GetLabels()),
 	}, nil
 }
@@ -272,6 +284,137 @@ type ValkeyInput struct {
 	Databases            *int                   `json:"databases,omitempty"`
 }
 
+type ValkeyMajorVersion string
+
+const (
+	ValkeyMajorVersionV8_1 ValkeyMajorVersion = "V8_1"
+	ValkeyMajorVersionV9_0 ValkeyMajorVersion = "V9_0"
+	ValkeyMajorVersionV9_1 ValkeyMajorVersion = "V9_1"
+)
+
+type upgradePath []ValkeyMajorVersion
+
+func (u upgradePath) String() string {
+	versions := make([]string, len(u))
+	for i, v := range u {
+		versions[i] = v.String()
+	}
+	return strings.Join(versions, ",")
+}
+
+var upgradePaths = map[ValkeyMajorVersion]upgradePath{
+	ValkeyMajorVersionV8_1: {ValkeyMajorVersionV9_1},
+	ValkeyMajorVersionV9_0: {ValkeyMajorVersionV9_1},
+	ValkeyMajorVersionV9_1: {},
+}
+
+func (e ValkeyMajorVersion) ValidateUpgradePath(other ValkeyMajorVersion) error {
+	path, ok := upgradePaths[other]
+	if !ok {
+		return fmt.Errorf("unknown Valkey major version: %q", other)
+	}
+
+	if len(path) == 0 {
+		return apierror.Errorf("Cannot change Valkey version from %v to %v. No further upgrades available.", other, e)
+	}
+
+	if slices.Contains(path, e) {
+		return nil
+	}
+
+	return apierror.Errorf("Cannot change Valkey version from %v to %v. New version must be one of [%s]", other, e, path)
+}
+
+// newestMajorVersion returns the highest version the codebase knows about, derived
+// from the versions themselves so that adding one to upgradePaths is enough.
+func newestMajorVersion() (ValkeyMajorVersion, error) {
+	var newest ValkeyMajorVersion
+	var highest *semver.Version
+
+	for v := range upgradePaths {
+		s, err := v.ToAivenString()
+		if err != nil {
+			return "", err
+		}
+		parsed, err := semver.NewVersion(s)
+		if err != nil {
+			return "", fmt.Errorf("parsing Valkey version %q: %w", s, err)
+		}
+		if highest == nil || parsed.GreaterThan(highest) {
+			highest, newest = parsed, v
+		}
+	}
+
+	if newest == "" {
+		return "", fmt.Errorf("no Valkey versions defined")
+	}
+	return newest, nil
+}
+
+// allMajorVersions is the one list the enum is both validated and matched against, so
+// adding a version cannot leave the two disagreeing.
+var allMajorVersions = []ValkeyMajorVersion{
+	ValkeyMajorVersionV8_1,
+	ValkeyMajorVersionV9_0,
+	ValkeyMajorVersionV9_1,
+}
+
+func (e ValkeyMajorVersion) IsValid() bool {
+	return slices.Contains(allMajorVersions, e)
+}
+
+// deprecatedMajorVersions name versions Aiven still runs, so they stay valid for reads
+// and remain in the GraphQL enum. No client may choose one. Each carries its own reason
+// because versions are deprecated for different causes, and refusing without saying why
+// leaves the caller guessing.
+var deprecatedMajorVersions = map[ValkeyMajorVersion]string{
+	ValkeyMajorVersionV9_0: "no longer supported by back-end services",
+}
+
+func (e ValkeyMajorVersion) DeprecationReason() (string, bool) {
+	reason, ok := deprecatedMajorVersions[e]
+	return reason, ok
+}
+
+func (e ValkeyMajorVersion) String() string {
+	return string(e)
+}
+
+func (e *ValkeyMajorVersion) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ValkeyMajorVersion(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ValkeyMajorVersion", str)
+	}
+	return nil
+}
+
+func (e ValkeyMajorVersion) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// ToAivenString returns the version as Aiven writes it in userConfig, e.g. "8.1".
+func (e ValkeyMajorVersion) ToAivenString() (string, error) {
+	switch e {
+	case ValkeyMajorVersionV8_1:
+		return "8.1", nil
+	case ValkeyMajorVersionV9_0:
+		return "9.0", nil
+	case ValkeyMajorVersionV9_1:
+		return "9.1", nil
+	default:
+		return "", fmt.Errorf("unexpected Valkey major version: %q", e)
+	}
+}
+
+func ValkeyMajorVersionFromAivenString(s string) (ValkeyMajorVersion, error) {
+	return aivenversion.Match(s, allMajorVersions, upgradePaths)
+}
+
 func (v *ValkeyInput) Validate(ctx context.Context) error {
 	return v.ValidationErrors(ctx).NilIfEmpty()
 }
@@ -286,6 +429,7 @@ func (v *ValkeyInput) ValidationErrors(ctx context.Context) *validate.Validation
 	if !v.Memory.IsValid() {
 		verr.Add("memory", "Invalid Valkey memory: %s.", v.Memory)
 	}
+
 	if v.MaxMemoryPolicy != nil && !v.MaxMemoryPolicy.IsValid() {
 		verr.Add("version", "Invalid Valkey max memory policy: %s.", v.MaxMemoryPolicy.String())
 	}
@@ -301,6 +445,19 @@ func (v *ValkeyInput) ValidationErrors(ctx context.Context) *validate.Validation
 
 type CreateValkeyInput struct {
 	ValkeyInput
+	Version *ValkeyMajorVersion `json:"version,omitempty"`
+}
+
+func (i *CreateValkeyInput) Validate(ctx context.Context) error {
+	verr := i.ValkeyInput.ValidationErrors(ctx)
+	if i.Version != nil {
+		if !i.Version.IsValid() {
+			verr.Add("version", "Invalid Valkey version: %s.", i.Version)
+		} else if reason, deprecated := i.Version.DeprecationReason(); deprecated {
+			verr.Add("version", "Valkey version %s is deprecated: %s.", i.Version, reason)
+		}
+	}
+	return verr.NilIfEmpty()
 }
 
 type CreateValkeyPayload struct {
@@ -479,11 +636,17 @@ func (e ValkeyTier) MarshalGQL(w io.Writer) {
 
 type UpdateValkeyInput struct {
 	ValkeyInput
-	Labels []*model.ResourceLabel `json:"labels,omitempty"`
+	Version ValkeyMajorVersion     `json:"version"`
+	Labels  []*model.ResourceLabel `json:"labels,omitempty"`
 }
 
 func (i *UpdateValkeyInput) Validate(ctx context.Context) error {
 	verr := i.ValkeyInput.ValidationErrors(ctx)
+	if !i.Version.IsValid() {
+		verr.Add("version", "Invalid Valkey version: %s.", i.Version)
+	} else if reason, deprecated := i.Version.DeprecationReason(); deprecated {
+		verr.Add("version", "Valkey version %s is deprecated: %s.", i.Version, reason)
+	}
 	validateUserLabels(verr, i.Labels)
 	return verr.NilIfEmpty()
 }
@@ -504,6 +667,11 @@ type DeleteValkeyInput struct {
 
 type DeleteValkeyPayload struct {
 	ValkeyDeleted *bool `json:"valkeyDeleted,omitempty"`
+}
+
+type ValkeyVersion struct {
+	Actual       *string            `json:"actual,omitempty"`
+	DesiredMajor ValkeyMajorVersion `json:"desiredMajor"`
 }
 
 type ValkeyState int

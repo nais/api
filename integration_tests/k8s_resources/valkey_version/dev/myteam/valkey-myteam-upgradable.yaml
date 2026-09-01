@@ -1,0 +1,27 @@
+apiVersion: aiven.io/v1alpha1
+kind: Valkey
+metadata:
+  annotations:
+    controllers.aiven.io/generation-was-processed: "1"
+    controllers.aiven.io/instance-is-running: "true"
+  labels:
+    nais.io/managed-by: console
+  name: valkey-myteam-upgradable
+spec:
+  cloudName: google-europe-north1
+  connInfoSecretTarget:
+    name: ""
+  plan: hobbyist
+  project: nav-dev
+  projectVpcId: fff21e17-95d5-408b-8df5-15aacf38f5de
+  terminationProtection: true
+  userConfig:
+    valkey_version: "8.1"
+status:
+  conditions:
+    - lastTransitionTime: "2024-01-10T09:40:58Z"
+      message: Instance is running on Aiven side
+      reason: CheckRunning
+      status: "True"
+      type: Running
+  state: RUNNING

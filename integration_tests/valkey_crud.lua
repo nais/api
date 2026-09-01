@@ -6,6 +6,10 @@ mainTeam:addMember(user)
 local otherTeam = Team.new("someothername", "purpose", "#slack_channel")
 
 Helper.readK8sResources("k8s_resources/valkey_crud")
+-- The instances these tests update are created on the newest version, so Aiven reports
+-- that back. Without it every update would fail on an unknown current version.
+Helper.setAivenVersion("valkey-someteamname-foobar", "9.1.0")
+Helper.setAivenVersion("valkey-someteamname-labels-valkey", "9.1.0")
 
 Test.gql("Create valkey in non-existing team", function(t)
 	t.addHeader("x-user-email", user:email())
@@ -243,6 +247,7 @@ Test.k8s("Validate Valkey resource", function(t)
 			terminationProtection = true,
 			userConfig = {
 				valkey_number_of_databases = 32,
+				valkey_version = "9.1",
 			},
 			tags = {
 				environment = "dev",
@@ -299,6 +304,7 @@ Test.gql("Update Valkey in non-existing team", function(t)
 		      teamSlug: "devteam"
 		      tier: SINGLE_NODE
 		      memory: GB_14
+		      version: V9_1
 		    }
 		  ) {
 		    valkey {
@@ -333,6 +339,7 @@ Test.gql("Update Valkey as non-team-member", function(t)
 		      teamSlug: "devteam"
 		      tier: SINGLE_NODE
 		      memory: GB_14
+		      version: V9_1
 		    }
 		  ) {
 		    valkey {
@@ -367,6 +374,7 @@ Test.gql("Update Valkey as team-member", function(t)
 		      teamSlug: "someteamname"
 		      tier: HIGH_AVAILABILITY
 		      memory: GB_4
+		      version: V9_1
 		      maxMemoryPolicy: ALLKEYS_RANDOM
 		      notifyKeyspaceEvents: "Exd"
 		      databases: 64
@@ -420,6 +428,7 @@ Test.k8s("Validate Valkey resource after update", function(t)
 				valkey_maxmemory_policy = "allkeys-random",
 				valkey_notify_keyspace_events = "Exd",
 				valkey_number_of_databases = 64,
+				valkey_version = "9.1",
 			},
 			tags = {
 				environment = "dev",
@@ -485,6 +494,9 @@ Test.k8s("Validate hobbyist Valkey resource", function(t)
 			plan = "hobbyist",
 			cloudName = "google-europe-north1",
 			terminationProtection = true,
+			userConfig = {
+				valkey_version = "9.1",
+			},
 			tags = {
 				environment = "dev",
 				team = mainTeam:slug(),
@@ -604,6 +616,7 @@ Test.gql("Update non-console managed Valkey as team-member", function(t)
 		      teamSlug: "someteamname"
 		      tier: HIGH_AVAILABILITY
 		      memory: GB_4
+		      version: V9_1
 		      maxMemoryPolicy: ALLKEYS_RANDOM
 		      notifyKeyspaceEvents: "Exd"
 		    }
@@ -640,6 +653,7 @@ Test.gql("Update Valkey with tier and memory equivalent to hobbyist plan", funct
 		      teamSlug: "someteamname"
 		      tier: SINGLE_NODE
 		      memory: GB_1
+		      version: V9_1
 		      maxMemoryPolicy: ALLKEYS_RANDOM
 		      notifyKeyspaceEvents: "Exd"
 		    }
@@ -690,6 +704,7 @@ Test.k8s("Validate hobbyist Valkey resource after update", function(t)
 				valkey_maxmemory_policy = "allkeys-random",
 				valkey_notify_keyspace_events = "Exd",
 				valkey_number_of_databases = 64,
+				valkey_version = "9.1",
 			},
 			tags = {
 				environment = "dev",
@@ -1119,6 +1134,7 @@ Test.gql("Update Valkey labels successfully", function(t)
 		      teamSlug: "someteamname"
 		      tier: SINGLE_NODE
 		      memory: GB_14
+		      version: V9_1
 		      labels: [
 		        { key: "my-custom-key", value: "testing" }
 		      ]
@@ -1160,6 +1176,7 @@ Test.gql("Update Valkey labels with reserved key -> should fail validation", fun
 		      teamSlug: "someteamname"
 		      tier: SINGLE_NODE
 		      memory: GB_14
+		      version: V9_1
 		      labels: [
 		        { key: "app", value: "invalid" }
 		      ]
@@ -1199,6 +1216,7 @@ Test.gql("Update Valkey labels to specify app.kubernetes.io/managed-by: Helm", f
 		      teamSlug: "someteamname"
 		      tier: SINGLE_NODE
 		      memory: GB_14
+		      version: V9_1
 		      labels: [
 		        { key: "app.kubernetes.io/managed-by", value: "Helm" }
 		      ]
@@ -1242,6 +1260,7 @@ Test.gql(
 		      teamSlug: "someteamname"
 		      tier: SINGLE_NODE
 		      memory: GB_14
+		      version: V9_1
 		      labels: [
 		        { key: "my-custom-key", value: "second-test" }
 		      ]

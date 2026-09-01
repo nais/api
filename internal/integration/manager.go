@@ -60,7 +60,7 @@ func TestRunner(ctx context.Context, skipSetup bool) (*testmanager.Manager, func
 		return nil, func() {}, err
 	}
 
-	mgr, err := testmanager.New(newConfig, newManager(ctx, container, connStr, skipSetup), &runner.GQL{}, &runner.SQL{}, &runner.PubSub{}, &apiRunner.K8s{}, &runner.REST{})
+	mgr, err := testmanager.New(newConfig, newManager(ctx, container, connStr, skipSetup), &runner.GQL{}, &runner.SQL{}, &runner.PubSub{}, &apiRunner.K8s{}, &apiRunner.Aiven{}, &runner.REST{})
 	if err != nil {
 		return nil, func() {}, err
 	}
@@ -171,6 +171,7 @@ func newManager(_ context.Context, container *postgres.PostgresContainer, connSt
 			runner.NewSQLRunner(pool),
 			topic,
 			k8sRunner,
+			apiRunner.NewAivenRunner(fakeAivenClient),
 			restRunner,
 		}
 		sqlAdminService, err := sqlinstance.NewClient(ctx, log, sqlinstance.WithFakeClients(true), sqlinstance.WithInstanceWatcher(watchers.SqlInstanceWatcher))

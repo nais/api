@@ -3,16 +3,51 @@ package aiven
 import (
 	"context"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/aiven/go-client-codegen/handler/project"
 	aiven "github.com/aiven/go-client-codegen/handler/service"
 )
 
-type FakeAivenClient struct{}
+type FakeAivenClient struct {
+	lock     sync.RWMutex
+	versions map[string]string
+}
+
+const (
+	localDevOpenSearchVersion = "2.19.3"
+	localDevValkeyVersion     = "8.1.9"
+)
+
+// localDevVersions gives the instances in data/k8s a version, so running against fakes
+// answers the version field the way a real Aiven would. Keying by service name rather
+// than answering for every service is deliberate: the integration tests share this
+// constructor and several of them require a service Aiven reports no version for.
+var localDevVersions = map[string]string{
+	"opensearch-devteam-opensearch-1": localDevOpenSearchVersion,
+	"opensearch-devteam-opensearch-2": localDevOpenSearchVersion,
+	"opensearch-devteam-non-managed":  localDevOpenSearchVersion,
+	"valkey-devteam-contests":         localDevValkeyVersion,
+	"valkey-devteam-contests-managed": localDevValkeyVersion,
+}
 
 func NewFakeAivenClient() *FakeAivenClient {
-	return &FakeAivenClient{}
+	versions := make(map[string]string, len(localDevVersions))
+	for serviceName, version := range localDevVersions {
+		versions[serviceName] = version
+	}
+	return &FakeAivenClient{versions: versions}
+}
+
+// SetServiceVersion makes ServiceGet report version for serviceName. Tests declare the
+// versions they need, so no single hardcoded value has to serve every test at once. A
+// service nobody sets a version for reports none, which is how Aiven behaves before it
+// has finished provisioning.
+func (f *FakeAivenClient) SetServiceVersion(serviceName, version string) {
+	f.lock.Lock()
+	defer f.lock.Unlock()
+	f.versions[serviceName] = version
 }
 
 func (f *FakeAivenClient) ServiceMaintenanceStart(_ context.Context, _ string, _ string) error {
@@ -86,6 +121,16 @@ func (f *FakeAivenClient) ServiceGet(_ context.Context, _ string, serviceName st
 		state = aiven.ServiceStateTypeRebalancing
 	}
 
+	metadata := map[string]any{}
+	f.lock.RLock()
+	version, versionSet := f.versions[serviceName]
+	f.lock.RUnlock()
+	if versionSet {
+		// Aiven keys the version by service type, which is also the service-name prefix.
+		serviceType, _, _ := strings.Cut(serviceName, "-")
+		metadata[serviceType+"_version"] = version
+	}
+
 	return &aiven.ServiceGetOut{
 		State: state,
 		Maintenance: &aiven.MaintenanceOut{
@@ -106,8 +151,6 @@ func (f *FakeAivenClient) ServiceGet(_ context.Context, _ string, serviceName st
 			Dow:  "sunday",
 			Time: "12:34:56",
 		},
-		Metadata: map[string]any{
-			"opensearch_version": "2.17.2",
-		},
+		Metadata: metadata,
 	}, nil
 }
