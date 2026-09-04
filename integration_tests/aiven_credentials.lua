@@ -25,7 +25,7 @@ Test.gql("Non-member cannot create OpenSearch credentials", function(t)
 		errors = {
 			{
 				locations = NotNull(),
-				message = Contains("you need the \"aiven:credentials:create\" authorization"),
+				message = Contains("you need the \"opensearch:credentials:create\" authorization"),
 				path = { "createOpenSearchCredentials" },
 			},
 		},
@@ -54,7 +54,7 @@ Test.gql("Non-member cannot create Valkey credentials", function(t)
 		errors = {
 			{
 				locations = NotNull(),
-				message = Contains("you need the \"aiven:credentials:create\" authorization"),
+				message = Contains("you need the \"valkey:credentials:create\" authorization"),
 				path = { "createValkeyCredentials" },
 			},
 		},
@@ -81,7 +81,7 @@ Test.gql("Non-member cannot create Kafka credentials", function(t)
 		errors = {
 			{
 				locations = NotNull(),
-				message = Contains("you need the \"aiven:credentials:create\" authorization"),
+				message = Contains("you need the \"kafka:credentials:create\" authorization"),
 				path = { "createKafkaCredentials" },
 			},
 		},
@@ -110,7 +110,7 @@ Test.gql("Cannot create credentials for non-existing team", function(t)
 		errors = {
 			{
 				locations = NotNull(),
-				message = Contains("you need the \"aiven:credentials:create\" authorization"),
+				message = Contains("you need the \"opensearch:credentials:create\" authorization"),
 				path = { "createOpenSearchCredentials" },
 			},
 		},

@@ -44,7 +44,7 @@ func (r *mutationResolver) DeleteOpenSearch(ctx context.Context, input opensearc
 }
 
 func (r *mutationResolver) CreateOpenSearchCredentials(ctx context.Context, input opensearch.CreateOpenSearchCredentialsInput) (*opensearch.CreateOpenSearchCredentialsPayload, error) {
-	if err := authz.CanCreateAivenCredentials(ctx, input.TeamSlug); err != nil {
+	if err := authz.CanCreateOpenSearchCredentials(ctx, input.TeamSlug); err != nil {
 		return nil, err
 	}
 	return opensearch.CreateOpenSearchCredentials(ctx, input)
