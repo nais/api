@@ -32292,9 +32292,11 @@ input TeamVulnerabilitySummaryFilter {
 	environmentName: String
 
 	"""
-	Only return vulnerability summaries at or above the given vulnerability priority.
+	Only return vulnerability summaries whose highest priority is exactly one of
+	the given values. URGENT is workload-contextual and cannot be resolved at
+	summary scope, so including it in this set is rejected as an error.
 	"""
-	priority: CVEPriority
+	priorities: [CVEPriority!]
 }
 
 """
@@ -32306,6 +32308,13 @@ input ImageVulnerabilityFilter {
 	"""
 	severity: ImageVulnerabilitySeverity
 	severitySince: Time
+
+	"""
+	Only return vulnerabilities whose priority is exactly one of the given values.
+	URGENT is workload-contextual and cannot be resolved at image scope, so
+	including it in this set is rejected as an error.
+	"""
+	priorities: [CVEPriority!]
 }
 
 type ImageVulnerabilitySummary {
@@ -32369,6 +32378,9 @@ type ImageVulnerabilitySummaryCountsBySeverity {
 type ImageVulnerabilitySummaryCountsByPriority {
 	"Known-exploited vulnerabilities that require immediate action."
 	urgent: Int!
+		@deprecated(
+			reason: "Always 0. URGENT requires workload internet exposure and cannot be counted at image scope."
+		)
 
 	"Vulnerabilities with strong exploitation indicators."
 	highRisk: Int!
@@ -32716,6 +32728,9 @@ enum VulnerabilitySummaryOrderByField {
 	prioritized for immediate action.
 	"""
 	VULNERABILITY_PRIORITY_URGENT
+		@deprecated(
+			reason: "Backed by a count that is always 0. URGENT requires workload internet exposure, so ordering by this value has no effect and falls back to a stable name sort."
+		)
 	"""
 	Order by the number of high-risk vulnerabilities.
 
