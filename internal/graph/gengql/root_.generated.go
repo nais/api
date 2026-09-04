@@ -32607,8 +32607,8 @@ input TeamVulnerabilitySummaryFilter {
 
 	"""
 	Only return vulnerability summaries whose highest priority is exactly one of
-	the given values. URGENT is workload-contextual and is never reported at
-	summary scope, so a set containing only URGENT matches nothing.
+	the given values. URGENT is workload-contextual and cannot be resolved at
+	summary scope, so including it in this set is rejected as an error.
 	"""
 	priorities: [CVEPriority!]
 }
@@ -32625,8 +32625,8 @@ input ImageVulnerabilityFilter {
 
 	"""
 	Only return vulnerabilities whose priority is exactly one of the given values.
-	URGENT is workload-contextual and never applies at image scope, so a set
-	containing only URGENT matches nothing.
+	URGENT is workload-contextual and cannot be resolved at image scope, so
+	including it in this set is rejected as an error.
 	"""
 	priorities: [CVEPriority!]
 }
