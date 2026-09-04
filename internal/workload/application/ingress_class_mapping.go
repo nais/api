@@ -8,3 +8,10 @@ var ingressClassMapping = map[string]IngressType{
 	"external-haproxy":      IngressTypeExternal,
 	"external-fa-haproxy":   IngressTypeAuthenticated,
 }
+
+func ClassifyIngressClassName(className string) IngressType {
+	if t, ok := ingressClassMapping[className]; ok {
+		return t
+	}
+	return IngressTypeUnknown
+}

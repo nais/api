@@ -23,7 +23,7 @@ func (s staticV13sClient) ListVulnerabilitySummaries(ctx context.Context, opts .
 	return &vulnerabilities.ListVulnerabilitySummariesResponse{Nodes: s.summaries}, nil
 }
 
-func TestVulnerabilities_ExternalIngressActNowIssue(t *testing.T) {
+func TestVulnerabilities_ExternalIngressUrgentIssue(t *testing.T) {
 	tests := []struct {
 		name            string
 		workloadName    string
@@ -36,12 +36,12 @@ func TestVulnerabilities_ExternalIngressActNowIssue(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			testVulnerabilitiesExternalIngressActNowIssue(t, tt.workloadName, tt.expectedIngress, tt.wantIssue)
+			testVulnerabilitiesExternalIngressUrgentIssue(t, tt.workloadName, tt.expectedIngress, tt.wantIssue)
 		})
 	}
 }
 
-func testVulnerabilitiesExternalIngressActNowIssue(t *testing.T, workloadName, expectedIngress string, wantIssue bool) {
+func testVulnerabilitiesExternalIngressUrgentIssue(t *testing.T, workloadName, expectedIngress string, wantIssue bool) {
 	ctx := context.Background()
 
 	scheme, err := kubernetes.NewScheme()
@@ -78,7 +78,7 @@ func testVulnerabilitiesExternalIngressActNowIssue(t *testing.T, workloadName, e
 				VulnerabilitySummary: &vulnerabilities.Summary{
 					Critical:  2,
 					RiskScore: 100,
-					ActNow:    2,
+					KevCount:  2,
 				},
 			},
 			{
@@ -86,7 +86,7 @@ func testVulnerabilitiesExternalIngressActNowIssue(t *testing.T, workloadName, e
 				VulnerabilitySummary: &vulnerabilities.Summary{
 					Critical:  2,
 					RiskScore: 100,
-					ActNow:    2,
+					KevCount:  2,
 				},
 			},
 			{
@@ -94,14 +94,12 @@ func testVulnerabilitiesExternalIngressActNowIssue(t *testing.T, workloadName, e
 				VulnerabilitySummary: &vulnerabilities.Summary{
 					Critical:  2,
 					RiskScore: 100,
-					ActNow:    2,
+					KevCount:  2,
 				},
 			},
 			{
-				Workload: &vulnerabilities.Workload{Cluster: "dev-gcp", Namespace: "devteam", Type: "app", Name: workloadName},
-				VulnerabilitySummary: &vulnerabilities.Summary{
-					ActNow: 0,
-				},
+				Workload:             &vulnerabilities.Workload{Cluster: "dev-gcp", Namespace: "devteam", Type: "app", Name: workloadName},
+				VulnerabilitySummary: &vulnerabilities.Summary{},
 			},
 		}},
 		log: logrus.New(),
@@ -202,31 +200,39 @@ func TestVulnerabilities_UrgentGatesIssueEmission(t *testing.T) {
 	tests := []struct {
 		name                   string
 		workloadName           string
-		actNow                 int32
+		kevCount               int32
+		highRisk               int32
 		wantVulnerableImage    bool
 		wantUrgentIngress      bool
 		wantCriticalIngress    bool
 		wantExternalIngressURL string
 	}{
 		{
-			name:                   "external exposure with urgent findings",
+			name:                   "kev findings with confirmed exposure resolve to urgent",
 			workloadName:           "ext-app",
-			actNow:                 2,
+			kevCount:               2,
 			wantVulnerableImage:    true,
 			wantUrgentIngress:      true,
 			wantCriticalIngress:    true,
 			wantExternalIngressURL: "https://ext.example.com",
 		},
 		{
-			name:                "urgent findings without external exposure",
+			name:                "kev findings without exposure resolve to high, not urgent",
 			workloadName:        "internal-only",
-			actNow:              2,
+			kevCount:            2,
 			wantVulnerableImage: true,
 		},
 		{
-			name:                "no urgent findings",
+			name:                "no kev findings",
 			workloadName:        "ext-app",
-			actNow:              0,
+			kevCount:            0,
+			wantVulnerableImage: false,
+		},
+		{
+			name:                "high-risk findings without kev stay high even when exposed",
+			workloadName:        "ext-app",
+			kevCount:            0,
+			highRisk:            3,
 			wantVulnerableImage: false,
 		},
 	}
@@ -236,24 +242,27 @@ func TestVulnerabilities_UrgentGatesIssueEmission(t *testing.T) {
 			workload := Workload{
 				AppWatcher:     *appWatcher,
 				IngressWatcher: *ingressWatcher,
-				V13sClient: staticV13sClient{summaries: []*vulnerabilities.WorkloadSummary{
-					{
-						Workload: &vulnerabilities.Workload{
-							Cluster:   "dev-gcp",
-							Namespace: "devteam",
-							Type:      "app",
-							Name:      tt.workloadName,
-						},
-						VulnerabilitySummary: &vulnerabilities.Summary{
-							Critical:  2,
-							RiskScore: 100,
-							ActNow:    tt.actNow,
-						},
-						SbomStatus: &vulnerabilities.SbomStatusInfo{
-							Status: vulnerabilities.SbomStatus_SBOM_STATUS_READY,
+				V13sClient: staticV13sClient{
+					summaries: []*vulnerabilities.WorkloadSummary{
+						{
+							Workload: &vulnerabilities.Workload{
+								Cluster:   "dev-gcp",
+								Namespace: "devteam",
+								Type:      "app",
+								Name:      tt.workloadName,
+							},
+							VulnerabilitySummary: &vulnerabilities.Summary{
+								Critical:  2,
+								RiskScore: 100,
+								KevCount:  tt.kevCount,
+								HighRisk:  tt.highRisk,
+							},
+							SbomStatus: &vulnerabilities.SbomStatusInfo{
+								Status: vulnerabilities.SbomStatus_SBOM_STATUS_READY,
+							},
 						},
 					},
-				}},
+				},
 				log: logrus.New(),
 			}
 
@@ -290,8 +299,8 @@ func TestVulnerabilities_UrgentGatesIssueEmission(t *testing.T) {
 			if !ok {
 				t.Fatalf("expected urgent ingress details, got %T", urgentIssues[0].IssueDetails)
 			}
-			if urgentDetails.PriorityUrgent != int(tt.actNow) {
-				t.Fatalf("expected priorityUrgent %d, got %d", tt.actNow, urgentDetails.PriorityUrgent)
+			if urgentDetails.PriorityUrgent != int(tt.kevCount) {
+				t.Fatalf("expected priorityUrgent %d, got %d", tt.kevCount, urgentDetails.PriorityUrgent)
 			}
 			if len(urgentDetails.Ingresses) != 1 || urgentDetails.Ingresses[0] != tt.wantExternalIngressURL {
 				t.Fatalf("expected only %q, got %+v", tt.wantExternalIngressURL, urgentDetails.Ingresses)

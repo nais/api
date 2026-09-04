@@ -137,7 +137,7 @@ Test.gql("List vulnerability summaries for team", function(t)
 										unassigned = NotNull(),
 									},
 									countsByPriority = {
-										urgent = NotNull(),
+										urgent = 0,
 										highRisk = NotNull(),
 										elevatedRisk = NotNull(),
 										monitor = NotNull(),
@@ -199,7 +199,7 @@ Test.gql("Get vulnerability summary for tenant", function(t)
 					unassigned = NotNull(),
 				},
 				countsByPriority = {
-					urgent = NotNull(),
+					urgent = 0,
 					highRisk = NotNull(),
 					elevatedRisk = NotNull(),
 					monitor = NotNull(),
@@ -260,7 +260,7 @@ Test.gql("Get vulnerability summary for team", function(t)
 						unassigned = NotNull(),
 					},
 					countsByPriority = {
-						urgent = NotNull(),
+						urgent = 0,
 						highRisk = NotNull(),
 						elevatedRisk = NotNull(),
 						monitor = NotNull(),
