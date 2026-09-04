@@ -8,14 +8,15 @@ import (
 
 	"github.com/nais/api/internal/environmentmapper"
 	"github.com/nais/api/internal/issue"
+	"github.com/nais/api/internal/vulnerability"
+	"github.com/nais/api/internal/workload/application"
 	"github.com/nais/v13s/pkg/api/vulnerabilities"
 	"k8s.io/utils/ptr"
 )
 
 const (
-	externalIngressClassName = "nais-ingress-external"
-	v13sQueryLimit           = 69000
-	legacyCriticalCvssScore  = 9.0
+	v13sQueryLimit          = 69000
+	legacyCriticalCvssScore = 9.0
 )
 
 type V13sClient interface {
@@ -40,8 +41,8 @@ func (f fakeV13sClient) ListVulnerabilitySummaries(ctx context.Context, opts ...
 				VulnerabilitySummary: &vulnerabilities.Summary{
 					Critical:  5,
 					RiskScore: 250,
-					ActNow:    2,
 					HighRisk:  3,
+					KevCount:  2,
 				},
 				SbomStatus: &vulnerabilities.SbomStatusInfo{
 					Status: vulnerabilities.SbomStatus_SBOM_STATUS_READY,
@@ -74,8 +75,8 @@ func (f fakeV13sClient) ListVulnerabilitySummaries(ctx context.Context, opts ...
 				VulnerabilitySummary: &vulnerabilities.Summary{
 					Critical:  5,
 					RiskScore: 250,
-					ActNow:    2,
 					HighRisk:  3,
+					KevCount:  2,
 				},
 				SbomStatus: &vulnerabilities.SbomStatusInfo{
 					Status: vulnerabilities.SbomStatus_SBOM_STATUS_READY,
@@ -145,18 +146,20 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 		}
 
 		summary := node.VulnerabilitySummary
-		if summary != nil && summary.ActNow > 0 {
+		env := environmentmapper.EnvironmentName(node.Workload.GetCluster())
+		kevCount := int(summary.GetKevCount())
+		if summary != nil && kevCount > 0 {
 			ret = append(ret, &Issue{
 				IssueType:    issue.IssueTypeVulnerableImage,
 				ResourceType: workloadType,
 				ResourceName: node.Workload.GetName(),
 				Team:         node.Workload.GetNamespace(),
-				Env:          environmentmapper.EnvironmentName(node.Workload.GetCluster()),
+				Env:          env,
 				Severity:     issue.SeverityCritical,
 				Message: fmt.Sprintf(
-					"Image '%s' has %d urgent vulnerabilities",
+					"Image '%s' has %d known-exploited vulnerabilities",
 					node.Workload.ImageName,
-					summary.ActNow,
+					kevCount,
 				),
 				IssueDetails: issue.VulnerableImageIssueDetails{
 					Critical:  int(summary.Critical),
@@ -174,7 +177,7 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 				ResourceType: workloadType,
 				ResourceName: node.Workload.GetName(),
 				Team:         node.Workload.GetNamespace(),
-				Env:          environmentmapper.EnvironmentName(node.Workload.GetCluster()),
+				Env:          env,
 				Severity:     issue.SeverityWarning,
 				Message: fmt.Sprintf(
 					"Image '%s:%s' is missing a Software Bill of Materials (SBOM)",
@@ -185,9 +188,9 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 		}
 	}
 
-	externalIngressesByWorkload := w.externalIngressesByWorkload()
+	ingress := w.ingressExposureByWorkload()
 
-	seenActNow := map[string]struct{}{}
+	seenUrgent := map[string]struct{}{}
 	for _, node := range resp.GetNodes() {
 		workloadRef := node.GetWorkload()
 		if workloadRef == nil {
@@ -199,21 +202,35 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 			continue
 		}
 
-		if node.VulnerabilitySummary == nil || node.VulnerabilitySummary.ActNow == 0 {
-			continue
-		}
-
 		env := environmentmapper.EnvironmentName(workloadRef.GetCluster())
 		key := workloadKey(env, workloadRef.GetNamespace(), workloadRef.GetName())
-		if _, exists := seenActNow[key]; exists {
+
+		kevCount := int(node.GetVulnerabilitySummary().GetKevCount())
+		if kevCount == 0 {
 			continue
 		}
 
-		externalIngresses := externalIngressesByWorkload[key]
+		if _, exists := seenUrgent[key]; exists {
+			continue
+		}
+
+		exposure := vulnerability.ResolveWorkloadInternetExposure(ingress.classNames[key], false)
+		priority, _ := vulnerability.ResolvePriority(
+			vulnerabilities.Priority_PRIORITY_HIGH,
+			true,
+			vulnerability.ImageVulnerabilitySeverityUnassigned,
+			false,
+			exposure,
+		)
+		if priority != vulnerability.CVEPriorityUrgent {
+			continue
+		}
+
+		externalIngresses := ingress.exposedURLs[key]
 		if len(externalIngresses) == 0 {
 			continue
 		}
-		seenActNow[key] = struct{}{}
+		seenUrgent[key] = struct{}{}
 
 		ret = append(ret, &Issue{
 			IssueType:    issue.IssueTypeExternalIngressUrgentVulnerability,
@@ -225,10 +242,10 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 			Message: fmt.Sprintf(
 				"Workload '%s' (exposed via external ingress) has %d urgent vulnerabilities",
 				workloadRef.GetName(),
-				node.VulnerabilitySummary.ActNow,
+				kevCount,
 			),
 			IssueDetails: issue.ExternalIngressUrgentVulnerabilityIssueDetails{
-				PriorityUrgent: int(node.VulnerabilitySummary.ActNow),
+				PriorityUrgent: kevCount,
 				Ingresses:      externalIngresses,
 			},
 		})
@@ -243,7 +260,7 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 			Message: fmt.Sprintf(
 				"Workload '%s' (exposed via external ingress) has %d urgent vulnerabilities",
 				workloadRef.GetName(),
-				node.VulnerabilitySummary.ActNow,
+				kevCount,
 			),
 			IssueDetails: issue.ExternalIngressCriticalVulnerabilityIssueDetails{
 				CvssScore: legacyCriticalCvssScore,
@@ -255,18 +272,57 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 	return ret
 }
 
-func (w Workload) externalIngressesByWorkload() map[string][]string {
-	ret := map[string][]string{}
-	externalHostsByWorkload := w.externalIngressHostsByWorkload()
+type ingressExposure struct {
+	classNames  map[string][]string
+	exposedURLs map[string][]string
+}
 
+func (w Workload) ingressExposureByWorkload() ingressExposure {
+	classNames := map[string][]string{}
+	exposedHosts := map[string]map[string]struct{}{}
+
+	for _, ing := range w.IngressWatcher.All() {
+		appName := strings.TrimSpace(ing.Obj.GetLabels()["app"])
+		if appName == "" {
+			continue
+		}
+
+		env := environmentmapper.EnvironmentName(ing.Cluster)
+		key := workloadKey(env, ing.Obj.GetNamespace(), appName)
+
+		className := ptr.Deref(ing.Obj.Spec.IngressClassName, "")
+		classNames[key] = append(classNames[key], className)
+
+		ingressType := application.ClassifyIngressClassName(className)
+		if ingressType != application.IngressTypeExternal && ingressType != application.IngressTypeAuthenticated {
+			continue
+		}
+
+		hosts, ok := exposedHosts[key]
+		if !ok {
+			hosts = map[string]struct{}{}
+			exposedHosts[key] = hosts
+		}
+
+		for _, rule := range ing.Obj.Spec.Rules {
+			host := strings.TrimSpace(rule.Host)
+			if host == "" {
+				continue
+			}
+			hosts[host] = struct{}{}
+		}
+	}
+
+	exposedIngresses := map[string][]string{}
 	for _, app := range w.AppWatcher.All() {
 		env := environmentmapper.EnvironmentName(app.Cluster)
-		hosts := externalHostsByWorkload[workloadKey(env, app.Obj.GetNamespace(), app.Obj.GetName())]
+		key := workloadKey(env, app.Obj.GetNamespace(), app.Obj.GetName())
+		hosts := exposedHosts[key]
 		if len(hosts) == 0 {
 			continue
 		}
 
-		externalIngresses := make([]string, 0, len(app.Obj.Spec.Ingresses))
+		urls := make([]string, 0, len(app.Obj.Spec.Ingresses))
 		for _, ingress := range app.Obj.Spec.Ingresses {
 			ingressURL := string(ingress)
 
@@ -285,51 +341,18 @@ func (w Workload) externalIngressesByWorkload() map[string][]string {
 			}
 
 			if _, ok := hosts[host]; ok {
-				externalIngresses = append(externalIngresses, ingressURL)
+				urls = append(urls, ingressURL)
 			}
 		}
 
-		if len(externalIngresses) == 0 {
+		if len(urls) == 0 {
 			continue
 		}
 
-		ret[workloadKey(env, app.Obj.GetNamespace(), app.Obj.GetName())] = externalIngresses
+		exposedIngresses[key] = urls
 	}
 
-	return ret
-}
-
-func (w Workload) externalIngressHostsByWorkload() map[string]map[string]struct{} {
-	ret := map[string]map[string]struct{}{}
-
-	for _, ing := range w.IngressWatcher.All() {
-		if ptr.Deref(ing.Obj.Spec.IngressClassName, "") != externalIngressClassName {
-			continue
-		}
-
-		appName := strings.TrimSpace(ing.Obj.GetLabels()["app"])
-		if appName == "" {
-			continue
-		}
-
-		env := environmentmapper.EnvironmentName(ing.Cluster)
-		key := workloadKey(env, ing.Obj.GetNamespace(), appName)
-		hosts, ok := ret[key]
-		if !ok {
-			hosts = map[string]struct{}{}
-			ret[key] = hosts
-		}
-
-		for _, rule := range ing.Obj.Spec.Rules {
-			host := strings.TrimSpace(rule.Host)
-			if host == "" {
-				continue
-			}
-			hosts[host] = struct{}{}
-		}
-	}
-
-	return ret
+	return ingressExposure{classNames: classNames, exposedURLs: exposedIngresses}
 }
 
 func workloadKey(env, namespace, name string) string {
