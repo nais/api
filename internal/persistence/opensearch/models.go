@@ -33,6 +33,8 @@ type (
 	OpenSearchAccessEdge       = pagination.Edge[*OpenSearchAccess]
 )
 
+type OpenSearchPermission = aivencredentials.CredentialPermission
+
 type OpenSearchFilter struct {
 	Name         string             `json:"name"`
 	Environments []string           `json:"environments"`
@@ -675,9 +677,9 @@ type CreateOpenSearchCredentialsPayload struct {
 }
 
 type CreateOpenSearchCredentialsInput struct {
-	TeamSlug        slug.Slug                             `json:"teamSlug"`
-	EnvironmentName string                                `json:"environmentName"`
-	InstanceName    string                                `json:"instanceName"`
-	Permission      aivencredentials.CredentialPermission `json:"permission"`
-	TTL             string                                `json:"ttl"`
+	TeamSlug        slug.Slug            `json:"teamSlug"`
+	EnvironmentName string               `json:"environmentName"`
+	InstanceName    string               `json:"instanceName"`
+	Permission      OpenSearchPermission `json:"permission"`
+	TTL             string               `json:"ttl"`
 }

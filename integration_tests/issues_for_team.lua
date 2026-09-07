@@ -555,10 +555,110 @@ Test.gql("VulnerableImageIssue", function(t)
 					nodes = {
 						{
 							__typename = "VulnerableImageIssue",
-							message = "Image 'vulnerable-image' has 5 critical vulnerabilities and a risk score of 250",
-							severity = "WARNING",
+							message = "Image 'vulnerable-image' has 2 urgent vulnerabilities",
+							severity = "CRITICAL",
 							critical = 5,
 							riskScore = 250,
+							workload = {
+								name = "vulnerable",
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("ExternalIngressUrgentVulnerabilityIssue", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query [[
+		query {
+			team(slug: "myteam") {
+				issues(
+					filter: {
+						issueType: EXTERNAL_INGRESS_URGENT_VULNERABILITY
+					},
+				) {
+					nodes {
+						__typename
+						severity
+						message
+						... on ExternalIngressUrgentVulnerabilityIssue {
+							priorityUrgent
+							ingresses
+							workload {
+								name
+							}
+						}
+					}
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			team = {
+				issues = {
+					nodes = {
+						{
+							__typename = "ExternalIngressUrgentVulnerabilityIssue",
+							message = "Workload 'vulnerable' (exposed via external ingress) has 2 urgent vulnerabilities",
+							severity = "CRITICAL",
+							priorityUrgent = 2,
+							ingresses = { "https://vulnerable.example.com" },
+							workload = {
+								name = "vulnerable",
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("ExternalIngressCriticalVulnerabilityIssue remains queryable", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query [[
+		query {
+			team(slug: "myteam") {
+				issues(
+					filter: {
+						issueType: EXTERNAL_INGRESS_CRITICAL_VULNERABILITY
+					},
+				) {
+					nodes {
+						__typename
+						severity
+						message
+						... on ExternalIngressCriticalVulnerabilityIssue {
+							cvssScore
+							ingresses
+							workload {
+								name
+							}
+						}
+					}
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			team = {
+				issues = {
+					nodes = {
+						{
+							__typename = "ExternalIngressCriticalVulnerabilityIssue",
+							message = "Workload 'vulnerable' (exposed via external ingress) has 2 urgent vulnerabilities",
+							severity = "CRITICAL",
+							cvssScore = 9.0,
+							ingresses = { "https://vulnerable.example.com" },
 							workload = {
 								name = "vulnerable",
 							},

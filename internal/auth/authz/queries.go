@@ -320,8 +320,16 @@ func CanDeletePostgres(ctx context.Context, teamSlug slug.Slug) error {
 	return requireTeamAuthorization(ctx, teamSlug, "postgres:delete")
 }
 
-func CanCreateAivenCredentials(ctx context.Context, teamSlug slug.Slug) error {
-	return requireTeamAuthorization(ctx, teamSlug, "aiven:credentials:create")
+func CanCreateKafkaCredentials(ctx context.Context, teamSlug slug.Slug) error {
+	return requireTeamAuthorization(ctx, teamSlug, "kafka:credentials:create")
+}
+
+func CanCreateOpenSearchCredentials(ctx context.Context, teamSlug slug.Slug) error {
+	return requireTeamAuthorization(ctx, teamSlug, "opensearch:credentials:create")
+}
+
+func CanCreateValkeyCredentials(ctx context.Context, teamSlug slug.Slug) error {
+	return requireTeamAuthorization(ctx, teamSlug, "valkey:credentials:create")
 }
 
 func CanCreateTunnel(ctx context.Context, teamSlug slug.Slug) error {

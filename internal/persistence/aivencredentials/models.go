@@ -6,7 +6,6 @@ import (
 	"strconv"
 )
 
-// CredentialPermission represents the permission level for OpenSearch and Valkey credentials.
 type CredentialPermission string
 
 const (

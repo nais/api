@@ -202,6 +202,18 @@ input ValkeyOrder {
 	direction: OrderDirection!
 }
 
+"Permission level for Valkey credentials."
+enum ValkeyPermission {
+	"Read-only access."
+	READ
+	"Write-only access."
+	WRITE
+	"Read and write access."
+	READWRITE
+	"Administrative access."
+	ADMIN
+}
+
 enum ValkeyAccessOrderField {
 	ACCESS
 	WORKLOAD
@@ -464,7 +476,7 @@ input CreateValkeyCredentialsInput {
 	"Name of the Valkey instance."
 	instanceName: String!
 	"Permission level for the credentials."
-	permission: CredentialPermission!
+	permission: ValkeyPermission!
 	"Time-to-live for the credentials (e.g. '1d', '7d'). Maximum 30 days."
 	ttl: String!
 }
@@ -485,4 +497,45 @@ type ValkeyCredentials {
 type CreateValkeyCredentialsPayload {
 	"The generated credentials."
 	credentials: ValkeyCredentials!
+}
+
+type ValkeyCredentialsCreatedActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: ActivityLogEntryResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+
+	"Data associated with the credential creation."
+	data: ValkeyCredentialsCreatedActivityLogEntryData!
+}
+
+type ValkeyCredentialsCreatedActivityLogEntryData {
+	"The permission level, if applicable."
+	permission: String
+	"The TTL that was requested for the credentials."
+	ttl: String!
+}
+
+extend enum ActivityLogActivityType {
+	"Filter for credential creation events."
+	VALKEY_CREDENTIALS_CREATED
 }

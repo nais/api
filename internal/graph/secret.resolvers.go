@@ -2,6 +2,7 @@ package graph
 
 import (
 	"context"
+	"errors"
 	"slices"
 
 	"github.com/nais/api/internal/activitylog"
@@ -211,7 +212,14 @@ func (r *secretResolver) LastModifiedBy(ctx context.Context, obj *secret.Secret)
 		return nil, nil
 	}
 
-	return user.GetByEmail(ctx, *obj.ModifiedByUserEmail)
+	usr, err := user.GetByEmail(ctx, *obj.ModifiedByUserEmail)
+	if err != nil {
+		if _, ok := errors.AsType[user.ErrNotFound](err); ok {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return usr, nil
 }
 
 func (r *secretResolver) ActivityLog(ctx context.Context, obj *secret.Secret, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*activitylog.ActivityLogEntryConnection, error) {

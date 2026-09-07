@@ -103,7 +103,7 @@ func (r *kafkaTopicConnectionResolver) Facets(ctx context.Context, obj *paginati
 }
 
 func (r *mutationResolver) CreateKafkaCredentials(ctx context.Context, input kafkatopic.CreateKafkaCredentialsInput) (*kafkatopic.CreateKafkaCredentialsPayload, error) {
-	if err := authz.CanCreateAivenCredentials(ctx, input.TeamSlug); err != nil {
+	if err := authz.CanCreateKafkaCredentials(ctx, input.TeamSlug); err != nil {
 		return nil, err
 	}
 	return kafkatopic.CreateKafkaCredentials(ctx, input)

@@ -22,6 +22,7 @@ const (
 	Teams_ListAuthorizedRepositories_FullMethodName           = "/nais.api.protobuf.Teams/ListAuthorizedRepositories"
 	Teams_Get_FullMethodName                                  = "/nais.api.protobuf.Teams/Get"
 	Teams_List_FullMethodName                                 = "/nais.api.protobuf.Teams/List"
+	Teams_ListForUserByEmail_FullMethodName                   = "/nais.api.protobuf.Teams/ListForUserByEmail"
 	Teams_Members_FullMethodName                              = "/nais.api.protobuf.Teams/Members"
 	Teams_Environments_FullMethodName                         = "/nais.api.protobuf.Teams/Environments"
 	Teams_SetTeamExternalReferences_FullMethodName            = "/nais.api.protobuf.Teams/SetTeamExternalReferences"
@@ -37,6 +38,7 @@ type TeamsClient interface {
 	ListAuthorizedRepositories(ctx context.Context, in *ListAuthorizedRepositoriesRequest, opts ...grpc.CallOption) (*ListAuthorizedRepositoriesResponse, error)
 	Get(ctx context.Context, in *GetTeamRequest, opts ...grpc.CallOption) (*GetTeamResponse, error)
 	List(ctx context.Context, in *ListTeamsRequest, opts ...grpc.CallOption) (*ListTeamsResponse, error)
+	ListForUserByEmail(ctx context.Context, in *ListForUserByEmailRequest, opts ...grpc.CallOption) (*ListTeamsResponse, error)
 	Members(ctx context.Context, in *ListTeamMembersRequest, opts ...grpc.CallOption) (*ListTeamMembersResponse, error)
 	Environments(ctx context.Context, in *ListTeamEnvironmentsRequest, opts ...grpc.CallOption) (*ListTeamEnvironmentsResponse, error)
 	SetTeamExternalReferences(ctx context.Context, in *SetTeamExternalReferencesRequest, opts ...grpc.CallOption) (*SetTeamExternalReferencesResponse, error)
@@ -77,6 +79,16 @@ func (c *teamsClient) List(ctx context.Context, in *ListTeamsRequest, opts ...gr
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListTeamsResponse)
 	err := c.cc.Invoke(ctx, Teams_List_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *teamsClient) ListForUserByEmail(ctx context.Context, in *ListForUserByEmailRequest, opts ...grpc.CallOption) (*ListTeamsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListTeamsResponse)
+	err := c.cc.Invoke(ctx, Teams_ListForUserByEmail_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -150,6 +162,7 @@ type TeamsServer interface {
 	ListAuthorizedRepositories(context.Context, *ListAuthorizedRepositoriesRequest) (*ListAuthorizedRepositoriesResponse, error)
 	Get(context.Context, *GetTeamRequest) (*GetTeamResponse, error)
 	List(context.Context, *ListTeamsRequest) (*ListTeamsResponse, error)
+	ListForUserByEmail(context.Context, *ListForUserByEmailRequest) (*ListTeamsResponse, error)
 	Members(context.Context, *ListTeamMembersRequest) (*ListTeamMembersResponse, error)
 	Environments(context.Context, *ListTeamEnvironmentsRequest) (*ListTeamEnvironmentsResponse, error)
 	SetTeamExternalReferences(context.Context, *SetTeamExternalReferencesRequest) (*SetTeamExternalReferencesResponse, error)
@@ -174,6 +187,9 @@ func (UnimplementedTeamsServer) Get(context.Context, *GetTeamRequest) (*GetTeamR
 }
 func (UnimplementedTeamsServer) List(context.Context, *ListTeamsRequest) (*ListTeamsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method List not implemented")
+}
+func (UnimplementedTeamsServer) ListForUserByEmail(context.Context, *ListForUserByEmailRequest) (*ListTeamsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListForUserByEmail not implemented")
 }
 func (UnimplementedTeamsServer) Members(context.Context, *ListTeamMembersRequest) (*ListTeamMembersResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Members not implemented")
@@ -264,6 +280,24 @@ func _Teams_List_Handler(srv interface{}, ctx context.Context, dec func(interfac
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(TeamsServer).List(ctx, req.(*ListTeamsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Teams_ListForUserByEmail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListForUserByEmailRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TeamsServer).ListForUserByEmail(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Teams_ListForUserByEmail_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TeamsServer).ListForUserByEmail(ctx, req.(*ListForUserByEmailRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -394,6 +428,10 @@ var Teams_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "List",
 			Handler:    _Teams_List_Handler,
+		},
+		{
+			MethodName: "ListForUserByEmail",
+			Handler:    _Teams_ListForUserByEmail_Handler,
 		},
 		{
 			MethodName: "Members",

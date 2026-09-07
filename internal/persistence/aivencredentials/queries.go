@@ -258,22 +258,3 @@ func parseTTL(ttl string, maxTTL time.Duration) (time.Duration, error) {
 	}
 	return d, nil
 }
-
-// LogCredentialCreation logs that credentials were created to the activity log.
-func LogCredentialCreation(ctx context.Context, resourceType activitylog.ActivityLogEntryResourceType, req CredentialRequest) {
-	err := activitylog.Create(ctx, activitylog.CreateInput{
-		Action:          ActivityLogEntryActionCredentialsCreated,
-		Actor:           authz.ActorFromContext(ctx).User,
-		ResourceType:    resourceType,
-		ResourceName:    req.InstanceName,
-		EnvironmentName: &req.EnvironmentName,
-		TeamSlug:        &req.TeamSlug,
-		Data: CredentialsActivityLogEntryData{
-			Permission: req.Permission,
-			TTL:        req.TTL,
-		},
-	})
-	if err != nil {
-		fromContext(ctx).log.WithError(err).Warn("failed to create activity log entry")
-	}
-}

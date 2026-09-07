@@ -30,6 +30,8 @@ type (
 	ValkeyAccessEdge       = pagination.Edge[*ValkeyAccess]
 )
 
+type ValkeyPermission = aivencredentials.CredentialPermission
+
 type ValkeyFilter struct {
 	Name         string             `json:"name"`
 	Environments []string           `json:"environments"`
@@ -577,11 +579,11 @@ func (e ValkeyState) MarshalGQL(w io.Writer) {
 }
 
 type CreateValkeyCredentialsInput struct {
-	TeamSlug        slug.Slug                             `json:"teamSlug"`
-	EnvironmentName string                                `json:"environmentName"`
-	InstanceName    string                                `json:"instanceName"`
-	Permission      aivencredentials.CredentialPermission `json:"permission"`
-	TTL             string                                `json:"ttl"`
+	TeamSlug        slug.Slug        `json:"teamSlug"`
+	EnvironmentName string           `json:"environmentName"`
+	InstanceName    string           `json:"instanceName"`
+	Permission      ValkeyPermission `json:"permission"`
+	TTL             string           `json:"ttl"`
 }
 
 type ValkeyCredentials struct {

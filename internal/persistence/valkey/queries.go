@@ -364,7 +364,23 @@ func CreateValkeyCredentials(ctx context.Context, input CreateValkeyCredentialsI
 	if err != nil {
 		return nil, err
 	}
-	aivencredentials.LogCredentialCreation(ctx, ActivityLogEntryResourceTypeValkey, req)
+
+	err = activitylog.Create(ctx, activitylog.CreateInput{
+		Action:          activitylog.ActivityLogEntryActionCredentialsCreated,
+		Actor:           authz.ActorFromContext(ctx).User,
+		ResourceType:    ActivityLogEntryResourceTypeValkey,
+		ResourceName:    req.InstanceName,
+		EnvironmentName: &req.EnvironmentName,
+		TeamSlug:        &req.TeamSlug,
+		Data: ValkeyCredentialsCreatedActivityLogEntryData{
+			Permission: req.Permission,
+			TTL:        req.TTL,
+		},
+	})
+	if err != nil {
+		fromContext(ctx).log.WithError(err).Warn("failed to create activity log entry")
+	}
+
 	return &CreateValkeyCredentialsPayload{Credentials: result.(*ValkeyCredentials)}, nil
 }
 

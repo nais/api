@@ -89,7 +89,7 @@ func (h *handler) Login(w http.ResponseWriter, r *http.Request) {
 		opts = append(opts, oauth2.SetAuthURLParam("login_hint", loginHint))
 	}
 
-	http.Redirect(w, r, h.oauth2Config.AuthCodeURL(oauthState, opts...), http.StatusFound)
+	http.Redirect(w, r, h.oauth2Config.AuthCodeURL(oauthState, opts...), http.StatusFound) //#nosec G710
 }
 
 func (h *handler) Callback(w http.ResponseWriter, r *http.Request) {
@@ -170,7 +170,7 @@ func (h *handler) Callback(w http.ResponseWriter, r *http.Request) {
 	}
 
 	h.SetSessionCookie(w, sess)
-	http.Redirect(w, r, frontendURL, http.StatusFound)
+	http.Redirect(w, r, frontendURL, http.StatusFound) //#nosec G710 -- URL is validated above
 }
 
 func (h *handler) Logout(w http.ResponseWriter, r *http.Request) {

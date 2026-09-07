@@ -446,6 +446,74 @@ func (_c *MockTeamsServer_ListAuthorizedRepositories_Call) RunAndReturn(run func
 	return _c
 }
 
+// ListForUserByEmail provides a mock function for the type MockTeamsServer
+func (_mock *MockTeamsServer) ListForUserByEmail(context1 context.Context, listForUserByEmailRequest *ListForUserByEmailRequest) (*ListTeamsResponse, error) {
+	ret := _mock.Called(context1, listForUserByEmailRequest)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListForUserByEmail")
+	}
+
+	var r0 *ListTeamsResponse
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *ListForUserByEmailRequest) (*ListTeamsResponse, error)); ok {
+		return returnFunc(context1, listForUserByEmailRequest)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *ListForUserByEmailRequest) *ListTeamsResponse); ok {
+		r0 = returnFunc(context1, listForUserByEmailRequest)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*ListTeamsResponse)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, *ListForUserByEmailRequest) error); ok {
+		r1 = returnFunc(context1, listForUserByEmailRequest)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockTeamsServer_ListForUserByEmail_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListForUserByEmail'
+type MockTeamsServer_ListForUserByEmail_Call struct {
+	*mock.Call
+}
+
+// ListForUserByEmail is a helper method to define mock.On call
+//   - context1 context.Context
+//   - listForUserByEmailRequest *ListForUserByEmailRequest
+func (_e *MockTeamsServer_Expecter) ListForUserByEmail(context1 interface{}, listForUserByEmailRequest interface{}) *MockTeamsServer_ListForUserByEmail_Call {
+	return &MockTeamsServer_ListForUserByEmail_Call{Call: _e.mock.On("ListForUserByEmail", context1, listForUserByEmailRequest)}
+}
+
+func (_c *MockTeamsServer_ListForUserByEmail_Call) Run(run func(context1 context.Context, listForUserByEmailRequest *ListForUserByEmailRequest)) *MockTeamsServer_ListForUserByEmail_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 *ListForUserByEmailRequest
+		if args[1] != nil {
+			arg1 = args[1].(*ListForUserByEmailRequest)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockTeamsServer_ListForUserByEmail_Call) Return(listTeamsResponse *ListTeamsResponse, err error) *MockTeamsServer_ListForUserByEmail_Call {
+	_c.Call.Return(listTeamsResponse, err)
+	return _c
+}
+
+func (_c *MockTeamsServer_ListForUserByEmail_Call) RunAndReturn(run func(context1 context.Context, listForUserByEmailRequest *ListForUserByEmailRequest) (*ListTeamsResponse, error)) *MockTeamsServer_ListForUserByEmail_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Members provides a mock function for the type MockTeamsServer
 func (_mock *MockTeamsServer) Members(context1 context.Context, listTeamMembersRequest *ListTeamMembersRequest) (*ListTeamMembersResponse, error) {
 	ret := _mock.Called(context1, listTeamMembersRequest)

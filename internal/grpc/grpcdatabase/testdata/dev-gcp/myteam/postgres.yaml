@@ -1,0 +1,23 @@
+apiVersion: data.nais.io/v1
+kind: Postgres
+metadata:
+  name: pg-b
+spec:
+  cluster:
+    majorVersion: "17"
+    resources:
+      diskSize: "2Gi"
+      cpu: "100m"
+      memory: "1Gi"
+---
+apiVersion: data.nais.io/v1
+kind: Postgres
+metadata:
+  name: pg-a
+spec:
+  cluster:
+    majorVersion: "17"
+    resources:
+      diskSize: "2Gi"
+      cpu: "100m"
+      memory: "1Gi"

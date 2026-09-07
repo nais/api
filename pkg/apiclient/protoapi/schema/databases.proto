@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package nais.api.protobuf;
+
+import "pagination.proto";
+
+option go_package = "./pkg/apiclient/protoapi";
+
+enum DatabaseType {
+  DATABASE_TYPE_UNSPECIFIED = 0;
+  CLOUD_SQL = 1;
+  ZALANDO_POSTGRES = 2;
+}
+
+message Database {
+  string name = 1;
+  string database = 2;
+  string environment = 3;
+  string team_slug = 4;
+  DatabaseType type = 5;
+}
+
+service Databases {
+  rpc List(ListDatabasesRequest) returns (ListDatabasesResponse) {}
+}
+
+message ListDatabasesRequest {
+  int64 limit = 1;
+  int64 offset = 2;
+  string team_slug = 3;
+}
+
+message ListDatabasesResponse {
+  repeated Database nodes = 1;
+  PageInfo page_info = 2;
+}

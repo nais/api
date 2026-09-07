@@ -18,6 +18,7 @@ type Querier interface {
 	IsTeamRepository(ctx context.Context, arg IsTeamRepositoryParams) (bool, error)
 	List(ctx context.Context, arg ListParams) ([]*Team, error)
 	ListEnvironments(ctx context.Context, arg ListEnvironmentsParams) ([]*TeamAllEnvironment, error)
+	ListForUserByEmail(ctx context.Context, arg ListForUserByEmailParams) ([]*Team, error)
 	ListMembers(ctx context.Context, arg ListMembersParams) ([]*User, error)
 	SetLastSuccessfulSync(ctx context.Context, argSlug slug.Slug) error
 	UpdateExternalReferences(ctx context.Context, arg UpdateExternalReferencesParams) error

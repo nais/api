@@ -56,6 +56,12 @@ Test.gql("List vulnerability summaries for team", function(t)
 					  name
 					  tag
 					  digest
+					  vulnerabilities(first: 10) {
+					  	nodes {
+					  		identifier
+					  		priority
+					  	}
+					  }
 					  hasSBOM
 				  sbom {
 					status
@@ -63,6 +69,19 @@ Test.gql("List vulnerability summaries for team", function(t)
 				  }
 					  vulnerabilitySummary{
 						total
+						countsBySeverity {
+							critical
+							high
+							medium
+							low
+							unassigned
+						}
+						countsByPriority {
+							urgent
+							highRisk
+							elevatedRisk
+							monitor
+						}
 						critical
 						high
 						medium
@@ -87,6 +106,22 @@ Test.gql("List vulnerability summaries for team", function(t)
 								name = "europe-north1-docker.pkg.dev/nais/navikt/app-name",
 								tag = "latest",
 								digest = "sha256:deadbeef",
+								vulnerabilities = {
+									nodes = {
+										{
+											identifier = NotNull(),
+											priority = NotNull(),
+										},
+										{
+											identifier = NotNull(),
+											priority = NotNull(),
+										},
+										{
+											identifier = NotNull(),
+											priority = NotNull(),
+										},
+									},
+								},
 								hasSBOM = true,
 								sbom = {
 									status = "READY",
@@ -94,6 +129,19 @@ Test.gql("List vulnerability summaries for team", function(t)
 								},
 								vulnerabilitySummary = {
 									total = NotNull(),
+									countsBySeverity = {
+										critical = NotNull(),
+										high = NotNull(),
+										medium = NotNull(),
+										low = NotNull(),
+										unassigned = NotNull(),
+									},
+									countsByPriority = {
+										urgent = NotNull(),
+										highRisk = NotNull(),
+										elevatedRisk = NotNull(),
+										monitor = NotNull(),
+									},
 									critical = NotNull(),
 									high = NotNull(),
 									medium = NotNull(),
@@ -115,6 +163,19 @@ Test.gql("Get vulnerability summary for tenant", function(t)
 	t.query(string.format([[
 		{
 			vulnerabilitySummary{
+				countsBySeverity {
+					critical
+					high
+					medium
+					low
+					unassigned
+				}
+				countsByPriority {
+					urgent
+					highRisk
+					elevatedRisk
+					monitor
+				}
 				critical
 				high
 				medium
@@ -130,6 +191,19 @@ Test.gql("Get vulnerability summary for tenant", function(t)
 	t.check {
 		data = {
 			vulnerabilitySummary = {
+				countsBySeverity = {
+					critical = NotNull(),
+					high = NotNull(),
+					medium = NotNull(),
+					low = NotNull(),
+					unassigned = NotNull(),
+				},
+				countsByPriority = {
+					urgent = NotNull(),
+					highRisk = NotNull(),
+					elevatedRisk = NotNull(),
+					monitor = NotNull(),
+				},
 				critical = NotNull(),
 				high = NotNull(),
 				medium = NotNull(),
@@ -149,6 +223,19 @@ Test.gql("Get vulnerability summary for team", function(t)
 		{
 			team(slug: "%s") {
 			  vulnerabilitySummary{
+				countsBySeverity {
+					critical
+					high
+					medium
+					low
+					unassigned
+				}
+				countsByPriority {
+					urgent
+					highRisk
+					elevatedRisk
+					monitor
+				}
 				critical
 				high
 				medium
@@ -165,6 +252,19 @@ Test.gql("Get vulnerability summary for team", function(t)
 		data = {
 			team = {
 				vulnerabilitySummary = {
+					countsBySeverity = {
+						critical = NotNull(),
+						high = NotNull(),
+						medium = NotNull(),
+						low = NotNull(),
+						unassigned = NotNull(),
+					},
+					countsByPriority = {
+						urgent = NotNull(),
+						highRisk = NotNull(),
+						elevatedRisk = NotNull(),
+						monitor = NotNull(),
+					},
 					critical = NotNull(),
 					high = NotNull(),
 					medium = NotNull(),
@@ -184,6 +284,7 @@ Test.gql("Get CVE workloads without filter", function(t)
 		{
 			cve(identifier: "CVE-2024-12345") {
 				identifier
+				priority
 				workloads(first: 10) {
 					pageInfo {
 						totalCount
@@ -202,6 +303,7 @@ Test.gql("Get CVE workloads without filter", function(t)
 		data = {
 			cve = {
 				identifier = "CVE-2024-12345",
+				priority = NotNull(),
 				workloads = {
 					pageInfo = { totalCount = 1 },
 					nodes = {

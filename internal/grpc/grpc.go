@@ -7,10 +7,12 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/nais/api/internal/grpc/grpcdatabase"
 	"github.com/nais/api/internal/grpc/grpcdeployment"
 	"github.com/nais/api/internal/grpc/grpcreconciler"
 	"github.com/nais/api/internal/grpc/grpcteam"
 	"github.com/nais/api/internal/grpc/grpcuser"
+	"github.com/nais/api/internal/kubernetes/watchers"
 	"github.com/nais/api/pkg/apiclient/protoapi"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
@@ -18,7 +20,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-func Run(ctx context.Context, listenAddress string, pool *pgxpool.Pool, log logrus.FieldLogger) error {
+func Run(ctx context.Context, listenAddress string, pool *pgxpool.Pool, sqlDatabaseWatcher *watchers.SqlDatabaseWatcher, zalandoPostgresWatcher *watchers.ZalandoPostgresWatcher, log logrus.FieldLogger) error {
 	log.Info("GRPC serving on ", listenAddress)
 	lis, err := net.Listen("tcp", listenAddress)
 	if err != nil {
@@ -34,6 +36,7 @@ func Run(ctx context.Context, listenAddress string, pool *pgxpool.Pool, log logr
 	protoapi.RegisterUsersServer(s, grpcuser.NewServer(pool))
 	protoapi.RegisterReconcilersServer(s, grpcreconciler.NewServer(pool))
 	protoapi.RegisterDeploymentsServer(s, grpcdeployment.NewServer(pool))
+	protoapi.RegisterDatabasesServer(s, grpcdatabase.NewServer(sqlDatabaseWatcher, zalandoPostgresWatcher))
 
 	g, ctx := errgroup.WithContext(ctx)
 	g.Go(func() error { return s.Serve(lis) })

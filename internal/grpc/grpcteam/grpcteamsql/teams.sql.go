@@ -195,6 +195,60 @@ func (q *Queries) ListEnvironments(ctx context.Context, arg ListEnvironmentsPara
 	return items, nil
 }
 
+const listForUserByEmail = `-- name: ListForUserByEmail :many
+SELECT
+	teams.slug, teams.purpose, teams.last_successful_sync, teams.slack_channel, teams.google_group_email, teams.entra_id_group_id, teams.github_team_slug, teams.gar_repository, teams.cdn_bucket, teams.delete_key_confirmed_at
+FROM
+	user_roles
+	JOIN teams ON teams.slug = user_roles.target_team_slug
+	JOIN users ON users.id = user_roles.user_id
+WHERE
+	users.email = LOWER($1)
+ORDER BY
+	slug ASC
+LIMIT
+	$3
+OFFSET
+	$2
+`
+
+type ListForUserByEmailParams struct {
+	Email  string
+	Offset int32
+	Limit  int32
+}
+
+func (q *Queries) ListForUserByEmail(ctx context.Context, arg ListForUserByEmailParams) ([]*Team, error) {
+	rows, err := q.db.Query(ctx, listForUserByEmail, arg.Email, arg.Offset, arg.Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*Team{}
+	for rows.Next() {
+		var i Team
+		if err := rows.Scan(
+			&i.Slug,
+			&i.Purpose,
+			&i.LastSuccessfulSync,
+			&i.SlackChannel,
+			&i.GoogleGroupEmail,
+			&i.EntraIDGroupID,
+			&i.GithubTeamSlug,
+			&i.GarRepository,
+			&i.CdnBucket,
+			&i.DeleteKeyConfirmedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listMembers = `-- name: ListMembers :many
 SELECT
 	users.id, users.email, users.name, users.external_id, users.admin

@@ -1,0 +1,7 @@
+apiVersion: sql.cnrm.cloud.google.com/v1beta1
+kind: SQLDatabase
+metadata:
+  name: other-team-db
+spec:
+  instanceRef:
+    name: instance-a

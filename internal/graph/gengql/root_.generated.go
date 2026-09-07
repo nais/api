@@ -83,6 +83,7 @@ type ResolverRoot interface {
 	DeprecatedRegistryIssue() DeprecatedRegistryIssueResolver
 	Environment() EnvironmentResolver
 	ExternalIngressCriticalVulnerabilityIssue() ExternalIngressCriticalVulnerabilityIssueResolver
+	ExternalIngressUrgentVulnerabilityIssue() ExternalIngressUrgentVulnerabilityIssueResolver
 	FailedSynchronizationIssue() FailedSynchronizationIssueResolver
 	Ingress() IngressResolver
 	InstanceGroup() InstanceGroupResolver
@@ -533,14 +534,19 @@ type ComplexityRoot struct {
 	}
 
 	CVE struct {
-		CVSSScore   func(childComplexity int) int
-		Description func(childComplexity int) int
-		DetailsLink func(childComplexity int) int
-		ID          func(childComplexity int) int
-		Identifier  func(childComplexity int) int
-		Severity    func(childComplexity int) int
-		Title       func(childComplexity int) int
-		Workloads   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *vulnerability.CVEWorkloadsFilter) int
+		CVSSScore          func(childComplexity int) int
+		Description        func(childComplexity int) int
+		DetailsLink        func(childComplexity int) int
+		EpssPercentile     func(childComplexity int) int
+		EpssScore          func(childComplexity int) int
+		HasKevEntry        func(childComplexity int) int
+		ID                 func(childComplexity int) int
+		Identifier         func(childComplexity int) int
+		KnownRansomwareUse func(childComplexity int) int
+		Priority           func(childComplexity int) int
+		Severity           func(childComplexity int) int
+		Title              func(childComplexity int) int
+		Workloads          func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *vulnerability.CVEWorkloadsFilter) int
 	}
 
 	CVEConnection struct {
@@ -750,23 +756,6 @@ type ComplexityRoot struct {
 		Valkey func(childComplexity int) int
 	}
 
-	CredentialsActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		Data            func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
-	}
-
-	CredentialsActivityLogEntryData struct {
-		Permission func(childComplexity int) int
-		TTL        func(childComplexity int) int
-	}
-
 	CurrentUnitPrices struct {
 		CPU    func(childComplexity int) int
 		Memory func(childComplexity int) int
@@ -956,6 +945,16 @@ type ComplexityRoot struct {
 		Workload        func(childComplexity int) int
 	}
 
+	ExternalIngressUrgentVulnerabilityIssue struct {
+		ID              func(childComplexity int) int
+		Ingresses       func(childComplexity int) int
+		Message         func(childComplexity int) int
+		PriorityUrgent  func(childComplexity int) int
+		Severity        func(childComplexity int) int
+		TeamEnvironment func(childComplexity int) int
+		Workload        func(childComplexity int) int
+	}
+
 	ExternalNetworkPolicyHost struct {
 		Ports  func(childComplexity int) int
 		Target func(childComplexity int) int
@@ -1045,9 +1044,15 @@ type ComplexityRoot struct {
 	ImageVulnerability struct {
 		CvssScore                func(childComplexity int) int
 		Description              func(childComplexity int) int
+		EpssPercentile           func(childComplexity int) int
+		EpssScore                func(childComplexity int) int
+		FixVersion               func(childComplexity int) int
+		HasKevEntry              func(childComplexity int) int
 		ID                       func(childComplexity int) int
 		Identifier               func(childComplexity int) int
+		KnownRansomwareUse       func(childComplexity int) int
 		Package                  func(childComplexity int) int
+		Priority                 func(childComplexity int) int
 		Severity                 func(childComplexity int) int
 		SeveritySince            func(childComplexity int) int
 		Suppression              func(childComplexity int) int
@@ -1075,15 +1080,32 @@ type ComplexityRoot struct {
 	}
 
 	ImageVulnerabilitySummary struct {
-		Critical      func(childComplexity int) int
-		High          func(childComplexity int) int
-		LastUpdated   func(childComplexity int) int
-		Low           func(childComplexity int) int
-		Medium        func(childComplexity int) int
-		RiskScore     func(childComplexity int) int
-		StaleImageTag func(childComplexity int) int
-		Total         func(childComplexity int) int
-		Unassigned    func(childComplexity int) int
+		CountsByPriority func(childComplexity int) int
+		CountsBySeverity func(childComplexity int) int
+		Critical         func(childComplexity int) int
+		High             func(childComplexity int) int
+		LastUpdated      func(childComplexity int) int
+		Low              func(childComplexity int) int
+		Medium           func(childComplexity int) int
+		RiskScore        func(childComplexity int) int
+		StaleImageTag    func(childComplexity int) int
+		Total            func(childComplexity int) int
+		Unassigned       func(childComplexity int) int
+	}
+
+	ImageVulnerabilitySummaryCountsByPriority struct {
+		ElevatedRisk func(childComplexity int) int
+		HighRisk     func(childComplexity int) int
+		Monitor      func(childComplexity int) int
+		Urgent       func(childComplexity int) int
+	}
+
+	ImageVulnerabilitySummaryCountsBySeverity struct {
+		Critical   func(childComplexity int) int
+		High       func(childComplexity int) int
+		Low        func(childComplexity int) int
+		Medium     func(childComplexity int) int
+		Unassigned func(childComplexity int) int
 	}
 
 	ImageVulnerabilitySuppression struct {
@@ -1369,6 +1391,22 @@ type ComplexityRoot struct {
 		CaCert         func(childComplexity int) int
 		SchemaRegistry func(childComplexity int) int
 		Username       func(childComplexity int) int
+	}
+
+	KafkaCredentialsCreatedActivityLogEntry struct {
+		Actor           func(childComplexity int) int
+		CreatedAt       func(childComplexity int) int
+		Data            func(childComplexity int) int
+		EnvironmentName func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Message         func(childComplexity int) int
+		ResourceName    func(childComplexity int) int
+		ResourceType    func(childComplexity int) int
+		TeamSlug        func(childComplexity int) int
+	}
+
+	KafkaCredentialsCreatedActivityLogEntryData struct {
+		TTL func(childComplexity int) int
 	}
 
 	KafkaLagScalingStrategy struct {
@@ -1666,6 +1704,23 @@ type ComplexityRoot struct {
 		Port     func(childComplexity int) int
 		URI      func(childComplexity int) int
 		Username func(childComplexity int) int
+	}
+
+	OpenSearchCredentialsCreatedActivityLogEntry struct {
+		Actor           func(childComplexity int) int
+		CreatedAt       func(childComplexity int) int
+		Data            func(childComplexity int) int
+		EnvironmentName func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Message         func(childComplexity int) int
+		ResourceName    func(childComplexity int) int
+		ResourceType    func(childComplexity int) int
+		TeamSlug        func(childComplexity int) int
+	}
+
+	OpenSearchCredentialsCreatedActivityLogEntryData struct {
+		Permission func(childComplexity int) int
+		TTL        func(childComplexity int) int
 	}
 
 	OpenSearchDeletedActivityLogEntry struct {
@@ -3109,28 +3164,32 @@ type ComplexityRoot struct {
 	}
 
 	TeamVulnerabilitySummary struct {
-		Coverage       func(childComplexity int) int
-		Critical       func(childComplexity int) int
-		High           func(childComplexity int) int
-		LastUpdated    func(childComplexity int) int
-		Low            func(childComplexity int) int
-		Medium         func(childComplexity int) int
-		RiskScore      func(childComplexity int) int
-		RiskScoreTrend func(childComplexity int) int
-		SBOMCount      func(childComplexity int) int
-		Unassigned     func(childComplexity int) int
+		CountsByPriority func(childComplexity int) int
+		CountsBySeverity func(childComplexity int) int
+		Coverage         func(childComplexity int) int
+		Critical         func(childComplexity int) int
+		High             func(childComplexity int) int
+		LastUpdated      func(childComplexity int) int
+		Low              func(childComplexity int) int
+		Medium           func(childComplexity int) int
+		RiskScore        func(childComplexity int) int
+		RiskScoreTrend   func(childComplexity int) int
+		SBOMCount        func(childComplexity int) int
+		Unassigned       func(childComplexity int) int
 	}
 
 	TenantVulnerabilitySummary struct {
-		Coverage    func(childComplexity int) int
-		Critical    func(childComplexity int) int
-		High        func(childComplexity int) int
-		LastUpdated func(childComplexity int) int
-		Low         func(childComplexity int) int
-		Medium      func(childComplexity int) int
-		RiskScore   func(childComplexity int) int
-		SbomCount   func(childComplexity int) int
-		Unassigned  func(childComplexity int) int
+		CountsByPriority func(childComplexity int) int
+		CountsBySeverity func(childComplexity int) int
+		Coverage         func(childComplexity int) int
+		Critical         func(childComplexity int) int
+		High             func(childComplexity int) int
+		LastUpdated      func(childComplexity int) int
+		Low              func(childComplexity int) int
+		Medium           func(childComplexity int) int
+		RiskScore        func(childComplexity int) int
+		SbomCount        func(childComplexity int) int
+		Unassigned       func(childComplexity int) int
 	}
 
 	TokenXAuthIntegration struct {
@@ -3460,6 +3519,23 @@ type ComplexityRoot struct {
 		Port     func(childComplexity int) int
 		URI      func(childComplexity int) int
 		Username func(childComplexity int) int
+	}
+
+	ValkeyCredentialsCreatedActivityLogEntry struct {
+		Actor           func(childComplexity int) int
+		CreatedAt       func(childComplexity int) int
+		Data            func(childComplexity int) int
+		EnvironmentName func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Message         func(childComplexity int) int
+		ResourceName    func(childComplexity int) int
+		ResourceType    func(childComplexity int) int
+		TeamSlug        func(childComplexity int) int
+	}
+
+	ValkeyCredentialsCreatedActivityLogEntryData struct {
+		Permission func(childComplexity int) int
+		TTL        func(childComplexity int) int
 	}
 
 	ValkeyDeletedActivityLogEntry struct {
@@ -5282,6 +5358,27 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.CVE.DetailsLink(childComplexity), true
 
+	case "CVE.epssPercentile":
+		if e.ComplexityRoot.CVE.EpssPercentile == nil {
+			break
+		}
+
+		return e.ComplexityRoot.CVE.EpssPercentile(childComplexity), true
+
+	case "CVE.epssScore":
+		if e.ComplexityRoot.CVE.EpssScore == nil {
+			break
+		}
+
+		return e.ComplexityRoot.CVE.EpssScore(childComplexity), true
+
+	case "CVE.hasKevEntry":
+		if e.ComplexityRoot.CVE.HasKevEntry == nil {
+			break
+		}
+
+		return e.ComplexityRoot.CVE.HasKevEntry(childComplexity), true
+
 	case "CVE.id":
 		if e.ComplexityRoot.CVE.ID == nil {
 			break
@@ -5295,6 +5392,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.CVE.Identifier(childComplexity), true
+
+	case "CVE.knownRansomwareUse":
+		if e.ComplexityRoot.CVE.KnownRansomwareUse == nil {
+			break
+		}
+
+		return e.ComplexityRoot.CVE.KnownRansomwareUse(childComplexity), true
+
+	case "CVE.priority":
+		if e.ComplexityRoot.CVE.Priority == nil {
+			break
+		}
+
+		return e.ComplexityRoot.CVE.Priority(childComplexity), true
 
 	case "CVE.severity":
 		if e.ComplexityRoot.CVE.Severity == nil {
@@ -6092,83 +6203,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.CreateValkeyPayload.Valkey(childComplexity), true
 
-	case "CredentialsActivityLogEntry.actor":
-		if e.ComplexityRoot.CredentialsActivityLogEntry.Actor == nil {
-			break
-		}
-
-		return e.ComplexityRoot.CredentialsActivityLogEntry.Actor(childComplexity), true
-
-	case "CredentialsActivityLogEntry.createdAt":
-		if e.ComplexityRoot.CredentialsActivityLogEntry.CreatedAt == nil {
-			break
-		}
-
-		return e.ComplexityRoot.CredentialsActivityLogEntry.CreatedAt(childComplexity), true
-
-	case "CredentialsActivityLogEntry.data":
-		if e.ComplexityRoot.CredentialsActivityLogEntry.Data == nil {
-			break
-		}
-
-		return e.ComplexityRoot.CredentialsActivityLogEntry.Data(childComplexity), true
-
-	case "CredentialsActivityLogEntry.environmentName":
-		if e.ComplexityRoot.CredentialsActivityLogEntry.EnvironmentName == nil {
-			break
-		}
-
-		return e.ComplexityRoot.CredentialsActivityLogEntry.EnvironmentName(childComplexity), true
-
-	case "CredentialsActivityLogEntry.id":
-		if e.ComplexityRoot.CredentialsActivityLogEntry.ID == nil {
-			break
-		}
-
-		return e.ComplexityRoot.CredentialsActivityLogEntry.ID(childComplexity), true
-
-	case "CredentialsActivityLogEntry.message":
-		if e.ComplexityRoot.CredentialsActivityLogEntry.Message == nil {
-			break
-		}
-
-		return e.ComplexityRoot.CredentialsActivityLogEntry.Message(childComplexity), true
-
-	case "CredentialsActivityLogEntry.resourceName":
-		if e.ComplexityRoot.CredentialsActivityLogEntry.ResourceName == nil {
-			break
-		}
-
-		return e.ComplexityRoot.CredentialsActivityLogEntry.ResourceName(childComplexity), true
-
-	case "CredentialsActivityLogEntry.resourceType":
-		if e.ComplexityRoot.CredentialsActivityLogEntry.ResourceType == nil {
-			break
-		}
-
-		return e.ComplexityRoot.CredentialsActivityLogEntry.ResourceType(childComplexity), true
-
-	case "CredentialsActivityLogEntry.teamSlug":
-		if e.ComplexityRoot.CredentialsActivityLogEntry.TeamSlug == nil {
-			break
-		}
-
-		return e.ComplexityRoot.CredentialsActivityLogEntry.TeamSlug(childComplexity), true
-
-	case "CredentialsActivityLogEntryData.permission":
-		if e.ComplexityRoot.CredentialsActivityLogEntryData.Permission == nil {
-			break
-		}
-
-		return e.ComplexityRoot.CredentialsActivityLogEntryData.Permission(childComplexity), true
-
-	case "CredentialsActivityLogEntryData.ttl":
-		if e.ComplexityRoot.CredentialsActivityLogEntryData.TTL == nil {
-			break
-		}
-
-		return e.ComplexityRoot.CredentialsActivityLogEntryData.TTL(childComplexity), true
-
 	case "CurrentUnitPrices.cpu":
 		if e.ComplexityRoot.CurrentUnitPrices.CPU == nil {
 			break
@@ -6840,6 +6874,55 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ExternalIngressCriticalVulnerabilityIssue.Workload(childComplexity), true
 
+	case "ExternalIngressUrgentVulnerabilityIssue.id":
+		if e.ComplexityRoot.ExternalIngressUrgentVulnerabilityIssue.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ExternalIngressUrgentVulnerabilityIssue.ID(childComplexity), true
+
+	case "ExternalIngressUrgentVulnerabilityIssue.ingresses":
+		if e.ComplexityRoot.ExternalIngressUrgentVulnerabilityIssue.Ingresses == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ExternalIngressUrgentVulnerabilityIssue.Ingresses(childComplexity), true
+
+	case "ExternalIngressUrgentVulnerabilityIssue.message":
+		if e.ComplexityRoot.ExternalIngressUrgentVulnerabilityIssue.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ExternalIngressUrgentVulnerabilityIssue.Message(childComplexity), true
+
+	case "ExternalIngressUrgentVulnerabilityIssue.priorityUrgent":
+		if e.ComplexityRoot.ExternalIngressUrgentVulnerabilityIssue.PriorityUrgent == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ExternalIngressUrgentVulnerabilityIssue.PriorityUrgent(childComplexity), true
+
+	case "ExternalIngressUrgentVulnerabilityIssue.severity":
+		if e.ComplexityRoot.ExternalIngressUrgentVulnerabilityIssue.Severity == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ExternalIngressUrgentVulnerabilityIssue.Severity(childComplexity), true
+
+	case "ExternalIngressUrgentVulnerabilityIssue.teamEnvironment":
+		if e.ComplexityRoot.ExternalIngressUrgentVulnerabilityIssue.TeamEnvironment == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ExternalIngressUrgentVulnerabilityIssue.TeamEnvironment(childComplexity), true
+
+	case "ExternalIngressUrgentVulnerabilityIssue.workload":
+		if e.ComplexityRoot.ExternalIngressUrgentVulnerabilityIssue.Workload == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ExternalIngressUrgentVulnerabilityIssue.Workload(childComplexity), true
+
 	case "ExternalNetworkPolicyHost.ports":
 		if e.ComplexityRoot.ExternalNetworkPolicyHost.Ports == nil {
 			break
@@ -7183,6 +7266,34 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ImageVulnerability.Description(childComplexity), true
 
+	case "ImageVulnerability.epssPercentile":
+		if e.ComplexityRoot.ImageVulnerability.EpssPercentile == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImageVulnerability.EpssPercentile(childComplexity), true
+
+	case "ImageVulnerability.epssScore":
+		if e.ComplexityRoot.ImageVulnerability.EpssScore == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImageVulnerability.EpssScore(childComplexity), true
+
+	case "ImageVulnerability.fixVersion":
+		if e.ComplexityRoot.ImageVulnerability.FixVersion == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImageVulnerability.FixVersion(childComplexity), true
+
+	case "ImageVulnerability.hasKevEntry":
+		if e.ComplexityRoot.ImageVulnerability.HasKevEntry == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImageVulnerability.HasKevEntry(childComplexity), true
+
 	case "ImageVulnerability.id":
 		if e.ComplexityRoot.ImageVulnerability.ID == nil {
 			break
@@ -7197,12 +7308,26 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ImageVulnerability.Identifier(childComplexity), true
 
+	case "ImageVulnerability.knownRansomwareUse":
+		if e.ComplexityRoot.ImageVulnerability.KnownRansomwareUse == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImageVulnerability.KnownRansomwareUse(childComplexity), true
+
 	case "ImageVulnerability.package":
 		if e.ComplexityRoot.ImageVulnerability.Package == nil {
 			break
 		}
 
 		return e.ComplexityRoot.ImageVulnerability.Package(childComplexity), true
+
+	case "ImageVulnerability.priority":
+		if e.ComplexityRoot.ImageVulnerability.Priority == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImageVulnerability.Priority(childComplexity), true
 
 	case "ImageVulnerability.severity":
 		if e.ComplexityRoot.ImageVulnerability.Severity == nil {
@@ -7288,6 +7413,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ImageVulnerabilitySample.Summary(childComplexity), true
 
+	case "ImageVulnerabilitySummary.countsByPriority":
+		if e.ComplexityRoot.ImageVulnerabilitySummary.CountsByPriority == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImageVulnerabilitySummary.CountsByPriority(childComplexity), true
+
+	case "ImageVulnerabilitySummary.countsBySeverity":
+		if e.ComplexityRoot.ImageVulnerabilitySummary.CountsBySeverity == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImageVulnerabilitySummary.CountsBySeverity(childComplexity), true
+
 	case "ImageVulnerabilitySummary.critical":
 		if e.ComplexityRoot.ImageVulnerabilitySummary.Critical == nil {
 			break
@@ -7350,6 +7489,69 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ImageVulnerabilitySummary.Unassigned(childComplexity), true
+
+	case "ImageVulnerabilitySummaryCountsByPriority.elevatedRisk":
+		if e.ComplexityRoot.ImageVulnerabilitySummaryCountsByPriority.ElevatedRisk == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImageVulnerabilitySummaryCountsByPriority.ElevatedRisk(childComplexity), true
+
+	case "ImageVulnerabilitySummaryCountsByPriority.highRisk":
+		if e.ComplexityRoot.ImageVulnerabilitySummaryCountsByPriority.HighRisk == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImageVulnerabilitySummaryCountsByPriority.HighRisk(childComplexity), true
+
+	case "ImageVulnerabilitySummaryCountsByPriority.monitor":
+		if e.ComplexityRoot.ImageVulnerabilitySummaryCountsByPriority.Monitor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImageVulnerabilitySummaryCountsByPriority.Monitor(childComplexity), true
+
+	case "ImageVulnerabilitySummaryCountsByPriority.urgent":
+		if e.ComplexityRoot.ImageVulnerabilitySummaryCountsByPriority.Urgent == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImageVulnerabilitySummaryCountsByPriority.Urgent(childComplexity), true
+
+	case "ImageVulnerabilitySummaryCountsBySeverity.critical":
+		if e.ComplexityRoot.ImageVulnerabilitySummaryCountsBySeverity.Critical == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImageVulnerabilitySummaryCountsBySeverity.Critical(childComplexity), true
+
+	case "ImageVulnerabilitySummaryCountsBySeverity.high":
+		if e.ComplexityRoot.ImageVulnerabilitySummaryCountsBySeverity.High == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImageVulnerabilitySummaryCountsBySeverity.High(childComplexity), true
+
+	case "ImageVulnerabilitySummaryCountsBySeverity.low":
+		if e.ComplexityRoot.ImageVulnerabilitySummaryCountsBySeverity.Low == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImageVulnerabilitySummaryCountsBySeverity.Low(childComplexity), true
+
+	case "ImageVulnerabilitySummaryCountsBySeverity.medium":
+		if e.ComplexityRoot.ImageVulnerabilitySummaryCountsBySeverity.Medium == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImageVulnerabilitySummaryCountsBySeverity.Medium(childComplexity), true
+
+	case "ImageVulnerabilitySummaryCountsBySeverity.unassigned":
+		if e.ComplexityRoot.ImageVulnerabilitySummaryCountsBySeverity.Unassigned == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImageVulnerabilitySummaryCountsBySeverity.Unassigned(childComplexity), true
 
 	case "ImageVulnerabilitySuppression.reason":
 		if e.ComplexityRoot.ImageVulnerabilitySuppression.Reason == nil {
@@ -8622,6 +8824,76 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.KafkaCredentials.Username(childComplexity), true
+
+	case "KafkaCredentialsCreatedActivityLogEntry.actor":
+		if e.ComplexityRoot.KafkaCredentialsCreatedActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.KafkaCredentialsCreatedActivityLogEntry.Actor(childComplexity), true
+
+	case "KafkaCredentialsCreatedActivityLogEntry.createdAt":
+		if e.ComplexityRoot.KafkaCredentialsCreatedActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.KafkaCredentialsCreatedActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "KafkaCredentialsCreatedActivityLogEntry.data":
+		if e.ComplexityRoot.KafkaCredentialsCreatedActivityLogEntry.Data == nil {
+			break
+		}
+
+		return e.ComplexityRoot.KafkaCredentialsCreatedActivityLogEntry.Data(childComplexity), true
+
+	case "KafkaCredentialsCreatedActivityLogEntry.environmentName":
+		if e.ComplexityRoot.KafkaCredentialsCreatedActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.KafkaCredentialsCreatedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "KafkaCredentialsCreatedActivityLogEntry.id":
+		if e.ComplexityRoot.KafkaCredentialsCreatedActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.KafkaCredentialsCreatedActivityLogEntry.ID(childComplexity), true
+
+	case "KafkaCredentialsCreatedActivityLogEntry.message":
+		if e.ComplexityRoot.KafkaCredentialsCreatedActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.KafkaCredentialsCreatedActivityLogEntry.Message(childComplexity), true
+
+	case "KafkaCredentialsCreatedActivityLogEntry.resourceName":
+		if e.ComplexityRoot.KafkaCredentialsCreatedActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.KafkaCredentialsCreatedActivityLogEntry.ResourceName(childComplexity), true
+
+	case "KafkaCredentialsCreatedActivityLogEntry.resourceType":
+		if e.ComplexityRoot.KafkaCredentialsCreatedActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.KafkaCredentialsCreatedActivityLogEntry.ResourceType(childComplexity), true
+
+	case "KafkaCredentialsCreatedActivityLogEntry.teamSlug":
+		if e.ComplexityRoot.KafkaCredentialsCreatedActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.KafkaCredentialsCreatedActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "KafkaCredentialsCreatedActivityLogEntryData.ttl":
+		if e.ComplexityRoot.KafkaCredentialsCreatedActivityLogEntryData.TTL == nil {
+			break
+		}
+
+		return e.ComplexityRoot.KafkaCredentialsCreatedActivityLogEntryData.TTL(childComplexity), true
 
 	case "KafkaLagScalingStrategy.consumerGroup":
 		if e.ComplexityRoot.KafkaLagScalingStrategy.ConsumerGroup == nil {
@@ -10311,6 +10583,83 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.OpenSearchCredentials.Username(childComplexity), true
+
+	case "OpenSearchCredentialsCreatedActivityLogEntry.actor":
+		if e.ComplexityRoot.OpenSearchCredentialsCreatedActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.OpenSearchCredentialsCreatedActivityLogEntry.Actor(childComplexity), true
+
+	case "OpenSearchCredentialsCreatedActivityLogEntry.createdAt":
+		if e.ComplexityRoot.OpenSearchCredentialsCreatedActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.OpenSearchCredentialsCreatedActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "OpenSearchCredentialsCreatedActivityLogEntry.data":
+		if e.ComplexityRoot.OpenSearchCredentialsCreatedActivityLogEntry.Data == nil {
+			break
+		}
+
+		return e.ComplexityRoot.OpenSearchCredentialsCreatedActivityLogEntry.Data(childComplexity), true
+
+	case "OpenSearchCredentialsCreatedActivityLogEntry.environmentName":
+		if e.ComplexityRoot.OpenSearchCredentialsCreatedActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.OpenSearchCredentialsCreatedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "OpenSearchCredentialsCreatedActivityLogEntry.id":
+		if e.ComplexityRoot.OpenSearchCredentialsCreatedActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.OpenSearchCredentialsCreatedActivityLogEntry.ID(childComplexity), true
+
+	case "OpenSearchCredentialsCreatedActivityLogEntry.message":
+		if e.ComplexityRoot.OpenSearchCredentialsCreatedActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.OpenSearchCredentialsCreatedActivityLogEntry.Message(childComplexity), true
+
+	case "OpenSearchCredentialsCreatedActivityLogEntry.resourceName":
+		if e.ComplexityRoot.OpenSearchCredentialsCreatedActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.OpenSearchCredentialsCreatedActivityLogEntry.ResourceName(childComplexity), true
+
+	case "OpenSearchCredentialsCreatedActivityLogEntry.resourceType":
+		if e.ComplexityRoot.OpenSearchCredentialsCreatedActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.OpenSearchCredentialsCreatedActivityLogEntry.ResourceType(childComplexity), true
+
+	case "OpenSearchCredentialsCreatedActivityLogEntry.teamSlug":
+		if e.ComplexityRoot.OpenSearchCredentialsCreatedActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.OpenSearchCredentialsCreatedActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "OpenSearchCredentialsCreatedActivityLogEntryData.permission":
+		if e.ComplexityRoot.OpenSearchCredentialsCreatedActivityLogEntryData.Permission == nil {
+			break
+		}
+
+		return e.ComplexityRoot.OpenSearchCredentialsCreatedActivityLogEntryData.Permission(childComplexity), true
+
+	case "OpenSearchCredentialsCreatedActivityLogEntryData.ttl":
+		if e.ComplexityRoot.OpenSearchCredentialsCreatedActivityLogEntryData.TTL == nil {
+			break
+		}
+
+		return e.ComplexityRoot.OpenSearchCredentialsCreatedActivityLogEntryData.TTL(childComplexity), true
 
 	case "OpenSearchDeletedActivityLogEntry.actor":
 		if e.ComplexityRoot.OpenSearchDeletedActivityLogEntry.Actor == nil {
@@ -16744,6 +17093,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.TeamUtilizationData.Used(childComplexity), true
 
+	case "TeamVulnerabilitySummary.countsByPriority":
+		if e.ComplexityRoot.TeamVulnerabilitySummary.CountsByPriority == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TeamVulnerabilitySummary.CountsByPriority(childComplexity), true
+
+	case "TeamVulnerabilitySummary.countsBySeverity":
+		if e.ComplexityRoot.TeamVulnerabilitySummary.CountsBySeverity == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TeamVulnerabilitySummary.CountsBySeverity(childComplexity), true
+
 	case "TeamVulnerabilitySummary.coverage":
 		if e.ComplexityRoot.TeamVulnerabilitySummary.Coverage == nil {
 			break
@@ -16813,6 +17176,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.TeamVulnerabilitySummary.Unassigned(childComplexity), true
+
+	case "TenantVulnerabilitySummary.countsByPriority":
+		if e.ComplexityRoot.TenantVulnerabilitySummary.CountsByPriority == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TenantVulnerabilitySummary.CountsByPriority(childComplexity), true
+
+	case "TenantVulnerabilitySummary.countsBySeverity":
+		if e.ComplexityRoot.TenantVulnerabilitySummary.CountsBySeverity == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TenantVulnerabilitySummary.CountsBySeverity(childComplexity), true
 
 	case "TenantVulnerabilitySummary.coverage":
 		if e.ComplexityRoot.TenantVulnerabilitySummary.Coverage == nil {
@@ -18217,6 +18594,83 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ValkeyCredentials.Username(childComplexity), true
+
+	case "ValkeyCredentialsCreatedActivityLogEntry.actor":
+		if e.ComplexityRoot.ValkeyCredentialsCreatedActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ValkeyCredentialsCreatedActivityLogEntry.Actor(childComplexity), true
+
+	case "ValkeyCredentialsCreatedActivityLogEntry.createdAt":
+		if e.ComplexityRoot.ValkeyCredentialsCreatedActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ValkeyCredentialsCreatedActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "ValkeyCredentialsCreatedActivityLogEntry.data":
+		if e.ComplexityRoot.ValkeyCredentialsCreatedActivityLogEntry.Data == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ValkeyCredentialsCreatedActivityLogEntry.Data(childComplexity), true
+
+	case "ValkeyCredentialsCreatedActivityLogEntry.environmentName":
+		if e.ComplexityRoot.ValkeyCredentialsCreatedActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ValkeyCredentialsCreatedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "ValkeyCredentialsCreatedActivityLogEntry.id":
+		if e.ComplexityRoot.ValkeyCredentialsCreatedActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ValkeyCredentialsCreatedActivityLogEntry.ID(childComplexity), true
+
+	case "ValkeyCredentialsCreatedActivityLogEntry.message":
+		if e.ComplexityRoot.ValkeyCredentialsCreatedActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ValkeyCredentialsCreatedActivityLogEntry.Message(childComplexity), true
+
+	case "ValkeyCredentialsCreatedActivityLogEntry.resourceName":
+		if e.ComplexityRoot.ValkeyCredentialsCreatedActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ValkeyCredentialsCreatedActivityLogEntry.ResourceName(childComplexity), true
+
+	case "ValkeyCredentialsCreatedActivityLogEntry.resourceType":
+		if e.ComplexityRoot.ValkeyCredentialsCreatedActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ValkeyCredentialsCreatedActivityLogEntry.ResourceType(childComplexity), true
+
+	case "ValkeyCredentialsCreatedActivityLogEntry.teamSlug":
+		if e.ComplexityRoot.ValkeyCredentialsCreatedActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ValkeyCredentialsCreatedActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "ValkeyCredentialsCreatedActivityLogEntryData.permission":
+		if e.ComplexityRoot.ValkeyCredentialsCreatedActivityLogEntryData.Permission == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ValkeyCredentialsCreatedActivityLogEntryData.Permission(childComplexity), true
+
+	case "ValkeyCredentialsCreatedActivityLogEntryData.ttl":
+		if e.ComplexityRoot.ValkeyCredentialsCreatedActivityLogEntryData.TTL == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ValkeyCredentialsCreatedActivityLogEntryData.TTL(childComplexity), true
 
 	case "ValkeyDeletedActivityLogEntry.actor":
 		if e.ComplexityRoot.ValkeyDeletedActivityLogEntry.Actor == nil {
@@ -19823,55 +20277,6 @@ type ActivityLogEntryEdge {
 	The log entry.
 	"""
 	node: ActivityLogEntry!
-}
-`, BuiltIn: false},
-	{Name: "../schema/aiven_credentials.graphqls", Input: `"Permission level for OpenSearch and Valkey credentials."
-enum CredentialPermission {
-	READ
-	WRITE
-	READWRITE
-	ADMIN
-}
-
-type CredentialsActivityLogEntry implements ActivityLogEntry & Node {
-	"ID of the entry."
-	id: ID!
-
-	"The identity of the actor who performed the action."
-	actor: String!
-
-	"Creation time of the entry."
-	createdAt: Time!
-
-	"Message that summarizes the entry."
-	message: String!
-
-	"Type of the resource that was affected by the action."
-	resourceType: ActivityLogEntryResourceType!
-
-	"Name of the resource that was affected by the action."
-	resourceName: String!
-
-	"The team slug that the entry belongs to."
-	teamSlug: Slug!
-
-	"The environment name that the entry belongs to."
-	environmentName: String
-
-	"Data associated with the credential creation."
-	data: CredentialsActivityLogEntryData!
-}
-
-type CredentialsActivityLogEntryData {
-	"The permission level, if applicable."
-	permission: String
-	"The TTL that was requested for the credentials."
-	ttl: String!
-}
-
-extend enum ActivityLogActivityType {
-	"Filter for credential creation events."
-	CREDENTIALS_CREATED
 }
 `, BuiltIn: false},
 	{Name: "../schema/alerts.graphqls", Input: `extend type TeamEnvironment {
@@ -23454,6 +23859,9 @@ enum IssueType {
 	MISSING_SBOM
 	VULNERABLE_IMAGE
 	EXTERNAL_INGRESS_CRITICAL_VULNERABILITY
+		@deprecated(reason: "Use EXTERNAL_INGRESS_URGENT_VULNERABILITY.")
+	"Raised when a workload has external ingress exposure and urgent vulnerabilities."
+	EXTERNAL_INGRESS_URGENT_VULNERABILITY
 	UNLEASH_RELEASE_CHANNEL
 	"Raised when an application is stuck in a restart loop."
 	APPLICATION_RESTART_LOOP
@@ -23470,14 +23878,42 @@ type VulnerableImageIssue implements Issue & Node {
 	critical: Int!
 }
 
+"Deprecated: use ExternalIngressUrgentVulnerabilityIssue."
 type ExternalIngressCriticalVulnerabilityIssue implements Issue & Node {
-	id: ID!
+	"The globally unique identifier for this issue."
+	id: ID! @deprecated(reason: "Use ExternalIngressUrgentVulnerabilityIssue instead.")
+	"The team environment where the affected workload is deployed."
 	teamEnvironment: TeamEnvironment!
+		@deprecated(reason: "Use ExternalIngressUrgentVulnerabilityIssue instead.")
+	"The severity assigned to this issue."
+	severity: Severity! @deprecated(reason: "Use ExternalIngressUrgentVulnerabilityIssue instead.")
+	"A human-readable description of the issue."
+	message: String! @deprecated(reason: "Use ExternalIngressUrgentVulnerabilityIssue instead.")
+
+	"The workload with critical vulnerabilities and external ingresses."
+	workload: Workload! @deprecated(reason: "Use ExternalIngressUrgentVulnerabilityIssue instead.")
+	"The highest CVSS score among vulnerabilities relevant to this issue."
+	cvssScore: Float! @deprecated(reason: "Use ExternalIngressUrgentVulnerabilityIssue instead.")
+	"External ingress URLs that expose the workload."
+	ingresses: [String!]! @deprecated(reason: "Use ExternalIngressUrgentVulnerabilityIssue instead.")
+}
+
+"Raised when a workload with external ingresses has one or more urgent vulnerability-priority findings."
+type ExternalIngressUrgentVulnerabilityIssue implements Issue & Node {
+	"The globally unique identifier for this issue."
+	id: ID!
+	"The team environment where the affected workload is deployed."
+	teamEnvironment: TeamEnvironment!
+	"The severity assigned to this issue."
 	severity: Severity!
+	"A human-readable description of the issue."
 	message: String!
 
+	"The workload with urgent vulnerabilities and external ingresses."
 	workload: Workload!
-	cvssScore: Float!
+	"Number of urgent vulnerabilities on the workload."
+	priorityUrgent: Int!
+	"External ingress URLs that expose the workload."
 	ingresses: [String!]!
 }
 
@@ -24591,6 +25027,50 @@ type CreateKafkaCredentialsPayload {
 	"The generated credentials."
 	credentials: KafkaCredentials!
 }
+
+type KafkaCredentialsCreatedActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: ActivityLogEntryResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+
+	"Data associated with the credential creation."
+	data: KafkaCredentialsCreatedActivityLogEntryData!
+}
+
+type KafkaCredentialsCreatedActivityLogEntryData {
+	"The TTL that was requested for the credentials."
+	ttl: String!
+}
+
+extend enum ActivityLogActivityType {
+	"Filter for Kafka credential creation events."
+	KAFKA_CREDENTIALS_CREATED
+}
+
+extend enum ActivityLogEntryResourceType {
+	"All activity log entries related to Kafka topics will use this resource type."
+	KAFKA_TOPIC
+}
 `, BuiltIn: false},
 	{Name: "../schema/labels.graphqls", Input: `"""
 A user-defined label attached to a resource.
@@ -25025,6 +25505,18 @@ type OpenSearch implements Persistence & Node {
 	): IssueConnection!
 }
 
+"Permission level for OpenSearch credentials."
+enum OpenSearchPermission {
+	"Read-only access."
+	READ
+	"Write-only access."
+	WRITE
+	"Read and write access."
+	READWRITE
+	"Administrative access."
+	ADMIN
+}
+
 enum OpenSearchState {
 	POWEROFF
 	REBALANCING
@@ -25363,7 +25855,7 @@ input CreateOpenSearchCredentialsInput {
 	"Name of the OpenSearch instance."
 	instanceName: String!
 	"Permission level for the credentials."
-	permission: CredentialPermission!
+	permission: OpenSearchPermission!
 	"Time-to-live for the credentials (e.g. '1d', '7d'). Maximum 30 days."
 	ttl: String!
 }
@@ -25384,6 +25876,47 @@ type OpenSearchCredentials {
 type CreateOpenSearchCredentialsPayload {
 	"The generated credentials."
 	credentials: OpenSearchCredentials!
+}
+
+type OpenSearchCredentialsCreatedActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: ActivityLogEntryResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+
+	"Data associated with the credential creation."
+	data: OpenSearchCredentialsCreatedActivityLogEntryData!
+}
+
+type OpenSearchCredentialsCreatedActivityLogEntryData {
+	"The permission level, if applicable."
+	permission: String
+	"The TTL that was requested for the credentials."
+	ttl: String!
+}
+
+extend enum ActivityLogActivityType {
+	"Filter for credential creation events."
+	OPENSEARCH_CREDENTIALS_CREATED
 }
 `, BuiltIn: false},
 	{Name: "../schema/persistence.graphqls", Input: `interface Persistence implements Node {
@@ -31163,6 +31696,18 @@ input ValkeyOrder {
 	direction: OrderDirection!
 }
 
+"Permission level for Valkey credentials."
+enum ValkeyPermission {
+	"Read-only access."
+	READ
+	"Write-only access."
+	WRITE
+	"Read and write access."
+	READWRITE
+	"Administrative access."
+	ADMIN
+}
+
 enum ValkeyAccessOrderField {
 	ACCESS
 	WORKLOAD
@@ -31425,7 +31970,7 @@ input CreateValkeyCredentialsInput {
 	"Name of the Valkey instance."
 	instanceName: String!
 	"Permission level for the credentials."
-	permission: CredentialPermission!
+	permission: ValkeyPermission!
 	"Time-to-live for the credentials (e.g. '1d', '7d'). Maximum 30 days."
 	ttl: String!
 }
@@ -31446,6 +31991,47 @@ type ValkeyCredentials {
 type CreateValkeyCredentialsPayload {
 	"The generated credentials."
 	credentials: ValkeyCredentials!
+}
+
+type ValkeyCredentialsCreatedActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: ActivityLogEntryResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+
+	"Data associated with the credential creation."
+	data: ValkeyCredentialsCreatedActivityLogEntryData!
+}
+
+type ValkeyCredentialsCreatedActivityLogEntryData {
+	"The permission level, if applicable."
+	permission: String
+	"The TTL that was requested for the credentials."
+	ttl: String!
+}
+
+extend enum ActivityLogActivityType {
+	"Filter for credential creation events."
+	VALKEY_CREDENTIALS_CREATED
 }
 `, BuiltIn: false},
 	{Name: "../schema/vulnerability.graphqls", Input: `extend type Mutation {
@@ -31501,10 +32087,16 @@ input CVEOrder {
 }
 
 enum CVEOrderField {
+	"Order by CVE identifier."
 	IDENTIFIER
+	"Order by CVE severity."
 	SEVERITY
+	"Order by CVSS score."
 	CVSS_SCORE
+	"Order by number of affected workloads."
 	AFFECTED_WORKLOADS_COUNT
+	"Order by CVE priority derived from threat intelligence signals."
+	PRIORITY
 }
 
 extend interface Workload {
@@ -31698,6 +32290,11 @@ input TeamVulnerabilitySummaryFilter {
 	Only return vulnerability summaries for the given environment.
 	"""
 	environmentName: String
+
+	"""
+	Only return vulnerability summaries at or above the given vulnerability priority.
+	"""
+	priority: CVEPriority
 }
 
 """
@@ -31718,20 +32315,26 @@ type ImageVulnerabilitySummary {
 	"Risk score of the image."
 	riskScore: Int!
 
+	"Vulnerability counts grouped by severity."
+	countsBySeverity: ImageVulnerabilitySummaryCountsBySeverity!
+
+	"Vulnerability counts grouped by operational priority."
+	countsByPriority: ImageVulnerabilitySummaryCountsByPriority!
+
 	"Number of vulnerabilities with severity LOW."
-	low: Int!
+	low: Int! @deprecated(reason: "Use countsBySeverity.low instead.")
 
 	"Number of vulnerabilities with severity MEDIUM."
-	medium: Int!
+	medium: Int! @deprecated(reason: "Use countsBySeverity.medium instead.")
 
 	"Number of vulnerabilities with severity HIGH."
-	high: Int!
+	high: Int! @deprecated(reason: "Use countsBySeverity.high instead.")
 
 	"Number of vulnerabilities with severity CRITICAL."
-	critical: Int!
+	critical: Int! @deprecated(reason: "Use countsBySeverity.critical instead.")
 
 	"Number of vulnerabilities with severity UNASSIGNED."
-	unassigned: Int!
+	unassigned: Int! @deprecated(reason: "Use countsBySeverity.unassigned instead.")
 
 	"Timestamp of the last update of the vulnerability summary."
 	lastUpdated: Time
@@ -31742,6 +32345,39 @@ type ImageVulnerabilitySummary {
 	still being scanned). The value is the tag the stale data originates from.
 	"""
 	staleImageTag: String
+}
+
+"Vulnerability counts grouped by severity."
+type ImageVulnerabilitySummaryCountsBySeverity {
+	"Number of vulnerabilities with severity CRITICAL."
+	critical: Int!
+
+	"Number of vulnerabilities with severity HIGH."
+	high: Int!
+
+	"Number of vulnerabilities with severity MEDIUM."
+	medium: Int!
+
+	"Number of vulnerabilities with severity LOW."
+	low: Int!
+
+	"Number of vulnerabilities with severity UNASSIGNED."
+	unassigned: Int!
+}
+
+"Vulnerability counts grouped by operational priority."
+type ImageVulnerabilitySummaryCountsByPriority {
+	"Known-exploited vulnerabilities that require immediate action."
+	urgent: Int!
+
+	"Vulnerabilities with strong exploitation indicators."
+	highRisk: Int!
+
+	"Vulnerabilities with elevated exploitation risk."
+	elevatedRisk: Int!
+
+	"Vulnerabilities that should be monitored."
+	monitor: Int!
 }
 
 type ImageVulnerabilityConnection {
@@ -31805,11 +32441,17 @@ type ImageVulnerability implements Node {
 	"Severity of the vulnerability."
 	severity: ImageVulnerabilitySeverity!
 
+	"Priority of the vulnerability based on threat intelligence signals."
+	priority: CVEPriority!
+
 	"Description of the vulnerability."
 	description: String!
 
 	"Package name of the vulnerability."
 	package: String!
+
+	"First known package version that contains a fix."
+	fixVersion: String
 
 	suppression: ImageVulnerabilitySuppression
 
@@ -31821,6 +32463,30 @@ type ImageVulnerability implements Node {
 
 	"CVSS score of the vulnerability."
 	cvssScore: Float
+
+	"EPSS score of the vulnerability."
+	epssScore: Float
+
+	"EPSS percentile of the vulnerability (0-1)."
+	epssPercentile: Float
+
+	"Whether the vulnerability has a CISA KEV entry."
+	hasKevEntry: Boolean!
+
+	"Whether the vulnerability has known ransomware use."
+	knownRansomwareUse: Boolean!
+}
+
+"Operational priority levels for vulnerabilities and CVEs."
+enum CVEPriority {
+	"Vulnerability is known to be actively exploited and requires immediate action."
+	URGENT
+	"Vulnerability is associated with ransomware or has a high EPSS percentile."
+	HIGH
+	"Vulnerability has a critical or high severity and elevated EPSS percentile."
+	ELEVATED
+	"Vulnerability requires monitoring but no immediate action."
+	MONITOR
 }
 
 type CVE implements Node {
@@ -31844,6 +32510,21 @@ type CVE implements Node {
 
 	"CVSS score of the CVE."
 	cvssScore: Float
+
+	"Priority of the CVE based on threat intelligence signals."
+	priority: CVEPriority!
+
+	"EPSS score of the CVE (probability of exploitation)."
+	epssScore: Float
+
+	"EPSS percentile of the CVE."
+	epssPercentile: Float
+
+	"Whether the CVE has a Known Exploited Vulnerability (KEV) entry."
+	hasKevEntry: Boolean!
+
+	"Whether the CVE is known to be used in ransomware attacks."
+	knownRansomwareUse: Boolean!
 
 	"Affected workloads"
 	workloads(
@@ -31949,12 +32630,20 @@ input ImageVulnerabilityOrder {
 }
 
 enum ImageVulnerabilityOrderField {
+	"Order by vulnerability identifier."
 	IDENTIFIER
+	"Order by vulnerability severity."
 	SEVERITY
+	"Order by when the vulnerability received its current severity."
 	SEVERITY_SINCE
+	"Order by affected package name."
 	PACKAGE
+	"Order by suppression state."
 	STATE
+	"Order by whether the vulnerability is suppressed."
 	SUPPRESSED
+	"Order by vulnerability priority derived from threat intelligence signals."
+	PRIORITY
 }
 
 type WorkloadVulnerabilitySummary implements Node {
@@ -31997,48 +32686,90 @@ enum VulnerabilitySummaryOrderByField {
 	"""
 	ENVIRONMENT
 	"""
-	Order by risk score"
+	Order by risk score.
 	"""
 	VULNERABILITY_RISK_SCORE
 	"""
-	Order by vulnerability severity critical"
+	Order by vulnerability severity critical.
 	"""
 	VULNERABILITY_SEVERITY_CRITICAL
 	"""
-	Order by vulnerability severity high"
+	Order by vulnerability severity high.
 	"""
 	VULNERABILITY_SEVERITY_HIGH
 	"""
-	Order by vulnerability severity medium"
+	Order by vulnerability severity medium.
 	"""
 	VULNERABILITY_SEVERITY_MEDIUM
 	"""
-	Order by vulnerability severity low"
+	Order by vulnerability severity low.
 	"""
 	VULNERABILITY_SEVERITY_LOW
 	"""
-	Order by vulnerability severity unassigned"
+	Order by vulnerability severity unassigned.
 	"""
 	VULNERABILITY_SEVERITY_UNASSIGNED
+	"""
+	Order by the number of urgent vulnerabilities.
+
+	Urgent vulnerabilities are known to be actively exploited and should be
+	prioritized for immediate action.
+	"""
+	VULNERABILITY_PRIORITY_URGENT
+	"""
+	Order by the number of high-risk vulnerabilities.
+
+	High-risk vulnerabilities are not known exploited, but have strong
+	exploitation indicators such as known ransomware use or very high EPSS.
+	"""
+	VULNERABILITY_PRIORITY_HIGH_RISK
+	"""
+	Order by the number of elevated-risk vulnerabilities.
+
+	Elevated-risk vulnerabilities are lower priority than high-risk, but still
+	have meaningful exploitation risk signals.
+	"""
+	VULNERABILITY_PRIORITY_ELEVATED_RISK
+	"""
+	Order by the number of monitor vulnerabilities.
+
+	Monitor vulnerabilities should be tracked, but do not currently indicate the
+	same operational urgency as the higher priority buckets.
+	"""
+	VULNERABILITY_PRIORITY_MONITOR
 }
 
 type TenantVulnerabilitySummary {
 	"Risk score of the tenant."
 	riskScore: Int!
+
+	"Vulnerability counts grouped by severity."
+	countsBySeverity: ImageVulnerabilitySummaryCountsBySeverity!
+
+	"Vulnerability counts grouped by operational priority."
+	countsByPriority: ImageVulnerabilitySummaryCountsByPriority!
+
 	"Number of vulnerabilities with severity CRITICAL."
-	critical: Int!
+	critical: Int! @deprecated(reason: "Use countsBySeverity.critical instead.")
+
 	"Number of vulnerabilities with severity HIGH."
-	high: Int!
+	high: Int! @deprecated(reason: "Use countsBySeverity.high instead.")
+
 	"Number of vulnerabilities with severity MEDIUM."
-	medium: Int!
+	medium: Int! @deprecated(reason: "Use countsBySeverity.medium instead.")
+
 	"Number of vulnerabilities with severity LOW."
-	low: Int!
+	low: Int! @deprecated(reason: "Use countsBySeverity.low instead.")
+
 	"Number of vulnerabilities with severity UNASSIGNED."
-	unassigned: Int!
+	unassigned: Int! @deprecated(reason: "Use countsBySeverity.unassigned instead.")
+
 	"Number of workloads with a software bill of materials (SBOM) attached."
 	sbomCount: Int!
+
 	"SBOM Coverage of the tenant."
 	coverage: Float!
+
 	"Timestamp of the last update of the vulnerability summary."
 	lastUpdated: Time
 }
@@ -32046,22 +32777,37 @@ type TenantVulnerabilitySummary {
 type TeamVulnerabilitySummary {
 	"Risk score of the team."
 	riskScore: Int!
+
+	"Vulnerability counts grouped by severity."
+	countsBySeverity: ImageVulnerabilitySummaryCountsBySeverity!
+
+	"Vulnerability counts grouped by operational priority."
+	countsByPriority: ImageVulnerabilitySummaryCountsByPriority!
+
 	"Number of vulnerabilities with severity CRITICAL."
-	critical: Int!
+	critical: Int! @deprecated(reason: "Use countsBySeverity.critical instead.")
+
 	"Number of vulnerabilities with severity HIGH."
-	high: Int!
+	high: Int! @deprecated(reason: "Use countsBySeverity.high instead.")
+
 	"Number of vulnerabilities with severity MEDIUM."
-	medium: Int!
+	medium: Int! @deprecated(reason: "Use countsBySeverity.medium instead.")
+
 	"Number of vulnerabilities with severity LOW."
-	low: Int!
+	low: Int! @deprecated(reason: "Use countsBySeverity.low instead.")
+
 	"Number of vulnerabilities with severity UNASSIGNED."
-	unassigned: Int!
+	unassigned: Int! @deprecated(reason: "Use countsBySeverity.unassigned instead.")
+
 	"Number of workloads with a software bill of materials (SBOM) attached."
 	sbomCount: Int!
+
 	"Coverage of the team."
 	coverage: Float!
+
 	"Timestamp of the last update of the vulnerability summary."
 	lastUpdated: Time
+
 	"Trend of vulnerability status for the team."
 	riskScoreTrend: TeamVulnerabilityRiskScoreTrend!
 }
@@ -33339,6 +34085,16 @@ func (ec *executionContext) childFields_CVE(ctx context.Context, field graphql.C
 		return ec.fieldContext_CVE_detailsLink(ctx, field)
 	case "cvssScore":
 		return ec.fieldContext_CVE_cvssScore(ctx, field)
+	case "priority":
+		return ec.fieldContext_CVE_priority(ctx, field)
+	case "epssScore":
+		return ec.fieldContext_CVE_epssScore(ctx, field)
+	case "epssPercentile":
+		return ec.fieldContext_CVE_epssPercentile(ctx, field)
+	case "hasKevEntry":
+		return ec.fieldContext_CVE_hasKevEntry(ctx, field)
+	case "knownRansomwareUse":
+		return ec.fieldContext_CVE_knownRansomwareUse(ctx, field)
 	case "workloads":
 		return ec.fieldContext_CVE_workloads(ctx, field)
 	}
@@ -33665,16 +34421,6 @@ func (ec *executionContext) childFields_CreateValkeyPayload(ctx context.Context,
 		return ec.fieldContext_CreateValkeyPayload_valkey(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type CreateValkeyPayload", field.Name)
-}
-
-func (ec *executionContext) childFields_CredentialsActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-	switch field.Name {
-	case "permission":
-		return ec.fieldContext_CredentialsActivityLogEntryData_permission(ctx, field)
-	case "ttl":
-		return ec.fieldContext_CredentialsActivityLogEntryData_ttl(ctx, field)
-	}
-	return nil, fmt.Errorf("no field named %q was found under type CredentialsActivityLogEntryData", field.Name)
 }
 
 func (ec *executionContext) childFields_CurrentUnitPrices(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -34081,10 +34827,14 @@ func (ec *executionContext) childFields_ImageVulnerability(ctx context.Context, 
 		return ec.fieldContext_ImageVulnerability_identifier(ctx, field)
 	case "severity":
 		return ec.fieldContext_ImageVulnerability_severity(ctx, field)
+	case "priority":
+		return ec.fieldContext_ImageVulnerability_priority(ctx, field)
 	case "description":
 		return ec.fieldContext_ImageVulnerability_description(ctx, field)
 	case "package":
 		return ec.fieldContext_ImageVulnerability_package(ctx, field)
+	case "fixVersion":
+		return ec.fieldContext_ImageVulnerability_fixVersion(ctx, field)
 	case "suppression":
 		return ec.fieldContext_ImageVulnerability_suppression(ctx, field)
 	case "severitySince":
@@ -34093,6 +34843,14 @@ func (ec *executionContext) childFields_ImageVulnerability(ctx context.Context, 
 		return ec.fieldContext_ImageVulnerability_vulnerabilityDetailsLink(ctx, field)
 	case "cvssScore":
 		return ec.fieldContext_ImageVulnerability_cvssScore(ctx, field)
+	case "epssScore":
+		return ec.fieldContext_ImageVulnerability_epssScore(ctx, field)
+	case "epssPercentile":
+		return ec.fieldContext_ImageVulnerability_epssPercentile(ctx, field)
+	case "hasKevEntry":
+		return ec.fieldContext_ImageVulnerability_hasKevEntry(ctx, field)
+	case "knownRansomwareUse":
+		return ec.fieldContext_ImageVulnerability_knownRansomwareUse(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type ImageVulnerability", field.Name)
 }
@@ -34143,6 +34901,10 @@ func (ec *executionContext) childFields_ImageVulnerabilitySummary(ctx context.Co
 		return ec.fieldContext_ImageVulnerabilitySummary_total(ctx, field)
 	case "riskScore":
 		return ec.fieldContext_ImageVulnerabilitySummary_riskScore(ctx, field)
+	case "countsBySeverity":
+		return ec.fieldContext_ImageVulnerabilitySummary_countsBySeverity(ctx, field)
+	case "countsByPriority":
+		return ec.fieldContext_ImageVulnerabilitySummary_countsByPriority(ctx, field)
 	case "low":
 		return ec.fieldContext_ImageVulnerabilitySummary_low(ctx, field)
 	case "medium":
@@ -34159,6 +34921,36 @@ func (ec *executionContext) childFields_ImageVulnerabilitySummary(ctx context.Co
 		return ec.fieldContext_ImageVulnerabilitySummary_staleImageTag(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type ImageVulnerabilitySummary", field.Name)
+}
+
+func (ec *executionContext) childFields_ImageVulnerabilitySummaryCountsByPriority(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "urgent":
+		return ec.fieldContext_ImageVulnerabilitySummaryCountsByPriority_urgent(ctx, field)
+	case "highRisk":
+		return ec.fieldContext_ImageVulnerabilitySummaryCountsByPriority_highRisk(ctx, field)
+	case "elevatedRisk":
+		return ec.fieldContext_ImageVulnerabilitySummaryCountsByPriority_elevatedRisk(ctx, field)
+	case "monitor":
+		return ec.fieldContext_ImageVulnerabilitySummaryCountsByPriority_monitor(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ImageVulnerabilitySummaryCountsByPriority", field.Name)
+}
+
+func (ec *executionContext) childFields_ImageVulnerabilitySummaryCountsBySeverity(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "critical":
+		return ec.fieldContext_ImageVulnerabilitySummaryCountsBySeverity_critical(ctx, field)
+	case "high":
+		return ec.fieldContext_ImageVulnerabilitySummaryCountsBySeverity_high(ctx, field)
+	case "medium":
+		return ec.fieldContext_ImageVulnerabilitySummaryCountsBySeverity_medium(ctx, field)
+	case "low":
+		return ec.fieldContext_ImageVulnerabilitySummaryCountsBySeverity_low(ctx, field)
+	case "unassigned":
+		return ec.fieldContext_ImageVulnerabilitySummaryCountsBySeverity_unassigned(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ImageVulnerabilitySummaryCountsBySeverity", field.Name)
 }
 
 func (ec *executionContext) childFields_ImageVulnerabilitySuppression(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -34599,6 +35391,14 @@ func (ec *executionContext) childFields_KafkaCredentials(ctx context.Context, fi
 	return nil, fmt.Errorf("no field named %q was found under type KafkaCredentials", field.Name)
 }
 
+func (ec *executionContext) childFields_KafkaCredentialsCreatedActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "ttl":
+		return ec.fieldContext_KafkaCredentialsCreatedActivityLogEntryData_ttl(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type KafkaCredentialsCreatedActivityLogEntryData", field.Name)
+}
+
 func (ec *executionContext) childFields_KafkaTopic(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "id":
@@ -34937,6 +35737,16 @@ func (ec *executionContext) childFields_OpenSearchCredentials(ctx context.Contex
 		return ec.fieldContext_OpenSearchCredentials_uri(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type OpenSearchCredentials", field.Name)
+}
+
+func (ec *executionContext) childFields_OpenSearchCredentialsCreatedActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "permission":
+		return ec.fieldContext_OpenSearchCredentialsCreatedActivityLogEntryData_permission(ctx, field)
+	case "ttl":
+		return ec.fieldContext_OpenSearchCredentialsCreatedActivityLogEntryData_ttl(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type OpenSearchCredentialsCreatedActivityLogEntryData", field.Name)
 }
 
 func (ec *executionContext) childFields_OpenSearchEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -36805,6 +37615,10 @@ func (ec *executionContext) childFields_TeamVulnerabilitySummary(ctx context.Con
 	switch field.Name {
 	case "riskScore":
 		return ec.fieldContext_TeamVulnerabilitySummary_riskScore(ctx, field)
+	case "countsBySeverity":
+		return ec.fieldContext_TeamVulnerabilitySummary_countsBySeverity(ctx, field)
+	case "countsByPriority":
+		return ec.fieldContext_TeamVulnerabilitySummary_countsByPriority(ctx, field)
 	case "critical":
 		return ec.fieldContext_TeamVulnerabilitySummary_critical(ctx, field)
 	case "high":
@@ -36831,6 +37645,10 @@ func (ec *executionContext) childFields_TenantVulnerabilitySummary(ctx context.C
 	switch field.Name {
 	case "riskScore":
 		return ec.fieldContext_TenantVulnerabilitySummary_riskScore(ctx, field)
+	case "countsBySeverity":
+		return ec.fieldContext_TenantVulnerabilitySummary_countsBySeverity(ctx, field)
+	case "countsByPriority":
+		return ec.fieldContext_TenantVulnerabilitySummary_countsByPriority(ctx, field)
 	case "critical":
 		return ec.fieldContext_TenantVulnerabilitySummary_critical(ctx, field)
 	case "high":
@@ -37281,6 +38099,16 @@ func (ec *executionContext) childFields_ValkeyCredentials(ctx context.Context, f
 		return ec.fieldContext_ValkeyCredentials_uri(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type ValkeyCredentials", field.Name)
+}
+
+func (ec *executionContext) childFields_ValkeyCredentialsCreatedActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "permission":
+		return ec.fieldContext_ValkeyCredentialsCreatedActivityLogEntryData_permission(ctx, field)
+	case "ttl":
+		return ec.fieldContext_ValkeyCredentialsCreatedActivityLogEntryData_ttl(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ValkeyCredentialsCreatedActivityLogEntryData", field.Name)
 }
 
 func (ec *executionContext) childFields_ValkeyEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {

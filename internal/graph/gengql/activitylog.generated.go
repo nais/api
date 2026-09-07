@@ -17,7 +17,7 @@ import (
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/kubernetes/event/pubsublog"
-	"github.com/nais/api/internal/persistence/aivencredentials"
+	"github.com/nais/api/internal/persistence/kafkatopic"
 	"github.com/nais/api/internal/persistence/opensearch"
 	"github.com/nais/api/internal/persistence/postgres"
 	"github.com/nais/api/internal/persistence/valkey"
@@ -516,6 +516,13 @@ func (ec *executionContext) _ActivityLogEntry(ctx context.Context, sel ast.Selec
 			return graphql.Null
 		}
 		return ec._ValkeyDeletedActivityLogEntry(ctx, sel, obj)
+	case valkey.ValkeyCredentialsCreatedActivityLogEntry:
+		return ec._ValkeyCredentialsCreatedActivityLogEntry(ctx, sel, &obj)
+	case *valkey.ValkeyCredentialsCreatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ValkeyCredentialsCreatedActivityLogEntry(ctx, sel, obj)
 	case valkey.ValkeyCreatedActivityLogEntry:
 		return ec._ValkeyCreatedActivityLogEntry(ctx, sel, &obj)
 	case *valkey.ValkeyCreatedActivityLogEntry:
@@ -810,6 +817,13 @@ func (ec *executionContext) _ActivityLogEntry(ctx context.Context, sel ast.Selec
 			return graphql.Null
 		}
 		return ec._OpenSearchDeletedActivityLogEntry(ctx, sel, obj)
+	case opensearch.OpenSearchCredentialsCreatedActivityLogEntry:
+		return ec._OpenSearchCredentialsCreatedActivityLogEntry(ctx, sel, &obj)
+	case *opensearch.OpenSearchCredentialsCreatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._OpenSearchCredentialsCreatedActivityLogEntry(ctx, sel, obj)
 	case opensearch.OpenSearchCreatedActivityLogEntry:
 		return ec._OpenSearchCreatedActivityLogEntry(ctx, sel, &obj)
 	case *opensearch.OpenSearchCreatedActivityLogEntry:
@@ -817,6 +831,13 @@ func (ec *executionContext) _ActivityLogEntry(ctx context.Context, sel ast.Selec
 			return graphql.Null
 		}
 		return ec._OpenSearchCreatedActivityLogEntry(ctx, sel, obj)
+	case kafkatopic.KafkaCredentialsCreatedActivityLogEntry:
+		return ec._KafkaCredentialsCreatedActivityLogEntry(ctx, sel, &obj)
+	case *kafkatopic.KafkaCredentialsCreatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._KafkaCredentialsCreatedActivityLogEntry(ctx, sel, obj)
 	case job.JobUpdatedActivityLogEntry:
 		return ec._JobUpdatedActivityLogEntry(ctx, sel, &obj)
 	case *job.JobUpdatedActivityLogEntry:
@@ -866,13 +887,6 @@ func (ec *executionContext) _ActivityLogEntry(ctx context.Context, sel ast.Selec
 			return graphql.Null
 		}
 		return ec._DeploymentActivityLogEntry(ctx, sel, obj)
-	case aivencredentials.CredentialsActivityLogEntry:
-		return ec._CredentialsActivityLogEntry(ctx, sel, &obj)
-	case *aivencredentials.CredentialsActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._CredentialsActivityLogEntry(ctx, sel, obj)
 	case config.ConfigUpdatedActivityLogEntry:
 		return ec._ConfigUpdatedActivityLogEntry(ctx, sel, &obj)
 	case *config.ConfigUpdatedActivityLogEntry:

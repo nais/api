@@ -44,7 +44,7 @@ func (r *mutationResolver) DeleteValkey(ctx context.Context, input valkey.Delete
 }
 
 func (r *mutationResolver) CreateValkeyCredentials(ctx context.Context, input valkey.CreateValkeyCredentialsInput) (*valkey.CreateValkeyCredentialsPayload, error) {
-	if err := authz.CanCreateAivenCredentials(ctx, input.TeamSlug); err != nil {
+	if err := authz.CanCreateValkeyCredentials(ctx, input.TeamSlug); err != nil {
 		return nil, err
 	}
 	return valkey.CreateValkeyCredentials(ctx, input)
