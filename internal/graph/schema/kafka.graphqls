@@ -1,6 +1,8 @@
 extend type Mutation {
 	"Create temporary credentials for Kafka."
 	createKafkaCredentials(input: CreateKafkaCredentialsInput!): CreateKafkaCredentialsPayload!
+	"Update a Kafka Topic."
+	updateKafkaTopic(input: UpdateKafkaTopicInput!): UpdateKafkaTopicPayload!
 }
 
 extend type Team {
@@ -84,7 +86,7 @@ type KafkaTopic implements Persistence & Node {
 }
 
 type KafkaTopicAcl {
-	access: String!
+	access: KafkaTopicGrantAccess!
 	workloadName: String!
 	teamName: String!
 	team: Team
@@ -162,6 +164,41 @@ input KafkaTopicFilter {
 	labels: [LabelFilter!]
 }
 
+"Input for the updateKafkaTopic mutation."
+input UpdateKafkaTopicInput {
+	"Name of the Kafka Topic to update."
+	name: String!
+
+	"Slug of the team that owns the Kafka Topic."
+	teamSlug: Slug!
+
+	"Environment name of the Kafka Topic to update."
+	environmentName: String!
+
+	"New grants for the Kafka Topic."
+	addGrants: [KafkaTopicGrantInput!]
+}
+
+"Input for adding a grant to a Kafka Topic."
+input KafkaTopicGrantInput {
+	"Subject that receives the grant."
+	subject: String!
+	"The name of the team that receives the grant. Can be a wildcard."
+	teamName: String!
+	"The access level for the grant."
+	access: KafkaTopicGrantAccess!
+}
+
+"Valid access levels for Kafka Topic grants."
+enum KafkaTopicGrantAccess {
+	"Read access to the Kafka Topic."
+	READ
+	"Write access to the Kafka Topic."
+	WRITE
+	"Read and write access to the Kafka Topic."
+	READWRITE
+}
+
 input KafkaTopicAclFilter {
 	team: Slug
 	workload: String
@@ -223,6 +260,12 @@ type KafkaCredentials {
 type CreateKafkaCredentialsPayload {
 	"The generated credentials."
 	credentials: KafkaCredentials!
+}
+
+"Payload of the updateKafkaTopic mutation."
+type UpdateKafkaTopicPayload {
+	"Updated Kafka topic."
+	kafkaTopic: KafkaTopic!
 }
 
 type KafkaCredentialsCreatedActivityLogEntry implements ActivityLogEntry & Node {

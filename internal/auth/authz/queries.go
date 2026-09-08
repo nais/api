@@ -324,6 +324,10 @@ func CanCreateKafkaCredentials(ctx context.Context, teamSlug slug.Slug) error {
 	return requireTeamAuthorization(ctx, teamSlug, "kafka:credentials:create")
 }
 
+func CanUpdateKafkaTopic(ctx context.Context, teamSlug slug.Slug) error {
+	return requireTeamAuthorization(ctx, teamSlug, "kafka:update")
+}
+
 func CanCreateOpenSearchCredentials(ctx context.Context, teamSlug slug.Slug) error {
 	return requireTeamAuthorization(ctx, teamSlug, "opensearch:credentials:create")
 }

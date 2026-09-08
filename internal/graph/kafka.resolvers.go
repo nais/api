@@ -53,7 +53,7 @@ func (r *kafkaTopicResolver) ACL(ctx context.Context, obj *kafkatopic.KafkaTopic
 
 	if orderBy == nil {
 		orderBy = &kafkatopic.KafkaTopicACLOrder{
-			Field:     "TOPIC_NAME",
+			Field:     "TEAM_SLUG",
 			Direction: model.OrderDirectionAsc,
 		}
 	}
@@ -92,7 +92,7 @@ func (r *kafkaTopicAclResolver) Workload(ctx context.Context, obj *kafkatopic.Ka
 }
 
 func (r *kafkaTopicAclResolver) Topic(ctx context.Context, obj *kafkatopic.KafkaTopicACL) (*kafkatopic.KafkaTopic, error) {
-	return kafkatopic.Get(ctx, obj.TeamSlug, obj.EnvironmentName, obj.TopicName)
+	return kafkatopic.Get(ctx, obj.TopicTeamSlug, obj.EnvironmentName, obj.TopicName)
 }
 
 func (r *kafkaTopicConnectionResolver) Facets(ctx context.Context, obj *pagination.FacetableConnection[*kafkatopic.KafkaTopic, *kafkatopic.KafkaTopicFilter]) (*kafkatopic.KafkaTopicFacets, error) {
@@ -107,6 +107,13 @@ func (r *mutationResolver) CreateKafkaCredentials(ctx context.Context, input kaf
 		return nil, err
 	}
 	return kafkatopic.CreateKafkaCredentials(ctx, input)
+}
+
+func (r *mutationResolver) UpdateKafkaTopic(ctx context.Context, input kafkatopic.UpdateKafkaTopicInput) (*kafkatopic.UpdateKafkaTopicPayload, error) {
+	if err := authz.CanUpdateKafkaTopic(ctx, input.TeamSlug); err != nil {
+		return nil, err
+	}
+	return kafkatopic.Update(ctx, input)
 }
 
 func (r *teamResolver) KafkaTopics(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *kafkatopic.KafkaTopicOrder, filter *kafkatopic.KafkaTopicFilter) (*pagination.FacetableConnection[*kafkatopic.KafkaTopic, *kafkatopic.KafkaTopicFilter], error) {

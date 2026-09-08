@@ -79,6 +79,7 @@ type MutationResolver interface {
 	TriggerJob(ctx context.Context, input job.TriggerJobInput) (*job.TriggerJobPayload, error)
 	UpdateJob(ctx context.Context, input job.UpdateJobInput) (*job.UpdateJobPayload, error)
 	CreateKafkaCredentials(ctx context.Context, input kafkatopic.CreateKafkaCredentialsInput) (*kafkatopic.CreateKafkaCredentialsPayload, error)
+	UpdateKafkaTopic(ctx context.Context, input kafkatopic.UpdateKafkaTopicInput) (*kafkatopic.UpdateKafkaTopicPayload, error)
 	CreateOpenSearch(ctx context.Context, input opensearch.CreateOpenSearchInput) (*opensearch.CreateOpenSearchPayload, error)
 	UpdateOpenSearch(ctx context.Context, input opensearch.UpdateOpenSearchInput) (*opensearch.UpdateOpenSearchPayload, error)
 	DeleteOpenSearch(ctx context.Context, input opensearch.DeleteOpenSearchInput) (*opensearch.DeleteOpenSearchPayload, error)
@@ -929,6 +930,20 @@ func (ec *executionContext) field_Mutation_updateJob_args(ctx context.Context, r
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input",
 		func(ctx context.Context, v any) (job.UpdateJobInput, error) {
 			return ec.unmarshalNUpdateJobInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐUpdateJobInput(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_updateKafkaTopic_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input",
+		func(ctx context.Context, v any) (kafkatopic.UpdateKafkaTopicInput, error) {
+			return ec.unmarshalNUpdateKafkaTopicInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐUpdateKafkaTopicInput(ctx, v)
 		})
 	if err != nil {
 		return nil, err
@@ -2395,6 +2410,50 @@ func (ec *executionContext) fieldContext_Mutation_createKafkaCredentials(ctx con
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_createKafkaCredentials_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_updateKafkaTopic(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Mutation_updateKafkaTopic(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.Resolvers.Mutation().UpdateKafkaTopic(ctx, fc.Args["input"].(kafkatopic.UpdateKafkaTopicInput))
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *kafkatopic.UpdateKafkaTopicPayload) graphql.Marshaler {
+			return ec.marshalNUpdateKafkaTopicPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐUpdateKafkaTopicPayload(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Mutation_updateKafkaTopic(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_UpdateKafkaTopicPayload(ctx, field)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_updateKafkaTopic_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -7129,6 +7188,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "createKafkaCredentials":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createKafkaCredentials(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "updateKafkaTopic":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updateKafkaTopic(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++

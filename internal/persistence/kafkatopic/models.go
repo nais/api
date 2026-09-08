@@ -1,9 +1,11 @@
 package kafkatopic
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/nais/api/internal/graph/ident"
@@ -106,11 +108,11 @@ type KafkaTopicACL struct {
 	// WorkloadName is the name used for the ACL rule. Can contain wildcards.
 	WorkloadName string `json:"workloadName"`
 	// TeamName is the name used for the ACL rule. Can contain wildcards.
-	TeamName        string    `json:"teamName"`
-	Access          string    `json:"access"`
-	EnvironmentName string    `json:"-"`
-	TopicName       string    `json:"-"`
-	TeamSlug        slug.Slug `json:"-"`
+	TeamName        string                `json:"teamName"`
+	Access          KafkaTopicGrantAccess `json:"access"`
+	EnvironmentName string                `json:"-"`
+	TopicName       string                `json:"-"`
+	TopicTeamSlug   slug.Slug             `json:"-"`
 }
 
 type KafkaTopicACLOrder struct {
@@ -183,12 +185,12 @@ func toKafkaTopicACLs(acls []kafka_nais_io_v1.TopicACL, teamSlug slug.Slug, envN
 	ret := make([]*KafkaTopicACL, len(acls))
 	for i, a := range acls {
 		ret[i] = &KafkaTopicACL{
-			Access:          a.Access,
+			Access:          KafkaTopicGrantAccess(strings.ToUpper(a.Access)),
 			WorkloadName:    a.Application,
 			TeamName:        a.Team,
 			EnvironmentName: envName,
 			TopicName:       topicName,
-			TeamSlug:        teamSlug,
+			TopicTeamSlug:   teamSlug,
 		}
 	}
 	return ret
@@ -239,4 +241,91 @@ type KafkaCredentials struct {
 
 type CreateKafkaCredentialsPayload struct {
 	Credentials *KafkaCredentials `json:"credentials"`
+}
+
+type KafkaTopicGrantInput struct {
+	Subject  string                `json:"subject"`
+	TeamName string                `json:"teamName"`
+	Access   KafkaTopicGrantAccess `json:"access"`
+}
+
+type UpdateKafkaTopicInput struct {
+	Name            string                  `json:"name"`
+	TeamSlug        slug.Slug               `json:"teamSlug"`
+	EnvironmentName string                  `json:"environmentName"`
+	AddGrants       []*KafkaTopicGrantInput `json:"addGrants,omitempty"`
+}
+
+type UpdateKafkaTopicPayload struct {
+	KafkaTopic *KafkaTopic `json:"kafkaTopic"`
+}
+
+type KafkaTopicGrantAccess string
+
+const (
+	KafkaTopicGrantAccessRead      KafkaTopicGrantAccess = "READ"
+	KafkaTopicGrantAccessWrite     KafkaTopicGrantAccess = "WRITE"
+	KafkaTopicGrantAccessReadwrite KafkaTopicGrantAccess = "READWRITE"
+)
+
+var AllKafkaTopicGrantAccess = []KafkaTopicGrantAccess{
+	KafkaTopicGrantAccessRead,
+	KafkaTopicGrantAccessWrite,
+	KafkaTopicGrantAccessReadwrite,
+}
+
+func (e KafkaTopicGrantAccess) IsValid() bool {
+	switch e {
+	case KafkaTopicGrantAccessRead, KafkaTopicGrantAccessWrite, KafkaTopicGrantAccessReadwrite:
+		return true
+	}
+	return false
+}
+
+func (e KafkaTopicGrantAccess) String() string {
+	return string(e)
+}
+
+func (e *KafkaTopicGrantAccess) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = KafkaTopicGrantAccess(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid KafkaTopicGrantAccess", str)
+	}
+	return nil
+}
+
+func (e KafkaTopicGrantAccess) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *KafkaTopicGrantAccess) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e KafkaTopicGrantAccess) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+func (e KafkaTopicGrantAccess) AivenAccess() string {
+	switch e {
+	case KafkaTopicGrantAccessRead:
+		return "read"
+	case KafkaTopicGrantAccessWrite:
+		return "write"
+	case KafkaTopicGrantAccessReadwrite:
+		return "readwrite"
+	default:
+		return "read"
+	}
 }

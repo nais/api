@@ -1,0 +1,8 @@
+apiVersion: kafka.nais.io/v1
+kind: Topic
+metadata:
+  name: orders
+  namespace: kafka-update-team
+spec:
+  acl: []
+  pool: dev

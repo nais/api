@@ -1607,6 +1607,7 @@ type ComplexityRoot struct {
 		UpdateConfigValue                func(childComplexity int, input config.UpdateConfigValueInput) int
 		UpdateImageVulnerability         func(childComplexity int, input vulnerability.UpdateImageVulnerabilityInput) int
 		UpdateJob                        func(childComplexity int, input job.UpdateJobInput) int
+		UpdateKafkaTopic                 func(childComplexity int, input kafkatopic.UpdateKafkaTopicInput) int
 		UpdateOpenSearch                 func(childComplexity int, input opensearch.UpdateOpenSearchInput) int
 		UpdateSecret                     func(childComplexity int, input secret.UpdateSecretInput) int
 		UpdateSecretValue                func(childComplexity int, input secret.UpdateSecretValueInput) int
@@ -3348,6 +3349,10 @@ type ComplexityRoot struct {
 
 	UpdateJobPayload struct {
 		Job func(childComplexity int) int
+	}
+
+	UpdateKafkaTopicPayload struct {
+		KafkaTopic func(childComplexity int) int
 	}
 
 	UpdateOpenSearchPayload struct {
@@ -10070,6 +10075,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Mutation.UpdateJob(childComplexity, args["input"].(job.UpdateJobInput)), true
+
+	case "Mutation.updateKafkaTopic":
+		if e.ComplexityRoot.Mutation.UpdateKafkaTopic == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateKafkaTopic_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Mutation.UpdateKafkaTopic(childComplexity, args["input"].(kafkatopic.UpdateKafkaTopicInput)), true
 
 	case "Mutation.updateOpenSearch":
 		if e.ComplexityRoot.Mutation.UpdateOpenSearch == nil {
@@ -17924,6 +17941,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.UpdateJobPayload.Job(childComplexity), true
 
+	case "UpdateKafkaTopicPayload.kafkaTopic":
+		if e.ComplexityRoot.UpdateKafkaTopicPayload.KafkaTopic == nil {
+			break
+		}
+
+		return e.ComplexityRoot.UpdateKafkaTopicPayload.KafkaTopic(childComplexity), true
+
 	case "UpdateOpenSearchPayload.openSearch":
 		if e.ComplexityRoot.UpdateOpenSearchPayload.OpenSearch == nil {
 			break
@@ -19713,6 +19737,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputKafkaTopicAclFilter,
 		ec.unmarshalInputKafkaTopicAclOrder,
 		ec.unmarshalInputKafkaTopicFilter,
+		ec.unmarshalInputKafkaTopicGrantInput,
 		ec.unmarshalInputKafkaTopicOrder,
 		ec.unmarshalInputLabelFilter,
 		ec.unmarshalInputLogSubscriptionFilter,
@@ -19765,6 +19790,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputUpdateConfigValueInput,
 		ec.unmarshalInputUpdateImageVulnerabilityInput,
 		ec.unmarshalInputUpdateJobInput,
+		ec.unmarshalInputUpdateKafkaTopicInput,
 		ec.unmarshalInputUpdateOpenSearchInput,
 		ec.unmarshalInputUpdateSecretInput,
 		ec.unmarshalInputUpdateSecretValueInput,
@@ -24804,6 +24830,8 @@ type UpdateJobPayload {
 	{Name: "../schema/kafka.graphqls", Input: `extend type Mutation {
 	"Create temporary credentials for Kafka."
 	createKafkaCredentials(input: CreateKafkaCredentialsInput!): CreateKafkaCredentialsPayload!
+	"Update a Kafka Topic."
+	updateKafkaTopic(input: UpdateKafkaTopicInput!): UpdateKafkaTopicPayload!
 }
 
 extend type Team {
@@ -24887,7 +24915,7 @@ type KafkaTopic implements Persistence & Node {
 }
 
 type KafkaTopicAcl {
-	access: String!
+	access: KafkaTopicGrantAccess!
 	workloadName: String!
 	teamName: String!
 	team: Team
@@ -24965,6 +24993,41 @@ input KafkaTopicFilter {
 	labels: [LabelFilter!]
 }
 
+"Input for the updateKafkaTopic mutation."
+input UpdateKafkaTopicInput {
+	"Name of the Kafka Topic to update."
+	name: String!
+
+	"Slug of the team that owns the Kafka Topic."
+	teamSlug: Slug!
+
+	"Environment name of the Kafka Topic to update."
+	environmentName: String!
+
+	"New grants for the Kafka Topic."
+	addGrants: [KafkaTopicGrantInput!]
+}
+
+"Input for adding a grant to a Kafka Topic."
+input KafkaTopicGrantInput {
+	"Subject that receives the grant."
+	subject: String!
+	"The name of the team that receives the grant. Can be a wildcard."
+	teamName: String!
+	"The access level for the grant."
+	access: KafkaTopicGrantAccess!
+}
+
+"Valid access levels for Kafka Topic grants."
+enum KafkaTopicGrantAccess {
+	"Read access to the Kafka Topic."
+	READ
+	"Write access to the Kafka Topic."
+	WRITE
+	"Read and write access to the Kafka Topic."
+	READWRITE
+}
+
 input KafkaTopicAclFilter {
 	team: Slug
 	workload: String
@@ -25026,6 +25089,12 @@ type KafkaCredentials {
 type CreateKafkaCredentialsPayload {
 	"The generated credentials."
 	credentials: KafkaCredentials!
+}
+
+"Payload of the updateKafkaTopic mutation."
+type UpdateKafkaTopicPayload {
+	"Updated Kafka topic."
+	kafkaTopic: KafkaTopic!
 }
 
 type KafkaCredentialsCreatedActivityLogEntry implements ActivityLogEntry & Node {
@@ -37837,6 +37906,14 @@ func (ec *executionContext) childFields_UpdateJobPayload(ctx context.Context, fi
 		return ec.fieldContext_UpdateJobPayload_job(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type UpdateJobPayload", field.Name)
+}
+
+func (ec *executionContext) childFields_UpdateKafkaTopicPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "kafkaTopic":
+		return ec.fieldContext_UpdateKafkaTopicPayload_kafkaTopic(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type UpdateKafkaTopicPayload", field.Name)
 }
 
 func (ec *executionContext) childFields_UpdateOpenSearchPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
