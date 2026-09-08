@@ -51,18 +51,20 @@ func init() {
 		return true
 	})
 
+	// TODO(chredvar): might want to remove this one at some point
 	SortFilterTopicACL.RegisterSort("TOPIC_NAME", func(ctx context.Context, a, b *KafkaTopicACL) int {
 		return strings.Compare(a.TopicName, b.TopicName)
 	}, "CONSUMER", "TEAM_SLUG", "ACCESS")
+
 	SortFilterTopicACL.RegisterSort("TEAM_SLUG", func(ctx context.Context, a, b *KafkaTopicACL) int {
 		return strings.Compare(a.TeamName, b.TeamName)
-	}, "TOPIC_NAME", "CONSUMER", "ACCESS")
+	}, "CONSUMER", "ACCESS")
 	SortFilterTopicACL.RegisterSort("ACCESS", func(ctx context.Context, a, b *KafkaTopicACL) int {
-		return strings.Compare(a.Access, b.Access)
-	})
+		return strings.Compare(a.Access.String(), b.Access.String())
+	}, "TEAM_SLUG", "CONSUMER")
 	SortFilterTopicACL.RegisterSort("CONSUMER", func(ctx context.Context, a, b *KafkaTopicACL) int {
 		return strings.Compare(a.WorkloadName, b.WorkloadName)
-	})
+	}, "TEAM_SLUG", "ACCESS")
 
 	SortFilterTopicACL.RegisterFilter(func(ctx context.Context, v *KafkaTopicACL, filter *KafkaTopicACLFilter) bool {
 		if filter.Team != nil && string(*filter.Team) != v.TeamName && v.TeamName != "*" {

@@ -766,15 +766,15 @@ func (ec *executionContext) _KafkaTopicAcl_access(ctx context.Context, field gra
 			return obj.Access, nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v kafkatopic.KafkaTopicGrantAccess) graphql.Marshaler {
+			return ec.marshalNKafkaTopicGrantAccess2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicGrantAccess(ctx, selections, v)
 		},
 		true,
 		true,
 	)
 }
 func (ec *executionContext) fieldContext_KafkaTopicAcl_access(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("KafkaTopicAcl", field, false, false, errors.New("field of type String does not have child fields"))
+	return graphql.NewScalarFieldContext("KafkaTopicAcl", field, false, false, errors.New("field of type KafkaTopicGrantAccess does not have child fields"))
 }
 
 func (ec *executionContext) _KafkaTopicAcl_workloadName(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopicACL) (ret graphql.Marshaler) {
@@ -1556,6 +1556,38 @@ func (ec *executionContext) fieldContext_TeamInventoryCountKafkaTopics_total(_ c
 	return graphql.NewScalarFieldContext("TeamInventoryCountKafkaTopics", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
+func (ec *executionContext) _UpdateKafkaTopicPayload_kafkaTopic(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.UpdateKafkaTopicPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_UpdateKafkaTopicPayload_kafkaTopic(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.KafkaTopic, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *kafkatopic.KafkaTopic) graphql.Marshaler {
+			return ec.marshalNKafkaTopic2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopic(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_UpdateKafkaTopicPayload_kafkaTopic(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UpdateKafkaTopicPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_KafkaTopic(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
 // endregion **************************** field.gotpl *****************************
 
 // region    **************************** input.gotpl *****************************
@@ -1736,6 +1768,50 @@ func (ec *executionContext) unmarshalInputKafkaTopicFilter(ctx context.Context, 
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputKafkaTopicGrantInput(ctx context.Context, obj any) (kafkatopic.KafkaTopicGrantInput, error) {
+	var it kafkatopic.KafkaTopicGrantInput
+	if obj == nil {
+		return it, nil
+	}
+
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"subject", "teamName", "access"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "subject":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("subject"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Subject = data
+		case "teamName":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamName"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TeamName = data
+		case "access":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("access"))
+			data, err := ec.unmarshalNKafkaTopicGrantAccess2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicGrantAccess(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Access = data
+		}
+	}
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputKafkaTopicOrder(ctx context.Context, obj any) (kafkatopic.KafkaTopicOrder, error) {
 	var it kafkatopic.KafkaTopicOrder
 	if obj == nil {
@@ -1768,6 +1844,57 @@ func (ec *executionContext) unmarshalInputKafkaTopicOrder(ctx context.Context, o
 				return it, err
 			}
 			it.Direction = data
+		}
+	}
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputUpdateKafkaTopicInput(ctx context.Context, obj any) (kafkatopic.UpdateKafkaTopicInput, error) {
+	var it kafkatopic.UpdateKafkaTopicInput
+	if obj == nil {
+		return it, nil
+	}
+
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"name", "teamSlug", "environmentName", "addGrants"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "teamSlug":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamSlug"))
+			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TeamSlug = data
+		case "environmentName":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environmentName"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.EnvironmentName = data
+		case "addGrants":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("addGrants"))
+			data, err := ec.unmarshalOKafkaTopicGrantInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicGrantInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AddGrants = data
 		}
 	}
 	return it, nil
@@ -2764,6 +2891,45 @@ func (ec *executionContext) _TeamInventoryCountKafkaTopics(ctx context.Context, 
 	return out
 }
 
+var updateKafkaTopicPayloadImplementors = []string{"UpdateKafkaTopicPayload"}
+
+func (ec *executionContext) _UpdateKafkaTopicPayload(ctx context.Context, sel ast.SelectionSet, obj *kafkatopic.UpdateKafkaTopicPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, updateKafkaTopicPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("UpdateKafkaTopicPayload")
+		case "kafkaTopic":
+			out.Values[i] = ec._UpdateKafkaTopicPayload_kafkaTopic(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 // endregion **************************** object.gotpl ****************************
 
 // region    ***************************** type.gotpl *****************************
@@ -2941,6 +3107,21 @@ func (ec *executionContext) marshalNKafkaTopicEdge2ᚕgithubᚗcomᚋnaisᚋapi�
 	return ret
 }
 
+func (ec *executionContext) unmarshalNKafkaTopicGrantAccess2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicGrantAccess(ctx context.Context, v any) (kafkatopic.KafkaTopicGrantAccess, error) {
+	var res kafkatopic.KafkaTopicGrantAccess
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNKafkaTopicGrantAccess2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicGrantAccess(ctx context.Context, sel ast.SelectionSet, v kafkatopic.KafkaTopicGrantAccess) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalNKafkaTopicGrantInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicGrantInput(ctx context.Context, v any) (*kafkatopic.KafkaTopicGrantInput, error) {
+	res, err := ec.unmarshalInputKafkaTopicGrantInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNKafkaTopicOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicOrderField(ctx context.Context, v any) (kafkatopic.KafkaTopicOrderField, error) {
 	var res kafkatopic.KafkaTopicOrderField
 	err := res.UnmarshalGQL(v)
@@ -2963,6 +3144,25 @@ func (ec *executionContext) marshalNTeamInventoryCountKafkaTopics2ᚖgithubᚗco
 		return graphql.Null
 	}
 	return ec._TeamInventoryCountKafkaTopics(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNUpdateKafkaTopicInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐUpdateKafkaTopicInput(ctx context.Context, v any) (kafkatopic.UpdateKafkaTopicInput, error) {
+	res, err := ec.unmarshalInputUpdateKafkaTopicInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNUpdateKafkaTopicPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐUpdateKafkaTopicPayload(ctx context.Context, sel ast.SelectionSet, v kafkatopic.UpdateKafkaTopicPayload) graphql.Marshaler {
+	return ec._UpdateKafkaTopicPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNUpdateKafkaTopicPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐUpdateKafkaTopicPayload(ctx context.Context, sel ast.SelectionSet, v *kafkatopic.UpdateKafkaTopicPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._UpdateKafkaTopicPayload(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOKafkaTopicAclFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicACLFilter(ctx context.Context, v any) (*kafkatopic.KafkaTopicACLFilter, error) {
@@ -3001,6 +3201,24 @@ func (ec *executionContext) unmarshalOKafkaTopicFilter2ᚖgithubᚗcomᚋnaisᚋ
 	}
 	res, err := ec.unmarshalInputKafkaTopicFilter(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOKafkaTopicGrantInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicGrantInputᚄ(ctx context.Context, v any) ([]*kafkatopic.KafkaTopicGrantInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []any
+	vSlice = graphql.CoerceList(v)
+	var err error
+	res := make([]*kafkatopic.KafkaTopicGrantInput, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNKafkaTopicGrantInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicGrantInput(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
 }
 
 func (ec *executionContext) unmarshalOKafkaTopicOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicOrder(ctx context.Context, v any) (*kafkatopic.KafkaTopicOrder, error) {
