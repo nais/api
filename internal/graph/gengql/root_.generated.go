@@ -1094,10 +1094,10 @@ type ComplexityRoot struct {
 	}
 
 	ImageVulnerabilitySummaryCountsByPriority struct {
-		ElevatedRisk func(childComplexity int) int
-		HighRisk     func(childComplexity int) int
-		Monitor      func(childComplexity int) int
-		Urgent       func(childComplexity int) int
+		ElevatedRisk   func(childComplexity int) int
+		HighRisk       func(childComplexity int) int
+		KnownExploited func(childComplexity int) int
+		Monitor        func(childComplexity int) int
 	}
 
 	ImageVulnerabilitySummaryCountsBySeverity struct {
@@ -7514,19 +7514,19 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ImageVulnerabilitySummaryCountsByPriority.HighRisk(childComplexity), true
 
+	case "ImageVulnerabilitySummaryCountsByPriority.knownExploited":
+		if e.ComplexityRoot.ImageVulnerabilitySummaryCountsByPriority.KnownExploited == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImageVulnerabilitySummaryCountsByPriority.KnownExploited(childComplexity), true
+
 	case "ImageVulnerabilitySummaryCountsByPriority.monitor":
 		if e.ComplexityRoot.ImageVulnerabilitySummaryCountsByPriority.Monitor == nil {
 			break
 		}
 
 		return e.ComplexityRoot.ImageVulnerabilitySummaryCountsByPriority.Monitor(childComplexity), true
-
-	case "ImageVulnerabilitySummaryCountsByPriority.urgent":
-		if e.ComplexityRoot.ImageVulnerabilitySummaryCountsByPriority.Urgent == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ImageVulnerabilitySummaryCountsByPriority.Urgent(childComplexity), true
 
 	case "ImageVulnerabilitySummaryCountsBySeverity.critical":
 		if e.ComplexityRoot.ImageVulnerabilitySummaryCountsBySeverity.Critical == nil {
@@ -32518,11 +32518,8 @@ type ImageVulnerabilitySummaryCountsBySeverity {
 
 "Vulnerability counts grouped by operational priority."
 type ImageVulnerabilitySummaryCountsByPriority {
-	"Known-exploited vulnerabilities that require immediate action."
-	urgent: Int!
-		@deprecated(
-			reason: "Always 0. URGENT requires workload internet exposure and cannot be counted at image scope."
-		)
+	"Number of vulnerabilities with a CISA Known Exploited Vulnerabilities (KEV) entry."
+	knownExploited: Int!
 
 	"Vulnerabilities with strong exploitation indicators."
 	highRisk: Int!
@@ -35082,8 +35079,8 @@ func (ec *executionContext) childFields_ImageVulnerabilitySummary(ctx context.Co
 
 func (ec *executionContext) childFields_ImageVulnerabilitySummaryCountsByPriority(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
-	case "urgent":
-		return ec.fieldContext_ImageVulnerabilitySummaryCountsByPriority_urgent(ctx, field)
+	case "knownExploited":
+		return ec.fieldContext_ImageVulnerabilitySummaryCountsByPriority_knownExploited(ctx, field)
 	case "highRisk":
 		return ec.fieldContext_ImageVulnerabilitySummaryCountsByPriority_highRisk(ctx, field)
 	case "elevatedRisk":
