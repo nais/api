@@ -32698,7 +32698,7 @@ type ImageVulnerabilitySummaryCountsBySeverity {
 
 "Vulnerability counts grouped by operational priority."
 type ImageVulnerabilitySummaryCountsByPriority {
-	"Known-exploited vulnerabilities that require immediate action."
+	"Deprecated. Always 0 at image and summary scope; use knownExploited for the KEV count."
 	urgent: Int!
 		@deprecated(
 			reason: "Always 0 at image and summary scope. Use knownExploited for the KEV count."
