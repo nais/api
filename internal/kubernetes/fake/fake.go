@@ -16,6 +16,7 @@ import (
 	liberator_aiven_io_v1alpha1 "github.com/nais/liberator/pkg/apis/aiven.io/v1alpha1"
 	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
 	data_nais_io_v1 "github.com/nais/pgrator/pkg/api/datav1"
+	mapperatorv1 "github.com/nais/pgrator/pkg/api/v1"
 	unleash_nais_io_v1 "github.com/nais/unleasherator/api/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -217,6 +218,8 @@ func NewDynamicClient(scheme *runtime.Scheme) *dynfake.FakeDynamicClient {
 			unleash_nais_io_v1.GroupVersion.WithResource("remoteunleashes"):       "RemoteUnleashList",
 			data_nais_io_v1.GroupVersion.WithResource("postgres"):                 "PostgresList",
 			nais_io_v1alpha1.GroupVersion.WithResource("tunnels"):                 "TunnelList",
+			mapperatorv1.GroupVersion.WithResource("valkeys"):                     "ValkeyList",
+			mapperatorv1.GroupVersion.WithResource("opensearches"):                "OpenSearchList",
 		})
 
 	client.PrependReactor("patch", "*", func(action k8stesting.Action) (handled bool, ret runtime.Object, err error) {
