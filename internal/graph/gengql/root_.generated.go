@@ -32447,6 +32447,13 @@ input TeamVulnerabilitySummaryFilter {
 	summary scope, so including it in this set is rejected as an error.
 	"""
 	priorities: [CVEPriority!]
+
+	"""
+	Deprecated. Use priorities instead. When set, this is treated as a
+	single-element priorities list. Ignored if priorities is also set.
+	"""
+	priority: CVEPriority
+		@deprecated(reason: "Use priorities instead, which accepts a list.")
 }
 
 """
