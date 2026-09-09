@@ -215,14 +215,7 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 		}
 
 		exposure := vulnerability.ResolveWorkloadInternetExposure(ingress.classNames[key], false)
-		priority, _ := vulnerability.ResolvePriority(
-			vulnerabilities.Priority_PRIORITY_HIGH,
-			true,
-			vulnerability.ImageVulnerabilitySeverityUnassigned,
-			false,
-			exposure,
-		)
-		if priority != vulnerability.CVEPriorityUrgent {
+		if exposure != vulnerability.WorkloadInternetExposureTrue {
 			continue
 		}
 
