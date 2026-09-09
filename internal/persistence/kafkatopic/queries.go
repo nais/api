@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"slices"
+	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -125,7 +127,32 @@ func Update(ctx context.Context, input UpdateKafkaTopicInput) (*UpdateKafkaTopic
 	}
 
 	patch := []map[string]any{}
+	indicesToRevoke := make([]int, 0, len(input.RevokeGrants))
 	seen := make(map[string]struct{})
+	for _, grant := range input.RevokeGrants {
+		key := grant.Access.AivenAccess() + "|" + grant.TeamName + "|" + grant.Subject
+		if _, ok := seen[key]; ok {
+			continue
+		}
+		seen[key] = struct{}{}
+
+		aclIndex := slices.IndexFunc(topic.ACLs, func(acl *KafkaTopicACL) bool {
+			return acl.Access == grant.Access && acl.TeamName == grant.TeamName && acl.WorkloadName == grant.Subject
+		})
+		if aclIndex != -1 {
+			indicesToRevoke = append(indicesToRevoke, aclIndex)
+		}
+	}
+
+	sort.Sort(sort.Reverse(sort.IntSlice(indicesToRevoke)))
+	for _, aclIndex := range indicesToRevoke {
+		patch = append(patch, map[string]any{
+			"op":   "remove",
+			"path": "/spec/acl/" + strconv.Itoa(aclIndex),
+		})
+	}
+
+	seen = make(map[string]struct{})
 	for _, grant := range input.AddGrants {
 		key := grant.Access.AivenAccess() + "|" + grant.TeamName + "|" + grant.Subject
 		if _, ok := seen[key]; ok {

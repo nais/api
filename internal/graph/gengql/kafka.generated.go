@@ -1860,7 +1860,7 @@ func (ec *executionContext) unmarshalInputUpdateKafkaTopicInput(ctx context.Cont
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "teamSlug", "environmentName", "addGrants"}
+	fieldsInOrder := [...]string{"name", "teamSlug", "environmentName", "addGrants", "revokeGrants"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -1895,6 +1895,13 @@ func (ec *executionContext) unmarshalInputUpdateKafkaTopicInput(ctx context.Cont
 				return it, err
 			}
 			it.AddGrants = data
+		case "revokeGrants":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("revokeGrants"))
+			data, err := ec.unmarshalOKafkaTopicGrantInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicGrantInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RevokeGrants = data
 		}
 	}
 	return it, nil

@@ -254,6 +254,7 @@ type UpdateKafkaTopicInput struct {
 	TeamSlug        slug.Slug               `json:"teamSlug"`
 	EnvironmentName string                  `json:"environmentName"`
 	AddGrants       []*KafkaTopicGrantInput `json:"addGrants,omitempty"`
+	RevokeGrants    []*KafkaTopicGrantInput `json:"revokeGrants,omitempty"`
 }
 
 type UpdateKafkaTopicPayload struct {

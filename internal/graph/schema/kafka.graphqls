@@ -177,6 +177,9 @@ input UpdateKafkaTopicInput {
 
 	"New grants for the Kafka Topic."
 	addGrants: [KafkaTopicGrantInput!]
+
+	"Grants to revoke from the Kafka Topic."
+	revokeGrants: [KafkaTopicGrantInput!]
 }
 
 "Input for adding a grant to a Kafka Topic."
