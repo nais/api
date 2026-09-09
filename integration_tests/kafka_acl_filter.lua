@@ -31,13 +31,41 @@ Test.gql("topic without filter", function(t)
 					kafkaTopic = {
 						acl = {
 							nodes = {
-								{ workloadName = "*",         teamName = "devteam",   access = "read" },
-								{ workloadName = "all",       teamName = "*",         access = "readwrite" },
-								{ workloadName = "app1",      teamName = "devteam",   access = "readwrite" },
-								{ workloadName = "app2",      teamName = "otherteam", access = "readwrite" },
-								{ workloadName = "jobname-1", teamName = "otherteam", access = "readwrite" },
-								{ workloadName = "missing",   teamName = "devteam",   access = "readwrite" },
-								{ workloadName = "missing",   teamName = "otherteam", access = "readwrite" },
+								{
+									access = "READWRITE",
+									teamName = "*",
+									workloadName = "all",
+								},
+								{
+									access = "READ",
+									teamName = "devteam",
+									workloadName = "*",
+								},
+								{
+									access = "READWRITE",
+									teamName = "devteam",
+									workloadName = "app1",
+								},
+								{
+									access = "READWRITE",
+									teamName = "devteam",
+									workloadName = "missing",
+								},
+								{
+									access = "READWRITE",
+									teamName = "otherteam",
+									workloadName = "app2",
+								},
+								{
+									access = "READWRITE",
+									teamName = "otherteam",
+									workloadName = "jobname-1",
+								},
+								{
+									access = "READWRITE",
+									teamName = "otherteam",
+									workloadName = "missing",
+								},
 							},
 						},
 					},
@@ -75,8 +103,8 @@ Test.gql("topic filtering for workload", function(t)
 					kafkaTopic = {
 						acl = {
 							nodes = {
-								{ workloadName = "*",    teamName = "devteam", access = "read" },
-								{ workloadName = "app1", teamName = "devteam", access = "readwrite" },
+								{ workloadName = "*",    teamName = "devteam", access = "READ" },
+								{ workloadName = "app1", teamName = "devteam", access = "READWRITE" },
 							},
 						},
 					},
@@ -114,10 +142,10 @@ Test.gql("topic filtering for team", function(t)
 					kafkaTopic = {
 						acl = {
 							nodes = {
-								{ workloadName = "all",       teamName = "*",         access = "readwrite" },
-								{ workloadName = "app2",      teamName = "otherteam", access = "readwrite" },
-								{ workloadName = "jobname-1", teamName = "otherteam", access = "readwrite" },
-								{ workloadName = "missing",   teamName = "otherteam", access = "readwrite" },
+								{ workloadName = "all",       teamName = "*",         access = "READWRITE" },
+								{ workloadName = "app2",      teamName = "otherteam", access = "READWRITE" },
+								{ workloadName = "jobname-1", teamName = "otherteam", access = "READWRITE" },
+								{ workloadName = "missing",   teamName = "otherteam", access = "READWRITE" },
 							},
 						},
 					},
@@ -155,11 +183,11 @@ Test.gql("topic filtering for valid workloads", function(t)
 					kafkaTopic = {
 						acl = {
 							nodes = {
-								{ workloadName = "*",         teamName = "devteam",   access = "read" },
-								{ workloadName = "all",       teamName = "*",         access = "readwrite" },
-								{ workloadName = "app1",      teamName = "devteam",   access = "readwrite" },
-								{ workloadName = "app2",      teamName = "otherteam", access = "readwrite" },
-								{ workloadName = "jobname-1", teamName = "otherteam", access = "readwrite" },
+								{ workloadName = "all",       teamName = "*",         access = "READWRITE" },
+								{ workloadName = "*",         teamName = "devteam",   access = "READ" },
+								{ workloadName = "app1",      teamName = "devteam",   access = "READWRITE" },
+								{ workloadName = "app2",      teamName = "otherteam", access = "READWRITE" },
+								{ workloadName = "jobname-1", teamName = "otherteam", access = "READWRITE" },
 							},
 						},
 					},
@@ -197,8 +225,8 @@ Test.gql("topic filtering for invalid workloads", function(t)
 					kafkaTopic = {
 						acl = {
 							nodes = {
-								{ workloadName = "missing", teamName = "devteam",   access = "readwrite" },
-								{ workloadName = "missing", teamName = "otherteam", access = "readwrite" },
+								{ workloadName = "missing", teamName = "devteam",   access = "READWRITE" },
+								{ workloadName = "missing", teamName = "otherteam", access = "READWRITE" },
 							},
 						},
 					},

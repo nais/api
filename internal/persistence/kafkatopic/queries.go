@@ -2,6 +2,8 @@ package kafkatopic
 
 import (
 	"context"
+	"encoding/json"
+	"slices"
 	"strings"
 	"time"
 
@@ -13,6 +15,8 @@ import (
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/persistence/aivencredentials"
 	"github.com/nais/api/internal/slug"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 )
 
 const maxTTLKafka = 365 * 24 * time.Hour // 365 days — used by Kafka
@@ -112,6 +116,65 @@ func CreateKafkaCredentials(ctx context.Context, input CreateKafkaCredentialsInp
 	}
 
 	return &CreateKafkaCredentialsPayload{Credentials: result.(*KafkaCredentials)}, nil
+}
+
+func Update(ctx context.Context, input UpdateKafkaTopicInput) (*UpdateKafkaTopicPayload, error) {
+	topic, err := Get(ctx, input.TeamSlug, input.EnvironmentName, input.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	patch := []map[string]any{}
+	seen := make(map[string]struct{})
+	for _, grant := range input.AddGrants {
+		key := grant.Access.AivenAccess() + "|" + grant.TeamName + "|" + grant.Subject
+		if _, ok := seen[key]; ok {
+			continue
+		}
+		seen[key] = struct{}{}
+
+		if slices.ContainsFunc(topic.ACLs, func(a *KafkaTopicACL) bool {
+			return a.Access == grant.Access && a.TeamName == grant.TeamName && a.WorkloadName == grant.Subject
+		}) {
+			continue
+		}
+
+		patch = append(patch, map[string]any{
+			"op":   "add",
+			"path": "/spec/acl/-",
+			"value": map[string]string{
+				"team":        grant.TeamName,
+				"application": grant.Subject,
+				"access":      grant.Access.AivenAccess(),
+			},
+		})
+	}
+
+	if len(patch) == 0 {
+		return &UpdateKafkaTopicPayload{KafkaTopic: topic}, nil
+	}
+
+	client, err := fromContext(ctx).watcher.ImpersonatedClientWithNamespace(ctx, input.EnvironmentName, input.TeamSlug.String())
+	if err != nil {
+		return nil, err
+	}
+
+	patchBytes, err := json.Marshal(patch)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := client.Patch(ctx, topic.Name, types.JSONPatchType, patchBytes, v1.PatchOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	updatedTopic, err := toKafkaTopic(res, input.EnvironmentName)
+	if err != nil {
+		return nil, err
+	}
+
+	return &UpdateKafkaTopicPayload{KafkaTopic: updatedTopic}, nil
 }
 
 func stringMatch(s, pattern string) bool {
