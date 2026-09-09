@@ -32624,8 +32624,7 @@ input TeamVulnerabilitySummaryFilter {
 	Deprecated. Use priorities instead. When set, this is treated as a
 	single-element priorities list. Ignored if priorities is also set.
 	"""
-	priority: CVEPriority
-		@deprecated(reason: "Use priorities instead, which accepts a list.")
+	priority: CVEPriority @deprecated(reason: "Use priorities instead, which accepts a list.")
 }
 
 """
