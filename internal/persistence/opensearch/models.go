@@ -20,7 +20,6 @@ import (
 	"github.com/nais/api/internal/validate"
 	"github.com/nais/api/internal/workload"
 	aiven_io_v1alpha1 "github.com/nais/liberator/pkg/apis/aiven.io/v1alpha1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -109,8 +108,7 @@ type OpenSearchAccess struct {
 }
 
 type OpenSearchStatus struct {
-	State      string             `json:"state"`
-	Conditions []metav1.Condition `json:"conditions"`
+	State string `json:"state"`
 }
 
 type OpenSearchOrder struct {
@@ -215,21 +213,18 @@ func toOpenSearch(u *unstructured.Unstructured, envName string) (*OpenSearch, er
 	}
 
 	return &OpenSearch{
-		Name:                  name,
+		AivenProject:          obj.Spec.Project,
 		EnvironmentName:       envName,
+		Labels:                model.UserLabels(obj.GetLabels()),
+		MajorVersion:          majorVersion,
+		Memory:                machine.Memory,
+		Name:                  name,
+		Status:                &OpenSearchStatus{State: obj.Status.State},
+		StorageGB:             storageGB,
+		TeamSlug:              slug.Slug(obj.GetNamespace()),
 		TerminationProtection: terminationProtection,
-		Status: &OpenSearchStatus{
-			Conditions: obj.Status.Conditions,
-			State:      obj.Status.State,
-		},
-		TeamSlug:          slug.Slug(obj.GetNamespace()),
-		WorkloadReference: workload.ReferenceFromOwnerReferences(obj.GetOwnerReferences()),
-		AivenProject:      obj.Spec.Project,
-		Tier:              machine.Tier,
-		Memory:            machine.Memory,
-		MajorVersion:      majorVersion,
-		StorageGB:         storageGB,
-		Labels:            model.UserLabels(obj.GetLabels()),
+		Tier:                  machine.Tier,
+		WorkloadReference:     workload.ReferenceFromOwnerReferences(obj.GetOwnerReferences()),
 	}, nil
 }
 
@@ -371,7 +366,6 @@ type CreateOpenSearchPayload struct {
 type OpenSearchMajorVersion string
 
 const (
-	OpenSearchMajorVersionV1    OpenSearchMajorVersion = "V1"
 	OpenSearchMajorVersionV2    OpenSearchMajorVersion = "V2"
 	OpenSearchMajorVersionV2_19 OpenSearchMajorVersion = "V2_19"
 	OpenSearchMajorVersionV3_3  OpenSearchMajorVersion = "V3_3"
@@ -389,7 +383,6 @@ func (u upgradePath) String() string {
 }
 
 var upgradePaths = map[OpenSearchMajorVersion]upgradePath{
-	OpenSearchMajorVersionV1:    {OpenSearchMajorVersionV2, OpenSearchMajorVersionV2_19},
 	OpenSearchMajorVersionV2:    {OpenSearchMajorVersionV2_19},
 	OpenSearchMajorVersionV2_19: {OpenSearchMajorVersionV3_3, OpenSearchMajorVersionV3_6},
 	OpenSearchMajorVersionV3_3:  {OpenSearchMajorVersionV3_6},
@@ -416,7 +409,6 @@ func (e OpenSearchMajorVersion) ValidateUpgradePath(other OpenSearchMajorVersion
 func (e OpenSearchMajorVersion) IsValid() bool {
 	switch e {
 	case
-		OpenSearchMajorVersionV1,
 		OpenSearchMajorVersionV2,
 		OpenSearchMajorVersionV2_19,
 		OpenSearchMajorVersionV3_3,
@@ -447,11 +439,9 @@ func (e OpenSearchMajorVersion) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
-// ToAivenString returns the version string without the "V" prefix, e.g. "2" or "1".
+// ToAivenString returns the version as Aiven writes it in userConfig, e.g. "2.19".
 func (e OpenSearchMajorVersion) ToAivenString() (string, error) {
 	switch e {
-	case OpenSearchMajorVersionV1:
-		return "1", nil
 	case OpenSearchMajorVersionV2:
 		return "2", nil
 	case OpenSearchMajorVersionV2_19:
@@ -467,8 +457,6 @@ func (e OpenSearchMajorVersion) ToAivenString() (string, error) {
 
 func OpenSearchMajorVersionFromAivenString(s string) (OpenSearchMajorVersion, error) {
 	switch {
-	case strings.HasPrefix(s, "1"):
-		return OpenSearchMajorVersionV1, nil
 	case strings.HasPrefix(s, "2.19"):
 		return OpenSearchMajorVersionV2_19, nil
 	case strings.HasPrefix(s, "2"):

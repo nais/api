@@ -28,8 +28,8 @@ Test.gql("Show version of OpenSearch instance", function(t)
 						{
 							name = "opensearch-slug-1-opensearch",
 							version = {
-								actual = "2.17.2",
-								desiredMajor = "V2",
+								actual = "3.6.0",
+								desiredMajor = "V3_6",
 							},
 						},
 					},

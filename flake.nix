@@ -20,12 +20,12 @@
               (
                 final: prev:
                 let
-                  version = "1.24.2";
+                  version = "1.26.7";
                   newerGoVersion = prev.go.overrideAttrs (old: {
                     inherit version;
                     src = prev.fetchurl {
                       url = "https://go.dev/dl/go${version}.src.tar.gz";
-                      hash = "sha256-ncd/+twW2DehvzLZnGJMtN8GR87nsRnt2eexvMBfLgA=";
+                      hash = "";
                     };
                   });
                   nixpkgsVersion = prev.go.version;
@@ -38,41 +38,25 @@
               )
             ];
           };
-          gqlgen = pkgs.buildGoModule rec {
-            pname = "gqlgen";
-            version = "0.17.68";
-            doCheck = false; # TODO: Actually run tests
-            src = pkgs.fetchFromGitHub {
-              owner = "99designs";
-              repo = "gqlgen";
-              rev = "v${version}";
-              hash = "sha256-zu9Rgxua19dZNLUeJeMklKB0C95E8UVWGu/I5Lkk66E=";
-            };
-            vendorHash = "sha256-B3RiZZee6jefslUSTfHDth8WUl5rv7fmEFU0DpKkWZk=";
-          };
         in
         {
           devShells.default = pkgs.mkShell {
-            packages =
-              with pkgs;
-              [
-                go
-                go-tools
-                gopls
-                gotools
+            packages = with pkgs; [
+              go
+              go-tools
+              gopls
+              gotools
 
-                gofumpt
-                protobuf
-                protoc-gen-go
-                protoc-gen-go-grpc
-                sqlc
-                # Mise dependencies
-                nodejs_22
+              gofumpt
+              protobuf
+              protoc-gen-go
+              protoc-gen-go-grpc
+              sqlc
+              # Mise dependencies
+              nodejs_22
 
-                mise
-                nodePackages.prettier
-              ]
-              ++ [ gqlgen ];
+              mise
+            ];
           };
 
           formatter = pkgs.nixfmt-rfc-style;

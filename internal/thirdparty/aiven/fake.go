@@ -107,7 +107,7 @@ func (f *FakeAivenClient) ServiceGet(_ context.Context, _ string, serviceName st
 			Time: "12:34:56",
 		},
 		Metadata: map[string]any{
-			"opensearch_version": "2.17.2",
+			"opensearch_version": "3.6.0",
 		},
 	}, nil
 }

@@ -17,7 +17,7 @@ Test.gql("Create opensearch in non-existing team", function(t)
 		      teamSlug: "devteam"
 		      tier: SINGLE_NODE
 		      memory: GB_16
-		      version: V2
+		      version: V3_6
 		      storageGB: 350
 		    }
 		  ) {
@@ -53,7 +53,7 @@ Test.gql("Create opensearch as non-team member", function(t)
 		      teamSlug: "someteamname"
 		      tier: SINGLE_NODE
 		      memory: GB_16
-		      version: V2
+		      version: V3_6
 		      storageGB: 350
 		    }
 		  ) {
@@ -89,7 +89,7 @@ Test.gql("Create opensearch as team member", function(t)
 		      teamSlug: "someteamname"
 		      tier: SINGLE_NODE
 		      memory: GB_16
-		      version: V2
+		      version: V3_6
 		      storageGB: 350
 		    }
 		  ) {
@@ -122,7 +122,7 @@ Test.gql("Create opensearch as team member with existing name", function(t)
 		      teamSlug: "someteamname"
 		      tier: SINGLE_NODE
 		      memory: GB_16
-		      version: V2
+		      version: V3_6
 		      storageGB: 350
 		    }
 		  ) {
@@ -158,7 +158,7 @@ Test.gql("Create opensearch with invalid tier and memory combination", function(
 		      teamSlug: "someteamname"
 		      tier: HIGH_AVAILABILITY
 		      memory: GB_2
-		      version: V2
+		      version: V3_6
 		      storageGB: 16
 		    }
 		  ) {
@@ -196,7 +196,7 @@ Test.gql("Create opensearch with invalid storage capacity", function(t)
 		      teamSlug: "someteamname"
 		      tier: HIGH_AVAILABILITY
 		      memory: GB_4
-		      version: V2
+		      version: V3_6
 		      storageGB: 16
 		    }
 		  ) {
@@ -234,7 +234,7 @@ Test.gql("Create opensearch with invalid storage capacity increment", function(t
 		      teamSlug: "someteamname"
 		      tier: SINGLE_NODE
 		      memory: GB_8
-		      version: V2
+		      version: V3_6
 		      storageGB: 180
 		    }
 		  ) {
@@ -292,7 +292,7 @@ Test.k8s("Validate OpenSearch resource", function(t)
 				tenant = "some-tenant",
 			},
 			userConfig = {
-				opensearch_version = "2",
+				opensearch_version = "3.6",
 			},
 		},
 	})
@@ -344,7 +344,7 @@ Test.gql("Create opensearch with tier and memory equivalent to hobbyist plan", f
 		      teamSlug: "someteamname"
 		      tier: SINGLE_NODE
 		      memory: GB_2
-		      version: V2
+		      version: V3_6
 		      storageGB: 16
 		    }
 		  ) {
@@ -397,7 +397,7 @@ Test.k8s("Validate hobbyist OpenSearch resource", function(t)
 				tenant = "some-tenant",
 			},
 			userConfig = {
-				opensearch_version = "2",
+				opensearch_version = "3.6",
 			},
 		},
 	})
@@ -449,7 +449,7 @@ Test.gql("Update OpenSearch in non-existing team", function(t)
 		      teamSlug: "devteam"
 		      tier: SINGLE_NODE
 		      memory: GB_16
-		      version: V2
+		      version: V3_6
 		      storageGB: 350
 		    }
 		  ) {
@@ -485,7 +485,7 @@ Test.gql("Update OpenSearch as non-team-member", function(t)
 		      teamSlug: "devteam"
 		      tier: SINGLE_NODE
 		      memory: GB_16
-		      version: V2
+		      version: V3_6
 		      storageGB: 350
 		    }
 		  ) {
@@ -521,7 +521,7 @@ Test.gql("Update OpenSearch as team-member", function(t)
 		      teamSlug: "someteamname"
 		      tier: HIGH_AVAILABILITY
 		      memory: GB_4
-		      version: V2
+		      version: V3_6
 		      storageGB: 1020
 		    }
 		  ) {
@@ -574,7 +574,7 @@ Test.k8s("Validate OpenSearch resource after update", function(t)
 				tenant = "some-tenant",
 			},
 			userConfig = {
-				opensearch_version = "2",
+				opensearch_version = "3.6",
 			},
 		},
 	})
@@ -645,7 +645,7 @@ Test.gql("Downgrade OpenSearch as team-member", function(t)
 		      teamSlug: "someteamname"
 		      tier: HIGH_AVAILABILITY
 		      memory: GB_4
-		      version: V1
+		      version: V3_3
 		      storageGB: 240
 		    }
 		  ) {
@@ -660,7 +660,7 @@ Test.gql("Downgrade OpenSearch as team-member", function(t)
 		errors = {
 			{
 				locations = NotNull(),
-				message = "Cannot change OpenSearch version from V2 to V1. New version must be one of [V2_19]",
+				message = "Cannot change OpenSearch version from V3_6 to V3_3. No further upgrades available.",
 				path = {
 					"updateOpenSearch",
 				},
@@ -681,7 +681,7 @@ Test.gql("Downgrade OpenSearch without explicit version set", function(t)
 		      teamSlug: "someteamname"
 		      tier: HIGH_AVAILABILITY
 		      memory: GB_4
-		      version: V1
+		      version: V3_3
 		      storageGB: 240
 		    }
 		  ) {
@@ -696,7 +696,7 @@ Test.gql("Downgrade OpenSearch without explicit version set", function(t)
 		errors = {
 			{
 				locations = NotNull(),
-				message = "Cannot change OpenSearch version from V2 to V1. New version must be one of [V2_19]",
+				message = "Cannot change OpenSearch version from V3_6 to V3_3. No further upgrades available.",
 				path = {
 					"updateOpenSearch",
 				},
@@ -717,7 +717,7 @@ Test.gql("Update non-console managed OpenSearch as team-member", function(t)
 		      teamSlug: "someteamname"
 		      tier: HIGH_AVAILABILITY
 		      memory: GB_4
-		      version: V2
+		      version: V3_6
 		      storageGB: 240
 		    }
 		  ) {
@@ -753,7 +753,7 @@ Test.gql("Update OpenSearch with tier and memory equivalent to hobbyist plan", f
 		      teamSlug: "someteamname"
 		      tier: SINGLE_NODE
 		      memory: GB_2
-		      version: V2
+		      version: V3_6
 		      storageGB: 16
 		    }
 		  ) {
@@ -806,7 +806,7 @@ Test.k8s("Validate hobbyist OpenSearch resource after update", function(t)
 				tenant = "some-tenant",
 			},
 			userConfig = {
-				opensearch_version = "2",
+				opensearch_version = "3.6",
 			},
 		},
 	})
@@ -857,7 +857,7 @@ Test.gql("Create opensearch in other team", function(t)
 		      teamSlug: "%s"
 		      tier: SINGLE_NODE
 		      memory: GB_16
-		      version: V2
+		      version: V3_6
 		      storageGB: 350
 		    }
 		  ) {
