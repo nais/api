@@ -87,6 +87,59 @@ Test.k8s("Kafka topic contains added grants", function(t)
 	})
 end)
 
+Test.gql("update Kafka topic creates activity log entry for added grants", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query(string.format([[
+		{
+			team(slug: "%s") {
+				activityLog(first: 10, filter: { activityTypes: [KAFKA_TOPIC_UPDATED] }) {
+					nodes {
+						__typename
+						message
+						actor
+						resourceType
+						resourceName
+						environmentName
+						... on KafkaTopicUpdatedActivityLogEntry {
+							data {
+								addedGrants { subject teamName access }
+								revokedGrants { subject teamName access }
+							}
+						}
+					}
+				}
+			}
+		}
+	]], team:slug()))
+
+	t.check {
+		data = {
+			team = {
+				activityLog = {
+					nodes = {
+						{
+							__typename = "KafkaTopicUpdatedActivityLogEntry",
+							message = "Updated Kafka topic",
+							actor = user:email(),
+							resourceType = "KAFKA_TOPIC",
+							resourceName = "orders",
+							environmentName = "dev",
+							data = {
+								addedGrants = {
+									{ subject = "orders-api",    teamName = "consumer-team", access = "READ" },
+									{ subject = "orders-writer", teamName = "consumer-team", access = "READWRITE" },
+								},
+								revokedGrants = {},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+end)
+
 Test.gql("update Kafka topic ignores existing grants", function(t)
 	t.addHeader("x-user-email", user:email())
 
@@ -259,6 +312,63 @@ Test.k8s("Kafka topic excludes revoked grant", function(t)
 			pool = "dev",
 		},
 	})
+end)
+
+Test.gql("update Kafka topic creates activity log entry for revoked grants", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query(string.format([[
+		{
+			team(slug: "%s") {
+				activityLog(first: 10, filter: { activityTypes: [KAFKA_TOPIC_UPDATED] }) {
+					nodes {
+						... on KafkaTopicUpdatedActivityLogEntry {
+							data {
+								addedGrants { subject teamName access }
+								revokedGrants { subject teamName access }
+							}
+						}
+					}
+				}
+			}
+		}
+	]], team:slug()))
+
+	t.check {
+		data = {
+			team = {
+				activityLog = {
+					nodes = {
+						{
+							data = {
+								addedGrants = {},
+								revokedGrants = {
+									{ subject = "orders-writer", teamName = "consumer-team", access = "READWRITE" },
+								},
+							},
+						},
+						{
+							data = {
+								addedGrants = {
+									{ subject = "orders-admin", teamName = "consumer-team", access = "READWRITE" },
+								},
+								revokedGrants = {},
+							},
+						},
+						{
+							data = {
+								addedGrants = {
+									{ subject = "orders-api",    teamName = "consumer-team", access = "READ" },
+									{ subject = "orders-writer", teamName = "consumer-team", access = "READWRITE" },
+								},
+								revokedGrants = {},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
 end)
 
 Test.gql("update Kafka topic adds and revokes grants", function(t)

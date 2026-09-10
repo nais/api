@@ -831,6 +831,13 @@ func (ec *executionContext) _ActivityLogEntry(ctx context.Context, sel ast.Selec
 			return graphql.Null
 		}
 		return ec._OpenSearchCreatedActivityLogEntry(ctx, sel, obj)
+	case kafkatopic.KafkaTopicUpdatedActivityLogEntry:
+		return ec._KafkaTopicUpdatedActivityLogEntry(ctx, sel, &obj)
+	case *kafkatopic.KafkaTopicUpdatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._KafkaTopicUpdatedActivityLogEntry(ctx, sel, obj)
 	case kafkatopic.KafkaCredentialsCreatedActivityLogEntry:
 		return ec._KafkaCredentialsCreatedActivityLogEntry(ctx, sel, &obj)
 	case *kafkatopic.KafkaCredentialsCreatedActivityLogEntry:

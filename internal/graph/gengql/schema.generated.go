@@ -6623,6 +6623,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._LastRunFailedIssue(ctx, sel, obj)
+	case kafkatopic.KafkaTopicUpdatedActivityLogEntry:
+		return ec._KafkaTopicUpdatedActivityLogEntry(ctx, sel, &obj)
+	case *kafkatopic.KafkaTopicUpdatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._KafkaTopicUpdatedActivityLogEntry(ctx, sel, obj)
 	case kafkatopic.KafkaTopic:
 		return ec._KafkaTopic(ctx, sel, &obj)
 	case *kafkatopic.KafkaTopic:
