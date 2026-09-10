@@ -1475,6 +1475,29 @@ type ComplexityRoot struct {
 		Pools        func(childComplexity int) int
 	}
 
+	KafkaTopicUpdatedActivityLogEntry struct {
+		Actor           func(childComplexity int) int
+		CreatedAt       func(childComplexity int) int
+		Data            func(childComplexity int) int
+		EnvironmentName func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Message         func(childComplexity int) int
+		ResourceName    func(childComplexity int) int
+		ResourceType    func(childComplexity int) int
+		TeamSlug        func(childComplexity int) int
+	}
+
+	KafkaTopicUpdatedActivityLogEntryData struct {
+		AddedGrants   func(childComplexity int) int
+		RevokedGrants func(childComplexity int) int
+	}
+
+	KafkaTopicUpdatedActivityLogEntryDataGrant struct {
+		Access   func(childComplexity int) int
+		Subject  func(childComplexity int) int
+		TeamName func(childComplexity int) int
+	}
+
 	LabelFacetItem struct {
 		Count func(childComplexity int) int
 		Key   func(childComplexity int) int
@@ -9182,6 +9205,104 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.KafkaTopicFacets.Pools(childComplexity), true
+
+	case "KafkaTopicUpdatedActivityLogEntry.actor":
+		if e.ComplexityRoot.KafkaTopicUpdatedActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.KafkaTopicUpdatedActivityLogEntry.Actor(childComplexity), true
+
+	case "KafkaTopicUpdatedActivityLogEntry.createdAt":
+		if e.ComplexityRoot.KafkaTopicUpdatedActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.KafkaTopicUpdatedActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "KafkaTopicUpdatedActivityLogEntry.data":
+		if e.ComplexityRoot.KafkaTopicUpdatedActivityLogEntry.Data == nil {
+			break
+		}
+
+		return e.ComplexityRoot.KafkaTopicUpdatedActivityLogEntry.Data(childComplexity), true
+
+	case "KafkaTopicUpdatedActivityLogEntry.environmentName":
+		if e.ComplexityRoot.KafkaTopicUpdatedActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.KafkaTopicUpdatedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "KafkaTopicUpdatedActivityLogEntry.id":
+		if e.ComplexityRoot.KafkaTopicUpdatedActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.KafkaTopicUpdatedActivityLogEntry.ID(childComplexity), true
+
+	case "KafkaTopicUpdatedActivityLogEntry.message":
+		if e.ComplexityRoot.KafkaTopicUpdatedActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.KafkaTopicUpdatedActivityLogEntry.Message(childComplexity), true
+
+	case "KafkaTopicUpdatedActivityLogEntry.resourceName":
+		if e.ComplexityRoot.KafkaTopicUpdatedActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.KafkaTopicUpdatedActivityLogEntry.ResourceName(childComplexity), true
+
+	case "KafkaTopicUpdatedActivityLogEntry.resourceType":
+		if e.ComplexityRoot.KafkaTopicUpdatedActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.KafkaTopicUpdatedActivityLogEntry.ResourceType(childComplexity), true
+
+	case "KafkaTopicUpdatedActivityLogEntry.teamSlug":
+		if e.ComplexityRoot.KafkaTopicUpdatedActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.KafkaTopicUpdatedActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "KafkaTopicUpdatedActivityLogEntryData.addedGrants":
+		if e.ComplexityRoot.KafkaTopicUpdatedActivityLogEntryData.AddedGrants == nil {
+			break
+		}
+
+		return e.ComplexityRoot.KafkaTopicUpdatedActivityLogEntryData.AddedGrants(childComplexity), true
+
+	case "KafkaTopicUpdatedActivityLogEntryData.revokedGrants":
+		if e.ComplexityRoot.KafkaTopicUpdatedActivityLogEntryData.RevokedGrants == nil {
+			break
+		}
+
+		return e.ComplexityRoot.KafkaTopicUpdatedActivityLogEntryData.RevokedGrants(childComplexity), true
+
+	case "KafkaTopicUpdatedActivityLogEntryDataGrant.access":
+		if e.ComplexityRoot.KafkaTopicUpdatedActivityLogEntryDataGrant.Access == nil {
+			break
+		}
+
+		return e.ComplexityRoot.KafkaTopicUpdatedActivityLogEntryDataGrant.Access(childComplexity), true
+
+	case "KafkaTopicUpdatedActivityLogEntryDataGrant.subject":
+		if e.ComplexityRoot.KafkaTopicUpdatedActivityLogEntryDataGrant.Subject == nil {
+			break
+		}
+
+		return e.ComplexityRoot.KafkaTopicUpdatedActivityLogEntryDataGrant.Subject(childComplexity), true
+
+	case "KafkaTopicUpdatedActivityLogEntryDataGrant.teamName":
+		if e.ComplexityRoot.KafkaTopicUpdatedActivityLogEntryDataGrant.TeamName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.KafkaTopicUpdatedActivityLogEntryDataGrant.TeamName(childComplexity), true
 
 	case "LabelFacetItem.count":
 		if e.ComplexityRoot.LabelFacetItem.Count == nil {
@@ -25174,9 +25295,60 @@ type KafkaCredentialsCreatedActivityLogEntryData {
 	ttl: String!
 }
 
+type KafkaTopicUpdatedActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: ActivityLogEntryResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+
+	"Data associated with the update."
+	data: KafkaTopicUpdatedActivityLogEntryData!
+}
+
+type KafkaTopicUpdatedActivityLogEntryData {
+	"Grants added to the Kafka topic."
+	addedGrants: [KafkaTopicUpdatedActivityLogEntryDataGrant!]!
+
+	"Grants revoked from the Kafka topic."
+	revokedGrants: [KafkaTopicUpdatedActivityLogEntryDataGrant!]!
+}
+
+type KafkaTopicUpdatedActivityLogEntryDataGrant {
+	"Subject affected by the grant."
+	subject: String!
+
+	"Team affected by the grant."
+	teamName: String!
+
+	"Access level affected by the grant."
+	access: KafkaTopicGrantAccess!
+}
+
 extend enum ActivityLogActivityType {
 	"Filter for Kafka credential creation events."
 	KAFKA_CREDENTIALS_CREATED
+
+	"Filter for Kafka topic update events."
+	KAFKA_TOPIC_UPDATED
 }
 
 extend enum ActivityLogEntryResourceType {
@@ -35659,6 +35831,28 @@ func (ec *executionContext) childFields_KafkaTopicFacets(ctx context.Context, fi
 		return ec.fieldContext_KafkaTopicFacets_labels(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type KafkaTopicFacets", field.Name)
+}
+
+func (ec *executionContext) childFields_KafkaTopicUpdatedActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "addedGrants":
+		return ec.fieldContext_KafkaTopicUpdatedActivityLogEntryData_addedGrants(ctx, field)
+	case "revokedGrants":
+		return ec.fieldContext_KafkaTopicUpdatedActivityLogEntryData_revokedGrants(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type KafkaTopicUpdatedActivityLogEntryData", field.Name)
+}
+
+func (ec *executionContext) childFields_KafkaTopicUpdatedActivityLogEntryDataGrant(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "subject":
+		return ec.fieldContext_KafkaTopicUpdatedActivityLogEntryDataGrant_subject(ctx, field)
+	case "teamName":
+		return ec.fieldContext_KafkaTopicUpdatedActivityLogEntryDataGrant_teamName(ctx, field)
+	case "access":
+		return ec.fieldContext_KafkaTopicUpdatedActivityLogEntryDataGrant_access(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type KafkaTopicUpdatedActivityLogEntryDataGrant", field.Name)
 }
 
 func (ec *executionContext) childFields_LabelFacetItem(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {

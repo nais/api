@@ -128,6 +128,7 @@ func Update(ctx context.Context, input UpdateKafkaTopicInput) (*UpdateKafkaTopic
 
 	patch := []map[string]any{}
 	indicesToRevoke := make([]int, 0, len(input.RevokeGrants))
+	revokedGrants := make([]KafkaTopicUpdatedActivityLogEntryDataGrant, 0, len(input.RevokeGrants))
 	seen := make(map[string]struct{})
 	for _, grant := range input.RevokeGrants {
 		key := grant.Access.AivenAccess() + "|" + grant.TeamName + "|" + grant.Subject
@@ -141,6 +142,11 @@ func Update(ctx context.Context, input UpdateKafkaTopicInput) (*UpdateKafkaTopic
 		})
 		if aclIndex != -1 {
 			indicesToRevoke = append(indicesToRevoke, aclIndex)
+			revokedGrants = append(revokedGrants, KafkaTopicUpdatedActivityLogEntryDataGrant{
+				Subject:  grant.Subject,
+				TeamName: grant.TeamName,
+				Access:   grant.Access,
+			})
 		}
 	}
 
@@ -153,6 +159,7 @@ func Update(ctx context.Context, input UpdateKafkaTopicInput) (*UpdateKafkaTopic
 	}
 
 	seen = make(map[string]struct{})
+	addedGrants := make([]KafkaTopicUpdatedActivityLogEntryDataGrant, 0, len(input.AddGrants))
 	for _, grant := range input.AddGrants {
 		key := grant.Access.AivenAccess() + "|" + grant.TeamName + "|" + grant.Subject
 		if _, ok := seen[key]; ok {
@@ -174,6 +181,11 @@ func Update(ctx context.Context, input UpdateKafkaTopicInput) (*UpdateKafkaTopic
 				"application": grant.Subject,
 				"access":      grant.Access.AivenAccess(),
 			},
+		})
+		addedGrants = append(addedGrants, KafkaTopicUpdatedActivityLogEntryDataGrant{
+			Subject:  grant.Subject,
+			TeamName: grant.TeamName,
+			Access:   grant.Access,
 		})
 	}
 
@@ -199,6 +211,21 @@ func Update(ctx context.Context, input UpdateKafkaTopicInput) (*UpdateKafkaTopic
 	updatedTopic, err := toKafkaTopic(res, input.EnvironmentName)
 	if err != nil {
 		return nil, err
+	}
+
+	if err = activitylog.Create(ctx, activitylog.CreateInput{
+		Action:          activitylog.ActivityLogEntryActionUpdated,
+		Actor:           authz.ActorFromContext(ctx).User,
+		ResourceType:    ActivityLogEntryResourceTypeKafkaTopic,
+		ResourceName:    input.Name,
+		TeamSlug:        &input.TeamSlug,
+		EnvironmentName: &input.EnvironmentName,
+		Data: KafkaTopicUpdatedActivityLogEntryData{
+			AddedGrants:   addedGrants,
+			RevokedGrants: revokedGrants,
+		},
+	}); err != nil {
+		fromContext(ctx).log.WithError(err).Warn("failed to create activity log entry for kafka topic update")
 	}
 
 	return &UpdateKafkaTopicPayload{KafkaTopic: updatedTopic}, nil
