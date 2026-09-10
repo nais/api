@@ -3193,18 +3193,21 @@ type ComplexityRoot struct {
 	}
 
 	TeamVulnerabilitySummary struct {
-		CountsByPriority func(childComplexity int) int
-		CountsBySeverity func(childComplexity int) int
-		Coverage         func(childComplexity int) int
-		Critical         func(childComplexity int) int
-		High             func(childComplexity int) int
-		LastUpdated      func(childComplexity int) int
-		Low              func(childComplexity int) int
-		Medium           func(childComplexity int) int
-		RiskScore        func(childComplexity int) int
-		RiskScoreTrend   func(childComplexity int) int
-		SBOMCount        func(childComplexity int) int
-		Unassigned       func(childComplexity int) int
+		CountsByPriority      func(childComplexity int) int
+		CountsBySeverity      func(childComplexity int) int
+		Coverage              func(childComplexity int) int
+		Critical              func(childComplexity int) int
+		ElevatedWorkloadCount func(childComplexity int) int
+		High                  func(childComplexity int) int
+		HighWorkloadCount     func(childComplexity int) int
+		LastUpdated           func(childComplexity int) int
+		Low                   func(childComplexity int) int
+		Medium                func(childComplexity int) int
+		MonitorWorkloadCount  func(childComplexity int) int
+		RiskScore             func(childComplexity int) int
+		RiskScoreTrend        func(childComplexity int) int
+		SBOMCount             func(childComplexity int) int
+		Unassigned            func(childComplexity int) int
 	}
 
 	TenantVulnerabilitySummary struct {
@@ -17300,12 +17303,26 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.TeamVulnerabilitySummary.Critical(childComplexity), true
 
+	case "TeamVulnerabilitySummary.elevatedWorkloadCount":
+		if e.ComplexityRoot.TeamVulnerabilitySummary.ElevatedWorkloadCount == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TeamVulnerabilitySummary.ElevatedWorkloadCount(childComplexity), true
+
 	case "TeamVulnerabilitySummary.high":
 		if e.ComplexityRoot.TeamVulnerabilitySummary.High == nil {
 			break
 		}
 
 		return e.ComplexityRoot.TeamVulnerabilitySummary.High(childComplexity), true
+
+	case "TeamVulnerabilitySummary.highWorkloadCount":
+		if e.ComplexityRoot.TeamVulnerabilitySummary.HighWorkloadCount == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TeamVulnerabilitySummary.HighWorkloadCount(childComplexity), true
 
 	case "TeamVulnerabilitySummary.lastUpdated":
 		if e.ComplexityRoot.TeamVulnerabilitySummary.LastUpdated == nil {
@@ -17327,6 +17344,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.TeamVulnerabilitySummary.Medium(childComplexity), true
+
+	case "TeamVulnerabilitySummary.monitorWorkloadCount":
+		if e.ComplexityRoot.TeamVulnerabilitySummary.MonitorWorkloadCount == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TeamVulnerabilitySummary.MonitorWorkloadCount(childComplexity), true
 
 	case "TeamVulnerabilitySummary.riskScore":
 		if e.ComplexityRoot.TeamVulnerabilitySummary.RiskScore == nil {
@@ -33130,6 +33154,36 @@ type TeamVulnerabilitySummary {
 	"Vulnerability counts grouped by operational priority."
 	countsByPriority: ImageVulnerabilitySummaryCountsByPriority!
 
+	"""
+	Number of workloads whose highest vulnerability priority is HIGH.
+
+	Counts workloads, not findings. Use countsByPriority.highRisk for the number
+	of findings. Each workload is counted under exactly one priority, and
+	workloads without unsuppressed findings are not counted at all, so these
+	counts do not necessarily sum to the total number of workloads.
+	"""
+	highWorkloadCount: Int!
+
+	"""
+	Number of workloads whose highest vulnerability priority is ELEVATED.
+
+	Counts workloads, not findings. Use countsByPriority.elevatedRisk for the
+	number of findings. Each workload is counted under exactly one priority, and
+	workloads without unsuppressed findings are not counted at all, so these
+	counts do not necessarily sum to the total number of workloads.
+	"""
+	elevatedWorkloadCount: Int!
+
+	"""
+	Number of workloads whose highest vulnerability priority is MONITOR.
+
+	Counts workloads, not findings. Use countsByPriority.monitor for the number
+	of findings. Each workload is counted under exactly one priority, and
+	workloads without unsuppressed findings are not counted at all, so these
+	counts do not necessarily sum to the total number of workloads.
+	"""
+	monitorWorkloadCount: Int!
+
 	"Number of vulnerabilities with severity CRITICAL."
 	critical: Int! @deprecated(reason: "Use countsBySeverity.critical instead.")
 
@@ -37997,6 +38051,12 @@ func (ec *executionContext) childFields_TeamVulnerabilitySummary(ctx context.Con
 		return ec.fieldContext_TeamVulnerabilitySummary_countsBySeverity(ctx, field)
 	case "countsByPriority":
 		return ec.fieldContext_TeamVulnerabilitySummary_countsByPriority(ctx, field)
+	case "highWorkloadCount":
+		return ec.fieldContext_TeamVulnerabilitySummary_highWorkloadCount(ctx, field)
+	case "elevatedWorkloadCount":
+		return ec.fieldContext_TeamVulnerabilitySummary_elevatedWorkloadCount(ctx, field)
+	case "monitorWorkloadCount":
+		return ec.fieldContext_TeamVulnerabilitySummary_monitorWorkloadCount(ctx, field)
 	case "critical":
 		return ec.fieldContext_TeamVulnerabilitySummary_critical(ctx, field)
 	case "high":

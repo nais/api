@@ -248,6 +248,9 @@ Test.gql("Get vulnerability summary for team", function(t)
 					elevatedRisk
 					monitor
 				}
+				highWorkloadCount
+				elevatedWorkloadCount
+				monitorWorkloadCount
 				critical
 				high
 				medium
@@ -278,6 +281,9 @@ Test.gql("Get vulnerability summary for team", function(t)
 						elevatedRisk = NotNull(),
 						monitor = NotNull(),
 					},
+					highWorkloadCount = NotNull(),
+					elevatedWorkloadCount = NotNull(),
+					monitorWorkloadCount = NotNull(),
 					critical = NotNull(),
 					high = NotNull(),
 					medium = NotNull(),
@@ -285,6 +291,33 @@ Test.gql("Get vulnerability summary for team", function(t)
 					unassigned = NotNull(),
 					riskScore = NotNull(),
 					coverage = NotNull(),
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("Workload counts per priority are counted per team, not per finding", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query(string.format([[
+		{
+			team(slug: "%s") {
+			  vulnerabilitySummary{
+				highWorkloadCount
+				elevatedWorkloadCount
+				monitorWorkloadCount
+			  }
+			}
+		}
+	]], team:slug()))
+
+	t.check {
+		data = {
+			team = {
+				vulnerabilitySummary = {
+					highWorkloadCount = 1,
+					elevatedWorkloadCount = 0,
+					monitorWorkloadCount = 0,
 				},
 			},
 		},
