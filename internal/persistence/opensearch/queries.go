@@ -798,6 +798,8 @@ func fromMapperatorVersion(version naiscrd.OpenSearchVersion) OpenSearchMajorVer
 		return OpenSearchMajorVersionV2_19
 	case naiscrd.OpenSearchVersionV3_3:
 		return OpenSearchMajorVersionV3_3
+	case "3.6": // TODO(thokra): Because of breaking changes in pgrator, we cannot use the OpenSearchVersionV3_6 constant yet.
+		return OpenSearchMajorVersionV3_6
 	default:
 		return ""
 	}
