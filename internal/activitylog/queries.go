@@ -142,7 +142,7 @@ func ListForTenant(ctx context.Context, page *pagination.Pagination, filter *Act
 
 	return &ActivityLogEntryConnection{
 		Connection: *conn,
-		scope:      &ActivityLogScope{},
+		scope:      &ActivityLogScope{TenantWide: true},
 		filter:     filter,
 	}, nil
 }
@@ -189,10 +189,49 @@ func ListForResource(ctx context.Context, resourceType ActivityLogEntryResourceT
 func ListForResourceAndTeam(ctx context.Context, resourceType ActivityLogEntryResourceType, teamSlug *slug.Slug, resourceName string, page *pagination.Pagination, filter *ActivityLogFilter) (*ActivityLogEntryConnection, error) {
 	q := db(ctx)
 
+	if teamSlug == nil {
+		ret, err := q.ListForResourceWithoutTeam(ctx, activitylogsql.ListForResourceWithoutTeamParams{
+			ResourceType:  string(resourceType),
+			ResourceName:  resourceName,
+			Offset:        page.Offset(),
+			Limit:         page.Limit(),
+			Filter:        withFilters(filter),
+			ResourceTypes: withResourceTypes(filter),
+			Environments:  withEnvironments(filter),
+			From:          withFrom(filter),
+			To:            withTo(filter),
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		var total int64
+		if len(ret) > 0 {
+			total = ret[0].TotalCount
+		}
+
+		conn, err := pagination.NewConvertConnectionWithError(ret, page, total, func(from *activitylogsql.ListForResourceWithoutTeamRow) (ActivityLogEntry, error) {
+			return toGraphActivityLogEntry(&from.ActivityLogCombinedView)
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		return &ActivityLogEntryConnection{
+			Connection: *conn,
+			scope: &ActivityLogScope{
+				ResourceType:  new(string(resourceType)),
+				ResourceName:  &resourceName,
+				MatchNullTeam: true,
+			},
+			filter: filter,
+		}, nil
+	}
+
 	ret, err := q.ListForResourceAndTeam(ctx, activitylogsql.ListForResourceAndTeamParams{
 		ResourceType:  string(resourceType),
 		ResourceName:  resourceName,
-		TeamSlug:      (*string)(teamSlug),
+		TeamSlug:      teamSlug,
 		Offset:        page.Offset(),
 		Limit:         page.Limit(),
 		Filter:        withFilters(filter),

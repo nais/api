@@ -102,6 +102,12 @@ Test.gql("Query activitylog list", function(t)
 		        resourceType
 		        resourceName
 		      }
+		      facets {
+		        resourceTypes {
+		          resourceType
+		          count
+		        }
+		      }
 		    }
 		  }
 		}
@@ -127,6 +133,12 @@ Test.gql("Query activitylog list", function(t)
 							createdAt = NotNull(),
 							resourceType = "APP",
 							resourceName = "app",
+						},
+					},
+					facets = {
+						resourceTypes = {
+							{ resourceType = "APP",    count = 1 },
+							{ resourceType = "VALKEY", count = 1 },
 						},
 					},
 				},

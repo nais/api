@@ -126,6 +126,12 @@ Test.gql("Team-scoped account only sees its own entries", function(t)
 					pageInfo {
 						totalCount
 					}
+					facets {
+						resourceTypes {
+							resourceType
+							count
+						}
+					}
 				}
 			}
 		}
@@ -149,6 +155,14 @@ Test.gql("Team-scoped account only sees its own entries", function(t)
 					},
 					pageInfo = {
 						totalCount = 2,
+					},
+					facets = {
+						resourceTypes = {
+							{
+								resourceType = "SERVICE_ACCOUNT",
+								count = 2,
+							},
+						},
 					},
 				},
 			},
