@@ -10,14 +10,18 @@ import (
 
 type Querier interface {
 	Create(ctx context.Context, arg CreateParams) error
-	FacetsForActivityTypes(ctx context.Context, arg FacetsForActivityTypesParams) ([]*FacetsForActivityTypesRow, error)
+	FacetsForResource(ctx context.Context, arg FacetsForResourceParams) ([]*FacetsForResourceRow, error)
+	FacetsForResourceAndTeam(ctx context.Context, arg FacetsForResourceAndTeamParams) ([]*FacetsForResourceAndTeamRow, error)
+	FacetsForResourceTeamAndEnvironment(ctx context.Context, arg FacetsForResourceTeamAndEnvironmentParams) ([]*FacetsForResourceTeamAndEnvironmentRow, error)
+	FacetsForResourceWithoutTeam(ctx context.Context, arg FacetsForResourceWithoutTeamParams) ([]*FacetsForResourceWithoutTeamRow, error)
+	FacetsForTeam(ctx context.Context, arg FacetsForTeamParams) ([]*FacetsForTeamRow, error)
+	FacetsForTenantActivityTypes(ctx context.Context, arg FacetsForTenantActivityTypesParams) ([]*FacetsForTenantActivityTypesRow, error)
 	Get(ctx context.Context, id uuid.UUID) (*ActivityLogCombinedView, error)
 	ListByIDs(ctx context.Context, ids []uuid.UUID) ([]*ActivityLogCombinedView, error)
 	ListForResource(ctx context.Context, arg ListForResourceParams) ([]*ListForResourceRow, error)
-	// A NULL team_slug matches tenant-wide resources only, not every team, mirroring the NULLS NOT DISTINCT
-	// index on service_accounts (name, team_slug).
 	ListForResourceAndTeam(ctx context.Context, arg ListForResourceAndTeamParams) ([]*ListForResourceAndTeamRow, error)
 	ListForResourceTeamAndEnvironment(ctx context.Context, arg ListForResourceTeamAndEnvironmentParams) ([]*ListForResourceTeamAndEnvironmentRow, error)
+	ListForResourceWithoutTeam(ctx context.Context, arg ListForResourceWithoutTeamParams) ([]*ListForResourceWithoutTeamRow, error)
 	ListForTeam(ctx context.Context, arg ListForTeamParams) ([]*ListForTeamRow, error)
 	ListForTenant(ctx context.Context, arg ListForTenantParams) ([]*ListForTenantRow, error)
 	RefreshMaterializedView(ctx context.Context) error

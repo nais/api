@@ -283,6 +283,12 @@ Test.gql("list reconcilers after modifications", function(t)
 								}
 							}
 						}
+						facets {
+							resourceTypes {
+								resourceType
+								count
+							}
+						}
 					}
 					name
 					enabled
@@ -315,6 +321,11 @@ Test.gql("list reconcilers after modifications", function(t)
 									},
 								},
 							},
+							facets = {
+								resourceTypes = {
+									{ resourceType = "RECONCILER", count = 3 },
+								},
+							},
 						},
 						name = "reconciler-1",
 						enabled = true,
@@ -323,6 +334,11 @@ Test.gql("list reconcilers after modifications", function(t)
 						activityLog = {
 							nodes = {
 								{ message = "Disable reconciler" },
+							},
+							facets = {
+								resourceTypes = {
+									{ resourceType = "RECONCILER", count = 1 },
+								},
 							},
 						},
 						name = "reconciler-2",

@@ -57,7 +57,539 @@ func (q *Queries) Create(ctx context.Context, arg CreateParams) error {
 	return err
 }
 
-const facetsForActivityTypes = `-- name: FacetsForActivityTypes :many
+const facetsForResource = `-- name: FacetsForResource :many
+SELECT
+	resource_type,
+	action,
+	COALESCE(environment, '') AS environment,
+	COUNT(*) FILTER (
+		WHERE
+			(
+				$1::TEXT[] IS NULL
+				OR (resource_type || ':' || action) = ANY ($1::TEXT[])
+			)
+			AND (
+				$2::TEXT[] IS NULL
+				OR resource_type = ANY ($2::TEXT[])
+			)
+			AND (
+				$3::TEXT[] IS NULL
+				OR environment = ANY ($3::TEXT[])
+			)
+			AND (
+				$4::TIMESTAMPTZ IS NULL
+				OR created_at >= $4::TIMESTAMPTZ
+			)
+			AND (
+				$5::TIMESTAMPTZ IS NULL
+				OR created_at < $5::TIMESTAMPTZ
+			)
+	) AS filtered_count
+FROM
+	activity_log_combined_view
+WHERE
+	resource_type = $6
+	AND resource_name = $7
+	AND (
+		$8::TIMESTAMPTZ IS NULL
+		OR created_at >= $8::TIMESTAMPTZ
+	)
+	AND (
+		$9::TIMESTAMPTZ IS NULL
+		OR created_at < $9::TIMESTAMPTZ
+	)
+GROUP BY
+	resource_type,
+	action,
+	environment
+ORDER BY
+	resource_type,
+	action,
+	environment
+`
+
+type FacetsForResourceParams struct {
+	Filter              []string
+	FilterResourceTypes []string
+	FilterEnvironments  []string
+	FilterFrom          pgtype.Timestamptz
+	FilterTo            pgtype.Timestamptz
+	ResourceType        string
+	ResourceName        string
+	From                pgtype.Timestamptz
+	To                  pgtype.Timestamptz
+}
+
+type FacetsForResourceRow struct {
+	ResourceType  string
+	Action        string
+	Environment   string
+	FilteredCount int64
+}
+
+func (q *Queries) FacetsForResource(ctx context.Context, arg FacetsForResourceParams) ([]*FacetsForResourceRow, error) {
+	rows, err := q.db.Query(ctx, facetsForResource,
+		arg.Filter,
+		arg.FilterResourceTypes,
+		arg.FilterEnvironments,
+		arg.FilterFrom,
+		arg.FilterTo,
+		arg.ResourceType,
+		arg.ResourceName,
+		arg.From,
+		arg.To,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*FacetsForResourceRow{}
+	for rows.Next() {
+		var i FacetsForResourceRow
+		if err := rows.Scan(
+			&i.ResourceType,
+			&i.Action,
+			&i.Environment,
+			&i.FilteredCount,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const facetsForResourceAndTeam = `-- name: FacetsForResourceAndTeam :many
+SELECT
+	resource_type,
+	action,
+	COALESCE(environment, '') AS environment,
+	COUNT(*) FILTER (
+		WHERE
+			(
+				$1::TEXT[] IS NULL
+				OR (resource_type || ':' || action) = ANY ($1::TEXT[])
+			)
+			AND (
+				$2::TEXT[] IS NULL
+				OR resource_type = ANY ($2::TEXT[])
+			)
+			AND (
+				$3::TEXT[] IS NULL
+				OR environment = ANY ($3::TEXT[])
+			)
+			AND (
+				$4::TIMESTAMPTZ IS NULL
+				OR created_at >= $4::TIMESTAMPTZ
+			)
+			AND (
+				$5::TIMESTAMPTZ IS NULL
+				OR created_at < $5::TIMESTAMPTZ
+			)
+	) AS filtered_count
+FROM
+	activity_log_combined_view
+WHERE
+	resource_type = $6
+	AND resource_name = $7
+	AND team_slug = $8
+	AND (
+		$9::TIMESTAMPTZ IS NULL
+		OR created_at >= $9::TIMESTAMPTZ
+	)
+	AND (
+		$10::TIMESTAMPTZ IS NULL
+		OR created_at < $10::TIMESTAMPTZ
+	)
+GROUP BY
+	resource_type,
+	action,
+	environment
+ORDER BY
+	resource_type,
+	action,
+	environment
+`
+
+type FacetsForResourceAndTeamParams struct {
+	Filter              []string
+	FilterResourceTypes []string
+	FilterEnvironments  []string
+	FilterFrom          pgtype.Timestamptz
+	FilterTo            pgtype.Timestamptz
+	ResourceType        string
+	ResourceName        string
+	TeamSlug            *slug.Slug
+	From                pgtype.Timestamptz
+	To                  pgtype.Timestamptz
+}
+
+type FacetsForResourceAndTeamRow struct {
+	ResourceType  string
+	Action        string
+	Environment   string
+	FilteredCount int64
+}
+
+func (q *Queries) FacetsForResourceAndTeam(ctx context.Context, arg FacetsForResourceAndTeamParams) ([]*FacetsForResourceAndTeamRow, error) {
+	rows, err := q.db.Query(ctx, facetsForResourceAndTeam,
+		arg.Filter,
+		arg.FilterResourceTypes,
+		arg.FilterEnvironments,
+		arg.FilterFrom,
+		arg.FilterTo,
+		arg.ResourceType,
+		arg.ResourceName,
+		arg.TeamSlug,
+		arg.From,
+		arg.To,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*FacetsForResourceAndTeamRow{}
+	for rows.Next() {
+		var i FacetsForResourceAndTeamRow
+		if err := rows.Scan(
+			&i.ResourceType,
+			&i.Action,
+			&i.Environment,
+			&i.FilteredCount,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const facetsForResourceTeamAndEnvironment = `-- name: FacetsForResourceTeamAndEnvironment :many
+SELECT
+	resource_type,
+	action,
+	COALESCE(environment, '') AS environment,
+	COUNT(*) FILTER (
+		WHERE
+			(
+				$1::TEXT[] IS NULL
+				OR (resource_type || ':' || action) = ANY ($1::TEXT[])
+			)
+			AND (
+				$2::TEXT[] IS NULL
+				OR resource_type = ANY ($2::TEXT[])
+			)
+			AND (
+				$3::TEXT[] IS NULL
+				OR environment = ANY ($3::TEXT[])
+			)
+			AND (
+				$4::TIMESTAMPTZ IS NULL
+				OR created_at >= $4::TIMESTAMPTZ
+			)
+			AND (
+				$5::TIMESTAMPTZ IS NULL
+				OR created_at < $5::TIMESTAMPTZ
+			)
+	) AS filtered_count
+FROM
+	activity_log_combined_view
+WHERE
+	resource_type = $6
+	AND resource_name = $7
+	AND team_slug = $8
+	AND environment = $9
+	AND (
+		$10::TIMESTAMPTZ IS NULL
+		OR created_at >= $10::TIMESTAMPTZ
+	)
+	AND (
+		$11::TIMESTAMPTZ IS NULL
+		OR created_at < $11::TIMESTAMPTZ
+	)
+GROUP BY
+	resource_type,
+	action,
+	environment
+ORDER BY
+	resource_type,
+	action,
+	environment
+`
+
+type FacetsForResourceTeamAndEnvironmentParams struct {
+	Filter              []string
+	FilterResourceTypes []string
+	FilterEnvironments  []string
+	FilterFrom          pgtype.Timestamptz
+	FilterTo            pgtype.Timestamptz
+	ResourceType        string
+	ResourceName        string
+	TeamSlug            *slug.Slug
+	EnvironmentName     *string
+	From                pgtype.Timestamptz
+	To                  pgtype.Timestamptz
+}
+
+type FacetsForResourceTeamAndEnvironmentRow struct {
+	ResourceType  string
+	Action        string
+	Environment   string
+	FilteredCount int64
+}
+
+func (q *Queries) FacetsForResourceTeamAndEnvironment(ctx context.Context, arg FacetsForResourceTeamAndEnvironmentParams) ([]*FacetsForResourceTeamAndEnvironmentRow, error) {
+	rows, err := q.db.Query(ctx, facetsForResourceTeamAndEnvironment,
+		arg.Filter,
+		arg.FilterResourceTypes,
+		arg.FilterEnvironments,
+		arg.FilterFrom,
+		arg.FilterTo,
+		arg.ResourceType,
+		arg.ResourceName,
+		arg.TeamSlug,
+		arg.EnvironmentName,
+		arg.From,
+		arg.To,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*FacetsForResourceTeamAndEnvironmentRow{}
+	for rows.Next() {
+		var i FacetsForResourceTeamAndEnvironmentRow
+		if err := rows.Scan(
+			&i.ResourceType,
+			&i.Action,
+			&i.Environment,
+			&i.FilteredCount,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const facetsForResourceWithoutTeam = `-- name: FacetsForResourceWithoutTeam :many
+SELECT
+	resource_type,
+	action,
+	COALESCE(environment, '') AS environment,
+	COUNT(*) FILTER (
+		WHERE
+			(
+				$1::TEXT[] IS NULL
+				OR (resource_type || ':' || action) = ANY ($1::TEXT[])
+			)
+			AND (
+				$2::TEXT[] IS NULL
+				OR resource_type = ANY ($2::TEXT[])
+			)
+			AND (
+				$3::TEXT[] IS NULL
+				OR environment = ANY ($3::TEXT[])
+			)
+			AND (
+				$4::TIMESTAMPTZ IS NULL
+				OR created_at >= $4::TIMESTAMPTZ
+			)
+			AND (
+				$5::TIMESTAMPTZ IS NULL
+				OR created_at < $5::TIMESTAMPTZ
+			)
+	) AS filtered_count
+FROM
+	activity_log_combined_view
+WHERE
+	resource_type = $6
+	AND resource_name = $7
+	AND team_slug IS NULL
+	AND (
+		$8::TIMESTAMPTZ IS NULL
+		OR created_at >= $8::TIMESTAMPTZ
+	)
+	AND (
+		$9::TIMESTAMPTZ IS NULL
+		OR created_at < $9::TIMESTAMPTZ
+	)
+GROUP BY
+	resource_type,
+	action,
+	environment
+ORDER BY
+	resource_type,
+	action,
+	environment
+`
+
+type FacetsForResourceWithoutTeamParams struct {
+	Filter              []string
+	FilterResourceTypes []string
+	FilterEnvironments  []string
+	FilterFrom          pgtype.Timestamptz
+	FilterTo            pgtype.Timestamptz
+	ResourceType        string
+	ResourceName        string
+	From                pgtype.Timestamptz
+	To                  pgtype.Timestamptz
+}
+
+type FacetsForResourceWithoutTeamRow struct {
+	ResourceType  string
+	Action        string
+	Environment   string
+	FilteredCount int64
+}
+
+func (q *Queries) FacetsForResourceWithoutTeam(ctx context.Context, arg FacetsForResourceWithoutTeamParams) ([]*FacetsForResourceWithoutTeamRow, error) {
+	rows, err := q.db.Query(ctx, facetsForResourceWithoutTeam,
+		arg.Filter,
+		arg.FilterResourceTypes,
+		arg.FilterEnvironments,
+		arg.FilterFrom,
+		arg.FilterTo,
+		arg.ResourceType,
+		arg.ResourceName,
+		arg.From,
+		arg.To,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*FacetsForResourceWithoutTeamRow{}
+	for rows.Next() {
+		var i FacetsForResourceWithoutTeamRow
+		if err := rows.Scan(
+			&i.ResourceType,
+			&i.Action,
+			&i.Environment,
+			&i.FilteredCount,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const facetsForTeam = `-- name: FacetsForTeam :many
+SELECT
+	resource_type,
+	action,
+	COALESCE(environment, '') AS environment,
+	COUNT(*) FILTER (
+		WHERE
+			(
+				$1::TEXT[] IS NULL
+				OR (resource_type || ':' || action) = ANY ($1::TEXT[])
+			)
+			AND (
+				$2::TEXT[] IS NULL
+				OR resource_type = ANY ($2::TEXT[])
+			)
+			AND (
+				$3::TEXT[] IS NULL
+				OR environment = ANY ($3::TEXT[])
+			)
+			AND (
+				$4::TIMESTAMPTZ IS NULL
+				OR created_at >= $4::TIMESTAMPTZ
+			)
+			AND (
+				$5::TIMESTAMPTZ IS NULL
+				OR created_at < $5::TIMESTAMPTZ
+			)
+	) AS filtered_count
+FROM
+	activity_log_combined_view
+WHERE
+	team_slug = $6
+	AND (
+		$7::TIMESTAMPTZ IS NULL
+		OR created_at >= $7::TIMESTAMPTZ
+	)
+	AND (
+		$8::TIMESTAMPTZ IS NULL
+		OR created_at < $8::TIMESTAMPTZ
+	)
+GROUP BY
+	resource_type,
+	action,
+	environment
+ORDER BY
+	resource_type,
+	action,
+	environment
+`
+
+type FacetsForTeamParams struct {
+	Filter              []string
+	FilterResourceTypes []string
+	FilterEnvironments  []string
+	FilterFrom          pgtype.Timestamptz
+	FilterTo            pgtype.Timestamptz
+	TeamSlug            *slug.Slug
+	From                pgtype.Timestamptz
+	To                  pgtype.Timestamptz
+}
+
+type FacetsForTeamRow struct {
+	ResourceType  string
+	Action        string
+	Environment   string
+	FilteredCount int64
+}
+
+func (q *Queries) FacetsForTeam(ctx context.Context, arg FacetsForTeamParams) ([]*FacetsForTeamRow, error) {
+	rows, err := q.db.Query(ctx, facetsForTeam,
+		arg.Filter,
+		arg.FilterResourceTypes,
+		arg.FilterEnvironments,
+		arg.FilterFrom,
+		arg.FilterTo,
+		arg.TeamSlug,
+		arg.From,
+		arg.To,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*FacetsForTeamRow{}
+	for rows.Next() {
+		var i FacetsForTeamRow
+		if err := rows.Scan(
+			&i.ResourceType,
+			&i.Action,
+			&i.Environment,
+			&i.FilteredCount,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const facetsForTenantActivityTypes = `-- name: FacetsForTenantActivityTypes :many
 SELECT
 	resource_type,
 	action,
@@ -90,32 +622,12 @@ FROM
 	activity_log_combined_view
 WHERE
 	(
-		CASE
-		-- match_null_team keeps facet counts consistent with ListForResourceAndTeam.
-			WHEN $6::BOOLEAN THEN team_slug IS NOT DISTINCT FROM $7::TEXT
-			WHEN $7::TEXT IS NULL THEN TRUE
-			ELSE team_slug = $7
-		END
+		$6::TIMESTAMPTZ IS NULL
+		OR created_at >= $6::TIMESTAMPTZ
 	)
 	AND (
-		$8::TEXT IS NULL
-		OR resource_type = $8
-	)
-	AND (
-		$9::TEXT IS NULL
-		OR resource_name = $9
-	)
-	AND (
-		$10::TEXT IS NULL
-		OR environment = $10
-	)
-	AND (
-		$11::TIMESTAMPTZ IS NULL
-		OR created_at >= $11::TIMESTAMPTZ
-	)
-	AND (
-		$12::TIMESTAMPTZ IS NULL
-		OR created_at < $12::TIMESTAMPTZ
+		$7::TIMESTAMPTZ IS NULL
+		OR created_at < $7::TIMESTAMPTZ
 	)
 GROUP BY
 	resource_type,
@@ -127,22 +639,17 @@ ORDER BY
 	environment
 `
 
-type FacetsForActivityTypesParams struct {
+type FacetsForTenantActivityTypesParams struct {
 	Filter              []string
 	FilterResourceTypes []string
 	FilterEnvironments  []string
 	FilterFrom          pgtype.Timestamptz
 	FilterTo            pgtype.Timestamptz
-	MatchNullTeam       bool
-	TeamSlug            *string
-	ResourceType        *string
-	ResourceName        *string
-	EnvironmentName     *string
 	From                pgtype.Timestamptz
 	To                  pgtype.Timestamptz
 }
 
-type FacetsForActivityTypesRow struct {
+type FacetsForTenantActivityTypesRow struct {
 	ResourceType  string
 	Action        string
 	Environment   string
@@ -150,18 +657,13 @@ type FacetsForActivityTypesRow struct {
 	FilteredCount int64
 }
 
-func (q *Queries) FacetsForActivityTypes(ctx context.Context, arg FacetsForActivityTypesParams) ([]*FacetsForActivityTypesRow, error) {
-	rows, err := q.db.Query(ctx, facetsForActivityTypes,
+func (q *Queries) FacetsForTenantActivityTypes(ctx context.Context, arg FacetsForTenantActivityTypesParams) ([]*FacetsForTenantActivityTypesRow, error) {
+	rows, err := q.db.Query(ctx, facetsForTenantActivityTypes,
 		arg.Filter,
 		arg.FilterResourceTypes,
 		arg.FilterEnvironments,
 		arg.FilterFrom,
 		arg.FilterTo,
-		arg.MatchNullTeam,
-		arg.TeamSlug,
-		arg.ResourceType,
-		arg.ResourceName,
-		arg.EnvironmentName,
 		arg.From,
 		arg.To,
 	)
@@ -169,9 +671,9 @@ func (q *Queries) FacetsForActivityTypes(ctx context.Context, arg FacetsForActiv
 		return nil, err
 	}
 	defer rows.Close()
-	items := []*FacetsForActivityTypesRow{}
+	items := []*FacetsForTenantActivityTypesRow{}
 	for rows.Next() {
-		var i FacetsForActivityTypesRow
+		var i FacetsForTenantActivityTypesRow
 		if err := rows.Scan(
 			&i.ResourceType,
 			&i.Action,
@@ -257,36 +759,69 @@ func (q *Queries) ListByIDs(ctx context.Context, ids []uuid.UUID) ([]*ActivityLo
 }
 
 const listForResource = `-- name: ListForResource :many
+WITH
+	matching_entries AS (
+		SELECT
+			COUNT(*) AS total_count
+		FROM
+			activity_log_combined_view
+		WHERE
+			resource_type = $1
+			AND resource_name = $2
+			AND (
+				$3::TEXT[] IS NULL
+				OR (resource_type || ':' || action) = ANY ($3::TEXT[])
+			)
+			AND (
+				$4::TEXT[] IS NULL
+				OR resource_type = ANY ($4::TEXT[])
+			)
+			AND (
+				$5::TEXT[] IS NULL
+				OR environment = ANY ($5::TEXT[])
+			)
+			AND (
+				$6::TIMESTAMPTZ IS NULL
+				OR created_at >= $6::TIMESTAMPTZ
+			)
+			AND (
+				$7::TIMESTAMPTZ IS NULL
+				OR created_at < $7::TIMESTAMPTZ
+			)
+	)
 SELECT
 	activity_log_combined_view.id, activity_log_combined_view.created_at, activity_log_combined_view.actor, activity_log_combined_view.action, activity_log_combined_view.resource_type, activity_log_combined_view.resource_name, activity_log_combined_view.team_slug, activity_log_combined_view.data, activity_log_combined_view.environment,
-	COUNT(*) OVER () AS total_count
+	matching_entries.total_count
 FROM
 	activity_log_combined_view
+	CROSS JOIN matching_entries
 WHERE
-	resource_type = $1
-	AND resource_name = $2
+	activity_log_combined_view.resource_type = $1
+	AND activity_log_combined_view.resource_name = $2
 	AND (
 		$3::TEXT[] IS NULL
-		OR (resource_type || ':' || action) = ANY ($3::TEXT[])
+		OR (
+			activity_log_combined_view.resource_type || ':' || activity_log_combined_view.action
+		) = ANY ($3::TEXT[])
 	)
 	AND (
 		$4::TEXT[] IS NULL
-		OR resource_type = ANY ($4::TEXT[])
+		OR activity_log_combined_view.resource_type = ANY ($4::TEXT[])
 	)
 	AND (
 		$5::TEXT[] IS NULL
-		OR environment = ANY ($5::TEXT[])
+		OR activity_log_combined_view.environment = ANY ($5::TEXT[])
 	)
 	AND (
 		$6::TIMESTAMPTZ IS NULL
-		OR created_at >= $6::TIMESTAMPTZ
+		OR activity_log_combined_view.created_at >= $6::TIMESTAMPTZ
 	)
 	AND (
 		$7::TIMESTAMPTZ IS NULL
-		OR created_at < $7::TIMESTAMPTZ
+		OR activity_log_combined_view.created_at < $7::TIMESTAMPTZ
 	)
 ORDER BY
-	created_at DESC
+	activity_log_combined_view.created_at DESC
 LIMIT
 	$9
 OFFSET
@@ -360,7 +895,7 @@ FROM
 WHERE
 	resource_type = $1
 	AND resource_name = $2
-	AND team_slug IS NOT DISTINCT FROM $3::TEXT
+	AND team_slug = $3
 	AND (
 		$4::TEXT[] IS NULL
 		OR (resource_type || ':' || action) = ANY ($4::TEXT[])
@@ -392,7 +927,7 @@ OFFSET
 type ListForResourceAndTeamParams struct {
 	ResourceType  string
 	ResourceName  string
-	TeamSlug      *string
+	TeamSlug      *slug.Slug
 	Filter        []string
 	ResourceTypes []string
 	Environments  []string
@@ -407,8 +942,6 @@ type ListForResourceAndTeamRow struct {
 	TotalCount              int64
 }
 
-// A NULL team_slug matches tenant-wide resources only, not every team, mirroring the NULLS NOT DISTINCT
-// index on service_accounts (name, team_slug).
 func (q *Queries) ListForResourceAndTeam(ctx context.Context, arg ListForResourceAndTeamParams) ([]*ListForResourceAndTeamRow, error) {
 	rows, err := q.db.Query(ctx, listForResourceAndTeam,
 		arg.ResourceType,
@@ -552,36 +1085,164 @@ func (q *Queries) ListForResourceTeamAndEnvironment(ctx context.Context, arg Lis
 	return items, nil
 }
 
-const listForTeam = `-- name: ListForTeam :many
+const listForResourceWithoutTeam = `-- name: ListForResourceWithoutTeam :many
 SELECT
 	activity_log_combined_view.id, activity_log_combined_view.created_at, activity_log_combined_view.actor, activity_log_combined_view.action, activity_log_combined_view.resource_type, activity_log_combined_view.resource_name, activity_log_combined_view.team_slug, activity_log_combined_view.data, activity_log_combined_view.environment,
 	COUNT(*) OVER () AS total_count
 FROM
 	activity_log_combined_view
 WHERE
-	team_slug = $1
-	AND (
-		$2::TEXT[] IS NULL
-		OR (resource_type || ':' || action) = ANY ($2::TEXT[])
-	)
+	resource_type = $1
+	AND resource_name = $2
+	AND team_slug IS NULL
 	AND (
 		$3::TEXT[] IS NULL
-		OR resource_type = ANY ($3::TEXT[])
+		OR (resource_type || ':' || action) = ANY ($3::TEXT[])
 	)
 	AND (
 		$4::TEXT[] IS NULL
-		OR environment = ANY ($4::TEXT[])
+		OR resource_type = ANY ($4::TEXT[])
 	)
 	AND (
-		$5::TIMESTAMPTZ IS NULL
-		OR created_at >= $5::TIMESTAMPTZ
+		$5::TEXT[] IS NULL
+		OR environment = ANY ($5::TEXT[])
 	)
 	AND (
 		$6::TIMESTAMPTZ IS NULL
-		OR created_at < $6::TIMESTAMPTZ
+		OR created_at >= $6::TIMESTAMPTZ
+	)
+	AND (
+		$7::TIMESTAMPTZ IS NULL
+		OR created_at < $7::TIMESTAMPTZ
 	)
 ORDER BY
 	created_at DESC
+LIMIT
+	$9
+OFFSET
+	$8
+`
+
+type ListForResourceWithoutTeamParams struct {
+	ResourceType  string
+	ResourceName  string
+	Filter        []string
+	ResourceTypes []string
+	Environments  []string
+	From          pgtype.Timestamptz
+	To            pgtype.Timestamptz
+	Offset        int32
+	Limit         int32
+}
+
+type ListForResourceWithoutTeamRow struct {
+	ActivityLogCombinedView ActivityLogCombinedView
+	TotalCount              int64
+}
+
+func (q *Queries) ListForResourceWithoutTeam(ctx context.Context, arg ListForResourceWithoutTeamParams) ([]*ListForResourceWithoutTeamRow, error) {
+	rows, err := q.db.Query(ctx, listForResourceWithoutTeam,
+		arg.ResourceType,
+		arg.ResourceName,
+		arg.Filter,
+		arg.ResourceTypes,
+		arg.Environments,
+		arg.From,
+		arg.To,
+		arg.Offset,
+		arg.Limit,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*ListForResourceWithoutTeamRow{}
+	for rows.Next() {
+		var i ListForResourceWithoutTeamRow
+		if err := rows.Scan(
+			&i.ActivityLogCombinedView.ID,
+			&i.ActivityLogCombinedView.CreatedAt,
+			&i.ActivityLogCombinedView.Actor,
+			&i.ActivityLogCombinedView.Action,
+			&i.ActivityLogCombinedView.ResourceType,
+			&i.ActivityLogCombinedView.ResourceName,
+			&i.ActivityLogCombinedView.TeamSlug,
+			&i.ActivityLogCombinedView.Data,
+			&i.ActivityLogCombinedView.Environment,
+			&i.TotalCount,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listForTeam = `-- name: ListForTeam :many
+WITH
+	matching_entries AS (
+		SELECT
+			COUNT(*) AS total_count
+		FROM
+			activity_log_combined_view
+		WHERE
+			team_slug = $1
+			AND (
+				$2::TEXT[] IS NULL
+				OR (resource_type || ':' || action) = ANY ($2::TEXT[])
+			)
+			AND (
+				$3::TEXT[] IS NULL
+				OR resource_type = ANY ($3::TEXT[])
+			)
+			AND (
+				$4::TEXT[] IS NULL
+				OR environment = ANY ($4::TEXT[])
+			)
+			AND (
+				$5::TIMESTAMPTZ IS NULL
+				OR created_at >= $5::TIMESTAMPTZ
+			)
+			AND (
+				$6::TIMESTAMPTZ IS NULL
+				OR created_at < $6::TIMESTAMPTZ
+			)
+	)
+SELECT
+	activity_log_combined_view.id, activity_log_combined_view.created_at, activity_log_combined_view.actor, activity_log_combined_view.action, activity_log_combined_view.resource_type, activity_log_combined_view.resource_name, activity_log_combined_view.team_slug, activity_log_combined_view.data, activity_log_combined_view.environment,
+	matching_entries.total_count
+FROM
+	activity_log_combined_view
+	CROSS JOIN matching_entries
+WHERE
+	activity_log_combined_view.team_slug = $1
+	AND (
+		$2::TEXT[] IS NULL
+		OR (
+			activity_log_combined_view.resource_type || ':' || activity_log_combined_view.action
+		) = ANY ($2::TEXT[])
+	)
+	AND (
+		$3::TEXT[] IS NULL
+		OR activity_log_combined_view.resource_type = ANY ($3::TEXT[])
+	)
+	AND (
+		$4::TEXT[] IS NULL
+		OR activity_log_combined_view.environment = ANY ($4::TEXT[])
+	)
+	AND (
+		$5::TIMESTAMPTZ IS NULL
+		OR activity_log_combined_view.created_at >= $5::TIMESTAMPTZ
+	)
+	AND (
+		$6::TIMESTAMPTZ IS NULL
+		OR activity_log_combined_view.created_at < $6::TIMESTAMPTZ
+	)
+ORDER BY
+	activity_log_combined_view.created_at DESC
 LIMIT
 	$8
 OFFSET
@@ -645,11 +1306,40 @@ func (q *Queries) ListForTeam(ctx context.Context, arg ListForTeamParams) ([]*Li
 }
 
 const listForTenant = `-- name: ListForTenant :many
+WITH
+	matching_entries AS (
+		SELECT
+			COUNT(*) AS total_count
+		FROM
+			activity_log_combined_view
+		WHERE
+			(
+				$1::TEXT[] IS NULL
+				OR (resource_type || ':' || action) = ANY ($1::TEXT[])
+			)
+			AND (
+				$2::TEXT[] IS NULL
+				OR resource_type = ANY ($2::TEXT[])
+			)
+			AND (
+				$3::TEXT[] IS NULL
+				OR environment = ANY ($3::TEXT[])
+			)
+			AND (
+				$4::TIMESTAMPTZ IS NULL
+				OR created_at >= $4::TIMESTAMPTZ
+			)
+			AND (
+				$5::TIMESTAMPTZ IS NULL
+				OR created_at < $5::TIMESTAMPTZ
+			)
+	)
 SELECT
 	activity_log_combined_view.id, activity_log_combined_view.created_at, activity_log_combined_view.actor, activity_log_combined_view.action, activity_log_combined_view.resource_type, activity_log_combined_view.resource_name, activity_log_combined_view.team_slug, activity_log_combined_view.data, activity_log_combined_view.environment,
-	COUNT(*) OVER () AS total_count
+	matching_entries.total_count
 FROM
 	activity_log_combined_view
+	CROSS JOIN matching_entries
 WHERE
 	(
 		$1::TEXT[] IS NULL

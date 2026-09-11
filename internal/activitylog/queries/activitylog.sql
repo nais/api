@@ -1,33 +1,65 @@
 -- name: ListForTeam :many
+WITH
+	matching_entries AS (
+		SELECT
+			COUNT(*) AS total_count
+		FROM
+			activity_log_combined_view
+		WHERE
+			team_slug = @team_slug
+			AND (
+				sqlc.narg('filter')::TEXT[] IS NULL
+				OR (resource_type || ':' || action) = ANY (sqlc.narg('filter')::TEXT[])
+			)
+			AND (
+				sqlc.narg('resource_types')::TEXT[] IS NULL
+				OR resource_type = ANY (sqlc.narg('resource_types')::TEXT[])
+			)
+			AND (
+				sqlc.narg('environments')::TEXT[] IS NULL
+				OR environment = ANY (sqlc.narg('environments')::TEXT[])
+			)
+			AND (
+				sqlc.narg('from')::TIMESTAMPTZ IS NULL
+				OR created_at >= sqlc.narg('from')::TIMESTAMPTZ
+			)
+			AND (
+				sqlc.narg('to')::TIMESTAMPTZ IS NULL
+				OR created_at < sqlc.narg('to')::TIMESTAMPTZ
+			)
+	)
 SELECT
 	sqlc.embed(activity_log_combined_view),
-	COUNT(*) OVER () AS total_count
+	matching_entries.total_count
 FROM
 	activity_log_combined_view
+	CROSS JOIN matching_entries
 WHERE
-	team_slug = @team_slug
+	activity_log_combined_view.team_slug = @team_slug
 	AND (
 		sqlc.narg('filter')::TEXT[] IS NULL
-		OR (resource_type || ':' || action) = ANY (sqlc.narg('filter')::TEXT[])
+		OR (
+			activity_log_combined_view.resource_type || ':' || activity_log_combined_view.action
+		) = ANY (sqlc.narg('filter')::TEXT[])
 	)
 	AND (
 		sqlc.narg('resource_types')::TEXT[] IS NULL
-		OR resource_type = ANY (sqlc.narg('resource_types')::TEXT[])
+		OR activity_log_combined_view.resource_type = ANY (sqlc.narg('resource_types')::TEXT[])
 	)
 	AND (
 		sqlc.narg('environments')::TEXT[] IS NULL
-		OR environment = ANY (sqlc.narg('environments')::TEXT[])
+		OR activity_log_combined_view.environment = ANY (sqlc.narg('environments')::TEXT[])
 	)
 	AND (
 		sqlc.narg('from')::TIMESTAMPTZ IS NULL
-		OR created_at >= sqlc.narg('from')::TIMESTAMPTZ
+		OR activity_log_combined_view.created_at >= sqlc.narg('from')::TIMESTAMPTZ
 	)
 	AND (
 		sqlc.narg('to')::TIMESTAMPTZ IS NULL
-		OR created_at < sqlc.narg('to')::TIMESTAMPTZ
+		OR activity_log_combined_view.created_at < sqlc.narg('to')::TIMESTAMPTZ
 	)
 ORDER BY
-	created_at DESC
+	activity_log_combined_view.created_at DESC
 LIMIT
 	sqlc.arg('limit')
 OFFSET
@@ -35,11 +67,40 @@ OFFSET
 ;
 
 -- name: ListForTenant :many
+WITH
+	matching_entries AS (
+		SELECT
+			COUNT(*) AS total_count
+		FROM
+			activity_log_combined_view
+		WHERE
+			(
+				sqlc.narg('filter')::TEXT[] IS NULL
+				OR (resource_type || ':' || action) = ANY (sqlc.narg('filter')::TEXT[])
+			)
+			AND (
+				sqlc.narg('resource_types')::TEXT[] IS NULL
+				OR resource_type = ANY (sqlc.narg('resource_types')::TEXT[])
+			)
+			AND (
+				sqlc.narg('environments')::TEXT[] IS NULL
+				OR environment = ANY (sqlc.narg('environments')::TEXT[])
+			)
+			AND (
+				sqlc.narg('from')::TIMESTAMPTZ IS NULL
+				OR created_at >= sqlc.narg('from')::TIMESTAMPTZ
+			)
+			AND (
+				sqlc.narg('to')::TIMESTAMPTZ IS NULL
+				OR created_at < sqlc.narg('to')::TIMESTAMPTZ
+			)
+	)
 SELECT
 	sqlc.embed(activity_log_combined_view),
-	COUNT(*) OVER () AS total_count
+	matching_entries.total_count
 FROM
 	activity_log_combined_view
+	CROSS JOIN matching_entries
 WHERE
 	(
 		sqlc.narg('filter')::TEXT[] IS NULL
@@ -70,6 +131,76 @@ OFFSET
 ;
 
 -- name: ListForResource :many
+WITH
+	matching_entries AS (
+		SELECT
+			COUNT(*) AS total_count
+		FROM
+			activity_log_combined_view
+		WHERE
+			resource_type = @resource_type
+			AND resource_name = @resource_name
+			AND (
+				sqlc.narg('filter')::TEXT[] IS NULL
+				OR (resource_type || ':' || action) = ANY (sqlc.narg('filter')::TEXT[])
+			)
+			AND (
+				sqlc.narg('resource_types')::TEXT[] IS NULL
+				OR resource_type = ANY (sqlc.narg('resource_types')::TEXT[])
+			)
+			AND (
+				sqlc.narg('environments')::TEXT[] IS NULL
+				OR environment = ANY (sqlc.narg('environments')::TEXT[])
+			)
+			AND (
+				sqlc.narg('from')::TIMESTAMPTZ IS NULL
+				OR created_at >= sqlc.narg('from')::TIMESTAMPTZ
+			)
+			AND (
+				sqlc.narg('to')::TIMESTAMPTZ IS NULL
+				OR created_at < sqlc.narg('to')::TIMESTAMPTZ
+			)
+	)
+SELECT
+	sqlc.embed(activity_log_combined_view),
+	matching_entries.total_count
+FROM
+	activity_log_combined_view
+	CROSS JOIN matching_entries
+WHERE
+	activity_log_combined_view.resource_type = @resource_type
+	AND activity_log_combined_view.resource_name = @resource_name
+	AND (
+		sqlc.narg('filter')::TEXT[] IS NULL
+		OR (
+			activity_log_combined_view.resource_type || ':' || activity_log_combined_view.action
+		) = ANY (sqlc.narg('filter')::TEXT[])
+	)
+	AND (
+		sqlc.narg('resource_types')::TEXT[] IS NULL
+		OR activity_log_combined_view.resource_type = ANY (sqlc.narg('resource_types')::TEXT[])
+	)
+	AND (
+		sqlc.narg('environments')::TEXT[] IS NULL
+		OR activity_log_combined_view.environment = ANY (sqlc.narg('environments')::TEXT[])
+	)
+	AND (
+		sqlc.narg('from')::TIMESTAMPTZ IS NULL
+		OR activity_log_combined_view.created_at >= sqlc.narg('from')::TIMESTAMPTZ
+	)
+	AND (
+		sqlc.narg('to')::TIMESTAMPTZ IS NULL
+		OR activity_log_combined_view.created_at < sqlc.narg('to')::TIMESTAMPTZ
+	)
+ORDER BY
+	activity_log_combined_view.created_at DESC
+LIMIT
+	sqlc.arg('limit')
+OFFSET
+	sqlc.arg('offset')
+;
+
+-- name: ListForResourceAndTeam :many
 SELECT
 	sqlc.embed(activity_log_combined_view),
 	COUNT(*) OVER () AS total_count
@@ -78,6 +209,7 @@ FROM
 WHERE
 	resource_type = @resource_type
 	AND resource_name = @resource_name
+	AND team_slug = @team_slug
 	AND (
 		sqlc.narg('filter')::TEXT[] IS NULL
 		OR (resource_type || ':' || action) = ANY (sqlc.narg('filter')::TEXT[])
@@ -106,9 +238,7 @@ OFFSET
 	sqlc.arg('offset')
 ;
 
--- A NULL team_slug matches tenant-wide resources only, not every team, mirroring the NULLS NOT DISTINCT
--- index on service_accounts (name, team_slug).
--- name: ListForResourceAndTeam :many
+-- name: ListForResourceWithoutTeam :many
 SELECT
 	sqlc.embed(activity_log_combined_view),
 	COUNT(*) OVER () AS total_count
@@ -117,7 +247,7 @@ FROM
 WHERE
 	resource_type = @resource_type
 	AND resource_name = @resource_name
-	AND team_slug IS NOT DISTINCT FROM sqlc.narg('team_slug')::TEXT
+	AND team_slug IS NULL
 	AND (
 		sqlc.narg('filter')::TEXT[] IS NULL
 		OR (resource_type || ':' || action) = ANY (sqlc.narg('filter')::TEXT[])
@@ -228,7 +358,265 @@ ORDER BY
 	created_at DESC
 ;
 
--- name: FacetsForActivityTypes :many
+-- name: FacetsForTeam :many
+SELECT
+	resource_type,
+	action,
+	COALESCE(environment, '') AS environment,
+	COUNT(*) FILTER (
+		WHERE
+			(
+				sqlc.narg('filter')::TEXT[] IS NULL
+				OR (resource_type || ':' || action) = ANY (sqlc.narg('filter')::TEXT[])
+			)
+			AND (
+				sqlc.narg('filter_resource_types')::TEXT[] IS NULL
+				OR resource_type = ANY (sqlc.narg('filter_resource_types')::TEXT[])
+			)
+			AND (
+				sqlc.narg('filter_environments')::TEXT[] IS NULL
+				OR environment = ANY (sqlc.narg('filter_environments')::TEXT[])
+			)
+			AND (
+				sqlc.narg('filter_from')::TIMESTAMPTZ IS NULL
+				OR created_at >= sqlc.narg('filter_from')::TIMESTAMPTZ
+			)
+			AND (
+				sqlc.narg('filter_to')::TIMESTAMPTZ IS NULL
+				OR created_at < sqlc.narg('filter_to')::TIMESTAMPTZ
+			)
+	) AS filtered_count
+FROM
+	activity_log_combined_view
+WHERE
+	team_slug = @team_slug
+	AND (
+		sqlc.narg('from')::TIMESTAMPTZ IS NULL
+		OR created_at >= sqlc.narg('from')::TIMESTAMPTZ
+	)
+	AND (
+		sqlc.narg('to')::TIMESTAMPTZ IS NULL
+		OR created_at < sqlc.narg('to')::TIMESTAMPTZ
+	)
+GROUP BY
+	resource_type,
+	action,
+	environment
+ORDER BY
+	resource_type,
+	action,
+	environment
+;
+
+-- name: FacetsForResource :many
+SELECT
+	resource_type,
+	action,
+	COALESCE(environment, '') AS environment,
+	COUNT(*) FILTER (
+		WHERE
+			(
+				sqlc.narg('filter')::TEXT[] IS NULL
+				OR (resource_type || ':' || action) = ANY (sqlc.narg('filter')::TEXT[])
+			)
+			AND (
+				sqlc.narg('filter_resource_types')::TEXT[] IS NULL
+				OR resource_type = ANY (sqlc.narg('filter_resource_types')::TEXT[])
+			)
+			AND (
+				sqlc.narg('filter_environments')::TEXT[] IS NULL
+				OR environment = ANY (sqlc.narg('filter_environments')::TEXT[])
+			)
+			AND (
+				sqlc.narg('filter_from')::TIMESTAMPTZ IS NULL
+				OR created_at >= sqlc.narg('filter_from')::TIMESTAMPTZ
+			)
+			AND (
+				sqlc.narg('filter_to')::TIMESTAMPTZ IS NULL
+				OR created_at < sqlc.narg('filter_to')::TIMESTAMPTZ
+			)
+	) AS filtered_count
+FROM
+	activity_log_combined_view
+WHERE
+	resource_type = @resource_type
+	AND resource_name = @resource_name
+	AND (
+		sqlc.narg('from')::TIMESTAMPTZ IS NULL
+		OR created_at >= sqlc.narg('from')::TIMESTAMPTZ
+	)
+	AND (
+		sqlc.narg('to')::TIMESTAMPTZ IS NULL
+		OR created_at < sqlc.narg('to')::TIMESTAMPTZ
+	)
+GROUP BY
+	resource_type,
+	action,
+	environment
+ORDER BY
+	resource_type,
+	action,
+	environment
+;
+
+-- name: FacetsForResourceAndTeam :many
+SELECT
+	resource_type,
+	action,
+	COALESCE(environment, '') AS environment,
+	COUNT(*) FILTER (
+		WHERE
+			(
+				sqlc.narg('filter')::TEXT[] IS NULL
+				OR (resource_type || ':' || action) = ANY (sqlc.narg('filter')::TEXT[])
+			)
+			AND (
+				sqlc.narg('filter_resource_types')::TEXT[] IS NULL
+				OR resource_type = ANY (sqlc.narg('filter_resource_types')::TEXT[])
+			)
+			AND (
+				sqlc.narg('filter_environments')::TEXT[] IS NULL
+				OR environment = ANY (sqlc.narg('filter_environments')::TEXT[])
+			)
+			AND (
+				sqlc.narg('filter_from')::TIMESTAMPTZ IS NULL
+				OR created_at >= sqlc.narg('filter_from')::TIMESTAMPTZ
+			)
+			AND (
+				sqlc.narg('filter_to')::TIMESTAMPTZ IS NULL
+				OR created_at < sqlc.narg('filter_to')::TIMESTAMPTZ
+			)
+	) AS filtered_count
+FROM
+	activity_log_combined_view
+WHERE
+	resource_type = @resource_type
+	AND resource_name = @resource_name
+	AND team_slug = @team_slug
+	AND (
+		sqlc.narg('from')::TIMESTAMPTZ IS NULL
+		OR created_at >= sqlc.narg('from')::TIMESTAMPTZ
+	)
+	AND (
+		sqlc.narg('to')::TIMESTAMPTZ IS NULL
+		OR created_at < sqlc.narg('to')::TIMESTAMPTZ
+	)
+GROUP BY
+	resource_type,
+	action,
+	environment
+ORDER BY
+	resource_type,
+	action,
+	environment
+;
+
+-- name: FacetsForResourceWithoutTeam :many
+SELECT
+	resource_type,
+	action,
+	COALESCE(environment, '') AS environment,
+	COUNT(*) FILTER (
+		WHERE
+			(
+				sqlc.narg('filter')::TEXT[] IS NULL
+				OR (resource_type || ':' || action) = ANY (sqlc.narg('filter')::TEXT[])
+			)
+			AND (
+				sqlc.narg('filter_resource_types')::TEXT[] IS NULL
+				OR resource_type = ANY (sqlc.narg('filter_resource_types')::TEXT[])
+			)
+			AND (
+				sqlc.narg('filter_environments')::TEXT[] IS NULL
+				OR environment = ANY (sqlc.narg('filter_environments')::TEXT[])
+			)
+			AND (
+				sqlc.narg('filter_from')::TIMESTAMPTZ IS NULL
+				OR created_at >= sqlc.narg('filter_from')::TIMESTAMPTZ
+			)
+			AND (
+				sqlc.narg('filter_to')::TIMESTAMPTZ IS NULL
+				OR created_at < sqlc.narg('filter_to')::TIMESTAMPTZ
+			)
+	) AS filtered_count
+FROM
+	activity_log_combined_view
+WHERE
+	resource_type = @resource_type
+	AND resource_name = @resource_name
+	AND team_slug IS NULL
+	AND (
+		sqlc.narg('from')::TIMESTAMPTZ IS NULL
+		OR created_at >= sqlc.narg('from')::TIMESTAMPTZ
+	)
+	AND (
+		sqlc.narg('to')::TIMESTAMPTZ IS NULL
+		OR created_at < sqlc.narg('to')::TIMESTAMPTZ
+	)
+GROUP BY
+	resource_type,
+	action,
+	environment
+ORDER BY
+	resource_type,
+	action,
+	environment
+;
+
+-- name: FacetsForResourceTeamAndEnvironment :many
+SELECT
+	resource_type,
+	action,
+	COALESCE(environment, '') AS environment,
+	COUNT(*) FILTER (
+		WHERE
+			(
+				sqlc.narg('filter')::TEXT[] IS NULL
+				OR (resource_type || ':' || action) = ANY (sqlc.narg('filter')::TEXT[])
+			)
+			AND (
+				sqlc.narg('filter_resource_types')::TEXT[] IS NULL
+				OR resource_type = ANY (sqlc.narg('filter_resource_types')::TEXT[])
+			)
+			AND (
+				sqlc.narg('filter_environments')::TEXT[] IS NULL
+				OR environment = ANY (sqlc.narg('filter_environments')::TEXT[])
+			)
+			AND (
+				sqlc.narg('filter_from')::TIMESTAMPTZ IS NULL
+				OR created_at >= sqlc.narg('filter_from')::TIMESTAMPTZ
+			)
+			AND (
+				sqlc.narg('filter_to')::TIMESTAMPTZ IS NULL
+				OR created_at < sqlc.narg('filter_to')::TIMESTAMPTZ
+			)
+	) AS filtered_count
+FROM
+	activity_log_combined_view
+WHERE
+	resource_type = @resource_type
+	AND resource_name = @resource_name
+	AND team_slug = @team_slug
+	AND environment = @environment_name
+	AND (
+		sqlc.narg('from')::TIMESTAMPTZ IS NULL
+		OR created_at >= sqlc.narg('from')::TIMESTAMPTZ
+	)
+	AND (
+		sqlc.narg('to')::TIMESTAMPTZ IS NULL
+		OR created_at < sqlc.narg('to')::TIMESTAMPTZ
+	)
+GROUP BY
+	resource_type,
+	action,
+	environment
+ORDER BY
+	resource_type,
+	action,
+	environment
+;
+
+-- name: FacetsForTenantActivityTypes :many
 SELECT
 	resource_type,
 	action,
@@ -261,26 +649,6 @@ FROM
 	activity_log_combined_view
 WHERE
 	(
-		CASE
-		-- match_null_team keeps facet counts consistent with ListForResourceAndTeam.
-			WHEN sqlc.arg('match_null_team')::BOOLEAN THEN team_slug IS NOT DISTINCT FROM sqlc.narg('team_slug')::TEXT
-			WHEN sqlc.narg('team_slug')::TEXT IS NULL THEN TRUE
-			ELSE team_slug = sqlc.narg('team_slug')
-		END
-	)
-	AND (
-		sqlc.narg('resource_type')::TEXT IS NULL
-		OR resource_type = sqlc.narg('resource_type')
-	)
-	AND (
-		sqlc.narg('resource_name')::TEXT IS NULL
-		OR resource_name = sqlc.narg('resource_name')
-	)
-	AND (
-		sqlc.narg('environment_name')::TEXT IS NULL
-		OR environment = sqlc.narg('environment_name')
-	)
-	AND (
 		sqlc.narg('from')::TIMESTAMPTZ IS NULL
 		OR created_at >= sqlc.narg('from')::TIMESTAMPTZ
 	)

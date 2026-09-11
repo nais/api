@@ -2,6 +2,7 @@ package activitylog
 
 import (
 	"context"
+	"fmt"
 	"slices"
 	"strings"
 
@@ -11,67 +12,200 @@ import (
 
 func ComputeFacets(ctx context.Context, scope *ActivityLogScope, filter *ActivityLogFilter) (*ActivityLogFacets, error) {
 	q := db(ctx)
+	filterValues := withFilters(filter)
+	resourceTypes := withResourceTypes(filter)
+	environments := withEnvironments(filter)
+	from := withFrom(filter)
+	to := withTo(filter)
 
-	activityTypeRows, err := q.FacetsForActivityTypes(ctx, activitylogsql.FacetsForActivityTypesParams{
-		TeamSlug:            scopeField(scope, func(s *ActivityLogScope) *string { return (*string)(s.TeamSlug) }),
-		MatchNullTeam:       scope != nil && scope.MatchNullTeam,
-		ResourceType:        scopeField(scope, func(s *ActivityLogScope) *string { return s.ResourceType }),
-		ResourceName:        scopeField(scope, func(s *ActivityLogScope) *string { return s.ResourceName }),
-		EnvironmentName:     scopeField(scope, func(s *ActivityLogScope) *string { return s.EnvironmentName }),
-		From:                withFrom(filter),
-		To:                  withTo(filter),
-		Filter:              withFilters(filter),
-		FilterResourceTypes: withResourceTypes(filter),
-		FilterEnvironments:  withEnvironments(filter),
-		FilterFrom:          withFrom(filter),
-		FilterTo:            withTo(filter),
-	})
-	if err != nil {
-		return nil, err
+	if scope != nil && scope.TenantWide {
+		rows, err := q.FacetsForTenantActivityTypes(ctx, activitylogsql.FacetsForTenantActivityTypesParams{
+			From:                from,
+			To:                  to,
+			Filter:              filterValues,
+			FilterResourceTypes: resourceTypes,
+			FilterEnvironments:  environments,
+			FilterFrom:          from,
+			FilterTo:            to,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		return buildFacets(rows, func(row *activitylogsql.FacetsForTenantActivityTypesRow) facetValues {
+			return facetValues{
+				resourceType:  row.ResourceType,
+				action:        row.Action,
+				environment:   row.Environment,
+				filteredCount: row.FilteredCount,
+			}
+		}), nil
 	}
 
-	return buildFacets(activityTypeRows), nil
-}
-
-func scopeField(scope *ActivityLogScope, fn func(*ActivityLogScope) *string) *string {
 	if scope == nil {
-		return nil
+		return nil, fmt.Errorf("activity log facet scope is required")
 	}
-	return fn(scope)
+
+	switch {
+	case scope.EnvironmentName != nil && scope.TeamSlug != nil && scope.ResourceType != nil && scope.ResourceName != nil:
+		rows, err := q.FacetsForResourceTeamAndEnvironment(ctx, activitylogsql.FacetsForResourceTeamAndEnvironmentParams{
+			Filter:              filterValues,
+			FilterResourceTypes: resourceTypes,
+			FilterEnvironments:  environments,
+			FilterFrom:          from,
+			FilterTo:            to,
+			ResourceType:        *scope.ResourceType,
+			ResourceName:        *scope.ResourceName,
+			TeamSlug:            scope.TeamSlug,
+			EnvironmentName:     scope.EnvironmentName,
+			From:                from,
+			To:                  to,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		return buildFacets(rows, facetValuesForResourceTeamAndEnvironment), nil
+
+	case scope.MatchNullTeam && scope.ResourceType != nil && scope.ResourceName != nil:
+		if scope.TeamSlug == nil {
+			rows, err := q.FacetsForResourceWithoutTeam(ctx, activitylogsql.FacetsForResourceWithoutTeamParams{
+				Filter:              filterValues,
+				FilterResourceTypes: resourceTypes,
+				FilterEnvironments:  environments,
+				FilterFrom:          from,
+				FilterTo:            to,
+				ResourceType:        *scope.ResourceType,
+				ResourceName:        *scope.ResourceName,
+				From:                from,
+				To:                  to,
+			})
+			if err != nil {
+				return nil, err
+			}
+
+			return buildFacets(rows, facetValuesForResourceWithoutTeam), nil
+		}
+
+		rows, err := q.FacetsForResourceAndTeam(ctx, activitylogsql.FacetsForResourceAndTeamParams{
+			Filter:              filterValues,
+			FilterResourceTypes: resourceTypes,
+			FilterEnvironments:  environments,
+			FilterFrom:          from,
+			FilterTo:            to,
+			ResourceType:        *scope.ResourceType,
+			ResourceName:        *scope.ResourceName,
+			TeamSlug:            scope.TeamSlug,
+			From:                from,
+			To:                  to,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		return buildFacets(rows, facetValuesForResourceAndTeam), nil
+
+	case scope.ResourceType != nil && scope.ResourceName != nil:
+		rows, err := q.FacetsForResource(ctx, activitylogsql.FacetsForResourceParams{
+			Filter:              filterValues,
+			FilterResourceTypes: resourceTypes,
+			FilterEnvironments:  environments,
+			FilterFrom:          from,
+			FilterTo:            to,
+			ResourceType:        *scope.ResourceType,
+			ResourceName:        *scope.ResourceName,
+			From:                from,
+			To:                  to,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		return buildFacets(rows, facetValuesForResource), nil
+
+	case scope.TeamSlug != nil:
+		rows, err := q.FacetsForTeam(ctx, activitylogsql.FacetsForTeamParams{
+			Filter:              filterValues,
+			FilterResourceTypes: resourceTypes,
+			FilterEnvironments:  environments,
+			FilterFrom:          from,
+			FilterTo:            to,
+			TeamSlug:            scope.TeamSlug,
+			From:                from,
+			To:                  to,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		return buildFacets(rows, facetValuesForTeam), nil
+
+	default:
+		return nil, fmt.Errorf("unsupported activity log facet scope")
+	}
 }
 
-func buildFacets(activityTypeRows []*activitylogsql.FacetsForActivityTypesRow) *ActivityLogFacets {
+func facetValuesForTeam(row *activitylogsql.FacetsForTeamRow) facetValues {
+	return facetValues{resourceType: row.ResourceType, action: row.Action, environment: row.Environment, filteredCount: row.FilteredCount}
+}
+
+func facetValuesForResource(row *activitylogsql.FacetsForResourceRow) facetValues {
+	return facetValues{resourceType: row.ResourceType, action: row.Action, environment: row.Environment, filteredCount: row.FilteredCount}
+}
+
+func facetValuesForResourceAndTeam(row *activitylogsql.FacetsForResourceAndTeamRow) facetValues {
+	return facetValues{resourceType: row.ResourceType, action: row.Action, environment: row.Environment, filteredCount: row.FilteredCount}
+}
+
+func facetValuesForResourceWithoutTeam(row *activitylogsql.FacetsForResourceWithoutTeamRow) facetValues {
+	return facetValues{resourceType: row.ResourceType, action: row.Action, environment: row.Environment, filteredCount: row.FilteredCount}
+}
+
+func facetValuesForResourceTeamAndEnvironment(row *activitylogsql.FacetsForResourceTeamAndEnvironmentRow) facetValues {
+	return facetValues{resourceType: row.ResourceType, action: row.Action, environment: row.Environment, filteredCount: row.FilteredCount}
+}
+
+type facetValues struct {
+	resourceType  string
+	action        string
+	environment   string
+	filteredCount int64
+}
+
+func buildFacets[T any](activityTypeRows []*T, values func(*T) facetValues) *ActivityLogFacets {
 	activityTypeCounts := map[ActivityLogActivityType]int{}
 	resourceTypeCounts := map[ActivityLogEntryResourceType]int{}
 	environmentCounts := map[string]int{}
 
 	for _, row := range activityTypeRows {
+		row := values(row)
+
 		// Seed with 0 to ensure all values that exist in this scope are present
-		rt := ActivityLogEntryResourceType(row.ResourceType)
+		rt := ActivityLogEntryResourceType(row.resourceType)
 		if _, ok := resourceTypeCounts[rt]; !ok {
 			resourceTypeCounts[rt] = 0
 		}
 
-		if row.Environment != "" {
-			if _, ok := environmentCounts[row.Environment]; !ok {
-				environmentCounts[row.Environment] = 0
+		if row.environment != "" {
+			if _, ok := environmentCounts[row.environment]; !ok {
+				environmentCounts[row.environment] = 0
 			}
 		}
 
-		for _, at := range LookupActivityTypes(row.ResourceType, row.Action) {
+		for _, at := range LookupActivityTypes(row.resourceType, row.action) {
 			if _, ok := activityTypeCounts[at]; !ok {
 				activityTypeCounts[at] = 0
 			}
 		}
 
-		filteredCount := int(row.FilteredCount)
+		filteredCount := int(row.filteredCount)
 		resourceTypeCounts[rt] += filteredCount
 
-		if row.Environment != "" {
-			environmentCounts[row.Environment] += filteredCount
+		if row.environment != "" {
+			environmentCounts[row.environment] += filteredCount
 		}
 
-		for _, at := range LookupActivityTypes(row.ResourceType, row.Action) {
+		for _, at := range LookupActivityTypes(row.resourceType, row.action) {
 			activityTypeCounts[at] += filteredCount
 		}
 	}

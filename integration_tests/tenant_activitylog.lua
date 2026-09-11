@@ -51,6 +51,85 @@ Test.gql("Create repository event for team two", function(t)
 	}
 end)
 
+Helper.SQLExec([[
+	INSERT INTO activity_log_entries (actor, action, resource_type, resource_name, team_slug, environment, data)
+	VALUES ('deployer', 'DEPLOYMENT', 'APP', 'deployed-app', 'slug-1', 'dev', '{}')
+]])
+
+Test.gql("Tenant activity log includes deployments", function(t)
+	t.addHeader("x-user-email", admin:email())
+
+	t.query [[
+		query {
+			activityLog(first: 10, filter: { activityTypes: [DEPLOYMENT] }) {
+				nodes {
+					resourceName
+				}
+				pageInfo {
+					totalCount
+				}
+				facets {
+					activityTypes {
+						activityType
+						count
+					}
+					resourceTypes {
+						resourceType
+						count
+					}
+					environments {
+						value
+						count
+					}
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			activityLog = {
+				nodes = {
+					{
+						resourceName = "deployed-app",
+					},
+				},
+				pageInfo = {
+					totalCount = 1,
+				},
+				facets = {
+					activityTypes = {
+						{
+							activityType = "DEPLOYMENT",
+							count = 1,
+						},
+						{
+							activityType = "REPOSITORY_ADDED",
+							count = 0,
+						},
+					},
+					resourceTypes = {
+						{
+							resourceType = "APP",
+							count = 1,
+						},
+						{
+							resourceType = "REPOSITORY",
+							count = 0,
+						},
+					},
+					environments = {
+						{
+							value = "dev",
+							count = 1,
+						},
+					},
+				},
+			},
+		},
+	}
+end)
+
 Test.gql("Tenant activity log returns facets and pagination metadata", function(t)
 	t.addHeader("x-user-email", admin:email())
 
@@ -103,17 +182,30 @@ Test.gql("Tenant activity log returns facets and pagination metadata", function(
 				facets = {
 					activityTypes = {
 						{
+							activityType = "DEPLOYMENT",
+							count = 0,
+						},
+						{
 							activityType = "REPOSITORY_ADDED",
 							count = 2,
 						},
 					},
 					resourceTypes = {
 						{
+							resourceType = "APP",
+							count = 0,
+						},
+						{
 							resourceType = "REPOSITORY",
 							count = 2,
 						},
 					},
-					environments = {},
+					environments = {
+						{
+							value = "dev",
+							count = 0,
+						},
+					},
 				},
 			},
 		},

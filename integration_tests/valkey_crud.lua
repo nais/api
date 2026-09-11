@@ -497,6 +497,62 @@ Test.gql("List valkeys for team", function(t)
 	}
 end)
 
+Test.gql("List activity log facets for valkey", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query [[
+		{
+		  team(slug: "someteamname") {
+		    environment(name: "dev") {
+		      valkey(name: "foobar") {
+		        activityLog {
+		          facets {
+		            activityTypes {
+		              activityType
+		              count
+		            }
+		            resourceTypes {
+		              resourceType
+		              count
+		            }
+		            environments {
+		              value
+		              count
+		            }
+		          }
+		        }
+		      }
+		    }
+		  }
+		}
+	]]
+
+	t.check {
+		data = {
+			team = {
+				environment = {
+					valkey = {
+						activityLog = {
+							facets = {
+								activityTypes = {
+									{ activityType = "VALKEY_CREATED", count = 1 },
+									{ activityType = "VALKEY_UPDATED", count = 1 },
+								},
+								resourceTypes = {
+									{ resourceType = "VALKEY", count = 2 },
+								},
+								environments = {
+									{ value = "dev", count = 2 },
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+end)
+
 Test.gql("Update Valkey with tier and memory equivalent to hobbyist plan", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[

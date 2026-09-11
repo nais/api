@@ -50,6 +50,7 @@ type ActivityLogScope struct {
 	ResourceType    *string
 	ResourceName    *string
 	EnvironmentName *string
+	TenantWide      bool
 
 	// MatchNullTeam reads a nil TeamSlug as "no team" rather than "any team". Required where a resource
 	// name is only unique within a team.
