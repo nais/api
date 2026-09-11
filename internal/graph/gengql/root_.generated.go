@@ -1051,6 +1051,7 @@ type ComplexityRoot struct {
 		ID                       func(childComplexity int) int
 		Identifier               func(childComplexity int) int
 		KnownRansomwareUse       func(childComplexity int) int
+		LatestVersion            func(childComplexity int) int
 		Package                  func(childComplexity int) int
 		Priority                 func(childComplexity int) int
 		Severity                 func(childComplexity int) int
@@ -7351,6 +7352,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ImageVulnerability.KnownRansomwareUse(childComplexity), true
+
+	case "ImageVulnerability.latestVersion":
+		if e.ComplexityRoot.ImageVulnerability.LatestVersion == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImageVulnerability.LatestVersion(childComplexity), true
 
 	case "ImageVulnerability.package":
 		if e.ComplexityRoot.ImageVulnerability.Package == nil {
@@ -32820,6 +32828,12 @@ type ImageVulnerability implements Node {
 	"First known package version that contains a fix."
 	fixVersion: String
 
+	"""
+	Latest available version of the package, which may include changes beyond
+	just the fix for this vulnerability. Null if unknown.
+	"""
+	latestVersion: String
+
 	suppression: ImageVulnerabilitySuppression
 
 	"Timestamp of when the vulnerability got its current severity."
@@ -35235,6 +35249,8 @@ func (ec *executionContext) childFields_ImageVulnerability(ctx context.Context, 
 		return ec.fieldContext_ImageVulnerability_package(ctx, field)
 	case "fixVersion":
 		return ec.fieldContext_ImageVulnerability_fixVersion(ctx, field)
+	case "latestVersion":
+		return ec.fieldContext_ImageVulnerability_latestVersion(ctx, field)
 	case "suppression":
 		return ec.fieldContext_ImageVulnerability_suppression(ctx, field)
 	case "severitySince":
