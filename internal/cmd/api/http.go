@@ -191,7 +191,7 @@ func ConfigureGraph(
 	tenantName string,
 	clusters []string,
 	hookdClient hookd.Client,
-	unleashCfg unleashConfig,
+	unleashCfg UnleashConfig,
 	allowedClusters []string,
 	defaultLogDestinations []logging.SupportedLogDestination,
 	notifier *notify.Notifier,

@@ -102,7 +102,7 @@ type oAuthConfig struct {
 	AdditionalScopes []string `env:"OAUTH_ADDITIONAL_SCOPES"`
 }
 
-type unleashConfig struct {
+type UnleashConfig struct {
 	// Enabled is Unleash is running
 	Enabled bool `env:"UNLEASH_ENABLED,default=false"`
 	// BifrostApiEndpoint is the endpoint for the Bifrost API
@@ -207,7 +207,7 @@ type Config struct {
 	VulnerabilitiesAPI vulnerabilitiesConfig
 	Hookd              hookdConfig
 	OAuth              oAuthConfig
-	Unleash            unleashConfig
+	Unleash            UnleashConfig
 	Logging            loggingConfig
 	Zitadel            zitadelConfig
 	Fakes              Fakes
