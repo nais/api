@@ -2003,6 +2003,7 @@ type ComplexityRoot struct {
 		UserSyncLog               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		Users                     func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *user.UserOrder) int
 		VulnerabilityFixHistory   func(childComplexity int, from scalar.Date) int
+		VulnerabilitySummaries    func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *vulnerability.TenantVulnerabilitySummaryFilter, orderBy *vulnerability.VulnerabilitySummaryOrder) int
 		VulnerabilitySummary      func(childComplexity int) int
 	}
 
@@ -12119,6 +12120,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Query.VulnerabilityFixHistory(childComplexity, args["from"].(scalar.Date)), true
 
+	case "Query.vulnerabilitySummaries":
+		if e.ComplexityRoot.Query.VulnerabilitySummaries == nil {
+			break
+		}
+
+		args, err := ec.field_Query_vulnerabilitySummaries_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Query.VulnerabilitySummaries(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["filter"].(*vulnerability.TenantVulnerabilitySummaryFilter), args["orderBy"].(*vulnerability.VulnerabilitySummaryOrder)), true
+
 	case "Query.vulnerabilitySummary":
 		if e.ComplexityRoot.Query.VulnerabilitySummary == nil {
 			break
@@ -20115,6 +20128,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputTeamRepositoryFilter,
 		ec.unmarshalInputTeamVulnerabilitySummaryFilter,
 		ec.unmarshalInputTeamWorkloadsFilter,
+		ec.unmarshalInputTenantVulnerabilitySummaryFilter,
 		ec.unmarshalInputTriggerJobInput,
 		ec.unmarshalInputUpdateApplicationInput,
 		ec.unmarshalInputUpdateApplicationReplicasInput,
@@ -32585,6 +32599,24 @@ extend type Query {
 	"Get the vulnerability summary for the tenant."
 	vulnerabilitySummary: TenantVulnerabilitySummary!
 
+	"List per-workload vulnerability summaries across all teams."
+	vulnerabilitySummaries(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+
+		filter: TenantVulnerabilitySummaryFilter
+		orderBy: VulnerabilitySummaryOrder
+	): WorkloadVulnerabilitySummaryConnection!
+
 	"Get the mean time to fix history for all teams."
 	vulnerabilityFixHistory(from: Date!): VulnerabilityFixHistory!
 
@@ -32836,6 +32868,30 @@ input TeamVulnerabilitySummaryFilter {
 	single-element priorities list. Ignored if priorities is also set.
 	"""
 	priority: CVEPriority @deprecated(reason: "Use priorities instead, which accepts a list.")
+
+	"""
+	Only return vulnerability summaries with (true) or without (false) at least
+	one CISA Known Exploited Vulnerabilities (KEV) catalog entry.
+	"""
+	hasKevEntry: Boolean
+}
+
+"""
+Input for filtering vulnerability summaries across all teams.
+"""
+input TenantVulnerabilitySummaryFilter {
+	"""
+	Only return vulnerability summaries whose highest priority is exactly one of
+	the given values. URGENT is workload-contextual and cannot be resolved at
+	summary scope, so including it in this set is rejected as an error.
+	"""
+	priorities: [CVEPriority!]
+
+	"""
+	Only return vulnerability summaries with (true) or without (false) at least
+	one CISA Known Exploited Vulnerabilities (KEV) catalog entry.
+	"""
+	hasKevEntry: Boolean
 }
 
 """
@@ -32854,6 +32910,12 @@ input ImageVulnerabilityFilter {
 	including it in this set is rejected as an error.
 	"""
 	priorities: [CVEPriority!]
+
+	"""
+	Only return vulnerabilities with (true) or without (false) a CISA Known
+	Exploited Vulnerabilities (KEV) catalog entry.
+	"""
+	hasKevEntry: Boolean
 }
 
 type ImageVulnerabilitySummary {

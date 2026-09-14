@@ -154,6 +154,9 @@ func NewComplexityRoot() ComplexityRoot {
 	c.Query.Users = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *user.UserOrder) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
+	c.Query.VulnerabilitySummaries = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *vulnerability.TenantVulnerabilitySummaryFilter, orderBy *vulnerability.VulnerabilitySummaryOrder) int {
+		return cursorComplexity(first, last) * childComplexity
+	}
 	c.Reconciler.ActivityLog = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
