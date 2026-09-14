@@ -170,7 +170,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	// waiting for goroutines that need context cancellation to exit.
 	defer cancel()
 
-	watchers := watchers.SetupWatchers(ctx, watcherMgr, mgmtWatcherMgr)
+	watchers := watchers.SetupWatchers(ctx, watcherMgr, mgmtWatcherMgr, cfg.Unleash.Enabled)
 
 	pubsubClient, err := pubsub.NewClient(ctx, cfg.GoogleManagementProjectID)
 	if err != nil {
@@ -322,8 +322,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		cfg.Tenant,
 		cfg.K8s.AllClusterNames(),
 		hookdClient,
-		cfg.Unleash.BifrostAPIURL,
-		cfg.Unleash.BifrostAPIKey,
+		cfg.Unleash,
 		cfg.K8s.AllClusterNames(),
 		cfg.Logging.DefaultLogDestinations(),
 		notifier,
@@ -426,7 +425,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 
 	// Create Bifrost client for Unleash issue checker
 	var bifrostClient unleash.BifrostClient
-	if cfg.Unleash.BifrostAPIURL == unleash.FakeBifrostURL {
+	if !cfg.Unleash.Enabled || cfg.Unleash.BifrostAPIURL == unleash.FakeBifrostURL {
 		bifrostClient = unleash.NewFakeBifrostClient(watchers.UnleashWatcher)
 	} else {
 		// Reported once here rather than in the constructor, which runs per

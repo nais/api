@@ -191,8 +191,7 @@ func ConfigureGraph(
 	tenantName string,
 	clusters []string,
 	hookdClient hookd.Client,
-	bifrostAPIURL string,
-	bifrostAPIKey string,
+	unleashCfg unleashConfig,
 	allowedClusters []string,
 	defaultLogDestinations []logging.SupportedLogDestination,
 	notifier *notify.Notifier,
@@ -375,13 +374,14 @@ func ConfigureGraph(
 		ctx = serviceaccount.NewLoaderContext(ctx, pool)
 		ctx = session.NewLoaderContext(ctx, pool)
 		ctx = search.NewLoaderContext(ctx, pool, searcher)
-		ctx = unleash.NewLoaderContext(ctx, tenantName, watchers.UnleashWatcher, bifrostAPIURL, bifrostAPIKey, allowedClusters, log)
+		ctx = unleash.NewLoaderContext(ctx, tenantName, watchers.UnleashWatcher, unleashCfg.Enabled, unleashCfg.BifrostAPIURL, unleashCfg.BifrostAPIKey, allowedClusters, log)
 		ctx = tunnel.WithLoaders(ctx, tunnel.NewLoaders(watchers.TunnelWatcher))
 		ctx = logging.NewPackageContext(ctx, tenantName, defaultLogDestinations)
 		ctx = environment.NewLoaderContext(ctx, pool)
+		unleashAvailable := unleashCfg.Enabled && watchers.UnleashWatcher != nil && watchers.UnleashWatcher.Enabled()
 		ctx = feature.NewLoaderContext(
 			ctx,
-			watchers.UnleashWatcher.Enabled(),
+			unleashAvailable,
 			watchers.ValkeyWatcher.Enabled(),
 			watchers.KafkaTopicWatcher.Enabled(),
 			watchers.OpenSearchWatcher.Enabled(),

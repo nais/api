@@ -80,8 +80,9 @@ func SetupWatchers(
 	ctx context.Context,
 	watcherMgr *watcher.Manager,
 	mgmtWatcherMgr *watcher.Manager,
+	unleashEnabled bool,
 ) *Watchers {
-	return &Watchers{
+	ret := &Watchers{
 		AppWatcher:             application.NewWatcher(ctx, watcherMgr),
 		JobWatcher:             job.NewWatcher(ctx, watcherMgr),
 		RunWatcher:             job.NewRunWatcher(ctx, watcherMgr),
@@ -97,11 +98,14 @@ func SetupWatchers(
 		PodWatcher:             workload.NewWatcher(ctx, watcherMgr),
 		IngressWatcher:         application.NewIngressWatcher(ctx, watcherMgr),
 		NamespaceWatcher:       team.NewNamespaceWatcher(ctx, watcherMgr),
-		UnleashWatcher:         unleash.NewWatcher(ctx, mgmtWatcherMgr),
 		SecretWatcher:          secret.NewWatcher(ctx, watcherMgr),
 		ConfigWatcher:          config.NewWatcher(ctx, watcherMgr),
 		ReplicaSetWatcher:      instancegroup.NewWatcher(ctx, watcherMgr),
 		TunnelWatcher:          tunnel.NewWatcher(ctx, watcherMgr),
 		NaisValkeyWatcher:      valkey.NewNaisValkeyWatcher(ctx, watcherMgr),
 	}
+	if unleashEnabled {
+		ret.UnleashWatcher = unleash.NewWatcher(ctx, mgmtWatcherMgr)
+	}
+	return ret
 }

@@ -37,7 +37,15 @@ func GetByIdent(ctx context.Context, id ident.Ident) (*UnleashInstance, error) {
 }
 
 func ForTeam(ctx context.Context, teamSlug slug.Slug) (*UnleashInstance, error) {
-	return fromContext(ctx).unleashWatcher.Get("management", ManagementClusterNamespace, teamSlug.String())
+	l := fromContext(ctx)
+	if !l.enabled || l.unleashWatcher == nil {
+		return nil, &watcher.ErrorNotFound{
+			Cluster:   "management",
+			Namespace: ManagementClusterNamespace,
+			Name:      teamSlug.String(),
+		}
+	}
+	return l.unleashWatcher.Get("management", ManagementClusterNamespace, teamSlug.String())
 }
 
 func Create(ctx context.Context, input *CreateUnleashForTeamInput) (*UnleashInstance, error) {

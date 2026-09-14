@@ -144,7 +144,7 @@ func newManager(_ context.Context, container *postgres.PostgresContainer, connSt
 			return ctx, nil, nil, fmt.Errorf("failed to create management watcher manager: %w", err)
 		}
 
-		watchers := watchers.SetupWatchers(ctx, watcherMgr, managementWatcherMgr)
+		watchers := watchers.SetupWatchers(ctx, watcherMgr, managementWatcherMgr, true)
 
 		lokiClient, err := loki.NewClient("tenant", log.WithField("subsystem", "loki_client"), loki.WithLocalLoki("http://127.0.0.1:3100"))
 		if err != nil {
@@ -283,6 +283,7 @@ func newGQLRunner(
 		config.TenantName,
 		clusters(),
 		fakeHookd.New(),
+		true, // unleash enabled in integration tests
 		unleash.FakeBifrostURL,
 		"", // bifrost API key: the harness uses the fake client, which needs none
 		[]string{"dev", "staging", "dev-fss", "dev-gcp"},
