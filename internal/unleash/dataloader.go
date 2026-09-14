@@ -37,9 +37,9 @@ func (r mimirRoundTrip) RoundTrip(req *http.Request) (*http.Response, error) {
 }
 
 // NewLoaderContext creates a new context with a loaders value.
-// If *fake* is provided as bifrostAPIURL, a fake client will be used.
-func NewLoaderContext(ctx context.Context, tenantName string, appWatcher *watcher.Watcher[*UnleashInstance], bifrostAPIURL, bifrostAPIKey string, allowedClusters []string, log logrus.FieldLogger) context.Context {
-	return context.WithValue(ctx, loadersKey, newLoaders(tenantName, appWatcher, bifrostAPIURL, bifrostAPIKey, allowedClusters, log))
+// If *fake* is provided as bifrostAPIURL, or unleash is disabled, fake clients will be used.
+func NewLoaderContext(ctx context.Context, tenantName string, appWatcher *watcher.Watcher[*UnleashInstance], enabled bool, bifrostAPIURL, bifrostAPIKey string, allowedClusters []string, log logrus.FieldLogger) context.Context {
+	return context.WithValue(ctx, loadersKey, newLoaders(tenantName, appWatcher, enabled, bifrostAPIURL, bifrostAPIKey, allowedClusters, log))
 }
 
 func NewWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watcher[*UnleashInstance] {
@@ -56,14 +56,15 @@ type loaders struct {
 	unleashWatcher  *watcher.Watcher[*UnleashInstance]
 	prometheus      Prometheus
 	bifrostClient   BifrostClient
+	enabled         bool
 	allowedClusters string
 	log             logrus.FieldLogger
 }
 
-func newLoaders(tenantName string, appWatcher *watcher.Watcher[*UnleashInstance], bifrostAPIURL, bifrostAPIKey string, allowedClusters []string, log logrus.FieldLogger) *loaders {
+func newLoaders(tenantName string, appWatcher *watcher.Watcher[*UnleashInstance], enabled bool, bifrostAPIURL, bifrostAPIKey string, allowedClusters []string, log logrus.FieldLogger) *loaders {
 	var client BifrostClient
 	var prometheus Prometheus
-	if bifrostAPIURL == FakeBifrostURL {
+	if !enabled || bifrostAPIURL == FakeBifrostURL {
 		client = NewFakeBifrostClient(appWatcher)
 		prometheus = NewFakePrometheusClient()
 	} else {
@@ -92,9 +93,15 @@ func newLoaders(tenantName string, appWatcher *watcher.Watcher[*UnleashInstance]
 		unleashWatcher:  appWatcher,
 		bifrostClient:   client,
 		prometheus:      prometheus,
+		enabled:         enabled,
 		allowedClusters: allowedClustersStr,
 		log:             log,
 	}
+}
+
+// Enabled reports whether the Unleash feature is enabled for this context.
+func Enabled(ctx context.Context) bool {
+	return fromContext(ctx).enabled
 }
 
 func (l *loaders) PromQuery(ctx context.Context, q string) (model.SampleValue, error) {

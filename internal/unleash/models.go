@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/team"
@@ -15,6 +16,8 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 )
+
+var ErrorUnleashNotEnabled = apierror.Errorf("Unleash is not enabled for this tenant.")
 
 type UnleashInstance struct {
 	Name       string                  `json:"name"`

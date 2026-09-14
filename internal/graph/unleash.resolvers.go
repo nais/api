@@ -13,6 +13,10 @@ import (
 )
 
 func (r *mutationResolver) CreateUnleashForTeam(ctx context.Context, input unleash.CreateUnleashForTeamInput) (*unleash.CreateUnleashForTeamPayload, error) {
+	if !unleash.Enabled(ctx) {
+		return nil, unleash.ErrorUnleashNotEnabled
+	}
+
 	if err := authz.CanCreateUnleash(ctx, input.TeamSlug); err != nil {
 		return nil, err
 	}
@@ -26,6 +30,10 @@ func (r *mutationResolver) CreateUnleashForTeam(ctx context.Context, input unlea
 }
 
 func (r *mutationResolver) UpdateUnleashInstance(ctx context.Context, input unleash.UpdateUnleashInstanceInput) (*unleash.UpdateUnleashInstancePayload, error) {
+	if !unleash.Enabled(ctx) {
+		return nil, unleash.ErrorUnleashNotEnabled
+	}
+
 	if err := authz.CanUpdateUnleash(ctx, input.TeamSlug); err != nil {
 		return nil, err
 	}
@@ -39,6 +47,10 @@ func (r *mutationResolver) UpdateUnleashInstance(ctx context.Context, input unle
 }
 
 func (r *mutationResolver) AllowTeamAccessToUnleash(ctx context.Context, input unleash.AllowTeamAccessToUnleashInput) (*unleash.AllowTeamAccessToUnleashPayload, error) {
+	if !unleash.Enabled(ctx) {
+		return nil, unleash.ErrorUnleashNotEnabled
+	}
+
 	if err := authz.CanUpdateUnleash(ctx, input.TeamSlug); err != nil {
 		return nil, err
 	}
@@ -52,6 +64,10 @@ func (r *mutationResolver) AllowTeamAccessToUnleash(ctx context.Context, input u
 }
 
 func (r *mutationResolver) RevokeTeamAccessToUnleash(ctx context.Context, input unleash.RevokeTeamAccessToUnleashInput) (*unleash.RevokeTeamAccessToUnleashPayload, error) {
+	if !unleash.Enabled(ctx) {
+		return nil, unleash.ErrorUnleashNotEnabled
+	}
+
 	if err := authz.CanUpdateUnleash(ctx, input.TeamSlug); err != nil {
 		return nil, err
 	}
@@ -65,6 +81,10 @@ func (r *mutationResolver) RevokeTeamAccessToUnleash(ctx context.Context, input 
 }
 
 func (r *mutationResolver) DeleteUnleashInstance(ctx context.Context, input unleash.DeleteUnleashInstanceInput) (*unleash.DeleteUnleashInstancePayload, error) {
+	if !unleash.Enabled(ctx) {
+		return nil, unleash.ErrorUnleashNotEnabled
+	}
+
 	if err := authz.CanDeleteUnleash(ctx, input.TeamSlug); err != nil {
 		return nil, err
 	}
@@ -78,10 +98,18 @@ func (r *mutationResolver) DeleteUnleashInstance(ctx context.Context, input unle
 }
 
 func (r *queryResolver) UnleashReleaseChannels(ctx context.Context) ([]*unleash.UnleashReleaseChannel, error) {
+	if !unleash.Enabled(ctx) {
+		return nil, unleash.ErrorUnleashNotEnabled
+	}
+
 	return unleash.GetReleaseChannels(ctx)
 }
 
 func (r *teamResolver) Unleash(ctx context.Context, obj *team.Team) (*unleash.UnleashInstance, error) {
+	if !unleash.Enabled(ctx) {
+		return nil, nil
+	}
+
 	ins, err := unleash.ForTeam(ctx, obj.Slug)
 	if err != nil && !errors.Is(err, &watcher.ErrorNotFound{}) {
 		return nil, err
@@ -99,15 +127,23 @@ func (r *unleashInstanceResolver) AllowedTeams(ctx context.Context, obj *unleash
 }
 
 func (r *unleashInstanceMetricsResolver) Toggles(ctx context.Context, obj *unleash.UnleashInstanceMetrics) (int, error) {
+	if !unleash.Enabled(ctx) {
+		return 0, nil
+	}
+
 	return unleash.Toggles(ctx, obj.TeamSlug)
 }
 
 func (r *unleashInstanceMetricsResolver) APITokens(ctx context.Context, obj *unleash.UnleashInstanceMetrics) (int, error) {
+	if !unleash.Enabled(ctx) {
+		return 0, nil
+	}
+
 	return unleash.APITokens(ctx, obj.TeamSlug)
 }
 
 func (r *unleashInstanceMetricsResolver) CPUUtilization(ctx context.Context, obj *unleash.UnleashInstanceMetrics) (float64, error) {
-	if obj.CPURequests == 0 {
+	if !unleash.Enabled(ctx) || obj.CPURequests == 0 {
 		return 0, nil
 	}
 
@@ -120,7 +156,7 @@ func (r *unleashInstanceMetricsResolver) CPUUtilization(ctx context.Context, obj
 }
 
 func (r *unleashInstanceMetricsResolver) MemoryUtilization(ctx context.Context, obj *unleash.UnleashInstanceMetrics) (float64, error) {
-	if obj.MemoryRequests == 0 {
+	if !unleash.Enabled(ctx) || obj.MemoryRequests == 0 {
 		return 0, nil
 	}
 
