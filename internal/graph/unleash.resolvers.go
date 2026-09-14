@@ -5,7 +5,6 @@ import (
 	"errors"
 
 	"github.com/nais/api/internal/auth/authz"
-	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/kubernetes/watcher"
@@ -13,11 +12,9 @@ import (
 	"github.com/nais/api/internal/unleash"
 )
 
-var errUnleashNotEnabled = apierror.Errorf("Unleash is not enabled for this tenant.")
-
 func (r *mutationResolver) CreateUnleashForTeam(ctx context.Context, input unleash.CreateUnleashForTeamInput) (*unleash.CreateUnleashForTeamPayload, error) {
 	if !unleash.Enabled(ctx) {
-		return nil, errUnleashNotEnabled
+		return nil, unleash.ErrorUnleashNotEnabled
 	}
 
 	if err := authz.CanCreateUnleash(ctx, input.TeamSlug); err != nil {
@@ -34,7 +31,7 @@ func (r *mutationResolver) CreateUnleashForTeam(ctx context.Context, input unlea
 
 func (r *mutationResolver) UpdateUnleashInstance(ctx context.Context, input unleash.UpdateUnleashInstanceInput) (*unleash.UpdateUnleashInstancePayload, error) {
 	if !unleash.Enabled(ctx) {
-		return nil, errUnleashNotEnabled
+		return nil, unleash.ErrorUnleashNotEnabled
 	}
 
 	if err := authz.CanUpdateUnleash(ctx, input.TeamSlug); err != nil {
@@ -51,7 +48,7 @@ func (r *mutationResolver) UpdateUnleashInstance(ctx context.Context, input unle
 
 func (r *mutationResolver) AllowTeamAccessToUnleash(ctx context.Context, input unleash.AllowTeamAccessToUnleashInput) (*unleash.AllowTeamAccessToUnleashPayload, error) {
 	if !unleash.Enabled(ctx) {
-		return nil, errUnleashNotEnabled
+		return nil, unleash.ErrorUnleashNotEnabled
 	}
 
 	if err := authz.CanUpdateUnleash(ctx, input.TeamSlug); err != nil {
@@ -68,7 +65,7 @@ func (r *mutationResolver) AllowTeamAccessToUnleash(ctx context.Context, input u
 
 func (r *mutationResolver) RevokeTeamAccessToUnleash(ctx context.Context, input unleash.RevokeTeamAccessToUnleashInput) (*unleash.RevokeTeamAccessToUnleashPayload, error) {
 	if !unleash.Enabled(ctx) {
-		return nil, errUnleashNotEnabled
+		return nil, unleash.ErrorUnleashNotEnabled
 	}
 
 	if err := authz.CanUpdateUnleash(ctx, input.TeamSlug); err != nil {
@@ -85,7 +82,7 @@ func (r *mutationResolver) RevokeTeamAccessToUnleash(ctx context.Context, input 
 
 func (r *mutationResolver) DeleteUnleashInstance(ctx context.Context, input unleash.DeleteUnleashInstanceInput) (*unleash.DeleteUnleashInstancePayload, error) {
 	if !unleash.Enabled(ctx) {
-		return nil, errUnleashNotEnabled
+		return nil, unleash.ErrorUnleashNotEnabled
 	}
 
 	if err := authz.CanDeleteUnleash(ctx, input.TeamSlug); err != nil {
@@ -102,7 +99,7 @@ func (r *mutationResolver) DeleteUnleashInstance(ctx context.Context, input unle
 
 func (r *queryResolver) UnleashReleaseChannels(ctx context.Context) ([]*unleash.UnleashReleaseChannel, error) {
 	if !unleash.Enabled(ctx) {
-		return nil, errUnleashNotEnabled
+		return nil, unleash.ErrorUnleashNotEnabled
 	}
 
 	return unleash.GetReleaseChannels(ctx)
