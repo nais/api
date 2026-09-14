@@ -38,7 +38,7 @@ func (r mimirRoundTrip) RoundTrip(req *http.Request) (*http.Response, error) {
 
 // NewLoaderContext creates a new context with a loaders value.
 // If *fake* is provided as bifrostAPIURL, or unleash is disabled, fake clients will be used.
-func NewLoaderContext(ctx context.Context, tenantName string, appWatcher *watcher.Watcher[*UnleashInstance], cfg  enabled bool, bifrostAPIURL, bifrostAPIKey string, allowedClusters []string, log logrus.FieldLogger) context.Context {
+func NewLoaderContext(ctx context.Context, tenantName string, appWatcher *watcher.Watcher[*UnleashInstance], enabled bool, bifrostAPIURL, bifrostAPIKey string, allowedClusters []string, log logrus.FieldLogger) context.Context {
 	return context.WithValue(ctx, loadersKey, newLoaders(tenantName, appWatcher, enabled, bifrostAPIURL, bifrostAPIKey, allowedClusters, log))
 }
 
