@@ -103,6 +103,8 @@ type oAuthConfig struct {
 }
 
 type unleashConfig struct {
+	// Enabled is Unleash is running
+	Enabled bool `env:"UNLEASH_ENABLED,default=false"`
 	// BifrostApiEndpoint is the endpoint for the Bifrost API
 	BifrostAPIURL string `env:"UNLEASH_BIFROST_API_URL,default=*fake*"`
 	// BifrostAPIKey is the pre-shared key sent to the Bifrost API. Provisioned
