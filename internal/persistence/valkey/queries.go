@@ -48,11 +48,7 @@ func GetByIdent(ctx context.Context, id ident.Ident) (*Valkey, error) {
 func Get(ctx context.Context, teamSlug slug.Slug, environment, name string) (*Valkey, error) {
 	v, err := fromContext(ctx).naisWatcher.Get(environment, teamSlug.String(), name)
 	if errors.Is(err, &watcher.ErrorNotFound{}) {
-		prefix := instanceNamer(teamSlug, "")
-		if !strings.HasPrefix(name, prefix) {
-			name = instanceNamer(teamSlug, name)
-		}
-		v, err = fromContext(ctx).watcher.Get(environment, teamSlug.String(), name)
+		v, err = fromContext(ctx).watcher.Get(environment, teamSlug.String(), fullyQualifiedName(teamSlug, name))
 	}
 	return v, err
 }
@@ -104,6 +100,48 @@ func ListAccess(ctx context.Context, valkey *Valkey, page *pagination.Pagination
 
 	ret := pagination.Slice(all, page)
 	return pagination.NewConnection(ret, page, len(all)), nil
+}
+
+// GetValkeyVersion reports the version the instance is heading for alongside the one Aiven has it
+// running. The former is what the reconciler will settle on, which is not always the spec value.
+// An unreachable Aiven degrades it to the spec value rather than failing: the field is non-null the
+// whole way up to the team query, so an error here would blank the entire response.
+func GetValkeyVersion(ctx context.Context, v *Valkey) (*ValkeyVersion, error) {
+	project, err := aiven.GetProject(ctx, v.EnvironmentName)
+	if err != nil {
+		return nil, err
+	}
+
+	major := v.MajorVersion
+	var actual *string
+
+	reported, err := fromContext(ctx).versionLoader.Load(ctx, aiven.DataLoaderKey{
+		Project:     project.ID,
+		ServiceName: v.FullyQualifiedName(),
+	})
+	if err != nil {
+		fromContext(ctx).log.WithError(err).Warnf("fetching Valkey version for %q", v.FullyQualifiedName())
+	} else if reported != "" {
+		actual = new(reported)
+	}
+
+	// The reconciler adopts a running version newer than the spec, so the spec value on its own is
+	// not where the instance is heading. Resolving here keeps the reported desire and the stored
+	// one from disagreeing.
+	if resolved, err := major.toPgrator().Resolve(reported); err == nil {
+		major = valkeyMajorVersionFromPgrator(resolved)
+	} else {
+		fromContext(ctx).log.WithError(err).Warnf("resolving Valkey version for %q", v.FullyQualifiedName())
+	}
+
+	if major == "" {
+		major = ValkeyMajorVersionV9_1
+	}
+
+	return &ValkeyVersion{
+		DesiredMajor: major,
+		Actual:       actual,
+	}, nil
 }
 
 func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName string, references []nais_io_v1.Valkey, orderBy *ValkeyOrder) (*ValkeyConnection, error) {
@@ -173,8 +211,9 @@ func Create(ctx context.Context, input CreateValkeyInput) (*CreateValkeyPayload,
 			Namespace: input.TeamSlug.String(),
 		},
 		Spec: naiscrd.ValkeySpec{
-			Tier:   toMapperatorTier(input.Tier),
-			Memory: toMapperatorMemory(input.Memory),
+			Tier:    toMapperatorTier(input.Tier),
+			Memory:  toMapperatorMemory(input.Memory),
+			Version: input.Version.toPgrator(),
 		},
 	}
 	res.SetAnnotations(kubernetes.WithCommonAnnotations(nil, authz.ActorFromContext(ctx).User.Identity()))
@@ -263,6 +302,9 @@ func Update(ctx context.Context, input UpdateValkeyInput) (*UpdateValkeyPayload,
 	updateFuncs := []func(*naiscrd.Valkey, UpdateValkeyInput) ([]*ValkeyUpdatedActivityLogEntryDataUpdatedField, error){
 		updateTier,
 		updateMemory,
+		func(v *naiscrd.Valkey, in UpdateValkeyInput) ([]*ValkeyUpdatedActivityLogEntryDataUpdatedField, error) {
+			return updateVersion(ctx, v, in)
+		},
 		updateMaxMemoryPolicy,
 		updateNotifyKeyspaceEvents,
 		updateDatabases,
@@ -437,6 +479,75 @@ func updateMemory(valkey *naiscrd.Valkey, input UpdateValkeyInput) ([]*ValkeyUpd
 	valkey.Spec.Memory = toMapperatorMemory(input.Memory)
 
 	return changes, nil
+}
+
+func updateVersion(ctx context.Context, valkey *naiscrd.Valkey, input UpdateValkeyInput) ([]*ValkeyUpdatedActivityLogEntryDataUpdatedField, error) {
+	if input.Version == nil {
+		return nil, nil
+	}
+
+	// Resolution can override the request, and a request can change nothing at all. Either way what
+	// was asked for is recorded rather than left to be inferred from the stored value.
+	changes := []*ValkeyUpdatedActivityLogEntryDataUpdatedField{{
+		Field:    "versionRequested",
+		NewValue: new(input.Version.String()),
+	}}
+
+	origVersion := valkeyMajorVersionFromPgrator(valkey.Spec.Version)
+	if origVersion == *input.Version {
+		return changes, nil
+	}
+
+	// pgrator's admission can only compare the old and new spec values. Its reconciler additionally
+	// orders both against what Aiven runs, and adopts the running version when that is newer. The
+	// resolution is deferred to it so the stored version is always one it will accept.
+	reported, err := reportedValkeyVersion(ctx, valkey, input.EnvironmentName)
+	if err != nil {
+		return nil, err
+	}
+
+	resolved, err := input.Version.toPgrator().Resolve(reported)
+	if err != nil {
+		return nil, apierror.Errorf("%s", err)
+	}
+	valkey.Spec.Version = resolved
+
+	if valkeyMajorVersionFromPgrator(resolved) == origVersion {
+		return changes, nil
+	}
+
+	var oldValue *string
+	if origVersion != "" {
+		oldValue = new(origVersion.String())
+	}
+
+	return append(changes, &ValkeyUpdatedActivityLogEntryDataUpdatedField{
+		Field:    "version",
+		OldValue: oldValue,
+		NewValue: new(valkeyMajorVersionFromPgrator(resolved).String()),
+	}), nil
+}
+
+// reportedValkeyVersion returns the version string Aiven has the instance running, empty when Aiven
+// does not hold the instance yet. The string is left raw: pgrator maps and orders it itself.
+func reportedValkeyVersion(ctx context.Context, valkey *naiscrd.Valkey, environmentName string) (string, error) {
+	project, err := aiven.GetProject(ctx, environmentName)
+	if err != nil {
+		return "", err
+	}
+
+	reported, err := fromContext(ctx).versionLoader.Load(ctx, aiven.DataLoaderKey{
+		Project:     project.ID,
+		ServiceName: fullyQualifiedName(slug.Slug(valkey.Namespace), valkey.Name),
+	})
+	if err != nil {
+		if aiven.IsNotFound(err) {
+			return "", nil
+		}
+		return "", err
+	}
+
+	return reported, nil
 }
 
 func updateMaxMemoryPolicy(valkey *naiscrd.Valkey, input UpdateValkeyInput) ([]*ValkeyUpdatedActivityLogEntryDataUpdatedField, error) {

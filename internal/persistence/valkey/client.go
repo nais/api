@@ -2,6 +2,7 @@ package valkey
 
 import (
 	"context"
+	"strings"
 
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/workload"
@@ -19,6 +20,14 @@ func NamePrefix(teamSlug slug.Slug) string {
 
 func instanceNamer(teamSlug slug.Slug, instanceName string) string {
 	return NamePrefix(teamSlug) + instanceName
+}
+
+// fullyQualifiedName prefixes a bare instance name, leaving an already-prefixed one alone.
+func fullyQualifiedName(teamSlug slug.Slug, name string) string {
+	if strings.HasPrefix(name, NamePrefix(teamSlug)) {
+		return name
+	}
+	return instanceNamer(teamSlug, name)
 }
 
 func (c client) getAccessForApplications(ctx context.Context, environmentName, valkeyName string, teamSlug slug.Slug) ([]*ValkeyAccess, error) {

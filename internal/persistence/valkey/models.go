@@ -69,6 +69,7 @@ type Valkey struct {
 	TeamSlug              slug.Slug              `json:"-"`
 	EnvironmentName       string                 `json:"-"`
 	WorkloadReference     *workload.Reference    `json:"-"`
+	MajorVersion          ValkeyMajorVersion     `json:"-"`
 }
 
 func (Valkey) IsPersistence()    {}
@@ -95,10 +96,7 @@ func (r Valkey) ID() ident.Ident {
 }
 
 func (r Valkey) FullyQualifiedName() string {
-	if strings.HasPrefix(r.Name, NamePrefix(r.TeamSlug)) {
-		return r.Name
-	}
-	return instanceNamer(r.TeamSlug, r.Name)
+	return fullyQualifiedName(r.TeamSlug, r.Name)
 }
 
 type ValkeyAccess struct {
@@ -271,6 +269,7 @@ func toValkeyFromNais(v *naiscrd.Valkey, envName string) (*Valkey, error) {
 		WorkloadReference:    workload.ReferenceFromOwnerReferences(v.OwnerReferences),
 		Tier:                 fromMapperatorTier(v.Spec.Tier),
 		Memory:               fromMapperatorMemory(v.Spec.Memory),
+		MajorVersion:         valkeyMajorVersionFromPgrator(v.Spec.Version),
 		NotifyKeyspaceEvents: v.Spec.NotifyKeyspaceEvents,
 		MaxMemoryPolicy:      mmp,
 		Databases:            databases,
@@ -339,7 +338,7 @@ func (v *ValkeyInput) ValidationErrors(ctx context.Context) *validate.Validation
 		verr.Add("memory", "Invalid Valkey memory: %s.", v.Memory)
 	}
 	if v.MaxMemoryPolicy != nil && !v.MaxMemoryPolicy.IsValid() {
-		verr.Add("version", "Invalid Valkey max memory policy: %s.", v.MaxMemoryPolicy.String())
+		verr.Add("maxMemoryPolicy", "Invalid Valkey max memory policy: %s.", v.MaxMemoryPolicy.String())
 	}
 
 	if v.Databases != nil {
@@ -353,10 +352,80 @@ func (v *ValkeyInput) ValidationErrors(ctx context.Context) *validate.Validation
 
 type CreateValkeyInput struct {
 	ValkeyInput
+	Version ValkeyMajorVersion `json:"version"`
+}
+
+// Shadows the promoted ValkeyInput methods, which cannot see Version.
+func (c *CreateValkeyInput) Validate(ctx context.Context) error {
+	return c.ValidationErrors(ctx).NilIfEmpty()
+}
+
+func (c *CreateValkeyInput) ValidationErrors(ctx context.Context) *validate.ValidationErrors {
+	verr := c.ValkeyInput.ValidationErrors(ctx)
+	if err := c.Version.toPgrator().ValidateNewInstance(); err != nil {
+		verr.Add("version", "%s", err)
+	}
+	return verr
 }
 
 type CreateValkeyPayload struct {
 	Valkey *Valkey `json:"valkey"`
+}
+
+// ValkeyMajorVersion is the GraphQL spelling of a Valkey version. The version rules themselves —
+// ordering, which upgrades are legal, how Aiven's patch-level strings map onto a major — belong to
+// pgrator, so everything beyond serialisation delegates to naiscrd.ValkeyVersion.
+type ValkeyMajorVersion string
+
+const (
+	ValkeyMajorVersionV8_1 ValkeyMajorVersion = "V8_1"
+	ValkeyMajorVersionV9_1 ValkeyMajorVersion = "V9_1"
+)
+
+func (e ValkeyMajorVersion) toPgrator() naiscrd.ValkeyVersion {
+	return naiscrd.ValkeyVersion(strings.ReplaceAll(strings.TrimPrefix(string(e), "V"), "_", "."))
+}
+
+func valkeyMajorVersionFromPgrator(v naiscrd.ValkeyVersion) ValkeyMajorVersion {
+	switch v {
+	case "":
+		return ""
+	// Aiven ended 9.0 and force-upgrades it, so 9.0 is not a version anyone can be left on or
+	// choose. It is reported as the version it is on its way to instead of being published.
+	case naiscrd.ValkeyVersionV9_0:
+		return ValkeyMajorVersionV9_1
+	}
+	return ValkeyMajorVersion("V" + strings.ReplaceAll(string(v), ".", "_"))
+}
+
+func (e ValkeyMajorVersion) IsValid() bool {
+	return e.toPgrator().ValidateNewInstance() == nil
+}
+
+func (e ValkeyMajorVersion) String() string {
+	return string(e)
+}
+
+func (e *ValkeyMajorVersion) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ValkeyMajorVersion(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ValkeyMajorVersion", str)
+	}
+	return nil
+}
+
+func (e ValkeyMajorVersion) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type ValkeyVersion struct {
+	Actual       *string            `json:"actual,omitempty"`
+	DesiredMajor ValkeyMajorVersion `json:"desiredMajor"`
 }
 
 type ValkeyMaxMemoryPolicy string
@@ -531,7 +600,8 @@ func (e ValkeyTier) MarshalGQL(w io.Writer) {
 
 type UpdateValkeyInput struct {
 	ValkeyInput
-	Labels []*model.ResourceLabel `json:"labels,omitempty"`
+	Version *ValkeyMajorVersion    `json:"version,omitempty"`
+	Labels  []*model.ResourceLabel `json:"labels,omitempty"`
 }
 
 func (i *UpdateValkeyInput) Validate(ctx context.Context) error {
