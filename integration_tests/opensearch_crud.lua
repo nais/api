@@ -368,7 +368,7 @@ Test.gql("Create opensearch with out-of-range max content length", function(t)
 				extensions = {
 					field = "httpMaxContentLength",
 				},
-				message = "Max content length must be between 1 byte and 2147483647 bytes (around 2047Mi).",
+				message = "Max content length must be between 1048576 bytes (1Mi) and 2147483647 bytes (around 2047Mi).",
 				path = {
 					"createOpenSearch",
 				},
@@ -718,7 +718,7 @@ Test.gql("Downgrade OpenSearch as team-member", function(t)
 		errors = {
 			{
 				locations = NotNull(),
-				message = "Cannot change OpenSearch version from V2 to V1. New version must be one of [V2_19]",
+				message = "cannot change OpenSearch version from 2 to 1: new version must be one of [2.19]",
 				path = {
 					"updateOpenSearch",
 				},
@@ -754,7 +754,7 @@ Test.gql("Downgrade OpenSearch noversion instance", function(t)
 		errors = {
 			{
 				locations = NotNull(),
-				message = "Cannot change OpenSearch version from V2 to V1. New version must be one of [V2_19]",
+				message = "cannot change OpenSearch version from 2 to 1: new version must be one of [2.19]",
 				path = {
 					"updateOpenSearch",
 				},

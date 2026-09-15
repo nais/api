@@ -283,7 +283,7 @@ input CreateOpenSearchInput {
 	shardIndexingPressureEnforced: Boolean
 	"Maximum number of clauses a Lucene BooleanQuery can contain. Must be between 64 and 4096. When not set, the instance uses the default of 1024."
 	indicesQueryBoolMaxClauseCount: Int
-	"Maximum content length for requests to the OpenSearch HTTP API. Specified as a human-readable quantity (e.g. \"100Mi\", \"1Gi\"); unitless values are interpreted as bytes. Must be between 1 byte and 2147483647 bytes (around 2047Mi). When not set, the instance uses the default of 100Mi."
+	"Maximum content length for requests to the OpenSearch HTTP API. Specified as a human-readable quantity (e.g. \"100Mi\", \"1Gi\"); unitless values are interpreted as bytes. Must be between 1048576 bytes (1Mi) and 2147483647 bytes (around 2047Mi). When not set, the instance uses the default of 100Mi."
 	httpMaxContentLength: String
 }
 
@@ -315,7 +315,7 @@ input UpdateOpenSearchInput {
 	shardIndexingPressureEnforced: Boolean
 	"Maximum number of clauses a Lucene BooleanQuery can contain. Must be between 64 and 4096. When not set, the instance uses the default of 1024."
 	indicesQueryBoolMaxClauseCount: Int
-	"Maximum content length for requests to the OpenSearch HTTP API. Specified as a human-readable quantity (e.g. \"100Mi\", \"1Gi\"); unitless values are interpreted as bytes. Must be between 1 byte and 2147483647 bytes (around 2047Mi). When not set, the instance uses the default of 100Mi."
+	"Maximum content length for requests to the OpenSearch HTTP API. Specified as a human-readable quantity (e.g. \"100Mi\", \"1Gi\"); unitless values are interpreted as bytes. Must be between 1048576 bytes (1Mi) and 2147483647 bytes (around 2047Mi). When not set, the instance uses the default of 100Mi."
 	httpMaxContentLength: String
 }
 

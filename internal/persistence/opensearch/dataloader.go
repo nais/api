@@ -10,7 +10,6 @@ import (
 	"github.com/nais/api/internal/thirdparty/aiven"
 	naiscrd "github.com/nais/pgrator/pkg/api/v1"
 	"github.com/sirupsen/logrus"
-	"github.com/sourcegraph/conc/pool"
 	"github.com/vikstrous/dataloadgen"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -20,11 +19,6 @@ import (
 type ctxKey int
 
 const loadersKey ctxKey = iota
-
-type AivenDataLoaderKey struct {
-	Project     string
-	ServiceName string
-}
 
 func NewLoaderContext(ctx context.Context, tenantName string, openSearchWatcher, naisOpenSearchWatcher *watcher.Watcher[*OpenSearch], aivenClient aiven.AivenClient, logger logrus.FieldLogger) context.Context {
 	return context.WithValue(ctx, loadersKey, newLoaders(tenantName, openSearchWatcher, naisOpenSearchWatcher, aivenClient, logger))
@@ -74,7 +68,7 @@ type loaders struct {
 	client        *client
 	watcher       *watcher.Watcher[*OpenSearch]
 	naisWatcher   *watcher.Watcher[*OpenSearch]
-	versionLoader *dataloadgen.Loader[*AivenDataLoaderKey, string]
+	versionLoader *dataloadgen.Loader[aiven.DataLoaderKey, string]
 	tenantName    string
 	aivenClient   aiven.AivenClient
 	log           logrus.FieldLogger
@@ -83,14 +77,14 @@ type loaders struct {
 func newLoaders(tenantName string, watcher, naisOpenSearchWatcher *watcher.Watcher[*OpenSearch], aivenClient aiven.AivenClient, logger logrus.FieldLogger) *loaders {
 	client := &client{}
 
-	versionLoader := &dataloader{aivenClient: aivenClient, log: logger}
+	versionLoader := aiven.ServiceMetadataLoader{Client: aivenClient, MetadataKey: "opensearch_version", Log: logger}
 
 	return &loaders{
 		client:        client,
 		watcher:       watcher,
 		naisWatcher:   naisOpenSearchWatcher,
 		tenantName:    tenantName,
-		versionLoader: dataloadgen.NewLoader(versionLoader.getVersions, loader.DefaultDataLoaderOptions...),
+		versionLoader: dataloadgen.NewLoader(versionLoader.Load, loader.DefaultDataLoaderOptions...),
 		aivenClient:   aivenClient,
 		log:           logger,
 	}
@@ -105,37 +99,4 @@ func newK8sClient(ctx context.Context, environmentName string, teamSlug slug.Slu
 		return nil, err
 	}
 	return sysClient.Namespace(teamSlug.String()), nil
-}
-
-type dataloader struct {
-	aivenClient aiven.AivenClient
-	log         logrus.FieldLogger
-}
-
-func (l dataloader) getVersions(ctx context.Context, aivenDataLoaderKeys []*AivenDataLoaderKey) ([]string, []error) {
-	wg := pool.New().WithContext(ctx)
-	rets := make([]string, len(aivenDataLoaderKeys))
-	errs := make([]error, len(aivenDataLoaderKeys))
-
-	for i, pair := range aivenDataLoaderKeys {
-		wg.Go(func(ctx context.Context) error {
-			res, err := l.aivenClient.ServiceGet(ctx, pair.Project, pair.ServiceName)
-			if err != nil {
-				errs[i] = err
-			} else {
-				if res.Metadata != nil {
-					if version, ok := res.Metadata["opensearch_version"]; ok {
-						rets[i] = version.(string)
-					}
-				}
-			}
-			return nil
-		})
-	}
-
-	if err := wg.Wait(); err != nil {
-		l.log.WithError(err).Error("error waiting for dataloader")
-	}
-
-	return rets, errs
 }

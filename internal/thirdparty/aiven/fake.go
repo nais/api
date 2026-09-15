@@ -2,9 +2,11 @@ package aiven
 
 import (
 	"context"
+	"net/http"
 	"strings"
 	"time"
 
+	aivenclient "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/project"
 	aiven "github.com/aiven/go-client-codegen/handler/service"
 )
@@ -70,6 +72,10 @@ func (f *FakeAivenClient) ProjectAlertsList(ctx context.Context, p string) ([]pr
 	return []project.AlertOut{}, nil
 }
 
+func notFound(serviceName string) error {
+	return aivenclient.Error{Status: http.StatusNotFound, Message: "Service " + serviceName + " does not exist"}
+}
+
 // ServiceGet returns hardcoded example dataset
 func (f *FakeAivenClient) ServiceGet(_ context.Context, _ string, serviceName string, _ ...[2]string) (*aiven.ServiceGetOut, error) {
 	description := "This is a description (Nais API call it title)"
@@ -84,6 +90,22 @@ func (f *FakeAivenClient) ServiceGet(_ context.Context, _ string, serviceName st
 		state = aiven.ServiceStateTypePoweroff
 	} else if strings.HasSuffix(serviceName, "rebalancing") {
 		state = aiven.ServiceStateTypeRebalancing
+	}
+
+	// Only the field belonging to the service's own type, so reading the wrong one is visible.
+	metadata := map[string]any{}
+	switch {
+	case strings.HasPrefix(serviceName, "valkey-"):
+		// A version the fallback would not produce, so tests can tell the two apart.
+		valkeyVersion := "9.1.0"
+		if strings.HasSuffix(serviceName, "oldrunning") {
+			valkeyVersion = "8.1.2"
+		}
+		metadata["valkey_version"] = valkeyVersion
+	case strings.HasPrefix(serviceName, "opensearch-"):
+		metadata["opensearch_version"] = "2.17.2"
+	default:
+		return nil, notFound(serviceName)
 	}
 
 	return &aiven.ServiceGetOut{
@@ -106,8 +128,6 @@ func (f *FakeAivenClient) ServiceGet(_ context.Context, _ string, serviceName st
 			Dow:  "sunday",
 			Time: "12:34:56",
 		},
-		Metadata: map[string]any{
-			"opensearch_version": "2.17.2",
-		},
+		Metadata: metadata,
 	}, nil
 }
