@@ -233,6 +233,7 @@ Test.k8s("Validate Valkey resource", function(t)
 		spec = {
 			memory = "14GB",
 			tier = "SingleNode",
+			version = "9.1",
 		},
 	})
 end)
@@ -369,6 +370,7 @@ Test.k8s("Validate Valkey resource after update", function(t)
 				disabled = true,
 			},
 			tier = "HighAvailability",
+			version = "9.1",
 		},
 	})
 end)
@@ -424,6 +426,7 @@ Test.k8s("Validate hobbyist Valkey resource", function(t)
 		spec = {
 			memory = "1GB",
 			tier = "SingleNode",
+			version = "9.1",
 		},
 	})
 end)
@@ -611,6 +614,7 @@ Test.k8s("Validate hobbyist Valkey resource after update", function(t)
 				disabled = true,
 			},
 			tier = "SingleNode",
+			version = "9.1",
 		},
 	})
 end)

@@ -4,13 +4,11 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"slices"
 	"strconv"
 	"strings"
 	"sync"
 
 	"github.com/99designs/gqlgen/graphql"
-	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
@@ -469,41 +467,6 @@ const (
 	OpenSearchMajorVersionV3_3  OpenSearchMajorVersion = "V3_3"
 	OpenSearchMajorVersionV3_6  OpenSearchMajorVersion = "V3_6"
 )
-
-type upgradePath []OpenSearchMajorVersion
-
-func (u upgradePath) String() string {
-	versions := make([]string, len(u))
-	for i, v := range u {
-		versions[i] = v.String()
-	}
-	return strings.Join(versions, ",")
-}
-
-var upgradePaths = map[OpenSearchMajorVersion]upgradePath{
-	OpenSearchMajorVersionV1:    {OpenSearchMajorVersionV2, OpenSearchMajorVersionV2_19},
-	OpenSearchMajorVersionV2:    {OpenSearchMajorVersionV2_19},
-	OpenSearchMajorVersionV2_19: {OpenSearchMajorVersionV3_3, OpenSearchMajorVersionV3_6},
-	OpenSearchMajorVersionV3_3:  {OpenSearchMajorVersionV3_6},
-	OpenSearchMajorVersionV3_6:  {},
-}
-
-func (e OpenSearchMajorVersion) ValidateUpgradePath(other OpenSearchMajorVersion) error {
-	path, ok := upgradePaths[other]
-	if !ok {
-		return fmt.Errorf("unknown OpenSearch major version: %q", other)
-	}
-
-	if len(path) == 0 {
-		return apierror.Errorf("Cannot change OpenSearch version from %v to %v. No further upgrades available.", other, e)
-	}
-
-	if slices.Contains(path, e) {
-		return nil
-	}
-
-	return apierror.Errorf("Cannot change OpenSearch version from %v to %v. New version must be one of [%s]", other, e, path)
-}
 
 func (e OpenSearchMajorVersion) IsValid() bool {
 	switch e {

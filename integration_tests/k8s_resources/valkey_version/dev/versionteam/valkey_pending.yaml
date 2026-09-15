@@ -1,0 +1,13 @@
+---
+apiVersion: nais.io/v1
+kind: Valkey
+metadata:
+  name: pending-oldrunning
+  namespace: versionteam
+  labels:
+    app.kubernetes.io/managed-by: console
+    nais.io/managed-by: console
+spec:
+  memory: 4GB
+  tier: SingleNode
+  version: "9.1"

@@ -86,6 +86,12 @@ func (f *FakeAivenClient) ServiceGet(_ context.Context, _ string, serviceName st
 		state = aiven.ServiceStateTypeRebalancing
 	}
 
+	// Lets a test distinguish a version derived from what Aiven reports from the fallback.
+	valkeyVersion := "9.1.0"
+	if strings.HasSuffix(serviceName, "oldrunning") {
+		valkeyVersion = "8.1.2"
+	}
+
 	return &aiven.ServiceGetOut{
 		State: state,
 		Maintenance: &aiven.MaintenanceOut{
@@ -108,6 +114,7 @@ func (f *FakeAivenClient) ServiceGet(_ context.Context, _ string, serviceName st
 		},
 		Metadata: map[string]any{
 			"opensearch_version": "2.17.2",
+			"valkey_version":     valkeyVersion,
 		},
 	}, nil
 }
