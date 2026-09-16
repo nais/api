@@ -4,13 +4,11 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"slices"
 	"strconv"
 	"strings"
 	"sync"
 
 	"github.com/99designs/gqlgen/graphql"
-	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
@@ -380,8 +378,8 @@ func (o *OpenSearchInput) ValidationErrors(ctx context.Context) *validate.Valida
 		q, err := resource.ParseQuantity(*o.HTTPMaxContentLength)
 		if err != nil {
 			verr.Add("httpMaxContentLength", "Max content length must be a valid quantity (e.g. \"100Mi\", \"1Gi\").")
-		} else if b := q.Value(); b < 1 || b > 2147483647 {
-			verr.Add("httpMaxContentLength", "Max content length must be between 1 byte and 2147483647 bytes (around 2047Mi).")
+		} else if b := q.Value(); b < 1048576 || b > 2147483647 {
+			verr.Add("httpMaxContentLength", "Max content length must be between 1048576 bytes (1Mi) and 2147483647 bytes (around 2047Mi).")
 		}
 	}
 
@@ -469,41 +467,6 @@ const (
 	OpenSearchMajorVersionV3_3  OpenSearchMajorVersion = "V3_3"
 	OpenSearchMajorVersionV3_6  OpenSearchMajorVersion = "V3_6"
 )
-
-type upgradePath []OpenSearchMajorVersion
-
-func (u upgradePath) String() string {
-	versions := make([]string, len(u))
-	for i, v := range u {
-		versions[i] = v.String()
-	}
-	return strings.Join(versions, ",")
-}
-
-var upgradePaths = map[OpenSearchMajorVersion]upgradePath{
-	OpenSearchMajorVersionV1:    {OpenSearchMajorVersionV2, OpenSearchMajorVersionV2_19},
-	OpenSearchMajorVersionV2:    {OpenSearchMajorVersionV2_19},
-	OpenSearchMajorVersionV2_19: {OpenSearchMajorVersionV3_3, OpenSearchMajorVersionV3_6},
-	OpenSearchMajorVersionV3_3:  {OpenSearchMajorVersionV3_6},
-	OpenSearchMajorVersionV3_6:  {},
-}
-
-func (e OpenSearchMajorVersion) ValidateUpgradePath(other OpenSearchMajorVersion) error {
-	path, ok := upgradePaths[other]
-	if !ok {
-		return fmt.Errorf("unknown OpenSearch major version: %q", other)
-	}
-
-	if len(path) == 0 {
-		return apierror.Errorf("Cannot change OpenSearch version from %v to %v. No further upgrades available.", other, e)
-	}
-
-	if slices.Contains(path, e) {
-		return nil
-	}
-
-	return apierror.Errorf("Cannot change OpenSearch version from %v to %v. New version must be one of [%s]", other, e, path)
-}
 
 func (e OpenSearchMajorVersion) IsValid() bool {
 	switch e {

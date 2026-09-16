@@ -1,0 +1,10 @@
+---
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: app-with-qualified-ref
+spec:
+  image: navikt/app-name:latest
+  valkey:
+    - instance: valkey-someteamname-not-managed
+      access: read

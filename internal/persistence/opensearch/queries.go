@@ -145,16 +145,19 @@ func GetOpenSearchVersion(ctx context.Context, os *OpenSearch) (*OpenSearchVersi
 	if err != nil {
 		return nil, err
 	}
-	key := AivenDataLoaderKey{
+	key := aiven.DataLoaderKey{
 		Project:     project.ID,
 		ServiceName: os.FullyQualifiedName(),
 	}
 
 	major := os.MajorVersion
 	var versionString *string
-	v, err := fromContext(ctx).versionLoader.Load(ctx, &key)
+	v, err := fromContext(ctx).versionLoader.Load(ctx, key)
 	if err == nil {
-		versionString = new(v)
+		// An absent metadata field reaches us as an empty value rather than an error.
+		if v != "" {
+			versionString = new(v)
+		}
 		if major == "" {
 			mv, err := OpenSearchMajorVersionFromAivenString(v)
 			if err != nil {
@@ -466,8 +469,8 @@ func updateVersion(openSearch *naiscrd.OpenSearch, input UpdateOpenSearchInput) 
 		return nil, nil
 	}
 
-	if err := input.Version.ValidateUpgradePath(origVersion); err != nil {
-		return nil, err
+	if err := toMapperatorVersion(input.Version).ValidateUpgradePath(openSearch.Spec.Version); err != nil {
+		return nil, apierror.Errorf("%s", err)
 	}
 
 	changes := make([]*OpenSearchUpdatedActivityLogEntryDataUpdatedField, 0)
@@ -782,7 +785,7 @@ func toMapperatorVersion(version OpenSearchMajorVersion) naiscrd.OpenSearchVersi
 	case OpenSearchMajorVersionV3_3:
 		return naiscrd.OpenSearchVersionV3_3
 	case OpenSearchMajorVersionV3_6:
-		return "3.6" // TODO(thokra): Because of breaking changes in pgrator, we cannot use the OpenSearchVersionV3_6 constant yet.
+		return naiscrd.OpenSearchVersionV3_6
 	default:
 		return ""
 	}
@@ -798,7 +801,7 @@ func fromMapperatorVersion(version naiscrd.OpenSearchVersion) OpenSearchMajorVer
 		return OpenSearchMajorVersionV2_19
 	case naiscrd.OpenSearchVersionV3_3:
 		return OpenSearchMajorVersionV3_3
-	case "3.6": // TODO(thokra): Because of breaking changes in pgrator, we cannot use the OpenSearchVersionV3_6 constant yet.
+	case naiscrd.OpenSearchVersionV3_6:
 		return OpenSearchMajorVersionV3_6
 	default:
 		return ""

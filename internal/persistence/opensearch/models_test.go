@@ -173,3 +173,31 @@ func TestOpenSearchMetadataInput_Validate(t *testing.T) {
 		})
 	}
 }
+
+// The bounds are pgrator's; anything this accepts and pgrator's admission refuses reaches the user
+// as a raw webhook error instead of a field-scoped one.
+func TestOpenSearchInput_HTTPMaxContentLengthBounds(t *testing.T) {
+	const boundErr = "Max content length must be between"
+
+	tests := []struct {
+		name      string
+		value     string
+		wantBound bool
+	}{
+		{name: "below the floor", value: "1Ki", wantBound: true},
+		{name: "at the floor", value: "1Mi", wantBound: false},
+		{name: "above the ceiling", value: "2Gi", wantBound: true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			input := opensearch.OpenSearchInput{HTTPMaxContentLength: &tt.value}
+
+			err := input.Validate(context.Background())
+			got := err != nil && strings.Contains(err.Error(), boundErr)
+			if got != tt.wantBound {
+				t.Errorf("%q: bound error = %v, want %v (got: %v)", tt.value, got, tt.wantBound, err)
+			}
+		})
+	}
+}

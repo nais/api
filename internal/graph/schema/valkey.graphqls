@@ -59,6 +59,13 @@ type TeamInventoryCountValkeys {
 	total: Int!
 }
 
+type ValkeyVersion {
+	"The full version string of the Valkey instance. This will be available after the instance is created."
+	actual: String
+	"The desired major version of the Valkey instance."
+	desiredMajor: ValkeyMajorVersion!
+}
+
 type Valkey implements Persistence & Node {
 	id: ID!
 	name: String!
@@ -77,6 +84,8 @@ type Valkey implements Persistence & Node {
 	workload: Workload
 		@deprecated(reason: "Owners of valkeys have been removed, so this will always be null.")
 	state: ValkeyState!
+	"Fetch version for the Valkey instance."
+	version: ValkeyVersion!
 	"Availability tier for the Valkey instance."
 	tier: ValkeyTier!
 	"Available memory for the Valkey instance."
@@ -249,6 +258,14 @@ enum ValkeyMemory {
 	GB_200
 }
 
+enum ValkeyMajorVersion {
+	"Valkey Version 9.1.x. Default for new instances."
+	V9_1
+
+	"Valkey Version 8.1.x"
+	V8_1
+}
+
 enum ValkeyMaxMemoryPolicy {
 	"Keeps frequently used keys; removes least frequently used (LFU) keys"
 	ALLKEYS_LFU
@@ -286,6 +303,8 @@ input CreateValkeyInput {
 	tier: ValkeyTier!
 	"Available memory for the Valkey instance."
 	memory: ValkeyMemory!
+	"Major version of the Valkey instance."
+	version: ValkeyMajorVersion! = V9_1
 	"Maximum memory policy for the Valkey instance."
 	maxMemoryPolicy: ValkeyMaxMemoryPolicy
 	"Configure keyspace notifications for the Valkey instance. See https://valkey.io/topics/notifications/ for details."
@@ -312,6 +331,8 @@ input UpdateValkeyInput {
 	tier: ValkeyTier!
 	"Available memory for the Valkey instance."
 	memory: ValkeyMemory!
+	"Major version of the Valkey instance. When omitted, the version is left unchanged."
+	version: ValkeyMajorVersion
 	"Maximum memory policy for the Valkey instance."
 	maxMemoryPolicy: ValkeyMaxMemoryPolicy
 	"Configure keyspace notifications for the Valkey instance. See https://valkey.io/topics/notifications/ for details."

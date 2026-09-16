@@ -3505,6 +3505,7 @@ type ComplexityRoot struct {
 		TeamEnvironment       func(childComplexity int) int
 		TerminationProtection func(childComplexity int) int
 		Tier                  func(childComplexity int) int
+		Version               func(childComplexity int) int
 		Workload              func(childComplexity int) int
 	}
 
@@ -3650,6 +3651,11 @@ type ComplexityRoot struct {
 		Field    func(childComplexity int) int
 		NewValue func(childComplexity int) int
 		OldValue func(childComplexity int) int
+	}
+
+	ValkeyVersion struct {
+		Actual       func(childComplexity int) int
+		DesiredMajor func(childComplexity int) int
 	}
 
 	ViewSecretValuesPayload struct {
@@ -18598,6 +18604,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Valkey.Tier(childComplexity), true
 
+	case "Valkey.version":
+		if e.ComplexityRoot.Valkey.Version == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Valkey.Version(childComplexity), true
+
 	case "Valkey.workload":
 		if e.ComplexityRoot.Valkey.Workload == nil {
 			break
@@ -19176,6 +19189,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ValkeyUpdatedActivityLogEntryDataUpdatedField.OldValue(childComplexity), true
+
+	case "ValkeyVersion.actual":
+		if e.ComplexityRoot.ValkeyVersion.Actual == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ValkeyVersion.Actual(childComplexity), true
+
+	case "ValkeyVersion.desiredMajor":
+		if e.ComplexityRoot.ValkeyVersion.DesiredMajor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ValkeyVersion.DesiredMajor(childComplexity), true
 
 	case "ViewSecretValuesPayload.values":
 		if e.ComplexityRoot.ViewSecretValuesPayload.Values == nil {
@@ -25967,7 +25994,7 @@ input CreateOpenSearchInput {
 	shardIndexingPressureEnforced: Boolean
 	"Maximum number of clauses a Lucene BooleanQuery can contain. Must be between 64 and 4096. When not set, the instance uses the default of 1024."
 	indicesQueryBoolMaxClauseCount: Int
-	"Maximum content length for requests to the OpenSearch HTTP API. Specified as a human-readable quantity (e.g. \"100Mi\", \"1Gi\"); unitless values are interpreted as bytes. Must be between 1 byte and 2147483647 bytes (around 2047Mi). When not set, the instance uses the default of 100Mi."
+	"Maximum content length for requests to the OpenSearch HTTP API. Specified as a human-readable quantity (e.g. \"100Mi\", \"1Gi\"); unitless values are interpreted as bytes. Must be between 1048576 bytes (1Mi) and 2147483647 bytes (around 2047Mi). When not set, the instance uses the default of 100Mi."
 	httpMaxContentLength: String
 }
 
@@ -25999,7 +26026,7 @@ input UpdateOpenSearchInput {
 	shardIndexingPressureEnforced: Boolean
 	"Maximum number of clauses a Lucene BooleanQuery can contain. Must be between 64 and 4096. When not set, the instance uses the default of 1024."
 	indicesQueryBoolMaxClauseCount: Int
-	"Maximum content length for requests to the OpenSearch HTTP API. Specified as a human-readable quantity (e.g. \"100Mi\", \"1Gi\"); unitless values are interpreted as bytes. Must be between 1 byte and 2147483647 bytes (around 2047Mi). When not set, the instance uses the default of 100Mi."
+	"Maximum content length for requests to the OpenSearch HTTP API. Specified as a human-readable quantity (e.g. \"100Mi\", \"1Gi\"); unitless values are interpreted as bytes. Must be between 1048576 bytes (1Mi) and 2147483647 bytes (around 2047Mi). When not set, the instance uses the default of 100Mi."
 	httpMaxContentLength: String
 }
 
@@ -31861,6 +31888,13 @@ type TeamInventoryCountValkeys {
 	total: Int!
 }
 
+type ValkeyVersion {
+	"The full version string of the Valkey instance. This will be available after the instance is created."
+	actual: String
+	"The desired major version of the Valkey instance."
+	desiredMajor: ValkeyMajorVersion!
+}
+
 type Valkey implements Persistence & Node {
 	id: ID!
 	name: String!
@@ -31879,6 +31913,8 @@ type Valkey implements Persistence & Node {
 	workload: Workload
 		@deprecated(reason: "Owners of valkeys have been removed, so this will always be null.")
 	state: ValkeyState!
+	"Fetch version for the Valkey instance."
+	version: ValkeyVersion!
 	"Availability tier for the Valkey instance."
 	tier: ValkeyTier!
 	"Available memory for the Valkey instance."
@@ -32051,6 +32087,14 @@ enum ValkeyMemory {
 	GB_200
 }
 
+enum ValkeyMajorVersion {
+	"Valkey Version 9.1.x. Default for new instances."
+	V9_1
+
+	"Valkey Version 8.1.x"
+	V8_1
+}
+
 enum ValkeyMaxMemoryPolicy {
 	"Keeps frequently used keys; removes least frequently used (LFU) keys"
 	ALLKEYS_LFU
@@ -32088,6 +32132,8 @@ input CreateValkeyInput {
 	tier: ValkeyTier!
 	"Available memory for the Valkey instance."
 	memory: ValkeyMemory!
+	"Major version of the Valkey instance."
+	version: ValkeyMajorVersion! = V9_1
 	"Maximum memory policy for the Valkey instance."
 	maxMemoryPolicy: ValkeyMaxMemoryPolicy
 	"Configure keyspace notifications for the Valkey instance. See https://valkey.io/topics/notifications/ for details."
@@ -32114,6 +32160,8 @@ input UpdateValkeyInput {
 	tier: ValkeyTier!
 	"Available memory for the Valkey instance."
 	memory: ValkeyMemory!
+	"Major version of the Valkey instance. When omitted, the version is left unchanged."
+	version: ValkeyMajorVersion
 	"Maximum memory policy for the Valkey instance."
 	maxMemoryPolicy: ValkeyMaxMemoryPolicy
 	"Configure keyspace notifications for the Valkey instance. See https://valkey.io/topics/notifications/ for details."
@@ -38361,6 +38409,8 @@ func (ec *executionContext) childFields_Valkey(ctx context.Context, field graphq
 		return ec.fieldContext_Valkey_workload(ctx, field)
 	case "state":
 		return ec.fieldContext_Valkey_state(ctx, field)
+	case "version":
+		return ec.fieldContext_Valkey_version(ctx, field)
 	case "tier":
 		return ec.fieldContext_Valkey_tier(ctx, field)
 	case "memory":
@@ -38561,6 +38611,16 @@ func (ec *executionContext) childFields_ValkeyUpdatedActivityLogEntryDataUpdated
 		return ec.fieldContext_ValkeyUpdatedActivityLogEntryDataUpdatedField_newValue(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type ValkeyUpdatedActivityLogEntryDataUpdatedField", field.Name)
+}
+
+func (ec *executionContext) childFields_ValkeyVersion(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "actual":
+		return ec.fieldContext_ValkeyVersion_actual(ctx, field)
+	case "desiredMajor":
+		return ec.fieldContext_ValkeyVersion_desiredMajor(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ValkeyVersion", field.Name)
 }
 
 func (ec *executionContext) childFields_ViewSecretValuesPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {

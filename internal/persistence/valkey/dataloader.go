@@ -3,12 +3,14 @@ package valkey
 import (
 	"context"
 
+	"github.com/nais/api/internal/graph/loader"
 	"github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/thirdparty/aiven"
 	naiscrd "github.com/nais/pgrator/pkg/api/v1"
 	"github.com/sirupsen/logrus"
+	"github.com/vikstrous/dataloadgen"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
@@ -63,24 +65,28 @@ func fromContext(ctx context.Context) *loaders {
 }
 
 type loaders struct {
-	client      *client
-	tenantName  string
-	watcher     *watcher.Watcher[*Valkey]
-	naisWatcher *watcher.Watcher[*Valkey]
-	aivenClient aiven.AivenClient
-	log         logrus.FieldLogger
+	client        *client
+	tenantName    string
+	watcher       *watcher.Watcher[*Valkey]
+	naisWatcher   *watcher.Watcher[*Valkey]
+	versionLoader *dataloadgen.Loader[aiven.DataLoaderKey, string]
+	aivenClient   aiven.AivenClient
+	log           logrus.FieldLogger
 }
 
 func newLoaders(tenantName string, watcher, naisValkeyWatcher *watcher.Watcher[*Valkey], aivenClient aiven.AivenClient, logger logrus.FieldLogger) *loaders {
 	client := &client{}
 
+	versionLoader := aiven.ServiceMetadataLoader{Client: aivenClient, MetadataKey: "valkey_version", Log: logger}
+
 	return &loaders{
-		client:      client,
-		tenantName:  tenantName,
-		watcher:     watcher,
-		naisWatcher: naisValkeyWatcher,
-		aivenClient: aivenClient,
-		log:         logger,
+		client:        client,
+		tenantName:    tenantName,
+		watcher:       watcher,
+		naisWatcher:   naisValkeyWatcher,
+		versionLoader: dataloadgen.NewLoader(versionLoader.Load, loader.DefaultDataLoaderOptions...),
+		aivenClient:   aivenClient,
+		log:           logger,
 	}
 }
 

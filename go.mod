@@ -41,7 +41,7 @@ require (
 	github.com/nais/api/pkg/apiclient v0.0.0-20250219111538-2b76a0fd6ed9
 	github.com/nais/bifrost v0.0.0-20260106105449-911627ac2c61
 	github.com/nais/liberator v0.0.0-20260216142648-ee49a9372bc4
-	github.com/nais/pgrator/pkg/api v0.0.0-20260528100930-7dcc162c09d6
+	github.com/nais/pgrator/pkg/api v0.0.0-20260915202302-d699a2823ec5
 	github.com/nais/tester v0.2.0
 	github.com/nais/unleasherator v0.0.0-20251216221129-efebc54203fe
 	github.com/nais/v13s/pkg/api v0.0.0-20260826091953-1b518b13ca28
@@ -84,10 +84,10 @@ require (
 	google.golang.org/grpc v1.83.1
 	google.golang.org/protobuf v1.36.12
 	k8s.io/api v0.36.0
-	k8s.io/apimachinery v0.36.1
+	k8s.io/apimachinery v0.36.4
 	k8s.io/client-go v0.36.0
 	k8s.io/klog/v2 v2.140.0
-	k8s.io/utils v0.0.0-20260210185600-b8788abfbbc2
+	k8s.io/utils v0.0.0-20260707023825-cf1189d6abe3
 	sigs.k8s.io/yaml v1.6.0
 )
 
@@ -473,7 +473,7 @@ require (
 	sigs.k8s.io/controller-runtime v0.24.1 // indirect
 	sigs.k8s.io/json v0.0.0-20250730193827-2d320260d730 // indirect
 	sigs.k8s.io/randfill v1.0.0 // indirect
-	sigs.k8s.io/structured-merge-diff/v6 v6.3.2 // indirect
+	sigs.k8s.io/structured-merge-diff/v6 v6.3.3 // indirect
 )
 
 replace github.com/GoogleCloudPlatform/k8s-config-connector/mockgcp => ./mockgcp

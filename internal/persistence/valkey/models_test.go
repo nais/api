@@ -173,3 +173,37 @@ func TestValkeyMetadataInput_Validate(t *testing.T) {
 		})
 	}
 }
+
+// Prefixing an already-prefixed name would create an instance no lookup can reach by its own name.
+func TestCreateValkeyInput_RejectsPrefixedName(t *testing.T) {
+	const prefixErr = "must not start with"
+
+	tests := []struct {
+		name       string
+		valkeyName string
+		wantErr    bool
+	}{
+		{name: "bare name", valkeyName: "cache", wantErr: false},
+		{name: "name carrying the team prefix", valkeyName: "valkey-my-team-cache", wantErr: true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			input := valkey.CreateValkeyInput{
+				ValkeyInput: valkey.ValkeyInput{
+					ValkeyMetadataInput: valkey.ValkeyMetadataInput{
+						Name:            tt.valkeyName,
+						EnvironmentName: "dev",
+						TeamSlug:        slug.Slug("my-team"),
+					},
+				},
+			}
+
+			err := input.Validate(context.Background())
+			got := err != nil && strings.Contains(err.Error(), prefixErr)
+			if got != tt.wantErr {
+				t.Errorf("%q: prefix error = %v, want %v (got: %v)", tt.valkeyName, got, tt.wantErr, err)
+			}
+		})
+	}
+}

@@ -67,7 +67,7 @@ func StartOpenSearchMaintenance(ctx context.Context, input StartOpenSearchMainte
 }
 
 func GetAivenMaintenanceWindow(ctx context.Context, key AivenDataLoaderKey) (*MaintenanceWindow, error) {
-	windowFromAiven, err := fromContext(ctx).maintenanceLoader.Load(ctx, &key)
+	windowFromAiven, err := fromContext(ctx).maintenanceLoader.Load(ctx, key)
 	if err != nil {
 		return nil, err
 	}
@@ -89,7 +89,7 @@ func GetAivenMaintenanceWindow(ctx context.Context, key AivenDataLoaderKey) (*Ma
 }
 
 func GetAivenMaintenanceUpdates[UpdateType OpenSearchMaintenanceUpdate | ValkeyMaintenanceUpdate](ctx context.Context, key AivenDataLoaderKey) ([]*UpdateType, error) {
-	updatesFromAiven, err := fromContext(ctx).maintenanceLoader.Load(ctx, &key)
+	updatesFromAiven, err := fromContext(ctx).maintenanceLoader.Load(ctx, key)
 	if err != nil {
 		return nil, err
 	}
