@@ -18,6 +18,7 @@ Test.gql("Create personal postgres access without authorization", function(t)
 				teamSlug: "someteamname"
 				accessLevel: READ
 				clientWireGuardPublicKey: "client-public-key"
+				reason: "Testing personal database access"
 			}) {
 				name
 				expiresAt
@@ -37,6 +38,35 @@ Test.gql("Create personal postgres access without authorization", function(t)
 	}
 end)
 
+Test.gql("Create personal postgres access requires an audit reason", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[
+		mutation CreatePostgresAccess {
+			createPostgresAccess(input: {
+				postgresInstance: "foobar"
+				environmentName: "dev"
+				teamSlug: "someteamname"
+				accessLevel: READ
+				clientWireGuardPublicKey: "client-public-key"
+				reason: "short"
+			}) {
+				name
+			}
+		}
+	]]
+
+	t.check {
+		errors = {
+			{
+				extensions = { field = "reason" },
+				message = Contains("Reason must be at least 10 characters"),
+				path = { "createPostgresAccess" },
+			},
+		},
+		data = Null,
+	}
+end)
+
 Test.gql("Create personal postgres access rejects an unknown instance", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[
@@ -47,6 +77,7 @@ Test.gql("Create personal postgres access rejects an unknown instance", function
 				teamSlug: "someteamname"
 				accessLevel: READ
 				clientWireGuardPublicKey: "client-public-key"
+				reason: "Testing personal database access"
 			}) {
 				name
 				expiresAt
@@ -76,6 +107,7 @@ Test.gql("Create personal postgres access rejects an unavailable instance", func
 				teamSlug: "someteamname"
 				accessLevel: READ
 				clientWireGuardPublicKey: "client-public-key"
+				reason: "Testing personal database access"
 			}) {
 				name
 				expiresAt
@@ -105,6 +137,7 @@ Test.gql("Create personal postgres access", function(t)
 				teamSlug: "someteamname"
 				accessLevel: READWRITE
 				clientWireGuardPublicKey: "client-public-key"
+				reason: "Testing personal database access"
 			}) {
 				name
 				expiresAt
@@ -134,6 +167,7 @@ Test.gql("Personal postgres access is audited as a self-grant", function(t)
 							data {
 								username
 								expiresAt
+								reason
 							}
 						}
 					}
@@ -152,6 +186,7 @@ Test.gql("Personal postgres access is audited as a self-grant", function(t)
 							data = {
 								username = "user@usersen.com",
 								expiresAt = NotNull(),
+								reason = "Testing personal database access",
 							},
 						},
 					},

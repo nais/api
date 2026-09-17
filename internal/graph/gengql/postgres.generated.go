@@ -2481,6 +2481,29 @@ func (ec *executionContext) fieldContext_PostgresPersonalAccessCreatedActivityLo
 	return graphql.NewScalarFieldContext("PostgresPersonalAccessCreatedActivityLogEntryData", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
+func (ec *executionContext) _PostgresPersonalAccessCreatedActivityLogEntryData_reason(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresPersonalAccessCreatedActivityLogEntryData) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresPersonalAccessCreatedActivityLogEntryData_reason(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Reason, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresPersonalAccessCreatedActivityLogEntryData_reason(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresPersonalAccessCreatedActivityLogEntryData", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
 func (ec *executionContext) _TeamInventoryCountPostgresInstances_total(ctx context.Context, field graphql.CollectedField, obj *postgres.TeamInventoryCountPostgresInstances) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -2519,7 +2542,7 @@ func (ec *executionContext) unmarshalInputCreatePostgresAccessInput(ctx context.
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"postgresInstance", "teamSlug", "environmentName", "accessLevel", "clientWireGuardPublicKey"}
+	fieldsInOrder := [...]string{"postgresInstance", "teamSlug", "environmentName", "accessLevel", "clientWireGuardPublicKey", "reason"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -2561,6 +2584,13 @@ func (ec *executionContext) unmarshalInputCreatePostgresAccessInput(ctx context.
 				return it, err
 			}
 			it.ClientWireGuardPublicKey = data
+		case "reason":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("reason"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Reason = data
 		}
 	}
 	return it, nil
@@ -4341,6 +4371,11 @@ func (ec *executionContext) _PostgresPersonalAccessCreatedActivityLogEntryData(c
 			}
 		case "expiresAt":
 			out.Values[i] = ec._PostgresPersonalAccessCreatedActivityLogEntryData_expiresAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "reason":
+			out.Values[i] = ec._PostgresPersonalAccessCreatedActivityLogEntryData_reason(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}

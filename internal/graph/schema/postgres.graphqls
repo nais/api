@@ -263,6 +263,7 @@ type PostgresPersonalAccessCreatedActivityLogEntry implements ActivityLogEntry &
 type PostgresPersonalAccessCreatedActivityLogEntryData {
 	username: String!
 	expiresAt: Time!
+	reason: String!
 }
 
 type PostgresPersonalAccessConnectionActivityLogEntry implements ActivityLogEntry & Node {
@@ -343,6 +344,8 @@ input CreatePostgresAccessInput {
 	environmentName: String!
 	accessLevel: PostgresAccessLevel!
 	clientWireGuardPublicKey: String!
+	"Reason for personal database access. Must be at least 10 characters."
+	reason: String!
 }
 
 enum PostgresAccessLevel {

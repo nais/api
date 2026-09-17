@@ -244,6 +244,7 @@ type CreatePostgresAccessInput struct {
 	EnvironmentName          string              `json:"environmentName"`
 	AccessLevel              PostgresAccessLevel `json:"accessLevel"`
 	ClientWireGuardPublicKey string              `json:"clientWireGuardPublicKey"`
+	Reason                   string              `json:"reason"`
 }
 
 func (i *CreatePostgresAccessInput) Validate(ctx context.Context) error {
@@ -255,6 +256,7 @@ func (i *CreatePostgresAccessInput) ValidationErrors(ctx context.Context) *valid
 	i.PostgresInstance = strings.TrimSpace(i.PostgresInstance)
 	i.EnvironmentName = strings.TrimSpace(i.EnvironmentName)
 	i.ClientWireGuardPublicKey = strings.TrimSpace(i.ClientWireGuardPublicKey)
+	i.Reason = strings.TrimSpace(i.Reason)
 
 	if i.PostgresInstance == "" {
 		verr.Add("postgresInstance", "Postgres instance must not be empty.")
@@ -270,6 +272,9 @@ func (i *CreatePostgresAccessInput) ValidationErrors(ctx context.Context) *valid
 	}
 	if i.ClientWireGuardPublicKey == "" {
 		verr.Add("clientWireGuardPublicKey", "Client WireGuard public key must not be empty.")
+	}
+	if len(i.Reason) < 10 {
+		verr.Add("reason", "Reason must be at least 10 characters.")
 	}
 
 	if i.PostgresInstance == "" || i.EnvironmentName == "" || i.TeamSlug == "" {

@@ -85,6 +85,7 @@ type PostgresPersonalAccessCreatedActivityLogEntry struct {
 type PostgresPersonalAccessCreatedActivityLogEntryData struct {
 	Username  string    `json:"username"`
 	ExpiresAt time.Time `json:"expiresAt"`
+	Reason    string    `json:"reason"`
 }
 
 type PostgresPersonalAccessConnectionActivityLogEntry struct {

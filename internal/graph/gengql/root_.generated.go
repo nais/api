@@ -2000,6 +2000,7 @@ type ComplexityRoot struct {
 
 	PostgresPersonalAccessCreatedActivityLogEntryData struct {
 		ExpiresAt func(childComplexity int) int
+		Reason    func(childComplexity int) int
 		Username  func(childComplexity int) int
 	}
 
@@ -11956,6 +11957,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntryData.ExpiresAt(childComplexity), true
+
+	case "PostgresPersonalAccessCreatedActivityLogEntryData.reason":
+		if e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntryData.Reason == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntryData.Reason(childComplexity), true
 
 	case "PostgresPersonalAccessCreatedActivityLogEntryData.username":
 		if e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntryData.Username == nil {
@@ -26953,6 +26961,7 @@ type PostgresPersonalAccessCreatedActivityLogEntry implements ActivityLogEntry &
 type PostgresPersonalAccessCreatedActivityLogEntryData {
 	username: String!
 	expiresAt: Time!
+	reason: String!
 }
 
 type PostgresPersonalAccessConnectionActivityLogEntry implements ActivityLogEntry & Node {
@@ -27033,6 +27042,8 @@ input CreatePostgresAccessInput {
 	environmentName: String!
 	accessLevel: PostgresAccessLevel!
 	clientWireGuardPublicKey: String!
+	"Reason for personal database access. Must be at least 10 characters."
+	reason: String!
 }
 
 enum PostgresAccessLevel {
@@ -37007,6 +37018,8 @@ func (ec *executionContext) childFields_PostgresPersonalAccessCreatedActivityLog
 		return ec.fieldContext_PostgresPersonalAccessCreatedActivityLogEntryData_username(ctx, field)
 	case "expiresAt":
 		return ec.fieldContext_PostgresPersonalAccessCreatedActivityLogEntryData_expiresAt(ctx, field)
+	case "reason":
+		return ec.fieldContext_PostgresPersonalAccessCreatedActivityLogEntryData_reason(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type PostgresPersonalAccessCreatedActivityLogEntryData", field.Name)
 }

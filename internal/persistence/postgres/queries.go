@@ -466,6 +466,7 @@ func CreatePostgresAccess(ctx context.Context, input CreatePostgresAccessInput) 
 		Data: PostgresPersonalAccessCreatedActivityLogEntryData{
 			Username:  authz.ActorFromContext(ctx).User.Identity(),
 			ExpiresAt: expiresAt,
+			Reason:    input.Reason,
 		},
 	}); err != nil {
 		return nil, err
