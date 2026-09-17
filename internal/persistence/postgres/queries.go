@@ -39,7 +39,7 @@ func Delete(ctx context.Context, input DeletePostgresInput) (*DeletePostgresPayl
 		return nil, err
 	}
 
-	client, err := fromContext(ctx).zalandoPostgresWatcher.ImpersonatedClientWithNamespace(ctx, input.EnvironmentName, input.TeamSlug.String())
+	client, err := fromContext(ctx).postgresWatcher.ImpersonatedClientWithNamespace(ctx, input.EnvironmentName, input.TeamSlug.String())
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +62,7 @@ func Delete(ctx context.Context, input DeletePostgresInput) (*DeletePostgresPayl
 		}
 	}
 
-	if err := fromContext(ctx).zalandoPostgresWatcher.Delete(ctx, input.EnvironmentName, input.TeamSlug.String(), input.Name); err != nil {
+	if err := fromContext(ctx).postgresWatcher.Delete(ctx, input.EnvironmentName, input.TeamSlug.String(), input.Name); err != nil {
 		return nil, err
 	}
 
@@ -85,7 +85,7 @@ func GetForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName, cl
 		return nil, nil
 	}
 
-	return GetZalandoPostgres(ctx, teamSlug, environmentName, clusterName)
+	return GetPostgres(ctx, teamSlug, environmentName, clusterName)
 }
 
 func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *PostgresInstanceOrder, filter *PostgresInstanceFilter) (*PostgresInstanceConnection, error) {
@@ -102,21 +102,21 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 }
 
 func ListAllForTeam(ctx context.Context, teamSlug slug.Slug, filter *PostgresInstanceFilter) []*PostgresInstance {
-	all := fromContext(ctx).zalandoPostgresWatcher.GetByNamespace(teamSlug.String())
+	all := fromContext(ctx).postgresWatcher.GetByNamespace(teamSlug.String())
 	return watcher.Objects(all)
 }
 
 func CountForTeam(ctx context.Context, teamSlug slug.Slug) int {
-	return len(fromContext(ctx).zalandoPostgresWatcher.GetByNamespace(teamSlug.String()))
+	return len(fromContext(ctx).postgresWatcher.GetByNamespace(teamSlug.String()))
 }
 
-func GetZalandoPostgresByIdent(ctx context.Context, id ident.Ident) (*PostgresInstance, error) {
+func GetPostgresByIdent(ctx context.Context, id ident.Ident) (*PostgresInstance, error) {
 	teamSlug, environmentName, clusterName, err := parsePostgresInstanceIdent(id)
 	if err != nil {
 		return nil, err
 	}
 
-	return GetZalandoPostgres(ctx, teamSlug, environmentName, clusterName)
+	return GetPostgres(ctx, teamSlug, environmentName, clusterName)
 }
 
 func GetPostgresAccessByIdent(ctx context.Context, id ident.Ident) (*PostgresAccess, error) {
@@ -136,7 +136,7 @@ const (
 // GetPostgresAccess returns a personal PostgresAccess status. Connection
 // credentials are deliberately available only through GetPostgresAccessConnection.
 func GetPostgresAccess(ctx context.Context, name string, teamSlug slug.Slug, environmentName string) (*PostgresAccess, error) {
-	if err := authz.CanReadPostgresAccess(ctx, teamSlug); err != nil {
+	if err := authz.CanGrantPostgresAccess(ctx, teamSlug); err != nil {
 		return nil, err
 	}
 
@@ -162,7 +162,7 @@ func GetPostgresAccessConnection(ctx context.Context, input PostgresAccessConnec
 	if err := input.Validate(ctx); err != nil {
 		return nil, err
 	}
-	if err := authz.CanReadPostgresAccess(ctx, input.TeamSlug); err != nil {
+	if err := authz.CanGrantPostgresAccess(ctx, input.TeamSlug); err != nil {
 		return nil, err
 	}
 
@@ -185,7 +185,7 @@ func GetPostgresAccessConnection(ctx context.Context, input PostgresAccessConnec
 		return nil, err
 	}
 
-	secretClient, err := fromContext(ctx).zalandoPostgresWatcher.SystemAuthenticatedClient(ctx, input.EnvironmentName, watcher.WithImpersonatedClientGVR(schema.GroupVersionResource{
+	secretClient, err := fromContext(ctx).postgresWatcher.SystemAuthenticatedClient(ctx, input.EnvironmentName, watcher.WithImpersonatedClientGVR(schema.GroupVersionResource{
 		Version:  "v1",
 		Resource: "secrets",
 	}))
@@ -223,7 +223,7 @@ func GetPostgresAccessConnection(ctx context.Context, input PostgresAccessConnec
 }
 
 func getPostgresAccessResource(ctx context.Context, name string, teamSlug slug.Slug, environmentName string) (*unstructured.Unstructured, error) {
-	accessClient, err := fromContext(ctx).zalandoPostgresWatcher.SystemAuthenticatedClient(ctx, environmentName, watcher.WithImpersonatedClientGVR(schema.GroupVersionResource{
+	accessClient, err := fromContext(ctx).postgresWatcher.SystemAuthenticatedClient(ctx, environmentName, watcher.WithImpersonatedClientGVR(schema.GroupVersionResource{
 		Group:    postgresAccessGroup,
 		Version:  "v1",
 		Resource: postgresAccessResource,
@@ -397,8 +397,8 @@ func postgresAccessState(obj map[string]any, expiresAt time.Time) (PostgresAcces
 	return PostgresAccessStatePending, "waiting for controller"
 }
 
-func GetZalandoPostgres(ctx context.Context, teamSlug slug.Slug, environmentName string, clusterName string) (*PostgresInstance, error) {
-	return fromContext(ctx).zalandoPostgresWatcher.Get(environmentName, teamSlug.String(), clusterName)
+func GetPostgres(ctx context.Context, teamSlug slug.Slug, environmentName string, clusterName string) (*PostgresInstance, error) {
+	return fromContext(ctx).postgresWatcher.Get(environmentName, teamSlug.String(), clusterName)
 }
 
 func GetAuditURL(ctx context.Context, audit *PostgresInstanceAudit) (*string, error) {
@@ -443,7 +443,7 @@ func CreatePostgresAccess(ctx context.Context, input CreatePostgresAccessInput) 
 		Version:  "v1",
 		Resource: "postgresaccesses",
 	}
-	client, err := fromContext(ctx).zalandoPostgresWatcher.SystemAuthenticatedClient(ctx, input.EnvironmentName, watcher.WithImpersonatedClientGVR(gvr))
+	client, err := fromContext(ctx).postgresWatcher.SystemAuthenticatedClient(ctx, input.EnvironmentName, watcher.WithImpersonatedClientGVR(gvr))
 	if err != nil {
 		return nil, err
 	}
@@ -493,7 +493,7 @@ func newPostgresAccessResource(input CreatePostgresAccessInput, username, name s
 	return res
 }
 
-func GrantZalandoPostgresAccess(ctx context.Context, input GrantPostgresAccessInput) error {
+func GrantPostgresAccess(ctx context.Context, input GrantPostgresAccessInput) error {
 	err := input.Validate(ctx)
 	if err != nil {
 		return err
@@ -546,7 +546,7 @@ func createRoleBinding(ctx context.Context, input GrantPostgresAccessInput, name
 		Version:  "v1",
 		Resource: "rolebindings",
 	}
-	client, err := fromContext(ctx).zalandoPostgresWatcher.SystemAuthenticatedClient(ctx, input.EnvironmentName, watcher.WithImpersonatedClientGVR(gvr))
+	client, err := fromContext(ctx).postgresWatcher.SystemAuthenticatedClient(ctx, input.EnvironmentName, watcher.WithImpersonatedClientGVR(gvr))
 	if err != nil {
 		return err
 	}
@@ -584,7 +584,7 @@ func createRole(ctx context.Context, input GrantPostgresAccessInput, name string
 		Resource: "roles",
 	}
 
-	client, err := fromContext(ctx).zalandoPostgresWatcher.SystemAuthenticatedClient(ctx, input.EnvironmentName, watcher.WithImpersonatedClientGVR(gvr))
+	client, err := fromContext(ctx).postgresWatcher.SystemAuthenticatedClient(ctx, input.EnvironmentName, watcher.WithImpersonatedClientGVR(gvr))
 	if err != nil {
 		return err
 	}

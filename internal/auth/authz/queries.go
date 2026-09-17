@@ -312,10 +312,6 @@ func CanDeleteOpenSearch(ctx context.Context, teamSlug slug.Slug) error {
 	return requireTeamAuthorization(ctx, teamSlug, "opensearches:delete")
 }
 
-func CanReadPostgresAccess(ctx context.Context, teamSlug slug.Slug) error {
-	return requireStrictTeamAuthorization(ctx, teamSlug, "postgres:access:read")
-}
-
 func CanGrantPostgresAccess(ctx context.Context, teamSlug slug.Slug) error {
 	return requireStrictTeamAuthorization(ctx, teamSlug, "postgres:access:grant")
 }

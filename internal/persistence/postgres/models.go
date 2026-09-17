@@ -220,7 +220,7 @@ func (i *GrantPostgresAccessInput) ValidationErrors(ctx context.Context) *valida
 		verr.Add("duration", "Duration \"%s\" is out-of-bounds. Must be less than 4 hours.", i.Duration)
 	}
 
-	_, err = GetZalandoPostgres(ctx, i.TeamSlug, i.EnvironmentName, i.ClusterName)
+	_, err = GetPostgres(ctx, i.TeamSlug, i.EnvironmentName, i.ClusterName)
 	if err != nil {
 		if errors.Is(err, &watcher.ErrorNotFound{}) {
 			verr.Add("clusterName", "Could not find postgres cluster named \"%s\"", i.ClusterName)
@@ -281,7 +281,7 @@ func (i *CreatePostgresAccessInput) ValidationErrors(ctx context.Context) *valid
 		return verr
 	}
 
-	instance, err := GetZalandoPostgres(ctx, i.TeamSlug, i.EnvironmentName, i.PostgresInstance)
+	instance, err := GetPostgres(ctx, i.TeamSlug, i.EnvironmentName, i.PostgresInstance)
 	if err != nil {
 		if errors.Is(err, &watcher.ErrorNotFound{}) {
 			verr.Add("postgresInstance", "Could not find postgres cluster named %q", i.PostgresInstance)

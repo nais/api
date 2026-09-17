@@ -63,7 +63,7 @@ func (r *mutationResolver) GrantPostgresAccess(ctx context.Context, input postgr
 		return nil, err
 	}
 
-	if err := postgres.GrantZalandoPostgresAccess(ctx, input); err != nil {
+	if err := postgres.GrantPostgresAccess(ctx, input); err != nil {
 		return nil, err
 	}
 
@@ -88,7 +88,7 @@ func (r *postgresAccessResolver) TeamEnvironment(ctx context.Context, obj *postg
 }
 
 func (r *postgresAccessResolver) PostgresInstance(ctx context.Context, obj *postgres.PostgresAccess) (*postgres.PostgresInstance, error) {
-	return postgres.GetZalandoPostgres(ctx, obj.TeamSlug, obj.EnvironmentName, obj.PostgresInstanceName)
+	return postgres.GetPostgres(ctx, obj.TeamSlug, obj.EnvironmentName, obj.PostgresInstanceName)
 }
 
 func (r *postgresInstanceResolver) Team(ctx context.Context, obj *postgres.PostgresInstance) (*team.Team, error) {
@@ -139,7 +139,7 @@ func (r *teamResolver) PostgresInstances(ctx context.Context, obj *team.Team, fi
 }
 
 func (r *teamEnvironmentResolver) PostgresInstance(ctx context.Context, obj *team.TeamEnvironment, name string) (*postgres.PostgresInstance, error) {
-	return postgres.GetZalandoPostgres(ctx, obj.TeamSlug, obj.EnvironmentName, name)
+	return postgres.GetPostgres(ctx, obj.TeamSlug, obj.EnvironmentName, name)
 }
 
 func (r *teamInventoryCountsResolver) PostgresInstances(ctx context.Context, obj *team.TeamInventoryCounts) (*postgres.TeamInventoryCountPostgresInstances, error) {
