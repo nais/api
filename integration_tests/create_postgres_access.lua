@@ -196,6 +196,46 @@ Test.gql("Personal postgres access is audited as a self-grant", function(t)
 	}
 end)
 
+Test.gql("PostgresAccess status is visible to authorized team members", function(t)
+	t.addHeader("x-user-email", otherMemberUser:email())
+	for _, test in ipairs({
+		{ name = "ready-access",   state = "READY",   message = "Database role and tunnel are ready" },
+		{ name = "pending-access", state = "PENDING", message = Null },
+		{ name = "failed-access",  state = "FAILED",  message = Contains("not supported") },
+		{ name = "expired-access", state = "EXPIRED", message = "access has expired" },
+	}) do
+		t.query(string.format(
+			[[query { postgresAccess(name: "%s", teamSlug: "someteamname", environmentName: "dev") { name state message } }]],
+			test.name))
+		t.check {
+			data = {
+				postgresAccess = {
+					name = test.name,
+					state = test.state,
+					message = test.message,
+				},
+			},
+		}
+	end
+end)
+
+Test.gql("PostgresAccess status rejects users outside the team", function(t)
+	t.addHeader("x-user-email", nonMemberUser:email())
+	t.query [[
+		query { postgresAccess(name: "ready-access", teamSlug: "someteamname", environmentName: "dev") { state } }
+	]]
+	t.check {
+		errors = {
+			{
+				locations = NotNull(),
+				message = Contains('you need the "postgres:access:grant" authorization.'),
+				path = { "postgresAccess" },
+			},
+		},
+		data = Null,
+	}
+end)
+
 Test.gql("PostgresAccess connection returns credentials only to its owner", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[

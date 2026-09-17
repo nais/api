@@ -150,11 +150,6 @@ func GetPostgresAccess(ctx context.Context, name string, teamSlug slug.Slug, env
 		return nil, err
 	}
 
-	actor := authz.ActorFromContext(ctx)
-	if actor == nil || access.Username != actor.User.Identity() {
-		return nil, apierror.Errorf("PostgresAccess %q not found", name)
-	}
-
 	return access, nil
 }
 
