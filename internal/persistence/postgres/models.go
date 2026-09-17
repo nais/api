@@ -236,6 +236,101 @@ type GrantPostgresAccessPayload struct {
 	Error *string `json:"error,omitempty"`
 }
 
+// CreatePostgresAccessInput requests a new, time-limited personal database access.
+// The authenticated actor and access lifetime are deliberately not caller-controlled.
+type CreatePostgresAccessInput struct {
+	PostgresInstance         string              `json:"postgresInstance"`
+	TeamSlug                 slug.Slug           `json:"teamSlug"`
+	EnvironmentName          string              `json:"environmentName"`
+	AccessLevel              PostgresAccessLevel `json:"accessLevel"`
+	ClientWireGuardPublicKey string              `json:"clientWireGuardPublicKey"`
+}
+
+func (i *CreatePostgresAccessInput) Validate(ctx context.Context) error {
+	return i.ValidationErrors(ctx).NilIfEmpty()
+}
+
+func (i *CreatePostgresAccessInput) ValidationErrors(ctx context.Context) *validate.ValidationErrors {
+	verr := validate.New()
+	i.PostgresInstance = strings.TrimSpace(i.PostgresInstance)
+	i.EnvironmentName = strings.TrimSpace(i.EnvironmentName)
+	i.ClientWireGuardPublicKey = strings.TrimSpace(i.ClientWireGuardPublicKey)
+
+	if i.PostgresInstance == "" {
+		verr.Add("postgresInstance", "Postgres instance must not be empty.")
+	}
+	if i.EnvironmentName == "" {
+		verr.Add("environmentName", "Environment name must not be empty.")
+	}
+	if i.TeamSlug == "" {
+		verr.Add("teamSlug", "Team slug must not be empty.")
+	}
+	if !i.AccessLevel.IsValid() {
+		verr.Add("accessLevel", "Access level %q is not valid.", i.AccessLevel)
+	}
+	if i.ClientWireGuardPublicKey == "" {
+		verr.Add("clientWireGuardPublicKey", "Client WireGuard public key must not be empty.")
+	}
+
+	if i.PostgresInstance == "" || i.EnvironmentName == "" || i.TeamSlug == "" {
+		return verr
+	}
+
+	instance, err := GetZalandoPostgres(ctx, i.TeamSlug, i.EnvironmentName, i.PostgresInstance)
+	if err != nil {
+		if errors.Is(err, &watcher.ErrorNotFound{}) {
+			verr.Add("postgresInstance", "Could not find postgres cluster named %q", i.PostgresInstance)
+		} else {
+			verr.Add("postgresInstance", "%s", err)
+		}
+	} else if instance.State != PostgresInstanceStateAvailable {
+		verr.Add("postgresInstance", "Postgres instance %q is not available.", i.PostgresInstance)
+	}
+
+	return verr
+}
+
+type CreatePostgresAccessPayload struct {
+	Name      string    `json:"name"`
+	ExpiresAt time.Time `json:"expiresAt"`
+}
+
+type PostgresAccessLevel string
+
+const (
+	PostgresAccessLevelRead            PostgresAccessLevel = "READ"
+	PostgresAccessLevelReadWrite       PostgresAccessLevel = "READWRITE"
+	PostgresAccessLevelReadWriteCreate PostgresAccessLevel = "READWRITECREATE"
+)
+
+func (e PostgresAccessLevel) IsValid() bool {
+	switch e {
+	case PostgresAccessLevelRead, PostgresAccessLevelReadWrite, PostgresAccessLevelReadWriteCreate:
+		return true
+	}
+	return false
+}
+
+func (e PostgresAccessLevel) String() string { return string(e) }
+
+func (e PostgresAccessLevel) CRDValue() string { return strings.ToLower(string(e)) }
+
+func (e *PostgresAccessLevel) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+	*e = PostgresAccessLevel(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid PostgresAccessLevel", str)
+	}
+	return nil
+}
+
+func (e PostgresAccessLevel) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 func (p *PostgresInstance) GetObjectKind() schema.ObjectKind {
 	return schema.EmptyObjectKind
 }
@@ -395,4 +490,129 @@ func (e PostgresInstanceOrderField) MarshalJSON() ([]byte, error) {
 
 type TeamInventoryCountPostgresInstances struct {
 	Total int `json:"total"`
+}
+
+// PostgresAccess exposes the API/CLI-facing state of a controller-owned personal
+// database access. Credentials are read from the controller-owned Secret on
+// demand; they are never cached by the watcher.
+type PostgresAccess struct {
+	Name                 string                `json:"name"`
+	TeamSlug             slug.Slug             `json:"-"`
+	EnvironmentName      string                `json:"-"`
+	PostgresInstanceName string                `json:"postgresInstance"`
+	Username             string                `json:"username"`
+	AccessLevel          PostgresAccessLevel   `json:"accessLevel"`
+	ExpiresAt            time.Time             `json:"expiresAt"`
+	State                PostgresAccessState   `json:"state"`
+	Message              *string               `json:"message,omitempty"`
+	Tunnel               *PostgresAccessTunnel `json:"tunnel,omitempty"`
+}
+
+func (PostgresAccess) IsNode() {}
+
+func (p *PostgresAccess) ID() ident.Ident {
+	return newAccessIdent(p.TeamSlug, p.EnvironmentName, p.Name)
+}
+
+type PostgresAccessState string
+
+const (
+	PostgresAccessStatePending PostgresAccessState = "PENDING"
+	PostgresAccessStateReady   PostgresAccessState = "READY"
+	PostgresAccessStateFailed  PostgresAccessState = "FAILED"
+	PostgresAccessStateExpired PostgresAccessState = "EXPIRED"
+)
+
+var AllPostgresAccessState = []PostgresAccessState{
+	PostgresAccessStatePending,
+	PostgresAccessStateReady,
+	PostgresAccessStateFailed,
+	PostgresAccessStateExpired,
+}
+
+func (e PostgresAccessState) IsValid() bool {
+	switch e {
+	case PostgresAccessStatePending, PostgresAccessStateReady, PostgresAccessStateFailed, PostgresAccessStateExpired:
+		return true
+	}
+	return false
+}
+
+func (e PostgresAccessState) String() string {
+	return string(e)
+}
+
+func (e *PostgresAccessState) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = PostgresAccessState(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid PostgresAccessState", str)
+	}
+	return nil
+}
+
+func (e PostgresAccessState) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *PostgresAccessState) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e PostgresAccessState) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+type PostgresAccessTunnel struct {
+	Name             string  `json:"name"`
+	Endpoint         *string `json:"endpoint,omitempty"`
+	GatewayPublicKey *string `json:"gatewayPublicKey,omitempty"`
+}
+
+type PostgresAccessConnectionInput struct {
+	Name            string    `json:"name"`
+	TeamSlug        slug.Slug `json:"teamSlug"`
+	EnvironmentName string    `json:"environmentName"`
+}
+
+func (i *PostgresAccessConnectionInput) Validate(ctx context.Context) error {
+	return i.ValidationErrors(ctx).NilIfEmpty()
+}
+
+func (i *PostgresAccessConnectionInput) ValidationErrors(_ context.Context) *validate.ValidationErrors {
+	verr := validate.New()
+	i.Name = strings.TrimSpace(i.Name)
+	i.EnvironmentName = strings.TrimSpace(i.EnvironmentName)
+	if i.Name == "" {
+		verr.Add("name", "Name must not be empty.")
+	}
+	if i.TeamSlug == "" {
+		verr.Add("teamSlug", "Team slug must not be empty.")
+	}
+	if i.EnvironmentName == "" {
+		verr.Add("environmentName", "Environment name must not be empty.")
+	}
+	return verr
+}
+
+type PostgresAccessConnectionPayload struct {
+	Password      string                         `json:"password"`
+	CACertificate string                         `json:"caCertificate"`
+	ServerName    string                         `json:"serverName"`
+	Tunnel        PostgresAccessConnectionTunnel `json:"tunnel"`
+}
+
+type PostgresAccessConnectionTunnel struct {
+	Endpoint         string `json:"endpoint"`
+	GatewayPublicKey string `json:"gatewayPublicKey"`
 }

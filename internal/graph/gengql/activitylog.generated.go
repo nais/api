@@ -789,6 +789,20 @@ func (ec *executionContext) _ActivityLogEntry(ctx context.Context, sel ast.Selec
 			return graphql.Null
 		}
 		return ec._ReconcilerConfiguredActivityLogEntry(ctx, sel, obj)
+	case postgres.PostgresPersonalAccessCreatedActivityLogEntry:
+		return ec._PostgresPersonalAccessCreatedActivityLogEntry(ctx, sel, &obj)
+	case *postgres.PostgresPersonalAccessCreatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._PostgresPersonalAccessCreatedActivityLogEntry(ctx, sel, obj)
+	case postgres.PostgresPersonalAccessConnectionActivityLogEntry:
+		return ec._PostgresPersonalAccessConnectionActivityLogEntry(ctx, sel, &obj)
+	case *postgres.PostgresPersonalAccessConnectionActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._PostgresPersonalAccessConnectionActivityLogEntry(ctx, sel, obj)
 	case postgres.PostgresGrantAccessActivityLogEntry:
 		return ec._PostgresGrantAccessActivityLogEntry(ctx, sel, &obj)
 	case *postgres.PostgresGrantAccessActivityLogEntry:

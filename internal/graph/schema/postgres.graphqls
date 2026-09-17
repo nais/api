@@ -239,6 +239,43 @@ type PostgresGrantAccessActivityLogEntryData {
 	until: Time!
 }
 
+type PostgresPersonalAccessCreatedActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+	"The identity of the actor who created the personal access."
+	actor: String!
+	"Creation time of the entry."
+	createdAt: Time!
+	"Message that summarizes the entry."
+	message: String!
+	"Type of the affected resource."
+	resourceType: ActivityLogEntryResourceType!
+	"Name of the affected Postgres instance."
+	resourceName: String!
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+	"The environment name that the entry belongs to."
+	environmentName: String
+	"Personal-access specific audit data."
+	data: PostgresPersonalAccessCreatedActivityLogEntryData!
+}
+
+type PostgresPersonalAccessCreatedActivityLogEntryData {
+	username: String!
+	expiresAt: Time!
+}
+
+type PostgresPersonalAccessConnectionActivityLogEntry implements ActivityLogEntry & Node {
+	id: ID!
+	actor: String!
+	createdAt: Time!
+	message: String!
+	resourceType: ActivityLogEntryResourceType!
+	resourceName: String!
+	teamSlug: Slug!
+	environmentName: String
+}
+
 type PostgresDeletedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
@@ -271,16 +308,47 @@ extend enum ActivityLogActivityType {
 	"""
 	POSTGRES_GRANT_ACCESS
 	"""
+	A personal Postgres access was created through the API broker
+	"""
+	POSTGRES_PERSONAL_ACCESS_CREATED
+	"""
+	Personal Postgres connection materials were retrieved
+	"""
+	POSTGRES_PERSONAL_ACCESS_CONNECTION
+	"""
 	A Postgres instance was deleted
 	"""
 	POSTGRES_DELETED
 }
 
 extend type Mutation {
+	"Create a time-limited personal Postgres access through the API broker."
+	createPostgresAccess(input: CreatePostgresAccessInput!): CreatePostgresAccessPayload!
 	"Grant temporary access to a Postgres cluster."
 	grantPostgresAccess(input: GrantPostgresAccessInput!): GrantPostgresAccessPayload!
 	"Delete an existing Postgres instance."
 	deletePostgres(input: DeletePostgresInput!): DeletePostgresPayload!
+}
+
+type CreatePostgresAccessPayload {
+	"Name of the newly created PostgresAccess resource."
+	name: String!
+	"Server-controlled expiry for this personal access."
+	expiresAt: Time!
+}
+
+input CreatePostgresAccessInput {
+	postgresInstance: String!
+	teamSlug: Slug!
+	environmentName: String!
+	accessLevel: PostgresAccessLevel!
+	clientWireGuardPublicKey: String!
+}
+
+enum PostgresAccessLevel {
+	READ
+	READWRITE
+	READWRITECREATE
 }
 
 type GrantPostgresAccessPayload {
@@ -317,4 +385,76 @@ extend type TeamInventoryCounts {
 type TeamInventoryCountPostgresInstances {
 	"Total number of Postgres instances."
 	total: Int!
+}
+
+extend type Query {
+	"Get connection materials for a ready personal Postgres access owned by the caller."
+	postgresAccessConnection(input: PostgresAccessConnectionInput!): PostgresAccessConnectionPayload!
+
+	"Get a personal PostgresAccess resource and its ready state."
+	postgresAccess(
+		"Name of the PostgresAccess resource."
+		name: String!
+
+		"Team slug that owns the Postgres instance."
+		teamSlug: Slug!
+
+		"Environment name that the Postgres instance belongs to."
+		environmentName: String!
+	): PostgresAccess!
+}
+
+type PostgresAccess implements Node {
+	id: ID!
+	name: String!
+	"Team that owns the access."
+	team: Team!
+	"Environment for the access."
+	teamEnvironment: TeamEnvironment!
+	"Postgres instance this access is for."
+	postgresInstance: PostgresInstance!
+	"Requested access level."
+	accessLevel: PostgresAccessLevel!
+	"Server-controlled expiry for this personal access."
+	expiresAt: Time!
+	"High-level state of the access."
+	state: PostgresAccessState!
+	"Human-readable message for the current state."
+	message: String
+	"Tunnel connection details, once the controller has created them."
+	tunnel: PostgresAccessTunnel
+}
+
+enum PostgresAccessState {
+	PENDING
+	READY
+	FAILED
+	EXPIRED
+}
+
+type PostgresAccessTunnel {
+	"Name of the Tunnel resource owned by this access."
+	name: String!
+	"Gateway endpoint the client should connect to."
+	endpoint: String
+	"Gateway's WireGuard public key."
+	gatewayPublicKey: String
+}
+
+input PostgresAccessConnectionInput {
+	name: String!
+	teamSlug: Slug!
+	environmentName: String!
+}
+
+type PostgresAccessConnectionPayload {
+	password: String!
+	caCertificate: String!
+	serverName: String!
+	tunnel: PostgresAccessConnectionTunnel!
+}
+
+type PostgresAccessConnectionTunnel {
+	endpoint: String!
+	gatewayPublicKey: String!
 }

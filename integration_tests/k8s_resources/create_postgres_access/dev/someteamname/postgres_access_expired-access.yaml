@@ -1,0 +1,20 @@
+apiVersion: nais.io/v1
+kind: PostgresAccess
+metadata:
+  name: expired-access
+  namespace: someteamname
+spec:
+  postgresInstance: foobar
+  username: user@usersen.com
+  accessLevel: read
+  expiresAt: "2000-01-01T00:00:00Z"
+  clientWireGuardPublicKey: client-public-key
+status:
+  credentialSecretName: expired-access-credentials
+  serverName: pg-foobar-rw.someteamname.svc.cluster.local
+  conditions:
+    - type: Ready
+      status: "True"
+  tunnel:
+    endpoint: "1.2.3.4:12345"
+    gatewayPublicKey: gw-public-key
