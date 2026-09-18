@@ -337,9 +337,15 @@ extend enum ActivityLogActivityType {
 }
 
 extend type Mutation {
-	"Create a time-limited personal Postgres access through the API broker."
+	"""
+	Create time-limited personal database access through the brokered PostgresAccess and WireGuard tunnel flow.
+	Use this for all new personal Postgres access. When the access is ready, retrieve its connection materials with postgresAccessConnection.
+	"""
 	createPostgresAccess(input: CreatePostgresAccessInput!): CreatePostgresAccessPayload!
-	"Grant temporary access to a Postgres cluster."
+	"""
+	Grant legacy, time-limited Kubernetes RBAC access to CNPG pods for kubectl port-forward.
+	This does not create a PostgresAccess, WireGuard tunnel, or database credentials. Use createPostgresAccess for new personal access.
+	"""
 	grantPostgresAccess(input: GrantPostgresAccessInput!): GrantPostgresAccessPayload!
 	"Delete an existing Postgres instance."
 	deletePostgres(input: DeletePostgresInput!): DeletePostgresPayload!
