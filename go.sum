@@ -819,6 +819,8 @@ github.com/nais/v13s/pkg/api v0.0.0-20260910131029-171c2f69e4e9 h1:3jtt6Yc2VASsV
 github.com/nais/v13s/pkg/api v0.0.0-20260910131029-171c2f69e4e9/go.mod h1:aUFoA5IoMXhOd2onstiRqxkrEqF1M9GhKrI+NMLKv0c=
 github.com/nais/v13s/pkg/api v0.0.0-20260914111803-fff885dea8b6 h1:ChXj4ylEAJXa83cqGbgr5LXo3Imw57arKG0lVG1Z95I=
 github.com/nais/v13s/pkg/api v0.0.0-20260914111803-fff885dea8b6/go.mod h1:aUFoA5IoMXhOd2onstiRqxkrEqF1M9GhKrI+NMLKv0c=
+github.com/nais/v13s/pkg/api v0.0.0-20260918105345-acf0ead6ffc5 h1:Tam0WMi6DsoC+S/pxsSoS6xOlgr1KMg6ETJhBUPa6g4=
+github.com/nais/v13s/pkg/api v0.0.0-20260918105345-acf0ead6ffc5/go.mod h1:ATjg17rhDAXE8wTNw4SuA7whfudp+gHpfqJtexVUWOY=
 github.com/ncruces/go-sqlite3 v0.32.0 h1:hNBUXp88LrfQCsuyXLqWTbTUG35sUuktDsqhhgHvU20=
 github.com/ncruces/go-sqlite3 v0.32.0/go.mod h1:MIWTK60ONDl0oVY073zYvJP21C3Dly6P9bxVpgkLwdQ=
 github.com/ncruces/go-strftime v1.0.0 h1:HMFp8mLCTPp341M/ZnA4qaf7ZlsbTc+miZjCLOFAw7w=
@@ -1308,6 +1310,8 @@ golang.org/x/oauth2 v0.0.0-20180821212333-d2e6202438be/go.mod h1:N/0e6XlmueqKjAG
 golang.org/x/oauth2 v0.0.0-20190226205417-e64efc72b421/go.mod h1:gOpvHmFTYa4IltrdGE7lF6nIHvwfUNPOp7c8zoXwtLw=
 golang.org/x/oauth2 v0.36.0 h1:peZ/1z27fi9hUOFCAZaHyrpWG5lwe0RJEEEeH0ThlIs=
 golang.org/x/oauth2 v0.36.0/go.mod h1:YDBUJMTkDnJS+A4BP4eZBjCqtokkg1hODuPjwiGPO7Q=
+golang.org/x/oauth2 v0.37.0 h1:JUlcxA8oAtauLfiH8FX2/FkAWHAdi0QtGCGc+hofE98=
+golang.org/x/oauth2 v0.37.0/go.mod h1:IxwZNxUULJmpBFf9K/9NTMSIfZZuvuTy1gGxhigP/58=
 golang.org/x/sync v0.0.0-20180314180146-1d60e4601c6f/go.mod h1:RxMgew5VJxzue5/jJTE5uejpjVlOe/izrB70Jof72aM=
 golang.org/x/sync v0.0.0-20181108010431-42b317875d0f/go.mod h1:RxMgew5VJxzue5/jJTE5uejpjVlOe/izrB70Jof72aM=
 golang.org/x/sync v0.0.0-20181221193216-37e7f081c4d4/go.mod h1:RxMgew5VJxzue5/jJTE5uejpjVlOe/izrB70Jof72aM=
