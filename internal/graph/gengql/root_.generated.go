@@ -105,6 +105,7 @@ type ResolverRoot interface {
 	OpenSearchConnection() OpenSearchConnectionResolver
 	OpenSearchIssue() OpenSearchIssueResolver
 	OpenSearchMaintenance() OpenSearchMaintenanceResolver
+	PostgresAccess() PostgresAccessResolver
 	PostgresInstance() PostgresInstanceResolver
 	PostgresInstanceAudit() PostgresInstanceAuditResolver
 	PostgresInstanceConnection() PostgresInstanceConnectionResolver
@@ -720,6 +721,11 @@ type ComplexityRoot struct {
 
 	CreateOpenSearchPayload struct {
 		OpenSearch func(childComplexity int) int
+	}
+
+	CreatePostgresAccessPayload struct {
+		ExpiresAt func(childComplexity int) int
+		Name      func(childComplexity int) int
 	}
 
 	CreateSecretPayload struct {
@@ -1589,6 +1595,7 @@ type ComplexityRoot struct {
 		CreateKafkaCredentials           func(childComplexity int, input kafkatopic.CreateKafkaCredentialsInput) int
 		CreateOpenSearch                 func(childComplexity int, input opensearch.CreateOpenSearchInput) int
 		CreateOpenSearchCredentials      func(childComplexity int, input opensearch.CreateOpenSearchCredentialsInput) int
+		CreatePostgresAccess             func(childComplexity int, input postgres.CreatePostgresAccessInput) int
 		CreateSecret                     func(childComplexity int, input secret.CreateSecretInput) int
 		CreateServiceAccount             func(childComplexity int, input serviceaccount.CreateServiceAccountInput) int
 		CreateServiceAccountToken        func(childComplexity int, input serviceaccount.CreateServiceAccountTokenInput) int
@@ -1852,6 +1859,37 @@ type ComplexityRoot struct {
 		TotalCount      func(childComplexity int) int
 	}
 
+	PostgresAccess struct {
+		AccessLevel      func(childComplexity int) int
+		ExpiresAt        func(childComplexity int) int
+		ID               func(childComplexity int) int
+		Message          func(childComplexity int) int
+		Name             func(childComplexity int) int
+		PostgresInstance func(childComplexity int) int
+		State            func(childComplexity int) int
+		Team             func(childComplexity int) int
+		TeamEnvironment  func(childComplexity int) int
+		Tunnel           func(childComplexity int) int
+	}
+
+	PostgresAccessConnection struct {
+		CACertificate func(childComplexity int) int
+		Password      func(childComplexity int) int
+		ServerName    func(childComplexity int) int
+		Tunnel        func(childComplexity int) int
+	}
+
+	PostgresAccessConnectionTunnel struct {
+		Endpoint         func(childComplexity int) int
+		GatewayPublicKey func(childComplexity int) int
+	}
+
+	PostgresAccessTunnel struct {
+		Endpoint         func(childComplexity int) int
+		GatewayPublicKey func(childComplexity int) int
+		Name             func(childComplexity int) int
+	}
+
 	PostgresDeletedActivityLogEntry struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
@@ -1937,6 +1975,35 @@ type ComplexityRoot struct {
 		State func(childComplexity int) int
 	}
 
+	PostgresPersonalAccessConnectionActivityLogEntry struct {
+		Actor           func(childComplexity int) int
+		CreatedAt       func(childComplexity int) int
+		EnvironmentName func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Message         func(childComplexity int) int
+		ResourceName    func(childComplexity int) int
+		ResourceType    func(childComplexity int) int
+		TeamSlug        func(childComplexity int) int
+	}
+
+	PostgresPersonalAccessCreatedActivityLogEntry struct {
+		Actor           func(childComplexity int) int
+		CreatedAt       func(childComplexity int) int
+		Data            func(childComplexity int) int
+		EnvironmentName func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Message         func(childComplexity int) int
+		ResourceName    func(childComplexity int) int
+		ResourceType    func(childComplexity int) int
+		TeamSlug        func(childComplexity int) int
+	}
+
+	PostgresPersonalAccessCreatedActivityLogEntryData struct {
+		ExpiresAt func(childComplexity int) int
+		Reason    func(childComplexity int) int
+		Username  func(childComplexity int) int
+	}
+
 	Price struct {
 		Value func(childComplexity int) int
 	}
@@ -1975,6 +2042,8 @@ type ComplexityRoot struct {
 		ImageVulnerabilityHistory func(childComplexity int, from scalar.Date) int
 		Me                        func(childComplexity int) int
 		Node                      func(childComplexity int, id ident.Ident) int
+		PostgresAccess            func(childComplexity int, name string, teamSlug slug.Slug, environmentName string) int
+		PostgresAccessConnection  func(childComplexity int, input postgres.PostgresAccessConnectionInput) int
 		Reconcilers               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		Roles                     func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *authz.RoleFilter) int
 		Search                    func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter search.SearchFilter) int
@@ -6172,6 +6241,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.CreateOpenSearchPayload.OpenSearch(childComplexity), true
 
+	case "CreatePostgresAccessPayload.expiresAt":
+		if e.ComplexityRoot.CreatePostgresAccessPayload.ExpiresAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.CreatePostgresAccessPayload.ExpiresAt(childComplexity), true
+
+	case "CreatePostgresAccessPayload.name":
+		if e.ComplexityRoot.CreatePostgresAccessPayload.Name == nil {
+			break
+		}
+
+		return e.ComplexityRoot.CreatePostgresAccessPayload.Name(childComplexity), true
+
 	case "CreateSecretPayload.secret":
 		if e.ComplexityRoot.CreateSecretPayload.Secret == nil {
 			break
@@ -9716,6 +9799,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Mutation.CreateOpenSearchCredentials(childComplexity, args["input"].(opensearch.CreateOpenSearchCredentialsInput)), true
 
+	case "Mutation.createPostgresAccess":
+		if e.ComplexityRoot.Mutation.CreatePostgresAccess == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createPostgresAccess_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Mutation.CreatePostgresAccess(childComplexity, args["input"].(postgres.CreatePostgresAccessInput)), true
+
 	case "Mutation.createSecret":
 		if e.ComplexityRoot.Mutation.CreateSecret == nil {
 			break
@@ -11235,6 +11330,139 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.PageInfo.TotalCount(childComplexity), true
 
+	case "PostgresAccess.accessLevel":
+		if e.ComplexityRoot.PostgresAccess.AccessLevel == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresAccess.AccessLevel(childComplexity), true
+
+	case "PostgresAccess.expiresAt":
+		if e.ComplexityRoot.PostgresAccess.ExpiresAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresAccess.ExpiresAt(childComplexity), true
+
+	case "PostgresAccess.id":
+		if e.ComplexityRoot.PostgresAccess.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresAccess.ID(childComplexity), true
+
+	case "PostgresAccess.message":
+		if e.ComplexityRoot.PostgresAccess.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresAccess.Message(childComplexity), true
+
+	case "PostgresAccess.name":
+		if e.ComplexityRoot.PostgresAccess.Name == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresAccess.Name(childComplexity), true
+
+	case "PostgresAccess.postgresInstance":
+		if e.ComplexityRoot.PostgresAccess.PostgresInstance == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresAccess.PostgresInstance(childComplexity), true
+
+	case "PostgresAccess.state":
+		if e.ComplexityRoot.PostgresAccess.State == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresAccess.State(childComplexity), true
+
+	case "PostgresAccess.team":
+		if e.ComplexityRoot.PostgresAccess.Team == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresAccess.Team(childComplexity), true
+
+	case "PostgresAccess.teamEnvironment":
+		if e.ComplexityRoot.PostgresAccess.TeamEnvironment == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresAccess.TeamEnvironment(childComplexity), true
+
+	case "PostgresAccess.tunnel":
+		if e.ComplexityRoot.PostgresAccess.Tunnel == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresAccess.Tunnel(childComplexity), true
+
+	case "PostgresAccessConnection.caCertificate":
+		if e.ComplexityRoot.PostgresAccessConnection.CACertificate == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresAccessConnection.CACertificate(childComplexity), true
+
+	case "PostgresAccessConnection.password":
+		if e.ComplexityRoot.PostgresAccessConnection.Password == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresAccessConnection.Password(childComplexity), true
+
+	case "PostgresAccessConnection.serverName":
+		if e.ComplexityRoot.PostgresAccessConnection.ServerName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresAccessConnection.ServerName(childComplexity), true
+
+	case "PostgresAccessConnection.tunnel":
+		if e.ComplexityRoot.PostgresAccessConnection.Tunnel == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresAccessConnection.Tunnel(childComplexity), true
+
+	case "PostgresAccessConnectionTunnel.endpoint":
+		if e.ComplexityRoot.PostgresAccessConnectionTunnel.Endpoint == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresAccessConnectionTunnel.Endpoint(childComplexity), true
+
+	case "PostgresAccessConnectionTunnel.gatewayPublicKey":
+		if e.ComplexityRoot.PostgresAccessConnectionTunnel.GatewayPublicKey == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresAccessConnectionTunnel.GatewayPublicKey(childComplexity), true
+
+	case "PostgresAccessTunnel.endpoint":
+		if e.ComplexityRoot.PostgresAccessTunnel.Endpoint == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresAccessTunnel.Endpoint(childComplexity), true
+
+	case "PostgresAccessTunnel.gatewayPublicKey":
+		if e.ComplexityRoot.PostgresAccessTunnel.GatewayPublicKey == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresAccessTunnel.GatewayPublicKey(childComplexity), true
+
+	case "PostgresAccessTunnel.name":
+		if e.ComplexityRoot.PostgresAccessTunnel.Name == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresAccessTunnel.Name(childComplexity), true
+
 	case "PostgresDeletedActivityLogEntry.actor":
 		if e.ComplexityRoot.PostgresDeletedActivityLogEntry.Actor == nil {
 			break
@@ -11604,6 +11832,146 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.PostgresInstanceStateFacetItem.State(childComplexity), true
 
+	case "PostgresPersonalAccessConnectionActivityLogEntry.actor":
+		if e.ComplexityRoot.PostgresPersonalAccessConnectionActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresPersonalAccessConnectionActivityLogEntry.Actor(childComplexity), true
+
+	case "PostgresPersonalAccessConnectionActivityLogEntry.createdAt":
+		if e.ComplexityRoot.PostgresPersonalAccessConnectionActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresPersonalAccessConnectionActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "PostgresPersonalAccessConnectionActivityLogEntry.environmentName":
+		if e.ComplexityRoot.PostgresPersonalAccessConnectionActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresPersonalAccessConnectionActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "PostgresPersonalAccessConnectionActivityLogEntry.id":
+		if e.ComplexityRoot.PostgresPersonalAccessConnectionActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresPersonalAccessConnectionActivityLogEntry.ID(childComplexity), true
+
+	case "PostgresPersonalAccessConnectionActivityLogEntry.message":
+		if e.ComplexityRoot.PostgresPersonalAccessConnectionActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresPersonalAccessConnectionActivityLogEntry.Message(childComplexity), true
+
+	case "PostgresPersonalAccessConnectionActivityLogEntry.resourceName":
+		if e.ComplexityRoot.PostgresPersonalAccessConnectionActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresPersonalAccessConnectionActivityLogEntry.ResourceName(childComplexity), true
+
+	case "PostgresPersonalAccessConnectionActivityLogEntry.resourceType":
+		if e.ComplexityRoot.PostgresPersonalAccessConnectionActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresPersonalAccessConnectionActivityLogEntry.ResourceType(childComplexity), true
+
+	case "PostgresPersonalAccessConnectionActivityLogEntry.teamSlug":
+		if e.ComplexityRoot.PostgresPersonalAccessConnectionActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresPersonalAccessConnectionActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "PostgresPersonalAccessCreatedActivityLogEntry.actor":
+		if e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntry.Actor(childComplexity), true
+
+	case "PostgresPersonalAccessCreatedActivityLogEntry.createdAt":
+		if e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "PostgresPersonalAccessCreatedActivityLogEntry.data":
+		if e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntry.Data == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntry.Data(childComplexity), true
+
+	case "PostgresPersonalAccessCreatedActivityLogEntry.environmentName":
+		if e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "PostgresPersonalAccessCreatedActivityLogEntry.id":
+		if e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntry.ID(childComplexity), true
+
+	case "PostgresPersonalAccessCreatedActivityLogEntry.message":
+		if e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntry.Message(childComplexity), true
+
+	case "PostgresPersonalAccessCreatedActivityLogEntry.resourceName":
+		if e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntry.ResourceName(childComplexity), true
+
+	case "PostgresPersonalAccessCreatedActivityLogEntry.resourceType":
+		if e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntry.ResourceType(childComplexity), true
+
+	case "PostgresPersonalAccessCreatedActivityLogEntry.teamSlug":
+		if e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "PostgresPersonalAccessCreatedActivityLogEntryData.expiresAt":
+		if e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntryData.ExpiresAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntryData.ExpiresAt(childComplexity), true
+
+	case "PostgresPersonalAccessCreatedActivityLogEntryData.reason":
+		if e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntryData.Reason == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntryData.Reason(childComplexity), true
+
+	case "PostgresPersonalAccessCreatedActivityLogEntryData.username":
+		if e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntryData.Username == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntryData.Username(childComplexity), true
+
 	case "Price.value":
 		if e.ComplexityRoot.Price.Value == nil {
 			break
@@ -11844,6 +12212,30 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Query.Node(childComplexity, args["id"].(ident.Ident)), true
+
+	case "Query.postgresAccess":
+		if e.ComplexityRoot.Query.PostgresAccess == nil {
+			break
+		}
+
+		args, err := ec.field_Query_postgresAccess_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Query.PostgresAccess(childComplexity, args["name"].(string), args["teamSlug"].(slug.Slug), args["environmentName"].(string)), true
+
+	case "Query.postgresAccessConnection":
+		if e.ComplexityRoot.Query.PostgresAccessConnection == nil {
+			break
+		}
+
+		args, err := ec.field_Query_postgresAccessConnection_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Query.PostgresAccessConnection(childComplexity, args["input"].(postgres.PostgresAccessConnectionInput)), true
 
 	case "Query.reconcilers":
 		if e.ComplexityRoot.Query.Reconcilers == nil {
@@ -19890,6 +20282,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputCreateKafkaCredentialsInput,
 		ec.unmarshalInputCreateOpenSearchCredentialsInput,
 		ec.unmarshalInputCreateOpenSearchInput,
+		ec.unmarshalInputCreatePostgresAccessInput,
 		ec.unmarshalInputCreateSecretInput,
 		ec.unmarshalInputCreateServiceAccountInput,
 		ec.unmarshalInputCreateServiceAccountTokenInput,
@@ -19935,6 +20328,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputOpenSearchAccessOrder,
 		ec.unmarshalInputOpenSearchFilter,
 		ec.unmarshalInputOpenSearchOrder,
+		ec.unmarshalInputPostgresAccessConnectionInput,
 		ec.unmarshalInputPostgresInstanceFilter,
 		ec.unmarshalInputPostgresInstanceOrder,
 		ec.unmarshalInputReconcilerConfigInput,
@@ -26543,6 +26937,58 @@ type PostgresGrantAccessActivityLogEntryData {
 	until: Time!
 }
 
+"An audit-log entry for personal Postgres access created through the API broker."
+type PostgresPersonalAccessCreatedActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+	"The identity of the actor who created the personal access."
+	actor: String!
+	"Creation time of the entry."
+	createdAt: Time!
+	"Message that summarizes the entry."
+	message: String!
+	"Type of the affected resource."
+	resourceType: ActivityLogEntryResourceType!
+	"Name of the affected Postgres instance."
+	resourceName: String!
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+	"The environment name that the entry belongs to."
+	environmentName: String
+	"Personal-access specific audit data."
+	data: PostgresPersonalAccessCreatedActivityLogEntryData!
+}
+
+"Personal-access-specific audit data."
+type PostgresPersonalAccessCreatedActivityLogEntryData {
+	"Identity that owns the new personal access."
+	username: String!
+	"Server-controlled expiry of the access."
+	expiresAt: Time!
+	"Caller-provided audit reason."
+	reason: String!
+}
+
+"An audit-log entry for retrieval of personal Postgres connection materials."
+type PostgresPersonalAccessConnectionActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+	"Identity that retrieved the connection materials."
+	actor: String!
+	"Creation time of the entry."
+	createdAt: Time!
+	"Message that summarizes the entry."
+	message: String!
+	"Type of the affected resource."
+	resourceType: ActivityLogEntryResourceType!
+	"Name of the affected PostgresAccess resource."
+	resourceName: String!
+	"Team slug that the entry belongs to."
+	teamSlug: Slug!
+	"Environment name that the entry belongs to."
+	environmentName: String
+}
+
 type PostgresDeletedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
@@ -26575,16 +27021,68 @@ extend enum ActivityLogActivityType {
 	"""
 	POSTGRES_GRANT_ACCESS
 	"""
+	A personal Postgres access was created through the API broker
+	"""
+	POSTGRES_PERSONAL_ACCESS_CREATED
+	"""
+	Personal Postgres connection materials were retrieved
+	"""
+	POSTGRES_PERSONAL_ACCESS_CONNECTION
+	"""
 	A Postgres instance was deleted
 	"""
 	POSTGRES_DELETED
 }
 
 extend type Mutation {
-	"Grant temporary access to a Postgres cluster."
+	"""
+	Create time-limited personal access to a NAIS Postgres instance through the brokered PostgresAccess and WireGuard tunnel flow.
+	Use this for new NAIS Postgres personal access. When the access is ready, retrieve its connection materials with postgresAccessConnection.
+	"""
+	createPostgresAccess(input: CreatePostgresAccessInput!): CreatePostgresAccessPayload!
+	"""
+	Grant time-limited Kubernetes RBAC access to database pods for kubectl port-forward.
+	Use this existing flow for Cloud SQL access; it does not create a PostgresAccess, WireGuard tunnel, or database credentials.
+	"""
 	grantPostgresAccess(input: GrantPostgresAccessInput!): GrantPostgresAccessPayload!
 	"Delete an existing Postgres instance."
 	deletePostgres(input: DeletePostgresInput!): DeletePostgresPayload!
+}
+
+"Result of creating a personal Postgres access."
+type CreatePostgresAccessPayload {
+	"Name of the newly created PostgresAccess resource."
+	name: String!
+	"Server-controlled expiry for this personal access."
+	expiresAt: Time!
+}
+
+"Input for creating a time-limited personal Postgres access."
+input CreatePostgresAccessInput {
+	"Name of the available Postgres instance to access."
+	postgresInstance: String!
+	"Team that owns the Postgres instance."
+	teamSlug: Slug!
+	"Environment containing the Postgres instance."
+	environmentName: String!
+	"Privileges requested for the personal database role."
+	accessLevel: PostgresAccessLevel!
+	"WireGuard public key generated by the client for this access."
+	clientWireGuardPublicKey: String!
+	"Reason for personal database access. Must be at least 10 characters."
+	reason: String!
+	"Requested access lifetime (for example '1h' or '4h'). Defaults to '1h' and cannot exceed '8h'."
+	ttl: String
+}
+
+"Privilege level granted to a personal Postgres database role."
+enum PostgresAccessLevel {
+	"Read data without modifying it."
+	READ
+	"Read and modify existing data."
+	READWRITE
+	"Read, modify, and create database objects where supported."
+	READWRITECREATE
 }
 
 type GrantPostgresAccessPayload {
@@ -26621,6 +27119,99 @@ extend type TeamInventoryCounts {
 type TeamInventoryCountPostgresInstances {
 	"Total number of Postgres instances."
 	total: Int!
+}
+
+extend type Query {
+	"Get connection materials for a ready personal Postgres access owned by the caller."
+	postgresAccessConnection(input: PostgresAccessConnectionInput!): PostgresAccessConnection!
+
+	"Get a personal PostgresAccess resource and its state. Available to authorized team members."
+	postgresAccess(
+		"Name of the PostgresAccess resource."
+		name: String!
+
+		"Team slug that owns the Postgres instance."
+		teamSlug: Slug!
+
+		"Environment name that the Postgres instance belongs to."
+		environmentName: String!
+	): PostgresAccess!
+}
+
+"A time-limited personal access request for a Postgres instance."
+type PostgresAccess implements Node {
+	"Opaque ID for this PostgresAccess resource."
+	id: ID!
+	"Name of the PostgresAccess resource."
+	name: String!
+	"Team that owns the access."
+	team: Team!
+	"Environment for the access."
+	teamEnvironment: TeamEnvironment!
+	"Postgres instance this access is for."
+	postgresInstance: PostgresInstance!
+	"Requested access level."
+	accessLevel: PostgresAccessLevel!
+	"Server-controlled expiry for this personal access."
+	expiresAt: Time!
+	"High-level state of the access."
+	state: PostgresAccessState!
+	"Human-readable message for the current state."
+	message: String
+	"Tunnel connection details, once the controller has created them."
+	tunnel: PostgresAccessTunnel
+}
+
+"High-level reconciliation state of a personal Postgres access."
+enum PostgresAccessState {
+	"The controller has not finished provisioning the access."
+	PENDING
+	"The access and its connection materials are ready."
+	READY
+	"The controller cannot provision the requested access."
+	FAILED
+	"The server-controlled expiry time has passed."
+	EXPIRED
+}
+
+"Tunnel details reported while provisioning a personal Postgres access."
+type PostgresAccessTunnel {
+	"Name of the Tunnel resource owned by this access."
+	name: String!
+	"Gateway endpoint the client should connect to."
+	endpoint: String
+	"Gateway's WireGuard public key."
+	gatewayPublicKey: String
+}
+
+"Input for retrieving connection materials for a ready personal access."
+input PostgresAccessConnectionInput {
+	"Name of the PostgresAccess resource."
+	name: String!
+	"Team that owns the PostgresAccess resource."
+	teamSlug: Slug!
+	"Environment containing the PostgresAccess resource."
+	environmentName: String!
+}
+
+"Sensitive connection materials for a ready personal Postgres access."
+type PostgresAccessConnection {
+	"Short-lived password for the caller's database role."
+	password: String!
+	"CA certificate required to verify the PostgreSQL server certificate."
+	caCertificate: String!
+	"PostgreSQL server name used for TLS verification."
+	serverName: String!
+	"WireGuard tunnel endpoint and server public key."
+	tunnel: PostgresAccessConnectionTunnel!
+}
+
+"WireGuard connection parameters for a personal Postgres access."
+type PostgresAccessConnectionTunnel {
+	"Public UDP endpoint of the Tunnel forwarder."
+	endpoint: String!
+	"WireGuard public key of the Tunnel gateway."
+	gatewayPublicKey: String!
 }
 `, BuiltIn: false},
 	{Name: "../schema/price.graphqls", Input: `extend type Query {
@@ -34717,6 +35308,16 @@ func (ec *executionContext) childFields_CreateOpenSearchPayload(ctx context.Cont
 	return nil, fmt.Errorf("no field named %q was found under type CreateOpenSearchPayload", field.Name)
 }
 
+func (ec *executionContext) childFields_CreatePostgresAccessPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "name":
+		return ec.fieldContext_CreatePostgresAccessPayload_name(ctx, field)
+	case "expiresAt":
+		return ec.fieldContext_CreatePostgresAccessPayload_expiresAt(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type CreatePostgresAccessPayload", field.Name)
+}
+
 func (ec *executionContext) childFields_CreateSecretPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "secret":
@@ -36279,6 +36880,68 @@ func (ec *executionContext) childFields_PageInfo(ctx context.Context, field grap
 	return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
 }
 
+func (ec *executionContext) childFields_PostgresAccess(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_PostgresAccess_id(ctx, field)
+	case "name":
+		return ec.fieldContext_PostgresAccess_name(ctx, field)
+	case "team":
+		return ec.fieldContext_PostgresAccess_team(ctx, field)
+	case "teamEnvironment":
+		return ec.fieldContext_PostgresAccess_teamEnvironment(ctx, field)
+	case "postgresInstance":
+		return ec.fieldContext_PostgresAccess_postgresInstance(ctx, field)
+	case "accessLevel":
+		return ec.fieldContext_PostgresAccess_accessLevel(ctx, field)
+	case "expiresAt":
+		return ec.fieldContext_PostgresAccess_expiresAt(ctx, field)
+	case "state":
+		return ec.fieldContext_PostgresAccess_state(ctx, field)
+	case "message":
+		return ec.fieldContext_PostgresAccess_message(ctx, field)
+	case "tunnel":
+		return ec.fieldContext_PostgresAccess_tunnel(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostgresAccess", field.Name)
+}
+
+func (ec *executionContext) childFields_PostgresAccessConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "password":
+		return ec.fieldContext_PostgresAccessConnection_password(ctx, field)
+	case "caCertificate":
+		return ec.fieldContext_PostgresAccessConnection_caCertificate(ctx, field)
+	case "serverName":
+		return ec.fieldContext_PostgresAccessConnection_serverName(ctx, field)
+	case "tunnel":
+		return ec.fieldContext_PostgresAccessConnection_tunnel(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostgresAccessConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_PostgresAccessConnectionTunnel(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "endpoint":
+		return ec.fieldContext_PostgresAccessConnectionTunnel_endpoint(ctx, field)
+	case "gatewayPublicKey":
+		return ec.fieldContext_PostgresAccessConnectionTunnel_gatewayPublicKey(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostgresAccessConnectionTunnel", field.Name)
+}
+
+func (ec *executionContext) childFields_PostgresAccessTunnel(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "name":
+		return ec.fieldContext_PostgresAccessTunnel_name(ctx, field)
+	case "endpoint":
+		return ec.fieldContext_PostgresAccessTunnel_endpoint(ctx, field)
+	case "gatewayPublicKey":
+		return ec.fieldContext_PostgresAccessTunnel_gatewayPublicKey(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostgresAccessTunnel", field.Name)
+}
+
 func (ec *executionContext) childFields_PostgresGrantAccessActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "grantee":
@@ -36401,6 +37064,18 @@ func (ec *executionContext) childFields_PostgresInstanceStateFacetItem(ctx conte
 		return ec.fieldContext_PostgresInstanceStateFacetItem_count(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type PostgresInstanceStateFacetItem", field.Name)
+}
+
+func (ec *executionContext) childFields_PostgresPersonalAccessCreatedActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "username":
+		return ec.fieldContext_PostgresPersonalAccessCreatedActivityLogEntryData_username(ctx, field)
+	case "expiresAt":
+		return ec.fieldContext_PostgresPersonalAccessCreatedActivityLogEntryData_expiresAt(ctx, field)
+	case "reason":
+		return ec.fieldContext_PostgresPersonalAccessCreatedActivityLogEntryData_reason(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostgresPersonalAccessCreatedActivityLogEntryData", field.Name)
 }
 
 func (ec *executionContext) childFields_Price(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {

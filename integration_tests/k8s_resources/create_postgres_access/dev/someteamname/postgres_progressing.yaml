@@ -1,0 +1,22 @@
+---
+apiVersion: data.nais.io/v1
+kind: Postgres
+metadata:
+  name: progressing
+  namespace: someteamname
+spec:
+  cluster:
+    majorVersion: "17"
+    resources:
+      cpu: 100m
+      diskSize: 2Gi
+      memory: 2G
+  database:
+    collation: nb_NO
+status:
+  conditions:
+    - type: Progressing
+      status: "True"
+      reason: Reconciling
+      message: Creating Postgres cluster
+      lastTransitionTime: "2026-09-17T00:00:00Z"

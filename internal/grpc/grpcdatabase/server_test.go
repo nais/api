@@ -203,7 +203,7 @@ func newServer(t *testing.T, ctx context.Context) *grpcdatabase.Server {
 	t.Cleanup(mgr.Stop)
 
 	sqlDatabaseWatcher := sqlinstance.NewDatabaseWatcher(ctx, mgr)
-	zalandoPostgresWatcher := postgres.NewZalandoPostgresWatcher(ctx, mgr)
+	postgresWatcher := postgres.NewPostgresWatcher(ctx, mgr)
 
 	ctxWait, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
@@ -213,6 +213,6 @@ func newServer(t *testing.T, ctx context.Context) *grpcdatabase.Server {
 
 	return grpcdatabase.NewServer(
 		(*watchers.SqlDatabaseWatcher)(sqlDatabaseWatcher),
-		(*watchers.ZalandoPostgresWatcher)(zalandoPostgresWatcher),
+		(*watchers.PostgresWatcher)(postgresWatcher),
 	)
 }

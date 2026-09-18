@@ -14,21 +14,21 @@ import (
 )
 
 type Server struct {
-	sqlDatabaseWatcher     *watchers.SqlDatabaseWatcher
-	zalandoPostgresWatcher *watchers.ZalandoPostgresWatcher
+	sqlDatabaseWatcher *watchers.SqlDatabaseWatcher
+	postgresWatcher    *watchers.PostgresWatcher
 	protoapi.UnimplementedDatabasesServer
 }
 
-func NewServer(sqlDatabaseWatcher *watchers.SqlDatabaseWatcher, zalandoPostgresWatcher *watchers.ZalandoPostgresWatcher) *Server {
+func NewServer(sqlDatabaseWatcher *watchers.SqlDatabaseWatcher, postgresWatcher *watchers.PostgresWatcher) *Server {
 	return &Server{
-		sqlDatabaseWatcher:     sqlDatabaseWatcher,
-		zalandoPostgresWatcher: zalandoPostgresWatcher,
+		sqlDatabaseWatcher: sqlDatabaseWatcher,
+		postgresWatcher:    postgresWatcher,
 	}
 }
 
 func (s *Server) List(_ context.Context, r *protoapi.ListDatabasesRequest) (*protoapi.ListDatabasesResponse, error) {
 	sqlDatabases := watcher.Objects(s.sqlDatabaseWatcher.GetByNamespace(r.TeamSlug))
-	postgresInstances := watcher.Objects(s.zalandoPostgresWatcher.GetByNamespace(r.TeamSlug))
+	postgresInstances := watcher.Objects(s.postgresWatcher.GetByNamespace(r.TeamSlug))
 
 	all := make([]*protoapi.Database, 0, len(sqlDatabases)+len(postgresInstances))
 	for _, d := range sqlDatabases {
