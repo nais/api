@@ -34847,7 +34847,6 @@ type ImageVulnerability implements Node {
 
 	"Link to the vulnerability details."
 	vulnerabilityDetailsLink: String!
-
 }
 
 "Operational priority levels for vulnerabilities and CVEs."
