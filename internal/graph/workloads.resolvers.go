@@ -9,6 +9,7 @@ import (
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/team"
+	"github.com/nais/api/internal/vulnerability"
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
 	"github.com/nais/api/internal/workload/job"
@@ -69,6 +70,10 @@ func (r *teamResolver) Workloads(ctx context.Context, obj *team.Team, first *int
 	}
 
 	filtered := workload.SortFilter.Filter(ctx, workloads, filter)
+	filtered, err = filterWorkloadsBySBOMStatus(ctx, filtered, filter)
+	if err != nil {
+		return nil, err
+	}
 	if orderBy == nil {
 		orderBy = &workload.WorkloadOrder{
 			Field:     "NAME",
@@ -85,6 +90,21 @@ func (r *teamEnvironmentResolver) Workload(ctx context.Context, obj *team.TeamEn
 	return tryWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, name)
 }
 
+func (r *teamWorkloadsFilterResolver) SbomStatus(ctx context.Context, obj *workload.TeamWorkloadsFilter, data *vulnerability.SBOMStatus) error {
+	if data != nil {
+		status := data.String()
+		obj.SbomStatus = &status
+	}
+	return nil
+}
+
 func (r *Resolver) ContainerImage() gengql.ContainerImageResolver { return &containerImageResolver{r} }
 
-type containerImageResolver struct{ *Resolver }
+func (r *Resolver) TeamWorkloadsFilter() gengql.TeamWorkloadsFilterResolver {
+	return &teamWorkloadsFilterResolver{r}
+}
+
+type (
+	containerImageResolver      struct{ *Resolver }
+	teamWorkloadsFilterResolver struct{ *Resolver }
+)
