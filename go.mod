@@ -44,7 +44,7 @@ require (
 	github.com/nais/pgrator/pkg/api v0.0.0-20260915202302-d699a2823ec5
 	github.com/nais/tester v0.2.0
 	github.com/nais/unleasherator v0.0.0-20251216221129-efebc54203fe
-	github.com/nais/v13s/pkg/api v0.0.0-20260914111803-fff885dea8b6
+	github.com/nais/v13s/pkg/api v0.0.0-20260918105345-acf0ead6ffc5
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pressly/goose/v3 v3.27.0
 	github.com/prometheus/client_golang v1.23.2
@@ -75,7 +75,7 @@ require (
 	go.opentelemetry.io/otel/sdk/metric v1.44.0
 	go.opentelemetry.io/otel/trace v1.44.0
 	golang.org/x/exp v0.0.0-20260218203240-3dfff04db8fa
-	golang.org/x/oauth2 v0.36.0
+	golang.org/x/oauth2 v0.37.0
 	golang.org/x/sync v0.22.0
 	golang.org/x/text v0.41.0
 	golang.org/x/tools v0.48.0
