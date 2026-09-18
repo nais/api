@@ -51,6 +51,40 @@ func TestNewPostgresAccessResource(t *testing.T) {
 	}
 }
 
+func TestCreatePostgresAccessTTL(t *testing.T) {
+	tests := []struct {
+		name    string
+		ttl     string
+		want    time.Duration
+		wantErr string
+	}{
+		{name: "default", want: time.Hour},
+		{name: "requested", ttl: "4h", want: 4 * time.Hour},
+		{name: "maximum", ttl: "8h", want: 8 * time.Hour},
+		{name: "invalid", ttl: "tomorrow", wantErr: "TTL must be a Go duration"},
+		{name: "zero", ttl: "0s", wantErr: "TTL must be positive"},
+		{name: "too long", ttl: "8h1m", wantErr: "TTL cannot exceed 8h0m0s"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := (CreatePostgresAccessInput{TTL: tt.ttl}).accessTTL()
+			if tt.wantErr != "" {
+				if err == nil || !strings.Contains(err.Error(), tt.wantErr) {
+					t.Errorf("accessTTL() error = %v, want containing %q", err, tt.wantErr)
+				}
+				return
+			}
+			if err != nil {
+				t.Fatalf("accessTTL() error = %v", err)
+			}
+			if got != tt.want {
+				t.Errorf("accessTTL() = %s, want %s", got, tt.want)
+			}
+		})
+	}
+}
+
 func TestPostgresAccessState(t *testing.T) {
 	future := time.Now().Add(time.Hour)
 	past := time.Now().Add(-time.Hour)

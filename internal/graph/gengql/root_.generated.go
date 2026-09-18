@@ -1872,7 +1872,7 @@ type ComplexityRoot struct {
 		Tunnel           func(childComplexity int) int
 	}
 
-	PostgresAccessConnectionPayload struct {
+	PostgresAccessConnection struct {
 		CACertificate func(childComplexity int) int
 		Password      func(childComplexity int) int
 		ServerName    func(childComplexity int) int
@@ -11400,33 +11400,33 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.PostgresAccess.Tunnel(childComplexity), true
 
-	case "PostgresAccessConnectionPayload.caCertificate":
-		if e.ComplexityRoot.PostgresAccessConnectionPayload.CACertificate == nil {
+	case "PostgresAccessConnection.caCertificate":
+		if e.ComplexityRoot.PostgresAccessConnection.CACertificate == nil {
 			break
 		}
 
-		return e.ComplexityRoot.PostgresAccessConnectionPayload.CACertificate(childComplexity), true
+		return e.ComplexityRoot.PostgresAccessConnection.CACertificate(childComplexity), true
 
-	case "PostgresAccessConnectionPayload.password":
-		if e.ComplexityRoot.PostgresAccessConnectionPayload.Password == nil {
+	case "PostgresAccessConnection.password":
+		if e.ComplexityRoot.PostgresAccessConnection.Password == nil {
 			break
 		}
 
-		return e.ComplexityRoot.PostgresAccessConnectionPayload.Password(childComplexity), true
+		return e.ComplexityRoot.PostgresAccessConnection.Password(childComplexity), true
 
-	case "PostgresAccessConnectionPayload.serverName":
-		if e.ComplexityRoot.PostgresAccessConnectionPayload.ServerName == nil {
+	case "PostgresAccessConnection.serverName":
+		if e.ComplexityRoot.PostgresAccessConnection.ServerName == nil {
 			break
 		}
 
-		return e.ComplexityRoot.PostgresAccessConnectionPayload.ServerName(childComplexity), true
+		return e.ComplexityRoot.PostgresAccessConnection.ServerName(childComplexity), true
 
-	case "PostgresAccessConnectionPayload.tunnel":
-		if e.ComplexityRoot.PostgresAccessConnectionPayload.Tunnel == nil {
+	case "PostgresAccessConnection.tunnel":
+		if e.ComplexityRoot.PostgresAccessConnection.Tunnel == nil {
 			break
 		}
 
-		return e.ComplexityRoot.PostgresAccessConnectionPayload.Tunnel(childComplexity), true
+		return e.ComplexityRoot.PostgresAccessConnection.Tunnel(childComplexity), true
 
 	case "PostgresAccessConnectionTunnel.endpoint":
 		if e.ComplexityRoot.PostgresAccessConnectionTunnel.Endpoint == nil {
@@ -27036,13 +27036,13 @@ extend enum ActivityLogActivityType {
 
 extend type Mutation {
 	"""
-	Create time-limited personal database access through the brokered PostgresAccess and WireGuard tunnel flow.
-	Use this for all new personal Postgres access. When the access is ready, retrieve its connection materials with postgresAccessConnection.
+	Create time-limited personal access to a NAIS Postgres instance through the brokered PostgresAccess and WireGuard tunnel flow.
+	Use this for new NAIS Postgres personal access. When the access is ready, retrieve its connection materials with postgresAccessConnection.
 	"""
 	createPostgresAccess(input: CreatePostgresAccessInput!): CreatePostgresAccessPayload!
 	"""
-	Grant legacy, time-limited Kubernetes RBAC access to CNPG pods for kubectl port-forward.
-	This does not create a PostgresAccess, WireGuard tunnel, or database credentials. Use createPostgresAccess for new personal access.
+	Grant time-limited Kubernetes RBAC access to database pods for kubectl port-forward.
+	Use this existing flow for Cloud SQL access; it does not create a PostgresAccess, WireGuard tunnel, or database credentials.
 	"""
 	grantPostgresAccess(input: GrantPostgresAccessInput!): GrantPostgresAccessPayload!
 	"Delete an existing Postgres instance."
@@ -27071,6 +27071,8 @@ input CreatePostgresAccessInput {
 	clientWireGuardPublicKey: String!
 	"Reason for personal database access. Must be at least 10 characters."
 	reason: String!
+	"Requested access lifetime (for example '1h' or '4h'). Defaults to '1h' and cannot exceed '8h'."
+	ttl: String
 }
 
 "Privilege level granted to a personal Postgres database role."
@@ -27121,7 +27123,7 @@ type TeamInventoryCountPostgresInstances {
 
 extend type Query {
 	"Get connection materials for a ready personal Postgres access owned by the caller."
-	postgresAccessConnection(input: PostgresAccessConnectionInput!): PostgresAccessConnectionPayload!
+	postgresAccessConnection(input: PostgresAccessConnectionInput!): PostgresAccessConnection!
 
 	"Get a personal PostgresAccess resource and its state. Available to authorized team members."
 	postgresAccess(
@@ -27193,7 +27195,7 @@ input PostgresAccessConnectionInput {
 }
 
 "Sensitive connection materials for a ready personal Postgres access."
-type PostgresAccessConnectionPayload {
+type PostgresAccessConnection {
 	"Short-lived password for the caller's database role."
 	password: String!
 	"CA certificate required to verify the PostgreSQL server certificate."
@@ -36904,18 +36906,18 @@ func (ec *executionContext) childFields_PostgresAccess(ctx context.Context, fiel
 	return nil, fmt.Errorf("no field named %q was found under type PostgresAccess", field.Name)
 }
 
-func (ec *executionContext) childFields_PostgresAccessConnectionPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+func (ec *executionContext) childFields_PostgresAccessConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "password":
-		return ec.fieldContext_PostgresAccessConnectionPayload_password(ctx, field)
+		return ec.fieldContext_PostgresAccessConnection_password(ctx, field)
 	case "caCertificate":
-		return ec.fieldContext_PostgresAccessConnectionPayload_caCertificate(ctx, field)
+		return ec.fieldContext_PostgresAccessConnection_caCertificate(ctx, field)
 	case "serverName":
-		return ec.fieldContext_PostgresAccessConnectionPayload_serverName(ctx, field)
+		return ec.fieldContext_PostgresAccessConnection_serverName(ctx, field)
 	case "tunnel":
-		return ec.fieldContext_PostgresAccessConnectionPayload_tunnel(ctx, field)
+		return ec.fieldContext_PostgresAccessConnection_tunnel(ctx, field)
 	}
-	return nil, fmt.Errorf("no field named %q was found under type PostgresAccessConnectionPayload", field.Name)
+	return nil, fmt.Errorf("no field named %q was found under type PostgresAccessConnection", field.Name)
 }
 
 func (ec *executionContext) childFields_PostgresAccessConnectionTunnel(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {

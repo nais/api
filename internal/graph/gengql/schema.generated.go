@@ -141,7 +141,7 @@ type QueryResolver interface {
 	Environments(ctx context.Context, orderBy *environment.EnvironmentOrder) (*pagination.Connection[*environment.Environment], error)
 	Environment(ctx context.Context, name string) (*environment.Environment, error)
 	Features(ctx context.Context) (*feature.Features, error)
-	PostgresAccessConnection(ctx context.Context, input postgres.PostgresAccessConnectionInput) (*postgres.PostgresAccessConnectionPayload, error)
+	PostgresAccessConnection(ctx context.Context, input postgres.PostgresAccessConnectionInput) (*postgres.PostgresAccessConnection, error)
 	PostgresAccess(ctx context.Context, name string, teamSlug slug.Slug, environmentName string) (*postgres.PostgresAccess, error)
 	CurrentUnitPrices(ctx context.Context) (*price.CurrentUnitPrices, error)
 	Reconcilers(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*reconciler.Reconciler], error)
@@ -5279,8 +5279,8 @@ func (ec *executionContext) _Query_postgresAccessConnection(ctx context.Context,
 			return ec.Resolvers.Query().PostgresAccessConnection(ctx, fc.Args["input"].(postgres.PostgresAccessConnectionInput))
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *postgres.PostgresAccessConnectionPayload) graphql.Marshaler {
-			return ec.marshalNPostgresAccessConnectionPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresAccessConnectionPayload(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *postgres.PostgresAccessConnection) graphql.Marshaler {
+			return ec.marshalNPostgresAccessConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresAccessConnection(ctx, selections, v)
 		},
 		true,
 		true,
@@ -5293,7 +5293,7 @@ func (ec *executionContext) fieldContext_Query_postgresAccessConnection(ctx cont
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_PostgresAccessConnectionPayload(ctx, field)
+			return ec.childFields_PostgresAccessConnection(ctx, field)
 		},
 	}
 	defer func() {

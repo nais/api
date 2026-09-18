@@ -449,13 +449,13 @@ func (ec *executionContext) fieldContext_PostgresAccess_tunnel(_ context.Context
 	return fc, nil
 }
 
-func (ec *executionContext) _PostgresAccessConnectionPayload_password(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresAccessConnectionPayload) (ret graphql.Marshaler) {
+func (ec *executionContext) _PostgresAccessConnection_password(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresAccessConnection) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PostgresAccessConnectionPayload_password(ctx, field)
+			return ec.fieldContext_PostgresAccessConnection_password(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Password, nil
@@ -468,17 +468,17 @@ func (ec *executionContext) _PostgresAccessConnectionPayload_password(ctx contex
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_PostgresAccessConnectionPayload_password(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("PostgresAccessConnectionPayload", field, false, false, errors.New("field of type String does not have child fields"))
+func (ec *executionContext) fieldContext_PostgresAccessConnection_password(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresAccessConnection", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _PostgresAccessConnectionPayload_caCertificate(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresAccessConnectionPayload) (ret graphql.Marshaler) {
+func (ec *executionContext) _PostgresAccessConnection_caCertificate(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresAccessConnection) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PostgresAccessConnectionPayload_caCertificate(ctx, field)
+			return ec.fieldContext_PostgresAccessConnection_caCertificate(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.CACertificate, nil
@@ -491,17 +491,17 @@ func (ec *executionContext) _PostgresAccessConnectionPayload_caCertificate(ctx c
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_PostgresAccessConnectionPayload_caCertificate(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("PostgresAccessConnectionPayload", field, false, false, errors.New("field of type String does not have child fields"))
+func (ec *executionContext) fieldContext_PostgresAccessConnection_caCertificate(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresAccessConnection", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _PostgresAccessConnectionPayload_serverName(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresAccessConnectionPayload) (ret graphql.Marshaler) {
+func (ec *executionContext) _PostgresAccessConnection_serverName(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresAccessConnection) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PostgresAccessConnectionPayload_serverName(ctx, field)
+			return ec.fieldContext_PostgresAccessConnection_serverName(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ServerName, nil
@@ -514,17 +514,17 @@ func (ec *executionContext) _PostgresAccessConnectionPayload_serverName(ctx cont
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_PostgresAccessConnectionPayload_serverName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("PostgresAccessConnectionPayload", field, false, false, errors.New("field of type String does not have child fields"))
+func (ec *executionContext) fieldContext_PostgresAccessConnection_serverName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresAccessConnection", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _PostgresAccessConnectionPayload_tunnel(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresAccessConnectionPayload) (ret graphql.Marshaler) {
+func (ec *executionContext) _PostgresAccessConnection_tunnel(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresAccessConnection) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PostgresAccessConnectionPayload_tunnel(ctx, field)
+			return ec.fieldContext_PostgresAccessConnection_tunnel(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Tunnel, nil
@@ -537,9 +537,9 @@ func (ec *executionContext) _PostgresAccessConnectionPayload_tunnel(ctx context.
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_PostgresAccessConnectionPayload_tunnel(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_PostgresAccessConnection_tunnel(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "PostgresAccessConnectionPayload",
+		Object:     "PostgresAccessConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -2542,7 +2542,7 @@ func (ec *executionContext) unmarshalInputCreatePostgresAccessInput(ctx context.
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"postgresInstance", "teamSlug", "environmentName", "accessLevel", "clientWireGuardPublicKey", "reason"}
+	fieldsInOrder := [...]string{"postgresInstance", "teamSlug", "environmentName", "accessLevel", "clientWireGuardPublicKey", "reason", "ttl"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -2591,6 +2591,13 @@ func (ec *executionContext) unmarshalInputCreatePostgresAccessInput(ctx context.
 				return it, err
 			}
 			it.Reason = data
+		case "ttl":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ttl"))
+			data, err := ec.unmarshalOString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TTL = data
 		}
 	}
 	return it, nil
@@ -3139,34 +3146,34 @@ func (ec *executionContext) _PostgresAccess(ctx context.Context, sel ast.Selecti
 	return out
 }
 
-var postgresAccessConnectionPayloadImplementors = []string{"PostgresAccessConnectionPayload"}
+var postgresAccessConnectionImplementors = []string{"PostgresAccessConnection"}
 
-func (ec *executionContext) _PostgresAccessConnectionPayload(ctx context.Context, sel ast.SelectionSet, obj *postgres.PostgresAccessConnectionPayload) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, postgresAccessConnectionPayloadImplementors)
+func (ec *executionContext) _PostgresAccessConnection(ctx context.Context, sel ast.SelectionSet, obj *postgres.PostgresAccessConnection) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, postgresAccessConnectionImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("PostgresAccessConnectionPayload")
+			out.Values[i] = graphql.MarshalString("PostgresAccessConnection")
 		case "password":
-			out.Values[i] = ec._PostgresAccessConnectionPayload_password(ctx, field, obj)
+			out.Values[i] = ec._PostgresAccessConnection_password(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "caCertificate":
-			out.Values[i] = ec._PostgresAccessConnectionPayload_caCertificate(ctx, field, obj)
+			out.Values[i] = ec._PostgresAccessConnection_caCertificate(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "serverName":
-			out.Values[i] = ec._PostgresAccessConnectionPayload_serverName(ctx, field, obj)
+			out.Values[i] = ec._PostgresAccessConnection_serverName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "tunnel":
-			out.Values[i] = ec._PostgresAccessConnectionPayload_tunnel(ctx, field, obj)
+			out.Values[i] = ec._PostgresAccessConnection_tunnel(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -4516,23 +4523,23 @@ func (ec *executionContext) marshalNPostgresAccess2ᚖgithubᚗcomᚋnaisᚋapi�
 	return ec._PostgresAccess(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNPostgresAccessConnectionInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresAccessConnectionInput(ctx context.Context, v any) (postgres.PostgresAccessConnectionInput, error) {
-	res, err := ec.unmarshalInputPostgresAccessConnectionInput(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
+func (ec *executionContext) marshalNPostgresAccessConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresAccessConnection(ctx context.Context, sel ast.SelectionSet, v postgres.PostgresAccessConnection) graphql.Marshaler {
+	return ec._PostgresAccessConnection(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNPostgresAccessConnectionPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresAccessConnectionPayload(ctx context.Context, sel ast.SelectionSet, v postgres.PostgresAccessConnectionPayload) graphql.Marshaler {
-	return ec._PostgresAccessConnectionPayload(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNPostgresAccessConnectionPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresAccessConnectionPayload(ctx context.Context, sel ast.SelectionSet, v *postgres.PostgresAccessConnectionPayload) graphql.Marshaler {
+func (ec *executionContext) marshalNPostgresAccessConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresAccessConnection(ctx context.Context, sel ast.SelectionSet, v *postgres.PostgresAccessConnection) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._PostgresAccessConnectionPayload(ctx, sel, v)
+	return ec._PostgresAccessConnection(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNPostgresAccessConnectionInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresAccessConnectionInput(ctx context.Context, v any) (postgres.PostgresAccessConnectionInput, error) {
+	res, err := ec.unmarshalInputPostgresAccessConnectionInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNPostgresAccessConnectionTunnel2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresAccessConnectionTunnel(ctx context.Context, sel ast.SelectionSet, v postgres.PostgresAccessConnectionTunnel) graphql.Marshaler {

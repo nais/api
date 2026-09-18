@@ -138,6 +138,7 @@ Test.gql("Create personal postgres access", function(t)
 				accessLevel: READWRITE
 				clientWireGuardPublicKey: "client-public-key"
 				reason: "Testing personal database access"
+				ttl: "2h"
 			}) {
 				name
 				expiresAt

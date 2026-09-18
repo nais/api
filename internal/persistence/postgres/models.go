@@ -237,7 +237,7 @@ type GrantPostgresAccessPayload struct {
 }
 
 // CreatePostgresAccessInput requests a new, time-limited personal database access.
-// The authenticated actor and access lifetime are deliberately not caller-controlled.
+// The authenticated actor and final expiry are server-controlled.
 type CreatePostgresAccessInput struct {
 	PostgresInstance         string              `json:"postgresInstance"`
 	TeamSlug                 slug.Slug           `json:"teamSlug"`
@@ -245,6 +245,7 @@ type CreatePostgresAccessInput struct {
 	AccessLevel              PostgresAccessLevel `json:"accessLevel"`
 	ClientWireGuardPublicKey string              `json:"clientWireGuardPublicKey"`
 	Reason                   string              `json:"reason"`
+	TTL                      string              `json:"ttl"`
 }
 
 func (i *CreatePostgresAccessInput) Validate(ctx context.Context) error {
@@ -257,6 +258,7 @@ func (i *CreatePostgresAccessInput) ValidationErrors(ctx context.Context) *valid
 	i.EnvironmentName = strings.TrimSpace(i.EnvironmentName)
 	i.ClientWireGuardPublicKey = strings.TrimSpace(i.ClientWireGuardPublicKey)
 	i.Reason = strings.TrimSpace(i.Reason)
+	i.TTL = strings.TrimSpace(i.TTL)
 
 	if i.PostgresInstance == "" {
 		verr.Add("postgresInstance", "Postgres instance must not be empty.")
@@ -275,6 +277,9 @@ func (i *CreatePostgresAccessInput) ValidationErrors(ctx context.Context) *valid
 	}
 	if len(i.Reason) < 10 {
 		verr.Add("reason", "Reason must be at least 10 characters.")
+	}
+	if _, err := i.accessTTL(); err != nil {
+		verr.Add("ttl", "%s", err)
 	}
 
 	if i.PostgresInstance == "" || i.EnvironmentName == "" || i.TeamSlug == "" {
@@ -610,7 +615,7 @@ func (i *PostgresAccessConnectionInput) ValidationErrors(_ context.Context) *val
 	return verr
 }
 
-type PostgresAccessConnectionPayload struct {
+type PostgresAccessConnection struct {
 	Password      string                         `json:"password"`
 	CACertificate string                         `json:"caCertificate"`
 	ServerName    string                         `json:"serverName"`

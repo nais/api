@@ -153,7 +153,7 @@ func GetPostgresAccess(ctx context.Context, name string, teamSlug slug.Slug, env
 	return access, nil
 }
 
-func GetPostgresAccessConnection(ctx context.Context, input PostgresAccessConnectionInput) (*PostgresAccessConnectionPayload, error) {
+func GetPostgresAccessConnection(ctx context.Context, input PostgresAccessConnectionInput) (*PostgresAccessConnection, error) {
 	if err := input.Validate(ctx); err != nil {
 		return nil, err
 	}
@@ -236,7 +236,7 @@ func getPostgresAccessResource(ctx context.Context, name string, teamSlug slug.S
 	return u, nil
 }
 
-func postgresAccessConnectionDetails(access *unstructured.Unstructured, now time.Time) (*PostgresAccessConnectionPayload, string, error) {
+func postgresAccessConnectionDetails(access *unstructured.Unstructured, now time.Time) (*PostgresAccessConnection, string, error) {
 	expiresAt, _, err := unstructured.NestedString(access.Object, "spec", "expiresAt")
 	if err != nil {
 		return nil, "", fmt.Errorf("reading PostgresAccess %q expiry: %w", access.GetName(), err)
@@ -269,7 +269,7 @@ func postgresAccessConnectionDetails(access *unstructured.Unstructured, now time
 		return nil, "", apierror.Errorf("PostgresAccess %q is not ready", access.GetName())
 	}
 
-	return &PostgresAccessConnectionPayload{
+	return &PostgresAccessConnection{
 		ServerName: serverName,
 		Tunnel: PostgresAccessConnectionTunnel{
 			Endpoint: endpoint, GatewayPublicKey: gatewayPublicKey,
@@ -426,10 +426,18 @@ func GetAuditURL(ctx context.Context, audit *PostgresInstanceAudit) (*string, er
 	return &logURL, nil
 }
 
-const postgresAccessAPIVersion = "nais.io/v1"
+const (
+	postgresAccessAPIVersion = "nais.io/v1"
+	defaultPostgresAccessTTL = time.Hour
+	maxPostgresAccessTTL     = 8 * time.Hour
+)
 
 func CreatePostgresAccess(ctx context.Context, input CreatePostgresAccessInput) (*CreatePostgresAccessPayload, error) {
 	if err := input.Validate(ctx); err != nil {
+		return nil, err
+	}
+	accessTTL, err := input.accessTTL()
+	if err != nil {
 		return nil, err
 	}
 
@@ -443,7 +451,7 @@ func CreatePostgresAccess(ctx context.Context, input CreatePostgresAccessInput) 
 		return nil, err
 	}
 
-	expiresAt := time.Now().Add(time.Hour)
+	expiresAt := time.Now().Add(accessTTL)
 	name := fmt.Sprintf("postgres-access-%s", uuid.NewString()[:8])
 	res := newPostgresAccessResource(input, authz.ActorFromContext(ctx).User.Identity(), name, expiresAt)
 
@@ -468,6 +476,24 @@ func CreatePostgresAccess(ctx context.Context, input CreatePostgresAccessInput) 
 	}
 
 	return &CreatePostgresAccessPayload{Name: name, ExpiresAt: expiresAt}, nil
+}
+
+func (i CreatePostgresAccessInput) accessTTL() (time.Duration, error) {
+	if i.TTL == "" {
+		return defaultPostgresAccessTTL, nil
+	}
+
+	ttl, err := time.ParseDuration(i.TTL)
+	if err != nil {
+		return 0, fmt.Errorf("TTL must be a Go duration, for example %q", "4h")
+	}
+	if ttl <= 0 {
+		return 0, fmt.Errorf("TTL must be positive")
+	}
+	if ttl > maxPostgresAccessTTL {
+		return 0, fmt.Errorf("TTL cannot exceed %s", maxPostgresAccessTTL)
+	}
+	return ttl, nil
 }
 
 func newPostgresAccessResource(input CreatePostgresAccessInput, username, name string, expiresAt time.Time) *unstructured.Unstructured {

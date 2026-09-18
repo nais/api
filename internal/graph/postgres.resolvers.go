@@ -121,7 +121,7 @@ func (r *postgresInstanceConnectionResolver) Facets(ctx context.Context, obj *pa
 	}, nil
 }
 
-func (r *queryResolver) PostgresAccessConnection(ctx context.Context, input postgres.PostgresAccessConnectionInput) (*postgres.PostgresAccessConnectionPayload, error) {
+func (r *queryResolver) PostgresAccessConnection(ctx context.Context, input postgres.PostgresAccessConnectionInput) (*postgres.PostgresAccessConnection, error) {
 	return postgres.GetPostgresAccessConnection(ctx, input)
 }
 
