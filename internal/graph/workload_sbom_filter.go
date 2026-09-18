@@ -12,16 +12,9 @@ func filterWorkloadsBySBOMStatus(ctx context.Context, workloads []workload.Workl
 		return workloads, nil
 	}
 
-	filtered := make([]workload.Workload, 0, len(workloads))
-	for _, wl := range workloads {
-		status, err := vulnerability.GetSbomStatus(ctx, wl.GetImageString())
-		if err != nil {
-			return nil, err
-		}
-		if status.String() == *filter.SbomStatus {
-			filtered = append(filtered, wl)
-		}
+	status, err := vulnerability.ParseSBOMStatus(*filter.SbomStatus)
+	if err != nil {
+		return nil, err
 	}
-
-	return filtered, nil
+	return vulnerability.FilterWorkloadsBySBOMStatus(ctx, workloads, status)
 }
