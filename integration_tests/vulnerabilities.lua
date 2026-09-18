@@ -19,6 +19,13 @@ Test.gql("List vulnerability history for image", function(t)
 									medium
 									low
 									unassigned
+									countsBySeverity {
+										critical
+										high
+										medium
+										low
+										unassigned
+									}
 								}
 								date
 							}
@@ -35,7 +42,7 @@ Test.gql("List vulnerability history for image", function(t)
 				environment = {
 					workload = {
 						imageVulnerabilityHistory = { samples = {
-							{ date = NotNull(), summary = { total = NotNull(), riskScore = NotNull(), critical = NotNull(), high = NotNull(), medium = NotNull(), low = NotNull(), unassigned = NotNull() } },
+							{ date = NotNull(), summary = { total = NotNull(), riskScore = NotNull(), critical = NotNull(), high = NotNull(), medium = NotNull(), low = NotNull(), unassigned = NotNull(), countsBySeverity = { critical = NotNull(), high = NotNull(), medium = NotNull(), low = NotNull(), unassigned = NotNull() } } },
 						} },
 					},
 				},
@@ -59,7 +66,9 @@ Test.gql("List vulnerability summaries for team", function(t)
 					  vulnerabilities(first: 10) {
 					  	nodes {
 					  		identifier
-					  		priority
+					  		riskAssessment {
+					  			priority
+					  		}
 					  	}
 					  }
 					  hasSBOM
@@ -78,6 +87,7 @@ Test.gql("List vulnerability summaries for team", function(t)
 						}
 						countsByPriority {
 							urgent
+							knownExploited
 							highRisk
 							elevatedRisk
 							monitor
@@ -110,15 +120,21 @@ Test.gql("List vulnerability summaries for team", function(t)
 									nodes = {
 										{
 											identifier = NotNull(),
-											priority = NotNull(),
+											riskAssessment = {
+												priority = NotNull(),
+											},
 										},
 										{
 											identifier = NotNull(),
-											priority = NotNull(),
+											riskAssessment = {
+												priority = NotNull(),
+											},
 										},
 										{
 											identifier = NotNull(),
-											priority = NotNull(),
+											riskAssessment = {
+												priority = NotNull(),
+											},
 										},
 									},
 								},
@@ -137,7 +153,8 @@ Test.gql("List vulnerability summaries for team", function(t)
 										unassigned = NotNull(),
 									},
 									countsByPriority = {
-										urgent = NotNull(),
+										urgent = 0,
+										knownExploited = NotNull(),
 										highRisk = NotNull(),
 										elevatedRisk = NotNull(),
 										monitor = NotNull(),
@@ -172,6 +189,7 @@ Test.gql("Get vulnerability summary for tenant", function(t)
 				}
 				countsByPriority {
 					urgent
+					knownExploited
 					highRisk
 					elevatedRisk
 					monitor
@@ -199,7 +217,8 @@ Test.gql("Get vulnerability summary for tenant", function(t)
 					unassigned = NotNull(),
 				},
 				countsByPriority = {
-					urgent = NotNull(),
+					urgent = 0,
+					knownExploited = NotNull(),
 					highRisk = NotNull(),
 					elevatedRisk = NotNull(),
 					monitor = NotNull(),
@@ -232,10 +251,14 @@ Test.gql("Get vulnerability summary for team", function(t)
 				}
 				countsByPriority {
 					urgent
+					knownExploited
 					highRisk
 					elevatedRisk
 					monitor
 				}
+				highWorkloadCount
+				elevatedWorkloadCount
+				monitorWorkloadCount
 				critical
 				high
 				medium
@@ -260,11 +283,15 @@ Test.gql("Get vulnerability summary for team", function(t)
 						unassigned = NotNull(),
 					},
 					countsByPriority = {
-						urgent = NotNull(),
+						urgent = 0,
+						knownExploited = NotNull(),
 						highRisk = NotNull(),
 						elevatedRisk = NotNull(),
 						monitor = NotNull(),
 					},
+					highWorkloadCount = NotNull(),
+					elevatedWorkloadCount = NotNull(),
+					monitorWorkloadCount = NotNull(),
 					critical = NotNull(),
 					high = NotNull(),
 					medium = NotNull(),
@@ -278,13 +305,42 @@ Test.gql("Get vulnerability summary for team", function(t)
 	}
 end)
 
+Test.gql("Workload counts per priority are counted per team, not per finding", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query(string.format([[
+		{
+			team(slug: "%s") {
+			  vulnerabilitySummary{
+				highWorkloadCount
+				elevatedWorkloadCount
+				monitorWorkloadCount
+			  }
+			}
+		}
+	]], team:slug()))
+
+	t.check {
+		data = {
+			team = {
+				vulnerabilitySummary = {
+					highWorkloadCount = 1,
+					elevatedWorkloadCount = 0,
+					monitorWorkloadCount = 0,
+				},
+			},
+		},
+	}
+end)
+
 Test.gql("Get CVE workloads without filter", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query([[
 		{
 			cve(identifier: "CVE-2024-12345") {
 				identifier
-				priority
+				riskAssessment {
+					priority
+				}
 				workloads(first: 10) {
 					pageInfo {
 						totalCount
@@ -303,7 +359,9 @@ Test.gql("Get CVE workloads without filter", function(t)
 		data = {
 			cve = {
 				identifier = "CVE-2024-12345",
-				priority = NotNull(),
+				riskAssessment = {
+					priority = NotNull(),
+				},
 				workloads = {
 					pageInfo = { totalCount = 1 },
 					nodes = {
