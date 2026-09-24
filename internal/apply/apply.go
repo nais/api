@@ -177,8 +177,7 @@ func (h *Handler) applyOne(
 
 	actor := authz.ActorFromContext(ctx)
 	if ghActor, ok := actor.User.(*middleware.GitHubRepoActor); ok {
-		claims := activitylog.GitHubActorClaims(ghActor.Claims)
-		logData.GitHubActorClaims = &claims
+		logData.GitHubActorClaims = &ghActor.Claims
 	}
 
 	if err := activitylog.Create(ctx, activitylog.CreateInput{

@@ -3,6 +3,8 @@ package activitylog
 import (
 	"fmt"
 	"sync"
+
+	"github.com/nais/api/internal/auth/middleware/github"
 )
 
 var (
@@ -69,36 +71,7 @@ type GenericKubernetesResourceActivityLogEntryData struct {
 
 	// GitHubActorClaims holds the GitHub Actions OIDC token claims at the time of the
 	// apply. Only populated when the request was authenticated via a GitHub token.
-	GitHubActorClaims *GitHubActorClaims `json:"gitHubActorClaims,omitempty"`
-}
-
-// GitHubActorClaims holds the GitHub Actions OIDC token claims captured at the
-// time of an apply operation. Duplicated from the middleware package to avoid a
-// circular import.
-type GitHubActorClaims struct {
-	Actor                string `json:"actor"`
-	ActorID              string `json:"actorId"`
-	BaseRef              string `json:"baseRef"`
-	CheckRunID           string `json:"checkRunId"`
-	Environment          string `json:"environment"`
-	EventName            string `json:"eventName"`
-	HeadRef              string `json:"headRef"`
-	JobWorkflowRef       string `json:"jobWorkflowRef"`
-	JobWorkflowSha       string `json:"jobWorkflowSha"`
-	Ref                  string `json:"ref"`
-	RefType              string `json:"refType"`
-	Repository           string `json:"repository"`
-	RepositoryID         string `json:"repositoryId"`
-	RepositoryOwner      string `json:"repositoryOwner"`
-	RepositoryOwnerID    string `json:"repositoryOwnerId"`
-	RepositoryVisibility string `json:"repositoryVisibility"`
-	RunAttempt           string `json:"runAttempt"`
-	RunID                string `json:"runId"`
-	RunnerEnvironment    string `json:"runnerEnvironment"`
-	RunNumber            string `json:"runNumber"`
-	Workflow             string `json:"workflow"`
-	WorkflowRef          string `json:"workflowRef"`
-	WorkflowSha          string `json:"workflowSha"`
+	GitHubActorClaims *github.GitHubActorClaims `json:"gitHubActorClaims,omitempty"`
 }
 
 // GenericKubernetesActivityLogEntry is used for resource types that do not have

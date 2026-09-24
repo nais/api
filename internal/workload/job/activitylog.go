@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/nais/api/internal/activitylog"
+	"github.com/nais/api/internal/auth/middleware/github"
 	"github.com/nais/api/internal/deployment/deploymentactivity"
 )
 
@@ -115,5 +116,5 @@ type JobUpdatedActivityLogEntry struct {
 
 type JobUpdatedActivityLogEntryData struct {
 	ChangedFields     []*activitylog.ResourceChangedField `json:"changedFields"`
-	GitHubActorClaims *activitylog.GitHubActorClaims      `json:"gitHubActorClaims,omitempty"`
+	GitHubActorClaims *github.GitHubActorClaims           `json:"gitHubActorClaims,omitempty"`
 }

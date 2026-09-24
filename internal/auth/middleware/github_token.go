@@ -10,40 +10,12 @@ import (
 	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/auth/authz"
+	"github.com/nais/api/internal/auth/middleware/github"
 	"github.com/nais/api/internal/github/repository"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/team"
 	"github.com/sirupsen/logrus"
 )
-
-// GitHubActorClaims holds the GitHub OIDC claims that are stored
-// alongside activity log entries for audit purposes.
-// See https://docs.github.com/en/actions/reference/security/oidc#oidc-token-claims.
-type GitHubActorClaims struct {
-	Actor                string `json:"actor"`
-	ActorID              string `json:"actor_id"`
-	BaseRef              string `json:"base_ref"`
-	CheckRunID           string `json:"check_run_id"`
-	Environment          string `json:"environment"`
-	EventName            string `json:"event_name"`
-	HeadRef              string `json:"head_ref"`
-	JobWorkflowRef       string `json:"job_workflow_ref"`
-	JobWorkflowSha       string `json:"job_workflow_sha"`
-	Ref                  string `json:"ref"`
-	RefType              string `json:"ref_type"`
-	Repository           string `json:"repository"`
-	RepositoryID         string `json:"repository_id"`
-	RepositoryOwner      string `json:"repository_owner"`
-	RepositoryOwnerID    string `json:"repository_owner_id"`
-	RepositoryVisibility string `json:"repository_visibility"`
-	RunAttempt           string `json:"run_attempt"`
-	RunID                string `json:"run_id"`
-	RunnerEnvironment    string `json:"runner_environment"`
-	RunNumber            string `json:"run_number"`
-	Workflow             string `json:"workflow"`
-	WorkflowRef          string `json:"workflow_ref"`
-	WorkflowSha          string `json:"workflow_sha"`
-}
 
 const (
 	// GitHubOIDCIssuer is the OIDC issuer URL for GitHub Actions tokens.
@@ -82,7 +54,7 @@ func GitHubOIDC(ctx context.Context, issuer string, log logrus.FieldLogger) (fun
 				return
 			}
 
-			claims := GitHubActorClaims{}
+			claims := github.GitHubActorClaims{}
 			if err := idToken.Claims(&claims); err != nil {
 				log.WithError(err).Debug("failed to parse claims from token")
 				next.ServeHTTP(w, r)
@@ -130,7 +102,7 @@ func GitHubOIDC(ctx context.Context, issuer string, log logrus.FieldLogger) (fun
 type GitHubRepoActor struct {
 	RepositoryName string
 	TeamSlugs      []slug.Slug
-	Claims         GitHubActorClaims
+	Claims         github.GitHubActorClaims
 }
 
 func (g *GitHubRepoActor) GetID() uuid.UUID { return uuid.Nil }

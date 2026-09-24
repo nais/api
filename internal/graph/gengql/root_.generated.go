@@ -21860,6 +21860,7 @@ type GenericKubernetesResourceActivityLogEntryData {
 
 """
 GitHub Actions OIDC token claims captured at the time of an apply operation.
+See https://docs.github.com/en/actions/reference/security/oidc#custom-claims-provided-by-github
 """
 type GitHubActorClaims {
 	"The GitHub username that triggered the workflow."
