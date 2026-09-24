@@ -76,16 +76,29 @@ type GenericKubernetesResourceActivityLogEntryData struct {
 // time of an apply operation. Duplicated from the middleware package to avoid a
 // circular import; JSON tags must stay in sync.
 type GitHubActorClaims struct {
-	Ref            string `json:"ref"`
-	Repository     string `json:"repository"`
-	RepositoryID   string `json:"repositoryId"`
-	RunID          string `json:"runId"`
-	RunAttempt     string `json:"runAttempt"`
-	Actor          string `json:"actor"`
-	Workflow       string `json:"workflow"`
-	EventName      string `json:"eventName"`
-	Environment    string `json:"environment"`
-	JobWorkflowRef string `json:"jobWorkflowRef"`
+	Actor                string `json:"actor"`
+	ActorID              string `json:"actorId"`
+	BaseRef              string `json:"baseRef"`
+	CheckRunID           string `json:"checkRunId"`
+	Environment          string `json:"environment"`
+	EventName            string `json:"eventName"`
+	HeadRef              string `json:"headRef"`
+	JobWorkflowRef       string `json:"jobWorkflowRef"`
+	JobWorkflowSha       string `json:"jobWorkflowSha"`
+	Ref                  string `json:"ref"`
+	RefType              string `json:"refType"`
+	Repository           string `json:"repository"`
+	RepositoryID         string `json:"repositoryId"`
+	RepositoryOwner      string `json:"repositoryOwner"`
+	RepositoryOwnerID    string `json:"repositoryOwnerId"`
+	RepositoryVisibility string `json:"repositoryVisibility"`
+	RunAttempt           string `json:"runAttempt"`
+	RunID                string `json:"runId"`
+	RunnerEnvironment    string `json:"runnerEnvironment"`
+	RunNumber            string `json:"runNumber"`
+	Workflow             string `json:"workflow"`
+	WorkflowRef          string `json:"workflowRef"`
+	WorkflowSha          string `json:"workflowSha"`
 }
 
 // GenericKubernetesActivityLogEntry is used for resource types that do not have

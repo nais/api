@@ -357,6 +357,213 @@ func (ec *executionContext) fieldContext_GenericKubernetesResourceActivityLogEnt
 	return fc, nil
 }
 
+func (ec *executionContext) _GitHubActorClaims_actor(ctx context.Context, field graphql.CollectedField, obj *activitylog.GitHubActorClaims) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_GitHubActorClaims_actor(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Actor, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_GitHubActorClaims_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("GitHubActorClaims", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _GitHubActorClaims_actorID(ctx context.Context, field graphql.CollectedField, obj *activitylog.GitHubActorClaims) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_GitHubActorClaims_actorID(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.ActorID, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_GitHubActorClaims_actorID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("GitHubActorClaims", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _GitHubActorClaims_baseRef(ctx context.Context, field graphql.CollectedField, obj *activitylog.GitHubActorClaims) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_GitHubActorClaims_baseRef(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.BaseRef, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_GitHubActorClaims_baseRef(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("GitHubActorClaims", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _GitHubActorClaims_checkRunID(ctx context.Context, field graphql.CollectedField, obj *activitylog.GitHubActorClaims) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_GitHubActorClaims_checkRunID(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.CheckRunID, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_GitHubActorClaims_checkRunID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("GitHubActorClaims", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _GitHubActorClaims_environment(ctx context.Context, field graphql.CollectedField, obj *activitylog.GitHubActorClaims) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_GitHubActorClaims_environment(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Environment, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_GitHubActorClaims_environment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("GitHubActorClaims", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _GitHubActorClaims_eventName(ctx context.Context, field graphql.CollectedField, obj *activitylog.GitHubActorClaims) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_GitHubActorClaims_eventName(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.EventName, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_GitHubActorClaims_eventName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("GitHubActorClaims", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _GitHubActorClaims_headRef(ctx context.Context, field graphql.CollectedField, obj *activitylog.GitHubActorClaims) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_GitHubActorClaims_headRef(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.HeadRef, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_GitHubActorClaims_headRef(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("GitHubActorClaims", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _GitHubActorClaims_jobWorkflowRef(ctx context.Context, field graphql.CollectedField, obj *activitylog.GitHubActorClaims) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_GitHubActorClaims_jobWorkflowRef(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.JobWorkflowRef, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_GitHubActorClaims_jobWorkflowRef(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("GitHubActorClaims", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _GitHubActorClaims_jobWorkflowSha(ctx context.Context, field graphql.CollectedField, obj *activitylog.GitHubActorClaims) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_GitHubActorClaims_jobWorkflowSha(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.JobWorkflowSha, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_GitHubActorClaims_jobWorkflowSha(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("GitHubActorClaims", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
 func (ec *executionContext) _GitHubActorClaims_ref(ctx context.Context, field graphql.CollectedField, obj *activitylog.GitHubActorClaims) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -377,6 +584,29 @@ func (ec *executionContext) _GitHubActorClaims_ref(ctx context.Context, field gr
 	)
 }
 func (ec *executionContext) fieldContext_GitHubActorClaims_ref(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("GitHubActorClaims", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _GitHubActorClaims_refType(ctx context.Context, field graphql.CollectedField, obj *activitylog.GitHubActorClaims) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_GitHubActorClaims_refType(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.RefType, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_GitHubActorClaims_refType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("GitHubActorClaims", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
@@ -426,16 +656,16 @@ func (ec *executionContext) fieldContext_GitHubActorClaims_repositoryID(_ contex
 	return graphql.NewScalarFieldContext("GitHubActorClaims", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _GitHubActorClaims_runID(ctx context.Context, field graphql.CollectedField, obj *activitylog.GitHubActorClaims) (ret graphql.Marshaler) {
+func (ec *executionContext) _GitHubActorClaims_repositoryOwner(ctx context.Context, field graphql.CollectedField, obj *activitylog.GitHubActorClaims) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_GitHubActorClaims_runID(ctx, field)
+			return ec.fieldContext_GitHubActorClaims_repositoryOwner(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.RunID, nil
+			return obj.RepositoryOwner, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
@@ -445,7 +675,53 @@ func (ec *executionContext) _GitHubActorClaims_runID(ctx context.Context, field 
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_GitHubActorClaims_runID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_GitHubActorClaims_repositoryOwner(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("GitHubActorClaims", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _GitHubActorClaims_repositoryOwnerID(ctx context.Context, field graphql.CollectedField, obj *activitylog.GitHubActorClaims) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_GitHubActorClaims_repositoryOwnerID(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.RepositoryOwnerID, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_GitHubActorClaims_repositoryOwnerID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("GitHubActorClaims", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _GitHubActorClaims_repositoryVisibility(ctx context.Context, field graphql.CollectedField, obj *activitylog.GitHubActorClaims) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_GitHubActorClaims_repositoryVisibility(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.RepositoryVisibility, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_GitHubActorClaims_repositoryVisibility(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("GitHubActorClaims", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
@@ -472,16 +748,16 @@ func (ec *executionContext) fieldContext_GitHubActorClaims_runAttempt(_ context.
 	return graphql.NewScalarFieldContext("GitHubActorClaims", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _GitHubActorClaims_actor(ctx context.Context, field graphql.CollectedField, obj *activitylog.GitHubActorClaims) (ret graphql.Marshaler) {
+func (ec *executionContext) _GitHubActorClaims_runID(ctx context.Context, field graphql.CollectedField, obj *activitylog.GitHubActorClaims) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_GitHubActorClaims_actor(ctx, field)
+			return ec.fieldContext_GitHubActorClaims_runID(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.Actor, nil
+			return obj.RunID, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
@@ -491,7 +767,53 @@ func (ec *executionContext) _GitHubActorClaims_actor(ctx context.Context, field 
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_GitHubActorClaims_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_GitHubActorClaims_runID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("GitHubActorClaims", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _GitHubActorClaims_runnerEnvironment(ctx context.Context, field graphql.CollectedField, obj *activitylog.GitHubActorClaims) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_GitHubActorClaims_runnerEnvironment(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.RunnerEnvironment, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_GitHubActorClaims_runnerEnvironment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("GitHubActorClaims", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _GitHubActorClaims_runNumber(ctx context.Context, field graphql.CollectedField, obj *activitylog.GitHubActorClaims) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_GitHubActorClaims_runNumber(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.RunNumber, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_GitHubActorClaims_runNumber(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("GitHubActorClaims", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
@@ -518,16 +840,16 @@ func (ec *executionContext) fieldContext_GitHubActorClaims_workflow(_ context.Co
 	return graphql.NewScalarFieldContext("GitHubActorClaims", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _GitHubActorClaims_eventName(ctx context.Context, field graphql.CollectedField, obj *activitylog.GitHubActorClaims) (ret graphql.Marshaler) {
+func (ec *executionContext) _GitHubActorClaims_workflowRef(ctx context.Context, field graphql.CollectedField, obj *activitylog.GitHubActorClaims) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_GitHubActorClaims_eventName(ctx, field)
+			return ec.fieldContext_GitHubActorClaims_workflowRef(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.EventName, nil
+			return obj.WorkflowRef, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
@@ -537,20 +859,20 @@ func (ec *executionContext) _GitHubActorClaims_eventName(ctx context.Context, fi
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_GitHubActorClaims_eventName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_GitHubActorClaims_workflowRef(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("GitHubActorClaims", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _GitHubActorClaims_environment(ctx context.Context, field graphql.CollectedField, obj *activitylog.GitHubActorClaims) (ret graphql.Marshaler) {
+func (ec *executionContext) _GitHubActorClaims_workflowSha(ctx context.Context, field graphql.CollectedField, obj *activitylog.GitHubActorClaims) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_GitHubActorClaims_environment(ctx, field)
+			return ec.fieldContext_GitHubActorClaims_workflowSha(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.Environment, nil
+			return obj.WorkflowSha, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
@@ -560,30 +882,7 @@ func (ec *executionContext) _GitHubActorClaims_environment(ctx context.Context, 
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_GitHubActorClaims_environment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("GitHubActorClaims", field, false, false, errors.New("field of type String does not have child fields"))
-}
-
-func (ec *executionContext) _GitHubActorClaims_jobWorkflowRef(ctx context.Context, field graphql.CollectedField, obj *activitylog.GitHubActorClaims) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_GitHubActorClaims_jobWorkflowRef(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return obj.JobWorkflowRef, nil
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_GitHubActorClaims_jobWorkflowRef(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_GitHubActorClaims_workflowSha(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("GitHubActorClaims", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
@@ -803,8 +1102,58 @@ func (ec *executionContext) _GitHubActorClaims(ctx context.Context, sel ast.Sele
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("GitHubActorClaims")
+		case "actor":
+			out.Values[i] = ec._GitHubActorClaims_actor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "actorID":
+			out.Values[i] = ec._GitHubActorClaims_actorID(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "baseRef":
+			out.Values[i] = ec._GitHubActorClaims_baseRef(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "checkRunID":
+			out.Values[i] = ec._GitHubActorClaims_checkRunID(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "environment":
+			out.Values[i] = ec._GitHubActorClaims_environment(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "eventName":
+			out.Values[i] = ec._GitHubActorClaims_eventName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "headRef":
+			out.Values[i] = ec._GitHubActorClaims_headRef(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "jobWorkflowRef":
+			out.Values[i] = ec._GitHubActorClaims_jobWorkflowRef(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "jobWorkflowSha":
+			out.Values[i] = ec._GitHubActorClaims_jobWorkflowSha(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "ref":
 			out.Values[i] = ec._GitHubActorClaims_ref(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "refType":
+			out.Values[i] = ec._GitHubActorClaims_refType(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -818,8 +1167,18 @@ func (ec *executionContext) _GitHubActorClaims(ctx context.Context, sel ast.Sele
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "runID":
-			out.Values[i] = ec._GitHubActorClaims_runID(ctx, field, obj)
+		case "repositoryOwner":
+			out.Values[i] = ec._GitHubActorClaims_repositoryOwner(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "repositoryOwnerID":
+			out.Values[i] = ec._GitHubActorClaims_repositoryOwnerID(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "repositoryVisibility":
+			out.Values[i] = ec._GitHubActorClaims_repositoryVisibility(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -828,8 +1187,18 @@ func (ec *executionContext) _GitHubActorClaims(ctx context.Context, sel ast.Sele
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "actor":
-			out.Values[i] = ec._GitHubActorClaims_actor(ctx, field, obj)
+		case "runID":
+			out.Values[i] = ec._GitHubActorClaims_runID(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "runnerEnvironment":
+			out.Values[i] = ec._GitHubActorClaims_runnerEnvironment(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "runNumber":
+			out.Values[i] = ec._GitHubActorClaims_runNumber(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -838,18 +1207,13 @@ func (ec *executionContext) _GitHubActorClaims(ctx context.Context, sel ast.Sele
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "eventName":
-			out.Values[i] = ec._GitHubActorClaims_eventName(ctx, field, obj)
+		case "workflowRef":
+			out.Values[i] = ec._GitHubActorClaims_workflowRef(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "environment":
-			out.Values[i] = ec._GitHubActorClaims_environment(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "jobWorkflowRef":
-			out.Values[i] = ec._GitHubActorClaims_jobWorkflowRef(ctx, field, obj)
+		case "workflowSha":
+			out.Values[i] = ec._GitHubActorClaims_workflowSha(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}

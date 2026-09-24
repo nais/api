@@ -16,34 +16,33 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// ghClaims represents the claims present in a GitHub OIDC token.
-// See https://docs.github.com/en/actions/reference/security/oidc#oidc-token-claims.
-type ghClaims struct {
-	Ref            string `json:"ref"`
-	Repository     string `json:"repository"`
-	RepositoryID   string `json:"repository_id"`
-	RunID          string `json:"run_id"`
-	RunAttempt     string `json:"run_attempt"`
-	Actor          string `json:"actor"`
-	Workflow       string `json:"workflow"`
-	EventName      string `json:"event_name"`
-	Environment    string `json:"environment"`
-	JobWorkflowRef string `json:"job_workflow_ref"`
-}
-
-// GitHubActorClaims holds the subset of GitHub OIDC claims that are stored
+// GitHubActorClaims holds the GitHub OIDC claims that are stored
 // alongside activity log entries for audit purposes.
+// See https://docs.github.com/en/actions/reference/security/oidc#oidc-token-claims.
 type GitHubActorClaims struct {
-	Ref            string `json:"ref"`
-	Repository     string `json:"repository"`
-	RepositoryID   string `json:"repositoryID"`
-	RunID          string `json:"runID"`
-	RunAttempt     string `json:"runAttempt"`
-	Actor          string `json:"actor"`
-	Workflow       string `json:"workflow"`
-	EventName      string `json:"eventName"`
-	Environment    string `json:"environment"`
-	JobWorkflowRef string `json:"jobWorkflowRef"`
+	Actor                string `json:"actor"`
+	ActorID              string `json:"actor_id"`
+	BaseRef              string `json:"base_ref"`
+	CheckRunID           string `json:"check_run_id"`
+	Environment          string `json:"environment"`
+	EventName            string `json:"event_name"`
+	HeadRef              string `json:"head_ref"`
+	JobWorkflowRef       string `json:"job_workflow_ref"`
+	JobWorkflowSha       string `json:"job_workflow_sha"`
+	Ref                  string `json:"ref"`
+	RefType              string `json:"ref_type"`
+	Repository           string `json:"repository"`
+	RepositoryID         string `json:"repository_id"`
+	RepositoryOwner      string `json:"repository_owner"`
+	RepositoryOwnerID    string `json:"repository_owner_id"`
+	RepositoryVisibility string `json:"repository_visibility"`
+	RunAttempt           string `json:"run_attempt"`
+	RunID                string `json:"run_id"`
+	RunnerEnvironment    string `json:"runner_environment"`
+	RunNumber            string `json:"run_number"`
+	Workflow             string `json:"workflow"`
+	WorkflowRef          string `json:"workflow_ref"`
+	WorkflowSha          string `json:"workflow_sha"`
 }
 
 const (
@@ -83,8 +82,8 @@ func GitHubOIDC(ctx context.Context, issuer string, log logrus.FieldLogger) (fun
 				return
 			}
 
-			claims := &ghClaims{}
-			if err := idToken.Claims(claims); err != nil {
+			claims := GitHubActorClaims{}
+			if err := idToken.Claims(&claims); err != nil {
 				log.WithError(err).Debug("failed to parse claims from token")
 				next.ServeHTTP(w, r)
 				return
@@ -119,18 +118,7 @@ func GitHubOIDC(ctx context.Context, issuer string, log logrus.FieldLogger) (fun
 			usr := &GitHubRepoActor{
 				RepositoryName: claims.Repository,
 				TeamSlugs:      slices.Collect(maps.Keys(slugs)),
-				Claims: GitHubActorClaims{
-					Ref:            claims.Ref,
-					Repository:     claims.Repository,
-					RepositoryID:   claims.RepositoryID,
-					RunID:          claims.RunID,
-					RunAttempt:     claims.RunAttempt,
-					Actor:          claims.Actor,
-					Workflow:       claims.Workflow,
-					EventName:      claims.EventName,
-					Environment:    claims.Environment,
-					JobWorkflowRef: claims.JobWorkflowRef,
-				},
+				Claims:         claims,
 			}
 
 			next.ServeHTTP(w, r.WithContext(authz.ContextWithActor(ctx, usr, roles)))
