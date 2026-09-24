@@ -1021,16 +1021,29 @@ type ComplexityRoot struct {
 	}
 
 	GitHubActorClaims struct {
-		Actor          func(childComplexity int) int
-		Environment    func(childComplexity int) int
-		EventName      func(childComplexity int) int
-		JobWorkflowRef func(childComplexity int) int
-		Ref            func(childComplexity int) int
-		Repository     func(childComplexity int) int
-		RepositoryID   func(childComplexity int) int
-		RunAttempt     func(childComplexity int) int
-		RunID          func(childComplexity int) int
-		Workflow       func(childComplexity int) int
+		Actor                func(childComplexity int) int
+		ActorID              func(childComplexity int) int
+		BaseRef              func(childComplexity int) int
+		CheckRunID           func(childComplexity int) int
+		Environment          func(childComplexity int) int
+		EventName            func(childComplexity int) int
+		HeadRef              func(childComplexity int) int
+		JobWorkflowRef       func(childComplexity int) int
+		JobWorkflowSha       func(childComplexity int) int
+		Ref                  func(childComplexity int) int
+		RefType              func(childComplexity int) int
+		Repository           func(childComplexity int) int
+		RepositoryID         func(childComplexity int) int
+		RepositoryOwner      func(childComplexity int) int
+		RepositoryOwnerID    func(childComplexity int) int
+		RepositoryVisibility func(childComplexity int) int
+		RunAttempt           func(childComplexity int) int
+		RunID                func(childComplexity int) int
+		RunNumber            func(childComplexity int) int
+		RunnerEnvironment    func(childComplexity int) int
+		Workflow             func(childComplexity int) int
+		WorkflowRef          func(childComplexity int) int
+		WorkflowSha          func(childComplexity int) int
 	}
 
 	GrantPostgresAccessPayload struct {
@@ -7214,6 +7227,27 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.GitHubActorClaims.Actor(childComplexity), true
 
+	case "GitHubActorClaims.actorID":
+		if e.ComplexityRoot.GitHubActorClaims.ActorID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GitHubActorClaims.ActorID(childComplexity), true
+
+	case "GitHubActorClaims.baseRef":
+		if e.ComplexityRoot.GitHubActorClaims.BaseRef == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GitHubActorClaims.BaseRef(childComplexity), true
+
+	case "GitHubActorClaims.checkRunID":
+		if e.ComplexityRoot.GitHubActorClaims.CheckRunID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GitHubActorClaims.CheckRunID(childComplexity), true
+
 	case "GitHubActorClaims.environment":
 		if e.ComplexityRoot.GitHubActorClaims.Environment == nil {
 			break
@@ -7228,6 +7262,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.GitHubActorClaims.EventName(childComplexity), true
 
+	case "GitHubActorClaims.headRef":
+		if e.ComplexityRoot.GitHubActorClaims.HeadRef == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GitHubActorClaims.HeadRef(childComplexity), true
+
 	case "GitHubActorClaims.jobWorkflowRef":
 		if e.ComplexityRoot.GitHubActorClaims.JobWorkflowRef == nil {
 			break
@@ -7235,12 +7276,26 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.GitHubActorClaims.JobWorkflowRef(childComplexity), true
 
+	case "GitHubActorClaims.jobWorkflowSha":
+		if e.ComplexityRoot.GitHubActorClaims.JobWorkflowSha == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GitHubActorClaims.JobWorkflowSha(childComplexity), true
+
 	case "GitHubActorClaims.ref":
 		if e.ComplexityRoot.GitHubActorClaims.Ref == nil {
 			break
 		}
 
 		return e.ComplexityRoot.GitHubActorClaims.Ref(childComplexity), true
+
+	case "GitHubActorClaims.refType":
+		if e.ComplexityRoot.GitHubActorClaims.RefType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GitHubActorClaims.RefType(childComplexity), true
 
 	case "GitHubActorClaims.repository":
 		if e.ComplexityRoot.GitHubActorClaims.Repository == nil {
@@ -7256,6 +7311,27 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.GitHubActorClaims.RepositoryID(childComplexity), true
 
+	case "GitHubActorClaims.repositoryOwner":
+		if e.ComplexityRoot.GitHubActorClaims.RepositoryOwner == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GitHubActorClaims.RepositoryOwner(childComplexity), true
+
+	case "GitHubActorClaims.repositoryOwnerID":
+		if e.ComplexityRoot.GitHubActorClaims.RepositoryOwnerID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GitHubActorClaims.RepositoryOwnerID(childComplexity), true
+
+	case "GitHubActorClaims.repositoryVisibility":
+		if e.ComplexityRoot.GitHubActorClaims.RepositoryVisibility == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GitHubActorClaims.RepositoryVisibility(childComplexity), true
+
 	case "GitHubActorClaims.runAttempt":
 		if e.ComplexityRoot.GitHubActorClaims.RunAttempt == nil {
 			break
@@ -7270,12 +7346,40 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.GitHubActorClaims.RunID(childComplexity), true
 
+	case "GitHubActorClaims.runNumber":
+		if e.ComplexityRoot.GitHubActorClaims.RunNumber == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GitHubActorClaims.RunNumber(childComplexity), true
+
+	case "GitHubActorClaims.runnerEnvironment":
+		if e.ComplexityRoot.GitHubActorClaims.RunnerEnvironment == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GitHubActorClaims.RunnerEnvironment(childComplexity), true
+
 	case "GitHubActorClaims.workflow":
 		if e.ComplexityRoot.GitHubActorClaims.Workflow == nil {
 			break
 		}
 
 		return e.ComplexityRoot.GitHubActorClaims.Workflow(childComplexity), true
+
+	case "GitHubActorClaims.workflowRef":
+		if e.ComplexityRoot.GitHubActorClaims.WorkflowRef == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GitHubActorClaims.WorkflowRef(childComplexity), true
+
+	case "GitHubActorClaims.workflowSha":
+		if e.ComplexityRoot.GitHubActorClaims.WorkflowSha == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GitHubActorClaims.WorkflowSha(childComplexity), true
 
 	case "GrantPostgresAccessPayload.error":
 		if e.ComplexityRoot.GrantPostgresAccessPayload.Error == nil {
@@ -21756,28 +21860,55 @@ type GenericKubernetesResourceActivityLogEntryData {
 
 """
 GitHub Actions OIDC token claims captured at the time of an apply operation.
+See https://docs.github.com/en/actions/reference/security/oidc#custom-claims-provided-by-github
 """
 type GitHubActorClaims {
+	"The GitHub username that triggered the workflow."
+	actor: String!
+	"The ID of the personal account that initiated the workflow run."
+	actorID: String
+	"The target branch of the pull request in a workflow run."
+	baseRef: String
+	"The check run ID of the current job."
+	checkRunID: String
+	"The GitHub deployment environment name, if the job targets one."
+	environment: String!
+	"The event that triggered the workflow, e.g. 'push' or 'workflow_dispatch'."
+	eventName: String!
+	"The source branch of the pull request in a workflow run."
+	headRef: String
+	"The ref of the reusable workflow called by this job, if any. E.g. 'org/repo/.github/workflows/deploy.yaml@refs/heads/main'."
+	jobWorkflowRef: String!
+	"The commit SHA for the reusable workflow file, if the job uses one."
+	jobWorkflowSha: String
 	"The git ref that triggered the workflow, e.g. 'refs/heads/main'."
 	ref: String!
+	"The type of ref, e.g. 'branch'."
+	refType: String
 	"The repository name that triggered the workflow, e.g. 'org/repo'."
 	repository: String!
 	"The immutable numeric GitHub repository ID."
 	repositoryID: String!
-	"The unique identifier of the Actions workflow run. Links to https://github.com/<repo>/actions/runs/<runId>."
-	runID: String!
+	"The name of the organization in which the repository is stored."
+	repositoryOwner: String
+	"The ID of the organization in which the repository is stored."
+	repositoryOwnerID: String
+	"The visibility of the repository, e.g. 'internal', 'private', or 'public'."
+	repositoryVisibility: String
 	"The attempt number of the workflow run (1-indexed)."
 	runAttempt: String!
-	"The GitHub username that triggered the workflow."
-	actor: String!
+	"The unique identifier of the Actions workflow run. Links to https://github.com/<repo>/actions/runs/<runId>."
+	runID: String!
+	"The type of runner used by the job, e.g. 'github-hosted' or 'self-hosted'."
+	runnerEnvironment: String
+	"The number of times this workflow has been run."
+	runNumber: String
 	"The path to the workflow file, e.g. '.github/workflows/deploy.yaml'."
 	workflow: String!
-	"The event that triggered the workflow, e.g. 'push' or 'workflow_dispatch'."
-	eventName: String!
-	"The GitHub deployment environment name, if the job targets one."
-	environment: String!
-	"The ref of the reusable workflow called by this job, if any. E.g. 'org/repo/.github/workflows/deploy.yaml@refs/heads/main'."
-	jobWorkflowRef: String!
+	"The ref path to the workflow, e.g. 'org/repo/.github/workflows/deploy.yaml@refs/heads/main'."
+	workflowRef: String
+	"The commit SHA for the workflow file."
+	workflowSha: String
 }
 
 """
@@ -35149,26 +35280,52 @@ func (ec *executionContext) childFields_GenericKubernetesResourceActivityLogEntr
 
 func (ec *executionContext) childFields_GitHubActorClaims(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
+	case "actor":
+		return ec.fieldContext_GitHubActorClaims_actor(ctx, field)
+	case "actorID":
+		return ec.fieldContext_GitHubActorClaims_actorID(ctx, field)
+	case "baseRef":
+		return ec.fieldContext_GitHubActorClaims_baseRef(ctx, field)
+	case "checkRunID":
+		return ec.fieldContext_GitHubActorClaims_checkRunID(ctx, field)
+	case "environment":
+		return ec.fieldContext_GitHubActorClaims_environment(ctx, field)
+	case "eventName":
+		return ec.fieldContext_GitHubActorClaims_eventName(ctx, field)
+	case "headRef":
+		return ec.fieldContext_GitHubActorClaims_headRef(ctx, field)
+	case "jobWorkflowRef":
+		return ec.fieldContext_GitHubActorClaims_jobWorkflowRef(ctx, field)
+	case "jobWorkflowSha":
+		return ec.fieldContext_GitHubActorClaims_jobWorkflowSha(ctx, field)
 	case "ref":
 		return ec.fieldContext_GitHubActorClaims_ref(ctx, field)
+	case "refType":
+		return ec.fieldContext_GitHubActorClaims_refType(ctx, field)
 	case "repository":
 		return ec.fieldContext_GitHubActorClaims_repository(ctx, field)
 	case "repositoryID":
 		return ec.fieldContext_GitHubActorClaims_repositoryID(ctx, field)
-	case "runID":
-		return ec.fieldContext_GitHubActorClaims_runID(ctx, field)
+	case "repositoryOwner":
+		return ec.fieldContext_GitHubActorClaims_repositoryOwner(ctx, field)
+	case "repositoryOwnerID":
+		return ec.fieldContext_GitHubActorClaims_repositoryOwnerID(ctx, field)
+	case "repositoryVisibility":
+		return ec.fieldContext_GitHubActorClaims_repositoryVisibility(ctx, field)
 	case "runAttempt":
 		return ec.fieldContext_GitHubActorClaims_runAttempt(ctx, field)
-	case "actor":
-		return ec.fieldContext_GitHubActorClaims_actor(ctx, field)
+	case "runID":
+		return ec.fieldContext_GitHubActorClaims_runID(ctx, field)
+	case "runnerEnvironment":
+		return ec.fieldContext_GitHubActorClaims_runnerEnvironment(ctx, field)
+	case "runNumber":
+		return ec.fieldContext_GitHubActorClaims_runNumber(ctx, field)
 	case "workflow":
 		return ec.fieldContext_GitHubActorClaims_workflow(ctx, field)
-	case "eventName":
-		return ec.fieldContext_GitHubActorClaims_eventName(ctx, field)
-	case "environment":
-		return ec.fieldContext_GitHubActorClaims_environment(ctx, field)
-	case "jobWorkflowRef":
-		return ec.fieldContext_GitHubActorClaims_jobWorkflowRef(ctx, field)
+	case "workflowRef":
+		return ec.fieldContext_GitHubActorClaims_workflowRef(ctx, field)
+	case "workflowSha":
+		return ec.fieldContext_GitHubActorClaims_workflowSha(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type GitHubActorClaims", field.Name)
 }

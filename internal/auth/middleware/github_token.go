@@ -10,41 +10,12 @@ import (
 	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/auth/authz"
+	"github.com/nais/api/internal/auth/middleware/github"
 	"github.com/nais/api/internal/github/repository"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/team"
 	"github.com/sirupsen/logrus"
 )
-
-// ghClaims represents the claims present in a GitHub OIDC token.
-// See https://docs.github.com/en/actions/reference/security/oidc#oidc-token-claims.
-type ghClaims struct {
-	Ref            string `json:"ref"`
-	Repository     string `json:"repository"`
-	RepositoryID   string `json:"repository_id"`
-	RunID          string `json:"run_id"`
-	RunAttempt     string `json:"run_attempt"`
-	Actor          string `json:"actor"`
-	Workflow       string `json:"workflow"`
-	EventName      string `json:"event_name"`
-	Environment    string `json:"environment"`
-	JobWorkflowRef string `json:"job_workflow_ref"`
-}
-
-// GitHubActorClaims holds the subset of GitHub OIDC claims that are stored
-// alongside activity log entries for audit purposes.
-type GitHubActorClaims struct {
-	Ref            string `json:"ref"`
-	Repository     string `json:"repository"`
-	RepositoryID   string `json:"repositoryID"`
-	RunID          string `json:"runID"`
-	RunAttempt     string `json:"runAttempt"`
-	Actor          string `json:"actor"`
-	Workflow       string `json:"workflow"`
-	EventName      string `json:"eventName"`
-	Environment    string `json:"environment"`
-	JobWorkflowRef string `json:"jobWorkflowRef"`
-}
 
 const (
 	// GitHubOIDCIssuer is the OIDC issuer URL for GitHub Actions tokens.
@@ -83,8 +54,8 @@ func GitHubOIDC(ctx context.Context, issuer string, log logrus.FieldLogger) (fun
 				return
 			}
 
-			claims := &ghClaims{}
-			if err := idToken.Claims(claims); err != nil {
+			claims := github.GitHubActorClaims{}
+			if err := idToken.Claims(&claims); err != nil {
 				log.WithError(err).Debug("failed to parse claims from token")
 				next.ServeHTTP(w, r)
 				return
@@ -119,18 +90,7 @@ func GitHubOIDC(ctx context.Context, issuer string, log logrus.FieldLogger) (fun
 			usr := &GitHubRepoActor{
 				RepositoryName: claims.Repository,
 				TeamSlugs:      slices.Collect(maps.Keys(slugs)),
-				Claims: GitHubActorClaims{
-					Ref:            claims.Ref,
-					Repository:     claims.Repository,
-					RepositoryID:   claims.RepositoryID,
-					RunID:          claims.RunID,
-					RunAttempt:     claims.RunAttempt,
-					Actor:          claims.Actor,
-					Workflow:       claims.Workflow,
-					EventName:      claims.EventName,
-					Environment:    claims.Environment,
-					JobWorkflowRef: claims.JobWorkflowRef,
-				},
+				Claims:         claims,
 			}
 
 			next.ServeHTTP(w, r.WithContext(authz.ContextWithActor(ctx, usr, roles)))
@@ -142,7 +102,7 @@ func GitHubOIDC(ctx context.Context, issuer string, log logrus.FieldLogger) (fun
 type GitHubRepoActor struct {
 	RepositoryName string
 	TeamSlugs      []slug.Slug
-	Claims         GitHubActorClaims
+	Claims         github.GitHubActorClaims
 }
 
 func (g *GitHubRepoActor) GetID() uuid.UUID { return uuid.Nil }

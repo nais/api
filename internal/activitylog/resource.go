@@ -3,6 +3,8 @@ package activitylog
 import (
 	"fmt"
 	"sync"
+
+	"github.com/nais/api/internal/auth/middleware/github"
 )
 
 var (
@@ -69,23 +71,7 @@ type GenericKubernetesResourceActivityLogEntryData struct {
 
 	// GitHubActorClaims holds the GitHub Actions OIDC token claims at the time of the
 	// apply. Only populated when the request was authenticated via a GitHub token.
-	GitHubActorClaims *GitHubActorClaims `json:"gitHubActorClaims,omitempty"`
-}
-
-// GitHubActorClaims holds the GitHub Actions OIDC token claims captured at the
-// time of an apply operation. Duplicated from the middleware package to avoid a
-// circular import; JSON tags must stay in sync.
-type GitHubActorClaims struct {
-	Ref            string `json:"ref"`
-	Repository     string `json:"repository"`
-	RepositoryID   string `json:"repositoryId"`
-	RunID          string `json:"runId"`
-	RunAttempt     string `json:"runAttempt"`
-	Actor          string `json:"actor"`
-	Workflow       string `json:"workflow"`
-	EventName      string `json:"eventName"`
-	Environment    string `json:"environment"`
-	JobWorkflowRef string `json:"jobWorkflowRef"`
+	GitHubActorClaims *github.GitHubActorClaims `json:"gitHubActorClaims,omitempty"`
 }
 
 // GenericKubernetesActivityLogEntry is used for resource types that do not have
