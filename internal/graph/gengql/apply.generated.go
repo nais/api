@@ -393,11 +393,11 @@ func (ec *executionContext) _GitHubActorClaims_actorID(ctx context.Context, fiel
 			return obj.ActorID, nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
 		},
 		true,
-		true,
+		false,
 	)
 }
 func (ec *executionContext) fieldContext_GitHubActorClaims_actorID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -416,11 +416,11 @@ func (ec *executionContext) _GitHubActorClaims_baseRef(ctx context.Context, fiel
 			return obj.BaseRef, nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
 		},
 		true,
-		true,
+		false,
 	)
 }
 func (ec *executionContext) fieldContext_GitHubActorClaims_baseRef(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -439,11 +439,11 @@ func (ec *executionContext) _GitHubActorClaims_checkRunID(ctx context.Context, f
 			return obj.CheckRunID, nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
 		},
 		true,
-		true,
+		false,
 	)
 }
 func (ec *executionContext) fieldContext_GitHubActorClaims_checkRunID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -508,11 +508,11 @@ func (ec *executionContext) _GitHubActorClaims_headRef(ctx context.Context, fiel
 			return obj.HeadRef, nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
 		},
 		true,
-		true,
+		false,
 	)
 }
 func (ec *executionContext) fieldContext_GitHubActorClaims_headRef(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -554,11 +554,11 @@ func (ec *executionContext) _GitHubActorClaims_jobWorkflowSha(ctx context.Contex
 			return obj.JobWorkflowSha, nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
 		},
 		true,
-		true,
+		false,
 	)
 }
 func (ec *executionContext) fieldContext_GitHubActorClaims_jobWorkflowSha(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -600,11 +600,11 @@ func (ec *executionContext) _GitHubActorClaims_refType(ctx context.Context, fiel
 			return obj.RefType, nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
 		},
 		true,
-		true,
+		false,
 	)
 }
 func (ec *executionContext) fieldContext_GitHubActorClaims_refType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -669,11 +669,11 @@ func (ec *executionContext) _GitHubActorClaims_repositoryOwner(ctx context.Conte
 			return obj.RepositoryOwner, nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
 		},
 		true,
-		true,
+		false,
 	)
 }
 func (ec *executionContext) fieldContext_GitHubActorClaims_repositoryOwner(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -692,11 +692,11 @@ func (ec *executionContext) _GitHubActorClaims_repositoryOwnerID(ctx context.Con
 			return obj.RepositoryOwnerID, nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
 		},
 		true,
-		true,
+		false,
 	)
 }
 func (ec *executionContext) fieldContext_GitHubActorClaims_repositoryOwnerID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -715,11 +715,11 @@ func (ec *executionContext) _GitHubActorClaims_repositoryVisibility(ctx context.
 			return obj.RepositoryVisibility, nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
 		},
 		true,
-		true,
+		false,
 	)
 }
 func (ec *executionContext) fieldContext_GitHubActorClaims_repositoryVisibility(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -784,11 +784,11 @@ func (ec *executionContext) _GitHubActorClaims_runnerEnvironment(ctx context.Con
 			return obj.RunnerEnvironment, nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
 		},
 		true,
-		true,
+		false,
 	)
 }
 func (ec *executionContext) fieldContext_GitHubActorClaims_runnerEnvironment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -807,11 +807,11 @@ func (ec *executionContext) _GitHubActorClaims_runNumber(ctx context.Context, fi
 			return obj.RunNumber, nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
 		},
 		true,
-		true,
+		false,
 	)
 }
 func (ec *executionContext) fieldContext_GitHubActorClaims_runNumber(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -853,11 +853,11 @@ func (ec *executionContext) _GitHubActorClaims_workflowRef(ctx context.Context, 
 			return obj.WorkflowRef, nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
 		},
 		true,
-		true,
+		false,
 	)
 }
 func (ec *executionContext) fieldContext_GitHubActorClaims_workflowRef(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -876,11 +876,11 @@ func (ec *executionContext) _GitHubActorClaims_workflowSha(ctx context.Context, 
 			return obj.WorkflowSha, nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
 		},
 		true,
-		true,
+		false,
 	)
 }
 func (ec *executionContext) fieldContext_GitHubActorClaims_workflowSha(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1110,19 +1110,10 @@ func (ec *executionContext) _GitHubActorClaims(ctx context.Context, sel ast.Sele
 			}
 		case "actorID":
 			out.Values[i] = ec._GitHubActorClaims_actorID(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "baseRef":
 			out.Values[i] = ec._GitHubActorClaims_baseRef(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "checkRunID":
 			out.Values[i] = ec._GitHubActorClaims_checkRunID(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "environment":
 			out.Values[i] = ec._GitHubActorClaims_environment(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -1135,9 +1126,6 @@ func (ec *executionContext) _GitHubActorClaims(ctx context.Context, sel ast.Sele
 			}
 		case "headRef":
 			out.Values[i] = ec._GitHubActorClaims_headRef(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "jobWorkflowRef":
 			out.Values[i] = ec._GitHubActorClaims_jobWorkflowRef(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -1145,9 +1133,6 @@ func (ec *executionContext) _GitHubActorClaims(ctx context.Context, sel ast.Sele
 			}
 		case "jobWorkflowSha":
 			out.Values[i] = ec._GitHubActorClaims_jobWorkflowSha(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "ref":
 			out.Values[i] = ec._GitHubActorClaims_ref(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -1155,9 +1140,6 @@ func (ec *executionContext) _GitHubActorClaims(ctx context.Context, sel ast.Sele
 			}
 		case "refType":
 			out.Values[i] = ec._GitHubActorClaims_refType(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "repository":
 			out.Values[i] = ec._GitHubActorClaims_repository(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -1170,19 +1152,10 @@ func (ec *executionContext) _GitHubActorClaims(ctx context.Context, sel ast.Sele
 			}
 		case "repositoryOwner":
 			out.Values[i] = ec._GitHubActorClaims_repositoryOwner(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "repositoryOwnerID":
 			out.Values[i] = ec._GitHubActorClaims_repositoryOwnerID(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "repositoryVisibility":
 			out.Values[i] = ec._GitHubActorClaims_repositoryVisibility(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "runAttempt":
 			out.Values[i] = ec._GitHubActorClaims_runAttempt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -1195,14 +1168,8 @@ func (ec *executionContext) _GitHubActorClaims(ctx context.Context, sel ast.Sele
 			}
 		case "runnerEnvironment":
 			out.Values[i] = ec._GitHubActorClaims_runnerEnvironment(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "runNumber":
 			out.Values[i] = ec._GitHubActorClaims_runNumber(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "workflow":
 			out.Values[i] = ec._GitHubActorClaims_workflow(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -1210,14 +1177,8 @@ func (ec *executionContext) _GitHubActorClaims(ctx context.Context, sel ast.Sele
 			}
 		case "workflowRef":
 			out.Values[i] = ec._GitHubActorClaims_workflowRef(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "workflowSha":
 			out.Values[i] = ec._GitHubActorClaims_workflowSha(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

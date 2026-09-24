@@ -25,49 +25,49 @@ type GitHubActorClaims {
 	"The GitHub username that triggered the workflow."
 	actor: String!
 	"The ID of the personal account that initiated the workflow run."
-	actorID: String!
+	actorID: String
 	"The target branch of the pull request in a workflow run."
-	baseRef: String!
+	baseRef: String
 	"The check run ID of the current job."
-	checkRunID: String!
+	checkRunID: String
 	"The GitHub deployment environment name, if the job targets one."
 	environment: String!
 	"The event that triggered the workflow, e.g. 'push' or 'workflow_dispatch'."
 	eventName: String!
 	"The source branch of the pull request in a workflow run."
-	headRef: String!
+	headRef: String
 	"The ref of the reusable workflow called by this job, if any. E.g. 'org/repo/.github/workflows/deploy.yaml@refs/heads/main'."
 	jobWorkflowRef: String!
 	"The commit SHA for the reusable workflow file, if the job uses one."
-	jobWorkflowSha: String!
+	jobWorkflowSha: String
 	"The git ref that triggered the workflow, e.g. 'refs/heads/main'."
 	ref: String!
 	"The type of ref, e.g. 'branch'."
-	refType: String!
+	refType: String
 	"The repository name that triggered the workflow, e.g. 'org/repo'."
 	repository: String!
 	"The immutable numeric GitHub repository ID."
 	repositoryID: String!
 	"The name of the organization in which the repository is stored."
-	repositoryOwner: String!
+	repositoryOwner: String
 	"The ID of the organization in which the repository is stored."
-	repositoryOwnerID: String!
+	repositoryOwnerID: String
 	"The visibility of the repository, e.g. 'internal', 'private', or 'public'."
-	repositoryVisibility: String!
+	repositoryVisibility: String
 	"The attempt number of the workflow run (1-indexed)."
 	runAttempt: String!
 	"The unique identifier of the Actions workflow run. Links to https://github.com/<repo>/actions/runs/<runId>."
 	runID: String!
 	"The type of runner used by the job, e.g. 'github-hosted' or 'self-hosted'."
-	runnerEnvironment: String!
+	runnerEnvironment: String
 	"The number of times this workflow has been run."
-	runNumber: String!
+	runNumber: String
 	"The path to the workflow file, e.g. '.github/workflows/deploy.yaml'."
 	workflow: String!
 	"The ref path to the workflow, e.g. 'org/repo/.github/workflows/deploy.yaml@refs/heads/main'."
-	workflowRef: String!
+	workflowRef: String
 	"The commit SHA for the workflow file."
-	workflowSha: String!
+	workflowSha: String
 }
 
 """
