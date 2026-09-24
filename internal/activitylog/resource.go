@@ -74,7 +74,7 @@ type GenericKubernetesResourceActivityLogEntryData struct {
 
 // GitHubActorClaims holds the GitHub Actions OIDC token claims captured at the
 // time of an apply operation. Duplicated from the middleware package to avoid a
-// circular import; JSON tags must stay in sync.
+// circular import.
 type GitHubActorClaims struct {
 	Actor                string `json:"actor"`
 	ActorID              string `json:"actorId"`
