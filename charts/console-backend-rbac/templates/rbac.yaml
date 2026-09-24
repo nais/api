@@ -120,6 +120,13 @@ rules:
       - patch
       - delete
   - apiGroups:
+      - "nais.io"
+    resources:
+      - postgresaccesses
+    verbs:
+      - get
+      - create
+  - apiGroups:
       - "aiven.nais.io"
     resources:
       - aivenapplications
@@ -273,6 +280,13 @@ rules:
       - get
       - list
       - watch
+  - apiGroups:
+      - "nais.io"
+    resources:
+      - postgresaccesses
+    verbs:
+      - get
+      - create
   - apiGroups:
       - ""
     resources:

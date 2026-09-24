@@ -1,0 +1,17 @@
+apiVersion: nais.io/v1
+kind: PostgresAccess
+metadata:
+  name: failed-access
+  namespace: someteamname
+spec:
+  postgresInstance: foobar
+  username: user@usersen.com
+  accessLevel: readwritecreate
+  expiresAt: "2099-09-17T12:00:00Z"
+  clientWireGuardPublicKey: client-public-key
+status:
+  conditions:
+    - type: Ready
+      status: "False"
+      reason: UnsupportedAccessLevel
+      message: "readwritecreate is not supported for this Postgres instance"

@@ -1,0 +1,23 @@
+apiVersion: nais.io/v1
+kind: PostgresAccess
+metadata:
+  name: ready-access
+  namespace: someteamname
+spec:
+  postgresInstance: foobar
+  username: user@usersen.com
+  accessLevel: readwrite
+  expiresAt: "2099-09-17T12:00:00Z"
+  clientWireGuardPublicKey: client-public-key
+status:
+  credentialSecretName: ready-access-credentials
+  serverName: pg-foobar-rw.someteamname.svc.cluster.local
+  conditions:
+    - type: Ready
+      status: "True"
+      reason: Ready
+      message: "Database role and tunnel are ready"
+  tunnel:
+    name: ready-access
+    endpoint: "1.2.3.4:12345"
+    gatewayPublicKey: "gw-public-key"

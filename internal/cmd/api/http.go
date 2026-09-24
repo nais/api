@@ -232,7 +232,7 @@ func ConfigureGraph(
 		kafkatopic.AddSearch(searcher, watchers.KafkaTopicWatcher)
 		opensearch.AddSearch(searcher, watchers.OpenSearchWatcher)
 		sqlinstance.AddSearchSQLInstance(searcher, watchers.SqlInstanceWatcher)
-		postgres.AddSearchZalandoPostgres(searcher, watchers.ZalandoPostgresWatcher)
+		postgres.AddSearchPostgres(searcher, watchers.PostgresWatcher)
 		valkey.AddSearch(searcher, watchers.ValkeyWatcher)
 		team.AddSearch(searcher, pool, notifier, log.WithField("subsystem", "team_search"))
 		return nil
@@ -355,7 +355,7 @@ func ConfigureGraph(
 		ctx = alerts.NewLoaderContext(ctx, prometheusClient, log)
 		ctx = metrics.NewLoaderContext(ctx, prometheusClient, log)
 		ctx = sqlinstance.NewLoaderContext(ctx, sqlAdminService, watchers.SqlDatabaseWatcher, watchers.SqlInstanceWatcher, auditLogProjectID, auditLogLocation)
-		ctx = postgres.NewLoaderContext(ctx, watchers.ZalandoPostgresWatcher, auditLogProjectID, auditLogLocation)
+		ctx = postgres.NewLoaderContext(ctx, watchers.PostgresWatcher, auditLogProjectID, auditLogLocation)
 		ctx = aivencredentials.NewClientContext(ctx, dynamicClients, log)
 		ctx = database.NewLoaderContext(ctx, pool)
 		ctx = issue.NewContext(ctx, pool)
