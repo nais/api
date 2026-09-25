@@ -33040,7 +33040,7 @@ type VulnerabilityRiskAssessment {
 	"EPSS score, representing the estimated probability of exploitation."
 	epssScore: Float
 
-	"EPSS percentile of the vulnerability (0-1)."
+	"EPSS percentile of the vulnerability as a percentage (0-100)."
 	epssPercentile: Float
 
 	"Whether the vulnerability has a CISA Known Exploited Vulnerabilities (KEV) entry."
