@@ -1,5 +1,4 @@
 -- +goose Up
--- Backfill after the rollout using internal/database/manual/backfill_activity_log_github_actor_claims.sql.
 ALTER TABLE activity_log_entries
 ADD COLUMN IF NOT EXISTS github_actor_claims JSONB
 ;
