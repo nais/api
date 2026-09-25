@@ -69,9 +69,8 @@ type GenericKubernetesResourceActivityLogEntryData struct {
 	// Only populated for updates.
 	ChangedFields []ResourceChangedField `json:"changedFields"`
 
-	// GitHubActorClaims holds the GitHub Actions OIDC token claims at the time of the
-	// apply. Only populated when the request was authenticated via a GitHub token.
-	GitHubActorClaims *github.GitHubActorClaims `json:"gitHubActorClaims,omitempty"`
+	// GitHubActorClaims exposes the deprecated data field from the entry's claims column.
+	GitHubActorClaims *github.GitHubActorClaims `json:"-"`
 }
 
 // GenericKubernetesActivityLogEntry is used for resource types that do not have
@@ -101,6 +100,7 @@ func init() {
 		if err != nil {
 			return nil, fmt.Errorf("transforming unsupported resource activity log entry data: %w", err)
 		}
+		data.GitHubActorClaims = entry.GitHubActorClaims
 		return GenericKubernetesResourceActivityLogEntry{
 			GenericActivityLogEntry: entry.WithMessage(
 				fmt.Sprintf("%s %s %s", entry.ResourceName, entry.Action, entry.ResourceType),

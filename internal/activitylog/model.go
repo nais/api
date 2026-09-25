@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/nais/api/internal/auth/middleware/github"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
@@ -76,16 +77,17 @@ type ActivityLogResourceTypeFacetItem struct {
 }
 
 type GenericActivityLogEntry struct {
-	Actor           string                       `json:"actor"`
-	CreatedAt       time.Time                    `json:"createdAt"`
-	EnvironmentName *string                      `json:"environmentName,omitempty"`
-	Message         string                       `json:"message"`
-	ResourceType    ActivityLogEntryResourceType `json:"resourceType"`
-	ResourceName    string                       `json:"resourceName"`
-	TeamSlug        *slug.Slug                   `json:"teamSlug,omitempty"`
-	Action          ActivityLogEntryAction       `json:"-"`
-	UUID            uuid.UUID                    `json:"-"`
-	Data            []byte                       `json:"-"`
+	Actor             string                       `json:"actor"`
+	CreatedAt         time.Time                    `json:"createdAt"`
+	EnvironmentName   *string                      `json:"environmentName,omitempty"`
+	Message           string                       `json:"message"`
+	ResourceType      ActivityLogEntryResourceType `json:"resourceType"`
+	ResourceName      string                       `json:"resourceName"`
+	TeamSlug          *slug.Slug                   `json:"teamSlug,omitempty"`
+	GitHubActorClaims *github.GitHubActorClaims    `json:"gitHubActorClaims,omitempty"`
+	Action            ActivityLogEntryAction       `json:"-"`
+	UUID              uuid.UUID                    `json:"-"`
+	Data              []byte                       `json:"-"`
 }
 
 func (GenericActivityLogEntry) IsNode() {}

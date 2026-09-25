@@ -324,7 +324,8 @@ INSERT INTO
 		resource_name,
 		team_slug,
 		environment,
-		data
+		data,
+		github_actor_claims
 	)
 VALUES
 	(
@@ -334,7 +335,8 @@ VALUES
 		@resource_name,
 		@team_slug,
 		@environment_name,
-		@data
+		@data,
+		@github_actor_claims
 	)
 ;
 

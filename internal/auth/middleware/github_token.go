@@ -111,6 +111,10 @@ func (g *GitHubRepoActor) Identity() string {
 	return fmt.Sprintf("github-repo:%s", g.RepositoryName)
 }
 
+func (g *GitHubRepoActor) GitHubActorClaims() *github.GitHubActorClaims {
+	return &g.Claims
+}
+
 func (g *GitHubRepoActor) IsServiceAccount() bool { return true }
 
 func (g *GitHubRepoActor) IsGitHubActions() {}
