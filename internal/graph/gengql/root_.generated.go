@@ -25681,7 +25681,8 @@ type JobUpdatedActivityLogEntryData {
 	"The fields that changed during the update."
 	changedFields: [ResourceChangedField!]!
 	"GitHub Actions OIDC token claims at the time of the apply. Only present when the request was authenticated via a GitHub token."
-	gitHubActorClaims: GitHubActorClaims @deprecated(reason: "Use gitHubActorClaims on the activity log entry instead.")
+	gitHubActorClaims: GitHubActorClaims
+		@deprecated(reason: "Use gitHubActorClaims on the activity log entry instead.")
 }
 
 extend enum ActivityLogActivityType {
