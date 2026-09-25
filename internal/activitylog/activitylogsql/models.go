@@ -9,13 +9,14 @@ import (
 )
 
 type ActivityLogCombinedView struct {
-	ID           uuid.UUID
-	CreatedAt    pgtype.Timestamptz
-	Actor        string
-	Action       string
-	ResourceType string
-	ResourceName string
-	TeamSlug     *slug.Slug
-	Data         []byte
-	Environment  *string
+	ID                uuid.UUID
+	CreatedAt         pgtype.Timestamptz
+	Actor             string
+	Action            string
+	ResourceType      string
+	ResourceName      string
+	TeamSlug          *slug.Slug
+	Data              []byte
+	Environment       *string
+	GithubActorClaims []byte
 }

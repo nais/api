@@ -453,6 +453,9 @@ type TeamCreatedActivityLogEntry implements ActivityLogEntry & Node {
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
 
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
+
 	"Creation time of the entry."
 	createdAt: Time!
 
@@ -478,6 +481,9 @@ type TeamUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
+
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
 
 	"Creation time of the entry."
 	createdAt: Time!
@@ -524,6 +530,9 @@ type TeamCreateDeleteKeyActivityLogEntry implements ActivityLogEntry & Node {
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
 
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
+
 	"Creation time of the entry."
 	createdAt: Time!
 
@@ -550,6 +559,9 @@ type TeamConfirmDeleteKeyActivityLogEntry implements ActivityLogEntry & Node {
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
 
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
+
 	"Creation time of the entry."
 	createdAt: Time!
 
@@ -575,6 +587,9 @@ type TeamMemberAddedActivityLogEntry implements ActivityLogEntry & Node {
 
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
+
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
 
 	"Creation time of the entry."
 	createdAt: Time!
@@ -616,6 +631,9 @@ type TeamMemberRemovedActivityLogEntry implements ActivityLogEntry & Node {
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
 
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
+
 	"Creation time of the entry."
 	createdAt: Time!
 
@@ -652,6 +670,9 @@ type TeamMemberSetRoleActivityLogEntry implements ActivityLogEntry & Node {
 
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
+
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
 
 	"Creation time of the entry."
 	createdAt: Time!
@@ -692,6 +713,9 @@ type TeamEnvironmentUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
+
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
 
 	"Creation time of the entry."
 	createdAt: Time!

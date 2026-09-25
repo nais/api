@@ -12,6 +12,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/nais/api/internal/activitylog"
+	"github.com/nais/api/internal/auth/middleware/github"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/serviceaccount"
@@ -429,6 +430,38 @@ func (ec *executionContext) _ServiceAccountWorkloadBindingAddedActivityLogEntry_
 }
 func (ec *executionContext) fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ServiceAccountWorkloadBindingAddedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _ServiceAccountWorkloadBindingAddedActivityLogEntry_gitHubActorClaims(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingAddedActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntry_gitHubActorClaims(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.GitHubActorClaims, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *github.GitHubActorClaims) graphql.Marshaler {
+			return ec.marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntry_gitHubActorClaims(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ServiceAccountWorkloadBindingAddedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_GitHubActorClaims(ctx, field)
+		},
+	}
+	return fc, nil
 }
 
 func (ec *executionContext) _ServiceAccountWorkloadBindingAddedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingAddedActivityLogEntry) (ret graphql.Marshaler) {
@@ -865,6 +898,38 @@ func (ec *executionContext) _ServiceAccountWorkloadBindingRemovedActivityLogEntr
 }
 func (ec *executionContext) fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ServiceAccountWorkloadBindingRemovedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _ServiceAccountWorkloadBindingRemovedActivityLogEntry_gitHubActorClaims(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingRemovedActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntry_gitHubActorClaims(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.GitHubActorClaims, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *github.GitHubActorClaims) graphql.Marshaler {
+			return ec.marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntry_gitHubActorClaims(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ServiceAccountWorkloadBindingRemovedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_GitHubActorClaims(ctx, field)
+		},
+	}
+	return fc, nil
 }
 
 func (ec *executionContext) _ServiceAccountWorkloadBindingRemovedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingRemovedActivityLogEntry) (ret graphql.Marshaler) {
@@ -1462,6 +1527,8 @@ func (ec *executionContext) _ServiceAccountWorkloadBindingAddedActivityLogEntry(
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "gitHubActorClaims":
+			out.Values[i] = ec._ServiceAccountWorkloadBindingAddedActivityLogEntry_gitHubActorClaims(ctx, field, obj)
 		case "createdAt":
 			out.Values[i] = ec._ServiceAccountWorkloadBindingAddedActivityLogEntry_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -1674,6 +1741,8 @@ func (ec *executionContext) _ServiceAccountWorkloadBindingRemovedActivityLogEntr
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "gitHubActorClaims":
+			out.Values[i] = ec._ServiceAccountWorkloadBindingRemovedActivityLogEntry_gitHubActorClaims(ctx, field, obj)
 		case "createdAt":
 			out.Values[i] = ec._ServiceAccountWorkloadBindingRemovedActivityLogEntry_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
