@@ -36,7 +36,12 @@ WHERE
 	AND entries.payload ? 'gitHubActorClaims'
 ;
 
-CREATE OR REPLACE VIEW activity_log_combined_view AS
+-- Some tenants still have team_slug typed as slug in this view. Replacing it
+-- would fail when the new SELECT produces text, so recreate the view instead.
+DROP VIEW IF EXISTS activity_log_combined_view
+;
+
+CREATE VIEW activity_log_combined_view AS
 SELECT
 	id,
 	created_at,
