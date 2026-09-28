@@ -278,6 +278,9 @@ type KafkaCredentialsCreatedActivityLogEntry implements ActivityLogEntry & Node 
 	"The identity of the actor who performed the action."
 	actor: String!
 
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
+
 	"Creation time of the entry."
 	createdAt: Time!
 
@@ -311,6 +314,9 @@ type KafkaTopicUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 
 	"The identity of the actor who performed the action."
 	actor: String!
+
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
 
 	"Creation time of the entry."
 	createdAt: Time!

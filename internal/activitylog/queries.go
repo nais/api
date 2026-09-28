@@ -1,13 +1,16 @@
 package activitylog
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/activitylog/activitylogsql"
 	"github.com/nais/api/internal/auth/authz"
+	"github.com/nais/api/internal/auth/middleware/github"
 	"github.com/nais/api/internal/environmentmapper"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/pagination"
@@ -41,26 +44,37 @@ func MarshalData(input CreateInput) ([]byte, error) {
 }
 
 func Create(ctx context.Context, input CreateInput) error {
-	q := db(ctx)
-
 	data, err := MarshalData(input)
 	if err != nil {
 		return err
 	}
+	var claimsData []byte
+	if actor, ok := input.Actor.(interface {
+		GitHubActorClaims() *github.GitHubActorClaims
+	}); ok {
+		if claims := actor.GitHubActorClaims(); claims != nil {
+			claimsData, err = json.Marshal(claims)
+			if err != nil {
+				return fmt.Errorf("marshaling GitHub actor claims: %w", err)
+			}
+		}
+	}
 
+	q := db(ctx)
 	var environmentName *string
 	if input.EnvironmentName != nil {
 		environmentName = new(environmentmapper.EnvironmentName(*input.EnvironmentName))
 	}
 
 	return q.Create(ctx, activitylogsql.CreateParams{
-		Action:          string(input.Action),
-		Actor:           input.Actor.Identity(),
-		Data:            data,
-		EnvironmentName: environmentName,
-		ResourceName:    input.ResourceName,
-		ResourceType:    string(input.ResourceType),
-		TeamSlug:        input.TeamSlug,
+		Action:            string(input.Action),
+		Actor:             input.Actor.Identity(),
+		Data:              data,
+		EnvironmentName:   environmentName,
+		ResourceName:      input.ResourceName,
+		ResourceType:      string(input.ResourceType),
+		TeamSlug:          input.TeamSlug,
+		GithubActorClaims: claimsData,
 	})
 }
 
@@ -309,17 +323,33 @@ func ListForResourceTeamAndEnvironment(ctx context.Context, resourceType Activit
 
 func toGraphActivityLogEntry(row *activitylogsql.ActivityLogCombinedView) (ActivityLogEntry, error) {
 	titler := cases.Title(language.English)
+	var claims *github.GitHubActorClaims
+	if len(row.GithubActorClaims) > 0 {
+		if err := json.Unmarshal(row.GithubActorClaims, &claims); err != nil {
+			return nil, fmt.Errorf("unmarshaling activity log actor claims: %w", err)
+		}
+	} else if strings.HasPrefix(row.Actor, "github-repo:") && bytes.Contains(row.Data, []byte(`"gitHubActorClaims"`)) {
+		// Older API instances may still write claims into data during a rolling deployment.
+		var legacy struct {
+			GitHubActorClaims *github.GitHubActorClaims `json:"gitHubActorClaims"`
+		}
+		if err := json.Unmarshal(row.Data, &legacy); err != nil {
+			return nil, fmt.Errorf("unmarshaling legacy activity log actor claims: %w", err)
+		}
+		claims = legacy.GitHubActorClaims
+	}
 	entry := GenericActivityLogEntry{
-		Action:          ActivityLogEntryAction(row.Action),
-		Actor:           row.Actor,
-		CreatedAt:       row.CreatedAt.Time,
-		EnvironmentName: row.Environment,
-		Message:         titler.String(row.Action) + " " + titler.String(row.ResourceType),
-		ResourceType:    ActivityLogEntryResourceType(row.ResourceType),
-		ResourceName:    row.ResourceName,
-		TeamSlug:        row.TeamSlug,
-		UUID:            row.ID,
-		Data:            row.Data,
+		Action:            ActivityLogEntryAction(row.Action),
+		Actor:             row.Actor,
+		CreatedAt:         row.CreatedAt.Time,
+		EnvironmentName:   row.Environment,
+		Message:           titler.String(row.Action) + " " + titler.String(row.ResourceType),
+		ResourceType:      ActivityLogEntryResourceType(row.ResourceType),
+		ResourceName:      row.ResourceName,
+		TeamSlug:          row.TeamSlug,
+		UUID:              row.ID,
+		Data:              row.Data,
+		GitHubActorClaims: claims,
 	}
 
 	transformer, ok := knownTransformers[ActivityLogEntryResourceType(row.ResourceType)]

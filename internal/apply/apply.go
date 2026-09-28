@@ -10,7 +10,6 @@ import (
 
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
-	"github.com/nais/api/internal/auth/middleware"
 	"github.com/nais/api/internal/environmentmapper"
 	"github.com/nais/api/internal/slug"
 	"github.com/sirupsen/logrus"
@@ -176,9 +175,6 @@ func (h *Handler) applyOne(
 	}
 
 	actor := authz.ActorFromContext(ctx)
-	if ghActor, ok := actor.User.(*middleware.GitHubRepoActor); ok {
-		logData.GitHubActorClaims = &ghActor.Claims
-	}
 
 	if err := activitylog.Create(ctx, activitylog.CreateInput{
 		Action:          action,

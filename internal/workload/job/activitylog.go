@@ -59,6 +59,7 @@ func init() {
 			if err != nil {
 				return nil, fmt.Errorf("transforming job created activity log entry data: %w", err)
 			}
+			data.GitHubActorClaims = entry.GitHubActorClaims
 			return JobCreatedActivityLogEntry{
 				GenericActivityLogEntry: entry.WithMessage(fmt.Sprintf("Job %s created", entry.ResourceName)),
 				Data:                    data,
@@ -68,6 +69,7 @@ func init() {
 			if err != nil {
 				return nil, fmt.Errorf("transforming job updated activity log entry data: %w", err)
 			}
+			data.GitHubActorClaims = entry.GitHubActorClaims
 			return JobUpdatedActivityLogEntry{
 				GenericActivityLogEntry: entry.WithMessage(fmt.Sprintf("Job %s updated", entry.ResourceName)),
 				Data:                    data,
@@ -116,5 +118,5 @@ type JobUpdatedActivityLogEntry struct {
 
 type JobUpdatedActivityLogEntryData struct {
 	ChangedFields     []*activitylog.ResourceChangedField `json:"changedFields"`
-	GitHubActorClaims *github.GitHubActorClaims           `json:"gitHubActorClaims,omitempty"`
+	GitHubActorClaims *github.GitHubActorClaims           `json:"-"`
 }
