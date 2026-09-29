@@ -7,5 +7,5 @@ Test.gql("Legacy Postgres grant mutation is no longer available", function(t)
         clusterName: "legacy", teamSlug: "someteamname", environmentName: "dev",
         grantee: "someone@example.com", duration: "1h"
     }) { error } }]]
-	t.check { errors = { { message = Contains("Cannot query field \"grantPostgresAccess\""), locations = NotNull() } }, data = Null }
+	t.check { errors = { { message = Contains("Cannot query field \"grantPostgresAccess\""), locations = NotNull(), extensions = { code = "GRAPHQL_VALIDATION_FAILED" } } }, data = Null }
 end)

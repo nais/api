@@ -29,7 +29,10 @@ extend type TeamEnvironment {
 		"Name of the PostgresInstance in this team environment."
 		name: String!
 	): PostgresInstance!
-	"Get a PostgresAccess and its state. Available to authorized team members."
+	"""
+	EXPERIMENTAL: DO NOT USE
+	Get a PostgresAccess and its state. Available to authorized team members.
+	"""
 	postgresAccess(
 		"Name of the PostgresAccess in this team environment."
 		name: String!
@@ -60,11 +63,8 @@ extend type Job {
 	): PostgresInstanceConnection!
 }
 
-"Ordering options for Postgres instances."
 input PostgresInstanceOrder {
-	"Field to order instances by."
 	field: PostgresInstanceOrderField!
-	"Direction of the ordering."
 	direction: OrderDirection!
 }
 
@@ -85,35 +85,31 @@ input PostgresInstanceFilter {
 	labels: [LabelFilter!]
 }
 
-"Fields available when ordering Postgres instances."
 enum PostgresInstanceOrderField {
-	"Instance name."
 	NAME
-	"Environment name."
 	ENVIRONMENT
 }
 
 "A named PostgresInstance belonging to a Postgres."
 type PostgresInstance implements Persistence & Node {
-	"Opaque identifier for this instance."
 	id: ID!
-	"Name of the instance."
 	name: String!
-	"Team owning this instance."
 	team: Team!
-	"Team environment containing this instance."
 	teamEnvironment: TeamEnvironment!
 	"Postgres owning this PostgresInstance."
 	postgres: Postgres!
 	"Workloads using this instance while it is active."
 	workloads(
-		"Return the first n workloads."
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
 		first: Int
-		"Return workloads after this cursor."
+
+		"Get items after this cursor."
 		after: Cursor
-		"Return the last n workloads."
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
 		last: Int
-		"Return workloads before this cursor."
+
+		"Get items before this cursor."
 		before: Cursor
 	): WorkloadConnection!
 	"Current observed state of the instance."
@@ -160,13 +156,9 @@ enum PostgresInstanceState {
 	DEGRADED
 }
 
-"Paginated PostgresInstance results."
 type PostgresInstanceConnection {
-	"Pagination metadata."
 	pageInfo: PageInfo!
-	"Instances in this page."
 	nodes: [PostgresInstance!]!
-	"Instances and their pagination cursors."
 	edges: [PostgresInstanceEdge!]!
 
 	"""
@@ -176,11 +168,8 @@ type PostgresInstanceConnection {
 	facets: PostgresInstanceFacets
 }
 
-"A PostgresInstance and its pagination cursor."
 type PostgresInstanceEdge {
-	"Cursor identifying this result."
 	cursor: Cursor!
-	"The matching instance."
 	node: PostgresInstance!
 }
 
@@ -220,7 +209,8 @@ extend enum ActivityLogEntryResourceType {
 	POSTGRES
 }
 
-"An earlier Postgres access grant recorded in the activity log."
+# This is managed directly by the activitylog package since it
+# combines data within the database.
 type PostgresGrantAccessActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
@@ -253,11 +243,8 @@ type PostgresGrantAccessActivityLogEntry implements ActivityLogEntry & Node {
 	data: PostgresGrantAccessActivityLogEntryData!
 }
 
-"Details of an earlier Postgres access grant."
 type PostgresGrantAccessActivityLogEntryData {
-	"Identity that received access."
 	grantee: String!
-	"End of the granted access period."
 	until: Time!
 }
 
@@ -369,6 +356,7 @@ extend enum ActivityLogActivityType {
 
 extend type Mutation {
 	"""
+	EXPERIMENTAL: DO NOT USE
 	Create time-limited personal access to a NAIS Postgres instance through the brokered PostgresAccess and relay flow.
 	When the access is ready, retrieve its connection materials through PostgresAccess.connection.
 	"""
@@ -411,7 +399,6 @@ enum PostgresAccessLevel {
 	READWRITECREATE
 }
 
-"Input identifying the PostgresInstance to delete."
 input DeletePostgresInput {
 	"Name of the Postgres instance."
 	name: String!
@@ -421,18 +408,15 @@ input DeletePostgresInput {
 	teamSlug: Slug!
 }
 
-"Result of requesting deletion of a PostgresInstance."
 type DeletePostgresPayload {
 	"Whether or not the Postgres instance was deleted."
 	postgresDeleted: Boolean
 }
 
 extend type TeamInventoryCounts {
-	"Counts of Postgres instances owned by the team."
 	postgresInstances: TeamInventoryCountPostgresInstances!
 }
 
-"Inventory totals for Postgres instances."
 type TeamInventoryCountPostgresInstances {
 	"Total number of Postgres instances."
 	total: Int!
@@ -460,7 +444,10 @@ type PostgresAccess implements Node {
 	message: String
 	"Name of the controller-owned relay mapping, once created. Contains no credential."
 	relayAccess: String
-	"Get connection materials for this ready access. Only its owner can read them."
+	"""
+	EXPERIMENTAL: DO NOT USE
+	Get connection materials for this ready access. Only its owner can read them.
+	"""
 	connection: PostgresAccessConnection!
 }
 
