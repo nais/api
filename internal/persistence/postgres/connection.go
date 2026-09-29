@@ -21,7 +21,7 @@ import (
 
 // All connection resources are read on demand after the caller has been
 // authorized as the PostgresAccess owner. No credentials enter the watch cache.
-func loadPostgresAccessConnection(ctx context.Context, access *unstructured.Unstructured, input PostgresAccessConnectionInput, connection *PostgresAccessConnection, tokenSecretName string) error {
+func loadPostgresAccessConnection(ctx context.Context, access *unstructured.Unstructured, input PostgresAccessConnectionInput, connection *PostgresAccessConnectionDetails, tokenSecretName string) error {
 	instance, _, err := unstructured.NestedString(access.Object, "spec", "postgresInstance")
 	if err != nil || instance == "" || access.GetUID() == "" {
 		return apierror.Errorf("PostgresAccess %q is not ready", access.GetName())

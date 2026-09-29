@@ -35,6 +35,16 @@ func (r *jobResolver) PostgresInstances(ctx context.Context, obj *job.Job, order
 	return pagination.NewFacetableConnection(pagination.NewConnectionWithoutPagination(instances), instances, (*postgres.PostgresInstanceFilter)(nil)), nil
 }
 
+func (r *mutationResolver) GrantPostgresAccess(ctx context.Context, input postgres.GrantPostgresAccessInput) (*postgres.GrantPostgresAccessPayload, error) {
+	if err := authz.CanGrantPostgresAccess(ctx, input.TeamSlug); err != nil {
+		return nil, err
+	}
+	if err := postgres.GrantZalandoPostgresAccess(ctx, input); err != nil {
+		return nil, err
+	}
+	return &postgres.GrantPostgresAccessPayload{Error: new(string)}, nil
+}
+
 func (r *mutationResolver) CreatePostgresAccess(ctx context.Context, input postgres.CreatePostgresAccessInput) (*postgres.CreatePostgresAccessPayload, error) {
 	if err := authz.CanGrantPostgresAccess(ctx, input.TeamSlug); err != nil {
 		return nil, err
@@ -62,7 +72,7 @@ func (r *postgresAccessResolver) PostgresInstance(ctx context.Context, obj *post
 	return postgres.GetPostgresInstance(ctx, obj.TeamSlug, obj.EnvironmentName, obj.PostgresInstanceName)
 }
 
-func (r *postgresAccessResolver) Connection(ctx context.Context, obj *postgres.PostgresAccess) (*postgres.PostgresAccessConnection, error) {
+func (r *postgresAccessResolver) Connection(ctx context.Context, obj *postgres.PostgresAccess) (*postgres.PostgresAccessConnectionDetails, error) {
 	return postgres.GetPostgresAccessConnection(ctx, postgres.PostgresAccessConnectionInput{
 		Name: obj.Name, TeamSlug: obj.TeamSlug, EnvironmentName: obj.EnvironmentName,
 	})

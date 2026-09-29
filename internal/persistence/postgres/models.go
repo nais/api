@@ -176,6 +176,61 @@ type DeletePostgresPayload struct {
 	PostgresDeleted *bool `json:"postgresDeleted,omitempty"`
 }
 
+// GrantPostgresAccessInput retains the temporary port-forward grant for legacy Zalando Postgres clusters.
+type GrantPostgresAccessInput struct {
+	ClusterName     string    `json:"clusterName"`
+	TeamSlug        slug.Slug `json:"teamSlug"`
+	EnvironmentName string    `json:"environmentName"`
+	Grantee         string    `json:"grantee"`
+	Duration        string    `json:"duration"`
+}
+
+func (i *GrantPostgresAccessInput) Validate(ctx context.Context) error {
+	return i.ValidationErrors(ctx).NilIfEmpty()
+}
+
+func (i *GrantPostgresAccessInput) ValidationErrors(ctx context.Context) *validate.ValidationErrors {
+	verr := validate.New()
+	i.ClusterName = strings.TrimSpace(i.ClusterName)
+	i.EnvironmentName = strings.TrimSpace(i.EnvironmentName)
+
+	if i.ClusterName == "" {
+		verr.Add("clusterName", "ClusterName must not be empty.")
+	}
+	if i.EnvironmentName == "" {
+		verr.Add("environmentName", "Environment name must not be empty.")
+	}
+	if i.TeamSlug == "" {
+		verr.Add("teamSlug", "Team slug must not be empty.")
+	}
+	if i.Grantee == "" {
+		verr.Add("grantee", "Grantee must not be empty.")
+	}
+
+	duration, err := time.ParseDuration(i.Duration)
+	if err != nil {
+		verr.Add("duration", "%s", err)
+	} else if duration > 4*time.Hour {
+		verr.Add("duration", "Duration %q is out-of-bounds. Must be less than 4 hours.", i.Duration)
+	}
+
+	if i.ClusterName == "" || i.EnvironmentName == "" || i.TeamSlug == "" {
+		return verr
+	}
+	if err := getLegacyPostgres(ctx, *i); err != nil {
+		if k8serrors.IsNotFound(err) {
+			verr.Add("clusterName", "Could not find postgres cluster named %q", i.ClusterName)
+		} else {
+			verr.Add("clusterName", "%s", err)
+		}
+	}
+	return verr
+}
+
+type GrantPostgresAccessPayload struct {
+	Error *string `json:"error,omitempty"`
+}
+
 // CreatePostgresAccessInput requests a new, time-limited personal database access.
 // The authenticated actor and final expiry are server-controlled.
 type CreatePostgresAccessInput struct {
@@ -540,7 +595,7 @@ func (i *PostgresAccessConnectionInput) ValidationErrors(_ context.Context) *val
 	return verr
 }
 
-type PostgresAccessConnection struct {
+type PostgresAccessConnectionDetails struct {
 	Username      string `json:"username"`
 	Password      string `json:"password"`
 	CACertificate string `json:"caCertificate"`

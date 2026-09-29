@@ -355,6 +355,8 @@ extend enum ActivityLogActivityType {
 }
 
 extend type Mutation {
+	"Grant temporary access to a Postgres cluster."
+	grantPostgresAccess(input: GrantPostgresAccessInput!): GrantPostgresAccessPayload!
 	"""
 	EXPERIMENTAL: DO NOT USE
 	Create time-limited personal access to a NAIS Postgres instance through the brokered PostgresAccess and relay flow.
@@ -363,6 +365,19 @@ extend type Mutation {
 	createPostgresAccess(input: CreatePostgresAccessInput!): CreatePostgresAccessPayload!
 	"Delete a PostgresInstance that is not active on its Postgres."
 	deletePostgres(input: DeletePostgresInput!): DeletePostgresPayload!
+}
+
+type GrantPostgresAccessPayload {
+	error: String
+}
+
+input GrantPostgresAccessInput {
+	clusterName: String!
+	teamSlug: Slug!
+	environmentName: String!
+	grantee: String!
+	"Duration of the access grant (maximum 4 hours)."
+	duration: String!
 }
 
 "Result of creating a personal Postgres access."
@@ -448,7 +463,7 @@ type PostgresAccess implements Node {
 	EXPERIMENTAL: DO NOT USE
 	Get connection materials for this ready access. Only its owner can read them.
 	"""
-	connection: PostgresAccessConnection!
+	connection: PostgresAccessConnectionDetails
 }
 
 "High-level reconciliation state of a personal Postgres access."
@@ -464,7 +479,7 @@ enum PostgresAccessState {
 }
 
 "Sensitive connection materials for a ready personal Postgres access."
-type PostgresAccessConnection {
+type PostgresAccessConnectionDetails {
 	"Database username for the caller's personal role."
 	username: String!
 	"Short-lived password for the caller's database role."

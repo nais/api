@@ -1062,6 +1062,10 @@ type ComplexityRoot struct {
 		WorkflowSha          func(childComplexity int) int
 	}
 
+	GrantPostgresAccessPayload struct {
+		Error func(childComplexity int) int
+	}
+
 	IDPortenAuthIntegration struct {
 		Name func(childComplexity int) int
 	}
@@ -1644,6 +1648,7 @@ type ComplexityRoot struct {
 		DeleteValkey                     func(childComplexity int, input valkey.DeleteValkeyInput) int
 		DisableReconciler                func(childComplexity int, input reconciler.DisableReconcilerInput) int
 		EnableReconciler                 func(childComplexity int, input reconciler.EnableReconcilerInput) int
+		GrantPostgresAccess              func(childComplexity int, input postgres.GrantPostgresAccessInput) int
 		RemoveConfigValue                func(childComplexity int, input config.RemoveConfigValueInput) int
 		RemoveRepositoryFromTeam         func(childComplexity int, input repository.RemoveRepositoryFromTeamInput) int
 		RemoveSecretValue                func(childComplexity int, input secret.RemoveSecretValueInput) int
@@ -1912,7 +1917,7 @@ type ComplexityRoot struct {
 		TeamEnvironment  func(childComplexity int) int
 	}
 
-	PostgresAccessConnection struct {
+	PostgresAccessConnectionDetails struct {
 		CACertificate func(childComplexity int) int
 		Password      func(childComplexity int) int
 		RelayAccess   func(childComplexity int) int
@@ -7590,6 +7595,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.GitHubActorClaims.WorkflowSha(childComplexity), true
 
+	case "GrantPostgresAccessPayload.error":
+		if e.ComplexityRoot.GrantPostgresAccessPayload.Error == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GrantPostgresAccessPayload.Error(childComplexity), true
+
 	case "IDPortenAuthIntegration.name":
 		if e.ComplexityRoot.IDPortenAuthIntegration.Name == nil {
 			break
@@ -10347,6 +10359,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Mutation.EnableReconciler(childComplexity, args["input"].(reconciler.EnableReconcilerInput)), true
 
+	case "Mutation.grantPostgresAccess":
+		if e.ComplexityRoot.Mutation.GrantPostgresAccess == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_grantPostgresAccess_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Mutation.GrantPostgresAccess(childComplexity, args["input"].(postgres.GrantPostgresAccessInput)), true
+
 	case "Mutation.removeConfigValue":
 		if e.ComplexityRoot.Mutation.RemoveConfigValue == nil {
 			break
@@ -11744,54 +11768,54 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.PostgresAccess.TeamEnvironment(childComplexity), true
 
-	case "PostgresAccessConnection.caCertificate":
-		if e.ComplexityRoot.PostgresAccessConnection.CACertificate == nil {
+	case "PostgresAccessConnectionDetails.caCertificate":
+		if e.ComplexityRoot.PostgresAccessConnectionDetails.CACertificate == nil {
 			break
 		}
 
-		return e.ComplexityRoot.PostgresAccessConnection.CACertificate(childComplexity), true
+		return e.ComplexityRoot.PostgresAccessConnectionDetails.CACertificate(childComplexity), true
 
-	case "PostgresAccessConnection.password":
-		if e.ComplexityRoot.PostgresAccessConnection.Password == nil {
+	case "PostgresAccessConnectionDetails.password":
+		if e.ComplexityRoot.PostgresAccessConnectionDetails.Password == nil {
 			break
 		}
 
-		return e.ComplexityRoot.PostgresAccessConnection.Password(childComplexity), true
+		return e.ComplexityRoot.PostgresAccessConnectionDetails.Password(childComplexity), true
 
-	case "PostgresAccessConnection.relayAccess":
-		if e.ComplexityRoot.PostgresAccessConnection.RelayAccess == nil {
+	case "PostgresAccessConnectionDetails.relayAccess":
+		if e.ComplexityRoot.PostgresAccessConnectionDetails.RelayAccess == nil {
 			break
 		}
 
-		return e.ComplexityRoot.PostgresAccessConnection.RelayAccess(childComplexity), true
+		return e.ComplexityRoot.PostgresAccessConnectionDetails.RelayAccess(childComplexity), true
 
-	case "PostgresAccessConnection.relayEndpoint":
-		if e.ComplexityRoot.PostgresAccessConnection.RelayEndpoint == nil {
+	case "PostgresAccessConnectionDetails.relayEndpoint":
+		if e.ComplexityRoot.PostgresAccessConnectionDetails.RelayEndpoint == nil {
 			break
 		}
 
-		return e.ComplexityRoot.PostgresAccessConnection.RelayEndpoint(childComplexity), true
+		return e.ComplexityRoot.PostgresAccessConnectionDetails.RelayEndpoint(childComplexity), true
 
-	case "PostgresAccessConnection.relayToken":
-		if e.ComplexityRoot.PostgresAccessConnection.RelayToken == nil {
+	case "PostgresAccessConnectionDetails.relayToken":
+		if e.ComplexityRoot.PostgresAccessConnectionDetails.RelayToken == nil {
 			break
 		}
 
-		return e.ComplexityRoot.PostgresAccessConnection.RelayToken(childComplexity), true
+		return e.ComplexityRoot.PostgresAccessConnectionDetails.RelayToken(childComplexity), true
 
-	case "PostgresAccessConnection.serverName":
-		if e.ComplexityRoot.PostgresAccessConnection.ServerName == nil {
+	case "PostgresAccessConnectionDetails.serverName":
+		if e.ComplexityRoot.PostgresAccessConnectionDetails.ServerName == nil {
 			break
 		}
 
-		return e.ComplexityRoot.PostgresAccessConnection.ServerName(childComplexity), true
+		return e.ComplexityRoot.PostgresAccessConnectionDetails.ServerName(childComplexity), true
 
-	case "PostgresAccessConnection.username":
-		if e.ComplexityRoot.PostgresAccessConnection.Username == nil {
+	case "PostgresAccessConnectionDetails.username":
+		if e.ComplexityRoot.PostgresAccessConnectionDetails.Username == nil {
 			break
 		}
 
-		return e.ComplexityRoot.PostgresAccessConnection.Username(childComplexity), true
+		return e.ComplexityRoot.PostgresAccessConnectionDetails.Username(childComplexity), true
 
 	case "PostgresDeletedActivityLogEntry.actor":
 		if e.ComplexityRoot.PostgresDeletedActivityLogEntry.Actor == nil {
@@ -20891,6 +20915,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputEnableReconcilerInput,
 		ec.unmarshalInputEnvironmentOrder,
 		ec.unmarshalInputEnvironmentWorkloadOrder,
+		ec.unmarshalInputGrantPostgresAccessInput,
 		ec.unmarshalInputImageVulnerabilityFilter,
 		ec.unmarshalInputImageVulnerabilityOrder,
 		ec.unmarshalInputIssueFilter,
@@ -27735,6 +27760,8 @@ extend enum ActivityLogActivityType {
 }
 
 extend type Mutation {
+	"Grant temporary access to a Postgres cluster."
+	grantPostgresAccess(input: GrantPostgresAccessInput!): GrantPostgresAccessPayload!
 	"""
 	EXPERIMENTAL: DO NOT USE
 	Create time-limited personal access to a NAIS Postgres instance through the brokered PostgresAccess and relay flow.
@@ -27743,6 +27770,19 @@ extend type Mutation {
 	createPostgresAccess(input: CreatePostgresAccessInput!): CreatePostgresAccessPayload!
 	"Delete a PostgresInstance that is not active on its Postgres."
 	deletePostgres(input: DeletePostgresInput!): DeletePostgresPayload!
+}
+
+type GrantPostgresAccessPayload {
+	error: String
+}
+
+input GrantPostgresAccessInput {
+	clusterName: String!
+	teamSlug: Slug!
+	environmentName: String!
+	grantee: String!
+	"Duration of the access grant (maximum 4 hours)."
+	duration: String!
 }
 
 "Result of creating a personal Postgres access."
@@ -27828,7 +27868,7 @@ type PostgresAccess implements Node {
 	EXPERIMENTAL: DO NOT USE
 	Get connection materials for this ready access. Only its owner can read them.
 	"""
-	connection: PostgresAccessConnection!
+	connection: PostgresAccessConnectionDetails
 }
 
 "High-level reconciliation state of a personal Postgres access."
@@ -27844,7 +27884,7 @@ enum PostgresAccessState {
 }
 
 "Sensitive connection materials for a ready personal Postgres access."
-type PostgresAccessConnection {
+type PostgresAccessConnectionDetails {
 	"Database username for the caller's personal role."
 	username: String!
 	"Short-lived password for the caller's database role."
@@ -36570,6 +36610,14 @@ func (ec *executionContext) childFields_GitHubActorClaims(ctx context.Context, f
 	return nil, fmt.Errorf("no field named %q was found under type GitHubActorClaims", field.Name)
 }
 
+func (ec *executionContext) childFields_GrantPostgresAccessPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "error":
+		return ec.fieldContext_GrantPostgresAccessPayload_error(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type GrantPostgresAccessPayload", field.Name)
+}
+
 func (ec *executionContext) childFields_ImageVulnerability(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "id":
@@ -37716,24 +37764,24 @@ func (ec *executionContext) childFields_PostgresAccess(ctx context.Context, fiel
 	return nil, fmt.Errorf("no field named %q was found under type PostgresAccess", field.Name)
 }
 
-func (ec *executionContext) childFields_PostgresAccessConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+func (ec *executionContext) childFields_PostgresAccessConnectionDetails(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "username":
-		return ec.fieldContext_PostgresAccessConnection_username(ctx, field)
+		return ec.fieldContext_PostgresAccessConnectionDetails_username(ctx, field)
 	case "password":
-		return ec.fieldContext_PostgresAccessConnection_password(ctx, field)
+		return ec.fieldContext_PostgresAccessConnectionDetails_password(ctx, field)
 	case "caCertificate":
-		return ec.fieldContext_PostgresAccessConnection_caCertificate(ctx, field)
+		return ec.fieldContext_PostgresAccessConnectionDetails_caCertificate(ctx, field)
 	case "serverName":
-		return ec.fieldContext_PostgresAccessConnection_serverName(ctx, field)
+		return ec.fieldContext_PostgresAccessConnectionDetails_serverName(ctx, field)
 	case "relayEndpoint":
-		return ec.fieldContext_PostgresAccessConnection_relayEndpoint(ctx, field)
+		return ec.fieldContext_PostgresAccessConnectionDetails_relayEndpoint(ctx, field)
 	case "relayAccess":
-		return ec.fieldContext_PostgresAccessConnection_relayAccess(ctx, field)
+		return ec.fieldContext_PostgresAccessConnectionDetails_relayAccess(ctx, field)
 	case "relayToken":
-		return ec.fieldContext_PostgresAccessConnection_relayToken(ctx, field)
+		return ec.fieldContext_PostgresAccessConnectionDetails_relayToken(ctx, field)
 	}
-	return nil, fmt.Errorf("no field named %q was found under type PostgresAccessConnection", field.Name)
+	return nil, fmt.Errorf("no field named %q was found under type PostgresAccessConnectionDetails", field.Name)
 }
 
 func (ec *executionContext) childFields_PostgresGrantAccessActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {

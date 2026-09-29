@@ -30,7 +30,7 @@ type PostgresAccessResolver interface {
 	TeamEnvironment(ctx context.Context, obj *postgres.PostgresAccess) (*team.TeamEnvironment, error)
 	PostgresInstance(ctx context.Context, obj *postgres.PostgresAccess) (*postgres.PostgresInstance, error)
 
-	Connection(ctx context.Context, obj *postgres.PostgresAccess) (*postgres.PostgresAccessConnection, error)
+	Connection(ctx context.Context, obj *postgres.PostgresAccess) (*postgres.PostgresAccessConnectionDetails, error)
 }
 type PostgresInstanceResolver interface {
 	Team(ctx context.Context, obj *postgres.PostgresInstance) (*team.Team, error)
@@ -159,6 +159,29 @@ func (ec *executionContext) _DeletePostgresPayload_postgresDeleted(ctx context.C
 }
 func (ec *executionContext) fieldContext_DeletePostgresPayload_postgresDeleted(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("DeletePostgresPayload", field, false, false, errors.New("field of type Boolean does not have child fields"))
+}
+
+func (ec *executionContext) _GrantPostgresAccessPayload_error(ctx context.Context, field graphql.CollectedField, obj *postgres.GrantPostgresAccessPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_GrantPostgresAccessPayload_error(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Error, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_GrantPostgresAccessPayload_error(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("GrantPostgresAccessPayload", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _Postgres_id(ctx context.Context, field graphql.CollectedField, obj *postgres.Postgres) (ret graphql.Marshaler) {
@@ -609,11 +632,11 @@ func (ec *executionContext) _PostgresAccess_connection(ctx context.Context, fiel
 			return ec.Resolvers.PostgresAccess().Connection(ctx, obj)
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *postgres.PostgresAccessConnection) graphql.Marshaler {
-			return ec.marshalNPostgresAccessConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresAccessConnection(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *postgres.PostgresAccessConnectionDetails) graphql.Marshaler {
+			return ec.marshalOPostgresAccessConnectionDetails2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresAccessConnectionDetails(ctx, selections, v)
 		},
 		true,
-		true,
+		false,
 	)
 }
 func (ec *executionContext) fieldContext_PostgresAccess_connection(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -623,19 +646,19 @@ func (ec *executionContext) fieldContext_PostgresAccess_connection(_ context.Con
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_PostgresAccessConnection(ctx, field)
+			return ec.childFields_PostgresAccessConnectionDetails(ctx, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _PostgresAccessConnection_username(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresAccessConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _PostgresAccessConnectionDetails_username(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresAccessConnectionDetails) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PostgresAccessConnection_username(ctx, field)
+			return ec.fieldContext_PostgresAccessConnectionDetails_username(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Username, nil
@@ -648,17 +671,17 @@ func (ec *executionContext) _PostgresAccessConnection_username(ctx context.Conte
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_PostgresAccessConnection_username(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("PostgresAccessConnection", field, false, false, errors.New("field of type String does not have child fields"))
+func (ec *executionContext) fieldContext_PostgresAccessConnectionDetails_username(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresAccessConnectionDetails", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _PostgresAccessConnection_password(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresAccessConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _PostgresAccessConnectionDetails_password(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresAccessConnectionDetails) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PostgresAccessConnection_password(ctx, field)
+			return ec.fieldContext_PostgresAccessConnectionDetails_password(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Password, nil
@@ -671,17 +694,17 @@ func (ec *executionContext) _PostgresAccessConnection_password(ctx context.Conte
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_PostgresAccessConnection_password(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("PostgresAccessConnection", field, false, false, errors.New("field of type String does not have child fields"))
+func (ec *executionContext) fieldContext_PostgresAccessConnectionDetails_password(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresAccessConnectionDetails", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _PostgresAccessConnection_caCertificate(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresAccessConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _PostgresAccessConnectionDetails_caCertificate(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresAccessConnectionDetails) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PostgresAccessConnection_caCertificate(ctx, field)
+			return ec.fieldContext_PostgresAccessConnectionDetails_caCertificate(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.CACertificate, nil
@@ -694,17 +717,17 @@ func (ec *executionContext) _PostgresAccessConnection_caCertificate(ctx context.
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_PostgresAccessConnection_caCertificate(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("PostgresAccessConnection", field, false, false, errors.New("field of type String does not have child fields"))
+func (ec *executionContext) fieldContext_PostgresAccessConnectionDetails_caCertificate(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresAccessConnectionDetails", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _PostgresAccessConnection_serverName(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresAccessConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _PostgresAccessConnectionDetails_serverName(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresAccessConnectionDetails) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PostgresAccessConnection_serverName(ctx, field)
+			return ec.fieldContext_PostgresAccessConnectionDetails_serverName(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ServerName, nil
@@ -717,17 +740,17 @@ func (ec *executionContext) _PostgresAccessConnection_serverName(ctx context.Con
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_PostgresAccessConnection_serverName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("PostgresAccessConnection", field, false, false, errors.New("field of type String does not have child fields"))
+func (ec *executionContext) fieldContext_PostgresAccessConnectionDetails_serverName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresAccessConnectionDetails", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _PostgresAccessConnection_relayEndpoint(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresAccessConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _PostgresAccessConnectionDetails_relayEndpoint(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresAccessConnectionDetails) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PostgresAccessConnection_relayEndpoint(ctx, field)
+			return ec.fieldContext_PostgresAccessConnectionDetails_relayEndpoint(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.RelayEndpoint, nil
@@ -740,17 +763,17 @@ func (ec *executionContext) _PostgresAccessConnection_relayEndpoint(ctx context.
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_PostgresAccessConnection_relayEndpoint(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("PostgresAccessConnection", field, false, false, errors.New("field of type String does not have child fields"))
+func (ec *executionContext) fieldContext_PostgresAccessConnectionDetails_relayEndpoint(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresAccessConnectionDetails", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _PostgresAccessConnection_relayAccess(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresAccessConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _PostgresAccessConnectionDetails_relayAccess(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresAccessConnectionDetails) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PostgresAccessConnection_relayAccess(ctx, field)
+			return ec.fieldContext_PostgresAccessConnectionDetails_relayAccess(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.RelayAccess, nil
@@ -763,17 +786,17 @@ func (ec *executionContext) _PostgresAccessConnection_relayAccess(ctx context.Co
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_PostgresAccessConnection_relayAccess(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("PostgresAccessConnection", field, false, false, errors.New("field of type String does not have child fields"))
+func (ec *executionContext) fieldContext_PostgresAccessConnectionDetails_relayAccess(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresAccessConnectionDetails", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _PostgresAccessConnection_relayToken(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresAccessConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _PostgresAccessConnectionDetails_relayToken(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresAccessConnectionDetails) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PostgresAccessConnection_relayToken(ctx, field)
+			return ec.fieldContext_PostgresAccessConnectionDetails_relayToken(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.RelayToken, nil
@@ -786,8 +809,8 @@ func (ec *executionContext) _PostgresAccessConnection_relayToken(ctx context.Con
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_PostgresAccessConnection_relayToken(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("PostgresAccessConnection", field, false, false, errors.New("field of type String does not have child fields"))
+func (ec *executionContext) fieldContext_PostgresAccessConnectionDetails_relayToken(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresAccessConnectionDetails", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _PostgresDeletedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresDeletedActivityLogEntry) (ret graphql.Marshaler) {
@@ -2627,6 +2650,64 @@ func (ec *executionContext) unmarshalInputDeletePostgresInput(ctx context.Contex
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputGrantPostgresAccessInput(ctx context.Context, obj any) (postgres.GrantPostgresAccessInput, error) {
+	var it postgres.GrantPostgresAccessInput
+	if obj == nil {
+		return it, nil
+	}
+
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"clusterName", "teamSlug", "environmentName", "grantee", "duration"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "clusterName":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("clusterName"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ClusterName = data
+		case "teamSlug":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamSlug"))
+			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TeamSlug = data
+		case "environmentName":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environmentName"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.EnvironmentName = data
+		case "grantee":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("grantee"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Grantee = data
+		case "duration":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("duration"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Duration = data
+		}
+	}
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputPostgresInstanceFilter(ctx context.Context, obj any) (postgres.PostgresInstanceFilter, error) {
 	var it postgres.PostgresInstanceFilter
 	if obj == nil {
@@ -2780,6 +2861,42 @@ func (ec *executionContext) _DeletePostgresPayload(ctx context.Context, sel ast.
 			out.Values[i] = graphql.MarshalString("DeletePostgresPayload")
 		case "postgresDeleted":
 			out.Values[i] = ec._DeletePostgresPayload_postgresDeleted(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var grantPostgresAccessPayloadImplementors = []string{"GrantPostgresAccessPayload"}
+
+func (ec *executionContext) _GrantPostgresAccessPayload(ctx context.Context, sel ast.SelectionSet, obj *postgres.GrantPostgresAccessPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, grantPostgresAccessPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("GrantPostgresAccessPayload")
+		case "error":
+			out.Values[i] = ec._GrantPostgresAccessPayload_error(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3020,16 +3137,13 @@ func (ec *executionContext) _PostgresAccess(ctx context.Context, sel ast.Selecti
 		case "connection":
 			field := field
 
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
 				res = ec._PostgresAccess_connection(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
 				return res
 			}
 
@@ -3076,49 +3190,49 @@ func (ec *executionContext) _PostgresAccess(ctx context.Context, sel ast.Selecti
 	return out
 }
 
-var postgresAccessConnectionImplementors = []string{"PostgresAccessConnection"}
+var postgresAccessConnectionDetailsImplementors = []string{"PostgresAccessConnectionDetails"}
 
-func (ec *executionContext) _PostgresAccessConnection(ctx context.Context, sel ast.SelectionSet, obj *postgres.PostgresAccessConnection) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, postgresAccessConnectionImplementors)
+func (ec *executionContext) _PostgresAccessConnectionDetails(ctx context.Context, sel ast.SelectionSet, obj *postgres.PostgresAccessConnectionDetails) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, postgresAccessConnectionDetailsImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("PostgresAccessConnection")
+			out.Values[i] = graphql.MarshalString("PostgresAccessConnectionDetails")
 		case "username":
-			out.Values[i] = ec._PostgresAccessConnection_username(ctx, field, obj)
+			out.Values[i] = ec._PostgresAccessConnectionDetails_username(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "password":
-			out.Values[i] = ec._PostgresAccessConnection_password(ctx, field, obj)
+			out.Values[i] = ec._PostgresAccessConnectionDetails_password(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "caCertificate":
-			out.Values[i] = ec._PostgresAccessConnection_caCertificate(ctx, field, obj)
+			out.Values[i] = ec._PostgresAccessConnectionDetails_caCertificate(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "serverName":
-			out.Values[i] = ec._PostgresAccessConnection_serverName(ctx, field, obj)
+			out.Values[i] = ec._PostgresAccessConnectionDetails_serverName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "relayEndpoint":
-			out.Values[i] = ec._PostgresAccessConnection_relayEndpoint(ctx, field, obj)
+			out.Values[i] = ec._PostgresAccessConnectionDetails_relayEndpoint(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "relayAccess":
-			out.Values[i] = ec._PostgresAccessConnection_relayAccess(ctx, field, obj)
+			out.Values[i] = ec._PostgresAccessConnectionDetails_relayAccess(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "relayToken":
-			out.Values[i] = ec._PostgresAccessConnection_relayToken(ctx, field, obj)
+			out.Values[i] = ec._PostgresAccessConnectionDetails_relayToken(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -4173,6 +4287,25 @@ func (ec *executionContext) marshalNDeletePostgresPayload2ᚖgithubᚗcomᚋnais
 	return ec._DeletePostgresPayload(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNGrantPostgresAccessInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐGrantPostgresAccessInput(ctx context.Context, v any) (postgres.GrantPostgresAccessInput, error) {
+	res, err := ec.unmarshalInputGrantPostgresAccessInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNGrantPostgresAccessPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐGrantPostgresAccessPayload(ctx context.Context, sel ast.SelectionSet, v postgres.GrantPostgresAccessPayload) graphql.Marshaler {
+	return ec._GrantPostgresAccessPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNGrantPostgresAccessPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐGrantPostgresAccessPayload(ctx context.Context, sel ast.SelectionSet, v *postgres.GrantPostgresAccessPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._GrantPostgresAccessPayload(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNPostgres2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgres(ctx context.Context, sel ast.SelectionSet, v postgres.Postgres) graphql.Marshaler {
 	return ec._Postgres(ctx, sel, &v)
 }
@@ -4199,20 +4332,6 @@ func (ec *executionContext) marshalNPostgresAccess2ᚖgithubᚗcomᚋnaisᚋapi�
 		return graphql.Null
 	}
 	return ec._PostgresAccess(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalNPostgresAccessConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresAccessConnection(ctx context.Context, sel ast.SelectionSet, v postgres.PostgresAccessConnection) graphql.Marshaler {
-	return ec._PostgresAccessConnection(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNPostgresAccessConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresAccessConnection(ctx context.Context, sel ast.SelectionSet, v *postgres.PostgresAccessConnection) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._PostgresAccessConnection(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNPostgresAccessLevel2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresAccessLevel(ctx context.Context, v any) (postgres.PostgresAccessLevel, error) {
@@ -4375,6 +4494,13 @@ func (ec *executionContext) marshalNTeamInventoryCountPostgresInstances2ᚖgithu
 		return graphql.Null
 	}
 	return ec._TeamInventoryCountPostgresInstances(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOPostgresAccessConnectionDetails2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresAccessConnectionDetails(ctx context.Context, sel ast.SelectionSet, v *postgres.PostgresAccessConnectionDetails) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._PostgresAccessConnectionDetails(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOPostgresAccessLevel2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresAccessLevel(ctx context.Context, v any) (*postgres.PostgresAccessLevel, error) {

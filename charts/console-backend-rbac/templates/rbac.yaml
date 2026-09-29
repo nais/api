@@ -302,6 +302,13 @@ rules:
       - get
       - list
       - watch
+  # Legacy CLI port-forward grants still validate the old Zalando cluster.
+  - apiGroups:
+      - "data.nais.io"
+    resources:
+      - postgres
+    verbs:
+      - get
   - apiGroups:
       - "nais.io"
     resources:

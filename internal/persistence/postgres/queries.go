@@ -203,7 +203,7 @@ func GetPostgresAccess(ctx context.Context, name string, teamSlug slug.Slug, env
 	return access, nil
 }
 
-func GetPostgresAccessConnection(ctx context.Context, input PostgresAccessConnectionInput) (*PostgresAccessConnection, error) {
+func GetPostgresAccessConnection(ctx context.Context, input PostgresAccessConnectionInput) (*PostgresAccessConnectionDetails, error) {
 	if err := input.Validate(ctx); err != nil {
 		return nil, err
 	}
@@ -268,7 +268,7 @@ func getPostgresAccessResource(ctx context.Context, name string, teamSlug slug.S
 	return u, nil
 }
 
-func postgresAccessConnectionDetails(access *unstructured.Unstructured, now time.Time) (*PostgresAccessConnection, string, error) {
+func postgresAccessConnectionDetails(access *unstructured.Unstructured, now time.Time) (*PostgresAccessConnectionDetails, string, error) {
 	expiresAt, _, err := unstructured.NestedString(access.Object, "spec", "expiresAt")
 	if err != nil {
 		return nil, "", fmt.Errorf("reading PostgresAccess %q expiry: %w", access.GetName(), err)
@@ -299,7 +299,7 @@ func postgresAccessConnectionDetails(access *unstructured.Unstructured, now time
 	if err != nil || role == "" {
 		return nil, "", apierror.Errorf("PostgresAccess %q is not ready", access.GetName())
 	}
-	return &PostgresAccessConnection{}, tokenSecret, nil
+	return &PostgresAccessConnectionDetails{}, tokenSecret, nil
 }
 
 func postgresAccessIsReady(obj map[string]any) bool {

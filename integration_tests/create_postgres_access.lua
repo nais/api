@@ -304,11 +304,11 @@ end)
 Test.gql("PostgresAccess connection rejects a different team member", function(t)
 	t.addHeader("x-user-email", otherMemberUser:email())
 	t.query [[
-		query { team(slug: "someteamname") { environment(name: "dev") { postgresAccess(name: "ready-access") { connection { password } } } } }
+		query { team(slug: "someteamname") { environment(name: "dev") { postgresAccess(name: "ready-access") { state connection { password } } } } }
 	]]
 	t.check {
 		errors = { { locations = NotNull(), path = { "team", "environment", "postgresAccess", "connection" }, message = Contains("not authorized") } },
-		data = Null,
+		data = { team = { environment = { postgresAccess = { state = "READY", connection = Null } } } },
 	}
 end)
 
@@ -331,17 +331,17 @@ end)
 Test.gql("PostgresAccess connection rejects expired, unready, and missing-secret access", function(t)
 	t.addHeader("x-user-email", user:email())
 	for _, test in ipairs({
-		{ name = "expired-access",        message = "has expired" },
-		{ name = "pending-access",        message = "is not ready" },
-		{ name = "failed-access",         message = "is not ready" },
-		{ name = "missing-secret-access", message = "secrets for PostgresAccess is not available" },
+		{ name = "expired-access",        state = "EXPIRED", message = "has expired" },
+		{ name = "pending-access",        state = "PENDING", message = "is not ready" },
+		{ name = "failed-access",         state = "FAILED",  message = "is not ready" },
+		{ name = "missing-secret-access", state = "READY",   message = "secrets for PostgresAccess is not available" },
 	}) do
 		t.query(string.format(
-			[[query { team(slug: "someteamname") { environment(name: "dev") { postgresAccess(name: "%s") { connection { password } } } } }]],
+			[[query { team(slug: "someteamname") { environment(name: "dev") { postgresAccess(name: "%s") { state connection { password } } } } }]],
 			test.name))
 		t.check {
 			errors = { { locations = NotNull(), path = { "team", "environment", "postgresAccess", "connection" }, message = Contains(test.message) } },
-			data = Null,
+			data = { team = { environment = { postgresAccess = { state = test.state, connection = Null } } } },
 		}
 	end
 end)
