@@ -11,6 +11,6 @@ Test.gql("Logical Postgres settings are not fabricated on physical instances", f
         postgresInstance(name:"audit-enabled") { name state postgres { name majorVersion } }
     } } }]]
 	t.check { data = { team = { environment = { postgresInstance = {
-		name = "audit-enabled", state = "AVAILABLE", postgres = { name = "audit-enabled", majorVersion = "17" },
+		name = "audit-enabled", state = "AVAILABLE", postgres = { name = "audit-enabled", majorVersion = "16" },
 	} } } } }
 end)

@@ -8,7 +8,7 @@ Test.gql("Active PostgresInstance cannot be marked for deletion", function(t)
 	t.query [[mutation { deletePostgres(input: {
 		name: "orders-new", environmentName: "dev", teamSlug: "pg-delete-team"
 	}) { postgresDeleted } }]]
-	t.check { errors = { { path = { "deletePostgres" }, message = Contains("is active and cannot be deleted") } }, data = Null }
+	t.check { errors = { { locations = NotNull(), path = { "deletePostgres" }, message = Contains("is active and cannot be deleted") } }, data = Null }
 end)
 
 Test.gql("Inactive PostgresInstance can be deleted", function(t)

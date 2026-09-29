@@ -59,5 +59,5 @@ end)
 Test.gql("Delete a concrete PostgresInstance requires authorization", function(t)
 	t.addHeader("x-user-email", nonMember:email())
 	t.query [[mutation { deletePostgres(input:{name:"foobar",environmentName:"dev",teamSlug:"someteamname"}) { postgresDeleted } }]]
-	t.check { errors = { { message = Contains('postgres:delete'), path = { "deletePostgres" } } }, data = Null }
+	t.check { errors = { { locations = NotNull(), message = Contains('postgres:delete'), path = { "deletePostgres" } } }, data = Null }
 end)

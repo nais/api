@@ -322,7 +322,7 @@ Test.gql("PostgresAccess credentials cannot be read through generic Secret eleva
 			}) { values { name value } } }
 		]], name))
 		t.check {
-			errors = { { path = { "viewSecretValues" }, message = Contains("only available through postgresAccessConnection") } },
+			errors = { { locations = NotNull(), path = { "viewSecretValues" }, message = Contains("only available through postgresAccessConnection") } },
 			data = Null,
 		}
 	end
