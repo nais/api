@@ -2353,6 +2353,29 @@ func (ec *executionContext) fieldContext_PostgresPersonalAccessCreatedActivityLo
 	return graphql.NewScalarFieldContext("PostgresPersonalAccessCreatedActivityLogEntryData", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
+func (ec *executionContext) _PostgresPersonalAccessCreatedActivityLogEntryData_accessLevel(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresPersonalAccessCreatedActivityLogEntryData) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresPersonalAccessCreatedActivityLogEntryData_accessLevel(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.AccessLevel, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *postgres.PostgresAccessLevel) graphql.Marshaler {
+			return ec.marshalOPostgresAccessLevel2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresAccessLevel(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresPersonalAccessCreatedActivityLogEntryData_accessLevel(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresPersonalAccessCreatedActivityLogEntryData", field, false, false, errors.New("field of type PostgresAccessLevel does not have child fields"))
+}
+
 func (ec *executionContext) _PostgresPersonalAccessCreatedActivityLogEntryData_expiresAt(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresPersonalAccessCreatedActivityLogEntryData) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -3994,6 +4017,8 @@ func (ec *executionContext) _PostgresPersonalAccessCreatedActivityLogEntryData(c
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "accessLevel":
+			out.Values[i] = ec._PostgresPersonalAccessCreatedActivityLogEntryData_accessLevel(ctx, field, obj)
 		case "expiresAt":
 			out.Values[i] = ec._PostgresPersonalAccessCreatedActivityLogEntryData_expiresAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -4350,6 +4375,22 @@ func (ec *executionContext) marshalNTeamInventoryCountPostgresInstances2ᚖgithu
 		return graphql.Null
 	}
 	return ec._TeamInventoryCountPostgresInstances(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOPostgresAccessLevel2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresAccessLevel(ctx context.Context, v any) (*postgres.PostgresAccessLevel, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(postgres.PostgresAccessLevel)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOPostgresAccessLevel2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresAccessLevel(ctx context.Context, sel ast.SelectionSet, v *postgres.PostgresAccessLevel) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
 }
 
 func (ec *executionContext) marshalOPostgresInstanceFacets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceFacets(ctx context.Context, sel ast.SelectionSet, v *postgres.PostgresInstanceFacets) graphql.Marshaler {

@@ -177,6 +177,7 @@ Test.gql("Personal postgres access is audited as a self-grant", function(t)
 						... on PostgresPersonalAccessCreatedActivityLogEntry {
 							data {
 								username
+								accessLevel
 								expiresAt
 								reason
 							}
@@ -193,9 +194,10 @@ Test.gql("Personal postgres access is audited as a self-grant", function(t)
 				activityLog = {
 					nodes = {
 						{
-							message = Contains("Created personal Postgres access for user@usersen.com"),
+							message = Contains("Requested READWRITE personal Postgres access for user@usersen.com"),
 							data = {
 								username = "user@usersen.com",
+								accessLevel = "READWRITE",
 								expiresAt = NotNull(),
 								reason = "Testing personal database access",
 							},

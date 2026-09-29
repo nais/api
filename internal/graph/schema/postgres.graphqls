@@ -23,10 +23,7 @@ extend type Team {
 
 extend type TeamEnvironment {
 	"Postgres in the team environment."
-	postgres(
-		"Name of the Postgres in this team environment."
-		name: String!
-	): Postgres!
+	postgres("Name of the Postgres in this team environment." name: String!): Postgres!
 	"Named PostgresInstance in the team environment."
 	postgresInstance(
 		"Name of the PostgresInstance in this team environment."
@@ -292,6 +289,8 @@ type PostgresPersonalAccessCreatedActivityLogEntry implements ActivityLogEntry &
 type PostgresPersonalAccessCreatedActivityLogEntryData {
 	"Identity that owns the new personal access."
 	username: String!
+	"Requested privilege level; null for events recorded before this field was added."
+	accessLevel: PostgresAccessLevel
 	"Server-controlled expiry of the access."
 	expiresAt: Time!
 	"Caller-provided audit reason."

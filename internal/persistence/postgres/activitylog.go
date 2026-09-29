@@ -42,8 +42,12 @@ func init() {
 			if err != nil {
 				return nil, fmt.Errorf("transforming postgres personal access activity log entry data: %w", err)
 			}
+			message := fmt.Sprintf("Created personal Postgres access for %s until %s", data.Username, data.ExpiresAt)
+			if data.AccessLevel != nil {
+				message = fmt.Sprintf("Requested %s personal Postgres access for %s until %s", *data.AccessLevel, data.Username, data.ExpiresAt)
+			}
 			return PostgresPersonalAccessCreatedActivityLogEntry{
-				GenericActivityLogEntry: entry.WithMessage(fmt.Sprintf("Created personal Postgres access for %s until %s", data.Username, data.ExpiresAt)),
+				GenericActivityLogEntry: entry.WithMessage(message),
 				Data:                    data,
 			}, nil
 		case activityLogEntryActionGetPersonalAccessConnection:
@@ -83,9 +87,10 @@ type PostgresPersonalAccessCreatedActivityLogEntry struct {
 }
 
 type PostgresPersonalAccessCreatedActivityLogEntryData struct {
-	Username  string    `json:"username"`
-	ExpiresAt time.Time `json:"expiresAt"`
-	Reason    string    `json:"reason"`
+	Username    string               `json:"username"`
+	AccessLevel *PostgresAccessLevel `json:"accessLevel,omitempty"`
+	ExpiresAt   time.Time            `json:"expiresAt"`
+	Reason      string               `json:"reason"`
 }
 
 type PostgresPersonalAccessConnectionActivityLogEntry struct {

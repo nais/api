@@ -2012,9 +2012,10 @@ type ComplexityRoot struct {
 	}
 
 	PostgresPersonalAccessCreatedActivityLogEntryData struct {
-		ExpiresAt func(childComplexity int) int
-		Reason    func(childComplexity int) int
-		Username  func(childComplexity int) int
+		AccessLevel func(childComplexity int) int
+		ExpiresAt   func(childComplexity int) int
+		Reason      func(childComplexity int) int
+		Username    func(childComplexity int) int
 	}
 
 	PostgresResources struct {
@@ -12209,6 +12210,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "PostgresPersonalAccessCreatedActivityLogEntryData.accessLevel":
+		if e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntryData.AccessLevel == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntryData.AccessLevel(childComplexity), true
 
 	case "PostgresPersonalAccessCreatedActivityLogEntryData.expiresAt":
 		if e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntryData.ExpiresAt == nil {
@@ -27664,6 +27672,8 @@ type PostgresPersonalAccessCreatedActivityLogEntry implements ActivityLogEntry &
 type PostgresPersonalAccessCreatedActivityLogEntryData {
 	"Identity that owns the new personal access."
 	username: String!
+	"Requested privilege level; null for events recorded before this field was added."
+	accessLevel: PostgresAccessLevel
 	"Server-controlled expiry of the access."
 	expiresAt: Time!
 	"Caller-provided audit reason."
@@ -37824,6 +37834,8 @@ func (ec *executionContext) childFields_PostgresPersonalAccessCreatedActivityLog
 	switch field.Name {
 	case "username":
 		return ec.fieldContext_PostgresPersonalAccessCreatedActivityLogEntryData_username(ctx, field)
+	case "accessLevel":
+		return ec.fieldContext_PostgresPersonalAccessCreatedActivityLogEntryData_accessLevel(ctx, field)
 	case "expiresAt":
 		return ec.fieldContext_PostgresPersonalAccessCreatedActivityLogEntryData_expiresAt(ctx, field)
 	case "reason":

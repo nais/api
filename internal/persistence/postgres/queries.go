@@ -497,9 +497,10 @@ func CreatePostgresAccess(ctx context.Context, input CreatePostgresAccessInput) 
 		EnvironmentName: new(input.EnvironmentName),
 		TeamSlug:        new(input.TeamSlug),
 		Data: PostgresPersonalAccessCreatedActivityLogEntryData{
-			Username:  authz.ActorFromContext(ctx).User.Identity(),
-			ExpiresAt: expiresAt,
-			Reason:    input.Reason,
+			Username:    authz.ActorFromContext(ctx).User.Identity(),
+			AccessLevel: new(input.AccessLevel),
+			ExpiresAt:   expiresAt,
+			Reason:      input.Reason,
 		},
 	}); err != nil {
 		return nil, err
