@@ -13,6 +13,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	activitylog1 "github.com/nais/api/internal/activitylog"
+	"github.com/nais/api/internal/auth/middleware/github"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
@@ -530,6 +531,38 @@ func (ec *executionContext) _ServiceMaintenanceActivityLogEntry_actor(ctx contex
 }
 func (ec *executionContext) fieldContext_ServiceMaintenanceActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ServiceMaintenanceActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _ServiceMaintenanceActivityLogEntry_gitHubActorClaims(ctx context.Context, field graphql.CollectedField, obj *activitylog.ServiceMaintenanceActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ServiceMaintenanceActivityLogEntry_gitHubActorClaims(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.GitHubActorClaims, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *github.GitHubActorClaims) graphql.Marshaler {
+			return ec.marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_ServiceMaintenanceActivityLogEntry_gitHubActorClaims(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ServiceMaintenanceActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_GitHubActorClaims(ctx, field)
+		},
+	}
+	return fc, nil
 }
 
 func (ec *executionContext) _ServiceMaintenanceActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *activitylog.ServiceMaintenanceActivityLogEntry) (ret graphql.Marshaler) {
@@ -1471,6 +1504,8 @@ func (ec *executionContext) _ServiceMaintenanceActivityLogEntry(ctx context.Cont
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "gitHubActorClaims":
+			out.Values[i] = ec._ServiceMaintenanceActivityLogEntry_gitHubActorClaims(ctx, field, obj)
 		case "createdAt":
 			out.Values[i] = ec._ServiceMaintenanceActivityLogEntry_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {

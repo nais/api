@@ -13,6 +13,8 @@ func TestPostgresFixturesUseRegisteredV1Kinds(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	// Each directory is a separate integration suite; fixtures in different
+	// suites may intentionally describe the same resource.
 	for _, path := range []string{
 		"../../../integration_tests/k8s_resources/create_postgres_access",
 		"../../../integration_tests/k8s_resources/postgres_instances",
@@ -30,7 +32,8 @@ func TestPostgresFixturesUseRegisteredV1Kinds(t *testing.T) {
 			t.Errorf("%s: no fixtures", path)
 		}
 		// Parsing alone does not detect two files declaring the same resource.
-		// Insert every object into the same fake tracker used by the Lua suite.
+		// One fake tracker per cluster and suite catches duplicate identities
+		// across all files belonging to that cluster, as in the Lua runner.
 		for _, objects := range resources {
 			client := fake.NewDynamicClient(scheme)
 			fake.AddObjectToDynamicClient(scheme, client, objects...)

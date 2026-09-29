@@ -39,6 +39,7 @@ autobind:
   - "github.com/nais/api/internal/alerts"
   - "github.com/nais/api/internal/apply"
   - "github.com/nais/api/internal/auth/authz"
+  - "github.com/nais/api/internal/auth/middleware/github"
   - "github.com/nais/api/internal/cost"
   - "github.com/nais/api/internal/deployment"
   - "github.com/nais/api/internal/deployment/deploymentactivity"

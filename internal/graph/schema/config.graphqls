@@ -438,6 +438,9 @@ type ConfigCreatedActivityLogEntry implements ActivityLogEntry & Node {
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
 
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
+
 	"Creation time of the entry."
 	createdAt: Time!
 
@@ -463,6 +466,9 @@ type ConfigUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
+
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
 
 	"Creation time of the entry."
 	createdAt: Time!
@@ -508,6 +514,9 @@ type ConfigDeletedActivityLogEntry implements ActivityLogEntry & Node {
 
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
+
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
 
 	"Creation time of the entry."
 	createdAt: Time!

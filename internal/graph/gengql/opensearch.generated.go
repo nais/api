@@ -12,6 +12,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/nais/api/internal/activitylog"
+	"github.com/nais/api/internal/auth/middleware/github"
 	"github.com/nais/api/internal/cost"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/model"
@@ -1283,6 +1284,38 @@ func (ec *executionContext) fieldContext_OpenSearchCreatedActivityLogEntry_actor
 	return graphql.NewScalarFieldContext("OpenSearchCreatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
+func (ec *executionContext) _OpenSearchCreatedActivityLogEntry_gitHubActorClaims(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearchCreatedActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_OpenSearchCreatedActivityLogEntry_gitHubActorClaims(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.GitHubActorClaims, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *github.GitHubActorClaims) graphql.Marshaler {
+			return ec.marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_OpenSearchCreatedActivityLogEntry_gitHubActorClaims(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "OpenSearchCreatedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_GitHubActorClaims(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _OpenSearchCreatedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearchCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -1582,6 +1615,38 @@ func (ec *executionContext) fieldContext_OpenSearchCredentialsCreatedActivityLog
 	return graphql.NewScalarFieldContext("OpenSearchCredentialsCreatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
+func (ec *executionContext) _OpenSearchCredentialsCreatedActivityLogEntry_gitHubActorClaims(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearchCredentialsCreatedActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_OpenSearchCredentialsCreatedActivityLogEntry_gitHubActorClaims(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.GitHubActorClaims, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *github.GitHubActorClaims) graphql.Marshaler {
+			return ec.marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_OpenSearchCredentialsCreatedActivityLogEntry_gitHubActorClaims(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "OpenSearchCredentialsCreatedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_GitHubActorClaims(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _OpenSearchCredentialsCreatedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearchCredentialsCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -1842,6 +1907,38 @@ func (ec *executionContext) _OpenSearchDeletedActivityLogEntry_actor(ctx context
 }
 func (ec *executionContext) fieldContext_OpenSearchDeletedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("OpenSearchDeletedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _OpenSearchDeletedActivityLogEntry_gitHubActorClaims(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearchDeletedActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_OpenSearchDeletedActivityLogEntry_gitHubActorClaims(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.GitHubActorClaims, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *github.GitHubActorClaims) graphql.Marshaler {
+			return ec.marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_OpenSearchDeletedActivityLogEntry_gitHubActorClaims(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "OpenSearchDeletedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_GitHubActorClaims(ctx, field)
+		},
+	}
+	return fc, nil
 }
 
 func (ec *executionContext) _OpenSearchDeletedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearchDeletedActivityLogEntry) (ret graphql.Marshaler) {
@@ -2223,6 +2320,38 @@ func (ec *executionContext) _OpenSearchUpdatedActivityLogEntry_actor(ctx context
 }
 func (ec *executionContext) fieldContext_OpenSearchUpdatedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("OpenSearchUpdatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _OpenSearchUpdatedActivityLogEntry_gitHubActorClaims(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearchUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_OpenSearchUpdatedActivityLogEntry_gitHubActorClaims(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.GitHubActorClaims, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *github.GitHubActorClaims) graphql.Marshaler {
+			return ec.marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_OpenSearchUpdatedActivityLogEntry_gitHubActorClaims(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "OpenSearchUpdatedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_GitHubActorClaims(ctx, field)
+		},
+	}
+	return fc, nil
 }
 
 func (ec *executionContext) _OpenSearchUpdatedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearchUpdatedActivityLogEntry) (ret graphql.Marshaler) {
@@ -3868,6 +3997,8 @@ func (ec *executionContext) _OpenSearchCreatedActivityLogEntry(ctx context.Conte
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "gitHubActorClaims":
+			out.Values[i] = ec._OpenSearchCreatedActivityLogEntry_gitHubActorClaims(ctx, field, obj)
 		case "createdAt":
 			out.Values[i] = ec._OpenSearchCreatedActivityLogEntry_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -3998,6 +4129,8 @@ func (ec *executionContext) _OpenSearchCredentialsCreatedActivityLogEntry(ctx co
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "gitHubActorClaims":
+			out.Values[i] = ec._OpenSearchCredentialsCreatedActivityLogEntry_gitHubActorClaims(ctx, field, obj)
 		case "createdAt":
 			out.Values[i] = ec._OpenSearchCredentialsCreatedActivityLogEntry_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -4115,6 +4248,8 @@ func (ec *executionContext) _OpenSearchDeletedActivityLogEntry(ctx context.Conte
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "gitHubActorClaims":
+			out.Values[i] = ec._OpenSearchDeletedActivityLogEntry_gitHubActorClaims(ctx, field, obj)
 		case "createdAt":
 			out.Values[i] = ec._OpenSearchDeletedActivityLogEntry_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -4416,6 +4551,8 @@ func (ec *executionContext) _OpenSearchUpdatedActivityLogEntry(ctx context.Conte
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "gitHubActorClaims":
+			out.Values[i] = ec._OpenSearchUpdatedActivityLogEntry_gitHubActorClaims(ctx, field, obj)
 		case "createdAt":
 			out.Values[i] = ec._OpenSearchUpdatedActivityLogEntry_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {

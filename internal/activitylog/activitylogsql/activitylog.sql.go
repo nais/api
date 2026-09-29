@@ -20,7 +20,8 @@ INSERT INTO
 		resource_name,
 		team_slug,
 		environment,
-		data
+		data,
+		github_actor_claims
 	)
 VALUES
 	(
@@ -30,18 +31,20 @@ VALUES
 		$4,
 		$5,
 		$6,
-		$7
+		$7,
+		$8
 	)
 `
 
 type CreateParams struct {
-	Actor           string
-	Action          string
-	ResourceType    string
-	ResourceName    string
-	TeamSlug        *slug.Slug
-	EnvironmentName *string
-	Data            []byte
+	Actor             string
+	Action            string
+	ResourceType      string
+	ResourceName      string
+	TeamSlug          *slug.Slug
+	EnvironmentName   *string
+	Data              []byte
+	GithubActorClaims []byte
 }
 
 func (q *Queries) Create(ctx context.Context, arg CreateParams) error {
@@ -53,6 +56,7 @@ func (q *Queries) Create(ctx context.Context, arg CreateParams) error {
 		arg.TeamSlug,
 		arg.EnvironmentName,
 		arg.Data,
+		arg.GithubActorClaims,
 	)
 	return err
 }
@@ -693,7 +697,7 @@ func (q *Queries) FacetsForTenantActivityTypes(ctx context.Context, arg FacetsFo
 
 const get = `-- name: Get :one
 SELECT
-	id, created_at, actor, action, resource_type, resource_name, team_slug, data, environment
+	id, created_at, actor, action, resource_type, resource_name, team_slug, data, environment, github_actor_claims
 FROM
 	activity_log_combined_view
 WHERE
@@ -713,13 +717,14 @@ func (q *Queries) Get(ctx context.Context, id uuid.UUID) (*ActivityLogCombinedVi
 		&i.TeamSlug,
 		&i.Data,
 		&i.Environment,
+		&i.GithubActorClaims,
 	)
 	return &i, err
 }
 
 const listByIDs = `-- name: ListByIDs :many
 SELECT
-	id, created_at, actor, action, resource_type, resource_name, team_slug, data, environment
+	id, created_at, actor, action, resource_type, resource_name, team_slug, data, environment, github_actor_claims
 FROM
 	activity_log_combined_view
 WHERE
@@ -747,6 +752,7 @@ func (q *Queries) ListByIDs(ctx context.Context, ids []uuid.UUID) ([]*ActivityLo
 			&i.TeamSlug,
 			&i.Data,
 			&i.Environment,
+			&i.GithubActorClaims,
 		); err != nil {
 			return nil, err
 		}
@@ -790,7 +796,7 @@ WITH
 			)
 	)
 SELECT
-	activity_log_combined_view.id, activity_log_combined_view.created_at, activity_log_combined_view.actor, activity_log_combined_view.action, activity_log_combined_view.resource_type, activity_log_combined_view.resource_name, activity_log_combined_view.team_slug, activity_log_combined_view.data, activity_log_combined_view.environment,
+	activity_log_combined_view.id, activity_log_combined_view.created_at, activity_log_combined_view.actor, activity_log_combined_view.action, activity_log_combined_view.resource_type, activity_log_combined_view.resource_name, activity_log_combined_view.team_slug, activity_log_combined_view.data, activity_log_combined_view.environment, activity_log_combined_view.github_actor_claims,
 	matching_entries.total_count
 FROM
 	activity_log_combined_view
@@ -874,6 +880,7 @@ func (q *Queries) ListForResource(ctx context.Context, arg ListForResourceParams
 			&i.ActivityLogCombinedView.TeamSlug,
 			&i.ActivityLogCombinedView.Data,
 			&i.ActivityLogCombinedView.Environment,
+			&i.ActivityLogCombinedView.GithubActorClaims,
 			&i.TotalCount,
 		); err != nil {
 			return nil, err
@@ -888,7 +895,7 @@ func (q *Queries) ListForResource(ctx context.Context, arg ListForResourceParams
 
 const listForResourceAndTeam = `-- name: ListForResourceAndTeam :many
 SELECT
-	activity_log_combined_view.id, activity_log_combined_view.created_at, activity_log_combined_view.actor, activity_log_combined_view.action, activity_log_combined_view.resource_type, activity_log_combined_view.resource_name, activity_log_combined_view.team_slug, activity_log_combined_view.data, activity_log_combined_view.environment,
+	activity_log_combined_view.id, activity_log_combined_view.created_at, activity_log_combined_view.actor, activity_log_combined_view.action, activity_log_combined_view.resource_type, activity_log_combined_view.resource_name, activity_log_combined_view.team_slug, activity_log_combined_view.data, activity_log_combined_view.environment, activity_log_combined_view.github_actor_claims,
 	COUNT(*) OVER () AS total_count
 FROM
 	activity_log_combined_view
@@ -972,6 +979,7 @@ func (q *Queries) ListForResourceAndTeam(ctx context.Context, arg ListForResourc
 			&i.ActivityLogCombinedView.TeamSlug,
 			&i.ActivityLogCombinedView.Data,
 			&i.ActivityLogCombinedView.Environment,
+			&i.ActivityLogCombinedView.GithubActorClaims,
 			&i.TotalCount,
 		); err != nil {
 			return nil, err
@@ -986,7 +994,7 @@ func (q *Queries) ListForResourceAndTeam(ctx context.Context, arg ListForResourc
 
 const listForResourceTeamAndEnvironment = `-- name: ListForResourceTeamAndEnvironment :many
 SELECT
-	activity_log_combined_view.id, activity_log_combined_view.created_at, activity_log_combined_view.actor, activity_log_combined_view.action, activity_log_combined_view.resource_type, activity_log_combined_view.resource_name, activity_log_combined_view.team_slug, activity_log_combined_view.data, activity_log_combined_view.environment,
+	activity_log_combined_view.id, activity_log_combined_view.created_at, activity_log_combined_view.actor, activity_log_combined_view.action, activity_log_combined_view.resource_type, activity_log_combined_view.resource_name, activity_log_combined_view.team_slug, activity_log_combined_view.data, activity_log_combined_view.environment, activity_log_combined_view.github_actor_claims,
 	COUNT(*) OVER () AS total_count
 FROM
 	activity_log_combined_view
@@ -1073,6 +1081,7 @@ func (q *Queries) ListForResourceTeamAndEnvironment(ctx context.Context, arg Lis
 			&i.ActivityLogCombinedView.TeamSlug,
 			&i.ActivityLogCombinedView.Data,
 			&i.ActivityLogCombinedView.Environment,
+			&i.ActivityLogCombinedView.GithubActorClaims,
 			&i.TotalCount,
 		); err != nil {
 			return nil, err
@@ -1087,7 +1096,7 @@ func (q *Queries) ListForResourceTeamAndEnvironment(ctx context.Context, arg Lis
 
 const listForResourceWithoutTeam = `-- name: ListForResourceWithoutTeam :many
 SELECT
-	activity_log_combined_view.id, activity_log_combined_view.created_at, activity_log_combined_view.actor, activity_log_combined_view.action, activity_log_combined_view.resource_type, activity_log_combined_view.resource_name, activity_log_combined_view.team_slug, activity_log_combined_view.data, activity_log_combined_view.environment,
+	activity_log_combined_view.id, activity_log_combined_view.created_at, activity_log_combined_view.actor, activity_log_combined_view.action, activity_log_combined_view.resource_type, activity_log_combined_view.resource_name, activity_log_combined_view.team_slug, activity_log_combined_view.data, activity_log_combined_view.environment, activity_log_combined_view.github_actor_claims,
 	COUNT(*) OVER () AS total_count
 FROM
 	activity_log_combined_view
@@ -1169,6 +1178,7 @@ func (q *Queries) ListForResourceWithoutTeam(ctx context.Context, arg ListForRes
 			&i.ActivityLogCombinedView.TeamSlug,
 			&i.ActivityLogCombinedView.Data,
 			&i.ActivityLogCombinedView.Environment,
+			&i.ActivityLogCombinedView.GithubActorClaims,
 			&i.TotalCount,
 		); err != nil {
 			return nil, err
@@ -1212,7 +1222,7 @@ WITH
 			)
 	)
 SELECT
-	activity_log_combined_view.id, activity_log_combined_view.created_at, activity_log_combined_view.actor, activity_log_combined_view.action, activity_log_combined_view.resource_type, activity_log_combined_view.resource_name, activity_log_combined_view.team_slug, activity_log_combined_view.data, activity_log_combined_view.environment,
+	activity_log_combined_view.id, activity_log_combined_view.created_at, activity_log_combined_view.actor, activity_log_combined_view.action, activity_log_combined_view.resource_type, activity_log_combined_view.resource_name, activity_log_combined_view.team_slug, activity_log_combined_view.data, activity_log_combined_view.environment, activity_log_combined_view.github_actor_claims,
 	matching_entries.total_count
 FROM
 	activity_log_combined_view
@@ -1293,6 +1303,7 @@ func (q *Queries) ListForTeam(ctx context.Context, arg ListForTeamParams) ([]*Li
 			&i.ActivityLogCombinedView.TeamSlug,
 			&i.ActivityLogCombinedView.Data,
 			&i.ActivityLogCombinedView.Environment,
+			&i.ActivityLogCombinedView.GithubActorClaims,
 			&i.TotalCount,
 		); err != nil {
 			return nil, err
@@ -1335,7 +1346,7 @@ WITH
 			)
 	)
 SELECT
-	activity_log_combined_view.id, activity_log_combined_view.created_at, activity_log_combined_view.actor, activity_log_combined_view.action, activity_log_combined_view.resource_type, activity_log_combined_view.resource_name, activity_log_combined_view.team_slug, activity_log_combined_view.data, activity_log_combined_view.environment,
+	activity_log_combined_view.id, activity_log_combined_view.created_at, activity_log_combined_view.actor, activity_log_combined_view.action, activity_log_combined_view.resource_type, activity_log_combined_view.resource_name, activity_log_combined_view.team_slug, activity_log_combined_view.data, activity_log_combined_view.environment, activity_log_combined_view.github_actor_claims,
 	matching_entries.total_count
 FROM
 	activity_log_combined_view
@@ -1411,6 +1422,7 @@ func (q *Queries) ListForTenant(ctx context.Context, arg ListForTenantParams) ([
 			&i.ActivityLogCombinedView.TeamSlug,
 			&i.ActivityLogCombinedView.Data,
 			&i.ActivityLogCombinedView.Environment,
+			&i.ActivityLogCombinedView.GithubActorClaims,
 			&i.TotalCount,
 		); err != nil {
 			return nil, err

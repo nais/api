@@ -219,11 +219,11 @@ Test.gql("Personal access targets a physical instance, even when its name differ
 	t.check { data = { createPostgresAccess = { name = NotNull() } } }
 
 	t.query [[
-		query { postgresAccess(name: "recovered-access", teamSlug: "someteamname", environmentName: "dev") {
-			postgresInstance { name }
-		} }
+		query { team(slug: "someteamname") { environment(name: "dev") {
+			postgresAccess(name: "recovered-access") { postgresInstance { name } }
+		} } }
 	]]
-	t.check { data = { postgresAccess = { postgresInstance = { name = "foobar-recovered" } } } }
+	t.check { data = { team = { environment = { postgresAccess = { postgresInstance = { name = "foobar-recovered" } } } } } }
 end)
 
 Test.gql("PostgresAccess status is visible to authorized team members", function(t)
@@ -235,16 +235,16 @@ Test.gql("PostgresAccess status is visible to authorized team members", function
 		{ name = "expired-access", state = "EXPIRED", message = "access has expired" },
 	}) do
 		t.query(string.format(
-			[[query { postgresAccess(name: "%s", teamSlug: "someteamname", environmentName: "dev") { name state message } }]],
+			[[query { team(slug: "someteamname") { environment(name: "dev") { postgresAccess(name: "%s") { name state message } } } }]],
 			test.name))
 		t.check {
-			data = {
+			data = { team = { environment = {
 				postgresAccess = {
 					name = test.name,
 					state = test.state,
 					message = test.message,
 				},
-			},
+			} } },
 		}
 	end
 end)
@@ -252,14 +252,14 @@ end)
 Test.gql("PostgresAccess status rejects users outside the team", function(t)
 	t.addHeader("x-user-email", nonMemberUser:email())
 	t.query [[
-		query { postgresAccess(name: "ready-access", teamSlug: "someteamname", environmentName: "dev") { state } }
+		query { team(slug: "someteamname") { environment(name: "dev") { postgresAccess(name: "ready-access") { state } } } }
 	]]
 	t.check {
 		errors = {
 			{
 				locations = NotNull(),
 				message = Contains('you need the "postgres:access:grant" authorization.'),
-				path = { "postgresAccess" },
+				path = { "team", "environment", "postgresAccess" },
 			},
 		},
 		data = Null,
@@ -270,21 +270,23 @@ Test.gql("PostgresAccess connection returns credentials only to its owner", func
 	t.addHeader("x-user-email", user:email())
 	t.query [[
 		query GetPostgresAccessConnection {
-			postgresAccessConnection(input: {name: "ready-access", teamSlug: "someteamname", environmentName: "dev"}) {
-				password
-				caCertificate
-				serverName
-				username
-				relayEndpoint
-				relayAccess
-				relayToken
-			}
+			team(slug: "someteamname") { environment(name: "dev") {
+				postgresAccess(name: "ready-access") { connection {
+					password
+					caCertificate
+					serverName
+					username
+					relayEndpoint
+					relayAccess
+					relayToken
+				} }
+			} }
 		}
 	]]
 
 	t.check {
-		data = {
-			postgresAccessConnection = {
+		data = { team = { environment = { postgresAccess = {
+			connection = {
 				password = "supersecret",
 				caCertificate = "test-ca-certificate",
 				serverName = "pg-foobar-rw.someteamname.svc.cluster.local",
@@ -293,17 +295,17 @@ Test.gql("PostgresAccess connection returns credentials only to its owner", func
 				relayAccess = "someteamname/ready-access",
 				relayToken = "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8",
 			},
-		},
+		} } } },
 	}
 end)
 
 Test.gql("PostgresAccess connection rejects a different team member", function(t)
 	t.addHeader("x-user-email", otherMemberUser:email())
 	t.query [[
-		query { postgresAccessConnection(input: {name: "ready-access", teamSlug: "someteamname", environmentName: "dev"}) { password } }
+		query { team(slug: "someteamname") { environment(name: "dev") { postgresAccess(name: "ready-access") { connection { password } } } } }
 	]]
 	t.check {
-		errors = { { locations = NotNull(), path = { "postgresAccessConnection" }, message = Contains("not authorized") } },
+		errors = { { locations = NotNull(), path = { "team", "environment", "postgresAccess", "connection" }, message = Contains("not authorized") } },
 		data = Null,
 	}
 end)
@@ -329,13 +331,14 @@ Test.gql("PostgresAccess connection rejects expired, unready, and missing-secret
 	for _, test in ipairs({
 		{ name = "expired-access",        message = "has expired" },
 		{ name = "pending-access",        message = "is not ready" },
+		{ name = "failed-access",         message = "is not ready" },
 		{ name = "missing-secret-access", message = "secrets for PostgresAccess is not available" },
 	}) do
 		t.query(string.format(
-			[[query { postgresAccessConnection(input: {name: "%s", teamSlug: "someteamname", environmentName: "dev"}) { password } }]],
+			[[query { team(slug: "someteamname") { environment(name: "dev") { postgresAccess(name: "%s") { connection { password } } } } }]],
 			test.name))
 		t.check {
-			errors = { { locations = NotNull(), path = { "postgresAccessConnection" }, message = Contains(test.message) } },
+			errors = { { locations = NotNull(), path = { "team", "environment", "postgresAccess", "connection" }, message = Contains(test.message) } },
 			data = Null,
 		}
 	end
@@ -344,9 +347,9 @@ end)
 Test.gql("Personal postgres connection retrieval is audited", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[
-		query { postgresAccessConnection(input: {name: "ready-access", teamSlug: "someteamname", environmentName: "dev"}) { password } }
+		query { team(slug: "someteamname") { environment(name: "dev") { postgresAccess(name: "ready-access") { connection { password } } } } }
 	]]
-	t.check { data = { postgresAccessConnection = { password = "supersecret" } } }
+	t.check { data = { team = { environment = { postgresAccess = { connection = { password = "supersecret" } } } } } }
 
 	t.query [[
 		{ team(slug: "someteamname") { activityLog(first: 1) { nodes { message ... on PostgresPersonalAccessConnectionActivityLogEntry { resourceName } } } } }

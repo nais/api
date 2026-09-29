@@ -7,7 +7,6 @@ import (
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/persistence/postgres"
-	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
@@ -63,6 +62,12 @@ func (r *postgresAccessResolver) PostgresInstance(ctx context.Context, obj *post
 	return postgres.GetPostgresInstance(ctx, obj.TeamSlug, obj.EnvironmentName, obj.PostgresInstanceName)
 }
 
+func (r *postgresAccessResolver) Connection(ctx context.Context, obj *postgres.PostgresAccess) (*postgres.PostgresAccessConnection, error) {
+	return postgres.GetPostgresAccessConnection(ctx, postgres.PostgresAccessConnectionInput{
+		Name: obj.Name, TeamSlug: obj.TeamSlug, EnvironmentName: obj.EnvironmentName,
+	})
+}
+
 func (r *postgresInstanceResolver) Team(ctx context.Context, obj *postgres.PostgresInstance) (*team.Team, error) {
 	return team.Get(ctx, obj.TeamSlug)
 }
@@ -93,14 +98,6 @@ func (r *postgresInstanceConnectionResolver) Facets(ctx context.Context, obj *pa
 	}, nil
 }
 
-func (r *queryResolver) PostgresAccessConnection(ctx context.Context, input postgres.PostgresAccessConnectionInput) (*postgres.PostgresAccessConnection, error) {
-	return postgres.GetPostgresAccessConnection(ctx, input)
-}
-
-func (r *queryResolver) PostgresAccess(ctx context.Context, name string, teamSlug slug.Slug, environmentName string) (*postgres.PostgresAccess, error) {
-	return postgres.GetPostgresAccess(ctx, name, teamSlug, environmentName)
-}
-
 func (r *teamResolver) PostgresInstances(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *postgres.PostgresInstanceOrder, filter *postgres.PostgresInstanceFilter) (*pagination.FacetableConnection[*postgres.PostgresInstance, *postgres.PostgresInstanceFilter], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
@@ -116,6 +113,10 @@ func (r *teamEnvironmentResolver) Postgres(ctx context.Context, obj *team.TeamEn
 
 func (r *teamEnvironmentResolver) PostgresInstance(ctx context.Context, obj *team.TeamEnvironment, name string) (*postgres.PostgresInstance, error) {
 	return postgres.GetPostgresInstance(ctx, obj.TeamSlug, obj.EnvironmentName, name)
+}
+
+func (r *teamEnvironmentResolver) PostgresAccess(ctx context.Context, obj *team.TeamEnvironment, name string) (*postgres.PostgresAccess, error) {
+	return postgres.GetPostgresAccess(ctx, name, obj.TeamSlug, obj.EnvironmentName)
 }
 
 func (r *teamInventoryCountsResolver) PostgresInstances(ctx context.Context, obj *team.TeamInventoryCounts) (*postgres.TeamInventoryCountPostgresInstances, error) {

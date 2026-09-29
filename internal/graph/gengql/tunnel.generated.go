@@ -12,6 +12,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/nais/api/internal/activitylog"
+	"github.com/nais/api/internal/auth/middleware/github"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/tunnel"
@@ -326,6 +327,38 @@ func (ec *executionContext) fieldContext_TunnelCreatedActivityLogEntry_actor(_ c
 	return graphql.NewScalarFieldContext("TunnelCreatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
+func (ec *executionContext) _TunnelCreatedActivityLogEntry_gitHubActorClaims(ctx context.Context, field graphql.CollectedField, obj *tunnel.TunnelCreatedActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_TunnelCreatedActivityLogEntry_gitHubActorClaims(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.GitHubActorClaims, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *github.GitHubActorClaims) graphql.Marshaler {
+			return ec.marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_TunnelCreatedActivityLogEntry_gitHubActorClaims(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TunnelCreatedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_GitHubActorClaims(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _TunnelCreatedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *tunnel.TunnelCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -586,6 +619,38 @@ func (ec *executionContext) _TunnelDeletedActivityLogEntry_actor(ctx context.Con
 }
 func (ec *executionContext) fieldContext_TunnelDeletedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TunnelDeletedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _TunnelDeletedActivityLogEntry_gitHubActorClaims(ctx context.Context, field graphql.CollectedField, obj *tunnel.TunnelDeletedActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_TunnelDeletedActivityLogEntry_gitHubActorClaims(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.GitHubActorClaims, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *github.GitHubActorClaims) graphql.Marshaler {
+			return ec.marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_TunnelDeletedActivityLogEntry_gitHubActorClaims(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TunnelDeletedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_GitHubActorClaims(ctx, field)
+		},
+	}
+	return fc, nil
 }
 
 func (ec *executionContext) _TunnelDeletedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *tunnel.TunnelDeletedActivityLogEntry) (ret graphql.Marshaler) {
@@ -1114,6 +1179,8 @@ func (ec *executionContext) _TunnelCreatedActivityLogEntry(ctx context.Context, 
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "gitHubActorClaims":
+			out.Values[i] = ec._TunnelCreatedActivityLogEntry_gitHubActorClaims(ctx, field, obj)
 		case "createdAt":
 			out.Values[i] = ec._TunnelCreatedActivityLogEntry_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -1231,6 +1298,8 @@ func (ec *executionContext) _TunnelDeletedActivityLogEntry(ctx context.Context, 
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "gitHubActorClaims":
+			out.Values[i] = ec._TunnelDeletedActivityLogEntry_gitHubActorClaims(ctx, field, obj)
 		case "createdAt":
 			out.Values[i] = ec._TunnelDeletedActivityLogEntry_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {

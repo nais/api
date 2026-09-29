@@ -3,6 +3,8 @@ package activitylog
 import (
 	"fmt"
 	"sync"
+
+	"github.com/nais/api/internal/auth/middleware/github"
 )
 
 var (
@@ -67,25 +69,8 @@ type GenericKubernetesResourceActivityLogEntryData struct {
 	// Only populated for updates.
 	ChangedFields []ResourceChangedField `json:"changedFields"`
 
-	// GitHubActorClaims holds the GitHub Actions OIDC token claims at the time of the
-	// apply. Only populated when the request was authenticated via a GitHub token.
-	GitHubActorClaims *GitHubActorClaims `json:"gitHubActorClaims,omitempty"`
-}
-
-// GitHubActorClaims holds the GitHub Actions OIDC token claims captured at the
-// time of an apply operation. Duplicated from the middleware package to avoid a
-// circular import; JSON tags must stay in sync.
-type GitHubActorClaims struct {
-	Ref            string `json:"ref"`
-	Repository     string `json:"repository"`
-	RepositoryID   string `json:"repositoryId"`
-	RunID          string `json:"runId"`
-	RunAttempt     string `json:"runAttempt"`
-	Actor          string `json:"actor"`
-	Workflow       string `json:"workflow"`
-	EventName      string `json:"eventName"`
-	Environment    string `json:"environment"`
-	JobWorkflowRef string `json:"jobWorkflowRef"`
+	// GitHubActorClaims exposes the deprecated data field from the entry's claims column.
+	GitHubActorClaims *github.GitHubActorClaims `json:"-"`
 }
 
 // GenericKubernetesActivityLogEntry is used for resource types that do not have
@@ -115,6 +100,7 @@ func init() {
 		if err != nil {
 			return nil, fmt.Errorf("transforming unsupported resource activity log entry data: %w", err)
 		}
+		data.GitHubActorClaims = entry.GitHubActorClaims
 		return GenericKubernetesResourceActivityLogEntry{
 			GenericActivityLogEntry: entry.WithMessage(
 				fmt.Sprintf("%s %s %s", entry.ResourceName, entry.Action, entry.ResourceType),

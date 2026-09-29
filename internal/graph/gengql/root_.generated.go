@@ -282,26 +282,28 @@ type ComplexityRoot struct {
 	}
 
 	ApplicationCreatedActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		Data            func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		Data              func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	ApplicationDeletedActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	ApplicationEdge struct {
@@ -376,26 +378,28 @@ type ComplexityRoot struct {
 	}
 
 	ApplicationRestartedActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	ApplicationScaledActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		Data            func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		Data              func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	ApplicationScaledActivityLogEntryData struct {
@@ -415,15 +419,16 @@ type ComplexityRoot struct {
 	}
 
 	ApplicationUpdatedActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		Data            func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		Data              func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	ApplicationUpdatedActivityLogEntryData struct {
@@ -565,15 +570,16 @@ type ComplexityRoot struct {
 	}
 
 	ClusterAuditActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		Data            func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		Data              func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	ClusterAuditActivityLogEntryData struct {
@@ -604,25 +610,27 @@ type ComplexityRoot struct {
 	}
 
 	ConfigCreatedActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	ConfigDeletedActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	ConfigEdge struct {
@@ -637,15 +645,16 @@ type ComplexityRoot struct {
 	}
 
 	ConfigUpdatedActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		Data            func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		Data              func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	ConfigUpdatedActivityLogEntryData struct {
@@ -832,15 +841,16 @@ type ComplexityRoot struct {
 	}
 
 	DeploymentActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		Data            func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		Data              func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	DeploymentActivityLogEntryData struct {
@@ -1007,15 +1017,16 @@ type ComplexityRoot struct {
 	}
 
 	GenericKubernetesResourceActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		Data            func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		Data              func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	GenericKubernetesResourceActivityLogEntryData struct {
@@ -1026,16 +1037,29 @@ type ComplexityRoot struct {
 	}
 
 	GitHubActorClaims struct {
-		Actor          func(childComplexity int) int
-		Environment    func(childComplexity int) int
-		EventName      func(childComplexity int) int
-		JobWorkflowRef func(childComplexity int) int
-		Ref            func(childComplexity int) int
-		Repository     func(childComplexity int) int
-		RepositoryID   func(childComplexity int) int
-		RunAttempt     func(childComplexity int) int
-		RunID          func(childComplexity int) int
-		Workflow       func(childComplexity int) int
+		Actor                func(childComplexity int) int
+		ActorID              func(childComplexity int) int
+		BaseRef              func(childComplexity int) int
+		CheckRunID           func(childComplexity int) int
+		Environment          func(childComplexity int) int
+		EventName            func(childComplexity int) int
+		HeadRef              func(childComplexity int) int
+		JobWorkflowRef       func(childComplexity int) int
+		JobWorkflowSha       func(childComplexity int) int
+		Ref                  func(childComplexity int) int
+		RefType              func(childComplexity int) int
+		Repository           func(childComplexity int) int
+		RepositoryID         func(childComplexity int) int
+		RepositoryOwner      func(childComplexity int) int
+		RepositoryOwnerID    func(childComplexity int) int
+		RepositoryVisibility func(childComplexity int) int
+		RunAttempt           func(childComplexity int) int
+		RunID                func(childComplexity int) int
+		RunNumber            func(childComplexity int) int
+		RunnerEnvironment    func(childComplexity int) int
+		Workflow             func(childComplexity int) int
+		WorkflowRef          func(childComplexity int) int
+		WorkflowSha          func(childComplexity int) int
 	}
 
 	IDPortenAuthIntegration struct {
@@ -1239,26 +1263,28 @@ type ComplexityRoot struct {
 	}
 
 	JobCreatedActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		Data            func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		Data              func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	JobDeletedActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	JobEdge struct {
@@ -1300,15 +1326,16 @@ type ComplexityRoot struct {
 	}
 
 	JobRunDeletedActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		Data            func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		Data              func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	JobRunDeletedActivityLogEntryData struct {
@@ -1358,26 +1385,28 @@ type ComplexityRoot struct {
 	}
 
 	JobTriggeredActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	JobUpdatedActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		Data            func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		Data              func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	JobUpdatedActivityLogEntryData struct {
@@ -1395,15 +1424,16 @@ type ComplexityRoot struct {
 	}
 
 	KafkaCredentialsCreatedActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		Data            func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		Data              func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	KafkaCredentialsCreatedActivityLogEntryData struct {
@@ -1477,15 +1507,16 @@ type ComplexityRoot struct {
 	}
 
 	KafkaTopicUpdatedActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		Data            func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		Data              func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	KafkaTopicUpdatedActivityLogEntryData struct {
@@ -1717,14 +1748,15 @@ type ComplexityRoot struct {
 	}
 
 	OpenSearchCreatedActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	OpenSearchCredentials struct {
@@ -1736,15 +1768,16 @@ type ComplexityRoot struct {
 	}
 
 	OpenSearchCredentialsCreatedActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		Data            func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		Data              func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	OpenSearchCredentialsCreatedActivityLogEntryData struct {
@@ -1753,14 +1786,15 @@ type ComplexityRoot struct {
 	}
 
 	OpenSearchDeletedActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	OpenSearchEdge struct {
@@ -1812,15 +1846,16 @@ type ComplexityRoot struct {
 	}
 
 	OpenSearchUpdatedActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		Data            func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		Data              func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	OpenSearchUpdatedActivityLogEntryData struct {
@@ -1865,6 +1900,7 @@ type ComplexityRoot struct {
 
 	PostgresAccess struct {
 		AccessLevel      func(childComplexity int) int
+		Connection       func(childComplexity int) int
 		ExpiresAt        func(childComplexity int) int
 		ID               func(childComplexity int) int
 		Message          func(childComplexity int) int
@@ -1887,26 +1923,28 @@ type ComplexityRoot struct {
 	}
 
 	PostgresDeletedActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	PostgresGrantAccessActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		Data            func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		Data              func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	PostgresGrantAccessActivityLogEntryData struct {
@@ -1949,26 +1987,28 @@ type ComplexityRoot struct {
 	}
 
 	PostgresPersonalAccessConnectionActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	PostgresPersonalAccessCreatedActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		Data            func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		Data              func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	PostgresPersonalAccessCreatedActivityLogEntryData struct {
@@ -2021,8 +2061,6 @@ type ComplexityRoot struct {
 		ImageVulnerabilityHistory func(childComplexity int, from scalar.Date) int
 		Me                        func(childComplexity int) int
 		Node                      func(childComplexity int, id ident.Ident) int
-		PostgresAccess            func(childComplexity int, name string, teamSlug slug.Slug, environmentName string) int
-		PostgresAccessConnection  func(childComplexity int, input postgres.PostgresAccessConnectionInput) int
 		Reconcilers               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		Roles                     func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *authz.RoleFilter) int
 		Search                    func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter search.SearchFilter) int
@@ -2061,15 +2099,16 @@ type ComplexityRoot struct {
 	}
 
 	ReconcilerConfiguredActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		Data            func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		Data              func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	ReconcilerConfiguredActivityLogEntryData struct {
@@ -2083,14 +2122,15 @@ type ComplexityRoot struct {
 	}
 
 	ReconcilerDisabledActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	ReconcilerEdge struct {
@@ -2099,14 +2139,15 @@ type ComplexityRoot struct {
 	}
 
 	ReconcilerEnabledActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	ReconcilerError struct {
@@ -2157,14 +2198,15 @@ type ComplexityRoot struct {
 	}
 
 	RepositoryAddedActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	RepositoryConnection struct {
@@ -2179,14 +2221,15 @@ type ComplexityRoot struct {
 	}
 
 	RepositoryRemovedActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	RequestTeamDeletionPayload struct {
@@ -2223,15 +2266,16 @@ type ComplexityRoot struct {
 	}
 
 	RoleAssignedToServiceAccountActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		Data            func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		Data              func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	RoleAssignedToServiceAccountActivityLogEntryData struct {
@@ -2260,15 +2304,16 @@ type ComplexityRoot struct {
 	}
 
 	RoleRevokedFromServiceAccountActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		Data            func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		Data              func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	RoleRevokedFromServiceAccountActivityLogEntryData struct {
@@ -2319,25 +2364,27 @@ type ComplexityRoot struct {
 	}
 
 	SecretCreatedActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	SecretDeletedActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	SecretEdge struct {
@@ -2352,15 +2399,16 @@ type ComplexityRoot struct {
 	}
 
 	SecretUpdatedActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		Data            func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		Data              func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	SecretUpdatedActivityLogEntryData struct {
@@ -2380,15 +2428,16 @@ type ComplexityRoot struct {
 	}
 
 	SecretValueAddedActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		Data            func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		Data              func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	SecretValueAddedActivityLogEntryData struct {
@@ -2396,15 +2445,16 @@ type ComplexityRoot struct {
 	}
 
 	SecretValueRemovedActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		Data            func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		Data              func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	SecretValueRemovedActivityLogEntryData struct {
@@ -2412,15 +2462,16 @@ type ComplexityRoot struct {
 	}
 
 	SecretValueUpdatedActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		Data            func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		Data              func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	SecretValueUpdatedActivityLogEntryData struct {
@@ -2428,15 +2479,16 @@ type ComplexityRoot struct {
 	}
 
 	SecretValuesViewedActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		Data            func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		Data              func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	SecretValuesViewedActivityLogEntryData struct {
@@ -2464,25 +2516,27 @@ type ComplexityRoot struct {
 	}
 
 	ServiceAccountCreatedActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	ServiceAccountDeletedActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	ServiceAccountEdge struct {
@@ -2507,15 +2561,16 @@ type ComplexityRoot struct {
 	}
 
 	ServiceAccountTokenCreatedActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		Data            func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		Data              func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	ServiceAccountTokenCreatedActivityLogEntryData struct {
@@ -2523,15 +2578,16 @@ type ComplexityRoot struct {
 	}
 
 	ServiceAccountTokenDeletedActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		Data            func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		Data              func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	ServiceAccountTokenDeletedActivityLogEntryData struct {
@@ -2544,15 +2600,16 @@ type ComplexityRoot struct {
 	}
 
 	ServiceAccountTokenUpdatedActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		Data            func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		Data              func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	ServiceAccountTokenUpdatedActivityLogEntryData struct {
@@ -2567,15 +2624,16 @@ type ComplexityRoot struct {
 	}
 
 	ServiceAccountUpdatedActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		Data            func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		Data              func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	ServiceAccountUpdatedActivityLogEntryData struct {
@@ -2601,15 +2659,16 @@ type ComplexityRoot struct {
 	}
 
 	ServiceAccountWorkloadBindingAddedActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		Data            func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		Data              func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	ServiceAccountWorkloadBindingAddedActivityLogEntryData struct {
@@ -2630,15 +2689,16 @@ type ComplexityRoot struct {
 	}
 
 	ServiceAccountWorkloadBindingRemovedActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		Data            func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		Data              func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	ServiceAccountWorkloadBindingRemovedActivityLogEntryData struct {
@@ -2659,14 +2719,15 @@ type ComplexityRoot struct {
 	}
 
 	ServiceMaintenanceActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	SetTeamMemberRolePayload struct {
@@ -2886,14 +2947,15 @@ type ComplexityRoot struct {
 	}
 
 	TeamConfirmDeleteKeyActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	TeamConnection struct {
@@ -2923,25 +2985,27 @@ type ComplexityRoot struct {
 	}
 
 	TeamCreateDeleteKeyActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	TeamCreatedActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	TeamDeleteKey struct {
@@ -2953,14 +3017,15 @@ type ComplexityRoot struct {
 	}
 
 	TeamDeployKeyUpdatedActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	TeamEdge struct {
@@ -2987,6 +3052,7 @@ type ComplexityRoot struct {
 		Name               func(childComplexity int) int
 		OpenSearch         func(childComplexity int, name string) int
 		Postgres           func(childComplexity int, name string) int
+		PostgresAccess     func(childComplexity int, name string) int
 		PostgresInstance   func(childComplexity int, name string) int
 		SQLInstance        func(childComplexity int, name string) int
 		Secret             func(childComplexity int, name string) int
@@ -3007,15 +3073,16 @@ type ComplexityRoot struct {
 	}
 
 	TeamEnvironmentUpdatedActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		Data            func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		Data              func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	TeamEnvironmentUpdatedActivityLogEntryData struct {
@@ -3120,15 +3187,16 @@ type ComplexityRoot struct {
 	}
 
 	TeamMemberAddedActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		Data            func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		Data              func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	TeamMemberAddedActivityLogEntryData struct {
@@ -3149,15 +3217,16 @@ type ComplexityRoot struct {
 	}
 
 	TeamMemberRemovedActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		Data            func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		Data              func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	TeamMemberRemovedActivityLogEntryData struct {
@@ -3166,15 +3235,16 @@ type ComplexityRoot struct {
 	}
 
 	TeamMemberSetRoleActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		Data            func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		Data              func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	TeamMemberSetRoleActivityLogEntryData struct {
@@ -3212,15 +3282,16 @@ type ComplexityRoot struct {
 	}
 
 	TeamUpdatedActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		Data            func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		Data              func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	TeamUpdatedActivityLogEntryData struct {
@@ -3290,15 +3361,16 @@ type ComplexityRoot struct {
 	}
 
 	TunnelCreatedActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		Data            func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		Data              func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	TunnelCreatedActivityLogEntryData struct {
@@ -3307,15 +3379,16 @@ type ComplexityRoot struct {
 	}
 
 	TunnelDeletedActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		Data            func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		Data              func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	TunnelDeletedActivityLogEntryData struct {
@@ -3341,25 +3414,27 @@ type ComplexityRoot struct {
 	}
 
 	UnleashInstanceCreatedActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	UnleashInstanceDeletedActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	UnleashInstanceMetrics struct {
@@ -3372,15 +3447,16 @@ type ComplexityRoot struct {
 	}
 
 	UnleashInstanceUpdatedActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		Data            func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		Data              func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	UnleashInstanceUpdatedActivityLogEntryData struct {
@@ -3586,14 +3662,15 @@ type ComplexityRoot struct {
 	}
 
 	ValkeyCreatedActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	ValkeyCredentials struct {
@@ -3605,15 +3682,16 @@ type ComplexityRoot struct {
 	}
 
 	ValkeyCredentialsCreatedActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		Data            func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		Data              func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	ValkeyCredentialsCreatedActivityLogEntryData struct {
@@ -3622,14 +3700,15 @@ type ComplexityRoot struct {
 	}
 
 	ValkeyDeletedActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	ValkeyEdge struct {
@@ -3681,15 +3760,16 @@ type ComplexityRoot struct {
 	}
 
 	ValkeyUpdatedActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		Data            func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		Data              func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	ValkeyUpdatedActivityLogEntryData struct {
@@ -3734,15 +3814,16 @@ type ComplexityRoot struct {
 	}
 
 	VulnerabilityUpdatedActivityLogEntry struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		Data            func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		Data              func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	VulnerableImageIssue struct {
@@ -4456,6 +4537,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ApplicationCreatedActivityLogEntry.EnvironmentName(childComplexity), true
 
+	case "ApplicationCreatedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.ApplicationCreatedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationCreatedActivityLogEntry.GitHubActorClaims(childComplexity), true
+
 	case "ApplicationCreatedActivityLogEntry.id":
 		if e.ComplexityRoot.ApplicationCreatedActivityLogEntry.ID == nil {
 			break
@@ -4511,6 +4599,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ApplicationDeletedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "ApplicationDeletedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.ApplicationDeletedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationDeletedActivityLogEntry.GitHubActorClaims(childComplexity), true
 
 	case "ApplicationDeletedActivityLogEntry.id":
 		if e.ComplexityRoot.ApplicationDeletedActivityLogEntry.ID == nil {
@@ -4839,6 +4934,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ApplicationRestartedActivityLogEntry.EnvironmentName(childComplexity), true
 
+	case "ApplicationRestartedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.ApplicationRestartedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationRestartedActivityLogEntry.GitHubActorClaims(childComplexity), true
+
 	case "ApplicationRestartedActivityLogEntry.id":
 		if e.ComplexityRoot.ApplicationRestartedActivityLogEntry.ID == nil {
 			break
@@ -4901,6 +5003,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ApplicationScaledActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "ApplicationScaledActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.ApplicationScaledActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationScaledActivityLogEntry.GitHubActorClaims(childComplexity), true
 
 	case "ApplicationScaledActivityLogEntry.id":
 		if e.ComplexityRoot.ApplicationScaledActivityLogEntry.ID == nil {
@@ -5013,6 +5122,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ApplicationUpdatedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "ApplicationUpdatedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.ApplicationUpdatedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationUpdatedActivityLogEntry.GitHubActorClaims(childComplexity), true
 
 	case "ApplicationUpdatedActivityLogEntry.id":
 		if e.ComplexityRoot.ApplicationUpdatedActivityLogEntry.ID == nil {
@@ -5591,6 +5707,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ClusterAuditActivityLogEntry.EnvironmentName(childComplexity), true
 
+	case "ClusterAuditActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.ClusterAuditActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ClusterAuditActivityLogEntry.GitHubActorClaims(childComplexity), true
+
 	case "ClusterAuditActivityLogEntry.id":
 		if e.ComplexityRoot.ClusterAuditActivityLogEntry.ID == nil {
 			break
@@ -5793,6 +5916,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ConfigCreatedActivityLogEntry.EnvironmentName(childComplexity), true
 
+	case "ConfigCreatedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.ConfigCreatedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigCreatedActivityLogEntry.GitHubActorClaims(childComplexity), true
+
 	case "ConfigCreatedActivityLogEntry.id":
 		if e.ComplexityRoot.ConfigCreatedActivityLogEntry.ID == nil {
 			break
@@ -5848,6 +5978,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ConfigDeletedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "ConfigDeletedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.ConfigDeletedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigDeletedActivityLogEntry.GitHubActorClaims(childComplexity), true
 
 	case "ConfigDeletedActivityLogEntry.id":
 		if e.ComplexityRoot.ConfigDeletedActivityLogEntry.ID == nil {
@@ -5946,6 +6083,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ConfigUpdatedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "ConfigUpdatedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.ConfigUpdatedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ConfigUpdatedActivityLogEntry.GitHubActorClaims(childComplexity), true
 
 	case "ConfigUpdatedActivityLogEntry.id":
 		if e.ComplexityRoot.ConfigUpdatedActivityLogEntry.ID == nil {
@@ -6538,6 +6682,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.DeploymentActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "DeploymentActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.DeploymentActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.DeploymentActivityLogEntry.GitHubActorClaims(childComplexity), true
 
 	case "DeploymentActivityLogEntry.id":
 		if e.ComplexityRoot.DeploymentActivityLogEntry.ID == nil {
@@ -7207,6 +7358,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.GenericKubernetesResourceActivityLogEntry.EnvironmentName(childComplexity), true
 
+	case "GenericKubernetesResourceActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.GenericKubernetesResourceActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GenericKubernetesResourceActivityLogEntry.GitHubActorClaims(childComplexity), true
+
 	case "GenericKubernetesResourceActivityLogEntry.id":
 		if e.ComplexityRoot.GenericKubernetesResourceActivityLogEntry.ID == nil {
 			break
@@ -7277,6 +7435,27 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.GitHubActorClaims.Actor(childComplexity), true
 
+	case "GitHubActorClaims.actorID":
+		if e.ComplexityRoot.GitHubActorClaims.ActorID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GitHubActorClaims.ActorID(childComplexity), true
+
+	case "GitHubActorClaims.baseRef":
+		if e.ComplexityRoot.GitHubActorClaims.BaseRef == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GitHubActorClaims.BaseRef(childComplexity), true
+
+	case "GitHubActorClaims.checkRunID":
+		if e.ComplexityRoot.GitHubActorClaims.CheckRunID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GitHubActorClaims.CheckRunID(childComplexity), true
+
 	case "GitHubActorClaims.environment":
 		if e.ComplexityRoot.GitHubActorClaims.Environment == nil {
 			break
@@ -7291,6 +7470,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.GitHubActorClaims.EventName(childComplexity), true
 
+	case "GitHubActorClaims.headRef":
+		if e.ComplexityRoot.GitHubActorClaims.HeadRef == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GitHubActorClaims.HeadRef(childComplexity), true
+
 	case "GitHubActorClaims.jobWorkflowRef":
 		if e.ComplexityRoot.GitHubActorClaims.JobWorkflowRef == nil {
 			break
@@ -7298,12 +7484,26 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.GitHubActorClaims.JobWorkflowRef(childComplexity), true
 
+	case "GitHubActorClaims.jobWorkflowSha":
+		if e.ComplexityRoot.GitHubActorClaims.JobWorkflowSha == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GitHubActorClaims.JobWorkflowSha(childComplexity), true
+
 	case "GitHubActorClaims.ref":
 		if e.ComplexityRoot.GitHubActorClaims.Ref == nil {
 			break
 		}
 
 		return e.ComplexityRoot.GitHubActorClaims.Ref(childComplexity), true
+
+	case "GitHubActorClaims.refType":
+		if e.ComplexityRoot.GitHubActorClaims.RefType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GitHubActorClaims.RefType(childComplexity), true
 
 	case "GitHubActorClaims.repository":
 		if e.ComplexityRoot.GitHubActorClaims.Repository == nil {
@@ -7319,6 +7519,27 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.GitHubActorClaims.RepositoryID(childComplexity), true
 
+	case "GitHubActorClaims.repositoryOwner":
+		if e.ComplexityRoot.GitHubActorClaims.RepositoryOwner == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GitHubActorClaims.RepositoryOwner(childComplexity), true
+
+	case "GitHubActorClaims.repositoryOwnerID":
+		if e.ComplexityRoot.GitHubActorClaims.RepositoryOwnerID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GitHubActorClaims.RepositoryOwnerID(childComplexity), true
+
+	case "GitHubActorClaims.repositoryVisibility":
+		if e.ComplexityRoot.GitHubActorClaims.RepositoryVisibility == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GitHubActorClaims.RepositoryVisibility(childComplexity), true
+
 	case "GitHubActorClaims.runAttempt":
 		if e.ComplexityRoot.GitHubActorClaims.RunAttempt == nil {
 			break
@@ -7333,12 +7554,40 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.GitHubActorClaims.RunID(childComplexity), true
 
+	case "GitHubActorClaims.runNumber":
+		if e.ComplexityRoot.GitHubActorClaims.RunNumber == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GitHubActorClaims.RunNumber(childComplexity), true
+
+	case "GitHubActorClaims.runnerEnvironment":
+		if e.ComplexityRoot.GitHubActorClaims.RunnerEnvironment == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GitHubActorClaims.RunnerEnvironment(childComplexity), true
+
 	case "GitHubActorClaims.workflow":
 		if e.ComplexityRoot.GitHubActorClaims.Workflow == nil {
 			break
 		}
 
 		return e.ComplexityRoot.GitHubActorClaims.Workflow(childComplexity), true
+
+	case "GitHubActorClaims.workflowRef":
+		if e.ComplexityRoot.GitHubActorClaims.WorkflowRef == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GitHubActorClaims.WorkflowRef(childComplexity), true
+
+	case "GitHubActorClaims.workflowSha":
+		if e.ComplexityRoot.GitHubActorClaims.WorkflowSha == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GitHubActorClaims.WorkflowSha(childComplexity), true
 
 	case "IDPortenAuthIntegration.name":
 		if e.ComplexityRoot.IDPortenAuthIntegration.Name == nil {
@@ -8313,6 +8562,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.JobCreatedActivityLogEntry.EnvironmentName(childComplexity), true
 
+	case "JobCreatedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.JobCreatedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobCreatedActivityLogEntry.GitHubActorClaims(childComplexity), true
+
 	case "JobCreatedActivityLogEntry.id":
 		if e.ComplexityRoot.JobCreatedActivityLogEntry.ID == nil {
 			break
@@ -8368,6 +8624,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.JobDeletedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "JobDeletedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.JobDeletedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobDeletedActivityLogEntry.GitHubActorClaims(childComplexity), true
 
 	case "JobDeletedActivityLogEntry.id":
 		if e.ComplexityRoot.JobDeletedActivityLogEntry.ID == nil {
@@ -8577,6 +8840,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.JobRunDeletedActivityLogEntry.EnvironmentName(childComplexity), true
 
+	case "JobRunDeletedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.JobRunDeletedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobRunDeletedActivityLogEntry.GitHubActorClaims(childComplexity), true
+
 	case "JobRunDeletedActivityLogEntry.id":
 		if e.ComplexityRoot.JobRunDeletedActivityLogEntry.ID == nil {
 			break
@@ -8766,6 +9036,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.JobTriggeredActivityLogEntry.EnvironmentName(childComplexity), true
 
+	case "JobTriggeredActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.JobTriggeredActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobTriggeredActivityLogEntry.GitHubActorClaims(childComplexity), true
+
 	case "JobTriggeredActivityLogEntry.id":
 		if e.ComplexityRoot.JobTriggeredActivityLogEntry.ID == nil {
 			break
@@ -8828,6 +9105,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.JobUpdatedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "JobUpdatedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.JobUpdatedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobUpdatedActivityLogEntry.GitHubActorClaims(childComplexity), true
 
 	case "JobUpdatedActivityLogEntry.id":
 		if e.ComplexityRoot.JobUpdatedActivityLogEntry.ID == nil {
@@ -8947,6 +9231,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.KafkaCredentialsCreatedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "KafkaCredentialsCreatedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.KafkaCredentialsCreatedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.KafkaCredentialsCreatedActivityLogEntry.GitHubActorClaims(childComplexity), true
 
 	case "KafkaCredentialsCreatedActivityLogEntry.id":
 		if e.ComplexityRoot.KafkaCredentialsCreatedActivityLogEntry.ID == nil {
@@ -9295,6 +9586,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.KafkaTopicUpdatedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "KafkaTopicUpdatedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.KafkaTopicUpdatedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.KafkaTopicUpdatedActivityLogEntry.GitHubActorClaims(childComplexity), true
 
 	case "KafkaTopicUpdatedActivityLogEntry.id":
 		if e.ComplexityRoot.KafkaTopicUpdatedActivityLogEntry.ID == nil {
@@ -10747,6 +11045,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.OpenSearchCreatedActivityLogEntry.EnvironmentName(childComplexity), true
 
+	case "OpenSearchCreatedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.OpenSearchCreatedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.OpenSearchCreatedActivityLogEntry.GitHubActorClaims(childComplexity), true
+
 	case "OpenSearchCreatedActivityLogEntry.id":
 		if e.ComplexityRoot.OpenSearchCreatedActivityLogEntry.ID == nil {
 			break
@@ -10845,6 +11150,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.OpenSearchCredentialsCreatedActivityLogEntry.EnvironmentName(childComplexity), true
 
+	case "OpenSearchCredentialsCreatedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.OpenSearchCredentialsCreatedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.OpenSearchCredentialsCreatedActivityLogEntry.GitHubActorClaims(childComplexity), true
+
 	case "OpenSearchCredentialsCreatedActivityLogEntry.id":
 		if e.ComplexityRoot.OpenSearchCredentialsCreatedActivityLogEntry.ID == nil {
 			break
@@ -10914,6 +11226,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.OpenSearchDeletedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "OpenSearchDeletedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.OpenSearchDeletedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.OpenSearchDeletedActivityLogEntry.GitHubActorClaims(childComplexity), true
 
 	case "OpenSearchDeletedActivityLogEntry.id":
 		if e.ComplexityRoot.OpenSearchDeletedActivityLogEntry.ID == nil {
@@ -11151,6 +11470,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.OpenSearchUpdatedActivityLogEntry.EnvironmentName(childComplexity), true
 
+	case "OpenSearchUpdatedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.OpenSearchUpdatedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.OpenSearchUpdatedActivityLogEntry.GitHubActorClaims(childComplexity), true
+
 	case "OpenSearchUpdatedActivityLogEntry.id":
 		if e.ComplexityRoot.OpenSearchUpdatedActivityLogEntry.ID == nil {
 			break
@@ -11347,6 +11673,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.PostgresAccess.AccessLevel(childComplexity), true
 
+	case "PostgresAccess.connection":
+		if e.ComplexityRoot.PostgresAccess.Connection == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresAccess.Connection(childComplexity), true
+
 	case "PostgresAccess.expiresAt":
 		if e.ComplexityRoot.PostgresAccess.ExpiresAt == nil {
 			break
@@ -11480,6 +11813,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.PostgresDeletedActivityLogEntry.EnvironmentName(childComplexity), true
 
+	case "PostgresDeletedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.PostgresDeletedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresDeletedActivityLogEntry.GitHubActorClaims(childComplexity), true
+
 	case "PostgresDeletedActivityLogEntry.id":
 		if e.ComplexityRoot.PostgresDeletedActivityLogEntry.ID == nil {
 			break
@@ -11542,6 +11882,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.PostgresGrantAccessActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "PostgresGrantAccessActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.PostgresGrantAccessActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresGrantAccessActivityLogEntry.GitHubActorClaims(childComplexity), true
 
 	case "PostgresGrantAccessActivityLogEntry.id":
 		if e.ComplexityRoot.PostgresGrantAccessActivityLogEntry.ID == nil {
@@ -11751,6 +12098,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.PostgresPersonalAccessConnectionActivityLogEntry.EnvironmentName(childComplexity), true
 
+	case "PostgresPersonalAccessConnectionActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.PostgresPersonalAccessConnectionActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresPersonalAccessConnectionActivityLogEntry.GitHubActorClaims(childComplexity), true
+
 	case "PostgresPersonalAccessConnectionActivityLogEntry.id":
 		if e.ComplexityRoot.PostgresPersonalAccessConnectionActivityLogEntry.ID == nil {
 			break
@@ -11813,6 +12167,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "PostgresPersonalAccessCreatedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntry.GitHubActorClaims(childComplexity), true
 
 	case "PostgresPersonalAccessCreatedActivityLogEntry.id":
 		if e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntry.ID == nil {
@@ -12132,30 +12493,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Query.Node(childComplexity, args["id"].(ident.Ident)), true
 
-	case "Query.postgresAccess":
-		if e.ComplexityRoot.Query.PostgresAccess == nil {
-			break
-		}
-
-		args, err := ec.field_Query_postgresAccess_args(ctx, rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.ComplexityRoot.Query.PostgresAccess(childComplexity, args["name"].(string), args["teamSlug"].(slug.Slug), args["environmentName"].(string)), true
-
-	case "Query.postgresAccessConnection":
-		if e.ComplexityRoot.Query.PostgresAccessConnection == nil {
-			break
-		}
-
-		args, err := ec.field_Query_postgresAccessConnection_args(ctx, rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.ComplexityRoot.Query.PostgresAccessConnection(childComplexity, args["input"].(postgres.PostgresAccessConnectionInput)), true
-
 	case "Query.reconcilers":
 		if e.ComplexityRoot.Query.Reconcilers == nil {
 			break
@@ -12457,6 +12794,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ReconcilerConfiguredActivityLogEntry.EnvironmentName(childComplexity), true
 
+	case "ReconcilerConfiguredActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.ReconcilerConfiguredActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ReconcilerConfiguredActivityLogEntry.GitHubActorClaims(childComplexity), true
+
 	case "ReconcilerConfiguredActivityLogEntry.id":
 		if e.ComplexityRoot.ReconcilerConfiguredActivityLogEntry.ID == nil {
 			break
@@ -12541,6 +12885,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ReconcilerDisabledActivityLogEntry.EnvironmentName(childComplexity), true
 
+	case "ReconcilerDisabledActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.ReconcilerDisabledActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ReconcilerDisabledActivityLogEntry.GitHubActorClaims(childComplexity), true
+
 	case "ReconcilerDisabledActivityLogEntry.id":
 		if e.ComplexityRoot.ReconcilerDisabledActivityLogEntry.ID == nil {
 			break
@@ -12610,6 +12961,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ReconcilerEnabledActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "ReconcilerEnabledActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.ReconcilerEnabledActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ReconcilerEnabledActivityLogEntry.GitHubActorClaims(childComplexity), true
 
 	case "ReconcilerEnabledActivityLogEntry.id":
 		if e.ComplexityRoot.ReconcilerEnabledActivityLogEntry.ID == nil {
@@ -12807,6 +13165,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.RepositoryAddedActivityLogEntry.EnvironmentName(childComplexity), true
 
+	case "RepositoryAddedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.RepositoryAddedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.RepositoryAddedActivityLogEntry.GitHubActorClaims(childComplexity), true
+
 	case "RepositoryAddedActivityLogEntry.id":
 		if e.ComplexityRoot.RepositoryAddedActivityLogEntry.ID == nil {
 			break
@@ -12897,6 +13262,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.RepositoryRemovedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "RepositoryRemovedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.RepositoryRemovedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.RepositoryRemovedActivityLogEntry.GitHubActorClaims(childComplexity), true
 
 	case "RepositoryRemovedActivityLogEntry.id":
 		if e.ComplexityRoot.RepositoryRemovedActivityLogEntry.ID == nil {
@@ -13044,6 +13416,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.RoleAssignedToServiceAccountActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "RoleAssignedToServiceAccountActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.RoleAssignedToServiceAccountActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.RoleAssignedToServiceAccountActivityLogEntry.GitHubActorClaims(childComplexity), true
 
 	case "RoleAssignedToServiceAccountActivityLogEntry.id":
 		if e.ComplexityRoot.RoleAssignedToServiceAccountActivityLogEntry.ID == nil {
@@ -13198,6 +13577,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.RoleRevokedFromServiceAccountActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "RoleRevokedFromServiceAccountActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.RoleRevokedFromServiceAccountActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.RoleRevokedFromServiceAccountActivityLogEntry.GitHubActorClaims(childComplexity), true
 
 	case "RoleRevokedFromServiceAccountActivityLogEntry.id":
 		if e.ComplexityRoot.RoleRevokedFromServiceAccountActivityLogEntry.ID == nil {
@@ -13478,6 +13864,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.SecretCreatedActivityLogEntry.EnvironmentName(childComplexity), true
 
+	case "SecretCreatedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.SecretCreatedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.SecretCreatedActivityLogEntry.GitHubActorClaims(childComplexity), true
+
 	case "SecretCreatedActivityLogEntry.id":
 		if e.ComplexityRoot.SecretCreatedActivityLogEntry.ID == nil {
 			break
@@ -13533,6 +13926,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.SecretDeletedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "SecretDeletedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.SecretDeletedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.SecretDeletedActivityLogEntry.GitHubActorClaims(childComplexity), true
 
 	case "SecretDeletedActivityLogEntry.id":
 		if e.ComplexityRoot.SecretDeletedActivityLogEntry.ID == nil {
@@ -13631,6 +14031,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.SecretUpdatedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "SecretUpdatedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.SecretUpdatedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.SecretUpdatedActivityLogEntry.GitHubActorClaims(childComplexity), true
 
 	case "SecretUpdatedActivityLogEntry.id":
 		if e.ComplexityRoot.SecretUpdatedActivityLogEntry.ID == nil {
@@ -13744,6 +14151,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.SecretValueAddedActivityLogEntry.EnvironmentName(childComplexity), true
 
+	case "SecretValueAddedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.SecretValueAddedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.SecretValueAddedActivityLogEntry.GitHubActorClaims(childComplexity), true
+
 	case "SecretValueAddedActivityLogEntry.id":
 		if e.ComplexityRoot.SecretValueAddedActivityLogEntry.ID == nil {
 			break
@@ -13813,6 +14227,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.SecretValueRemovedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "SecretValueRemovedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.SecretValueRemovedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.SecretValueRemovedActivityLogEntry.GitHubActorClaims(childComplexity), true
 
 	case "SecretValueRemovedActivityLogEntry.id":
 		if e.ComplexityRoot.SecretValueRemovedActivityLogEntry.ID == nil {
@@ -13884,6 +14305,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.SecretValueUpdatedActivityLogEntry.EnvironmentName(childComplexity), true
 
+	case "SecretValueUpdatedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.SecretValueUpdatedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.SecretValueUpdatedActivityLogEntry.GitHubActorClaims(childComplexity), true
+
 	case "SecretValueUpdatedActivityLogEntry.id":
 		if e.ComplexityRoot.SecretValueUpdatedActivityLogEntry.ID == nil {
 			break
@@ -13953,6 +14381,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.SecretValuesViewedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "SecretValuesViewedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.SecretValuesViewedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.SecretValuesViewedActivityLogEntry.GitHubActorClaims(childComplexity), true
 
 	case "SecretValuesViewedActivityLogEntry.id":
 		if e.ComplexityRoot.SecretValuesViewedActivityLogEntry.ID == nil {
@@ -14135,6 +14570,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ServiceAccountCreatedActivityLogEntry.EnvironmentName(childComplexity), true
 
+	case "ServiceAccountCreatedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.ServiceAccountCreatedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ServiceAccountCreatedActivityLogEntry.GitHubActorClaims(childComplexity), true
+
 	case "ServiceAccountCreatedActivityLogEntry.id":
 		if e.ComplexityRoot.ServiceAccountCreatedActivityLogEntry.ID == nil {
 			break
@@ -14190,6 +14632,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ServiceAccountDeletedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "ServiceAccountDeletedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.ServiceAccountDeletedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ServiceAccountDeletedActivityLogEntry.GitHubActorClaims(childComplexity), true
 
 	case "ServiceAccountDeletedActivityLogEntry.id":
 		if e.ComplexityRoot.ServiceAccountDeletedActivityLogEntry.ID == nil {
@@ -14338,6 +14787,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ServiceAccountTokenCreatedActivityLogEntry.EnvironmentName(childComplexity), true
 
+	case "ServiceAccountTokenCreatedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.ServiceAccountTokenCreatedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ServiceAccountTokenCreatedActivityLogEntry.GitHubActorClaims(childComplexity), true
+
 	case "ServiceAccountTokenCreatedActivityLogEntry.id":
 		if e.ComplexityRoot.ServiceAccountTokenCreatedActivityLogEntry.ID == nil {
 			break
@@ -14407,6 +14863,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ServiceAccountTokenDeletedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "ServiceAccountTokenDeletedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.ServiceAccountTokenDeletedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ServiceAccountTokenDeletedActivityLogEntry.GitHubActorClaims(childComplexity), true
 
 	case "ServiceAccountTokenDeletedActivityLogEntry.id":
 		if e.ComplexityRoot.ServiceAccountTokenDeletedActivityLogEntry.ID == nil {
@@ -14491,6 +14954,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ServiceAccountTokenUpdatedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "ServiceAccountTokenUpdatedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.ServiceAccountTokenUpdatedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ServiceAccountTokenUpdatedActivityLogEntry.GitHubActorClaims(childComplexity), true
 
 	case "ServiceAccountTokenUpdatedActivityLogEntry.id":
 		if e.ComplexityRoot.ServiceAccountTokenUpdatedActivityLogEntry.ID == nil {
@@ -14589,6 +15059,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ServiceAccountUpdatedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "ServiceAccountUpdatedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.ServiceAccountUpdatedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ServiceAccountUpdatedActivityLogEntry.GitHubActorClaims(childComplexity), true
 
 	case "ServiceAccountUpdatedActivityLogEntry.id":
 		if e.ComplexityRoot.ServiceAccountUpdatedActivityLogEntry.ID == nil {
@@ -14744,6 +15221,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ServiceAccountWorkloadBindingAddedActivityLogEntry.EnvironmentName(childComplexity), true
 
+	case "ServiceAccountWorkloadBindingAddedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.ServiceAccountWorkloadBindingAddedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ServiceAccountWorkloadBindingAddedActivityLogEntry.GitHubActorClaims(childComplexity), true
+
 	case "ServiceAccountWorkloadBindingAddedActivityLogEntry.id":
 		if e.ComplexityRoot.ServiceAccountWorkloadBindingAddedActivityLogEntry.ID == nil {
 			break
@@ -14863,6 +15347,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ServiceAccountWorkloadBindingRemovedActivityLogEntry.EnvironmentName(childComplexity), true
 
+	case "ServiceAccountWorkloadBindingRemovedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.ServiceAccountWorkloadBindingRemovedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ServiceAccountWorkloadBindingRemovedActivityLogEntry.GitHubActorClaims(childComplexity), true
+
 	case "ServiceAccountWorkloadBindingRemovedActivityLogEntry.id":
 		if e.ComplexityRoot.ServiceAccountWorkloadBindingRemovedActivityLogEntry.ID == nil {
 			break
@@ -14974,6 +15465,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ServiceMaintenanceActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "ServiceMaintenanceActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.ServiceMaintenanceActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ServiceMaintenanceActivityLogEntry.GitHubActorClaims(childComplexity), true
 
 	case "ServiceMaintenanceActivityLogEntry.id":
 		if e.ComplexityRoot.ServiceMaintenanceActivityLogEntry.ID == nil {
@@ -16136,6 +16634,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.TeamConfirmDeleteKeyActivityLogEntry.EnvironmentName(childComplexity), true
 
+	case "TeamConfirmDeleteKeyActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.TeamConfirmDeleteKeyActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TeamConfirmDeleteKeyActivityLogEntry.GitHubActorClaims(childComplexity), true
+
 	case "TeamConfirmDeleteKeyActivityLogEntry.id":
 		if e.ComplexityRoot.TeamConfirmDeleteKeyActivityLogEntry.ID == nil {
 			break
@@ -16274,6 +16779,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.TeamCreateDeleteKeyActivityLogEntry.EnvironmentName(childComplexity), true
 
+	case "TeamCreateDeleteKeyActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.TeamCreateDeleteKeyActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TeamCreateDeleteKeyActivityLogEntry.GitHubActorClaims(childComplexity), true
+
 	case "TeamCreateDeleteKeyActivityLogEntry.id":
 		if e.ComplexityRoot.TeamCreateDeleteKeyActivityLogEntry.ID == nil {
 			break
@@ -16329,6 +16841,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.TeamCreatedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "TeamCreatedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.TeamCreatedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TeamCreatedActivityLogEntry.GitHubActorClaims(childComplexity), true
 
 	case "TeamCreatedActivityLogEntry.id":
 		if e.ComplexityRoot.TeamCreatedActivityLogEntry.ID == nil {
@@ -16420,6 +16939,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.TeamDeployKeyUpdatedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "TeamDeployKeyUpdatedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.TeamDeployKeyUpdatedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TeamDeployKeyUpdatedActivityLogEntry.GitHubActorClaims(childComplexity), true
 
 	case "TeamDeployKeyUpdatedActivityLogEntry.id":
 		if e.ComplexityRoot.TeamDeployKeyUpdatedActivityLogEntry.ID == nil {
@@ -16620,6 +17146,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.TeamEnvironment.Postgres(childComplexity, args["name"].(string)), true
 
+	case "TeamEnvironment.postgresAccess":
+		if e.ComplexityRoot.TeamEnvironment.PostgresAccess == nil {
+			break
+		}
+
+		args, err := ec.field_TeamEnvironment_postgresAccess_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.TeamEnvironment.PostgresAccess(childComplexity, args["name"].(string)), true
+
 	case "TeamEnvironment.postgresInstance":
 		if e.ComplexityRoot.TeamEnvironment.PostgresInstance == nil {
 			break
@@ -16759,6 +17297,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.TeamEnvironmentUpdatedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "TeamEnvironmentUpdatedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.TeamEnvironmentUpdatedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TeamEnvironmentUpdatedActivityLogEntry.GitHubActorClaims(childComplexity), true
 
 	case "TeamEnvironmentUpdatedActivityLogEntry.id":
 		if e.ComplexityRoot.TeamEnvironmentUpdatedActivityLogEntry.ID == nil {
@@ -17131,6 +17676,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.TeamMemberAddedActivityLogEntry.EnvironmentName(childComplexity), true
 
+	case "TeamMemberAddedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.TeamMemberAddedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TeamMemberAddedActivityLogEntry.GitHubActorClaims(childComplexity), true
+
 	case "TeamMemberAddedActivityLogEntry.id":
 		if e.ComplexityRoot.TeamMemberAddedActivityLogEntry.ID == nil {
 			break
@@ -17250,6 +17802,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.TeamMemberRemovedActivityLogEntry.EnvironmentName(childComplexity), true
 
+	case "TeamMemberRemovedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.TeamMemberRemovedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TeamMemberRemovedActivityLogEntry.GitHubActorClaims(childComplexity), true
+
 	case "TeamMemberRemovedActivityLogEntry.id":
 		if e.ComplexityRoot.TeamMemberRemovedActivityLogEntry.ID == nil {
 			break
@@ -17326,6 +17885,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.TeamMemberSetRoleActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "TeamMemberSetRoleActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.TeamMemberSetRoleActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TeamMemberSetRoleActivityLogEntry.GitHubActorClaims(childComplexity), true
 
 	case "TeamMemberSetRoleActivityLogEntry.id":
 		if e.ComplexityRoot.TeamMemberSetRoleActivityLogEntry.ID == nil {
@@ -17501,6 +18067,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.TeamUpdatedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "TeamUpdatedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.TeamUpdatedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TeamUpdatedActivityLogEntry.GitHubActorClaims(childComplexity), true
 
 	case "TeamUpdatedActivityLogEntry.id":
 		if e.ComplexityRoot.TeamUpdatedActivityLogEntry.ID == nil {
@@ -17859,6 +18432,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.TunnelCreatedActivityLogEntry.EnvironmentName(childComplexity), true
 
+	case "TunnelCreatedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.TunnelCreatedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TunnelCreatedActivityLogEntry.GitHubActorClaims(childComplexity), true
+
 	case "TunnelCreatedActivityLogEntry.id":
 		if e.ComplexityRoot.TunnelCreatedActivityLogEntry.ID == nil {
 			break
@@ -17935,6 +18515,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.TunnelDeletedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "TunnelDeletedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.TunnelDeletedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TunnelDeletedActivityLogEntry.GitHubActorClaims(childComplexity), true
 
 	case "TunnelDeletedActivityLogEntry.id":
 		if e.ComplexityRoot.TunnelDeletedActivityLogEntry.ID == nil {
@@ -18088,6 +18675,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.UnleashInstanceCreatedActivityLogEntry.EnvironmentName(childComplexity), true
 
+	case "UnleashInstanceCreatedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.UnleashInstanceCreatedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.UnleashInstanceCreatedActivityLogEntry.GitHubActorClaims(childComplexity), true
+
 	case "UnleashInstanceCreatedActivityLogEntry.id":
 		if e.ComplexityRoot.UnleashInstanceCreatedActivityLogEntry.ID == nil {
 			break
@@ -18143,6 +18737,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.UnleashInstanceDeletedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "UnleashInstanceDeletedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.UnleashInstanceDeletedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.UnleashInstanceDeletedActivityLogEntry.GitHubActorClaims(childComplexity), true
 
 	case "UnleashInstanceDeletedActivityLogEntry.id":
 		if e.ComplexityRoot.UnleashInstanceDeletedActivityLogEntry.ID == nil {
@@ -18248,6 +18849,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.UnleashInstanceUpdatedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "UnleashInstanceUpdatedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.UnleashInstanceUpdatedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.UnleashInstanceUpdatedActivityLogEntry.GitHubActorClaims(childComplexity), true
 
 	case "UnleashInstanceUpdatedActivityLogEntry.id":
 		if e.ComplexityRoot.UnleashInstanceUpdatedActivityLogEntry.ID == nil {
@@ -19046,6 +19654,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ValkeyCreatedActivityLogEntry.EnvironmentName(childComplexity), true
 
+	case "ValkeyCreatedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.ValkeyCreatedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ValkeyCreatedActivityLogEntry.GitHubActorClaims(childComplexity), true
+
 	case "ValkeyCreatedActivityLogEntry.id":
 		if e.ComplexityRoot.ValkeyCreatedActivityLogEntry.ID == nil {
 			break
@@ -19144,6 +19759,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ValkeyCredentialsCreatedActivityLogEntry.EnvironmentName(childComplexity), true
 
+	case "ValkeyCredentialsCreatedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.ValkeyCredentialsCreatedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ValkeyCredentialsCreatedActivityLogEntry.GitHubActorClaims(childComplexity), true
+
 	case "ValkeyCredentialsCreatedActivityLogEntry.id":
 		if e.ComplexityRoot.ValkeyCredentialsCreatedActivityLogEntry.ID == nil {
 			break
@@ -19213,6 +19835,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ValkeyDeletedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "ValkeyDeletedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.ValkeyDeletedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ValkeyDeletedActivityLogEntry.GitHubActorClaims(childComplexity), true
 
 	case "ValkeyDeletedActivityLogEntry.id":
 		if e.ComplexityRoot.ValkeyDeletedActivityLogEntry.ID == nil {
@@ -19450,6 +20079,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ValkeyUpdatedActivityLogEntry.EnvironmentName(childComplexity), true
 
+	case "ValkeyUpdatedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.ValkeyUpdatedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ValkeyUpdatedActivityLogEntry.GitHubActorClaims(childComplexity), true
+
 	case "ValkeyUpdatedActivityLogEntry.id":
 		if e.ComplexityRoot.ValkeyUpdatedActivityLogEntry.ID == nil {
 			break
@@ -19652,6 +20288,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.VulnerabilityUpdatedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "VulnerabilityUpdatedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.VulnerabilityUpdatedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityUpdatedActivityLogEntry.GitHubActorClaims(childComplexity), true
 
 	case "VulnerabilityUpdatedActivityLogEntry.id":
 		if e.ComplexityRoot.VulnerabilityUpdatedActivityLogEntry.ID == nil {
@@ -20258,7 +20901,6 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputOpenSearchAccessOrder,
 		ec.unmarshalInputOpenSearchFilter,
 		ec.unmarshalInputOpenSearchOrder,
-		ec.unmarshalInputPostgresAccessConnectionInput,
 		ec.unmarshalInputPostgresInstanceFilter,
 		ec.unmarshalInputPostgresInstanceOrder,
 		ec.unmarshalInputReconcilerConfigInput,
@@ -20684,6 +21326,9 @@ interface ActivityLogEntry implements Node {
 	The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user.
 	"""
 	actor: String!
+
+	"GitHub Actions OIDC claims captured when the action was authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
 
 	"""
 	Creation time of the entry.
@@ -21873,6 +22518,9 @@ type ApplicationDeletedActivityLogEntry implements ActivityLogEntry & Node {
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
 
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
+
 	"Creation time of the entry."
 	createdAt: Time!
 
@@ -21898,6 +22546,9 @@ type ApplicationRestartedActivityLogEntry implements ActivityLogEntry & Node {
 
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
+
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
 
 	"Creation time of the entry."
 	createdAt: Time!
@@ -21926,6 +22577,9 @@ type ApplicationScaledActivityLogEntry implements ActivityLogEntry & Node {
 
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
+
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
 
 	"Creation time of the entry."
 	createdAt: Time!
@@ -21973,6 +22627,9 @@ type ApplicationCreatedActivityLogEntry implements ActivityLogEntry & Node {
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
 
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
+
 	"Creation time of the entry."
 	createdAt: Time!
 
@@ -22003,6 +22660,7 @@ type ApplicationUpdatedActivityLogEntryData {
 	changedFields: [ResourceChangedField!]!
 	"GitHub Actions OIDC token claims at the time of the apply. Only present when the request was authenticated via a GitHub token."
 	gitHubActorClaims: GitHubActorClaims
+		@deprecated(reason: "Use gitHubActorClaims on the activity log entry instead.")
 }
 
 """
@@ -22014,6 +22672,9 @@ type ApplicationUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
+
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
 
 	"Creation time of the entry."
 	createdAt: Time!
@@ -22076,32 +22737,60 @@ type GenericKubernetesResourceActivityLogEntryData {
 	changedFields: [ResourceChangedField!]!
 	"GitHub Actions OIDC token claims at the time of the apply. Only present when the request was authenticated via a GitHub token."
 	gitHubActorClaims: GitHubActorClaims
+		@deprecated(reason: "Use gitHubActorClaims on the activity log entry instead.")
 }
 
 """
-GitHub Actions OIDC token claims captured at the time of an apply operation.
+GitHub Actions OIDC token claims captured when an activity log entry is created.
+See https://docs.github.com/en/actions/reference/security/oidc#custom-claims-provided-by-github
 """
 type GitHubActorClaims {
+	"The GitHub username that triggered the workflow."
+	actor: String!
+	"The ID of the personal account that initiated the workflow run."
+	actorID: String
+	"The target branch of the pull request in a workflow run."
+	baseRef: String
+	"The check run ID of the current job."
+	checkRunID: String
+	"The GitHub deployment environment name, if the job targets one."
+	environment: String!
+	"The event that triggered the workflow, e.g. 'push' or 'workflow_dispatch'."
+	eventName: String!
+	"The source branch of the pull request in a workflow run."
+	headRef: String
+	"The ref of the reusable workflow called by this job, if any. E.g. 'org/repo/.github/workflows/deploy.yaml@refs/heads/main'."
+	jobWorkflowRef: String!
+	"The commit SHA for the reusable workflow file, if the job uses one."
+	jobWorkflowSha: String
 	"The git ref that triggered the workflow, e.g. 'refs/heads/main'."
 	ref: String!
+	"The type of ref, e.g. 'branch'."
+	refType: String
 	"The repository name that triggered the workflow, e.g. 'org/repo'."
 	repository: String!
 	"The immutable numeric GitHub repository ID."
 	repositoryID: String!
-	"The unique identifier of the Actions workflow run. Links to https://github.com/<repo>/actions/runs/<runId>."
-	runID: String!
+	"The name of the organization in which the repository is stored."
+	repositoryOwner: String
+	"The ID of the organization in which the repository is stored."
+	repositoryOwnerID: String
+	"The visibility of the repository, e.g. 'internal', 'private', or 'public'."
+	repositoryVisibility: String
 	"The attempt number of the workflow run (1-indexed)."
 	runAttempt: String!
-	"The GitHub username that triggered the workflow."
-	actor: String!
+	"The unique identifier of the Actions workflow run. Links to https://github.com/<repo>/actions/runs/<runId>."
+	runID: String!
+	"The type of runner used by the job, e.g. 'github-hosted' or 'self-hosted'."
+	runnerEnvironment: String
+	"The number of times this workflow has been run."
+	runNumber: String
 	"The path to the workflow file, e.g. '.github/workflows/deploy.yaml'."
 	workflow: String!
-	"The event that triggered the workflow, e.g. 'push' or 'workflow_dispatch'."
-	eventName: String!
-	"The GitHub deployment environment name, if the job targets one."
-	environment: String!
-	"The ref of the reusable workflow called by this job, if any. E.g. 'org/repo/.github/workflows/deploy.yaml@refs/heads/main'."
-	jobWorkflowRef: String!
+	"The ref path to the workflow, e.g. 'org/repo/.github/workflows/deploy.yaml@refs/heads/main'."
+	workflowRef: String
+	"The commit SHA for the workflow file."
+	workflowSha: String
 }
 
 """
@@ -22126,6 +22815,9 @@ type GenericKubernetesResourceActivityLogEntry implements ActivityLogEntry & Nod
 
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
+
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
 
 	"Creation time of the entry."
 	createdAt: Time!
@@ -22541,6 +23233,9 @@ type ClusterAuditActivityLogEntry implements ActivityLogEntry & Node {
 
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
+
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
 
 	"Creation time of the entry."
 	createdAt: Time!
@@ -23011,6 +23706,9 @@ type ConfigCreatedActivityLogEntry implements ActivityLogEntry & Node {
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
 
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
+
 	"Creation time of the entry."
 	createdAt: Time!
 
@@ -23036,6 +23734,9 @@ type ConfigUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
+
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
 
 	"Creation time of the entry."
 	createdAt: Time!
@@ -23081,6 +23782,9 @@ type ConfigDeletedActivityLogEntry implements ActivityLogEntry & Node {
 
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
+
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
 
 	"Creation time of the entry."
 	createdAt: Time!
@@ -23694,6 +24398,9 @@ type TeamDeployKeyUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
 
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
+
 	"Creation time of the entry."
 	createdAt: Time!
 
@@ -23721,6 +24428,9 @@ type DeploymentActivityLogEntry implements ActivityLogEntry & Node {
 
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
+
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
 
 	"Creation time of the entry."
 	createdAt: Time!
@@ -25124,6 +25834,9 @@ type JobDeletedActivityLogEntry implements ActivityLogEntry & Node {
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
 
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
+
 	"Creation time of the entry."
 	createdAt: Time!
 
@@ -25149,6 +25862,9 @@ type JobTriggeredActivityLogEntry implements ActivityLogEntry & Node {
 
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
+
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
 
 	"Creation time of the entry."
 	createdAt: Time!
@@ -25195,6 +25911,9 @@ type JobRunDeletedActivityLogEntry implements ActivityLogEntry & Node {
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
 
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
+
 	"Creation time of the entry."
 	createdAt: Time!
 
@@ -25229,6 +25948,9 @@ type JobCreatedActivityLogEntry implements ActivityLogEntry & Node {
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
 
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
+
 	"Creation time of the entry."
 	createdAt: Time!
 
@@ -25261,6 +25983,9 @@ type JobUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
 
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
+
 	"Creation time of the entry."
 	createdAt: Time!
 
@@ -25291,6 +26016,7 @@ type JobUpdatedActivityLogEntryData {
 	changedFields: [ResourceChangedField!]!
 	"GitHub Actions OIDC token claims at the time of the apply. Only present when the request was authenticated via a GitHub token."
 	gitHubActorClaims: GitHubActorClaims
+		@deprecated(reason: "Use gitHubActorClaims on the activity log entry instead.")
 }
 
 extend enum ActivityLogActivityType {
@@ -25619,6 +26345,9 @@ type KafkaCredentialsCreatedActivityLogEntry implements ActivityLogEntry & Node 
 	"The identity of the actor who performed the action."
 	actor: String!
 
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
+
 	"Creation time of the entry."
 	createdAt: Time!
 
@@ -25652,6 +26381,9 @@ type KafkaTopicUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 
 	"The identity of the actor who performed the action."
 	actor: String!
+
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
 
 	"Creation time of the entry."
 	createdAt: Time!
@@ -26409,6 +27141,9 @@ type OpenSearchCreatedActivityLogEntry implements ActivityLogEntry & Node {
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
 
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
+
 	"Creation time of the entry."
 	createdAt: Time!
 
@@ -26434,6 +27169,9 @@ type OpenSearchUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
+
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
 
 	"Creation time of the entry."
 	createdAt: Time!
@@ -26486,6 +27224,9 @@ type OpenSearchDeletedActivityLogEntry implements ActivityLogEntry & Node {
 
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
+
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
 
 	"Creation time of the entry."
 	createdAt: Time!
@@ -26543,6 +27284,9 @@ type OpenSearchCredentialsCreatedActivityLogEntry implements ActivityLogEntry & 
 
 	"The identity of the actor who performed the action."
 	actor: String!
+
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
 
 	"Creation time of the entry."
 	createdAt: Time!
@@ -26651,9 +27395,20 @@ type WorkloadLogLine {
 
 extend type TeamEnvironment {
 	"Postgres in the team environment."
-	postgres(name: String!): Postgres!
+	postgres(
+		"Name of the Postgres in this team environment."
+		name: String!
+	): Postgres!
 	"Named PostgresInstance in the team environment."
-	postgresInstance(name: String!): PostgresInstance!
+	postgresInstance(
+		"Name of the PostgresInstance in this team environment."
+		name: String!
+	): PostgresInstance!
+	"Get a PostgresAccess and its state. Available to authorized team members."
+	postgresAccess(
+		"Name of the PostgresAccess in this team environment."
+		name: String!
+	): PostgresAccess!
 }
 
 extend interface Workload {
@@ -26680,8 +27435,11 @@ extend type Job {
 	): PostgresInstanceConnection!
 }
 
+"Ordering options for Postgres instances."
 input PostgresInstanceOrder {
+	"Field to order instances by."
 	field: PostgresInstanceOrderField!
+	"Direction of the ordering."
 	direction: OrderDirection!
 }
 
@@ -26702,53 +27460,88 @@ input PostgresInstanceFilter {
 	labels: [LabelFilter!]
 }
 
+"Fields available when ordering Postgres instances."
 enum PostgresInstanceOrderField {
+	"Instance name."
 	NAME
+	"Environment name."
 	ENVIRONMENT
 }
 
 "A named PostgresInstance belonging to a Postgres."
 type PostgresInstance implements Persistence & Node {
+	"Opaque identifier for this instance."
 	id: ID!
+	"Name of the instance."
 	name: String!
+	"Team owning this instance."
 	team: Team!
+	"Team environment containing this instance."
 	teamEnvironment: TeamEnvironment!
 	"Postgres owning this PostgresInstance."
 	postgres: Postgres!
 	"Workloads using this instance while it is active."
-	workloads(first: Int, after: Cursor, last: Int, before: Cursor): WorkloadConnection!
+	workloads(
+		"Return the first n workloads."
+		first: Int
+		"Return workloads after this cursor."
+		after: Cursor
+		"Return the last n workloads."
+		last: Int
+		"Return workloads before this cursor."
+		before: Cursor
+	): WorkloadConnection!
+	"Current observed state of the instance."
 	state: PostgresInstanceState!
+	"User-defined labels on this instance."
 	labels: [ResourceLabel!]!
 }
 
 "A Postgres whose active instance can change."
 type Postgres implements Node {
+	"Opaque identifier for this Postgres."
 	id: ID!
+	"Name of this Postgres."
 	name: String!
+	"Configured PostgreSQL major version."
 	majorVersion: String!
+	"Whether high availability is configured."
 	highAvailability: Boolean!
 	"Requested CPU, memory and disk size, when present on this Postgres."
 	resources: PostgresResources!
+	"Name of the currently active PostgresInstance, if selected."
 	activeInstance: String
+	"User-defined labels on this Postgres."
 	labels: [ResourceLabel!]!
 }
 
 "Resource requests configured on Postgres. Omitted requests are null."
 type PostgresResources {
+	"Requested CPU."
 	cpu: String
+	"Requested memory."
 	memory: String
+	"Requested disk size."
 	diskSize: String
 }
 
+"Reconciliation and observed health of a PostgresInstance."
 enum PostgresInstanceState {
+	"The instance is healthy and ready."
 	AVAILABLE
+	"The instance is provisioning or its state has not been observed yet."
 	PROGRESSING
+	"The instance has reported a failure."
 	DEGRADED
 }
 
+"Paginated PostgresInstance results."
 type PostgresInstanceConnection {
+	"Pagination metadata."
 	pageInfo: PageInfo!
+	"Instances in this page."
 	nodes: [PostgresInstance!]!
+	"Instances and their pagination cursors."
 	edges: [PostgresInstanceEdge!]!
 
 	"""
@@ -26758,8 +27551,11 @@ type PostgresInstanceConnection {
 	facets: PostgresInstanceFacets
 }
 
+"A PostgresInstance and its pagination cursor."
 type PostgresInstanceEdge {
+	"Cursor identifying this result."
 	cursor: Cursor!
+	"The matching instance."
 	node: PostgresInstance!
 }
 
@@ -26799,14 +27595,16 @@ extend enum ActivityLogEntryResourceType {
 	POSTGRES
 }
 
-# This is managed directly by the activitylog package since it
-# combines data within the database.
+"An earlier Postgres access grant recorded in the activity log."
 type PostgresGrantAccessActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
+
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
 
 	"Creation time of the entry."
 	createdAt: Time!
@@ -26830,8 +27628,11 @@ type PostgresGrantAccessActivityLogEntry implements ActivityLogEntry & Node {
 	data: PostgresGrantAccessActivityLogEntryData!
 }
 
+"Details of an earlier Postgres access grant."
 type PostgresGrantAccessActivityLogEntryData {
+	"Identity that received access."
 	grantee: String!
+	"End of the granted access period."
 	until: Time!
 }
 
@@ -26841,6 +27642,8 @@ type PostgresPersonalAccessCreatedActivityLogEntry implements ActivityLogEntry &
 	id: ID!
 	"The identity of the actor who created the personal access."
 	actor: String!
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
 	"Creation time of the entry."
 	createdAt: Time!
 	"Message that summarizes the entry."
@@ -26873,6 +27676,8 @@ type PostgresPersonalAccessConnectionActivityLogEntry implements ActivityLogEntr
 	id: ID!
 	"Identity that retrieved the connection materials."
 	actor: String!
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
 	"Creation time of the entry."
 	createdAt: Time!
 	"Message that summarizes the entry."
@@ -26893,6 +27698,9 @@ type PostgresDeletedActivityLogEntry implements ActivityLogEntry & Node {
 
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
+
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
 
 	"Creation time of the entry."
 	createdAt: Time!
@@ -26935,7 +27743,7 @@ extend enum ActivityLogActivityType {
 extend type Mutation {
 	"""
 	Create time-limited personal access to a NAIS Postgres instance through the brokered PostgresAccess and relay flow.
-	Use this for new NAIS Postgres personal access. When the access is ready, retrieve its connection materials with postgresAccessConnection.
+	When the access is ready, retrieve its connection materials through PostgresAccess.connection.
 	"""
 	createPostgresAccess(input: CreatePostgresAccessInput!): CreatePostgresAccessPayload!
 	"Delete a PostgresInstance that is not active on its Postgres."
@@ -26976,6 +27784,7 @@ enum PostgresAccessLevel {
 	READWRITECREATE
 }
 
+"Input identifying the PostgresInstance to delete."
 input DeletePostgresInput {
 	"Name of the Postgres instance."
 	name: String!
@@ -26985,35 +27794,21 @@ input DeletePostgresInput {
 	teamSlug: Slug!
 }
 
+"Result of requesting deletion of a PostgresInstance."
 type DeletePostgresPayload {
 	"Whether or not the Postgres instance was deleted."
 	postgresDeleted: Boolean
 }
 
 extend type TeamInventoryCounts {
+	"Counts of Postgres instances owned by the team."
 	postgresInstances: TeamInventoryCountPostgresInstances!
 }
 
+"Inventory totals for Postgres instances."
 type TeamInventoryCountPostgresInstances {
 	"Total number of Postgres instances."
 	total: Int!
-}
-
-extend type Query {
-	"Get connection materials for a ready personal Postgres access owned by the caller."
-	postgresAccessConnection(input: PostgresAccessConnectionInput!): PostgresAccessConnection!
-
-	"Get a personal PostgresAccess resource and its state. Available to authorized team members."
-	postgresAccess(
-		"Name of the PostgresAccess resource."
-		name: String!
-
-		"Team slug that owns the Postgres instance."
-		teamSlug: Slug!
-
-		"Environment name that the Postgres instance belongs to."
-		environmentName: String!
-	): PostgresAccess!
 }
 
 "A time-limited personal access request for a Postgres instance."
@@ -27038,6 +27833,8 @@ type PostgresAccess implements Node {
 	message: String
 	"Name of the controller-owned relay mapping, once created. Contains no credential."
 	relayAccess: String
+	"Get connection materials for this ready access. Only its owner can read them."
+	connection: PostgresAccessConnection!
 }
 
 "High-level reconciliation state of a personal Postgres access."
@@ -27050,16 +27847,6 @@ enum PostgresAccessState {
 	FAILED
 	"The server-controlled expiry time has passed."
 	EXPIRED
-}
-
-"Input for retrieving connection materials for a ready personal access."
-input PostgresAccessConnectionInput {
-	"Name of the PostgresAccess resource."
-	name: String!
-	"Team that owns the PostgresAccess resource."
-	teamSlug: Slug!
-	"Environment containing the PostgresAccess resource."
-	environmentName: String!
 }
 
 "Sensitive connection materials for a ready personal Postgres access."
@@ -27280,6 +28067,9 @@ type ReconcilerEnabledActivityLogEntry implements ActivityLogEntry & Node {
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
 
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
+
 	"Creation time of the entry."
 	createdAt: Time!
 
@@ -27306,6 +28096,9 @@ type ReconcilerDisabledActivityLogEntry implements ActivityLogEntry & Node {
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
 
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
+
 	"Creation time of the entry."
 	createdAt: Time!
 
@@ -27331,6 +28124,9 @@ type ReconcilerConfiguredActivityLogEntry implements ActivityLogEntry & Node {
 
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
+
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
 
 	"Creation time of the entry."
 	createdAt: Time!
@@ -27504,6 +28300,9 @@ type RepositoryAddedActivityLogEntry implements ActivityLogEntry & Node {
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
 
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
+
 	"Creation time of the entry."
 	createdAt: Time!
 
@@ -27529,6 +28328,9 @@ type RepositoryRemovedActivityLogEntry implements ActivityLogEntry & Node {
 
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
+
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
 
 	"Creation time of the entry."
 	createdAt: Time!
@@ -28292,6 +29094,9 @@ type SecretCreatedActivityLogEntry implements ActivityLogEntry & Node {
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
 
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
+
 	"Creation time of the entry."
 	createdAt: Time!
 
@@ -28317,6 +29122,9 @@ type SecretUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
+
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
 
 	"Creation time of the entry."
 	createdAt: Time!
@@ -28363,6 +29171,9 @@ type SecretValueAddedActivityLogEntry implements ActivityLogEntry & Node {
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
 
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
+
 	"Creation time of the entry."
 	createdAt: Time!
 
@@ -28396,6 +29207,9 @@ type SecretValueUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
+
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
 
 	"Creation time of the entry."
 	createdAt: Time!
@@ -28431,6 +29245,9 @@ type SecretValueRemovedActivityLogEntry implements ActivityLogEntry & Node {
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
 
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
+
 	"Creation time of the entry."
 	createdAt: Time!
 
@@ -28464,6 +29281,9 @@ type SecretDeletedActivityLogEntry implements ActivityLogEntry & Node {
 
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
+
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
 
 	"Creation time of the entry."
 	createdAt: Time!
@@ -28510,6 +29330,9 @@ type SecretValuesViewedActivityLogEntry implements ActivityLogEntry & Node {
 
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
+
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
 
 	"Creation time of the entry."
 	createdAt: Time!
@@ -28722,6 +29545,9 @@ type ServiceAccountWorkloadBindingAddedActivityLogEntry implements ActivityLogEn
 	"""
 	actor: String!
 
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
+
 	"""
 	Creation time of the entry.
 	"""
@@ -28785,6 +29611,9 @@ type ServiceAccountWorkloadBindingRemovedActivityLogEntry implements ActivityLog
 	The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user.
 	"""
 	actor: String!
+
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
 
 	"""
 	Creation time of the entry.
@@ -29395,6 +30224,9 @@ type ServiceAccountCreatedActivityLogEntry implements ActivityLogEntry & Node {
 	"""
 	actor: String!
 
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
+
 	"""
 	Creation time of the entry.
 	"""
@@ -29436,6 +30268,9 @@ type ServiceAccountUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 	The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user.
 	"""
 	actor: String!
+
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
 
 	"""
 	Creation time of the entry.
@@ -29508,6 +30343,9 @@ type ServiceAccountDeletedActivityLogEntry implements ActivityLogEntry & Node {
 	"""
 	actor: String!
 
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
+
 	"""
 	Creation time of the entry.
 	"""
@@ -29549,6 +30387,9 @@ type RoleAssignedToServiceAccountActivityLogEntry implements ActivityLogEntry & 
 	The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user.
 	"""
 	actor: String!
+
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
 
 	"""
 	Creation time of the entry.
@@ -29604,6 +30445,9 @@ type RoleRevokedFromServiceAccountActivityLogEntry implements ActivityLogEntry &
 	"""
 	actor: String!
 
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
+
 	"""
 	Creation time of the entry.
 	"""
@@ -29658,6 +30502,9 @@ type ServiceAccountTokenCreatedActivityLogEntry implements ActivityLogEntry & No
 	"""
 	actor: String!
 
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
+
 	"""
 	Creation time of the entry.
 	"""
@@ -29711,6 +30558,9 @@ type ServiceAccountTokenUpdatedActivityLogEntry implements ActivityLogEntry & No
 	The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user.
 	"""
 	actor: String!
+
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
 
 	"""
 	Creation time of the entry.
@@ -29787,6 +30637,9 @@ type ServiceAccountTokenDeletedActivityLogEntry implements ActivityLogEntry & No
 	The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user.
 	"""
 	actor: String!
+
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
 
 	"""
 	Creation time of the entry.
@@ -30015,6 +30868,9 @@ type ServiceMaintenanceActivityLogEntry implements ActivityLogEntry & Node {
 
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
+
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
 
 	"Creation time of the entry."
 	createdAt: Time!
@@ -30784,6 +31640,9 @@ type TeamCreatedActivityLogEntry implements ActivityLogEntry & Node {
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
 
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
+
 	"Creation time of the entry."
 	createdAt: Time!
 
@@ -30809,6 +31668,9 @@ type TeamUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
+
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
 
 	"Creation time of the entry."
 	createdAt: Time!
@@ -30855,6 +31717,9 @@ type TeamCreateDeleteKeyActivityLogEntry implements ActivityLogEntry & Node {
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
 
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
+
 	"Creation time of the entry."
 	createdAt: Time!
 
@@ -30881,6 +31746,9 @@ type TeamConfirmDeleteKeyActivityLogEntry implements ActivityLogEntry & Node {
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
 
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
+
 	"Creation time of the entry."
 	createdAt: Time!
 
@@ -30906,6 +31774,9 @@ type TeamMemberAddedActivityLogEntry implements ActivityLogEntry & Node {
 
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
+
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
 
 	"Creation time of the entry."
 	createdAt: Time!
@@ -30947,6 +31818,9 @@ type TeamMemberRemovedActivityLogEntry implements ActivityLogEntry & Node {
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
 
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
+
 	"Creation time of the entry."
 	createdAt: Time!
 
@@ -30983,6 +31857,9 @@ type TeamMemberSetRoleActivityLogEntry implements ActivityLogEntry & Node {
 
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
+
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
 
 	"Creation time of the entry."
 	createdAt: Time!
@@ -31023,6 +31900,9 @@ type TeamEnvironmentUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
+
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
 
 	"Creation time of the entry."
 	createdAt: Time!
@@ -31303,6 +32183,9 @@ type TunnelCreatedActivityLogEntry implements ActivityLogEntry & Node {
 	"""
 	actor: String!
 
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
+
 	"""
 	Creation time of the entry.
 	"""
@@ -31361,6 +32244,9 @@ type TunnelDeletedActivityLogEntry implements ActivityLogEntry & Node {
 	The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user.
 	"""
 	actor: String!
+
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
 
 	"""
 	Creation time of the entry.
@@ -31592,6 +32478,9 @@ type UnleashInstanceCreatedActivityLogEntry implements ActivityLogEntry & Node {
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
 
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
+
 	"Creation time of the entry."
 	createdAt: Time!
 
@@ -31617,6 +32506,9 @@ type UnleashInstanceUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
+
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
 
 	"Creation time of the entry."
 	createdAt: Time!
@@ -31657,6 +32549,9 @@ type UnleashInstanceDeletedActivityLogEntry implements ActivityLogEntry & Node {
 
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
+
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
 
 	"Creation time of the entry."
 	createdAt: Time!
@@ -32684,6 +33579,9 @@ type ValkeyCreatedActivityLogEntry implements ActivityLogEntry & Node {
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
 
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
+
 	"Creation time of the entry."
 	createdAt: Time!
 
@@ -32709,6 +33607,9 @@ type ValkeyUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
+
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
 
 	"Creation time of the entry."
 	createdAt: Time!
@@ -32761,6 +33662,9 @@ type ValkeyDeletedActivityLogEntry implements ActivityLogEntry & Node {
 
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
+
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
 
 	"Creation time of the entry."
 	createdAt: Time!
@@ -32818,6 +33722,9 @@ type ValkeyCredentialsCreatedActivityLogEntry implements ActivityLogEntry & Node
 
 	"The identity of the actor who performed the action."
 	actor: String!
+
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
 
 	"Creation time of the entry."
 	createdAt: Time!
@@ -33705,6 +34612,9 @@ type VulnerabilityUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 	The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user.
 	"""
 	actor: String!
+
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
 
 	"""
 	Creation time of the entry.
@@ -35616,26 +36526,52 @@ func (ec *executionContext) childFields_GenericKubernetesResourceActivityLogEntr
 
 func (ec *executionContext) childFields_GitHubActorClaims(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
+	case "actor":
+		return ec.fieldContext_GitHubActorClaims_actor(ctx, field)
+	case "actorID":
+		return ec.fieldContext_GitHubActorClaims_actorID(ctx, field)
+	case "baseRef":
+		return ec.fieldContext_GitHubActorClaims_baseRef(ctx, field)
+	case "checkRunID":
+		return ec.fieldContext_GitHubActorClaims_checkRunID(ctx, field)
+	case "environment":
+		return ec.fieldContext_GitHubActorClaims_environment(ctx, field)
+	case "eventName":
+		return ec.fieldContext_GitHubActorClaims_eventName(ctx, field)
+	case "headRef":
+		return ec.fieldContext_GitHubActorClaims_headRef(ctx, field)
+	case "jobWorkflowRef":
+		return ec.fieldContext_GitHubActorClaims_jobWorkflowRef(ctx, field)
+	case "jobWorkflowSha":
+		return ec.fieldContext_GitHubActorClaims_jobWorkflowSha(ctx, field)
 	case "ref":
 		return ec.fieldContext_GitHubActorClaims_ref(ctx, field)
+	case "refType":
+		return ec.fieldContext_GitHubActorClaims_refType(ctx, field)
 	case "repository":
 		return ec.fieldContext_GitHubActorClaims_repository(ctx, field)
 	case "repositoryID":
 		return ec.fieldContext_GitHubActorClaims_repositoryID(ctx, field)
-	case "runID":
-		return ec.fieldContext_GitHubActorClaims_runID(ctx, field)
+	case "repositoryOwner":
+		return ec.fieldContext_GitHubActorClaims_repositoryOwner(ctx, field)
+	case "repositoryOwnerID":
+		return ec.fieldContext_GitHubActorClaims_repositoryOwnerID(ctx, field)
+	case "repositoryVisibility":
+		return ec.fieldContext_GitHubActorClaims_repositoryVisibility(ctx, field)
 	case "runAttempt":
 		return ec.fieldContext_GitHubActorClaims_runAttempt(ctx, field)
-	case "actor":
-		return ec.fieldContext_GitHubActorClaims_actor(ctx, field)
+	case "runID":
+		return ec.fieldContext_GitHubActorClaims_runID(ctx, field)
+	case "runnerEnvironment":
+		return ec.fieldContext_GitHubActorClaims_runnerEnvironment(ctx, field)
+	case "runNumber":
+		return ec.fieldContext_GitHubActorClaims_runNumber(ctx, field)
 	case "workflow":
 		return ec.fieldContext_GitHubActorClaims_workflow(ctx, field)
-	case "eventName":
-		return ec.fieldContext_GitHubActorClaims_eventName(ctx, field)
-	case "environment":
-		return ec.fieldContext_GitHubActorClaims_environment(ctx, field)
-	case "jobWorkflowRef":
-		return ec.fieldContext_GitHubActorClaims_jobWorkflowRef(ctx, field)
+	case "workflowRef":
+		return ec.fieldContext_GitHubActorClaims_workflowRef(ctx, field)
+	case "workflowSha":
+		return ec.fieldContext_GitHubActorClaims_workflowSha(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type GitHubActorClaims", field.Name)
 }
@@ -36780,6 +37716,8 @@ func (ec *executionContext) childFields_PostgresAccess(ctx context.Context, fiel
 		return ec.fieldContext_PostgresAccess_message(ctx, field)
 	case "relayAccess":
 		return ec.fieldContext_PostgresAccess_relayAccess(ctx, field)
+	case "connection":
+		return ec.fieldContext_PostgresAccess_connection(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type PostgresAccess", field.Name)
 }
@@ -38128,6 +39066,8 @@ func (ec *executionContext) childFields_TeamEnvironment(ctx context.Context, fie
 		return ec.fieldContext_TeamEnvironment_postgres(ctx, field)
 	case "postgresInstance":
 		return ec.fieldContext_TeamEnvironment_postgresInstance(ctx, field)
+	case "postgresAccess":
+		return ec.fieldContext_TeamEnvironment_postgresAccess(ctx, field)
 	case "secret":
 		return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 	case "sqlInstance":

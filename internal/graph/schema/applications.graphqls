@@ -742,6 +742,9 @@ type ApplicationDeletedActivityLogEntry implements ActivityLogEntry & Node {
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
 
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
+
 	"Creation time of the entry."
 	createdAt: Time!
 
@@ -767,6 +770,9 @@ type ApplicationRestartedActivityLogEntry implements ActivityLogEntry & Node {
 
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
+
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
 
 	"Creation time of the entry."
 	createdAt: Time!
@@ -795,6 +801,9 @@ type ApplicationScaledActivityLogEntry implements ActivityLogEntry & Node {
 
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
+
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
 
 	"Creation time of the entry."
 	createdAt: Time!
@@ -842,6 +851,9 @@ type ApplicationCreatedActivityLogEntry implements ActivityLogEntry & Node {
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
 
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
+
 	"Creation time of the entry."
 	createdAt: Time!
 
@@ -872,6 +884,7 @@ type ApplicationUpdatedActivityLogEntryData {
 	changedFields: [ResourceChangedField!]!
 	"GitHub Actions OIDC token claims at the time of the apply. Only present when the request was authenticated via a GitHub token."
 	gitHubActorClaims: GitHubActorClaims
+		@deprecated(reason: "Use gitHubActorClaims on the activity log entry instead.")
 }
 
 """
@@ -883,6 +896,9 @@ type ApplicationUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
+
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
 
 	"Creation time of the entry."
 	createdAt: Time!

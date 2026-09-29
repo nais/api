@@ -12,6 +12,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/nais/api/internal/activitylog"
+	"github.com/nais/api/internal/auth/middleware/github"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/reconciler"
@@ -570,6 +571,38 @@ func (ec *executionContext) fieldContext_ReconcilerConfiguredActivityLogEntry_ac
 	return graphql.NewScalarFieldContext("ReconcilerConfiguredActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
+func (ec *executionContext) _ReconcilerConfiguredActivityLogEntry_gitHubActorClaims(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerConfiguredActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ReconcilerConfiguredActivityLogEntry_gitHubActorClaims(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.GitHubActorClaims, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *github.GitHubActorClaims) graphql.Marshaler {
+			return ec.marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_ReconcilerConfiguredActivityLogEntry_gitHubActorClaims(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ReconcilerConfiguredActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_GitHubActorClaims(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ReconcilerConfiguredActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerConfiguredActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -905,6 +938,38 @@ func (ec *executionContext) fieldContext_ReconcilerDisabledActivityLogEntry_acto
 	return graphql.NewScalarFieldContext("ReconcilerDisabledActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
+func (ec *executionContext) _ReconcilerDisabledActivityLogEntry_gitHubActorClaims(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerDisabledActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ReconcilerDisabledActivityLogEntry_gitHubActorClaims(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.GitHubActorClaims, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *github.GitHubActorClaims) graphql.Marshaler {
+			return ec.marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_ReconcilerDisabledActivityLogEntry_gitHubActorClaims(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ReconcilerDisabledActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_GitHubActorClaims(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ReconcilerDisabledActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerDisabledActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -1142,6 +1207,38 @@ func (ec *executionContext) _ReconcilerEnabledActivityLogEntry_actor(ctx context
 }
 func (ec *executionContext) fieldContext_ReconcilerEnabledActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ReconcilerEnabledActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _ReconcilerEnabledActivityLogEntry_gitHubActorClaims(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerEnabledActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ReconcilerEnabledActivityLogEntry_gitHubActorClaims(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.GitHubActorClaims, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *github.GitHubActorClaims) graphql.Marshaler {
+			return ec.marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_ReconcilerEnabledActivityLogEntry_gitHubActorClaims(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ReconcilerEnabledActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_GitHubActorClaims(ctx, field)
+		},
+	}
+	return fc, nil
 }
 
 func (ec *executionContext) _ReconcilerEnabledActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerEnabledActivityLogEntry) (ret graphql.Marshaler) {
@@ -1988,6 +2085,8 @@ func (ec *executionContext) _ReconcilerConfiguredActivityLogEntry(ctx context.Co
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "gitHubActorClaims":
+			out.Values[i] = ec._ReconcilerConfiguredActivityLogEntry_gitHubActorClaims(ctx, field, obj)
 		case "createdAt":
 			out.Values[i] = ec._ReconcilerConfiguredActivityLogEntry_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -2152,6 +2251,8 @@ func (ec *executionContext) _ReconcilerDisabledActivityLogEntry(ctx context.Cont
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "gitHubActorClaims":
+			out.Values[i] = ec._ReconcilerDisabledActivityLogEntry_gitHubActorClaims(ctx, field, obj)
 		case "createdAt":
 			out.Values[i] = ec._ReconcilerDisabledActivityLogEntry_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -2267,6 +2368,8 @@ func (ec *executionContext) _ReconcilerEnabledActivityLogEntry(ctx context.Conte
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "gitHubActorClaims":
+			out.Values[i] = ec._ReconcilerEnabledActivityLogEntry_gitHubActorClaims(ctx, field, obj)
 		case "createdAt":
 			out.Values[i] = ec._ReconcilerEnabledActivityLogEntry_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {

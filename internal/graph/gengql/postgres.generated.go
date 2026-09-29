@@ -12,6 +12,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/nais/api/internal/activitylog"
+	"github.com/nais/api/internal/auth/middleware/github"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
@@ -28,6 +29,8 @@ type PostgresAccessResolver interface {
 	Team(ctx context.Context, obj *postgres.PostgresAccess) (*team.Team, error)
 	TeamEnvironment(ctx context.Context, obj *postgres.PostgresAccess) (*team.TeamEnvironment, error)
 	PostgresInstance(ctx context.Context, obj *postgres.PostgresAccess) (*postgres.PostgresInstance, error)
+
+	Connection(ctx context.Context, obj *postgres.PostgresAccess) (*postgres.PostgresAccessConnection, error)
 }
 type PostgresInstanceResolver interface {
 	Team(ctx context.Context, obj *postgres.PostgresInstance) (*team.Team, error)
@@ -594,6 +597,38 @@ func (ec *executionContext) fieldContext_PostgresAccess_relayAccess(_ context.Co
 	return graphql.NewScalarFieldContext("PostgresAccess", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
+func (ec *executionContext) _PostgresAccess_connection(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresAccess) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresAccess_connection(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.PostgresAccess().Connection(ctx, obj)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *postgres.PostgresAccessConnection) graphql.Marshaler {
+			return ec.marshalNPostgresAccessConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresAccessConnection(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresAccess_connection(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresAccess",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_PostgresAccessConnection(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _PostgresAccessConnection_username(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresAccessConnection) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -801,6 +836,38 @@ func (ec *executionContext) fieldContext_PostgresDeletedActivityLogEntry_actor(_
 	return graphql.NewScalarFieldContext("PostgresDeletedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
+func (ec *executionContext) _PostgresDeletedActivityLogEntry_gitHubActorClaims(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresDeletedActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresDeletedActivityLogEntry_gitHubActorClaims(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.GitHubActorClaims, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *github.GitHubActorClaims) graphql.Marshaler {
+			return ec.marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresDeletedActivityLogEntry_gitHubActorClaims(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresDeletedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_GitHubActorClaims(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _PostgresDeletedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresDeletedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -983,6 +1050,38 @@ func (ec *executionContext) _PostgresGrantAccessActivityLogEntry_actor(ctx conte
 }
 func (ec *executionContext) fieldContext_PostgresGrantAccessActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("PostgresGrantAccessActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresGrantAccessActivityLogEntry_gitHubActorClaims(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresGrantAccessActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresGrantAccessActivityLogEntry_gitHubActorClaims(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.GitHubActorClaims, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *github.GitHubActorClaims) graphql.Marshaler {
+			return ec.marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresGrantAccessActivityLogEntry_gitHubActorClaims(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresGrantAccessActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_GitHubActorClaims(ctx, field)
+		},
+	}
+	return fc, nil
 }
 
 func (ec *executionContext) _PostgresGrantAccessActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresGrantAccessActivityLogEntry) (ret graphql.Marshaler) {
@@ -1813,6 +1912,38 @@ func (ec *executionContext) fieldContext_PostgresPersonalAccessConnectionActivit
 	return graphql.NewScalarFieldContext("PostgresPersonalAccessConnectionActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
+func (ec *executionContext) _PostgresPersonalAccessConnectionActivityLogEntry_gitHubActorClaims(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresPersonalAccessConnectionActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresPersonalAccessConnectionActivityLogEntry_gitHubActorClaims(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.GitHubActorClaims, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *github.GitHubActorClaims) graphql.Marshaler {
+			return ec.marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresPersonalAccessConnectionActivityLogEntry_gitHubActorClaims(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresPersonalAccessConnectionActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_GitHubActorClaims(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _PostgresPersonalAccessConnectionActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresPersonalAccessConnectionActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -1995,6 +2126,38 @@ func (ec *executionContext) _PostgresPersonalAccessCreatedActivityLogEntry_actor
 }
 func (ec *executionContext) fieldContext_PostgresPersonalAccessCreatedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("PostgresPersonalAccessCreatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresPersonalAccessCreatedActivityLogEntry_gitHubActorClaims(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresPersonalAccessCreatedActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresPersonalAccessCreatedActivityLogEntry_gitHubActorClaims(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.GitHubActorClaims, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *github.GitHubActorClaims) graphql.Marshaler {
+			return ec.marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresPersonalAccessCreatedActivityLogEntry_gitHubActorClaims(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresPersonalAccessCreatedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_GitHubActorClaims(ctx, field)
+		},
+	}
+	return fc, nil
 }
 
 func (ec *executionContext) _PostgresPersonalAccessCreatedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresPersonalAccessCreatedActivityLogEntry) (ret graphql.Marshaler) {
@@ -2441,50 +2604,6 @@ func (ec *executionContext) unmarshalInputDeletePostgresInput(ctx context.Contex
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputPostgresAccessConnectionInput(ctx context.Context, obj any) (postgres.PostgresAccessConnectionInput, error) {
-	var it postgres.PostgresAccessConnectionInput
-	if obj == nil {
-		return it, nil
-	}
-
-	asMap := map[string]any{}
-	for k, v := range obj.(map[string]any) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"name", "teamSlug", "environmentName"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "name":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Name = data
-		case "teamSlug":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamSlug"))
-			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.TeamSlug = data
-		case "environmentName":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environmentName"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.EnvironmentName = data
-		}
-	}
-	return it, nil
-}
-
 func (ec *executionContext) unmarshalInputPostgresInstanceFilter(ctx context.Context, obj any) (postgres.PostgresInstanceFilter, error) {
 	var it postgres.PostgresInstanceFilter
 	if obj == nil {
@@ -2875,6 +2994,42 @@ func (ec *executionContext) _PostgresAccess(ctx context.Context, sel ast.Selecti
 			out.Values[i] = ec._PostgresAccess_message(ctx, field, obj)
 		case "relayAccess":
 			out.Values[i] = ec._PostgresAccess_relayAccess(ctx, field, obj)
+		case "connection":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._PostgresAccess_connection(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -2988,6 +3143,8 @@ func (ec *executionContext) _PostgresDeletedActivityLogEntry(ctx context.Context
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "gitHubActorClaims":
+			out.Values[i] = ec._PostgresDeletedActivityLogEntry_gitHubActorClaims(ctx, field, obj)
 		case "createdAt":
 			out.Values[i] = ec._PostgresDeletedActivityLogEntry_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -3059,6 +3216,8 @@ func (ec *executionContext) _PostgresGrantAccessActivityLogEntry(ctx context.Con
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "gitHubActorClaims":
+			out.Values[i] = ec._PostgresGrantAccessActivityLogEntry_gitHubActorClaims(ctx, field, obj)
 		case "createdAt":
 			out.Values[i] = ec._PostgresGrantAccessActivityLogEntry_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -3689,6 +3848,8 @@ func (ec *executionContext) _PostgresPersonalAccessConnectionActivityLogEntry(ct
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "gitHubActorClaims":
+			out.Values[i] = ec._PostgresPersonalAccessConnectionActivityLogEntry_gitHubActorClaims(ctx, field, obj)
 		case "createdAt":
 			out.Values[i] = ec._PostgresPersonalAccessConnectionActivityLogEntry_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -3760,6 +3921,8 @@ func (ec *executionContext) _PostgresPersonalAccessCreatedActivityLogEntry(ctx c
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "gitHubActorClaims":
+			out.Values[i] = ec._PostgresPersonalAccessCreatedActivityLogEntry_gitHubActorClaims(ctx, field, obj)
 		case "createdAt":
 			out.Values[i] = ec._PostgresPersonalAccessCreatedActivityLogEntry_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -4025,11 +4188,6 @@ func (ec *executionContext) marshalNPostgresAccessConnection2ᚖgithubᚗcomᚋn
 		return graphql.Null
 	}
 	return ec._PostgresAccessConnection(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalNPostgresAccessConnectionInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresAccessConnectionInput(ctx context.Context, v any) (postgres.PostgresAccessConnectionInput, error) {
-	res, err := ec.unmarshalInputPostgresAccessConnectionInput(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNPostgresAccessLevel2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresAccessLevel(ctx context.Context, v any) (postgres.PostgresAccessLevel, error) {

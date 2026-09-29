@@ -23,9 +23,20 @@ extend type Team {
 
 extend type TeamEnvironment {
 	"Postgres in the team environment."
-	postgres(name: String!): Postgres!
+	postgres(
+		"Name of the Postgres in this team environment."
+		name: String!
+	): Postgres!
 	"Named PostgresInstance in the team environment."
-	postgresInstance(name: String!): PostgresInstance!
+	postgresInstance(
+		"Name of the PostgresInstance in this team environment."
+		name: String!
+	): PostgresInstance!
+	"Get a PostgresAccess and its state. Available to authorized team members."
+	postgresAccess(
+		"Name of the PostgresAccess in this team environment."
+		name: String!
+	): PostgresAccess!
 }
 
 extend interface Workload {
@@ -52,8 +63,11 @@ extend type Job {
 	): PostgresInstanceConnection!
 }
 
+"Ordering options for Postgres instances."
 input PostgresInstanceOrder {
+	"Field to order instances by."
 	field: PostgresInstanceOrderField!
+	"Direction of the ordering."
 	direction: OrderDirection!
 }
 
@@ -74,53 +88,88 @@ input PostgresInstanceFilter {
 	labels: [LabelFilter!]
 }
 
+"Fields available when ordering Postgres instances."
 enum PostgresInstanceOrderField {
+	"Instance name."
 	NAME
+	"Environment name."
 	ENVIRONMENT
 }
 
 "A named PostgresInstance belonging to a Postgres."
 type PostgresInstance implements Persistence & Node {
+	"Opaque identifier for this instance."
 	id: ID!
+	"Name of the instance."
 	name: String!
+	"Team owning this instance."
 	team: Team!
+	"Team environment containing this instance."
 	teamEnvironment: TeamEnvironment!
 	"Postgres owning this PostgresInstance."
 	postgres: Postgres!
 	"Workloads using this instance while it is active."
-	workloads(first: Int, after: Cursor, last: Int, before: Cursor): WorkloadConnection!
+	workloads(
+		"Return the first n workloads."
+		first: Int
+		"Return workloads after this cursor."
+		after: Cursor
+		"Return the last n workloads."
+		last: Int
+		"Return workloads before this cursor."
+		before: Cursor
+	): WorkloadConnection!
+	"Current observed state of the instance."
 	state: PostgresInstanceState!
+	"User-defined labels on this instance."
 	labels: [ResourceLabel!]!
 }
 
 "A Postgres whose active instance can change."
 type Postgres implements Node {
+	"Opaque identifier for this Postgres."
 	id: ID!
+	"Name of this Postgres."
 	name: String!
+	"Configured PostgreSQL major version."
 	majorVersion: String!
+	"Whether high availability is configured."
 	highAvailability: Boolean!
 	"Requested CPU, memory and disk size, when present on this Postgres."
 	resources: PostgresResources!
+	"Name of the currently active PostgresInstance, if selected."
 	activeInstance: String
+	"User-defined labels on this Postgres."
 	labels: [ResourceLabel!]!
 }
 
 "Resource requests configured on Postgres. Omitted requests are null."
 type PostgresResources {
+	"Requested CPU."
 	cpu: String
+	"Requested memory."
 	memory: String
+	"Requested disk size."
 	diskSize: String
 }
 
+"Reconciliation and observed health of a PostgresInstance."
 enum PostgresInstanceState {
+	"The instance is healthy and ready."
 	AVAILABLE
+	"The instance is provisioning or its state has not been observed yet."
 	PROGRESSING
+	"The instance has reported a failure."
 	DEGRADED
 }
 
+"Paginated PostgresInstance results."
 type PostgresInstanceConnection {
+	"Pagination metadata."
 	pageInfo: PageInfo!
+	"Instances in this page."
 	nodes: [PostgresInstance!]!
+	"Instances and their pagination cursors."
 	edges: [PostgresInstanceEdge!]!
 
 	"""
@@ -130,8 +179,11 @@ type PostgresInstanceConnection {
 	facets: PostgresInstanceFacets
 }
 
+"A PostgresInstance and its pagination cursor."
 type PostgresInstanceEdge {
+	"Cursor identifying this result."
 	cursor: Cursor!
+	"The matching instance."
 	node: PostgresInstance!
 }
 
@@ -171,14 +223,16 @@ extend enum ActivityLogEntryResourceType {
 	POSTGRES
 }
 
-# This is managed directly by the activitylog package since it
-# combines data within the database.
+"An earlier Postgres access grant recorded in the activity log."
 type PostgresGrantAccessActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
+
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
 
 	"Creation time of the entry."
 	createdAt: Time!
@@ -202,8 +256,11 @@ type PostgresGrantAccessActivityLogEntry implements ActivityLogEntry & Node {
 	data: PostgresGrantAccessActivityLogEntryData!
 }
 
+"Details of an earlier Postgres access grant."
 type PostgresGrantAccessActivityLogEntryData {
+	"Identity that received access."
 	grantee: String!
+	"End of the granted access period."
 	until: Time!
 }
 
@@ -213,6 +270,8 @@ type PostgresPersonalAccessCreatedActivityLogEntry implements ActivityLogEntry &
 	id: ID!
 	"The identity of the actor who created the personal access."
 	actor: String!
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
 	"Creation time of the entry."
 	createdAt: Time!
 	"Message that summarizes the entry."
@@ -245,6 +304,8 @@ type PostgresPersonalAccessConnectionActivityLogEntry implements ActivityLogEntr
 	id: ID!
 	"Identity that retrieved the connection materials."
 	actor: String!
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
 	"Creation time of the entry."
 	createdAt: Time!
 	"Message that summarizes the entry."
@@ -265,6 +326,9 @@ type PostgresDeletedActivityLogEntry implements ActivityLogEntry & Node {
 
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
+
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
 
 	"Creation time of the entry."
 	createdAt: Time!
@@ -307,7 +371,7 @@ extend enum ActivityLogActivityType {
 extend type Mutation {
 	"""
 	Create time-limited personal access to a NAIS Postgres instance through the brokered PostgresAccess and relay flow.
-	Use this for new NAIS Postgres personal access. When the access is ready, retrieve its connection materials with postgresAccessConnection.
+	When the access is ready, retrieve its connection materials through PostgresAccess.connection.
 	"""
 	createPostgresAccess(input: CreatePostgresAccessInput!): CreatePostgresAccessPayload!
 	"Delete a PostgresInstance that is not active on its Postgres."
@@ -348,6 +412,7 @@ enum PostgresAccessLevel {
 	READWRITECREATE
 }
 
+"Input identifying the PostgresInstance to delete."
 input DeletePostgresInput {
 	"Name of the Postgres instance."
 	name: String!
@@ -357,35 +422,21 @@ input DeletePostgresInput {
 	teamSlug: Slug!
 }
 
+"Result of requesting deletion of a PostgresInstance."
 type DeletePostgresPayload {
 	"Whether or not the Postgres instance was deleted."
 	postgresDeleted: Boolean
 }
 
 extend type TeamInventoryCounts {
+	"Counts of Postgres instances owned by the team."
 	postgresInstances: TeamInventoryCountPostgresInstances!
 }
 
+"Inventory totals for Postgres instances."
 type TeamInventoryCountPostgresInstances {
 	"Total number of Postgres instances."
 	total: Int!
-}
-
-extend type Query {
-	"Get connection materials for a ready personal Postgres access owned by the caller."
-	postgresAccessConnection(input: PostgresAccessConnectionInput!): PostgresAccessConnection!
-
-	"Get a personal PostgresAccess resource and its state. Available to authorized team members."
-	postgresAccess(
-		"Name of the PostgresAccess resource."
-		name: String!
-
-		"Team slug that owns the Postgres instance."
-		teamSlug: Slug!
-
-		"Environment name that the Postgres instance belongs to."
-		environmentName: String!
-	): PostgresAccess!
 }
 
 "A time-limited personal access request for a Postgres instance."
@@ -410,6 +461,8 @@ type PostgresAccess implements Node {
 	message: String
 	"Name of the controller-owned relay mapping, once created. Contains no credential."
 	relayAccess: String
+	"Get connection materials for this ready access. Only its owner can read them."
+	connection: PostgresAccessConnection!
 }
 
 "High-level reconciliation state of a personal Postgres access."
@@ -422,16 +475,6 @@ enum PostgresAccessState {
 	FAILED
 	"The server-controlled expiry time has passed."
 	EXPIRED
-}
-
-"Input for retrieving connection materials for a ready personal access."
-input PostgresAccessConnectionInput {
-	"Name of the PostgresAccess resource."
-	name: String!
-	"Team that owns the PostgresAccess resource."
-	teamSlug: Slug!
-	"Environment containing the PostgresAccess resource."
-	environmentName: String!
 }
 
 "Sensitive connection materials for a ready personal Postgres access."
