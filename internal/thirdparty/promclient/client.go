@@ -126,7 +126,7 @@ func (c *RealClient) QueryRange(ctx context.Context, environment string, query s
 }
 
 func (c *RealClient) Rules(ctx context.Context, environment string, teamSlug slug.Slug) (promv1.RulesResult, error) {
-	res, err := c.mimirRules.Rules(ctx)
+	res, err := c.mimirRules.Rules(ctx, nil)
 	if err != nil {
 		return promv1.RulesResult{}, err
 	}
