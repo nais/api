@@ -1,0 +1,62 @@
+apiVersion: nais.io/v1
+kind: Postgres
+metadata:
+  name: orders
+  namespace: postgres-workload-team
+spec:
+  majorVersion: "17"
+status:
+  activeInstance: orders-green
+---
+apiVersion: nais.io/v1
+kind: Postgres
+metadata:
+  name: reports
+  namespace: postgres-workload-team
+spec:
+  majorVersion: "17"
+status:
+  activeInstance: reports-recovered
+---
+apiVersion: nais.io/v1
+kind: PostgresInstance
+metadata:
+  name: orders-green
+  namespace: postgres-workload-team
+spec:
+  postgres: orders
+---
+apiVersion: nais.io/v1
+kind: PostgresInstance
+metadata:
+  name: reports-recovered
+  namespace: postgres-workload-team
+spec:
+  postgres: reports
+---
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: consumer
+  namespace: postgres-workload-team
+spec:
+  image: ghcr.io/nais/testapp:latest
+  uses:
+    postgres:
+      - name: orders
+      - name: reports
+        envPrefix: REPORTS_
+---
+apiVersion: nais.io/v1
+kind: Naisjob
+metadata:
+  name: scheduled-reader
+  namespace: postgres-workload-team
+spec:
+  image: ghcr.io/nais/testapp:latest
+  schedule: "0 0 * * *"
+  uses:
+    postgres:
+      - name: orders
+      - name: reports
+        envPrefix: REPORTS_

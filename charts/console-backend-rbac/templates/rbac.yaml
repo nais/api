@@ -127,6 +127,28 @@ rules:
       - get
       - create
   - apiGroups:
+      - "nais.io"
+    resources:
+      - postgresinstances
+    verbs:
+      - get
+      - list
+      - watch
+      - delete
+  # Owner-only connection retrieval reads the mapping, not the relay's proof hash via status.
+  - apiGroups:
+      - "nais.io"
+    resources:
+      - relayaccesses
+    verbs:
+      - get
+  - apiGroups:
+      - postgresql.cnpg.io
+    resources:
+      - clusters
+    verbs:
+      - get
+  - apiGroups:
       - "aiven.nais.io"
     resources:
       - aivenapplications
@@ -273,7 +295,7 @@ rules:
       - list
       - watch
   - apiGroups:
-      - "data.nais.io"
+      - "nais.io"
     resources:
       - postgres
     verbs:
@@ -287,6 +309,27 @@ rules:
     verbs:
       - get
       - create
+  - apiGroups:
+      - "nais.io"
+    resources:
+      - postgresinstances
+    verbs:
+      - get
+      - list
+      - watch
+      - delete
+  - apiGroups:
+      - "nais.io"
+    resources:
+      - relayaccesses
+    verbs:
+      - get
+  - apiGroups:
+      - postgresql.cnpg.io
+    resources:
+      - clusters
+    verbs:
+      - get
   - apiGroups:
       - ""
     resources:

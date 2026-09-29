@@ -1,0 +1,15 @@
+apiVersion: nais.io/v1
+kind: PostgresInstance
+metadata:
+  name: progressing
+  namespace: someteamname
+spec:
+  postgres: progressing
+status:
+  reconcilePhase: Preparing
+  conditions:
+    - type: cluster.postgresql.cnpg.io/ObservedState
+      status: "False"
+      reason: Reconciling
+      message: "Cluster is in phase: "
+      lastTransitionTime: "2026-09-17T00:00:00Z"

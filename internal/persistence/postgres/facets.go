@@ -50,54 +50,6 @@ func (f *PostgresInstanceFacets) States(ctx context.Context) []PostgresInstanceS
 	return states
 }
 
-// HighAvailability computes high availability facets for a Postgres query.
-func (f *PostgresInstanceFacets) HighAvailability(ctx context.Context) []model.BooleanFacetItem {
-	haCounts := map[bool]int{}
-	for _, inst := range f.AllInstances {
-		haCounts[inst.HighAvailability] = 0
-	}
-
-	filtered := f.Filtered(ctx)
-	for _, inst := range filtered {
-		haCounts[inst.HighAvailability]++
-	}
-
-	ha := make([]model.BooleanFacetItem, 0, len(haCounts))
-	for val, count := range haCounts {
-		ha = append(ha, model.BooleanFacetItem{
-			Value: val,
-			Count: count,
-		})
-	}
-	model.SortBooleanFacetItems(ha)
-
-	return ha
-}
-
-// MajorVersions computes major version facets for a Postgres query.
-func (f *PostgresInstanceFacets) MajorVersions(ctx context.Context) []model.StringFacetItem {
-	versionCounts := map[string]int{}
-	for _, inst := range f.AllInstances {
-		versionCounts[inst.MajorVersion] = 0
-	}
-
-	filtered := f.Filtered(ctx)
-	for _, inst := range filtered {
-		versionCounts[inst.MajorVersion]++
-	}
-
-	versions := make([]model.StringFacetItem, 0, len(versionCounts))
-	for val, count := range versionCounts {
-		versions = append(versions, model.StringFacetItem{
-			Value: val,
-			Count: count,
-		})
-	}
-	model.SortStringFacetItems(versions)
-
-	return versions
-}
-
 // Labels computes labels facets for a Postgres query.
 func (f *PostgresInstanceFacets) Labels(ctx context.Context) []model.LabelFacetItem {
 	filtered := f.Filtered(ctx)

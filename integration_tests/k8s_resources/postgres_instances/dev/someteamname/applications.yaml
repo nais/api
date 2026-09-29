@@ -6,8 +6,9 @@ metadata:
   namespace: someteamname
 spec:
   image: ghcr.io/nais/testapp:latest
-  postgres:
-    clusterName: foobar
+  uses:
+    postgres:
+      - name: foobar
 ---
 apiVersion: nais.io/v1alpha1
 kind: Application
@@ -16,8 +17,9 @@ metadata:
   namespace: someteamname
 spec:
   image: ghcr.io/nais/testapp:latest
-  postgres:
-    clusterName: foobar
+  uses:
+    postgres:
+      - name: foobar
 ---
 apiVersion: nais.io/v1
 kind: Naisjob
@@ -27,8 +29,9 @@ metadata:
 spec:
   image: ghcr.io/nais/testapp:latest
   schedule: "0 0 * * *"
-  postgres:
-    clusterName: foobar
+  uses:
+    postgres:
+      - name: foobar
 ---
 apiVersion: nais.io/v1alpha1
 kind: Application

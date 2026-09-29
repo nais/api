@@ -1,0 +1,15 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: pg-foobar
+  namespace: someteamname
+spec:
+  certificates:
+    serverCASecret: pg-foobar-ca
+status:
+  phase: Cluster in healthy state
+  conditions:
+    - type: Ready
+      status: "True"
+      reason: ClusterReady
+      lastTransitionTime: "2026-09-17T00:00:00Z"

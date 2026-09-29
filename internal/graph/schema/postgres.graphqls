@@ -22,12 +22,14 @@ extend type Team {
 }
 
 extend type TeamEnvironment {
-	"Postgres instance in the team environment."
+	"Postgres in the team environment."
+	postgres(name: String!): Postgres!
+	"Named PostgresInstance in the team environment."
 	postgresInstance(name: String!): PostgresInstance!
 }
 
 extend interface Workload {
-	"Postgres instances referenced by the workload. This does not currently support pagination, but will return all available Postgres instances."
+	"Active PostgresInstances for all Postgres entries in uses.postgres."
 	postgresInstances(
 		"Ordering options for items returned from the connection."
 		orderBy: PostgresInstanceOrder
@@ -35,7 +37,7 @@ extend interface Workload {
 }
 
 extend type Application {
-	"Postgres instances referenced by the application. This does not currently support pagination, but will return all available Postgres instances."
+	"Active PostgresInstances for all Postgres entries in uses.postgres."
 	postgresInstances(
 		"Ordering options for items returned from the connection."
 		orderBy: PostgresInstanceOrder
@@ -43,7 +45,7 @@ extend type Application {
 }
 
 extend type Job {
-	"Postgres instances referenced by the job. This does not currently support pagination, but will return all available Postgres instances."
+	"Active PostgresInstances for all Postgres entries in uses.postgres."
 	postgresInstances(
 		"Ordering options for items returned from the connection."
 		orderBy: PostgresInstanceOrder
@@ -68,12 +70,6 @@ input PostgresInstanceFilter {
 	"Filter by instance state."
 	states: [PostgresInstanceState!]
 
-	"Filter by high availability."
-	highAvailability: Boolean
-
-	"Filter by major versions."
-	majorVersions: [String!]
-
 	"Filter by user-defined labels. All listed labels must match."
 	labels: [LabelFilter!]
 }
@@ -83,59 +79,43 @@ enum PostgresInstanceOrderField {
 	ENVIRONMENT
 }
 
+"A named PostgresInstance belonging to a Postgres."
 type PostgresInstance implements Persistence & Node {
 	id: ID!
 	name: String!
 	team: Team!
 	teamEnvironment: TeamEnvironment!
-	"Workloads that reference the Postgres instance."
-	workloads(
-		"Get the first n items in the connection. This can be used in combination with the after parameter."
-		first: Int
-
-		"Get items after this cursor."
-		after: Cursor
-
-		"Get the last n items in the connection. This can be used in combination with the before parameter."
-		last: Int
-
-		"Get items before this cursor."
-		before: Cursor
-	): WorkloadConnection!
-	"Resource allocation for the Postgres cluster."
-	resources: PostgresInstanceResources!
-	"Major version of PostgreSQL."
-	majorVersion: String!
-	"Audit logging configuration for the Postgres cluster."
-	audit: PostgresInstanceAudit!
-	"Indicates whether the Postgres cluster is configured for high availability."
-	highAvailability: Boolean!
-	"Current state of the Postgres cluster."
+	"Postgres owning this PostgresInstance."
+	postgres: Postgres!
+	"Workloads using this instance while it is active."
+	workloads(first: Int, after: Cursor, last: Int, before: Cursor): WorkloadConnection!
 	state: PostgresInstanceState!
-	"Maintenance window for the Postgres cluster, if configured."
-	maintenanceWindow: PostgresInstanceMaintenanceWindow
-	"User-defined labels attached to this instance."
 	labels: [ResourceLabel!]!
+}
+
+"A Postgres whose active instance can change."
+type Postgres implements Node {
+	id: ID!
+	name: String!
+	majorVersion: String!
+	highAvailability: Boolean!
+	"Requested CPU, memory and disk size, when present on this Postgres."
+	resources: PostgresResources!
+	activeInstance: String
+	labels: [ResourceLabel!]!
+}
+
+"Resource requests configured on Postgres. Omitted requests are null."
+type PostgresResources {
+	cpu: String
+	memory: String
+	diskSize: String
 }
 
 enum PostgresInstanceState {
 	AVAILABLE
 	PROGRESSING
 	DEGRADED
-}
-
-type PostgresInstanceMaintenanceWindow {
-	day: Int!
-	hour: Int!
-}
-
-type PostgresInstanceAudit {
-	"Indicates whether audit logging is enabled for the Postgres cluster."
-	enabled: Boolean!
-	"URL for accessing the audit logs."
-	url: String
-	"List of statement classes that are being logged, such as `ddl`, `dml`, and `read`."
-	statementClasses: [String!]
 }
 
 type PostgresInstanceConnection {
@@ -165,12 +145,6 @@ type PostgresInstanceFacets {
 	"Distribution of instances by state."
 	states: [PostgresInstanceStateFacetItem!]!
 
-	"Distribution of instances by high availability."
-	highAvailability: [BooleanFacetItem!]!
-
-	"Distribution of instances by major version."
-	majorVersions: [StringFacetItem!]!
-
 	"Distribution of instances by user-defined labels."
 	labels: [LabelFacetItem!]!
 }
@@ -184,12 +158,6 @@ type PostgresInstanceStateFacetItem {
 
 	"Number of matching instances."
 	count: Int!
-}
-
-type PostgresInstanceResources {
-	cpu: String!
-	memory: String!
-	diskSize: String!
 }
 
 extend union SearchNode = PostgresInstance
@@ -338,16 +306,11 @@ extend enum ActivityLogActivityType {
 
 extend type Mutation {
 	"""
-	Create time-limited personal access to a NAIS Postgres instance through the brokered PostgresAccess and WireGuard tunnel flow.
+	Create time-limited personal access to a NAIS Postgres instance through the brokered PostgresAccess and relay flow.
 	Use this for new NAIS Postgres personal access. When the access is ready, retrieve its connection materials with postgresAccessConnection.
 	"""
 	createPostgresAccess(input: CreatePostgresAccessInput!): CreatePostgresAccessPayload!
-	"""
-	Grant time-limited Kubernetes RBAC access to database pods for kubectl port-forward.
-	Use this existing flow for Cloud SQL access; it does not create a PostgresAccess, WireGuard tunnel, or database credentials.
-	"""
-	grantPostgresAccess(input: GrantPostgresAccessInput!): GrantPostgresAccessPayload!
-	"Delete an existing Postgres instance."
+	"Delete a PostgresInstance that is not active on its Postgres."
 	deletePostgres(input: DeletePostgresInput!): DeletePostgresPayload!
 }
 
@@ -361,7 +324,7 @@ type CreatePostgresAccessPayload {
 
 "Input for creating a time-limited personal Postgres access."
 input CreatePostgresAccessInput {
-	"Name of the available Postgres instance to access."
+	"Name of the PostgresInstance to access."
 	postgresInstance: String!
 	"Team that owns the Postgres instance."
 	teamSlug: Slug!
@@ -369,11 +332,9 @@ input CreatePostgresAccessInput {
 	environmentName: String!
 	"Privileges requested for the personal database role."
 	accessLevel: PostgresAccessLevel!
-	"WireGuard public key generated by the client for this access."
-	clientWireGuardPublicKey: String!
 	"Reason for personal database access. Must be at least 10 characters."
 	reason: String!
-	"Requested access lifetime (for example '1h' or '4h'). Defaults to '1h' and cannot exceed '8h'."
+	"Requested access lifetime (for example '30m' or '1h'). Defaults to '1h' and cannot exceed '1h'."
 	ttl: String
 }
 
@@ -385,19 +346,6 @@ enum PostgresAccessLevel {
 	READWRITE
 	"Read, modify, and create database objects where supported."
 	READWRITECREATE
-}
-
-type GrantPostgresAccessPayload {
-	error: String
-}
-
-input GrantPostgresAccessInput {
-	clusterName: String!
-	teamSlug: Slug!
-	environmentName: String!
-	grantee: String!
-	"Duration of the access grant (maximum 4 hours)."
-	duration: String!
 }
 
 input DeletePostgresInput {
@@ -450,7 +398,7 @@ type PostgresAccess implements Node {
 	team: Team!
 	"Environment for the access."
 	teamEnvironment: TeamEnvironment!
-	"Postgres instance this access is for."
+	"PostgresInstance selected by this access."
 	postgresInstance: PostgresInstance!
 	"Requested access level."
 	accessLevel: PostgresAccessLevel!
@@ -460,8 +408,8 @@ type PostgresAccess implements Node {
 	state: PostgresAccessState!
 	"Human-readable message for the current state."
 	message: String
-	"Tunnel connection details, once the controller has created them."
-	tunnel: PostgresAccessTunnel
+	"Name of the controller-owned relay mapping, once created. Contains no credential."
+	relayAccess: String
 }
 
 "High-level reconciliation state of a personal Postgres access."
@@ -476,16 +424,6 @@ enum PostgresAccessState {
 	EXPIRED
 }
 
-"Tunnel details reported while provisioning a personal Postgres access."
-type PostgresAccessTunnel {
-	"Name of the Tunnel resource owned by this access."
-	name: String!
-	"Gateway endpoint the client should connect to."
-	endpoint: String
-	"Gateway's WireGuard public key."
-	gatewayPublicKey: String
-}
-
 "Input for retrieving connection materials for a ready personal access."
 input PostgresAccessConnectionInput {
 	"Name of the PostgresAccess resource."
@@ -498,20 +436,18 @@ input PostgresAccessConnectionInput {
 
 "Sensitive connection materials for a ready personal Postgres access."
 type PostgresAccessConnection {
+	"Database username for the caller's personal role."
+	username: String!
 	"Short-lived password for the caller's database role."
 	password: String!
 	"CA certificate required to verify the PostgreSQL server certificate."
 	caCertificate: String!
 	"PostgreSQL server name used for TLS verification."
 	serverName: String!
-	"WireGuard tunnel endpoint and server public key."
-	tunnel: PostgresAccessConnectionTunnel!
-}
-
-"WireGuard connection parameters for a personal Postgres access."
-type PostgresAccessConnectionTunnel {
-	"Public UDP endpoint of the Tunnel forwarder."
-	endpoint: String!
-	"WireGuard public key of the Tunnel gateway."
-	gatewayPublicKey: String!
+	"Public HTTP/3 relay endpoint."
+	relayEndpoint: String!
+	"Relay-Access header value (namespace/name)."
+	relayAccess: String!
+	"Owner-only bearer token for this access; never log it."
+	relayToken: String!
 }

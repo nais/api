@@ -52,7 +52,6 @@ type BigQueryDataset struct {
 	TeamSlug          slug.Slug                `json:"-"`
 	EnvironmentName   string                   `json:"-"`
 	WorkloadReference *workload.Reference      `json:"-"`
-	ProjectID         string                   `json:"-"`
 	K8sResourceName   string                   `json:"-"`
 }
 
@@ -195,7 +194,6 @@ func toBigQueryDataset(u *unstructured.Unstructured, environmentName string) (*B
 		TeamSlug:          slug.Slug(obj.GetNamespace()),
 		EnvironmentName:   environmentName,
 		WorkloadReference: workload.ReferenceFromOwnerReferences(obj.GetOwnerReferences()),
-		ProjectID:         obj.Spec.Project,
 	}
 
 	if obj.Spec.Description != "" {

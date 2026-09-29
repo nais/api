@@ -10,13 +10,15 @@ import (
 type identType int
 
 const (
-	identPostgres identType = iota
+	identPostgresInstance identType = iota
 	identPostgresAccess
+	identPostgres
 )
 
 func init() {
-	ident.RegisterIdentType(identPostgres, "PP", GetPostgresByIdent)
+	ident.RegisterIdentType(identPostgresInstance, "PP", GetPostgresInstanceByIdent)
 	ident.RegisterIdentType(identPostgresAccess, "PA", GetPostgresAccessByIdent)
+	ident.RegisterIdentType(identPostgres, "PG", GetPostgresByIdent)
 }
 
 func parsePostgresInstanceIdent(id ident.Ident) (teamSlug slug.Slug, environmentName, postgresInstanceName string, err error) {
@@ -29,7 +31,7 @@ func parsePostgresInstanceIdent(id ident.Ident) (teamSlug slug.Slug, environment
 }
 
 func newIdent(teamSlug slug.Slug, environmentName, postgresInstanceName string) ident.Ident {
-	return ident.NewIdent(identPostgres, teamSlug.String(), environmentName, postgresInstanceName)
+	return ident.NewIdent(identPostgresInstance, teamSlug.String(), environmentName, postgresInstanceName)
 }
 
 func parseAccessIdent(id ident.Ident) (teamSlug slug.Slug, environmentName, name string, err error) {
@@ -43,4 +45,8 @@ func parseAccessIdent(id ident.Ident) (teamSlug slug.Slug, environmentName, name
 
 func newAccessIdent(teamSlug slug.Slug, environmentName, name string) ident.Ident {
 	return ident.NewIdent(identPostgresAccess, teamSlug.String(), environmentName, name)
+}
+
+func newPostgresIdent(teamSlug slug.Slug, environmentName, name string) ident.Ident {
+	return ident.NewIdent(identPostgres, teamSlug.String(), environmentName, name)
 }

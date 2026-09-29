@@ -15,7 +15,7 @@ func AddSearchPostgres(client search.Client, watcher *watcher.Watcher[*PostgresI
 	}
 
 	gbi := func(ctx context.Context, id ident.Ident) (search.SearchNode, error) {
-		return GetPostgresByIdent(ctx, id)
+		return GetPostgresInstanceByIdent(ctx, id)
 	}
 
 	client.AddClient("POSTGRES", search.NewK8sSearch("POSTGRES", watcher, gbi, createIdent))

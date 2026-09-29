@@ -1,6 +1,16 @@
 ---
-apiVersion: data.nais.io/v1
+apiVersion: nais.io/v1
 kind: Postgres
+metadata:
+  name: postgres-one
+  namespace: labelteam
+spec:
+  majorVersion: "17"
+status:
+  activeInstance: postgres-one
+---
+apiVersion: nais.io/v1
+kind: PostgresInstance
 metadata:
   name: postgres-one
   namespace: labelteam
@@ -8,45 +18,68 @@ metadata:
     tag: target
     priority: high
 spec:
-  cluster:
-    majorVersion: "17"
-    resources:
-      cpu: 100m
-      diskSize: 2Gi
-      memory: 2G
-  database:
-    collation: nb_NO
+  postgres: postgres-one
+status:
+  reconcilePhase: Completed
+  conditions:
+    - type: cluster.postgresql.cnpg.io/ObservedState
+      status: "True"
+      reason: Reconciled
+      message: "Cluster is in phase: Cluster in healthy state"
+      lastTransitionTime: "2026-09-17T00:00:00Z"
 ---
-apiVersion: data.nais.io/v1
+apiVersion: nais.io/v1
 kind: Postgres
+metadata:
+  name: postgres-two
+  namespace: labelteam
+spec:
+  majorVersion: "17"
+status:
+  activeInstance: postgres-two
+---
+apiVersion: nais.io/v1
+kind: PostgresInstance
 metadata:
   name: postgres-two
   namespace: labelteam
   labels:
     tag: target
 spec:
-  cluster:
-    majorVersion: "17"
-    resources:
-      cpu: 100m
-      diskSize: 2Gi
-      memory: 2G
-  database:
-    collation: nb_NO
+  postgres: postgres-two
+status:
+  reconcilePhase: Completed
+  conditions:
+    - type: cluster.postgresql.cnpg.io/ObservedState
+      status: "True"
+      reason: Reconciled
+      message: "Cluster is in phase: Cluster in healthy state"
+      lastTransitionTime: "2026-09-17T00:00:00Z"
 ---
-apiVersion: data.nais.io/v1
+apiVersion: nais.io/v1
 kind: Postgres
+metadata:
+  name: postgres-three
+  namespace: labelteam
+spec:
+  majorVersion: "17"
+status:
+  activeInstance: postgres-three
+---
+apiVersion: nais.io/v1
+kind: PostgresInstance
 metadata:
   name: postgres-three
   namespace: labelteam
   labels:
     tag: other
 spec:
-  cluster:
-    majorVersion: "17"
-    resources:
-      cpu: 100m
-      diskSize: 2Gi
-      memory: 2G
-  database:
-    collation: nb_NO
+  postgres: postgres-three
+status:
+  reconcilePhase: Completed
+  conditions:
+    - type: cluster.postgresql.cnpg.io/ObservedState
+      status: "True"
+      reason: Reconciled
+      message: "Cluster is in phase: Cluster in healthy state"
+      lastTransitionTime: "2026-09-17T00:00:00Z"

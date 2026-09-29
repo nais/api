@@ -731,6 +731,18 @@ func ViewSecretValues(ctx context.Context, input ViewSecretValuesInput) (*ViewSe
 
 	actor := authz.ActorFromContext(ctx)
 	loaders := fromContext(ctx)
+	clusterName := environmentmapper.ClusterName(input.Environment)
+	k8sClient, exists := loaders.K8sClient(clusterName)
+	if !exists {
+		return nil, apierror.Errorf("Environment %q does not exist.", input.Environment)
+	}
+	current, err := k8sClient.Resource(schema.GroupVersionResource{Version: "v1", Resource: "secrets"}).Namespace(input.Team.String()).Get(ctx, input.Name, v1.GetOptions{})
+	if err != nil {
+		return nil, fmt.Errorf("checking secret ownership: %w", err)
+	}
+	if isPostgresAccessSecret(current) {
+		return nil, apierror.Errorf("PostgresAccess credentials are only available through postgresAccessConnection")
+	}
 
 	// Create temporary Role and RoleBinding for the user (1 minute TTL)
 	elevationID, err := createTemporaryRBAC(ctx, loaders, input, actor)
@@ -739,7 +751,6 @@ func ViewSecretValues(ctx context.Context, input ViewSecretValuesInput) (*ViewSe
 	}
 
 	// Use impersonated client to read secret values (defense in depth)
-	clusterName := environmentmapper.ClusterName(input.Environment)
 	impersonatedClient, err := loaders.Client(ctx, clusterName)
 	if err != nil {
 		return nil, fmt.Errorf("creating impersonated client: %w", err)
@@ -766,6 +777,10 @@ func ViewSecretValues(ctx context.Context, input ViewSecretValuesInput) (*ViewSe
 		case <-ctx.Done():
 			return nil, ctx.Err()
 		}
+	}
+
+	if isPostgresAccessSecret(u) {
+		return nil, apierror.Errorf("PostgresAccess credentials are only available through postgresAccessConnection")
 	}
 
 	data, _, err := unstructured.NestedStringMap(u.Object, "data")
@@ -809,6 +824,15 @@ func ViewSecretValues(ctx context.Context, input ViewSecretValuesInput) (*ViewSe
 	return &ViewSecretValuesPayload{
 		Values: values,
 	}, nil
+}
+
+func isPostgresAccessSecret(secret *unstructured.Unstructured) bool {
+	for _, owner := range secret.GetOwnerReferences() {
+		if owner.APIVersion == "nais.io/v1" && owner.Kind == "PostgresAccess" {
+			return true
+		}
+	}
+	return false
 }
 
 var (

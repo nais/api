@@ -1,0 +1,8 @@
+---
+apiVersion: nais.io/v1
+kind: Postgres
+metadata:
+  name: legacy-only
+  namespace: someteamname
+spec:
+  majorVersion: "17"

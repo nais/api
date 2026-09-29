@@ -83,6 +83,6 @@ func postgresInstanceToProto(p *postgres.PostgresInstance) *protoapi.Database {
 		Database:    "app",
 		Environment: p.EnvironmentName,
 		TeamSlug:    p.TeamSlug.String(),
-		Type:        protoapi.DatabaseType_ZALANDO_POSTGRES,
+		Type:        protoapi.DatabaseType_NAIS_POSTGRES,
 	}
 }

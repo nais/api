@@ -1,0 +1,17 @@
+apiVersion: nais.io/v1alpha1
+kind: RelayAccess
+metadata:
+  name: ready-access
+  namespace: someteamname
+  ownerReferences:
+    - apiVersion: nais.io/v1
+      kind: PostgresAccess
+      name: ready-access
+      uid: 11111111-1111-4111-8111-111111111111
+      controller: true
+spec:
+  target:
+    serviceName: pg-foobar-rw
+    port: 5432
+  expiresAt: "2099-09-17T12:00:00Z"
+  tokenSHA256: 630dcd2966c4336691125448bbb25b4ff412a49c732db2c8abc1b8581bd710dd

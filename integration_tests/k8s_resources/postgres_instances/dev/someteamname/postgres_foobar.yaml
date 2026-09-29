@@ -1,15 +1,30 @@
 ---
-apiVersion: data.nais.io/v1
+apiVersion: nais.io/v1
 kind: Postgres
 metadata:
   name: foobar
   namespace: someteamname
 spec:
-  cluster:
-    majorVersion: "17"
-    resources:
-      cpu: 100m
-      diskSize: 2Gi
-      memory: 2G
-  database:
-    collation: nb_NO
+  majorVersion: "17"
+  resources:
+    cpu: 100m
+    memory: 2Gi
+    diskSize: 2Gi
+status:
+  activeInstance: foobar
+---
+apiVersion: nais.io/v1
+kind: PostgresInstance
+metadata:
+  name: foobar
+  namespace: someteamname
+spec:
+  postgres: foobar
+status:
+  reconcilePhase: Completed
+  conditions:
+    - type: cluster.postgresql.cnpg.io/ObservedState
+      status: "True"
+      reason: Reconciled
+      message: "Cluster is in phase: Cluster in healthy state"
+      lastTransitionTime: "2026-09-17T00:00:00Z"

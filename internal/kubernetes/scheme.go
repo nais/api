@@ -9,7 +9,6 @@ import (
 	kafka_nais_io_v1 "github.com/nais/liberator/pkg/apis/kafka.nais.io/v1"
 	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
-	data_nais_io_v1 "github.com/nais/pgrator/pkg/api/datav1"
 	mapperatorv1 "github.com/nais/pgrator/pkg/api/v1"
 	unleash_nais_io_v1 "github.com/nais/unleasherator/api/v1"
 	appsv1 "k8s.io/api/apps/v1"
@@ -18,7 +17,9 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	netv1 "k8s.io/api/networking/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
 func NewScheme() (*runtime.Scheme, error) {
@@ -39,7 +40,6 @@ func NewScheme() (*runtime.Scheme, error) {
 		unleash_nais_io_v1.AddToScheme,
 		batchv1.AddToScheme,
 		aiven_nais_io_v1.AddToScheme,
-		data_nais_io_v1.AddToScheme,
 		authorizationv1.AddToScheme,
 		mapperatorv1.AddToScheme,
 	}
@@ -50,5 +50,17 @@ func NewScheme() (*runtime.Scheme, error) {
 		}
 	}
 
+	// The API reads these CRDs through dynamic clients without importing their
+	// controller implementations. Register their GVKs for local fake clients.
+	for _, gv := range []struct {
+		group, version, kind string
+	}{
+		{"nais.io", "v1alpha1", "RelayAccess"},
+		{"postgresql.cnpg.io", "v1", "Cluster"},
+	} {
+		version := schema.GroupVersion{Group: gv.group, Version: gv.version}
+		scheme.AddKnownTypeWithName(version.WithKind(gv.kind), &unstructured.Unstructured{})
+		scheme.AddKnownTypeWithName(version.WithKind(gv.kind+"List"), &unstructured.UnstructuredList{})
+	}
 	return scheme, nil
 }

@@ -38,18 +38,6 @@ func init() {
 			}
 		}
 
-		if filter.HighAvailability != nil {
-			if v.HighAvailability != *filter.HighAvailability {
-				return false
-			}
-		}
-
-		if len(filter.MajorVersions) > 0 {
-			if !slices.Contains(filter.MajorVersions, v.MajorVersion) {
-				return false
-			}
-		}
-
 		if !model.MatchesLabelFilters(v.Labels, filter.Labels) {
 			return false
 		}

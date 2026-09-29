@@ -1,15 +1,26 @@
 ---
-apiVersion: data.nais.io/v1
+apiVersion: nais.io/v1
 kind: Postgres
 metadata:
   name: another-db
   namespace: someteamname
 spec:
-  cluster:
-    majorVersion: "16"
-    resources:
-      cpu: 200m
-      diskSize: 10Gi
-      memory: 4G
-  database:
-    collation: en_US
+  majorVersion: "16"
+status:
+  activeInstance: another-db
+---
+apiVersion: nais.io/v1
+kind: PostgresInstance
+metadata:
+  name: another-db
+  namespace: someteamname
+spec:
+  postgres: another-db
+status:
+  reconcilePhase: Completed
+  conditions:
+    - type: cluster.postgresql.cnpg.io/ObservedState
+      status: "True"
+      reason: Reconciled
+      message: "Cluster is in phase: Cluster in healthy state"
+      lastTransitionTime: "2026-09-17T00:00:00Z"

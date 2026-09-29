@@ -17,9 +17,9 @@ import (
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/validate"
-	"github.com/nais/api/internal/workload"
-	data_nais_io_v1 "github.com/nais/pgrator/pkg/api/datav1"
-	"k8s.io/apimachinery/pkg/api/meta"
+	nais_io_v1 "github.com/nais/pgrator/pkg/api/v1"
+	k8serrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -29,12 +29,10 @@ import (
 type PostgresInstanceEdge = pagination.Edge[*PostgresInstance]
 
 type PostgresInstanceFilter struct {
-	Name             string                  `json:"name"`
-	Environments     []string                `json:"environments"`
-	States           []PostgresInstanceState `json:"states"`
-	HighAvailability *bool                   `json:"highAvailability"`
-	MajorVersions    []string                `json:"majorVersions"`
-	Labels           model.LabelFilters      `json:"labels,omitempty"`
+	Name         string                  `json:"name"`
+	Environments []string                `json:"environments"`
+	States       []PostgresInstanceState `json:"states"`
+	Labels       model.LabelFilters      `json:"labels,omitempty"`
 }
 
 type PostgresInstanceConnection = pagination.FacetableConnection[*PostgresInstance, *PostgresInstanceFilter]
@@ -51,19 +49,37 @@ type PostgresInstanceStateFacetItem struct {
 	Count int                   `json:"count"`
 }
 
+// PostgresInstance represents an independently running database instance.
 type PostgresInstance struct {
-	Name              string                             `json:"name"`
-	EnvironmentName   string                             `json:"-"`
-	WorkloadReference *workload.Reference                `json:"-"`
-	TeamSlug          slug.Slug                          `json:"-"`
-	Resources         *PostgresInstanceResources         `json:"resources"`
-	MajorVersion      string                             `json:"majorVersion"`
-	Audit             PostgresInstanceAudit              `json:"audit"`
-	MaintenanceWindow *PostgresInstanceMaintenanceWindow `json:"maintenanceWindow,omitempty"`
-	HighAvailability  bool                               `json:"highAvailability"`
-	State             PostgresInstanceState              `json:"state"`
-	Labels            []*model.ResourceLabel             `json:"labels"`
+	Name            string                 `json:"name"`
+	EnvironmentName string                 `json:"-"`
+	TeamSlug        slug.Slug              `json:"-"`
+	PostgresName    string                 `json:"postgres"`
+	State           PostgresInstanceState  `json:"state"`
+	Labels          []*model.ResourceLabel `json:"labels"`
 }
+
+// Postgres selects the instance that workloads use.
+type Postgres struct {
+	Name             string                 `json:"name"`
+	EnvironmentName  string                 `json:"-"`
+	TeamSlug         slug.Slug              `json:"-"`
+	ActiveInstance   *string                `json:"activeInstance,omitempty"`
+	MajorVersion     string                 `json:"majorVersion"`
+	HighAvailability bool                   `json:"highAvailability"`
+	Resources        PostgresResources      `json:"resources"`
+	Labels           []*model.ResourceLabel `json:"labels"`
+}
+
+// PostgresResources contains only resource requests observed on the Postgres CR.
+type PostgresResources struct {
+	CPU      *string `json:"cpu,omitempty"`
+	Memory   *string `json:"memory,omitempty"`
+	DiskSize *string `json:"diskSize,omitempty"`
+}
+
+func (Postgres) IsNode()            {}
+func (p *Postgres) ID() ident.Ident { return newPostgresIdent(p.TeamSlug, p.EnvironmentName, p.Name) }
 
 type PostgresInstanceState string
 
@@ -71,10 +87,6 @@ const (
 	PostgresInstanceStateAvailable   PostgresInstanceState = "AVAILABLE"
 	PostgresInstanceStateProgressing PostgresInstanceState = "PROGRESSING"
 	PostgresInstanceStateDegraded    PostgresInstanceState = "DEGRADED"
-
-	postgresConditionTypeAvailable   = "Available"
-	postgresConditionTypeProgressing = "Progressing"
-	postgresConditionTypeDegraded    = "Degraded"
 )
 
 var AllPostgresInstanceState = []PostgresInstanceState{
@@ -126,30 +138,11 @@ func (e PostgresInstanceState) MarshalJSON() ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-type PostgresInstanceAudit struct {
-	Enabled          bool      `json:"enabled"`
-	StatementClasses []string  `json:"statementClasses,omitempty"`
-	TeamSlug         slug.Slug `json:"-"`
-	EnvironmentName  string    `json:"-"`
-	InstanceName     string    `json:"-"`
-}
-
-type PostgresInstanceMaintenanceWindow struct {
-	Day  int `json:"day"`
-	Hour int `json:"hour"`
-}
-
 func (PostgresInstance) IsPersistence() {}
 
 func (PostgresInstance) IsNode() {}
 
 func (PostgresInstance) IsSearchNode() {}
-
-type PostgresInstanceResources struct {
-	CPU      string `json:"cpu"`
-	Memory   string `json:"memory"`
-	DiskSize string `json:"diskSize"`
-}
 
 type DeletePostgresInput struct {
 	Name            string    `json:"name"`
@@ -183,69 +176,15 @@ type DeletePostgresPayload struct {
 	PostgresDeleted *bool `json:"postgresDeleted,omitempty"`
 }
 
-type GrantPostgresAccessInput struct {
-	ClusterName     string    `json:"clusterName"`
-	TeamSlug        slug.Slug `json:"teamSlug"`
-	EnvironmentName string    `json:"environmentName"`
-	Grantee         string    `json:"grantee"`
-	Duration        string    `json:"duration"`
-}
-
-func (i *GrantPostgresAccessInput) Validate(ctx context.Context) error {
-	return i.ValidationErrors(ctx).NilIfEmpty()
-}
-
-func (i *GrantPostgresAccessInput) ValidationErrors(ctx context.Context) *validate.ValidationErrors {
-	verr := validate.New()
-	i.ClusterName = strings.TrimSpace(i.ClusterName)
-	i.EnvironmentName = strings.TrimSpace(i.EnvironmentName)
-
-	if i.ClusterName == "" {
-		verr.Add("clusterName", "ClusterName must not be empty.")
-	}
-	if i.EnvironmentName == "" {
-		verr.Add("environmentName", "Environment name must not be empty.")
-	}
-	if i.TeamSlug == "" {
-		verr.Add("teamSlug", "Team slug must not be empty.")
-	}
-	if i.Grantee == "" {
-		verr.Add("grantee", "Grantee must not be empty.")
-	}
-
-	duration, err := time.ParseDuration(i.Duration)
-	if err != nil {
-		verr.Add("duration", "%s", err)
-	} else if duration > 4*time.Hour {
-		verr.Add("duration", "Duration \"%s\" is out-of-bounds. Must be less than 4 hours.", i.Duration)
-	}
-
-	_, err = GetPostgres(ctx, i.TeamSlug, i.EnvironmentName, i.ClusterName)
-	if err != nil {
-		if errors.Is(err, &watcher.ErrorNotFound{}) {
-			verr.Add("clusterName", "Could not find postgres cluster named \"%s\"", i.ClusterName)
-		} else {
-			verr.Add("clusterName", "%s", err)
-		}
-	}
-
-	return verr
-}
-
-type GrantPostgresAccessPayload struct {
-	Error *string `json:"error,omitempty"`
-}
-
 // CreatePostgresAccessInput requests a new, time-limited personal database access.
 // The authenticated actor and final expiry are server-controlled.
 type CreatePostgresAccessInput struct {
-	PostgresInstance         string              `json:"postgresInstance"`
-	TeamSlug                 slug.Slug           `json:"teamSlug"`
-	EnvironmentName          string              `json:"environmentName"`
-	AccessLevel              PostgresAccessLevel `json:"accessLevel"`
-	ClientWireGuardPublicKey string              `json:"clientWireGuardPublicKey"`
-	Reason                   string              `json:"reason"`
-	TTL                      string              `json:"ttl"`
+	PostgresInstance string              `json:"postgresInstance"`
+	TeamSlug         slug.Slug           `json:"teamSlug"`
+	EnvironmentName  string              `json:"environmentName"`
+	AccessLevel      PostgresAccessLevel `json:"accessLevel"`
+	Reason           string              `json:"reason"`
+	TTL              string              `json:"ttl"`
 }
 
 func (i *CreatePostgresAccessInput) Validate(ctx context.Context) error {
@@ -256,7 +195,6 @@ func (i *CreatePostgresAccessInput) ValidationErrors(ctx context.Context) *valid
 	verr := validate.New()
 	i.PostgresInstance = strings.TrimSpace(i.PostgresInstance)
 	i.EnvironmentName = strings.TrimSpace(i.EnvironmentName)
-	i.ClientWireGuardPublicKey = strings.TrimSpace(i.ClientWireGuardPublicKey)
 	i.Reason = strings.TrimSpace(i.Reason)
 	i.TTL = strings.TrimSpace(i.TTL)
 
@@ -272,9 +210,6 @@ func (i *CreatePostgresAccessInput) ValidationErrors(ctx context.Context) *valid
 	if !i.AccessLevel.IsValid() {
 		verr.Add("accessLevel", "Access level %q is not valid.", i.AccessLevel)
 	}
-	if i.ClientWireGuardPublicKey == "" {
-		verr.Add("clientWireGuardPublicKey", "Client WireGuard public key must not be empty.")
-	}
 	if len(i.Reason) < 10 {
 		verr.Add("reason", "Reason must be at least 10 characters.")
 	}
@@ -286,10 +221,10 @@ func (i *CreatePostgresAccessInput) ValidationErrors(ctx context.Context) *valid
 		return verr
 	}
 
-	instance, err := GetPostgres(ctx, i.TeamSlug, i.EnvironmentName, i.PostgresInstance)
+	instance, err := GetReadyPostgresInstance(ctx, i.TeamSlug, i.EnvironmentName, i.PostgresInstance)
 	if err != nil {
-		if errors.Is(err, &watcher.ErrorNotFound{}) {
-			verr.Add("postgresInstance", "Could not find postgres cluster named %q", i.PostgresInstance)
+		if k8serrors.IsNotFound(err) || errors.Is(err, &watcher.ErrorNotFound{}) {
+			verr.Add("postgresInstance", "Could not find PostgresInstance named %q", i.PostgresInstance)
 		} else {
 			verr.Add("postgresInstance", "%s", err)
 		}
@@ -365,77 +300,73 @@ func (p *PostgresInstance) ID() ident.Ident {
 	return newIdent(p.TeamSlug, p.EnvironmentName, p.Name)
 }
 
-func toPostgres(u *unstructured.Unstructured, environmentName string) (*PostgresInstance, error) {
-	obj := &data_nais_io_v1.Postgres{}
-
+func toPostgresInstance(u *unstructured.Unstructured, environmentName string) (*PostgresInstance, error) {
+	obj := &nais_io_v1.PostgresInstance{}
 	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(u.Object, obj); err != nil {
-		return nil, fmt.Errorf("converting to Postgres: %w", err)
+		return nil, fmt.Errorf("converting PostgresInstance: %w", err)
 	}
-
-	audit := false
-	statementClasses := []string(nil)
-	if obj.Spec.Cluster.Audit != nil {
-		audit = obj.Spec.Cluster.Audit.Enabled
-		if len(obj.Spec.Cluster.Audit.StatementClasses) > 0 {
-			statementClasses = make([]string, 0, len(obj.Spec.Cluster.Audit.StatementClasses))
-			for _, statementClass := range obj.Spec.Cluster.Audit.StatementClasses {
-				statementClasses = append(statementClasses, string(statementClass))
-			}
-		}
+	if obj.Spec.Postgres == "" {
+		return nil, fmt.Errorf("PostgresInstance %q has no Postgres", obj.Name)
 	}
-
-	state := PostgresInstanceStateAvailable
+	state := PostgresInstanceStateProgressing
 	if obj.Status != nil {
-		state = postgresStateFromConditions(obj.Status.Conditions)
+		state = postgresStateFromConditions(obj.Status.Conditions, obj.Status.ReconcilePhase == "Completed" && obj.Status.ObservedGeneration >= obj.Generation)
 	}
+	return &PostgresInstance{Name: obj.Name, EnvironmentName: environmentName, TeamSlug: slug.Slug(obj.Namespace), PostgresName: obj.Spec.Postgres, State: state, Labels: model.UserLabels(obj.Labels)}, nil
+}
 
-	return &PostgresInstance{
-		Name:              obj.GetName(),
-		EnvironmentName:   environmentName,
-		TeamSlug:          slug.Slug(obj.GetNamespace()),
-		WorkloadReference: workload.ReferenceFromOwnerReferences(obj.GetOwnerReferences()),
-		Resources: &PostgresInstanceResources{
-			CPU:      obj.Spec.Cluster.Resources.Cpu.String(),
-			Memory:   obj.Spec.Cluster.Resources.Memory.String(),
-			DiskSize: obj.Spec.Cluster.Resources.DiskSize.String(),
+func toPostgres(u *unstructured.Unstructured, environmentName string) (*Postgres, error) {
+	obj := &nais_io_v1.Postgres{}
+	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(u.Object, obj); err != nil {
+		return nil, fmt.Errorf("converting Postgres: %w", err)
+	}
+	var active *string
+	if obj.Status != nil && obj.Status.ActiveInstance != "" {
+		active = &obj.Status.ActiveInstance
+	}
+	quantity := func(value resource.Quantity) *string {
+		if value.IsZero() {
+			return nil
+		}
+		text := value.String()
+		return &text
+	}
+	return &Postgres{
+		Name: obj.Name, EnvironmentName: environmentName, TeamSlug: slug.Slug(obj.Namespace),
+		ActiveInstance: active, MajorVersion: obj.Spec.MajorVersion, HighAvailability: obj.Spec.HighAvailability,
+		Resources: PostgresResources{
+			CPU: quantity(obj.Spec.Resources.Cpu), Memory: quantity(obj.Spec.Resources.Memory),
+			DiskSize: quantity(obj.Spec.Resources.DiskSize),
 		},
-		MajorVersion: obj.Spec.Cluster.MajorVersion,
-		Audit: PostgresInstanceAudit{
-			Enabled:          audit,
-			StatementClasses: statementClasses,
-			TeamSlug:         slug.Slug(obj.GetNamespace()),
-			EnvironmentName:  environmentName,
-			InstanceName:     obj.GetName(),
-		},
-		HighAvailability: obj.Spec.Cluster.HighAvailability,
-		MaintenanceWindow: func() *PostgresInstanceMaintenanceWindow {
-			if obj.Spec.MaintenanceWindow == nil {
-				return nil
-			}
-			hour := 0
-			if obj.Spec.MaintenanceWindow.Hour != nil {
-				hour = *obj.Spec.MaintenanceWindow.Hour
-			}
-			return &PostgresInstanceMaintenanceWindow{
-				Day:  obj.Spec.MaintenanceWindow.Day,
-				Hour: hour,
-			}
-		}(),
-		State:  state,
-		Labels: model.UserLabels(obj.GetLabels()),
+		Labels: model.UserLabels(obj.Labels),
 	}, nil
 }
 
-func postgresStateFromConditions(conditions []metav1.Condition) PostgresInstanceState {
-	if meta.IsStatusConditionTrue(conditions, postgresConditionTypeDegraded) {
-		return PostgresInstanceStateDegraded
-	}
-
-	if meta.IsStatusConditionTrue(conditions, postgresConditionTypeProgressing) {
+// postgresStateFromConditions interprets the CNPG phase mirrored by pgrator.
+// ObservedState=False means no phase has been observed, not a failed cluster.
+func postgresStateFromConditions(conditions []metav1.Condition, reconciled bool) PostgresInstanceState {
+	if !reconciled {
 		return PostgresInstanceStateProgressing
 	}
-
-	return PostgresInstanceStateAvailable
+	for _, condition := range conditions {
+		if condition.Type != "cluster.postgresql.cnpg.io/ObservedState" || condition.Status != metav1.ConditionTrue {
+			continue
+		}
+		phase, ok := strings.CutPrefix(condition.Message, "Cluster is in phase: ")
+		if !ok {
+			continue
+		}
+		switch phase {
+		case "Cluster in healthy state":
+			return PostgresInstanceStateAvailable
+		case "Cluster is unrecoverable and needs manual intervention",
+			"Cluster cannot proceed to reconciliation due to an unknown plugin being required",
+			"Cluster cannot proceed to reconciliation due to an error while interacting with plugins",
+			"Cluster has incomplete or invalid image catalog":
+			return PostgresInstanceStateDegraded
+		}
+	}
+	return PostgresInstanceStateProgressing
 }
 
 type PostgresInstanceOrder struct {
@@ -506,16 +437,16 @@ type TeamInventoryCountPostgresInstances struct {
 // database access. Credentials are read from the controller-owned Secret on
 // demand; they are never cached by the watcher.
 type PostgresAccess struct {
-	Name                 string                `json:"name"`
-	TeamSlug             slug.Slug             `json:"-"`
-	EnvironmentName      string                `json:"-"`
-	PostgresInstanceName string                `json:"postgresInstance"`
-	Username             string                `json:"username"`
-	AccessLevel          PostgresAccessLevel   `json:"accessLevel"`
-	ExpiresAt            time.Time             `json:"expiresAt"`
-	State                PostgresAccessState   `json:"state"`
-	Message              *string               `json:"message,omitempty"`
-	Tunnel               *PostgresAccessTunnel `json:"tunnel,omitempty"`
+	Name                 string              `json:"name"`
+	TeamSlug             slug.Slug           `json:"-"`
+	EnvironmentName      string              `json:"-"`
+	PostgresInstanceName string              `json:"postgresInstance"`
+	Username             string              `json:"username"`
+	AccessLevel          PostgresAccessLevel `json:"accessLevel"`
+	ExpiresAt            time.Time           `json:"expiresAt"`
+	State                PostgresAccessState `json:"state"`
+	Message              *string             `json:"message,omitempty"`
+	RelayAccess          *string             `json:"relayAccess,omitempty"`
 }
 
 func (PostgresAccess) IsNode() {}
@@ -583,12 +514,6 @@ func (e PostgresAccessState) MarshalJSON() ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-type PostgresAccessTunnel struct {
-	Name             string  `json:"name"`
-	Endpoint         *string `json:"endpoint,omitempty"`
-	GatewayPublicKey *string `json:"gatewayPublicKey,omitempty"`
-}
-
 type PostgresAccessConnectionInput struct {
 	Name            string    `json:"name"`
 	TeamSlug        slug.Slug `json:"teamSlug"`
@@ -616,13 +541,11 @@ func (i *PostgresAccessConnectionInput) ValidationErrors(_ context.Context) *val
 }
 
 type PostgresAccessConnection struct {
-	Password      string                         `json:"password"`
-	CACertificate string                         `json:"caCertificate"`
-	ServerName    string                         `json:"serverName"`
-	Tunnel        PostgresAccessConnectionTunnel `json:"tunnel"`
-}
-
-type PostgresAccessConnectionTunnel struct {
-	Endpoint         string `json:"endpoint"`
-	GatewayPublicKey string `json:"gatewayPublicKey"`
+	Username      string `json:"username"`
+	Password      string `json:"password"`
+	CACertificate string `json:"caCertificate"`
+	ServerName    string `json:"serverName"`
+	RelayEndpoint string `json:"relayEndpoint"`
+	RelayAccess   string `json:"relayAccess"`
+	RelayToken    string `json:"relayToken"`
 }

@@ -4,10 +4,7 @@ import (
 	"cmp"
 	"context"
 	"fmt"
-	"hash/crc32"
-	"net/url"
 	"slices"
-	"strconv"
 	"strings"
 	"time"
 
@@ -21,17 +18,16 @@ import (
 	"github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/slug"
-	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
 	"github.com/nais/api/internal/workload/job"
-	corev1 "k8s.io/api/core/v1"
+	liberatorv1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
+	nais_io_v1 "github.com/nais/pgrator/pkg/api/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/client-go/dynamic"
+	"k8s.io/utils/ptr"
 )
 
 func Delete(ctx context.Context, input DeletePostgresInput) (*DeletePostgresPayload, error) {
@@ -39,30 +35,32 @@ func Delete(ctx context.Context, input DeletePostgresInput) (*DeletePostgresPayl
 		return nil, err
 	}
 
-	client, err := fromContext(ctx).postgresWatcher.ImpersonatedClientWithNamespace(ctx, input.EnvironmentName, input.TeamSlug.String())
+	client, err := fromContext(ctx).postgresWatcher.SystemAuthenticatedClient(ctx, input.EnvironmentName)
 	if err != nil {
 		return nil, err
 	}
-
-	obj, err := client.Get(ctx, input.Name, metav1.GetOptions{})
+	instance, err := client.Namespace(input.TeamSlug.String()).Get(ctx, input.Name, metav1.GetOptions{})
+	if err != nil {
+		return nil, fmt.Errorf("getting PostgresInstance %q before deletion: %w", input.Name, err)
+	}
+	postgresName, _, err := unstructured.NestedString(instance.Object, "spec", "postgres")
+	if err != nil || postgresName == "" {
+		return nil, apierror.Errorf("PostgresInstance %q has no Postgres", input.Name)
+	}
+	postgresClient, err := fromContext(ctx).postgresWatcher.SystemAuthenticatedClient(ctx, input.EnvironmentName, watcher.WithImpersonatedClientGVR(schema.GroupVersionResource{
+		Group: "nais.io", Version: "v1", Resource: "postgres",
+	}))
 	if err != nil {
 		return nil, err
 	}
-
-	allowDeletion, _, err := unstructured.NestedBool(obj.Object, "spec", "cluster", "allowDeletion")
+	postgres, err := postgresClient.Namespace(input.TeamSlug.String()).Get(ctx, postgresName, metav1.GetOptions{})
 	if err != nil {
+		return nil, fmt.Errorf("getting Postgres %q before instance deletion: %w", postgresName, err)
+	}
+	if err := ensureInstanceMayBeDeleted(instance, postgres); err != nil {
 		return nil, err
 	}
-	if !allowDeletion {
-		if err := unstructured.SetNestedField(obj.Object, true, "spec", "cluster", "allowDeletion"); err != nil {
-			return nil, err
-		}
-		if _, err = client.Update(ctx, obj, metav1.UpdateOptions{}); err != nil {
-			return nil, fmt.Errorf("enabling deletion: %w", err)
-		}
-	}
-
-	if err := fromContext(ctx).postgresWatcher.Delete(ctx, input.EnvironmentName, input.TeamSlug.String(), input.Name); err != nil {
+	if err := client.Namespace(input.TeamSlug.String()).Delete(ctx, input.Name, metav1.DeleteOptions{Preconditions: &metav1.Preconditions{UID: ptr.To(instance.GetUID())}}); err != nil {
 		return nil, err
 	}
 
@@ -80,12 +78,56 @@ func Delete(ctx context.Context, input DeletePostgresInput) (*DeletePostgresPayl
 	return &DeletePostgresPayload{PostgresDeleted: new(true)}, nil
 }
 
-func GetForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName, clusterName string) (*PostgresInstance, error) {
-	if clusterName == "" {
+// ensureInstanceMayBeDeleted prevents an API request from marking the active
+// instance as terminating. Pgrator independently blocks finalization as well.
+func ensureInstanceMayBeDeleted(instance, postgres *unstructured.Unstructured) error {
+	requested, _, err := unstructured.NestedString(postgres.Object, "spec", "activeInstance")
+	if err != nil {
+		return err
+	}
+	current, _, err := unstructured.NestedString(postgres.Object, "status", "activeInstance")
+	if err != nil {
+		return err
+	}
+	// Pgrator falls back to the Postgres name when neither field is set.
+	if requested == "" && current == "" {
+		current = postgres.GetName()
+	}
+	if instance.GetName() == requested || instance.GetName() == current {
+		return apierror.Errorf("PostgresInstance %q is active and cannot be deleted", instance.GetName())
+	}
+	return nil
+}
+
+func GetForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName, postgresName string) (*PostgresInstance, error) {
+	if postgresName == "" {
 		return nil, nil
 	}
+	postgres, err := GetPostgres(ctx, teamSlug, environmentName, postgresName)
+	if err != nil {
+		return nil, err
+	}
+	if postgres.ActiveInstance == nil {
+		return nil, nil
+	}
+	return GetPostgresInstance(ctx, teamSlug, environmentName, *postgres.ActiveInstance)
+}
 
-	return GetPostgres(ctx, teamSlug, environmentName, clusterName)
+// ListForWorkload resolves each Postgres use to the instance selected by that
+// Postgres. A workload can use several databases, each with its own active instance.
+func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName string, uses []liberatorv1.PostgresUse) ([]*PostgresInstance, error) {
+	instances := make([]*PostgresInstance, 0, len(uses))
+	for _, use := range uses {
+		instance, err := GetForWorkload(ctx, teamSlug, environmentName, use.Name)
+		if err != nil {
+			return nil, err
+		}
+		if instance != nil {
+			instances = append(instances, instance)
+		}
+	}
+	slices.SortFunc(instances, func(a, b *PostgresInstance) int { return cmp.Compare(a.Name, b.Name) })
+	return instances, nil
 }
 
 func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *PostgresInstanceOrder, filter *PostgresInstanceFilter) (*PostgresInstanceConnection, error) {
@@ -110,13 +152,21 @@ func CountForTeam(ctx context.Context, teamSlug slug.Slug) int {
 	return len(fromContext(ctx).postgresWatcher.GetByNamespace(teamSlug.String()))
 }
 
-func GetPostgresByIdent(ctx context.Context, id ident.Ident) (*PostgresInstance, error) {
+func GetPostgresInstanceByIdent(ctx context.Context, id ident.Ident) (*PostgresInstance, error) {
 	teamSlug, environmentName, clusterName, err := parsePostgresInstanceIdent(id)
 	if err != nil {
 		return nil, err
 	}
 
-	return GetPostgres(ctx, teamSlug, environmentName, clusterName)
+	return GetPostgresInstance(ctx, teamSlug, environmentName, clusterName)
+}
+
+func GetPostgresByIdent(ctx context.Context, id ident.Ident) (*Postgres, error) {
+	teamSlug, environmentName, name, err := parseAccessIdent(id)
+	if err != nil {
+		return nil, err
+	}
+	return GetPostgres(ctx, teamSlug, environmentName, name)
 }
 
 func GetPostgresAccessByIdent(ctx context.Context, id ident.Ident) (*PostgresAccess, error) {
@@ -180,27 +230,9 @@ func GetPostgresAccessConnection(ctx context.Context, input PostgresAccessConnec
 		return nil, err
 	}
 
-	secretClient, err := fromContext(ctx).postgresWatcher.SystemAuthenticatedClient(ctx, input.EnvironmentName, watcher.WithImpersonatedClientGVR(schema.GroupVersionResource{
-		Version:  "v1",
-		Resource: "secrets",
-	}))
-	if err != nil {
-		return nil, fmt.Errorf("creating credential Secret client: %w", err)
-	}
-	secret, err := secretClient.Namespace(input.TeamSlug.String()).Get(ctx, credentialSecretName, metav1.GetOptions{})
-	if err != nil {
-		if k8serrors.IsNotFound(err) {
-			return nil, apierror.Errorf("credentials for PostgresAccess %q are not available", input.Name)
-		}
-		return nil, fmt.Errorf("getting credential Secret for PostgresAccess %q: %w", input.Name, err)
-	}
-
-	password, caCertificate, err := postgresAccessConnectionSecret(secret)
-	if err != nil {
+	if err := loadPostgresAccessConnection(ctx, access, input, connection, credentialSecretName); err != nil {
 		return nil, err
 	}
-	connection.Password = password
-	connection.CACertificate = caCertificate
 
 	if err := activitylog.Create(ctx, activitylog.CreateInput{
 		Action:          activityLogEntryActionGetPersonalAccessConnection,
@@ -252,29 +284,22 @@ func postgresAccessConnectionDetails(access *unstructured.Unstructured, now time
 		return nil, "", apierror.Errorf("PostgresAccess %q is not ready", access.GetName())
 	}
 
-	credentialSecretName, _, err := unstructured.NestedString(access.Object, "status", "credentialSecretName")
-	if err != nil || credentialSecretName == "" {
+	if access.GetDeletionTimestamp() != nil {
 		return nil, "", apierror.Errorf("PostgresAccess %q is not ready", access.GetName())
 	}
-	serverName, _, err := unstructured.NestedString(access.Object, "status", "serverName")
-	if err != nil || serverName == "" {
+	relayName, _, err := unstructured.NestedString(access.Object, "status", "relayAccess")
+	if err != nil || relayName != access.GetName() {
 		return nil, "", apierror.Errorf("PostgresAccess %q is not ready", access.GetName())
 	}
-	endpoint, _, err := unstructured.NestedString(access.Object, "status", "tunnel", "endpoint")
-	if err != nil || endpoint == "" {
+	tokenSecret, _, err := unstructured.NestedString(access.Object, "status", "tokenSecret")
+	if err != nil || tokenSecret == "" {
 		return nil, "", apierror.Errorf("PostgresAccess %q is not ready", access.GetName())
 	}
-	gatewayPublicKey, _, err := unstructured.NestedString(access.Object, "status", "tunnel", "gatewayPublicKey")
-	if err != nil || gatewayPublicKey == "" {
+	role, _, err := unstructured.NestedString(access.Object, "status", "databaseRole")
+	if err != nil || role == "" {
 		return nil, "", apierror.Errorf("PostgresAccess %q is not ready", access.GetName())
 	}
-
-	return &PostgresAccessConnection{
-		ServerName: serverName,
-		Tunnel: PostgresAccessConnectionTunnel{
-			Endpoint: endpoint, GatewayPublicKey: gatewayPublicKey,
-		},
-	}, credentialSecretName, nil
+	return &PostgresAccessConnection{}, tokenSecret, nil
 }
 
 func postgresAccessIsReady(obj map[string]any) bool {
@@ -292,19 +317,6 @@ func postgresAccessIsReady(obj map[string]any) bool {
 		}
 	}
 	return false
-}
-
-func postgresAccessConnectionSecret(secret *unstructured.Unstructured) (password, caCertificate string, err error) {
-	var typed corev1.Secret
-	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(secret.Object, &typed); err != nil {
-		return "", "", fmt.Errorf("converting credential Secret %q: %w", secret.GetName(), err)
-	}
-	password = string(typed.Data[corev1.BasicAuthPasswordKey])
-	caCertificate = string(typed.Data["ca.crt"])
-	if password == "" || caCertificate == "" {
-		return "", "", apierror.Errorf("credentials for PostgresAccess are incomplete")
-	}
-	return password, caCertificate, nil
 }
 
 func toPostgresAccess(u *unstructured.Unstructured, teamSlug slug.Slug, environmentName string) (*PostgresAccess, error) {
@@ -326,14 +338,7 @@ func toPostgresAccess(u *unstructured.Unstructured, teamSlug slug.Slug, environm
 
 	state, message := postgresAccessState(u.Object, expiresAt)
 
-	var tunnel *PostgresAccessTunnel
-	if t, ok, _ := unstructured.NestedStringMap(u.Object, "status", "tunnel"); ok && t["name"] != "" {
-		tunnel = &PostgresAccessTunnel{
-			Name:             t["name"],
-			Endpoint:         strPtr(t["endpoint"]),
-			GatewayPublicKey: strPtr(t["gatewayPublicKey"]),
-		}
-	}
+	relayName, _, _ := unstructured.NestedString(u.Object, "status", "relayAccess")
 
 	return &PostgresAccess{
 		Name:                 name,
@@ -345,7 +350,7 @@ func toPostgresAccess(u *unstructured.Unstructured, teamSlug slug.Slug, environm
 		ExpiresAt:            expiresAt,
 		State:                state,
 		Message:              strPtr(message),
-		Tunnel:               tunnel,
+		RelayAccess:          strPtr(relayName),
 	}, nil
 }
 
@@ -392,44 +397,69 @@ func postgresAccessState(obj map[string]any, expiresAt time.Time) (PostgresAcces
 	return PostgresAccessStatePending, "waiting for controller"
 }
 
-func GetPostgres(ctx context.Context, teamSlug slug.Slug, environmentName string, clusterName string) (*PostgresInstance, error) {
-	return fromContext(ctx).postgresWatcher.Get(environmentName, teamSlug.String(), clusterName)
+func GetReadyPostgresInstance(ctx context.Context, teamSlug slug.Slug, environmentName, name string) (*PostgresInstance, error) {
+	instance, err := GetPostgresInstance(ctx, teamSlug, environmentName, name)
+	if err != nil {
+		return nil, err
+	}
+	if instance.State != PostgresInstanceStateAvailable {
+		return instance, nil
+	}
+	if _, err := GetPostgres(ctx, teamSlug, environmentName, instance.PostgresName); err != nil {
+		return nil, fmt.Errorf("getting Postgres %q for instance %q: %w", instance.PostgresName, name, err)
+	}
+	// The pgrator reconciliation condition reflects the CNPG phase, but must be
+	// corroborated with CNPG's own Ready condition before issuing access.
+	client, err := fromContext(ctx).postgresWatcher.SystemAuthenticatedClient(ctx, environmentName, watcher.WithImpersonatedClientGVR(schema.GroupVersionResource{Group: "postgresql.cnpg.io", Version: "v1", Resource: "clusters"}))
+	if err != nil {
+		return nil, err
+	}
+	cluster, err := client.Namespace(teamSlug.String()).Get(ctx, nais_io_v1.CNPGClusterName(name), metav1.GetOptions{})
+	if k8serrors.IsNotFound(err) {
+		instance.State = PostgresInstanceStateProgressing
+		return instance, nil
+	}
+	if err != nil {
+		return nil, fmt.Errorf("getting CNPG Cluster for PostgresInstance %q: %w", name, err)
+	}
+	conditions, found, err := unstructured.NestedSlice(cluster.Object, "status", "conditions")
+	if err != nil {
+		return nil, err
+	}
+	if !found {
+		instance.State = PostgresInstanceStateProgressing
+		return instance, nil
+	}
+	for _, raw := range conditions {
+		condition, ok := raw.(map[string]any)
+		if ok && condition["type"] == "Ready" && condition["status"] == "True" {
+			return instance, nil
+		}
+	}
+	instance.State = PostgresInstanceStateProgressing
+	return instance, nil
 }
 
-func GetAuditURL(ctx context.Context, audit *PostgresInstanceAudit) (*string, error) {
-	if audit == nil || !audit.Enabled {
-		return nil, nil
-	}
+func GetPostgresInstance(ctx context.Context, teamSlug slug.Slug, environmentName, name string) (*PostgresInstance, error) {
+	return fromContext(ctx).postgresWatcher.Get(environmentName, teamSlug.String(), name)
+}
 
-	auditProjectID, location := GetAuditLogConfig(ctx)
-	if auditProjectID == "" || location == "" {
-		return nil, nil
-	}
-
-	teamEnv, err := team.GetTeamEnvironment(ctx, audit.TeamSlug, audit.EnvironmentName)
+func GetPostgres(ctx context.Context, teamSlug slug.Slug, environmentName, name string) (*Postgres, error) {
+	client, err := fromContext(ctx).postgresWatcher.SystemAuthenticatedClient(ctx, environmentName, watcher.WithImpersonatedClientGVR(schema.GroupVersionResource{Group: "nais.io", Version: "v1", Resource: "postgres"}))
 	if err != nil {
-		return nil, fmt.Errorf("failed to get team environment for audit URL (team=%s, env=%s): %w", audit.TeamSlug, audit.EnvironmentName, err)
+		return nil, err
 	}
-	if teamEnv.GCPProjectID == nil || *teamEnv.GCPProjectID == "" {
-		return nil, nil
+	obj, err := client.Namespace(teamSlug.String()).Get(ctx, name, metav1.GetOptions{})
+	if err != nil {
+		return nil, err
 	}
-
-	databaseProjectID := *teamEnv.GCPProjectID
-	databaseID := fmt.Sprintf("%s:%s", databaseProjectID, audit.InstanceName)
-	query := fmt.Sprintf("labels.databaseId=\"%s\"", databaseID)
-	storageScope := fmt.Sprintf("storage,projects/%s/locations/%s/buckets/%s-%s/views/_AllLogs", auditProjectID, location, audit.TeamSlug.String(), audit.EnvironmentName)
-	logURL := fmt.Sprintf("https://console.cloud.google.com/logs/query;query=%s;storageScope=%s?project=%s",
-		url.QueryEscape(query),
-		url.QueryEscape(storageScope),
-		databaseProjectID,
-	)
-	return &logURL, nil
+	return toPostgres(obj, environmentName)
 }
 
 const (
 	postgresAccessAPIVersion = "nais.io/v1"
 	defaultPostgresAccessTTL = time.Hour
-	maxPostgresAccessTTL     = 8 * time.Hour
+	maxPostgresAccessTTL     = time.Hour
 )
 
 func CreatePostgresAccess(ctx context.Context, input CreatePostgresAccessInput) (*CreatePostgresAccessPayload, error) {
@@ -505,185 +535,33 @@ func newPostgresAccessResource(input CreatePostgresAccessInput, username, name s
 	res.SetAnnotations(kubernetes.WithCommonAnnotations(nil, username))
 	kubernetes.SetManagedByConsoleLabel(res)
 	res.Object["spec"] = map[string]any{
-		"postgresInstance":         input.PostgresInstance,
-		"username":                 username,
-		"accessLevel":              input.AccessLevel.CRDValue(),
-		"expiresAt":                expiresAt.Format(time.RFC3339),
-		"clientWireGuardPublicKey": input.ClientWireGuardPublicKey,
+		"postgresInstance": input.PostgresInstance,
+		"username":         username,
+		"accessLevel":      input.AccessLevel.CRDValue(),
+		"expiresAt":        expiresAt.Format(time.RFC3339),
 	}
 	return res
 }
 
-func GrantPostgresAccess(ctx context.Context, input GrantPostgresAccessInput) error {
-	err := input.Validate(ctx)
+func WorkloadsForInstance(ctx context.Context, teamSlug slug.Slug, environmentName, instanceName string) []workload.Workload {
+	instance, err := GetPostgresInstance(ctx, teamSlug, environmentName, instanceName)
 	if err != nil {
-		return err
+		return nil
 	}
-
-	namespace := fmt.Sprintf("pg-%s", input.TeamSlug.String())
-	name, err := resourceNamer(input.TeamSlug, input.Grantee, input.ClusterName)
-	if err != nil {
-		return err
+	postgres, err := GetPostgres(ctx, teamSlug, environmentName, instance.PostgresName)
+	if err != nil || postgres.ActiveInstance == nil || *postgres.ActiveInstance != instanceName {
+		return nil
 	}
-
-	annotations := make(map[string]string)
-	d, err := time.ParseDuration(input.Duration)
-	if err != nil {
-		return fmt.Errorf("parsing TTL: %w", err)
-	}
-	until := time.Now().Add(d)
-
-	labels := make(map[string]string)
-	labels["euthanaisa.nais.io/kill-after"] = strconv.FormatInt(until.Unix(), 10)
-	labels["postgres.data.nais.io/name"] = input.ClusterName
-
-	err = createRole(ctx, input, name, namespace, annotations, labels)
-	if err != nil {
-		return err
-	}
-
-	err = createRoleBinding(ctx, input, name, namespace, annotations, labels)
-	if err != nil {
-		return err
-	}
-
-	return activitylog.Create(ctx, activitylog.CreateInput{
-		Action:          activityLogEntryActionGrantAccess,
-		Actor:           authz.ActorFromContext(ctx).User,
-		ResourceType:    activityLogEntryResourceTypePostgres,
-		ResourceName:    input.ClusterName,
-		EnvironmentName: new(input.EnvironmentName),
-		TeamSlug:        new(input.TeamSlug),
-		Data: PostgresGrantAccessActivityLogEntryData{
-			Grantee: input.Grantee,
-			Until:   until,
-		},
-	})
-}
-
-func createRoleBinding(ctx context.Context, input GrantPostgresAccessInput, name string, namespace string, annotations map[string]string, labels map[string]string) error {
-	gvr := schema.GroupVersionResource{
-		Group:    "rbac.authorization.k8s.io",
-		Version:  "v1",
-		Resource: "rolebindings",
-	}
-	client, err := fromContext(ctx).postgresWatcher.SystemAuthenticatedClient(ctx, input.EnvironmentName, watcher.WithImpersonatedClientGVR(gvr))
-	if err != nil {
-		return err
-	}
-	namespacedClient := client.Namespace(namespace)
-
-	res := &unstructured.Unstructured{}
-	res.SetAPIVersion(gvr.GroupVersion().String())
-	res.SetKind("RoleBinding")
-	res.SetName(name)
-	res.SetNamespace(namespace)
-	res.SetAnnotations(kubernetes.WithCommonAnnotations(annotations, authz.ActorFromContext(ctx).User.Identity()))
-	res.SetLabels(labels)
-	kubernetes.SetManagedByConsoleLabel(res)
-
-	res.Object["roleRef"] = map[string]any{
-		"apiGroup": "rbac.authorization.k8s.io",
-		"kind":     "Role",
-		"name":     name,
-	}
-
-	res.Object["subjects"] = []any{
-		map[string]any{
-			"kind": "User",
-			"name": input.Grantee,
-		},
-	}
-
-	return createOrUpdateResource(ctx, res, namespacedClient)
-}
-
-func createRole(ctx context.Context, input GrantPostgresAccessInput, name string, namespace string, annotations map[string]string, labels map[string]string) error {
-	gvr := schema.GroupVersionResource{
-		Group:    "rbac.authorization.k8s.io",
-		Version:  "v1",
-		Resource: "roles",
-	}
-
-	client, err := fromContext(ctx).postgresWatcher.SystemAuthenticatedClient(ctx, input.EnvironmentName, watcher.WithImpersonatedClientGVR(gvr))
-	if err != nil {
-		return err
-	}
-	namespacedClient := client.Namespace(namespace)
-
-	res := &unstructured.Unstructured{}
-	res.SetAPIVersion(gvr.GroupVersion().String())
-	res.SetKind("Role")
-	res.SetName(name)
-	res.SetNamespace(namespace)
-	res.SetAnnotations(kubernetes.WithCommonAnnotations(annotations, authz.ActorFromContext(ctx).User.Identity()))
-	res.SetLabels(labels)
-	kubernetes.SetManagedByConsoleLabel(res)
-
-	res.Object["rules"] = []any{
-		map[string]any{
-			"apiGroups": []any{""},
-			"resources": []any{"pods"},
-			"verbs":     []any{"get", "list", "watch"},
-			"resourceNames": []any{
-				fmt.Sprintf("%s-0", input.ClusterName),
-				fmt.Sprintf("%s-1", input.ClusterName),
-				fmt.Sprintf("%s-2", input.ClusterName),
-			},
-		},
-		map[string]any{
-			"apiGroups": []any{""},
-			"resources": []any{"pods/portforward"},
-			"verbs":     []any{"get", "list", "watch", "create"},
-			"resourceNames": []any{
-				fmt.Sprintf("%s-0", input.ClusterName),
-				fmt.Sprintf("%s-1", input.ClusterName),
-				fmt.Sprintf("%s-2", input.ClusterName),
-			},
-		},
-	}
-
-	return createOrUpdateResource(ctx, res, namespacedClient)
-}
-
-func createOrUpdateResource(ctx context.Context, res *unstructured.Unstructured, client dynamic.ResourceInterface) error {
-	_, err := client.Create(ctx, res, metav1.CreateOptions{})
-	if err != nil {
-		if k8serrors.IsAlreadyExists(err) {
-			_, err = client.Update(ctx, res, metav1.UpdateOptions{})
-			if err != nil {
-				return err
-			}
-			return nil
-		}
-		return err
-	}
-	return nil
-}
-
-func resourceNamer(teamSlug slug.Slug, grantee string, name string) (string, error) {
-	hasher := crc32.NewIEEE()
-	_, err := fmt.Fprintf(hasher, "%s-%s-%s", teamSlug.String(), grantee, name)
-	if err != nil {
-		return "", err
-	}
-	hashStr := fmt.Sprintf("%08x", hasher.Sum32())
-	return fmt.Sprintf("pg-grant-%s", hashStr), nil
-}
-
-func WorkloadsForInstance(ctx context.Context, teamSlug slug.Slug, environmentName, clusterName string) []workload.Workload {
 	apps := application.ListAllForTeamInEnvironment(ctx, teamSlug, environmentName)
 	jobs := job.ListAllForTeamInEnvironment(ctx, teamSlug, environmentName)
-
 	ret := make([]workload.Workload, 0)
 	for _, app := range apps {
-		if app.Spec != nil && app.Spec.Postgres != nil && app.Spec.Postgres.ClusterName == clusterName {
+		if app.Spec != nil && app.Spec.Uses != nil && slices.ContainsFunc(app.Spec.Uses.Postgres, func(use liberatorv1.PostgresUse) bool { return use.Name == instance.PostgresName }) {
 			ret = append(ret, app)
 		}
 	}
-
 	for _, j := range jobs {
-		if j.Spec != nil && j.Spec.Postgres != nil && j.Spec.Postgres.ClusterName == clusterName {
+		if j.Spec != nil && j.Spec.Uses != nil && slices.ContainsFunc(j.Spec.Uses.Postgres, func(use liberatorv1.PostgresUse) bool { return use.Name == instance.PostgresName }) {
 			ret = append(ret, j)
 		}
 	}

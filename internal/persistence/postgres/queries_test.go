@@ -7,19 +7,16 @@ import (
 	"time"
 
 	"github.com/nais/api/internal/slug"
-	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	"k8s.io/apimachinery/pkg/runtime"
 )
 
 func TestNewPostgresAccessResource(t *testing.T) {
 	expiresAt := time.Date(2026, time.September, 17, 12, 0, 0, 0, time.UTC)
 	resource := newPostgresAccessResource(CreatePostgresAccessInput{
-		PostgresInstance:         "orders",
-		TeamSlug:                 slug.Slug("team-a"),
-		EnvironmentName:          "dev",
-		AccessLevel:              PostgresAccessLevelReadWrite,
-		ClientWireGuardPublicKey: "client-public-key",
+		PostgresInstance: "orders",
+		TeamSlug:         slug.Slug("team-a"),
+		EnvironmentName:  "dev",
+		AccessLevel:      PostgresAccessLevelReadWrite,
 	}, "user@example.com", "postgres-access-12345678", expiresAt)
 
 	if got, want := resource.GetAPIVersion(), "nais.io/v1"; got != want {
@@ -40,11 +37,10 @@ func TestNewPostgresAccessResource(t *testing.T) {
 		t.Fatalf("spec = (%v, %t, %v), want a spec", spec, found, err)
 	}
 	wantSpec := map[string]any{
-		"postgresInstance":         "orders",
-		"username":                 "user@example.com",
-		"accessLevel":              "readwrite",
-		"expiresAt":                "2026-09-17T12:00:00Z",
-		"clientWireGuardPublicKey": "client-public-key",
+		"postgresInstance": "orders",
+		"username":         "user@example.com",
+		"accessLevel":      "readwrite",
+		"expiresAt":        "2026-09-17T12:00:00Z",
 	}
 	if !reflect.DeepEqual(wantSpec, spec) {
 		t.Errorf("spec = %#v, want %#v", spec, wantSpec)
@@ -59,11 +55,11 @@ func TestCreatePostgresAccessTTL(t *testing.T) {
 		wantErr string
 	}{
 		{name: "default", want: time.Hour},
-		{name: "requested", ttl: "4h", want: 4 * time.Hour},
-		{name: "maximum", ttl: "8h", want: 8 * time.Hour},
+		{name: "requested", ttl: "30m", want: 30 * time.Minute},
+		{name: "maximum", ttl: "1h", want: time.Hour},
 		{name: "invalid", ttl: "tomorrow", wantErr: "TTL must be a Go duration"},
 		{name: "zero", ttl: "0s", wantErr: "TTL must be positive"},
-		{name: "too long", ttl: "8h1m", wantErr: "TTL cannot exceed 8h0m0s"},
+		{name: "too long", ttl: "1h1m", wantErr: "TTL cannot exceed 1h0m0s"},
 	}
 
 	for _, tt := range tests {
@@ -116,12 +112,12 @@ func TestPostgresAccessState(t *testing.T) {
 					map[string]any{
 						"type":    "Ready",
 						"status":  "True",
-						"message": "Database role and tunnel are ready",
+						"message": "database role and relay mapping are ready",
 					},
 				},
 			},
 			wantState: PostgresAccessStateReady,
-			wantMsg:   "Database role and tunnel are ready",
+			wantMsg:   "database role and relay mapping are ready",
 		},
 		{
 			name:      "failed unsupported access level",
@@ -140,19 +136,19 @@ func TestPostgresAccessState(t *testing.T) {
 			wantMsg:   "readwritecreate requires an instance initialized with the app_readwritecreate group role",
 		},
 		{
-			name:      "pending waiting on tunnel",
+			name:      "pending waiting on relay",
 			expiresAt: future,
 			status: map[string]any{
 				"conditions": []any{
 					map[string]any{
 						"type":    "Ready",
 						"status":  "False",
-						"message": "waiting for tunnel",
+						"message": "waiting for relay",
 					},
 				},
 			},
 			wantState: PostgresAccessStatePending,
-			wantMsg:   "waiting for tunnel",
+			wantMsg:   "waiting for relay",
 		},
 	}
 
@@ -180,10 +176,10 @@ func TestPostgresAccessConnectionDetails(t *testing.T) {
 			"metadata": map[string]any{"name": "access"},
 			"spec":     map[string]any{"expiresAt": "2026-09-17T13:00:00Z"},
 			"status": map[string]any{
-				"credentialSecretName": "access-credentials",
-				"serverName":           "postgres.example",
-				"conditions":           []any{map[string]any{"type": "Ready", "status": "True"}},
-				"tunnel":               map[string]any{"endpoint": "endpoint:1234", "gatewayPublicKey": "gateway-key"},
+				"databaseRole": "personal-role",
+				"relayAccess":  "access",
+				"tokenSecret":  "access-relay-token",
+				"conditions":   []any{map[string]any{"type": "Ready", "status": "True"}},
 			},
 		}}
 	}
@@ -200,8 +196,11 @@ func TestPostgresAccessConnectionDetails(t *testing.T) {
 		{name: "not ready", edit: func(u *unstructured.Unstructured) {
 			_ = unstructured.SetNestedField(u.Object, []any{map[string]any{"type": "Ready", "status": "False"}}, "status", "conditions")
 		}, want: "not ready"},
-		{name: "missing secret name", edit: func(u *unstructured.Unstructured) {
-			unstructured.RemoveNestedField(u.Object, "status", "credentialSecretName")
+		{name: "missing token secret name", edit: func(u *unstructured.Unstructured) {
+			unstructured.RemoveNestedField(u.Object, "status", "tokenSecret")
+		}, want: "not ready"},
+		{name: "missing relay mapping", edit: func(u *unstructured.Unstructured) {
+			unstructured.RemoveNestedField(u.Object, "status", "relayAccess")
 		}, want: "not ready"},
 	}
 	for _, tt := range tests {
@@ -220,39 +219,12 @@ func TestPostgresAccessConnectionDetails(t *testing.T) {
 			if err != nil {
 				t.Fatalf("postgresAccessConnectionDetails: %v", err)
 			}
-			if secretName != "access-credentials" {
+			if secretName != "access-relay-token" {
 				t.Errorf("secret name = %q", secretName)
 			}
-			if got.ServerName != "postgres.example" || got.Tunnel.Endpoint != "endpoint:1234" || got.Tunnel.GatewayPublicKey != "gateway-key" {
-				t.Errorf("connection = %#v", got)
+			if got == nil {
+				t.Fatal("connection is nil")
 			}
 		})
-	}
-}
-
-func TestPostgresAccessConnectionSecret(t *testing.T) {
-	secret := &corev1.Secret{Data: map[string][]byte{
-		corev1.BasicAuthPasswordKey: []byte("supersecret"),
-		"ca.crt":                    []byte("test-ca-certificate"),
-	}}
-	u, err := runtime.DefaultUnstructuredConverter.ToUnstructured(secret)
-	if err != nil {
-		t.Fatalf("ToUnstructured: %v", err)
-	}
-	password, ca, err := postgresAccessConnectionSecret(&unstructured.Unstructured{Object: u})
-	if err != nil {
-		t.Fatalf("postgresAccessConnectionSecret: %v", err)
-	}
-	if password != "supersecret" || ca != "test-ca-certificate" {
-		t.Errorf("got password=%q ca=%q", password, ca)
-	}
-
-	delete(secret.Data, "ca.crt")
-	u, err = runtime.DefaultUnstructuredConverter.ToUnstructured(secret)
-	if err != nil {
-		t.Fatalf("ToUnstructured: %v", err)
-	}
-	if _, _, err := postgresAccessConnectionSecret(&unstructured.Unstructured{Object: u}); err == nil {
-		t.Fatal("missing ca.crt did not fail")
 	}
 }
