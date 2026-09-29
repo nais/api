@@ -178,10 +178,9 @@ func GetPostgresAccessByIdent(ctx context.Context, id ident.Ident) (*PostgresAcc
 	return GetPostgresAccess(ctx, name, teamSlug, environmentName)
 }
 
-const (
-	postgresAccessResource = "postgresaccesses"
-	postgresAccessGroup    = "nais.io"
-)
+func postgresAccessGVR() schema.GroupVersionResource {
+	return schema.GroupVersionResource{Group: "nais.io", Version: "v1", Resource: "postgresaccesses"}
+}
 
 // GetPostgresAccess returns a personal PostgresAccess status. Connection
 // credentials are deliberately available only through GetPostgresAccessConnection.
@@ -250,11 +249,7 @@ func GetPostgresAccessConnection(ctx context.Context, input PostgresAccessConnec
 }
 
 func getPostgresAccessResource(ctx context.Context, name string, teamSlug slug.Slug, environmentName string) (*unstructured.Unstructured, error) {
-	accessClient, err := fromContext(ctx).postgresWatcher.SystemAuthenticatedClient(ctx, environmentName, watcher.WithImpersonatedClientGVR(schema.GroupVersionResource{
-		Group:    postgresAccessGroup,
-		Version:  "v1",
-		Resource: postgresAccessResource,
-	}))
+	accessClient, err := fromContext(ctx).postgresWatcher.SystemAuthenticatedClient(ctx, environmentName, watcher.WithImpersonatedClientGVR(postgresAccessGVR()))
 	if err != nil {
 		return nil, fmt.Errorf("creating postgresaccess client: %w", err)
 	}
@@ -471,12 +466,7 @@ func CreatePostgresAccess(ctx context.Context, input CreatePostgresAccessInput) 
 		return nil, err
 	}
 
-	gvr := schema.GroupVersionResource{
-		Group:    "nais.io",
-		Version:  "v1",
-		Resource: "postgresaccesses",
-	}
-	client, err := fromContext(ctx).postgresWatcher.SystemAuthenticatedClient(ctx, input.EnvironmentName, watcher.WithImpersonatedClientGVR(gvr))
+	client, err := fromContext(ctx).postgresWatcher.SystemAuthenticatedClient(ctx, input.EnvironmentName, watcher.WithImpersonatedClientGVR(postgresAccessGVR()))
 	if err != nil {
 		return nil, err
 	}
