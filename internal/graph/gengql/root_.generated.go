@@ -27403,10 +27403,7 @@ type WorkloadLogLine {
 
 extend type TeamEnvironment {
 	"Postgres in the team environment."
-	postgres(
-		"Name of the Postgres in this team environment."
-		name: String!
-	): Postgres!
+	postgres("Name of the Postgres in this team environment." name: String!): Postgres!
 	"Named PostgresInstance in the team environment."
 	postgresInstance(
 		"Name of the PostgresInstance in this team environment."
