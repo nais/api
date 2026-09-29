@@ -294,7 +294,7 @@ Test.gql("PostgresAccess connection returns credentials only to its owner", func
 				serverName = "pg-foobar-rw.someteamname.svc.cluster.local",
 				username = "user-foobar-role",
 				relayEndpoint = Contains("https://relay.external.dev."),
-				relayAccess = "someteamname/ready-access",
+				relayAccess = "someteamname/mapped-access",
 				relayToken = "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8",
 			},
 		} } } },

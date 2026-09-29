@@ -12,8 +12,10 @@ spec:
   expiresAt: "2099-09-17T12:00:00Z"
 status:
   databaseRole: user-foobar-role
-  relayAccess: ready-access
+  relayAccess: mapped-access
   tokenSecret: ready-access-relay-token
+  serverName: pg-foobar-rw.someteamname.svc.cluster.local
+  serverCASecret: pg-foobar-ca
   conditions:
     - type: Ready
       status: "True"
@@ -97,6 +99,8 @@ status:
   databaseRole: user-foobar-role
   relayAccess: missing-secret-access
   tokenSecret: missing-secret-access-relay-token
+  serverName: pg-foobar-rw.someteamname.svc.cluster.local
+  serverCASecret: pg-foobar-ca
   conditions:
     - type: Ready
       status: "True"

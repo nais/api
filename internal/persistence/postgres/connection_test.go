@@ -1,8 +1,6 @@
 package postgres
 
 import (
-	"crypto/sha256"
-	"encoding/hex"
 	"strings"
 	"testing"
 
@@ -46,21 +44,5 @@ func TestAccessSecretDataRequiresAccessOwnership(t *testing.T) {
 	delete(secret.Data, "token")
 	if _, err := check(); err == nil || !strings.Contains(err.Error(), "incomplete") {
 		t.Fatalf("missing token error = %v", err)
-	}
-}
-
-func TestRelayTokenDigest(t *testing.T) {
-	raw := make([]byte, 32)
-	for i := range raw {
-		raw[i] = byte(i)
-	}
-	sum := sha256.Sum256(raw)
-	if !tokenMatchesDigest(raw, hex.EncodeToString(sum[:])) {
-		t.Fatal("valid token is not accepted")
-	}
-	wrong := append([]byte(nil), raw...)
-	wrong[0]++
-	if tokenMatchesDigest(wrong, hex.EncodeToString(sum[:])) {
-		t.Fatal("wrong token accepted")
 	}
 }

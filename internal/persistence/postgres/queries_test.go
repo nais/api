@@ -179,6 +179,8 @@ func TestPostgresAccessConnectionDetails(t *testing.T) {
 				"databaseRole": "personal-role",
 				"relayAccess":  "access",
 				"tokenSecret":  "access-relay-token",
+				"serverName": "pg-orders-rw.team.svc.cluster.local",
+				"serverCASecret": "pg-orders-ca",
 				"conditions":   []any{map[string]any{"type": "Ready", "status": "True"}},
 			},
 		}}
@@ -201,6 +203,12 @@ func TestPostgresAccessConnectionDetails(t *testing.T) {
 		}, want: "not ready"},
 		{name: "missing relay mapping", edit: func(u *unstructured.Unstructured) {
 			unstructured.RemoveNestedField(u.Object, "status", "relayAccess")
+		}, want: "not ready"},
+		{name: "missing server name", edit: func(u *unstructured.Unstructured) {
+			unstructured.RemoveNestedField(u.Object, "status", "serverName")
+		}, want: "not ready"},
+		{name: "missing server CA reference", edit: func(u *unstructured.Unstructured) {
+			unstructured.RemoveNestedField(u.Object, "status", "serverCASecret")
 		}, want: "not ready"},
 	}
 	for _, tt := range tests {

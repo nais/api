@@ -283,7 +283,7 @@ func postgresAccessConnectionDetails(access *unstructured.Unstructured, now time
 		return nil, "", apierror.Errorf("PostgresAccess %q is not ready", access.GetName())
 	}
 	relayName, _, err := unstructured.NestedString(access.Object, "status", "relayAccess")
-	if err != nil || relayName != access.GetName() {
+	if err != nil || relayName == "" {
 		return nil, "", apierror.Errorf("PostgresAccess %q is not ready", access.GetName())
 	}
 	tokenSecret, _, err := unstructured.NestedString(access.Object, "status", "tokenSecret")
@@ -292,6 +292,14 @@ func postgresAccessConnectionDetails(access *unstructured.Unstructured, now time
 	}
 	role, _, err := unstructured.NestedString(access.Object, "status", "databaseRole")
 	if err != nil || role == "" {
+		return nil, "", apierror.Errorf("PostgresAccess %q is not ready", access.GetName())
+	}
+	serverName, _, err := unstructured.NestedString(access.Object, "status", "serverName")
+	if err != nil || serverName == "" {
+		return nil, "", apierror.Errorf("PostgresAccess %q is not ready", access.GetName())
+	}
+	serverCA, _, err := unstructured.NestedString(access.Object, "status", "serverCASecret")
+	if err != nil || serverCA == "" {
 		return nil, "", apierror.Errorf("PostgresAccess %q is not ready", access.GetName())
 	}
 	return &PostgresAccessConnectionDetails{}, tokenSecret, nil
