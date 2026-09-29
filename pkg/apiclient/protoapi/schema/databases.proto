@@ -9,7 +9,8 @@ option go_package = "./pkg/apiclient/protoapi";
 enum DatabaseType {
   DATABASE_TYPE_UNSPECIFIED = 0;
   CLOUD_SQL = 1;
-  NAIS_POSTGRES = 2;
+  ZALANDO_POSTGRES = 2;
+  NAIS_POSTGRES = 3;
 }
 
 message Database {
