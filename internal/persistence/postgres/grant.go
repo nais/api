@@ -9,6 +9,7 @@ import (
 
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
+	"github.com/nais/api/internal/environmentmapper"
 	"github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/slug"
@@ -19,10 +20,14 @@ import (
 	"k8s.io/client-go/dynamic"
 )
 
-// Keep the legacy Zalando port-forward grant independent of the new NAIS Postgres watcher.
-// Only this mutation reads data.nais.io; the rest of the Postgres API uses nais.io.
+// Keep the legacy Zalando port-forward grant independent of the PostgresBranch CRD.
+// It uses API's existing system clients; only this mutation reads data.nais.io.
 func legacyPostgresClient(ctx context.Context, environment string, gvr schema.GroupVersionResource) (dynamic.NamespaceableResourceInterface, error) {
-	return fromContext(ctx).postgresWatcher.SystemAuthenticatedClient(ctx, environment, watcher.WithImpersonatedClientGVR(gvr))
+	client, ok := fromContext(ctx).clients[environmentmapper.ClusterName(environment)]
+	if !ok {
+		return nil, &watcher.ErrorUnknownEnvironment{Environment: environment}
+	}
+	return client.Resource(gvr), nil
 }
 
 func getLegacyPostgres(ctx context.Context, input GrantPostgresAccessInput) error {

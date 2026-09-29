@@ -13,10 +13,10 @@ import (
 func TestNewPostgresAccessResource(t *testing.T) {
 	expiresAt := time.Date(2026, time.September, 17, 12, 0, 0, 0, time.UTC)
 	resource := newPostgresAccessResource(CreatePostgresAccessInput{
-		PostgresInstance: "orders",
-		TeamSlug:         slug.Slug("team-a"),
-		EnvironmentName:  "dev",
-		AccessLevel:      PostgresAccessLevelReadWrite,
+		PostgresBranch:  "orders",
+		TeamSlug:        slug.Slug("team-a"),
+		EnvironmentName: "dev",
+		AccessLevel:     PostgresAccessLevelReadWrite,
 	}, "user@example.com", "postgres-access-12345678", expiresAt)
 
 	if got, want := resource.GetAPIVersion(), "nais.io/v1"; got != want {
@@ -37,10 +37,10 @@ func TestNewPostgresAccessResource(t *testing.T) {
 		t.Fatalf("spec = (%v, %t, %v), want a spec", spec, found, err)
 	}
 	wantSpec := map[string]any{
-		"postgresInstance": "orders",
-		"username":         "user@example.com",
-		"accessLevel":      "readwrite",
-		"expiresAt":        "2026-09-17T12:00:00Z",
+		"postgresBranch": "orders",
+		"username":       "user@example.com",
+		"accessLevel":    "readwrite",
+		"expiresAt":      "2026-09-17T12:00:00Z",
 	}
 	if !reflect.DeepEqual(wantSpec, spec) {
 		t.Errorf("spec = %#v, want %#v", spec, wantSpec)
@@ -176,12 +176,12 @@ func TestPostgresAccessConnectionDetails(t *testing.T) {
 			"metadata": map[string]any{"name": "access"},
 			"spec":     map[string]any{"expiresAt": "2026-09-17T13:00:00Z"},
 			"status": map[string]any{
-				"databaseRole": "personal-role",
-				"relayAccess":  "access",
-				"tokenSecret":  "access-relay-token",
-				"serverName": "pg-orders-rw.team.svc.cluster.local",
+				"databaseRole":   "personal-role",
+				"relayAccess":    "access",
+				"tokenSecret":    "access-relay-token",
+				"serverName":     "pg-orders-rw.team.svc.cluster.local",
 				"serverCASecret": "pg-orders-ca",
-				"conditions":   []any{map[string]any{"type": "Ready", "status": "True"}},
+				"conditions":     []any{map[string]any{"type": "Ready", "status": "True"}},
 			},
 		}}
 	}

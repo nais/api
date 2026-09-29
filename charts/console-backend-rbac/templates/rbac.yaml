@@ -129,7 +129,7 @@ rules:
   - apiGroups:
       - "nais.io"
     resources:
-      - postgresinstances
+      - postgresbranches
     verbs:
       - get
       - list
@@ -312,7 +312,7 @@ rules:
   - apiGroups:
       - "nais.io"
     resources:
-      - postgresinstances
+      - postgresbranches
     verbs:
       - get
       - list

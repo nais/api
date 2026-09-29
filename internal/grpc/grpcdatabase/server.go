@@ -14,28 +14,28 @@ import (
 )
 
 type Server struct {
-	sqlDatabaseWatcher *watchers.SqlDatabaseWatcher
-	postgresWatcher    *watchers.PostgresWatcher
+	sqlDatabaseWatcher    *watchers.SqlDatabaseWatcher
+	postgresBranchWatcher *watchers.PostgresBranchWatcher
 	protoapi.UnimplementedDatabasesServer
 }
 
-func NewServer(sqlDatabaseWatcher *watchers.SqlDatabaseWatcher, postgresWatcher *watchers.PostgresWatcher) *Server {
+func NewServer(sqlDatabaseWatcher *watchers.SqlDatabaseWatcher, postgresBranchWatcher *watchers.PostgresBranchWatcher) *Server {
 	return &Server{
-		sqlDatabaseWatcher: sqlDatabaseWatcher,
-		postgresWatcher:    postgresWatcher,
+		sqlDatabaseWatcher:    sqlDatabaseWatcher,
+		postgresBranchWatcher: postgresBranchWatcher,
 	}
 }
 
 func (s *Server) List(_ context.Context, r *protoapi.ListDatabasesRequest) (*protoapi.ListDatabasesResponse, error) {
 	sqlDatabases := watcher.Objects(s.sqlDatabaseWatcher.GetByNamespace(r.TeamSlug))
-	postgresInstances := watcher.Objects(s.postgresWatcher.GetByNamespace(r.TeamSlug))
+	postgresBranches := watcher.Objects(s.postgresBranchWatcher.GetByNamespace(r.TeamSlug))
 
-	all := make([]*protoapi.Database, 0, len(sqlDatabases)+len(postgresInstances))
+	all := make([]*protoapi.Database, 0, len(sqlDatabases)+len(postgresBranches))
 	for _, d := range sqlDatabases {
 		all = append(all, sqlDatabaseToProto(d))
 	}
-	for _, p := range postgresInstances {
-		all = append(all, postgresInstanceToProto(p))
+	for _, p := range postgresBranches {
+		all = append(all, postgresBranchToProto(p))
 	}
 
 	// Sort by (type, environment, name, database) for deterministic pagination.
@@ -77,7 +77,7 @@ func sqlDatabaseToProto(d *sqlinstance.SQLDatabase) *protoapi.Database {
 	}
 }
 
-func postgresInstanceToProto(p *postgres.PostgresInstance) *protoapi.Database {
+func postgresBranchToProto(p *postgres.PostgresBranch) *protoapi.Database {
 	return &protoapi.Database{
 		Name:        p.Name,
 		Database:    "app",

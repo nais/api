@@ -6,31 +6,31 @@ Helper.readK8sResources("k8s_resources/postgres_workloads")
 Test.gql("Application and job resolve every uses.postgres entry to its selected instance", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[{ team(slug: "postgres-workload-team") { environment(name: "dev") {
-		application(name: "consumer") { postgresInstances { nodes { name postgres { name } } } }
-		job(name: "scheduled-reader") { postgresInstances { nodes { name postgres { name } } } }
+		application(name: "consumer") { postgresBranches { nodes { name postgres { name } } } }
+		job(name: "scheduled-reader") { postgresBranches { nodes { name postgres { name } } } }
 	} } }]]
 	local instances = {
 		{ name = "orders-green",      postgres = { name = "orders" } },
 		{ name = "reports-recovered", postgres = { name = "reports" } },
 	}
 	t.check { data = { team = { environment = {
-		application = { postgresInstances = { nodes = instances } },
-		job = { postgresInstances = { nodes = instances } },
+		application = { postgresBranches = { nodes = instances } },
+		job = { postgresBranches = { nodes = instances } },
 	} } } }
 end)
 
-Test.gql("PostgresInstance workloads reference its Postgres through uses.postgres", function(t)
+Test.gql("PostgresBranch workloads reference its Postgres through uses.postgres", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[{ team(slug: "postgres-workload-team") { environment(name: "dev") {
-		postgresInstance(name: "orders-green") { workloads { nodes { __typename name } } }
-		other: postgresInstance(name: "reports-recovered") { workloads { nodes { __typename name } } }
+		postgresBranch(name: "orders-green") { workloads { nodes { __typename name } } }
+		other: postgresBranch(name: "reports-recovered") { workloads { nodes { __typename name } } }
 	} } }]]
 	local workloads = {
 		{ __typename = "Application", name = "consumer" },
 		{ __typename = "Job",         name = "scheduled-reader" },
 	}
 	t.check { data = { team = { environment = {
-		postgresInstance = { workloads = { nodes = workloads } },
+		postgresBranch = { workloads = { nodes = workloads } },
 		other = { workloads = { nodes = workloads } },
 	} } } }
 end)

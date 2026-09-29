@@ -139,7 +139,7 @@ Test.gql("Check all Postgres instances (no filter)", function(t)
 		{
 			team(slug: "labelteam") {
 				slug
-				postgresInstances {
+				postgresBranches {
 					pageInfo {
 						totalCount
 					}
@@ -159,7 +159,7 @@ Test.gql("Check all Postgres instances (no filter)", function(t)
 		data = {
 			team = {
 				slug = "labelteam",
-				postgresInstances = {
+				postgresBranches = {
 					pageInfo = {
 						totalCount = 3,
 					},
@@ -195,7 +195,7 @@ Test.gql("Postgres filter by tag=target", function(t)
 	t.query [[
 		{
 			team(slug: "labelteam") {
-				postgresInstances(filter: { labels: [{ key: "tag", value: "target" }] }) {
+				postgresBranches(filter: { labels: [{ key: "tag", value: "target" }] }) {
 					pageInfo {
 						totalCount
 					}
@@ -210,7 +210,7 @@ Test.gql("Postgres filter by tag=target", function(t)
 	t.check {
 		data = {
 			team = {
-				postgresInstances = {
+				postgresBranches = {
 					pageInfo = {
 						totalCount = 2,
 					},
@@ -229,7 +229,7 @@ Test.gql("Postgres filter by tag=target and priority=high", function(t)
 	t.query [[
 		{
 			team(slug: "labelteam") {
-				postgresInstances(filter: {
+				postgresBranches(filter: {
 					labels: [
 						{ key: "tag", value: "target" },
 						{ key: "priority", value: "high" }
@@ -249,7 +249,7 @@ Test.gql("Postgres filter by tag=target and priority=high", function(t)
 	t.check {
 		data = {
 			team = {
-				postgresInstances = {
+				postgresBranches = {
 					pageInfo = {
 						totalCount = 1,
 					},

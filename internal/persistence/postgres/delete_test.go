@@ -18,7 +18,7 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
-func TestDeletePostgresInstanceRequiresInactiveInstance(t *testing.T) {
+func TestDeletePostgresBranchRequiresInactiveBranch(t *testing.T) {
 	instance := &unstructured.Unstructured{Object: map[string]any{
 		"metadata": map[string]any{"name": "orders-restored"},
 	}}
@@ -27,10 +27,10 @@ func TestDeletePostgresInstanceRequiresInactiveInstance(t *testing.T) {
 		postgres   map[string]any
 		wantDenied bool
 	}{
-		{"selected in status", map[string]any{"status": map[string]any{"activeInstance": "orders-restored"}}, true},
-		{"selected in spec", map[string]any{"spec": map[string]any{"activeInstance": "orders-restored"}}, true},
-		{"pending switch", map[string]any{"spec": map[string]any{"activeInstance": "orders-restored"}, "status": map[string]any{"activeInstance": "orders-original"}}, true},
-		{"inactive", map[string]any{"status": map[string]any{"activeInstance": "orders-original"}}, false},
+		{"selected in status", map[string]any{"status": map[string]any{"activeBranch": "orders-restored"}}, true},
+		{"selected in spec", map[string]any{"spec": map[string]any{"activeBranch": "orders-restored"}}, true},
+		{"pending switch", map[string]any{"spec": map[string]any{"activeBranch": "orders-restored"}, "status": map[string]any{"activeBranch": "orders-original"}}, true},
+		{"inactive", map[string]any{"status": map[string]any{"activeBranch": "orders-original"}}, false},
 		{"default active", map[string]any{}, true},
 	}
 	for _, tt := range tests {
@@ -65,7 +65,7 @@ func TestWorkloadUsesMultiplePostgresResources(t *testing.T) {
 	}
 	t.Cleanup(mgr.Stop)
 	ctx := context.Background()
-	postgresWatcher := NewPostgresWatcher(ctx, mgr)
+	postgresBranchWatcher := NewPostgresBranchWatcher(ctx, mgr)
 	appWatcher := application.NewWatcher(ctx, mgr)
 	jobWatcher := job.NewWatcher(ctx, mgr)
 	wait, cancel := context.WithTimeout(ctx, 5*time.Second)
@@ -73,7 +73,7 @@ func TestWorkloadUsesMultiplePostgresResources(t *testing.T) {
 	if !mgr.WaitForReady(wait) {
 		t.Fatal("watchers did not synchronize")
 	}
-	ctx = NewLoaderContext(ctx, postgresWatcher, "", "", "nav")
+	ctx = NewLoaderContext(ctx, postgresBranchWatcher, "", "", "nav", mgr.GetDynamicClients())
 	ctx = application.NewLoaderContext(ctx, appWatcher, nil, log)
 	ctx = job.NewLoaderContext(ctx, jobWatcher, nil)
 	team := slug.Slug("postgres-workload-team")
@@ -101,7 +101,7 @@ func TestWorkloadUsesMultiplePostgresResources(t *testing.T) {
 	}
 }
 
-func TestReadyPostgresInstanceUsesConcreteName(t *testing.T) {
+func TestReadyPostgresBranchUsesConcreteName(t *testing.T) {
 	scheme, err := kubernetes.NewScheme()
 	if err != nil {
 		t.Fatal(err)
@@ -117,25 +117,25 @@ func TestReadyPostgresInstanceUsesConcreteName(t *testing.T) {
 	}
 	t.Cleanup(mgr.Stop)
 	ctx := context.Background()
-	postgresWatcher := NewPostgresWatcher(ctx, mgr)
+	postgresBranchWatcher := NewPostgresBranchWatcher(ctx, mgr)
 	wait, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 	if !mgr.WaitForReady(wait) {
-		t.Fatal("PostgresInstance watcher did not synchronize")
+		t.Fatal("PostgresBranch watcher did not synchronize")
 	}
-	ctx = NewLoaderContext(ctx, postgresWatcher, "", "", "nav")
+	ctx = NewLoaderContext(ctx, postgresBranchWatcher, "", "", "nav", mgr.GetDynamicClients())
 	team := slug.Slug("someteamname")
 	for _, name := range []string{"foobar", "foobar-recovered"} {
-		instance, err := GetReadyPostgresInstance(ctx, team, "dev", name)
-		if err != nil || instance.State != PostgresInstanceStateAvailable || instance.Name != name || instance.PostgresName != "foobar" {
+		instance, err := GetReadyPostgresBranch(ctx, team, "dev", name)
+		if err != nil || instance.State != PostgresBranchStateAvailable || instance.Name != name || instance.PostgresName != "foobar" {
 			t.Errorf("%s: got instance %+v, error %v", name, instance, err)
 		}
 	}
-	instance, err := GetReadyPostgresInstance(ctx, team, "dev", "progressing")
-	if err != nil || instance.State == PostgresInstanceStateAvailable {
+	instance, err := GetReadyPostgresBranch(ctx, team, "dev", "progressing")
+	if err != nil || instance.State == PostgresBranchStateAvailable {
 		t.Errorf("progressing instance = %+v, error %v", instance, err)
 	}
-	_, err = GetReadyPostgresInstance(ctx, team, "dev", "missing")
+	_, err = GetReadyPostgresBranch(ctx, team, "dev", "missing")
 	if !errors.Is(err, &watcher.ErrorNotFound{}) {
 		t.Errorf("missing instance error = %v", err)
 	}
@@ -157,20 +157,20 @@ func TestCreatePostgresAccessRejectsMissingInstance(t *testing.T) {
 	}
 	t.Cleanup(mgr.Stop)
 	ctx := context.Background()
-	postgresWatcher := NewPostgresWatcher(ctx, mgr)
+	postgresBranchWatcher := NewPostgresBranchWatcher(ctx, mgr)
 	wait, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 	if !mgr.WaitForReady(wait) {
-		t.Fatal("PostgresInstance watcher did not synchronize")
+		t.Fatal("PostgresBranch watcher did not synchronize")
 	}
-	ctx = NewLoaderContext(ctx, postgresWatcher, "", "", "nav")
+	ctx = NewLoaderContext(ctx, postgresBranchWatcher, "", "", "nav", mgr.GetDynamicClients())
 	input := CreatePostgresAccessInput{
-		PostgresInstance: "missing", TeamSlug: slug.Slug("myteam"),
+		PostgresBranch: "missing", TeamSlug: slug.Slug("myteam"),
 		EnvironmentName: "dev", AccessLevel: PostgresAccessLevelRead,
 		Reason: "Investigating missing instance",
 	}
 	err = input.Validate(ctx)
-	if err == nil || !strings.Contains(err.Error(), `Could not find PostgresInstance named "missing"`) {
+	if err == nil || !strings.Contains(err.Error(), `Could not find PostgresBranch named "missing"`) {
 		t.Errorf("validation error = %v, want named missing instance", err)
 	}
 }

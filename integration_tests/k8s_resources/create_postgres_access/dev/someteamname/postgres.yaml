@@ -7,7 +7,7 @@ metadata:
 spec:
   majorVersion: "17"
 status:
-  activeInstance: foobar
+  activeBranch: foobar
 ---
 apiVersion: nais.io/v1
 kind: Postgres
@@ -17,7 +17,7 @@ metadata:
 spec:
   majorVersion: "17"
 status:
-  activeInstance: progressing
+  activeBranch: progressing
 ---
 apiVersion: nais.io/v1
 kind: Postgres
@@ -28,7 +28,7 @@ spec:
   majorVersion: "17"
 ---
 apiVersion: nais.io/v1
-kind: PostgresInstance
+kind: PostgresBranch
 metadata:
   name: foobar
   namespace: someteamname
@@ -44,7 +44,7 @@ status:
       lastTransitionTime: "2026-09-17T00:00:00Z"
 ---
 apiVersion: nais.io/v1
-kind: PostgresInstance
+kind: PostgresBranch
 metadata:
   name: progressing
   namespace: someteamname
@@ -60,7 +60,7 @@ status:
       lastTransitionTime: "2026-09-17T00:00:00Z"
 ---
 apiVersion: nais.io/v1
-kind: PostgresInstance
+kind: PostgresBranch
 metadata:
   name: foobar-recovered
   namespace: someteamname

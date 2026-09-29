@@ -9,14 +9,14 @@ import (
 	"github.com/nais/api/internal/slug"
 )
 
-func AddSearchPostgres(client search.Client, watcher *watcher.Watcher[*PostgresInstance]) {
-	createIdent := func(env string, obj *PostgresInstance) ident.Ident {
+func AddSearchPostgresBranch(client search.Client, watcher *watcher.Watcher[*PostgresBranch]) {
+	createIdent := func(env string, obj *PostgresBranch) ident.Ident {
 		return newIdent(slug.Slug(obj.GetNamespace()), env, obj.GetName())
 	}
 
 	gbi := func(ctx context.Context, id ident.Ident) (search.SearchNode, error) {
-		return GetPostgresInstanceByIdent(ctx, id)
+		return GetPostgresBranchByIdent(ctx, id)
 	}
 
-	client.AddClient("POSTGRES", search.NewK8sSearch("POSTGRES", watcher, gbi, createIdent))
+	client.AddClient("POSTGRES_BRANCH", search.NewK8sSearch("POSTGRES_BRANCH", watcher, gbi, createIdent))
 }

@@ -9,24 +9,24 @@ import (
 )
 
 func TestComputeFacets(t *testing.T) {
-	all := []*PostgresInstance{
-		{Name: "first", EnvironmentName: "dev", State: PostgresInstanceStateAvailable},
-		{Name: "second", EnvironmentName: "dev", State: PostgresInstanceStateProgressing},
-		{Name: "third", EnvironmentName: "prod", State: PostgresInstanceStateDegraded},
+	all := []*PostgresBranch{
+		{Name: "first", EnvironmentName: "dev", State: PostgresBranchStateAvailable},
+		{Name: "second", EnvironmentName: "dev", State: PostgresBranchStateProgressing},
+		{Name: "third", EnvironmentName: "prod", State: PostgresBranchStateDegraded},
 	}
 	tests := []struct {
 		name             string
-		filter           *PostgresInstanceFilter
+		filter           *PostgresBranchFilter
 		wantEnvironments []model.StringFacetItem
-		wantStates       []PostgresInstanceStateFacetItem
+		wantStates       []PostgresBranchStateFacetItem
 	}{
-		{"all", nil, []model.StringFacetItem{{Value: "dev", Count: 2}, {Value: "prod", Count: 1}}, []PostgresInstanceStateFacetItem{{State: PostgresInstanceStateAvailable, Count: 1}, {State: PostgresInstanceStateDegraded, Count: 1}, {State: PostgresInstanceStateProgressing, Count: 1}}},
-		{"filter by environment", &PostgresInstanceFilter{Environments: []string{"dev"}}, []model.StringFacetItem{{Value: "dev", Count: 2}, {Value: "prod", Count: 0}}, []PostgresInstanceStateFacetItem{{State: PostgresInstanceStateAvailable, Count: 1}, {State: PostgresInstanceStateDegraded, Count: 0}, {State: PostgresInstanceStateProgressing, Count: 1}}},
-		{"filter by state", &PostgresInstanceFilter{States: []PostgresInstanceState{PostgresInstanceStateAvailable}}, []model.StringFacetItem{{Value: "dev", Count: 1}, {Value: "prod", Count: 0}}, []PostgresInstanceStateFacetItem{{State: PostgresInstanceStateAvailable, Count: 1}, {State: PostgresInstanceStateDegraded, Count: 0}, {State: PostgresInstanceStateProgressing, Count: 0}}},
+		{"all", nil, []model.StringFacetItem{{Value: "dev", Count: 2}, {Value: "prod", Count: 1}}, []PostgresBranchStateFacetItem{{State: PostgresBranchStateAvailable, Count: 1}, {State: PostgresBranchStateDegraded, Count: 1}, {State: PostgresBranchStateProgressing, Count: 1}}},
+		{"filter by environment", &PostgresBranchFilter{Environments: []string{"dev"}}, []model.StringFacetItem{{Value: "dev", Count: 2}, {Value: "prod", Count: 0}}, []PostgresBranchStateFacetItem{{State: PostgresBranchStateAvailable, Count: 1}, {State: PostgresBranchStateDegraded, Count: 0}, {State: PostgresBranchStateProgressing, Count: 1}}},
+		{"filter by state", &PostgresBranchFilter{States: []PostgresBranchState{PostgresBranchStateAvailable}}, []model.StringFacetItem{{Value: "dev", Count: 1}, {Value: "prod", Count: 0}}, []PostgresBranchStateFacetItem{{State: PostgresBranchStateAvailable, Count: 1}, {State: PostgresBranchStateDegraded, Count: 0}, {State: PostgresBranchStateProgressing, Count: 0}}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			f := &PostgresInstanceFacets{AllInstances: all, Filter: tt.filter}
+			f := &PostgresBranchFacets{AllInstances: all, Filter: tt.filter}
 			if got := f.Environments(context.Background()); !reflect.DeepEqual(got, tt.wantEnvironments) {
 				t.Errorf("environments=%v want %v", got, tt.wantEnvironments)
 			}

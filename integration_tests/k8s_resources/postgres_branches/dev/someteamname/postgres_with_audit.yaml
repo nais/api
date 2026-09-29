@@ -7,10 +7,10 @@ metadata:
 spec:
   majorVersion: "16"
 status:
-  activeInstance: with-audit
+  activeBranch: with-audit
 ---
 apiVersion: nais.io/v1
-kind: PostgresInstance
+kind: PostgresBranch
 metadata:
   name: with-audit
   namespace: someteamname

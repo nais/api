@@ -11,10 +11,10 @@ spec:
     memory: 2Gi
     diskSize: 2Gi
 status:
-  activeInstance: foobar
+  activeBranch: foobar
 ---
 apiVersion: nais.io/v1
-kind: PostgresInstance
+kind: PostgresBranch
 metadata:
   name: foobar
   namespace: someteamname

@@ -7,10 +7,10 @@ metadata:
 spec:
   majorVersion: "17"
 status:
-  activeInstance: pg-b
+  activeBranch: pg-b
 ---
 apiVersion: nais.io/v1
-kind: PostgresInstance
+kind: PostgresBranch
 metadata:
   name: pg-b
   namespace: myteam
@@ -33,10 +33,10 @@ metadata:
 spec:
   majorVersion: "17"
 status:
-  activeInstance: pg-a
+  activeBranch: pg-a
 ---
 apiVersion: nais.io/v1
-kind: PostgresInstance
+kind: PostgresBranch
 metadata:
   name: pg-a
   namespace: myteam

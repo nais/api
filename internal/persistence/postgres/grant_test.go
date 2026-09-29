@@ -29,13 +29,13 @@ func TestLegacyPostgresGrantValidatesTheOldCluster(t *testing.T) {
 	}
 	t.Cleanup(mgr.Stop)
 	ctx := context.Background()
-	postgresWatcher := NewPostgresWatcher(ctx, mgr)
 	wait, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 	if !mgr.WaitForReady(wait) {
 		t.Fatal("Postgres watcher did not synchronize")
 	}
-	ctx = NewLoaderContext(ctx, postgresWatcher, "", "", "nav")
+	// The legacy grant must work even when the PostgresBranch CRD is absent.
+	ctx = NewLoaderContext(ctx, nil, "", "", "nav", mgr.GetDynamicClients())
 	input := GrantPostgresAccessInput{
 		ClusterName: "foobar", TeamSlug: slug.Slug("someteamname"), EnvironmentName: "dev",
 		Grantee: "someone@example.com", Duration: "30m",

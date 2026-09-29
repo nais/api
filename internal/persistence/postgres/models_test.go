@@ -10,34 +10,37 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
-func TestToPostgresInstance(t *testing.T) {
+func TestToPostgresBranch(t *testing.T) {
 	obj := &unstructured.Unstructured{Object: map[string]any{
-		"apiVersion": "nais.io/v1", "kind": "PostgresInstance",
+		"apiVersion": "nais.io/v1", "kind": "PostgresBranch",
 		"metadata": map[string]any{"name": "orders-restored", "namespace": "my-team"},
 		"spec":     map[string]any{"postgres": "orders"},
 		"status":   map[string]any{"reconcilePhase": "Completed", "conditions": []any{map[string]any{"type": "cluster.postgresql.cnpg.io/ObservedState", "status": "True", "lastTransitionTime": "2026-01-01T00:00:00Z", "reason": "Reconciled", "message": "Cluster is in phase: Cluster in healthy state"}}},
 	}}
-	got, err := toPostgresInstance(obj, "dev")
+	got, err := toPostgresBranch(obj, "dev")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got.Name != "orders-restored" || got.PostgresName != "orders" || got.State != PostgresInstanceStateAvailable {
-		t.Errorf("unexpected physical instance: %+v", got)
+	if got.Name != "orders-restored" || got.PostgresName != "orders" || got.State != PostgresBranchStateAvailable {
+		t.Errorf("unexpected PostgresBranch: %+v", got)
+	}
+	if got.ID().Type != "PBR" {
+		t.Errorf("PostgresBranch ID type = %q, want PBR", got.ID().Type)
 	}
 }
 
-func TestToLogicalPostgres(t *testing.T) {
+func TestToPostgres(t *testing.T) {
 	obj := &unstructured.Unstructured{Object: map[string]any{
 		"apiVersion": "nais.io/v1", "kind": "Postgres",
 		"metadata": map[string]any{"name": "orders", "namespace": "my-team"},
 		"spec":     map[string]any{"majorVersion": "17", "highAvailability": true, "resources": map[string]any{"cpu": "100m", "memory": "2Gi", "diskSize": "10Gi"}},
-		"status":   map[string]any{"activeInstance": "orders-restored"},
+		"status":   map[string]any{"activeBranch": "orders-restored"},
 	}}
 	got, err := toPostgres(obj, "dev")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got.Name != "orders" || got.MajorVersion != "17" || got.ActiveInstance == nil || *got.ActiveInstance != "orders-restored" {
+	if got.Name != "orders" || got.MajorVersion != "17" || got.ActiveBranch == nil || *got.ActiveBranch != "orders-restored" {
 		t.Errorf("unexpected Postgres: %+v", got)
 	}
 	if got.Resources.CPU == nil || *got.Resources.CPU != "100m" || got.Resources.Memory == nil || *got.Resources.Memory != "2Gi" || got.Resources.DiskSize == nil || *got.Resources.DiskSize != "10Gi" {
@@ -50,15 +53,15 @@ func TestPostgresStateFromConditions(t *testing.T) {
 		name       string
 		reconciled bool
 		conditions []metav1.Condition
-		want       PostgresInstanceState
+		want       PostgresBranchState
 	}{
-		{name: "not reconciled", want: PostgresInstanceStateProgressing},
-		{name: "healthy", reconciled: true, conditions: []metav1.Condition{{Type: "cluster.postgresql.cnpg.io/ObservedState", Status: metav1.ConditionTrue, Message: "Cluster is in phase: Cluster in healthy state"}}, want: PostgresInstanceStateAvailable},
-		{name: "still starting", reconciled: true, conditions: []metav1.Condition{{Type: "cluster.postgresql.cnpg.io/ObservedState", Status: metav1.ConditionFalse, Message: "Cluster is in phase: "}}, want: PostgresInstanceStateProgressing},
-		{name: "unrecoverable", reconciled: true, conditions: []metav1.Condition{{Type: "cluster.postgresql.cnpg.io/ObservedState", Status: metav1.ConditionTrue, Message: "Cluster is in phase: Cluster is unrecoverable and needs manual intervention"}}, want: PostgresInstanceStateDegraded},
-		{name: "plugin failure", reconciled: true, conditions: []metav1.Condition{{Type: "cluster.postgresql.cnpg.io/ObservedState", Status: metav1.ConditionTrue, Message: "Cluster is in phase: Cluster cannot proceed to reconciliation due to an error while interacting with plugins"}}, want: PostgresInstanceStateDegraded},
-		{name: "other phase", reconciled: true, conditions: []metav1.Condition{{Type: "cluster.postgresql.cnpg.io/ObservedState", Status: metav1.ConditionTrue, Message: "Cluster is in phase: Online upgrade in progress"}}, want: PostgresInstanceStateProgressing},
-		{name: "missing", reconciled: true, want: PostgresInstanceStateProgressing},
+		{name: "not reconciled", want: PostgresBranchStateProgressing},
+		{name: "healthy", reconciled: true, conditions: []metav1.Condition{{Type: "cluster.postgresql.cnpg.io/ObservedState", Status: metav1.ConditionTrue, Message: "Cluster is in phase: Cluster in healthy state"}}, want: PostgresBranchStateAvailable},
+		{name: "still starting", reconciled: true, conditions: []metav1.Condition{{Type: "cluster.postgresql.cnpg.io/ObservedState", Status: metav1.ConditionFalse, Message: "Cluster is in phase: "}}, want: PostgresBranchStateProgressing},
+		{name: "unrecoverable", reconciled: true, conditions: []metav1.Condition{{Type: "cluster.postgresql.cnpg.io/ObservedState", Status: metav1.ConditionTrue, Message: "Cluster is in phase: Cluster is unrecoverable and needs manual intervention"}}, want: PostgresBranchStateDegraded},
+		{name: "plugin failure", reconciled: true, conditions: []metav1.Condition{{Type: "cluster.postgresql.cnpg.io/ObservedState", Status: metav1.ConditionTrue, Message: "Cluster is in phase: Cluster cannot proceed to reconciliation due to an error while interacting with plugins"}}, want: PostgresBranchStateDegraded},
+		{name: "other phase", reconciled: true, conditions: []metav1.Condition{{Type: "cluster.postgresql.cnpg.io/ObservedState", Status: metav1.ConditionTrue, Message: "Cluster is in phase: Online upgrade in progress"}}, want: PostgresBranchStateProgressing},
+		{name: "missing", reconciled: true, want: PostgresBranchStateProgressing},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -69,15 +72,15 @@ func TestPostgresStateFromConditions(t *testing.T) {
 	}
 }
 
-func TestDeletePostgresInput_ValidationErrors(t *testing.T) {
+func TestDeletePostgresBranchInput_ValidationErrors(t *testing.T) {
 	tests := []struct {
 		name          string
-		input         DeletePostgresInput
+		input         DeletePostgresBranchInput
 		wantErrFields []string
 	}{
 		{
 			name: "all fields valid",
-			input: DeletePostgresInput{
+			input: DeletePostgresBranchInput{
 				Name:            "my-db",
 				EnvironmentName: "dev",
 				TeamSlug:        slug.Slug("my-team"),
@@ -86,7 +89,7 @@ func TestDeletePostgresInput_ValidationErrors(t *testing.T) {
 		},
 		{
 			name: "empty name",
-			input: DeletePostgresInput{
+			input: DeletePostgresBranchInput{
 				Name:            "",
 				EnvironmentName: "dev",
 				TeamSlug:        slug.Slug("my-team"),
@@ -95,7 +98,7 @@ func TestDeletePostgresInput_ValidationErrors(t *testing.T) {
 		},
 		{
 			name: "empty environmentName",
-			input: DeletePostgresInput{
+			input: DeletePostgresBranchInput{
 				Name:            "my-db",
 				EnvironmentName: "",
 				TeamSlug:        slug.Slug("my-team"),
@@ -104,7 +107,7 @@ func TestDeletePostgresInput_ValidationErrors(t *testing.T) {
 		},
 		{
 			name: "empty teamSlug",
-			input: DeletePostgresInput{
+			input: DeletePostgresBranchInput{
 				Name:            "my-db",
 				EnvironmentName: "dev",
 				TeamSlug:        slug.Slug(""),
@@ -113,7 +116,7 @@ func TestDeletePostgresInput_ValidationErrors(t *testing.T) {
 		},
 		{
 			name: "all fields empty",
-			input: DeletePostgresInput{
+			input: DeletePostgresBranchInput{
 				Name:            "",
 				EnvironmentName: "",
 				TeamSlug:        slug.Slug(""),
@@ -122,7 +125,7 @@ func TestDeletePostgresInput_ValidationErrors(t *testing.T) {
 		},
 		{
 			name: "whitespace-only name treated as empty",
-			input: DeletePostgresInput{
+			input: DeletePostgresBranchInput{
 				Name:            "   ",
 				EnvironmentName: "dev",
 				TeamSlug:        slug.Slug("my-team"),

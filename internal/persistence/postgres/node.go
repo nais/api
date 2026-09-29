@@ -10,18 +10,18 @@ import (
 type identType int
 
 const (
-	identPostgresInstance identType = iota
+	identPostgresBranch identType = iota
 	identPostgresAccess
 	identPostgres
 )
 
 func init() {
-	ident.RegisterIdentType(identPostgresInstance, "PP", GetPostgresInstanceByIdent)
+	ident.RegisterIdentType(identPostgresBranch, "PBR", GetPostgresBranchByIdent)
 	ident.RegisterIdentType(identPostgresAccess, "PA", GetPostgresAccessByIdent)
 	ident.RegisterIdentType(identPostgres, "PG", GetPostgresByIdent)
 }
 
-func parsePostgresInstanceIdent(id ident.Ident) (teamSlug slug.Slug, environmentName, postgresInstanceName string, err error) {
+func parsePostgresBranchIdent(id ident.Ident) (teamSlug slug.Slug, environmentName, postgresBranchName string, err error) {
 	parts := id.Parts()
 	if len(parts) != 3 {
 		return "", "", "", fmt.Errorf("invalid ident")
@@ -30,8 +30,8 @@ func parsePostgresInstanceIdent(id ident.Ident) (teamSlug slug.Slug, environment
 	return slug.Slug(parts[0]), parts[1], parts[2], nil
 }
 
-func newIdent(teamSlug slug.Slug, environmentName, postgresInstanceName string) ident.Ident {
-	return ident.NewIdent(identPostgresInstance, teamSlug.String(), environmentName, postgresInstanceName)
+func newIdent(teamSlug slug.Slug, environmentName, postgresBranchName string) ident.Ident {
+	return ident.NewIdent(identPostgresBranch, teamSlug.String(), environmentName, postgresBranchName)
 }
 
 func parseAccessIdent(id ident.Ident) (teamSlug slug.Slug, environmentName, name string, err error) {

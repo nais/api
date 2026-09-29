@@ -7,10 +7,10 @@ metadata:
 spec:
   majorVersion: "17"
 status:
-  activeInstance: postgres-one
+  activeBranch: postgres-one
 ---
 apiVersion: nais.io/v1
-kind: PostgresInstance
+kind: PostgresBranch
 metadata:
   name: postgres-one
   namespace: labelteam
@@ -36,10 +36,10 @@ metadata:
 spec:
   majorVersion: "17"
 status:
-  activeInstance: postgres-two
+  activeBranch: postgres-two
 ---
 apiVersion: nais.io/v1
-kind: PostgresInstance
+kind: PostgresBranch
 metadata:
   name: postgres-two
   namespace: labelteam
@@ -64,10 +64,10 @@ metadata:
 spec:
   majorVersion: "17"
 status:
-  activeInstance: postgres-three
+  activeBranch: postgres-three
 ---
 apiVersion: nais.io/v1
-kind: PostgresInstance
+kind: PostgresBranch
 metadata:
   name: postgres-three
   namespace: labelteam

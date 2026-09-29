@@ -99,7 +99,7 @@ func accessSecretData(secret, access *unstructured.Unstructured, key string) (st
 }
 
 func getAccessResource(ctx context.Context, environment, namespace, name string, gvr schema.GroupVersionResource) (*unstructured.Unstructured, error) {
-	client, err := fromContext(ctx).postgresWatcher.SystemAuthenticatedClient(ctx, environment, watcher.WithImpersonatedClientGVR(gvr))
+	client, err := fromContext(ctx).postgresBranchWatcher.SystemAuthenticatedClient(ctx, environment, watcher.WithImpersonatedClientGVR(gvr))
 	if err != nil {
 		return nil, fmt.Errorf("creating %s client: %w", gvr.Resource, err)
 	}

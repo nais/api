@@ -6,7 +6,7 @@ metadata:
 spec:
   majorVersion: "17"
 status:
-  activeInstance: orders-green
+  activeBranch: orders-green
 ---
 apiVersion: nais.io/v1
 kind: Postgres
@@ -16,10 +16,10 @@ metadata:
 spec:
   majorVersion: "17"
 status:
-  activeInstance: reports-recovered
+  activeBranch: reports-recovered
 ---
 apiVersion: nais.io/v1
-kind: PostgresInstance
+kind: PostgresBranch
 metadata:
   name: orders-green
   namespace: postgres-workload-team
@@ -27,7 +27,7 @@ spec:
   postgres: orders
 ---
 apiVersion: nais.io/v1
-kind: PostgresInstance
+kind: PostgresBranch
 metadata:
   name: reports-recovered
   namespace: postgres-workload-team

@@ -7,10 +7,10 @@ metadata:
 spec:
   majorVersion: "18"
 status:
-  activeInstance: postgres-1
+  activeBranch: postgres-1
 ---
 apiVersion: nais.io/v1
-kind: PostgresInstance
+kind: PostgresBranch
 metadata:
   name: postgres-1
   namespace: devteam

@@ -13,7 +13,7 @@ Test.gql("Create personal postgres access without authorization", function(t)
 	t.query [[
 		mutation CreatePostgresAccess {
 			createPostgresAccess(input: {
-				postgresInstance: "foobar"
+				postgresBranch: "foobar"
 				environmentName: "dev"
 				teamSlug: "someteamname"
 				accessLevel: READ
@@ -42,7 +42,7 @@ Test.gql("Create personal postgres access requires an audit reason", function(t)
 	t.query [[
 		mutation CreatePostgresAccess {
 			createPostgresAccess(input: {
-				postgresInstance: "foobar"
+				postgresBranch: "foobar"
 				environmentName: "dev"
 				teamSlug: "someteamname"
 				accessLevel: READ
@@ -70,7 +70,7 @@ Test.gql("Create personal postgres access rejects an unknown instance", function
 	t.query [[
 		mutation CreatePostgresAccess {
 			createPostgresAccess(input: {
-				postgresInstance: "unknown"
+				postgresBranch: "unknown"
 				environmentName: "dev"
 				teamSlug: "someteamname"
 				accessLevel: READ
@@ -85,8 +85,8 @@ Test.gql("Create personal postgres access rejects an unknown instance", function
 	t.check {
 		errors = {
 			{
-				extensions = { field = "postgresInstance" },
-				message = Contains("Could not find PostgresInstance"),
+				extensions = { field = "postgresBranch" },
+				message = Contains("Could not find PostgresBranch"),
 				path = { "createPostgresAccess" },
 			},
 		},
@@ -98,13 +98,13 @@ Test.gql("Create personal postgres access rejects a logical Postgres without a p
 	t.addHeader("x-user-email", user:email())
 	t.query [[
 		mutation { createPostgresAccess(input: {
-			postgresInstance: "legacy-only", environmentName: "dev",
+			postgresBranch: "legacy-only", environmentName: "dev",
 			teamSlug: "someteamname", accessLevel: READ,
 			reason: "Testing missing physical database instance"
 		}) { name } }
 	]]
 	t.check {
-		errors = { { extensions = { field = "postgresInstance" }, message = Contains("Could not find PostgresInstance"), path = { "createPostgresAccess" } } },
+		errors = { { extensions = { field = "postgresBranch" }, message = Contains("Could not find PostgresBranch"), path = { "createPostgresAccess" } } },
 		data = Null,
 	}
 end)
@@ -114,7 +114,7 @@ Test.gql("Create personal postgres access rejects an unavailable instance", func
 	t.query [[
 		mutation CreatePostgresAccess {
 			createPostgresAccess(input: {
-				postgresInstance: "progressing"
+				postgresBranch: "progressing"
 				environmentName: "dev"
 				teamSlug: "someteamname"
 				accessLevel: READ
@@ -129,7 +129,7 @@ Test.gql("Create personal postgres access rejects an unavailable instance", func
 	t.check {
 		errors = {
 			{
-				extensions = { field = "postgresInstance" },
+				extensions = { field = "postgresBranch" },
 				message = Contains("is not available"),
 				path = { "createPostgresAccess" },
 			},
@@ -143,7 +143,7 @@ Test.gql("Create personal postgres access", function(t)
 	t.query [[
 		mutation CreatePostgresAccess {
 			createPostgresAccess(input: {
-				postgresInstance: "foobar"
+				postgresBranch: "foobar"
 				environmentName: "dev"
 				teamSlug: "someteamname"
 				accessLevel: READWRITE
@@ -213,7 +213,7 @@ Test.gql("Personal access targets a physical instance, even when its name differ
 	t.addHeader("x-user-email", user:email())
 	t.query [[
 		mutation { createPostgresAccess(input: {
-			postgresInstance: "foobar-recovered", environmentName: "dev",
+			postgresBranch: "foobar-recovered", environmentName: "dev",
 			teamSlug: "someteamname", accessLevel: READ,
 			reason: "Testing access to a recovered instance"
 		}) { name } }
@@ -222,10 +222,10 @@ Test.gql("Personal access targets a physical instance, even when its name differ
 
 	t.query [[
 		query { team(slug: "someteamname") { environment(name: "dev") {
-			postgresAccess(name: "recovered-access") { postgresInstance { name } }
+			postgresAccess(name: "recovered-access") { postgresBranch { name } }
 		} } }
 	]]
-	t.check { data = { team = { environment = { postgresAccess = { postgresInstance = { name = "foobar-recovered" } } } } } }
+	t.check { data = { team = { environment = { postgresAccess = { postgresBranch = { name = "foobar-recovered" } } } } } }
 end)
 
 Test.gql("PostgresAccess status is visible to authorized team members", function(t)

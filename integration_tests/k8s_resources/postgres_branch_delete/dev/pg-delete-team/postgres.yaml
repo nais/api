@@ -6,10 +6,10 @@ metadata:
 spec:
   majorVersion: "17"
 status:
-  activeInstance: orders-new
+  activeBranch: orders-new
 ---
 apiVersion: nais.io/v1
-kind: PostgresInstance
+kind: PostgresBranch
 metadata:
   name: orders-new
   namespace: pg-delete-team
@@ -17,7 +17,7 @@ spec:
   postgres: orders
 ---
 apiVersion: nais.io/v1
-kind: PostgresInstance
+kind: PostgresBranch
 metadata:
   name: orders-old
   namespace: pg-delete-team
