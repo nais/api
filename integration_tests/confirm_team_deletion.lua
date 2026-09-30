@@ -4,6 +4,9 @@ local user2 = User.new()
 
 team:addOwner(user1, user2)
 
+local serviceAccount = ServiceAccount.new("team-owner", team:slug())
+serviceAccount:assignRole("Team owner")
+
 Test.gql("Create delete key", function(t)
 	t.addHeader("x-user-email", user1:email())
 
@@ -53,6 +56,50 @@ Test.gql("Confirm team deletion with the same user", function(t)
 				path = { "confirmTeamDeletion" },
 			},
 		},
+	}
+end)
+
+Test.gql("Service account owner cannot confirm team deletion", function(t)
+	t.addHeader("authorization", "Bearer " .. serviceAccount:token())
+
+	t.query(string.format([[
+		mutation {
+			confirmTeamDeletion(input: {
+				slug: "%s"
+				key: "%s"
+			}) {
+				deletionStarted
+			}
+		}
+	]], team:slug(), State.key))
+
+	t.check {
+		data = Null,
+		errors = {
+			{
+				locations = NotNull(),
+				message = "You are authenticated, but your account is not authorized to perform this action.",
+				path = { "confirmTeamDeletion" },
+			},
+		},
+	}
+end)
+
+Test.sql("Rejected service account confirmation leaves deletion pending", function(t)
+	t.queryRow([[
+		SELECT
+			team_delete_keys.confirmed_at,
+			teams.delete_key_confirmed_at,
+			(SELECT COUNT(*) FROM activity_log_entries WHERE team_slug = $2 AND action = 'CONFIRM_DELETE_KEY') AS activity_count
+		FROM team_delete_keys
+		JOIN teams ON teams.slug = team_delete_keys.team_slug
+		WHERE team_delete_keys.key = $1
+	]], State.key, team:slug())
+
+	t.check {
+		confirmed_at = Null,
+		delete_key_confirmed_at = Null,
+		activity_count = 0,
 	}
 end)
 
