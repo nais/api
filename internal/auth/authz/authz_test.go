@@ -2,6 +2,7 @@ package authz_test
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -32,5 +33,15 @@ func TestContextWithUser(t *testing.T) {
 
 	if diff := cmp.Diff(want, got); diff != "" {
 		t.Errorf("diff: -want +got\n%s", diff)
+	}
+}
+
+func TestCanDeleteTeamRejectsServiceAccounts(t *testing.T) {
+	actor := authz.NewMockAuthenticatedUser(t)
+	actor.EXPECT().IsServiceAccount().Return(true).Once()
+
+	ctx := authz.ContextWithActor(context.Background(), actor, nil)
+	if err := authz.CanDeleteTeam(ctx, "some-team"); !errors.Is(err, authz.ErrUnauthorized) {
+		t.Fatalf("expected unauthorized error, got %v", err)
 	}
 }
