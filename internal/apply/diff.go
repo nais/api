@@ -31,6 +31,7 @@ var ignoredMetadataFields = map[string]bool{
 // If before is nil, all fields in after are considered "added".
 // If after is nil, all fields in before are considered "removed".
 // Server-managed fields (status, metadata.resourceVersion, etc.) are excluded.
+// Secret changes include field names only, never values.
 func Diff(before, after *unstructured.Unstructured) []activitylog.ResourceChangedField {
 	var beforeMap, afterMap map[string]any
 
@@ -42,6 +43,11 @@ func Diff(before, after *unstructured.Unstructured) []activitylog.ResourceChange
 	}
 
 	changes := diffMaps(beforeMap, afterMap, "")
+	if (before != nil && before.GetKind() == "Secret") || (after != nil && after.GetKind() == "Secret") {
+		for i := range changes {
+			changes[i] = activitylog.ResourceChangedField{Field: changes[i].Field}
+		}
+	}
 
 	// Sort for deterministic output
 	slices.SortFunc(changes, func(a, b activitylog.ResourceChangedField) int {

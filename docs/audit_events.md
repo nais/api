@@ -174,6 +174,19 @@ make generate-graphql
 
 Audit events are stored to the database.
 
+Kubernetes Secret apply changes must record field paths or key names only, never old or
+new values. This applies to all Secret diff fields, including annotations that may
+contain credential snapshots. Apply diffs discard values before they are returned
+or stored. Historical entries are not redacted by the application.
+
+Use [the inspection query](../sketchpad/list_sensitive_activity_logs.sql) to list
+historical Secret diffs containing values, without displaying the values
+themselves. After reviewing the affected rows, run
+[the cleanup query](../sketchpad/redact_sensitive_activity_logs.sql) to remove
+old/new values in place. This cleanup is manual, not a database migration. Run it
+after older API instances have stopped writing unredacted diffs. Rotate credentials
+where exposure is established; cleanup does not remove backups or exports.
+
 Use the `Auditor` instance [internal/audit/auditor.go](../internal/audit/auditor.go) to store events:
 
 ```go
