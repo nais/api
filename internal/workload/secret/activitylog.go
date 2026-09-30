@@ -15,6 +15,7 @@ const (
 )
 
 func init() {
+	activitylog.RegisterKindResourceType("Secret", activityLogEntryResourceTypeSecret)
 	activitylog.RegisterTransformer(activityLogEntryResourceTypeSecret, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
 		switch entry.Action {
 		case activitylog.ActivityLogEntryActionCreated:
@@ -22,11 +23,20 @@ func init() {
 				GenericActivityLogEntry: entry.WithMessage("Created secret"),
 			}, nil
 		case activitylog.ActivityLogEntryActionUpdated:
-			data, err := activitylog.TransformData(entry, func(data *SecretUpdatedActivityLogEntryData) *SecretUpdatedActivityLogEntryData {
-				return data
-			})
+			payload, err := activitylog.UnmarshalData[struct {
+				SecretUpdatedActivityLogEntryData
+				ChangedFields []activitylog.ResourceChangedField `json:"changedFields"`
+			}](entry)
 			if err != nil {
 				return nil, err
+			}
+			data := &payload.SecretUpdatedActivityLogEntryData
+			for _, field := range payload.ChangedFields {
+				data.UpdatedFields = append(data.UpdatedFields, &SecretUpdatedActivityLogEntryDataUpdatedField{
+					Field:    field.Field,
+					OldValue: field.OldValue,
+					NewValue: field.NewValue,
+				})
 			}
 
 			return SecretUpdatedActivityLogEntry{
