@@ -1,12 +1,14 @@
 local user = User.new("user", "user@usersen.com")
 local otherMemberUser = User.new("othermember", "othermember@usersen.com")
 local creatorUser = User.new("creator", "creator@usersen.com")
+local staleUser = User.new("stale", "stale@usersen.com")
 local nonMemberUser = User.new("nonmember", "other@user.com")
 
 local mainTeam = Team.new("someteamname", "purpose", "#slack_channel")
 mainTeam:addMember(user)
 mainTeam:addMember(otherMemberUser)
 mainTeam:addMember(creatorUser)
+mainTeam:addMember(staleUser)
 
 Helper.readK8sResources("k8s_resources/create_postgres_access")
 
@@ -414,4 +416,22 @@ Test.gql("Personal postgres connection retrieval is audited", function(t)
 			{ message = Contains("Retrieved personal Postgres connection materials"), resourceName = "ready-access" },
 		} } } },
 	}
+end)
+
+Test.gql("An expired access is cleaned up, after which a new one can be requested", function(t)
+	t.addHeader("x-user-email", staleUser:email())
+	local request = [[
+		mutation { createPostgresAccess(input: {
+			postgres: "foobar", branch: "main", environmentName: "dev", teamSlug: "someteamname",
+			accessLevel: READ, reason: "Testing personal database access"
+		}) { name } }
+	]]
+	t.query(request)
+	t.check {
+		errors = { { locations = NotNull(), path = { "createPostgresAccess" }, message = Contains("being cleaned up") } },
+		data = Null,
+	}
+
+	t.query(request)
+	t.check { data = { createPostgresAccess = { name = "postgres-access-9269571e872b7c9d" } } }
 end)

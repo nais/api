@@ -11,6 +11,7 @@ import (
 	nais_io_v1 "github.com/nais/pgrator/pkg/api/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/util/validation"
 )
 
 func TestNewPostgresAccessResource(t *testing.T) {
@@ -208,5 +209,25 @@ func TestPostgresAccessConnectionDetails(t *testing.T) {
 				t.Fatal("connection is nil")
 			}
 		})
+	}
+}
+
+func TestPostgresAccessNameIsStablePerUserAndBranch(t *testing.T) {
+	name := postgresAccessName("user@example.com", "orders-main-abc")
+	if name != postgresAccessName("user@example.com", "orders-main-abc") {
+		t.Error("name must be stable, so a second request for the same pair conflicts")
+	}
+	for _, other := range []string{
+		postgresAccessName("other@example.com", "orders-main-abc"),
+		postgresAccessName("user@example.com", "orders-recovered-abc"),
+		// Shifting the boundary between user and branch must not collide.
+		postgresAccessName("user@example.comorders", "-main-abc"),
+	} {
+		if other == name {
+			t.Errorf("different user/branch produced the same name %q", name)
+		}
+	}
+	if errs := validation.IsDNS1123Subdomain(name); len(errs) > 0 {
+		t.Errorf("name %q is not a valid resource name: %v", name, errs)
 	}
 }

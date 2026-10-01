@@ -135,8 +135,8 @@ rules:
       - postgresaccesses
     verbs:
       - get
-      - list
       - create
+      - delete
   - apiGroups:
       - "nais.io"
     resources:
@@ -312,8 +312,8 @@ rules:
       - postgresaccesses
     verbs:
       - get
-      - list
       - create
+      - delete
   - apiGroups:
       - "nais.io"
     resources:

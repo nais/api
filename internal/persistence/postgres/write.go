@@ -17,6 +17,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/util/validation"
 	"k8s.io/client-go/dynamic"
 )
 
@@ -64,6 +65,8 @@ func (i *CreatePostgresInput) ValidationErrors(_ context.Context) *validate.Vali
 
 	if i.Name == "" {
 		verr.Add("name", "Name must not be empty.")
+	} else if errs := validation.IsDNS1123Subdomain(i.Name); len(errs) > 0 {
+		verr.Add("name", "Name must consist of lowercase letters, numbers, and hyphens only. It cannot start or end with a hyphen.")
 	}
 	if i.EnvironmentName == "" {
 		verr.Add("environmentName", "Environment name must not be empty.")
@@ -89,6 +92,8 @@ func (i *UpdatePostgresInput) ValidationErrors(_ context.Context) *validate.Vali
 
 	if i.Name == "" {
 		verr.Add("name", "Name must not be empty.")
+	} else if errs := validation.IsDNS1123Subdomain(i.Name); len(errs) > 0 {
+		verr.Add("name", "Name must consist of lowercase letters, numbers, and hyphens only. It cannot start or end with a hyphen.")
 	}
 	if i.EnvironmentName == "" {
 		verr.Add("environmentName", "Environment name must not be empty.")
@@ -105,8 +110,11 @@ func validateQuantities(verr *validate.ValidationErrors, cpu, memory, diskSize *
 		if value == nil {
 			continue
 		}
-		if _, err := resource.ParseQuantity(*value); err != nil {
+		quantity, err := resource.ParseQuantity(*value)
+		if err != nil {
 			verr.Add(field, "%q is not a valid quantity.", *value)
+		} else if quantity.Sign() <= 0 {
+			verr.Add(field, "%q must be greater than zero.", *value)
 		}
 	}
 }

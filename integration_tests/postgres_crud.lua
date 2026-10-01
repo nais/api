@@ -123,3 +123,48 @@ Test.gql("Updating a missing Postgres fails", function(t)
 		data = Null,
 	}
 end)
+
+Test.gql("Names that Kubernetes would reject are rejected as field errors", function(t)
+	t.addHeader("x-user-email", member:email())
+	for _, name in ipairs({ "Upper", "has/slash", "-leading" }) do
+		t.query(create(name, 'majorVersion: "18"'))
+		t.check {
+			errors = { { extensions = { field = "name" }, path = { "createPostgres" }, message = Contains("lowercase letters") } },
+			data = Null,
+		}
+	end
+	t.query [[mutation { updatePostgres(input: {
+		name: "Upper", environmentName: "dev", teamSlug: "pg-crud-team", highAvailability: true
+	}) { postgres { name } } }]]
+	t.check {
+		errors = { { extensions = { field = "name" }, path = { "updatePostgres" }, message = Contains("lowercase letters") } },
+		data = Null,
+	}
+end)
+
+Test.gql("Zero and negative resource quantities are rejected", function(t)
+	t.addHeader("x-user-email", member:email())
+	for _, field in ipairs({ "cpu", "memory", "diskSize" }) do
+		t.query(create("badquantity", string.format('majorVersion: "18", %s: "-1"', field)))
+		t.check {
+			errors = { { extensions = { field = field }, path = { "createPostgres" }, message = Contains("must be greater than zero") } },
+			data = Null,
+		}
+	end
+end)
+
+Test.gql("Creating and updating Postgres is recorded in the activity log", function(t)
+	t.addHeader("x-user-email", member:email())
+	t.query [[{ team(slug: "pg-crud-team") {
+		activityLog(first: 50, filter: { activityTypes: [POSTGRES_CREATED, POSTGRES_UPDATED] }) {
+			nodes { __typename message actor resourceType resourceName environmentName teamSlug }
+		}
+	} }]]
+	t.check {
+		data = { team = { activityLog = { nodes = {
+			{ __typename = "PostgresUpdatedActivityLogEntry", message = "Updated Postgres", actor = member:email(), resourceType = "POSTGRES", resourceName = "existing", environmentName = "dev", teamSlug = "pg-crud-team" },
+			{ __typename = "PostgresCreatedActivityLogEntry", message = "Created Postgres", actor = member:email(), resourceType = "POSTGRES", resourceName = Ignore(),   environmentName = "dev", teamSlug = "pg-crud-team" },
+			{ __typename = "PostgresCreatedActivityLogEntry", message = "Created Postgres", actor = member:email(), resourceType = "POSTGRES", resourceName = Ignore(),   environmentName = "dev", teamSlug = "pg-crud-team" },
+		} } } },
+	}
+end)

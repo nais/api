@@ -3,13 +3,14 @@ package postgres
 import (
 	"cmp"
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"slices"
 	"strings"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/apierror"
@@ -28,7 +29,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/client-go/dynamic"
 	"k8s.io/utils/ptr"
 )
 
@@ -491,24 +491,35 @@ func CreatePostgresAccess(ctx context.Context, input CreatePostgresAccessInput) 
 	username := authz.ActorFromContext(ctx).User.Identity()
 	branchObjectName := nais_io_v1.PostgresBranchObjectName(input.Postgres, input.Branch)
 
-	// One live access per user and branch: pgrator derives a single personal database
-	// role from them, so a second access could never become ready.
-	existing, err := findActivePostgresAccess(ctx, client.Namespace(input.TeamSlug.String()), username, branchObjectName)
-	if err != nil {
-		return nil, err
-	}
-	if existing != nil {
-		level, _, _ := unstructured.NestedString(existing.Object, "spec", "accessLevel")
-		if level != input.AccessLevel.CRDValue() {
-			return nil, apierror.Errorf("You already have %s access to this branch until %s. Wait for it to expire before requesting a different access level.", level, existingExpiry(existing).Format(time.RFC3339))
-		}
-		return &CreatePostgresAccessPayload{Name: existing.GetName(), ExpiresAt: existingExpiry(existing)}, nil
-	}
+	// One access per user and branch: pgrator derives a single personal database role from
+	// them, so a second access could never become ready. The name is derived from the pair, so
+	// the API server enforces this atomically through AlreadyExists.
+	name := postgresAccessName(username, branchObjectName)
+	accesses := client.Namespace(input.TeamSlug.String())
 
-	name := fmt.Sprintf("postgres-access-%s", uuid.NewString()[:8])
 	res := newPostgresAccessResource(input, username, name, expiresAt)
-
-	if _, err := client.Namespace(input.TeamSlug.String()).Create(ctx, res, metav1.CreateOptions{}); err != nil {
+	_, err = accesses.Create(ctx, res, metav1.CreateOptions{})
+	if k8serrors.IsAlreadyExists(err) {
+		existing, getErr := accesses.Get(ctx, name, metav1.GetOptions{})
+		if getErr != nil {
+			return nil, getErr
+		}
+		if existing.GetDeletionTimestamp() == nil && existingExpiry(existing).After(time.Now()) {
+			level, _, _ := unstructured.NestedString(existing.Object, "spec", "accessLevel")
+			if level != input.AccessLevel.CRDValue() {
+				return nil, apierror.Errorf("You already have %s access to this branch until %s. Wait for it to expire before requesting a different access level.", level, existingExpiry(existing).Format(time.RFC3339))
+			}
+			return &CreatePostgresAccessPayload{Name: name, ExpiresAt: existingExpiry(existing)}, nil
+		}
+		// The spec is immutable and nothing removes expired accesses, so clear it out of the way.
+		// Preconditions make sure we only delete the object we inspected.
+		uid := existing.GetUID()
+		if err := accesses.Delete(ctx, name, metav1.DeleteOptions{Preconditions: &metav1.Preconditions{UID: &uid}}); err != nil && !k8serrors.IsNotFound(err) {
+			return nil, err
+		}
+		return nil, apierror.Errorf("Your previous access to this branch is being cleaned up. Try again in a few seconds.")
+	}
+	if err != nil {
 		return nil, err
 	}
 
@@ -538,26 +549,12 @@ func existingExpiry(access *unstructured.Unstructured) time.Time {
 	return t
 }
 
-// findActivePostgresAccess returns the user's unexpired, non-deleting access to a branch.
-// The check is not atomic with creation, so two simultaneous requests can still both create one.
-func findActivePostgresAccess(ctx context.Context, client dynamic.ResourceInterface, username, branchObjectName string) (*unstructured.Unstructured, error) {
-	list, err := client.List(ctx, metav1.ListOptions{})
-	if err != nil {
-		return nil, fmt.Errorf("listing postgres accesses: %w", err)
-	}
-	now := time.Now()
-	for i := range list.Items {
-		item := &list.Items[i]
-		if item.GetDeletionTimestamp() != nil || !existingExpiry(item).After(now) {
-			continue
-		}
-		user, _, _ := unstructured.NestedString(item.Object, "spec", "username")
-		branch, _, _ := unstructured.NestedString(item.Object, "spec", "postgresBranch")
-		if user == username && branch == branchObjectName {
-			return item, nil
-		}
-	}
-	return nil, nil
+// postgresAccessName derives the access name from user and branch, so the Kubernetes API
+// server rejects a second concurrent access for the same pair. The NUL separator keeps
+// different (user, branch) pairs from producing the same input.
+func postgresAccessName(username, branchObjectName string) string {
+	sum := sha256.Sum256([]byte(username + "\x00" + branchObjectName))
+	return "postgres-access-" + hex.EncodeToString(sum[:])[:16]
 }
 
 func (i CreatePostgresAccessInput) accessTTL() (time.Duration, error) {
