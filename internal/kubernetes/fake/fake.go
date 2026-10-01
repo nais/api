@@ -15,7 +15,6 @@ import (
 	"github.com/nais/api/internal/kubernetes/watcher"
 	liberator_aiven_io_v1alpha1 "github.com/nais/liberator/pkg/apis/aiven.io/v1alpha1"
 	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
-	data_nais_io_v1 "github.com/nais/pgrator/pkg/api/datav1"
 	mapperatorv1 "github.com/nais/pgrator/pkg/api/v1"
 	unleash_nais_io_v1 "github.com/nais/unleasherator/api/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
@@ -192,6 +191,8 @@ func depluralized(s string) string {
 		return "remoteunleashes"
 	case "postgreses":
 		return "postgres"
+	case "postgresbranchs":
+		return "postgresbranches"
 	}
 
 	return s
@@ -216,7 +217,9 @@ func NewDynamicClient(scheme *runtime.Scheme) *dynfake.FakeDynamicClient {
 			liberator_aiven_io_v1alpha1.GroupVersion.WithResource("opensearches"): "OpenSearchList",
 			unleash_nais_io_v1.GroupVersion.WithResource("unleashes"):             "UnleashList",
 			unleash_nais_io_v1.GroupVersion.WithResource("remoteunleashes"):       "RemoteUnleashList",
-			data_nais_io_v1.GroupVersion.WithResource("postgres"):                 "PostgresList",
+			mapperatorv1.GroupVersion.WithResource("postgres"):                    "PostgresList",
+			{Group: "data.nais.io", Version: "v1", Resource: "postgres"}:          "PostgresList",
+			mapperatorv1.GroupVersion.WithResource("postgresbranches"):            "PostgresBranchList",
 			nais_io_v1alpha1.GroupVersion.WithResource("tunnels"):                 "TunnelList",
 			mapperatorv1.GroupVersion.WithResource("valkeys"):                     "ValkeyList",
 			mapperatorv1.GroupVersion.WithResource("opensearches"):                "OpenSearchList",

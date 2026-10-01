@@ -1,23 +1,54 @@
-apiVersion: data.nais.io/v1
+---
+apiVersion: nais.io/v1
 kind: Postgres
 metadata:
   name: pg-b
+  namespace: myteam
 spec:
-  cluster:
-    majorVersion: "17"
-    resources:
-      diskSize: "2Gi"
-      cpu: "100m"
-      memory: "1Gi"
+  majorVersion: "17"
+status:
+  activeBranch: main
 ---
-apiVersion: data.nais.io/v1
+apiVersion: nais.io/v1
+kind: PostgresBranch
+metadata:
+  name: pg-b-main-4a8c4391
+  namespace: myteam
+spec:
+  postgres: pg-b
+  branchName: main
+status:
+  reconcilePhase: Completed
+  conditions:
+    - type: cluster.postgresql.cnpg.io/ObservedState
+      status: "True"
+      reason: Reconciled
+      message: "Cluster is in phase: Cluster in healthy state"
+      lastTransitionTime: "2026-09-17T00:00:00Z"
+---
+apiVersion: nais.io/v1
 kind: Postgres
 metadata:
   name: pg-a
+  namespace: myteam
 spec:
-  cluster:
-    majorVersion: "17"
-    resources:
-      diskSize: "2Gi"
-      cpu: "100m"
-      memory: "1Gi"
+  majorVersion: "17"
+status:
+  activeBranch: main
+---
+apiVersion: nais.io/v1
+kind: PostgresBranch
+metadata:
+  name: pg-a-main-fb72f9ba
+  namespace: myteam
+spec:
+  postgres: pg-a
+  branchName: main
+status:
+  reconcilePhase: Completed
+  conditions:
+    - type: cluster.postgresql.cnpg.io/ObservedState
+      status: "True"
+      reason: Reconciled
+      message: "Cluster is in phase: Cluster in healthy state"
+      lastTransitionTime: "2026-09-17T00:00:00Z"

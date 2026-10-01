@@ -28,8 +28,8 @@ func TestDatabasesServer_List(t *testing.T) {
 	//	CLOUD_SQL        dev-gcp  instance-a  db-a
 	//	CLOUD_SQL        dev-gcp  instance-a  db-b
 	//	CLOUD_SQL        prod-gcp instance-a  db-a
-	//	ZALANDO_POSTGRES dev-gcp  pg-a        app
-	//	ZALANDO_POSTGRES dev-gcp  pg-b        app
+	//	NAIS_POSTGRES dev-gcp  pg-a        app
+	//	NAIS_POSTGRES dev-gcp  pg-b        app
 	//
 	// Fixtures live under testdata/ — the fake client harness
 	// (internal/kubernetes/fake) sets the object namespace from the parent
@@ -78,8 +78,8 @@ func TestDatabasesServer_List(t *testing.T) {
 			{typ: protoapi.DatabaseType_CLOUD_SQL, environment: "dev-gcp", name: "instance-a", database: "db-a"},
 			{typ: protoapi.DatabaseType_CLOUD_SQL, environment: "dev-gcp", name: "instance-a", database: "db-b"},
 			{typ: protoapi.DatabaseType_CLOUD_SQL, environment: "prod-gcp", name: "instance-a", database: "db-a"},
-			{typ: protoapi.DatabaseType_ZALANDO_POSTGRES, environment: "dev-gcp", name: "pg-a", database: "app"},
-			{typ: protoapi.DatabaseType_ZALANDO_POSTGRES, environment: "dev-gcp", name: "pg-b", database: "app"},
+			{typ: protoapi.DatabaseType_NAIS_POSTGRES, environment: "dev-gcp", name: "pg-a", database: "app"},
+			{typ: protoapi.DatabaseType_NAIS_POSTGRES, environment: "dev-gcp", name: "pg-b", database: "app"},
 		}
 
 		// Repeated calls must return the same order.
@@ -203,7 +203,7 @@ func newServer(t *testing.T, ctx context.Context) *grpcdatabase.Server {
 	t.Cleanup(mgr.Stop)
 
 	sqlDatabaseWatcher := sqlinstance.NewDatabaseWatcher(ctx, mgr)
-	zalandoPostgresWatcher := postgres.NewZalandoPostgresWatcher(ctx, mgr)
+	postgresBranchWatcher := postgres.NewPostgresBranchWatcher(ctx, mgr)
 
 	ctxWait, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
@@ -213,6 +213,6 @@ func newServer(t *testing.T, ctx context.Context) *grpcdatabase.Server {
 
 	return grpcdatabase.NewServer(
 		(*watchers.SqlDatabaseWatcher)(sqlDatabaseWatcher),
-		(*watchers.ZalandoPostgresWatcher)(zalandoPostgresWatcher),
+		(*watchers.PostgresBranchWatcher)(postgresBranchWatcher),
 	)
 }

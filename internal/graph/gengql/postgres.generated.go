@@ -25,23 +25,33 @@ import (
 
 // region    ************************** generated!.gotpl **************************
 
-type PostgresInstanceResolver interface {
-	Team(ctx context.Context, obj *postgres.PostgresInstance) (*team.Team, error)
-	TeamEnvironment(ctx context.Context, obj *postgres.PostgresInstance) (*team.TeamEnvironment, error)
-	Workloads(ctx context.Context, obj *postgres.PostgresInstance, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[workload.Workload], error)
+type PostgresResolver interface {
+	ActiveBranch(ctx context.Context, obj *postgres.Postgres) (*postgres.PostgresBranch, error)
+	Branch(ctx context.Context, obj *postgres.Postgres, name string) (*postgres.PostgresBranch, error)
+	Branches(ctx context.Context, obj *postgres.Postgres, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *postgres.PostgresBranchOrder) (*pagination.FacetableConnection[*postgres.PostgresBranch, *postgres.PostgresBranchFilter], error)
 }
-type PostgresInstanceAuditResolver interface {
-	URL(ctx context.Context, obj *postgres.PostgresInstanceAudit) (*string, error)
+type PostgresAccessResolver interface {
+	Team(ctx context.Context, obj *postgres.PostgresAccess) (*team.Team, error)
+	TeamEnvironment(ctx context.Context, obj *postgres.PostgresAccess) (*team.TeamEnvironment, error)
+	PostgresBranch(ctx context.Context, obj *postgres.PostgresAccess) (*postgres.PostgresBranch, error)
+
+	Connection(ctx context.Context, obj *postgres.PostgresAccess) (*postgres.PostgresAccessConnectionDetails, error)
 }
-type PostgresInstanceConnectionResolver interface {
-	Facets(ctx context.Context, obj *pagination.FacetableConnection[*postgres.PostgresInstance, *postgres.PostgresInstanceFilter]) (*postgres.PostgresInstanceFacets, error)
+type PostgresBranchResolver interface {
+	Team(ctx context.Context, obj *postgres.PostgresBranch) (*team.Team, error)
+	TeamEnvironment(ctx context.Context, obj *postgres.PostgresBranch) (*team.TeamEnvironment, error)
+	Postgres(ctx context.Context, obj *postgres.PostgresBranch) (*postgres.Postgres, error)
+	Workloads(ctx context.Context, obj *postgres.PostgresBranch, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[workload.Workload], error)
+}
+type PostgresBranchConnectionResolver interface {
+	Facets(ctx context.Context, obj *pagination.FacetableConnection[*postgres.PostgresBranch, *postgres.PostgresBranchFilter]) (*postgres.PostgresBranchFacets, error)
 }
 
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
 
-func (ec *executionContext) field_PostgresInstance_workloads_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func (ec *executionContext) field_PostgresBranch_workloads_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
@@ -79,6 +89,66 @@ func (ec *executionContext) field_PostgresInstance_workloads_args(ctx context.Co
 	return args, nil
 }
 
+func (ec *executionContext) field_Postgres_branch_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "name",
+		func(ctx context.Context, v any) (string, error) {
+			return ec.unmarshalNString2string(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Postgres_branches_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
+		func(ctx context.Context, v any) (*int, error) {
+			return ec.unmarshalOInt2ᚖint(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["first"] = arg0
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
+		func(ctx context.Context, v any) (*pagination.Cursor, error) {
+			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["after"] = arg1
+	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
+		func(ctx context.Context, v any) (*int, error) {
+			return ec.unmarshalOInt2ᚖint(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["last"] = arg2
+	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
+		func(ctx context.Context, v any) (*pagination.Cursor, error) {
+			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["before"] = arg3
+	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "orderBy",
+		func(ctx context.Context, v any) (*postgres.PostgresBranchOrder, error) {
+			return ec.unmarshalOPostgresBranchOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresBranchOrder(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["orderBy"] = arg4
+	return args, nil
+}
+
 // endregion ***************************** args.gotpl *****************************
 
 // region    ************************** directives.gotpl **************************
@@ -87,16 +157,62 @@ func (ec *executionContext) field_PostgresInstance_workloads_args(ctx context.Co
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _DeletePostgresPayload_postgresDeleted(ctx context.Context, field graphql.CollectedField, obj *postgres.DeletePostgresPayload) (ret graphql.Marshaler) {
+func (ec *executionContext) _CreatePostgresAccessPayload_name(ctx context.Context, field graphql.CollectedField, obj *postgres.CreatePostgresAccessPayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_DeletePostgresPayload_postgresDeleted(ctx, field)
+			return ec.fieldContext_CreatePostgresAccessPayload_name(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.PostgresDeleted, nil
+			return obj.Name, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_CreatePostgresAccessPayload_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("CreatePostgresAccessPayload", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _CreatePostgresAccessPayload_expiresAt(ctx context.Context, field graphql.CollectedField, obj *postgres.CreatePostgresAccessPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_CreatePostgresAccessPayload_expiresAt(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.ExpiresAt, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
+			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_CreatePostgresAccessPayload_expiresAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("CreatePostgresAccessPayload", field, false, false, errors.New("field of type Time does not have child fields"))
+}
+
+func (ec *executionContext) _DeletePostgresBranchPayload_postgresBranchDeleted(ctx context.Context, field graphql.CollectedField, obj *postgres.DeletePostgresBranchPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_DeletePostgresBranchPayload_postgresBranchDeleted(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.PostgresBranchDeleted, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *bool) graphql.Marshaler {
@@ -106,8 +222,8 @@ func (ec *executionContext) _DeletePostgresPayload_postgresDeleted(ctx context.C
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_DeletePostgresPayload_postgresDeleted(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("DeletePostgresPayload", field, false, false, errors.New("field of type Boolean does not have child fields"))
+func (ec *executionContext) fieldContext_DeletePostgresBranchPayload_postgresBranchDeleted(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("DeletePostgresBranchPayload", field, false, false, errors.New("field of type Boolean does not have child fields"))
 }
 
 func (ec *executionContext) _GrantPostgresAccessPayload_error(ctx context.Context, field graphql.CollectedField, obj *postgres.GrantPostgresAccessPayload) (ret graphql.Marshaler) {
@@ -131,6 +247,1298 @@ func (ec *executionContext) _GrantPostgresAccessPayload_error(ctx context.Contex
 }
 func (ec *executionContext) fieldContext_GrantPostgresAccessPayload_error(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("GrantPostgresAccessPayload", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _Postgres_id(ctx context.Context, field graphql.CollectedField, obj *postgres.Postgres) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Postgres_id(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.ID(), nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
+			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Postgres_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("Postgres", field, true, false, errors.New("field of type ID does not have child fields"))
+}
+
+func (ec *executionContext) _Postgres_name(ctx context.Context, field graphql.CollectedField, obj *postgres.Postgres) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Postgres_name(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Name, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Postgres_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("Postgres", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _Postgres_majorVersion(ctx context.Context, field graphql.CollectedField, obj *postgres.Postgres) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Postgres_majorVersion(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.MajorVersion, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Postgres_majorVersion(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("Postgres", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _Postgres_highAvailability(ctx context.Context, field graphql.CollectedField, obj *postgres.Postgres) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Postgres_highAvailability(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.HighAvailability, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
+			return ec.marshalNBoolean2bool(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Postgres_highAvailability(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("Postgres", field, false, false, errors.New("field of type Boolean does not have child fields"))
+}
+
+func (ec *executionContext) _Postgres_resources(ctx context.Context, field graphql.CollectedField, obj *postgres.Postgres) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Postgres_resources(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Resources, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v postgres.PostgresResources) graphql.Marshaler {
+			return ec.marshalNPostgresResources2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresResources(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Postgres_resources(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Postgres",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_PostgresResources(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Postgres_activeBranch(ctx context.Context, field graphql.CollectedField, obj *postgres.Postgres) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Postgres_activeBranch(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.Postgres().ActiveBranch(ctx, obj)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *postgres.PostgresBranch) graphql.Marshaler {
+			return ec.marshalOPostgresBranch2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresBranch(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_Postgres_activeBranch(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Postgres",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_PostgresBranch(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Postgres_branch(ctx context.Context, field graphql.CollectedField, obj *postgres.Postgres) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Postgres_branch(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.Resolvers.Postgres().Branch(ctx, obj, fc.Args["name"].(string))
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *postgres.PostgresBranch) graphql.Marshaler {
+			return ec.marshalNPostgresBranch2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresBranch(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Postgres_branch(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Postgres",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_PostgresBranch(ctx, field)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Postgres_branch_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Postgres_branches(ctx context.Context, field graphql.CollectedField, obj *postgres.Postgres) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Postgres_branches(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.Resolvers.Postgres().Branches(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*postgres.PostgresBranchOrder))
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *pagination.FacetableConnection[*postgres.PostgresBranch, *postgres.PostgresBranchFilter]) graphql.Marshaler {
+			return ec.marshalNPostgresBranchConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Postgres_branches(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Postgres",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_PostgresBranchConnection(ctx, field)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Postgres_branches_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Postgres_labels(ctx context.Context, field graphql.CollectedField, obj *postgres.Postgres) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Postgres_labels(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Labels, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []*model.ResourceLabel) graphql.Marshaler {
+			return ec.marshalNResourceLabel2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceLabelᚄ(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Postgres_labels(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Postgres",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_ResourceLabel(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresAccess_id(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresAccess) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresAccess_id(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.ID(), nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
+			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresAccess_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresAccess", field, true, false, errors.New("field of type ID does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresAccess_name(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresAccess) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresAccess_name(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Name, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresAccess_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresAccess", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresAccess_team(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresAccess) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresAccess_team(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.PostgresAccess().Team(ctx, obj)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *team.Team) graphql.Marshaler {
+			return ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresAccess_team(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresAccess",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_Team(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresAccess_teamEnvironment(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresAccess) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresAccess_teamEnvironment(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.PostgresAccess().TeamEnvironment(ctx, obj)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *team.TeamEnvironment) graphql.Marshaler {
+			return ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresAccess_teamEnvironment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresAccess",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_TeamEnvironment(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresAccess_postgresBranch(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresAccess) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresAccess_postgresBranch(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.PostgresAccess().PostgresBranch(ctx, obj)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *postgres.PostgresBranch) graphql.Marshaler {
+			return ec.marshalNPostgresBranch2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresBranch(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresAccess_postgresBranch(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresAccess",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_PostgresBranch(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresAccess_accessLevel(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresAccess) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresAccess_accessLevel(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.AccessLevel, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v postgres.PostgresAccessLevel) graphql.Marshaler {
+			return ec.marshalNPostgresAccessLevel2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresAccessLevel(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresAccess_accessLevel(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresAccess", field, false, false, errors.New("field of type PostgresAccessLevel does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresAccess_expiresAt(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresAccess) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresAccess_expiresAt(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.ExpiresAt, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
+			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresAccess_expiresAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresAccess", field, false, false, errors.New("field of type Time does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresAccess_state(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresAccess) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresAccess_state(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.State, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v postgres.PostgresAccessState) graphql.Marshaler {
+			return ec.marshalNPostgresAccessState2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresAccessState(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresAccess_state(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresAccess", field, false, false, errors.New("field of type PostgresAccessState does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresAccess_message(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresAccess) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresAccess_message(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Message, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresAccess_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresAccess", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresAccess_relayAccess(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresAccess) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresAccess_relayAccess(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.RelayAccess, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresAccess_relayAccess(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresAccess", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresAccess_connection(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresAccess) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresAccess_connection(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.PostgresAccess().Connection(ctx, obj)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *postgres.PostgresAccessConnectionDetails) graphql.Marshaler {
+			return ec.marshalOPostgresAccessConnectionDetails2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresAccessConnectionDetails(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresAccess_connection(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresAccess",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_PostgresAccessConnectionDetails(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresAccessConnectionDetails_username(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresAccessConnectionDetails) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresAccessConnectionDetails_username(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Username, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresAccessConnectionDetails_username(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresAccessConnectionDetails", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresAccessConnectionDetails_password(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresAccessConnectionDetails) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresAccessConnectionDetails_password(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Password, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresAccessConnectionDetails_password(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresAccessConnectionDetails", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresAccessConnectionDetails_caCertificate(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresAccessConnectionDetails) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresAccessConnectionDetails_caCertificate(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.CACertificate, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresAccessConnectionDetails_caCertificate(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresAccessConnectionDetails", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresAccessConnectionDetails_serverName(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresAccessConnectionDetails) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresAccessConnectionDetails_serverName(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.ServerName, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresAccessConnectionDetails_serverName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresAccessConnectionDetails", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresAccessConnectionDetails_relayEndpoint(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresAccessConnectionDetails) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresAccessConnectionDetails_relayEndpoint(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.RelayEndpoint, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresAccessConnectionDetails_relayEndpoint(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresAccessConnectionDetails", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresAccessConnectionDetails_relayAccess(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresAccessConnectionDetails) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresAccessConnectionDetails_relayAccess(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.RelayAccess, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresAccessConnectionDetails_relayAccess(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresAccessConnectionDetails", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresAccessConnectionDetails_relayToken(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresAccessConnectionDetails) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresAccessConnectionDetails_relayToken(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.RelayToken, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresAccessConnectionDetails_relayToken(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresAccessConnectionDetails", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresBranch_id(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresBranch) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresBranch_id(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.ID(), nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
+			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresBranch_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresBranch", field, true, false, errors.New("field of type ID does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresBranch_name(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresBranch) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresBranch_name(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Name, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresBranch_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresBranch", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresBranch_team(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresBranch) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresBranch_team(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.PostgresBranch().Team(ctx, obj)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *team.Team) graphql.Marshaler {
+			return ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresBranch_team(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresBranch",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_Team(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresBranch_teamEnvironment(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresBranch) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresBranch_teamEnvironment(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.PostgresBranch().TeamEnvironment(ctx, obj)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *team.TeamEnvironment) graphql.Marshaler {
+			return ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresBranch_teamEnvironment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresBranch",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_TeamEnvironment(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresBranch_postgres(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresBranch) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresBranch_postgres(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.PostgresBranch().Postgres(ctx, obj)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *postgres.Postgres) graphql.Marshaler {
+			return ec.marshalNPostgres2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgres(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresBranch_postgres(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresBranch",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_Postgres(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresBranch_workloads(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresBranch) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresBranch_workloads(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.Resolvers.PostgresBranch().Workloads(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[workload.Workload]) graphql.Marshaler {
+			return ec.marshalNWorkloadConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresBranch_workloads(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresBranch",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_WorkloadConnection(ctx, field)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_PostgresBranch_workloads_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresBranch_state(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresBranch) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresBranch_state(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.State, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v postgres.PostgresBranchState) graphql.Marshaler {
+			return ec.marshalNPostgresBranchState2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresBranchState(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresBranch_state(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresBranch", field, false, false, errors.New("field of type PostgresBranchState does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresBranch_labels(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresBranch) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresBranch_labels(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Labels, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []*model.ResourceLabel) graphql.Marshaler {
+			return ec.marshalNResourceLabel2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceLabelᚄ(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresBranch_labels(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresBranch",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_ResourceLabel(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresBranchConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*postgres.PostgresBranch, *postgres.PostgresBranchFilter]) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresBranchConnection_pageInfo(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.PageInfo, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v pagination.PageInfo) graphql.Marshaler {
+			return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresBranchConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresBranchConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_PageInfo(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresBranchConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*postgres.PostgresBranch, *postgres.PostgresBranchFilter]) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresBranchConnection_nodes(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Nodes(), nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []*postgres.PostgresBranch) graphql.Marshaler {
+			return ec.marshalNPostgresBranch2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresBranchᚄ(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresBranchConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresBranchConnection",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_PostgresBranch(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresBranchConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*postgres.PostgresBranch, *postgres.PostgresBranchFilter]) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresBranchConnection_edges(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Edges, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []pagination.Edge[*postgres.PostgresBranch]) graphql.Marshaler {
+			return ec.marshalNPostgresBranchEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresBranchConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresBranchConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_PostgresBranchEdge(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresBranchConnection_facets(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*postgres.PostgresBranch, *postgres.PostgresBranchFilter]) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresBranchConnection_facets(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.PostgresBranchConnection().Facets(ctx, obj)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *postgres.PostgresBranchFacets) graphql.Marshaler {
+			return ec.marshalOPostgresBranchFacets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresBranchFacets(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresBranchConnection_facets(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresBranchConnection",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_PostgresBranchFacets(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresBranchEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*postgres.PostgresBranch]) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresBranchEdge_cursor(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Cursor, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v pagination.Cursor) graphql.Marshaler {
+			return ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresBranchEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresBranchEdge", field, false, false, errors.New("field of type Cursor does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresBranchEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*postgres.PostgresBranch]) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresBranchEdge_node(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Node, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *postgres.PostgresBranch) graphql.Marshaler {
+			return ec.marshalNPostgresBranch2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresBranch(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresBranchEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresBranchEdge",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_PostgresBranch(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresBranchFacets_environments(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresBranchFacets) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresBranchFacets_environments(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Environments(ctx), nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []model.StringFacetItem) graphql.Marshaler {
+			return ec.marshalNStringFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItemᚄ(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresBranchFacets_environments(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresBranchFacets",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_StringFacetItem(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresBranchFacets_states(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresBranchFacets) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresBranchFacets_states(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.States(ctx), nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []postgres.PostgresBranchStateFacetItem) graphql.Marshaler {
+			return ec.marshalNPostgresBranchStateFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresBranchStateFacetItemᚄ(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresBranchFacets_states(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresBranchFacets",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_PostgresBranchStateFacetItem(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresBranchFacets_labels(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresBranchFacets) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresBranchFacets_labels(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Labels(ctx), nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []model.LabelFacetItem) graphql.Marshaler {
+			return ec.marshalNLabelFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFacetItemᚄ(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresBranchFacets_labels(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresBranchFacets",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_LabelFacetItem(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresBranchStateFacetItem_state(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresBranchStateFacetItem) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresBranchStateFacetItem_state(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.State, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v postgres.PostgresBranchState) graphql.Marshaler {
+			return ec.marshalNPostgresBranchState2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresBranchState(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresBranchStateFacetItem_state(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresBranchStateFacetItem", field, false, false, errors.New("field of type PostgresBranchState does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresBranchStateFacetItem_count(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresBranchStateFacetItem) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresBranchStateFacetItem_count(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Count, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
+			return ec.marshalNInt2int(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresBranchStateFacetItem_count(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresBranchStateFacetItem", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
 func (ec *executionContext) _PostgresDeletedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresDeletedActivityLogEntry) (ret graphql.Marshaler) {
@@ -643,13 +2051,13 @@ func (ec *executionContext) fieldContext_PostgresGrantAccessActivityLogEntryData
 	return graphql.NewScalarFieldContext("PostgresGrantAccessActivityLogEntryData", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _PostgresInstance_id(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstance) (ret graphql.Marshaler) {
+func (ec *executionContext) _PostgresPersonalAccessConnectionActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresPersonalAccessConnectionActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PostgresInstance_id(ctx, field)
+			return ec.fieldContext_PostgresPersonalAccessConnectionActivityLogEntry_id(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
@@ -662,20 +2070,20 @@ func (ec *executionContext) _PostgresInstance_id(ctx context.Context, field grap
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_PostgresInstance_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("PostgresInstance", field, true, false, errors.New("field of type ID does not have child fields"))
+func (ec *executionContext) fieldContext_PostgresPersonalAccessConnectionActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresPersonalAccessConnectionActivityLogEntry", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _PostgresInstance_name(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstance) (ret graphql.Marshaler) {
+func (ec *executionContext) _PostgresPersonalAccessConnectionActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresPersonalAccessConnectionActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PostgresInstance_name(ctx, field)
+			return ec.fieldContext_PostgresPersonalAccessConnectionActivityLogEntry_actor(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.Name, nil
+			return obj.Actor, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
@@ -685,348 +2093,167 @@ func (ec *executionContext) _PostgresInstance_name(ctx context.Context, field gr
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_PostgresInstance_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("PostgresInstance", field, false, false, errors.New("field of type String does not have child fields"))
+func (ec *executionContext) fieldContext_PostgresPersonalAccessConnectionActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresPersonalAccessConnectionActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _PostgresInstance_team(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstance) (ret graphql.Marshaler) {
+func (ec *executionContext) _PostgresPersonalAccessConnectionActivityLogEntry_gitHubActorClaims(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresPersonalAccessConnectionActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PostgresInstance_team(ctx, field)
+			return ec.fieldContext_PostgresPersonalAccessConnectionActivityLogEntry_gitHubActorClaims(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return ec.Resolvers.PostgresInstance().Team(ctx, obj)
+			return obj.GitHubActorClaims, nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *team.Team) graphql.Marshaler {
-			return ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_PostgresInstance_team(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "PostgresInstance",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Team(ctx, field)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _PostgresInstance_teamEnvironment(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstance) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PostgresInstance_teamEnvironment(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return ec.Resolvers.PostgresInstance().TeamEnvironment(ctx, obj)
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *team.TeamEnvironment) graphql.Marshaler {
-			return ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_PostgresInstance_teamEnvironment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "PostgresInstance",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamEnvironment(ctx, field)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _PostgresInstance_workloads(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstance) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PostgresInstance_workloads(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			fc := graphql.GetFieldContext(ctx)
-			return ec.Resolvers.PostgresInstance().Workloads(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[workload.Workload]) graphql.Marshaler {
-			return ec.marshalNWorkloadConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_PostgresInstance_workloads(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "PostgresInstance",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_WorkloadConnection(ctx, field)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_PostgresInstance_workloads_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _PostgresInstance_resources(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstance) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PostgresInstance_resources(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return obj.Resources, nil
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *postgres.PostgresInstanceResources) graphql.Marshaler {
-			return ec.marshalNPostgresInstanceResources2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceResources(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_PostgresInstance_resources(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "PostgresInstance",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_PostgresInstanceResources(ctx, field)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _PostgresInstance_majorVersion(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstance) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PostgresInstance_majorVersion(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return obj.MajorVersion, nil
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_PostgresInstance_majorVersion(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("PostgresInstance", field, false, false, errors.New("field of type String does not have child fields"))
-}
-
-func (ec *executionContext) _PostgresInstance_audit(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstance) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PostgresInstance_audit(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return obj.Audit, nil
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v postgres.PostgresInstanceAudit) graphql.Marshaler {
-			return ec.marshalNPostgresInstanceAudit2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceAudit(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_PostgresInstance_audit(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "PostgresInstance",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_PostgresInstanceAudit(ctx, field)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _PostgresInstance_highAvailability(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstance) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PostgresInstance_highAvailability(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return obj.HighAvailability, nil
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
-			return ec.marshalNBoolean2bool(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_PostgresInstance_highAvailability(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("PostgresInstance", field, false, false, errors.New("field of type Boolean does not have child fields"))
-}
-
-func (ec *executionContext) _PostgresInstance_state(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstance) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PostgresInstance_state(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return obj.State, nil
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v postgres.PostgresInstanceState) graphql.Marshaler {
-			return ec.marshalNPostgresInstanceState2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceState(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_PostgresInstance_state(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("PostgresInstance", field, false, false, errors.New("field of type PostgresInstanceState does not have child fields"))
-}
-
-func (ec *executionContext) _PostgresInstance_maintenanceWindow(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstance) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PostgresInstance_maintenanceWindow(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return obj.MaintenanceWindow, nil
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *postgres.PostgresInstanceMaintenanceWindow) graphql.Marshaler {
-			return ec.marshalOPostgresInstanceMaintenanceWindow2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceMaintenanceWindow(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *github.GitHubActorClaims) graphql.Marshaler {
+			return ec.marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_PostgresInstance_maintenanceWindow(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_PostgresPersonalAccessConnectionActivityLogEntry_gitHubActorClaims(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "PostgresInstance",
+		Object:     "PostgresPersonalAccessConnectionActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_PostgresInstanceMaintenanceWindow(ctx, field)
+			return ec.childFields_GitHubActorClaims(ctx, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _PostgresInstance_labels(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstance) (ret graphql.Marshaler) {
+func (ec *executionContext) _PostgresPersonalAccessConnectionActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresPersonalAccessConnectionActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PostgresInstance_labels(ctx, field)
+			return ec.fieldContext_PostgresPersonalAccessConnectionActivityLogEntry_createdAt(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.Labels, nil
+			return obj.CreatedAt, nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v []*model.ResourceLabel) graphql.Marshaler {
-			return ec.marshalNResourceLabel2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceLabelᚄ(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
+			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_PostgresInstance_labels(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "PostgresInstance",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_ResourceLabel(ctx, field)
-		},
-	}
-	return fc, nil
+func (ec *executionContext) fieldContext_PostgresPersonalAccessConnectionActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresPersonalAccessConnectionActivityLogEntry", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _PostgresInstanceAudit_enabled(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstanceAudit) (ret graphql.Marshaler) {
+func (ec *executionContext) _PostgresPersonalAccessConnectionActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresPersonalAccessConnectionActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PostgresInstanceAudit_enabled(ctx, field)
+			return ec.fieldContext_PostgresPersonalAccessConnectionActivityLogEntry_message(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.Enabled, nil
+			return obj.Message, nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
-			return ec.marshalNBoolean2bool(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_PostgresInstanceAudit_enabled(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("PostgresInstanceAudit", field, false, false, errors.New("field of type Boolean does not have child fields"))
+func (ec *executionContext) fieldContext_PostgresPersonalAccessConnectionActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresPersonalAccessConnectionActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _PostgresInstanceAudit_url(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstanceAudit) (ret graphql.Marshaler) {
+func (ec *executionContext) _PostgresPersonalAccessConnectionActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresPersonalAccessConnectionActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PostgresInstanceAudit_url(ctx, field)
+			return ec.fieldContext_PostgresPersonalAccessConnectionActivityLogEntry_resourceType(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return ec.Resolvers.PostgresInstanceAudit().URL(ctx, obj)
+			return obj.ResourceType, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v activitylog.ActivityLogEntryResourceType) graphql.Marshaler {
+			return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresPersonalAccessConnectionActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresPersonalAccessConnectionActivityLogEntry", field, false, false, errors.New("field of type ActivityLogEntryResourceType does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresPersonalAccessConnectionActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresPersonalAccessConnectionActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresPersonalAccessConnectionActivityLogEntry_resourceName(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.ResourceName, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresPersonalAccessConnectionActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresPersonalAccessConnectionActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresPersonalAccessConnectionActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresPersonalAccessConnectionActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresPersonalAccessConnectionActivityLogEntry_teamSlug(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.TeamSlug, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *slug.Slug) graphql.Marshaler {
+			return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresPersonalAccessConnectionActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresPersonalAccessConnectionActivityLogEntry", field, false, false, errors.New("field of type Slug does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresPersonalAccessConnectionActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresPersonalAccessConnectionActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresPersonalAccessConnectionActivityLogEntry_environmentName(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.EnvironmentName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
@@ -1036,544 +2263,426 @@ func (ec *executionContext) _PostgresInstanceAudit_url(ctx context.Context, fiel
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_PostgresInstanceAudit_url(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("PostgresInstanceAudit", field, true, true, errors.New("field of type String does not have child fields"))
+func (ec *executionContext) fieldContext_PostgresPersonalAccessConnectionActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresPersonalAccessConnectionActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _PostgresInstanceAudit_statementClasses(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstanceAudit) (ret graphql.Marshaler) {
+func (ec *executionContext) _PostgresPersonalAccessCreatedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresPersonalAccessCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PostgresInstanceAudit_statementClasses(ctx, field)
+			return ec.fieldContext_PostgresPersonalAccessCreatedActivityLogEntry_id(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.StatementClasses, nil
+			return obj.ID(), nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v []string) graphql.Marshaler {
-			return ec.marshalOString2ᚕstringᚄ(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
+			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresPersonalAccessCreatedActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresPersonalAccessCreatedActivityLogEntry", field, true, false, errors.New("field of type ID does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresPersonalAccessCreatedActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresPersonalAccessCreatedActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresPersonalAccessCreatedActivityLogEntry_actor(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Actor, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresPersonalAccessCreatedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresPersonalAccessCreatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresPersonalAccessCreatedActivityLogEntry_gitHubActorClaims(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresPersonalAccessCreatedActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresPersonalAccessCreatedActivityLogEntry_gitHubActorClaims(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.GitHubActorClaims, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *github.GitHubActorClaims) graphql.Marshaler {
+			return ec.marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_PostgresInstanceAudit_statementClasses(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("PostgresInstanceAudit", field, false, false, errors.New("field of type String does not have child fields"))
-}
-
-func (ec *executionContext) _PostgresInstanceConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*postgres.PostgresInstance, *postgres.PostgresInstanceFilter]) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PostgresInstanceConnection_pageInfo(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return obj.PageInfo, nil
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v pagination.PageInfo) graphql.Marshaler {
-			return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_PostgresInstanceConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_PostgresPersonalAccessCreatedActivityLogEntry_gitHubActorClaims(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "PostgresInstanceConnection",
+		Object:     "PostgresPersonalAccessCreatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_PageInfo(ctx, field)
+			return ec.childFields_GitHubActorClaims(ctx, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _PostgresInstanceConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*postgres.PostgresInstance, *postgres.PostgresInstanceFilter]) (ret graphql.Marshaler) {
+func (ec *executionContext) _PostgresPersonalAccessCreatedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresPersonalAccessCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PostgresInstanceConnection_nodes(ctx, field)
+			return ec.fieldContext_PostgresPersonalAccessCreatedActivityLogEntry_createdAt(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.Nodes(), nil
+			return obj.CreatedAt, nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v []*postgres.PostgresInstance) graphql.Marshaler {
-			return ec.marshalNPostgresInstance2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceᚄ(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
+			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_PostgresInstanceConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "PostgresInstanceConnection",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_PostgresInstance(ctx, field)
-		},
-	}
-	return fc, nil
+func (ec *executionContext) fieldContext_PostgresPersonalAccessCreatedActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresPersonalAccessCreatedActivityLogEntry", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _PostgresInstanceConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*postgres.PostgresInstance, *postgres.PostgresInstanceFilter]) (ret graphql.Marshaler) {
+func (ec *executionContext) _PostgresPersonalAccessCreatedActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresPersonalAccessCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PostgresInstanceConnection_edges(ctx, field)
+			return ec.fieldContext_PostgresPersonalAccessCreatedActivityLogEntry_message(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.Edges, nil
+			return obj.Message, nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v []pagination.Edge[*postgres.PostgresInstance]) graphql.Marshaler {
-			return ec.marshalNPostgresInstanceEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_PostgresInstanceConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "PostgresInstanceConnection",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_PostgresInstanceEdge(ctx, field)
-		},
-	}
-	return fc, nil
+func (ec *executionContext) fieldContext_PostgresPersonalAccessCreatedActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresPersonalAccessCreatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _PostgresInstanceConnection_facets(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*postgres.PostgresInstance, *postgres.PostgresInstanceFilter]) (ret graphql.Marshaler) {
+func (ec *executionContext) _PostgresPersonalAccessCreatedActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresPersonalAccessCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PostgresInstanceConnection_facets(ctx, field)
+			return ec.fieldContext_PostgresPersonalAccessCreatedActivityLogEntry_resourceType(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return ec.Resolvers.PostgresInstanceConnection().Facets(ctx, obj)
+			return obj.ResourceType, nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *postgres.PostgresInstanceFacets) graphql.Marshaler {
-			return ec.marshalOPostgresInstanceFacets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceFacets(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v activitylog.ActivityLogEntryResourceType) graphql.Marshaler {
+			return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresPersonalAccessCreatedActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresPersonalAccessCreatedActivityLogEntry", field, false, false, errors.New("field of type ActivityLogEntryResourceType does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresPersonalAccessCreatedActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresPersonalAccessCreatedActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresPersonalAccessCreatedActivityLogEntry_resourceName(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.ResourceName, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresPersonalAccessCreatedActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresPersonalAccessCreatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresPersonalAccessCreatedActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresPersonalAccessCreatedActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresPersonalAccessCreatedActivityLogEntry_teamSlug(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.TeamSlug, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *slug.Slug) graphql.Marshaler {
+			return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresPersonalAccessCreatedActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresPersonalAccessCreatedActivityLogEntry", field, false, false, errors.New("field of type Slug does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresPersonalAccessCreatedActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresPersonalAccessCreatedActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresPersonalAccessCreatedActivityLogEntry_environmentName(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.EnvironmentName, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_PostgresInstanceConnection_facets(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "PostgresInstanceConnection",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_PostgresInstanceFacets(ctx, field)
-		},
-	}
-	return fc, nil
+func (ec *executionContext) fieldContext_PostgresPersonalAccessCreatedActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresPersonalAccessCreatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _PostgresInstanceEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*postgres.PostgresInstance]) (ret graphql.Marshaler) {
+func (ec *executionContext) _PostgresPersonalAccessCreatedActivityLogEntry_data(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresPersonalAccessCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PostgresInstanceEdge_cursor(ctx, field)
+			return ec.fieldContext_PostgresPersonalAccessCreatedActivityLogEntry_data(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.Cursor, nil
+			return obj.Data, nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v pagination.Cursor) graphql.Marshaler {
-			return ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *postgres.PostgresPersonalAccessCreatedActivityLogEntryData) graphql.Marshaler {
+			return ec.marshalNPostgresPersonalAccessCreatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresPersonalAccessCreatedActivityLogEntryData(ctx, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_PostgresInstanceEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("PostgresInstanceEdge", field, false, false, errors.New("field of type Cursor does not have child fields"))
-}
-
-func (ec *executionContext) _PostgresInstanceEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*postgres.PostgresInstance]) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PostgresInstanceEdge_node(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return obj.Node, nil
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *postgres.PostgresInstance) graphql.Marshaler {
-			return ec.marshalNPostgresInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstance(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_PostgresInstanceEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_PostgresPersonalAccessCreatedActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "PostgresInstanceEdge",
+		Object:     "PostgresPersonalAccessCreatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_PostgresInstance(ctx, field)
+			return ec.childFields_PostgresPersonalAccessCreatedActivityLogEntryData(ctx, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _PostgresInstanceFacets_environments(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstanceFacets) (ret graphql.Marshaler) {
+func (ec *executionContext) _PostgresPersonalAccessCreatedActivityLogEntryData_username(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresPersonalAccessCreatedActivityLogEntryData) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PostgresInstanceFacets_environments(ctx, field)
+			return ec.fieldContext_PostgresPersonalAccessCreatedActivityLogEntryData_username(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.Environments(ctx), nil
+			return obj.Username, nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v []model.StringFacetItem) graphql.Marshaler {
-			return ec.marshalNStringFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItemᚄ(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_PostgresInstanceFacets_environments(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "PostgresInstanceFacets",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_StringFacetItem(ctx, field)
-		},
-	}
-	return fc, nil
+func (ec *executionContext) fieldContext_PostgresPersonalAccessCreatedActivityLogEntryData_username(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresPersonalAccessCreatedActivityLogEntryData", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _PostgresInstanceFacets_states(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstanceFacets) (ret graphql.Marshaler) {
+func (ec *executionContext) _PostgresPersonalAccessCreatedActivityLogEntryData_accessLevel(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresPersonalAccessCreatedActivityLogEntryData) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PostgresInstanceFacets_states(ctx, field)
+			return ec.fieldContext_PostgresPersonalAccessCreatedActivityLogEntryData_accessLevel(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.States(ctx), nil
+			return obj.AccessLevel, nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v []postgres.PostgresInstanceStateFacetItem) graphql.Marshaler {
-			return ec.marshalNPostgresInstanceStateFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceStateFacetItemᚄ(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *postgres.PostgresAccessLevel) graphql.Marshaler {
+			return ec.marshalOPostgresAccessLevel2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresAccessLevel(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresPersonalAccessCreatedActivityLogEntryData_accessLevel(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresPersonalAccessCreatedActivityLogEntryData", field, false, false, errors.New("field of type PostgresAccessLevel does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresPersonalAccessCreatedActivityLogEntryData_expiresAt(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresPersonalAccessCreatedActivityLogEntryData) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresPersonalAccessCreatedActivityLogEntryData_expiresAt(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.ExpiresAt, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
+			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_PostgresInstanceFacets_states(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "PostgresInstanceFacets",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_PostgresInstanceStateFacetItem(ctx, field)
-		},
-	}
-	return fc, nil
+func (ec *executionContext) fieldContext_PostgresPersonalAccessCreatedActivityLogEntryData_expiresAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresPersonalAccessCreatedActivityLogEntryData", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _PostgresInstanceFacets_highAvailability(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstanceFacets) (ret graphql.Marshaler) {
+func (ec *executionContext) _PostgresPersonalAccessCreatedActivityLogEntryData_reason(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresPersonalAccessCreatedActivityLogEntryData) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PostgresInstanceFacets_highAvailability(ctx, field)
+			return ec.fieldContext_PostgresPersonalAccessCreatedActivityLogEntryData_reason(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.HighAvailability(ctx), nil
+			return obj.Reason, nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v []model.BooleanFacetItem) graphql.Marshaler {
-			return ec.marshalNBooleanFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBooleanFacetItemᚄ(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_PostgresInstanceFacets_highAvailability(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "PostgresInstanceFacets",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_BooleanFacetItem(ctx, field)
-		},
-	}
-	return fc, nil
+func (ec *executionContext) fieldContext_PostgresPersonalAccessCreatedActivityLogEntryData_reason(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresPersonalAccessCreatedActivityLogEntryData", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _PostgresInstanceFacets_majorVersions(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstanceFacets) (ret graphql.Marshaler) {
+func (ec *executionContext) _PostgresResources_cpu(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresResources) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PostgresInstanceFacets_majorVersions(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return obj.MajorVersions(ctx), nil
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v []model.StringFacetItem) graphql.Marshaler {
-			return ec.marshalNStringFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItemᚄ(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_PostgresInstanceFacets_majorVersions(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "PostgresInstanceFacets",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_StringFacetItem(ctx, field)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _PostgresInstanceFacets_labels(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstanceFacets) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PostgresInstanceFacets_labels(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return obj.Labels(ctx), nil
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v []model.LabelFacetItem) graphql.Marshaler {
-			return ec.marshalNLabelFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFacetItemᚄ(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_PostgresInstanceFacets_labels(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "PostgresInstanceFacets",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_LabelFacetItem(ctx, field)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _PostgresInstanceMaintenanceWindow_day(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstanceMaintenanceWindow) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PostgresInstanceMaintenanceWindow_day(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return obj.Day, nil
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
-			return ec.marshalNInt2int(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_PostgresInstanceMaintenanceWindow_day(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("PostgresInstanceMaintenanceWindow", field, false, false, errors.New("field of type Int does not have child fields"))
-}
-
-func (ec *executionContext) _PostgresInstanceMaintenanceWindow_hour(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstanceMaintenanceWindow) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PostgresInstanceMaintenanceWindow_hour(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return obj.Hour, nil
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
-			return ec.marshalNInt2int(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_PostgresInstanceMaintenanceWindow_hour(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("PostgresInstanceMaintenanceWindow", field, false, false, errors.New("field of type Int does not have child fields"))
-}
-
-func (ec *executionContext) _PostgresInstanceResources_cpu(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstanceResources) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PostgresInstanceResources_cpu(ctx, field)
+			return ec.fieldContext_PostgresResources_cpu(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.CPU, nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
 		},
 		true,
-		true,
+		false,
 	)
 }
-func (ec *executionContext) fieldContext_PostgresInstanceResources_cpu(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("PostgresInstanceResources", field, false, false, errors.New("field of type String does not have child fields"))
+func (ec *executionContext) fieldContext_PostgresResources_cpu(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresResources", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _PostgresInstanceResources_memory(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstanceResources) (ret graphql.Marshaler) {
+func (ec *executionContext) _PostgresResources_memory(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresResources) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PostgresInstanceResources_memory(ctx, field)
+			return ec.fieldContext_PostgresResources_memory(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Memory, nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
 		},
 		true,
-		true,
+		false,
 	)
 }
-func (ec *executionContext) fieldContext_PostgresInstanceResources_memory(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("PostgresInstanceResources", field, false, false, errors.New("field of type String does not have child fields"))
+func (ec *executionContext) fieldContext_PostgresResources_memory(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresResources", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _PostgresInstanceResources_diskSize(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstanceResources) (ret graphql.Marshaler) {
+func (ec *executionContext) _PostgresResources_diskSize(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresResources) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PostgresInstanceResources_diskSize(ctx, field)
+			return ec.fieldContext_PostgresResources_diskSize(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.DiskSize, nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
 		},
 		true,
-		true,
+		false,
 	)
 }
-func (ec *executionContext) fieldContext_PostgresInstanceResources_diskSize(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("PostgresInstanceResources", field, false, false, errors.New("field of type String does not have child fields"))
+func (ec *executionContext) fieldContext_PostgresResources_diskSize(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresResources", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _PostgresInstanceStateFacetItem_state(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstanceStateFacetItem) (ret graphql.Marshaler) {
+func (ec *executionContext) _TeamInventoryCountPostgresBranches_total(ctx context.Context, field graphql.CollectedField, obj *postgres.TeamInventoryCountPostgresBranches) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PostgresInstanceStateFacetItem_state(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return obj.State, nil
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v postgres.PostgresInstanceState) graphql.Marshaler {
-			return ec.marshalNPostgresInstanceState2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceState(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_PostgresInstanceStateFacetItem_state(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("PostgresInstanceStateFacetItem", field, false, false, errors.New("field of type PostgresInstanceState does not have child fields"))
-}
-
-func (ec *executionContext) _PostgresInstanceStateFacetItem_count(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresInstanceStateFacetItem) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PostgresInstanceStateFacetItem_count(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return obj.Count, nil
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
-			return ec.marshalNInt2int(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_PostgresInstanceStateFacetItem_count(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("PostgresInstanceStateFacetItem", field, false, false, errors.New("field of type Int does not have child fields"))
-}
-
-func (ec *executionContext) _TeamInventoryCountPostgresInstances_total(ctx context.Context, field graphql.CollectedField, obj *postgres.TeamInventoryCountPostgresInstances) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamInventoryCountPostgresInstances_total(ctx, field)
+			return ec.fieldContext_TeamInventoryCountPostgresBranches_total(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Total, nil
@@ -1586,16 +2695,16 @@ func (ec *executionContext) _TeamInventoryCountPostgresInstances_total(ctx conte
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamInventoryCountPostgresInstances_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("TeamInventoryCountPostgresInstances", field, false, false, errors.New("field of type Int does not have child fields"))
+func (ec *executionContext) fieldContext_TeamInventoryCountPostgresBranches_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("TeamInventoryCountPostgresBranches", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
 // endregion **************************** field.gotpl *****************************
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputDeletePostgresInput(ctx context.Context, obj any) (postgres.DeletePostgresInput, error) {
-	var it postgres.DeletePostgresInput
+func (ec *executionContext) unmarshalInputCreatePostgresAccessInput(ctx context.Context, obj any) (postgres.CreatePostgresAccessInput, error) {
+	var it postgres.CreatePostgresAccessInput
 	if obj == nil {
 		return it, nil
 	}
@@ -1605,20 +2714,99 @@ func (ec *executionContext) unmarshalInputDeletePostgresInput(ctx context.Contex
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "environmentName", "teamSlug"}
+	fieldsInOrder := [...]string{"postgres", "branch", "teamSlug", "environmentName", "accessLevel", "reason", "ttl"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "name":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+		case "postgres":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("postgres"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Name = data
+			it.Postgres = data
+		case "branch":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("branch"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Branch = data
+		case "teamSlug":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamSlug"))
+			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TeamSlug = data
+		case "environmentName":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environmentName"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.EnvironmentName = data
+		case "accessLevel":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("accessLevel"))
+			data, err := ec.unmarshalNPostgresAccessLevel2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresAccessLevel(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AccessLevel = data
+		case "reason":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("reason"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Reason = data
+		case "ttl":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ttl"))
+			data, err := ec.unmarshalOString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TTL = data
+		}
+	}
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputDeletePostgresBranchInput(ctx context.Context, obj any) (postgres.DeletePostgresBranchInput, error) {
+	var it postgres.DeletePostgresBranchInput
+	if obj == nil {
+		return it, nil
+	}
+
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"postgres", "branch", "environmentName", "teamSlug"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "postgres":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("postgres"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Postgres = data
+		case "branch":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("branch"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Branch = data
 		case "environmentName":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environmentName"))
 			data, err := ec.unmarshalNString2string(ctx, v)
@@ -1696,8 +2884,8 @@ func (ec *executionContext) unmarshalInputGrantPostgresAccessInput(ctx context.C
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputPostgresInstanceFilter(ctx context.Context, obj any) (postgres.PostgresInstanceFilter, error) {
-	var it postgres.PostgresInstanceFilter
+func (ec *executionContext) unmarshalInputPostgresBranchFilter(ctx context.Context, obj any) (postgres.PostgresBranchFilter, error) {
+	var it postgres.PostgresBranchFilter
 	if obj == nil {
 		return it, nil
 	}
@@ -1707,7 +2895,7 @@ func (ec *executionContext) unmarshalInputPostgresInstanceFilter(ctx context.Con
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "environments", "states", "highAvailability", "majorVersions", "labels"}
+	fieldsInOrder := [...]string{"name", "environments", "states", "labels"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -1730,25 +2918,11 @@ func (ec *executionContext) unmarshalInputPostgresInstanceFilter(ctx context.Con
 			it.Environments = data
 		case "states":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("states"))
-			data, err := ec.unmarshalOPostgresInstanceState2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceStateᚄ(ctx, v)
+			data, err := ec.unmarshalOPostgresBranchState2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresBranchStateᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.States = data
-		case "highAvailability":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("highAvailability"))
-			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.HighAvailability = data
-		case "majorVersions":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("majorVersions"))
-			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.MajorVersions = data
 		case "labels":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labels"))
 			data, err := ec.unmarshalOLabelFilter2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFiltersᚄ(ctx, v)
@@ -1761,8 +2935,8 @@ func (ec *executionContext) unmarshalInputPostgresInstanceFilter(ctx context.Con
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputPostgresInstanceOrder(ctx context.Context, obj any) (postgres.PostgresInstanceOrder, error) {
-	var it postgres.PostgresInstanceOrder
+func (ec *executionContext) unmarshalInputPostgresBranchOrder(ctx context.Context, obj any) (postgres.PostgresBranchOrder, error) {
+	var it postgres.PostgresBranchOrder
 	if obj == nil {
 		return it, nil
 	}
@@ -1781,7 +2955,7 @@ func (ec *executionContext) unmarshalInputPostgresInstanceOrder(ctx context.Cont
 		switch k {
 		case "field":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("field"))
-			data, err := ec.unmarshalNPostgresInstanceOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceOrderField(ctx, v)
+			data, err := ec.unmarshalNPostgresBranchOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresBranchOrderField(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -1806,19 +2980,63 @@ func (ec *executionContext) unmarshalInputPostgresInstanceOrder(ctx context.Cont
 
 // region    **************************** object.gotpl ****************************
 
-var deletePostgresPayloadImplementors = []string{"DeletePostgresPayload"}
+var createPostgresAccessPayloadImplementors = []string{"CreatePostgresAccessPayload"}
 
-func (ec *executionContext) _DeletePostgresPayload(ctx context.Context, sel ast.SelectionSet, obj *postgres.DeletePostgresPayload) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, deletePostgresPayloadImplementors)
+func (ec *executionContext) _CreatePostgresAccessPayload(ctx context.Context, sel ast.SelectionSet, obj *postgres.CreatePostgresAccessPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, createPostgresAccessPayloadImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("DeletePostgresPayload")
-		case "postgresDeleted":
-			out.Values[i] = ec._DeletePostgresPayload_postgresDeleted(ctx, field, obj)
+			out.Values[i] = graphql.MarshalString("CreatePostgresAccessPayload")
+		case "name":
+			out.Values[i] = ec._CreatePostgresAccessPayload_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "expiresAt":
+			out.Values[i] = ec._CreatePostgresAccessPayload_expiresAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var deletePostgresBranchPayloadImplementors = []string{"DeletePostgresBranchPayload"}
+
+func (ec *executionContext) _DeletePostgresBranchPayload(ctx context.Context, sel ast.SelectionSet, obj *postgres.DeletePostgresBranchPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, deletePostgresBranchPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("DeletePostgresBranchPayload")
+		case "postgresBranchDeleted":
+			out.Values[i] = ec._DeletePostgresBranchPayload_postgresBranchDeleted(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -1855,6 +3073,958 @@ func (ec *executionContext) _GrantPostgresAccessPayload(ctx context.Context, sel
 			out.Values[i] = graphql.MarshalString("GrantPostgresAccessPayload")
 		case "error":
 			out.Values[i] = ec._GrantPostgresAccessPayload_error(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var postgresImplementors = []string{"Postgres", "Node"}
+
+func (ec *executionContext) _Postgres(ctx context.Context, sel ast.SelectionSet, obj *postgres.Postgres) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, postgresImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Postgres")
+		case "id":
+			out.Values[i] = ec._Postgres_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "name":
+			out.Values[i] = ec._Postgres_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "majorVersion":
+			out.Values[i] = ec._Postgres_majorVersion(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "highAvailability":
+			out.Values[i] = ec._Postgres_highAvailability(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "resources":
+			out.Values[i] = ec._Postgres_resources(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "activeBranch":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Postgres_activeBranch(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "branch":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Postgres_branch(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "branches":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Postgres_branches(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "labels":
+			out.Values[i] = ec._Postgres_labels(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var postgresAccessImplementors = []string{"PostgresAccess", "Node"}
+
+func (ec *executionContext) _PostgresAccess(ctx context.Context, sel ast.SelectionSet, obj *postgres.PostgresAccess) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, postgresAccessImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PostgresAccess")
+		case "id":
+			out.Values[i] = ec._PostgresAccess_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "name":
+			out.Values[i] = ec._PostgresAccess_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "team":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._PostgresAccess_team(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "teamEnvironment":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._PostgresAccess_teamEnvironment(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "postgresBranch":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._PostgresAccess_postgresBranch(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "accessLevel":
+			out.Values[i] = ec._PostgresAccess_accessLevel(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "expiresAt":
+			out.Values[i] = ec._PostgresAccess_expiresAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "state":
+			out.Values[i] = ec._PostgresAccess_state(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "message":
+			out.Values[i] = ec._PostgresAccess_message(ctx, field, obj)
+		case "relayAccess":
+			out.Values[i] = ec._PostgresAccess_relayAccess(ctx, field, obj)
+		case "connection":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._PostgresAccess_connection(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var postgresAccessConnectionDetailsImplementors = []string{"PostgresAccessConnectionDetails"}
+
+func (ec *executionContext) _PostgresAccessConnectionDetails(ctx context.Context, sel ast.SelectionSet, obj *postgres.PostgresAccessConnectionDetails) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, postgresAccessConnectionDetailsImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PostgresAccessConnectionDetails")
+		case "username":
+			out.Values[i] = ec._PostgresAccessConnectionDetails_username(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "password":
+			out.Values[i] = ec._PostgresAccessConnectionDetails_password(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "caCertificate":
+			out.Values[i] = ec._PostgresAccessConnectionDetails_caCertificate(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "serverName":
+			out.Values[i] = ec._PostgresAccessConnectionDetails_serverName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "relayEndpoint":
+			out.Values[i] = ec._PostgresAccessConnectionDetails_relayEndpoint(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "relayAccess":
+			out.Values[i] = ec._PostgresAccessConnectionDetails_relayAccess(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "relayToken":
+			out.Values[i] = ec._PostgresAccessConnectionDetails_relayToken(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var postgresBranchImplementors = []string{"PostgresBranch", "Persistence", "Node", "SearchNode"}
+
+func (ec *executionContext) _PostgresBranch(ctx context.Context, sel ast.SelectionSet, obj *postgres.PostgresBranch) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, postgresBranchImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PostgresBranch")
+		case "id":
+			out.Values[i] = ec._PostgresBranch_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "name":
+			out.Values[i] = ec._PostgresBranch_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "team":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._PostgresBranch_team(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "teamEnvironment":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._PostgresBranch_teamEnvironment(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "postgres":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._PostgresBranch_postgres(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "workloads":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._PostgresBranch_workloads(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "state":
+			out.Values[i] = ec._PostgresBranch_state(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "labels":
+			out.Values[i] = ec._PostgresBranch_labels(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var postgresBranchConnectionImplementors = []string{"PostgresBranchConnection"}
+
+func (ec *executionContext) _PostgresBranchConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.FacetableConnection[*postgres.PostgresBranch, *postgres.PostgresBranchFilter]) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, postgresBranchConnectionImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PostgresBranchConnection")
+		case "pageInfo":
+			out.Values[i] = ec._PostgresBranchConnection_pageInfo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "nodes":
+			out.Values[i] = ec._PostgresBranchConnection_nodes(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "edges":
+			out.Values[i] = ec._PostgresBranchConnection_edges(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "facets":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._PostgresBranchConnection_facets(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var postgresBranchEdgeImplementors = []string{"PostgresBranchEdge"}
+
+func (ec *executionContext) _PostgresBranchEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[*postgres.PostgresBranch]) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, postgresBranchEdgeImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PostgresBranchEdge")
+		case "cursor":
+			out.Values[i] = ec._PostgresBranchEdge_cursor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "node":
+			out.Values[i] = ec._PostgresBranchEdge_node(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var postgresBranchFacetsImplementors = []string{"PostgresBranchFacets"}
+
+func (ec *executionContext) _PostgresBranchFacets(ctx context.Context, sel ast.SelectionSet, obj *postgres.PostgresBranchFacets) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, postgresBranchFacetsImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PostgresBranchFacets")
+		case "environments":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._PostgresBranchFacets_environments(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "states":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._PostgresBranchFacets_states(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "labels":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._PostgresBranchFacets_labels(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var postgresBranchStateFacetItemImplementors = []string{"PostgresBranchStateFacetItem"}
+
+func (ec *executionContext) _PostgresBranchStateFacetItem(ctx context.Context, sel ast.SelectionSet, obj *postgres.PostgresBranchStateFacetItem) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, postgresBranchStateFacetItemImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PostgresBranchStateFacetItem")
+		case "state":
+			out.Values[i] = ec._PostgresBranchStateFacetItem_state(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "count":
+			out.Values[i] = ec._PostgresBranchStateFacetItem_count(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -2073,364 +4243,131 @@ func (ec *executionContext) _PostgresGrantAccessActivityLogEntryData(ctx context
 	return out
 }
 
-var postgresInstanceImplementors = []string{"PostgresInstance", "Persistence", "Node", "SearchNode"}
+var postgresPersonalAccessConnectionActivityLogEntryImplementors = []string{"PostgresPersonalAccessConnectionActivityLogEntry", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _PostgresInstance(ctx context.Context, sel ast.SelectionSet, obj *postgres.PostgresInstance) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, postgresInstanceImplementors)
+func (ec *executionContext) _PostgresPersonalAccessConnectionActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *postgres.PostgresPersonalAccessConnectionActivityLogEntry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, postgresPersonalAccessConnectionActivityLogEntryImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("PostgresInstance")
+			out.Values[i] = graphql.MarshalString("PostgresPersonalAccessConnectionActivityLogEntry")
 		case "id":
-			out.Values[i] = ec._PostgresInstance_id(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "name":
-			out.Values[i] = ec._PostgresInstance_name(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "team":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._PostgresInstance_team(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "teamEnvironment":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._PostgresInstance_teamEnvironment(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "workloads":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._PostgresInstance_workloads(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "resources":
-			out.Values[i] = ec._PostgresInstance_resources(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "majorVersion":
-			out.Values[i] = ec._PostgresInstance_majorVersion(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "audit":
-			out.Values[i] = ec._PostgresInstance_audit(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "highAvailability":
-			out.Values[i] = ec._PostgresInstance_highAvailability(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "state":
-			out.Values[i] = ec._PostgresInstance_state(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "maintenanceWindow":
-			out.Values[i] = ec._PostgresInstance_maintenanceWindow(ctx, field, obj)
-		case "labels":
-			out.Values[i] = ec._PostgresInstance_labels(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
-
-	for label, dfs := range deferred {
-		ec.ProcessDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var postgresInstanceAuditImplementors = []string{"PostgresInstanceAudit"}
-
-func (ec *executionContext) _PostgresInstanceAudit(ctx context.Context, sel ast.SelectionSet, obj *postgres.PostgresInstanceAudit) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, postgresInstanceAuditImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("PostgresInstanceAudit")
-		case "enabled":
-			out.Values[i] = ec._PostgresInstanceAudit_enabled(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "url":
-			field := field
-
-			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._PostgresInstanceAudit_url(ctx, field, obj)
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "statementClasses":
-			out.Values[i] = ec._PostgresInstanceAudit_statementClasses(ctx, field, obj)
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
-
-	for label, dfs := range deferred {
-		ec.ProcessDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var postgresInstanceConnectionImplementors = []string{"PostgresInstanceConnection"}
-
-func (ec *executionContext) _PostgresInstanceConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.FacetableConnection[*postgres.PostgresInstance, *postgres.PostgresInstanceFilter]) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, postgresInstanceConnectionImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("PostgresInstanceConnection")
-		case "pageInfo":
-			out.Values[i] = ec._PostgresInstanceConnection_pageInfo(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "nodes":
-			out.Values[i] = ec._PostgresInstanceConnection_nodes(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "edges":
-			out.Values[i] = ec._PostgresInstanceConnection_edges(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "facets":
-			field := field
-
-			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._PostgresInstanceConnection_facets(ctx, field, obj)
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
-
-	for label, dfs := range deferred {
-		ec.ProcessDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var postgresInstanceEdgeImplementors = []string{"PostgresInstanceEdge"}
-
-func (ec *executionContext) _PostgresInstanceEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[*postgres.PostgresInstance]) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, postgresInstanceEdgeImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("PostgresInstanceEdge")
-		case "cursor":
-			out.Values[i] = ec._PostgresInstanceEdge_cursor(ctx, field, obj)
+			out.Values[i] = ec._PostgresPersonalAccessConnectionActivityLogEntry_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "node":
-			out.Values[i] = ec._PostgresInstanceEdge_node(ctx, field, obj)
+		case "actor":
+			out.Values[i] = ec._PostgresPersonalAccessConnectionActivityLogEntry_actor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "gitHubActorClaims":
+			out.Values[i] = ec._PostgresPersonalAccessConnectionActivityLogEntry_gitHubActorClaims(ctx, field, obj)
+		case "createdAt":
+			out.Values[i] = ec._PostgresPersonalAccessConnectionActivityLogEntry_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "message":
+			out.Values[i] = ec._PostgresPersonalAccessConnectionActivityLogEntry_message(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "resourceType":
+			out.Values[i] = ec._PostgresPersonalAccessConnectionActivityLogEntry_resourceType(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "resourceName":
+			out.Values[i] = ec._PostgresPersonalAccessConnectionActivityLogEntry_resourceName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "teamSlug":
+			out.Values[i] = ec._PostgresPersonalAccessConnectionActivityLogEntry_teamSlug(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "environmentName":
+			out.Values[i] = ec._PostgresPersonalAccessConnectionActivityLogEntry_environmentName(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var postgresPersonalAccessCreatedActivityLogEntryImplementors = []string{"PostgresPersonalAccessCreatedActivityLogEntry", "ActivityLogEntry", "Node"}
+
+func (ec *executionContext) _PostgresPersonalAccessCreatedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *postgres.PostgresPersonalAccessCreatedActivityLogEntry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, postgresPersonalAccessCreatedActivityLogEntryImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PostgresPersonalAccessCreatedActivityLogEntry")
+		case "id":
+			out.Values[i] = ec._PostgresPersonalAccessCreatedActivityLogEntry_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "actor":
+			out.Values[i] = ec._PostgresPersonalAccessCreatedActivityLogEntry_actor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "gitHubActorClaims":
+			out.Values[i] = ec._PostgresPersonalAccessCreatedActivityLogEntry_gitHubActorClaims(ctx, field, obj)
+		case "createdAt":
+			out.Values[i] = ec._PostgresPersonalAccessCreatedActivityLogEntry_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "message":
+			out.Values[i] = ec._PostgresPersonalAccessCreatedActivityLogEntry_message(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "resourceType":
+			out.Values[i] = ec._PostgresPersonalAccessCreatedActivityLogEntry_resourceType(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "resourceName":
+			out.Values[i] = ec._PostgresPersonalAccessCreatedActivityLogEntry_resourceName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "teamSlug":
+			out.Values[i] = ec._PostgresPersonalAccessCreatedActivityLogEntry_teamSlug(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "environmentName":
+			out.Values[i] = ec._PostgresPersonalAccessCreatedActivityLogEntry_environmentName(ctx, field, obj)
+		case "data":
+			out.Values[i] = ec._PostgresPersonalAccessCreatedActivityLogEntry_data(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -2457,238 +4394,31 @@ func (ec *executionContext) _PostgresInstanceEdge(ctx context.Context, sel ast.S
 	return out
 }
 
-var postgresInstanceFacetsImplementors = []string{"PostgresInstanceFacets"}
+var postgresPersonalAccessCreatedActivityLogEntryDataImplementors = []string{"PostgresPersonalAccessCreatedActivityLogEntryData"}
 
-func (ec *executionContext) _PostgresInstanceFacets(ctx context.Context, sel ast.SelectionSet, obj *postgres.PostgresInstanceFacets) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, postgresInstanceFacetsImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("PostgresInstanceFacets")
-		case "environments":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._PostgresInstanceFacets_environments(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "states":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._PostgresInstanceFacets_states(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "highAvailability":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._PostgresInstanceFacets_highAvailability(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "majorVersions":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._PostgresInstanceFacets_majorVersions(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "labels":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._PostgresInstanceFacets_labels(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
-
-	for label, dfs := range deferred {
-		ec.ProcessDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var postgresInstanceMaintenanceWindowImplementors = []string{"PostgresInstanceMaintenanceWindow"}
-
-func (ec *executionContext) _PostgresInstanceMaintenanceWindow(ctx context.Context, sel ast.SelectionSet, obj *postgres.PostgresInstanceMaintenanceWindow) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, postgresInstanceMaintenanceWindowImplementors)
+func (ec *executionContext) _PostgresPersonalAccessCreatedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, obj *postgres.PostgresPersonalAccessCreatedActivityLogEntryData) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, postgresPersonalAccessCreatedActivityLogEntryDataImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("PostgresInstanceMaintenanceWindow")
-		case "day":
-			out.Values[i] = ec._PostgresInstanceMaintenanceWindow_day(ctx, field, obj)
+			out.Values[i] = graphql.MarshalString("PostgresPersonalAccessCreatedActivityLogEntryData")
+		case "username":
+			out.Values[i] = ec._PostgresPersonalAccessCreatedActivityLogEntryData_username(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "hour":
-			out.Values[i] = ec._PostgresInstanceMaintenanceWindow_hour(ctx, field, obj)
+		case "accessLevel":
+			out.Values[i] = ec._PostgresPersonalAccessCreatedActivityLogEntryData_accessLevel(ctx, field, obj)
+		case "expiresAt":
+			out.Values[i] = ec._PostgresPersonalAccessCreatedActivityLogEntryData_expiresAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "reason":
+			out.Values[i] = ec._PostgresPersonalAccessCreatedActivityLogEntryData_reason(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -2715,32 +4445,23 @@ func (ec *executionContext) _PostgresInstanceMaintenanceWindow(ctx context.Conte
 	return out
 }
 
-var postgresInstanceResourcesImplementors = []string{"PostgresInstanceResources"}
+var postgresResourcesImplementors = []string{"PostgresResources"}
 
-func (ec *executionContext) _PostgresInstanceResources(ctx context.Context, sel ast.SelectionSet, obj *postgres.PostgresInstanceResources) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, postgresInstanceResourcesImplementors)
+func (ec *executionContext) _PostgresResources(ctx context.Context, sel ast.SelectionSet, obj *postgres.PostgresResources) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, postgresResourcesImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("PostgresInstanceResources")
+			out.Values[i] = graphql.MarshalString("PostgresResources")
 		case "cpu":
-			out.Values[i] = ec._PostgresInstanceResources_cpu(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
+			out.Values[i] = ec._PostgresResources_cpu(ctx, field, obj)
 		case "memory":
-			out.Values[i] = ec._PostgresInstanceResources_memory(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
+			out.Values[i] = ec._PostgresResources_memory(ctx, field, obj)
 		case "diskSize":
-			out.Values[i] = ec._PostgresInstanceResources_diskSize(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
+			out.Values[i] = ec._PostgresResources_diskSize(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -2764,63 +4485,19 @@ func (ec *executionContext) _PostgresInstanceResources(ctx context.Context, sel 
 	return out
 }
 
-var postgresInstanceStateFacetItemImplementors = []string{"PostgresInstanceStateFacetItem"}
+var teamInventoryCountPostgresBranchesImplementors = []string{"TeamInventoryCountPostgresBranches"}
 
-func (ec *executionContext) _PostgresInstanceStateFacetItem(ctx context.Context, sel ast.SelectionSet, obj *postgres.PostgresInstanceStateFacetItem) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, postgresInstanceStateFacetItemImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("PostgresInstanceStateFacetItem")
-		case "state":
-			out.Values[i] = ec._PostgresInstanceStateFacetItem_state(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "count":
-			out.Values[i] = ec._PostgresInstanceStateFacetItem_count(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
-
-	for label, dfs := range deferred {
-		ec.ProcessDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var teamInventoryCountPostgresInstancesImplementors = []string{"TeamInventoryCountPostgresInstances"}
-
-func (ec *executionContext) _TeamInventoryCountPostgresInstances(ctx context.Context, sel ast.SelectionSet, obj *postgres.TeamInventoryCountPostgresInstances) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, teamInventoryCountPostgresInstancesImplementors)
+func (ec *executionContext) _TeamInventoryCountPostgresBranches(ctx context.Context, sel ast.SelectionSet, obj *postgres.TeamInventoryCountPostgresBranches) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamInventoryCountPostgresBranchesImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("TeamInventoryCountPostgresInstances")
+			out.Values[i] = graphql.MarshalString("TeamInventoryCountPostgresBranches")
 		case "total":
-			out.Values[i] = ec._TeamInventoryCountPostgresInstances_total(ctx, field, obj)
+			out.Values[i] = ec._TeamInventoryCountPostgresBranches_total(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -2851,23 +4528,42 @@ func (ec *executionContext) _TeamInventoryCountPostgresInstances(ctx context.Con
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) unmarshalNDeletePostgresInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐDeletePostgresInput(ctx context.Context, v any) (postgres.DeletePostgresInput, error) {
-	res, err := ec.unmarshalInputDeletePostgresInput(ctx, v)
+func (ec *executionContext) unmarshalNCreatePostgresAccessInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐCreatePostgresAccessInput(ctx context.Context, v any) (postgres.CreatePostgresAccessInput, error) {
+	res, err := ec.unmarshalInputCreatePostgresAccessInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNDeletePostgresPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐDeletePostgresPayload(ctx context.Context, sel ast.SelectionSet, v postgres.DeletePostgresPayload) graphql.Marshaler {
-	return ec._DeletePostgresPayload(ctx, sel, &v)
+func (ec *executionContext) marshalNCreatePostgresAccessPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐCreatePostgresAccessPayload(ctx context.Context, sel ast.SelectionSet, v postgres.CreatePostgresAccessPayload) graphql.Marshaler {
+	return ec._CreatePostgresAccessPayload(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNDeletePostgresPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐDeletePostgresPayload(ctx context.Context, sel ast.SelectionSet, v *postgres.DeletePostgresPayload) graphql.Marshaler {
+func (ec *executionContext) marshalNCreatePostgresAccessPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐCreatePostgresAccessPayload(ctx context.Context, sel ast.SelectionSet, v *postgres.CreatePostgresAccessPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._DeletePostgresPayload(ctx, sel, v)
+	return ec._CreatePostgresAccessPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNDeletePostgresBranchInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐDeletePostgresBranchInput(ctx context.Context, v any) (postgres.DeletePostgresBranchInput, error) {
+	res, err := ec.unmarshalInputDeletePostgresBranchInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNDeletePostgresBranchPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐDeletePostgresBranchPayload(ctx context.Context, sel ast.SelectionSet, v postgres.DeletePostgresBranchPayload) graphql.Marshaler {
+	return ec._DeletePostgresBranchPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNDeletePostgresBranchPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐDeletePostgresBranchPayload(ctx context.Context, sel ast.SelectionSet, v *postgres.DeletePostgresBranchPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._DeletePostgresBranchPayload(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNGrantPostgresAccessInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐGrantPostgresAccessInput(ctx context.Context, v any) (postgres.GrantPostgresAccessInput, error) {
@@ -2889,6 +4585,158 @@ func (ec *executionContext) marshalNGrantPostgresAccessPayload2ᚖgithubᚗcom�
 	return ec._GrantPostgresAccessPayload(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNPostgres2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgres(ctx context.Context, sel ast.SelectionSet, v postgres.Postgres) graphql.Marshaler {
+	return ec._Postgres(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNPostgres2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgres(ctx context.Context, sel ast.SelectionSet, v *postgres.Postgres) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Postgres(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNPostgresAccess2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresAccess(ctx context.Context, sel ast.SelectionSet, v postgres.PostgresAccess) graphql.Marshaler {
+	return ec._PostgresAccess(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNPostgresAccess2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresAccess(ctx context.Context, sel ast.SelectionSet, v *postgres.PostgresAccess) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._PostgresAccess(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNPostgresAccessLevel2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresAccessLevel(ctx context.Context, v any) (postgres.PostgresAccessLevel, error) {
+	var res postgres.PostgresAccessLevel
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNPostgresAccessLevel2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresAccessLevel(ctx context.Context, sel ast.SelectionSet, v postgres.PostgresAccessLevel) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalNPostgresAccessState2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresAccessState(ctx context.Context, v any) (postgres.PostgresAccessState, error) {
+	var res postgres.PostgresAccessState
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNPostgresAccessState2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresAccessState(ctx context.Context, sel ast.SelectionSet, v postgres.PostgresAccessState) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) marshalNPostgresBranch2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresBranch(ctx context.Context, sel ast.SelectionSet, v postgres.PostgresBranch) graphql.Marshaler {
+	return ec._PostgresBranch(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNPostgresBranch2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresBranchᚄ(ctx context.Context, sel ast.SelectionSet, v []*postgres.PostgresBranch) graphql.Marshaler {
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNPostgresBranch2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresBranch(ctx, sel, v[i])
+	})
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNPostgresBranch2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresBranch(ctx context.Context, sel ast.SelectionSet, v *postgres.PostgresBranch) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._PostgresBranch(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNPostgresBranchConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx context.Context, sel ast.SelectionSet, v pagination.FacetableConnection[*postgres.PostgresBranch, *postgres.PostgresBranchFilter]) graphql.Marshaler {
+	return ec._PostgresBranchConnection(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNPostgresBranchConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.FacetableConnection[*postgres.PostgresBranch, *postgres.PostgresBranchFilter]) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._PostgresBranchConnection(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNPostgresBranchEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[*postgres.PostgresBranch]) graphql.Marshaler {
+	return ec._PostgresBranchEdge(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNPostgresBranchEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[*postgres.PostgresBranch]) graphql.Marshaler {
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNPostgresBranchEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
+	})
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) unmarshalNPostgresBranchOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresBranchOrderField(ctx context.Context, v any) (postgres.PostgresBranchOrderField, error) {
+	var res postgres.PostgresBranchOrderField
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNPostgresBranchOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresBranchOrderField(ctx context.Context, sel ast.SelectionSet, v postgres.PostgresBranchOrderField) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalNPostgresBranchState2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresBranchState(ctx context.Context, v any) (postgres.PostgresBranchState, error) {
+	var res postgres.PostgresBranchState
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNPostgresBranchState2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresBranchState(ctx context.Context, sel ast.SelectionSet, v postgres.PostgresBranchState) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) marshalNPostgresBranchStateFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresBranchStateFacetItem(ctx context.Context, sel ast.SelectionSet, v postgres.PostgresBranchStateFacetItem) graphql.Marshaler {
+	return ec._PostgresBranchStateFacetItem(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNPostgresBranchStateFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresBranchStateFacetItemᚄ(ctx context.Context, sel ast.SelectionSet, v []postgres.PostgresBranchStateFacetItem) graphql.Marshaler {
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNPostgresBranchStateFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresBranchStateFacetItem(ctx, sel, v[i])
+	})
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
 func (ec *executionContext) marshalNPostgresGrantAccessActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresGrantAccessActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *postgres.PostgresGrantAccessActivityLogEntryData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -2899,179 +4747,98 @@ func (ec *executionContext) marshalNPostgresGrantAccessActivityLogEntryData2ᚖg
 	return ec._PostgresGrantAccessActivityLogEntryData(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNPostgresInstance2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstance(ctx context.Context, sel ast.SelectionSet, v postgres.PostgresInstance) graphql.Marshaler {
-	return ec._PostgresInstance(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNPostgresInstance2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceᚄ(ctx context.Context, sel ast.SelectionSet, v []*postgres.PostgresInstance) graphql.Marshaler {
-	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
-		fc := graphql.GetFieldContext(ctx)
-		fc.Result = &v[i]
-		return ec.marshalNPostgresInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstance(ctx, sel, v[i])
-	})
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
-func (ec *executionContext) marshalNPostgresInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstance(ctx context.Context, sel ast.SelectionSet, v *postgres.PostgresInstance) graphql.Marshaler {
+func (ec *executionContext) marshalNPostgresPersonalAccessCreatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresPersonalAccessCreatedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *postgres.PostgresPersonalAccessCreatedActivityLogEntryData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._PostgresInstance(ctx, sel, v)
+	return ec._PostgresPersonalAccessCreatedActivityLogEntryData(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNPostgresInstanceAudit2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceAudit(ctx context.Context, sel ast.SelectionSet, v postgres.PostgresInstanceAudit) graphql.Marshaler {
-	return ec._PostgresInstanceAudit(ctx, sel, &v)
+func (ec *executionContext) marshalNPostgresResources2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresResources(ctx context.Context, sel ast.SelectionSet, v postgres.PostgresResources) graphql.Marshaler {
+	return ec._PostgresResources(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNPostgresInstanceConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx context.Context, sel ast.SelectionSet, v pagination.FacetableConnection[*postgres.PostgresInstance, *postgres.PostgresInstanceFilter]) graphql.Marshaler {
-	return ec._PostgresInstanceConnection(ctx, sel, &v)
+func (ec *executionContext) marshalNTeamInventoryCountPostgresBranches2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐTeamInventoryCountPostgresBranches(ctx context.Context, sel ast.SelectionSet, v postgres.TeamInventoryCountPostgresBranches) graphql.Marshaler {
+	return ec._TeamInventoryCountPostgresBranches(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNPostgresInstanceConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.FacetableConnection[*postgres.PostgresInstance, *postgres.PostgresInstanceFilter]) graphql.Marshaler {
+func (ec *executionContext) marshalNTeamInventoryCountPostgresBranches2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐTeamInventoryCountPostgresBranches(ctx context.Context, sel ast.SelectionSet, v *postgres.TeamInventoryCountPostgresBranches) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._PostgresInstanceConnection(ctx, sel, v)
+	return ec._TeamInventoryCountPostgresBranches(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNPostgresInstanceEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[*postgres.PostgresInstance]) graphql.Marshaler {
-	return ec._PostgresInstanceEdge(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNPostgresInstanceEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[*postgres.PostgresInstance]) graphql.Marshaler {
-	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
-		fc := graphql.GetFieldContext(ctx)
-		fc.Result = &v[i]
-		return ec.marshalNPostgresInstanceEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
-	})
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
+func (ec *executionContext) marshalOPostgresAccessConnectionDetails2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresAccessConnectionDetails(ctx context.Context, sel ast.SelectionSet, v *postgres.PostgresAccessConnectionDetails) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
 	}
-
-	return ret
+	return ec._PostgresAccessConnectionDetails(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNPostgresInstanceOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceOrderField(ctx context.Context, v any) (postgres.PostgresInstanceOrderField, error) {
-	var res postgres.PostgresInstanceOrderField
+func (ec *executionContext) unmarshalOPostgresAccessLevel2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresAccessLevel(ctx context.Context, v any) (*postgres.PostgresAccessLevel, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(postgres.PostgresAccessLevel)
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNPostgresInstanceOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceOrderField(ctx context.Context, sel ast.SelectionSet, v postgres.PostgresInstanceOrderField) graphql.Marshaler {
+func (ec *executionContext) marshalOPostgresAccessLevel2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresAccessLevel(ctx context.Context, sel ast.SelectionSet, v *postgres.PostgresAccessLevel) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
 	return v
 }
 
-func (ec *executionContext) marshalNPostgresInstanceResources2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceResources(ctx context.Context, sel ast.SelectionSet, v *postgres.PostgresInstanceResources) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._PostgresInstanceResources(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalNPostgresInstanceState2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceState(ctx context.Context, v any) (postgres.PostgresInstanceState, error) {
-	var res postgres.PostgresInstanceState
-	err := res.UnmarshalGQL(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNPostgresInstanceState2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceState(ctx context.Context, sel ast.SelectionSet, v postgres.PostgresInstanceState) graphql.Marshaler {
-	return v
-}
-
-func (ec *executionContext) marshalNPostgresInstanceStateFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceStateFacetItem(ctx context.Context, sel ast.SelectionSet, v postgres.PostgresInstanceStateFacetItem) graphql.Marshaler {
-	return ec._PostgresInstanceStateFacetItem(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNPostgresInstanceStateFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceStateFacetItemᚄ(ctx context.Context, sel ast.SelectionSet, v []postgres.PostgresInstanceStateFacetItem) graphql.Marshaler {
-	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
-		fc := graphql.GetFieldContext(ctx)
-		fc.Result = &v[i]
-		return ec.marshalNPostgresInstanceStateFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceStateFacetItem(ctx, sel, v[i])
-	})
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
-func (ec *executionContext) marshalNTeamInventoryCountPostgresInstances2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐTeamInventoryCountPostgresInstances(ctx context.Context, sel ast.SelectionSet, v postgres.TeamInventoryCountPostgresInstances) graphql.Marshaler {
-	return ec._TeamInventoryCountPostgresInstances(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNTeamInventoryCountPostgresInstances2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐTeamInventoryCountPostgresInstances(ctx context.Context, sel ast.SelectionSet, v *postgres.TeamInventoryCountPostgresInstances) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._TeamInventoryCountPostgresInstances(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalOPostgresInstanceFacets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceFacets(ctx context.Context, sel ast.SelectionSet, v *postgres.PostgresInstanceFacets) graphql.Marshaler {
+func (ec *executionContext) marshalOPostgresBranch2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresBranch(ctx context.Context, sel ast.SelectionSet, v *postgres.PostgresBranch) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._PostgresInstanceFacets(ctx, sel, v)
+	return ec._PostgresBranch(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOPostgresInstanceFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceFilter(ctx context.Context, v any) (*postgres.PostgresInstanceFilter, error) {
+func (ec *executionContext) marshalOPostgresBranchFacets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresBranchFacets(ctx context.Context, sel ast.SelectionSet, v *postgres.PostgresBranchFacets) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._PostgresBranchFacets(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOPostgresBranchFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresBranchFilter(ctx context.Context, v any) (*postgres.PostgresBranchFilter, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalInputPostgresInstanceFilter(ctx, v)
+	res, err := ec.unmarshalInputPostgresBranchFilter(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOPostgresInstanceMaintenanceWindow2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceMaintenanceWindow(ctx context.Context, sel ast.SelectionSet, v *postgres.PostgresInstanceMaintenanceWindow) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._PostgresInstanceMaintenanceWindow(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalOPostgresInstanceOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceOrder(ctx context.Context, v any) (*postgres.PostgresInstanceOrder, error) {
+func (ec *executionContext) unmarshalOPostgresBranchOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresBranchOrder(ctx context.Context, v any) (*postgres.PostgresBranchOrder, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalInputPostgresInstanceOrder(ctx, v)
+	res, err := ec.unmarshalInputPostgresBranchOrder(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOPostgresInstanceState2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceStateᚄ(ctx context.Context, v any) ([]postgres.PostgresInstanceState, error) {
+func (ec *executionContext) unmarshalOPostgresBranchState2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresBranchStateᚄ(ctx context.Context, v any) ([]postgres.PostgresBranchState, error) {
 	if v == nil {
 		return nil, nil
 	}
 	var vSlice []any
 	vSlice = graphql.CoerceList(v)
 	var err error
-	res := make([]postgres.PostgresInstanceState, len(vSlice))
+	res := make([]postgres.PostgresBranchState, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNPostgresInstanceState2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceState(ctx, vSlice[i])
+		res[i], err = ec.unmarshalNPostgresBranchState2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresBranchState(ctx, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
@@ -3079,14 +4846,14 @@ func (ec *executionContext) unmarshalOPostgresInstanceState2ᚕgithubᚗcomᚋna
 	return res, nil
 }
 
-func (ec *executionContext) marshalOPostgresInstanceState2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceStateᚄ(ctx context.Context, sel ast.SelectionSet, v []postgres.PostgresInstanceState) graphql.Marshaler {
+func (ec *executionContext) marshalOPostgresBranchState2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresBranchStateᚄ(ctx context.Context, sel ast.SelectionSet, v []postgres.PostgresBranchState) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNPostgresInstanceState2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresInstanceState(ctx, sel, v[i])
+		return ec.marshalNPostgresBranchState2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresBranchState(ctx, sel, v[i])
 	})
 
 	for _, e := range ret {

@@ -1,0 +1,27 @@
+---
+apiVersion: nais.io/v1
+kind: Postgres
+metadata:
+  name: with-audit
+  namespace: someteamname
+spec:
+  majorVersion: "16"
+status:
+  activeBranch: main
+---
+apiVersion: nais.io/v1
+kind: PostgresBranch
+metadata:
+  name: with-audit-main-cb3cab0a
+  namespace: someteamname
+spec:
+  postgres: with-audit
+  branchName: main
+status:
+  reconcilePhase: Completed
+  conditions:
+    - type: cluster.postgresql.cnpg.io/ObservedState
+      status: "True"
+      reason: Reconciled
+      message: "Cluster is in phase: Cluster in healthy state"
+      lastTransitionTime: "2026-09-17T00:00:00Z"

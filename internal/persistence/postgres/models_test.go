@@ -6,246 +6,104 @@ import (
 	"testing"
 
 	"github.com/nais/api/internal/slug"
-	data_nais_io_v1 "github.com/nais/pgrator/pkg/api/datav1"
-	"k8s.io/apimachinery/pkg/api/resource"
+	nais_io_v1 "github.com/nais/pgrator/pkg/api/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	"k8s.io/apimachinery/pkg/runtime"
 )
+
+func TestToPostgresBranch(t *testing.T) {
+	obj := &unstructured.Unstructured{Object: map[string]any{
+		"apiVersion": "nais.io/v1", "kind": "PostgresBranch",
+		"metadata": map[string]any{"name": nais_io_v1.PostgresBranchObjectName("orders", "restored"), "namespace": "my-team"},
+		"spec":     map[string]any{"postgres": "orders", "branchName": "restored"},
+		"status":   map[string]any{"reconcilePhase": "Completed", "conditions": []any{map[string]any{"type": "cluster.postgresql.cnpg.io/ObservedState", "status": "True", "lastTransitionTime": "2026-01-01T00:00:00Z", "reason": "Reconciled", "message": "Cluster is in phase: Cluster in healthy state"}}},
+	}}
+	got, err := toPostgresBranch(obj, "dev")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.Name != "restored" || got.PostgresName != "orders" || got.State != PostgresBranchStateAvailable {
+		t.Errorf("unexpected PostgresBranch: %+v", got)
+	}
+	if got.GetName() != obj.GetName() {
+		t.Errorf("watcher name = %q, want %q", got.GetName(), obj.GetName())
+	}
+	if got.SearchName() != "orders/restored" {
+		t.Errorf("search name = %q, want orders/restored", got.SearchName())
+	}
+	if got.ID().Type != "PBR" {
+		t.Errorf("PostgresBranch ID type = %q, want PBR", got.ID().Type)
+	}
+	team, env, pg, branch, err := parsePostgresBranchIdent(got.ID())
+	if err != nil || team != "my-team" || env != "dev" || pg != "orders" || branch != "restored" {
+		t.Errorf("branch ID = (%q, %q, %q, %q, %v)", team, env, pg, branch, err)
+	}
+}
+
+func TestToPostgresBranchRejectsMismatchedObjectName(t *testing.T) {
+	obj := &unstructured.Unstructured{Object: map[string]any{
+		"apiVersion": "nais.io/v1", "kind": "PostgresBranch",
+		"metadata": map[string]any{"name": nais_io_v1.PostgresBranchObjectName("orders", "main")},
+		"spec":     map[string]any{"postgres": "orders", "branchName": "other"},
+	}}
+	if _, err := toPostgresBranch(obj, "dev"); err == nil {
+		t.Fatal("expected a mismatched branch object name to be rejected")
+	}
+}
+
+func TestToPostgres(t *testing.T) {
+	obj := &unstructured.Unstructured{Object: map[string]any{
+		"apiVersion": "nais.io/v1", "kind": "Postgres",
+		"metadata": map[string]any{"name": "orders", "namespace": "my-team"},
+		"spec":     map[string]any{"majorVersion": "17", "highAvailability": true, "resources": map[string]any{"cpu": "100m", "memory": "2Gi", "diskSize": "10Gi"}},
+		"status":   map[string]any{"activeBranch": "restored"},
+	}}
+	got, err := toPostgres(obj, "dev")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.Name != "orders" || got.MajorVersion != "17" || got.ActiveBranch == nil || *got.ActiveBranch != "restored" {
+		t.Errorf("unexpected Postgres: %+v", got)
+	}
+	if got.Resources.CPU == nil || *got.Resources.CPU != "100m" || got.Resources.Memory == nil || *got.Resources.Memory != "2Gi" || got.Resources.DiskSize == nil || *got.Resources.DiskSize != "10Gi" {
+		t.Errorf("unexpected Postgres resources: %+v", got.Resources)
+	}
+}
 
 func TestPostgresStateFromConditions(t *testing.T) {
 	tests := []struct {
 		name       string
+		reconciled bool
 		conditions []metav1.Condition
-		want       PostgresInstanceState
+		want       PostgresBranchState
 	}{
-		{
-			name: "degraded when degraded is true",
-			conditions: []metav1.Condition{
-				{Type: postgresConditionTypeAvailable, Status: metav1.ConditionTrue},
-				{Type: postgresConditionTypeDegraded, Status: metav1.ConditionTrue},
-			},
-			want: PostgresInstanceStateDegraded,
-		},
-		{
-			name: "progressing when progressing is true",
-			conditions: []metav1.Condition{
-				{Type: postgresConditionTypeProgressing, Status: metav1.ConditionTrue},
-			},
-			want: PostgresInstanceStateProgressing,
-		},
-		{
-			name: "available when available is true",
-			conditions: []metav1.Condition{
-				{Type: postgresConditionTypeAvailable, Status: metav1.ConditionTrue},
-			},
-			want: PostgresInstanceStateAvailable,
-		},
-		{
-			name: "available when no recognized true condition",
-			conditions: []metav1.Condition{
-				{Type: postgresConditionTypeAvailable, Status: metav1.ConditionFalse},
-				{Type: postgresConditionTypeProgressing, Status: metav1.ConditionFalse},
-			},
-			want: PostgresInstanceStateAvailable,
-		},
-		{
-			name: "available when no conditions",
-			want: PostgresInstanceStateAvailable,
-		},
+		{name: "not reconciled", want: PostgresBranchStateProgressing},
+		{name: "healthy", reconciled: true, conditions: []metav1.Condition{{Type: "cluster.postgresql.cnpg.io/ObservedState", Status: metav1.ConditionTrue, Message: "Cluster is in phase: Cluster in healthy state"}}, want: PostgresBranchStateAvailable},
+		{name: "still starting", reconciled: true, conditions: []metav1.Condition{{Type: "cluster.postgresql.cnpg.io/ObservedState", Status: metav1.ConditionFalse, Message: "Cluster is in phase: "}}, want: PostgresBranchStateProgressing},
+		{name: "unrecoverable", reconciled: true, conditions: []metav1.Condition{{Type: "cluster.postgresql.cnpg.io/ObservedState", Status: metav1.ConditionTrue, Message: "Cluster is in phase: Cluster is unrecoverable and needs manual intervention"}}, want: PostgresBranchStateDegraded},
+		{name: "plugin failure", reconciled: true, conditions: []metav1.Condition{{Type: "cluster.postgresql.cnpg.io/ObservedState", Status: metav1.ConditionTrue, Message: "Cluster is in phase: Cluster cannot proceed to reconciliation due to an error while interacting with plugins"}}, want: PostgresBranchStateDegraded},
+		{name: "other phase", reconciled: true, conditions: []metav1.Condition{{Type: "cluster.postgresql.cnpg.io/ObservedState", Status: metav1.ConditionTrue, Message: "Cluster is in phase: Online upgrade in progress"}}, want: PostgresBranchStateProgressing},
+		{name: "missing", reconciled: true, want: PostgresBranchStateProgressing},
 	}
-
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := postgresStateFromConditions(tt.conditions)
-			if got != tt.want {
-				t.Errorf("postgresStateFromConditions() = %q, want %q", got, tt.want)
+			if got := postgresStateFromConditions(tt.conditions, tt.reconciled); got != tt.want {
+				t.Errorf("state = %s, want %s", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestToPostgres_MaintenanceWindow(t *testing.T) {
-	intPtr := func(v int) *int { return &v }
-
-	tests := []struct {
-		name        string
-		maintenance *data_nais_io_v1.Maintenance
-		wantNil     bool
-		wantDay     int
-		wantHour    int
-	}{
-		{
-			name: "populates day and hour when maintenance window is present",
-			maintenance: &data_nais_io_v1.Maintenance{
-				Day:  2,
-				Hour: intPtr(5),
-			},
-			wantDay:  2,
-			wantHour: 5,
-		},
-		{
-			name: "defaults hour to 0 when maintenance window hour is omitted",
-			maintenance: &data_nais_io_v1.Maintenance{
-				Day: 6,
-			},
-			wantDay:  6,
-			wantHour: 0,
-		},
-		{
-			name:    "returns nil maintenance window when not configured",
-			wantNil: true,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			obj := newPostgresTestObject(tt.maintenance, nil)
-			got := toPostgresFromCRD(t, obj)
-
-			if tt.wantNil {
-				if got.MaintenanceWindow != nil {
-					t.Fatalf("MaintenanceWindow = %#v, want nil", got.MaintenanceWindow)
-				}
-				return
-			}
-
-			if got.MaintenanceWindow == nil {
-				t.Fatalf("MaintenanceWindow = nil, want non-nil")
-			}
-
-			if got.MaintenanceWindow.Day != tt.wantDay {
-				t.Errorf("MaintenanceWindow.Day = %d, want %d", got.MaintenanceWindow.Day, tt.wantDay)
-			}
-
-			if got.MaintenanceWindow.Hour != tt.wantHour {
-				t.Errorf("MaintenanceWindow.Hour = %d, want %d", got.MaintenanceWindow.Hour, tt.wantHour)
-			}
-		})
-	}
-}
-
-func TestToPostgres_MaintenanceWindow_WithConditions(t *testing.T) {
-	hour := 7
-	obj := newPostgresTestObject(&data_nais_io_v1.Maintenance{
-		Day:  3,
-		Hour: &hour,
-	}, []metav1.Condition{
-		{Type: postgresConditionTypeAvailable, Status: metav1.ConditionTrue},
-		{Type: postgresConditionTypeDegraded, Status: metav1.ConditionTrue},
-	})
-
-	got := toPostgresFromCRD(t, obj)
-
-	if got.MaintenanceWindow == nil {
-		t.Fatalf("MaintenanceWindow = nil, want non-nil")
-	}
-
-	if got.MaintenanceWindow.Day != 3 {
-		t.Errorf("MaintenanceWindow.Day = %d, want %d", got.MaintenanceWindow.Day, 3)
-	}
-
-	if got.MaintenanceWindow.Hour != 7 {
-		t.Errorf("MaintenanceWindow.Hour = %d, want %d", got.MaintenanceWindow.Hour, 7)
-	}
-
-	if got.State != PostgresInstanceStateDegraded {
-		t.Errorf("State = %q, want %q", got.State, PostgresInstanceStateDegraded)
-	}
-}
-
-func TestToPostgres_AuditStatementClasses(t *testing.T) {
-	obj := newPostgresTestObject(nil, nil)
-	obj.Spec.Cluster.Audit = &data_nais_io_v1.PostgresAudit{
-		Enabled: true,
-		StatementClasses: []data_nais_io_v1.PostgresAuditStatementClass{
-			"ddl",
-			"write",
-		},
-	}
-
-	got := toPostgresFromCRD(t, obj)
-
-	if !got.Audit.Enabled {
-		t.Fatalf("Audit.Enabled = %v, want true", got.Audit.Enabled)
-	}
-
-	want := []string{"ddl", "write"}
-	if !reflect.DeepEqual(got.Audit.StatementClasses, want) {
-		t.Errorf("Audit.StatementClasses = %#v, want %#v", got.Audit.StatementClasses, want)
-	}
-}
-
-func TestToPostgres_AuditStatementClasses_EmptyWhenAuditMissingOrEmpty(t *testing.T) {
-	tests := []struct {
-		name  string
-		audit *data_nais_io_v1.PostgresAudit
-	}{
-		{
-			name:  "missing audit config",
-			audit: nil,
-		},
-		{
-			name:  "empty audit config",
-			audit: &data_nais_io_v1.PostgresAudit{},
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			obj := newPostgresTestObject(nil, nil)
-			obj.Spec.Cluster.Audit = tt.audit
-
-			got := toPostgresFromCRD(t, obj)
-
-			if got.Audit.Enabled {
-				t.Errorf("Audit.Enabled = %v, want false", got.Audit.Enabled)
-			}
-
-			if len(got.Audit.StatementClasses) != 0 {
-				t.Errorf("Audit.StatementClasses = %#v, want empty", got.Audit.StatementClasses)
-			}
-		})
-	}
-}
-
-func newPostgresTestObject(maintenance *data_nais_io_v1.Maintenance, conditions []metav1.Condition) *data_nais_io_v1.Postgres {
-	obj := &data_nais_io_v1.Postgres{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      "my-db",
-			Namespace: "my-team",
-		},
-		Spec: data_nais_io_v1.PostgresSpec{
-			Cluster: data_nais_io_v1.PostgresCluster{
-				Resources: data_nais_io_v1.PostgresResources{
-					DiskSize: resource.MustParse("10Gi"),
-					Cpu:      resource.MustParse("100m"),
-					Memory:   resource.MustParse("1Gi"),
-				},
-				MajorVersion: "17",
-			},
-			MaintenanceWindow: maintenance,
-		},
-	}
-
-	if len(conditions) > 0 {
-		obj.Status = &data_nais_io_v1.PostgresStatus{}
-		obj.Status.Conditions = conditions
-	}
-
-	return obj
-}
-
-func TestDeletePostgresInput_ValidationErrors(t *testing.T) {
+func TestDeletePostgresBranchInput_ValidationErrors(t *testing.T) {
 	tests := []struct {
 		name          string
-		input         DeletePostgresInput
+		input         DeletePostgresBranchInput
 		wantErrFields []string
 	}{
 		{
 			name: "all fields valid",
-			input: DeletePostgresInput{
-				Name:            "my-db",
+			input: DeletePostgresBranchInput{
+				Postgres: "my-db", Branch: "main",
 				EnvironmentName: "dev",
 				TeamSlug:        slug.Slug("my-team"),
 			},
@@ -253,17 +111,17 @@ func TestDeletePostgresInput_ValidationErrors(t *testing.T) {
 		},
 		{
 			name: "empty name",
-			input: DeletePostgresInput{
-				Name:            "",
+			input: DeletePostgresBranchInput{
+				Postgres: "my-db", Branch: "",
 				EnvironmentName: "dev",
 				TeamSlug:        slug.Slug("my-team"),
 			},
-			wantErrFields: []string{"name"},
+			wantErrFields: []string{"branch"},
 		},
 		{
 			name: "empty environmentName",
-			input: DeletePostgresInput{
-				Name:            "my-db",
+			input: DeletePostgresBranchInput{
+				Postgres: "my-db", Branch: "main",
 				EnvironmentName: "",
 				TeamSlug:        slug.Slug("my-team"),
 			},
@@ -271,8 +129,8 @@ func TestDeletePostgresInput_ValidationErrors(t *testing.T) {
 		},
 		{
 			name: "empty teamSlug",
-			input: DeletePostgresInput{
-				Name:            "my-db",
+			input: DeletePostgresBranchInput{
+				Postgres: "my-db", Branch: "main",
 				EnvironmentName: "dev",
 				TeamSlug:        slug.Slug(""),
 			},
@@ -280,21 +138,21 @@ func TestDeletePostgresInput_ValidationErrors(t *testing.T) {
 		},
 		{
 			name: "all fields empty",
-			input: DeletePostgresInput{
-				Name:            "",
+			input: DeletePostgresBranchInput{
+				Postgres: "", Branch: "",
 				EnvironmentName: "",
 				TeamSlug:        slug.Slug(""),
 			},
-			wantErrFields: []string{"name", "environmentName", "teamSlug"},
+			wantErrFields: []string{"postgres", "branch", "environmentName", "teamSlug"},
 		},
 		{
 			name: "whitespace-only name treated as empty",
-			input: DeletePostgresInput{
-				Name:            "   ",
+			input: DeletePostgresBranchInput{
+				Postgres: "my-db", Branch: "   ",
 				EnvironmentName: "dev",
 				TeamSlug:        slug.Slug("my-team"),
 			},
-			wantErrFields: []string{"name"},
+			wantErrFields: []string{"branch"},
 		},
 	}
 
@@ -312,20 +170,4 @@ func TestDeletePostgresInput_ValidationErrors(t *testing.T) {
 			}
 		})
 	}
-}
-
-func toPostgresFromCRD(t *testing.T, obj *data_nais_io_v1.Postgres) *PostgresInstance {
-	t.Helper()
-
-	uMap, err := runtime.DefaultUnstructuredConverter.ToUnstructured(obj)
-	if err != nil {
-		t.Fatalf("ToUnstructured() error = %v", err)
-	}
-
-	got, err := toPostgres(&unstructured.Unstructured{Object: uMap}, "dev")
-	if err != nil {
-		t.Fatalf("toPostgres() error = %v", err)
-	}
-
-	return got
 }

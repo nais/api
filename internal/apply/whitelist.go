@@ -63,8 +63,8 @@ var allowedResources = map[AllowedResource]schema.GroupVersionResource{
 	},
 
 	// Postgres (NAIS)
-	{APIVersion: "data.nais.io/v1", Kind: "Postgres"}: {
-		Group: "data.nais.io", Version: "v1", Resource: "postgres",
+	{APIVersion: "nais.io/v1", Kind: "Postgres"}: {
+		Group: "nais.io", Version: "v1", Resource: "postgres",
 	},
 
 	// IAM (Config Connector)
