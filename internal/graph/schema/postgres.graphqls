@@ -361,8 +361,6 @@ extend enum ActivityLogActivityType {
 }
 
 extend type Mutation {
-	"Grant temporary access to a Postgres cluster."
-	grantPostgresAccess(input: GrantPostgresAccessInput!): GrantPostgresAccessPayload!
 	"""
 	EXPERIMENTAL: DO NOT USE
 	Create time-limited personal access to a NAIS Postgres branch through the brokered PostgresAccess and relay flow.
@@ -371,19 +369,6 @@ extend type Mutation {
 	createPostgresAccess(input: CreatePostgresAccessInput!): CreatePostgresAccessPayload!
 	"Delete a PostgresBranch that is not active on its Postgres."
 	deletePostgresBranch(input: DeletePostgresBranchInput!): DeletePostgresBranchPayload!
-}
-
-type GrantPostgresAccessPayload {
-	error: String
-}
-
-input GrantPostgresAccessInput {
-	clusterName: String!
-	teamSlug: Slug!
-	environmentName: String!
-	grantee: String!
-	"Duration of the access grant (maximum 4 hours)."
-	duration: String!
 }
 
 "Result of creating a personal Postgres access."
