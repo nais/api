@@ -1,0 +1,27 @@
+apiVersion: nais.io/v1
+kind: Postgres
+metadata:
+  name: orders
+  namespace: pg-delete-team
+spec:
+  majorVersion: "17"
+status:
+  activeBranch: new
+---
+apiVersion: nais.io/v1
+kind: PostgresBranch
+metadata:
+  name: orders-new-51fe6d69
+  namespace: pg-delete-team
+spec:
+  postgres: orders
+  branchName: new
+---
+apiVersion: nais.io/v1
+kind: PostgresBranch
+metadata:
+  name: orders-old-9cdd54c9
+  namespace: pg-delete-team
+spec:
+  postgres: orders
+  branchName: old

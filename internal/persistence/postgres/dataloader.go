@@ -6,6 +6,7 @@ import (
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/client-go/dynamic"
 )
 
 type ctxKey int
@@ -14,28 +15,36 @@ const loadersKey ctxKey = iota
 
 func NewLoaderContext(
 	ctx context.Context,
-	zalandoPostgresWatcher *watcher.Watcher[*PostgresInstance],
+	postgresBranchWatcher *watcher.Watcher[*PostgresBranch],
 	auditLogProjectID string,
 	auditLogLocation string,
+	tenantName string,
+	clients map[string]dynamic.Interface,
 ) context.Context {
-	return context.WithValue(ctx, loadersKey, newLoaders(zalandoPostgresWatcher, auditLogProjectID, auditLogLocation))
+	return context.WithValue(ctx, loadersKey, newLoaders(postgresBranchWatcher, auditLogProjectID, auditLogLocation, tenantName, clients))
 }
 
 type loaders struct {
-	zalandoPostgresWatcher *watcher.Watcher[*PostgresInstance]
-	auditLogProjectID      string
-	auditLogLocation       string
+	postgresBranchWatcher *watcher.Watcher[*PostgresBranch]
+	auditLogProjectID     string
+	auditLogLocation      string
+	tenantName            string
+	clients               map[string]dynamic.Interface
 }
 
 func newLoaders(
-	zalandoPostgresWatcher *watcher.Watcher[*PostgresInstance],
+	postgresBranchWatcher *watcher.Watcher[*PostgresBranch],
 	auditLogProjectID string,
 	auditLogLocation string,
+	tenantName string,
+	clients map[string]dynamic.Interface,
 ) *loaders {
 	return &loaders{
-		zalandoPostgresWatcher: zalandoPostgresWatcher,
-		auditLogProjectID:      auditLogProjectID,
-		auditLogLocation:       auditLogLocation,
+		postgresBranchWatcher: postgresBranchWatcher,
+		auditLogProjectID:     auditLogProjectID,
+		auditLogLocation:      auditLogLocation,
+		tenantName:            tenantName,
+		clients:               clients,
 	}
 }
 
@@ -45,17 +54,17 @@ func GetAuditLogConfig(ctx context.Context) (projectID, location string) {
 	return loaders.auditLogProjectID, loaders.auditLogLocation
 }
 
-func NewZalandoPostgresWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watcher[*PostgresInstance] {
-	w := watcher.Watch(mgr, &PostgresInstance{}, watcher.WithConverter(func(o *unstructured.Unstructured, environmentName string) (obj any, ok bool) {
-		ret, err := toPostgres(o, environmentName)
+func NewPostgresBranchWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watcher[*PostgresBranch] {
+	w := watcher.Watch(mgr, &PostgresBranch{}, watcher.WithConverter(func(o *unstructured.Unstructured, environmentName string) (obj any, ok bool) {
+		ret, err := toPostgresBranch(o, environmentName)
 		if err != nil {
 			return nil, false
 		}
 		return ret, true
 	}), watcher.WithGVR(schema.GroupVersionResource{
-		Group:    "data.nais.io",
+		Group:    "nais.io",
 		Version:  "v1",
-		Resource: "postgres",
+		Resource: "postgresbranches",
 	}))
 	w.Start(ctx)
 	return w

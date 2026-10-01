@@ -1,5 +1,16 @@
-apiVersion: data.nais.io/v1
+---
+apiVersion: nais.io/v1
 kind: Postgres
+metadata:
+  name: postgres-1
+  namespace: devteam
+spec:
+  majorVersion: "18"
+status:
+  activeBranch: postgres-1
+---
+apiVersion: nais.io/v1
+kind: PostgresBranch
 metadata:
   name: postgres-1
   namespace: devteam
@@ -7,10 +18,12 @@ metadata:
     key: value
     team: devteam
 spec:
-  cluster:
-    allowDeletion: false
-    majorVersion: "18"
-    resources:
-      diskSize: "2Gi"
-      cpu: "100m"
-      memory: "1Gi"
+  postgres: postgres-1
+status:
+  reconcilePhase: Completed
+  conditions:
+    - type: cluster.postgresql.cnpg.io/ObservedState
+      status: "True"
+      reason: Reconciled
+      message: "Cluster is in phase: Cluster in healthy state"
+      lastTransitionTime: "2026-09-17T00:00:00Z"

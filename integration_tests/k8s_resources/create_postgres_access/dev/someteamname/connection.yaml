@@ -1,0 +1,40 @@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ready-access-relay-token
+  namespace: someteamname
+  ownerReferences:
+    - apiVersion: nais.io/v1
+      kind: PostgresAccess
+      name: ready-access
+      uid: 11111111-1111-4111-8111-111111111111
+      controller: true
+type: Opaque
+data:
+  token: QUFFQ0F3UUZCZ2NJQ1FvTERBME9EeEFSRWhNVUZSWVhHQmthR3h3ZEhoOA==
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ready-access-credentials
+  namespace: someteamname
+  ownerReferences:
+    - apiVersion: nais.io/v1
+      kind: PostgresAccess
+      name: ready-access
+      uid: 11111111-1111-4111-8111-111111111111
+      controller: true
+type: kubernetes.io/basic-auth
+data:
+  username: dXNlci1mb29iYXItcm9sZQ==
+  password: c3VwZXJzZWNyZXQ=
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: pg-foobar-ca
+  namespace: someteamname
+type: Opaque
+data:
+  ca.crt: dGVzdC1jYS1jZXJ0aWZpY2F0ZQ==

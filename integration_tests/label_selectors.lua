@@ -139,12 +139,15 @@ Test.gql("Check all Postgres instances (no filter)", function(t)
 		{
 			team(slug: "labelteam") {
 				slug
-				postgresInstances {
+				postgresBranches {
 					pageInfo {
 						totalCount
 					}
 					nodes {
 						name
+						postgres {
+							name
+						}
 						labels {
 							key
 							value
@@ -159,26 +162,29 @@ Test.gql("Check all Postgres instances (no filter)", function(t)
 		data = {
 			team = {
 				slug = "labelteam",
-				postgresInstances = {
+				postgresBranches = {
 					pageInfo = {
 						totalCount = 3,
 					},
 					nodes = {
 						{
-							name = "postgres-one",
+							name = "main",
+							postgres = { name = "postgres-one" },
 							labels = {
 								{ key = "priority", value = "high" },
 								{ key = "tag",      value = "target" },
 							},
 						},
 						{
-							name = "postgres-three",
+							name = "main",
+							postgres = { name = "postgres-three" },
 							labels = {
 								{ key = "tag", value = "other" },
 							},
 						},
 						{
-							name = "postgres-two",
+							name = "main",
+							postgres = { name = "postgres-two" },
 							labels = {
 								{ key = "tag", value = "target" },
 							},
@@ -195,12 +201,15 @@ Test.gql("Postgres filter by tag=target", function(t)
 	t.query [[
 		{
 			team(slug: "labelteam") {
-				postgresInstances(filter: { labels: [{ key: "tag", value: "target" }] }) {
+				postgresBranches(filter: { labels: [{ key: "tag", value: "target" }] }) {
 					pageInfo {
 						totalCount
 					}
 					nodes {
 						name
+						postgres {
+							name
+						}
 					}
 				}
 			}
@@ -210,13 +219,13 @@ Test.gql("Postgres filter by tag=target", function(t)
 	t.check {
 		data = {
 			team = {
-				postgresInstances = {
+				postgresBranches = {
 					pageInfo = {
 						totalCount = 2,
 					},
 					nodes = {
-						{ name = "postgres-one" },
-						{ name = "postgres-two" },
+						{ name = "main", postgres = { name = "postgres-one" } },
+						{ name = "main", postgres = { name = "postgres-two" } },
 					},
 				},
 			},
@@ -229,7 +238,7 @@ Test.gql("Postgres filter by tag=target and priority=high", function(t)
 	t.query [[
 		{
 			team(slug: "labelteam") {
-				postgresInstances(filter: {
+				postgresBranches(filter: {
 					labels: [
 						{ key: "tag", value: "target" },
 						{ key: "priority", value: "high" }
@@ -240,6 +249,9 @@ Test.gql("Postgres filter by tag=target and priority=high", function(t)
 					}
 					nodes {
 						name
+						postgres {
+							name
+						}
 					}
 				}
 			}
@@ -249,12 +261,12 @@ Test.gql("Postgres filter by tag=target and priority=high", function(t)
 	t.check {
 		data = {
 			team = {
-				postgresInstances = {
+				postgresBranches = {
 					pageInfo = {
 						totalCount = 1,
 					},
 					nodes = {
-						{ name = "postgres-one" },
+						{ name = "main", postgres = { name = "postgres-one" } },
 					},
 				},
 			},

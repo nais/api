@@ -120,6 +120,28 @@ rules:
       - patch
       - delete
   - apiGroups:
+      - "nais.io"
+    resources:
+      - postgresaccesses
+    verbs:
+      - get
+      - create
+  - apiGroups:
+      - "nais.io"
+    resources:
+      - postgresbranches
+    verbs:
+      - get
+      - list
+      - watch
+      - delete
+  - apiGroups:
+      - postgresql.cnpg.io
+    resources:
+      - clusters
+    verbs:
+      - get
+  - apiGroups:
       - "aiven.nais.io"
     resources:
       - aivenapplications
@@ -266,13 +288,42 @@ rules:
       - list
       - watch
   - apiGroups:
-      - "data.nais.io"
+      - "nais.io"
     resources:
       - postgres
     verbs:
       - get
       - list
       - watch
+  # Legacy CLI port-forward grants still validate the old Zalando cluster.
+  - apiGroups:
+      - "data.nais.io"
+    resources:
+      - postgres
+    verbs:
+      - get
+  - apiGroups:
+      - "nais.io"
+    resources:
+      - postgresaccesses
+    verbs:
+      - get
+      - create
+  - apiGroups:
+      - "nais.io"
+    resources:
+      - postgresbranches
+    verbs:
+      - get
+      - list
+      - watch
+      - delete
+  - apiGroups:
+      - postgresql.cnpg.io
+    resources:
+      - clusters
+    verbs:
+      - get
   - apiGroups:
       - ""
     resources:

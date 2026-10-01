@@ -105,9 +105,10 @@ type ResolverRoot interface {
 	OpenSearchConnection() OpenSearchConnectionResolver
 	OpenSearchIssue() OpenSearchIssueResolver
 	OpenSearchMaintenance() OpenSearchMaintenanceResolver
-	PostgresInstance() PostgresInstanceResolver
-	PostgresInstanceAudit() PostgresInstanceAuditResolver
-	PostgresInstanceConnection() PostgresInstanceConnectionResolver
+	Postgres() PostgresResolver
+	PostgresAccess() PostgresAccessResolver
+	PostgresBranch() PostgresBranchResolver
+	PostgresBranchConnection() PostgresBranchConnectionResolver
 	PrometheusAlert() PrometheusAlertResolver
 	Query() QueryResolver
 	Reconciler() ReconcilerResolver
@@ -261,7 +262,7 @@ type ComplexityRoot struct {
 		Name                      func(childComplexity int) int
 		NetworkPolicy             func(childComplexity int) int
 		OpenSearch                func(childComplexity int) int
-		PostgresInstances         func(childComplexity int, orderBy *postgres.PostgresInstanceOrder) int
+		PostgresBranches          func(childComplexity int, orderBy *postgres.PostgresBranchOrder) int
 		Resources                 func(childComplexity int) int
 		SQLInstances              func(childComplexity int, orderBy *sqlinstance.SQLInstanceOrder) int
 		Secrets                   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
@@ -731,6 +732,11 @@ type ComplexityRoot struct {
 		OpenSearch func(childComplexity int) int
 	}
 
+	CreatePostgresAccessPayload struct {
+		ExpiresAt func(childComplexity int) int
+		Name      func(childComplexity int) int
+	}
+
 	CreateSecretPayload struct {
 		Secret func(childComplexity int) int
 	}
@@ -793,8 +799,8 @@ type ComplexityRoot struct {
 		OpenSearchDeleted func(childComplexity int) int
 	}
 
-	DeletePostgresPayload struct {
-		PostgresDeleted func(childComplexity int) int
+	DeletePostgresBranchPayload struct {
+		PostgresBranchDeleted func(childComplexity int) int
 	}
 
 	DeleteSecretPayload struct {
@@ -1240,7 +1246,7 @@ type ComplexityRoot struct {
 		Name                      func(childComplexity int) int
 		NetworkPolicy             func(childComplexity int) int
 		OpenSearch                func(childComplexity int) int
-		PostgresInstances         func(childComplexity int, orderBy *postgres.PostgresInstanceOrder) int
+		PostgresBranches          func(childComplexity int, orderBy *postgres.PostgresBranchOrder) int
 		Resources                 func(childComplexity int) int
 		Runs                      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		SQLInstances              func(childComplexity int, orderBy *sqlinstance.SQLInstanceOrder) int
@@ -1620,6 +1626,7 @@ type ComplexityRoot struct {
 		CreateKafkaCredentials           func(childComplexity int, input kafkatopic.CreateKafkaCredentialsInput) int
 		CreateOpenSearch                 func(childComplexity int, input opensearch.CreateOpenSearchInput) int
 		CreateOpenSearchCredentials      func(childComplexity int, input opensearch.CreateOpenSearchCredentialsInput) int
+		CreatePostgresAccess             func(childComplexity int, input postgres.CreatePostgresAccessInput) int
 		CreateSecret                     func(childComplexity int, input secret.CreateSecretInput) int
 		CreateServiceAccount             func(childComplexity int, input serviceaccount.CreateServiceAccountInput) int
 		CreateServiceAccountToken        func(childComplexity int, input serviceaccount.CreateServiceAccountTokenInput) int
@@ -1633,7 +1640,7 @@ type ComplexityRoot struct {
 		DeleteJob                        func(childComplexity int, input job.DeleteJobInput) int
 		DeleteJobRun                     func(childComplexity int, input job.DeleteJobRunInput) int
 		DeleteOpenSearch                 func(childComplexity int, input opensearch.DeleteOpenSearchInput) int
-		DeletePostgres                   func(childComplexity int, input postgres.DeletePostgresInput) int
+		DeletePostgresBranch             func(childComplexity int, input postgres.DeletePostgresBranchInput) int
 		DeleteSecret                     func(childComplexity int, input secret.DeleteSecretInput) int
 		DeleteServiceAccount             func(childComplexity int, input serviceaccount.DeleteServiceAccountInput) int
 		DeleteServiceAccountToken        func(childComplexity int, input serviceaccount.DeleteServiceAccountTokenInput) int
@@ -1887,6 +1894,76 @@ type ComplexityRoot struct {
 		TotalCount      func(childComplexity int) int
 	}
 
+	Postgres struct {
+		ActiveBranch     func(childComplexity int) int
+		Branch           func(childComplexity int, name string) int
+		Branches         func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *postgres.PostgresBranchOrder) int
+		HighAvailability func(childComplexity int) int
+		ID               func(childComplexity int) int
+		Labels           func(childComplexity int) int
+		MajorVersion     func(childComplexity int) int
+		Name             func(childComplexity int) int
+		Resources        func(childComplexity int) int
+	}
+
+	PostgresAccess struct {
+		AccessLevel     func(childComplexity int) int
+		Connection      func(childComplexity int) int
+		ExpiresAt       func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Message         func(childComplexity int) int
+		Name            func(childComplexity int) int
+		PostgresBranch  func(childComplexity int) int
+		RelayAccess     func(childComplexity int) int
+		State           func(childComplexity int) int
+		Team            func(childComplexity int) int
+		TeamEnvironment func(childComplexity int) int
+	}
+
+	PostgresAccessConnectionDetails struct {
+		CACertificate func(childComplexity int) int
+		Password      func(childComplexity int) int
+		RelayAccess   func(childComplexity int) int
+		RelayEndpoint func(childComplexity int) int
+		RelayToken    func(childComplexity int) int
+		ServerName    func(childComplexity int) int
+		Username      func(childComplexity int) int
+	}
+
+	PostgresBranch struct {
+		ID              func(childComplexity int) int
+		Labels          func(childComplexity int) int
+		Name            func(childComplexity int) int
+		Postgres        func(childComplexity int) int
+		State           func(childComplexity int) int
+		Team            func(childComplexity int) int
+		TeamEnvironment func(childComplexity int) int
+		Workloads       func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+	}
+
+	PostgresBranchConnection struct {
+		Edges    func(childComplexity int) int
+		Facets   func(childComplexity int) int
+		Nodes    func(childComplexity int) int
+		PageInfo func(childComplexity int) int
+	}
+
+	PostgresBranchEdge struct {
+		Cursor func(childComplexity int) int
+		Node   func(childComplexity int) int
+	}
+
+	PostgresBranchFacets struct {
+		Environments func(childComplexity int) int
+		Labels       func(childComplexity int) int
+		States       func(childComplexity int) int
+	}
+
+	PostgresBranchStateFacetItem struct {
+		Count func(childComplexity int) int
+		State func(childComplexity int) int
+	}
+
 	PostgresDeletedActivityLogEntry struct {
 		Actor             func(childComplexity int) int
 		CreatedAt         func(childComplexity int) int
@@ -1917,61 +1994,42 @@ type ComplexityRoot struct {
 		Until   func(childComplexity int) int
 	}
 
-	PostgresInstance struct {
-		Audit             func(childComplexity int) int
-		HighAvailability  func(childComplexity int) int
+	PostgresPersonalAccessConnectionActivityLogEntry struct {
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
 		ID                func(childComplexity int) int
-		Labels            func(childComplexity int) int
-		MaintenanceWindow func(childComplexity int) int
-		MajorVersion      func(childComplexity int) int
-		Name              func(childComplexity int) int
-		Resources         func(childComplexity int) int
-		State             func(childComplexity int) int
-		Team              func(childComplexity int) int
-		TeamEnvironment   func(childComplexity int) int
-		Workloads         func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
-	PostgresInstanceAudit struct {
-		Enabled          func(childComplexity int) int
-		StatementClasses func(childComplexity int) int
-		URL              func(childComplexity int) int
+	PostgresPersonalAccessCreatedActivityLogEntry struct {
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		Data              func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
-	PostgresInstanceConnection struct {
-		Edges    func(childComplexity int) int
-		Facets   func(childComplexity int) int
-		Nodes    func(childComplexity int) int
-		PageInfo func(childComplexity int) int
+	PostgresPersonalAccessCreatedActivityLogEntryData struct {
+		AccessLevel func(childComplexity int) int
+		ExpiresAt   func(childComplexity int) int
+		Reason      func(childComplexity int) int
+		Username    func(childComplexity int) int
 	}
 
-	PostgresInstanceEdge struct {
-		Cursor func(childComplexity int) int
-		Node   func(childComplexity int) int
-	}
-
-	PostgresInstanceFacets struct {
-		Environments     func(childComplexity int) int
-		HighAvailability func(childComplexity int) int
-		Labels           func(childComplexity int) int
-		MajorVersions    func(childComplexity int) int
-		States           func(childComplexity int) int
-	}
-
-	PostgresInstanceMaintenanceWindow struct {
-		Day  func(childComplexity int) int
-		Hour func(childComplexity int) int
-	}
-
-	PostgresInstanceResources struct {
+	PostgresResources struct {
 		CPU      func(childComplexity int) int
 		DiskSize func(childComplexity int) int
 		Memory   func(childComplexity int) int
-	}
-
-	PostgresInstanceStateFacetItem struct {
-		Count func(childComplexity int) int
-		State func(childComplexity int) int
 	}
 
 	Price struct {
@@ -2873,7 +2931,7 @@ type ComplexityRoot struct {
 		Member                    func(childComplexity int, email string) int
 		Members                   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.TeamMemberOrder) int
 		OpenSearches              func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *opensearch.OpenSearchOrder, filter *opensearch.OpenSearchFilter) int
-		PostgresInstances         func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *postgres.PostgresInstanceOrder, filter *postgres.PostgresInstanceFilter) int
+		PostgresBranches          func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *postgres.PostgresBranchOrder, filter *postgres.PostgresBranchFilter) int
 		Purpose                   func(childComplexity int) int
 		Repositories              func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *repository.RepositoryOrder, filter *repository.TeamRepositoryFilter) int
 		SQLInstances              func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *sqlinstance.SQLInstanceOrder, filter *sqlinstance.SQLInstanceFilter) int
@@ -3002,7 +3060,8 @@ type ComplexityRoot struct {
 		KafkaTopic         func(childComplexity int, name string) int
 		Name               func(childComplexity int) int
 		OpenSearch         func(childComplexity int, name string) int
-		PostgresInstance   func(childComplexity int, name string) int
+		Postgres           func(childComplexity int, name string) int
+		PostgresAccess     func(childComplexity int, name string) int
 		SQLInstance        func(childComplexity int, name string) int
 		Secret             func(childComplexity int, name string) int
 		SlackAlertsChannel func(childComplexity int) int
@@ -3099,7 +3158,7 @@ type ComplexityRoot struct {
 		Total func(childComplexity int) int
 	}
 
-	TeamInventoryCountPostgresInstances struct {
+	TeamInventoryCountPostgresBranches struct {
 		Total func(childComplexity int) int
 	}
 
@@ -3116,17 +3175,17 @@ type ComplexityRoot struct {
 	}
 
 	TeamInventoryCounts struct {
-		Applications      func(childComplexity int) int
-		BigQueryDatasets  func(childComplexity int) int
-		Buckets           func(childComplexity int) int
-		Configs           func(childComplexity int) int
-		Jobs              func(childComplexity int) int
-		KafkaTopics       func(childComplexity int) int
-		OpenSearches      func(childComplexity int) int
-		PostgresInstances func(childComplexity int) int
-		SQLInstances      func(childComplexity int) int
-		Secrets           func(childComplexity int) int
-		Valkeys           func(childComplexity int) int
+		Applications     func(childComplexity int) int
+		BigQueryDatasets func(childComplexity int) int
+		Buckets          func(childComplexity int) int
+		Configs          func(childComplexity int) int
+		Jobs             func(childComplexity int) int
+		KafkaTopics      func(childComplexity int) int
+		OpenSearches     func(childComplexity int) int
+		PostgresBranches func(childComplexity int) int
+		SQLInstances     func(childComplexity int) int
+		Secrets          func(childComplexity int) int
+		Valkeys          func(childComplexity int) int
 	}
 
 	TeamMember struct {
@@ -4328,17 +4387,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Application.OpenSearch(childComplexity), true
 
-	case "Application.postgresInstances":
-		if e.ComplexityRoot.Application.PostgresInstances == nil {
+	case "Application.postgresBranches":
+		if e.ComplexityRoot.Application.PostgresBranches == nil {
 			break
 		}
 
-		args, err := ec.field_Application_postgresInstances_args(ctx, rawArgs)
+		args, err := ec.field_Application_postgresBranches_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Application.PostgresInstances(childComplexity, args["orderBy"].(*postgres.PostgresInstanceOrder)), true
+		return e.ComplexityRoot.Application.PostgresBranches(childComplexity, args["orderBy"].(*postgres.PostgresBranchOrder)), true
 
 	case "Application.resources":
 		if e.ComplexityRoot.Application.Resources == nil {
@@ -6314,6 +6373,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.CreateOpenSearchPayload.OpenSearch(childComplexity), true
 
+	case "CreatePostgresAccessPayload.expiresAt":
+		if e.ComplexityRoot.CreatePostgresAccessPayload.ExpiresAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.CreatePostgresAccessPayload.ExpiresAt(childComplexity), true
+
+	case "CreatePostgresAccessPayload.name":
+		if e.ComplexityRoot.CreatePostgresAccessPayload.Name == nil {
+			break
+		}
+
+		return e.ComplexityRoot.CreatePostgresAccessPayload.Name(childComplexity), true
+
 	case "CreateSecretPayload.secret":
 		if e.ComplexityRoot.CreateSecretPayload.Secret == nil {
 			break
@@ -6454,12 +6527,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.DeleteOpenSearchPayload.OpenSearchDeleted(childComplexity), true
 
-	case "DeletePostgresPayload.postgresDeleted":
-		if e.ComplexityRoot.DeletePostgresPayload.PostgresDeleted == nil {
+	case "DeletePostgresBranchPayload.postgresBranchDeleted":
+		if e.ComplexityRoot.DeletePostgresBranchPayload.PostgresBranchDeleted == nil {
 			break
 		}
 
-		return e.ComplexityRoot.DeletePostgresPayload.PostgresDeleted(childComplexity), true
+		return e.ComplexityRoot.DeletePostgresBranchPayload.PostgresBranchDeleted(childComplexity), true
 
 	case "DeleteSecretPayload.secretDeleted":
 		if e.ComplexityRoot.DeleteSecretPayload.SecretDeleted == nil {
@@ -8334,17 +8407,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Job.OpenSearch(childComplexity), true
 
-	case "Job.postgresInstances":
-		if e.ComplexityRoot.Job.PostgresInstances == nil {
+	case "Job.postgresBranches":
+		if e.ComplexityRoot.Job.PostgresBranches == nil {
 			break
 		}
 
-		args, err := ec.field_Job_postgresInstances_args(ctx, rawArgs)
+		args, err := ec.field_Job_postgresBranches_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Job.PostgresInstances(childComplexity, args["orderBy"].(*postgres.PostgresInstanceOrder)), true
+		return e.ComplexityRoot.Job.PostgresBranches(childComplexity, args["orderBy"].(*postgres.PostgresBranchOrder)), true
 
 	case "Job.resources":
 		if e.ComplexityRoot.Job.Resources == nil {
@@ -10012,6 +10085,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Mutation.CreateOpenSearchCredentials(childComplexity, args["input"].(opensearch.CreateOpenSearchCredentialsInput)), true
 
+	case "Mutation.createPostgresAccess":
+		if e.ComplexityRoot.Mutation.CreatePostgresAccess == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createPostgresAccess_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Mutation.CreatePostgresAccess(childComplexity, args["input"].(postgres.CreatePostgresAccessInput)), true
+
 	case "Mutation.createSecret":
 		if e.ComplexityRoot.Mutation.CreateSecret == nil {
 			break
@@ -10168,17 +10253,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Mutation.DeleteOpenSearch(childComplexity, args["input"].(opensearch.DeleteOpenSearchInput)), true
 
-	case "Mutation.deletePostgres":
-		if e.ComplexityRoot.Mutation.DeletePostgres == nil {
+	case "Mutation.deletePostgresBranch":
+		if e.ComplexityRoot.Mutation.DeletePostgresBranch == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_deletePostgres_args(ctx, rawArgs)
+		args, err := ec.field_Mutation_deletePostgresBranch_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Mutation.DeletePostgres(childComplexity, args["input"].(postgres.DeletePostgresInput)), true
+		return e.ComplexityRoot.Mutation.DeletePostgresBranch(childComplexity, args["input"].(postgres.DeletePostgresBranchInput)), true
 
 	case "Mutation.deleteSecret":
 		if e.ComplexityRoot.Mutation.DeleteSecret == nil {
@@ -11559,6 +11644,343 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.PageInfo.TotalCount(childComplexity), true
 
+	case "Postgres.activeBranch":
+		if e.ComplexityRoot.Postgres.ActiveBranch == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Postgres.ActiveBranch(childComplexity), true
+
+	case "Postgres.branch":
+		if e.ComplexityRoot.Postgres.Branch == nil {
+			break
+		}
+
+		args, err := ec.field_Postgres_branch_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Postgres.Branch(childComplexity, args["name"].(string)), true
+
+	case "Postgres.branches":
+		if e.ComplexityRoot.Postgres.Branches == nil {
+			break
+		}
+
+		args, err := ec.field_Postgres_branches_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Postgres.Branches(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*postgres.PostgresBranchOrder)), true
+
+	case "Postgres.highAvailability":
+		if e.ComplexityRoot.Postgres.HighAvailability == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Postgres.HighAvailability(childComplexity), true
+
+	case "Postgres.id":
+		if e.ComplexityRoot.Postgres.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Postgres.ID(childComplexity), true
+
+	case "Postgres.labels":
+		if e.ComplexityRoot.Postgres.Labels == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Postgres.Labels(childComplexity), true
+
+	case "Postgres.majorVersion":
+		if e.ComplexityRoot.Postgres.MajorVersion == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Postgres.MajorVersion(childComplexity), true
+
+	case "Postgres.name":
+		if e.ComplexityRoot.Postgres.Name == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Postgres.Name(childComplexity), true
+
+	case "Postgres.resources":
+		if e.ComplexityRoot.Postgres.Resources == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Postgres.Resources(childComplexity), true
+
+	case "PostgresAccess.accessLevel":
+		if e.ComplexityRoot.PostgresAccess.AccessLevel == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresAccess.AccessLevel(childComplexity), true
+
+	case "PostgresAccess.connection":
+		if e.ComplexityRoot.PostgresAccess.Connection == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresAccess.Connection(childComplexity), true
+
+	case "PostgresAccess.expiresAt":
+		if e.ComplexityRoot.PostgresAccess.ExpiresAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresAccess.ExpiresAt(childComplexity), true
+
+	case "PostgresAccess.id":
+		if e.ComplexityRoot.PostgresAccess.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresAccess.ID(childComplexity), true
+
+	case "PostgresAccess.message":
+		if e.ComplexityRoot.PostgresAccess.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresAccess.Message(childComplexity), true
+
+	case "PostgresAccess.name":
+		if e.ComplexityRoot.PostgresAccess.Name == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresAccess.Name(childComplexity), true
+
+	case "PostgresAccess.postgresBranch":
+		if e.ComplexityRoot.PostgresAccess.PostgresBranch == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresAccess.PostgresBranch(childComplexity), true
+
+	case "PostgresAccess.relayAccess":
+		if e.ComplexityRoot.PostgresAccess.RelayAccess == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresAccess.RelayAccess(childComplexity), true
+
+	case "PostgresAccess.state":
+		if e.ComplexityRoot.PostgresAccess.State == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresAccess.State(childComplexity), true
+
+	case "PostgresAccess.team":
+		if e.ComplexityRoot.PostgresAccess.Team == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresAccess.Team(childComplexity), true
+
+	case "PostgresAccess.teamEnvironment":
+		if e.ComplexityRoot.PostgresAccess.TeamEnvironment == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresAccess.TeamEnvironment(childComplexity), true
+
+	case "PostgresAccessConnectionDetails.caCertificate":
+		if e.ComplexityRoot.PostgresAccessConnectionDetails.CACertificate == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresAccessConnectionDetails.CACertificate(childComplexity), true
+
+	case "PostgresAccessConnectionDetails.password":
+		if e.ComplexityRoot.PostgresAccessConnectionDetails.Password == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresAccessConnectionDetails.Password(childComplexity), true
+
+	case "PostgresAccessConnectionDetails.relayAccess":
+		if e.ComplexityRoot.PostgresAccessConnectionDetails.RelayAccess == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresAccessConnectionDetails.RelayAccess(childComplexity), true
+
+	case "PostgresAccessConnectionDetails.relayEndpoint":
+		if e.ComplexityRoot.PostgresAccessConnectionDetails.RelayEndpoint == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresAccessConnectionDetails.RelayEndpoint(childComplexity), true
+
+	case "PostgresAccessConnectionDetails.relayToken":
+		if e.ComplexityRoot.PostgresAccessConnectionDetails.RelayToken == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresAccessConnectionDetails.RelayToken(childComplexity), true
+
+	case "PostgresAccessConnectionDetails.serverName":
+		if e.ComplexityRoot.PostgresAccessConnectionDetails.ServerName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresAccessConnectionDetails.ServerName(childComplexity), true
+
+	case "PostgresAccessConnectionDetails.username":
+		if e.ComplexityRoot.PostgresAccessConnectionDetails.Username == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresAccessConnectionDetails.Username(childComplexity), true
+
+	case "PostgresBranch.id":
+		if e.ComplexityRoot.PostgresBranch.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranch.ID(childComplexity), true
+
+	case "PostgresBranch.labels":
+		if e.ComplexityRoot.PostgresBranch.Labels == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranch.Labels(childComplexity), true
+
+	case "PostgresBranch.name":
+		if e.ComplexityRoot.PostgresBranch.Name == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranch.Name(childComplexity), true
+
+	case "PostgresBranch.postgres":
+		if e.ComplexityRoot.PostgresBranch.Postgres == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranch.Postgres(childComplexity), true
+
+	case "PostgresBranch.state":
+		if e.ComplexityRoot.PostgresBranch.State == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranch.State(childComplexity), true
+
+	case "PostgresBranch.team":
+		if e.ComplexityRoot.PostgresBranch.Team == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranch.Team(childComplexity), true
+
+	case "PostgresBranch.teamEnvironment":
+		if e.ComplexityRoot.PostgresBranch.TeamEnvironment == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranch.TeamEnvironment(childComplexity), true
+
+	case "PostgresBranch.workloads":
+		if e.ComplexityRoot.PostgresBranch.Workloads == nil {
+			break
+		}
+
+		args, err := ec.field_PostgresBranch_workloads_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.PostgresBranch.Workloads(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
+
+	case "PostgresBranchConnection.edges":
+		if e.ComplexityRoot.PostgresBranchConnection.Edges == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchConnection.Edges(childComplexity), true
+
+	case "PostgresBranchConnection.facets":
+		if e.ComplexityRoot.PostgresBranchConnection.Facets == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchConnection.Facets(childComplexity), true
+
+	case "PostgresBranchConnection.nodes":
+		if e.ComplexityRoot.PostgresBranchConnection.Nodes == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchConnection.Nodes(childComplexity), true
+
+	case "PostgresBranchConnection.pageInfo":
+		if e.ComplexityRoot.PostgresBranchConnection.PageInfo == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchConnection.PageInfo(childComplexity), true
+
+	case "PostgresBranchEdge.cursor":
+		if e.ComplexityRoot.PostgresBranchEdge.Cursor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchEdge.Cursor(childComplexity), true
+
+	case "PostgresBranchEdge.node":
+		if e.ComplexityRoot.PostgresBranchEdge.Node == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchEdge.Node(childComplexity), true
+
+	case "PostgresBranchFacets.environments":
+		if e.ComplexityRoot.PostgresBranchFacets.Environments == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchFacets.Environments(childComplexity), true
+
+	case "PostgresBranchFacets.labels":
+		if e.ComplexityRoot.PostgresBranchFacets.Labels == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchFacets.Labels(childComplexity), true
+
+	case "PostgresBranchFacets.states":
+		if e.ComplexityRoot.PostgresBranchFacets.States == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchFacets.States(childComplexity), true
+
+	case "PostgresBranchStateFacetItem.count":
+		if e.ComplexityRoot.PostgresBranchStateFacetItem.Count == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchStateFacetItem.Count(childComplexity), true
+
+	case "PostgresBranchStateFacetItem.state":
+		if e.ComplexityRoot.PostgresBranchStateFacetItem.State == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchStateFacetItem.State(childComplexity), true
+
 	case "PostgresDeletedActivityLogEntry.actor":
 		if e.ComplexityRoot.PostgresDeletedActivityLogEntry.Actor == nil {
 			break
@@ -11706,241 +12128,187 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.PostgresGrantAccessActivityLogEntryData.Until(childComplexity), true
 
-	case "PostgresInstance.audit":
-		if e.ComplexityRoot.PostgresInstance.Audit == nil {
+	case "PostgresPersonalAccessConnectionActivityLogEntry.actor":
+		if e.ComplexityRoot.PostgresPersonalAccessConnectionActivityLogEntry.Actor == nil {
 			break
 		}
 
-		return e.ComplexityRoot.PostgresInstance.Audit(childComplexity), true
+		return e.ComplexityRoot.PostgresPersonalAccessConnectionActivityLogEntry.Actor(childComplexity), true
 
-	case "PostgresInstance.highAvailability":
-		if e.ComplexityRoot.PostgresInstance.HighAvailability == nil {
+	case "PostgresPersonalAccessConnectionActivityLogEntry.createdAt":
+		if e.ComplexityRoot.PostgresPersonalAccessConnectionActivityLogEntry.CreatedAt == nil {
 			break
 		}
 
-		return e.ComplexityRoot.PostgresInstance.HighAvailability(childComplexity), true
+		return e.ComplexityRoot.PostgresPersonalAccessConnectionActivityLogEntry.CreatedAt(childComplexity), true
 
-	case "PostgresInstance.id":
-		if e.ComplexityRoot.PostgresInstance.ID == nil {
+	case "PostgresPersonalAccessConnectionActivityLogEntry.environmentName":
+		if e.ComplexityRoot.PostgresPersonalAccessConnectionActivityLogEntry.EnvironmentName == nil {
 			break
 		}
 
-		return e.ComplexityRoot.PostgresInstance.ID(childComplexity), true
+		return e.ComplexityRoot.PostgresPersonalAccessConnectionActivityLogEntry.EnvironmentName(childComplexity), true
 
-	case "PostgresInstance.labels":
-		if e.ComplexityRoot.PostgresInstance.Labels == nil {
+	case "PostgresPersonalAccessConnectionActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.PostgresPersonalAccessConnectionActivityLogEntry.GitHubActorClaims == nil {
 			break
 		}
 
-		return e.ComplexityRoot.PostgresInstance.Labels(childComplexity), true
+		return e.ComplexityRoot.PostgresPersonalAccessConnectionActivityLogEntry.GitHubActorClaims(childComplexity), true
 
-	case "PostgresInstance.maintenanceWindow":
-		if e.ComplexityRoot.PostgresInstance.MaintenanceWindow == nil {
+	case "PostgresPersonalAccessConnectionActivityLogEntry.id":
+		if e.ComplexityRoot.PostgresPersonalAccessConnectionActivityLogEntry.ID == nil {
 			break
 		}
 
-		return e.ComplexityRoot.PostgresInstance.MaintenanceWindow(childComplexity), true
+		return e.ComplexityRoot.PostgresPersonalAccessConnectionActivityLogEntry.ID(childComplexity), true
 
-	case "PostgresInstance.majorVersion":
-		if e.ComplexityRoot.PostgresInstance.MajorVersion == nil {
+	case "PostgresPersonalAccessConnectionActivityLogEntry.message":
+		if e.ComplexityRoot.PostgresPersonalAccessConnectionActivityLogEntry.Message == nil {
 			break
 		}
 
-		return e.ComplexityRoot.PostgresInstance.MajorVersion(childComplexity), true
+		return e.ComplexityRoot.PostgresPersonalAccessConnectionActivityLogEntry.Message(childComplexity), true
 
-	case "PostgresInstance.name":
-		if e.ComplexityRoot.PostgresInstance.Name == nil {
+	case "PostgresPersonalAccessConnectionActivityLogEntry.resourceName":
+		if e.ComplexityRoot.PostgresPersonalAccessConnectionActivityLogEntry.ResourceName == nil {
 			break
 		}
 
-		return e.ComplexityRoot.PostgresInstance.Name(childComplexity), true
+		return e.ComplexityRoot.PostgresPersonalAccessConnectionActivityLogEntry.ResourceName(childComplexity), true
 
-	case "PostgresInstance.resources":
-		if e.ComplexityRoot.PostgresInstance.Resources == nil {
+	case "PostgresPersonalAccessConnectionActivityLogEntry.resourceType":
+		if e.ComplexityRoot.PostgresPersonalAccessConnectionActivityLogEntry.ResourceType == nil {
 			break
 		}
 
-		return e.ComplexityRoot.PostgresInstance.Resources(childComplexity), true
+		return e.ComplexityRoot.PostgresPersonalAccessConnectionActivityLogEntry.ResourceType(childComplexity), true
 
-	case "PostgresInstance.state":
-		if e.ComplexityRoot.PostgresInstance.State == nil {
+	case "PostgresPersonalAccessConnectionActivityLogEntry.teamSlug":
+		if e.ComplexityRoot.PostgresPersonalAccessConnectionActivityLogEntry.TeamSlug == nil {
 			break
 		}
 
-		return e.ComplexityRoot.PostgresInstance.State(childComplexity), true
+		return e.ComplexityRoot.PostgresPersonalAccessConnectionActivityLogEntry.TeamSlug(childComplexity), true
 
-	case "PostgresInstance.team":
-		if e.ComplexityRoot.PostgresInstance.Team == nil {
+	case "PostgresPersonalAccessCreatedActivityLogEntry.actor":
+		if e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntry.Actor == nil {
 			break
 		}
 
-		return e.ComplexityRoot.PostgresInstance.Team(childComplexity), true
+		return e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntry.Actor(childComplexity), true
 
-	case "PostgresInstance.teamEnvironment":
-		if e.ComplexityRoot.PostgresInstance.TeamEnvironment == nil {
+	case "PostgresPersonalAccessCreatedActivityLogEntry.createdAt":
+		if e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntry.CreatedAt == nil {
 			break
 		}
 
-		return e.ComplexityRoot.PostgresInstance.TeamEnvironment(childComplexity), true
+		return e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntry.CreatedAt(childComplexity), true
 
-	case "PostgresInstance.workloads":
-		if e.ComplexityRoot.PostgresInstance.Workloads == nil {
+	case "PostgresPersonalAccessCreatedActivityLogEntry.data":
+		if e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntry.Data == nil {
 			break
 		}
 
-		args, err := ec.field_PostgresInstance_workloads_args(ctx, rawArgs)
-		if err != nil {
-			return 0, false
-		}
+		return e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntry.Data(childComplexity), true
 
-		return e.ComplexityRoot.PostgresInstance.Workloads(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
-
-	case "PostgresInstanceAudit.enabled":
-		if e.ComplexityRoot.PostgresInstanceAudit.Enabled == nil {
+	case "PostgresPersonalAccessCreatedActivityLogEntry.environmentName":
+		if e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntry.EnvironmentName == nil {
 			break
 		}
 
-		return e.ComplexityRoot.PostgresInstanceAudit.Enabled(childComplexity), true
+		return e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntry.EnvironmentName(childComplexity), true
 
-	case "PostgresInstanceAudit.statementClasses":
-		if e.ComplexityRoot.PostgresInstanceAudit.StatementClasses == nil {
+	case "PostgresPersonalAccessCreatedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntry.GitHubActorClaims == nil {
 			break
 		}
 
-		return e.ComplexityRoot.PostgresInstanceAudit.StatementClasses(childComplexity), true
+		return e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntry.GitHubActorClaims(childComplexity), true
 
-	case "PostgresInstanceAudit.url":
-		if e.ComplexityRoot.PostgresInstanceAudit.URL == nil {
+	case "PostgresPersonalAccessCreatedActivityLogEntry.id":
+		if e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntry.ID == nil {
 			break
 		}
 
-		return e.ComplexityRoot.PostgresInstanceAudit.URL(childComplexity), true
+		return e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntry.ID(childComplexity), true
 
-	case "PostgresInstanceConnection.edges":
-		if e.ComplexityRoot.PostgresInstanceConnection.Edges == nil {
+	case "PostgresPersonalAccessCreatedActivityLogEntry.message":
+		if e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntry.Message == nil {
 			break
 		}
 
-		return e.ComplexityRoot.PostgresInstanceConnection.Edges(childComplexity), true
+		return e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntry.Message(childComplexity), true
 
-	case "PostgresInstanceConnection.facets":
-		if e.ComplexityRoot.PostgresInstanceConnection.Facets == nil {
+	case "PostgresPersonalAccessCreatedActivityLogEntry.resourceName":
+		if e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntry.ResourceName == nil {
 			break
 		}
 
-		return e.ComplexityRoot.PostgresInstanceConnection.Facets(childComplexity), true
+		return e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntry.ResourceName(childComplexity), true
 
-	case "PostgresInstanceConnection.nodes":
-		if e.ComplexityRoot.PostgresInstanceConnection.Nodes == nil {
+	case "PostgresPersonalAccessCreatedActivityLogEntry.resourceType":
+		if e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntry.ResourceType == nil {
 			break
 		}
 
-		return e.ComplexityRoot.PostgresInstanceConnection.Nodes(childComplexity), true
+		return e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntry.ResourceType(childComplexity), true
 
-	case "PostgresInstanceConnection.pageInfo":
-		if e.ComplexityRoot.PostgresInstanceConnection.PageInfo == nil {
+	case "PostgresPersonalAccessCreatedActivityLogEntry.teamSlug":
+		if e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntry.TeamSlug == nil {
 			break
 		}
 
-		return e.ComplexityRoot.PostgresInstanceConnection.PageInfo(childComplexity), true
+		return e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntry.TeamSlug(childComplexity), true
 
-	case "PostgresInstanceEdge.cursor":
-		if e.ComplexityRoot.PostgresInstanceEdge.Cursor == nil {
+	case "PostgresPersonalAccessCreatedActivityLogEntryData.accessLevel":
+		if e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntryData.AccessLevel == nil {
 			break
 		}
 
-		return e.ComplexityRoot.PostgresInstanceEdge.Cursor(childComplexity), true
+		return e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntryData.AccessLevel(childComplexity), true
 
-	case "PostgresInstanceEdge.node":
-		if e.ComplexityRoot.PostgresInstanceEdge.Node == nil {
+	case "PostgresPersonalAccessCreatedActivityLogEntryData.expiresAt":
+		if e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntryData.ExpiresAt == nil {
 			break
 		}
 
-		return e.ComplexityRoot.PostgresInstanceEdge.Node(childComplexity), true
+		return e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntryData.ExpiresAt(childComplexity), true
 
-	case "PostgresInstanceFacets.environments":
-		if e.ComplexityRoot.PostgresInstanceFacets.Environments == nil {
+	case "PostgresPersonalAccessCreatedActivityLogEntryData.reason":
+		if e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntryData.Reason == nil {
 			break
 		}
 
-		return e.ComplexityRoot.PostgresInstanceFacets.Environments(childComplexity), true
+		return e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntryData.Reason(childComplexity), true
 
-	case "PostgresInstanceFacets.highAvailability":
-		if e.ComplexityRoot.PostgresInstanceFacets.HighAvailability == nil {
+	case "PostgresPersonalAccessCreatedActivityLogEntryData.username":
+		if e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntryData.Username == nil {
 			break
 		}
 
-		return e.ComplexityRoot.PostgresInstanceFacets.HighAvailability(childComplexity), true
+		return e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntryData.Username(childComplexity), true
 
-	case "PostgresInstanceFacets.labels":
-		if e.ComplexityRoot.PostgresInstanceFacets.Labels == nil {
+	case "PostgresResources.cpu":
+		if e.ComplexityRoot.PostgresResources.CPU == nil {
 			break
 		}
 
-		return e.ComplexityRoot.PostgresInstanceFacets.Labels(childComplexity), true
+		return e.ComplexityRoot.PostgresResources.CPU(childComplexity), true
 
-	case "PostgresInstanceFacets.majorVersions":
-		if e.ComplexityRoot.PostgresInstanceFacets.MajorVersions == nil {
+	case "PostgresResources.diskSize":
+		if e.ComplexityRoot.PostgresResources.DiskSize == nil {
 			break
 		}
 
-		return e.ComplexityRoot.PostgresInstanceFacets.MajorVersions(childComplexity), true
+		return e.ComplexityRoot.PostgresResources.DiskSize(childComplexity), true
 
-	case "PostgresInstanceFacets.states":
-		if e.ComplexityRoot.PostgresInstanceFacets.States == nil {
+	case "PostgresResources.memory":
+		if e.ComplexityRoot.PostgresResources.Memory == nil {
 			break
 		}
 
-		return e.ComplexityRoot.PostgresInstanceFacets.States(childComplexity), true
-
-	case "PostgresInstanceMaintenanceWindow.day":
-		if e.ComplexityRoot.PostgresInstanceMaintenanceWindow.Day == nil {
-			break
-		}
-
-		return e.ComplexityRoot.PostgresInstanceMaintenanceWindow.Day(childComplexity), true
-
-	case "PostgresInstanceMaintenanceWindow.hour":
-		if e.ComplexityRoot.PostgresInstanceMaintenanceWindow.Hour == nil {
-			break
-		}
-
-		return e.ComplexityRoot.PostgresInstanceMaintenanceWindow.Hour(childComplexity), true
-
-	case "PostgresInstanceResources.cpu":
-		if e.ComplexityRoot.PostgresInstanceResources.CPU == nil {
-			break
-		}
-
-		return e.ComplexityRoot.PostgresInstanceResources.CPU(childComplexity), true
-
-	case "PostgresInstanceResources.diskSize":
-		if e.ComplexityRoot.PostgresInstanceResources.DiskSize == nil {
-			break
-		}
-
-		return e.ComplexityRoot.PostgresInstanceResources.DiskSize(childComplexity), true
-
-	case "PostgresInstanceResources.memory":
-		if e.ComplexityRoot.PostgresInstanceResources.Memory == nil {
-			break
-		}
-
-		return e.ComplexityRoot.PostgresInstanceResources.Memory(childComplexity), true
-
-	case "PostgresInstanceStateFacetItem.count":
-		if e.ComplexityRoot.PostgresInstanceStateFacetItem.Count == nil {
-			break
-		}
-
-		return e.ComplexityRoot.PostgresInstanceStateFacetItem.Count(childComplexity), true
-
-	case "PostgresInstanceStateFacetItem.state":
-		if e.ComplexityRoot.PostgresInstanceStateFacetItem.State == nil {
-			break
-		}
-
-		return e.ComplexityRoot.PostgresInstanceStateFacetItem.State(childComplexity), true
+		return e.ComplexityRoot.PostgresResources.Memory(childComplexity), true
 
 	case "Price.value":
 		if e.ComplexityRoot.Price.Value == nil {
@@ -16115,17 +16483,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Team.OpenSearches(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*opensearch.OpenSearchOrder), args["filter"].(*opensearch.OpenSearchFilter)), true
 
-	case "Team.postgresInstances":
-		if e.ComplexityRoot.Team.PostgresInstances == nil {
+	case "Team.postgresBranches":
+		if e.ComplexityRoot.Team.PostgresBranches == nil {
 			break
 		}
 
-		args, err := ec.field_Team_postgresInstances_args(ctx, rawArgs)
+		args, err := ec.field_Team_postgresBranches_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Team.PostgresInstances(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*postgres.PostgresInstanceOrder), args["filter"].(*postgres.PostgresInstanceFilter)), true
+		return e.ComplexityRoot.Team.PostgresBranches(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*postgres.PostgresBranchOrder), args["filter"].(*postgres.PostgresBranchFilter)), true
 
 	case "Team.purpose":
 		if e.ComplexityRoot.Team.Purpose == nil {
@@ -16824,17 +17192,29 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.TeamEnvironment.OpenSearch(childComplexity, args["name"].(string)), true
 
-	case "TeamEnvironment.postgresInstance":
-		if e.ComplexityRoot.TeamEnvironment.PostgresInstance == nil {
+	case "TeamEnvironment.postgres":
+		if e.ComplexityRoot.TeamEnvironment.Postgres == nil {
 			break
 		}
 
-		args, err := ec.field_TeamEnvironment_postgresInstance_args(ctx, rawArgs)
+		args, err := ec.field_TeamEnvironment_postgres_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.ComplexityRoot.TeamEnvironment.PostgresInstance(childComplexity, args["name"].(string)), true
+		return e.ComplexityRoot.TeamEnvironment.Postgres(childComplexity, args["name"].(string)), true
+
+	case "TeamEnvironment.postgresAccess":
+		if e.ComplexityRoot.TeamEnvironment.PostgresAccess == nil {
+			break
+		}
+
+		args, err := ec.field_TeamEnvironment_postgresAccess_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.TeamEnvironment.PostgresAccess(childComplexity, args["name"].(string)), true
 
 	case "TeamEnvironment.sqlInstance":
 		if e.ComplexityRoot.TeamEnvironment.SQLInstance == nil {
@@ -17188,12 +17568,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.TeamInventoryCountOpenSearches.Total(childComplexity), true
 
-	case "TeamInventoryCountPostgresInstances.total":
-		if e.ComplexityRoot.TeamInventoryCountPostgresInstances.Total == nil {
+	case "TeamInventoryCountPostgresBranches.total":
+		if e.ComplexityRoot.TeamInventoryCountPostgresBranches.Total == nil {
 			break
 		}
 
-		return e.ComplexityRoot.TeamInventoryCountPostgresInstances.Total(childComplexity), true
+		return e.ComplexityRoot.TeamInventoryCountPostgresBranches.Total(childComplexity), true
 
 	case "TeamInventoryCountSecrets.total":
 		if e.ComplexityRoot.TeamInventoryCountSecrets.Total == nil {
@@ -17265,12 +17645,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.TeamInventoryCounts.OpenSearches(childComplexity), true
 
-	case "TeamInventoryCounts.postgresInstances":
-		if e.ComplexityRoot.TeamInventoryCounts.PostgresInstances == nil {
+	case "TeamInventoryCounts.postgresBranches":
+		if e.ComplexityRoot.TeamInventoryCounts.PostgresBranches == nil {
 			break
 		}
 
-		return e.ComplexityRoot.TeamInventoryCounts.PostgresInstances(childComplexity), true
+		return e.ComplexityRoot.TeamInventoryCounts.PostgresBranches(childComplexity), true
 
 	case "TeamInventoryCounts.sqlInstances":
 		if e.ComplexityRoot.TeamInventoryCounts.SQLInstances == nil {
@@ -20522,6 +20902,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputCreateKafkaCredentialsInput,
 		ec.unmarshalInputCreateOpenSearchCredentialsInput,
 		ec.unmarshalInputCreateOpenSearchInput,
+		ec.unmarshalInputCreatePostgresAccessInput,
 		ec.unmarshalInputCreateSecretInput,
 		ec.unmarshalInputCreateServiceAccountInput,
 		ec.unmarshalInputCreateServiceAccountTokenInput,
@@ -20535,7 +20916,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputDeleteJobInput,
 		ec.unmarshalInputDeleteJobRunInput,
 		ec.unmarshalInputDeleteOpenSearchInput,
-		ec.unmarshalInputDeletePostgresInput,
+		ec.unmarshalInputDeletePostgresBranchInput,
 		ec.unmarshalInputDeleteSecretInput,
 		ec.unmarshalInputDeleteServiceAccountInput,
 		ec.unmarshalInputDeleteServiceAccountTokenInput,
@@ -20567,8 +20948,8 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputOpenSearchAccessOrder,
 		ec.unmarshalInputOpenSearchFilter,
 		ec.unmarshalInputOpenSearchOrder,
-		ec.unmarshalInputPostgresInstanceFilter,
-		ec.unmarshalInputPostgresInstanceOrder,
+		ec.unmarshalInputPostgresBranchFilter,
+		ec.unmarshalInputPostgresBranchOrder,
 		ec.unmarshalInputReconcilerConfigInput,
 		ec.unmarshalInputRemoveConfigValueInput,
 		ec.unmarshalInputRemoveRepositoryFromTeamInput,
@@ -27037,8 +27418,8 @@ type WorkloadLogLine {
 }
 `, BuiltIn: false},
 	{Name: "../schema/postgres.graphqls", Input: `extend type Team {
-	"Postgres instances owned by the team."
-	postgresInstances(
+	"Postgres branches owned by the team."
+	postgresBranches(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
 		first: Int
 
@@ -27052,81 +27433,87 @@ type WorkloadLogLine {
 		before: Cursor
 
 		"Ordering options for items returned from the connection."
-		orderBy: PostgresInstanceOrder
+		orderBy: PostgresBranchOrder
 
 		"Filtering options for items returned from the connection."
-		filter: PostgresInstanceFilter
-	): PostgresInstanceConnection!
+		filter: PostgresBranchFilter
+	): PostgresBranchConnection!
 }
 
 extend type TeamEnvironment {
-	"Postgres instance in the team environment."
-	postgresInstance(name: String!): PostgresInstance!
+	"Postgres in the team environment."
+	postgres("Name of the Postgres in this team environment." name: String!): Postgres!
+	"""
+	EXPERIMENTAL: DO NOT USE
+	Get a PostgresAccess and its state. Available to authorized team members.
+	"""
+	postgresAccess(
+		"Name of the PostgresAccess in this team environment."
+		name: String!
+	): PostgresAccess!
 }
 
 extend interface Workload {
-	"Postgres instances referenced by the workload. This does not currently support pagination, but will return all available Postgres instances."
-	postgresInstances(
+	"Active PostgresBranches for all Postgres entries in uses.postgres."
+	postgresBranches(
 		"Ordering options for items returned from the connection."
-		orderBy: PostgresInstanceOrder
-	): PostgresInstanceConnection!
+		orderBy: PostgresBranchOrder
+	): PostgresBranchConnection!
 }
 
 extend type Application {
-	"Postgres instances referenced by the application. This does not currently support pagination, but will return all available Postgres instances."
-	postgresInstances(
+	"Active PostgresBranches for all Postgres entries in uses.postgres."
+	postgresBranches(
 		"Ordering options for items returned from the connection."
-		orderBy: PostgresInstanceOrder
-	): PostgresInstanceConnection!
+		orderBy: PostgresBranchOrder
+	): PostgresBranchConnection!
 }
 
 extend type Job {
-	"Postgres instances referenced by the job. This does not currently support pagination, but will return all available Postgres instances."
-	postgresInstances(
+	"Active PostgresBranches for all Postgres entries in uses.postgres."
+	postgresBranches(
 		"Ordering options for items returned from the connection."
-		orderBy: PostgresInstanceOrder
-	): PostgresInstanceConnection!
+		orderBy: PostgresBranchOrder
+	): PostgresBranchConnection!
 }
 
-input PostgresInstanceOrder {
-	field: PostgresInstanceOrderField!
+input PostgresBranchOrder {
+	field: PostgresBranchOrderField!
 	direction: OrderDirection!
 }
 
 """
-Input for filtering Postgres instances.
+Input for filtering Postgres branches.
 """
-input PostgresInstanceFilter {
-	"Filter by the name of the instance."
+input PostgresBranchFilter {
+	"Filter by the name of the branch."
 	name: String
 
 	"Filter by environments."
 	environments: [String!]
 
-	"Filter by instance state."
-	states: [PostgresInstanceState!]
-
-	"Filter by high availability."
-	highAvailability: Boolean
-
-	"Filter by major versions."
-	majorVersions: [String!]
+	"Filter by branch state."
+	states: [PostgresBranchState!]
 
 	"Filter by user-defined labels. All listed labels must match."
 	labels: [LabelFilter!]
 }
 
-enum PostgresInstanceOrderField {
+enum PostgresBranchOrderField {
 	NAME
 	ENVIRONMENT
 }
 
-type PostgresInstance implements Persistence & Node {
+"A named PostgresBranch belonging to a Postgres."
+type PostgresBranch implements Persistence & Node {
 	id: ID!
+	"Local name of this branch within its Postgres."
 	name: String!
 	team: Team!
 	teamEnvironment: TeamEnvironment!
-	"Workloads that reference the Postgres instance."
+	"Postgres owning this PostgresBranch."
+	postgres: Postgres!
+	"Workloads using this branch while it is active."
 	workloads(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
 		first: Int
@@ -27140,100 +27527,106 @@ type PostgresInstance implements Persistence & Node {
 		"Get items before this cursor."
 		before: Cursor
 	): WorkloadConnection!
-	"Resource allocation for the Postgres cluster."
-	resources: PostgresInstanceResources!
-	"Major version of PostgreSQL."
-	majorVersion: String!
-	"Audit logging configuration for the Postgres cluster."
-	audit: PostgresInstanceAudit!
-	"Indicates whether the Postgres cluster is configured for high availability."
-	highAvailability: Boolean!
-	"Current state of the Postgres cluster."
-	state: PostgresInstanceState!
-	"Maintenance window for the Postgres cluster, if configured."
-	maintenanceWindow: PostgresInstanceMaintenanceWindow
-	"User-defined labels attached to this instance."
+	"Current observed state of the branch."
+	state: PostgresBranchState!
+	"User-defined labels on this branch."
 	labels: [ResourceLabel!]!
 }
 
-enum PostgresInstanceState {
+"A Postgres whose active branch can change."
+type Postgres implements Node {
+	"Opaque identifier for this Postgres."
+	id: ID!
+	"Name of this Postgres."
+	name: String!
+	"Configured PostgreSQL major version."
+	majorVersion: String!
+	"Whether high availability is configured."
+	highAvailability: Boolean!
+	"Requested CPU, memory and disk size, when present on this Postgres."
+	resources: PostgresResources!
+	"Currently active branch, if selected."
+	activeBranch: PostgresBranch
+	"Branch with this local name in this Postgres."
+	branch(name: String!): PostgresBranch!
+	"Branches belonging to this Postgres."
+	branches(
+		first: Int
+		after: Cursor
+		last: Int
+		before: Cursor
+		orderBy: PostgresBranchOrder
+	): PostgresBranchConnection!
+	"User-defined labels on this Postgres."
+	labels: [ResourceLabel!]!
+}
+
+"Resource requests configured on Postgres. Omitted requests are null."
+type PostgresResources {
+	"Requested CPU."
+	cpu: String
+	"Requested memory."
+	memory: String
+	"Requested disk size."
+	diskSize: String
+}
+
+"Reconciliation and observed health of a PostgresBranch."
+enum PostgresBranchState {
+	"The branch is healthy and ready."
 	AVAILABLE
+	"The branch is provisioning or its state has not been observed yet."
 	PROGRESSING
+	"The branch has reported a failure."
 	DEGRADED
 }
 
-type PostgresInstanceMaintenanceWindow {
-	day: Int!
-	hour: Int!
-}
-
-type PostgresInstanceAudit {
-	"Indicates whether audit logging is enabled for the Postgres cluster."
-	enabled: Boolean!
-	"URL for accessing the audit logs."
-	url: String
-	"List of statement classes that are being logged, such as ` + "`" + `ddl` + "`" + `, ` + "`" + `dml` + "`" + `, and ` + "`" + `read` + "`" + `."
-	statementClasses: [String!]
-}
-
-type PostgresInstanceConnection {
+type PostgresBranchConnection {
 	pageInfo: PageInfo!
-	nodes: [PostgresInstance!]!
-	edges: [PostgresInstanceEdge!]!
+	nodes: [PostgresBranch!]!
+	edges: [PostgresBranchEdge!]!
 
 	"""
-	Facets for Postgres instances. Provides distribution counts to help narrow down results.
+	Facets for Postgres branches. Provides distribution counts to help narrow down results.
 	Facet counts are computed over the full result set (ignoring pagination) but respect the current filter.
 	"""
-	facets: PostgresInstanceFacets
+	facets: PostgresBranchFacets
 }
 
-type PostgresInstanceEdge {
+type PostgresBranchEdge {
 	cursor: Cursor!
-	node: PostgresInstance!
+	node: PostgresBranch!
 }
 
 """
-Facets for Postgres instances, providing distribution counts across different dimensions.
+Facets for Postgres branches, providing distribution counts across different dimensions.
 """
-type PostgresInstanceFacets {
-	"Distribution of instances by environment."
+type PostgresBranchFacets {
+	"Distribution of branches by environment."
 	environments: [StringFacetItem!]!
 
-	"Distribution of instances by state."
-	states: [PostgresInstanceStateFacetItem!]!
+	"Distribution of branches by state."
+	states: [PostgresBranchStateFacetItem!]!
 
-	"Distribution of instances by high availability."
-	highAvailability: [BooleanFacetItem!]!
-
-	"Distribution of instances by major version."
-	majorVersions: [StringFacetItem!]!
-
-	"Distribution of instances by user-defined labels."
+	"Distribution of branches by user-defined labels."
 	labels: [LabelFacetItem!]!
 }
 
 """
-A single facet item for Postgres instance states.
+A single facet item for Postgres branch states.
 """
-type PostgresInstanceStateFacetItem {
-	"The Postgres instance state."
-	state: PostgresInstanceState!
+type PostgresBranchStateFacetItem {
+	"The Postgres branch state."
+	state: PostgresBranchState!
 
-	"Number of matching instances."
+	"Number of matching branches."
 	count: Int!
 }
 
-type PostgresInstanceResources {
-	cpu: String!
-	memory: String!
-	diskSize: String!
-}
-
-extend union SearchNode = PostgresInstance
+extend union SearchNode = PostgresBranch
 
 extend enum SearchType {
-	POSTGRES
+	POSTGRES_BRANCH
 }
 
 extend enum ActivityLogEntryResourceType {
@@ -27280,6 +27673,64 @@ type PostgresGrantAccessActivityLogEntryData {
 	until: Time!
 }
 
+"An audit-log entry for personal Postgres access created through the API broker."
+type PostgresPersonalAccessCreatedActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+	"The identity of the actor who created the personal access."
+	actor: String!
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
+	"Creation time of the entry."
+	createdAt: Time!
+	"Message that summarizes the entry."
+	message: String!
+	"Type of the affected resource."
+	resourceType: ActivityLogEntryResourceType!
+	"Name of the affected Postgres branch."
+	resourceName: String!
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+	"The environment name that the entry belongs to."
+	environmentName: String
+	"Personal-access specific audit data."
+	data: PostgresPersonalAccessCreatedActivityLogEntryData!
+}
+
+"Personal-access-specific audit data."
+type PostgresPersonalAccessCreatedActivityLogEntryData {
+	"Identity that owns the new personal access."
+	username: String!
+	"Requested privilege level; null for events recorded before this field was added."
+	accessLevel: PostgresAccessLevel
+	"Server-controlled expiry of the access."
+	expiresAt: Time!
+	"Caller-provided audit reason."
+	reason: String!
+}
+
+"An audit-log entry for retrieval of personal Postgres connection materials."
+type PostgresPersonalAccessConnectionActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+	"Identity that retrieved the connection materials."
+	actor: String!
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
+	"Creation time of the entry."
+	createdAt: Time!
+	"Message that summarizes the entry."
+	message: String!
+	"Type of the affected resource."
+	resourceType: ActivityLogEntryResourceType!
+	"Name of the affected PostgresAccess resource."
+	resourceName: String!
+	"Team slug that the entry belongs to."
+	teamSlug: Slug!
+	"Environment name that the entry belongs to."
+	environmentName: String
+}
+
 type PostgresDeletedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
@@ -27315,7 +27766,15 @@ extend enum ActivityLogActivityType {
 	"""
 	POSTGRES_GRANT_ACCESS
 	"""
-	A Postgres instance was deleted
+	A personal Postgres access was created through the API broker
+	"""
+	POSTGRES_PERSONAL_ACCESS_CREATED
+	"""
+	Personal Postgres connection materials were retrieved
+	"""
+	POSTGRES_PERSONAL_ACCESS_CONNECTION
+	"""
+	A Postgres branch was deleted
 	"""
 	POSTGRES_DELETED
 }
@@ -27323,8 +27782,14 @@ extend enum ActivityLogActivityType {
 extend type Mutation {
 	"Grant temporary access to a Postgres cluster."
 	grantPostgresAccess(input: GrantPostgresAccessInput!): GrantPostgresAccessPayload!
-	"Delete an existing Postgres instance."
-	deletePostgres(input: DeletePostgresInput!): DeletePostgresPayload!
+	"""
+	EXPERIMENTAL: DO NOT USE
+	Create time-limited personal access to a NAIS Postgres branch through the brokered PostgresAccess and relay flow.
+	When the access is ready, retrieve its connection materials through PostgresAccess.connection.
+	"""
+	createPostgresAccess(input: CreatePostgresAccessInput!): CreatePostgresAccessPayload!
+	"Delete a PostgresBranch that is not active on its Postgres."
+	deletePostgresBranch(input: DeletePostgresBranchInput!): DeletePostgresBranchPayload!
 }
 
 type GrantPostgresAccessPayload {
@@ -27340,27 +27805,124 @@ input GrantPostgresAccessInput {
 	duration: String!
 }
 
-input DeletePostgresInput {
-	"Name of the Postgres instance."
+"Result of creating a personal Postgres access."
+type CreatePostgresAccessPayload {
+	"Name of the newly created PostgresAccess resource."
 	name: String!
-	"The environment name that the Postgres instance belongs to."
+	"Server-controlled expiry for this personal access."
+	expiresAt: Time!
+}
+
+"Input for creating a time-limited personal Postgres access."
+input CreatePostgresAccessInput {
+	"Name of the Postgres containing the branch."
+	postgres: String!
+	"Local name of the branch to access."
+	branch: String!
+	"Team that owns the Postgres branch."
+	teamSlug: Slug!
+	"Environment containing the Postgres branch."
 	environmentName: String!
-	"The team that owns the Postgres instance."
+	"Privileges requested for the personal database role."
+	accessLevel: PostgresAccessLevel!
+	"Reason for personal database access. Must be at least 10 characters."
+	reason: String!
+	"Requested access lifetime (for example '30m' or '1h'). Defaults to '1h' and cannot exceed '1h'."
+	ttl: String
+}
+
+"Privilege level granted to a personal Postgres database role."
+enum PostgresAccessLevel {
+	"Read data without modifying it."
+	READ
+	"Read and modify existing data."
+	READWRITE
+	"Read, modify, and create database objects where supported."
+	READWRITECREATE
+}
+
+input DeletePostgresBranchInput {
+	"Name of the Postgres containing the branch."
+	postgres: String!
+	"Local name of the branch to delete."
+	branch: String!
+	"The environment containing the PostgresBranch."
+	environmentName: String!
+	"The team that owns the PostgresBranch."
 	teamSlug: Slug!
 }
 
-type DeletePostgresPayload {
-	"Whether or not the Postgres instance was deleted."
-	postgresDeleted: Boolean
+type DeletePostgresBranchPayload {
+	"Whether the PostgresBranch was deleted."
+	postgresBranchDeleted: Boolean
 }
 
 extend type TeamInventoryCounts {
-	postgresInstances: TeamInventoryCountPostgresInstances!
+	postgresBranches: TeamInventoryCountPostgresBranches!
 }
 
-type TeamInventoryCountPostgresInstances {
-	"Total number of Postgres instances."
+type TeamInventoryCountPostgresBranches {
+	"Total number of Postgres branches."
 	total: Int!
+}
+
+"A time-limited personal access request for a Postgres branch."
+type PostgresAccess implements Node {
+	"Opaque ID for this PostgresAccess resource."
+	id: ID!
+	"Name of the PostgresAccess resource."
+	name: String!
+	"Team that owns the access."
+	team: Team!
+	"Environment for the access."
+	teamEnvironment: TeamEnvironment!
+	"PostgresBranch selected by this access."
+	postgresBranch: PostgresBranch!
+	"Requested access level."
+	accessLevel: PostgresAccessLevel!
+	"Server-controlled expiry for this personal access."
+	expiresAt: Time!
+	"High-level state of the access."
+	state: PostgresAccessState!
+	"Human-readable message for the current state."
+	message: String
+	"Name of the controller-owned relay mapping, once created. Contains no credential."
+	relayAccess: String
+	"""
+	EXPERIMENTAL: DO NOT USE
+	Get connection materials for this ready access. Only its owner can read them.
+	"""
+	connection: PostgresAccessConnectionDetails
+}
+
+"High-level reconciliation state of a personal Postgres access."
+enum PostgresAccessState {
+	"The controller has not finished provisioning the access."
+	PENDING
+	"The access and its connection materials are ready."
+	READY
+	"The controller cannot provision the requested access."
+	FAILED
+	"The server-controlled expiry time has passed."
+	EXPIRED
+}
+
+"Sensitive connection materials for a ready personal Postgres access."
+type PostgresAccessConnectionDetails {
+	"Database username for the caller's personal role."
+	username: String!
+	"Short-lived password for the caller's database role."
+	password: String!
+	"CA certificate required to verify the PostgreSQL server certificate."
+	caCertificate: String!
+	"PostgreSQL server name used for TLS verification."
+	serverName: String!
+	"Public HTTP/3 relay endpoint."
+	relayEndpoint: String!
+	"Relay-Access header value (namespace/name)."
+	relayAccess: String!
+	"Owner-only bearer token for this access; never log it."
+	relayToken: String!
 }
 `, BuiltIn: false},
 	{Name: "../schema/price.graphqls", Input: `extend type Query {
@@ -34902,8 +35464,8 @@ func (ec *executionContext) childFields_Application(ctx context.Context, field g
 		return ec.fieldContext_Application_networkPolicy(ctx, field)
 	case "openSearch":
 		return ec.fieldContext_Application_openSearch(ctx, field)
-	case "postgresInstances":
-		return ec.fieldContext_Application_postgresInstances(ctx, field)
+	case "postgresBranches":
+		return ec.fieldContext_Application_postgresBranches(ctx, field)
 	case "secrets":
 		return ec.fieldContext_Application_secrets(ctx, field)
 	case "serviceAccount":
@@ -35580,6 +36142,16 @@ func (ec *executionContext) childFields_CreateOpenSearchPayload(ctx context.Cont
 	return nil, fmt.Errorf("no field named %q was found under type CreateOpenSearchPayload", field.Name)
 }
 
+func (ec *executionContext) childFields_CreatePostgresAccessPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "name":
+		return ec.fieldContext_CreatePostgresAccessPayload_name(ctx, field)
+	case "expiresAt":
+		return ec.fieldContext_CreatePostgresAccessPayload_expiresAt(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type CreatePostgresAccessPayload", field.Name)
+}
+
 func (ec *executionContext) childFields_CreateSecretPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "secret":
@@ -35704,12 +36276,12 @@ func (ec *executionContext) childFields_DeleteOpenSearchPayload(ctx context.Cont
 	return nil, fmt.Errorf("no field named %q was found under type DeleteOpenSearchPayload", field.Name)
 }
 
-func (ec *executionContext) childFields_DeletePostgresPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+func (ec *executionContext) childFields_DeletePostgresBranchPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
-	case "postgresDeleted":
-		return ec.fieldContext_DeletePostgresPayload_postgresDeleted(ctx, field)
+	case "postgresBranchDeleted":
+		return ec.fieldContext_DeletePostgresBranchPayload_postgresBranchDeleted(ctx, field)
 	}
-	return nil, fmt.Errorf("no field named %q was found under type DeletePostgresPayload", field.Name)
+	return nil, fmt.Errorf("no field named %q was found under type DeletePostgresBranchPayload", field.Name)
 }
 
 func (ec *executionContext) childFields_DeleteSecretPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -36414,8 +36986,8 @@ func (ec *executionContext) childFields_Job(ctx context.Context, field graphql.C
 		return ec.fieldContext_Job_networkPolicy(ctx, field)
 	case "openSearch":
 		return ec.fieldContext_Job_openSearch(ctx, field)
-	case "postgresInstances":
-		return ec.fieldContext_Job_postgresInstances(ctx, field)
+	case "postgresBranches":
+		return ec.fieldContext_Job_postgresBranches(ctx, field)
 	case "secrets":
 		return ec.fieldContext_Job_secrets(ctx, field)
 	case "serviceAccount":
@@ -37168,6 +37740,146 @@ func (ec *executionContext) childFields_PageInfo(ctx context.Context, field grap
 	return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
 }
 
+func (ec *executionContext) childFields_Postgres(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_Postgres_id(ctx, field)
+	case "name":
+		return ec.fieldContext_Postgres_name(ctx, field)
+	case "majorVersion":
+		return ec.fieldContext_Postgres_majorVersion(ctx, field)
+	case "highAvailability":
+		return ec.fieldContext_Postgres_highAvailability(ctx, field)
+	case "resources":
+		return ec.fieldContext_Postgres_resources(ctx, field)
+	case "activeBranch":
+		return ec.fieldContext_Postgres_activeBranch(ctx, field)
+	case "branch":
+		return ec.fieldContext_Postgres_branch(ctx, field)
+	case "branches":
+		return ec.fieldContext_Postgres_branches(ctx, field)
+	case "labels":
+		return ec.fieldContext_Postgres_labels(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type Postgres", field.Name)
+}
+
+func (ec *executionContext) childFields_PostgresAccess(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_PostgresAccess_id(ctx, field)
+	case "name":
+		return ec.fieldContext_PostgresAccess_name(ctx, field)
+	case "team":
+		return ec.fieldContext_PostgresAccess_team(ctx, field)
+	case "teamEnvironment":
+		return ec.fieldContext_PostgresAccess_teamEnvironment(ctx, field)
+	case "postgresBranch":
+		return ec.fieldContext_PostgresAccess_postgresBranch(ctx, field)
+	case "accessLevel":
+		return ec.fieldContext_PostgresAccess_accessLevel(ctx, field)
+	case "expiresAt":
+		return ec.fieldContext_PostgresAccess_expiresAt(ctx, field)
+	case "state":
+		return ec.fieldContext_PostgresAccess_state(ctx, field)
+	case "message":
+		return ec.fieldContext_PostgresAccess_message(ctx, field)
+	case "relayAccess":
+		return ec.fieldContext_PostgresAccess_relayAccess(ctx, field)
+	case "connection":
+		return ec.fieldContext_PostgresAccess_connection(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostgresAccess", field.Name)
+}
+
+func (ec *executionContext) childFields_PostgresAccessConnectionDetails(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "username":
+		return ec.fieldContext_PostgresAccessConnectionDetails_username(ctx, field)
+	case "password":
+		return ec.fieldContext_PostgresAccessConnectionDetails_password(ctx, field)
+	case "caCertificate":
+		return ec.fieldContext_PostgresAccessConnectionDetails_caCertificate(ctx, field)
+	case "serverName":
+		return ec.fieldContext_PostgresAccessConnectionDetails_serverName(ctx, field)
+	case "relayEndpoint":
+		return ec.fieldContext_PostgresAccessConnectionDetails_relayEndpoint(ctx, field)
+	case "relayAccess":
+		return ec.fieldContext_PostgresAccessConnectionDetails_relayAccess(ctx, field)
+	case "relayToken":
+		return ec.fieldContext_PostgresAccessConnectionDetails_relayToken(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostgresAccessConnectionDetails", field.Name)
+}
+
+func (ec *executionContext) childFields_PostgresBranch(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_PostgresBranch_id(ctx, field)
+	case "name":
+		return ec.fieldContext_PostgresBranch_name(ctx, field)
+	case "team":
+		return ec.fieldContext_PostgresBranch_team(ctx, field)
+	case "teamEnvironment":
+		return ec.fieldContext_PostgresBranch_teamEnvironment(ctx, field)
+	case "postgres":
+		return ec.fieldContext_PostgresBranch_postgres(ctx, field)
+	case "workloads":
+		return ec.fieldContext_PostgresBranch_workloads(ctx, field)
+	case "state":
+		return ec.fieldContext_PostgresBranch_state(ctx, field)
+	case "labels":
+		return ec.fieldContext_PostgresBranch_labels(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostgresBranch", field.Name)
+}
+
+func (ec *executionContext) childFields_PostgresBranchConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pageInfo":
+		return ec.fieldContext_PostgresBranchConnection_pageInfo(ctx, field)
+	case "nodes":
+		return ec.fieldContext_PostgresBranchConnection_nodes(ctx, field)
+	case "edges":
+		return ec.fieldContext_PostgresBranchConnection_edges(ctx, field)
+	case "facets":
+		return ec.fieldContext_PostgresBranchConnection_facets(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostgresBranchConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_PostgresBranchEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_PostgresBranchEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_PostgresBranchEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostgresBranchEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_PostgresBranchFacets(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "environments":
+		return ec.fieldContext_PostgresBranchFacets_environments(ctx, field)
+	case "states":
+		return ec.fieldContext_PostgresBranchFacets_states(ctx, field)
+	case "labels":
+		return ec.fieldContext_PostgresBranchFacets_labels(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostgresBranchFacets", field.Name)
+}
+
+func (ec *executionContext) childFields_PostgresBranchStateFacetItem(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "state":
+		return ec.fieldContext_PostgresBranchStateFacetItem_state(ctx, field)
+	case "count":
+		return ec.fieldContext_PostgresBranchStateFacetItem_count(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostgresBranchStateFacetItem", field.Name)
+}
+
 func (ec *executionContext) childFields_PostgresGrantAccessActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "grantee":
@@ -37178,118 +37890,30 @@ func (ec *executionContext) childFields_PostgresGrantAccessActivityLogEntryData(
 	return nil, fmt.Errorf("no field named %q was found under type PostgresGrantAccessActivityLogEntryData", field.Name)
 }
 
-func (ec *executionContext) childFields_PostgresInstance(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+func (ec *executionContext) childFields_PostgresPersonalAccessCreatedActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
-	case "id":
-		return ec.fieldContext_PostgresInstance_id(ctx, field)
-	case "name":
-		return ec.fieldContext_PostgresInstance_name(ctx, field)
-	case "team":
-		return ec.fieldContext_PostgresInstance_team(ctx, field)
-	case "teamEnvironment":
-		return ec.fieldContext_PostgresInstance_teamEnvironment(ctx, field)
-	case "workloads":
-		return ec.fieldContext_PostgresInstance_workloads(ctx, field)
-	case "resources":
-		return ec.fieldContext_PostgresInstance_resources(ctx, field)
-	case "majorVersion":
-		return ec.fieldContext_PostgresInstance_majorVersion(ctx, field)
-	case "audit":
-		return ec.fieldContext_PostgresInstance_audit(ctx, field)
-	case "highAvailability":
-		return ec.fieldContext_PostgresInstance_highAvailability(ctx, field)
-	case "state":
-		return ec.fieldContext_PostgresInstance_state(ctx, field)
-	case "maintenanceWindow":
-		return ec.fieldContext_PostgresInstance_maintenanceWindow(ctx, field)
-	case "labels":
-		return ec.fieldContext_PostgresInstance_labels(ctx, field)
+	case "username":
+		return ec.fieldContext_PostgresPersonalAccessCreatedActivityLogEntryData_username(ctx, field)
+	case "accessLevel":
+		return ec.fieldContext_PostgresPersonalAccessCreatedActivityLogEntryData_accessLevel(ctx, field)
+	case "expiresAt":
+		return ec.fieldContext_PostgresPersonalAccessCreatedActivityLogEntryData_expiresAt(ctx, field)
+	case "reason":
+		return ec.fieldContext_PostgresPersonalAccessCreatedActivityLogEntryData_reason(ctx, field)
 	}
-	return nil, fmt.Errorf("no field named %q was found under type PostgresInstance", field.Name)
+	return nil, fmt.Errorf("no field named %q was found under type PostgresPersonalAccessCreatedActivityLogEntryData", field.Name)
 }
 
-func (ec *executionContext) childFields_PostgresInstanceAudit(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-	switch field.Name {
-	case "enabled":
-		return ec.fieldContext_PostgresInstanceAudit_enabled(ctx, field)
-	case "url":
-		return ec.fieldContext_PostgresInstanceAudit_url(ctx, field)
-	case "statementClasses":
-		return ec.fieldContext_PostgresInstanceAudit_statementClasses(ctx, field)
-	}
-	return nil, fmt.Errorf("no field named %q was found under type PostgresInstanceAudit", field.Name)
-}
-
-func (ec *executionContext) childFields_PostgresInstanceConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-	switch field.Name {
-	case "pageInfo":
-		return ec.fieldContext_PostgresInstanceConnection_pageInfo(ctx, field)
-	case "nodes":
-		return ec.fieldContext_PostgresInstanceConnection_nodes(ctx, field)
-	case "edges":
-		return ec.fieldContext_PostgresInstanceConnection_edges(ctx, field)
-	case "facets":
-		return ec.fieldContext_PostgresInstanceConnection_facets(ctx, field)
-	}
-	return nil, fmt.Errorf("no field named %q was found under type PostgresInstanceConnection", field.Name)
-}
-
-func (ec *executionContext) childFields_PostgresInstanceEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-	switch field.Name {
-	case "cursor":
-		return ec.fieldContext_PostgresInstanceEdge_cursor(ctx, field)
-	case "node":
-		return ec.fieldContext_PostgresInstanceEdge_node(ctx, field)
-	}
-	return nil, fmt.Errorf("no field named %q was found under type PostgresInstanceEdge", field.Name)
-}
-
-func (ec *executionContext) childFields_PostgresInstanceFacets(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-	switch field.Name {
-	case "environments":
-		return ec.fieldContext_PostgresInstanceFacets_environments(ctx, field)
-	case "states":
-		return ec.fieldContext_PostgresInstanceFacets_states(ctx, field)
-	case "highAvailability":
-		return ec.fieldContext_PostgresInstanceFacets_highAvailability(ctx, field)
-	case "majorVersions":
-		return ec.fieldContext_PostgresInstanceFacets_majorVersions(ctx, field)
-	case "labels":
-		return ec.fieldContext_PostgresInstanceFacets_labels(ctx, field)
-	}
-	return nil, fmt.Errorf("no field named %q was found under type PostgresInstanceFacets", field.Name)
-}
-
-func (ec *executionContext) childFields_PostgresInstanceMaintenanceWindow(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-	switch field.Name {
-	case "day":
-		return ec.fieldContext_PostgresInstanceMaintenanceWindow_day(ctx, field)
-	case "hour":
-		return ec.fieldContext_PostgresInstanceMaintenanceWindow_hour(ctx, field)
-	}
-	return nil, fmt.Errorf("no field named %q was found under type PostgresInstanceMaintenanceWindow", field.Name)
-}
-
-func (ec *executionContext) childFields_PostgresInstanceResources(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+func (ec *executionContext) childFields_PostgresResources(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "cpu":
-		return ec.fieldContext_PostgresInstanceResources_cpu(ctx, field)
+		return ec.fieldContext_PostgresResources_cpu(ctx, field)
 	case "memory":
-		return ec.fieldContext_PostgresInstanceResources_memory(ctx, field)
+		return ec.fieldContext_PostgresResources_memory(ctx, field)
 	case "diskSize":
-		return ec.fieldContext_PostgresInstanceResources_diskSize(ctx, field)
+		return ec.fieldContext_PostgresResources_diskSize(ctx, field)
 	}
-	return nil, fmt.Errorf("no field named %q was found under type PostgresInstanceResources", field.Name)
-}
-
-func (ec *executionContext) childFields_PostgresInstanceStateFacetItem(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-	switch field.Name {
-	case "state":
-		return ec.fieldContext_PostgresInstanceStateFacetItem_state(ctx, field)
-	case "count":
-		return ec.fieldContext_PostgresInstanceStateFacetItem_count(ctx, field)
-	}
-	return nil, fmt.Errorf("no field named %q was found under type PostgresInstanceStateFacetItem", field.Name)
+	return nil, fmt.Errorf("no field named %q was found under type PostgresResources", field.Name)
 }
 
 func (ec *executionContext) childFields_Price(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -38352,8 +38976,8 @@ func (ec *executionContext) childFields_Team(ctx context.Context, field graphql.
 		return ec.fieldContext_Team_kafkaTopics(ctx, field)
 	case "openSearches":
 		return ec.fieldContext_Team_openSearches(ctx, field)
-	case "postgresInstances":
-		return ec.fieldContext_Team_postgresInstances(ctx, field)
+	case "postgresBranches":
+		return ec.fieldContext_Team_postgresBranches(ctx, field)
 	case "repositories":
 		return ec.fieldContext_Team_repositories(ctx, field)
 	case "secrets":
@@ -38510,8 +39134,10 @@ func (ec *executionContext) childFields_TeamEnvironment(ctx context.Context, fie
 		return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
 	case "openSearch":
 		return ec.fieldContext_TeamEnvironment_openSearch(ctx, field)
-	case "postgresInstance":
-		return ec.fieldContext_TeamEnvironment_postgresInstance(ctx, field)
+	case "postgres":
+		return ec.fieldContext_TeamEnvironment_postgres(ctx, field)
+	case "postgresAccess":
+		return ec.fieldContext_TeamEnvironment_postgresAccess(ctx, field)
 	case "secret":
 		return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 	case "sqlInstance":
@@ -38674,12 +39300,12 @@ func (ec *executionContext) childFields_TeamInventoryCountOpenSearches(ctx conte
 	return nil, fmt.Errorf("no field named %q was found under type TeamInventoryCountOpenSearches", field.Name)
 }
 
-func (ec *executionContext) childFields_TeamInventoryCountPostgresInstances(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+func (ec *executionContext) childFields_TeamInventoryCountPostgresBranches(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "total":
-		return ec.fieldContext_TeamInventoryCountPostgresInstances_total(ctx, field)
+		return ec.fieldContext_TeamInventoryCountPostgresBranches_total(ctx, field)
 	}
-	return nil, fmt.Errorf("no field named %q was found under type TeamInventoryCountPostgresInstances", field.Name)
+	return nil, fmt.Errorf("no field named %q was found under type TeamInventoryCountPostgresBranches", field.Name)
 }
 
 func (ec *executionContext) childFields_TeamInventoryCountSecrets(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -38722,8 +39348,8 @@ func (ec *executionContext) childFields_TeamInventoryCounts(ctx context.Context,
 		return ec.fieldContext_TeamInventoryCounts_kafkaTopics(ctx, field)
 	case "openSearches":
 		return ec.fieldContext_TeamInventoryCounts_openSearches(ctx, field)
-	case "postgresInstances":
-		return ec.fieldContext_TeamInventoryCounts_postgresInstances(ctx, field)
+	case "postgresBranches":
+		return ec.fieldContext_TeamInventoryCounts_postgresBranches(ctx, field)
 	case "secrets":
 		return ec.fieldContext_TeamInventoryCounts_secrets(ctx, field)
 	case "sqlInstances":

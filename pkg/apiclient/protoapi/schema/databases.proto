@@ -10,6 +10,7 @@ enum DatabaseType {
   DATABASE_TYPE_UNSPECIFIED = 0;
   CLOUD_SQL = 1;
   ZALANDO_POSTGRES = 2;
+  NAIS_POSTGRES = 3;
 }
 
 message Database {

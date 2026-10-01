@@ -1,0 +1,111 @@
+---
+apiVersion: nais.io/v1
+kind: Postgres
+metadata:
+  name: foobar
+  namespace: someteamname
+spec:
+  majorVersion: "17"
+status:
+  activeBranch: main
+---
+apiVersion: nais.io/v1
+kind: Postgres
+metadata:
+  name: progressing
+  namespace: someteamname
+spec:
+  majorVersion: "17"
+status:
+  activeBranch: main
+---
+apiVersion: nais.io/v1
+kind: Postgres
+metadata:
+  name: legacy-only
+  namespace: someteamname
+spec:
+  majorVersion: "17"
+---
+apiVersion: nais.io/v1
+kind: PostgresBranch
+metadata:
+  name: foobar-main-a4f04c0c
+  namespace: someteamname
+spec:
+  postgres: foobar
+  branchName: main
+status:
+  reconcilePhase: Completed
+  conditions:
+    - type: cluster.postgresql.cnpg.io/ObservedState
+      status: "True"
+      reason: Reconciled
+      message: "Cluster is in phase: Cluster in healthy state"
+      lastTransitionTime: "2026-09-17T00:00:00Z"
+---
+apiVersion: nais.io/v1
+kind: PostgresBranch
+metadata:
+  name: progressing-main-6cb99f88
+  namespace: someteamname
+spec:
+  postgres: progressing
+  branchName: main
+status:
+  reconcilePhase: Preparing
+  conditions:
+    - type: cluster.postgresql.cnpg.io/ObservedState
+      status: "False"
+      reason: Reconciling
+      message: "Cluster is in phase: "
+      lastTransitionTime: "2026-09-17T00:00:00Z"
+---
+apiVersion: nais.io/v1
+kind: PostgresBranch
+metadata:
+  name: foobar-recovered-b88d8360
+  namespace: someteamname
+spec:
+  postgres: foobar
+  branchName: recovered
+status:
+  reconcilePhase: Completed
+  conditions:
+    - type: cluster.postgresql.cnpg.io/ObservedState
+      status: "True"
+      reason: Reconciled
+      message: "Cluster is in phase: Cluster in healthy state"
+      lastTransitionTime: "2026-09-17T00:00:00Z"
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: pg-foobar-main-a4f04c0c
+  namespace: someteamname
+spec:
+  certificates:
+    serverCASecret: pg-foobar-ca
+status:
+  phase: Cluster in healthy state
+  conditions:
+    - type: Ready
+      status: "True"
+      reason: ClusterReady
+      lastTransitionTime: "2026-09-17T00:00:00Z"
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: pg-foobar-recovered-b88d8360
+  namespace: someteamname
+spec:
+  certificates:
+    serverCASecret: pg-foobar-ca
+status:
+  phase: Cluster in healthy state
+  conditions:
+    - type: Ready
+      status: "True"
+      reason: ClusterReady
+      lastTransitionTime: "2026-09-17T00:00:00Z"

@@ -51,7 +51,7 @@ func (k K8sSearch[T]) ReIndex(ctx context.Context) []Document {
 		docs = append(docs, Document{
 			ID:   k.newIdent(obj.Cluster, obj.Obj).String(),
 			Kind: k.kind.String(),
-			Name: obj.GetName(),
+			Name: searchName(obj.Obj),
 			Team: team.String(),
 		})
 	}
@@ -73,10 +73,19 @@ func (k K8sSearch[T]) upsert(indexer Indexer) func(string, T) {
 		indexer.Upsert(Document{
 			ID:   k.newIdent(env, obj).String(),
 			Kind: k.kind.String(),
-			Name: obj.GetName(),
+			Name: searchName(obj),
 			Team: team.String(),
 		})
 	}
+}
+
+// searchName lets resources whose Kubernetes name is internal expose a useful
+// display name without changing the name used by the informer.
+func searchName(obj watcher.Object) string {
+	if named, ok := obj.(interface{ SearchName() string }); ok {
+		return named.SearchName()
+	}
+	return obj.GetName()
 }
 
 func (k K8sSearch[T]) onRemove(indexer Indexer) func(string, T) {
