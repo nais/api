@@ -16,6 +16,7 @@ import (
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/util/validation"
 	"k8s.io/client-go/dynamic"
@@ -169,7 +170,7 @@ func Create(ctx context.Context, input CreatePostgresInput) (*CreatePostgresPayl
 		return nil, err
 	}
 
-	obj, err := kubernetes.ToUnstructured(pg)
+	obj, err := toUnstructuredWithoutZeroResources(pg)
 	if err != nil {
 		return nil, err
 	}
@@ -237,7 +238,7 @@ func Update(ctx context.Context, input UpdatePostgresInput) (*UpdatePostgresPayl
 		return &UpdatePostgresPayload{Postgres: ret}, nil
 	}
 
-	obj, err := kubernetes.ToUnstructured(pg)
+	obj, err := toUnstructuredWithoutZeroResources(pg)
 	if err != nil {
 		return nil, err
 	}
@@ -280,6 +281,27 @@ func applyResources(r *nais_io_v1.PostgresResources, cpu, memory, diskSize *stri
 		return err
 	}
 	return set("diskSize", diskSize, &r.DiskSize)
+}
+
+// toUnstructuredWithoutZeroResources converts pg and drops resource quantities that were never
+// set. resource.Quantity is a struct, so omitempty does not skip it and it would otherwise be
+// sent as "0", which stops the CRD from applying its defaults.
+func toUnstructuredWithoutZeroResources(pg *nais_io_v1.Postgres) (*unstructured.Unstructured, error) {
+	obj, err := kubernetes.ToUnstructured(pg)
+	if err != nil {
+		return nil, err
+	}
+	for field, q := range map[string]resource.Quantity{
+		"cpu": pg.Spec.Resources.Cpu, "memory": pg.Spec.Resources.Memory, "diskSize": pg.Spec.Resources.DiskSize,
+	} {
+		if q.IsZero() {
+			unstructured.RemoveNestedField(obj.Object, "spec", "resources", field)
+		}
+	}
+	if m, found, _ := unstructured.NestedMap(obj.Object, "spec", "resources"); found && len(m) == 0 {
+		unstructured.RemoveNestedField(obj.Object, "spec", "resources")
+	}
+	return obj, nil
 }
 
 func logPostgresChange(ctx context.Context, action activitylog.ActivityLogEntryAction, name, environmentName string, teamSlug slug.Slug) error {
