@@ -1,10 +1,12 @@
 local user = User.new("user", "user@usersen.com")
 local otherMemberUser = User.new("othermember", "othermember@usersen.com")
+local creatorUser = User.new("creator", "creator@usersen.com")
 local nonMemberUser = User.new("nonmember", "other@user.com")
 
 local mainTeam = Team.new("someteamname", "purpose", "#slack_channel")
 mainTeam:addMember(user)
 mainTeam:addMember(otherMemberUser)
+mainTeam:addMember(creatorUser)
 
 Helper.readK8sResources("k8s_resources/create_postgres_access")
 
@@ -151,7 +153,7 @@ Test.gql("Create personal postgres access rejects an unavailable instance", func
 end)
 
 Test.gql("Create personal postgres access", function(t)
-	t.addHeader("x-user-email", user:email())
+	t.addHeader("x-user-email", creatorUser:email())
 	t.query [[
 		mutation CreatePostgresAccess {
 			createPostgresAccess(input: {
@@ -179,7 +181,7 @@ Test.gql("Create personal postgres access", function(t)
 end)
 
 Test.gql("Personal postgres access is audited as a self-grant", function(t)
-	t.addHeader("x-user-email", user:email())
+	t.addHeader("x-user-email", creatorUser:email())
 	t.query [[
 		{
 			team(slug: "someteamname") {
@@ -206,9 +208,9 @@ Test.gql("Personal postgres access is audited as a self-grant", function(t)
 				activityLog = {
 					nodes = {
 						{
-							message = Contains("Requested READWRITE personal Postgres access for user@usersen.com"),
+							message = Contains("Requested READWRITE personal Postgres access for creator@usersen.com"),
 							data = {
-								username = "user@usersen.com",
+								username = "creator@usersen.com",
 								accessLevel = "READWRITE",
 								expiresAt = NotNull(),
 								reason = "Testing personal database access",
@@ -218,6 +220,38 @@ Test.gql("Personal postgres access is audited as a self-grant", function(t)
 				},
 			},
 		},
+	}
+end)
+
+Test.gql("Requesting access again returns the live access instead of creating another", function(t)
+	t.addHeader("x-user-email", creatorUser:email())
+	local request = [[
+		mutation { createPostgresAccess(input: {
+			postgres: "foobar", branch: "main", environmentName: "dev", teamSlug: "someteamname",
+			accessLevel: READWRITE, reason: "Testing personal database access"
+		}) { name expiresAt } }
+	]]
+	t.query(request)
+	t.check { data = { createPostgresAccess = { name = NotNull(), expiresAt = NotNull() } } }
+	t.query(request)
+	t.check { data = { createPostgresAccess = { name = NotNull(), expiresAt = NotNull() } } }
+
+	-- A reused access is not a new request, so it must not be audited again.
+	t.query [[{ team(slug: "someteamname") { activityLog(filter: { activityTypes: [POSTGRES_PERSONAL_ACCESS_CREATED] }) { nodes { message } } } }]]
+	t.check { data = { team = { activityLog = { nodes = { { message = Contains("creator@usersen.com") } } } } } }
+end)
+
+Test.gql("Requesting a different access level while one is live is rejected", function(t)
+	t.addHeader("x-user-email", creatorUser:email())
+	t.query [[
+		mutation { createPostgresAccess(input: {
+			postgres: "foobar", branch: "main", environmentName: "dev", teamSlug: "someteamname",
+			accessLevel: READ, reason: "Testing personal database access"
+		}) { name } }
+	]]
+	t.check {
+		errors = { { locations = NotNull(), path = { "createPostgresAccess" }, message = Contains("already have readwrite access") } },
+		data = Null,
 	}
 end)
 
@@ -340,22 +374,29 @@ Test.gql("PostgresAccess credentials cannot be read through generic Secret eleva
 	end
 end)
 
-Test.gql("PostgresAccess connection rejects expired, unready, and missing-secret access", function(t)
+Test.gql("PostgresAccess connection is null without error until the access is ready", function(t)
 	t.addHeader("x-user-email", user:email())
 	for _, test in ipairs({
-		{ name = "expired-access",        state = "EXPIRED", message = "has expired" },
-		{ name = "pending-access",        state = "PENDING", message = "is not ready" },
-		{ name = "failed-access",         state = "FAILED",  message = "is not ready" },
-		{ name = "missing-secret-access", state = "READY",   message = "secrets for PostgresAccess is not available" },
+		{ name = "expired-access", state = "EXPIRED" },
+		{ name = "pending-access", state = "PENDING" },
+		{ name = "failed-access",  state = "FAILED" },
 	}) do
 		t.query(string.format(
 			[[query { team(slug: "someteamname") { environment(name: "dev") { postgresAccess(name: "%s") { state connection { password } } } } }]],
 			test.name))
 		t.check {
-			errors = { { locations = NotNull(), path = { "team", "environment", "postgresAccess", "connection" }, message = Contains(test.message) } },
 			data = { team = { environment = { postgresAccess = { state = test.state, connection = Null } } } },
 		}
 	end
+end)
+
+Test.gql("PostgresAccess connection fails when a ready access has no secrets", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[query { team(slug: "someteamname") { environment(name: "dev") { postgresAccess(name: "missing-secret-access") { state connection { password } } } } }]]
+	t.check {
+		errors = { { locations = NotNull(), path = { "team", "environment", "postgresAccess", "connection" }, message = Contains("secrets for PostgresAccess is not available") } },
+		data = { team = { environment = { postgresAccess = { state = "READY", connection = Null } } } },
+	}
 end)
 
 Test.gql("Personal postgres connection retrieval is audited", function(t)

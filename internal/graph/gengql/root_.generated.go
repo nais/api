@@ -737,6 +737,10 @@ type ComplexityRoot struct {
 		Name      func(childComplexity int) int
 	}
 
+	CreatePostgresPayload struct {
+		Postgres func(childComplexity int) int
+	}
+
 	CreateSecretPayload struct {
 		Secret func(childComplexity int) int
 	}
@@ -1622,6 +1626,7 @@ type ComplexityRoot struct {
 		CreateKafkaCredentials           func(childComplexity int, input kafkatopic.CreateKafkaCredentialsInput) int
 		CreateOpenSearch                 func(childComplexity int, input opensearch.CreateOpenSearchInput) int
 		CreateOpenSearchCredentials      func(childComplexity int, input opensearch.CreateOpenSearchCredentialsInput) int
+		CreatePostgres                   func(childComplexity int, input postgres.CreatePostgresInput) int
 		CreatePostgresAccess             func(childComplexity int, input postgres.CreatePostgresAccessInput) int
 		CreateSecret                     func(childComplexity int, input secret.CreateSecretInput) int
 		CreateServiceAccount             func(childComplexity int, input serviceaccount.CreateServiceAccountInput) int
@@ -1665,6 +1670,7 @@ type ComplexityRoot struct {
 		UpdateJob                        func(childComplexity int, input job.UpdateJobInput) int
 		UpdateKafkaTopic                 func(childComplexity int, input kafkatopic.UpdateKafkaTopicInput) int
 		UpdateOpenSearch                 func(childComplexity int, input opensearch.UpdateOpenSearchInput) int
+		UpdatePostgres                   func(childComplexity int, input postgres.UpdatePostgresInput) int
 		UpdateSecret                     func(childComplexity int, input secret.UpdateSecretInput) int
 		UpdateSecretValue                func(childComplexity int, input secret.UpdateSecretValueInput) int
 		UpdateServiceAccount             func(childComplexity int, input serviceaccount.UpdateServiceAccountInput) int
@@ -1959,6 +1965,18 @@ type ComplexityRoot struct {
 		State func(childComplexity int) int
 	}
 
+	PostgresCreatedActivityLogEntry struct {
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
+	}
+
 	PostgresDeletedActivityLogEntry struct {
 		Actor             func(childComplexity int) int
 		CreatedAt         func(childComplexity int) int
@@ -2025,6 +2043,18 @@ type ComplexityRoot struct {
 		CPU      func(childComplexity int) int
 		DiskSize func(childComplexity int) int
 		Memory   func(childComplexity int) int
+	}
+
+	PostgresUpdatedActivityLogEntry struct {
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	Price struct {
@@ -3512,6 +3542,10 @@ type ComplexityRoot struct {
 
 	UpdateOpenSearchPayload struct {
 		OpenSearch func(childComplexity int) int
+	}
+
+	UpdatePostgresPayload struct {
+		Postgres func(childComplexity int) int
 	}
 
 	UpdateSecretPayload struct {
@@ -6381,6 +6415,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.CreatePostgresAccessPayload.Name(childComplexity), true
+
+	case "CreatePostgresPayload.postgres":
+		if e.ComplexityRoot.CreatePostgresPayload.Postgres == nil {
+			break
+		}
+
+		return e.ComplexityRoot.CreatePostgresPayload.Postgres(childComplexity), true
 
 	case "CreateSecretPayload.secret":
 		if e.ComplexityRoot.CreateSecretPayload.Secret == nil {
@@ -10073,6 +10114,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Mutation.CreateOpenSearchCredentials(childComplexity, args["input"].(opensearch.CreateOpenSearchCredentialsInput)), true
 
+	case "Mutation.createPostgres":
+		if e.ComplexityRoot.Mutation.CreatePostgres == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createPostgres_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Mutation.CreatePostgres(childComplexity, args["input"].(postgres.CreatePostgresInput)), true
+
 	case "Mutation.createPostgresAccess":
 		if e.ComplexityRoot.Mutation.CreatePostgresAccess == nil {
 			break
@@ -10588,6 +10641,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Mutation.UpdateOpenSearch(childComplexity, args["input"].(opensearch.UpdateOpenSearchInput)), true
+
+	case "Mutation.updatePostgres":
+		if e.ComplexityRoot.Mutation.UpdatePostgres == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updatePostgres_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Mutation.UpdatePostgres(childComplexity, args["input"].(postgres.UpdatePostgresInput)), true
 
 	case "Mutation.updateSecret":
 		if e.ComplexityRoot.Mutation.UpdateSecret == nil {
@@ -11957,6 +12022,69 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.PostgresBranchStateFacetItem.State(childComplexity), true
 
+	case "PostgresCreatedActivityLogEntry.actor":
+		if e.ComplexityRoot.PostgresCreatedActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresCreatedActivityLogEntry.Actor(childComplexity), true
+
+	case "PostgresCreatedActivityLogEntry.createdAt":
+		if e.ComplexityRoot.PostgresCreatedActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresCreatedActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "PostgresCreatedActivityLogEntry.environmentName":
+		if e.ComplexityRoot.PostgresCreatedActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresCreatedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "PostgresCreatedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.PostgresCreatedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresCreatedActivityLogEntry.GitHubActorClaims(childComplexity), true
+
+	case "PostgresCreatedActivityLogEntry.id":
+		if e.ComplexityRoot.PostgresCreatedActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresCreatedActivityLogEntry.ID(childComplexity), true
+
+	case "PostgresCreatedActivityLogEntry.message":
+		if e.ComplexityRoot.PostgresCreatedActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresCreatedActivityLogEntry.Message(childComplexity), true
+
+	case "PostgresCreatedActivityLogEntry.resourceName":
+		if e.ComplexityRoot.PostgresCreatedActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresCreatedActivityLogEntry.ResourceName(childComplexity), true
+
+	case "PostgresCreatedActivityLogEntry.resourceType":
+		if e.ComplexityRoot.PostgresCreatedActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresCreatedActivityLogEntry.ResourceType(childComplexity), true
+
+	case "PostgresCreatedActivityLogEntry.teamSlug":
+		if e.ComplexityRoot.PostgresCreatedActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresCreatedActivityLogEntry.TeamSlug(childComplexity), true
+
 	case "PostgresDeletedActivityLogEntry.actor":
 		if e.ComplexityRoot.PostgresDeletedActivityLogEntry.Actor == nil {
 			break
@@ -12285,6 +12413,69 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.PostgresResources.Memory(childComplexity), true
+
+	case "PostgresUpdatedActivityLogEntry.actor":
+		if e.ComplexityRoot.PostgresUpdatedActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresUpdatedActivityLogEntry.Actor(childComplexity), true
+
+	case "PostgresUpdatedActivityLogEntry.createdAt":
+		if e.ComplexityRoot.PostgresUpdatedActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresUpdatedActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "PostgresUpdatedActivityLogEntry.environmentName":
+		if e.ComplexityRoot.PostgresUpdatedActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresUpdatedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "PostgresUpdatedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.PostgresUpdatedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresUpdatedActivityLogEntry.GitHubActorClaims(childComplexity), true
+
+	case "PostgresUpdatedActivityLogEntry.id":
+		if e.ComplexityRoot.PostgresUpdatedActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresUpdatedActivityLogEntry.ID(childComplexity), true
+
+	case "PostgresUpdatedActivityLogEntry.message":
+		if e.ComplexityRoot.PostgresUpdatedActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresUpdatedActivityLogEntry.Message(childComplexity), true
+
+	case "PostgresUpdatedActivityLogEntry.resourceName":
+		if e.ComplexityRoot.PostgresUpdatedActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresUpdatedActivityLogEntry.ResourceName(childComplexity), true
+
+	case "PostgresUpdatedActivityLogEntry.resourceType":
+		if e.ComplexityRoot.PostgresUpdatedActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresUpdatedActivityLogEntry.ResourceType(childComplexity), true
+
+	case "PostgresUpdatedActivityLogEntry.teamSlug":
+		if e.ComplexityRoot.PostgresUpdatedActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresUpdatedActivityLogEntry.TeamSlug(childComplexity), true
 
 	case "Price.value":
 		if e.ComplexityRoot.Price.Value == nil {
@@ -19068,6 +19259,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.UpdateOpenSearchPayload.OpenSearch(childComplexity), true
 
+	case "UpdatePostgresPayload.postgres":
+		if e.ComplexityRoot.UpdatePostgresPayload.Postgres == nil {
+			break
+		}
+
+		return e.ComplexityRoot.UpdatePostgresPayload.Postgres(childComplexity), true
+
 	case "UpdateSecretPayload.secret":
 		if e.ComplexityRoot.UpdateSecretPayload.Secret == nil {
 			break
@@ -20879,6 +21077,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputCreateOpenSearchCredentialsInput,
 		ec.unmarshalInputCreateOpenSearchInput,
 		ec.unmarshalInputCreatePostgresAccessInput,
+		ec.unmarshalInputCreatePostgresInput,
 		ec.unmarshalInputCreateSecretInput,
 		ec.unmarshalInputCreateServiceAccountInput,
 		ec.unmarshalInputCreateServiceAccountTokenInput,
@@ -20968,6 +21167,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputUpdateJobInput,
 		ec.unmarshalInputUpdateKafkaTopicInput,
 		ec.unmarshalInputUpdateOpenSearchInput,
+		ec.unmarshalInputUpdatePostgresInput,
 		ec.unmarshalInputUpdateSecretInput,
 		ec.unmarshalInputUpdateSecretValueInput,
 		ec.unmarshalInputUpdateServiceAccountInput,
@@ -27735,7 +27935,73 @@ type PostgresDeletedActivityLogEntry implements ActivityLogEntry & Node {
 	environmentName: String
 }
 
+type PostgresCreatedActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	actor: String!
+
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: ActivityLogEntryResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+}
+
+type PostgresUpdatedActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	actor: String!
+
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: ActivityLogEntryResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+}
+
 extend enum ActivityLogActivityType {
+	"""
+	A Postgres was created
+	"""
+	POSTGRES_CREATED
+	"""
+	A Postgres was updated
+	"""
+	POSTGRES_UPDATED
 	"""
 	A user was granted access to a Postgres cluster
 	"""
@@ -27761,6 +28027,10 @@ extend type Mutation {
 	When the access is ready, retrieve its connection materials through PostgresAccess.connection.
 	"""
 	createPostgresAccess(input: CreatePostgresAccessInput!): CreatePostgresAccessPayload!
+	"Create a new Postgres. Its first branch, main, is created and activated by the platform."
+	createPostgres(input: CreatePostgresInput!): CreatePostgresPayload!
+	"Update an existing Postgres. The PostgreSQL major version cannot be changed."
+	updatePostgres(input: UpdatePostgresInput!): UpdatePostgresPayload!
 	"Delete a PostgresBranch that is not active on its Postgres."
 	deletePostgresBranch(input: DeletePostgresBranchInput!): DeletePostgresBranchPayload!
 }
@@ -27883,6 +28153,56 @@ type PostgresAccessConnectionDetails {
 	relayAccess: String!
 	"Owner-only bearer token for this access; never log it."
 	relayToken: String!
+}
+
+"Input for creating a Postgres."
+input CreatePostgresInput {
+	"Name of the Postgres."
+	name: String!
+	"The environment name that the Postgres belongs to."
+	environmentName: String!
+	"The team that owns the Postgres."
+	teamSlug: Slug!
+	"PostgreSQL major version. Supported versions are 16, 17 and 18."
+	majorVersion: String!
+	"Add a third instance and enable synchronous replication. Defaults to false."
+	highAvailability: Boolean
+	"Requested CPU, for example '100m'. Defaults to the platform default."
+	cpu: String
+	"Requested memory, for example '512Mi'. Defaults to the platform default."
+	memory: String
+	"Requested disk size, for example '10Gi'. Defaults to the platform default."
+	diskSize: String
+}
+
+"Result of creating a Postgres."
+type CreatePostgresPayload {
+	"The Postgres that was created."
+	postgres: Postgres!
+}
+
+"Input for updating a Postgres. Omitted fields are left unchanged."
+input UpdatePostgresInput {
+	"Name of the Postgres."
+	name: String!
+	"The environment name that the Postgres belongs to."
+	environmentName: String!
+	"The team that owns the Postgres."
+	teamSlug: Slug!
+	"Add a third instance and enable synchronous replication."
+	highAvailability: Boolean
+	"Requested CPU, for example '100m'."
+	cpu: String
+	"Requested memory, for example '512Mi'."
+	memory: String
+	"Requested disk size, for example '10Gi'."
+	diskSize: String
+}
+
+"Result of updating a Postgres."
+type UpdatePostgresPayload {
+	"The Postgres that was updated."
+	postgres: Postgres!
 }
 `, BuiltIn: false},
 	{Name: "../schema/price.graphqls", Input: `extend type Query {
@@ -36112,6 +36432,14 @@ func (ec *executionContext) childFields_CreatePostgresAccessPayload(ctx context.
 	return nil, fmt.Errorf("no field named %q was found under type CreatePostgresAccessPayload", field.Name)
 }
 
+func (ec *executionContext) childFields_CreatePostgresPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "postgres":
+		return ec.fieldContext_CreatePostgresPayload_postgres(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type CreatePostgresPayload", field.Name)
+}
+
 func (ec *executionContext) childFields_CreateSecretPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "secret":
@@ -39712,6 +40040,14 @@ func (ec *executionContext) childFields_UpdateOpenSearchPayload(ctx context.Cont
 		return ec.fieldContext_UpdateOpenSearchPayload_openSearch(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type UpdateOpenSearchPayload", field.Name)
+}
+
+func (ec *executionContext) childFields_UpdatePostgresPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "postgres":
+		return ec.fieldContext_UpdatePostgresPayload_postgres(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type UpdatePostgresPayload", field.Name)
 }
 
 func (ec *executionContext) childFields_UpdateSecretPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {

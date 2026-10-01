@@ -1,0 +1,12 @@
+apiVersion: nais.io/v1
+kind: Postgres
+metadata:
+  name: existing
+  namespace: pg-crud-team
+spec:
+  majorVersion: "17"
+  highAvailability: false
+  resources:
+    cpu: 100m
+    memory: 512Mi
+    diskSize: 10Gi

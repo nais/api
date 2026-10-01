@@ -28,6 +28,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/client-go/dynamic"
 	"k8s.io/utils/ptr"
 )
 
@@ -233,6 +234,12 @@ func GetPostgresAccessConnection(ctx context.Context, input PostgresAccessConnec
 	actor := authz.ActorFromContext(ctx)
 	if actor == nil || resource.Spec.Username == "" || actor.User.Identity() != resource.Spec.Username {
 		return nil, authz.ErrUnauthorized
+	}
+
+	// Status lives in PostgresAccess.state. Until the access is ready there are no
+	// connection materials, which is not an error for a caller polling for readiness.
+	if state, _ := postgresAccessState(resource, resource.Spec.ExpiresAt.Time); state != PostgresAccessStateReady || access.GetDeletionTimestamp() != nil {
+		return nil, nil
 	}
 
 	connection, credentialSecretName, err := postgresAccessConnectionDetails(access, time.Now())
@@ -481,8 +488,25 @@ func CreatePostgresAccess(ctx context.Context, input CreatePostgresAccessInput) 
 	}
 
 	expiresAt := time.Now().Add(accessTTL)
+	username := authz.ActorFromContext(ctx).User.Identity()
+	branchObjectName := nais_io_v1.PostgresBranchObjectName(input.Postgres, input.Branch)
+
+	// One live access per user and branch: pgrator derives a single personal database
+	// role from them, so a second access could never become ready.
+	existing, err := findActivePostgresAccess(ctx, client.Namespace(input.TeamSlug.String()), username, branchObjectName)
+	if err != nil {
+		return nil, err
+	}
+	if existing != nil {
+		level, _, _ := unstructured.NestedString(existing.Object, "spec", "accessLevel")
+		if level != input.AccessLevel.CRDValue() {
+			return nil, apierror.Errorf("You already have %s access to this branch until %s. Wait for it to expire before requesting a different access level.", level, existingExpiry(existing).Format(time.RFC3339))
+		}
+		return &CreatePostgresAccessPayload{Name: existing.GetName(), ExpiresAt: existingExpiry(existing)}, nil
+	}
+
 	name := fmt.Sprintf("postgres-access-%s", uuid.NewString()[:8])
-	res := newPostgresAccessResource(input, authz.ActorFromContext(ctx).User.Identity(), name, expiresAt)
+	res := newPostgresAccessResource(input, username, name, expiresAt)
 
 	if _, err := client.Namespace(input.TeamSlug.String()).Create(ctx, res, metav1.CreateOptions{}); err != nil {
 		return nil, err
@@ -506,6 +530,34 @@ func CreatePostgresAccess(ctx context.Context, input CreatePostgresAccessInput) 
 	}
 
 	return &CreatePostgresAccessPayload{Name: name, ExpiresAt: expiresAt}, nil
+}
+
+func existingExpiry(access *unstructured.Unstructured) time.Time {
+	value, _, _ := unstructured.NestedString(access.Object, "spec", "expiresAt")
+	t, _ := time.Parse(time.RFC3339, value)
+	return t
+}
+
+// findActivePostgresAccess returns the user's unexpired, non-deleting access to a branch.
+// The check is not atomic with creation, so two simultaneous requests can still both create one.
+func findActivePostgresAccess(ctx context.Context, client dynamic.ResourceInterface, username, branchObjectName string) (*unstructured.Unstructured, error) {
+	list, err := client.List(ctx, metav1.ListOptions{})
+	if err != nil {
+		return nil, fmt.Errorf("listing postgres accesses: %w", err)
+	}
+	now := time.Now()
+	for i := range list.Items {
+		item := &list.Items[i]
+		if item.GetDeletionTimestamp() != nil || !existingExpiry(item).After(now) {
+			continue
+		}
+		user, _, _ := unstructured.NestedString(item.Object, "spec", "username")
+		branch, _, _ := unstructured.NestedString(item.Object, "spec", "postgresBranch")
+		if user == username && branch == branchObjectName {
+			return item, nil
+		}
+	}
+	return nil, nil
 }
 
 func (i CreatePostgresAccessInput) accessTTL() (time.Duration, error) {

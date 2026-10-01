@@ -18,6 +18,14 @@ const (
 func init() {
 	activitylog.RegisterTransformer(activityLogEntryResourceTypePostgres, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
 		switch entry.Action {
+		case activitylog.ActivityLogEntryActionCreated:
+			return PostgresCreatedActivityLogEntry{
+				GenericActivityLogEntry: entry.WithMessage("Created Postgres"),
+			}, nil
+		case activitylog.ActivityLogEntryActionUpdated:
+			return PostgresUpdatedActivityLogEntry{
+				GenericActivityLogEntry: entry.WithMessage("Updated Postgres"),
+			}, nil
 		case activitylog.ActivityLogEntryActionDeleted:
 			return PostgresDeletedActivityLogEntry{
 				GenericActivityLogEntry: entry.WithMessage("Deleted Postgres"),
@@ -62,10 +70,20 @@ func init() {
 	activitylog.RegisterFilter("POSTGRES_GRANT_ACCESS", activityLogEntryActionGrantAccess, activityLogEntryResourceTypePostgres)
 	activitylog.RegisterFilter("POSTGRES_PERSONAL_ACCESS_CREATED", activityLogEntryActionCreatePersonalAccess, activityLogEntryResourceTypePostgres)
 	activitylog.RegisterFilter("POSTGRES_PERSONAL_ACCESS_CONNECTION", activityLogEntryActionGetPersonalAccessConnection, activityLogEntryResourceTypePostgres)
+	activitylog.RegisterFilter("POSTGRES_CREATED", activitylog.ActivityLogEntryActionCreated, activityLogEntryResourceTypePostgres)
+	activitylog.RegisterFilter("POSTGRES_UPDATED", activitylog.ActivityLogEntryActionUpdated, activityLogEntryResourceTypePostgres)
 	activitylog.RegisterFilter("POSTGRES_DELETED", activitylog.ActivityLogEntryActionDeleted, activityLogEntryResourceTypePostgres)
 }
 
 type PostgresDeletedActivityLogEntry struct {
+	activitylog.GenericActivityLogEntry
+}
+
+type PostgresCreatedActivityLogEntry struct {
+	activitylog.GenericActivityLogEntry
+}
+
+type PostgresUpdatedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
 }
 

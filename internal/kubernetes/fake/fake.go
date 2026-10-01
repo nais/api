@@ -219,6 +219,7 @@ func NewDynamicClient(scheme *runtime.Scheme) *dynfake.FakeDynamicClient {
 			unleash_nais_io_v1.GroupVersion.WithResource("remoteunleashes"):       "RemoteUnleashList",
 			mapperatorv1.GroupVersion.WithResource("postgres"):                    "PostgresList",
 			mapperatorv1.GroupVersion.WithResource("postgresbranches"):            "PostgresBranchList",
+			mapperatorv1.GroupVersion.WithResource("postgresaccesses"):            "PostgresAccessList",
 			nais_io_v1alpha1.GroupVersion.WithResource("tunnels"):                 "TunnelList",
 			mapperatorv1.GroupVersion.WithResource("valkeys"):                     "ValkeyList",
 			mapperatorv1.GroupVersion.WithResource("opensearches"):                "OpenSearchList",
