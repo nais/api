@@ -145,6 +145,9 @@ Test.gql("Check all Postgres instances (no filter)", function(t)
 					}
 					nodes {
 						name
+						postgres {
+							name
+						}
 						labels {
 							key
 							value
@@ -165,20 +168,23 @@ Test.gql("Check all Postgres instances (no filter)", function(t)
 					},
 					nodes = {
 						{
-							name = "postgres-one",
+							name = "main",
+							postgres = { name = "postgres-one" },
 							labels = {
 								{ key = "priority", value = "high" },
 								{ key = "tag",      value = "target" },
 							},
 						},
 						{
-							name = "postgres-three",
+							name = "main",
+							postgres = { name = "postgres-three" },
 							labels = {
 								{ key = "tag", value = "other" },
 							},
 						},
 						{
-							name = "postgres-two",
+							name = "main",
+							postgres = { name = "postgres-two" },
 							labels = {
 								{ key = "tag", value = "target" },
 							},
@@ -201,6 +207,9 @@ Test.gql("Postgres filter by tag=target", function(t)
 					}
 					nodes {
 						name
+						postgres {
+							name
+						}
 					}
 				}
 			}
@@ -215,8 +224,8 @@ Test.gql("Postgres filter by tag=target", function(t)
 						totalCount = 2,
 					},
 					nodes = {
-						{ name = "postgres-one" },
-						{ name = "postgres-two" },
+						{ name = "main", postgres = { name = "postgres-one" } },
+						{ name = "main", postgres = { name = "postgres-two" } },
 					},
 				},
 			},
@@ -240,6 +249,9 @@ Test.gql("Postgres filter by tag=target and priority=high", function(t)
 					}
 					nodes {
 						name
+						postgres {
+							name
+						}
 					}
 				}
 			}
@@ -254,7 +266,7 @@ Test.gql("Postgres filter by tag=target and priority=high", function(t)
 						totalCount = 1,
 					},
 					nodes = {
-						{ name = "postgres-one" },
+						{ name = "main", postgres = { name = "postgres-one" } },
 					},
 				},
 			},
