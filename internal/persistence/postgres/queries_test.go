@@ -231,3 +231,34 @@ func TestPostgresAccessNameIsStablePerUserAndBranch(t *testing.T) {
 		t.Errorf("name %q is not a valid resource name: %v", name, errs)
 	}
 }
+
+func TestOmittedResourcesAreNotSent(t *testing.T) {
+	cpu := "500m"
+	pg := &nais_io_v1.Postgres{}
+	if err := applyResources(&pg.Spec.Resources, &cpu, nil, nil); err != nil {
+		t.Fatal(err)
+	}
+
+	obj, err := toUnstructuredWithoutZeroResources(pg)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	resources, _, _ := unstructured.NestedMap(obj.Object, "spec", "resources")
+	if got := resources["cpu"]; got != "500m" {
+		t.Errorf("cpu = %v, want 500m", got)
+	}
+	for _, field := range []string{"memory", "diskSize"} {
+		if v, found := resources[field]; found {
+			t.Errorf("%s = %v was sent, but must be left out so the CRD default applies", field, v)
+		}
+	}
+
+	empty, err := toUnstructuredWithoutZeroResources(&nais_io_v1.Postgres{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, found, _ := unstructured.NestedMap(empty.Object, "spec", "resources"); found {
+		t.Error("spec.resources must be left out entirely when nothing is set")
+	}
+}

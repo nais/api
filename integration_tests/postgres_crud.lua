@@ -42,13 +42,13 @@ end)
 
 Test.gql("Team members can create Postgres with explicit resources", function(t)
 	t.addHeader("x-user-email", member:email())
-	t.query(create("sized", 'majorVersion: "16", highAvailability: true, cpu: "250m", memory: "1Gi", diskSize: "20Gi"'))
+	t.query(create("sized", 'majorVersion: "18", highAvailability: true, cpu: "250m", memory: "1Gi", diskSize: "20Gi"'))
 	t.check {
 		data = {
 			createPostgres = {
 				postgres = {
 					name = "sized",
-					majorVersion = "16",
+					majorVersion = "18",
 					highAvailability = true,
 					resources = { cpu = "250m", memory = "1Gi", diskSize = "20Gi" },
 				},
@@ -59,7 +59,7 @@ end)
 
 Test.gql("Creating an existing Postgres fails", function(t)
 	t.addHeader("x-user-email", member:email())
-	t.query(create("existing", 'majorVersion: "17"'))
+	t.query(create("existing", 'majorVersion: "18"'))
 	t.check {
 		errors = { { locations = NotNull(), path = { "createPostgres" }, message = NotNull() } },
 		data = Null,
@@ -157,14 +157,21 @@ Test.gql("Creating and updating Postgres is recorded in the activity log", funct
 	t.addHeader("x-user-email", member:email())
 	t.query [[{ team(slug: "pg-crud-team") {
 		activityLog(first: 50, filter: { activityTypes: [POSTGRES_CREATED, POSTGRES_UPDATED] }) {
-			nodes { __typename message actor resourceType resourceName environmentName teamSlug }
+			nodes { __typename message actor resourceType resourceName environmentName teamSlug
+				... on PostgresUpdatedActivityLogEntry { data { updatedFields { field oldValue newValue } } }
+			}
 		}
 	} }]]
 	t.check {
 		data = { team = { activityLog = { nodes = {
-			{ __typename = "PostgresUpdatedActivityLogEntry", message = "Updated Postgres", actor = member:email(), resourceType = "POSTGRES", resourceName = "existing", environmentName = "dev", teamSlug = "pg-crud-team" },
-			{ __typename = "PostgresCreatedActivityLogEntry", message = "Created Postgres", actor = member:email(), resourceType = "POSTGRES", resourceName = Ignore(),   environmentName = "dev", teamSlug = "pg-crud-team" },
-			{ __typename = "PostgresCreatedActivityLogEntry", message = "Created Postgres", actor = member:email(), resourceType = "POSTGRES", resourceName = Ignore(),   environmentName = "dev", teamSlug = "pg-crud-team" },
+			{ __typename = "PostgresUpdatedActivityLogEntry", message = "Updated Postgres", actor = member:email(), resourceType = "POSTGRES", resourceName = "existing", environmentName = "dev", teamSlug = "pg-crud-team",
+				data = { updatedFields = {
+					{ field = "highAvailability", oldValue = "false", newValue = "true" },
+					{ field = "diskSize",         oldValue = "10Gi",  newValue = "30Gi" },
+				} },
+			},
+			{ __typename = "PostgresCreatedActivityLogEntry", message = "Created Postgres", actor = member:email(), resourceType = "POSTGRES", resourceName = Ignore(), environmentName = "dev", teamSlug = "pg-crud-team" },
+			{ __typename = "PostgresCreatedActivityLogEntry", message = "Created Postgres", actor = member:email(), resourceType = "POSTGRES", resourceName = Ignore(), environmentName = "dev", teamSlug = "pg-crud-team" },
 		} } } },
 	}
 end)

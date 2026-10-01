@@ -23,8 +23,13 @@ func init() {
 				GenericActivityLogEntry: entry.WithMessage("Created Postgres"),
 			}, nil
 		case activitylog.ActivityLogEntryActionUpdated:
+			data, err := activitylog.UnmarshalData[PostgresUpdatedActivityLogEntryData](entry)
+			if err != nil {
+				return nil, fmt.Errorf("transforming postgres updated activity log entry data: %w", err)
+			}
 			return PostgresUpdatedActivityLogEntry{
 				GenericActivityLogEntry: entry.WithMessage("Updated Postgres"),
+				Data:                    data,
 			}, nil
 		case activitylog.ActivityLogEntryActionDeleted:
 			return PostgresDeletedActivityLogEntry{
@@ -85,6 +90,17 @@ type PostgresCreatedActivityLogEntry struct {
 
 type PostgresUpdatedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
+	Data *PostgresUpdatedActivityLogEntryData `json:"data"`
+}
+
+type PostgresUpdatedActivityLogEntryData struct {
+	UpdatedFields []*PostgresUpdatedActivityLogEntryDataUpdatedField `json:"updatedFields"`
+}
+
+type PostgresUpdatedActivityLogEntryDataUpdatedField struct {
+	Field    string  `json:"field"`
+	OldValue *string `json:"oldValue,omitempty"`
+	NewValue *string `json:"newValue,omitempty"`
 }
 
 type PostgresGrantAccessActivityLogEntry struct {

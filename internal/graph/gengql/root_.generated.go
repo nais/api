@@ -2048,6 +2048,7 @@ type ComplexityRoot struct {
 	PostgresUpdatedActivityLogEntry struct {
 		Actor             func(childComplexity int) int
 		CreatedAt         func(childComplexity int) int
+		Data              func(childComplexity int) int
 		EnvironmentName   func(childComplexity int) int
 		GitHubActorClaims func(childComplexity int) int
 		ID                func(childComplexity int) int
@@ -2055,6 +2056,16 @@ type ComplexityRoot struct {
 		ResourceName      func(childComplexity int) int
 		ResourceType      func(childComplexity int) int
 		TeamSlug          func(childComplexity int) int
+	}
+
+	PostgresUpdatedActivityLogEntryData struct {
+		UpdatedFields func(childComplexity int) int
+	}
+
+	PostgresUpdatedActivityLogEntryDataUpdatedField struct {
+		Field    func(childComplexity int) int
+		NewValue func(childComplexity int) int
+		OldValue func(childComplexity int) int
 	}
 
 	Price struct {
@@ -12428,6 +12439,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.PostgresUpdatedActivityLogEntry.CreatedAt(childComplexity), true
 
+	case "PostgresUpdatedActivityLogEntry.data":
+		if e.ComplexityRoot.PostgresUpdatedActivityLogEntry.Data == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresUpdatedActivityLogEntry.Data(childComplexity), true
+
 	case "PostgresUpdatedActivityLogEntry.environmentName":
 		if e.ComplexityRoot.PostgresUpdatedActivityLogEntry.EnvironmentName == nil {
 			break
@@ -12476,6 +12494,34 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.PostgresUpdatedActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "PostgresUpdatedActivityLogEntryData.updatedFields":
+		if e.ComplexityRoot.PostgresUpdatedActivityLogEntryData.UpdatedFields == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresUpdatedActivityLogEntryData.UpdatedFields(childComplexity), true
+
+	case "PostgresUpdatedActivityLogEntryDataUpdatedField.field":
+		if e.ComplexityRoot.PostgresUpdatedActivityLogEntryDataUpdatedField.Field == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresUpdatedActivityLogEntryDataUpdatedField.Field(childComplexity), true
+
+	case "PostgresUpdatedActivityLogEntryDataUpdatedField.newValue":
+		if e.ComplexityRoot.PostgresUpdatedActivityLogEntryDataUpdatedField.NewValue == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresUpdatedActivityLogEntryDataUpdatedField.NewValue(childComplexity), true
+
+	case "PostgresUpdatedActivityLogEntryDataUpdatedField.oldValue":
+		if e.ComplexityRoot.PostgresUpdatedActivityLogEntryDataUpdatedField.OldValue == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresUpdatedActivityLogEntryDataUpdatedField.OldValue(childComplexity), true
 
 	case "Price.value":
 		if e.ComplexityRoot.Price.Value == nil {
@@ -27993,6 +28039,27 @@ type PostgresUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 
 	"The environment name that the entry belongs to."
 	environmentName: String
+
+	"Data associated with the entry."
+	data: PostgresUpdatedActivityLogEntryData!
+}
+
+"Data associated with a Postgres update."
+type PostgresUpdatedActivityLogEntryData {
+	"The fields that were changed."
+	updatedFields: [PostgresUpdatedActivityLogEntryDataUpdatedField!]!
+}
+
+"A single field that was changed by a Postgres update."
+type PostgresUpdatedActivityLogEntryDataUpdatedField {
+	"The name of the field."
+	field: String!
+
+	"The old value of the field, if it had one."
+	oldValue: String
+
+	"The new value of the field."
+	newValue: String
 }
 
 extend enum ActivityLogActivityType {
@@ -28165,15 +28232,15 @@ input CreatePostgresInput {
 	environmentName: String!
 	"The team that owns the Postgres."
 	teamSlug: Slug!
-	"PostgreSQL major version. Supported versions are 16, 17 and 18."
+	"PostgreSQL major version."
 	majorVersion: String!
 	"Add a third instance and enable synchronous replication. Defaults to false."
 	highAvailability: Boolean
-	"Requested CPU, for example '100m'. Defaults to the platform default."
+	"Requested CPU, for example '100m'. If omitted, the platform default is used."
 	cpu: String
-	"Requested memory, for example '512Mi'. Defaults to the platform default."
+	"Requested memory, for example '512Mi'. If omitted, the platform default is used."
 	memory: String
-	"Requested disk size, for example '10Gi'. Defaults to the platform default."
+	"Requested disk size, for example '10Gi'. If omitted, the platform default is used."
 	diskSize: String
 }
 
@@ -38196,6 +38263,26 @@ func (ec *executionContext) childFields_PostgresResources(ctx context.Context, f
 		return ec.fieldContext_PostgresResources_diskSize(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type PostgresResources", field.Name)
+}
+
+func (ec *executionContext) childFields_PostgresUpdatedActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "updatedFields":
+		return ec.fieldContext_PostgresUpdatedActivityLogEntryData_updatedFields(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostgresUpdatedActivityLogEntryData", field.Name)
+}
+
+func (ec *executionContext) childFields_PostgresUpdatedActivityLogEntryDataUpdatedField(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "field":
+		return ec.fieldContext_PostgresUpdatedActivityLogEntryDataUpdatedField_field(ctx, field)
+	case "oldValue":
+		return ec.fieldContext_PostgresUpdatedActivityLogEntryDataUpdatedField_oldValue(ctx, field)
+	case "newValue":
+		return ec.fieldContext_PostgresUpdatedActivityLogEntryDataUpdatedField_newValue(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostgresUpdatedActivityLogEntryDataUpdatedField", field.Name)
 }
 
 func (ec *executionContext) childFields_Price(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {

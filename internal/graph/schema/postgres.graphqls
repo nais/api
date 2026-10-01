@@ -399,6 +399,27 @@ type PostgresUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 
 	"The environment name that the entry belongs to."
 	environmentName: String
+
+	"Data associated with the entry."
+	data: PostgresUpdatedActivityLogEntryData!
+}
+
+"Data associated with a Postgres update."
+type PostgresUpdatedActivityLogEntryData {
+	"The fields that were changed."
+	updatedFields: [PostgresUpdatedActivityLogEntryDataUpdatedField!]!
+}
+
+"A single field that was changed by a Postgres update."
+type PostgresUpdatedActivityLogEntryDataUpdatedField {
+	"The name of the field."
+	field: String!
+
+	"The old value of the field, if it had one."
+	oldValue: String
+
+	"The new value of the field."
+	newValue: String
 }
 
 extend enum ActivityLogActivityType {
@@ -571,15 +592,15 @@ input CreatePostgresInput {
 	environmentName: String!
 	"The team that owns the Postgres."
 	teamSlug: Slug!
-	"PostgreSQL major version. Supported versions are 16, 17 and 18."
+	"PostgreSQL major version."
 	majorVersion: String!
 	"Add a third instance and enable synchronous replication. Defaults to false."
 	highAvailability: Boolean
-	"Requested CPU, for example '100m'. Defaults to the platform default."
+	"Requested CPU, for example '100m'. If omitted, the platform default is used."
 	cpu: String
-	"Requested memory, for example '512Mi'. Defaults to the platform default."
+	"Requested memory, for example '512Mi'. If omitted, the platform default is used."
 	memory: String
-	"Requested disk size, for example '10Gi'. Defaults to the platform default."
+	"Requested disk size, for example '10Gi'. If omitted, the platform default is used."
 	diskSize: String
 }
 
