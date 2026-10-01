@@ -265,6 +265,10 @@ func CanUpdateTeamMetadata(ctx context.Context, teamSlug slug.Slug) error {
 }
 
 func CanDeleteTeam(ctx context.Context, teamSlug slug.Slug) error {
+	if ActorFromContext(ctx).User.IsServiceAccount() {
+		return ErrUnauthorized
+	}
+
 	return requireTeamAuthorization(ctx, teamSlug, "teams:delete")
 }
 

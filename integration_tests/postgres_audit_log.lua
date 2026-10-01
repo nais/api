@@ -8,9 +8,9 @@ team:addMember(user)
 Test.gql("Logical Postgres settings are not fabricated on physical instances", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[{ team(slug:"audit-postgres-team") { environment(name:"dev-gcp") {
-        postgresBranch(name:"audit-enabled") { name state postgres { name majorVersion } }
+        postgres(name:"audit-enabled") { branch(name:"main") { name state postgres { name majorVersion } } }
     } } }]]
-	t.check { data = { team = { environment = { postgresBranch = {
-		name = "audit-enabled", state = "AVAILABLE", postgres = { name = "audit-enabled", majorVersion = "16" },
-	} } } } }
+	t.check { data = { team = { environment = { postgres = { branch = {
+		name = "main", state = "AVAILABLE", postgres = { name = "audit-enabled", majorVersion = "16" },
+	} } } } } }
 end)

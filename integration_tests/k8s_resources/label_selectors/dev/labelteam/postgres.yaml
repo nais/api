@@ -7,18 +7,19 @@ metadata:
 spec:
   majorVersion: "17"
 status:
-  activeBranch: postgres-one
+  activeBranch: main
 ---
 apiVersion: nais.io/v1
 kind: PostgresBranch
 metadata:
-  name: postgres-one
+  name: postgres-one-main-e58682b9
   namespace: labelteam
   labels:
     tag: target
     priority: high
 spec:
   postgres: postgres-one
+  branchName: main
 status:
   reconcilePhase: Completed
   conditions:
@@ -36,17 +37,18 @@ metadata:
 spec:
   majorVersion: "17"
 status:
-  activeBranch: postgres-two
+  activeBranch: main
 ---
 apiVersion: nais.io/v1
 kind: PostgresBranch
 metadata:
-  name: postgres-two
+  name: postgres-two-main-935c2b2a
   namespace: labelteam
   labels:
     tag: target
 spec:
   postgres: postgres-two
+  branchName: main
 status:
   reconcilePhase: Completed
   conditions:
@@ -64,17 +66,18 @@ metadata:
 spec:
   majorVersion: "17"
 status:
-  activeBranch: postgres-three
+  activeBranch: main
 ---
 apiVersion: nais.io/v1
 kind: PostgresBranch
 metadata:
-  name: postgres-three
+  name: postgres-three-main-1013cb94
   namespace: labelteam
   labels:
     tag: other
 spec:
   postgres: postgres-three
+  branchName: main
 status:
   reconcilePhase: Completed
   conditions:

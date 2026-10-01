@@ -10,8 +10,8 @@ Test.gql("Application and job resolve every uses.postgres entry to its selected 
 		job(name: "scheduled-reader") { postgresBranches { nodes { name postgres { name } } } }
 	} } }]]
 	local instances = {
-		{ name = "orders-green",      postgres = { name = "orders" } },
-		{ name = "reports-recovered", postgres = { name = "reports" } },
+		{ name = "green",     postgres = { name = "orders" } },
+		{ name = "recovered", postgres = { name = "reports" } },
 	}
 	t.check { data = { team = { environment = {
 		application = { postgresBranches = { nodes = instances } },
@@ -22,15 +22,15 @@ end)
 Test.gql("PostgresBranch workloads reference its Postgres through uses.postgres", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[{ team(slug: "postgres-workload-team") { environment(name: "dev") {
-		postgresBranch(name: "orders-green") { workloads { nodes { __typename name } } }
-		other: postgresBranch(name: "reports-recovered") { workloads { nodes { __typename name } } }
+		postgres(name: "orders") { branch(name: "green") { workloads { nodes { __typename name } } } }
+		other: postgres(name: "reports") { branch(name: "recovered") { workloads { nodes { __typename name } } } }
 	} } }]]
 	local workloads = {
 		{ __typename = "Application", name = "consumer" },
 		{ __typename = "Job",         name = "scheduled-reader" },
 	}
 	t.check { data = { team = { environment = {
-		postgresBranch = { workloads = { nodes = workloads } },
-		other = { workloads = { nodes = workloads } },
+		postgres = { branch = { workloads = { nodes = workloads } } },
+		other = { branch = { workloads = { nodes = workloads } } },
 	} } } }
 end)

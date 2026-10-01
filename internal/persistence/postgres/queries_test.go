@@ -1,19 +1,22 @@
 package postgres
 
 import (
-	"reflect"
 	"strings"
 	"testing"
 	"time"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/nais/api/internal/slug"
+	"github.com/nais/pgrator/pkg/api"
+	nais_io_v1 "github.com/nais/pgrator/pkg/api/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
 func TestNewPostgresAccessResource(t *testing.T) {
 	expiresAt := time.Date(2026, time.September, 17, 12, 0, 0, 0, time.UTC)
 	resource := newPostgresAccessResource(CreatePostgresAccessInput{
-		PostgresBranch:  "orders",
+		Postgres: "orders", Branch: "main",
 		TeamSlug:        slug.Slug("team-a"),
 		EnvironmentName: "dev",
 		AccessLevel:     PostgresAccessLevelReadWrite,
@@ -37,13 +40,13 @@ func TestNewPostgresAccessResource(t *testing.T) {
 		t.Fatalf("spec = (%v, %t, %v), want a spec", spec, found, err)
 	}
 	wantSpec := map[string]any{
-		"postgresBranch": "orders",
+		"postgresBranch": nais_io_v1.PostgresBranchObjectName("orders", "main"),
 		"username":       "user@example.com",
 		"accessLevel":    "readwrite",
 		"expiresAt":      "2026-09-17T12:00:00Z",
 	}
-	if !reflect.DeepEqual(wantSpec, spec) {
-		t.Errorf("spec = %#v, want %#v", spec, wantSpec)
+	if diff := cmp.Diff(wantSpec, spec); diff != "" {
+		t.Errorf("spec mismatch (-want +got):\n%s", diff)
 	}
 }
 
@@ -88,7 +91,7 @@ func TestPostgresAccessState(t *testing.T) {
 	tests := []struct {
 		name      string
 		expiresAt time.Time
-		status    map[string]any
+		status    *nais_io_v1.PostgresAccessStatus
 		wantState PostgresAccessState
 		wantMsg   string
 	}{
@@ -107,46 +110,21 @@ func TestPostgresAccessState(t *testing.T) {
 		{
 			name:      "ready",
 			expiresAt: future,
-			status: map[string]any{
-				"conditions": []any{
-					map[string]any{
-						"type":    "Ready",
-						"status":  "True",
-						"message": "database role and relay mapping are ready",
-					},
-				},
-			},
+			status:    &nais_io_v1.PostgresAccessStatus{BaseStatus: api.BaseStatus{Conditions: []metav1.Condition{{Type: "Ready", Status: metav1.ConditionTrue, Message: "database role and relay mapping are ready"}}}},
 			wantState: PostgresAccessStateReady,
 			wantMsg:   "database role and relay mapping are ready",
 		},
 		{
 			name:      "failed unsupported access level",
 			expiresAt: future,
-			status: map[string]any{
-				"conditions": []any{
-					map[string]any{
-						"type":    "Ready",
-						"status":  "False",
-						"reason":  "UnsupportedAccessLevel",
-						"message": "readwritecreate requires an instance initialized with the app_readwritecreate group role",
-					},
-				},
-			},
+			status:    &nais_io_v1.PostgresAccessStatus{BaseStatus: api.BaseStatus{Conditions: []metav1.Condition{{Type: "Ready", Status: metav1.ConditionFalse, Reason: "UnsupportedAccessLevel", Message: "readwritecreate requires an instance initialized with the app_readwritecreate group role"}}}},
 			wantState: PostgresAccessStateFailed,
 			wantMsg:   "readwritecreate requires an instance initialized with the app_readwritecreate group role",
 		},
 		{
 			name:      "pending waiting on relay",
 			expiresAt: future,
-			status: map[string]any{
-				"conditions": []any{
-					map[string]any{
-						"type":    "Ready",
-						"status":  "False",
-						"message": "waiting for relay",
-					},
-				},
-			},
+			status:    &nais_io_v1.PostgresAccessStatus{BaseStatus: api.BaseStatus{Conditions: []metav1.Condition{{Type: "Ready", Status: metav1.ConditionFalse, Message: "waiting for relay"}}}},
 			wantState: PostgresAccessStatePending,
 			wantMsg:   "waiting for relay",
 		},
@@ -154,11 +132,7 @@ func TestPostgresAccessState(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			obj := map[string]any{}
-			if tt.status != nil {
-				obj["status"] = tt.status
-			}
-			gotState, gotMsg := postgresAccessState(obj, tt.expiresAt)
+			gotState, gotMsg := postgresAccessState(&nais_io_v1.PostgresAccess{Status: tt.status}, tt.expiresAt)
 			if gotState != tt.wantState {
 				t.Errorf("state = %q, want %q", gotState, tt.wantState)
 			}

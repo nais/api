@@ -145,7 +145,8 @@ func (PostgresBranch) IsNode() {}
 func (PostgresBranch) IsSearchNode() {}
 
 type DeletePostgresBranchInput struct {
-	Name            string    `json:"name"`
+	Postgres        string    `json:"postgres"`
+	Branch          string    `json:"branch"`
 	EnvironmentName string    `json:"environmentName"`
 	TeamSlug        slug.Slug `json:"teamSlug"`
 }
@@ -156,11 +157,15 @@ func (i *DeletePostgresBranchInput) Validate(ctx context.Context) error {
 
 func (i *DeletePostgresBranchInput) ValidationErrors(_ context.Context) *validate.ValidationErrors {
 	verr := validate.New()
-	i.Name = strings.TrimSpace(i.Name)
+	i.Postgres = strings.TrimSpace(i.Postgres)
+	i.Branch = strings.TrimSpace(i.Branch)
 	i.EnvironmentName = strings.TrimSpace(i.EnvironmentName)
 
-	if i.Name == "" {
-		verr.Add("name", "Name must not be empty.")
+	if i.Postgres == "" {
+		verr.Add("postgres", "Postgres must not be empty.")
+	}
+	if i.Branch == "" {
+		verr.Add("branch", "Branch must not be empty.")
 	}
 	if i.EnvironmentName == "" {
 		verr.Add("environmentName", "Environment name must not be empty.")
@@ -234,7 +239,8 @@ type GrantPostgresAccessPayload struct {
 // CreatePostgresAccessInput requests a new, time-limited personal database access.
 // The authenticated actor and final expiry are server-controlled.
 type CreatePostgresAccessInput struct {
-	PostgresBranch  string              `json:"postgresBranch"`
+	Postgres        string              `json:"postgres"`
+	Branch          string              `json:"branch"`
 	TeamSlug        slug.Slug           `json:"teamSlug"`
 	EnvironmentName string              `json:"environmentName"`
 	AccessLevel     PostgresAccessLevel `json:"accessLevel"`
@@ -248,13 +254,17 @@ func (i *CreatePostgresAccessInput) Validate(ctx context.Context) error {
 
 func (i *CreatePostgresAccessInput) ValidationErrors(ctx context.Context) *validate.ValidationErrors {
 	verr := validate.New()
-	i.PostgresBranch = strings.TrimSpace(i.PostgresBranch)
+	i.Postgres = strings.TrimSpace(i.Postgres)
+	i.Branch = strings.TrimSpace(i.Branch)
 	i.EnvironmentName = strings.TrimSpace(i.EnvironmentName)
 	i.Reason = strings.TrimSpace(i.Reason)
 	i.TTL = strings.TrimSpace(i.TTL)
 
-	if i.PostgresBranch == "" {
-		verr.Add("postgresBranch", "Postgres branch must not be empty.")
+	if i.Postgres == "" {
+		verr.Add("postgres", "Postgres must not be empty.")
+	}
+	if i.Branch == "" {
+		verr.Add("branch", "Branch must not be empty.")
 	}
 	if i.EnvironmentName == "" {
 		verr.Add("environmentName", "Environment name must not be empty.")
@@ -272,19 +282,19 @@ func (i *CreatePostgresAccessInput) ValidationErrors(ctx context.Context) *valid
 		verr.Add("ttl", "%s", err)
 	}
 
-	if i.PostgresBranch == "" || i.EnvironmentName == "" || i.TeamSlug == "" {
+	if i.Postgres == "" || i.Branch == "" || i.EnvironmentName == "" || i.TeamSlug == "" {
 		return verr
 	}
 
-	instance, err := GetReadyPostgresBranch(ctx, i.TeamSlug, i.EnvironmentName, i.PostgresBranch)
+	instance, err := GetReadyPostgresBranch(ctx, i.TeamSlug, i.EnvironmentName, i.Postgres, i.Branch)
 	if err != nil {
 		if k8serrors.IsNotFound(err) || errors.Is(err, &watcher.ErrorNotFound{}) {
-			verr.Add("postgresBranch", "Could not find PostgresBranch named %q", i.PostgresBranch)
+			verr.Add("branch", "Could not find PostgresBranch %q in Postgres %q", i.Branch, i.Postgres)
 		} else {
-			verr.Add("postgresBranch", "%s", err)
+			verr.Add("branch", "%s", err)
 		}
 	} else if instance.State != PostgresBranchStateAvailable {
-		verr.Add("postgresBranch", "Postgres branch %q is not available.", i.PostgresBranch)
+		verr.Add("branch", "Postgres branch %q is not available.", i.Branch)
 	}
 
 	return verr
@@ -340,7 +350,11 @@ func (p *PostgresBranch) DeepCopyObject() runtime.Object {
 }
 
 func (p *PostgresBranch) GetName() string {
-	return p.Name
+	return nais_io_v1.PostgresBranchObjectName(p.PostgresName, p.Name)
+}
+
+func (p *PostgresBranch) SearchName() string {
+	return p.PostgresName + "/" + p.Name
 }
 
 func (p *PostgresBranch) GetNamespace() string {
@@ -352,7 +366,7 @@ func (p *PostgresBranch) GetLabels() map[string]string {
 }
 
 func (p *PostgresBranch) ID() ident.Ident {
-	return newIdent(p.TeamSlug, p.EnvironmentName, p.Name)
+	return newIdent(p.TeamSlug, p.EnvironmentName, p.PostgresName, p.Name)
 }
 
 func toPostgresBranch(u *unstructured.Unstructured, environmentName string) (*PostgresBranch, error) {
@@ -360,14 +374,14 @@ func toPostgresBranch(u *unstructured.Unstructured, environmentName string) (*Po
 	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(u.Object, obj); err != nil {
 		return nil, fmt.Errorf("converting PostgresBranch: %w", err)
 	}
-	if obj.Spec.Postgres == "" {
-		return nil, fmt.Errorf("PostgresBranch %q has no Postgres", obj.Name)
+	if obj.Spec.Postgres == "" || obj.Spec.BranchName == "" || obj.Name != nais_io_v1.PostgresBranchObjectName(obj.Spec.Postgres, obj.Spec.BranchName) {
+		return nil, fmt.Errorf("PostgresBranch %q has invalid postgres or branchName", obj.Name)
 	}
 	state := PostgresBranchStateProgressing
 	if obj.Status != nil {
 		state = postgresStateFromConditions(obj.Status.Conditions, obj.Status.ReconcilePhase == "Completed" && obj.Status.ObservedGeneration >= obj.Generation)
 	}
-	return &PostgresBranch{Name: obj.Name, EnvironmentName: environmentName, TeamSlug: slug.Slug(obj.Namespace), PostgresName: obj.Spec.Postgres, State: state, Labels: model.UserLabels(obj.Labels)}, nil
+	return &PostgresBranch{Name: obj.Spec.BranchName, EnvironmentName: environmentName, TeamSlug: slug.Slug(obj.Namespace), PostgresName: obj.Spec.Postgres, State: state, Labels: model.UserLabels(obj.Labels)}, nil
 }
 
 func toPostgres(u *unstructured.Unstructured, environmentName string) (*Postgres, error) {

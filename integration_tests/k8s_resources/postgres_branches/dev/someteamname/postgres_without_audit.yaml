@@ -7,15 +7,16 @@ metadata:
 spec:
   majorVersion: "15"
 status:
-  activeBranch: without-audit
+  activeBranch: main
 ---
 apiVersion: nais.io/v1
 kind: PostgresBranch
 metadata:
-  name: without-audit
+  name: without-audit-main-d2111831
   namespace: someteamname
 spec:
   postgres: without-audit
+  branchName: main
 status:
   reconcilePhase: Completed
   conditions:

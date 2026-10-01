@@ -7,15 +7,16 @@ metadata:
 spec:
   majorVersion: "17"
 status:
-  activeBranch: pg-b
+  activeBranch: main
 ---
 apiVersion: nais.io/v1
 kind: PostgresBranch
 metadata:
-  name: pg-b
+  name: pg-b-main-4a8c4391
   namespace: myteam
 spec:
   postgres: pg-b
+  branchName: main
 status:
   reconcilePhase: Completed
   conditions:
@@ -33,15 +34,16 @@ metadata:
 spec:
   majorVersion: "17"
 status:
-  activeBranch: pg-a
+  activeBranch: main
 ---
 apiVersion: nais.io/v1
 kind: PostgresBranch
 metadata:
-  name: pg-a
+  name: pg-a-main-fb72f9ba
   namespace: myteam
 spec:
   postgres: pg-a
+  branchName: main
 status:
   reconcilePhase: Completed
   conditions:

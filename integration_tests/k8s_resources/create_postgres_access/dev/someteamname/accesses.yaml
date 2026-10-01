@@ -6,7 +6,7 @@ metadata:
   namespace: someteamname
   uid: 11111111-1111-4111-8111-111111111111
 spec:
-  postgresBranch: foobar
+  postgresBranch: foobar-main-a4f04c0c
   username: user@usersen.com
   accessLevel: readwrite
   expiresAt: "2099-09-17T12:00:00Z"
@@ -14,7 +14,7 @@ status:
   databaseRole: user-foobar-role
   relayAccess: mapped-access
   tokenSecret: ready-access-relay-token
-  serverName: pg-foobar-rw.someteamname.svc.cluster.local
+  serverName: pg-foobar-main-a4f04c0c-rw.someteamname.svc.cluster.local
   serverCASecret: pg-foobar-ca
   conditions:
     - type: Ready
@@ -28,7 +28,7 @@ metadata:
   name: recovered-access
   namespace: someteamname
 spec:
-  postgresBranch: foobar-recovered
+  postgresBranch: foobar-recovered-b88d8360
   username: user@usersen.com
   accessLevel: read
   expiresAt: "2099-09-17T12:00:00Z"
@@ -43,7 +43,7 @@ metadata:
   name: pending-access
   namespace: someteamname
 spec:
-  postgresBranch: foobar
+  postgresBranch: foobar-main-a4f04c0c
   username: user@usersen.com
   accessLevel: read
   expiresAt: "2099-09-17T12:00:00Z"
@@ -58,7 +58,7 @@ metadata:
   name: failed-access
   namespace: someteamname
 spec:
-  postgresBranch: foobar
+  postgresBranch: foobar-main-a4f04c0c
   username: user@usersen.com
   accessLevel: readwritecreate
   expiresAt: "2099-09-17T12:00:00Z"
@@ -75,7 +75,7 @@ metadata:
   name: expired-access
   namespace: someteamname
 spec:
-  postgresBranch: foobar
+  postgresBranch: foobar-main-a4f04c0c
   username: user@usersen.com
   accessLevel: read
   expiresAt: "2000-01-01T00:00:00Z"
@@ -91,7 +91,7 @@ metadata:
   namespace: someteamname
   uid: 22222222-2222-4222-8222-222222222222
 spec:
-  postgresBranch: foobar
+  postgresBranch: foobar-main-a4f04c0c
   username: user@usersen.com
   accessLevel: read
   expiresAt: "2099-09-17T12:00:00Z"
@@ -99,7 +99,7 @@ status:
   databaseRole: user-foobar-role
   relayAccess: missing-secret-access
   tokenSecret: missing-secret-access-relay-token
-  serverName: pg-foobar-rw.someteamname.svc.cluster.local
+  serverName: pg-foobar-main-a4f04c0c-rw.someteamname.svc.cluster.local
   serverCASecret: pg-foobar-ca
   conditions:
     - type: Ready

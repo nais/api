@@ -60,6 +60,25 @@ func (r *mutationResolver) DeletePostgresBranch(ctx context.Context, input postg
 	return postgres.Delete(ctx, input)
 }
 
+func (r *postgresResolver) ActiveBranch(ctx context.Context, obj *postgres.Postgres) (*postgres.PostgresBranch, error) {
+	if obj.ActiveBranch == nil {
+		return nil, nil
+	}
+	return postgres.GetPostgresBranch(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Name, *obj.ActiveBranch)
+}
+
+func (r *postgresResolver) Branch(ctx context.Context, obj *postgres.Postgres, name string) (*postgres.PostgresBranch, error) {
+	return postgres.GetPostgresBranch(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Name, name)
+}
+
+func (r *postgresResolver) Branches(ctx context.Context, obj *postgres.Postgres, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *postgres.PostgresBranchOrder) (*pagination.FacetableConnection[*postgres.PostgresBranch, *postgres.PostgresBranchFilter], error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+	return postgres.ListForPostgres(ctx, obj, page, orderBy), nil
+}
+
 func (r *postgresAccessResolver) Team(ctx context.Context, obj *postgres.PostgresAccess) (*team.Team, error) {
 	return team.Get(ctx, obj.TeamSlug)
 }
@@ -69,7 +88,7 @@ func (r *postgresAccessResolver) TeamEnvironment(ctx context.Context, obj *postg
 }
 
 func (r *postgresAccessResolver) PostgresBranch(ctx context.Context, obj *postgres.PostgresAccess) (*postgres.PostgresBranch, error) {
-	return postgres.GetPostgresBranch(ctx, obj.TeamSlug, obj.EnvironmentName, obj.PostgresBranchName)
+	return postgres.GetPostgresBranchByObjectName(ctx, obj.TeamSlug, obj.EnvironmentName, obj.PostgresBranchName)
 }
 
 func (r *postgresAccessResolver) Connection(ctx context.Context, obj *postgres.PostgresAccess) (*postgres.PostgresAccessConnectionDetails, error) {
@@ -96,7 +115,7 @@ func (r *postgresBranchResolver) Workloads(ctx context.Context, obj *postgres.Po
 		return nil, err
 	}
 
-	workloads := postgres.WorkloadsForInstance(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Name)
+	workloads := postgres.WorkloadsForInstance(ctx, obj.TeamSlug, obj.EnvironmentName, obj.PostgresName, obj.Name)
 
 	return pagination.NewConnection(pagination.Slice(workloads, page), page, len(workloads)), nil
 }
@@ -121,10 +140,6 @@ func (r *teamEnvironmentResolver) Postgres(ctx context.Context, obj *team.TeamEn
 	return postgres.GetPostgres(ctx, obj.TeamSlug, obj.EnvironmentName, name)
 }
 
-func (r *teamEnvironmentResolver) PostgresBranch(ctx context.Context, obj *team.TeamEnvironment, name string) (*postgres.PostgresBranch, error) {
-	return postgres.GetPostgresBranch(ctx, obj.TeamSlug, obj.EnvironmentName, name)
-}
-
 func (r *teamEnvironmentResolver) PostgresAccess(ctx context.Context, obj *team.TeamEnvironment, name string) (*postgres.PostgresAccess, error) {
 	return postgres.GetPostgresAccess(ctx, name, obj.TeamSlug, obj.EnvironmentName)
 }
@@ -135,6 +150,8 @@ func (r *teamInventoryCountsResolver) PostgresBranches(ctx context.Context, obj 
 	}, nil
 }
 
+func (r *Resolver) Postgres() gengql.PostgresResolver { return &postgresResolver{r} }
+
 func (r *Resolver) PostgresAccess() gengql.PostgresAccessResolver { return &postgresAccessResolver{r} }
 
 func (r *Resolver) PostgresBranch() gengql.PostgresBranchResolver { return &postgresBranchResolver{r} }
@@ -144,6 +161,7 @@ func (r *Resolver) PostgresBranchConnection() gengql.PostgresBranchConnectionRes
 }
 
 type (
+	postgresResolver                 struct{ *Resolver }
 	postgresAccessResolver           struct{ *Resolver }
 	postgresBranchResolver           struct{ *Resolver }
 	postgresBranchConnectionResolver struct{ *Resolver }

@@ -807,8 +807,8 @@ github.com/nais/bifrost v0.0.0-20260106105449-911627ac2c61 h1:DMIjq7U47OJ8GlgOR3
 github.com/nais/bifrost v0.0.0-20260106105449-911627ac2c61/go.mod h1:sAeomjrnGAI9VAErCaOHbTehVkf6hhKoJpHL8uzOqGg=
 github.com/nais/liberator v0.0.0-20260903194126-706ea87ddf9a h1:GAIHGbZVhT5Yzx/NrYWdLxlsn+IaqXetGm4zsnJW5hU=
 github.com/nais/liberator v0.0.0-20260903194126-706ea87ddf9a/go.mod h1:11Mi+k5w8IcdmgNwk6gORoBhHR9Ua4I9UtI8uljg4kc=
-github.com/nais/pgrator/pkg/api v0.0.0-20260929133826-b665367bc31f h1:Rg9Pu9l2owbY40k0XYMP4DgA77aWPxGX9S8JnqRbimo=
-github.com/nais/pgrator/pkg/api v0.0.0-20260929133826-b665367bc31f/go.mod h1:jwS3ovEbOWcVTYyM2EicvkUSjtOrYA57t+jcTct2uzM=
+github.com/nais/pgrator/pkg/api v0.0.0-20261001051319-3ab0adfbd6ce h1:I2y/mQFkvJboKMsBNHnqYDVPVbQqTAEVdvvDjCdOQu8=
+github.com/nais/pgrator/pkg/api v0.0.0-20261001051319-3ab0adfbd6ce/go.mod h1:jwS3ovEbOWcVTYyM2EicvkUSjtOrYA57t+jcTct2uzM=
 github.com/nais/tester v0.2.0 h1:lcTkDP52ddw9l5s3KC4snUP+GlUpZMUtJ3XR2vF4G0w=
 github.com/nais/tester v0.2.0/go.mod h1:Pp7CtcVk/NZI3z0MW7V4j8CPMG5lhKZeAV4IaJKcslo=
 github.com/nais/unleasherator v0.0.0-20251216221129-efebc54203fe h1:CdRVopOihru4tXVwKZjhg6C8SbPLCQYOhJKpjBZYhjg=

@@ -13,7 +13,10 @@ var SortFilterPostgresBranch = sortfilter.New[*PostgresBranch, PostgresBranchOrd
 
 func init() {
 	SortFilterPostgresBranch.RegisterSort("NAME", func(ctx context.Context, a, b *PostgresBranch) int {
-		return strings.Compare(a.GetName(), b.GetName())
+		if a.Name != b.Name {
+			return strings.Compare(a.Name, b.Name)
+		}
+		return strings.Compare(a.PostgresName, b.PostgresName)
 	}, "ENVIRONMENT")
 	SortFilterPostgresBranch.RegisterSort("ENVIRONMENT", func(ctx context.Context, a, b *PostgresBranch) int {
 		return strings.Compare(a.EnvironmentName, b.EnvironmentName)

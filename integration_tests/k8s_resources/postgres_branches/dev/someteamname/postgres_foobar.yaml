@@ -11,15 +11,16 @@ spec:
     memory: 2Gi
     diskSize: 2Gi
 status:
-  activeBranch: foobar
+  activeBranch: main
 ---
 apiVersion: nais.io/v1
 kind: PostgresBranch
 metadata:
-  name: foobar
+  name: foobar-main-a4f04c0c
   namespace: someteamname
 spec:
   postgres: foobar
+  branchName: main
 status:
   reconcilePhase: Completed
   conditions:

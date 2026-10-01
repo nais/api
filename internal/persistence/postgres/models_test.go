@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/nais/api/internal/slug"
+	nais_io_v1 "github.com/nais/pgrator/pkg/api/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
@@ -13,19 +14,40 @@ import (
 func TestToPostgresBranch(t *testing.T) {
 	obj := &unstructured.Unstructured{Object: map[string]any{
 		"apiVersion": "nais.io/v1", "kind": "PostgresBranch",
-		"metadata": map[string]any{"name": "orders-restored", "namespace": "my-team"},
-		"spec":     map[string]any{"postgres": "orders"},
+		"metadata": map[string]any{"name": nais_io_v1.PostgresBranchObjectName("orders", "restored"), "namespace": "my-team"},
+		"spec":     map[string]any{"postgres": "orders", "branchName": "restored"},
 		"status":   map[string]any{"reconcilePhase": "Completed", "conditions": []any{map[string]any{"type": "cluster.postgresql.cnpg.io/ObservedState", "status": "True", "lastTransitionTime": "2026-01-01T00:00:00Z", "reason": "Reconciled", "message": "Cluster is in phase: Cluster in healthy state"}}},
 	}}
 	got, err := toPostgresBranch(obj, "dev")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got.Name != "orders-restored" || got.PostgresName != "orders" || got.State != PostgresBranchStateAvailable {
+	if got.Name != "restored" || got.PostgresName != "orders" || got.State != PostgresBranchStateAvailable {
 		t.Errorf("unexpected PostgresBranch: %+v", got)
+	}
+	if got.GetName() != obj.GetName() {
+		t.Errorf("watcher name = %q, want %q", got.GetName(), obj.GetName())
+	}
+	if got.SearchName() != "orders/restored" {
+		t.Errorf("search name = %q, want orders/restored", got.SearchName())
 	}
 	if got.ID().Type != "PBR" {
 		t.Errorf("PostgresBranch ID type = %q, want PBR", got.ID().Type)
+	}
+	team, env, pg, branch, err := parsePostgresBranchIdent(got.ID())
+	if err != nil || team != "my-team" || env != "dev" || pg != "orders" || branch != "restored" {
+		t.Errorf("branch ID = (%q, %q, %q, %q, %v)", team, env, pg, branch, err)
+	}
+}
+
+func TestToPostgresBranchRejectsMismatchedObjectName(t *testing.T) {
+	obj := &unstructured.Unstructured{Object: map[string]any{
+		"apiVersion": "nais.io/v1", "kind": "PostgresBranch",
+		"metadata": map[string]any{"name": nais_io_v1.PostgresBranchObjectName("orders", "main")},
+		"spec":     map[string]any{"postgres": "orders", "branchName": "other"},
+	}}
+	if _, err := toPostgresBranch(obj, "dev"); err == nil {
+		t.Fatal("expected a mismatched branch object name to be rejected")
 	}
 }
 
@@ -34,13 +56,13 @@ func TestToPostgres(t *testing.T) {
 		"apiVersion": "nais.io/v1", "kind": "Postgres",
 		"metadata": map[string]any{"name": "orders", "namespace": "my-team"},
 		"spec":     map[string]any{"majorVersion": "17", "highAvailability": true, "resources": map[string]any{"cpu": "100m", "memory": "2Gi", "diskSize": "10Gi"}},
-		"status":   map[string]any{"activeBranch": "orders-restored"},
+		"status":   map[string]any{"activeBranch": "restored"},
 	}}
 	got, err := toPostgres(obj, "dev")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got.Name != "orders" || got.MajorVersion != "17" || got.ActiveBranch == nil || *got.ActiveBranch != "orders-restored" {
+	if got.Name != "orders" || got.MajorVersion != "17" || got.ActiveBranch == nil || *got.ActiveBranch != "restored" {
 		t.Errorf("unexpected Postgres: %+v", got)
 	}
 	if got.Resources.CPU == nil || *got.Resources.CPU != "100m" || got.Resources.Memory == nil || *got.Resources.Memory != "2Gi" || got.Resources.DiskSize == nil || *got.Resources.DiskSize != "10Gi" {
@@ -81,7 +103,7 @@ func TestDeletePostgresBranchInput_ValidationErrors(t *testing.T) {
 		{
 			name: "all fields valid",
 			input: DeletePostgresBranchInput{
-				Name:            "my-db",
+				Postgres: "my-db", Branch: "main",
 				EnvironmentName: "dev",
 				TeamSlug:        slug.Slug("my-team"),
 			},
@@ -90,16 +112,16 @@ func TestDeletePostgresBranchInput_ValidationErrors(t *testing.T) {
 		{
 			name: "empty name",
 			input: DeletePostgresBranchInput{
-				Name:            "",
+				Postgres: "my-db", Branch: "",
 				EnvironmentName: "dev",
 				TeamSlug:        slug.Slug("my-team"),
 			},
-			wantErrFields: []string{"name"},
+			wantErrFields: []string{"branch"},
 		},
 		{
 			name: "empty environmentName",
 			input: DeletePostgresBranchInput{
-				Name:            "my-db",
+				Postgres: "my-db", Branch: "main",
 				EnvironmentName: "",
 				TeamSlug:        slug.Slug("my-team"),
 			},
@@ -108,7 +130,7 @@ func TestDeletePostgresBranchInput_ValidationErrors(t *testing.T) {
 		{
 			name: "empty teamSlug",
 			input: DeletePostgresBranchInput{
-				Name:            "my-db",
+				Postgres: "my-db", Branch: "main",
 				EnvironmentName: "dev",
 				TeamSlug:        slug.Slug(""),
 			},
@@ -117,20 +139,20 @@ func TestDeletePostgresBranchInput_ValidationErrors(t *testing.T) {
 		{
 			name: "all fields empty",
 			input: DeletePostgresBranchInput{
-				Name:            "",
+				Postgres: "", Branch: "",
 				EnvironmentName: "",
 				TeamSlug:        slug.Slug(""),
 			},
-			wantErrFields: []string{"name", "environmentName", "teamSlug"},
+			wantErrFields: []string{"postgres", "branch", "environmentName", "teamSlug"},
 		},
 		{
 			name: "whitespace-only name treated as empty",
 			input: DeletePostgresBranchInput{
-				Name:            "   ",
+				Postgres: "my-db", Branch: "   ",
 				EnvironmentName: "dev",
 				TeamSlug:        slug.Slug("my-team"),
 			},
-			wantErrFields: []string{"name"},
+			wantErrFields: []string{"branch"},
 		},
 	}
 

@@ -105,6 +105,7 @@ type ResolverRoot interface {
 	OpenSearchConnection() OpenSearchConnectionResolver
 	OpenSearchIssue() OpenSearchIssueResolver
 	OpenSearchMaintenance() OpenSearchMaintenanceResolver
+	Postgres() PostgresResolver
 	PostgresAccess() PostgresAccessResolver
 	PostgresBranch() PostgresBranchResolver
 	PostgresBranchConnection() PostgresBranchConnectionResolver
@@ -1895,6 +1896,8 @@ type ComplexityRoot struct {
 
 	Postgres struct {
 		ActiveBranch     func(childComplexity int) int
+		Branch           func(childComplexity int, name string) int
+		Branches         func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *postgres.PostgresBranchOrder) int
 		HighAvailability func(childComplexity int) int
 		ID               func(childComplexity int) int
 		Labels           func(childComplexity int) int
@@ -3059,7 +3062,6 @@ type ComplexityRoot struct {
 		OpenSearch         func(childComplexity int, name string) int
 		Postgres           func(childComplexity int, name string) int
 		PostgresAccess     func(childComplexity int, name string) int
-		PostgresBranch     func(childComplexity int, name string) int
 		SQLInstance        func(childComplexity int, name string) int
 		Secret             func(childComplexity int, name string) int
 		SlackAlertsChannel func(childComplexity int) int
@@ -11649,6 +11651,30 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Postgres.ActiveBranch(childComplexity), true
 
+	case "Postgres.branch":
+		if e.ComplexityRoot.Postgres.Branch == nil {
+			break
+		}
+
+		args, err := ec.field_Postgres_branch_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Postgres.Branch(childComplexity, args["name"].(string)), true
+
+	case "Postgres.branches":
+		if e.ComplexityRoot.Postgres.Branches == nil {
+			break
+		}
+
+		args, err := ec.field_Postgres_branches_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Postgres.Branches(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*postgres.PostgresBranchOrder)), true
+
 	case "Postgres.highAvailability":
 		if e.ComplexityRoot.Postgres.HighAvailability == nil {
 			break
@@ -17189,18 +17215,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.TeamEnvironment.PostgresAccess(childComplexity, args["name"].(string)), true
-
-	case "TeamEnvironment.postgresBranch":
-		if e.ComplexityRoot.TeamEnvironment.PostgresBranch == nil {
-			break
-		}
-
-		args, err := ec.field_TeamEnvironment_postgresBranch_args(ctx, rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.ComplexityRoot.TeamEnvironment.PostgresBranch(childComplexity, args["name"].(string)), true
 
 	case "TeamEnvironment.sqlInstance":
 		if e.ComplexityRoot.TeamEnvironment.SQLInstance == nil {
@@ -27429,11 +27443,6 @@ type WorkloadLogLine {
 extend type TeamEnvironment {
 	"Postgres in the team environment."
 	postgres("Name of the Postgres in this team environment." name: String!): Postgres!
-	"Named PostgresBranch in the team environment."
-	postgresBranch(
-		"Name of the PostgresBranch in this team environment."
-		name: String!
-	): PostgresBranch!
 	"""
 	EXPERIMENTAL: DO NOT USE
 	Get a PostgresAccess and its state. Available to authorized team members.
@@ -27498,6 +27507,7 @@ enum PostgresBranchOrderField {
 "A named PostgresBranch belonging to a Postgres."
 type PostgresBranch implements Persistence & Node {
 	id: ID!
+	"Local name of this branch within its Postgres."
 	name: String!
 	team: Team!
 	teamEnvironment: TeamEnvironment!
@@ -27535,8 +27545,18 @@ type Postgres implements Node {
 	highAvailability: Boolean!
 	"Requested CPU, memory and disk size, when present on this Postgres."
 	resources: PostgresResources!
-	"Name of the currently active PostgresBranch, if selected."
-	activeBranch: String
+	"Currently active branch, if selected."
+	activeBranch: PostgresBranch
+	"Branch with this local name in this Postgres."
+	branch(name: String!): PostgresBranch!
+	"Branches belonging to this Postgres."
+	branches(
+		first: Int
+		after: Cursor
+		last: Int
+		before: Cursor
+		orderBy: PostgresBranchOrder
+	): PostgresBranchConnection!
 	"User-defined labels on this Postgres."
 	labels: [ResourceLabel!]!
 }
@@ -27795,8 +27815,10 @@ type CreatePostgresAccessPayload {
 
 "Input for creating a time-limited personal Postgres access."
 input CreatePostgresAccessInput {
-	"Name of the PostgresBranch to access."
-	postgresBranch: String!
+	"Name of the Postgres containing the branch."
+	postgres: String!
+	"Local name of the branch to access."
+	branch: String!
 	"Team that owns the Postgres branch."
 	teamSlug: Slug!
 	"Environment containing the Postgres branch."
@@ -27820,8 +27842,10 @@ enum PostgresAccessLevel {
 }
 
 input DeletePostgresBranchInput {
-	"Name of the PostgresBranch."
-	name: String!
+	"Name of the Postgres containing the branch."
+	postgres: String!
+	"Local name of the branch to delete."
+	branch: String!
 	"The environment containing the PostgresBranch."
 	environmentName: String!
 	"The team that owns the PostgresBranch."
@@ -37730,6 +37754,10 @@ func (ec *executionContext) childFields_Postgres(ctx context.Context, field grap
 		return ec.fieldContext_Postgres_resources(ctx, field)
 	case "activeBranch":
 		return ec.fieldContext_Postgres_activeBranch(ctx, field)
+	case "branch":
+		return ec.fieldContext_Postgres_branch(ctx, field)
+	case "branches":
+		return ec.fieldContext_Postgres_branches(ctx, field)
 	case "labels":
 		return ec.fieldContext_Postgres_labels(ctx, field)
 	}
@@ -39108,8 +39136,6 @@ func (ec *executionContext) childFields_TeamEnvironment(ctx context.Context, fie
 		return ec.fieldContext_TeamEnvironment_openSearch(ctx, field)
 	case "postgres":
 		return ec.fieldContext_TeamEnvironment_postgres(ctx, field)
-	case "postgresBranch":
-		return ec.fieldContext_TeamEnvironment_postgresBranch(ctx, field)
 	case "postgresAccess":
 		return ec.fieldContext_TeamEnvironment_postgresAccess(ctx, field)
 	case "secret":

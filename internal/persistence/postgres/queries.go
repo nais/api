@@ -3,6 +3,7 @@ package postgres
 import (
 	"cmp"
 	"context"
+	"errors"
 	"fmt"
 	"slices"
 	"strings"
@@ -39,13 +40,17 @@ func Delete(ctx context.Context, input DeletePostgresBranchInput) (*DeletePostgr
 	if err != nil {
 		return nil, err
 	}
-	instance, err := client.Namespace(input.TeamSlug.String()).Get(ctx, input.Name, metav1.GetOptions{})
-	if err != nil {
-		return nil, fmt.Errorf("getting PostgresBranch %q before deletion: %w", input.Name, err)
+	objectName := nais_io_v1.PostgresBranchObjectName(input.Postgres, input.Branch)
+	instance, err := client.Namespace(input.TeamSlug.String()).Get(ctx, objectName, metav1.GetOptions{})
+	if k8serrors.IsNotFound(err) {
+		return nil, apierror.Errorf("PostgresBranch %q not found in Postgres %q", input.Branch, input.Postgres)
 	}
-	postgresName, _, err := unstructured.NestedString(instance.Object, "spec", "postgres")
-	if err != nil || postgresName == "" {
-		return nil, apierror.Errorf("PostgresBranch %q has no Postgres", input.Name)
+	if err != nil {
+		return nil, fmt.Errorf("getting PostgresBranch %q before deletion: %w", input.Branch, err)
+	}
+	branch, err := toPostgresBranch(instance, input.EnvironmentName)
+	if err != nil || branch.PostgresName != input.Postgres || branch.Name != input.Branch {
+		return nil, apierror.Errorf("PostgresBranch %q not found in Postgres %q", input.Branch, input.Postgres)
 	}
 	postgresClient, err := fromContext(ctx).postgresBranchWatcher.SystemAuthenticatedClient(ctx, input.EnvironmentName, watcher.WithImpersonatedClientGVR(schema.GroupVersionResource{
 		Group: "nais.io", Version: "v1", Resource: "postgres",
@@ -53,14 +58,14 @@ func Delete(ctx context.Context, input DeletePostgresBranchInput) (*DeletePostgr
 	if err != nil {
 		return nil, err
 	}
-	postgres, err := postgresClient.Namespace(input.TeamSlug.String()).Get(ctx, postgresName, metav1.GetOptions{})
+	postgres, err := postgresClient.Namespace(input.TeamSlug.String()).Get(ctx, input.Postgres, metav1.GetOptions{})
 	if err != nil {
-		return nil, fmt.Errorf("getting Postgres %q before instance deletion: %w", postgresName, err)
+		return nil, fmt.Errorf("getting Postgres %q before instance deletion: %w", input.Postgres, err)
 	}
-	if err := ensureInstanceMayBeDeleted(instance, postgres); err != nil {
+	if err := ensureInstanceMayBeDeleted(input.Branch, postgres); err != nil {
 		return nil, err
 	}
-	if err := client.Namespace(input.TeamSlug.String()).Delete(ctx, input.Name, metav1.DeleteOptions{Preconditions: &metav1.Preconditions{UID: ptr.To(instance.GetUID())}}); err != nil {
+	if err := client.Namespace(input.TeamSlug.String()).Delete(ctx, objectName, metav1.DeleteOptions{Preconditions: &metav1.Preconditions{UID: ptr.To(instance.GetUID())}}); err != nil {
 		return nil, err
 	}
 
@@ -68,7 +73,7 @@ func Delete(ctx context.Context, input DeletePostgresBranchInput) (*DeletePostgr
 		Action:          activitylog.ActivityLogEntryActionDeleted,
 		Actor:           authz.ActorFromContext(ctx).User,
 		ResourceType:    activityLogEntryResourceTypePostgres,
-		ResourceName:    input.Name,
+		ResourceName:    input.Postgres,
 		EnvironmentName: new(input.EnvironmentName),
 		TeamSlug:        new(input.TeamSlug),
 	}); err != nil {
@@ -80,21 +85,22 @@ func Delete(ctx context.Context, input DeletePostgresBranchInput) (*DeletePostgr
 
 // ensureInstanceMayBeDeleted prevents an API request from marking the active
 // instance as terminating. Pgrator independently blocks finalization as well.
-func ensureInstanceMayBeDeleted(instance, postgres *unstructured.Unstructured) error {
-	requested, _, err := unstructured.NestedString(postgres.Object, "spec", "activeBranch")
+func ensureInstanceMayBeDeleted(branch string, postgres *unstructured.Unstructured) error {
+	obj, err := kubernetes.ToConcrete[nais_io_v1.Postgres](postgres)
 	if err != nil {
 		return err
 	}
-	current, _, err := unstructured.NestedString(postgres.Object, "status", "activeBranch")
-	if err != nil {
-		return err
+	requested := obj.Spec.ActiveBranch
+	current := ""
+	if obj.Status != nil {
+		current = obj.Status.ActiveBranch
 	}
-	// Pgrator falls back to the Postgres name when neither field is set.
+	// Pgrator selects main when neither field is set.
 	if requested == "" && current == "" {
-		current = postgres.GetName()
+		current = nais_io_v1.DefaultBranchName
 	}
-	if instance.GetName() == requested || instance.GetName() == current {
-		return apierror.Errorf("PostgresBranch %q is active and cannot be deleted", instance.GetName())
+	if branch == requested || branch == current {
+		return apierror.Errorf("PostgresBranch %q is active and cannot be deleted", branch)
 	}
 	return nil
 }
@@ -110,7 +116,7 @@ func GetForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName, po
 	if postgres.ActiveBranch == nil {
 		return nil, nil
 	}
-	return GetPostgresBranch(ctx, teamSlug, environmentName, *postgres.ActiveBranch)
+	return GetPostgresBranch(ctx, teamSlug, environmentName, postgresName, *postgres.ActiveBranch)
 }
 
 // ListForWorkload resolves each Postgres use to the instance selected by that
@@ -126,7 +132,12 @@ func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName st
 			instances = append(instances, instance)
 		}
 	}
-	slices.SortFunc(instances, func(a, b *PostgresBranch) int { return cmp.Compare(a.Name, b.Name) })
+	slices.SortFunc(instances, func(a, b *PostgresBranch) int {
+		if a.Name != b.Name {
+			return cmp.Compare(a.Name, b.Name)
+		}
+		return cmp.Compare(a.PostgresName, b.PostgresName)
+	})
 	return instances, nil
 }
 
@@ -153,12 +164,12 @@ func CountForTeam(ctx context.Context, teamSlug slug.Slug) int {
 }
 
 func GetPostgresBranchByIdent(ctx context.Context, id ident.Ident) (*PostgresBranch, error) {
-	teamSlug, environmentName, clusterName, err := parsePostgresBranchIdent(id)
+	teamSlug, environmentName, postgresName, branchName, err := parsePostgresBranchIdent(id)
 	if err != nil {
 		return nil, err
 	}
 
-	return GetPostgresBranch(ctx, teamSlug, environmentName, clusterName)
+	return GetPostgresBranch(ctx, teamSlug, environmentName, postgresName, branchName)
 }
 
 func GetPostgresByIdent(ctx context.Context, id ident.Ident) (*Postgres, error) {
@@ -215,12 +226,12 @@ func GetPostgresAccessConnection(ctx context.Context, input PostgresAccessConnec
 		return nil, err
 	}
 
-	username, _, err := unstructured.NestedString(access.Object, "spec", "username")
+	resource, err := kubernetes.ToConcrete[nais_io_v1.PostgresAccess](access)
 	if err != nil {
-		return nil, fmt.Errorf("reading PostgresAccess %q username: %w", input.Name, err)
+		return nil, fmt.Errorf("converting PostgresAccess %q: %w", input.Name, err)
 	}
 	actor := authz.ActorFromContext(ctx)
-	if actor == nil || username == "" || actor.User.Identity() != username {
+	if actor == nil || resource.Spec.Username == "" || actor.User.Identity() != resource.Spec.Username {
 		return nil, authz.ErrUnauthorized
 	}
 
@@ -264,91 +275,57 @@ func getPostgresAccessResource(ctx context.Context, name string, teamSlug slug.S
 }
 
 func postgresAccessConnectionDetails(access *unstructured.Unstructured, now time.Time) (*PostgresAccessConnectionDetails, string, error) {
-	expiresAt, _, err := unstructured.NestedString(access.Object, "spec", "expiresAt")
+	obj, err := kubernetes.ToConcrete[nais_io_v1.PostgresAccess](access)
 	if err != nil {
-		return nil, "", fmt.Errorf("reading PostgresAccess %q expiry: %w", access.GetName(), err)
+		return nil, "", fmt.Errorf("converting PostgresAccess %q: %w", access.GetName(), err)
 	}
-	expires, err := time.Parse(time.RFC3339, expiresAt)
-	if err != nil {
+	if obj.Spec.ExpiresAt.IsZero() {
 		return nil, "", apierror.Errorf("PostgresAccess %q has an invalid expiry", access.GetName())
 	}
-	if !expires.After(now) {
+	if !obj.Spec.ExpiresAt.After(now) {
 		return nil, "", apierror.Errorf("PostgresAccess %q has expired", access.GetName())
 	}
-	if !postgresAccessIsReady(access.Object) {
+	if obj.Status == nil || !slices.ContainsFunc(obj.Status.Conditions, func(c metav1.Condition) bool {
+		return c.Type == "Ready" && c.Status == metav1.ConditionTrue
+	}) {
 		return nil, "", apierror.Errorf("PostgresAccess %q is not ready", access.GetName())
 	}
 
 	if access.GetDeletionTimestamp() != nil {
 		return nil, "", apierror.Errorf("PostgresAccess %q is not ready", access.GetName())
 	}
-	relayName, _, err := unstructured.NestedString(access.Object, "status", "relayAccess")
-	if err != nil || relayName == "" {
+	if obj.Status.RelayAccess == "" || obj.Status.TokenSecret == "" || obj.Status.DatabaseRole == "" || obj.Status.ServerName == "" || obj.Status.ServerCASecret == "" {
 		return nil, "", apierror.Errorf("PostgresAccess %q is not ready", access.GetName())
 	}
-	tokenSecret, _, err := unstructured.NestedString(access.Object, "status", "tokenSecret")
-	if err != nil || tokenSecret == "" {
-		return nil, "", apierror.Errorf("PostgresAccess %q is not ready", access.GetName())
-	}
-	role, _, err := unstructured.NestedString(access.Object, "status", "databaseRole")
-	if err != nil || role == "" {
-		return nil, "", apierror.Errorf("PostgresAccess %q is not ready", access.GetName())
-	}
-	serverName, _, err := unstructured.NestedString(access.Object, "status", "serverName")
-	if err != nil || serverName == "" {
-		return nil, "", apierror.Errorf("PostgresAccess %q is not ready", access.GetName())
-	}
-	serverCA, _, err := unstructured.NestedString(access.Object, "status", "serverCASecret")
-	if err != nil || serverCA == "" {
-		return nil, "", apierror.Errorf("PostgresAccess %q is not ready", access.GetName())
-	}
-	return &PostgresAccessConnectionDetails{}, tokenSecret, nil
-}
-
-func postgresAccessIsReady(obj map[string]any) bool {
-	conditions, found, err := unstructured.NestedSlice(obj, "status", "conditions")
-	if err != nil || !found {
-		return false
-	}
-	for _, c := range conditions {
-		condition, ok := c.(map[string]any)
-		if !ok {
-			continue
-		}
-		if condition["type"] == "Ready" && condition["status"] == string(metav1.ConditionTrue) {
-			return true
-		}
-	}
-	return false
+	return &PostgresAccessConnectionDetails{}, obj.Status.TokenSecret, nil
 }
 
 func toPostgresAccess(u *unstructured.Unstructured, teamSlug slug.Slug, environmentName string) (*PostgresAccess, error) {
 	name := u.GetName()
-	postgresBranch, _, _ := unstructured.NestedString(u.Object, "spec", "postgresBranch")
-	username, _, _ := unstructured.NestedString(u.Object, "spec", "username")
-	levelStr, _, _ := unstructured.NestedString(u.Object, "spec", "accessLevel")
-	expiresStr, _, _ := unstructured.NestedString(u.Object, "spec", "expiresAt")
-
-	expiresAt, err := time.Parse(time.RFC3339, expiresStr)
+	obj, err := kubernetes.ToConcrete[nais_io_v1.PostgresAccess](u)
 	if err != nil {
-		return nil, fmt.Errorf("parsing expiresAt for PostgresAccess %q: %w", name, err)
+		return nil, fmt.Errorf("converting PostgresAccess %q: %w", name, err)
 	}
-
-	level := PostgresAccessLevel(strings.ToUpper(levelStr))
+	expiresAt := obj.Spec.ExpiresAt.Time
+	levelStr := obj.Spec.AccessLevel
+	level := PostgresAccessLevel(strings.ToUpper(string(levelStr)))
 	if !level.IsValid() {
 		return nil, fmt.Errorf("invalid accessLevel %q for PostgresAccess %q", levelStr, name)
 	}
 
-	state, message := postgresAccessState(u.Object, expiresAt)
+	state, message := postgresAccessState(obj, expiresAt)
 
-	relayName, _, _ := unstructured.NestedString(u.Object, "status", "relayAccess")
+	relayName := ""
+	if obj.Status != nil {
+		relayName = obj.Status.RelayAccess
+	}
 
 	return &PostgresAccess{
 		Name:               name,
 		TeamSlug:           teamSlug,
 		EnvironmentName:    environmentName,
-		PostgresBranchName: postgresBranch,
-		Username:           username,
+		PostgresBranchName: obj.Spec.PostgresBranch,
+		Username:           obj.Spec.Username,
 		AccessLevel:        level,
 		ExpiresAt:          expiresAt,
 		State:              state,
@@ -364,44 +341,30 @@ func strPtr(s string) *string {
 	return &s
 }
 
-func postgresAccessState(obj map[string]any, expiresAt time.Time) (PostgresAccessState, string) {
+func postgresAccessState(obj *nais_io_v1.PostgresAccess, expiresAt time.Time) (PostgresAccessState, string) {
 	if !expiresAt.IsZero() && expiresAt.Before(time.Now()) {
 		return PostgresAccessStateExpired, "access has expired"
 	}
-
-	conditions, found, err := unstructured.NestedSlice(obj, "status", "conditions")
-	if err != nil || !found {
+	if obj.Status == nil {
 		return PostgresAccessStatePending, "waiting for controller"
 	}
-
-	for _, c := range conditions {
-		condition, ok := c.(map[string]any)
-		if !ok {
+	for _, condition := range obj.Status.Conditions {
+		if condition.Type != "Ready" {
 			continue
 		}
-		condType, _ := condition["type"].(string)
-		if condType != "Ready" {
-			continue
+		if condition.Status == metav1.ConditionTrue {
+			return PostgresAccessStateReady, condition.Message
 		}
-
-		status, _ := condition["status"].(string)
-		reason, _ := condition["reason"].(string)
-		message, _ := condition["message"].(string)
-
-		if status == string(metav1.ConditionTrue) {
-			return PostgresAccessStateReady, message
+		if condition.Reason == "UnsupportedAccessLevel" {
+			return PostgresAccessStateFailed, condition.Message
 		}
-		if reason == "UnsupportedAccessLevel" {
-			return PostgresAccessStateFailed, message
-		}
-		return PostgresAccessStatePending, message
+		return PostgresAccessStatePending, condition.Message
 	}
-
 	return PostgresAccessStatePending, "waiting for controller"
 }
 
-func GetReadyPostgresBranch(ctx context.Context, teamSlug slug.Slug, environmentName, name string) (*PostgresBranch, error) {
-	instance, err := GetPostgresBranch(ctx, teamSlug, environmentName, name)
+func GetReadyPostgresBranch(ctx context.Context, teamSlug slug.Slug, environmentName, postgresName, branchName string) (*PostgresBranch, error) {
+	instance, err := GetPostgresBranch(ctx, teamSlug, environmentName, postgresName, branchName)
 	if err != nil {
 		return nil, err
 	}
@@ -409,7 +372,7 @@ func GetReadyPostgresBranch(ctx context.Context, teamSlug slug.Slug, environment
 		return instance, nil
 	}
 	if _, err := GetPostgres(ctx, teamSlug, environmentName, instance.PostgresName); err != nil {
-		return nil, fmt.Errorf("getting Postgres %q for instance %q: %w", instance.PostgresName, name, err)
+		return nil, fmt.Errorf("getting Postgres %q for branch %q: %w", instance.PostgresName, branchName, err)
 	}
 	// The pgrator reconciliation condition reflects the CNPG phase, but must be
 	// corroborated with CNPG's own Ready condition before issuing access.
@@ -417,13 +380,13 @@ func GetReadyPostgresBranch(ctx context.Context, teamSlug slug.Slug, environment
 	if err != nil {
 		return nil, err
 	}
-	cluster, err := client.Namespace(teamSlug.String()).Get(ctx, nais_io_v1.CNPGClusterName(name), metav1.GetOptions{})
+	cluster, err := client.Namespace(teamSlug.String()).Get(ctx, nais_io_v1.CNPGClusterName(nais_io_v1.PostgresBranchObjectName(postgresName, branchName)), metav1.GetOptions{})
 	if k8serrors.IsNotFound(err) {
 		instance.State = PostgresBranchStateProgressing
 		return instance, nil
 	}
 	if err != nil {
-		return nil, fmt.Errorf("getting CNPG Cluster for PostgresBranch %q: %w", name, err)
+		return nil, fmt.Errorf("getting CNPG Cluster for PostgresBranch %q: %w", branchName, err)
 	}
 	conditions, found, err := unstructured.NestedSlice(cluster.Object, "status", "conditions")
 	if err != nil {
@@ -443,8 +406,46 @@ func GetReadyPostgresBranch(ctx context.Context, teamSlug slug.Slug, environment
 	return instance, nil
 }
 
-func GetPostgresBranch(ctx context.Context, teamSlug slug.Slug, environmentName, name string) (*PostgresBranch, error) {
-	return fromContext(ctx).postgresBranchWatcher.Get(environmentName, teamSlug.String(), name)
+func GetPostgresBranch(ctx context.Context, teamSlug slug.Slug, environmentName, postgresName, branchName string) (*PostgresBranch, error) {
+	branch, err := fromContext(ctx).postgresBranchWatcher.Get(environmentName, teamSlug.String(), nais_io_v1.PostgresBranchObjectName(postgresName, branchName))
+	if errors.Is(err, &watcher.ErrorNotFound{}) {
+		return nil, &watcher.ErrorNotFound{Cluster: environmentName, Namespace: teamSlug.String(), Name: postgresName + "/" + branchName}
+	}
+	if err != nil {
+		return nil, err
+	}
+	if branch.PostgresName != postgresName || branch.Name != branchName {
+		return nil, &watcher.ErrorNotFound{Cluster: environmentName, Namespace: teamSlug.String(), Name: postgresName + "/" + branchName}
+	}
+	return branch, nil
+}
+
+// GetPostgresBranchByObjectName resolves the internal object name from PostgresAccess.
+func GetPostgresBranchByObjectName(ctx context.Context, teamSlug slug.Slug, environmentName, objectName string) (*PostgresBranch, error) {
+	branch, err := fromContext(ctx).postgresBranchWatcher.Get(environmentName, teamSlug.String(), objectName)
+	if errors.Is(err, &watcher.ErrorNotFound{}) {
+		return nil, &watcher.ErrorNotFound{Cluster: environmentName, Namespace: teamSlug.String(), Name: "Postgres branch"}
+	}
+	if err != nil {
+		return nil, err
+	}
+	if nais_io_v1.PostgresBranchObjectName(branch.PostgresName, branch.Name) != objectName {
+		return nil, &watcher.ErrorNotFound{Cluster: environmentName, Namespace: teamSlug.String(), Name: "Postgres branch"}
+	}
+	return branch, nil
+}
+
+func ListForPostgres(ctx context.Context, pg *Postgres, page *pagination.Pagination, orderBy *PostgresBranchOrder) *PostgresBranchConnection {
+	all := make([]*PostgresBranch, 0)
+	for _, branch := range ListAllForTeam(ctx, pg.TeamSlug, nil) {
+		if branch.EnvironmentName == pg.EnvironmentName && branch.PostgresName == pg.Name {
+			all = append(all, branch)
+		}
+	}
+	if orderBy == nil {
+		orderBy = &PostgresBranchOrder{Field: PostgresBranchOrderFieldName, Direction: model.OrderDirectionAsc}
+	}
+	return SortFilterPostgresBranch.PaginatedList(ctx, all, page, orderBy.Field, orderBy.Direction, nil)
 }
 
 func GetPostgres(ctx context.Context, teamSlug slug.Slug, environmentName, name string) (*Postgres, error) {
@@ -491,7 +492,7 @@ func CreatePostgresAccess(ctx context.Context, input CreatePostgresAccessInput) 
 		Action:          activityLogEntryActionCreatePersonalAccess,
 		Actor:           authz.ActorFromContext(ctx).User,
 		ResourceType:    activityLogEntryResourceTypePostgres,
-		ResourceName:    input.PostgresBranch,
+		ResourceName:    input.Postgres,
 		EnvironmentName: new(input.EnvironmentName),
 		TeamSlug:        new(input.TeamSlug),
 		Data: PostgresPersonalAccessCreatedActivityLogEntryData{
@@ -534,7 +535,7 @@ func newPostgresAccessResource(input CreatePostgresAccessInput, username, name s
 	res.SetAnnotations(kubernetes.WithCommonAnnotations(nil, username))
 	kubernetes.SetManagedByConsoleLabel(res)
 	res.Object["spec"] = map[string]any{
-		"postgresBranch": input.PostgresBranch,
+		"postgresBranch": nais_io_v1.PostgresBranchObjectName(input.Postgres, input.Branch),
 		"username":       username,
 		"accessLevel":    input.AccessLevel.CRDValue(),
 		"expiresAt":      expiresAt.Format(time.RFC3339),
@@ -542,13 +543,13 @@ func newPostgresAccessResource(input CreatePostgresAccessInput, username, name s
 	return res
 }
 
-func WorkloadsForInstance(ctx context.Context, teamSlug slug.Slug, environmentName, instanceName string) []workload.Workload {
-	instance, err := GetPostgresBranch(ctx, teamSlug, environmentName, instanceName)
+func WorkloadsForInstance(ctx context.Context, teamSlug slug.Slug, environmentName, postgresName, branchName string) []workload.Workload {
+	instance, err := GetPostgresBranch(ctx, teamSlug, environmentName, postgresName, branchName)
 	if err != nil {
 		return nil
 	}
 	postgres, err := GetPostgres(ctx, teamSlug, environmentName, instance.PostgresName)
-	if err != nil || postgres.ActiveBranch == nil || *postgres.ActiveBranch != instanceName {
+	if err != nil || postgres.ActiveBranch == nil || *postgres.ActiveBranch != branchName {
 		return nil
 	}
 	apps := application.ListAllForTeamInEnvironment(ctx, teamSlug, environmentName)

@@ -1,7 +1,10 @@
 package apply
 
 import (
+	"encoding/json"
 	"fmt"
+	"slices"
+	"strings"
 	"testing"
 
 	"github.com/nais/api/internal/activitylog"
@@ -12,6 +15,84 @@ func TestDiff_BothNil(t *testing.T) {
 	changes := Diff(nil, nil)
 	if len(changes) != 0 {
 		t.Fatalf("expected no changes, got %d", len(changes))
+	}
+}
+
+func TestDiff_SecretValuesRedacted(t *testing.T) {
+	before := &unstructured.Unstructured{Object: map[string]any{
+		"apiVersion": "v1",
+		"kind":       "Secret",
+		"metadata": map[string]any{
+			"annotations": map[string]any{
+				"kubectl.kubernetes.io/last-applied-configuration": "OLD_SECRET_SNAPSHOT",
+			},
+		},
+		"data": map[string]any{
+			"updated": "OLD_SECRET_VALUE",
+			"removed": "REMOVED_SECRET_VALUE",
+		},
+		"stringData": map[string]any{
+			"password": "OLD_PLAINTEXT_VALUE",
+		},
+	}}
+	after := before.DeepCopy()
+	after.Object["data"] = map[string]any{
+		"updated": "NEW_SECRET_VALUE",
+		"added":   "ADDED_SECRET_VALUE",
+	}
+	after.Object["stringData"] = map[string]any{"password": "NEW_PLAINTEXT_VALUE"}
+	after.SetAnnotations(map[string]string{
+		"kubectl.kubernetes.io/last-applied-configuration": "NEW_SECRET_SNAPSHOT",
+	})
+
+	for _, test := range []struct {
+		name   string
+		before *unstructured.Unstructured
+		after  *unstructured.Unstructured
+	}{
+		{name: "update", before: before, after: after},
+		{name: "creation", after: after},
+		{name: "deletion", before: before},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			changes := Diff(test.before, test.after)
+			if len(changes) == 0 {
+				t.Fatal("expected field names to remain visible")
+			}
+			for _, field := range changes {
+				if field.OldValue != nil || field.NewValue != nil {
+					t.Fatalf("Secret field %q contains values", field.Field)
+				}
+			}
+			response, err := json.Marshal(Response{Results: []ResourceResult{{ChangedFields: changes}}})
+			if err != nil {
+				t.Fatal(err)
+			}
+			if strings.Contains(string(response), "VALUE") || strings.Contains(string(response), "SNAPSHOT") {
+				t.Fatalf("Secret values were serialized: %s", response)
+			}
+		})
+	}
+
+	var paths []string
+	for _, field := range Diff(before, after) {
+		paths = append(paths, field.Field)
+	}
+	want := []string{
+		"data.added",
+		"data.removed",
+		"data.updated",
+		"metadata.annotations.kubectl.kubernetes.io/last-applied-configuration",
+		"stringData.password",
+	}
+	if !slices.Equal(paths, want) {
+		t.Fatalf("expected changed paths %v, got %v", want, paths)
+	}
+	if changes := Diff(after, after.DeepCopy()); len(changes) != 0 {
+		t.Fatalf("an unchanged Secret produced changes: %+v", changes)
+	}
+	if before.Object["data"].(map[string]any)["updated"] != "OLD_SECRET_VALUE" {
+		t.Fatal("diff modified the original Secret")
 	}
 }
 

@@ -41,7 +41,7 @@ require (
 	github.com/nais/api/pkg/apiclient v0.0.0-20250219111538-2b76a0fd6ed9
 	github.com/nais/bifrost v0.0.0-20260106105449-911627ac2c61
 	github.com/nais/liberator v0.0.0-20260903194126-706ea87ddf9a
-	github.com/nais/pgrator/pkg/api v0.0.0-20260929133826-b665367bc31f
+	github.com/nais/pgrator/pkg/api v0.0.0-20261001051319-3ab0adfbd6ce
 	github.com/nais/tester v0.2.0
 	github.com/nais/unleasherator v0.0.0-20251216221129-efebc54203fe
 	github.com/nais/v13s/pkg/api v0.0.0-20260826091953-1b518b13ca28

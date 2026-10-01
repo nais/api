@@ -19,29 +19,26 @@ import (
 )
 
 func TestDeletePostgresBranchRequiresInactiveBranch(t *testing.T) {
-	instance := &unstructured.Unstructured{Object: map[string]any{
-		"metadata": map[string]any{"name": "orders-restored"},
-	}}
 	tests := []struct {
 		name       string
 		postgres   map[string]any
 		wantDenied bool
 	}{
-		{"selected in status", map[string]any{"status": map[string]any{"activeBranch": "orders-restored"}}, true},
-		{"selected in spec", map[string]any{"spec": map[string]any{"activeBranch": "orders-restored"}}, true},
-		{"pending switch", map[string]any{"spec": map[string]any{"activeBranch": "orders-restored"}, "status": map[string]any{"activeBranch": "orders-original"}}, true},
-		{"inactive", map[string]any{"status": map[string]any{"activeBranch": "orders-original"}}, false},
+		{"selected in status", map[string]any{"status": map[string]any{"activeBranch": "restored"}}, true},
+		{"selected in spec", map[string]any{"spec": map[string]any{"activeBranch": "restored"}}, true},
+		{"pending switch", map[string]any{"spec": map[string]any{"activeBranch": "restored"}, "status": map[string]any{"activeBranch": "original"}}, true},
+		{"inactive", map[string]any{"status": map[string]any{"activeBranch": "original"}}, false},
 		{"default active", map[string]any{}, true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			postgres := &unstructured.Unstructured{Object: tt.postgres}
+			postgres.SetName("orders")
+			requested := "restored"
 			if tt.name == "default active" {
-				postgres.SetName("orders-restored")
-			} else {
-				postgres.SetName("orders")
+				requested = "main"
 			}
-			err := ensureInstanceMayBeDeleted(instance, postgres)
+			err := ensureInstanceMayBeDeleted(requested, postgres)
 			if (err != nil) != tt.wantDenied {
 				t.Errorf("deletion error = %v; denied = %v", err, tt.wantDenied)
 			}
@@ -82,7 +79,7 @@ func TestWorkloadUsesMultiplePostgresResources(t *testing.T) {
 		t.Fatalf("application uses not loaded: %+v", apps)
 	}
 	instances, err := ListForWorkload(ctx, team, "dev", apps[0].Spec.Uses.Postgres)
-	if err != nil || len(instances) != 2 || instances[0].Name != "orders-green" || instances[1].Name != "reports-recovered" {
+	if err != nil || len(instances) != 2 || instances[0].Name != "green" || instances[1].Name != "recovered" {
 		t.Fatalf("selected instances = %+v, error = %v", instances, err)
 	}
 	jobs := job.ListAllForTeamInEnvironment(ctx, team, "dev")
@@ -90,13 +87,13 @@ func TestWorkloadUsesMultiplePostgresResources(t *testing.T) {
 		t.Fatalf("job uses not loaded: %+v", jobs)
 	}
 	instances, err = ListForWorkload(ctx, team, "dev", jobs[0].Spec.Uses.Postgres)
-	if err != nil || len(instances) != 2 || instances[0].Name != "orders-green" || instances[1].Name != "reports-recovered" {
+	if err != nil || len(instances) != 2 || instances[0].Name != "green" || instances[1].Name != "recovered" {
 		t.Fatalf("job selected instances = %+v, error = %v", instances, err)
 	}
-	for _, name := range []string{"orders-green", "reports-recovered"} {
-		workloads := WorkloadsForInstance(ctx, team, "dev", name)
+	for _, entry := range []struct{ postgres, branch string }{{"orders", "green"}, {"reports", "recovered"}} {
+		workloads := WorkloadsForInstance(ctx, team, "dev", entry.postgres, entry.branch)
 		if len(workloads) != 2 || workloads[0].GetName() != "consumer" || workloads[1].GetName() != "scheduled-reader" {
-			t.Errorf("workloads for %q = %+v", name, workloads)
+			t.Errorf("workloads for %q = %+v", entry.branch, workloads)
 		}
 	}
 }
@@ -125,19 +122,32 @@ func TestReadyPostgresBranchUsesConcreteName(t *testing.T) {
 	}
 	ctx = NewLoaderContext(ctx, postgresBranchWatcher, "", "", "nav", mgr.GetDynamicClients())
 	team := slug.Slug("someteamname")
-	for _, name := range []string{"foobar", "foobar-recovered"} {
-		instance, err := GetReadyPostgresBranch(ctx, team, "dev", name)
+	for _, name := range []string{"main", "recovered"} {
+		instance, err := GetReadyPostgresBranch(ctx, team, "dev", "foobar", name)
 		if err != nil || instance.State != PostgresBranchStateAvailable || instance.Name != name || instance.PostgresName != "foobar" {
 			t.Errorf("%s: got instance %+v, error %v", name, instance, err)
 		}
 	}
-	instance, err := GetReadyPostgresBranch(ctx, team, "dev", "progressing")
+	instance, err := GetReadyPostgresBranch(ctx, team, "dev", "progressing", "main")
 	if err != nil || instance.State == PostgresBranchStateAvailable {
 		t.Errorf("progressing instance = %+v, error %v", instance, err)
 	}
-	_, err = GetReadyPostgresBranch(ctx, team, "dev", "missing")
+	_, err = GetReadyPostgresBranch(ctx, team, "dev", "foobar", "missing")
+	if !errors.Is(err, &watcher.ErrorNotFound{}) || strings.Contains(err.Error(), "foobar-missing-") {
+		t.Errorf("missing instance error = %v; want local branch name only", err)
+	}
+	_, err = GetPostgresBranch(ctx, team, "dev", "progressing", "recovered")
 	if !errors.Is(err, &watcher.ErrorNotFound{}) {
-		t.Errorf("missing instance error = %v", err)
+		t.Errorf("branch in wrong Postgres error = %v", err)
+	}
+	pg, err := GetPostgres(ctx, team, "dev", "foobar")
+	if err != nil {
+		t.Fatal(err)
+	}
+	branches := ListForPostgres(ctx, pg, nil, nil)
+	nodes := branches.Nodes()
+	if len(nodes) != 2 || nodes[0].Name != "main" || nodes[1].Name != "recovered" {
+		t.Errorf("Postgres branches = %+v", nodes)
 	}
 }
 
@@ -165,12 +175,12 @@ func TestCreatePostgresAccessRejectsMissingInstance(t *testing.T) {
 	}
 	ctx = NewLoaderContext(ctx, postgresBranchWatcher, "", "", "nav", mgr.GetDynamicClients())
 	input := CreatePostgresAccessInput{
-		PostgresBranch: "missing", TeamSlug: slug.Slug("myteam"),
+		Postgres: "foobar", Branch: "missing", TeamSlug: slug.Slug("myteam"),
 		EnvironmentName: "dev", AccessLevel: PostgresAccessLevelRead,
 		Reason: "Investigating missing instance",
 	}
 	err = input.Validate(ctx)
-	if err == nil || !strings.Contains(err.Error(), `Could not find PostgresBranch named "missing"`) {
+	if err == nil || !strings.Contains(err.Error(), `Could not find PostgresBranch "missing"`) {
 		t.Errorf("validation error = %v, want named missing instance", err)
 	}
 }

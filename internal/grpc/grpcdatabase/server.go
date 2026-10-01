@@ -78,8 +78,12 @@ func sqlDatabaseToProto(d *sqlinstance.SQLDatabase) *protoapi.Database {
 }
 
 func postgresBranchToProto(p *postgres.PostgresBranch) *protoapi.Database {
+	name := p.PostgresName
+	if p.Name != "main" {
+		name += "/" + p.Name
+	}
 	return &protoapi.Database{
-		Name:        p.Name,
+		Name:        name,
 		Database:    "app",
 		Environment: p.EnvironmentName,
 		TeamSlug:    p.TeamSlug.String(),

@@ -24,11 +24,6 @@ extend type Team {
 extend type TeamEnvironment {
 	"Postgres in the team environment."
 	postgres("Name of the Postgres in this team environment." name: String!): Postgres!
-	"Named PostgresBranch in the team environment."
-	postgresBranch(
-		"Name of the PostgresBranch in this team environment."
-		name: String!
-	): PostgresBranch!
 	"""
 	EXPERIMENTAL: DO NOT USE
 	Get a PostgresAccess and its state. Available to authorized team members.
@@ -93,6 +88,7 @@ enum PostgresBranchOrderField {
 "A named PostgresBranch belonging to a Postgres."
 type PostgresBranch implements Persistence & Node {
 	id: ID!
+	"Local name of this branch within its Postgres."
 	name: String!
 	team: Team!
 	teamEnvironment: TeamEnvironment!
@@ -130,8 +126,18 @@ type Postgres implements Node {
 	highAvailability: Boolean!
 	"Requested CPU, memory and disk size, when present on this Postgres."
 	resources: PostgresResources!
-	"Name of the currently active PostgresBranch, if selected."
-	activeBranch: String
+	"Currently active branch, if selected."
+	activeBranch: PostgresBranch
+	"Branch with this local name in this Postgres."
+	branch(name: String!): PostgresBranch!
+	"Branches belonging to this Postgres."
+	branches(
+		first: Int
+		after: Cursor
+		last: Int
+		before: Cursor
+		orderBy: PostgresBranchOrder
+	): PostgresBranchConnection!
 	"User-defined labels on this Postgres."
 	labels: [ResourceLabel!]!
 }
@@ -390,8 +396,10 @@ type CreatePostgresAccessPayload {
 
 "Input for creating a time-limited personal Postgres access."
 input CreatePostgresAccessInput {
-	"Name of the PostgresBranch to access."
-	postgresBranch: String!
+	"Name of the Postgres containing the branch."
+	postgres: String!
+	"Local name of the branch to access."
+	branch: String!
 	"Team that owns the Postgres branch."
 	teamSlug: Slug!
 	"Environment containing the Postgres branch."
@@ -415,8 +423,10 @@ enum PostgresAccessLevel {
 }
 
 input DeletePostgresBranchInput {
-	"Name of the PostgresBranch."
-	name: String!
+	"Name of the Postgres containing the branch."
+	postgres: String!
+	"Local name of the branch to delete."
+	branch: String!
 	"The environment containing the PostgresBranch."
 	environmentName: String!
 	"The team that owns the PostgresBranch."
