@@ -1063,10 +1063,6 @@ type ComplexityRoot struct {
 		WorkflowSha          func(childComplexity int) int
 	}
 
-	GrantPostgresAccessPayload struct {
-		Error func(childComplexity int) int
-	}
-
 	IDPortenAuthIntegration struct {
 		Name func(childComplexity int) int
 	}
@@ -1649,7 +1645,6 @@ type ComplexityRoot struct {
 		DeleteValkey                     func(childComplexity int, input valkey.DeleteValkeyInput) int
 		DisableReconciler                func(childComplexity int, input reconciler.DisableReconcilerInput) int
 		EnableReconciler                 func(childComplexity int, input reconciler.EnableReconcilerInput) int
-		GrantPostgresAccess              func(childComplexity int, input postgres.GrantPostgresAccessInput) int
 		RemoveConfigValue                func(childComplexity int, input config.RemoveConfigValueInput) int
 		RemoveRepositoryFromTeam         func(childComplexity int, input repository.RemoveRepositoryFromTeamInput) int
 		RemoveSecretValue                func(childComplexity int, input secret.RemoveSecretValueInput) int
@@ -7597,13 +7592,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.GitHubActorClaims.WorkflowSha(childComplexity), true
 
-	case "GrantPostgresAccessPayload.error":
-		if e.ComplexityRoot.GrantPostgresAccessPayload.Error == nil {
-			break
-		}
-
-		return e.ComplexityRoot.GrantPostgresAccessPayload.Error(childComplexity), true
-
 	case "IDPortenAuthIntegration.name":
 		if e.ComplexityRoot.IDPortenAuthIntegration.Name == nil {
 			break
@@ -10360,18 +10348,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Mutation.EnableReconciler(childComplexity, args["input"].(reconciler.EnableReconcilerInput)), true
-
-	case "Mutation.grantPostgresAccess":
-		if e.ComplexityRoot.Mutation.GrantPostgresAccess == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_grantPostgresAccess_args(ctx, rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.ComplexityRoot.Mutation.GrantPostgresAccess(childComplexity, args["input"].(postgres.GrantPostgresAccessInput)), true
 
 	case "Mutation.removeConfigValue":
 		if e.ComplexityRoot.Mutation.RemoveConfigValue == nil {
@@ -20929,7 +20905,6 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputEnableReconcilerInput,
 		ec.unmarshalInputEnvironmentOrder,
 		ec.unmarshalInputEnvironmentWorkloadOrder,
-		ec.unmarshalInputGrantPostgresAccessInput,
 		ec.unmarshalInputImageVulnerabilityFilter,
 		ec.unmarshalInputImageVulnerabilityOrder,
 		ec.unmarshalInputIssueFilter,
@@ -27780,8 +27755,6 @@ extend enum ActivityLogActivityType {
 }
 
 extend type Mutation {
-	"Grant temporary access to a Postgres cluster."
-	grantPostgresAccess(input: GrantPostgresAccessInput!): GrantPostgresAccessPayload!
 	"""
 	EXPERIMENTAL: DO NOT USE
 	Create time-limited personal access to a NAIS Postgres branch through the brokered PostgresAccess and relay flow.
@@ -27790,19 +27763,6 @@ extend type Mutation {
 	createPostgresAccess(input: CreatePostgresAccessInput!): CreatePostgresAccessPayload!
 	"Delete a PostgresBranch that is not active on its Postgres."
 	deletePostgresBranch(input: DeletePostgresBranchInput!): DeletePostgresBranchPayload!
-}
-
-type GrantPostgresAccessPayload {
-	error: String
-}
-
-input GrantPostgresAccessInput {
-	clusterName: String!
-	teamSlug: Slug!
-	environmentName: String!
-	grantee: String!
-	"Duration of the access grant (maximum 4 hours)."
-	duration: String!
 }
 
 "Result of creating a personal Postgres access."
@@ -36632,14 +36592,6 @@ func (ec *executionContext) childFields_GitHubActorClaims(ctx context.Context, f
 		return ec.fieldContext_GitHubActorClaims_workflowSha(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type GitHubActorClaims", field.Name)
-}
-
-func (ec *executionContext) childFields_GrantPostgresAccessPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-	switch field.Name {
-	case "error":
-		return ec.fieldContext_GrantPostgresAccessPayload_error(ctx, field)
-	}
-	return nil, fmt.Errorf("no field named %q was found under type GrantPostgresAccessPayload", field.Name)
 }
 
 func (ec *executionContext) childFields_ImageVulnerability(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
