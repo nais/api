@@ -27935,6 +27935,7 @@ type PostgresDeletedActivityLogEntry implements ActivityLogEntry & Node {
 	environmentName: String
 }
 
+"Activity log entry for a Postgres that was created."
 type PostgresCreatedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
@@ -27964,6 +27965,7 @@ type PostgresCreatedActivityLogEntry implements ActivityLogEntry & Node {
 	environmentName: String
 }
 
+"Activity log entry for a Postgres that was updated."
 type PostgresUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
