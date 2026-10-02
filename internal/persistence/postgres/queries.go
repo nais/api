@@ -244,6 +244,13 @@ func GetPostgresAccessConnection(ctx context.Context, input PostgresAccessConnec
 	if state, _ := postgresAccessState(resource, resource.Spec.ExpiresAt.Time); state != PostgresAccessStateReady || access.GetDeletionTimestamp() != nil {
 		return nil, nil
 	}
+	endpoint, _, err := unstructured.NestedString(access.Object, "status", "relayEndpoint")
+	if err != nil {
+		return nil, fmt.Errorf("reading relay endpoint for PostgresAccess %q: %w", input.Name, err)
+	}
+	if endpoint == "" {
+		return nil, nil
+	}
 
 	connection, credentialSecretName, err := postgresAccessConnectionDetails(access, time.Now())
 	if err != nil {
@@ -307,7 +314,11 @@ func postgresAccessConnectionDetails(access *unstructured.Unstructured, now time
 	if obj.Status.RelayAccess == "" || obj.Status.TokenSecret == "" || obj.Status.DatabaseRole == "" || obj.Status.ServerName == "" || obj.Status.ServerCASecret == "" {
 		return nil, "", apierror.Errorf("PostgresAccess %q is not ready", access.GetName())
 	}
-	return &PostgresAccessConnectionDetails{}, obj.Status.TokenSecret, nil
+	endpoint, _, err := unstructured.NestedString(access.Object, "status", "relayEndpoint")
+	if err != nil || endpoint == "" {
+		return nil, "", apierror.Errorf("PostgresAccess %q is not ready", access.GetName())
+	}
+	return &PostgresAccessConnectionDetails{RelayEndpoint: endpoint}, obj.Status.TokenSecret, nil
 }
 
 func toPostgresAccess(u *unstructured.Unstructured, teamSlug slug.Slug, environmentName string) (*PostgresAccess, error) {

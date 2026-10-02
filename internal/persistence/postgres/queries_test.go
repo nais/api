@@ -153,6 +153,7 @@ func TestPostgresAccessConnectionDetails(t *testing.T) {
 			"status": map[string]any{
 				"databaseRole":   "personal-role",
 				"relayAccess":    "access",
+				"relayEndpoint":  "https://relay.external.dev.nav.cloud.nais.io:8443",
 				"tokenSecret":    "access-relay-token",
 				"serverName":     "pg-orders-rw.team.svc.cluster.local",
 				"serverCASecret": "pg-orders-ca",
@@ -178,6 +179,9 @@ func TestPostgresAccessConnectionDetails(t *testing.T) {
 		}, want: "not ready"},
 		{name: "missing relay mapping", edit: func(u *unstructured.Unstructured) {
 			unstructured.RemoveNestedField(u.Object, "status", "relayAccess")
+		}, want: "not ready"},
+		{name: "missing relay endpoint", edit: func(u *unstructured.Unstructured) {
+			unstructured.RemoveNestedField(u.Object, "status", "relayEndpoint")
 		}, want: "not ready"},
 		{name: "missing server name", edit: func(u *unstructured.Unstructured) {
 			unstructured.RemoveNestedField(u.Object, "status", "serverName")
@@ -205,8 +209,8 @@ func TestPostgresAccessConnectionDetails(t *testing.T) {
 			if secretName != "access-relay-token" {
 				t.Errorf("secret name = %q", secretName)
 			}
-			if got == nil {
-				t.Fatal("connection is nil")
+			if got == nil || got.RelayEndpoint != "https://relay.external.dev.nav.cloud.nais.io:8443" {
+				t.Fatalf("connection endpoint = %v, want status endpoint", got)
 			}
 		})
 	}
