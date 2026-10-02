@@ -341,7 +341,7 @@ Test.gql("PostgresAccess connection returns credentials only to its owner", func
 				caCertificate = "test-ca-certificate",
 				serverName = "pg-foobar-main-a4f04c0c-rw.someteamname.svc.cluster.local",
 				username = "user-foobar-role",
-				relayEndpoint = Contains("https://relay.external.dev."),
+				relayEndpoint = "https://relay.external.dev.nav.cloud.nais.io:8443",
 				relayAccess = "someteamname/mapped-access",
 				relayToken = "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8",
 			},
@@ -390,6 +390,12 @@ Test.gql("PostgresAccess connection is null without error until the access is re
 			data = { team = { environment = { postgresAccess = { state = test.state, connection = Null } } } },
 		}
 	end
+end)
+
+Test.gql("PostgresAccess connection is null before relay endpoint is published", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[query { team(slug: "someteamname") { environment(name: "dev") { postgresAccess(name: "ready-no-endpoint-access") { connection { relayEndpoint } } } } }]]
+	t.check { data = { team = { environment = { postgresAccess = { connection = Null } } } } }
 end)
 
 Test.gql("PostgresAccess connection fails when a ready access has no secrets", function(t)

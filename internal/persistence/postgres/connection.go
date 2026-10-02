@@ -73,7 +73,6 @@ func loadPostgresAccessConnection(ctx context.Context, access *unstructured.Unst
 		return apierror.Errorf("PostgresAccess %q is not ready", access.GetName())
 	}
 	connection.ServerName = serverName
-	connection.RelayEndpoint = fmt.Sprintf("https://relay.external.%s.%s.cloud.nais.io:8443", input.EnvironmentName, fromContext(ctx).tenantName)
 	relayName, _, err := unstructured.NestedString(access.Object, "status", "relayAccess")
 	if err != nil || relayName == "" {
 		return apierror.Errorf("PostgresAccess %q is not ready", access.GetName())
