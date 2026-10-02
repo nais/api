@@ -24,6 +24,7 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/util/validation"
 )
 
 type PostgresBranchEdge = pagination.Edge[*PostgresBranch]
@@ -562,4 +563,112 @@ type PostgresAccessConnectionDetails struct {
 	RelayEndpoint string `json:"relayEndpoint"`
 	RelayAccess   string `json:"relayAccess"`
 	RelayToken    string `json:"relayToken"`
+}
+
+// supportedMajorVersions are the versions the API accepts for new Postgres. The CRD enum
+// also allows older versions, but those are not offered to users.
+var supportedMajorVersions = []string{"18"}
+
+type CreatePostgresInput struct {
+	Name             string    `json:"name"`
+	EnvironmentName  string    `json:"environmentName"`
+	TeamSlug         slug.Slug `json:"teamSlug"`
+	MajorVersion     string    `json:"majorVersion"`
+	HighAvailability *bool     `json:"highAvailability,omitempty"`
+	CPU              *string   `json:"cpu,omitempty"`
+	Memory           *string   `json:"memory,omitempty"`
+	DiskSize         *string   `json:"diskSize,omitempty"`
+}
+
+type CreatePostgresPayload struct {
+	Postgres *Postgres `json:"postgres"`
+}
+
+type UpdatePostgresInput struct {
+	Name             string    `json:"name"`
+	EnvironmentName  string    `json:"environmentName"`
+	TeamSlug         slug.Slug `json:"teamSlug"`
+	HighAvailability *bool     `json:"highAvailability,omitempty"`
+	CPU              *string   `json:"cpu,omitempty"`
+	Memory           *string   `json:"memory,omitempty"`
+	DiskSize         *string   `json:"diskSize,omitempty"`
+}
+
+type UpdatePostgresPayload struct {
+	Postgres *Postgres `json:"postgres"`
+}
+
+func (i *CreatePostgresInput) Validate(ctx context.Context) error {
+	return i.ValidationErrors(ctx).NilIfEmpty()
+}
+
+func (i *CreatePostgresInput) ValidationErrors(_ context.Context) *validate.ValidationErrors {
+	verr := validate.New()
+	i.Name = strings.TrimSpace(i.Name)
+	i.EnvironmentName = strings.TrimSpace(i.EnvironmentName)
+	i.MajorVersion = strings.TrimSpace(i.MajorVersion)
+
+	if i.Name == "" {
+		verr.Add("name", "Name must not be empty.")
+	} else if errs := validation.IsDNS1123Subdomain(i.Name); len(errs) > 0 {
+		verr.Add("name", "Name must consist of lowercase letters, numbers, and hyphens only. It cannot start or end with a hyphen.")
+	}
+	if i.EnvironmentName == "" {
+		verr.Add("environmentName", "Environment name must not be empty.")
+	}
+	if i.TeamSlug == "" {
+		verr.Add("teamSlug", "Team slug must not be empty.")
+	}
+	if !contains(supportedMajorVersions, i.MajorVersion) {
+		verr.Add("majorVersion", "Major version must be one of: %s.", strings.Join(supportedMajorVersions, ", "))
+	}
+	validateQuantities(verr, i.CPU, i.Memory, i.DiskSize)
+	return verr
+}
+
+func (i *UpdatePostgresInput) Validate(ctx context.Context) error {
+	return i.ValidationErrors(ctx).NilIfEmpty()
+}
+
+func (i *UpdatePostgresInput) ValidationErrors(_ context.Context) *validate.ValidationErrors {
+	verr := validate.New()
+	i.Name = strings.TrimSpace(i.Name)
+	i.EnvironmentName = strings.TrimSpace(i.EnvironmentName)
+
+	if i.Name == "" {
+		verr.Add("name", "Name must not be empty.")
+	} else if errs := validation.IsDNS1123Subdomain(i.Name); len(errs) > 0 {
+		verr.Add("name", "Name must consist of lowercase letters, numbers, and hyphens only. It cannot start or end with a hyphen.")
+	}
+	if i.EnvironmentName == "" {
+		verr.Add("environmentName", "Environment name must not be empty.")
+	}
+	if i.TeamSlug == "" {
+		verr.Add("teamSlug", "Team slug must not be empty.")
+	}
+	validateQuantities(verr, i.CPU, i.Memory, i.DiskSize)
+	return verr
+}
+
+func validateQuantities(verr *validate.ValidationErrors, cpu, memory, diskSize *string) {
+	for field, value := range map[string]*string{"cpu": cpu, "memory": memory, "diskSize": diskSize} {
+		if value == nil {
+			continue
+		}
+		quantity, err := resource.ParseQuantity(*value)
+		if err != nil {
+			verr.Add(field, "%q is not a valid quantity.", *value)
+		} else if quantity.Sign() <= 0 {
+			verr.Add(field, "%q must be greater than zero.", *value)
+		}
+	}
+}
+
+func contains(values []string, value string) bool {
+	for _, v := range values {
+		if v == value {
+			return true
+		}
+	}
+	return false
 }

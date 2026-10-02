@@ -104,3 +104,15 @@ status:
   conditions:
     - type: Ready
       status: "True"
+---
+apiVersion: nais.io/v1
+kind: PostgresAccess
+metadata:
+  name: postgres-access-9269571e872b7c9d
+  namespace: someteamname
+  uid: 33333333-3333-4333-8333-333333333333
+spec:
+  postgresBranch: foobar-main-a4f04c0c
+  username: stale@usersen.com
+  accessLevel: read
+  expiresAt: "2000-01-01T00:00:00Z"

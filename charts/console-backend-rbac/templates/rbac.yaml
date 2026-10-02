@@ -122,10 +122,21 @@ rules:
   - apiGroups:
       - "nais.io"
     resources:
+      - postgres
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - update
+  - apiGroups:
+      - "nais.io"
+    resources:
       - postgresaccesses
     verbs:
       - get
       - create
+      - delete
   - apiGroups:
       - "nais.io"
     resources:
@@ -302,6 +313,7 @@ rules:
     verbs:
       - get
       - create
+      - delete
   - apiGroups:
       - "nais.io"
     resources:

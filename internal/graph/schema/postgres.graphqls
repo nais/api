@@ -341,7 +341,96 @@ type PostgresDeletedActivityLogEntry implements ActivityLogEntry & Node {
 	environmentName: String
 }
 
+"Activity log entry for a Postgres that was created."
+type PostgresCreatedActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	actor: String!
+
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: ActivityLogEntryResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+}
+
+"Activity log entry for a Postgres that was updated."
+type PostgresUpdatedActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	actor: String!
+
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: ActivityLogEntryResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+
+	"Data associated with the entry."
+	data: PostgresUpdatedActivityLogEntryData!
+}
+
+"Data associated with a Postgres update."
+type PostgresUpdatedActivityLogEntryData {
+	"The fields that were changed."
+	updatedFields: [PostgresUpdatedActivityLogEntryDataUpdatedField!]!
+}
+
+"A single field that was changed by a Postgres update."
+type PostgresUpdatedActivityLogEntryDataUpdatedField {
+	"The name of the field."
+	field: String!
+
+	"The old value of the field, if it had one."
+	oldValue: String
+
+	"The new value of the field."
+	newValue: String
+}
+
 extend enum ActivityLogActivityType {
+	"""
+	A Postgres was created
+	"""
+	POSTGRES_CREATED
+	"""
+	A Postgres was updated
+	"""
+	POSTGRES_UPDATED
 	"""
 	A user was granted access to a Postgres cluster
 	"""
@@ -367,6 +456,10 @@ extend type Mutation {
 	When the access is ready, retrieve its connection materials through PostgresAccess.connection.
 	"""
 	createPostgresAccess(input: CreatePostgresAccessInput!): CreatePostgresAccessPayload!
+	"Create a new Postgres. Its first branch, main, is created and activated by the platform."
+	createPostgres(input: CreatePostgresInput!): CreatePostgresPayload!
+	"Update an existing Postgres. The PostgreSQL major version cannot be changed."
+	updatePostgres(input: UpdatePostgresInput!): UpdatePostgresPayload!
 	"Delete a PostgresBranch that is not active on its Postgres."
 	deletePostgresBranch(input: DeletePostgresBranchInput!): DeletePostgresBranchPayload!
 }
@@ -489,4 +582,54 @@ type PostgresAccessConnectionDetails {
 	relayAccess: String!
 	"Owner-only bearer token for this access; never log it."
 	relayToken: String!
+}
+
+"Input for creating a Postgres."
+input CreatePostgresInput {
+	"Name of the Postgres."
+	name: String!
+	"The environment name that the Postgres belongs to."
+	environmentName: String!
+	"The team that owns the Postgres."
+	teamSlug: Slug!
+	"PostgreSQL major version."
+	majorVersion: String!
+	"Add a third instance and enable synchronous replication. Defaults to false."
+	highAvailability: Boolean
+	"Requested CPU, for example '100m'. If omitted, the platform default is used."
+	cpu: String
+	"Requested memory, for example '512Mi'. If omitted, the platform default is used."
+	memory: String
+	"Requested disk size, for example '10Gi'. If omitted, the platform default is used."
+	diskSize: String
+}
+
+"Result of creating a Postgres."
+type CreatePostgresPayload {
+	"The Postgres that was created."
+	postgres: Postgres!
+}
+
+"Input for updating a Postgres. Omitted fields are left unchanged."
+input UpdatePostgresInput {
+	"Name of the Postgres."
+	name: String!
+	"The environment name that the Postgres belongs to."
+	environmentName: String!
+	"The team that owns the Postgres."
+	teamSlug: Slug!
+	"Add a third instance and enable synchronous replication."
+	highAvailability: Boolean
+	"Requested CPU, for example '100m'."
+	cpu: String
+	"Requested memory, for example '512Mi'."
+	memory: String
+	"Requested disk size, for example '10Gi'."
+	diskSize: String
+}
+
+"Result of updating a Postgres."
+type UpdatePostgresPayload {
+	"The Postgres that was updated."
+	postgres: Postgres!
 }

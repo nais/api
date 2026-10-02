@@ -789,6 +789,13 @@ func (ec *executionContext) _ActivityLogEntry(ctx context.Context, sel ast.Selec
 			return graphql.Null
 		}
 		return ec._ReconcilerConfiguredActivityLogEntry(ctx, sel, obj)
+	case postgres.PostgresUpdatedActivityLogEntry:
+		return ec._PostgresUpdatedActivityLogEntry(ctx, sel, &obj)
+	case *postgres.PostgresUpdatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._PostgresUpdatedActivityLogEntry(ctx, sel, obj)
 	case postgres.PostgresPersonalAccessCreatedActivityLogEntry:
 		return ec._PostgresPersonalAccessCreatedActivityLogEntry(ctx, sel, &obj)
 	case *postgres.PostgresPersonalAccessCreatedActivityLogEntry:
@@ -817,6 +824,13 @@ func (ec *executionContext) _ActivityLogEntry(ctx context.Context, sel ast.Selec
 			return graphql.Null
 		}
 		return ec._PostgresDeletedActivityLogEntry(ctx, sel, obj)
+	case postgres.PostgresCreatedActivityLogEntry:
+		return ec._PostgresCreatedActivityLogEntry(ctx, sel, &obj)
+	case *postgres.PostgresCreatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._PostgresCreatedActivityLogEntry(ctx, sel, obj)
 	case opensearch.OpenSearchUpdatedActivityLogEntry:
 		return ec._OpenSearchUpdatedActivityLogEntry(ctx, sel, &obj)
 	case *opensearch.OpenSearchUpdatedActivityLogEntry:

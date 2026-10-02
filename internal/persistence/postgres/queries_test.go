@@ -11,6 +11,7 @@ import (
 	nais_io_v1 "github.com/nais/pgrator/pkg/api/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/util/validation"
 )
 
 func TestNewPostgresAccessResource(t *testing.T) {
@@ -208,5 +209,56 @@ func TestPostgresAccessConnectionDetails(t *testing.T) {
 				t.Fatal("connection is nil")
 			}
 		})
+	}
+}
+
+func TestPostgresAccessNameIsStablePerUserAndBranch(t *testing.T) {
+	name := postgresAccessName("user@example.com", "orders-main-abc")
+	if name != postgresAccessName("user@example.com", "orders-main-abc") {
+		t.Error("name must be stable, so a second request for the same pair conflicts")
+	}
+	for _, other := range []string{
+		postgresAccessName("other@example.com", "orders-main-abc"),
+		postgresAccessName("user@example.com", "orders-recovered-abc"),
+		// Shifting the boundary between user and branch must not collide.
+		postgresAccessName("user@example.comorders", "-main-abc"),
+	} {
+		if other == name {
+			t.Errorf("different user/branch produced the same name %q", name)
+		}
+	}
+	if errs := validation.IsDNS1123Subdomain(name); len(errs) > 0 {
+		t.Errorf("name %q is not a valid resource name: %v", name, errs)
+	}
+}
+
+func TestOmittedResourcesAreNotSent(t *testing.T) {
+	cpu := "500m"
+	pg := &nais_io_v1.Postgres{}
+	if err := applyResources(&pg.Spec.Resources, &cpu, nil, nil); err != nil {
+		t.Fatal(err)
+	}
+
+	obj, err := toUnstructuredWithoutZeroResources(pg)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	resources, _, _ := unstructured.NestedMap(obj.Object, "spec", "resources")
+	if got := resources["cpu"]; got != "500m" {
+		t.Errorf("cpu = %v, want 500m", got)
+	}
+	for _, field := range []string{"memory", "diskSize"} {
+		if v, found := resources[field]; found {
+			t.Errorf("%s = %v was sent, but must be left out so the CRD default applies", field, v)
+		}
+	}
+
+	empty, err := toUnstructuredWithoutZeroResources(&nais_io_v1.Postgres{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, found, _ := unstructured.NestedMap(empty.Object, "spec", "resources"); found {
+		t.Error("spec.resources must be left out entirely when nothing is set")
 	}
 }

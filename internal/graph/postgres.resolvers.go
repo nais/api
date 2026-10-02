@@ -43,6 +43,20 @@ func (r *mutationResolver) CreatePostgresAccess(ctx context.Context, input postg
 	return postgres.CreatePostgresAccess(ctx, input)
 }
 
+func (r *mutationResolver) CreatePostgres(ctx context.Context, input postgres.CreatePostgresInput) (*postgres.CreatePostgresPayload, error) {
+	if err := authz.CanCreatePostgres(ctx, input.TeamSlug); err != nil {
+		return nil, err
+	}
+	return postgres.Create(ctx, input)
+}
+
+func (r *mutationResolver) UpdatePostgres(ctx context.Context, input postgres.UpdatePostgresInput) (*postgres.UpdatePostgresPayload, error) {
+	if err := authz.CanUpdatePostgres(ctx, input.TeamSlug); err != nil {
+		return nil, err
+	}
+	return postgres.Update(ctx, input)
+}
+
 func (r *mutationResolver) DeletePostgresBranch(ctx context.Context, input postgres.DeletePostgresBranchInput) (*postgres.DeletePostgresBranchPayload, error) {
 	if err := authz.CanDeletePostgres(ctx, input.TeamSlug); err != nil {
 		return nil, err

@@ -30,7 +30,7 @@ func loadPostgresAccessConnection(ctx context.Context, access *unstructured.Unst
 	if err != nil {
 		return err
 	}
-	// The broker creates short names (postgres-access-<uuid>), so this is the
+	// The broker creates short names (postgres-access-<hash>), so this is the
 	// pgrator-owned credential Secret for this access, not a client-supplied name.
 	credential, err := getAccessResource(ctx, input.EnvironmentName, namespace, access.GetName()+"-credentials", schema.GroupVersionResource{Version: "v1", Resource: "secrets"})
 	if err != nil {

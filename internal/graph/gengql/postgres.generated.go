@@ -203,6 +203,38 @@ func (ec *executionContext) fieldContext_CreatePostgresAccessPayload_expiresAt(_
 	return graphql.NewScalarFieldContext("CreatePostgresAccessPayload", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
+func (ec *executionContext) _CreatePostgresPayload_postgres(ctx context.Context, field graphql.CollectedField, obj *postgres.CreatePostgresPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_CreatePostgresPayload_postgres(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Postgres, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *postgres.Postgres) graphql.Marshaler {
+			return ec.marshalNPostgres2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgres(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_CreatePostgresPayload_postgres(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CreatePostgresPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_Postgres(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _DeletePostgresBranchPayload_postgresBranchDeleted(ctx context.Context, field graphql.CollectedField, obj *postgres.DeletePostgresBranchPayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -1518,6 +1550,222 @@ func (ec *executionContext) fieldContext_PostgresBranchStateFacetItem_count(_ co
 	return graphql.NewScalarFieldContext("PostgresBranchStateFacetItem", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
+func (ec *executionContext) _PostgresCreatedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresCreatedActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresCreatedActivityLogEntry_id(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.ID(), nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
+			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresCreatedActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresCreatedActivityLogEntry", field, true, false, errors.New("field of type ID does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresCreatedActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresCreatedActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresCreatedActivityLogEntry_actor(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Actor, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresCreatedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresCreatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresCreatedActivityLogEntry_gitHubActorClaims(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresCreatedActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresCreatedActivityLogEntry_gitHubActorClaims(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.GitHubActorClaims, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *github.GitHubActorClaims) graphql.Marshaler {
+			return ec.marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresCreatedActivityLogEntry_gitHubActorClaims(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresCreatedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_GitHubActorClaims(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresCreatedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresCreatedActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresCreatedActivityLogEntry_createdAt(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.CreatedAt, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
+			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresCreatedActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresCreatedActivityLogEntry", field, false, false, errors.New("field of type Time does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresCreatedActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresCreatedActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresCreatedActivityLogEntry_message(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Message, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresCreatedActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresCreatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresCreatedActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresCreatedActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresCreatedActivityLogEntry_resourceType(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.ResourceType, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v activitylog.ActivityLogEntryResourceType) graphql.Marshaler {
+			return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresCreatedActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresCreatedActivityLogEntry", field, false, false, errors.New("field of type ActivityLogEntryResourceType does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresCreatedActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresCreatedActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresCreatedActivityLogEntry_resourceName(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.ResourceName, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresCreatedActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresCreatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresCreatedActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresCreatedActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresCreatedActivityLogEntry_teamSlug(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.TeamSlug, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *slug.Slug) graphql.Marshaler {
+			return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresCreatedActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresCreatedActivityLogEntry", field, false, false, errors.New("field of type Slug does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresCreatedActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresCreatedActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresCreatedActivityLogEntry_environmentName(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.EnvironmentName, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresCreatedActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresCreatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
 func (ec *executionContext) _PostgresDeletedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresDeletedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -2653,6 +2901,355 @@ func (ec *executionContext) fieldContext_PostgresResources_diskSize(_ context.Co
 	return graphql.NewScalarFieldContext("PostgresResources", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
+func (ec *executionContext) _PostgresUpdatedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresUpdatedActivityLogEntry_id(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.ID(), nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
+			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresUpdatedActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresUpdatedActivityLogEntry", field, true, false, errors.New("field of type ID does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresUpdatedActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresUpdatedActivityLogEntry_actor(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Actor, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresUpdatedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresUpdatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresUpdatedActivityLogEntry_gitHubActorClaims(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresUpdatedActivityLogEntry_gitHubActorClaims(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.GitHubActorClaims, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *github.GitHubActorClaims) graphql.Marshaler {
+			return ec.marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresUpdatedActivityLogEntry_gitHubActorClaims(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresUpdatedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_GitHubActorClaims(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresUpdatedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresUpdatedActivityLogEntry_createdAt(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.CreatedAt, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
+			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresUpdatedActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresUpdatedActivityLogEntry", field, false, false, errors.New("field of type Time does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresUpdatedActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresUpdatedActivityLogEntry_message(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Message, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresUpdatedActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresUpdatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresUpdatedActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresUpdatedActivityLogEntry_resourceType(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.ResourceType, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v activitylog.ActivityLogEntryResourceType) graphql.Marshaler {
+			return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresUpdatedActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresUpdatedActivityLogEntry", field, false, false, errors.New("field of type ActivityLogEntryResourceType does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresUpdatedActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresUpdatedActivityLogEntry_resourceName(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.ResourceName, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresUpdatedActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresUpdatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresUpdatedActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresUpdatedActivityLogEntry_teamSlug(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.TeamSlug, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *slug.Slug) graphql.Marshaler {
+			return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresUpdatedActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresUpdatedActivityLogEntry", field, false, false, errors.New("field of type Slug does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresUpdatedActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresUpdatedActivityLogEntry_environmentName(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.EnvironmentName, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresUpdatedActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresUpdatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresUpdatedActivityLogEntry_data(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresUpdatedActivityLogEntry_data(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Data, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *postgres.PostgresUpdatedActivityLogEntryData) graphql.Marshaler {
+			return ec.marshalNPostgresUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresUpdatedActivityLogEntryData(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresUpdatedActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresUpdatedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_PostgresUpdatedActivityLogEntryData(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresUpdatedActivityLogEntryData_updatedFields(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresUpdatedActivityLogEntryData) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresUpdatedActivityLogEntryData_updatedFields(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.UpdatedFields, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []*postgres.PostgresUpdatedActivityLogEntryDataUpdatedField) graphql.Marshaler {
+			return ec.marshalNPostgresUpdatedActivityLogEntryDataUpdatedField2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresUpdatedActivityLogEntryDataUpdatedFieldᚄ(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresUpdatedActivityLogEntryData_updatedFields(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresUpdatedActivityLogEntryData",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_PostgresUpdatedActivityLogEntryDataUpdatedField(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresUpdatedActivityLogEntryDataUpdatedField_field(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresUpdatedActivityLogEntryDataUpdatedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresUpdatedActivityLogEntryDataUpdatedField_field(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Field, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresUpdatedActivityLogEntryDataUpdatedField_field(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresUpdatedActivityLogEntryDataUpdatedField", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresUpdatedActivityLogEntryDataUpdatedField_oldValue(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresUpdatedActivityLogEntryDataUpdatedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresUpdatedActivityLogEntryDataUpdatedField_oldValue(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.OldValue, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresUpdatedActivityLogEntryDataUpdatedField_oldValue(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresUpdatedActivityLogEntryDataUpdatedField", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresUpdatedActivityLogEntryDataUpdatedField_newValue(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresUpdatedActivityLogEntryDataUpdatedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresUpdatedActivityLogEntryDataUpdatedField_newValue(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.NewValue, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresUpdatedActivityLogEntryDataUpdatedField_newValue(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresUpdatedActivityLogEntryDataUpdatedField", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
 func (ec *executionContext) _TeamInventoryCountPostgresBranches_total(ctx context.Context, field graphql.CollectedField, obj *postgres.TeamInventoryCountPostgresBranches) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -2674,6 +3271,38 @@ func (ec *executionContext) _TeamInventoryCountPostgresBranches_total(ctx contex
 }
 func (ec *executionContext) fieldContext_TeamInventoryCountPostgresBranches_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamInventoryCountPostgresBranches", field, false, false, errors.New("field of type Int does not have child fields"))
+}
+
+func (ec *executionContext) _UpdatePostgresPayload_postgres(ctx context.Context, field graphql.CollectedField, obj *postgres.UpdatePostgresPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_UpdatePostgresPayload_postgres(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Postgres, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *postgres.Postgres) graphql.Marshaler {
+			return ec.marshalNPostgres2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgres(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_UpdatePostgresPayload_postgres(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UpdatePostgresPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_Postgres(ctx, field)
+		},
+	}
+	return fc, nil
 }
 
 // endregion **************************** field.gotpl *****************************
@@ -2747,6 +3376,85 @@ func (ec *executionContext) unmarshalInputCreatePostgresAccessInput(ctx context.
 				return it, err
 			}
 			it.TTL = data
+		}
+	}
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputCreatePostgresInput(ctx context.Context, obj any) (postgres.CreatePostgresInput, error) {
+	var it postgres.CreatePostgresInput
+	if obj == nil {
+		return it, nil
+	}
+
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"name", "environmentName", "teamSlug", "majorVersion", "highAvailability", "cpu", "memory", "diskSize"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "environmentName":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environmentName"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.EnvironmentName = data
+		case "teamSlug":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamSlug"))
+			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TeamSlug = data
+		case "majorVersion":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("majorVersion"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MajorVersion = data
+		case "highAvailability":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("highAvailability"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HighAvailability = data
+		case "cpu":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cpu"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CPU = data
+		case "memory":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("memory"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Memory = data
+		case "diskSize":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("diskSize"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DiskSize = data
 		}
 	}
 	return it, nil
@@ -2891,6 +3599,78 @@ func (ec *executionContext) unmarshalInputPostgresBranchOrder(ctx context.Contex
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputUpdatePostgresInput(ctx context.Context, obj any) (postgres.UpdatePostgresInput, error) {
+	var it postgres.UpdatePostgresInput
+	if obj == nil {
+		return it, nil
+	}
+
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"name", "environmentName", "teamSlug", "highAvailability", "cpu", "memory", "diskSize"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "environmentName":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environmentName"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.EnvironmentName = data
+		case "teamSlug":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamSlug"))
+			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TeamSlug = data
+		case "highAvailability":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("highAvailability"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HighAvailability = data
+		case "cpu":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cpu"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CPU = data
+		case "memory":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("memory"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Memory = data
+		case "diskSize":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("diskSize"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DiskSize = data
+		}
+	}
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -2917,6 +3697,45 @@ func (ec *executionContext) _CreatePostgresAccessPayload(ctx context.Context, se
 			}
 		case "expiresAt":
 			out.Values[i] = ec._CreatePostgresAccessPayload_expiresAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var createPostgresPayloadImplementors = []string{"CreatePostgresPayload"}
+
+func (ec *executionContext) _CreatePostgresPayload(ctx context.Context, sel ast.SelectionSet, obj *postgres.CreatePostgresPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, createPostgresPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("CreatePostgresPayload")
+		case "postgres":
+			out.Values[i] = ec._CreatePostgresPayload_postgres(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -3931,6 +4750,79 @@ func (ec *executionContext) _PostgresBranchStateFacetItem(ctx context.Context, s
 	return out
 }
 
+var postgresCreatedActivityLogEntryImplementors = []string{"PostgresCreatedActivityLogEntry", "ActivityLogEntry", "Node"}
+
+func (ec *executionContext) _PostgresCreatedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *postgres.PostgresCreatedActivityLogEntry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, postgresCreatedActivityLogEntryImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PostgresCreatedActivityLogEntry")
+		case "id":
+			out.Values[i] = ec._PostgresCreatedActivityLogEntry_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "actor":
+			out.Values[i] = ec._PostgresCreatedActivityLogEntry_actor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "gitHubActorClaims":
+			out.Values[i] = ec._PostgresCreatedActivityLogEntry_gitHubActorClaims(ctx, field, obj)
+		case "createdAt":
+			out.Values[i] = ec._PostgresCreatedActivityLogEntry_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "message":
+			out.Values[i] = ec._PostgresCreatedActivityLogEntry_message(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "resourceType":
+			out.Values[i] = ec._PostgresCreatedActivityLogEntry_resourceType(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "resourceName":
+			out.Values[i] = ec._PostgresCreatedActivityLogEntry_resourceName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "teamSlug":
+			out.Values[i] = ec._PostgresCreatedActivityLogEntry_teamSlug(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "environmentName":
+			out.Values[i] = ec._PostgresCreatedActivityLogEntry_environmentName(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var postgresDeletedActivityLogEntryImplementors = []string{"PostgresDeletedActivityLogEntry", "ActivityLogEntry", "Node"}
 
 func (ec *executionContext) _PostgresDeletedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *postgres.PostgresDeletedActivityLogEntry) graphql.Marshaler {
@@ -4368,6 +5260,166 @@ func (ec *executionContext) _PostgresResources(ctx context.Context, sel ast.Sele
 	return out
 }
 
+var postgresUpdatedActivityLogEntryImplementors = []string{"PostgresUpdatedActivityLogEntry", "ActivityLogEntry", "Node"}
+
+func (ec *executionContext) _PostgresUpdatedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *postgres.PostgresUpdatedActivityLogEntry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, postgresUpdatedActivityLogEntryImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PostgresUpdatedActivityLogEntry")
+		case "id":
+			out.Values[i] = ec._PostgresUpdatedActivityLogEntry_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "actor":
+			out.Values[i] = ec._PostgresUpdatedActivityLogEntry_actor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "gitHubActorClaims":
+			out.Values[i] = ec._PostgresUpdatedActivityLogEntry_gitHubActorClaims(ctx, field, obj)
+		case "createdAt":
+			out.Values[i] = ec._PostgresUpdatedActivityLogEntry_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "message":
+			out.Values[i] = ec._PostgresUpdatedActivityLogEntry_message(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "resourceType":
+			out.Values[i] = ec._PostgresUpdatedActivityLogEntry_resourceType(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "resourceName":
+			out.Values[i] = ec._PostgresUpdatedActivityLogEntry_resourceName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "teamSlug":
+			out.Values[i] = ec._PostgresUpdatedActivityLogEntry_teamSlug(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "environmentName":
+			out.Values[i] = ec._PostgresUpdatedActivityLogEntry_environmentName(ctx, field, obj)
+		case "data":
+			out.Values[i] = ec._PostgresUpdatedActivityLogEntry_data(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var postgresUpdatedActivityLogEntryDataImplementors = []string{"PostgresUpdatedActivityLogEntryData"}
+
+func (ec *executionContext) _PostgresUpdatedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, obj *postgres.PostgresUpdatedActivityLogEntryData) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, postgresUpdatedActivityLogEntryDataImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PostgresUpdatedActivityLogEntryData")
+		case "updatedFields":
+			out.Values[i] = ec._PostgresUpdatedActivityLogEntryData_updatedFields(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var postgresUpdatedActivityLogEntryDataUpdatedFieldImplementors = []string{"PostgresUpdatedActivityLogEntryDataUpdatedField"}
+
+func (ec *executionContext) _PostgresUpdatedActivityLogEntryDataUpdatedField(ctx context.Context, sel ast.SelectionSet, obj *postgres.PostgresUpdatedActivityLogEntryDataUpdatedField) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, postgresUpdatedActivityLogEntryDataUpdatedFieldImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PostgresUpdatedActivityLogEntryDataUpdatedField")
+		case "field":
+			out.Values[i] = ec._PostgresUpdatedActivityLogEntryDataUpdatedField_field(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "oldValue":
+			out.Values[i] = ec._PostgresUpdatedActivityLogEntryDataUpdatedField_oldValue(ctx, field, obj)
+		case "newValue":
+			out.Values[i] = ec._PostgresUpdatedActivityLogEntryDataUpdatedField_newValue(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var teamInventoryCountPostgresBranchesImplementors = []string{"TeamInventoryCountPostgresBranches"}
 
 func (ec *executionContext) _TeamInventoryCountPostgresBranches(ctx context.Context, sel ast.SelectionSet, obj *postgres.TeamInventoryCountPostgresBranches) graphql.Marshaler {
@@ -4381,6 +5433,45 @@ func (ec *executionContext) _TeamInventoryCountPostgresBranches(ctx context.Cont
 			out.Values[i] = graphql.MarshalString("TeamInventoryCountPostgresBranches")
 		case "total":
 			out.Values[i] = ec._TeamInventoryCountPostgresBranches_total(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var updatePostgresPayloadImplementors = []string{"UpdatePostgresPayload"}
+
+func (ec *executionContext) _UpdatePostgresPayload(ctx context.Context, sel ast.SelectionSet, obj *postgres.UpdatePostgresPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, updatePostgresPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("UpdatePostgresPayload")
+		case "postgres":
+			out.Values[i] = ec._UpdatePostgresPayload_postgres(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -4428,6 +5519,25 @@ func (ec *executionContext) marshalNCreatePostgresAccessPayload2ᚖgithubᚗcom�
 		return graphql.Null
 	}
 	return ec._CreatePostgresAccessPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNCreatePostgresInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐCreatePostgresInput(ctx context.Context, v any) (postgres.CreatePostgresInput, error) {
+	res, err := ec.unmarshalInputCreatePostgresInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNCreatePostgresPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐCreatePostgresPayload(ctx context.Context, sel ast.SelectionSet, v postgres.CreatePostgresPayload) graphql.Marshaler {
+	return ec._CreatePostgresPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNCreatePostgresPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐCreatePostgresPayload(ctx context.Context, sel ast.SelectionSet, v *postgres.CreatePostgresPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._CreatePostgresPayload(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNDeletePostgresBranchInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐDeletePostgresBranchInput(ctx context.Context, v any) (postgres.DeletePostgresBranchInput, error) {
@@ -4625,6 +5735,42 @@ func (ec *executionContext) marshalNPostgresResources2githubᚗcomᚋnaisᚋapi�
 	return ec._PostgresResources(ctx, sel, &v)
 }
 
+func (ec *executionContext) marshalNPostgresUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresUpdatedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *postgres.PostgresUpdatedActivityLogEntryData) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._PostgresUpdatedActivityLogEntryData(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNPostgresUpdatedActivityLogEntryDataUpdatedField2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresUpdatedActivityLogEntryDataUpdatedFieldᚄ(ctx context.Context, sel ast.SelectionSet, v []*postgres.PostgresUpdatedActivityLogEntryDataUpdatedField) graphql.Marshaler {
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNPostgresUpdatedActivityLogEntryDataUpdatedField2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresUpdatedActivityLogEntryDataUpdatedField(ctx, sel, v[i])
+	})
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNPostgresUpdatedActivityLogEntryDataUpdatedField2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresUpdatedActivityLogEntryDataUpdatedField(ctx context.Context, sel ast.SelectionSet, v *postgres.PostgresUpdatedActivityLogEntryDataUpdatedField) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._PostgresUpdatedActivityLogEntryDataUpdatedField(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNTeamInventoryCountPostgresBranches2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐTeamInventoryCountPostgresBranches(ctx context.Context, sel ast.SelectionSet, v postgres.TeamInventoryCountPostgresBranches) graphql.Marshaler {
 	return ec._TeamInventoryCountPostgresBranches(ctx, sel, &v)
 }
@@ -4637,6 +5783,25 @@ func (ec *executionContext) marshalNTeamInventoryCountPostgresBranches2ᚖgithub
 		return graphql.Null
 	}
 	return ec._TeamInventoryCountPostgresBranches(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNUpdatePostgresInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐUpdatePostgresInput(ctx context.Context, v any) (postgres.UpdatePostgresInput, error) {
+	res, err := ec.unmarshalInputUpdatePostgresInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNUpdatePostgresPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐUpdatePostgresPayload(ctx context.Context, sel ast.SelectionSet, v postgres.UpdatePostgresPayload) graphql.Marshaler {
+	return ec._UpdatePostgresPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNUpdatePostgresPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐUpdatePostgresPayload(ctx context.Context, sel ast.SelectionSet, v *postgres.UpdatePostgresPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._UpdatePostgresPayload(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOPostgresAccessConnectionDetails2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresAccessConnectionDetails(ctx context.Context, sel ast.SelectionSet, v *postgres.PostgresAccessConnectionDetails) graphql.Marshaler {
