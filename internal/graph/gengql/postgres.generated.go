@@ -226,29 +226,6 @@ func (ec *executionContext) fieldContext_DeletePostgresBranchPayload_postgresBra
 	return graphql.NewScalarFieldContext("DeletePostgresBranchPayload", field, false, false, errors.New("field of type Boolean does not have child fields"))
 }
 
-func (ec *executionContext) _GrantPostgresAccessPayload_error(ctx context.Context, field graphql.CollectedField, obj *postgres.GrantPostgresAccessPayload) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_GrantPostgresAccessPayload_error(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return obj.Error, nil
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
-		},
-		true,
-		false,
-	)
-}
-func (ec *executionContext) fieldContext_GrantPostgresAccessPayload_error(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("GrantPostgresAccessPayload", field, false, false, errors.New("field of type String does not have child fields"))
-}
-
 func (ec *executionContext) _Postgres_id(ctx context.Context, field graphql.CollectedField, obj *postgres.Postgres) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -2826,64 +2803,6 @@ func (ec *executionContext) unmarshalInputDeletePostgresBranchInput(ctx context.
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputGrantPostgresAccessInput(ctx context.Context, obj any) (postgres.GrantPostgresAccessInput, error) {
-	var it postgres.GrantPostgresAccessInput
-	if obj == nil {
-		return it, nil
-	}
-
-	asMap := map[string]any{}
-	for k, v := range obj.(map[string]any) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"clusterName", "teamSlug", "environmentName", "grantee", "duration"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "clusterName":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("clusterName"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.ClusterName = data
-		case "teamSlug":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamSlug"))
-			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.TeamSlug = data
-		case "environmentName":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environmentName"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.EnvironmentName = data
-		case "grantee":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("grantee"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Grantee = data
-		case "duration":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("duration"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Duration = data
-		}
-	}
-	return it, nil
-}
-
 func (ec *executionContext) unmarshalInputPostgresBranchFilter(ctx context.Context, obj any) (postgres.PostgresBranchFilter, error) {
 	var it postgres.PostgresBranchFilter
 	if obj == nil {
@@ -3037,42 +2956,6 @@ func (ec *executionContext) _DeletePostgresBranchPayload(ctx context.Context, se
 			out.Values[i] = graphql.MarshalString("DeletePostgresBranchPayload")
 		case "postgresBranchDeleted":
 			out.Values[i] = ec._DeletePostgresBranchPayload_postgresBranchDeleted(ctx, field, obj)
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
-
-	for label, dfs := range deferred {
-		ec.ProcessDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var grantPostgresAccessPayloadImplementors = []string{"GrantPostgresAccessPayload"}
-
-func (ec *executionContext) _GrantPostgresAccessPayload(ctx context.Context, sel ast.SelectionSet, obj *postgres.GrantPostgresAccessPayload) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, grantPostgresAccessPayloadImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("GrantPostgresAccessPayload")
-		case "error":
-			out.Values[i] = ec._GrantPostgresAccessPayload_error(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -4564,25 +4447,6 @@ func (ec *executionContext) marshalNDeletePostgresBranchPayload2ᚖgithubᚗcom�
 		return graphql.Null
 	}
 	return ec._DeletePostgresBranchPayload(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalNGrantPostgresAccessInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐGrantPostgresAccessInput(ctx context.Context, v any) (postgres.GrantPostgresAccessInput, error) {
-	res, err := ec.unmarshalInputGrantPostgresAccessInput(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNGrantPostgresAccessPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐGrantPostgresAccessPayload(ctx context.Context, sel ast.SelectionSet, v postgres.GrantPostgresAccessPayload) graphql.Marshaler {
-	return ec._GrantPostgresAccessPayload(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNGrantPostgresAccessPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐGrantPostgresAccessPayload(ctx context.Context, sel ast.SelectionSet, v *postgres.GrantPostgresAccessPayload) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._GrantPostgresAccessPayload(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNPostgres2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgres(ctx context.Context, sel ast.SelectionSet, v postgres.Postgres) graphql.Marshaler {
