@@ -263,18 +263,6 @@ func GetPostgresAccessConnection(ctx context.Context, input PostgresAccessConnec
 		return nil, err
 	}
 
-	if err := activitylog.Create(ctx, activitylog.CreateInput{
-		Action:          activityLogEntryActionGetPersonalAccessConnection,
-		Actor:           actor.User,
-		ResourceType:    activityLogEntryResourceTypePostgres,
-		ResourceName:    input.Name,
-		EnvironmentName: new(input.EnvironmentName),
-		TeamSlug:        new(input.TeamSlug),
-		Data:            PostgresPersonalAccessConnectionActivityLogEntryData{},
-	}); err != nil {
-		return nil, err
-	}
-
 	return connection, nil
 }
 
