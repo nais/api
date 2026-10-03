@@ -130,5 +130,3 @@ type PostgresPersonalAccessCreatedActivityLogEntryData struct {
 type PostgresPersonalAccessConnectionActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
 }
-
-type PostgresPersonalAccessConnectionActivityLogEntryData struct{}

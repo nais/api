@@ -407,21 +407,19 @@ Test.gql("PostgresAccess connection fails when a ready access has no secrets", f
 	}
 end)
 
-Test.gql("Personal postgres connection retrieval is audited", function(t)
+Test.gql("Retrieving personal postgres connection materials does not create activity entries", function(t)
 	t.addHeader("x-user-email", user:email())
-	t.query [[
-		query { team(slug: "someteamname") { environment(name: "dev") { postgresAccess(name: "ready-access") { connection { password } } } } }
-	]]
-	t.check { data = { team = { environment = { postgresAccess = { connection = { password = "supersecret" } } } } } }
+	for _ = 1, 2 do
+		t.query [[
+			query { team(slug: "someteamname") { environment(name: "dev") { postgresAccess(name: "ready-access") { connection { password } } } } }
+		]]
+		t.check { data = { team = { environment = { postgresAccess = { connection = { password = "supersecret" } } } } } }
+	end
 
 	t.query [[
-		{ team(slug: "someteamname") { activityLog(first: 1) { nodes { message ... on PostgresPersonalAccessConnectionActivityLogEntry { resourceName } } } } }
+		{ team(slug: "someteamname") { activityLog(filter: { activityTypes: [POSTGRES_PERSONAL_ACCESS_CONNECTION] }) { nodes { id } } } }
 	]]
-	t.check {
-		data = { team = { activityLog = { nodes = {
-			{ message = Contains("Retrieved personal Postgres connection materials"), resourceName = "ready-access" },
-		} } } },
-	}
+	t.check { data = { team = { activityLog = { nodes = {} } } } }
 end)
 
 Test.gql("An expired access is replaced in the same request", function(t)
