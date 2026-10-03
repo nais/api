@@ -424,7 +424,7 @@ Test.gql("Personal postgres connection retrieval is audited", function(t)
 	}
 end)
 
-Test.gql("An expired access is cleaned up, after which a new one can be requested", function(t)
+Test.gql("An expired access is replaced in the same request", function(t)
 	t.addHeader("x-user-email", staleUser:email())
 	local request = [[
 		mutation { createPostgresAccess(input: {
@@ -432,12 +432,6 @@ Test.gql("An expired access is cleaned up, after which a new one can be requeste
 			accessLevel: READ, reason: "Testing personal database access"
 		}) { name } }
 	]]
-	t.query(request)
-	t.check {
-		errors = { { locations = NotNull(), path = { "createPostgresAccess" }, message = Contains("being cleaned up") } },
-		data = Null,
-	}
-
 	t.query(request)
 	t.check { data = { createPostgresAccess = { name = "postgres-access-9269571e872b7c9d" } } }
 end)

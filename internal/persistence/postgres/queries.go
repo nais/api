@@ -31,6 +31,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/utils/ptr"
 )
@@ -512,9 +514,21 @@ func CreatePostgresAccess(ctx context.Context, input CreatePostgresAccessInput) 
 	accesses := client.Namespace(input.TeamSlug.String())
 
 	res := newPostgresAccessResource(input, username, name, expiresAt)
-	_, err = accesses.Create(ctx, res, metav1.CreateOptions{})
-	if k8serrors.IsAlreadyExists(err) {
+	for attempt := 0; ; attempt++ {
+		_, err = accesses.Create(ctx, res, metav1.CreateOptions{})
+		if err == nil {
+			break
+		}
+		if !k8serrors.IsAlreadyExists(err) {
+			return nil, err
+		}
 		existing, getErr := accesses.Get(ctx, name, metav1.GetOptions{})
+		if k8serrors.IsNotFound(getErr) {
+			if attempt == 0 {
+				continue // Deleted between Create and Get; retry once.
+			}
+			return nil, apierror.Errorf("Your previous access to this branch is still being cleaned up. Try again later.")
+		}
 		if getErr != nil {
 			return nil, getErr
 		}
@@ -525,16 +539,20 @@ func CreatePostgresAccess(ctx context.Context, input CreatePostgresAccessInput) 
 			}
 			return &CreatePostgresAccessPayload{Name: name, ExpiresAt: existingExpiry(existing)}, nil
 		}
-		// The spec is immutable and nothing removes expired accesses, so clear it out of the way.
-		// Preconditions make sure we only delete the object we inspected.
+		if attempt > 0 {
+			return nil, apierror.Errorf("Your previous access to this branch is still being cleaned up. Try again later.")
+		}
+		// The immutable expired access must disappear before it can be replaced.
+		// Only delete the UID we inspected, never a concurrent replacement.
 		uid := existing.GetUID()
-		if err := accesses.Delete(ctx, name, metav1.DeleteOptions{Preconditions: &metav1.Preconditions{UID: &uid}}); err != nil && !k8serrors.IsNotFound(err) {
+		if existing.GetDeletionTimestamp() == nil {
+			if err := accesses.Delete(ctx, name, metav1.DeleteOptions{Preconditions: &metav1.Preconditions{UID: &uid}}); err != nil && !k8serrors.IsNotFound(err) && !k8serrors.IsConflict(err) {
+				return nil, err
+			}
+		}
+		if err := waitForPostgresAccessDeletion(ctx, accesses, name, uid); err != nil {
 			return nil, err
 		}
-		return nil, apierror.Errorf("Your previous access to this branch is being cleaned up. Try again in a few seconds.")
-	}
-	if err != nil {
-		return nil, err
 	}
 
 	if err := activitylog.Create(ctx, activitylog.CreateInput{
@@ -555,6 +573,25 @@ func CreatePostgresAccess(ctx context.Context, input CreatePostgresAccessInput) 
 	}
 
 	return &CreatePostgresAccessPayload{Name: name, ExpiresAt: expiresAt}, nil
+}
+
+func waitForPostgresAccessDeletion(ctx context.Context, accesses dynamic.ResourceInterface, name string, uid types.UID) error {
+	waitCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+	err := wait.PollUntilContextCancel(waitCtx, 250*time.Millisecond, true, func(ctx context.Context) (bool, error) {
+		current, err := accesses.Get(ctx, name, metav1.GetOptions{})
+		if k8serrors.IsNotFound(err) {
+			return true, nil
+		}
+		if err != nil {
+			return false, err
+		}
+		return current.GetUID() != uid, nil
+	})
+	if errors.Is(err, context.DeadlineExceeded) && ctx.Err() == nil {
+		return apierror.Errorf("Your previous access to this branch is still being cleaned up after 10 seconds (access %s). Try again later.", name)
+	}
+	return err
 }
 
 func existingExpiry(access *unstructured.Unstructured) time.Time {

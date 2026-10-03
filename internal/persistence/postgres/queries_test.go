@@ -1,6 +1,8 @@
 package postgres
 
 import (
+	"context"
+	"errors"
 	"strings"
 	"testing"
 	"time"
@@ -11,7 +13,10 @@ import (
 	nais_io_v1 "github.com/nais/pgrator/pkg/api/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/validation"
+	"k8s.io/client-go/dynamic/fake"
 )
 
 func TestNewPostgresAccessResource(t *testing.T) {
@@ -48,6 +53,33 @@ func TestNewPostgresAccessResource(t *testing.T) {
 	}
 	if diff := cmp.Diff(wantSpec, spec); diff != "" {
 		t.Errorf("spec mismatch (-want +got):\n%s", diff)
+	}
+}
+
+func TestWaitForPostgresAccessDeletion(t *testing.T) {
+	access := newPostgresAccessResource(CreatePostgresAccessInput{TeamSlug: slug.Slug("team-a")}, "user@example.com", "postgres-access-test", time.Now())
+	access.SetUID(types.UID("original-uid"))
+	client := fake.NewSimpleDynamicClient(runtime.NewScheme(), access)
+	accesses := client.Resource(postgresAccessGVR()).Namespace(access.GetNamespace())
+
+	ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
+	defer cancel()
+	if err := waitForPostgresAccessDeletion(ctx, accesses, access.GetName(), access.GetUID()); !errors.Is(err, context.DeadlineExceeded) {
+		t.Fatalf("still-present access: got %v, want deadline exceeded", err)
+	}
+	if err := accesses.Delete(context.Background(), access.GetName(), metav1.DeleteOptions{}); err != nil {
+		t.Fatal(err)
+	}
+	if err := waitForPostgresAccessDeletion(context.Background(), accesses, access.GetName(), access.GetUID()); err != nil {
+		t.Fatalf("deleted access: %v", err)
+	}
+	replacement := access.DeepCopy()
+	replacement.SetUID(types.UID("replacement-uid"))
+	if _, err := accesses.Create(context.Background(), replacement, metav1.CreateOptions{}); err != nil {
+		t.Fatal(err)
+	}
+	if err := waitForPostgresAccessDeletion(context.Background(), accesses, access.GetName(), access.GetUID()); err != nil {
+		t.Fatalf("replacement must not be mistaken for the old access: %v", err)
 	}
 }
 
