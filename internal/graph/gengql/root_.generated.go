@@ -163,6 +163,10 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
+	ActivatePostgresBranchPayload struct {
+		Postgres func(childComplexity int) int
+	}
+
 	ActivityLogActivityTypeFacetItem struct {
 		ActivityType func(childComplexity int) int
 		Count        func(childComplexity int) int
@@ -735,6 +739,10 @@ type ComplexityRoot struct {
 	CreatePostgresAccessPayload struct {
 		ExpiresAt func(childComplexity int) int
 		Name      func(childComplexity int) int
+	}
+
+	CreatePostgresBranchPayload struct {
+		PostgresBranch func(childComplexity int) int
 	}
 
 	CreatePostgresPayload struct {
@@ -1612,6 +1620,7 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
+		ActivatePostgresBranch           func(childComplexity int, input postgres.ActivatePostgresBranchInput) int
 		AddConfigValue                   func(childComplexity int, input config.AddConfigValueInput) int
 		AddRepositoryToTeam              func(childComplexity int, input repository.AddRepositoryToTeamInput) int
 		AddSecretValue                   func(childComplexity int, input secret.AddSecretValueInput) int
@@ -1628,6 +1637,7 @@ type ComplexityRoot struct {
 		CreateOpenSearchCredentials      func(childComplexity int, input opensearch.CreateOpenSearchCredentialsInput) int
 		CreatePostgres                   func(childComplexity int, input postgres.CreatePostgresInput) int
 		CreatePostgresAccess             func(childComplexity int, input postgres.CreatePostgresAccessInput) int
+		CreatePostgresBranch             func(childComplexity int, input postgres.CreatePostgresBranchInput) int
 		CreateSecret                     func(childComplexity int, input secret.CreateSecretInput) int
 		CreateServiceAccount             func(childComplexity int, input serviceaccount.CreateServiceAccountInput) int
 		CreateServiceAccountToken        func(childComplexity int, input serviceaccount.CreateServiceAccountTokenInput) int
@@ -1896,15 +1906,16 @@ type ComplexityRoot struct {
 	}
 
 	Postgres struct {
-		ActiveBranch     func(childComplexity int) int
-		Branch           func(childComplexity int, name string) int
-		Branches         func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *postgres.PostgresBranchOrder) int
-		HighAvailability func(childComplexity int) int
-		ID               func(childComplexity int) int
-		Labels           func(childComplexity int) int
-		MajorVersion     func(childComplexity int) int
-		Name             func(childComplexity int) int
-		Resources        func(childComplexity int) int
+		ActiveBranch        func(childComplexity int) int
+		Branch              func(childComplexity int, name string) int
+		Branches            func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *postgres.PostgresBranchOrder) int
+		DesiredActiveBranch func(childComplexity int) int
+		HighAvailability    func(childComplexity int) int
+		ID                  func(childComplexity int) int
+		Labels              func(childComplexity int) int
+		MajorVersion        func(childComplexity int) int
+		Name                func(childComplexity int) int
+		Resources           func(childComplexity int) int
 	}
 
 	PostgresAccess struct {
@@ -4010,6 +4021,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 	ec := newExecutionContext(nil, e, nil)
 	_ = ec
 	switch typeName + "." + field {
+
+	case "ActivatePostgresBranchPayload.postgres":
+		if e.ComplexityRoot.ActivatePostgresBranchPayload.Postgres == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ActivatePostgresBranchPayload.Postgres(childComplexity), true
 
 	case "ActivityLogActivityTypeFacetItem.activityType":
 		if e.ComplexityRoot.ActivityLogActivityTypeFacetItem.ActivityType == nil {
@@ -6426,6 +6444,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.CreatePostgresAccessPayload.Name(childComplexity), true
+
+	case "CreatePostgresBranchPayload.postgresBranch":
+		if e.ComplexityRoot.CreatePostgresBranchPayload.PostgresBranch == nil {
+			break
+		}
+
+		return e.ComplexityRoot.CreatePostgresBranchPayload.PostgresBranch(childComplexity), true
 
 	case "CreatePostgresPayload.postgres":
 		if e.ComplexityRoot.CreatePostgresPayload.Postgres == nil {
@@ -9957,6 +9982,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.MissingSbomIssue.Workload(childComplexity), true
 
+	case "Mutation.activatePostgresBranch":
+		if e.ComplexityRoot.Mutation.ActivatePostgresBranch == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_activatePostgresBranch_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Mutation.ActivatePostgresBranch(childComplexity, args["input"].(postgres.ActivatePostgresBranchInput)), true
+
 	case "Mutation.addConfigValue":
 		if e.ComplexityRoot.Mutation.AddConfigValue == nil {
 			break
@@ -10148,6 +10185,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Mutation.CreatePostgresAccess(childComplexity, args["input"].(postgres.CreatePostgresAccessInput)), true
+
+	case "Mutation.createPostgresBranch":
+		if e.ComplexityRoot.Mutation.CreatePostgresBranch == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createPostgresBranch_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Mutation.CreatePostgresBranch(childComplexity, args["input"].(postgres.CreatePostgresBranchInput)), true
 
 	case "Mutation.createSecret":
 		if e.ComplexityRoot.Mutation.CreateSecret == nil {
@@ -11726,6 +11775,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Postgres.Branches(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*postgres.PostgresBranchOrder)), true
+
+	case "Postgres.desiredActiveBranch":
+		if e.ComplexityRoot.Postgres.DesiredActiveBranch == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Postgres.DesiredActiveBranch(childComplexity), true
 
 	case "Postgres.highAvailability":
 		if e.ComplexityRoot.Postgres.HighAvailability == nil {
@@ -21095,6 +21151,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	opCtx := graphql.GetOperationContext(ctx)
 	ec := newExecutionContext(opCtx, e, make(chan graphql.DeferredResult))
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
+		ec.unmarshalInputActivatePostgresBranchInput,
 		ec.unmarshalInputActivityLogFilter,
 		ec.unmarshalInputAddConfigValueInput,
 		ec.unmarshalInputAddRepositoryToTeamInput,
@@ -21123,6 +21180,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputCreateOpenSearchCredentialsInput,
 		ec.unmarshalInputCreateOpenSearchInput,
 		ec.unmarshalInputCreatePostgresAccessInput,
+		ec.unmarshalInputCreatePostgresBranchInput,
 		ec.unmarshalInputCreatePostgresInput,
 		ec.unmarshalInputCreateSecretInput,
 		ec.unmarshalInputCreateServiceAccountInput,
@@ -27766,7 +27824,9 @@ type Postgres implements Node {
 	highAvailability: Boolean!
 	"Requested CPU, memory and disk size, when present on this Postgres."
 	resources: PostgresResources!
-	"Currently active branch, if selected."
+	"Branch requested for activation; may differ from the observed active branch while reconciliation runs."
+	desiredActiveBranch: String
+	"Currently observed active branch, if selected."
 	activeBranch: PostgresBranch
 	"Branch with this local name in this Postgres."
 	branch(name: String!): PostgresBranch!
@@ -28100,6 +28160,10 @@ extend type Mutation {
 	createPostgres(input: CreatePostgresInput!): CreatePostgresPayload!
 	"Update an existing Postgres. The PostgreSQL major version cannot be changed."
 	updatePostgres(input: UpdatePostgresInput!): UpdatePostgresPayload!
+	"Create an inactive PostgresBranch recovered from a source branch archive at a UTC point in time."
+	createPostgresBranch(input: CreatePostgresBranchInput!): CreatePostgresBranchPayload!
+	"Request activation of an available PostgresBranch. The observed active branch may lag behind the request."
+	activatePostgresBranch(input: ActivatePostgresBranchInput!): ActivatePostgresBranchPayload!
 	"Delete a PostgresBranch that is not active on its Postgres."
 	deletePostgresBranch(input: DeletePostgresBranchInput!): DeletePostgresBranchPayload!
 }
@@ -28138,6 +28202,46 @@ enum PostgresAccessLevel {
 	READWRITE
 	"Read, modify, and create database objects where supported."
 	READWRITECREATE
+}
+
+"Recovery request for a new, inactive branch. A branch cannot be re-created with different recovery settings."
+input CreatePostgresBranchInput {
+	"Name of the owning Postgres."
+	postgres: String!
+	"Local name of the new branch."
+	branch: String!
+	"Local name of the source branch in the same Postgres."
+	sourceBranch: String!
+	"Explicit UTC recovery target; must not be in the future."
+	targetTime: Time!
+	"Environment containing the Postgres."
+	environmentName: String!
+	"Team owning the Postgres."
+	teamSlug: Slug!
+}
+
+"Result of creating a branch; provisioning continues asynchronously."
+type CreatePostgresBranchPayload {
+	"The new branch."
+	postgresBranch: PostgresBranch!
+}
+
+"Select an available branch for normal workloads."
+input ActivatePostgresBranchInput {
+	"Name of the owning Postgres."
+	postgres: String!
+	"Local name of the branch to activate."
+	branch: String!
+	"Environment containing the Postgres."
+	environmentName: String!
+	"Team owning the Postgres."
+	teamSlug: Slug!
+}
+
+"Result of requesting activation; compare desiredActiveBranch to activeBranch while reconciling."
+type ActivatePostgresBranchPayload {
+	"Postgres with desired and observed branch selection."
+	postgres: Postgres!
 }
 
 input DeletePostgresBranchInput {
@@ -35609,6 +35713,14 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 // Each function is generated once per unique object type, deduplicating the
 // switch statements that were previously inlined in every fieldContext_* function.
 
+func (ec *executionContext) childFields_ActivatePostgresBranchPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "postgres":
+		return ec.fieldContext_ActivatePostgresBranchPayload_postgres(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ActivatePostgresBranchPayload", field.Name)
+}
+
 func (ec *executionContext) childFields_ActivityLogActivityTypeFacetItem(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "activityType":
@@ -36499,6 +36611,14 @@ func (ec *executionContext) childFields_CreatePostgresAccessPayload(ctx context.
 		return ec.fieldContext_CreatePostgresAccessPayload_expiresAt(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type CreatePostgresAccessPayload", field.Name)
+}
+
+func (ec *executionContext) childFields_CreatePostgresBranchPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "postgresBranch":
+		return ec.fieldContext_CreatePostgresBranchPayload_postgresBranch(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type CreatePostgresBranchPayload", field.Name)
 }
 
 func (ec *executionContext) childFields_CreatePostgresPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -38101,6 +38221,8 @@ func (ec *executionContext) childFields_Postgres(ctx context.Context, field grap
 		return ec.fieldContext_Postgres_highAvailability(ctx, field)
 	case "resources":
 		return ec.fieldContext_Postgres_resources(ctx, field)
+	case "desiredActiveBranch":
+		return ec.fieldContext_Postgres_desiredActiveBranch(ctx, field)
 	case "activeBranch":
 		return ec.fieldContext_Postgres_activeBranch(ctx, field)
 	case "branch":

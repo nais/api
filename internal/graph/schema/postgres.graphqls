@@ -126,7 +126,9 @@ type Postgres implements Node {
 	highAvailability: Boolean!
 	"Requested CPU, memory and disk size, when present on this Postgres."
 	resources: PostgresResources!
-	"Currently active branch, if selected."
+	"Branch requested for activation; may differ from the observed active branch while reconciliation runs."
+	desiredActiveBranch: String
+	"Currently observed active branch, if selected."
 	activeBranch: PostgresBranch
 	"Branch with this local name in this Postgres."
 	branch(name: String!): PostgresBranch!
@@ -460,6 +462,10 @@ extend type Mutation {
 	createPostgres(input: CreatePostgresInput!): CreatePostgresPayload!
 	"Update an existing Postgres. The PostgreSQL major version cannot be changed."
 	updatePostgres(input: UpdatePostgresInput!): UpdatePostgresPayload!
+	"Create an inactive PostgresBranch recovered from a source branch archive at a UTC point in time."
+	createPostgresBranch(input: CreatePostgresBranchInput!): CreatePostgresBranchPayload!
+	"Request activation of an available PostgresBranch. The observed active branch may lag behind the request."
+	activatePostgresBranch(input: ActivatePostgresBranchInput!): ActivatePostgresBranchPayload!
 	"Delete a PostgresBranch that is not active on its Postgres."
 	deletePostgresBranch(input: DeletePostgresBranchInput!): DeletePostgresBranchPayload!
 }
@@ -498,6 +504,46 @@ enum PostgresAccessLevel {
 	READWRITE
 	"Read, modify, and create database objects where supported."
 	READWRITECREATE
+}
+
+"Recovery request for a new, inactive branch. A branch cannot be re-created with different recovery settings."
+input CreatePostgresBranchInput {
+	"Name of the owning Postgres."
+	postgres: String!
+	"Local name of the new branch."
+	branch: String!
+	"Local name of the source branch in the same Postgres."
+	sourceBranch: String!
+	"Explicit UTC recovery target; must not be in the future."
+	targetTime: Time!
+	"Environment containing the Postgres."
+	environmentName: String!
+	"Team owning the Postgres."
+	teamSlug: Slug!
+}
+
+"Result of creating a branch; provisioning continues asynchronously."
+type CreatePostgresBranchPayload {
+	"The new branch."
+	postgresBranch: PostgresBranch!
+}
+
+"Select an available branch for normal workloads."
+input ActivatePostgresBranchInput {
+	"Name of the owning Postgres."
+	postgres: String!
+	"Local name of the branch to activate."
+	branch: String!
+	"Environment containing the Postgres."
+	environmentName: String!
+	"Team owning the Postgres."
+	teamSlug: Slug!
+}
+
+"Result of requesting activation; compare desiredActiveBranch to activeBranch while reconciling."
+type ActivatePostgresBranchPayload {
+	"Postgres with desired and observed branch selection."
+	postgres: Postgres!
 }
 
 input DeletePostgresBranchInput {

@@ -157,6 +157,38 @@ func (ec *executionContext) field_Postgres_branches_args(ctx context.Context, ra
 
 // region    **************************** field.gotpl *****************************
 
+func (ec *executionContext) _ActivatePostgresBranchPayload_postgres(ctx context.Context, field graphql.CollectedField, obj *postgres.ActivatePostgresBranchPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ActivatePostgresBranchPayload_postgres(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Postgres, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *postgres.Postgres) graphql.Marshaler {
+			return ec.marshalNPostgres2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgres(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_ActivatePostgresBranchPayload_postgres(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ActivatePostgresBranchPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_Postgres(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _CreatePostgresAccessPayload_name(ctx context.Context, field graphql.CollectedField, obj *postgres.CreatePostgresAccessPayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -201,6 +233,38 @@ func (ec *executionContext) _CreatePostgresAccessPayload_expiresAt(ctx context.C
 }
 func (ec *executionContext) fieldContext_CreatePostgresAccessPayload_expiresAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("CreatePostgresAccessPayload", field, false, false, errors.New("field of type Time does not have child fields"))
+}
+
+func (ec *executionContext) _CreatePostgresBranchPayload_postgresBranch(ctx context.Context, field graphql.CollectedField, obj *postgres.CreatePostgresBranchPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_CreatePostgresBranchPayload_postgresBranch(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.PostgresBranch, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *postgres.PostgresBranch) graphql.Marshaler {
+			return ec.marshalNPostgresBranch2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresBranch(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_CreatePostgresBranchPayload_postgresBranch(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CreatePostgresBranchPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_PostgresBranch(ctx, field)
+		},
+	}
+	return fc, nil
 }
 
 func (ec *executionContext) _CreatePostgresPayload_postgres(ctx context.Context, field graphql.CollectedField, obj *postgres.CreatePostgresPayload) (ret graphql.Marshaler) {
@@ -380,6 +444,29 @@ func (ec *executionContext) fieldContext_Postgres_resources(_ context.Context, f
 		},
 	}
 	return fc, nil
+}
+
+func (ec *executionContext) _Postgres_desiredActiveBranch(ctx context.Context, field graphql.CollectedField, obj *postgres.Postgres) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Postgres_desiredActiveBranch(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.DesiredActiveBranch, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_Postgres_desiredActiveBranch(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("Postgres", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _Postgres_activeBranch(ctx context.Context, field graphql.CollectedField, obj *postgres.Postgres) (ret graphql.Marshaler) {
@@ -3309,6 +3396,57 @@ func (ec *executionContext) fieldContext_UpdatePostgresPayload_postgres(_ contex
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputActivatePostgresBranchInput(ctx context.Context, obj any) (postgres.ActivatePostgresBranchInput, error) {
+	var it postgres.ActivatePostgresBranchInput
+	if obj == nil {
+		return it, nil
+	}
+
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"postgres", "branch", "environmentName", "teamSlug"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "postgres":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("postgres"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Postgres = data
+		case "branch":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("branch"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Branch = data
+		case "environmentName":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environmentName"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.EnvironmentName = data
+		case "teamSlug":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamSlug"))
+			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TeamSlug = data
+		}
+	}
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputCreatePostgresAccessInput(ctx context.Context, obj any) (postgres.CreatePostgresAccessInput, error) {
 	var it postgres.CreatePostgresAccessInput
 	if obj == nil {
@@ -3376,6 +3514,71 @@ func (ec *executionContext) unmarshalInputCreatePostgresAccessInput(ctx context.
 				return it, err
 			}
 			it.TTL = data
+		}
+	}
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputCreatePostgresBranchInput(ctx context.Context, obj any) (postgres.CreatePostgresBranchInput, error) {
+	var it postgres.CreatePostgresBranchInput
+	if obj == nil {
+		return it, nil
+	}
+
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"postgres", "branch", "sourceBranch", "targetTime", "environmentName", "teamSlug"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "postgres":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("postgres"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Postgres = data
+		case "branch":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("branch"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Branch = data
+		case "sourceBranch":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sourceBranch"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.SourceBranch = data
+		case "targetTime":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("targetTime"))
+			data, err := ec.unmarshalNTime2timeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TargetTime = data
+		case "environmentName":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environmentName"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.EnvironmentName = data
+		case "teamSlug":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamSlug"))
+			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TeamSlug = data
 		}
 	}
 	return it, nil
@@ -3679,6 +3882,45 @@ func (ec *executionContext) unmarshalInputUpdatePostgresInput(ctx context.Contex
 
 // region    **************************** object.gotpl ****************************
 
+var activatePostgresBranchPayloadImplementors = []string{"ActivatePostgresBranchPayload"}
+
+func (ec *executionContext) _ActivatePostgresBranchPayload(ctx context.Context, sel ast.SelectionSet, obj *postgres.ActivatePostgresBranchPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, activatePostgresBranchPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ActivatePostgresBranchPayload")
+		case "postgres":
+			out.Values[i] = ec._ActivatePostgresBranchPayload_postgres(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var createPostgresAccessPayloadImplementors = []string{"CreatePostgresAccessPayload"}
 
 func (ec *executionContext) _CreatePostgresAccessPayload(ctx context.Context, sel ast.SelectionSet, obj *postgres.CreatePostgresAccessPayload) graphql.Marshaler {
@@ -3697,6 +3939,45 @@ func (ec *executionContext) _CreatePostgresAccessPayload(ctx context.Context, se
 			}
 		case "expiresAt":
 			out.Values[i] = ec._CreatePostgresAccessPayload_expiresAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var createPostgresBranchPayloadImplementors = []string{"CreatePostgresBranchPayload"}
+
+func (ec *executionContext) _CreatePostgresBranchPayload(ctx context.Context, sel ast.SelectionSet, obj *postgres.CreatePostgresBranchPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, createPostgresBranchPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("CreatePostgresBranchPayload")
+		case "postgresBranch":
+			out.Values[i] = ec._CreatePostgresBranchPayload_postgresBranch(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -3834,6 +4115,8 @@ func (ec *executionContext) _Postgres(ctx context.Context, sel ast.SelectionSet,
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "desiredActiveBranch":
+			out.Values[i] = ec._Postgres_desiredActiveBranch(ctx, field, obj)
 		case "activeBranch":
 			field := field
 
@@ -5502,6 +5785,25 @@ func (ec *executionContext) _UpdatePostgresPayload(ctx context.Context, sel ast.
 
 // region    ***************************** type.gotpl *****************************
 
+func (ec *executionContext) unmarshalNActivatePostgresBranchInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐActivatePostgresBranchInput(ctx context.Context, v any) (postgres.ActivatePostgresBranchInput, error) {
+	res, err := ec.unmarshalInputActivatePostgresBranchInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNActivatePostgresBranchPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐActivatePostgresBranchPayload(ctx context.Context, sel ast.SelectionSet, v postgres.ActivatePostgresBranchPayload) graphql.Marshaler {
+	return ec._ActivatePostgresBranchPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNActivatePostgresBranchPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐActivatePostgresBranchPayload(ctx context.Context, sel ast.SelectionSet, v *postgres.ActivatePostgresBranchPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ActivatePostgresBranchPayload(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNCreatePostgresAccessInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐCreatePostgresAccessInput(ctx context.Context, v any) (postgres.CreatePostgresAccessInput, error) {
 	res, err := ec.unmarshalInputCreatePostgresAccessInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -5519,6 +5821,25 @@ func (ec *executionContext) marshalNCreatePostgresAccessPayload2ᚖgithubᚗcom�
 		return graphql.Null
 	}
 	return ec._CreatePostgresAccessPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNCreatePostgresBranchInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐCreatePostgresBranchInput(ctx context.Context, v any) (postgres.CreatePostgresBranchInput, error) {
+	res, err := ec.unmarshalInputCreatePostgresBranchInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNCreatePostgresBranchPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐCreatePostgresBranchPayload(ctx context.Context, sel ast.SelectionSet, v postgres.CreatePostgresBranchPayload) graphql.Marshaler {
+	return ec._CreatePostgresBranchPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNCreatePostgresBranchPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐCreatePostgresBranchPayload(ctx context.Context, sel ast.SelectionSet, v *postgres.CreatePostgresBranchPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._CreatePostgresBranchPayload(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNCreatePostgresInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐCreatePostgresInput(ctx context.Context, v any) (postgres.CreatePostgresInput, error) {
