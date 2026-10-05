@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
@@ -91,7 +92,7 @@ func CreateBranch(ctx context.Context, input CreatePostgresBranchInput) (*Create
 		return nil, err
 	} else if err := logPostgresChange(ctx, activitylog.ActivityLogEntryActionUpdated, input.Postgres, input.EnvironmentName, input.TeamSlug, PostgresUpdatedActivityLogEntryData{
 		UpdatedFields: []*PostgresUpdatedActivityLogEntryDataUpdatedField{{
-			Field: "branch/" + input.Branch, NewValue: new(fmt.Sprintf("recovered from %s at %s", input.SourceBranch, input.TargetTime.Format("2006-01-02T15:04:05Z"))),
+			Field: "branch/" + input.Branch, NewValue: new(fmt.Sprintf("recovered from %s at %s", input.SourceBranch, input.TargetTime.UTC().Format(time.RFC3339))),
 		}},
 	}); err != nil {
 		return nil, err

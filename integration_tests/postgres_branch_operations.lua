@@ -5,7 +5,7 @@ team:addMember(member)
 Helper.readK8sResources("k8s_resources/postgres_crud")
 
 local create = [[mutation { createPostgresBranch(input: {
-	postgres: "existing", branch: "restore", sourceBranch: "main", targetTime: "2026-09-30T12:00:00Z",
+	postgres: "existing", branch: "restore", sourceBranch: "main", targetTime: "2026-09-30T14:00:00+02:00",
 	environmentName: "dev", teamSlug: "pg-crud-team"
 }) { postgresBranch { name state } } }]]
 
