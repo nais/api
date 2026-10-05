@@ -27895,7 +27895,6 @@ type WorkloadLogLine {
 		"Filter Postgres databases by environment or labels."
 		filter: PostgresFilter
 	): PostgresConnection!
-
 }
 
 extend type TeamEnvironment {
