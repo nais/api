@@ -167,15 +167,6 @@ func (r *teamResolver) Postgreses(ctx context.Context, obj *team.Team, first *in
 	return postgres.ListPostgresForTeam(ctx, obj.Slug, page, filter), nil
 }
 
-func (r *teamResolver) PostgresBranches(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *postgres.PostgresBranchOrder, filter *postgres.PostgresBranchFilter) (*pagination.FacetableConnection[*postgres.PostgresBranch, *postgres.PostgresBranchFilter], error) {
-	page, err := pagination.ParsePage(first, after, last, before)
-	if err != nil {
-		return nil, err
-	}
-
-	return postgres.ListForTeam(ctx, obj.Slug, page, orderBy, filter)
-}
-
 func (r *teamEnvironmentResolver) Postgres(ctx context.Context, obj *team.TeamEnvironment, name string) (*postgres.Postgres, error) {
 	return postgres.GetPostgres(ctx, obj.TeamSlug, obj.EnvironmentName, name)
 }

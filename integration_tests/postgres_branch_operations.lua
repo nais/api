@@ -53,10 +53,16 @@ Test.gql("Creating a recovery branch does not activate it", function(t)
 	t.check { data = { team = { environment = { postgres = { desiredActiveBranch = Null, activeBranch = Null } } } } }
 end)
 
-Test.gql("Repeating an identical recovery request returns the same branch", function(t)
+Test.gql("Repeating a recovery request logs only the original creation", function(t)
 	t.addHeader("x-user-email", member:email())
 	t.query(create)
 	t.check { data = { createPostgresBranch = { postgresBranch = { name = "restore", state = "PROGRESSING" } } } }
+	t.query [[{ team(slug: "pg-crud-team") { activityLog(first: 10, filter: { activityTypes: [POSTGRES_BRANCH_CREATED] }) {
+		nodes { resourceName message ... on PostgresBranchActivityLogEntry { data { branch sourceBranch targetTime } } }
+	} } }]]
+	t.check { data = { team = { activityLog = { nodes = {
+		{ resourceName = "existing", message = "Postgres branch created: restore", data = { branch = "restore", sourceBranch = "main", targetTime = "2026-09-30T12:00:00Z" } },
+	} } } } }
 end)
 
 Test.gql("Repeating a recovery request with different settings is rejected", function(t)
@@ -82,12 +88,11 @@ Test.gql("Activating a ready branch reports requested versus observed selection"
 		postgres: "existing", branch: "main", environmentName: "dev", teamSlug: "pg-crud-team"
 	}) { postgres { desiredActiveBranch activeBranch { name } } } }]]
 	t.check { data = { activatePostgresBranch = { postgres = { desiredActiveBranch = "main", activeBranch = Null } } } }
-	t.query [[{ team(slug: "pg-crud-team") { activityLog(first: 10, filter: { activityTypes: [POSTGRES_UPDATED] }) {
-		nodes { resourceName ... on PostgresUpdatedActivityLogEntry { data { updatedFields { field oldValue newValue } } } }
+	t.query [[{ team(slug: "pg-crud-team") { activityLog(first: 10, filter: { activityTypes: [POSTGRES_BRANCH_ACTIVATED] }) {
+		nodes { resourceName message ... on PostgresBranchActivityLogEntry { data { branch } } }
 	} } }]]
 	t.check { data = { team = { activityLog = { nodes = {
-		{ resourceName = "existing", data = { updatedFields = { { field = "activeBranch", oldValue = Null, newValue = "main" } } } },
-		{ resourceName = "existing", data = { updatedFields = { { field = "branch/restore", oldValue = Null, newValue = "recovered from main at 2026-09-30T12:00:00Z" } } } },
+		{ resourceName = "existing", message = "Postgres branch activated: main", data = { branch = "main" } },
 	} } } } }
 end)
 
@@ -97,4 +102,18 @@ Test.gql("Requesting a provisioning branch waits for pgrator to activate it", fu
 		postgres: "existing", branch: "restore", environmentName: "dev", teamSlug: "pg-crud-team"
 	}) { postgres { desiredActiveBranch activeBranch { name } } } }]]
 	t.check { data = { activatePostgresBranch = { postgres = { desiredActiveBranch = "restore", activeBranch = Null } } } }
+end)
+
+Test.gql("Deleting a branch logs its name without deleting the Postgres", function(t)
+	t.addHeader("x-user-email", member:email())
+	t.query [[mutation { deletePostgresBranch(input: {
+		postgres: "existing", branch: "main", environmentName: "dev", teamSlug: "pg-crud-team"
+	}) { postgresBranchDeleted } }]]
+	t.check { data = { deletePostgresBranch = { postgresBranchDeleted = true } } }
+	t.query [[{ team(slug: "pg-crud-team") { activityLog(first: 10, filter: { activityTypes: [POSTGRES_BRANCH_DELETED] }) {
+		nodes { resourceName message ... on PostgresBranchActivityLogEntry { data { branch } } }
+	} } }]]
+	t.check { data = { team = { activityLog = { nodes = {
+		{ resourceName = "existing", message = "Postgres branch deleted: main", data = { branch = "main" } },
+	} } } } }
 end)

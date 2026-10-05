@@ -11,6 +11,9 @@ const (
 	activityLogEntryActionGrantAccess                 activitylog.ActivityLogEntryAction = "GRANT_ACCESS"
 	activityLogEntryActionCreatePersonalAccess        activitylog.ActivityLogEntryAction = "CREATE_PERSONAL_ACCESS"
 	activityLogEntryActionGetPersonalAccessConnection activitylog.ActivityLogEntryAction = "GET_PERSONAL_ACCESS_CONNECTION"
+	activityLogEntryActionBranchCreated               activitylog.ActivityLogEntryAction = "BRANCH_CREATED"
+	activityLogEntryActionBranchActivated             activitylog.ActivityLogEntryAction = "BRANCH_ACTIVATED"
+	activityLogEntryActionBranchDeleted               activitylog.ActivityLogEntryAction = "BRANCH_DELETED"
 
 	activityLogEntryResourceTypePostgres activitylog.ActivityLogEntryResourceType = "POSTGRES"
 )
@@ -33,7 +36,7 @@ func init() {
 			}, nil
 		case activitylog.ActivityLogEntryActionDeleted:
 			return PostgresDeletedActivityLogEntry{
-				GenericActivityLogEntry: entry.WithMessage("Deleted Postgres"),
+				GenericActivityLogEntry: entry.WithMessage("Deleted Postgres branch (name unavailable)"),
 			}, nil
 		case activityLogEntryActionGrantAccess:
 			if entry.TeamSlug == nil {
@@ -67,6 +70,20 @@ func init() {
 			return PostgresPersonalAccessConnectionActivityLogEntry{
 				GenericActivityLogEntry: entry.WithMessage("Retrieved personal Postgres connection materials"),
 			}, nil
+		case activityLogEntryActionBranchCreated, activityLogEntryActionBranchActivated, activityLogEntryActionBranchDeleted:
+			data, err := activitylog.UnmarshalData[PostgresBranchActivityLogEntryData](entry)
+			if err != nil {
+				return nil, fmt.Errorf("transforming postgres branch activity log entry data: %w", err)
+			}
+			verb := map[activitylog.ActivityLogEntryAction]string{
+				activityLogEntryActionBranchCreated:   "created",
+				activityLogEntryActionBranchActivated: "activated",
+				activityLogEntryActionBranchDeleted:   "deleted",
+			}[entry.Action]
+			return PostgresBranchActivityLogEntry{
+				GenericActivityLogEntry: entry.WithMessage(fmt.Sprintf("Postgres branch %s: %s", verb, data.Branch)),
+				Data:                    data,
+			}, nil
 		default:
 			return nil, fmt.Errorf("unsupported postgres activity log entry action: %q", entry.Action)
 		}
@@ -78,6 +95,20 @@ func init() {
 	activitylog.RegisterFilter("POSTGRES_CREATED", activitylog.ActivityLogEntryActionCreated, activityLogEntryResourceTypePostgres)
 	activitylog.RegisterFilter("POSTGRES_UPDATED", activitylog.ActivityLogEntryActionUpdated, activityLogEntryResourceTypePostgres)
 	activitylog.RegisterFilter("POSTGRES_DELETED", activitylog.ActivityLogEntryActionDeleted, activityLogEntryResourceTypePostgres)
+	activitylog.RegisterFilter("POSTGRES_BRANCH_CREATED", activityLogEntryActionBranchCreated, activityLogEntryResourceTypePostgres)
+	activitylog.RegisterFilter("POSTGRES_BRANCH_ACTIVATED", activityLogEntryActionBranchActivated, activityLogEntryResourceTypePostgres)
+	activitylog.RegisterFilter("POSTGRES_BRANCH_DELETED", activityLogEntryActionBranchDeleted, activityLogEntryResourceTypePostgres)
+}
+
+type PostgresBranchActivityLogEntry struct {
+	activitylog.GenericActivityLogEntry
+	Data *PostgresBranchActivityLogEntryData `json:"data"`
+}
+
+type PostgresBranchActivityLogEntryData struct {
+	Branch       string     `json:"branch"`
+	SourceBranch *string    `json:"sourceBranch,omitempty"`
+	TargetTime   *time.Time `json:"targetTime,omitempty"`
 }
 
 type PostgresDeletedActivityLogEntry struct {

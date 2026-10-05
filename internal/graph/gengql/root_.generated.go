@@ -1955,6 +1955,25 @@ type ComplexityRoot struct {
 		Workloads       func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 	}
 
+	PostgresBranchActivityLogEntry struct {
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		Data              func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
+	}
+
+	PostgresBranchActivityLogEntryData struct {
+		Branch       func(childComplexity int) int
+		SourceBranch func(childComplexity int) int
+		TargetTime   func(childComplexity int) int
+	}
+
 	PostgresBranchConnection struct {
 		Edges    func(childComplexity int) int
 		Facets   func(childComplexity int) int
@@ -2996,7 +3015,6 @@ type ComplexityRoot struct {
 		Member                    func(childComplexity int, email string) int
 		Members                   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.TeamMemberOrder) int
 		OpenSearches              func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *opensearch.OpenSearchOrder, filter *opensearch.OpenSearchFilter) int
-		PostgresBranches          func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *postgres.PostgresBranchOrder, filter *postgres.PostgresBranchFilter) int
 		Postgreses                func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *postgres.PostgresFilter) int
 		Purpose                   func(childComplexity int) int
 		Repositories              func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *repository.RepositoryOrder, filter *repository.TeamRepositoryFilter) int
@@ -12038,6 +12056,97 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.PostgresBranch.Workloads(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
 
+	case "PostgresBranchActivityLogEntry.actor":
+		if e.ComplexityRoot.PostgresBranchActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchActivityLogEntry.Actor(childComplexity), true
+
+	case "PostgresBranchActivityLogEntry.createdAt":
+		if e.ComplexityRoot.PostgresBranchActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "PostgresBranchActivityLogEntry.data":
+		if e.ComplexityRoot.PostgresBranchActivityLogEntry.Data == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchActivityLogEntry.Data(childComplexity), true
+
+	case "PostgresBranchActivityLogEntry.environmentName":
+		if e.ComplexityRoot.PostgresBranchActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "PostgresBranchActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.PostgresBranchActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchActivityLogEntry.GitHubActorClaims(childComplexity), true
+
+	case "PostgresBranchActivityLogEntry.id":
+		if e.ComplexityRoot.PostgresBranchActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchActivityLogEntry.ID(childComplexity), true
+
+	case "PostgresBranchActivityLogEntry.message":
+		if e.ComplexityRoot.PostgresBranchActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchActivityLogEntry.Message(childComplexity), true
+
+	case "PostgresBranchActivityLogEntry.resourceName":
+		if e.ComplexityRoot.PostgresBranchActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchActivityLogEntry.ResourceName(childComplexity), true
+
+	case "PostgresBranchActivityLogEntry.resourceType":
+		if e.ComplexityRoot.PostgresBranchActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchActivityLogEntry.ResourceType(childComplexity), true
+
+	case "PostgresBranchActivityLogEntry.teamSlug":
+		if e.ComplexityRoot.PostgresBranchActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "PostgresBranchActivityLogEntryData.branch":
+		if e.ComplexityRoot.PostgresBranchActivityLogEntryData.Branch == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchActivityLogEntryData.Branch(childComplexity), true
+
+	case "PostgresBranchActivityLogEntryData.sourceBranch":
+		if e.ComplexityRoot.PostgresBranchActivityLogEntryData.SourceBranch == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchActivityLogEntryData.SourceBranch(childComplexity), true
+
+	case "PostgresBranchActivityLogEntryData.targetTime":
+		if e.ComplexityRoot.PostgresBranchActivityLogEntryData.TargetTime == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchActivityLogEntryData.TargetTime(childComplexity), true
+
 	case "PostgresBranchConnection.edges":
 		if e.ComplexityRoot.PostgresBranchConnection.Edges == nil {
 			break
@@ -16826,18 +16935,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Team.OpenSearches(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*opensearch.OpenSearchOrder), args["filter"].(*opensearch.OpenSearchFilter)), true
-
-	case "Team.postgresBranches":
-		if e.ComplexityRoot.Team.PostgresBranches == nil {
-			break
-		}
-
-		args, err := ec.field_Team_postgresBranches_args(ctx, rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.ComplexityRoot.Team.PostgresBranches(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*postgres.PostgresBranchOrder), args["filter"].(*postgres.PostgresBranchFilter)), true
 
 	case "Team.postgreses":
 		if e.ComplexityRoot.Team.Postgreses == nil {
@@ -27799,26 +27896,6 @@ type WorkloadLogLine {
 		filter: PostgresFilter
 	): PostgresConnection!
 
-	"Postgres branches owned by the team."
-	postgresBranches(
-		"Get the first n items in the connection. This can be used in combination with the after parameter."
-		first: Int
-
-		"Get items after this cursor."
-		after: Cursor
-
-		"Get the last n items in the connection. This can be used in combination with the before parameter."
-		last: Int
-
-		"Get items before this cursor."
-		before: Cursor
-
-		"Ordering options for items returned from the connection."
-		orderBy: PostgresBranchOrder
-
-		"Filtering options for items returned from the connection."
-		filter: PostgresBranchFilter
-	): PostgresBranchConnection!
 }
 
 extend type TeamEnvironment {
@@ -28144,6 +28221,29 @@ type PostgresPersonalAccessConnectionActivityLogEntry implements ActivityLogEntr
 	environmentName: String
 }
 
+"An activity log entry for creating, activating or deleting a Postgres branch."
+type PostgresBranchActivityLogEntry implements ActivityLogEntry & Node {
+	id: ID!
+	actor: String!
+	gitHubActorClaims: GitHubActorClaims
+	createdAt: Time!
+	message: String!
+	resourceType: ActivityLogEntryResourceType!
+	"Name of the Postgres containing the branch."
+	resourceName: String!
+	teamSlug: Slug!
+	environmentName: String
+	data: PostgresBranchActivityLogEntryData!
+}
+
+type PostgresBranchActivityLogEntryData {
+	branch: String!
+	"Source branch, populated for branch creation."
+	sourceBranch: String
+	"Recovery instant, populated for branch creation."
+	targetTime: Time
+}
+
 type PostgresDeletedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
@@ -28276,9 +28376,15 @@ extend enum ActivityLogActivityType {
 	"""
 	POSTGRES_PERSONAL_ACCESS_CONNECTION
 	"""
-	A Postgres branch was deleted
+	A Postgres branch was deleted (historical entries without branch name)
 	"""
 	POSTGRES_DELETED
+	"A Postgres branch was created."
+	POSTGRES_BRANCH_CREATED
+	"A Postgres branch was activated."
+	POSTGRES_BRANCH_ACTIVATED
+	"A Postgres branch was deleted."
+	POSTGRES_BRANCH_DELETED
 }
 
 extend type Mutation {
@@ -38439,6 +38545,18 @@ func (ec *executionContext) childFields_PostgresBranch(ctx context.Context, fiel
 	return nil, fmt.Errorf("no field named %q was found under type PostgresBranch", field.Name)
 }
 
+func (ec *executionContext) childFields_PostgresBranchActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "branch":
+		return ec.fieldContext_PostgresBranchActivityLogEntryData_branch(ctx, field)
+	case "sourceBranch":
+		return ec.fieldContext_PostgresBranchActivityLogEntryData_sourceBranch(ctx, field)
+	case "targetTime":
+		return ec.fieldContext_PostgresBranchActivityLogEntryData_targetTime(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostgresBranchActivityLogEntryData", field.Name)
+}
+
 func (ec *executionContext) childFields_PostgresBranchConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "pageInfo":
@@ -39635,8 +39753,6 @@ func (ec *executionContext) childFields_Team(ctx context.Context, field graphql.
 		return ec.fieldContext_Team_openSearches(ctx, field)
 	case "postgreses":
 		return ec.fieldContext_Team_postgreses(ctx, field)
-	case "postgresBranches":
-		return ec.fieldContext_Team_postgresBranches(ctx, field)
 	case "repositories":
 		return ec.fieldContext_Team_repositories(ctx, field)
 	case "secrets":

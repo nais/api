@@ -75,13 +75,8 @@ func Delete(ctx context.Context, input DeletePostgresBranchInput) (*DeletePostgr
 		return nil, err
 	}
 
-	if err = activitylog.Create(ctx, activitylog.CreateInput{
-		Action:          activitylog.ActivityLogEntryActionDeleted,
-		Actor:           authz.ActorFromContext(ctx).User,
-		ResourceType:    activityLogEntryResourceTypePostgres,
-		ResourceName:    input.Postgres,
-		EnvironmentName: new(input.EnvironmentName),
-		TeamSlug:        new(input.TeamSlug),
+	if err = logPostgresChange(ctx, activityLogEntryActionBranchDeleted, input.Postgres, input.EnvironmentName, input.TeamSlug, PostgresBranchActivityLogEntryData{
+		Branch: input.Branch,
 	}); err != nil {
 		return nil, err
 	}
@@ -163,19 +158,6 @@ func ListPostgresForTeam(ctx context.Context, teamSlug slug.Slug, page *paginati
 	})
 	conn := pagination.NewConnection(pagination.Slice(instances, page), page, len(instances))
 	return pagination.NewFacetableConnection(conn, all, filter)
-}
-
-func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *PostgresBranchOrder, filter *PostgresBranchFilter) (*PostgresBranchConnection, error) {
-	all := ListAllForTeam(ctx, teamSlug, filter)
-
-	if orderBy == nil {
-		orderBy = &PostgresBranchOrder{
-			Field:     PostgresBranchOrderFieldName,
-			Direction: model.OrderDirectionAsc,
-		}
-	}
-
-	return SortFilterPostgresBranch.PaginatedList(ctx, all, page, orderBy.Field, orderBy.Direction, filter), nil
 }
 
 func ListAllForTeam(ctx context.Context, teamSlug slug.Slug, filter *PostgresBranchFilter) []*PostgresBranch {
