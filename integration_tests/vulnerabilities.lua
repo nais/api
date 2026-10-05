@@ -236,6 +236,125 @@ Test.gql("Get vulnerability summary for tenant", function(t)
 	}
 end)
 
+Test.gql("List vulnerability summaries across teams", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query([[
+		{
+			vulnerabilitySummaries(first: 1) {
+				pageInfo { totalCount }
+				nodes { id }
+			}
+		}
+	]])
+
+	t.check {
+		data = {
+			vulnerabilitySummaries = {
+				pageInfo = { totalCount = NotNull() },
+				nodes = { { id = NotNull() } },
+			},
+		},
+	}
+end)
+
+Test.gql("Filter team workloads by SBOM status", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query(string.format([[
+		{
+			team(slug: "%s") {
+				workloads(first: 10, filter: { sbomStatus: NO_SBOM }) {
+					pageInfo { totalCount }
+					nodes { name }
+				}
+			}
+		}
+	]], team:slug()))
+
+	t.check {
+		data = {
+			team = {
+				workloads = {
+					pageInfo = { totalCount = 0 },
+					nodes = {},
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("Legacy vulnerability fields remain queryable", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query(string.format([[
+		{
+			team(slug: "%s") {
+				environment(name: "dev") {
+					workload(name: "app-with-vulnerabilities") {
+						image {
+							vulnerabilities(first: 1) {
+								nodes {
+									priority
+									cvssScore
+									epssScore
+									epssPercentile
+									hasKevEntry
+									knownRansomwareUse
+									fixVersion
+									riskAssessment { priority }
+									remediation { fixVersion }
+								}
+							}
+						}
+					}
+				}
+			}
+			cve(identifier: "CVE-2024-12345") {
+				priority
+				epssScore
+				epssPercentile
+				hasKevEntry
+				knownRansomwareUse
+				riskAssessment { priority }
+			}
+		}
+	]], team:slug()))
+
+	t.check {
+		data = {
+			team = {
+				environment = {
+					workload = {
+						image = {
+							vulnerabilities = {
+								nodes = {
+									{
+										priority = NotNull(),
+										cvssScore = Ignore(),
+										epssScore = Ignore(),
+										epssPercentile = Ignore(),
+										hasKevEntry = NotNull(),
+										knownRansomwareUse = NotNull(),
+										fixVersion = Ignore(),
+										riskAssessment = { priority = NotNull() },
+										remediation = { fixVersion = Ignore() },
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			cve = {
+				priority = NotNull(),
+				epssScore = Ignore(),
+				epssPercentile = Ignore(),
+				hasKevEntry = NotNull(),
+				knownRansomwareUse = NotNull(),
+				riskAssessment = { priority = NotNull() },
+			},
+		},
+	}
+end)
+
 Test.gql("Get vulnerability summary for team", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query(string.format([[

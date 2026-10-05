@@ -34452,7 +34452,10 @@ extend type Query {
 		"Get items before this cursor."
 		before: Cursor
 
+		"Filter workload vulnerability summaries across all teams."
 		filter: TenantVulnerabilitySummaryFilter
+
+		"Order workload vulnerability summaries across all teams."
 		orderBy: VulnerabilitySummaryOrder
 	): WorkloadVulnerabilitySummaryConnection!
 
@@ -35212,12 +35215,7 @@ enum VulnerabilitySummaryOrderByField {
 	Order by vulnerability severity unassigned.
 	"""
 	VULNERABILITY_SEVERITY_UNASSIGNED
-	"""
-	Order by the number of urgent vulnerabilities.
-
-	Urgent vulnerabilities are known to be actively exploited and should be
-	prioritized for immediate action.
-	"""
+	"Deprecated. URGENT requires workload internet exposure and cannot be ordered at summary scope."
 	VULNERABILITY_PRIORITY_URGENT
 		@deprecated(
 			reason: "Backed by a count that is always 0. URGENT requires workload internet exposure, so ordering by this value has no effect and falls back to a stable name sort."
