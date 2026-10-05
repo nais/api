@@ -235,6 +235,9 @@ func NewComplexityRoot() ComplexityRoot {
 	c.Team.PostgresBranches = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *postgres.PostgresBranchOrder, filter *postgres.PostgresBranchFilter) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
+	c.Team.Postgreses = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *postgres.PostgresFilter) int {
+		return cursorComplexity(first, last) * childComplexity
+	}
 	c.Team.Repositories = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *repository.RepositoryOrder, filter *repository.TeamRepositoryFilter) int {
 		return cursorComplexity(first, last) * childComplexity
 	}

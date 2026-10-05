@@ -1,4 +1,18 @@
 extend type Team {
+	"Postgres databases owned by the team, including those without branches."
+	postgreses(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+		"Get items after this cursor."
+		after: Cursor
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+		"Get items before this cursor."
+		before: Cursor
+		"Filter Postgres databases by environment or labels."
+		filter: PostgresFilter
+	): PostgresConnection!
+
 	"Postgres branches owned by the team."
 	postgresBranches(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
@@ -56,6 +70,14 @@ extend type Job {
 		"Ordering options for items returned from the connection."
 		orderBy: PostgresBranchOrder
 	): PostgresBranchConnection!
+}
+
+"Filter Postgres databases by environment and user-defined labels."
+input PostgresFilter {
+	"Filter by environments."
+	environments: [String!]
+	"All listed labels must match."
+	labels: [LabelFilter!]
 }
 
 input PostgresBranchOrder {
@@ -118,6 +140,8 @@ type PostgresBranch implements Persistence & Node {
 type Postgres implements Node {
 	"Opaque identifier for this Postgres."
 	id: ID!
+	"Team environment containing this Postgres."
+	teamEnvironment: TeamEnvironment!
 	"Name of this Postgres."
 	name: String!
 	"Configured PostgreSQL major version."
@@ -142,6 +166,26 @@ type Postgres implements Node {
 	): PostgresBranchConnection!
 	"User-defined labels on this Postgres."
 	labels: [ResourceLabel!]!
+}
+
+"A paginated list of Postgres databases."
+type PostgresConnection {
+	pageInfo: PageInfo!
+	nodes: [Postgres!]!
+	edges: [PostgresEdge!]!
+	"Labels across team Postgres databases, independent of pagination."
+	facets: PostgresFacets!
+}
+
+"Facets for Postgres databases."
+type PostgresFacets {
+	"User-defined labels on team Postgres databases."
+	labels: [LabelFacetItem!]!
+}
+
+type PostgresEdge {
+	cursor: Cursor!
+	node: Postgres!
 }
 
 "Resource requests configured on Postgres. Omitted requests are null."

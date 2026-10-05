@@ -147,6 +147,24 @@ func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName st
 	return instances, nil
 }
 
+func ListPostgresForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, filter *PostgresFilter) *PostgresConnection {
+	all := watcher.Objects(fromContext(ctx).postgresWatcher.GetByNamespace(teamSlug.String(), watcher.WithoutDeleted()))
+	instances := make([]*Postgres, 0, len(all))
+	for _, pg := range all {
+		if filter.Matches(pg) {
+			instances = append(instances, pg)
+		}
+	}
+	slices.SortFunc(instances, func(a, b *Postgres) int {
+		if n := strings.Compare(a.Name, b.Name); n != 0 {
+			return n
+		}
+		return strings.Compare(a.EnvironmentName, b.EnvironmentName)
+	})
+	conn := pagination.NewConnection(pagination.Slice(instances, page), page, len(instances))
+	return pagination.NewFacetableConnection(conn, all, filter)
+}
+
 func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *PostgresBranchOrder, filter *PostgresBranchFilter) (*PostgresBranchConnection, error) {
 	all := ListAllForTeam(ctx, teamSlug, filter)
 

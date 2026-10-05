@@ -70,7 +70,7 @@ func TestWorkloadUsesMultiplePostgresResources(t *testing.T) {
 	if !mgr.WaitForReady(wait) {
 		t.Fatal("watchers did not synchronize")
 	}
-	ctx = NewLoaderContext(ctx, postgresBranchWatcher, "", "", "nav", mgr.GetDynamicClients())
+	ctx = NewLoaderContext(ctx, postgresBranchWatcher, nil, "", "", "nav", mgr.GetDynamicClients())
 	ctx = application.NewLoaderContext(ctx, appWatcher, nil, log)
 	ctx = job.NewLoaderContext(ctx, jobWatcher, nil)
 	team := slug.Slug("postgres-workload-team")
@@ -120,7 +120,7 @@ func TestReadyPostgresBranchUsesConcreteName(t *testing.T) {
 	if !mgr.WaitForReady(wait) {
 		t.Fatal("PostgresBranch watcher did not synchronize")
 	}
-	ctx = NewLoaderContext(ctx, postgresBranchWatcher, "", "", "nav", mgr.GetDynamicClients())
+	ctx = NewLoaderContext(ctx, postgresBranchWatcher, nil, "", "", "nav", mgr.GetDynamicClients())
 	team := slug.Slug("someteamname")
 	for _, name := range []string{"main", "recovered"} {
 		instance, err := GetReadyPostgresBranch(ctx, team, "dev", "foobar", name)
@@ -173,7 +173,7 @@ func TestCreatePostgresAccessRejectsMissingInstance(t *testing.T) {
 	if !mgr.WaitForReady(wait) {
 		t.Fatal("PostgresBranch watcher did not synchronize")
 	}
-	ctx = NewLoaderContext(ctx, postgresBranchWatcher, "", "", "nav", mgr.GetDynamicClients())
+	ctx = NewLoaderContext(ctx, postgresBranchWatcher, nil, "", "", "nav", mgr.GetDynamicClients())
 	input := CreatePostgresAccessInput{
 		Postgres: "foobar", Branch: "missing", TeamSlug: slug.Slug("myteam"),
 		EnvironmentName: "dev", AccessLevel: PostgresAccessLevelRead,

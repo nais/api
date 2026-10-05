@@ -109,6 +109,7 @@ type ResolverRoot interface {
 	PostgresAccess() PostgresAccessResolver
 	PostgresBranch() PostgresBranchResolver
 	PostgresBranchConnection() PostgresBranchConnectionResolver
+	PostgresConnection() PostgresConnectionResolver
 	PrometheusAlert() PrometheusAlertResolver
 	Query() QueryResolver
 	Reconciler() ReconcilerResolver
@@ -1916,6 +1917,7 @@ type ComplexityRoot struct {
 		MajorVersion        func(childComplexity int) int
 		Name                func(childComplexity int) int
 		Resources           func(childComplexity int) int
+		TeamEnvironment     func(childComplexity int) int
 	}
 
 	PostgresAccess struct {
@@ -1976,6 +1978,13 @@ type ComplexityRoot struct {
 		State func(childComplexity int) int
 	}
 
+	PostgresConnection struct {
+		Edges    func(childComplexity int) int
+		Facets   func(childComplexity int) int
+		Nodes    func(childComplexity int) int
+		PageInfo func(childComplexity int) int
+	}
+
 	PostgresCreatedActivityLogEntry struct {
 		Actor             func(childComplexity int) int
 		CreatedAt         func(childComplexity int) int
@@ -1998,6 +2007,15 @@ type ComplexityRoot struct {
 		ResourceName      func(childComplexity int) int
 		ResourceType      func(childComplexity int) int
 		TeamSlug          func(childComplexity int) int
+	}
+
+	PostgresEdge struct {
+		Cursor func(childComplexity int) int
+		Node   func(childComplexity int) int
+	}
+
+	PostgresFacets struct {
+		Labels func(childComplexity int) int
 	}
 
 	PostgresGrantAccessActivityLogEntry struct {
@@ -2979,6 +2997,7 @@ type ComplexityRoot struct {
 		Members                   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.TeamMemberOrder) int
 		OpenSearches              func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *opensearch.OpenSearchOrder, filter *opensearch.OpenSearchFilter) int
 		PostgresBranches          func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *postgres.PostgresBranchOrder, filter *postgres.PostgresBranchFilter) int
+		Postgreses                func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *postgres.PostgresFilter) int
 		Purpose                   func(childComplexity int) int
 		Repositories              func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *repository.RepositoryOrder, filter *repository.TeamRepositoryFilter) int
 		SQLInstances              func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *sqlinstance.SQLInstanceOrder, filter *sqlinstance.SQLInstanceFilter) int
@@ -11825,6 +11844,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Postgres.Resources(childComplexity), true
 
+	case "Postgres.teamEnvironment":
+		if e.ComplexityRoot.Postgres.TeamEnvironment == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Postgres.TeamEnvironment(childComplexity), true
+
 	case "PostgresAccess.accessLevel":
 		if e.ComplexityRoot.PostgresAccess.AccessLevel == nil {
 			break
@@ -12089,6 +12115,34 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.PostgresBranchStateFacetItem.State(childComplexity), true
 
+	case "PostgresConnection.edges":
+		if e.ComplexityRoot.PostgresConnection.Edges == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresConnection.Edges(childComplexity), true
+
+	case "PostgresConnection.facets":
+		if e.ComplexityRoot.PostgresConnection.Facets == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresConnection.Facets(childComplexity), true
+
+	case "PostgresConnection.nodes":
+		if e.ComplexityRoot.PostgresConnection.Nodes == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresConnection.Nodes(childComplexity), true
+
+	case "PostgresConnection.pageInfo":
+		if e.ComplexityRoot.PostgresConnection.PageInfo == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresConnection.PageInfo(childComplexity), true
+
 	case "PostgresCreatedActivityLogEntry.actor":
 		if e.ComplexityRoot.PostgresCreatedActivityLogEntry.Actor == nil {
 			break
@@ -12214,6 +12268,27 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.PostgresDeletedActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "PostgresEdge.cursor":
+		if e.ComplexityRoot.PostgresEdge.Cursor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresEdge.Cursor(childComplexity), true
+
+	case "PostgresEdge.node":
+		if e.ComplexityRoot.PostgresEdge.Node == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresEdge.Node(childComplexity), true
+
+	case "PostgresFacets.labels":
+		if e.ComplexityRoot.PostgresFacets.Labels == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresFacets.Labels(childComplexity), true
 
 	case "PostgresGrantAccessActivityLogEntry.actor":
 		if e.ComplexityRoot.PostgresGrantAccessActivityLogEntry.Actor == nil {
@@ -16764,6 +16839,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Team.PostgresBranches(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*postgres.PostgresBranchOrder), args["filter"].(*postgres.PostgresBranchFilter)), true
 
+	case "Team.postgreses":
+		if e.ComplexityRoot.Team.Postgreses == nil {
+			break
+		}
+
+		args, err := ec.field_Team_postgreses_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Team.Postgreses(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["filter"].(*postgres.PostgresFilter)), true
+
 	case "Team.purpose":
 		if e.ComplexityRoot.Team.Purpose == nil {
 			break
@@ -21228,6 +21315,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputOpenSearchOrder,
 		ec.unmarshalInputPostgresBranchFilter,
 		ec.unmarshalInputPostgresBranchOrder,
+		ec.unmarshalInputPostgresFilter,
 		ec.unmarshalInputReconcilerConfigInput,
 		ec.unmarshalInputRemoveConfigValueInput,
 		ec.unmarshalInputRemoveRepositoryFromTeamInput,
@@ -27697,6 +27785,20 @@ type WorkloadLogLine {
 }
 `, BuiltIn: false},
 	{Name: "../schema/postgres.graphqls", Input: `extend type Team {
+	"Postgres databases owned by the team, including those without branches."
+	postgreses(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+		"Get items after this cursor."
+		after: Cursor
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+		"Get items before this cursor."
+		before: Cursor
+		"Filter Postgres databases by environment or labels."
+		filter: PostgresFilter
+	): PostgresConnection!
+
 	"Postgres branches owned by the team."
 	postgresBranches(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
@@ -27754,6 +27856,14 @@ extend type Job {
 		"Ordering options for items returned from the connection."
 		orderBy: PostgresBranchOrder
 	): PostgresBranchConnection!
+}
+
+"Filter Postgres databases by environment and user-defined labels."
+input PostgresFilter {
+	"Filter by environments."
+	environments: [String!]
+	"All listed labels must match."
+	labels: [LabelFilter!]
 }
 
 input PostgresBranchOrder {
@@ -27816,6 +27926,8 @@ type PostgresBranch implements Persistence & Node {
 type Postgres implements Node {
 	"Opaque identifier for this Postgres."
 	id: ID!
+	"Team environment containing this Postgres."
+	teamEnvironment: TeamEnvironment!
 	"Name of this Postgres."
 	name: String!
 	"Configured PostgreSQL major version."
@@ -27840,6 +27952,26 @@ type Postgres implements Node {
 	): PostgresBranchConnection!
 	"User-defined labels on this Postgres."
 	labels: [ResourceLabel!]!
+}
+
+"A paginated list of Postgres databases."
+type PostgresConnection {
+	pageInfo: PageInfo!
+	nodes: [Postgres!]!
+	edges: [PostgresEdge!]!
+	"Labels across team Postgres databases, independent of pagination."
+	facets: PostgresFacets!
+}
+
+"Facets for Postgres databases."
+type PostgresFacets {
+	"User-defined labels on team Postgres databases."
+	labels: [LabelFacetItem!]!
+}
+
+type PostgresEdge {
+	cursor: Cursor!
+	node: Postgres!
 }
 
 "Resource requests configured on Postgres. Omitted requests are null."
@@ -38213,6 +38345,8 @@ func (ec *executionContext) childFields_Postgres(ctx context.Context, field grap
 	switch field.Name {
 	case "id":
 		return ec.fieldContext_Postgres_id(ctx, field)
+	case "teamEnvironment":
+		return ec.fieldContext_Postgres_teamEnvironment(ctx, field)
 	case "name":
 		return ec.fieldContext_Postgres_name(ctx, field)
 	case "majorVersion":
@@ -38349,6 +38483,38 @@ func (ec *executionContext) childFields_PostgresBranchStateFacetItem(ctx context
 		return ec.fieldContext_PostgresBranchStateFacetItem_count(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type PostgresBranchStateFacetItem", field.Name)
+}
+
+func (ec *executionContext) childFields_PostgresConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pageInfo":
+		return ec.fieldContext_PostgresConnection_pageInfo(ctx, field)
+	case "nodes":
+		return ec.fieldContext_PostgresConnection_nodes(ctx, field)
+	case "edges":
+		return ec.fieldContext_PostgresConnection_edges(ctx, field)
+	case "facets":
+		return ec.fieldContext_PostgresConnection_facets(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostgresConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_PostgresEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_PostgresEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_PostgresEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostgresEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_PostgresFacets(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "labels":
+		return ec.fieldContext_PostgresFacets_labels(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostgresFacets", field.Name)
 }
 
 func (ec *executionContext) childFields_PostgresGrantAccessActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -39467,6 +39633,8 @@ func (ec *executionContext) childFields_Team(ctx context.Context, field graphql.
 		return ec.fieldContext_Team_kafkaTopics(ctx, field)
 	case "openSearches":
 		return ec.fieldContext_Team_openSearches(ctx, field)
+	case "postgreses":
+		return ec.fieldContext_Team_postgreses(ctx, field)
 	case "postgresBranches":
 		return ec.fieldContext_Team_postgresBranches(ctx, field)
 	case "repositories":

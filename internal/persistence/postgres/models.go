@@ -60,6 +60,21 @@ type PostgresBranch struct {
 	Labels          []*model.ResourceLabel `json:"labels"`
 }
 
+type PostgresFilter struct {
+	Environments []string           `json:"environments"`
+	Labels       model.LabelFilters `json:"labels,omitempty"`
+}
+
+type (
+	PostgresConnection = pagination.FacetableConnection[*Postgres, *PostgresFilter]
+	PostgresEdge       = pagination.Edge[*Postgres]
+)
+
+type PostgresFacets struct {
+	AllInstances      []*Postgres
+	FilteredInstances []*Postgres
+}
+
 // Postgres selects the instance that workloads use.
 type Postgres struct {
 	Name                string                 `json:"name"`
@@ -82,6 +97,12 @@ type PostgresResources struct {
 
 func (Postgres) IsNode()            {}
 func (p *Postgres) ID() ident.Ident { return newPostgresIdent(p.TeamSlug, p.EnvironmentName, p.Name) }
+
+func (p *Postgres) GetObjectKind() schema.ObjectKind { return schema.EmptyObjectKind }
+func (p *Postgres) DeepCopyObject() runtime.Object   { return p }
+func (p *Postgres) GetName() string                  { return p.Name }
+func (p *Postgres) GetNamespace() string             { return p.TeamSlug.String() }
+func (p *Postgres) GetLabels() map[string]string     { return nil }
 
 type PostgresBranchState string
 

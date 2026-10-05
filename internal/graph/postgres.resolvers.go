@@ -78,6 +78,10 @@ func (r *mutationResolver) DeletePostgresBranch(ctx context.Context, input postg
 	return postgres.Delete(ctx, input)
 }
 
+func (r *postgresResolver) TeamEnvironment(ctx context.Context, obj *postgres.Postgres) (*team.TeamEnvironment, error) {
+	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
+}
+
 func (r *postgresResolver) ActiveBranch(ctx context.Context, obj *postgres.Postgres) (*postgres.PostgresBranch, error) {
 	if obj.ActiveBranch == nil {
 		return nil, nil
@@ -145,6 +149,24 @@ func (r *postgresBranchConnectionResolver) Facets(ctx context.Context, obj *pagi
 	}, nil
 }
 
+func (r *postgresConnectionResolver) Facets(ctx context.Context, obj *pagination.FacetableConnection[*postgres.Postgres, *postgres.PostgresFilter]) (*postgres.PostgresFacets, error) {
+	filtered := make([]*postgres.Postgres, 0, len(obj.GetAllItems()))
+	for _, pg := range obj.GetAllItems() {
+		if obj.GetFilter().Matches(pg) {
+			filtered = append(filtered, pg)
+		}
+	}
+	return &postgres.PostgresFacets{AllInstances: obj.GetAllItems(), FilteredInstances: filtered}, nil
+}
+
+func (r *teamResolver) Postgreses(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *postgres.PostgresFilter) (*pagination.FacetableConnection[*postgres.Postgres, *postgres.PostgresFilter], error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+	return postgres.ListPostgresForTeam(ctx, obj.Slug, page, filter), nil
+}
+
 func (r *teamResolver) PostgresBranches(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *postgres.PostgresBranchOrder, filter *postgres.PostgresBranchFilter) (*pagination.FacetableConnection[*postgres.PostgresBranch, *postgres.PostgresBranchFilter], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
@@ -178,9 +200,14 @@ func (r *Resolver) PostgresBranchConnection() gengql.PostgresBranchConnectionRes
 	return &postgresBranchConnectionResolver{r}
 }
 
+func (r *Resolver) PostgresConnection() gengql.PostgresConnectionResolver {
+	return &postgresConnectionResolver{r}
+}
+
 type (
 	postgresResolver                 struct{ *Resolver }
 	postgresAccessResolver           struct{ *Resolver }
 	postgresBranchResolver           struct{ *Resolver }
 	postgresBranchConnectionResolver struct{ *Resolver }
+	postgresConnectionResolver       struct{ *Resolver }
 )
