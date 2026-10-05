@@ -356,7 +356,41 @@ func (e UserTeamOrderField) MarshalGQL(w io.Writer) {
 }
 
 type TeamFilter struct {
-	HasWorkloads *bool `json:"hasWorkloads"`
+	HasWorkloads        *bool                    `json:"hasWorkloads"`
+	OperationalPriority *TeamOperationalPriority `json:"operationalPriority"`
+}
+
+type TeamOperationalPriority string
+
+const (
+	TeamOperationalPriorityHigh     TeamOperationalPriority = "HIGH"
+	TeamOperationalPriorityElevated TeamOperationalPriority = "ELEVATED"
+	TeamOperationalPriorityMonitor  TeamOperationalPriority = "MONITOR"
+	TeamOperationalPriorityNone     TeamOperationalPriority = "NONE"
+)
+
+func (e TeamOperationalPriority) IsValid() bool {
+	return slices.Contains([]TeamOperationalPriority{TeamOperationalPriorityHigh, TeamOperationalPriorityElevated, TeamOperationalPriorityMonitor, TeamOperationalPriorityNone}, e)
+}
+
+func (e TeamOperationalPriority) String() string {
+	return string(e)
+}
+
+func (e *TeamOperationalPriority) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+	*e = TeamOperationalPriority(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid TeamOperationalPriority", str)
+	}
+	return nil
+}
+
+func (e TeamOperationalPriority) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
 type CreateTeamInput struct {

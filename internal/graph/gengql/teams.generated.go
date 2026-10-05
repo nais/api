@@ -7955,7 +7955,7 @@ func (ec *executionContext) unmarshalInputTeamFilter(ctx context.Context, obj an
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"hasWorkloads"}
+	fieldsInOrder := [...]string{"hasWorkloads", "operationalPriority"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -7969,6 +7969,13 @@ func (ec *executionContext) unmarshalInputTeamFilter(ctx context.Context, obj an
 				return it, err
 			}
 			it.HasWorkloads = data
+		case "operationalPriority":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("operationalPriority"))
+			data, err := ec.unmarshalOTeamOperationalPriority2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamOperationalPriority(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.OperationalPriority = data
 		}
 	}
 	return it, nil

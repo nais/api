@@ -177,6 +177,18 @@ func listAndSortByExternalSort(ctx context.Context, page *pagination.Pagination,
 
 	filteredTeams := SortFilter.Filter(ctx, teams, filter)
 
+	if filter != nil && filter.OperationalPriority != nil {
+		filteredTeams, err = groupByOperationalPriority(ctx, filteredTeams, *filter.OperationalPriority)
+		if err != nil {
+			return nil, err
+		}
+		if orderBy == nil {
+			return pagination.NewConnection(pagination.Slice(filteredTeams, page), page, len(filteredTeams)), nil
+		}
+		order := *orderBy
+		orderBy = &order
+	}
+
 	if orderBy == nil {
 		orderBy = &TeamOrder{
 			Field:     "_SLUG",
