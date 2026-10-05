@@ -28,27 +28,18 @@ extend type TeamEnvironment {
 }
 
 extend interface Workload {
-	"Active PostgresBranches for all Postgres entries in uses.postgres."
-	postgresBranches(
-		"Ordering options for items returned from the connection."
-		orderBy: PostgresBranchOrder
-	): PostgresBranchConnection!
+	"Postgres databases referenced by uses.postgres, whether or not they have an active branch."
+	postgreses: PostgresConnection!
 }
 
 extend type Application {
-	"Active PostgresBranches for all Postgres entries in uses.postgres."
-	postgresBranches(
-		"Ordering options for items returned from the connection."
-		orderBy: PostgresBranchOrder
-	): PostgresBranchConnection!
+	"Postgres databases referenced by uses.postgres, whether or not they have an active branch."
+	postgreses: PostgresConnection!
 }
 
 extend type Job {
-	"Active PostgresBranches for all Postgres entries in uses.postgres."
-	postgresBranches(
-		"Ordering options for items returned from the connection."
-		orderBy: PostgresBranchOrder
-	): PostgresBranchConnection!
+	"Postgres databases referenced by uses.postgres, whether or not they have an active branch."
+	postgreses: PostgresConnection!
 }
 
 "Filter Postgres databases by environment and user-defined labels."

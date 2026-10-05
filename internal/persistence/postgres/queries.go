@@ -106,38 +106,19 @@ func ensureInstanceMayBeDeleted(branch string, postgres *unstructured.Unstructur
 	return nil
 }
 
-func GetForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName, postgresName string) (*PostgresBranch, error) {
-	if postgresName == "" {
-		return nil, nil
-	}
-	postgres, err := GetPostgres(ctx, teamSlug, environmentName, postgresName)
-	if err != nil {
-		return nil, err
-	}
-	if postgres.ActiveBranch == nil {
-		return nil, nil
-	}
-	return GetPostgresBranch(ctx, teamSlug, environmentName, postgresName, *postgres.ActiveBranch)
-}
-
-// ListForWorkload resolves each Postgres use to the instance selected by that
-// Postgres. A workload can use several databases, each with its own active instance.
-func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName string, uses []liberatorv1.PostgresUse) ([]*PostgresBranch, error) {
-	instances := make([]*PostgresBranch, 0, len(uses))
+// ListPostgresForWorkload resolves the Postgres databases referenced by a workload,
+// including databases without an active branch.
+func ListPostgresForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName string, uses []liberatorv1.PostgresUse) ([]*Postgres, error) {
+	instances := make([]*Postgres, 0, len(uses))
 	for _, use := range uses {
-		instance, err := GetForWorkload(ctx, teamSlug, environmentName, use.Name)
+		pg, err := GetPostgres(ctx, teamSlug, environmentName, use.Name)
 		if err != nil {
 			return nil, err
 		}
-		if instance != nil {
-			instances = append(instances, instance)
-		}
+		instances = append(instances, pg)
 	}
-	slices.SortFunc(instances, func(a, b *PostgresBranch) int {
-		if a.Name != b.Name {
-			return cmp.Compare(a.Name, b.Name)
-		}
-		return cmp.Compare(a.PostgresName, b.PostgresName)
+	slices.SortFunc(instances, func(a, b *Postgres) int {
+		return cmp.Compare(a.Name, b.Name)
 	})
 	return instances, nil
 }

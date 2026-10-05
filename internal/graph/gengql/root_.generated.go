@@ -268,7 +268,7 @@ type ComplexityRoot struct {
 		Name                      func(childComplexity int) int
 		NetworkPolicy             func(childComplexity int) int
 		OpenSearch                func(childComplexity int) int
-		PostgresBranches          func(childComplexity int, orderBy *postgres.PostgresBranchOrder) int
+		Postgreses                func(childComplexity int) int
 		Resources                 func(childComplexity int) int
 		SQLInstances              func(childComplexity int, orderBy *sqlinstance.SQLInstanceOrder) int
 		Secrets                   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
@@ -1261,7 +1261,7 @@ type ComplexityRoot struct {
 		Name                      func(childComplexity int) int
 		NetworkPolicy             func(childComplexity int) int
 		OpenSearch                func(childComplexity int) int
-		PostgresBranches          func(childComplexity int, orderBy *postgres.PostgresBranchOrder) int
+		Postgreses                func(childComplexity int) int
 		Resources                 func(childComplexity int) int
 		Runs                      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		SQLInstances              func(childComplexity int, orderBy *sqlinstance.SQLInstanceOrder) int
@@ -4506,17 +4506,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Application.OpenSearch(childComplexity), true
 
-	case "Application.postgresBranches":
-		if e.ComplexityRoot.Application.PostgresBranches == nil {
+	case "Application.postgreses":
+		if e.ComplexityRoot.Application.Postgreses == nil {
 			break
 		}
 
-		args, err := ec.field_Application_postgresBranches_args(ctx, rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.ComplexityRoot.Application.PostgresBranches(childComplexity, args["orderBy"].(*postgres.PostgresBranchOrder)), true
+		return e.ComplexityRoot.Application.Postgreses(childComplexity), true
 
 	case "Application.resources":
 		if e.ComplexityRoot.Application.Resources == nil {
@@ -8568,17 +8563,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Job.OpenSearch(childComplexity), true
 
-	case "Job.postgresBranches":
-		if e.ComplexityRoot.Job.PostgresBranches == nil {
+	case "Job.postgreses":
+		if e.ComplexityRoot.Job.Postgreses == nil {
 			break
 		}
 
-		args, err := ec.field_Job_postgresBranches_args(ctx, rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.ComplexityRoot.Job.PostgresBranches(childComplexity, args["orderBy"].(*postgres.PostgresBranchOrder)), true
+		return e.ComplexityRoot.Job.Postgreses(childComplexity), true
 
 	case "Job.resources":
 		if e.ComplexityRoot.Job.Resources == nil {
@@ -28060,27 +28050,18 @@ extend type TeamEnvironment {
 }
 
 extend interface Workload {
-	"Active PostgresBranches for all Postgres entries in uses.postgres."
-	postgresBranches(
-		"Ordering options for items returned from the connection."
-		orderBy: PostgresBranchOrder
-	): PostgresBranchConnection!
+	"Postgres databases referenced by uses.postgres, whether or not they have an active branch."
+	postgreses: PostgresConnection!
 }
 
 extend type Application {
-	"Active PostgresBranches for all Postgres entries in uses.postgres."
-	postgresBranches(
-		"Ordering options for items returned from the connection."
-		orderBy: PostgresBranchOrder
-	): PostgresBranchConnection!
+	"Postgres databases referenced by uses.postgres, whether or not they have an active branch."
+	postgreses: PostgresConnection!
 }
 
 extend type Job {
-	"Active PostgresBranches for all Postgres entries in uses.postgres."
-	postgresBranches(
-		"Ordering options for items returned from the connection."
-		orderBy: PostgresBranchOrder
-	): PostgresBranchConnection!
+	"Postgres databases referenced by uses.postgres, whether or not they have an active branch."
+	postgreses: PostgresConnection!
 }
 
 "Filter Postgres databases by environment and user-defined labels."
@@ -36464,8 +36445,8 @@ func (ec *executionContext) childFields_Application(ctx context.Context, field g
 		return ec.fieldContext_Application_networkPolicy(ctx, field)
 	case "openSearch":
 		return ec.fieldContext_Application_openSearch(ctx, field)
-	case "postgresBranches":
-		return ec.fieldContext_Application_postgresBranches(ctx, field)
+	case "postgreses":
+		return ec.fieldContext_Application_postgreses(ctx, field)
 	case "secrets":
 		return ec.fieldContext_Application_secrets(ctx, field)
 	case "serviceAccount":
@@ -38004,8 +37985,8 @@ func (ec *executionContext) childFields_Job(ctx context.Context, field graphql.C
 		return ec.fieldContext_Job_networkPolicy(ctx, field)
 	case "openSearch":
 		return ec.fieldContext_Job_openSearch(ctx, field)
-	case "postgresBranches":
-		return ec.fieldContext_Job_postgresBranches(ctx, field)
+	case "postgreses":
+		return ec.fieldContext_Job_postgreses(ctx, field)
 	case "secrets":
 		return ec.fieldContext_Job_secrets(ctx, field)
 	case "serviceAccount":

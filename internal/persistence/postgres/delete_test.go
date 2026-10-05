@@ -63,6 +63,7 @@ func TestWorkloadUsesMultiplePostgresResources(t *testing.T) {
 	t.Cleanup(mgr.Stop)
 	ctx := context.Background()
 	postgresBranchWatcher := NewPostgresBranchWatcher(ctx, mgr)
+	postgresWatcher := NewPostgresWatcher(ctx, mgr)
 	appWatcher := application.NewWatcher(ctx, mgr)
 	jobWatcher := job.NewWatcher(ctx, mgr)
 	wait, cancel := context.WithTimeout(ctx, 5*time.Second)
@@ -70,7 +71,7 @@ func TestWorkloadUsesMultiplePostgresResources(t *testing.T) {
 	if !mgr.WaitForReady(wait) {
 		t.Fatal("watchers did not synchronize")
 	}
-	ctx = NewLoaderContext(ctx, postgresBranchWatcher, nil, "", "", "nav", mgr.GetDynamicClients())
+	ctx = NewLoaderContext(ctx, postgresBranchWatcher, postgresWatcher, "", "", "nav", mgr.GetDynamicClients())
 	ctx = application.NewLoaderContext(ctx, appWatcher, nil, log)
 	ctx = job.NewLoaderContext(ctx, jobWatcher, nil)
 	team := slug.Slug("postgres-workload-team")
@@ -78,17 +79,17 @@ func TestWorkloadUsesMultiplePostgresResources(t *testing.T) {
 	if len(apps) != 1 || apps[0].Spec.Uses == nil {
 		t.Fatalf("application uses not loaded: %+v", apps)
 	}
-	instances, err := ListForWorkload(ctx, team, "dev", apps[0].Spec.Uses.Postgres)
-	if err != nil || len(instances) != 2 || instances[0].Name != "green" || instances[1].Name != "recovered" {
-		t.Fatalf("selected instances = %+v, error = %v", instances, err)
+	instances, err := ListPostgresForWorkload(ctx, team, "dev", apps[0].Spec.Uses.Postgres)
+	if err != nil || len(instances) != 3 || instances[0].Name != "archive" || instances[0].ActiveBranch != nil || instances[1].Name != "orders" || instances[2].Name != "reports" {
+		t.Fatalf("referenced Postgres = %+v, error = %v", instances, err)
 	}
 	jobs := job.ListAllForTeamInEnvironment(ctx, team, "dev")
 	if len(jobs) != 1 || jobs[0].Spec.Uses == nil {
 		t.Fatalf("job uses not loaded: %+v", jobs)
 	}
-	instances, err = ListForWorkload(ctx, team, "dev", jobs[0].Spec.Uses.Postgres)
-	if err != nil || len(instances) != 2 || instances[0].Name != "green" || instances[1].Name != "recovered" {
-		t.Fatalf("job selected instances = %+v, error = %v", instances, err)
+	instances, err = ListPostgresForWorkload(ctx, team, "dev", jobs[0].Spec.Uses.Postgres)
+	if err != nil || len(instances) != 3 || instances[0].Name != "archive" || instances[0].ActiveBranch != nil || instances[1].Name != "orders" || instances[2].Name != "reports" {
+		t.Fatalf("job referenced Postgres = %+v, error = %v", instances, err)
 	}
 	for _, entry := range []struct{ postgres, branch string }{{"orders", "green"}, {"reports", "recovered"}} {
 		workloads := WorkloadsForInstance(ctx, team, "dev", entry.postgres, entry.branch)
