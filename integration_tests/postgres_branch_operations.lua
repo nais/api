@@ -40,14 +40,6 @@ Test.gql("Repeating a recovery request with different settings is rejected", fun
 	t.check { errors = { { locations = NotNull(), path = { "createPostgresBranch" }, message = Contains("different recovery settings") } }, data = Null }
 end)
 
-Test.gql("A branch that is still provisioning cannot be activated", function(t)
-	t.addHeader("x-user-email", member:email())
-	t.query [[mutation { activatePostgresBranch(input: {
-		postgres: "existing", branch: "restore", environmentName: "dev", teamSlug: "pg-crud-team"
-	}) { postgres { desiredActiveBranch } } }]]
-	t.check { errors = { { locations = NotNull(), path = { "activatePostgresBranch" }, message = Contains("not available") } }, data = Null }
-end)
-
 Test.gql("Non-members cannot activate Postgres branches", function(t)
 	t.addHeader("x-user-email", outsider:email())
 	t.query [[mutation { activatePostgresBranch(input: {
@@ -69,4 +61,12 @@ Test.gql("Activating a ready branch reports requested versus observed selection"
 		{ resourceName = "existing", data = { updatedFields = { { field = "activeBranch", oldValue = Null, newValue = "main" } } } },
 		{ resourceName = "existing", data = { updatedFields = { { field = "branch/restore", oldValue = Null, newValue = "recovered from main at 2026-09-30T12:00:00Z" } } } },
 	} } } } }
+end)
+
+Test.gql("Requesting a provisioning branch waits for pgrator to activate it", function(t)
+	t.addHeader("x-user-email", member:email())
+	t.query [[mutation { activatePostgresBranch(input: {
+		postgres: "existing", branch: "restore", environmentName: "dev", teamSlug: "pg-crud-team"
+	}) { postgres { desiredActiveBranch activeBranch { name } } } }]]
+	t.check { data = { activatePostgresBranch = { postgres = { desiredActiveBranch = "restore", activeBranch = Null } } } }
 end)

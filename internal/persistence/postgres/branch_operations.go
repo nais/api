@@ -9,13 +9,11 @@ import (
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/kubernetes"
-	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/slug"
 	nais_io_v1 "github.com/nais/pgrator/pkg/api/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
 )
 
@@ -120,43 +118,11 @@ func ActivateBranch(ctx context.Context, input ActivatePostgresBranchInput) (*Ac
 	if err != nil {
 		return nil, err
 	}
-	branch, err := getBranchResource(ctx, branches, input.Postgres, input.Branch)
-	if err != nil {
+	if _, err := getBranchResource(ctx, branches, input.Postgres, input.Branch); err != nil {
 		return nil, err
 	}
-	state, err := toPostgresBranch(branch, input.EnvironmentName)
-	if err != nil {
-		return nil, err
-	}
-	if state.State != PostgresBranchStateAvailable {
-		return nil, apierror.Errorf("PostgresBranch %q is not available", input.Branch)
-	}
-	// Verify the backing cluster independently of pgrator's reported phase.
-	client, err := fromContext(ctx).postgresBranchWatcher.SystemAuthenticatedClient(ctx, input.EnvironmentName, watcher.WithImpersonatedClientGVR(schema.GroupVersionResource{Group: "postgresql.cnpg.io", Version: "v1", Resource: "clusters"}))
-	if err != nil {
-		return nil, err
-	}
-	cluster, err := client.Namespace(input.TeamSlug.String()).Get(ctx, nais_io_v1.CNPGClusterName(branch.GetName()), metav1.GetOptions{})
-	if k8serrors.IsNotFound(err) {
-		return nil, apierror.Errorf("PostgresBranch %q is not ready", input.Branch)
-	}
-	if err != nil {
-		return nil, fmt.Errorf("getting CNPG Cluster for PostgresBranch %q: %w", input.Branch, err)
-	}
-	conditions, _, err := unstructured.NestedSlice(cluster.Object, "status", "conditions")
-	if err != nil {
-		return nil, err
-	}
-	ready := false
-	for _, raw := range conditions {
-		condition, ok := raw.(map[string]any)
-		if ok && condition["type"] == "Ready" && condition["status"] == "True" {
-			ready = true
-		}
-	}
-	if !ready {
-		return nil, apierror.Errorf("PostgresBranch %q is not ready", input.Branch)
-	}
+	// Pgrator observes cluster readiness before switching the active branch.
+	// This mutation only records the requested branch.
 	pgClient, err := postgresClient(ctx, input.EnvironmentName, input.TeamSlug)
 	if err != nil {
 		return nil, err

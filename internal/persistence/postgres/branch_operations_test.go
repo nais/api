@@ -42,7 +42,7 @@ func TestCreateBranchRejectsInvalidRecoveryRequest(t *testing.T) {
 	}
 }
 
-func TestBranchOperationsRejectMissingOrUnreadyBranches(t *testing.T) {
+func TestBranchOperationsRejectMissingBranches(t *testing.T) {
 	scheme, err := kubernetes.NewScheme()
 	if err != nil {
 		t.Fatal(err)
@@ -69,7 +69,6 @@ func TestBranchOperationsRejectMissingOrUnreadyBranches(t *testing.T) {
 	for _, tt := range []struct{ postgres, branch, want string }{
 		{"foobar", "missing", "not found"},
 		{"progressing", "recovered", "not found"},
-		{"progressing", "main", "not available"},
 	} {
 		_, err := ActivateBranch(ctx, ActivatePostgresBranchInput{Postgres: tt.postgres, Branch: tt.branch, TeamSlug: team, EnvironmentName: "dev"})
 		if err == nil || !strings.Contains(err.Error(), tt.want) {

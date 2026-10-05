@@ -28226,7 +28226,7 @@ type CreatePostgresBranchPayload {
 	postgresBranch: PostgresBranch!
 }
 
-"Select an available branch for normal workloads."
+"Request a branch for normal workloads; pgrator activates it once its cluster is ready."
 input ActivatePostgresBranchInput {
 	"Name of the owning Postgres."
 	postgres: String!
