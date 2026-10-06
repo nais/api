@@ -17,7 +17,7 @@ import (
 	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
 	mapperatorv1 "github.com/nais/pgrator/pkg/api/v1"
 	unleash_nais_io_v1 "github.com/nais/unleasherator/api/v1"
-	"k8s.io/apimachinery/pkg/api/errors"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/labels"
@@ -271,7 +271,7 @@ func NewDynamicClient(scheme *runtime.Scheme) *dynfake.FakeDynamicClient {
 			}
 			obj, err := meta.Accessor(event.Object)
 			if err != nil {
-				return watch.Event{Type: watch.Error, Object: &errors.NewInternalError(err).ErrStatus}, true
+				return watch.Event{Type: watch.Error, Object: &apierrors.NewInternalError(err).ErrStatus}, true
 			}
 			key := types.NamespacedName{Namespace: obj.GetNamespace(), Name: obj.GetName()}
 			previous, wasMatching := matching[key]
@@ -291,7 +291,7 @@ func NewDynamicClient(scheme *runtime.Scheme) *dynfake.FakeDynamicClient {
 				// Leaving a selector is a deletion of the last matching object.
 				old, err := meta.Accessor(previous)
 				if err != nil {
-					return watch.Event{Type: watch.Error, Object: &errors.NewInternalError(err).ErrStatus}, true
+					return watch.Event{Type: watch.Error, Object: &apierrors.NewInternalError(err).ErrStatus}, true
 				}
 				old.SetResourceVersion(obj.GetResourceVersion())
 				event = watch.Event{Type: watch.Deleted, Object: previous}
@@ -382,7 +382,7 @@ func NewDynamicClient(scheme *runtime.Scheme) *dynfake.FakeDynamicClient {
 		}
 
 		existing, err := client.Tracker().Get(gvr, ns, name)
-		created := errors.IsNotFound(err)
+		created := apierrors.IsNotFound(err)
 		if err != nil {
 			if !created {
 				return true, nil, err
