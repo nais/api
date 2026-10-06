@@ -44,7 +44,7 @@ require (
 	github.com/nais/pgrator/pkg/api v0.0.0-20261001051319-3ab0adfbd6ce
 	github.com/nais/tester v0.2.0
 	github.com/nais/unleasherator v0.0.0-20251216221129-efebc54203fe
-	github.com/nais/v13s/pkg/api v0.0.0-20260918105345-acf0ead6ffc5
+	github.com/nais/v13s/pkg/api v0.0.0-20261006125157-ff09de4b9d58
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pressly/goose/v3 v3.27.0
 	github.com/prometheus/client_golang v1.24.0
@@ -79,9 +79,9 @@ require (
 	golang.org/x/sync v0.22.0
 	golang.org/x/text v0.41.0
 	golang.org/x/tools v0.48.0
-	google.golang.org/api v0.297.0
+	google.golang.org/api v0.298.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20260715232425-e75dac1f907d
-	google.golang.org/grpc v1.83.2
+	google.golang.org/grpc v1.84.0
 	google.golang.org/protobuf v1.36.12
 	k8s.io/api v0.37.0
 	k8s.io/apimachinery v0.37.0
@@ -192,7 +192,7 @@ require (
 	github.com/fatih/color v1.19.0 // indirect
 	github.com/fatih/structs v1.1.0 // indirect
 	github.com/fatih/structtag v1.2.0 // indirect
-	github.com/felixge/httpsnoop v1.0.4 // indirect
+	github.com/felixge/httpsnoop v1.1.0 // indirect
 	github.com/fsnotify/fsnotify v1.10.1 // indirect
 	github.com/fxamacker/cbor/v2 v2.9.2 // indirect
 	github.com/go-jose/go-jose/v4 v4.1.4 // indirect
