@@ -77,6 +77,9 @@ func NewTotalCountOnlyConnection[T any](total int) *Connection[T] {
 }
 
 func NewConvertConnectionWithError[T any, F any, I Integer](nodes []T, page *Pagination, total I, fn func(from T) (F, error)) (*Connection[F], error) {
+	if page != nil && page.beforeOffset != nil {
+		nodes = nodes[:min(len(nodes), int(page.resultLimit()))]
+	}
 	edges := make([]Edge[F], len(nodes))
 	for i, node := range nodes {
 		converted, err := fn(node)
@@ -103,7 +106,7 @@ func NewConvertConnectionWithError[T any, F any, I Integer](nodes []T, page *Pag
 			TotalCount:      int(total),
 			StartCursor:     startCursor,
 			EndCursor:       endCursor,
-			HasNextPage:     page.Offset()+page.Limit() < int32(total),
+			HasNextPage:     page.Offset()+page.resultLimit() < int32(total),
 			HasPreviousPage: page.Offset() > 0,
 		},
 	}, nil

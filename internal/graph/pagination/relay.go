@@ -26,6 +26,10 @@ func (p *Pagination) Offset() int32 {
 }
 
 func (p *Pagination) Limit() int32 {
+	return max(1, p.resultLimit())
+}
+
+func (p *Pagination) resultLimit() int32 {
 	limit := DefaultPageSize
 	if p != nil && p.limit > 0 {
 		limit = p.limit

@@ -123,7 +123,7 @@ func TestParsePage(t *testing.T) {
 				before: &pagination.Cursor{Offset: 0},
 			},
 			wantOffset: 0,
-			wantLimit:  0,
+			wantLimit:  1,
 		},
 		"partial first page": {
 			args: args{

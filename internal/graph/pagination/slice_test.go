@@ -84,3 +84,29 @@ func TestSliceBeforeBoundary(t *testing.T) {
 		})
 	}
 }
+
+func TestConnectionBeforeFirstKeepsBackendTotal(t *testing.T) {
+	page, err := pagination.ParsePage(nil, nil, new(20), &pagination.Cursor{Offset: 0})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if page.Limit() != 1 || page.Offset() != 0 {
+		t.Fatalf("backend must fetch one row for its window count, got offset %d and limit %d", page.Offset(), page.Limit())
+	}
+	rows := []struct{ total int }{{total: 25}}
+	converted := false
+	connection, err := pagination.NewConvertConnectionWithError(rows, page, rows[0].total, func(row struct{ total int }) (int, error) {
+		converted = true
+		return row.total, nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if converted || len(connection.Nodes()) != 0 || connection.PageInfo.TotalCount != 25 || !connection.PageInfo.HasNextPage || connection.PageInfo.HasPreviousPage || connection.PageInfo.StartCursor != nil || connection.PageInfo.EndCursor != nil {
+		t.Fatalf("count-providing row must not be converted or exposed: %+v", connection.PageInfo)
+	}
+	empty := pagination.NewConnection([]int{}, page, 0)
+	if empty.PageInfo.TotalCount != 0 || empty.PageInfo.HasNextPage || len(empty.Nodes()) != 0 {
+		t.Fatalf("incorrect empty connection: %+v", empty.PageInfo)
+	}
+}

@@ -120,6 +120,19 @@ Test.gql("Explicit ordering and existing filters are preserved", function(t)
 	} }
 end)
 
+Test.gql("Database-backed backward pages before the first team preserve totals", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query(string.format([[ { teams(first: 1) { %s } } ]], selection))
+	t.check { data = { teams = connection({ "elevated-a" }, 32, false, true, "databaseFirst") } }
+	t.query(string.format([[
+		{ teams(last: 20, before: "%s") { %s } }
+	]], State.databaseFirstStart, selection))
+	t.check { data = { teams = {
+		nodes = {},
+		pageInfo = { totalCount = 32, hasPreviousPage = false, hasNextPage = true, startCursor = Null, endCursor = Null },
+	} } }
+end)
+
 Test.gql("High findings do not require KEV and lower groups never include High", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[
