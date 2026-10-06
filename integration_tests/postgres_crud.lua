@@ -175,3 +175,21 @@ Test.gql("Creating and updating Postgres is recorded in the activity log", funct
 		} } } },
 	}
 end)
+
+Test.gql("Postgres activity log excludes other Postgres instances", function(t)
+	t.addHeader("x-user-email", member:email())
+	t.query [[{ team(slug: "pg-crud-team") { environment(name: "dev") { postgres(name: "existing") {
+		activityLog(first: 5) {
+			nodes { __typename resourceName teamSlug environmentName }
+			pageInfo { hasNextPage }
+		}
+	} } } }]]
+	t.check {
+		data = { team = { environment = { postgres = { activityLog = {
+			nodes = {
+				{ __typename = "PostgresUpdatedActivityLogEntry", resourceName = "existing", teamSlug = "pg-crud-team", environmentName = "dev" },
+			},
+			pageInfo = { hasNextPage = false },
+		} } } } },
+	}
+end)

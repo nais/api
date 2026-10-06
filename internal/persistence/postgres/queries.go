@@ -542,7 +542,7 @@ func CreatePostgresAccess(ctx context.Context, input CreatePostgresAccessInput) 
 	if err := activitylog.Create(ctx, activitylog.CreateInput{
 		Action:          activityLogEntryActionCreatePersonalAccess,
 		Actor:           authz.ActorFromContext(ctx).User,
-		ResourceType:    activityLogEntryResourceTypePostgres,
+		ResourceType:    ActivityLogEntryResourceTypePostgres,
 		ResourceName:    input.Postgres,
 		EnvironmentName: new(input.EnvironmentName),
 		TeamSlug:        new(input.TeamSlug),
@@ -839,7 +839,7 @@ func logPostgresChange(ctx context.Context, action activitylog.ActivityLogEntryA
 	return activitylog.Create(ctx, activitylog.CreateInput{
 		Action:          action,
 		Actor:           authz.ActorFromContext(ctx).User,
-		ResourceType:    activityLogEntryResourceTypePostgres,
+		ResourceType:    ActivityLogEntryResourceTypePostgres,
 		ResourceName:    name,
 		EnvironmentName: new(environmentName),
 		TeamSlug:        new(teamSlug),

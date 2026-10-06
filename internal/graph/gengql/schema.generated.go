@@ -6989,6 +6989,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._PostgresBranch(ctx, sel, obj)
+	case postgres.Postgres:
+		return ec._Postgres(ctx, sel, &obj)
+	case *postgres.Postgres:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Postgres(ctx, sel, obj)
 	case opensearch.OpenSearchUpdatedActivityLogEntry:
 		return ec._OpenSearchUpdatedActivityLogEntry(ctx, sel, &obj)
 	case *opensearch.OpenSearchUpdatedActivityLogEntry:
@@ -7363,13 +7370,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._PostgresAccess(ctx, sel, obj)
-	case postgres.Postgres:
-		return ec._Postgres(ctx, sel, &obj)
-	case *postgres.Postgres:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Postgres(ctx, sel, obj)
 	case persistence.Persistence:
 		if obj == nil {
 			return graphql.Null

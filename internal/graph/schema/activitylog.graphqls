@@ -158,6 +158,17 @@ extend type OpenSearch implements ActivityLogger {
 	): ActivityLogEntryConnection!
 }
 
+extend type Postgres implements ActivityLogger {
+	"Activity log associated with this Postgres."
+	activityLog(
+		first: Int
+		after: Cursor
+		last: Int
+		before: Cursor
+		filter: ActivityLogFilter
+	): ActivityLogEntryConnection!
+}
+
 extend type Valkey implements ActivityLogger {
 	"""
 	Activity log associated with the reconciler.
