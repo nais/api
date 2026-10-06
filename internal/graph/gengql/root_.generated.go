@@ -818,6 +818,10 @@ type ComplexityRoot struct {
 		PostgresBranchDeleted func(childComplexity int) int
 	}
 
+	DeletePostgresPayload struct {
+		DeletionRequested func(childComplexity int) int
+	}
+
 	DeleteSecretPayload struct {
 		SecretDeleted func(childComplexity int) int
 	}
@@ -1658,6 +1662,7 @@ type ComplexityRoot struct {
 		DeleteJob                        func(childComplexity int, input job.DeleteJobInput) int
 		DeleteJobRun                     func(childComplexity int, input job.DeleteJobRunInput) int
 		DeleteOpenSearch                 func(childComplexity int, input opensearch.DeleteOpenSearchInput) int
+		DeletePostgres                   func(childComplexity int, input postgres.DeletePostgresInput) int
 		DeletePostgresBranch             func(childComplexity int, input postgres.DeletePostgresBranchInput) int
 		DeleteSecret                     func(childComplexity int, input secret.DeleteSecretInput) int
 		DeleteServiceAccount             func(childComplexity int, input serviceaccount.DeleteServiceAccountInput) int
@@ -1951,7 +1956,6 @@ type ComplexityRoot struct {
 	}
 
 	PostgresBranch struct {
-		ClusterName     func(childComplexity int) int
 		ID              func(childComplexity int) int
 		Labels          func(childComplexity int) int
 		Name            func(childComplexity int) int
@@ -1963,6 +1967,7 @@ type ComplexityRoot struct {
 	}
 
 	PostgresBranchActivityLogEntry struct {
+		ActivityType      func(childComplexity int) int
 		Actor             func(childComplexity int) int
 		CreatedAt         func(childComplexity int) int
 		Data              func(childComplexity int) int
@@ -3023,7 +3028,7 @@ type ComplexityRoot struct {
 		Member                    func(childComplexity int, email string) int
 		Members                   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.TeamMemberOrder) int
 		OpenSearches              func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *opensearch.OpenSearchOrder, filter *opensearch.OpenSearchFilter) int
-		Postgreses                func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *postgres.PostgresFilter) int
+		Postgreses                func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *postgres.TeamPostgresFilter) int
 		Purpose                   func(childComplexity int) int
 		Repositories              func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *repository.RepositoryOrder, filter *repository.TeamRepositoryFilter) int
 		SQLInstances              func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *sqlinstance.SQLInstanceOrder, filter *sqlinstance.SQLInstanceFilter) int
@@ -6669,6 +6674,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.DeletePostgresBranchPayload.PostgresBranchDeleted(childComplexity), true
+
+	case "DeletePostgresPayload.deletionRequested":
+		if e.ComplexityRoot.DeletePostgresPayload.DeletionRequested == nil {
+			break
+		}
+
+		return e.ComplexityRoot.DeletePostgresPayload.DeletionRequested(childComplexity), true
 
 	case "DeleteSecretPayload.secretDeleted":
 		if e.ComplexityRoot.DeleteSecretPayload.SecretDeleted == nil {
@@ -10441,6 +10453,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Mutation.DeleteOpenSearch(childComplexity, args["input"].(opensearch.DeleteOpenSearchInput)), true
 
+	case "Mutation.deletePostgres":
+		if e.ComplexityRoot.Mutation.DeletePostgres == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deletePostgres_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Mutation.DeletePostgres(childComplexity, args["input"].(postgres.DeletePostgresInput)), true
+
 	case "Mutation.deletePostgresBranch":
 		if e.ComplexityRoot.Mutation.DeletePostgresBranch == nil {
 			break
@@ -12045,13 +12069,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.PostgresAccessConnectionDetails.Username(childComplexity), true
 
-	case "PostgresBranch.clusterName":
-		if e.ComplexityRoot.PostgresBranch.ClusterName == nil {
-			break
-		}
-
-		return e.ComplexityRoot.PostgresBranch.ClusterName(childComplexity), true
-
 	case "PostgresBranch.id":
 		if e.ComplexityRoot.PostgresBranch.ID == nil {
 			break
@@ -12112,6 +12129,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.PostgresBranch.Workloads(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
+
+	case "PostgresBranchActivityLogEntry.activityType":
+		if e.ComplexityRoot.PostgresBranchActivityLogEntry.ActivityType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchActivityLogEntry.ActivityType(childComplexity), true
 
 	case "PostgresBranchActivityLogEntry.actor":
 		if e.ComplexityRoot.PostgresBranchActivityLogEntry.Actor == nil {
@@ -17015,7 +17039,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Team.Postgreses(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["filter"].(*postgres.PostgresFilter)), true
+		return e.ComplexityRoot.Team.Postgreses(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["filter"].(*postgres.TeamPostgresFilter)), true
 
 	case "Team.purpose":
 		if e.ComplexityRoot.Team.Purpose == nil {
@@ -21526,6 +21550,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputDeleteJobRunInput,
 		ec.unmarshalInputDeleteOpenSearchInput,
 		ec.unmarshalInputDeletePostgresBranchInput,
+		ec.unmarshalInputDeletePostgresInput,
 		ec.unmarshalInputDeleteSecretInput,
 		ec.unmarshalInputDeleteServiceAccountInput,
 		ec.unmarshalInputDeleteServiceAccountTokenInput,
@@ -21558,7 +21583,6 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputOpenSearchOrder,
 		ec.unmarshalInputPostgresBranchFilter,
 		ec.unmarshalInputPostgresBranchOrder,
-		ec.unmarshalInputPostgresFilter,
 		ec.unmarshalInputReconcilerConfigInput,
 		ec.unmarshalInputRemoveConfigValueInput,
 		ec.unmarshalInputRemoveRepositoryFromTeamInput,
@@ -21590,6 +21614,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputTeamJobsFilter,
 		ec.unmarshalInputTeamMemberOrder,
 		ec.unmarshalInputTeamOrder,
+		ec.unmarshalInputTeamPostgresFilter,
 		ec.unmarshalInputTeamRepositoryFilter,
 		ec.unmarshalInputTeamVulnerabilitySummaryFilter,
 		ec.unmarshalInputTeamWorkloadsFilter,
@@ -28040,7 +28065,7 @@ type WorkloadLogLine {
 		"Get items before this cursor."
 		before: Cursor
 		"Filter Postgres databases by environment or labels."
-		filter: PostgresFilter
+		filter: TeamPostgresFilter
 	): PostgresConnection!
 }
 
@@ -28072,8 +28097,8 @@ extend type Job {
 	postgreses: PostgresConnection!
 }
 
-"Filter Postgres databases by environment and user-defined labels."
-input PostgresFilter {
+"Filter a team's Postgres databases by environment and user-defined labels."
+input TeamPostgresFilter {
 	"Filter by environments."
 	environments: [String!]
 	"All listed labels must match."
@@ -28112,8 +28137,6 @@ type PostgresBranch implements Persistence & Node {
 	id: ID!
 	"Local name of this branch within its Postgres."
 	name: String!
-	"Observed CNPG Cluster name, when the cluster exists."
-	clusterName: String
 	team: Team!
 	teamEnvironment: TeamEnvironment!
 	"Postgres owning this PostgresBranch."
@@ -28372,6 +28395,8 @@ type PostgresBranchActivityLogEntry implements ActivityLogEntry & Node {
 	resourceName: String!
 	teamSlug: Slug!
 	environmentName: String
+	"The operation recorded by this event; activation records the request, not the completed switchover."
+	activityType: ActivityLogActivityType!
 	data: PostgresBranchActivityLogEntryData!
 }
 
@@ -28518,6 +28543,8 @@ extend enum ActivityLogActivityType {
 	A Postgres branch was deleted (historical entries without branch name)
 	"""
 	POSTGRES_DELETED
+	"A request to delete a whole Postgres was accepted; cleanup continues asynchronously."
+	POSTGRES_DELETION_REQUESTED
 	"A Postgres branch was created."
 	POSTGRES_BRANCH_CREATED
 	"A Postgres branch was activated."
@@ -28543,6 +28570,8 @@ extend type Mutation {
 	activatePostgresBranch(input: ActivatePostgresBranchInput!): ActivatePostgresBranchPayload!
 	"Delete a PostgresBranch that is not active on its Postgres."
 	deletePostgresBranch(input: DeletePostgresBranchInput!): DeletePostgresBranchPayload!
+	"Request deletion of an entire Postgres and all its branches/data. Fails while workloads or bindings reference it; cleanup is asynchronous."
+	deletePostgres(input: DeletePostgresInput!): DeletePostgresPayload!
 }
 
 "Result of creating a personal Postgres access."
@@ -28619,6 +28648,22 @@ input ActivatePostgresBranchInput {
 type ActivatePostgresBranchPayload {
 	"Postgres with desired and observed branch selection."
 	postgres: Postgres!
+}
+
+"Select the Postgres to delete. All branches and stored data are removed asynchronously by the platform."
+input DeletePostgresInput {
+	"Name of the Postgres."
+	name: String!
+	"Owning team."
+	teamSlug: Slug!
+	"Environment containing the Postgres."
+	environmentName: String!
+}
+
+"Result of accepting a Postgres deletion request, not proof of cleanup."
+type DeletePostgresPayload {
+	"True if Kubernetes accepted the deletion request; data deletion may still be pending."
+	deletionRequested: Boolean!
 }
 
 input DeletePostgresBranchInput {
@@ -37293,6 +37338,14 @@ func (ec *executionContext) childFields_DeletePostgresBranchPayload(ctx context.
 	return nil, fmt.Errorf("no field named %q was found under type DeletePostgresBranchPayload", field.Name)
 }
 
+func (ec *executionContext) childFields_DeletePostgresPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "deletionRequested":
+		return ec.fieldContext_DeletePostgresPayload_deletionRequested(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type DeletePostgresPayload", field.Name)
+}
+
 func (ec *executionContext) childFields_DeleteSecretPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "secretDeleted":
@@ -38831,8 +38884,6 @@ func (ec *executionContext) childFields_PostgresBranch(ctx context.Context, fiel
 		return ec.fieldContext_PostgresBranch_id(ctx, field)
 	case "name":
 		return ec.fieldContext_PostgresBranch_name(ctx, field)
-	case "clusterName":
-		return ec.fieldContext_PostgresBranch_clusterName(ctx, field)
 	case "team":
 		return ec.fieldContext_PostgresBranch_team(ctx, field)
 	case "teamEnvironment":

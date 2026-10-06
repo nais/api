@@ -45,11 +45,15 @@ func CreateBranch(ctx context.Context, input CreatePostgresBranchInput) (*Create
 	if err != nil {
 		return nil, err
 	}
-	if _, err := pg.Get(ctx, input.Postgres, metav1.GetOptions{}); err != nil {
-		if k8serrors.IsNotFound(err) {
-			return nil, apierror.Errorf("Postgres %q not found", input.Postgres)
-		}
+	parent, err := pg.Get(ctx, input.Postgres, metav1.GetOptions{})
+	if k8serrors.IsNotFound(err) {
+		return nil, apierror.Errorf("Postgres %q not found", input.Postgres)
+	}
+	if err != nil {
 		return nil, err
+	}
+	if parent.GetDeletionTimestamp() != nil {
+		return nil, apierror.Errorf("Postgres %q is being deleted", input.Postgres)
 	}
 	branches, err := branchClient(ctx, input.EnvironmentName, input.TeamSlug)
 	if err != nil {

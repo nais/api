@@ -56,18 +56,17 @@ type PostgresBranch struct {
 	EnvironmentName string                 `json:"-"`
 	TeamSlug        slug.Slug              `json:"-"`
 	PostgresName    string                 `json:"postgres"`
-	ClusterName     *string                `json:"clusterName"`
 	State           PostgresBranchState    `json:"state"`
 	Labels          []*model.ResourceLabel `json:"labels"`
 }
 
-type PostgresFilter struct {
+type TeamPostgresFilter struct {
 	Environments []string           `json:"environments"`
 	Labels       model.LabelFilters `json:"labels,omitempty"`
 }
 
 type (
-	PostgresConnection = pagination.FacetableConnection[*Postgres, *PostgresFilter]
+	PostgresConnection = pagination.FacetableConnection[*Postgres, *TeamPostgresFilter]
 	PostgresEdge       = pagination.Edge[*Postgres]
 )
 
@@ -223,6 +222,32 @@ func (i *CreatePostgresBranchInput) Validate(ctx context.Context) error {
 		verr.Add("targetTime", "Target time must have whole-second precision.")
 	}
 	return verr.NilIfEmpty()
+}
+
+type DeletePostgresInput struct {
+	Name            string    `json:"name"`
+	TeamSlug        slug.Slug `json:"teamSlug"`
+	EnvironmentName string    `json:"environmentName"`
+}
+
+func (i *DeletePostgresInput) Validate(_ context.Context) error {
+	verr := validate.New()
+	i.Name = strings.TrimSpace(i.Name)
+	i.EnvironmentName = strings.TrimSpace(i.EnvironmentName)
+	if i.Name == "" || len(validation.IsDNS1123Subdomain(i.Name)) > 0 {
+		verr.Add("name", "Name must be a non-empty lowercase Kubernetes DNS subdomain.")
+	}
+	if i.TeamSlug == "" {
+		verr.Add("teamSlug", "Team slug must not be empty.")
+	}
+	if i.EnvironmentName == "" {
+		verr.Add("environmentName", "Environment name must not be empty.")
+	}
+	return verr.NilIfEmpty()
+}
+
+type DeletePostgresPayload struct {
+	DeletionRequested bool `json:"deletionRequested"`
 }
 
 type DeletePostgresBranchInput struct {
@@ -404,18 +429,10 @@ func toPostgresBranch(u *unstructured.Unstructured, environmentName string) (*Po
 		return nil, fmt.Errorf("PostgresBranch %q has invalid postgres or branchName", obj.Name)
 	}
 	state := PostgresBranchStateProgressing
-	var clusterName *string
 	if obj.Status != nil {
 		state = postgresStateFromConditions(obj.Status.Conditions, obj.Status.ReconcilePhase == "Completed" && obj.Status.ObservedGeneration >= obj.Generation)
 	}
-	name, found, err := unstructured.NestedString(u.Object, "status", "clusterName")
-	if err != nil {
-		return nil, fmt.Errorf("reading PostgresBranch clusterName: %w", err)
-	}
-	if found && name != "" {
-		clusterName = &name
-	}
-	return &PostgresBranch{Name: obj.Spec.BranchName, EnvironmentName: environmentName, TeamSlug: slug.Slug(obj.Namespace), PostgresName: obj.Spec.Postgres, ClusterName: clusterName, State: state, Labels: model.UserLabels(obj.Labels)}, nil
+	return &PostgresBranch{Name: obj.Spec.BranchName, EnvironmentName: environmentName, TeamSlug: slug.Slug(obj.Namespace), PostgresName: obj.Spec.Postgres, State: state, Labels: model.UserLabels(obj.Labels)}, nil
 }
 
 func toPostgres(u *unstructured.Unstructured, environmentName string) (*Postgres, error) {

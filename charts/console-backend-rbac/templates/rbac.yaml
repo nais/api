@@ -129,6 +129,16 @@ rules:
       - watch
       - create
       - update
+      - delete
+  - apiGroups:
+      - "nais.io"
+    resources:
+      - postgresbindings
+      - applications
+      - naisjobs
+    verbs:
+      - get
+      - list
   - apiGroups:
       - "nais.io"
     resources:

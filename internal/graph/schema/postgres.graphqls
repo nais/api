@@ -10,7 +10,7 @@ extend type Team {
 		"Get items before this cursor."
 		before: Cursor
 		"Filter Postgres databases by environment or labels."
-		filter: PostgresFilter
+		filter: TeamPostgresFilter
 	): PostgresConnection!
 }
 
@@ -42,8 +42,8 @@ extend type Job {
 	postgreses: PostgresConnection!
 }
 
-"Filter Postgres databases by environment and user-defined labels."
-input PostgresFilter {
+"Filter a team's Postgres databases by environment and user-defined labels."
+input TeamPostgresFilter {
 	"Filter by environments."
 	environments: [String!]
 	"All listed labels must match."
@@ -82,8 +82,6 @@ type PostgresBranch implements Persistence & Node {
 	id: ID!
 	"Local name of this branch within its Postgres."
 	name: String!
-	"Observed CNPG Cluster name, when the cluster exists."
-	clusterName: String
 	team: Team!
 	teamEnvironment: TeamEnvironment!
 	"Postgres owning this PostgresBranch."
@@ -342,6 +340,8 @@ type PostgresBranchActivityLogEntry implements ActivityLogEntry & Node {
 	resourceName: String!
 	teamSlug: Slug!
 	environmentName: String
+	"The operation recorded by this event; activation records the request, not the completed switchover."
+	activityType: ActivityLogActivityType!
 	data: PostgresBranchActivityLogEntryData!
 }
 
@@ -488,6 +488,8 @@ extend enum ActivityLogActivityType {
 	A Postgres branch was deleted (historical entries without branch name)
 	"""
 	POSTGRES_DELETED
+	"A request to delete a whole Postgres was accepted; cleanup continues asynchronously."
+	POSTGRES_DELETION_REQUESTED
 	"A Postgres branch was created."
 	POSTGRES_BRANCH_CREATED
 	"A Postgres branch was activated."
@@ -513,6 +515,8 @@ extend type Mutation {
 	activatePostgresBranch(input: ActivatePostgresBranchInput!): ActivatePostgresBranchPayload!
 	"Delete a PostgresBranch that is not active on its Postgres."
 	deletePostgresBranch(input: DeletePostgresBranchInput!): DeletePostgresBranchPayload!
+	"Request deletion of an entire Postgres and all its branches/data. Fails while workloads or bindings reference it; cleanup is asynchronous."
+	deletePostgres(input: DeletePostgresInput!): DeletePostgresPayload!
 }
 
 "Result of creating a personal Postgres access."
@@ -589,6 +593,22 @@ input ActivatePostgresBranchInput {
 type ActivatePostgresBranchPayload {
 	"Postgres with desired and observed branch selection."
 	postgres: Postgres!
+}
+
+"Select the Postgres to delete. All branches and stored data are removed asynchronously by the platform."
+input DeletePostgresInput {
+	"Name of the Postgres."
+	name: String!
+	"Owning team."
+	teamSlug: Slug!
+	"Environment containing the Postgres."
+	environmentName: String!
+}
+
+"Result of accepting a Postgres deletion request, not proof of cleanup."
+type DeletePostgresPayload {
+	"True if Kubernetes accepted the deletion request; data deletion may still be pending."
+	deletionRequested: Boolean!
 }
 
 input DeletePostgresBranchInput {

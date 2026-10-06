@@ -13,26 +13,26 @@ import (
 	"github.com/nais/api/internal/workload/job"
 )
 
-func (r *applicationResolver) Postgreses(ctx context.Context, obj *application.Application) (*pagination.FacetableConnection[*postgres.Postgres, *postgres.PostgresFilter], error) {
+func (r *applicationResolver) Postgreses(ctx context.Context, obj *application.Application) (*pagination.FacetableConnection[*postgres.Postgres, *postgres.TeamPostgresFilter], error) {
 	if obj.Spec == nil || obj.Spec.Uses == nil {
-		return pagination.NewFacetableConnection(pagination.EmptyConnection[*postgres.Postgres](), nil, (*postgres.PostgresFilter)(nil)), nil
+		return pagination.NewFacetableConnection(pagination.EmptyConnection[*postgres.Postgres](), nil, (*postgres.TeamPostgresFilter)(nil)), nil
 	}
 	instances, err := postgres.ListPostgresForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Spec.Uses.Postgres)
 	if err != nil {
 		return nil, err
 	}
-	return pagination.NewFacetableConnection(pagination.NewConnectionWithoutPagination(instances), instances, (*postgres.PostgresFilter)(nil)), nil
+	return pagination.NewFacetableConnection(pagination.NewConnectionWithoutPagination(instances), instances, (*postgres.TeamPostgresFilter)(nil)), nil
 }
 
-func (r *jobResolver) Postgreses(ctx context.Context, obj *job.Job) (*pagination.FacetableConnection[*postgres.Postgres, *postgres.PostgresFilter], error) {
+func (r *jobResolver) Postgreses(ctx context.Context, obj *job.Job) (*pagination.FacetableConnection[*postgres.Postgres, *postgres.TeamPostgresFilter], error) {
 	if obj.Spec == nil || obj.Spec.Uses == nil {
-		return pagination.NewFacetableConnection(pagination.EmptyConnection[*postgres.Postgres](), nil, (*postgres.PostgresFilter)(nil)), nil
+		return pagination.NewFacetableConnection(pagination.EmptyConnection[*postgres.Postgres](), nil, (*postgres.TeamPostgresFilter)(nil)), nil
 	}
 	instances, err := postgres.ListPostgresForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Spec.Uses.Postgres)
 	if err != nil {
 		return nil, err
 	}
-	return pagination.NewFacetableConnection(pagination.NewConnectionWithoutPagination(instances), instances, (*postgres.PostgresFilter)(nil)), nil
+	return pagination.NewFacetableConnection(pagination.NewConnectionWithoutPagination(instances), instances, (*postgres.TeamPostgresFilter)(nil)), nil
 }
 
 func (r *mutationResolver) CreatePostgresAccess(ctx context.Context, input postgres.CreatePostgresAccessInput) (*postgres.CreatePostgresAccessPayload, error) {
@@ -76,6 +76,13 @@ func (r *mutationResolver) DeletePostgresBranch(ctx context.Context, input postg
 		return nil, err
 	}
 	return postgres.Delete(ctx, input)
+}
+
+func (r *mutationResolver) DeletePostgres(ctx context.Context, input postgres.DeletePostgresInput) (*postgres.DeletePostgresPayload, error) {
+	if err := authz.CanDeletePostgres(ctx, input.TeamSlug); err != nil {
+		return nil, err
+	}
+	return postgres.DeletePostgres(ctx, input)
 }
 
 func (r *postgresResolver) TeamEnvironment(ctx context.Context, obj *postgres.Postgres) (*team.TeamEnvironment, error) {
@@ -149,7 +156,7 @@ func (r *postgresBranchConnectionResolver) Facets(ctx context.Context, obj *pagi
 	}, nil
 }
 
-func (r *postgresConnectionResolver) Facets(ctx context.Context, obj *pagination.FacetableConnection[*postgres.Postgres, *postgres.PostgresFilter]) (*postgres.PostgresFacets, error) {
+func (r *postgresConnectionResolver) Facets(ctx context.Context, obj *pagination.FacetableConnection[*postgres.Postgres, *postgres.TeamPostgresFilter]) (*postgres.PostgresFacets, error) {
 	filtered := make([]*postgres.Postgres, 0, len(obj.GetAllItems()))
 	for _, pg := range obj.GetAllItems() {
 		if obj.GetFilter().Matches(pg) {
@@ -159,7 +166,7 @@ func (r *postgresConnectionResolver) Facets(ctx context.Context, obj *pagination
 	return &postgres.PostgresFacets{AllInstances: obj.GetAllItems(), FilteredInstances: filtered}, nil
 }
 
-func (r *teamResolver) Postgreses(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *postgres.PostgresFilter) (*pagination.FacetableConnection[*postgres.Postgres, *postgres.PostgresFilter], error) {
+func (r *teamResolver) Postgreses(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *postgres.TeamPostgresFilter) (*pagination.FacetableConnection[*postgres.Postgres, *postgres.TeamPostgresFilter], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err

@@ -123,7 +123,7 @@ func ListPostgresForWorkload(ctx context.Context, teamSlug slug.Slug, environmen
 	return instances, nil
 }
 
-func ListPostgresForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, filter *PostgresFilter) *PostgresConnection {
+func ListPostgresForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, filter *TeamPostgresFilter) *PostgresConnection {
 	all := watcher.Objects(fromContext(ctx).postgresWatcher.GetByNamespace(teamSlug.String(), watcher.WithoutDeleted()))
 	instances := make([]*Postgres, 0, len(all))
 	for _, pg := range all {
@@ -465,6 +465,21 @@ func CreatePostgresAccess(ctx context.Context, input CreatePostgresAccessInput) 
 	accessTTL, err := input.accessTTL()
 	if err != nil {
 		return nil, err
+	}
+
+	parentClient, err := postgresClient(ctx, input.EnvironmentName, input.TeamSlug)
+	if err != nil {
+		return nil, err
+	}
+	parent, err := parentClient.Get(ctx, input.Postgres, metav1.GetOptions{})
+	if k8serrors.IsNotFound(err) {
+		return nil, apierror.Errorf("Postgres %q not found", input.Postgres)
+	}
+	if err != nil {
+		return nil, err
+	}
+	if parent.GetDeletionTimestamp() != nil {
+		return nil, apierror.Errorf("Postgres %q is being deleted", input.Postgres)
 	}
 
 	client, err := fromContext(ctx).postgresBranchWatcher.SystemAuthenticatedClient(ctx, input.EnvironmentName, watcher.WithImpersonatedClientGVR(postgresAccessGVR()))

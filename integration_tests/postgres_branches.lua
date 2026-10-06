@@ -20,10 +20,10 @@ end)
 Test.gql("Retrieve logical Postgres and selected physical instance separately", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[{ team(slug:"someteamname") { environment(name:"dev") {
-        postgres(name:"foobar") { name activeBranch { name clusterName } majorVersion highAvailability resources { cpu memory diskSize } branch(name:"main") { name postgres { name } teamEnvironment { name } } branches { nodes { name } } }
+        postgres(name:"foobar") { name activeBranch { name } majorVersion highAvailability resources { cpu memory diskSize } branch(name:"main") { name postgres { name } teamEnvironment { name } } branches { nodes { name } } }
     } } }]]
 	t.check { data = { team = { environment = {
-		postgres = { name = "foobar", activeBranch = { name = "main", clusterName = "pg-foobar-main-a4f04c0c" }, majorVersion = "17", highAvailability = false, resources = { cpu = "100m", memory = "2Gi", diskSize = "2Gi" }, branch = { name = "main", postgres = { name = "foobar" }, teamEnvironment = { name = "dev" } }, branches = { nodes = { { name = "main" } } } },
+		postgres = { name = "foobar", activeBranch = { name = "main" }, majorVersion = "17", highAvailability = false, resources = { cpu = "100m", memory = "2Gi", diskSize = "2Gi" }, branch = { name = "main", postgres = { name = "foobar" }, teamEnvironment = { name = "dev" } }, branches = { nodes = { { name = "main" } } } },
 	} } } }
 end)
 
