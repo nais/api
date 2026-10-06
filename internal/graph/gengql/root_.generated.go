@@ -35243,6 +35243,27 @@ enum VulnerabilitySummaryOrderByField {
 	VULNERABILITY_PRIORITY_MONITOR
 }
 
+extend input TeamFilter {
+	"""
+	Filter by the team's highest operational vulnerability priority across all environments.
+	Groups are mutually exclusive. Without orderBy, teams are ordered by the group's
+	finding count descending, then slug ascending. Missing summaries produce an error.
+	"""
+	vulnerabilityPriorityGroup: TeamVulnerabilityPriorityGroup
+}
+
+"Mutually exclusive groups based on the highest operational vulnerability priority."
+enum TeamVulnerabilityPriorityGroup {
+	"At least one high-risk finding."
+	HIGH
+	"No high-risk findings and at least one elevated-risk finding."
+	ELEVATED
+	"No high-risk or elevated-risk findings and at least one monitor finding."
+	MONITOR
+	"A valid summary confirms no high-risk, elevated-risk or monitor findings."
+	NONE
+}
+
 type TenantVulnerabilitySummary {
 	"Risk score of the tenant."
 	riskScore: Int!

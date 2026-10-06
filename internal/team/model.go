@@ -356,7 +356,41 @@ func (e UserTeamOrderField) MarshalGQL(w io.Writer) {
 }
 
 type TeamFilter struct {
-	HasWorkloads *bool `json:"hasWorkloads"`
+	HasWorkloads               *bool                           `json:"hasWorkloads"`
+	VulnerabilityPriorityGroup *TeamVulnerabilityPriorityGroup `json:"vulnerabilityPriorityGroup"`
+}
+
+type TeamVulnerabilityPriorityGroup string
+
+const (
+	TeamVulnerabilityPriorityGroupHigh     TeamVulnerabilityPriorityGroup = "HIGH"
+	TeamVulnerabilityPriorityGroupElevated TeamVulnerabilityPriorityGroup = "ELEVATED"
+	TeamVulnerabilityPriorityGroupMonitor  TeamVulnerabilityPriorityGroup = "MONITOR"
+	TeamVulnerabilityPriorityGroupNone     TeamVulnerabilityPriorityGroup = "NONE"
+)
+
+func (e TeamVulnerabilityPriorityGroup) IsValid() bool {
+	return slices.Contains([]TeamVulnerabilityPriorityGroup{TeamVulnerabilityPriorityGroupHigh, TeamVulnerabilityPriorityGroupElevated, TeamVulnerabilityPriorityGroupMonitor, TeamVulnerabilityPriorityGroupNone}, e)
+}
+
+func (e TeamVulnerabilityPriorityGroup) String() string {
+	return string(e)
+}
+
+func (e *TeamVulnerabilityPriorityGroup) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+	*e = TeamVulnerabilityPriorityGroup(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid TeamVulnerabilityPriorityGroup", str)
+	}
+	return nil
+}
+
+func (e TeamVulnerabilityPriorityGroup) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
 type CreateTeamInput struct {

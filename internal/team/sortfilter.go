@@ -2,6 +2,7 @@ package team
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	"github.com/nais/api/internal/graph/sortfilter"
@@ -10,6 +11,22 @@ import (
 )
 
 var SortFilter = sortfilter.New[*Team, TeamOrderField, *TeamFilter]()
+
+var vulnerabilityPriorityGrouping func(context.Context, []*Team, TeamVulnerabilityPriorityGroup) ([]*Team, error)
+
+func RegisterVulnerabilityPriorityGrouping(fn func(context.Context, []*Team, TeamVulnerabilityPriorityGroup) ([]*Team, error)) {
+	vulnerabilityPriorityGrouping = fn
+}
+
+func groupByVulnerabilityPriority(ctx context.Context, teams []*Team, priority TeamVulnerabilityPriorityGroup) ([]*Team, error) {
+	if !priority.IsValid() {
+		return nil, fmt.Errorf("invalid team vulnerability priority group: %s", priority)
+	}
+	if vulnerabilityPriorityGrouping == nil {
+		return nil, fmt.Errorf("team vulnerability priority grouping is unavailable")
+	}
+	return vulnerabilityPriorityGrouping(ctx, teams, priority)
+}
 
 func init() {
 	SortFilter.RegisterSort("_SLUG", func(ctx context.Context, a, b *Team) int {
