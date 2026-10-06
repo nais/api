@@ -163,7 +163,7 @@ type QueryResolver interface {
 	VulnerabilitySummaries(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *vulnerability.TenantVulnerabilitySummaryFilter, orderBy *vulnerability.VulnerabilitySummaryOrder) (*pagination.Connection[*vulnerability.WorkloadVulnerabilitySummary], error)
 	VulnerabilityFixHistory(ctx context.Context, from scalar.Date) (*vulnerability.VulnerabilityFixHistory, error)
 	CVE(ctx context.Context, identifier string) (*vulnerability.CVE, error)
-	Cves(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *vulnerability.CVEOrder) (*pagination.Connection[*vulnerability.CVE], error)
+	Cves(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *vulnerability.CVEOrder, filter *vulnerability.CVEFilter) (*pagination.Connection[*vulnerability.CVE], error)
 }
 type SubscriptionResolver interface {
 	Log(ctx context.Context, filter loki.LogSubscriptionFilter) (<-chan *loki.LogLine, error)
@@ -1307,6 +1307,14 @@ func (ec *executionContext) field_Query_cves_args(ctx context.Context, rawArgs m
 		return nil, err
 	}
 	args["orderBy"] = arg4
+	arg5, err := graphql.ProcessArgField(ctx, rawArgs, "filter",
+		func(ctx context.Context, v any) (*vulnerability.CVEFilter, error) {
+			return ec.unmarshalOCVEFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐCVEFilter(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["filter"] = arg5
 	return args, nil
 }
 
@@ -6256,7 +6264,7 @@ func (ec *executionContext) _Query_cves(ctx context.Context, field graphql.Colle
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.Resolvers.Query().Cves(ctx, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*vulnerability.CVEOrder))
+			return ec.Resolvers.Query().Cves(ctx, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*vulnerability.CVEOrder), fc.Args["filter"].(*vulnerability.CVEFilter))
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[*vulnerability.CVE]) graphql.Marshaler {

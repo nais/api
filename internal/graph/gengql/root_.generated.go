@@ -2184,7 +2184,7 @@ type ComplexityRoot struct {
 		CVE                       func(childComplexity int, identifier string) int
 		CostMonthlySummary        func(childComplexity int, from scalar.Date, to scalar.Date) int
 		CurrentUnitPrices         func(childComplexity int) int
-		Cves                      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *vulnerability.CVEOrder) int
+		Cves                      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *vulnerability.CVEOrder, filter *vulnerability.CVEFilter) int
 		Deployments               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *deployment.DeploymentOrder, filter *deployment.DeploymentFilter) int
 		Environment               func(childComplexity int, name string) int
 		Environments              func(childComplexity int, orderBy *environment.EnvironmentOrder) int
@@ -13180,7 +13180,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Query.Cves(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*vulnerability.CVEOrder)), true
+		return e.ComplexityRoot.Query.Cves(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*vulnerability.CVEOrder), args["filter"].(*vulnerability.CVEFilter)), true
 
 	case "Query.deployments":
 		if e.ComplexityRoot.Query.Deployments == nil {
@@ -21692,6 +21692,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputBigQueryDatasetOrder,
 		ec.unmarshalInputBucketFilter,
 		ec.unmarshalInputBucketOrder,
+		ec.unmarshalInputCVEFilter,
 		ec.unmarshalInputCVEOrder,
 		ec.unmarshalInputCVEWorkloadsFilter,
 		ec.unmarshalInputChangeDeploymentKeyInput,
@@ -34969,7 +34970,16 @@ extend type Query {
 
 		"Ordering options for items returned from the connection."
 		orderBy: CVEOrder
+
+		"Filter CVEs before pagination. Totals cover the entire filtered selection."
+		filter: CVEFilter
 	): CVEConnection!
+}
+
+"Filter active CVEs by their calculated risk assessment."
+input CVEFilter {
+	"Operational priority. URGENT requires workload context and currently returns no CVEs."
+	priority: CVEPriority
 }
 
 "Ordering options when fetching CVEs."
@@ -35470,7 +35480,7 @@ type ImageVulnerability implements Node {
 
 "Operational priority levels for vulnerabilities and CVEs."
 enum CVEPriority {
-	"Vulnerability is known to be actively exploited and requires immediate action."
+	"Requires immediate action based on workload context, including internet exposure. Not assigned to CVEs at global scope; a KEV entry alone does not imply URGENT."
 	URGENT
 	"Vulnerability is associated with ransomware or has a high EPSS percentile."
 	HIGH

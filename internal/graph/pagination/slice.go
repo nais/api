@@ -5,9 +5,9 @@ func Slice[T any](slice []T, p *Pagination) []T {
 		return make([]T, 0)
 	}
 
-	if len(slice) < int(p.Offset()+p.Limit()) {
+	if len(slice) < int(p.Offset()+p.resultLimit()) {
 		return slice[p.Offset():]
 	}
 
-	return slice[p.Offset() : p.Offset()+p.Limit()]
+	return slice[p.Offset() : p.Offset()+p.resultLimit()]
 }

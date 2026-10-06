@@ -133,7 +133,7 @@ func NewComplexityRoot() ComplexityRoot {
 	c.Query.ActivityLog = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
-	c.Query.Cves = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *vulnerability.CVEOrder) int {
+	c.Query.Cves = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *vulnerability.CVEOrder, filter *vulnerability.CVEFilter) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.Query.Deployments = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *deployment.DeploymentOrder, filter *deployment.DeploymentFilter) int {
