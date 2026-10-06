@@ -16,7 +16,7 @@ func TestToPostgresBranch(t *testing.T) {
 		"apiVersion": "nais.io/v1", "kind": "PostgresBranch",
 		"metadata": map[string]any{"name": nais_io_v1.PostgresBranchObjectName("orders", "restored"), "namespace": "my-team"},
 		"spec":     map[string]any{"postgres": "orders", "branchName": "restored"},
-		"status":   map[string]any{"reconcilePhase": "Completed", "conditions": []any{map[string]any{"type": "cluster.postgresql.cnpg.io/ObservedState", "status": "True", "lastTransitionTime": "2026-01-01T00:00:00Z", "reason": "Reconciled", "message": "Cluster is in phase: Cluster in healthy state"}}},
+		"status":   map[string]any{"clusterName": "pg-orders-restored", "reconcilePhase": "Completed", "conditions": []any{map[string]any{"type": "cluster.postgresql.cnpg.io/ObservedState", "status": "True", "lastTransitionTime": "2026-01-01T00:00:00Z", "reason": "Reconciled", "message": "Cluster is in phase: Cluster in healthy state"}}},
 	}}
 	got, err := toPostgresBranch(obj, "dev")
 	if err != nil {
@@ -24,6 +24,9 @@ func TestToPostgresBranch(t *testing.T) {
 	}
 	if got.Name != "restored" || got.PostgresName != "orders" || got.State != PostgresBranchStateAvailable {
 		t.Errorf("unexpected PostgresBranch: %+v", got)
+	}
+	if got.ClusterName == nil || *got.ClusterName != "pg-orders-restored" {
+		t.Errorf("cluster name = %v, want pg-orders-restored", got.ClusterName)
 	}
 	if got.GetName() != obj.GetName() {
 		t.Errorf("watcher name = %q, want %q", got.GetName(), obj.GetName())
@@ -37,6 +40,21 @@ func TestToPostgresBranch(t *testing.T) {
 	team, env, pg, branch, err := parsePostgresBranchIdent(got.ID())
 	if err != nil || team != "my-team" || env != "dev" || pg != "orders" || branch != "restored" {
 		t.Errorf("branch ID = (%q, %q, %q, %q, %v)", team, env, pg, branch, err)
+	}
+}
+
+func TestToPostgresBranchWithoutCluster(t *testing.T) {
+	obj := &unstructured.Unstructured{Object: map[string]any{
+		"apiVersion": "nais.io/v1", "kind": "PostgresBranch",
+		"metadata": map[string]any{"name": nais_io_v1.PostgresBranchObjectName("orders", "main"), "namespace": "my-team"},
+		"spec":     map[string]any{"postgres": "orders", "branchName": "main"},
+	}}
+	got, err := toPostgresBranch(obj, "dev")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.ClusterName != nil {
+		t.Errorf("cluster name = %v, want nil before cluster is observed", got.ClusterName)
 	}
 }
 

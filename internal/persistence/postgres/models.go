@@ -56,6 +56,7 @@ type PostgresBranch struct {
 	EnvironmentName string                 `json:"-"`
 	TeamSlug        slug.Slug              `json:"-"`
 	PostgresName    string                 `json:"postgres"`
+	ClusterName     *string                `json:"clusterName"`
 	State           PostgresBranchState    `json:"state"`
 	Labels          []*model.ResourceLabel `json:"labels"`
 }
@@ -403,10 +404,18 @@ func toPostgresBranch(u *unstructured.Unstructured, environmentName string) (*Po
 		return nil, fmt.Errorf("PostgresBranch %q has invalid postgres or branchName", obj.Name)
 	}
 	state := PostgresBranchStateProgressing
+	var clusterName *string
 	if obj.Status != nil {
 		state = postgresStateFromConditions(obj.Status.Conditions, obj.Status.ReconcilePhase == "Completed" && obj.Status.ObservedGeneration >= obj.Generation)
 	}
-	return &PostgresBranch{Name: obj.Spec.BranchName, EnvironmentName: environmentName, TeamSlug: slug.Slug(obj.Namespace), PostgresName: obj.Spec.Postgres, State: state, Labels: model.UserLabels(obj.Labels)}, nil
+	name, found, err := unstructured.NestedString(u.Object, "status", "clusterName")
+	if err != nil {
+		return nil, fmt.Errorf("reading PostgresBranch clusterName: %w", err)
+	}
+	if found && name != "" {
+		clusterName = &name
+	}
+	return &PostgresBranch{Name: obj.Spec.BranchName, EnvironmentName: environmentName, TeamSlug: slug.Slug(obj.Namespace), PostgresName: obj.Spec.Postgres, ClusterName: clusterName, State: state, Labels: model.UserLabels(obj.Labels)}, nil
 }
 
 func toPostgres(u *unstructured.Unstructured, environmentName string) (*Postgres, error) {

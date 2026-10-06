@@ -22,6 +22,7 @@ spec:
   postgres: foobar
   branchName: main
 status:
+  clusterName: pg-foobar-main-a4f04c0c
   reconcilePhase: Completed
   conditions:
     - type: cluster.postgresql.cnpg.io/ObservedState

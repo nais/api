@@ -1951,6 +1951,7 @@ type ComplexityRoot struct {
 	}
 
 	PostgresBranch struct {
+		ClusterName     func(childComplexity int) int
 		ID              func(childComplexity int) int
 		Labels          func(childComplexity int) int
 		Name            func(childComplexity int) int
@@ -12043,6 +12044,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.PostgresAccessConnectionDetails.Username(childComplexity), true
+
+	case "PostgresBranch.clusterName":
+		if e.ComplexityRoot.PostgresBranch.ClusterName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranch.ClusterName(childComplexity), true
 
 	case "PostgresBranch.id":
 		if e.ComplexityRoot.PostgresBranch.ID == nil {
@@ -28104,6 +28112,8 @@ type PostgresBranch implements Persistence & Node {
 	id: ID!
 	"Local name of this branch within its Postgres."
 	name: String!
+	"Observed CNPG Cluster name, when the cluster exists."
+	clusterName: String
 	team: Team!
 	teamEnvironment: TeamEnvironment!
 	"Postgres owning this PostgresBranch."
@@ -38821,6 +38831,8 @@ func (ec *executionContext) childFields_PostgresBranch(ctx context.Context, fiel
 		return ec.fieldContext_PostgresBranch_id(ctx, field)
 	case "name":
 		return ec.fieldContext_PostgresBranch_name(ctx, field)
+	case "clusterName":
+		return ec.fieldContext_PostgresBranch_clusterName(ctx, field)
 	case "team":
 		return ec.fieldContext_PostgresBranch_team(ctx, field)
 	case "teamEnvironment":
