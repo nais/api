@@ -4,16 +4,16 @@ local team = Team.new("someteamname", "purpose", "#slack_channel")
 team:addMember(user)
 Helper.readK8sResources("k8s_resources/postgres_branches")
 
-Test.gql("List concrete PostgresBranches with their logical owners", function(t)
+Test.gql("List Postgres and their branches together", function(t)
 	t.addHeader("x-user-email", user:email())
-	t.query [[{ team(slug: "someteamname") { postgresBranches(orderBy: {field: NAME, direction: ASC}) {
-        nodes { name state postgres { name majorVersion activeBranch { name } } }
-    } } }]]
-	t.check { data = { team = { postgresBranches = { nodes = {
-		{ name = "main", state = "AVAILABLE", postgres = { name = "another-db", majorVersion = "16", activeBranch = { name = "main" } } },
-		{ name = "main", state = "AVAILABLE", postgres = { name = "foobar", majorVersion = "17", activeBranch = { name = "main" } } },
-		{ name = "main", state = "AVAILABLE", postgres = { name = "with-audit", majorVersion = "16", activeBranch = { name = "main" } } },
-		{ name = "main", state = "AVAILABLE", postgres = { name = "without-audit", majorVersion = "15", activeBranch = { name = "main" } } },
+	t.query [[{ team(slug: "someteamname") { postgreses { nodes {
+        name majorVersion activeBranch { name } branches { nodes { name state postgres { name } } }
+    } } } }]]
+	t.check { data = { team = { postgreses = { nodes = {
+		{ name = "another-db",    majorVersion = "16", activeBranch = { name = "main" }, branches = { nodes = { { name = "main", state = "AVAILABLE", postgres = { name = "another-db" } } } } },
+		{ name = "foobar",        majorVersion = "17", activeBranch = { name = "main" }, branches = { nodes = { { name = "main", state = "AVAILABLE", postgres = { name = "foobar" } } } } },
+		{ name = "with-audit",    majorVersion = "16", activeBranch = { name = "main" }, branches = { nodes = { { name = "main", state = "AVAILABLE", postgres = { name = "with-audit" } } } } },
+		{ name = "without-audit", majorVersion = "15", activeBranch = { name = "main" }, branches = { nodes = { { name = "main", state = "AVAILABLE", postgres = { name = "without-audit" } } } } },
 	} } } } }
 end)
 
@@ -27,25 +27,25 @@ Test.gql("Retrieve logical Postgres and selected physical instance separately", 
 	} } } }
 end)
 
-Test.gql("Physical instances may be filtered by observed state", function(t)
+Test.gql("Branch state facets are scoped to their Postgres", function(t)
 	t.addHeader("x-user-email", user:email())
-	t.query [[{ team(slug:"someteamname") { postgresBranches(filter: {states:[AVAILABLE]}) {
-        nodes { name } facets { states { state count } }
-    } } }]]
-	t.check { data = { team = { postgresBranches = {
-		nodes = { { name = "main" }, { name = "main" }, { name = "main" }, { name = "main" } },
-		facets = { states = { { state = "AVAILABLE", count = 4 } } },
-	} } } }
+	t.query [[{ team(slug:"someteamname") { environment(name:"dev") { postgres(name:"foobar") {
+        branches { nodes { name state } facets { states { state count } } }
+    } } } }]]
+	t.check { data = { team = { environment = { postgres = { branches = {
+		nodes = { { name = "main", state = "AVAILABLE" } },
+		facets = { states = { { state = "AVAILABLE", count = 1 } } },
+	} } } } } }
 end)
 
 Test.gql("A workload follows the active physical instance", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[{ team(slug:"someteamname") { environment(name:"dev") {
-        application(name:"app-with-postgres") { postgresBranches { nodes { name postgres { name } } } }
+        application(name:"app-with-postgres") { postgreses { nodes { name activeBranch { name } } } }
         postgres(name:"foobar") { branch(name:"main") { workloads { nodes { __typename name } } } }
     } } }]]
 	t.check { data = { team = { environment = {
-		application = { postgresBranches = { nodes = { { name = "main", postgres = { name = "foobar" } } } } },
+		application = { postgreses = { nodes = { { name = "foobar", activeBranch = { name = "main" } } } } },
 		postgres = { branch = { workloads = { nodes = {
 			{ __typename = "Application", name = "app-with-postgres" },
 			{ __typename = "Application", name = "app-with-postgres-2" },

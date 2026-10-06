@@ -2,10 +2,7 @@ package postgres
 
 import (
 	"context"
-	"fmt"
-	"time"
 
-	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/kubernetes"
@@ -48,11 +45,15 @@ func CreateBranch(ctx context.Context, input CreatePostgresBranchInput) (*Create
 	if err != nil {
 		return nil, err
 	}
-	if _, err := pg.Get(ctx, input.Postgres, metav1.GetOptions{}); err != nil {
-		if k8serrors.IsNotFound(err) {
-			return nil, apierror.Errorf("Postgres %q not found", input.Postgres)
-		}
+	parent, err := pg.Get(ctx, input.Postgres, metav1.GetOptions{})
+	if k8serrors.IsNotFound(err) {
+		return nil, apierror.Errorf("Postgres %q not found", input.Postgres)
+	}
+	if err != nil {
 		return nil, err
+	}
+	if parent.GetDeletionTimestamp() != nil {
+		return nil, apierror.Errorf("Postgres %q is being deleted", input.Postgres)
 	}
 	branches, err := branchClient(ctx, input.EnvironmentName, input.TeamSlug)
 	if err != nil {
@@ -88,10 +89,8 @@ func CreateBranch(ctx context.Context, input CreatePostgresBranchInput) (*Create
 		}
 	} else if err != nil {
 		return nil, err
-	} else if err := logPostgresChange(ctx, activitylog.ActivityLogEntryActionUpdated, input.Postgres, input.EnvironmentName, input.TeamSlug, PostgresUpdatedActivityLogEntryData{
-		UpdatedFields: []*PostgresUpdatedActivityLogEntryDataUpdatedField{{
-			Field: "branch/" + input.Branch, NewValue: new(fmt.Sprintf("recovered from %s at %s", input.SourceBranch, input.TargetTime.UTC().Format(time.RFC3339))),
-		}},
+	} else if err := logPostgresChange(ctx, activityLogEntryActionBranchCreated, input.Postgres, input.EnvironmentName, input.TeamSlug, PostgresBranchActivityLogEntryData{
+		Branch: input.Branch, SourceBranch: new(input.SourceBranch), TargetTime: new(input.TargetTime.UTC()),
 	}); err != nil {
 		return nil, err
 	}
@@ -154,10 +153,8 @@ func ActivateBranch(ctx context.Context, input ActivatePostgresBranchInput) (*Ac
 	if err != nil {
 		return nil, err
 	}
-	if err := logPostgresChange(ctx, activitylog.ActivityLogEntryActionUpdated, input.Postgres, input.EnvironmentName, input.TeamSlug, PostgresUpdatedActivityLogEntryData{
-		UpdatedFields: []*PostgresUpdatedActivityLogEntryDataUpdatedField{{
-			Field: "activeBranch", OldValue: strPtr(requested), NewValue: new(input.Branch),
-		}},
+	if err := logPostgresChange(ctx, activityLogEntryActionBranchActivated, input.Postgres, input.EnvironmentName, input.TeamSlug, PostgresBranchActivityLogEntryData{
+		Branch: input.Branch,
 	}); err != nil {
 		return nil, err
 	}

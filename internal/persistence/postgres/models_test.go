@@ -40,6 +40,21 @@ func TestToPostgresBranch(t *testing.T) {
 	}
 }
 
+func TestToPostgresBranchWithoutStatus(t *testing.T) {
+	obj := &unstructured.Unstructured{Object: map[string]any{
+		"apiVersion": "nais.io/v1", "kind": "PostgresBranch",
+		"metadata": map[string]any{"name": nais_io_v1.PostgresBranchObjectName("orders", "main"), "namespace": "my-team"},
+		"spec":     map[string]any{"postgres": "orders", "branchName": "main"},
+	}}
+	got, err := toPostgresBranch(obj, "dev")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.State != PostgresBranchStateProgressing {
+		t.Errorf("branch state = %q, want PROGRESSING before status is observed", got.State)
+	}
+}
+
 func TestToPostgresBranchRejectsMismatchedObjectName(t *testing.T) {
 	obj := &unstructured.Unstructured{Object: map[string]any{
 		"apiVersion": "nais.io/v1", "kind": "PostgresBranch",

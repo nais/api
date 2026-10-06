@@ -831,6 +831,27 @@ func (ec *executionContext) _ActivityLogEntry(ctx context.Context, sel ast.Selec
 			return graphql.Null
 		}
 		return ec._PostgresCreatedActivityLogEntry(ctx, sel, obj)
+	case postgres.PostgresBranchDeletedActivityLogEntry:
+		return ec._PostgresBranchDeletedActivityLogEntry(ctx, sel, &obj)
+	case *postgres.PostgresBranchDeletedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._PostgresBranchDeletedActivityLogEntry(ctx, sel, obj)
+	case postgres.PostgresBranchCreatedActivityLogEntry:
+		return ec._PostgresBranchCreatedActivityLogEntry(ctx, sel, &obj)
+	case *postgres.PostgresBranchCreatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._PostgresBranchCreatedActivityLogEntry(ctx, sel, obj)
+	case postgres.PostgresBranchActivatedActivityLogEntry:
+		return ec._PostgresBranchActivatedActivityLogEntry(ctx, sel, &obj)
+	case *postgres.PostgresBranchActivatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._PostgresBranchActivatedActivityLogEntry(ctx, sel, obj)
 	case opensearch.OpenSearchUpdatedActivityLogEntry:
 		return ec._OpenSearchUpdatedActivityLogEntry(ctx, sel, &obj)
 	case *opensearch.OpenSearchUpdatedActivityLogEntry:

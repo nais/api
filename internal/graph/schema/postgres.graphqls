@@ -1,24 +1,17 @@
 extend type Team {
-	"Postgres branches owned by the team."
-	postgresBranches(
+	"Postgres databases owned by the team, including those without branches."
+	postgreses(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
 		first: Int
-
 		"Get items after this cursor."
 		after: Cursor
-
 		"Get the last n items in the connection. This can be used in combination with the before parameter."
 		last: Int
-
 		"Get items before this cursor."
 		before: Cursor
-
-		"Ordering options for items returned from the connection."
-		orderBy: PostgresBranchOrder
-
-		"Filtering options for items returned from the connection."
-		filter: PostgresBranchFilter
-	): PostgresBranchConnection!
+		"Filter Postgres databases by environment or labels."
+		filter: TeamPostgresFilter
+	): PostgresConnection!
 }
 
 extend type TeamEnvironment {
@@ -35,27 +28,26 @@ extend type TeamEnvironment {
 }
 
 extend interface Workload {
-	"Active PostgresBranches for all Postgres entries in uses.postgres."
-	postgresBranches(
-		"Ordering options for items returned from the connection."
-		orderBy: PostgresBranchOrder
-	): PostgresBranchConnection!
+	"Postgres databases referenced by uses.postgres, whether or not they have an active branch."
+	postgreses: PostgresConnection!
 }
 
 extend type Application {
-	"Active PostgresBranches for all Postgres entries in uses.postgres."
-	postgresBranches(
-		"Ordering options for items returned from the connection."
-		orderBy: PostgresBranchOrder
-	): PostgresBranchConnection!
+	"Postgres databases referenced by uses.postgres, whether or not they have an active branch."
+	postgreses: PostgresConnection!
 }
 
 extend type Job {
-	"Active PostgresBranches for all Postgres entries in uses.postgres."
-	postgresBranches(
-		"Ordering options for items returned from the connection."
-		orderBy: PostgresBranchOrder
-	): PostgresBranchConnection!
+	"Postgres databases referenced by uses.postgres, whether or not they have an active branch."
+	postgreses: PostgresConnection!
+}
+
+"Filter a team's Postgres databases by environment and user-defined labels."
+input TeamPostgresFilter {
+	"Filter by environments."
+	environments: [String!]
+	"All listed labels must match."
+	labels: [LabelFilter!]
 }
 
 input PostgresBranchOrder {
@@ -118,6 +110,8 @@ type PostgresBranch implements Persistence & Node {
 type Postgres implements Node {
 	"Opaque identifier for this Postgres."
 	id: ID!
+	"Team environment containing this Postgres."
+	teamEnvironment: TeamEnvironment!
 	"Name of this Postgres."
 	name: String!
 	"Configured PostgreSQL major version."
@@ -142,6 +136,26 @@ type Postgres implements Node {
 	): PostgresBranchConnection!
 	"User-defined labels on this Postgres."
 	labels: [ResourceLabel!]!
+}
+
+"A paginated list of Postgres databases."
+type PostgresConnection {
+	pageInfo: PageInfo!
+	nodes: [Postgres!]!
+	edges: [PostgresEdge!]!
+	"Labels across team Postgres databases, independent of pagination."
+	facets: PostgresFacets!
+}
+
+"Facets for Postgres databases."
+type PostgresFacets {
+	"User-defined labels on team Postgres databases."
+	labels: [LabelFacetItem!]!
+}
+
+type PostgresEdge {
+	cursor: Cursor!
+	node: Postgres!
 }
 
 "Resource requests configured on Postgres. Omitted requests are null."
@@ -314,6 +328,59 @@ type PostgresPersonalAccessConnectionActivityLogEntry implements ActivityLogEntr
 	environmentName: String
 }
 
+"A Postgres branch was created."
+type PostgresBranchCreatedActivityLogEntry implements ActivityLogEntry & Node {
+	id: ID!
+	actor: String!
+	gitHubActorClaims: GitHubActorClaims
+	createdAt: Time!
+	message: String!
+	resourceType: ActivityLogEntryResourceType!
+	"Name of the Postgres containing the branch."
+	resourceName: String!
+	teamSlug: Slug!
+	environmentName: String
+	data: PostgresBranchActivityLogEntryData!
+}
+
+"A request to activate a Postgres branch was accepted; the switchover may still be pending."
+type PostgresBranchActivatedActivityLogEntry implements ActivityLogEntry & Node {
+	id: ID!
+	actor: String!
+	gitHubActorClaims: GitHubActorClaims
+	createdAt: Time!
+	message: String!
+	resourceType: ActivityLogEntryResourceType!
+	"Name of the Postgres containing the branch."
+	resourceName: String!
+	teamSlug: Slug!
+	environmentName: String
+	data: PostgresBranchActivityLogEntryData!
+}
+
+"A Postgres branch was deleted."
+type PostgresBranchDeletedActivityLogEntry implements ActivityLogEntry & Node {
+	id: ID!
+	actor: String!
+	gitHubActorClaims: GitHubActorClaims
+	createdAt: Time!
+	message: String!
+	resourceType: ActivityLogEntryResourceType!
+	"Name of the Postgres containing the branch."
+	resourceName: String!
+	teamSlug: Slug!
+	environmentName: String
+	data: PostgresBranchActivityLogEntryData!
+}
+
+type PostgresBranchActivityLogEntryData {
+	branch: String!
+	"Source branch, populated for branch creation."
+	sourceBranch: String
+	"Recovery instant, populated for branch creation."
+	targetTime: Time
+}
+
 type PostgresDeletedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
@@ -446,9 +513,17 @@ extend enum ActivityLogActivityType {
 	"""
 	POSTGRES_PERSONAL_ACCESS_CONNECTION
 	"""
-	A Postgres branch was deleted
+	A Postgres branch was deleted (historical entries without branch name)
 	"""
 	POSTGRES_DELETED
+	"A request to delete a whole Postgres was accepted; cleanup continues asynchronously."
+	POSTGRES_DELETION_REQUESTED
+	"A Postgres branch was created."
+	POSTGRES_BRANCH_CREATED
+	"A Postgres branch was activated."
+	POSTGRES_BRANCH_ACTIVATED
+	"A Postgres branch was deleted."
+	POSTGRES_BRANCH_DELETED
 }
 
 extend type Mutation {
@@ -468,6 +543,8 @@ extend type Mutation {
 	activatePostgresBranch(input: ActivatePostgresBranchInput!): ActivatePostgresBranchPayload!
 	"Delete a PostgresBranch that is not active on its Postgres."
 	deletePostgresBranch(input: DeletePostgresBranchInput!): DeletePostgresBranchPayload!
+	"Request deletion of an entire Postgres and all its branches/data. Fails while workloads or bindings reference it; cleanup is asynchronous."
+	deletePostgres(input: DeletePostgresInput!): DeletePostgresPayload!
 }
 
 "Result of creating a personal Postgres access."
@@ -544,6 +621,22 @@ input ActivatePostgresBranchInput {
 type ActivatePostgresBranchPayload {
 	"Postgres with desired and observed branch selection."
 	postgres: Postgres!
+}
+
+"Select the Postgres to delete. All branches and stored data are removed asynchronously by the platform."
+input DeletePostgresInput {
+	"Name of the Postgres."
+	name: String!
+	"Owning team."
+	teamSlug: Slug!
+	"Environment containing the Postgres."
+	environmentName: String!
+}
+
+"Result of accepting a Postgres deletion request, not proof of cleanup."
+type DeletePostgresPayload {
+	"True if Kubernetes accepted the deletion request; data deletion may still be pending."
+	deletionRequested: Boolean!
 }
 
 input DeletePostgresBranchInput {

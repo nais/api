@@ -9,6 +9,10 @@ import (
 	"github.com/nais/api/internal/graph/sortfilter"
 )
 
+func (f *TeamPostgresFilter) Matches(pg *Postgres) bool {
+	return f == nil || (len(f.Environments) == 0 || slices.Contains(f.Environments, pg.EnvironmentName)) && model.MatchesLabelFilters(pg.Labels, f.Labels)
+}
+
 var SortFilterPostgresBranch = sortfilter.New[*PostgresBranch, PostgresBranchOrderField, *PostgresBranchFilter]()
 
 func init() {

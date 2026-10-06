@@ -64,7 +64,7 @@ func TestBranchOperationsRejectMissingBranches(t *testing.T) {
 	if !mgr.WaitForReady(wait) {
 		t.Fatal("watchers did not synchronize")
 	}
-	ctx = NewLoaderContext(ctx, branchWatcher, "", "", "nav", mgr.GetDynamicClients())
+	ctx = NewLoaderContext(ctx, branchWatcher, nil, "", "", "nav", mgr.GetDynamicClients())
 	team := slug.Slug("someteamname")
 	for _, tt := range []struct{ postgres, branch, want string }{
 		{"foobar", "missing", "not found"},

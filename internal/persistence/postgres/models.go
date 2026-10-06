@@ -60,6 +60,21 @@ type PostgresBranch struct {
 	Labels          []*model.ResourceLabel `json:"labels"`
 }
 
+type TeamPostgresFilter struct {
+	Environments []string           `json:"environments"`
+	Labels       model.LabelFilters `json:"labels,omitempty"`
+}
+
+type (
+	PostgresConnection = pagination.FacetableConnection[*Postgres, *TeamPostgresFilter]
+	PostgresEdge       = pagination.Edge[*Postgres]
+)
+
+type PostgresFacets struct {
+	AllInstances      []*Postgres
+	FilteredInstances []*Postgres
+}
+
 // Postgres selects the instance that workloads use.
 type Postgres struct {
 	Name                string                 `json:"name"`
@@ -82,6 +97,12 @@ type PostgresResources struct {
 
 func (Postgres) IsNode()            {}
 func (p *Postgres) ID() ident.Ident { return newPostgresIdent(p.TeamSlug, p.EnvironmentName, p.Name) }
+
+func (p *Postgres) GetObjectKind() schema.ObjectKind { return schema.EmptyObjectKind }
+func (p *Postgres) DeepCopyObject() runtime.Object   { return p }
+func (p *Postgres) GetName() string                  { return p.Name }
+func (p *Postgres) GetNamespace() string             { return p.TeamSlug.String() }
+func (p *Postgres) GetLabels() map[string]string     { return nil }
 
 type PostgresBranchState string
 
@@ -201,6 +222,32 @@ func (i *CreatePostgresBranchInput) Validate(ctx context.Context) error {
 		verr.Add("targetTime", "Target time must have whole-second precision.")
 	}
 	return verr.NilIfEmpty()
+}
+
+type DeletePostgresInput struct {
+	Name            string    `json:"name"`
+	TeamSlug        slug.Slug `json:"teamSlug"`
+	EnvironmentName string    `json:"environmentName"`
+}
+
+func (i *DeletePostgresInput) Validate(_ context.Context) error {
+	verr := validate.New()
+	i.Name = strings.TrimSpace(i.Name)
+	i.EnvironmentName = strings.TrimSpace(i.EnvironmentName)
+	if i.Name == "" || len(validation.IsDNS1123Subdomain(i.Name)) > 0 {
+		verr.Add("name", "Name must be a non-empty lowercase Kubernetes DNS subdomain.")
+	}
+	if i.TeamSlug == "" {
+		verr.Add("teamSlug", "Team slug must not be empty.")
+	}
+	if i.EnvironmentName == "" {
+		verr.Add("environmentName", "Environment name must not be empty.")
+	}
+	return verr.NilIfEmpty()
+}
+
+type DeletePostgresPayload struct {
+	DeletionRequested bool `json:"deletionRequested"`
 }
 
 type DeletePostgresBranchInput struct {

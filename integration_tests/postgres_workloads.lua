@@ -3,19 +3,20 @@ local team = Team.new("postgres-workload-team", "Testing workload Postgres uses"
 team:addMember(user)
 Helper.readK8sResources("k8s_resources/postgres_workloads")
 
-Test.gql("Application and job resolve every uses.postgres entry to its selected instance", function(t)
+Test.gql("Application and job list every referenced Postgres, including one without an active branch", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[{ team(slug: "postgres-workload-team") { environment(name: "dev") {
-		application(name: "consumer") { postgresBranches { nodes { name postgres { name } } } }
-		job(name: "scheduled-reader") { postgresBranches { nodes { name postgres { name } } } }
+		application(name: "consumer") { postgreses { nodes { name activeBranch { name } } } }
+		job(name: "scheduled-reader") { postgreses { nodes { name activeBranch { name } } } }
 	} } }]]
-	local instances = {
-		{ name = "green",     postgres = { name = "orders" } },
-		{ name = "recovered", postgres = { name = "reports" } },
+	local databases = {
+		{ name = "archive", activeBranch = Null },
+		{ name = "orders",  activeBranch = { name = "green" } },
+		{ name = "reports", activeBranch = { name = "recovered" } },
 	}
 	t.check { data = { team = { environment = {
-		application = { postgresBranches = { nodes = instances } },
-		job = { postgresBranches = { nodes = instances } },
+		application = { postgreses = { nodes = databases } },
+		job = { postgreses = { nodes = databases } },
 	} } } }
 end)
 

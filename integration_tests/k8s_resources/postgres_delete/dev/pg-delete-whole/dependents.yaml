@@ -1,0 +1,27 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: consumer-app
+  namespace: pg-delete-whole
+spec:
+  uses:
+    postgres:
+      - name: by-app
+---
+apiVersion: nais.io/v1
+kind: Naisjob
+metadata:
+  name: consumer-job
+  namespace: pg-delete-whole
+spec:
+  uses:
+    postgres:
+      - name: by-job
+---
+apiVersion: nais.io/v1
+kind: PostgresBinding
+metadata:
+  name: consumer-binding
+  namespace: pg-delete-whole
+spec:
+  postgres: by-binding

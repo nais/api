@@ -75,13 +75,8 @@ func Delete(ctx context.Context, input DeletePostgresBranchInput) (*DeletePostgr
 		return nil, err
 	}
 
-	if err = activitylog.Create(ctx, activitylog.CreateInput{
-		Action:          activitylog.ActivityLogEntryActionDeleted,
-		Actor:           authz.ActorFromContext(ctx).User,
-		ResourceType:    activityLogEntryResourceTypePostgres,
-		ResourceName:    input.Postgres,
-		EnvironmentName: new(input.EnvironmentName),
-		TeamSlug:        new(input.TeamSlug),
+	if err = logPostgresChange(ctx, activityLogEntryActionBranchDeleted, input.Postgres, input.EnvironmentName, input.TeamSlug, PostgresBranchActivityLogEntryData{
+		Branch: input.Branch,
 	}); err != nil {
 		return nil, err
 	}
@@ -111,53 +106,39 @@ func ensureInstanceMayBeDeleted(branch string, postgres *unstructured.Unstructur
 	return nil
 }
 
-func GetForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName, postgresName string) (*PostgresBranch, error) {
-	if postgresName == "" {
-		return nil, nil
-	}
-	postgres, err := GetPostgres(ctx, teamSlug, environmentName, postgresName)
-	if err != nil {
-		return nil, err
-	}
-	if postgres.ActiveBranch == nil {
-		return nil, nil
-	}
-	return GetPostgresBranch(ctx, teamSlug, environmentName, postgresName, *postgres.ActiveBranch)
-}
-
-// ListForWorkload resolves each Postgres use to the instance selected by that
-// Postgres. A workload can use several databases, each with its own active instance.
-func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName string, uses []liberatorv1.PostgresUse) ([]*PostgresBranch, error) {
-	instances := make([]*PostgresBranch, 0, len(uses))
+// ListPostgresForWorkload resolves the Postgres databases referenced by a workload,
+// including databases without an active branch.
+func ListPostgresForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName string, uses []liberatorv1.PostgresUse) ([]*Postgres, error) {
+	instances := make([]*Postgres, 0, len(uses))
 	for _, use := range uses {
-		instance, err := GetForWorkload(ctx, teamSlug, environmentName, use.Name)
+		pg, err := GetPostgres(ctx, teamSlug, environmentName, use.Name)
 		if err != nil {
 			return nil, err
 		}
-		if instance != nil {
-			instances = append(instances, instance)
-		}
+		instances = append(instances, pg)
 	}
-	slices.SortFunc(instances, func(a, b *PostgresBranch) int {
-		if a.Name != b.Name {
-			return cmp.Compare(a.Name, b.Name)
-		}
-		return cmp.Compare(a.PostgresName, b.PostgresName)
+	slices.SortFunc(instances, func(a, b *Postgres) int {
+		return cmp.Compare(a.Name, b.Name)
 	})
 	return instances, nil
 }
 
-func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *PostgresBranchOrder, filter *PostgresBranchFilter) (*PostgresBranchConnection, error) {
-	all := ListAllForTeam(ctx, teamSlug, filter)
-
-	if orderBy == nil {
-		orderBy = &PostgresBranchOrder{
-			Field:     PostgresBranchOrderFieldName,
-			Direction: model.OrderDirectionAsc,
+func ListPostgresForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, filter *TeamPostgresFilter) *PostgresConnection {
+	all := watcher.Objects(fromContext(ctx).postgresWatcher.GetByNamespace(teamSlug.String(), watcher.WithoutDeleted()))
+	instances := make([]*Postgres, 0, len(all))
+	for _, pg := range all {
+		if filter.Matches(pg) {
+			instances = append(instances, pg)
 		}
 	}
-
-	return SortFilterPostgresBranch.PaginatedList(ctx, all, page, orderBy.Field, orderBy.Direction, filter), nil
+	slices.SortFunc(instances, func(a, b *Postgres) int {
+		if n := strings.Compare(a.Name, b.Name); n != 0 {
+			return n
+		}
+		return strings.Compare(a.EnvironmentName, b.EnvironmentName)
+	})
+	conn := pagination.NewConnection(pagination.Slice(instances, page), page, len(instances))
+	return pagination.NewFacetableConnection(conn, all, filter)
 }
 
 func ListAllForTeam(ctx context.Context, teamSlug slug.Slug, filter *PostgresBranchFilter) []*PostgresBranch {
@@ -484,6 +465,21 @@ func CreatePostgresAccess(ctx context.Context, input CreatePostgresAccessInput) 
 	accessTTL, err := input.accessTTL()
 	if err != nil {
 		return nil, err
+	}
+
+	parentClient, err := postgresClient(ctx, input.EnvironmentName, input.TeamSlug)
+	if err != nil {
+		return nil, err
+	}
+	parent, err := parentClient.Get(ctx, input.Postgres, metav1.GetOptions{})
+	if k8serrors.IsNotFound(err) {
+		return nil, apierror.Errorf("Postgres %q not found", input.Postgres)
+	}
+	if err != nil {
+		return nil, err
+	}
+	if parent.GetDeletionTimestamp() != nil {
+		return nil, apierror.Errorf("Postgres %q is being deleted", input.Postgres)
 	}
 
 	client, err := fromContext(ctx).postgresBranchWatcher.SystemAuthenticatedClient(ctx, input.EnvironmentName, watcher.WithImpersonatedClientGVR(postgresAccessGVR()))

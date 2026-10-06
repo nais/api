@@ -139,19 +139,13 @@ Test.gql("Check all Postgres instances (no filter)", function(t)
 		{
 			team(slug: "labelteam") {
 				slug
-				postgresBranches {
+				postgreses {
 					pageInfo {
 						totalCount
 					}
 					nodes {
 						name
-						postgres {
-							name
-						}
-						labels {
-							key
-							value
-						}
+						branches { nodes { name labels { key value } } }
 					}
 				}
 			}
@@ -162,33 +156,12 @@ Test.gql("Check all Postgres instances (no filter)", function(t)
 		data = {
 			team = {
 				slug = "labelteam",
-				postgresBranches = {
-					pageInfo = {
-						totalCount = 3,
-					},
+				postgreses = {
+					pageInfo = { totalCount = 3 },
 					nodes = {
-						{
-							name = "main",
-							postgres = { name = "postgres-one" },
-							labels = {
-								{ key = "priority", value = "high" },
-								{ key = "tag",      value = "target" },
-							},
-						},
-						{
-							name = "main",
-							postgres = { name = "postgres-three" },
-							labels = {
-								{ key = "tag", value = "other" },
-							},
-						},
-						{
-							name = "main",
-							postgres = { name = "postgres-two" },
-							labels = {
-								{ key = "tag", value = "target" },
-							},
-						},
+						{ name = "postgres-one",   branches = { nodes = { { name = "main", labels = { { key = "priority", value = "high" }, { key = "tag", value = "target" } } } } } },
+						{ name = "postgres-three", branches = { nodes = { { name = "main", labels = { { key = "tag", value = "other" } } } } } },
+						{ name = "postgres-two",   branches = { nodes = { { name = "main", labels = { { key = "tag", value = "target" } } } } } },
 					},
 				},
 			},
@@ -196,82 +169,24 @@ Test.gql("Check all Postgres instances (no filter)", function(t)
 	}
 end)
 
-Test.gql("Postgres filter by tag=target", function(t)
+Test.gql("A branch's labels are available through its Postgres", function(t)
 	t.addHeader("x-user-email", user:email())
-	t.query [[
-		{
-			team(slug: "labelteam") {
-				postgresBranches(filter: { labels: [{ key: "tag", value: "target" }] }) {
-					pageInfo {
-						totalCount
-					}
-					nodes {
-						name
-						postgres {
-							name
-						}
-					}
-				}
-			}
-		}
-	]]
-
-	t.check {
-		data = {
-			team = {
-				postgresBranches = {
-					pageInfo = {
-						totalCount = 2,
-					},
-					nodes = {
-						{ name = "main", postgres = { name = "postgres-one" } },
-						{ name = "main", postgres = { name = "postgres-two" } },
-					},
-				},
-			},
-		},
-	}
+	t.query [[{ team(slug: "labelteam") { environment(name: "dev") {
+		postgres(name: "postgres-one") { branch(name: "main") { labels { key value } } }
+	} } }]]
+	t.check { data = { team = { environment = { postgres = { branch = { labels = {
+		{ key = "priority", value = "high" }, { key = "tag", value = "target" },
+	} } } } } } }
 end)
 
-Test.gql("Postgres filter by tag=target and priority=high", function(t)
+Test.gql("Branch labels remain distinct from Postgres labels", function(t)
 	t.addHeader("x-user-email", user:email())
-	t.query [[
-		{
-			team(slug: "labelteam") {
-				postgresBranches(filter: {
-					labels: [
-						{ key: "tag", value: "target" },
-						{ key: "priority", value: "high" }
-					]
-				}) {
-					pageInfo {
-						totalCount
-					}
-					nodes {
-						name
-						postgres {
-							name
-						}
-					}
-				}
-			}
-		}
-	]]
-
-	t.check {
-		data = {
-			team = {
-				postgresBranches = {
-					pageInfo = {
-						totalCount = 1,
-					},
-					nodes = {
-						{ name = "main", postgres = { name = "postgres-one" } },
-					},
-				},
-			},
-		},
-	}
+	t.query [[{ team(slug: "labelteam") { environment(name: "dev") {
+		postgres(name: "postgres-one") { labels { key value } branch(name: "main") { labels { key value } } }
+	} } }]]
+	t.check { data = { team = { environment = { postgres = {
+		labels = {}, branch = { labels = { { key = "priority", value = "high" }, { key = "tag", value = "target" } } },
+	} } } } }
 end)
 
 Test.gql("Check all applications (no filter)", function(t)
