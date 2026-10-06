@@ -115,6 +115,29 @@ func TestParsePage(t *testing.T) {
 			},
 			errMsg:     "",
 			wantOffset: 0,
+			wantLimit:  2,
+		},
+		"before first item": {
+			args: args{
+				last:   new(20),
+				before: &pagination.Cursor{Offset: 0},
+			},
+			wantOffset: 0,
+			wantLimit:  0,
+		},
+		"partial first page": {
+			args: args{
+				last:   new(20),
+				before: &pagination.Cursor{Offset: 5},
+			},
+			wantOffset: 0,
+			wantLimit:  5,
+		},
+		"before with default size": {
+			args: args{
+				before: &pagination.Cursor{Offset: 5},
+			},
+			wantOffset: 0,
 			wantLimit:  5,
 		},
 	}

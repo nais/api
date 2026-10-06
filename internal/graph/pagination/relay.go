@@ -10,8 +10,9 @@ import (
 const DefaultPageSize = 20
 
 type Pagination struct {
-	offset int
-	limit  int
+	offset       int
+	limit        int
+	beforeOffset *int
 }
 
 func (p *Pagination) Offset() int32 {
@@ -25,13 +26,17 @@ func (p *Pagination) Offset() int32 {
 }
 
 func (p *Pagination) Limit() int32 {
-	if p == nil || p.limit <= 0 {
-		return DefaultPageSize
+	limit := DefaultPageSize
+	if p != nil && p.limit > 0 {
+		limit = p.limit
 	}
-	if p.limit > math.MaxInt32 {
-		panic(fmt.Sprintf("limit out of bounds: %d", p.limit))
+	if limit > math.MaxInt32 {
+		panic(fmt.Sprintf("limit out of bounds: %d", limit))
 	}
-	return int32(p.limit)
+	if p != nil && p.beforeOffset != nil {
+		limit = min(limit, max(0, *p.beforeOffset-int(p.Offset())))
+	}
+	return int32(limit)
 }
 
 func ParsePage(first *int, after *Cursor, last *int, before *Cursor) (*Pagination, error) {
@@ -74,6 +79,9 @@ func ParsePage(first *int, after *Cursor, last *int, before *Cursor) (*Paginatio
 
 	if p.offset < 0 {
 		p.offset = 0
+	}
+	if before != nil {
+		p.beforeOffset = new(before.Offset)
 	}
 
 	return p, nil
