@@ -6961,13 +6961,27 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._PostgresCreatedActivityLogEntry(ctx, sel, obj)
-	case postgres.PostgresBranchActivityLogEntry:
-		return ec._PostgresBranchActivityLogEntry(ctx, sel, &obj)
-	case *postgres.PostgresBranchActivityLogEntry:
+	case postgres.PostgresBranchDeletedActivityLogEntry:
+		return ec._PostgresBranchDeletedActivityLogEntry(ctx, sel, &obj)
+	case *postgres.PostgresBranchDeletedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._PostgresBranchActivityLogEntry(ctx, sel, obj)
+		return ec._PostgresBranchDeletedActivityLogEntry(ctx, sel, obj)
+	case postgres.PostgresBranchCreatedActivityLogEntry:
+		return ec._PostgresBranchCreatedActivityLogEntry(ctx, sel, &obj)
+	case *postgres.PostgresBranchCreatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._PostgresBranchCreatedActivityLogEntry(ctx, sel, obj)
+	case postgres.PostgresBranchActivatedActivityLogEntry:
+		return ec._PostgresBranchActivatedActivityLogEntry(ctx, sel, &obj)
+	case *postgres.PostgresBranchActivatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._PostgresBranchActivatedActivityLogEntry(ctx, sel, obj)
 	case postgres.PostgresBranch:
 		return ec._PostgresBranch(ctx, sel, &obj)
 	case *postgres.PostgresBranch:

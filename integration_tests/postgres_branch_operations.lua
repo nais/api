@@ -58,10 +58,10 @@ Test.gql("Repeating a recovery request logs only the original creation", functio
 	t.query(create)
 	t.check { data = { createPostgresBranch = { postgresBranch = { name = "restore", state = "PROGRESSING" } } } }
 	t.query [[{ team(slug: "pg-crud-team") { activityLog(first: 10, filter: { activityTypes: [POSTGRES_BRANCH_CREATED] }) {
-		nodes { resourceName message ... on PostgresBranchActivityLogEntry { activityType data { branch sourceBranch targetTime } } }
+		nodes { __typename resourceName message ... on PostgresBranchCreatedActivityLogEntry { data { branch sourceBranch targetTime } } }
 	} } }]]
 	t.check { data = { team = { activityLog = { nodes = {
-		{ resourceName = "existing", message = "Postgres branch created: restore", activityType = "POSTGRES_BRANCH_CREATED", data = { branch = "restore", sourceBranch = "main", targetTime = "2026-09-30T12:00:00Z" } },
+		{ __typename = "PostgresBranchCreatedActivityLogEntry", resourceName = "existing", message = "Postgres branch created: restore", data = { branch = "restore", sourceBranch = "main", targetTime = "2026-09-30T12:00:00Z" } },
 	} } } } }
 end)
 
@@ -89,10 +89,10 @@ Test.gql("Activating a ready branch reports requested versus observed selection"
 	}) { postgres { desiredActiveBranch activeBranch { name } } } }]]
 	t.check { data = { activatePostgresBranch = { postgres = { desiredActiveBranch = "main", activeBranch = Null } } } }
 	t.query [[{ team(slug: "pg-crud-team") { activityLog(first: 10, filter: { activityTypes: [POSTGRES_BRANCH_ACTIVATED] }) {
-		nodes { resourceName message ... on PostgresBranchActivityLogEntry { activityType data { branch } } }
+		nodes { __typename resourceName message ... on PostgresBranchActivatedActivityLogEntry { data { branch } } }
 	} } }]]
 	t.check { data = { team = { activityLog = { nodes = {
-		{ resourceName = "existing", message = "Postgres branch activated: main", activityType = "POSTGRES_BRANCH_ACTIVATED", data = { branch = "main" } },
+		{ __typename = "PostgresBranchActivatedActivityLogEntry", resourceName = "existing", message = "Postgres branch activated: main", data = { branch = "main" } },
 	} } } } }
 end)
 
@@ -111,9 +111,9 @@ Test.gql("Deleting a branch logs its name without deleting the Postgres", functi
 	}) { postgresBranchDeleted } }]]
 	t.check { data = { deletePostgresBranch = { postgresBranchDeleted = true } } }
 	t.query [[{ team(slug: "pg-crud-team") { activityLog(first: 10, filter: { activityTypes: [POSTGRES_BRANCH_DELETED] }) {
-		nodes { resourceName message ... on PostgresBranchActivityLogEntry { activityType data { branch } } }
+		nodes { __typename resourceName message ... on PostgresBranchDeletedActivityLogEntry { data { branch } } }
 	} } }]]
 	t.check { data = { team = { activityLog = { nodes = {
-		{ resourceName = "existing", message = "Postgres branch deleted: main", activityType = "POSTGRES_BRANCH_DELETED", data = { branch = "main" } },
+		{ __typename = "PostgresBranchDeletedActivityLogEntry", resourceName = "existing", message = "Postgres branch deleted: main", data = { branch = "main" } },
 	} } } } }
 end)

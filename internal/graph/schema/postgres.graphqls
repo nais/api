@@ -328,8 +328,8 @@ type PostgresPersonalAccessConnectionActivityLogEntry implements ActivityLogEntr
 	environmentName: String
 }
 
-"An activity log entry for creating, activating or deleting a Postgres branch."
-type PostgresBranchActivityLogEntry implements ActivityLogEntry & Node {
+"A Postgres branch was created."
+type PostgresBranchCreatedActivityLogEntry implements ActivityLogEntry & Node {
 	id: ID!
 	actor: String!
 	gitHubActorClaims: GitHubActorClaims
@@ -340,8 +340,36 @@ type PostgresBranchActivityLogEntry implements ActivityLogEntry & Node {
 	resourceName: String!
 	teamSlug: Slug!
 	environmentName: String
-	"The operation recorded by this event; activation records the request, not the completed switchover."
-	activityType: ActivityLogActivityType!
+	data: PostgresBranchActivityLogEntryData!
+}
+
+"A request to activate a Postgres branch was accepted; the switchover may still be pending."
+type PostgresBranchActivatedActivityLogEntry implements ActivityLogEntry & Node {
+	id: ID!
+	actor: String!
+	gitHubActorClaims: GitHubActorClaims
+	createdAt: Time!
+	message: String!
+	resourceType: ActivityLogEntryResourceType!
+	"Name of the Postgres containing the branch."
+	resourceName: String!
+	teamSlug: Slug!
+	environmentName: String
+	data: PostgresBranchActivityLogEntryData!
+}
+
+"A Postgres branch was deleted."
+type PostgresBranchDeletedActivityLogEntry implements ActivityLogEntry & Node {
+	id: ID!
+	actor: String!
+	gitHubActorClaims: GitHubActorClaims
+	createdAt: Time!
+	message: String!
+	resourceType: ActivityLogEntryResourceType!
+	"Name of the Postgres containing the branch."
+	resourceName: String!
+	teamSlug: Slug!
+	environmentName: String
 	data: PostgresBranchActivityLogEntryData!
 }
 

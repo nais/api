@@ -94,28 +94,41 @@ func transformPostgresActivityLogEntry(entry activitylog.GenericActivityLogEntry
 		if err != nil {
 			return nil, fmt.Errorf("transforming postgres branch activity log entry data: %w", err)
 		}
-		event := map[activitylog.ActivityLogEntryAction]struct {
-			verb         string
-			activityType activitylog.ActivityLogActivityType
-		}{
-			activityLogEntryActionBranchCreated:   {"created", "POSTGRES_BRANCH_CREATED"},
-			activityLogEntryActionBranchActivated: {"activated", "POSTGRES_BRANCH_ACTIVATED"},
-			activityLogEntryActionBranchDeleted:   {"deleted", "POSTGRES_BRANCH_DELETED"},
-		}[entry.Action]
-		return PostgresBranchActivityLogEntry{
-			GenericActivityLogEntry: entry.WithMessage(fmt.Sprintf("Postgres branch %s: %s", event.verb, data.Branch)),
-			ActivityType:            event.activityType,
-			Data:                    data,
-		}, nil
+		switch entry.Action {
+		case activityLogEntryActionBranchCreated:
+			return PostgresBranchCreatedActivityLogEntry{
+				GenericActivityLogEntry: entry.WithMessage(fmt.Sprintf("Postgres branch created: %s", data.Branch)),
+				Data:                    data,
+			}, nil
+		case activityLogEntryActionBranchActivated:
+			return PostgresBranchActivatedActivityLogEntry{
+				GenericActivityLogEntry: entry.WithMessage(fmt.Sprintf("Postgres branch activated: %s", data.Branch)),
+				Data:                    data,
+			}, nil
+		default:
+			return PostgresBranchDeletedActivityLogEntry{
+				GenericActivityLogEntry: entry.WithMessage(fmt.Sprintf("Postgres branch deleted: %s", data.Branch)),
+				Data:                    data,
+			}, nil
+		}
 	default:
 		return nil, fmt.Errorf("unsupported postgres activity log entry action: %q", entry.Action)
 	}
 }
 
-type PostgresBranchActivityLogEntry struct {
+type PostgresBranchCreatedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
-	ActivityType activitylog.ActivityLogActivityType `json:"activityType"`
-	Data         *PostgresBranchActivityLogEntryData `json:"data"`
+	Data *PostgresBranchActivityLogEntryData `json:"data"`
+}
+
+type PostgresBranchActivatedActivityLogEntry struct {
+	activitylog.GenericActivityLogEntry
+	Data *PostgresBranchActivityLogEntryData `json:"data"`
+}
+
+type PostgresBranchDeletedActivityLogEntry struct {
+	activitylog.GenericActivityLogEntry
+	Data *PostgresBranchActivityLogEntryData `json:"data"`
 }
 
 type PostgresBranchActivityLogEntryData struct {

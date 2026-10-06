@@ -1966,8 +1966,7 @@ type ComplexityRoot struct {
 		Workloads       func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 	}
 
-	PostgresBranchActivityLogEntry struct {
-		ActivityType      func(childComplexity int) int
+	PostgresBranchActivatedActivityLogEntry struct {
 		Actor             func(childComplexity int) int
 		CreatedAt         func(childComplexity int) int
 		Data              func(childComplexity int) int
@@ -1991,6 +1990,32 @@ type ComplexityRoot struct {
 		Facets   func(childComplexity int) int
 		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
+	}
+
+	PostgresBranchCreatedActivityLogEntry struct {
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		Data              func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
+	}
+
+	PostgresBranchDeletedActivityLogEntry struct {
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		Data              func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	PostgresBranchEdge struct {
@@ -12130,82 +12155,75 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.PostgresBranch.Workloads(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
 
-	case "PostgresBranchActivityLogEntry.activityType":
-		if e.ComplexityRoot.PostgresBranchActivityLogEntry.ActivityType == nil {
+	case "PostgresBranchActivatedActivityLogEntry.actor":
+		if e.ComplexityRoot.PostgresBranchActivatedActivityLogEntry.Actor == nil {
 			break
 		}
 
-		return e.ComplexityRoot.PostgresBranchActivityLogEntry.ActivityType(childComplexity), true
+		return e.ComplexityRoot.PostgresBranchActivatedActivityLogEntry.Actor(childComplexity), true
 
-	case "PostgresBranchActivityLogEntry.actor":
-		if e.ComplexityRoot.PostgresBranchActivityLogEntry.Actor == nil {
+	case "PostgresBranchActivatedActivityLogEntry.createdAt":
+		if e.ComplexityRoot.PostgresBranchActivatedActivityLogEntry.CreatedAt == nil {
 			break
 		}
 
-		return e.ComplexityRoot.PostgresBranchActivityLogEntry.Actor(childComplexity), true
+		return e.ComplexityRoot.PostgresBranchActivatedActivityLogEntry.CreatedAt(childComplexity), true
 
-	case "PostgresBranchActivityLogEntry.createdAt":
-		if e.ComplexityRoot.PostgresBranchActivityLogEntry.CreatedAt == nil {
+	case "PostgresBranchActivatedActivityLogEntry.data":
+		if e.ComplexityRoot.PostgresBranchActivatedActivityLogEntry.Data == nil {
 			break
 		}
 
-		return e.ComplexityRoot.PostgresBranchActivityLogEntry.CreatedAt(childComplexity), true
+		return e.ComplexityRoot.PostgresBranchActivatedActivityLogEntry.Data(childComplexity), true
 
-	case "PostgresBranchActivityLogEntry.data":
-		if e.ComplexityRoot.PostgresBranchActivityLogEntry.Data == nil {
+	case "PostgresBranchActivatedActivityLogEntry.environmentName":
+		if e.ComplexityRoot.PostgresBranchActivatedActivityLogEntry.EnvironmentName == nil {
 			break
 		}
 
-		return e.ComplexityRoot.PostgresBranchActivityLogEntry.Data(childComplexity), true
+		return e.ComplexityRoot.PostgresBranchActivatedActivityLogEntry.EnvironmentName(childComplexity), true
 
-	case "PostgresBranchActivityLogEntry.environmentName":
-		if e.ComplexityRoot.PostgresBranchActivityLogEntry.EnvironmentName == nil {
+	case "PostgresBranchActivatedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.PostgresBranchActivatedActivityLogEntry.GitHubActorClaims == nil {
 			break
 		}
 
-		return e.ComplexityRoot.PostgresBranchActivityLogEntry.EnvironmentName(childComplexity), true
+		return e.ComplexityRoot.PostgresBranchActivatedActivityLogEntry.GitHubActorClaims(childComplexity), true
 
-	case "PostgresBranchActivityLogEntry.gitHubActorClaims":
-		if e.ComplexityRoot.PostgresBranchActivityLogEntry.GitHubActorClaims == nil {
+	case "PostgresBranchActivatedActivityLogEntry.id":
+		if e.ComplexityRoot.PostgresBranchActivatedActivityLogEntry.ID == nil {
 			break
 		}
 
-		return e.ComplexityRoot.PostgresBranchActivityLogEntry.GitHubActorClaims(childComplexity), true
+		return e.ComplexityRoot.PostgresBranchActivatedActivityLogEntry.ID(childComplexity), true
 
-	case "PostgresBranchActivityLogEntry.id":
-		if e.ComplexityRoot.PostgresBranchActivityLogEntry.ID == nil {
+	case "PostgresBranchActivatedActivityLogEntry.message":
+		if e.ComplexityRoot.PostgresBranchActivatedActivityLogEntry.Message == nil {
 			break
 		}
 
-		return e.ComplexityRoot.PostgresBranchActivityLogEntry.ID(childComplexity), true
+		return e.ComplexityRoot.PostgresBranchActivatedActivityLogEntry.Message(childComplexity), true
 
-	case "PostgresBranchActivityLogEntry.message":
-		if e.ComplexityRoot.PostgresBranchActivityLogEntry.Message == nil {
+	case "PostgresBranchActivatedActivityLogEntry.resourceName":
+		if e.ComplexityRoot.PostgresBranchActivatedActivityLogEntry.ResourceName == nil {
 			break
 		}
 
-		return e.ComplexityRoot.PostgresBranchActivityLogEntry.Message(childComplexity), true
+		return e.ComplexityRoot.PostgresBranchActivatedActivityLogEntry.ResourceName(childComplexity), true
 
-	case "PostgresBranchActivityLogEntry.resourceName":
-		if e.ComplexityRoot.PostgresBranchActivityLogEntry.ResourceName == nil {
+	case "PostgresBranchActivatedActivityLogEntry.resourceType":
+		if e.ComplexityRoot.PostgresBranchActivatedActivityLogEntry.ResourceType == nil {
 			break
 		}
 
-		return e.ComplexityRoot.PostgresBranchActivityLogEntry.ResourceName(childComplexity), true
+		return e.ComplexityRoot.PostgresBranchActivatedActivityLogEntry.ResourceType(childComplexity), true
 
-	case "PostgresBranchActivityLogEntry.resourceType":
-		if e.ComplexityRoot.PostgresBranchActivityLogEntry.ResourceType == nil {
+	case "PostgresBranchActivatedActivityLogEntry.teamSlug":
+		if e.ComplexityRoot.PostgresBranchActivatedActivityLogEntry.TeamSlug == nil {
 			break
 		}
 
-		return e.ComplexityRoot.PostgresBranchActivityLogEntry.ResourceType(childComplexity), true
-
-	case "PostgresBranchActivityLogEntry.teamSlug":
-		if e.ComplexityRoot.PostgresBranchActivityLogEntry.TeamSlug == nil {
-			break
-		}
-
-		return e.ComplexityRoot.PostgresBranchActivityLogEntry.TeamSlug(childComplexity), true
+		return e.ComplexityRoot.PostgresBranchActivatedActivityLogEntry.TeamSlug(childComplexity), true
 
 	case "PostgresBranchActivityLogEntryData.branch":
 		if e.ComplexityRoot.PostgresBranchActivityLogEntryData.Branch == nil {
@@ -12255,6 +12273,146 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.PostgresBranchConnection.PageInfo(childComplexity), true
+
+	case "PostgresBranchCreatedActivityLogEntry.actor":
+		if e.ComplexityRoot.PostgresBranchCreatedActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchCreatedActivityLogEntry.Actor(childComplexity), true
+
+	case "PostgresBranchCreatedActivityLogEntry.createdAt":
+		if e.ComplexityRoot.PostgresBranchCreatedActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchCreatedActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "PostgresBranchCreatedActivityLogEntry.data":
+		if e.ComplexityRoot.PostgresBranchCreatedActivityLogEntry.Data == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchCreatedActivityLogEntry.Data(childComplexity), true
+
+	case "PostgresBranchCreatedActivityLogEntry.environmentName":
+		if e.ComplexityRoot.PostgresBranchCreatedActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchCreatedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "PostgresBranchCreatedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.PostgresBranchCreatedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchCreatedActivityLogEntry.GitHubActorClaims(childComplexity), true
+
+	case "PostgresBranchCreatedActivityLogEntry.id":
+		if e.ComplexityRoot.PostgresBranchCreatedActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchCreatedActivityLogEntry.ID(childComplexity), true
+
+	case "PostgresBranchCreatedActivityLogEntry.message":
+		if e.ComplexityRoot.PostgresBranchCreatedActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchCreatedActivityLogEntry.Message(childComplexity), true
+
+	case "PostgresBranchCreatedActivityLogEntry.resourceName":
+		if e.ComplexityRoot.PostgresBranchCreatedActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchCreatedActivityLogEntry.ResourceName(childComplexity), true
+
+	case "PostgresBranchCreatedActivityLogEntry.resourceType":
+		if e.ComplexityRoot.PostgresBranchCreatedActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchCreatedActivityLogEntry.ResourceType(childComplexity), true
+
+	case "PostgresBranchCreatedActivityLogEntry.teamSlug":
+		if e.ComplexityRoot.PostgresBranchCreatedActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchCreatedActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "PostgresBranchDeletedActivityLogEntry.actor":
+		if e.ComplexityRoot.PostgresBranchDeletedActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchDeletedActivityLogEntry.Actor(childComplexity), true
+
+	case "PostgresBranchDeletedActivityLogEntry.createdAt":
+		if e.ComplexityRoot.PostgresBranchDeletedActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchDeletedActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "PostgresBranchDeletedActivityLogEntry.data":
+		if e.ComplexityRoot.PostgresBranchDeletedActivityLogEntry.Data == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchDeletedActivityLogEntry.Data(childComplexity), true
+
+	case "PostgresBranchDeletedActivityLogEntry.environmentName":
+		if e.ComplexityRoot.PostgresBranchDeletedActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchDeletedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "PostgresBranchDeletedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.PostgresBranchDeletedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchDeletedActivityLogEntry.GitHubActorClaims(childComplexity), true
+
+	case "PostgresBranchDeletedActivityLogEntry.id":
+		if e.ComplexityRoot.PostgresBranchDeletedActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchDeletedActivityLogEntry.ID(childComplexity), true
+
+	case "PostgresBranchDeletedActivityLogEntry.message":
+		if e.ComplexityRoot.PostgresBranchDeletedActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchDeletedActivityLogEntry.Message(childComplexity), true
+
+	case "PostgresBranchDeletedActivityLogEntry.resourceName":
+		if e.ComplexityRoot.PostgresBranchDeletedActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchDeletedActivityLogEntry.ResourceName(childComplexity), true
+
+	case "PostgresBranchDeletedActivityLogEntry.resourceType":
+		if e.ComplexityRoot.PostgresBranchDeletedActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchDeletedActivityLogEntry.ResourceType(childComplexity), true
+
+	case "PostgresBranchDeletedActivityLogEntry.teamSlug":
+		if e.ComplexityRoot.PostgresBranchDeletedActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchDeletedActivityLogEntry.TeamSlug(childComplexity), true
 
 	case "PostgresBranchEdge.cursor":
 		if e.ComplexityRoot.PostgresBranchEdge.Cursor == nil {
@@ -28383,8 +28541,8 @@ type PostgresPersonalAccessConnectionActivityLogEntry implements ActivityLogEntr
 	environmentName: String
 }
 
-"An activity log entry for creating, activating or deleting a Postgres branch."
-type PostgresBranchActivityLogEntry implements ActivityLogEntry & Node {
+"A Postgres branch was created."
+type PostgresBranchCreatedActivityLogEntry implements ActivityLogEntry & Node {
 	id: ID!
 	actor: String!
 	gitHubActorClaims: GitHubActorClaims
@@ -28395,8 +28553,36 @@ type PostgresBranchActivityLogEntry implements ActivityLogEntry & Node {
 	resourceName: String!
 	teamSlug: Slug!
 	environmentName: String
-	"The operation recorded by this event; activation records the request, not the completed switchover."
-	activityType: ActivityLogActivityType!
+	data: PostgresBranchActivityLogEntryData!
+}
+
+"A request to activate a Postgres branch was accepted; the switchover may still be pending."
+type PostgresBranchActivatedActivityLogEntry implements ActivityLogEntry & Node {
+	id: ID!
+	actor: String!
+	gitHubActorClaims: GitHubActorClaims
+	createdAt: Time!
+	message: String!
+	resourceType: ActivityLogEntryResourceType!
+	"Name of the Postgres containing the branch."
+	resourceName: String!
+	teamSlug: Slug!
+	environmentName: String
+	data: PostgresBranchActivityLogEntryData!
+}
+
+"A Postgres branch was deleted."
+type PostgresBranchDeletedActivityLogEntry implements ActivityLogEntry & Node {
+	id: ID!
+	actor: String!
+	gitHubActorClaims: GitHubActorClaims
+	createdAt: Time!
+	message: String!
+	resourceType: ActivityLogEntryResourceType!
+	"Name of the Postgres containing the branch."
+	resourceName: String!
+	teamSlug: Slug!
+	environmentName: String
 	data: PostgresBranchActivityLogEntryData!
 }
 
