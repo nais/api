@@ -356,40 +356,40 @@ func (e UserTeamOrderField) MarshalGQL(w io.Writer) {
 }
 
 type TeamFilter struct {
-	HasWorkloads        *bool                    `json:"hasWorkloads"`
-	OperationalPriority *TeamOperationalPriority `json:"operationalPriority"`
+	HasWorkloads               *bool                           `json:"hasWorkloads"`
+	VulnerabilityPriorityGroup *TeamVulnerabilityPriorityGroup `json:"vulnerabilityPriorityGroup"`
 }
 
-type TeamOperationalPriority string
+type TeamVulnerabilityPriorityGroup string
 
 const (
-	TeamOperationalPriorityHigh     TeamOperationalPriority = "HIGH"
-	TeamOperationalPriorityElevated TeamOperationalPriority = "ELEVATED"
-	TeamOperationalPriorityMonitor  TeamOperationalPriority = "MONITOR"
-	TeamOperationalPriorityNone     TeamOperationalPriority = "NONE"
+	TeamVulnerabilityPriorityGroupHigh     TeamVulnerabilityPriorityGroup = "HIGH"
+	TeamVulnerabilityPriorityGroupElevated TeamVulnerabilityPriorityGroup = "ELEVATED"
+	TeamVulnerabilityPriorityGroupMonitor  TeamVulnerabilityPriorityGroup = "MONITOR"
+	TeamVulnerabilityPriorityGroupNone     TeamVulnerabilityPriorityGroup = "NONE"
 )
 
-func (e TeamOperationalPriority) IsValid() bool {
-	return slices.Contains([]TeamOperationalPriority{TeamOperationalPriorityHigh, TeamOperationalPriorityElevated, TeamOperationalPriorityMonitor, TeamOperationalPriorityNone}, e)
+func (e TeamVulnerabilityPriorityGroup) IsValid() bool {
+	return slices.Contains([]TeamVulnerabilityPriorityGroup{TeamVulnerabilityPriorityGroupHigh, TeamVulnerabilityPriorityGroupElevated, TeamVulnerabilityPriorityGroupMonitor, TeamVulnerabilityPriorityGroupNone}, e)
 }
 
-func (e TeamOperationalPriority) String() string {
+func (e TeamVulnerabilityPriorityGroup) String() string {
 	return string(e)
 }
 
-func (e *TeamOperationalPriority) UnmarshalGQL(v any) error {
+func (e *TeamVulnerabilityPriorityGroup) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
 	}
-	*e = TeamOperationalPriority(str)
+	*e = TeamVulnerabilityPriorityGroup(str)
 	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid TeamOperationalPriority", str)
+		return fmt.Errorf("%s is not a valid TeamVulnerabilityPriorityGroup", str)
 	}
 	return nil
 }
 
-func (e TeamOperationalPriority) MarshalGQL(w io.Writer) {
+func (e TeamVulnerabilityPriorityGroup) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

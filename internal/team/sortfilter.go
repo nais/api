@@ -12,20 +12,20 @@ import (
 
 var SortFilter = sortfilter.New[*Team, TeamOrderField, *TeamFilter]()
 
-var operationalPriorityGrouping func(context.Context, []*Team, TeamOperationalPriority) ([]*Team, error)
+var vulnerabilityPriorityGrouping func(context.Context, []*Team, TeamVulnerabilityPriorityGroup) ([]*Team, error)
 
-func RegisterOperationalPriorityGrouping(fn func(context.Context, []*Team, TeamOperationalPriority) ([]*Team, error)) {
-	operationalPriorityGrouping = fn
+func RegisterVulnerabilityPriorityGrouping(fn func(context.Context, []*Team, TeamVulnerabilityPriorityGroup) ([]*Team, error)) {
+	vulnerabilityPriorityGrouping = fn
 }
 
-func groupByOperationalPriority(ctx context.Context, teams []*Team, priority TeamOperationalPriority) ([]*Team, error) {
+func groupByVulnerabilityPriority(ctx context.Context, teams []*Team, priority TeamVulnerabilityPriorityGroup) ([]*Team, error) {
 	if !priority.IsValid() {
-		return nil, fmt.Errorf("invalid team operational priority: %s", priority)
+		return nil, fmt.Errorf("invalid team vulnerability priority group: %s", priority)
 	}
-	if operationalPriorityGrouping == nil {
-		return nil, fmt.Errorf("team operational priority grouping is unavailable")
+	if vulnerabilityPriorityGrouping == nil {
+		return nil, fmt.Errorf("team vulnerability priority grouping is unavailable")
 	}
-	return operationalPriorityGrouping(ctx, teams, priority)
+	return vulnerabilityPriorityGrouping(ctx, teams, priority)
 }
 
 func init() {

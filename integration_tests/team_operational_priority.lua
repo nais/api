@@ -38,10 +38,10 @@ Test.gql("Operational groups have independent cursors and exclude lower prioriti
 	local fetch = function(highAfter, elevatedAfter)
 		t.query(string.format([[
 			{
-				high: teams(first: 1, after: "%s", filter: {hasWorkloads: true, operationalPriority: HIGH}) { %s }
-				elevated: teams(first: 1, after: "%s", filter: {hasWorkloads: true, operationalPriority: ELEVATED}) { %s }
-				monitor: teams(first: 20, filter: {hasWorkloads: true, operationalPriority: MONITOR}) { %s }
-				none: teams(first: 20, filter: {hasWorkloads: true, operationalPriority: NONE}) { %s }
+				high: teams(first: 1, after: "%s", filter: {hasWorkloads: true, vulnerabilityPriorityGroup: HIGH}) { %s }
+				elevated: teams(first: 1, after: "%s", filter: {hasWorkloads: true, vulnerabilityPriorityGroup: ELEVATED}) { %s }
+				monitor: teams(first: 20, filter: {hasWorkloads: true, vulnerabilityPriorityGroup: MONITOR}) { %s }
+				none: teams(first: 20, filter: {hasWorkloads: true, vulnerabilityPriorityGroup: NONE}) { %s }
 			}
 		]], highAfter, selection, elevatedAfter, selection, selection, selection))
 	end
@@ -69,7 +69,7 @@ Test.gql("Operational groups have independent cursors and exclude lower prioriti
 		none = connection({ "no-sbom", "none" }, 2, false, false, "none"),
 	} }
 	t.query(string.format([[
-		{ teams(last: 1, before: "%s", filter: {hasWorkloads: true, operationalPriority: HIGH}) { %s } }
+		{ teams(last: 1, before: "%s", filter: {hasWorkloads: true, vulnerabilityPriorityGroup: HIGH}) { %s } }
 	]], State.highNextStart, selection))
 	t.check { data = { teams = connection({ "high-a" }, 2, false, true, "previous") } }
 end)
@@ -83,7 +83,7 @@ Test.gql("Group totals cover more than twenty teams across next and previous pag
 	end
 	local fetch = function(arguments)
 		t.query(string.format([[
-			{ teams(%s, filter: {hasWorkloads: false, operationalPriority: NONE}) { %s } }
+			{ teams(%s, filter: {hasWorkloads: false, vulnerabilityPriorityGroup: NONE}) { %s } }
 		]], arguments, selection))
 	end
 	fetch("first: 20")
@@ -103,10 +103,10 @@ Test.gql("Explicit ordering and existing filters are preserved", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query(string.format([[
 		{
-			high: teams(first: 20, orderBy: {field: SLUG, direction: DESC}, filter: {operationalPriority: HIGH}) { %s }
-			none: teams(first: 1, filter: {operationalPriority: NONE}) { %s }
+			high: teams(first: 20, orderBy: {field: SLUG, direction: DESC}, filter: {vulnerabilityPriorityGroup: HIGH}) { %s }
+			none: teams(first: 1, filter: {vulnerabilityPriorityGroup: NONE}) { %s }
 			workloads: teams(first: 20, filter: {hasWorkloads: true}) { %s }
-			nullFilter: teams(first: 20, filter: {hasWorkloads: true, operationalPriority: null}) { %s }
+			nullFilter: teams(first: 20, filter: {hasWorkloads: true, vulnerabilityPriorityGroup: null}) { %s }
 			unfiltered: teams(first: 1) { %s }
 		}
 	]], selection, selection, selection, selection, selection))
@@ -124,7 +124,7 @@ Test.gql("High findings do not require KEV and lower groups never include High",
 	t.addHeader("x-user-email", user:email())
 	t.query [[
 		{
-			teams(first: 20, filter: {hasWorkloads: true, operationalPriority: HIGH}) {
+			teams(first: 20, filter: {hasWorkloads: true, vulnerabilityPriorityGroup: HIGH}) {
 				nodes {
 					slug
 					vulnerabilitySummary { countsByPriority { highRisk elevatedRisk monitor knownExploited } }
