@@ -8,6 +8,7 @@ import (
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/persistence/opensearch"
+	"github.com/nais/api/internal/persistence/postgres"
 	"github.com/nais/api/internal/persistence/valkey"
 	"github.com/nais/api/internal/reconciler"
 	"github.com/nais/api/internal/serviceaccount"
@@ -27,6 +28,23 @@ func (r *openSearchResolver) ActivityLog(ctx context.Context, obj *opensearch.Op
 	return activitylog.ListForResourceTeamAndEnvironment(
 		ctx,
 		opensearch.ActivityLogEntryResourceTypeOpenSearch,
+		obj.TeamSlug,
+		obj.Name,
+		environmentmapper.EnvironmentName(obj.EnvironmentName),
+		page,
+		filter,
+	)
+}
+
+func (r *postgresResolver) ActivityLog(ctx context.Context, obj *postgres.Postgres, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*activitylog.ActivityLogEntryConnection, error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+
+	return activitylog.ListForResourceTeamAndEnvironment(
+		ctx,
+		postgres.ActivityLogEntryResourceTypePostgres,
 		obj.TeamSlug,
 		obj.Name,
 		environmentmapper.EnvironmentName(obj.EnvironmentName),

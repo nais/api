@@ -1919,6 +1919,7 @@ type ComplexityRoot struct {
 
 	Postgres struct {
 		ActiveBranch        func(childComplexity int) int
+		ActivityLog         func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int
 		Branch              func(childComplexity int, name string) int
 		Branches            func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *postgres.PostgresBranchOrder) int
 		DesiredActiveBranch func(childComplexity int) int
@@ -11887,6 +11888,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Postgres.ActiveBranch(childComplexity), true
+
+	case "Postgres.activityLog":
+		if e.ComplexityRoot.Postgres.ActivityLog == nil {
+			break
+		}
+
+		args, err := ec.field_Postgres_activityLog_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Postgres.ActivityLog(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["filter"].(*activitylog.ActivityLogFilter)), true
 
 	case "Postgres.branch":
 		if e.ComplexityRoot.Postgres.Branch == nil {
@@ -22054,6 +22067,22 @@ extend type OpenSearch implements ActivityLogger {
 		"""
 		Filter items.
 		"""
+		filter: ActivityLogFilter
+	): ActivityLogEntryConnection!
+}
+
+extend type Postgres implements ActivityLogger {
+	"Activity log associated with this Postgres."
+	activityLog(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+		"Get items after this cursor."
+		after: Cursor
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+		"Get items before this cursor."
+		before: Cursor
+		"Filter items."
 		filter: ActivityLogFilter
 	): ActivityLogEntryConnection!
 }
@@ -39033,6 +39062,8 @@ func (ec *executionContext) childFields_Postgres(ctx context.Context, field grap
 		return ec.fieldContext_Postgres_branches(ctx, field)
 	case "labels":
 		return ec.fieldContext_Postgres_labels(ctx, field)
+	case "activityLog":
+		return ec.fieldContext_Postgres_activityLog(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type Postgres", field.Name)
 }

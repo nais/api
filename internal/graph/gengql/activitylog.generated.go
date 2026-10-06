@@ -1080,6 +1080,13 @@ func (ec *executionContext) _ActivityLogger(ctx context.Context, sel ast.Selecti
 			return graphql.Null
 		}
 		return ec._Reconciler(ctx, sel, obj)
+	case postgres.Postgres:
+		return ec._Postgres(ctx, sel, &obj)
+	case *postgres.Postgres:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Postgres(ctx, sel, obj)
 	case workload.ContainerImage:
 		return ec._ContainerImage(ctx, sel, &obj)
 	case *workload.ContainerImage:

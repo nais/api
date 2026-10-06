@@ -16,22 +16,22 @@ const (
 	activityLogEntryActionBranchActivated             activitylog.ActivityLogEntryAction = "BRANCH_ACTIVATED"
 	activityLogEntryActionBranchDeleted               activitylog.ActivityLogEntryAction = "BRANCH_DELETED"
 
-	activityLogEntryResourceTypePostgres activitylog.ActivityLogEntryResourceType = "POSTGRES"
+	ActivityLogEntryResourceTypePostgres activitylog.ActivityLogEntryResourceType = "POSTGRES"
 )
 
 func init() {
-	activitylog.RegisterTransformer(activityLogEntryResourceTypePostgres, transformPostgresActivityLogEntry)
+	activitylog.RegisterTransformer(ActivityLogEntryResourceTypePostgres, transformPostgresActivityLogEntry)
 
-	activitylog.RegisterFilter("POSTGRES_GRANT_ACCESS", activityLogEntryActionGrantAccess, activityLogEntryResourceTypePostgres)
-	activitylog.RegisterFilter("POSTGRES_PERSONAL_ACCESS_CREATED", activityLogEntryActionCreatePersonalAccess, activityLogEntryResourceTypePostgres)
-	activitylog.RegisterFilter("POSTGRES_PERSONAL_ACCESS_CONNECTION", activityLogEntryActionGetPersonalAccessConnection, activityLogEntryResourceTypePostgres)
-	activitylog.RegisterFilter("POSTGRES_CREATED", activitylog.ActivityLogEntryActionCreated, activityLogEntryResourceTypePostgres)
-	activitylog.RegisterFilter("POSTGRES_UPDATED", activitylog.ActivityLogEntryActionUpdated, activityLogEntryResourceTypePostgres)
-	activitylog.RegisterFilter("POSTGRES_DELETED", activitylog.ActivityLogEntryActionDeleted, activityLogEntryResourceTypePostgres)
-	activitylog.RegisterFilter("POSTGRES_DELETION_REQUESTED", activityLogEntryActionDeletionRequested, activityLogEntryResourceTypePostgres)
-	activitylog.RegisterFilter("POSTGRES_BRANCH_CREATED", activityLogEntryActionBranchCreated, activityLogEntryResourceTypePostgres)
-	activitylog.RegisterFilter("POSTGRES_BRANCH_ACTIVATED", activityLogEntryActionBranchActivated, activityLogEntryResourceTypePostgres)
-	activitylog.RegisterFilter("POSTGRES_BRANCH_DELETED", activityLogEntryActionBranchDeleted, activityLogEntryResourceTypePostgres)
+	activitylog.RegisterFilter("POSTGRES_GRANT_ACCESS", activityLogEntryActionGrantAccess, ActivityLogEntryResourceTypePostgres)
+	activitylog.RegisterFilter("POSTGRES_PERSONAL_ACCESS_CREATED", activityLogEntryActionCreatePersonalAccess, ActivityLogEntryResourceTypePostgres)
+	activitylog.RegisterFilter("POSTGRES_PERSONAL_ACCESS_CONNECTION", activityLogEntryActionGetPersonalAccessConnection, ActivityLogEntryResourceTypePostgres)
+	activitylog.RegisterFilter("POSTGRES_CREATED", activitylog.ActivityLogEntryActionCreated, ActivityLogEntryResourceTypePostgres)
+	activitylog.RegisterFilter("POSTGRES_UPDATED", activitylog.ActivityLogEntryActionUpdated, ActivityLogEntryResourceTypePostgres)
+	activitylog.RegisterFilter("POSTGRES_DELETED", activitylog.ActivityLogEntryActionDeleted, ActivityLogEntryResourceTypePostgres)
+	activitylog.RegisterFilter("POSTGRES_DELETION_REQUESTED", activityLogEntryActionDeletionRequested, ActivityLogEntryResourceTypePostgres)
+	activitylog.RegisterFilter("POSTGRES_BRANCH_CREATED", activityLogEntryActionBranchCreated, ActivityLogEntryResourceTypePostgres)
+	activitylog.RegisterFilter("POSTGRES_BRANCH_ACTIVATED", activityLogEntryActionBranchActivated, ActivityLogEntryResourceTypePostgres)
+	activitylog.RegisterFilter("POSTGRES_BRANCH_DELETED", activityLogEntryActionBranchDeleted, ActivityLogEntryResourceTypePostgres)
 }
 
 func transformPostgresActivityLogEntry(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {

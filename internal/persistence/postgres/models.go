@@ -96,6 +96,7 @@ type PostgresResources struct {
 }
 
 func (Postgres) IsNode()            {}
+func (Postgres) IsActivityLogger()  {}
 func (p *Postgres) ID() ident.Ident { return newPostgresIdent(p.TeamSlug, p.EnvironmentName, p.Name) }
 
 func (p *Postgres) GetObjectKind() schema.ObjectKind { return schema.EmptyObjectKind }

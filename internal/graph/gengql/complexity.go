@@ -121,6 +121,9 @@ func NewComplexityRoot() ComplexityRoot {
 	c.OpenSearchMaintenance.Updates = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
+	c.Postgres.ActivityLog = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int {
+		return cursorComplexity(first, last) * childComplexity
+	}
 	c.Postgres.Branches = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *postgres.PostgresBranchOrder) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
