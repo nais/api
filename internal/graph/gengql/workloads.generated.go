@@ -35,6 +35,7 @@ type ContainerImageResolver interface {
 
 type TeamWorkloadsFilterResolver interface {
 	SbomStatus(ctx context.Context, obj *workload.TeamWorkloadsFilter, data *vulnerability.SBOMStatus) error
+	SbomStatuses(ctx context.Context, obj *workload.TeamWorkloadsFilter, data []vulnerability.SBOMStatus) error
 }
 
 // endregion ************************** generated!.gotpl **************************
@@ -839,7 +840,7 @@ func (ec *executionContext) unmarshalInputTeamWorkloadsFilter(ctx context.Contex
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"environments", "labels", "sbomStatus"}
+	fieldsInOrder := [...]string{"environments", "labels", "sbomStatus", "sbomStatuses", "hasVulnerabilityData"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -869,6 +870,22 @@ func (ec *executionContext) unmarshalInputTeamWorkloadsFilter(ctx context.Contex
 			if err = ec.Resolvers.TeamWorkloadsFilter().SbomStatus(ctx, &it, data); err != nil {
 				return it, err
 			}
+		case "sbomStatuses":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sbomStatuses"))
+			data, err := ec.unmarshalOSBOMStatus2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐSBOMStatusᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.Resolvers.TeamWorkloadsFilter().SbomStatuses(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "hasVulnerabilityData":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasVulnerabilityData"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HasVulnerabilityData = data
 		}
 	}
 	return it, nil

@@ -98,6 +98,14 @@ func (r *teamWorkloadsFilterResolver) SbomStatus(ctx context.Context, obj *workl
 	return nil
 }
 
+func (r *teamWorkloadsFilterResolver) SbomStatuses(ctx context.Context, obj *workload.TeamWorkloadsFilter, data []vulnerability.SBOMStatus) error {
+	obj.SbomStatuses = make([]string, 0, len(data))
+	for _, status := range data {
+		obj.SbomStatuses = append(obj.SbomStatuses, status.String())
+	}
+	return nil
+}
+
 func (r *Resolver) ContainerImage() gengql.ContainerImageResolver { return &containerImageResolver{r} }
 
 func (r *Resolver) TeamWorkloadsFilter() gengql.TeamWorkloadsFilterResolver {

@@ -405,6 +405,8 @@ type TeamWorkloadsFilter struct {
 	WorkloadStatusErrorTypes []string             `json:"workloadStatusErrorTypes,omitempty"`
 	Labels                   []*model.LabelFilter `json:"labels,omitempty"`
 	SbomStatus               *string              `json:"sbomStatus,omitempty"`
+	SbomStatuses             []string             `json:"sbomStatuses,omitempty"`
+	HasVulnerabilityData     *bool                `json:"hasVulnerabilityData,omitempty"`
 }
 
 type UpdateWorkloadEnvironmentVariableInput struct {
