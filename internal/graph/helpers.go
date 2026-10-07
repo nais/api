@@ -2,6 +2,7 @@ package graph
 
 import (
 	"context"
+	"maps"
 
 	"github.com/99designs/gqlgen/graphql"
 )
@@ -31,10 +32,18 @@ func getPreloadString(prefix, name string) string {
 }
 
 func onlyAsksForPageInfoTotalCount(ctx context.Context) bool {
-	preloads := getPreloads(ctx)
-	if len(preloads) != 2 {
-		return false
+	preloads := make(map[string]struct{})
+	for _, preload := range getPreloads(ctx) {
+		switch preload {
+		case "__typename", "pageInfo.__typename":
+			continue
+		default:
+			preloads[preload] = struct{}{}
+		}
 	}
 
-	return preloads[0] == "pageInfo" && preloads[1] == "pageInfo.totalCount"
+	return len(preloads) == 2 && maps.Equal(preloads, map[string]struct{}{
+		"pageInfo":            {},
+		"pageInfo.totalCount": {},
+	})
 }
