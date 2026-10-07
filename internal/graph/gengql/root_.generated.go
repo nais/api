@@ -35488,6 +35488,8 @@ enum CVEPriority {
 	ELEVATED
 	"Vulnerability requires monitoring but no immediate action."
 	MONITOR
+	"Only used as a filter for vulnerability summaries: workloads with an SBOM and no findings. Not assigned to CVEs."
+	NONE
 }
 
 type CVE implements Node {
