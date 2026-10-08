@@ -320,6 +320,14 @@ func CanGrantPostgresAccess(ctx context.Context, teamSlug slug.Slug) error {
 	return requireStrictTeamAuthorization(ctx, teamSlug, "postgres:access:grant")
 }
 
+func CanCreatePostgres(ctx context.Context, teamSlug slug.Slug) error {
+	return requireTeamAuthorization(ctx, teamSlug, "postgres:create")
+}
+
+func CanUpdatePostgres(ctx context.Context, teamSlug slug.Slug) error {
+	return requireTeamAuthorization(ctx, teamSlug, "postgres:update")
+}
+
 func CanDeletePostgres(ctx context.Context, teamSlug slug.Slug) error {
 	return requireTeamAuthorization(ctx, teamSlug, "postgres:delete")
 }

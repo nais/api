@@ -24,6 +24,7 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/util/validation"
 )
 
 type PostgresBranchEdge = pagination.Edge[*PostgresBranch]
@@ -59,16 +60,32 @@ type PostgresBranch struct {
 	Labels          []*model.ResourceLabel `json:"labels"`
 }
 
+type TeamPostgresFilter struct {
+	Environments []string           `json:"environments"`
+	Labels       model.LabelFilters `json:"labels,omitempty"`
+}
+
+type (
+	PostgresConnection = pagination.FacetableConnection[*Postgres, *TeamPostgresFilter]
+	PostgresEdge       = pagination.Edge[*Postgres]
+)
+
+type PostgresFacets struct {
+	AllInstances      []*Postgres
+	FilteredInstances []*Postgres
+}
+
 // Postgres selects the instance that workloads use.
 type Postgres struct {
-	Name             string                 `json:"name"`
-	EnvironmentName  string                 `json:"-"`
-	TeamSlug         slug.Slug              `json:"-"`
-	ActiveBranch     *string                `json:"activeBranch,omitempty"`
-	MajorVersion     string                 `json:"majorVersion"`
-	HighAvailability bool                   `json:"highAvailability"`
-	Resources        PostgresResources      `json:"resources"`
-	Labels           []*model.ResourceLabel `json:"labels"`
+	Name                string                 `json:"name"`
+	EnvironmentName     string                 `json:"-"`
+	TeamSlug            slug.Slug              `json:"-"`
+	ActiveBranch        *string                `json:"activeBranch,omitempty"`
+	DesiredActiveBranch *string                `json:"desiredActiveBranch,omitempty"`
+	MajorVersion        string                 `json:"majorVersion"`
+	HighAvailability    bool                   `json:"highAvailability"`
+	Resources           PostgresResources      `json:"resources"`
+	Labels              []*model.ResourceLabel `json:"labels"`
 }
 
 // PostgresResources contains only resource requests observed on the Postgres CR.
@@ -79,7 +96,14 @@ type PostgresResources struct {
 }
 
 func (Postgres) IsNode()            {}
+func (Postgres) IsActivityLogger()  {}
 func (p *Postgres) ID() ident.Ident { return newPostgresIdent(p.TeamSlug, p.EnvironmentName, p.Name) }
+
+func (p *Postgres) GetObjectKind() schema.ObjectKind { return schema.EmptyObjectKind }
+func (p *Postgres) DeepCopyObject() runtime.Object   { return p }
+func (p *Postgres) GetName() string                  { return p.Name }
+func (p *Postgres) GetNamespace() string             { return p.TeamSlug.String() }
+func (p *Postgres) GetLabels() map[string]string     { return nil }
 
 type PostgresBranchState string
 
@@ -143,6 +167,89 @@ func (PostgresBranch) IsPersistence() {}
 func (PostgresBranch) IsNode() {}
 
 func (PostgresBranch) IsSearchNode() {}
+
+type CreatePostgresBranchInput struct {
+	Postgres        string    `json:"postgres"`
+	Branch          string    `json:"branch"`
+	SourceBranch    string    `json:"sourceBranch"`
+	TargetTime      time.Time `json:"targetTime"`
+	EnvironmentName string    `json:"environmentName"`
+	TeamSlug        slug.Slug `json:"teamSlug"`
+}
+
+type CreatePostgresBranchPayload struct {
+	PostgresBranch *PostgresBranch `json:"postgresBranch"`
+}
+
+type ActivatePostgresBranchInput struct {
+	Postgres        string    `json:"postgres"`
+	Branch          string    `json:"branch"`
+	EnvironmentName string    `json:"environmentName"`
+	TeamSlug        slug.Slug `json:"teamSlug"`
+}
+
+type ActivatePostgresBranchPayload struct {
+	Postgres *Postgres `json:"postgres"`
+}
+
+func (i *ActivatePostgresBranchInput) Validate(ctx context.Context) error {
+	base := DeletePostgresBranchInput{Postgres: i.Postgres, Branch: i.Branch, EnvironmentName: i.EnvironmentName, TeamSlug: i.TeamSlug}
+	verr := base.ValidationErrors(ctx)
+	i.Postgres, i.Branch, i.EnvironmentName = base.Postgres, base.Branch, base.EnvironmentName
+	for field, name := range map[string]string{"postgres": i.Postgres, "branch": i.Branch} {
+		if len(name) > 63 || len(validation.IsDNS1123Label(name)) > 0 {
+			verr.Add(field, "Must be a DNS label of at most 63 lowercase letters, numbers or hyphens.")
+		}
+	}
+	return verr.NilIfEmpty()
+}
+
+func (i *CreatePostgresBranchInput) Validate(ctx context.Context) error {
+	base := DeletePostgresBranchInput{Postgres: i.Postgres, Branch: i.Branch, EnvironmentName: i.EnvironmentName, TeamSlug: i.TeamSlug}
+	verr := base.ValidationErrors(ctx)
+	i.Postgres, i.Branch, i.EnvironmentName = base.Postgres, base.Branch, base.EnvironmentName
+	i.SourceBranch = strings.TrimSpace(i.SourceBranch)
+	for field, name := range map[string]string{"postgres": i.Postgres, "branch": i.Branch, "sourceBranch": i.SourceBranch} {
+		if len(name) > 63 || len(validation.IsDNS1123Label(name)) > 0 {
+			verr.Add(field, "Must be a DNS label of at most 63 lowercase letters, numbers or hyphens.")
+		}
+	}
+	if i.Branch == i.SourceBranch {
+		verr.Add("branch", "Branch must differ from sourceBranch.")
+	}
+	if i.TargetTime.IsZero() || i.TargetTime.After(time.Now()) {
+		verr.Add("targetTime", "Target time must be an explicit instant no later than now.")
+	} else if i.TargetTime.Nanosecond() != 0 {
+		verr.Add("targetTime", "Target time must have whole-second precision.")
+	}
+	return verr.NilIfEmpty()
+}
+
+type DeletePostgresInput struct {
+	Name            string    `json:"name"`
+	TeamSlug        slug.Slug `json:"teamSlug"`
+	EnvironmentName string    `json:"environmentName"`
+}
+
+func (i *DeletePostgresInput) Validate(_ context.Context) error {
+	verr := validate.New()
+	i.Name = strings.TrimSpace(i.Name)
+	i.EnvironmentName = strings.TrimSpace(i.EnvironmentName)
+	if i.Name == "" || len(validation.IsDNS1123Subdomain(i.Name)) > 0 {
+		verr.Add("name", "Name must be a non-empty lowercase Kubernetes DNS subdomain.")
+	}
+	if i.TeamSlug == "" {
+		verr.Add("teamSlug", "Team slug must not be empty.")
+	}
+	if i.EnvironmentName == "" {
+		verr.Add("environmentName", "Environment name must not be empty.")
+	}
+	return verr.NilIfEmpty()
+}
+
+type DeletePostgresPayload struct {
+	DeletionRequested bool `json:"deletionRequested"`
+}
 
 type DeletePostgresBranchInput struct {
 	Postgres        string    `json:"postgres"`
@@ -347,7 +454,7 @@ func toPostgres(u *unstructured.Unstructured, environmentName string) (*Postgres
 	}
 	return &Postgres{
 		Name: obj.Name, EnvironmentName: environmentName, TeamSlug: slug.Slug(obj.Namespace),
-		ActiveBranch: active, MajorVersion: obj.Spec.MajorVersion, HighAvailability: obj.Spec.HighAvailability,
+		ActiveBranch: active, DesiredActiveBranch: strPtr(obj.Spec.ActiveBranch), MajorVersion: obj.Spec.MajorVersion, HighAvailability: obj.Spec.HighAvailability,
 		Resources: PostgresResources{
 			CPU: quantity(obj.Spec.Resources.Cpu), Memory: quantity(obj.Spec.Resources.Memory),
 			DiskSize: quantity(obj.Spec.Resources.DiskSize),
@@ -562,4 +669,112 @@ type PostgresAccessConnectionDetails struct {
 	RelayEndpoint string `json:"relayEndpoint"`
 	RelayAccess   string `json:"relayAccess"`
 	RelayToken    string `json:"relayToken"`
+}
+
+// supportedMajorVersions are the versions the API accepts for new Postgres. The CRD enum
+// also allows older versions, but those are not offered to users.
+var supportedMajorVersions = []string{"18"}
+
+type CreatePostgresInput struct {
+	Name             string    `json:"name"`
+	EnvironmentName  string    `json:"environmentName"`
+	TeamSlug         slug.Slug `json:"teamSlug"`
+	MajorVersion     string    `json:"majorVersion"`
+	HighAvailability *bool     `json:"highAvailability,omitempty"`
+	CPU              *string   `json:"cpu,omitempty"`
+	Memory           *string   `json:"memory,omitempty"`
+	DiskSize         *string   `json:"diskSize,omitempty"`
+}
+
+type CreatePostgresPayload struct {
+	Postgres *Postgres `json:"postgres"`
+}
+
+type UpdatePostgresInput struct {
+	Name             string    `json:"name"`
+	EnvironmentName  string    `json:"environmentName"`
+	TeamSlug         slug.Slug `json:"teamSlug"`
+	HighAvailability *bool     `json:"highAvailability,omitempty"`
+	CPU              *string   `json:"cpu,omitempty"`
+	Memory           *string   `json:"memory,omitempty"`
+	DiskSize         *string   `json:"diskSize,omitempty"`
+}
+
+type UpdatePostgresPayload struct {
+	Postgres *Postgres `json:"postgres"`
+}
+
+func (i *CreatePostgresInput) Validate(ctx context.Context) error {
+	return i.ValidationErrors(ctx).NilIfEmpty()
+}
+
+func (i *CreatePostgresInput) ValidationErrors(_ context.Context) *validate.ValidationErrors {
+	verr := validate.New()
+	i.Name = strings.TrimSpace(i.Name)
+	i.EnvironmentName = strings.TrimSpace(i.EnvironmentName)
+	i.MajorVersion = strings.TrimSpace(i.MajorVersion)
+
+	if i.Name == "" {
+		verr.Add("name", "Name must not be empty.")
+	} else if errs := validation.IsDNS1123Subdomain(i.Name); len(errs) > 0 {
+		verr.Add("name", "Name must consist of lowercase letters, numbers, and hyphens only. It cannot start or end with a hyphen.")
+	}
+	if i.EnvironmentName == "" {
+		verr.Add("environmentName", "Environment name must not be empty.")
+	}
+	if i.TeamSlug == "" {
+		verr.Add("teamSlug", "Team slug must not be empty.")
+	}
+	if !contains(supportedMajorVersions, i.MajorVersion) {
+		verr.Add("majorVersion", "Major version must be one of: %s.", strings.Join(supportedMajorVersions, ", "))
+	}
+	validateQuantities(verr, i.CPU, i.Memory, i.DiskSize)
+	return verr
+}
+
+func (i *UpdatePostgresInput) Validate(ctx context.Context) error {
+	return i.ValidationErrors(ctx).NilIfEmpty()
+}
+
+func (i *UpdatePostgresInput) ValidationErrors(_ context.Context) *validate.ValidationErrors {
+	verr := validate.New()
+	i.Name = strings.TrimSpace(i.Name)
+	i.EnvironmentName = strings.TrimSpace(i.EnvironmentName)
+
+	if i.Name == "" {
+		verr.Add("name", "Name must not be empty.")
+	} else if errs := validation.IsDNS1123Subdomain(i.Name); len(errs) > 0 {
+		verr.Add("name", "Name must consist of lowercase letters, numbers, and hyphens only. It cannot start or end with a hyphen.")
+	}
+	if i.EnvironmentName == "" {
+		verr.Add("environmentName", "Environment name must not be empty.")
+	}
+	if i.TeamSlug == "" {
+		verr.Add("teamSlug", "Team slug must not be empty.")
+	}
+	validateQuantities(verr, i.CPU, i.Memory, i.DiskSize)
+	return verr
+}
+
+func validateQuantities(verr *validate.ValidationErrors, cpu, memory, diskSize *string) {
+	for field, value := range map[string]*string{"cpu": cpu, "memory": memory, "diskSize": diskSize} {
+		if value == nil {
+			continue
+		}
+		quantity, err := resource.ParseQuantity(*value)
+		if err != nil {
+			verr.Add(field, "%q is not a valid quantity.", *value)
+		} else if quantity.Sign() <= 0 {
+			verr.Add(field, "%q must be greater than zero.", *value)
+		}
+	}
+}
+
+func contains(values []string, value string) bool {
+	for _, v := range values {
+		if v == value {
+			return true
+		}
+	}
+	return false
 }

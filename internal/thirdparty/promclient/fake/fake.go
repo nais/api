@@ -109,6 +109,26 @@ func (c *FakeClient) Query(ctx context.Context, environment string, query string
 		labelsToCreate = append(labelsToCreate, []string{"pod", "k8s_cluster_name"}...)
 		teamSlug, workload, unit, err = c.selector(expr)
 
+	case *parser.BinaryExpr:
+		// Local CNPG fixtures have no scraped metrics. Provide stable utilization
+		// for their CPU, memory and disk charts without changing other queries.
+		var value prom.SampleValue
+		switch {
+		case strings.Contains(query, "container_cpu_usage_seconds_total") && strings.Contains(query, `container="postgres"`):
+			value = 0.19
+		case strings.Contains(query, "container_memory_working_set_bytes") && strings.Contains(query, `container="postgres"`):
+			value = 0.43
+		case strings.Contains(query, "kubelet_volume_stats_used_bytes") && strings.Contains(query, "persistentvolumeclaim"):
+			value = 0.27
+		default:
+			return nil, fmt.Errorf("query: unexpected expression type %T", expr)
+		}
+		return prom.Vector{&prom.Sample{
+			Timestamp: prom.TimeFromUnix(opt.Time.Unix()),
+			Metric:    prom.Metric{"k8s_cluster_name": prom.LabelValue(environment)},
+			Value:     value,
+		}}, nil
+
 	default:
 		return nil, fmt.Errorf("query: unexpected expression type %T", expr)
 	}

@@ -3,13 +3,15 @@ package postgres
 import (
 	"cmp"
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"slices"
+	"strconv"
 	"strings"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/apierror"
@@ -25,9 +27,13 @@ import (
 	liberatorv1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	nais_io_v1 "github.com/nais/pgrator/pkg/api/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/apimachinery/pkg/util/wait"
+	"k8s.io/client-go/dynamic"
 	"k8s.io/utils/ptr"
 )
 
@@ -69,13 +75,8 @@ func Delete(ctx context.Context, input DeletePostgresBranchInput) (*DeletePostgr
 		return nil, err
 	}
 
-	if err = activitylog.Create(ctx, activitylog.CreateInput{
-		Action:          activitylog.ActivityLogEntryActionDeleted,
-		Actor:           authz.ActorFromContext(ctx).User,
-		ResourceType:    activityLogEntryResourceTypePostgres,
-		ResourceName:    input.Postgres,
-		EnvironmentName: new(input.EnvironmentName),
-		TeamSlug:        new(input.TeamSlug),
+	if err = logPostgresChange(ctx, activityLogEntryActionBranchDeleted, input.Postgres, input.EnvironmentName, input.TeamSlug, PostgresBranchActivityLogEntryData{
+		Branch: input.Branch,
 	}); err != nil {
 		return nil, err
 	}
@@ -105,53 +106,39 @@ func ensureInstanceMayBeDeleted(branch string, postgres *unstructured.Unstructur
 	return nil
 }
 
-func GetForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName, postgresName string) (*PostgresBranch, error) {
-	if postgresName == "" {
-		return nil, nil
-	}
-	postgres, err := GetPostgres(ctx, teamSlug, environmentName, postgresName)
-	if err != nil {
-		return nil, err
-	}
-	if postgres.ActiveBranch == nil {
-		return nil, nil
-	}
-	return GetPostgresBranch(ctx, teamSlug, environmentName, postgresName, *postgres.ActiveBranch)
-}
-
-// ListForWorkload resolves each Postgres use to the instance selected by that
-// Postgres. A workload can use several databases, each with its own active instance.
-func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName string, uses []liberatorv1.PostgresUse) ([]*PostgresBranch, error) {
-	instances := make([]*PostgresBranch, 0, len(uses))
+// ListPostgresForWorkload resolves the Postgres databases referenced by a workload,
+// including databases without an active branch.
+func ListPostgresForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName string, uses []liberatorv1.PostgresUse) ([]*Postgres, error) {
+	instances := make([]*Postgres, 0, len(uses))
 	for _, use := range uses {
-		instance, err := GetForWorkload(ctx, teamSlug, environmentName, use.Name)
+		pg, err := GetPostgres(ctx, teamSlug, environmentName, use.Name)
 		if err != nil {
 			return nil, err
 		}
-		if instance != nil {
-			instances = append(instances, instance)
-		}
+		instances = append(instances, pg)
 	}
-	slices.SortFunc(instances, func(a, b *PostgresBranch) int {
-		if a.Name != b.Name {
-			return cmp.Compare(a.Name, b.Name)
-		}
-		return cmp.Compare(a.PostgresName, b.PostgresName)
+	slices.SortFunc(instances, func(a, b *Postgres) int {
+		return cmp.Compare(a.Name, b.Name)
 	})
 	return instances, nil
 }
 
-func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *PostgresBranchOrder, filter *PostgresBranchFilter) (*PostgresBranchConnection, error) {
-	all := ListAllForTeam(ctx, teamSlug, filter)
-
-	if orderBy == nil {
-		orderBy = &PostgresBranchOrder{
-			Field:     PostgresBranchOrderFieldName,
-			Direction: model.OrderDirectionAsc,
+func ListPostgresForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, filter *TeamPostgresFilter) *PostgresConnection {
+	all := watcher.Objects(fromContext(ctx).postgresWatcher.GetByNamespace(teamSlug.String(), watcher.WithoutDeleted()))
+	instances := make([]*Postgres, 0, len(all))
+	for _, pg := range all {
+		if filter.Matches(pg) {
+			instances = append(instances, pg)
 		}
 	}
-
-	return SortFilterPostgresBranch.PaginatedList(ctx, all, page, orderBy.Field, orderBy.Direction, filter), nil
+	slices.SortFunc(instances, func(a, b *Postgres) int {
+		if n := strings.Compare(a.Name, b.Name); n != 0 {
+			return n
+		}
+		return strings.Compare(a.EnvironmentName, b.EnvironmentName)
+	})
+	conn := pagination.NewConnection(pagination.Slice(instances, page), page, len(instances))
+	return pagination.NewFacetableConnection(conn, all, filter)
 }
 
 func ListAllForTeam(ctx context.Context, teamSlug slug.Slug, filter *PostgresBranchFilter) []*PostgresBranch {
@@ -235,24 +222,25 @@ func GetPostgresAccessConnection(ctx context.Context, input PostgresAccessConnec
 		return nil, authz.ErrUnauthorized
 	}
 
+	// Status lives in PostgresAccess.state. Until the access is ready there are no
+	// connection materials, which is not an error for a caller polling for readiness.
+	if state, _ := postgresAccessState(resource, resource.Spec.ExpiresAt.Time); state != PostgresAccessStateReady || access.GetDeletionTimestamp() != nil {
+		return nil, nil
+	}
+	endpoint, _, err := unstructured.NestedString(access.Object, "status", "relayEndpoint")
+	if err != nil {
+		return nil, fmt.Errorf("reading relay endpoint for PostgresAccess %q: %w", input.Name, err)
+	}
+	if endpoint == "" {
+		return nil, nil
+	}
+
 	connection, credentialSecretName, err := postgresAccessConnectionDetails(access, time.Now())
 	if err != nil {
 		return nil, err
 	}
 
 	if err := loadPostgresAccessConnection(ctx, access, input, connection, credentialSecretName); err != nil {
-		return nil, err
-	}
-
-	if err := activitylog.Create(ctx, activitylog.CreateInput{
-		Action:          activityLogEntryActionGetPersonalAccessConnection,
-		Actor:           actor.User,
-		ResourceType:    activityLogEntryResourceTypePostgres,
-		ResourceName:    input.Name,
-		EnvironmentName: new(input.EnvironmentName),
-		TeamSlug:        new(input.TeamSlug),
-		Data:            PostgresPersonalAccessConnectionActivityLogEntryData{},
-	}); err != nil {
 		return nil, err
 	}
 
@@ -297,7 +285,11 @@ func postgresAccessConnectionDetails(access *unstructured.Unstructured, now time
 	if obj.Status.RelayAccess == "" || obj.Status.TokenSecret == "" || obj.Status.DatabaseRole == "" || obj.Status.ServerName == "" || obj.Status.ServerCASecret == "" {
 		return nil, "", apierror.Errorf("PostgresAccess %q is not ready", access.GetName())
 	}
-	return &PostgresAccessConnectionDetails{}, obj.Status.TokenSecret, nil
+	endpoint, _, err := unstructured.NestedString(access.Object, "status", "relayEndpoint")
+	if err != nil || endpoint == "" {
+		return nil, "", apierror.Errorf("PostgresAccess %q is not ready", access.GetName())
+	}
+	return &PostgresAccessConnectionDetails{RelayEndpoint: endpoint}, obj.Status.TokenSecret, nil
 }
 
 func toPostgresAccess(u *unstructured.Unstructured, teamSlug slug.Slug, environmentName string) (*PostgresAccess, error) {
@@ -475,23 +467,82 @@ func CreatePostgresAccess(ctx context.Context, input CreatePostgresAccessInput) 
 		return nil, err
 	}
 
+	parentClient, err := postgresClient(ctx, input.EnvironmentName, input.TeamSlug)
+	if err != nil {
+		return nil, err
+	}
+	parent, err := parentClient.Get(ctx, input.Postgres, metav1.GetOptions{})
+	if k8serrors.IsNotFound(err) {
+		return nil, apierror.Errorf("Postgres %q not found", input.Postgres)
+	}
+	if err != nil {
+		return nil, err
+	}
+	if parent.GetDeletionTimestamp() != nil {
+		return nil, apierror.Errorf("Postgres %q is being deleted", input.Postgres)
+	}
+
 	client, err := fromContext(ctx).postgresBranchWatcher.SystemAuthenticatedClient(ctx, input.EnvironmentName, watcher.WithImpersonatedClientGVR(postgresAccessGVR()))
 	if err != nil {
 		return nil, err
 	}
 
 	expiresAt := time.Now().Add(accessTTL)
-	name := fmt.Sprintf("postgres-access-%s", uuid.NewString()[:8])
-	res := newPostgresAccessResource(input, authz.ActorFromContext(ctx).User.Identity(), name, expiresAt)
+	username := authz.ActorFromContext(ctx).User.Identity()
+	branchObjectName := nais_io_v1.PostgresBranchObjectName(input.Postgres, input.Branch)
 
-	if _, err := client.Namespace(input.TeamSlug.String()).Create(ctx, res, metav1.CreateOptions{}); err != nil {
-		return nil, err
+	// One access per user and branch: pgrator derives a single personal database role from
+	// them, so a second access could never become ready. The name is derived from the pair, so
+	// the API server enforces this atomically through AlreadyExists.
+	name := postgresAccessName(username, branchObjectName)
+	accesses := client.Namespace(input.TeamSlug.String())
+
+	res := newPostgresAccessResource(input, username, name, expiresAt)
+	for attempt := 0; ; attempt++ {
+		_, err = accesses.Create(ctx, res, metav1.CreateOptions{})
+		if err == nil {
+			break
+		}
+		if !k8serrors.IsAlreadyExists(err) {
+			return nil, err
+		}
+		existing, getErr := accesses.Get(ctx, name, metav1.GetOptions{})
+		if k8serrors.IsNotFound(getErr) {
+			if attempt == 0 {
+				continue // Deleted between Create and Get; retry once.
+			}
+			return nil, apierror.Errorf("Your previous access to this branch is still being cleaned up. Try again later.")
+		}
+		if getErr != nil {
+			return nil, getErr
+		}
+		if existing.GetDeletionTimestamp() == nil && existingExpiry(existing).After(time.Now()) {
+			level, _, _ := unstructured.NestedString(existing.Object, "spec", "accessLevel")
+			if level != input.AccessLevel.CRDValue() {
+				return nil, apierror.Errorf("You already have %s access to this branch until %s. Wait for it to expire before requesting a different access level.", level, existingExpiry(existing).Format(time.RFC3339))
+			}
+			return &CreatePostgresAccessPayload{Name: name, ExpiresAt: existingExpiry(existing)}, nil
+		}
+		if attempt > 0 {
+			return nil, apierror.Errorf("Your previous access to this branch is still being cleaned up. Try again later.")
+		}
+		// The immutable expired access must disappear before it can be replaced.
+		// Only delete the UID we inspected, never a concurrent replacement.
+		uid := existing.GetUID()
+		if existing.GetDeletionTimestamp() == nil {
+			if err := accesses.Delete(ctx, name, metav1.DeleteOptions{Preconditions: &metav1.Preconditions{UID: &uid}}); err != nil && !k8serrors.IsNotFound(err) && !k8serrors.IsConflict(err) {
+				return nil, err
+			}
+		}
+		if err := waitForPostgresAccessDeletion(ctx, accesses, name, uid); err != nil {
+			return nil, err
+		}
 	}
 
 	if err := activitylog.Create(ctx, activitylog.CreateInput{
 		Action:          activityLogEntryActionCreatePersonalAccess,
 		Actor:           authz.ActorFromContext(ctx).User,
-		ResourceType:    activityLogEntryResourceTypePostgres,
+		ResourceType:    ActivityLogEntryResourceTypePostgres,
 		ResourceName:    input.Postgres,
 		EnvironmentName: new(input.EnvironmentName),
 		TeamSlug:        new(input.TeamSlug),
@@ -506,6 +557,39 @@ func CreatePostgresAccess(ctx context.Context, input CreatePostgresAccessInput) 
 	}
 
 	return &CreatePostgresAccessPayload{Name: name, ExpiresAt: expiresAt}, nil
+}
+
+func waitForPostgresAccessDeletion(ctx context.Context, accesses dynamic.ResourceInterface, name string, uid types.UID) error {
+	waitCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+	err := wait.PollUntilContextCancel(waitCtx, 250*time.Millisecond, true, func(ctx context.Context) (bool, error) {
+		current, err := accesses.Get(ctx, name, metav1.GetOptions{})
+		if k8serrors.IsNotFound(err) {
+			return true, nil
+		}
+		if err != nil {
+			return false, err
+		}
+		return current.GetUID() != uid, nil
+	})
+	if errors.Is(err, context.DeadlineExceeded) && ctx.Err() == nil {
+		return apierror.Errorf("Your previous access to this branch is still being cleaned up after 10 seconds (access %s). Try again later.", name)
+	}
+	return err
+}
+
+func existingExpiry(access *unstructured.Unstructured) time.Time {
+	value, _, _ := unstructured.NestedString(access.Object, "spec", "expiresAt")
+	t, _ := time.Parse(time.RFC3339, value)
+	return t
+}
+
+// postgresAccessName derives the access name from user and branch, so the Kubernetes API
+// server rejects a second concurrent access for the same pair. The NUL separator keeps
+// different (user, branch) pairs from producing the same input.
+func postgresAccessName(username, branchObjectName string) string {
+	sum := sha256.Sum256([]byte(username + "\x00" + branchObjectName))
+	return "postgres-access-" + hex.EncodeToString(sum[:])[:16]
 }
 
 func (i CreatePostgresAccessInput) accessTTL() (time.Duration, error) {
@@ -575,4 +659,236 @@ func WorkloadsForInstance(ctx context.Context, teamSlug slug.Slug, environmentNa
 	})
 
 	return ret
+}
+
+func postgresGVR() schema.GroupVersionResource {
+	return schema.GroupVersionResource{Group: "nais.io", Version: "v1", Resource: "postgres"}
+}
+
+// postgresClient returns a namespaced client for Postgres that writes with the API's own
+// identity. Users never write the CRD directly; authorization is decided by the resolver.
+func postgresClient(ctx context.Context, environmentName string, teamSlug slug.Slug) (dynamic.ResourceInterface, error) {
+	client, err := fromContext(ctx).postgresBranchWatcher.SystemAuthenticatedClient(ctx, environmentName, watcher.WithImpersonatedClientGVR(postgresGVR()))
+	if err != nil {
+		return nil, err
+	}
+	return client.Namespace(teamSlug.String()), nil
+}
+
+func Create(ctx context.Context, input CreatePostgresInput) (*CreatePostgresPayload, error) {
+	if err := input.Validate(ctx); err != nil {
+		return nil, err
+	}
+
+	client, err := postgresClient(ctx, input.EnvironmentName, input.TeamSlug)
+	if err != nil {
+		return nil, err
+	}
+
+	pg := &nais_io_v1.Postgres{
+		TypeMeta: metav1.TypeMeta{Kind: "Postgres", APIVersion: "nais.io/v1"},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      input.Name,
+			Namespace: input.TeamSlug.String(),
+		},
+		Spec: nais_io_v1.PostgresSpec{MajorVersion: input.MajorVersion},
+	}
+	pg.SetAnnotations(kubernetes.WithCommonAnnotations(nil, authz.ActorFromContext(ctx).User.Identity()))
+	kubernetes.SetManagedByConsoleLabel(pg)
+	if input.HighAvailability != nil {
+		pg.Spec.HighAvailability = *input.HighAvailability
+	}
+	if err := applyResources(&pg.Spec.Resources, input.CPU, input.Memory, input.DiskSize); err != nil {
+		return nil, err
+	}
+
+	obj, err := toUnstructuredWithoutZeroResources(pg)
+	if err != nil {
+		return nil, err
+	}
+
+	created, err := client.Create(ctx, obj, metav1.CreateOptions{})
+	if err != nil {
+		if k8serrors.IsAlreadyExists(err) {
+			return nil, apierror.ErrAlreadyExists
+		}
+		return nil, err
+	}
+
+	if err := logPostgresChange(ctx, activitylog.ActivityLogEntryActionCreated, input.Name, input.EnvironmentName, input.TeamSlug, nil); err != nil {
+		return nil, err
+	}
+
+	ret, err := toPostgres(created, input.EnvironmentName)
+	if err != nil {
+		return nil, err
+	}
+	return &CreatePostgresPayload{Postgres: ret}, nil
+}
+
+func Update(ctx context.Context, input UpdatePostgresInput) (*UpdatePostgresPayload, error) {
+	if err := input.Validate(ctx); err != nil {
+		return nil, err
+	}
+
+	client, err := postgresClient(ctx, input.EnvironmentName, input.TeamSlug)
+	if err != nil {
+		return nil, err
+	}
+
+	existing, err := client.Get(ctx, input.Name, metav1.GetOptions{})
+	if k8serrors.IsNotFound(err) {
+		return nil, apierror.Errorf("Postgres %q not found.", input.Name)
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	pg, err := kubernetes.ToConcrete[nais_io_v1.Postgres](existing)
+	if err != nil {
+		return nil, err
+	}
+
+	var changes []*PostgresUpdatedActivityLogEntryDataUpdatedField
+	for _, f := range []func(*nais_io_v1.Postgres, UpdatePostgresInput) ([]*PostgresUpdatedActivityLogEntryDataUpdatedField, error){
+		updateHighAvailability,
+		updateResources,
+	} {
+		res, err := f(pg, input)
+		if err != nil {
+			return nil, err
+		}
+		changes = append(changes, res...)
+	}
+
+	if len(changes) == 0 {
+		ret, err := toPostgres(existing, input.EnvironmentName)
+		if err != nil {
+			return nil, err
+		}
+		return &UpdatePostgresPayload{Postgres: ret}, nil
+	}
+
+	obj, err := toUnstructuredWithoutZeroResources(pg)
+	if err != nil {
+		return nil, err
+	}
+	obj.SetAnnotations(kubernetes.WithCommonAnnotations(obj.GetAnnotations(), authz.ActorFromContext(ctx).User.Identity()))
+
+	updated, err := client.Update(ctx, obj, metav1.UpdateOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	if err := logPostgresChange(ctx, activitylog.ActivityLogEntryActionUpdated, input.Name, input.EnvironmentName, input.TeamSlug, PostgresUpdatedActivityLogEntryData{UpdatedFields: changes}); err != nil {
+		return nil, err
+	}
+
+	ret, err := toPostgres(updated, input.EnvironmentName)
+	if err != nil {
+		return nil, err
+	}
+	return &UpdatePostgresPayload{Postgres: ret}, nil
+}
+
+// applyResources sets the quantities that were provided. Omitted values are left as they are,
+// so the CRD defaults apply on create and existing values are kept on update.
+func applyResources(r *nais_io_v1.PostgresResources, cpu, memory, diskSize *string) error {
+	set := func(field string, value *string, target *resource.Quantity) error {
+		if value == nil {
+			return nil
+		}
+		q, err := resource.ParseQuantity(*value)
+		if err != nil {
+			return fmt.Errorf("parsing %s: %w", field, err)
+		}
+		*target = q
+		return nil
+	}
+	if err := set("cpu", cpu, &r.Cpu); err != nil {
+		return err
+	}
+	if err := set("memory", memory, &r.Memory); err != nil {
+		return err
+	}
+	return set("diskSize", diskSize, &r.DiskSize)
+}
+
+// toUnstructuredWithoutZeroResources converts pg and drops resource quantities that were never
+// set. resource.Quantity is a struct, so omitempty does not skip it and it would otherwise be
+// sent as "0", which stops the CRD from applying its defaults.
+func toUnstructuredWithoutZeroResources(pg *nais_io_v1.Postgres) (*unstructured.Unstructured, error) {
+	obj, err := kubernetes.ToUnstructured(pg)
+	if err != nil {
+		return nil, err
+	}
+	for field, q := range map[string]resource.Quantity{
+		"cpu": pg.Spec.Resources.Cpu, "memory": pg.Spec.Resources.Memory, "diskSize": pg.Spec.Resources.DiskSize,
+	} {
+		if q.IsZero() {
+			unstructured.RemoveNestedField(obj.Object, "spec", "resources", field)
+		}
+	}
+	if m, found, _ := unstructured.NestedMap(obj.Object, "spec", "resources"); found && len(m) == 0 {
+		unstructured.RemoveNestedField(obj.Object, "spec", "resources")
+	}
+	return obj, nil
+}
+
+func logPostgresChange(ctx context.Context, action activitylog.ActivityLogEntryAction, name, environmentName string, teamSlug slug.Slug, data any) error {
+	return activitylog.Create(ctx, activitylog.CreateInput{
+		Action:          action,
+		Actor:           authz.ActorFromContext(ctx).User,
+		ResourceType:    ActivityLogEntryResourceTypePostgres,
+		ResourceName:    name,
+		EnvironmentName: new(environmentName),
+		TeamSlug:        new(teamSlug),
+		Data:            data,
+	})
+}
+
+func updateHighAvailability(pg *nais_io_v1.Postgres, input UpdatePostgresInput) ([]*PostgresUpdatedActivityLogEntryDataUpdatedField, error) {
+	if input.HighAvailability == nil || pg.Spec.HighAvailability == *input.HighAvailability {
+		return nil, nil
+	}
+	old := pg.Spec.HighAvailability
+	pg.Spec.HighAvailability = *input.HighAvailability
+	return []*PostgresUpdatedActivityLogEntryDataUpdatedField{{
+		Field:    "highAvailability",
+		OldValue: new(strconv.FormatBool(old)),
+		NewValue: new(strconv.FormatBool(pg.Spec.HighAvailability)),
+	}}, nil
+}
+
+// updateResources applies the quantities that were provided. Omitted values are left as they
+// are, and a value that is semantically unchanged (1024Mi vs 1Gi) is not reported as a change.
+func updateResources(pg *nais_io_v1.Postgres, input UpdatePostgresInput) ([]*PostgresUpdatedActivityLogEntryDataUpdatedField, error) {
+	var changes []*PostgresUpdatedActivityLogEntryDataUpdatedField
+	for _, f := range []struct {
+		name   string
+		value  *string
+		target *resource.Quantity
+	}{
+		{"cpu", input.CPU, &pg.Spec.Resources.Cpu},
+		{"memory", input.Memory, &pg.Spec.Resources.Memory},
+		{"diskSize", input.DiskSize, &pg.Spec.Resources.DiskSize},
+	} {
+		if f.value == nil {
+			continue
+		}
+		q, err := resource.ParseQuantity(*f.value)
+		if err != nil {
+			return nil, fmt.Errorf("parsing %s: %w", f.name, err)
+		}
+		if f.target.Cmp(q) == 0 {
+			continue
+		}
+		change := &PostgresUpdatedActivityLogEntryDataUpdatedField{Field: f.name, NewValue: new(q.String())}
+		if !f.target.IsZero() {
+			change.OldValue = new(f.target.String())
+		}
+		*f.target = q
+		changes = append(changes, change)
+	}
+	return changes, nil
 }

@@ -13,6 +13,7 @@ spec:
 status:
   databaseRole: user-foobar-role
   relayAccess: mapped-access
+  relayEndpoint: https://relay.external.dev.nav.cloud.nais.io:8443
   tokenSecret: ready-access-relay-token
   serverName: pg-foobar-main-a4f04c0c-rw.someteamname.svc.cluster.local
   serverCASecret: pg-foobar-ca
@@ -21,6 +22,27 @@ status:
       status: "True"
       reason: Ready
       message: "database role and relay mapping are ready"
+---
+apiVersion: nais.io/v1
+kind: PostgresAccess
+metadata:
+  name: ready-no-endpoint-access
+  namespace: someteamname
+  uid: 44444444-4444-4444-8444-444444444444
+spec:
+  postgresBranch: foobar-main-a4f04c0c
+  username: user@usersen.com
+  accessLevel: read
+  expiresAt: "2099-09-17T12:00:00Z"
+status:
+  databaseRole: user-foobar-role
+  relayAccess: ready-no-endpoint-access
+  tokenSecret: ready-no-endpoint-access-relay-token
+  serverName: pg-foobar-main-a4f04c0c-rw.someteamname.svc.cluster.local
+  serverCASecret: pg-foobar-ca
+  conditions:
+    - type: Ready
+      status: "True"
 ---
 apiVersion: nais.io/v1
 kind: PostgresAccess
@@ -98,9 +120,22 @@ spec:
 status:
   databaseRole: user-foobar-role
   relayAccess: missing-secret-access
+  relayEndpoint: https://relay.external.dev.nav.cloud.nais.io:8443
   tokenSecret: missing-secret-access-relay-token
   serverName: pg-foobar-main-a4f04c0c-rw.someteamname.svc.cluster.local
   serverCASecret: pg-foobar-ca
   conditions:
     - type: Ready
       status: "True"
+---
+apiVersion: nais.io/v1
+kind: PostgresAccess
+metadata:
+  name: postgres-access-9269571e872b7c9d
+  namespace: someteamname
+  uid: 33333333-3333-4333-8333-333333333333
+spec:
+  postgresBranch: foobar-main-a4f04c0c
+  username: stale@usersen.com
+  accessLevel: read
+  expiresAt: "2000-01-01T00:00:00Z"

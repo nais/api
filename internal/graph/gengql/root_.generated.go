@@ -109,6 +109,7 @@ type ResolverRoot interface {
 	PostgresAccess() PostgresAccessResolver
 	PostgresBranch() PostgresBranchResolver
 	PostgresBranchConnection() PostgresBranchConnectionResolver
+	PostgresConnection() PostgresConnectionResolver
 	PrometheusAlert() PrometheusAlertResolver
 	Query() QueryResolver
 	Reconciler() ReconcilerResolver
@@ -157,12 +158,17 @@ type ResolverRoot interface {
 	WorkloadUtilization() WorkloadUtilizationResolver
 	WorkloadUtilizationData() WorkloadUtilizationDataResolver
 	WorkloadVulnerabilitySummary() WorkloadVulnerabilitySummaryResolver
+	TeamWorkloadsFilter() TeamWorkloadsFilterResolver
 }
 
 type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
+	ActivatePostgresBranchPayload struct {
+		Postgres func(childComplexity int) int
+	}
+
 	ActivityLogActivityTypeFacetItem struct {
 		ActivityType func(childComplexity int) int
 		Count        func(childComplexity int) int
@@ -262,7 +268,7 @@ type ComplexityRoot struct {
 		Name                      func(childComplexity int) int
 		NetworkPolicy             func(childComplexity int) int
 		OpenSearch                func(childComplexity int) int
-		PostgresBranches          func(childComplexity int, orderBy *postgres.PostgresBranchOrder) int
+		Postgreses                func(childComplexity int) int
 		Resources                 func(childComplexity int) int
 		SQLInstances              func(childComplexity int, orderBy *sqlinstance.SQLInstanceOrder) int
 		Secrets                   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
@@ -550,6 +556,7 @@ type ComplexityRoot struct {
 		Identifier         func(childComplexity int) int
 		KnownRansomwareUse func(childComplexity int) int
 		Priority           func(childComplexity int) int
+		RiskAssessment     func(childComplexity int) int
 		Severity           func(childComplexity int) int
 		Title              func(childComplexity int) int
 		Workloads          func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *vulnerability.CVEWorkloadsFilter) int
@@ -737,6 +744,14 @@ type ComplexityRoot struct {
 		Name      func(childComplexity int) int
 	}
 
+	CreatePostgresBranchPayload struct {
+		PostgresBranch func(childComplexity int) int
+	}
+
+	CreatePostgresPayload struct {
+		Postgres func(childComplexity int) int
+	}
+
 	CreateSecretPayload struct {
 		Secret func(childComplexity int) int
 	}
@@ -801,6 +816,10 @@ type ComplexityRoot struct {
 
 	DeletePostgresBranchPayload struct {
 		PostgresBranchDeleted func(childComplexity int) int
+	}
+
+	DeletePostgresPayload struct {
+		DeletionRequested func(childComplexity int) int
 	}
 
 	DeleteSecretPayload struct {
@@ -1068,7 +1087,7 @@ type ComplexityRoot struct {
 	}
 
 	ImageVulnerability struct {
-		CvssScore                func(childComplexity int) int
+		CVSSScore                func(childComplexity int) int
 		Description              func(childComplexity int) int
 		EpssPercentile           func(childComplexity int) int
 		EpssScore                func(childComplexity int) int
@@ -1077,8 +1096,11 @@ type ComplexityRoot struct {
 		ID                       func(childComplexity int) int
 		Identifier               func(childComplexity int) int
 		KnownRansomwareUse       func(childComplexity int) int
+		LatestVersion            func(childComplexity int) int
 		Package                  func(childComplexity int) int
 		Priority                 func(childComplexity int) int
+		Remediation              func(childComplexity int) int
+		RiskAssessment           func(childComplexity int) int
 		Severity                 func(childComplexity int) int
 		SeveritySince            func(childComplexity int) int
 		Suppression              func(childComplexity int) int
@@ -1120,10 +1142,11 @@ type ComplexityRoot struct {
 	}
 
 	ImageVulnerabilitySummaryCountsByPriority struct {
-		ElevatedRisk func(childComplexity int) int
-		HighRisk     func(childComplexity int) int
-		Monitor      func(childComplexity int) int
-		Urgent       func(childComplexity int) int
+		ElevatedRisk   func(childComplexity int) int
+		HighRisk       func(childComplexity int) int
+		KnownExploited func(childComplexity int) int
+		Monitor        func(childComplexity int) int
+		Urgent         func(childComplexity int) int
 	}
 
 	ImageVulnerabilitySummaryCountsBySeverity struct {
@@ -1242,7 +1265,7 @@ type ComplexityRoot struct {
 		Name                      func(childComplexity int) int
 		NetworkPolicy             func(childComplexity int) int
 		OpenSearch                func(childComplexity int) int
-		PostgresBranches          func(childComplexity int, orderBy *postgres.PostgresBranchOrder) int
+		Postgreses                func(childComplexity int) int
 		Resources                 func(childComplexity int) int
 		Runs                      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		SQLInstances              func(childComplexity int, orderBy *sqlinstance.SQLInstanceOrder) int
@@ -1608,6 +1631,7 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
+		ActivatePostgresBranch           func(childComplexity int, input postgres.ActivatePostgresBranchInput) int
 		AddConfigValue                   func(childComplexity int, input config.AddConfigValueInput) int
 		AddRepositoryToTeam              func(childComplexity int, input repository.AddRepositoryToTeamInput) int
 		AddSecretValue                   func(childComplexity int, input secret.AddSecretValueInput) int
@@ -1622,7 +1646,9 @@ type ComplexityRoot struct {
 		CreateKafkaCredentials           func(childComplexity int, input kafkatopic.CreateKafkaCredentialsInput) int
 		CreateOpenSearch                 func(childComplexity int, input opensearch.CreateOpenSearchInput) int
 		CreateOpenSearchCredentials      func(childComplexity int, input opensearch.CreateOpenSearchCredentialsInput) int
+		CreatePostgres                   func(childComplexity int, input postgres.CreatePostgresInput) int
 		CreatePostgresAccess             func(childComplexity int, input postgres.CreatePostgresAccessInput) int
+		CreatePostgresBranch             func(childComplexity int, input postgres.CreatePostgresBranchInput) int
 		CreateSecret                     func(childComplexity int, input secret.CreateSecretInput) int
 		CreateServiceAccount             func(childComplexity int, input serviceaccount.CreateServiceAccountInput) int
 		CreateServiceAccountToken        func(childComplexity int, input serviceaccount.CreateServiceAccountTokenInput) int
@@ -1636,6 +1662,7 @@ type ComplexityRoot struct {
 		DeleteJob                        func(childComplexity int, input job.DeleteJobInput) int
 		DeleteJobRun                     func(childComplexity int, input job.DeleteJobRunInput) int
 		DeleteOpenSearch                 func(childComplexity int, input opensearch.DeleteOpenSearchInput) int
+		DeletePostgres                   func(childComplexity int, input postgres.DeletePostgresInput) int
 		DeletePostgresBranch             func(childComplexity int, input postgres.DeletePostgresBranchInput) int
 		DeleteSecret                     func(childComplexity int, input secret.DeleteSecretInput) int
 		DeleteServiceAccount             func(childComplexity int, input serviceaccount.DeleteServiceAccountInput) int
@@ -1665,6 +1692,7 @@ type ComplexityRoot struct {
 		UpdateJob                        func(childComplexity int, input job.UpdateJobInput) int
 		UpdateKafkaTopic                 func(childComplexity int, input kafkatopic.UpdateKafkaTopicInput) int
 		UpdateOpenSearch                 func(childComplexity int, input opensearch.UpdateOpenSearchInput) int
+		UpdatePostgres                   func(childComplexity int, input postgres.UpdatePostgresInput) int
 		UpdateSecret                     func(childComplexity int, input secret.UpdateSecretInput) int
 		UpdateSecretValue                func(childComplexity int, input secret.UpdateSecretValueInput) int
 		UpdateServiceAccount             func(childComplexity int, input serviceaccount.UpdateServiceAccountInput) int
@@ -1890,15 +1918,18 @@ type ComplexityRoot struct {
 	}
 
 	Postgres struct {
-		ActiveBranch     func(childComplexity int) int
-		Branch           func(childComplexity int, name string) int
-		Branches         func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *postgres.PostgresBranchOrder) int
-		HighAvailability func(childComplexity int) int
-		ID               func(childComplexity int) int
-		Labels           func(childComplexity int) int
-		MajorVersion     func(childComplexity int) int
-		Name             func(childComplexity int) int
-		Resources        func(childComplexity int) int
+		ActiveBranch        func(childComplexity int) int
+		ActivityLog         func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int
+		Branch              func(childComplexity int, name string) int
+		Branches            func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *postgres.PostgresBranchOrder) int
+		DesiredActiveBranch func(childComplexity int) int
+		HighAvailability    func(childComplexity int) int
+		ID                  func(childComplexity int) int
+		Labels              func(childComplexity int) int
+		MajorVersion        func(childComplexity int) int
+		Name                func(childComplexity int) int
+		Resources           func(childComplexity int) int
+		TeamEnvironment     func(childComplexity int) int
 	}
 
 	PostgresAccess struct {
@@ -1936,11 +1967,56 @@ type ComplexityRoot struct {
 		Workloads       func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 	}
 
+	PostgresBranchActivatedActivityLogEntry struct {
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		Data              func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
+	}
+
+	PostgresBranchActivityLogEntryData struct {
+		Branch       func(childComplexity int) int
+		SourceBranch func(childComplexity int) int
+		TargetTime   func(childComplexity int) int
+	}
+
 	PostgresBranchConnection struct {
 		Edges    func(childComplexity int) int
 		Facets   func(childComplexity int) int
 		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
+	}
+
+	PostgresBranchCreatedActivityLogEntry struct {
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		Data              func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
+	}
+
+	PostgresBranchDeletedActivityLogEntry struct {
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		Data              func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
 	}
 
 	PostgresBranchEdge struct {
@@ -1959,6 +2035,25 @@ type ComplexityRoot struct {
 		State func(childComplexity int) int
 	}
 
+	PostgresConnection struct {
+		Edges    func(childComplexity int) int
+		Facets   func(childComplexity int) int
+		Nodes    func(childComplexity int) int
+		PageInfo func(childComplexity int) int
+	}
+
+	PostgresCreatedActivityLogEntry struct {
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
+	}
+
 	PostgresDeletedActivityLogEntry struct {
 		Actor             func(childComplexity int) int
 		CreatedAt         func(childComplexity int) int
@@ -1969,6 +2064,15 @@ type ComplexityRoot struct {
 		ResourceName      func(childComplexity int) int
 		ResourceType      func(childComplexity int) int
 		TeamSlug          func(childComplexity int) int
+	}
+
+	PostgresEdge struct {
+		Cursor func(childComplexity int) int
+		Node   func(childComplexity int) int
+	}
+
+	PostgresFacets struct {
+		Labels func(childComplexity int) int
 	}
 
 	PostgresGrantAccessActivityLogEntry struct {
@@ -2027,6 +2131,29 @@ type ComplexityRoot struct {
 		Memory   func(childComplexity int) int
 	}
 
+	PostgresUpdatedActivityLogEntry struct {
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		Data              func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
+	}
+
+	PostgresUpdatedActivityLogEntryData struct {
+		UpdatedFields func(childComplexity int) int
+	}
+
+	PostgresUpdatedActivityLogEntryDataUpdatedField struct {
+		Field    func(childComplexity int) int
+		NewValue func(childComplexity int) int
+		OldValue func(childComplexity int) int
+	}
+
 	Price struct {
 		Value func(childComplexity int) int
 	}
@@ -2057,7 +2184,7 @@ type ComplexityRoot struct {
 		CVE                       func(childComplexity int, identifier string) int
 		CostMonthlySummary        func(childComplexity int, from scalar.Date, to scalar.Date) int
 		CurrentUnitPrices         func(childComplexity int) int
-		Cves                      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *vulnerability.CVEOrder) int
+		Cves                      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *vulnerability.CVEOrder, filter *vulnerability.CVEFilter) int
 		Deployments               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *deployment.DeploymentOrder, filter *deployment.DeploymentFilter) int
 		Environment               func(childComplexity int, name string) int
 		Environments              func(childComplexity int, orderBy *environment.EnvironmentOrder) int
@@ -2078,6 +2205,7 @@ type ComplexityRoot struct {
 		UserSyncLog               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		Users                     func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *user.UserOrder) int
 		VulnerabilityFixHistory   func(childComplexity int, from scalar.Date) int
+		VulnerabilitySummaries    func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *vulnerability.TenantVulnerabilitySummaryFilter, orderBy *vulnerability.VulnerabilitySummaryOrder) int
 		VulnerabilitySummary      func(childComplexity int) int
 	}
 
@@ -2926,7 +3054,7 @@ type ComplexityRoot struct {
 		Member                    func(childComplexity int, email string) int
 		Members                   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.TeamMemberOrder) int
 		OpenSearches              func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *opensearch.OpenSearchOrder, filter *opensearch.OpenSearchFilter) int
-		PostgresBranches          func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *postgres.PostgresBranchOrder, filter *postgres.PostgresBranchFilter) int
+		Postgreses                func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *postgres.TeamPostgresFilter) int
 		Purpose                   func(childComplexity int) int
 		Repositories              func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *repository.RepositoryOrder, filter *repository.TeamRepositoryFilter) int
 		SQLInstances              func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *sqlinstance.SQLInstanceOrder, filter *sqlinstance.SQLInstanceFilter) int
@@ -3315,18 +3443,21 @@ type ComplexityRoot struct {
 	}
 
 	TeamVulnerabilitySummary struct {
-		CountsByPriority func(childComplexity int) int
-		CountsBySeverity func(childComplexity int) int
-		Coverage         func(childComplexity int) int
-		Critical         func(childComplexity int) int
-		High             func(childComplexity int) int
-		LastUpdated      func(childComplexity int) int
-		Low              func(childComplexity int) int
-		Medium           func(childComplexity int) int
-		RiskScore        func(childComplexity int) int
-		RiskScoreTrend   func(childComplexity int) int
-		SBOMCount        func(childComplexity int) int
-		Unassigned       func(childComplexity int) int
+		CountsByPriority      func(childComplexity int) int
+		CountsBySeverity      func(childComplexity int) int
+		Coverage              func(childComplexity int) int
+		Critical              func(childComplexity int) int
+		ElevatedWorkloadCount func(childComplexity int) int
+		High                  func(childComplexity int) int
+		HighWorkloadCount     func(childComplexity int) int
+		LastUpdated           func(childComplexity int) int
+		Low                   func(childComplexity int) int
+		Medium                func(childComplexity int) int
+		MonitorWorkloadCount  func(childComplexity int) int
+		RiskScore             func(childComplexity int) int
+		RiskScoreTrend        func(childComplexity int) int
+		SBOMCount             func(childComplexity int) int
+		Unassigned            func(childComplexity int) int
 	}
 
 	TenantVulnerabilitySummary struct {
@@ -3512,6 +3643,10 @@ type ComplexityRoot struct {
 
 	UpdateOpenSearchPayload struct {
 		OpenSearch func(childComplexity int) int
+	}
+
+	UpdatePostgresPayload struct {
+		Postgres func(childComplexity int) int
 	}
 
 	UpdateSecretPayload struct {
@@ -3816,6 +3951,20 @@ type ComplexityRoot struct {
 		TotalWorkloads func(childComplexity int) int
 	}
 
+	VulnerabilityRemediation struct {
+		FixVersion    func(childComplexity int) int
+		LatestVersion func(childComplexity int) int
+	}
+
+	VulnerabilityRiskAssessment struct {
+		CvssScore          func(childComplexity int) int
+		EpssPercentile     func(childComplexity int) int
+		EpssScore          func(childComplexity int) int
+		HasKevEntry        func(childComplexity int) int
+		KnownRansomwareUse func(childComplexity int) int
+		Priority           func(childComplexity int) int
+	}
+
 	VulnerabilityUpdatedActivityLogEntry struct {
 		Actor             func(childComplexity int) int
 		CreatedAt         func(childComplexity int) int
@@ -3965,6 +4114,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 	ec := newExecutionContext(nil, e, nil)
 	_ = ec
 	switch typeName + "." + field {
+
+	case "ActivatePostgresBranchPayload.postgres":
+		if e.ComplexityRoot.ActivatePostgresBranchPayload.Postgres == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ActivatePostgresBranchPayload.Postgres(childComplexity), true
 
 	case "ActivityLogActivityTypeFacetItem.activityType":
 		if e.ComplexityRoot.ActivityLogActivityTypeFacetItem.ActivityType == nil {
@@ -4382,17 +4538,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Application.OpenSearch(childComplexity), true
 
-	case "Application.postgresBranches":
-		if e.ComplexityRoot.Application.PostgresBranches == nil {
+	case "Application.postgreses":
+		if e.ComplexityRoot.Application.Postgreses == nil {
 			break
 		}
 
-		args, err := ec.field_Application_postgresBranches_args(ctx, rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.ComplexityRoot.Application.PostgresBranches(childComplexity, args["orderBy"].(*postgres.PostgresBranchOrder)), true
+		return e.ComplexityRoot.Application.Postgreses(childComplexity), true
 
 	case "Application.resources":
 		if e.ComplexityRoot.Application.Resources == nil {
@@ -5614,6 +5765,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.CVE.Priority(childComplexity), true
 
+	case "CVE.riskAssessment":
+		if e.ComplexityRoot.CVE.RiskAssessment == nil {
+			break
+		}
+
+		return e.ComplexityRoot.CVE.RiskAssessment(childComplexity), true
+
 	case "CVE.severity":
 		if e.ComplexityRoot.CVE.Severity == nil {
 			break
@@ -6382,6 +6540,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.CreatePostgresAccessPayload.Name(childComplexity), true
 
+	case "CreatePostgresBranchPayload.postgresBranch":
+		if e.ComplexityRoot.CreatePostgresBranchPayload.PostgresBranch == nil {
+			break
+		}
+
+		return e.ComplexityRoot.CreatePostgresBranchPayload.PostgresBranch(childComplexity), true
+
+	case "CreatePostgresPayload.postgres":
+		if e.ComplexityRoot.CreatePostgresPayload.Postgres == nil {
+			break
+		}
+
+		return e.ComplexityRoot.CreatePostgresPayload.Postgres(childComplexity), true
+
 	case "CreateSecretPayload.secret":
 		if e.ComplexityRoot.CreateSecretPayload.Secret == nil {
 			break
@@ -6528,6 +6700,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.DeletePostgresBranchPayload.PostgresBranchDeleted(childComplexity), true
+
+	case "DeletePostgresPayload.deletionRequested":
+		if e.ComplexityRoot.DeletePostgresPayload.DeletionRequested == nil {
+			break
+		}
+
+		return e.ComplexityRoot.DeletePostgresPayload.DeletionRequested(childComplexity), true
 
 	case "DeleteSecretPayload.secretDeleted":
 		if e.ComplexityRoot.DeleteSecretPayload.SecretDeleted == nil {
@@ -7600,11 +7779,11 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		return e.ComplexityRoot.IDPortenAuthIntegration.Name(childComplexity), true
 
 	case "ImageVulnerability.cvssScore":
-		if e.ComplexityRoot.ImageVulnerability.CvssScore == nil {
+		if e.ComplexityRoot.ImageVulnerability.CVSSScore == nil {
 			break
 		}
 
-		return e.ComplexityRoot.ImageVulnerability.CvssScore(childComplexity), true
+		return e.ComplexityRoot.ImageVulnerability.CVSSScore(childComplexity), true
 
 	case "ImageVulnerability.description":
 		if e.ComplexityRoot.ImageVulnerability.Description == nil {
@@ -7662,6 +7841,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ImageVulnerability.KnownRansomwareUse(childComplexity), true
 
+	case "ImageVulnerability.latestVersion":
+		if e.ComplexityRoot.ImageVulnerability.LatestVersion == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImageVulnerability.LatestVersion(childComplexity), true
+
 	case "ImageVulnerability.package":
 		if e.ComplexityRoot.ImageVulnerability.Package == nil {
 			break
@@ -7675,6 +7861,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ImageVulnerability.Priority(childComplexity), true
+
+	case "ImageVulnerability.remediation":
+		if e.ComplexityRoot.ImageVulnerability.Remediation == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImageVulnerability.Remediation(childComplexity), true
+
+	case "ImageVulnerability.riskAssessment":
+		if e.ComplexityRoot.ImageVulnerability.RiskAssessment == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImageVulnerability.RiskAssessment(childComplexity), true
 
 	case "ImageVulnerability.severity":
 		if e.ComplexityRoot.ImageVulnerability.Severity == nil {
@@ -7850,6 +8050,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ImageVulnerabilitySummaryCountsByPriority.HighRisk(childComplexity), true
+
+	case "ImageVulnerabilitySummaryCountsByPriority.knownExploited":
+		if e.ComplexityRoot.ImageVulnerabilitySummaryCountsByPriority.KnownExploited == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImageVulnerabilitySummaryCountsByPriority.KnownExploited(childComplexity), true
 
 	case "ImageVulnerabilitySummaryCountsByPriority.monitor":
 		if e.ComplexityRoot.ImageVulnerabilitySummaryCountsByPriority.Monitor == nil {
@@ -8395,17 +8602,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Job.OpenSearch(childComplexity), true
 
-	case "Job.postgresBranches":
-		if e.ComplexityRoot.Job.PostgresBranches == nil {
+	case "Job.postgreses":
+		if e.ComplexityRoot.Job.Postgreses == nil {
 			break
 		}
 
-		args, err := ec.field_Job_postgresBranches_args(ctx, rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.ComplexityRoot.Job.PostgresBranches(childComplexity, args["orderBy"].(*postgres.PostgresBranchOrder)), true
+		return e.ComplexityRoot.Job.Postgreses(childComplexity), true
 
 	case "Job.resources":
 		if e.ComplexityRoot.Job.Resources == nil {
@@ -9905,6 +10107,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.MissingSbomIssue.Workload(childComplexity), true
 
+	case "Mutation.activatePostgresBranch":
+		if e.ComplexityRoot.Mutation.ActivatePostgresBranch == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_activatePostgresBranch_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Mutation.ActivatePostgresBranch(childComplexity, args["input"].(postgres.ActivatePostgresBranchInput)), true
+
 	case "Mutation.addConfigValue":
 		if e.ComplexityRoot.Mutation.AddConfigValue == nil {
 			break
@@ -10073,6 +10287,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Mutation.CreateOpenSearchCredentials(childComplexity, args["input"].(opensearch.CreateOpenSearchCredentialsInput)), true
 
+	case "Mutation.createPostgres":
+		if e.ComplexityRoot.Mutation.CreatePostgres == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createPostgres_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Mutation.CreatePostgres(childComplexity, args["input"].(postgres.CreatePostgresInput)), true
+
 	case "Mutation.createPostgresAccess":
 		if e.ComplexityRoot.Mutation.CreatePostgresAccess == nil {
 			break
@@ -10084,6 +10310,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Mutation.CreatePostgresAccess(childComplexity, args["input"].(postgres.CreatePostgresAccessInput)), true
+
+	case "Mutation.createPostgresBranch":
+		if e.ComplexityRoot.Mutation.CreatePostgresBranch == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createPostgresBranch_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Mutation.CreatePostgresBranch(childComplexity, args["input"].(postgres.CreatePostgresBranchInput)), true
 
 	case "Mutation.createSecret":
 		if e.ComplexityRoot.Mutation.CreateSecret == nil {
@@ -10240,6 +10478,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Mutation.DeleteOpenSearch(childComplexity, args["input"].(opensearch.DeleteOpenSearchInput)), true
+
+	case "Mutation.deletePostgres":
+		if e.ComplexityRoot.Mutation.DeletePostgres == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deletePostgres_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Mutation.DeletePostgres(childComplexity, args["input"].(postgres.DeletePostgresInput)), true
 
 	case "Mutation.deletePostgresBranch":
 		if e.ComplexityRoot.Mutation.DeletePostgresBranch == nil {
@@ -10588,6 +10838,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Mutation.UpdateOpenSearch(childComplexity, args["input"].(opensearch.UpdateOpenSearchInput)), true
+
+	case "Mutation.updatePostgres":
+		if e.ComplexityRoot.Mutation.UpdatePostgres == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updatePostgres_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Mutation.UpdatePostgres(childComplexity, args["input"].(postgres.UpdatePostgresInput)), true
 
 	case "Mutation.updateSecret":
 		if e.ComplexityRoot.Mutation.UpdateSecret == nil {
@@ -11627,6 +11889,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Postgres.ActiveBranch(childComplexity), true
 
+	case "Postgres.activityLog":
+		if e.ComplexityRoot.Postgres.ActivityLog == nil {
+			break
+		}
+
+		args, err := ec.field_Postgres_activityLog_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Postgres.ActivityLog(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["filter"].(*activitylog.ActivityLogFilter)), true
+
 	case "Postgres.branch":
 		if e.ComplexityRoot.Postgres.Branch == nil {
 			break
@@ -11650,6 +11924,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Postgres.Branches(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*postgres.PostgresBranchOrder)), true
+
+	case "Postgres.desiredActiveBranch":
+		if e.ComplexityRoot.Postgres.DesiredActiveBranch == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Postgres.DesiredActiveBranch(childComplexity), true
 
 	case "Postgres.highAvailability":
 		if e.ComplexityRoot.Postgres.HighAvailability == nil {
@@ -11692,6 +11973,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Postgres.Resources(childComplexity), true
+
+	case "Postgres.teamEnvironment":
+		if e.ComplexityRoot.Postgres.TeamEnvironment == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Postgres.TeamEnvironment(childComplexity), true
 
 	case "PostgresAccess.accessLevel":
 		if e.ComplexityRoot.PostgresAccess.AccessLevel == nil {
@@ -11880,6 +12168,97 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.PostgresBranch.Workloads(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
 
+	case "PostgresBranchActivatedActivityLogEntry.actor":
+		if e.ComplexityRoot.PostgresBranchActivatedActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchActivatedActivityLogEntry.Actor(childComplexity), true
+
+	case "PostgresBranchActivatedActivityLogEntry.createdAt":
+		if e.ComplexityRoot.PostgresBranchActivatedActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchActivatedActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "PostgresBranchActivatedActivityLogEntry.data":
+		if e.ComplexityRoot.PostgresBranchActivatedActivityLogEntry.Data == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchActivatedActivityLogEntry.Data(childComplexity), true
+
+	case "PostgresBranchActivatedActivityLogEntry.environmentName":
+		if e.ComplexityRoot.PostgresBranchActivatedActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchActivatedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "PostgresBranchActivatedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.PostgresBranchActivatedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchActivatedActivityLogEntry.GitHubActorClaims(childComplexity), true
+
+	case "PostgresBranchActivatedActivityLogEntry.id":
+		if e.ComplexityRoot.PostgresBranchActivatedActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchActivatedActivityLogEntry.ID(childComplexity), true
+
+	case "PostgresBranchActivatedActivityLogEntry.message":
+		if e.ComplexityRoot.PostgresBranchActivatedActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchActivatedActivityLogEntry.Message(childComplexity), true
+
+	case "PostgresBranchActivatedActivityLogEntry.resourceName":
+		if e.ComplexityRoot.PostgresBranchActivatedActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchActivatedActivityLogEntry.ResourceName(childComplexity), true
+
+	case "PostgresBranchActivatedActivityLogEntry.resourceType":
+		if e.ComplexityRoot.PostgresBranchActivatedActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchActivatedActivityLogEntry.ResourceType(childComplexity), true
+
+	case "PostgresBranchActivatedActivityLogEntry.teamSlug":
+		if e.ComplexityRoot.PostgresBranchActivatedActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchActivatedActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "PostgresBranchActivityLogEntryData.branch":
+		if e.ComplexityRoot.PostgresBranchActivityLogEntryData.Branch == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchActivityLogEntryData.Branch(childComplexity), true
+
+	case "PostgresBranchActivityLogEntryData.sourceBranch":
+		if e.ComplexityRoot.PostgresBranchActivityLogEntryData.SourceBranch == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchActivityLogEntryData.SourceBranch(childComplexity), true
+
+	case "PostgresBranchActivityLogEntryData.targetTime":
+		if e.ComplexityRoot.PostgresBranchActivityLogEntryData.TargetTime == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchActivityLogEntryData.TargetTime(childComplexity), true
+
 	case "PostgresBranchConnection.edges":
 		if e.ComplexityRoot.PostgresBranchConnection.Edges == nil {
 			break
@@ -11907,6 +12286,146 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.PostgresBranchConnection.PageInfo(childComplexity), true
+
+	case "PostgresBranchCreatedActivityLogEntry.actor":
+		if e.ComplexityRoot.PostgresBranchCreatedActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchCreatedActivityLogEntry.Actor(childComplexity), true
+
+	case "PostgresBranchCreatedActivityLogEntry.createdAt":
+		if e.ComplexityRoot.PostgresBranchCreatedActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchCreatedActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "PostgresBranchCreatedActivityLogEntry.data":
+		if e.ComplexityRoot.PostgresBranchCreatedActivityLogEntry.Data == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchCreatedActivityLogEntry.Data(childComplexity), true
+
+	case "PostgresBranchCreatedActivityLogEntry.environmentName":
+		if e.ComplexityRoot.PostgresBranchCreatedActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchCreatedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "PostgresBranchCreatedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.PostgresBranchCreatedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchCreatedActivityLogEntry.GitHubActorClaims(childComplexity), true
+
+	case "PostgresBranchCreatedActivityLogEntry.id":
+		if e.ComplexityRoot.PostgresBranchCreatedActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchCreatedActivityLogEntry.ID(childComplexity), true
+
+	case "PostgresBranchCreatedActivityLogEntry.message":
+		if e.ComplexityRoot.PostgresBranchCreatedActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchCreatedActivityLogEntry.Message(childComplexity), true
+
+	case "PostgresBranchCreatedActivityLogEntry.resourceName":
+		if e.ComplexityRoot.PostgresBranchCreatedActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchCreatedActivityLogEntry.ResourceName(childComplexity), true
+
+	case "PostgresBranchCreatedActivityLogEntry.resourceType":
+		if e.ComplexityRoot.PostgresBranchCreatedActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchCreatedActivityLogEntry.ResourceType(childComplexity), true
+
+	case "PostgresBranchCreatedActivityLogEntry.teamSlug":
+		if e.ComplexityRoot.PostgresBranchCreatedActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchCreatedActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "PostgresBranchDeletedActivityLogEntry.actor":
+		if e.ComplexityRoot.PostgresBranchDeletedActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchDeletedActivityLogEntry.Actor(childComplexity), true
+
+	case "PostgresBranchDeletedActivityLogEntry.createdAt":
+		if e.ComplexityRoot.PostgresBranchDeletedActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchDeletedActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "PostgresBranchDeletedActivityLogEntry.data":
+		if e.ComplexityRoot.PostgresBranchDeletedActivityLogEntry.Data == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchDeletedActivityLogEntry.Data(childComplexity), true
+
+	case "PostgresBranchDeletedActivityLogEntry.environmentName":
+		if e.ComplexityRoot.PostgresBranchDeletedActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchDeletedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "PostgresBranchDeletedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.PostgresBranchDeletedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchDeletedActivityLogEntry.GitHubActorClaims(childComplexity), true
+
+	case "PostgresBranchDeletedActivityLogEntry.id":
+		if e.ComplexityRoot.PostgresBranchDeletedActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchDeletedActivityLogEntry.ID(childComplexity), true
+
+	case "PostgresBranchDeletedActivityLogEntry.message":
+		if e.ComplexityRoot.PostgresBranchDeletedActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchDeletedActivityLogEntry.Message(childComplexity), true
+
+	case "PostgresBranchDeletedActivityLogEntry.resourceName":
+		if e.ComplexityRoot.PostgresBranchDeletedActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchDeletedActivityLogEntry.ResourceName(childComplexity), true
+
+	case "PostgresBranchDeletedActivityLogEntry.resourceType":
+		if e.ComplexityRoot.PostgresBranchDeletedActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchDeletedActivityLogEntry.ResourceType(childComplexity), true
+
+	case "PostgresBranchDeletedActivityLogEntry.teamSlug":
+		if e.ComplexityRoot.PostgresBranchDeletedActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchDeletedActivityLogEntry.TeamSlug(childComplexity), true
 
 	case "PostgresBranchEdge.cursor":
 		if e.ComplexityRoot.PostgresBranchEdge.Cursor == nil {
@@ -11956,6 +12475,97 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.PostgresBranchStateFacetItem.State(childComplexity), true
+
+	case "PostgresConnection.edges":
+		if e.ComplexityRoot.PostgresConnection.Edges == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresConnection.Edges(childComplexity), true
+
+	case "PostgresConnection.facets":
+		if e.ComplexityRoot.PostgresConnection.Facets == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresConnection.Facets(childComplexity), true
+
+	case "PostgresConnection.nodes":
+		if e.ComplexityRoot.PostgresConnection.Nodes == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresConnection.Nodes(childComplexity), true
+
+	case "PostgresConnection.pageInfo":
+		if e.ComplexityRoot.PostgresConnection.PageInfo == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresConnection.PageInfo(childComplexity), true
+
+	case "PostgresCreatedActivityLogEntry.actor":
+		if e.ComplexityRoot.PostgresCreatedActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresCreatedActivityLogEntry.Actor(childComplexity), true
+
+	case "PostgresCreatedActivityLogEntry.createdAt":
+		if e.ComplexityRoot.PostgresCreatedActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresCreatedActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "PostgresCreatedActivityLogEntry.environmentName":
+		if e.ComplexityRoot.PostgresCreatedActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresCreatedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "PostgresCreatedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.PostgresCreatedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresCreatedActivityLogEntry.GitHubActorClaims(childComplexity), true
+
+	case "PostgresCreatedActivityLogEntry.id":
+		if e.ComplexityRoot.PostgresCreatedActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresCreatedActivityLogEntry.ID(childComplexity), true
+
+	case "PostgresCreatedActivityLogEntry.message":
+		if e.ComplexityRoot.PostgresCreatedActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresCreatedActivityLogEntry.Message(childComplexity), true
+
+	case "PostgresCreatedActivityLogEntry.resourceName":
+		if e.ComplexityRoot.PostgresCreatedActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresCreatedActivityLogEntry.ResourceName(childComplexity), true
+
+	case "PostgresCreatedActivityLogEntry.resourceType":
+		if e.ComplexityRoot.PostgresCreatedActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresCreatedActivityLogEntry.ResourceType(childComplexity), true
+
+	case "PostgresCreatedActivityLogEntry.teamSlug":
+		if e.ComplexityRoot.PostgresCreatedActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresCreatedActivityLogEntry.TeamSlug(childComplexity), true
 
 	case "PostgresDeletedActivityLogEntry.actor":
 		if e.ComplexityRoot.PostgresDeletedActivityLogEntry.Actor == nil {
@@ -12019,6 +12629,27 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.PostgresDeletedActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "PostgresEdge.cursor":
+		if e.ComplexityRoot.PostgresEdge.Cursor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresEdge.Cursor(childComplexity), true
+
+	case "PostgresEdge.node":
+		if e.ComplexityRoot.PostgresEdge.Node == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresEdge.Node(childComplexity), true
+
+	case "PostgresFacets.labels":
+		if e.ComplexityRoot.PostgresFacets.Labels == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresFacets.Labels(childComplexity), true
 
 	case "PostgresGrantAccessActivityLogEntry.actor":
 		if e.ComplexityRoot.PostgresGrantAccessActivityLogEntry.Actor == nil {
@@ -12286,6 +12917,104 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.PostgresResources.Memory(childComplexity), true
 
+	case "PostgresUpdatedActivityLogEntry.actor":
+		if e.ComplexityRoot.PostgresUpdatedActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresUpdatedActivityLogEntry.Actor(childComplexity), true
+
+	case "PostgresUpdatedActivityLogEntry.createdAt":
+		if e.ComplexityRoot.PostgresUpdatedActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresUpdatedActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "PostgresUpdatedActivityLogEntry.data":
+		if e.ComplexityRoot.PostgresUpdatedActivityLogEntry.Data == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresUpdatedActivityLogEntry.Data(childComplexity), true
+
+	case "PostgresUpdatedActivityLogEntry.environmentName":
+		if e.ComplexityRoot.PostgresUpdatedActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresUpdatedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "PostgresUpdatedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.PostgresUpdatedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresUpdatedActivityLogEntry.GitHubActorClaims(childComplexity), true
+
+	case "PostgresUpdatedActivityLogEntry.id":
+		if e.ComplexityRoot.PostgresUpdatedActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresUpdatedActivityLogEntry.ID(childComplexity), true
+
+	case "PostgresUpdatedActivityLogEntry.message":
+		if e.ComplexityRoot.PostgresUpdatedActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresUpdatedActivityLogEntry.Message(childComplexity), true
+
+	case "PostgresUpdatedActivityLogEntry.resourceName":
+		if e.ComplexityRoot.PostgresUpdatedActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresUpdatedActivityLogEntry.ResourceName(childComplexity), true
+
+	case "PostgresUpdatedActivityLogEntry.resourceType":
+		if e.ComplexityRoot.PostgresUpdatedActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresUpdatedActivityLogEntry.ResourceType(childComplexity), true
+
+	case "PostgresUpdatedActivityLogEntry.teamSlug":
+		if e.ComplexityRoot.PostgresUpdatedActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresUpdatedActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "PostgresUpdatedActivityLogEntryData.updatedFields":
+		if e.ComplexityRoot.PostgresUpdatedActivityLogEntryData.UpdatedFields == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresUpdatedActivityLogEntryData.UpdatedFields(childComplexity), true
+
+	case "PostgresUpdatedActivityLogEntryDataUpdatedField.field":
+		if e.ComplexityRoot.PostgresUpdatedActivityLogEntryDataUpdatedField.Field == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresUpdatedActivityLogEntryDataUpdatedField.Field(childComplexity), true
+
+	case "PostgresUpdatedActivityLogEntryDataUpdatedField.newValue":
+		if e.ComplexityRoot.PostgresUpdatedActivityLogEntryDataUpdatedField.NewValue == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresUpdatedActivityLogEntryDataUpdatedField.NewValue(childComplexity), true
+
+	case "PostgresUpdatedActivityLogEntryDataUpdatedField.oldValue":
+		if e.ComplexityRoot.PostgresUpdatedActivityLogEntryDataUpdatedField.OldValue == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresUpdatedActivityLogEntryDataUpdatedField.OldValue(childComplexity), true
+
 	case "Price.value":
 		if e.ComplexityRoot.Price.Value == nil {
 			break
@@ -12451,7 +13180,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Query.Cves(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*vulnerability.CVEOrder)), true
+		return e.ComplexityRoot.Query.Cves(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*vulnerability.CVEOrder), args["filter"].(*vulnerability.CVEFilter)), true
 
 	case "Query.deployments":
 		if e.ComplexityRoot.Query.Deployments == nil {
@@ -12677,6 +13406,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Query.VulnerabilityFixHistory(childComplexity, args["from"].(scalar.Date)), true
+
+	case "Query.vulnerabilitySummaries":
+		if e.ComplexityRoot.Query.VulnerabilitySummaries == nil {
+			break
+		}
+
+		args, err := ec.field_Query_vulnerabilitySummaries_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Query.VulnerabilitySummaries(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["filter"].(*vulnerability.TenantVulnerabilitySummaryFilter), args["orderBy"].(*vulnerability.VulnerabilitySummaryOrder)), true
 
 	case "Query.vulnerabilitySummary":
 		if e.ComplexityRoot.Query.VulnerabilitySummary == nil {
@@ -16459,17 +17200,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Team.OpenSearches(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*opensearch.OpenSearchOrder), args["filter"].(*opensearch.OpenSearchFilter)), true
 
-	case "Team.postgresBranches":
-		if e.ComplexityRoot.Team.PostgresBranches == nil {
+	case "Team.postgreses":
+		if e.ComplexityRoot.Team.Postgreses == nil {
 			break
 		}
 
-		args, err := ec.field_Team_postgresBranches_args(ctx, rawArgs)
+		args, err := ec.field_Team_postgreses_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Team.PostgresBranches(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*postgres.PostgresBranchOrder), args["filter"].(*postgres.PostgresBranchFilter)), true
+		return e.ComplexityRoot.Team.Postgreses(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["filter"].(*postgres.TeamPostgresFilter)), true
 
 	case "Team.purpose":
 		if e.ComplexityRoot.Team.Purpose == nil {
@@ -18216,12 +18957,26 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.TeamVulnerabilitySummary.Critical(childComplexity), true
 
+	case "TeamVulnerabilitySummary.elevatedWorkloadCount":
+		if e.ComplexityRoot.TeamVulnerabilitySummary.ElevatedWorkloadCount == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TeamVulnerabilitySummary.ElevatedWorkloadCount(childComplexity), true
+
 	case "TeamVulnerabilitySummary.high":
 		if e.ComplexityRoot.TeamVulnerabilitySummary.High == nil {
 			break
 		}
 
 		return e.ComplexityRoot.TeamVulnerabilitySummary.High(childComplexity), true
+
+	case "TeamVulnerabilitySummary.highWorkloadCount":
+		if e.ComplexityRoot.TeamVulnerabilitySummary.HighWorkloadCount == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TeamVulnerabilitySummary.HighWorkloadCount(childComplexity), true
 
 	case "TeamVulnerabilitySummary.lastUpdated":
 		if e.ComplexityRoot.TeamVulnerabilitySummary.LastUpdated == nil {
@@ -18243,6 +18998,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.TeamVulnerabilitySummary.Medium(childComplexity), true
+
+	case "TeamVulnerabilitySummary.monitorWorkloadCount":
+		if e.ComplexityRoot.TeamVulnerabilitySummary.MonitorWorkloadCount == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TeamVulnerabilitySummary.MonitorWorkloadCount(childComplexity), true
 
 	case "TeamVulnerabilitySummary.riskScore":
 		if e.ComplexityRoot.TeamVulnerabilitySummary.RiskScore == nil {
@@ -19067,6 +19829,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.UpdateOpenSearchPayload.OpenSearch(childComplexity), true
+
+	case "UpdatePostgresPayload.postgres":
+		if e.ComplexityRoot.UpdatePostgresPayload.Postgres == nil {
+			break
+		}
+
+		return e.ComplexityRoot.UpdatePostgresPayload.Postgres(childComplexity), true
 
 	case "UpdateSecretPayload.secret":
 		if e.ComplexityRoot.UpdateSecretPayload.Secret == nil {
@@ -20283,6 +21052,62 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.VulnerabilityFixSample.TotalWorkloads(childComplexity), true
 
+	case "VulnerabilityRemediation.fixVersion":
+		if e.ComplexityRoot.VulnerabilityRemediation.FixVersion == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityRemediation.FixVersion(childComplexity), true
+
+	case "VulnerabilityRemediation.latestVersion":
+		if e.ComplexityRoot.VulnerabilityRemediation.LatestVersion == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityRemediation.LatestVersion(childComplexity), true
+
+	case "VulnerabilityRiskAssessment.cvssScore":
+		if e.ComplexityRoot.VulnerabilityRiskAssessment.CvssScore == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityRiskAssessment.CvssScore(childComplexity), true
+
+	case "VulnerabilityRiskAssessment.epssPercentile":
+		if e.ComplexityRoot.VulnerabilityRiskAssessment.EpssPercentile == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityRiskAssessment.EpssPercentile(childComplexity), true
+
+	case "VulnerabilityRiskAssessment.epssScore":
+		if e.ComplexityRoot.VulnerabilityRiskAssessment.EpssScore == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityRiskAssessment.EpssScore(childComplexity), true
+
+	case "VulnerabilityRiskAssessment.hasKevEntry":
+		if e.ComplexityRoot.VulnerabilityRiskAssessment.HasKevEntry == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityRiskAssessment.HasKevEntry(childComplexity), true
+
+	case "VulnerabilityRiskAssessment.knownRansomwareUse":
+		if e.ComplexityRoot.VulnerabilityRiskAssessment.KnownRansomwareUse == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityRiskAssessment.KnownRansomwareUse(childComplexity), true
+
+	case "VulnerabilityRiskAssessment.priority":
+		if e.ComplexityRoot.VulnerabilityRiskAssessment.Priority == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityRiskAssessment.Priority(childComplexity), true
+
 	case "VulnerabilityUpdatedActivityLogEntry.actor":
 		if e.ComplexityRoot.VulnerabilityUpdatedActivityLogEntry.Actor == nil {
 			break
@@ -20851,6 +21676,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	opCtx := graphql.GetOperationContext(ctx)
 	ec := newExecutionContext(opCtx, e, make(chan graphql.DeferredResult))
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
+		ec.unmarshalInputActivatePostgresBranchInput,
 		ec.unmarshalInputActivityLogFilter,
 		ec.unmarshalInputAddConfigValueInput,
 		ec.unmarshalInputAddRepositoryToTeamInput,
@@ -20866,6 +21692,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputBigQueryDatasetOrder,
 		ec.unmarshalInputBucketFilter,
 		ec.unmarshalInputBucketOrder,
+		ec.unmarshalInputCVEFilter,
 		ec.unmarshalInputCVEOrder,
 		ec.unmarshalInputCVEWorkloadsFilter,
 		ec.unmarshalInputChangeDeploymentKeyInput,
@@ -20879,6 +21706,8 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputCreateOpenSearchCredentialsInput,
 		ec.unmarshalInputCreateOpenSearchInput,
 		ec.unmarshalInputCreatePostgresAccessInput,
+		ec.unmarshalInputCreatePostgresBranchInput,
+		ec.unmarshalInputCreatePostgresInput,
 		ec.unmarshalInputCreateSecretInput,
 		ec.unmarshalInputCreateServiceAccountInput,
 		ec.unmarshalInputCreateServiceAccountTokenInput,
@@ -20893,6 +21722,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputDeleteJobRunInput,
 		ec.unmarshalInputDeleteOpenSearchInput,
 		ec.unmarshalInputDeletePostgresBranchInput,
+		ec.unmarshalInputDeletePostgresInput,
 		ec.unmarshalInputDeleteSecretInput,
 		ec.unmarshalInputDeleteServiceAccountInput,
 		ec.unmarshalInputDeleteServiceAccountTokenInput,
@@ -20956,9 +21786,11 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputTeamJobsFilter,
 		ec.unmarshalInputTeamMemberOrder,
 		ec.unmarshalInputTeamOrder,
+		ec.unmarshalInputTeamPostgresFilter,
 		ec.unmarshalInputTeamRepositoryFilter,
 		ec.unmarshalInputTeamVulnerabilitySummaryFilter,
 		ec.unmarshalInputTeamWorkloadsFilter,
+		ec.unmarshalInputTenantVulnerabilitySummaryFilter,
 		ec.unmarshalInputTriggerJobInput,
 		ec.unmarshalInputUpdateApplicationInput,
 		ec.unmarshalInputUpdateApplicationReplicasInput,
@@ -20968,6 +21800,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputUpdateJobInput,
 		ec.unmarshalInputUpdateKafkaTopicInput,
 		ec.unmarshalInputUpdateOpenSearchInput,
+		ec.unmarshalInputUpdatePostgresInput,
 		ec.unmarshalInputUpdateSecretInput,
 		ec.unmarshalInputUpdateSecretValueInput,
 		ec.unmarshalInputUpdateServiceAccountInput,
@@ -21235,6 +22068,22 @@ extend type OpenSearch implements ActivityLogger {
 		"""
 		Filter items.
 		"""
+		filter: ActivityLogFilter
+	): ActivityLogEntryConnection!
+}
+
+extend type Postgres implements ActivityLogger {
+	"Activity log associated with this Postgres."
+	activityLog(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+		"Get items after this cursor."
+		after: Cursor
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+		"Get items before this cursor."
+		before: Cursor
+		"Filter items."
 		filter: ActivityLogFilter
 	): ActivityLogEntryConnection!
 }
@@ -27393,26 +28242,19 @@ type WorkloadLogLine {
 }
 `, BuiltIn: false},
 	{Name: "../schema/postgres.graphqls", Input: `extend type Team {
-	"Postgres branches owned by the team."
-	postgresBranches(
+	"Postgres databases owned by the team, including those without branches."
+	postgreses(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
 		first: Int
-
 		"Get items after this cursor."
 		after: Cursor
-
 		"Get the last n items in the connection. This can be used in combination with the before parameter."
 		last: Int
-
 		"Get items before this cursor."
 		before: Cursor
-
-		"Ordering options for items returned from the connection."
-		orderBy: PostgresBranchOrder
-
-		"Filtering options for items returned from the connection."
-		filter: PostgresBranchFilter
-	): PostgresBranchConnection!
+		"Filter Postgres databases by environment or labels."
+		filter: TeamPostgresFilter
+	): PostgresConnection!
 }
 
 extend type TeamEnvironment {
@@ -27429,27 +28271,26 @@ extend type TeamEnvironment {
 }
 
 extend interface Workload {
-	"Active PostgresBranches for all Postgres entries in uses.postgres."
-	postgresBranches(
-		"Ordering options for items returned from the connection."
-		orderBy: PostgresBranchOrder
-	): PostgresBranchConnection!
+	"Postgres databases referenced by uses.postgres, whether or not they have an active branch."
+	postgreses: PostgresConnection!
 }
 
 extend type Application {
-	"Active PostgresBranches for all Postgres entries in uses.postgres."
-	postgresBranches(
-		"Ordering options for items returned from the connection."
-		orderBy: PostgresBranchOrder
-	): PostgresBranchConnection!
+	"Postgres databases referenced by uses.postgres, whether or not they have an active branch."
+	postgreses: PostgresConnection!
 }
 
 extend type Job {
-	"Active PostgresBranches for all Postgres entries in uses.postgres."
-	postgresBranches(
-		"Ordering options for items returned from the connection."
-		orderBy: PostgresBranchOrder
-	): PostgresBranchConnection!
+	"Postgres databases referenced by uses.postgres, whether or not they have an active branch."
+	postgreses: PostgresConnection!
+}
+
+"Filter a team's Postgres databases by environment and user-defined labels."
+input TeamPostgresFilter {
+	"Filter by environments."
+	environments: [String!]
+	"All listed labels must match."
+	labels: [LabelFilter!]
 }
 
 input PostgresBranchOrder {
@@ -27512,6 +28353,8 @@ type PostgresBranch implements Persistence & Node {
 type Postgres implements Node {
 	"Opaque identifier for this Postgres."
 	id: ID!
+	"Team environment containing this Postgres."
+	teamEnvironment: TeamEnvironment!
 	"Name of this Postgres."
 	name: String!
 	"Configured PostgreSQL major version."
@@ -27520,7 +28363,9 @@ type Postgres implements Node {
 	highAvailability: Boolean!
 	"Requested CPU, memory and disk size, when present on this Postgres."
 	resources: PostgresResources!
-	"Currently active branch, if selected."
+	"Branch requested for activation; may differ from the observed active branch while reconciliation runs."
+	desiredActiveBranch: String
+	"Currently observed active branch, if selected."
 	activeBranch: PostgresBranch
 	"Branch with this local name in this Postgres."
 	branch(name: String!): PostgresBranch!
@@ -27534,6 +28379,26 @@ type Postgres implements Node {
 	): PostgresBranchConnection!
 	"User-defined labels on this Postgres."
 	labels: [ResourceLabel!]!
+}
+
+"A paginated list of Postgres databases."
+type PostgresConnection {
+	pageInfo: PageInfo!
+	nodes: [Postgres!]!
+	edges: [PostgresEdge!]!
+	"Labels across team Postgres databases, independent of pagination."
+	facets: PostgresFacets!
+}
+
+"Facets for Postgres databases."
+type PostgresFacets {
+	"User-defined labels on team Postgres databases."
+	labels: [LabelFacetItem!]!
+}
+
+type PostgresEdge {
+	cursor: Cursor!
+	node: Postgres!
 }
 
 "Resource requests configured on Postgres. Omitted requests are null."
@@ -27706,6 +28571,59 @@ type PostgresPersonalAccessConnectionActivityLogEntry implements ActivityLogEntr
 	environmentName: String
 }
 
+"A Postgres branch was created."
+type PostgresBranchCreatedActivityLogEntry implements ActivityLogEntry & Node {
+	id: ID!
+	actor: String!
+	gitHubActorClaims: GitHubActorClaims
+	createdAt: Time!
+	message: String!
+	resourceType: ActivityLogEntryResourceType!
+	"Name of the Postgres containing the branch."
+	resourceName: String!
+	teamSlug: Slug!
+	environmentName: String
+	data: PostgresBranchActivityLogEntryData!
+}
+
+"A request to activate a Postgres branch was accepted; the switchover may still be pending."
+type PostgresBranchActivatedActivityLogEntry implements ActivityLogEntry & Node {
+	id: ID!
+	actor: String!
+	gitHubActorClaims: GitHubActorClaims
+	createdAt: Time!
+	message: String!
+	resourceType: ActivityLogEntryResourceType!
+	"Name of the Postgres containing the branch."
+	resourceName: String!
+	teamSlug: Slug!
+	environmentName: String
+	data: PostgresBranchActivityLogEntryData!
+}
+
+"A Postgres branch was deleted."
+type PostgresBranchDeletedActivityLogEntry implements ActivityLogEntry & Node {
+	id: ID!
+	actor: String!
+	gitHubActorClaims: GitHubActorClaims
+	createdAt: Time!
+	message: String!
+	resourceType: ActivityLogEntryResourceType!
+	"Name of the Postgres containing the branch."
+	resourceName: String!
+	teamSlug: Slug!
+	environmentName: String
+	data: PostgresBranchActivityLogEntryData!
+}
+
+type PostgresBranchActivityLogEntryData {
+	branch: String!
+	"Source branch, populated for branch creation."
+	sourceBranch: String
+	"Recovery instant, populated for branch creation."
+	targetTime: Time
+}
+
 type PostgresDeletedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
@@ -27735,7 +28653,96 @@ type PostgresDeletedActivityLogEntry implements ActivityLogEntry & Node {
 	environmentName: String
 }
 
+"Activity log entry for a Postgres that was created."
+type PostgresCreatedActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	actor: String!
+
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: ActivityLogEntryResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+}
+
+"Activity log entry for a Postgres that was updated."
+type PostgresUpdatedActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	actor: String!
+
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: ActivityLogEntryResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+
+	"Data associated with the entry."
+	data: PostgresUpdatedActivityLogEntryData!
+}
+
+"Data associated with a Postgres update."
+type PostgresUpdatedActivityLogEntryData {
+	"The fields that were changed."
+	updatedFields: [PostgresUpdatedActivityLogEntryDataUpdatedField!]!
+}
+
+"A single field that was changed by a Postgres update."
+type PostgresUpdatedActivityLogEntryDataUpdatedField {
+	"The name of the field."
+	field: String!
+
+	"The old value of the field, if it had one."
+	oldValue: String
+
+	"The new value of the field."
+	newValue: String
+}
+
 extend enum ActivityLogActivityType {
+	"""
+	A Postgres was created
+	"""
+	POSTGRES_CREATED
+	"""
+	A Postgres was updated
+	"""
+	POSTGRES_UPDATED
 	"""
 	A user was granted access to a Postgres cluster
 	"""
@@ -27749,9 +28756,17 @@ extend enum ActivityLogActivityType {
 	"""
 	POSTGRES_PERSONAL_ACCESS_CONNECTION
 	"""
-	A Postgres branch was deleted
+	A Postgres branch was deleted (historical entries without branch name)
 	"""
 	POSTGRES_DELETED
+	"A request to delete a whole Postgres was accepted; cleanup continues asynchronously."
+	POSTGRES_DELETION_REQUESTED
+	"A Postgres branch was created."
+	POSTGRES_BRANCH_CREATED
+	"A Postgres branch was activated."
+	POSTGRES_BRANCH_ACTIVATED
+	"A Postgres branch was deleted."
+	POSTGRES_BRANCH_DELETED
 }
 
 extend type Mutation {
@@ -27761,8 +28776,18 @@ extend type Mutation {
 	When the access is ready, retrieve its connection materials through PostgresAccess.connection.
 	"""
 	createPostgresAccess(input: CreatePostgresAccessInput!): CreatePostgresAccessPayload!
+	"Create a new Postgres. Its first branch, main, is created and activated by the platform."
+	createPostgres(input: CreatePostgresInput!): CreatePostgresPayload!
+	"Update an existing Postgres. The PostgreSQL major version cannot be changed."
+	updatePostgres(input: UpdatePostgresInput!): UpdatePostgresPayload!
+	"Create an inactive PostgresBranch recovered from a source branch archive at a UTC point in time."
+	createPostgresBranch(input: CreatePostgresBranchInput!): CreatePostgresBranchPayload!
+	"Request activation of an available PostgresBranch. The observed active branch may lag behind the request."
+	activatePostgresBranch(input: ActivatePostgresBranchInput!): ActivatePostgresBranchPayload!
 	"Delete a PostgresBranch that is not active on its Postgres."
 	deletePostgresBranch(input: DeletePostgresBranchInput!): DeletePostgresBranchPayload!
+	"Request deletion of an entire Postgres and all its branches/data. Fails while workloads or bindings reference it; cleanup is asynchronous."
+	deletePostgres(input: DeletePostgresInput!): DeletePostgresPayload!
 }
 
 "Result of creating a personal Postgres access."
@@ -27799,6 +28824,62 @@ enum PostgresAccessLevel {
 	READWRITE
 	"Read, modify, and create database objects where supported."
 	READWRITECREATE
+}
+
+"Recovery request for a new, inactive branch. A branch cannot be re-created with different recovery settings."
+input CreatePostgresBranchInput {
+	"Name of the owning Postgres."
+	postgres: String!
+	"Local name of the new branch."
+	branch: String!
+	"Local name of the source branch in the same Postgres."
+	sourceBranch: String!
+	"Explicit UTC recovery target; must not be in the future."
+	targetTime: Time!
+	"Environment containing the Postgres."
+	environmentName: String!
+	"Team owning the Postgres."
+	teamSlug: Slug!
+}
+
+"Result of creating a branch; provisioning continues asynchronously."
+type CreatePostgresBranchPayload {
+	"The new branch."
+	postgresBranch: PostgresBranch!
+}
+
+"Request a branch for normal workloads; pgrator activates it once its cluster is ready."
+input ActivatePostgresBranchInput {
+	"Name of the owning Postgres."
+	postgres: String!
+	"Local name of the branch to activate."
+	branch: String!
+	"Environment containing the Postgres."
+	environmentName: String!
+	"Team owning the Postgres."
+	teamSlug: Slug!
+}
+
+"Result of requesting activation; compare desiredActiveBranch to activeBranch while reconciling."
+type ActivatePostgresBranchPayload {
+	"Postgres with desired and observed branch selection."
+	postgres: Postgres!
+}
+
+"Select the Postgres to delete. All branches and stored data are removed asynchronously by the platform."
+input DeletePostgresInput {
+	"Name of the Postgres."
+	name: String!
+	"Owning team."
+	teamSlug: Slug!
+	"Environment containing the Postgres."
+	environmentName: String!
+}
+
+"Result of accepting a Postgres deletion request, not proof of cleanup."
+type DeletePostgresPayload {
+	"True if Kubernetes accepted the deletion request; data deletion may still be pending."
+	deletionRequested: Boolean!
 }
 
 input DeletePostgresBranchInput {
@@ -27883,6 +28964,56 @@ type PostgresAccessConnectionDetails {
 	relayAccess: String!
 	"Owner-only bearer token for this access; never log it."
 	relayToken: String!
+}
+
+"Input for creating a Postgres."
+input CreatePostgresInput {
+	"Name of the Postgres."
+	name: String!
+	"The environment name that the Postgres belongs to."
+	environmentName: String!
+	"The team that owns the Postgres."
+	teamSlug: Slug!
+	"PostgreSQL major version."
+	majorVersion: String!
+	"Add a third instance and enable synchronous replication. Defaults to false."
+	highAvailability: Boolean
+	"Requested CPU, for example '100m'. If omitted, the platform default is used."
+	cpu: String
+	"Requested memory, for example '512Mi'. If omitted, the platform default is used."
+	memory: String
+	"Requested disk size, for example '10Gi'. If omitted, the platform default is used."
+	diskSize: String
+}
+
+"Result of creating a Postgres."
+type CreatePostgresPayload {
+	"The Postgres that was created."
+	postgres: Postgres!
+}
+
+"Input for updating a Postgres. Omitted fields are left unchanged."
+input UpdatePostgresInput {
+	"Name of the Postgres."
+	name: String!
+	"The environment name that the Postgres belongs to."
+	environmentName: String!
+	"The team that owns the Postgres."
+	teamSlug: Slug!
+	"Add a third instance and enable synchronous replication."
+	highAvailability: Boolean
+	"Requested CPU, for example '100m'."
+	cpu: String
+	"Requested memory, for example '512Mi'."
+	memory: String
+	"Requested disk size, for example '10Gi'."
+	diskSize: String
+}
+
+"Result of updating a Postgres."
+type UpdatePostgresPayload {
+	"The Postgres that was updated."
+	postgres: Postgres!
 }
 `, BuiltIn: false},
 	{Name: "../schema/price.graphqls", Input: `extend type Query {
@@ -33796,6 +34927,27 @@ extend type Query {
 	"Get the vulnerability summary for the tenant."
 	vulnerabilitySummary: TenantVulnerabilitySummary!
 
+	"List per-workload vulnerability summaries across all teams."
+	vulnerabilitySummaries(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+
+		"Filter workload vulnerability summaries across all teams."
+		filter: TenantVulnerabilitySummaryFilter
+
+		"Order workload vulnerability summaries across all teams."
+		orderBy: VulnerabilitySummaryOrder
+	): WorkloadVulnerabilitySummaryConnection!
+
 	"Get the mean time to fix history for all teams."
 	vulnerabilityFixHistory(from: Date!): VulnerabilityFixHistory!
 
@@ -33818,7 +34970,16 @@ extend type Query {
 
 		"Ordering options for items returned from the connection."
 		orderBy: CVEOrder
+
+		"Filter CVEs before pagination. Totals cover the entire filtered selection."
+		filter: CVEFilter
 	): CVEConnection!
+}
+
+"Filter active CVEs by their calculated risk assessment."
+input CVEFilter {
+	"Operational priority. URGENT requires workload context and currently returns no CVEs."
+	priority: CVEPriority
 }
 
 "Ordering options when fetching CVEs."
@@ -33869,6 +35030,8 @@ extend enum TeamOrderField {
 	UNASSIGNED_VULNERABILITIES
 	"The team's software bill of materials (SBOM) coverage."
 	SBOM_COVERAGE
+	"The accumulated number of known exploited vulnerabilities (KEV) of the teams workloads."
+	KNOWN_EXPLOITED_VULNERABILITIES
 }
 
 extend type Application {
@@ -34036,9 +35199,41 @@ input TeamVulnerabilitySummaryFilter {
 	environmentName: String
 
 	"""
-	Only return vulnerability summaries at or above the given vulnerability priority.
+	Only return vulnerability summaries whose highest priority is exactly one of
+	the given values. URGENT is workload-contextual and cannot be resolved at
+	summary scope, so including it in this set is rejected as an error.
 	"""
-	priority: CVEPriority
+	priorities: [CVEPriority!]
+
+	"""
+	Deprecated. Use priorities instead. When set, this is treated as a
+	single-element priorities list. Ignored if priorities is also set.
+	"""
+	priority: CVEPriority @deprecated(reason: "Use priorities instead, which accepts a list.")
+
+	"""
+	Only return vulnerability summaries with (true) or without (false) at least
+	one CISA Known Exploited Vulnerabilities (KEV) catalog entry.
+	"""
+	hasKevEntry: Boolean
+}
+
+"""
+Input for filtering vulnerability summaries across all teams.
+"""
+input TenantVulnerabilitySummaryFilter {
+	"""
+	Only return vulnerability summaries whose highest priority is exactly one of
+	the given values. URGENT is workload-contextual and cannot be resolved at
+	summary scope, so including it in this set is rejected as an error.
+	"""
+	priorities: [CVEPriority!]
+
+	"""
+	Only return vulnerability summaries with (true) or without (false) at least
+	one CISA Known Exploited Vulnerabilities (KEV) catalog entry.
+	"""
+	hasKevEntry: Boolean
 }
 
 """
@@ -34050,6 +35245,19 @@ input ImageVulnerabilityFilter {
 	"""
 	severity: ImageVulnerabilitySeverity
 	severitySince: Time
+
+	"""
+	Only return vulnerabilities whose priority is exactly one of the given values.
+	URGENT is workload-contextual and cannot be resolved at image scope, so
+	including it in this set is rejected as an error.
+	"""
+	priorities: [CVEPriority!]
+
+	"""
+	Only return vulnerabilities with (true) or without (false) a CISA Known
+	Exploited Vulnerabilities (KEV) catalog entry.
+	"""
+	hasKevEntry: Boolean
 }
 
 type ImageVulnerabilitySummary {
@@ -34111,8 +35319,14 @@ type ImageVulnerabilitySummaryCountsBySeverity {
 
 "Vulnerability counts grouped by operational priority."
 type ImageVulnerabilitySummaryCountsByPriority {
-	"Known-exploited vulnerabilities that require immediate action."
+	"Deprecated. Always 0 at image and summary scope; use knownExploited for the KEV count."
 	urgent: Int!
+		@deprecated(
+			reason: "Always 0 at image and summary scope. Use knownExploited for the KEV count."
+		)
+
+	"Number of vulnerabilities with a CISA Known Exploited Vulnerabilities (KEV) entry."
+	knownExploited: Int!
 
 	"Vulnerabilities with strong exploitation indicators."
 	highRisk: Int!
@@ -34162,6 +35376,40 @@ type ImageVulnerabilityEdge {
 	node: ImageVulnerability!
 }
 
+"""
+Threat intelligence and scoring signals used to prioritize a vulnerability.
+"""
+type VulnerabilityRiskAssessment {
+	"Operational priority derived from the available risk signals."
+	priority: CVEPriority!
+
+	"CVSS score of the vulnerability."
+	cvssScore: Float
+
+	"EPSS score, representing the estimated probability of exploitation."
+	epssScore: Float
+
+	"EPSS percentile of the vulnerability as a percentage (0-100)."
+	epssPercentile: Float
+
+	"Whether the vulnerability has a CISA Known Exploited Vulnerabilities (KEV) entry."
+	hasKevEntry: Boolean!
+
+	"Whether the vulnerability is known to be used in ransomware attacks."
+	knownRansomwareUse: Boolean!
+}
+
+"""
+Package version information that helps remediate an image vulnerability.
+"""
+type VulnerabilityRemediation {
+	"First known package version that contains a fix."
+	fixVersion: String
+
+	"Latest available version of the package, which may include changes beyond the fix."
+	latestVersion: String
+}
+
 type ContainerImageWorkloadReferenceEdge {
 	"A cursor for use in pagination."
 	cursor: Cursor!
@@ -34186,7 +35434,10 @@ type ImageVulnerability implements Node {
 	severity: ImageVulnerabilitySeverity!
 
 	"Priority of the vulnerability based on threat intelligence signals."
-	priority: CVEPriority!
+	priority: CVEPriority! @deprecated(reason: "Use riskAssessment.priority instead.")
+
+	"Risk and threat intelligence signals used to prioritize the image vulnerability."
+	riskAssessment: VulnerabilityRiskAssessment!
 
 	"Description of the vulnerability."
 	description: String!
@@ -34194,8 +35445,29 @@ type ImageVulnerability implements Node {
 	"Package name of the vulnerability."
 	package: String!
 
+	"CVSS score of the vulnerability."
+	cvssScore: Float @deprecated(reason: "Use riskAssessment.cvssScore instead.")
+
+	"EPSS score of the vulnerability."
+	epssScore: Float @deprecated(reason: "Use riskAssessment.epssScore instead.")
+
+	"EPSS percentile of the vulnerability (0-1)."
+	epssPercentile: Float @deprecated(reason: "Use riskAssessment.epssPercentile instead.")
+
+	"Whether the vulnerability has a CISA KEV entry."
+	hasKevEntry: Boolean! @deprecated(reason: "Use riskAssessment.hasKevEntry instead.")
+
+	"Whether the vulnerability has known ransomware use."
+	knownRansomwareUse: Boolean! @deprecated(reason: "Use riskAssessment.knownRansomwareUse instead.")
+
+	"Package version information used to remediate the image vulnerability."
+	remediation: VulnerabilityRemediation!
+
 	"First known package version that contains a fix."
-	fixVersion: String
+	fixVersion: String @deprecated(reason: "Use remediation.fixVersion instead.")
+
+	"Latest available version of the package."
+	latestVersion: String @deprecated(reason: "Use remediation.latestVersion instead.")
 
 	suppression: ImageVulnerabilitySuppression
 
@@ -34204,26 +35476,11 @@ type ImageVulnerability implements Node {
 
 	"Link to the vulnerability details."
 	vulnerabilityDetailsLink: String!
-
-	"CVSS score of the vulnerability."
-	cvssScore: Float
-
-	"EPSS score of the vulnerability."
-	epssScore: Float
-
-	"EPSS percentile of the vulnerability (0-1)."
-	epssPercentile: Float
-
-	"Whether the vulnerability has a CISA KEV entry."
-	hasKevEntry: Boolean!
-
-	"Whether the vulnerability has known ransomware use."
-	knownRansomwareUse: Boolean!
 }
 
 "Operational priority levels for vulnerabilities and CVEs."
 enum CVEPriority {
-	"Vulnerability is known to be actively exploited and requires immediate action."
+	"Requires immediate action based on workload context, including internet exposure. Not assigned to CVEs at global scope; a KEV entry alone does not imply URGENT."
 	URGENT
 	"Vulnerability is associated with ransomware or has a high EPSS percentile."
 	HIGH
@@ -34253,22 +35510,25 @@ type CVE implements Node {
 	detailsLink: String!
 
 	"CVSS score of the CVE."
-	cvssScore: Float
+	cvssScore: Float @deprecated(reason: "Use riskAssessment.cvssScore instead.")
 
 	"Priority of the CVE based on threat intelligence signals."
-	priority: CVEPriority!
+	priority: CVEPriority! @deprecated(reason: "Use riskAssessment.priority instead.")
 
 	"EPSS score of the CVE (probability of exploitation)."
-	epssScore: Float
+	epssScore: Float @deprecated(reason: "Use riskAssessment.epssScore instead.")
 
-	"EPSS percentile of the CVE."
-	epssPercentile: Float
+	"EPSS percentile of the CVE (0-1)."
+	epssPercentile: Float @deprecated(reason: "Use riskAssessment.epssPercentile instead.")
 
 	"Whether the CVE has a Known Exploited Vulnerability (KEV) entry."
-	hasKevEntry: Boolean!
+	hasKevEntry: Boolean! @deprecated(reason: "Use riskAssessment.hasKevEntry instead.")
 
 	"Whether the CVE is known to be used in ransomware attacks."
-	knownRansomwareUse: Boolean!
+	knownRansomwareUse: Boolean! @deprecated(reason: "Use riskAssessment.knownRansomwareUse instead.")
+
+	"Risk and threat intelligence signals used to prioritize the CVE."
+	riskAssessment: VulnerabilityRiskAssessment!
 
 	"Affected workloads"
 	workloads(
@@ -34453,13 +35713,11 @@ enum VulnerabilitySummaryOrderByField {
 	Order by vulnerability severity unassigned.
 	"""
 	VULNERABILITY_SEVERITY_UNASSIGNED
-	"""
-	Order by the number of urgent vulnerabilities.
-
-	Urgent vulnerabilities are known to be actively exploited and should be
-	prioritized for immediate action.
-	"""
+	"Deprecated. URGENT requires workload internet exposure and cannot be ordered at summary scope."
 	VULNERABILITY_PRIORITY_URGENT
+		@deprecated(
+			reason: "Backed by a count that is always 0. URGENT requires workload internet exposure, so ordering by this value has no effect and falls back to a stable name sort."
+		)
 	"""
 	Order by the number of high-risk vulnerabilities.
 
@@ -34481,6 +35739,27 @@ enum VulnerabilitySummaryOrderByField {
 	same operational urgency as the higher priority buckets.
 	"""
 	VULNERABILITY_PRIORITY_MONITOR
+}
+
+extend input TeamFilter {
+	"""
+	Filter by the team's highest operational vulnerability priority across all environments.
+	Groups are mutually exclusive. Without orderBy, teams are ordered by the group's
+	finding count descending, then slug ascending. Missing summaries produce an error.
+	"""
+	vulnerabilityPriorityGroup: TeamVulnerabilityPriorityGroup
+}
+
+"Mutually exclusive groups based on the highest operational vulnerability priority."
+enum TeamVulnerabilityPriorityGroup {
+	"At least one high-risk finding."
+	HIGH
+	"No high-risk findings and at least one elevated-risk finding."
+	ELEVATED
+	"No high-risk or elevated-risk findings and at least one monitor finding."
+	MONITOR
+	"A valid summary confirms no high-risk, elevated-risk or monitor findings."
+	NONE
 }
 
 type TenantVulnerabilitySummary {
@@ -34527,6 +35806,36 @@ type TeamVulnerabilitySummary {
 
 	"Vulnerability counts grouped by operational priority."
 	countsByPriority: ImageVulnerabilitySummaryCountsByPriority!
+
+	"""
+	Number of workloads whose highest vulnerability priority is HIGH.
+
+	Counts workloads, not findings. Use countsByPriority.highRisk for the number
+	of findings. Each workload is counted under exactly one priority, and
+	workloads without unsuppressed findings are not counted at all, so these
+	counts do not necessarily sum to the total number of workloads.
+	"""
+	highWorkloadCount: Int!
+
+	"""
+	Number of workloads whose highest vulnerability priority is ELEVATED.
+
+	Counts workloads, not findings. Use countsByPriority.elevatedRisk for the
+	number of findings. Each workload is counted under exactly one priority, and
+	workloads without unsuppressed findings are not counted at all, so these
+	counts do not necessarily sum to the total number of workloads.
+	"""
+	elevatedWorkloadCount: Int!
+
+	"""
+	Number of workloads whose highest vulnerability priority is MONITOR.
+
+	Counts workloads, not findings. Use countsByPriority.monitor for the number
+	of findings. Each workload is counted under exactly one priority, and
+	workloads without unsuppressed findings are not counted at all, so these
+	counts do not necessarily sum to the total number of workloads.
+	"""
+	monitorWorkloadCount: Int!
 
 	"Number of vulnerabilities with severity CRITICAL."
 	critical: Int! @deprecated(reason: "Use countsBySeverity.critical instead.")
@@ -35196,6 +36505,11 @@ input TeamWorkloadsFilter {
 	Filter by user-defined labels. All listed labels must match.
 	"""
 	labels: [LabelFilter!]
+
+	"""
+	Only return workloads with the given SBOM pipeline status.
+	"""
+	sbomStatus: SBOMStatus
 }
 
 """
@@ -35219,6 +36533,14 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 // childFields_* functions provide shared child field context lookups.
 // Each function is generated once per unique object type, deduplicating the
 // switch statements that were previously inlined in every fieldContext_* function.
+
+func (ec *executionContext) childFields_ActivatePostgresBranchPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "postgres":
+		return ec.fieldContext_ActivatePostgresBranchPayload_postgres(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ActivatePostgresBranchPayload", field.Name)
+}
 
 func (ec *executionContext) childFields_ActivityLogActivityTypeFacetItem(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
@@ -35424,8 +36746,8 @@ func (ec *executionContext) childFields_Application(ctx context.Context, field g
 		return ec.fieldContext_Application_networkPolicy(ctx, field)
 	case "openSearch":
 		return ec.fieldContext_Application_openSearch(ctx, field)
-	case "postgresBranches":
-		return ec.fieldContext_Application_postgresBranches(ctx, field)
+	case "postgreses":
+		return ec.fieldContext_Application_postgreses(ctx, field)
 	case "secrets":
 		return ec.fieldContext_Application_secrets(ctx, field)
 	case "serviceAccount":
@@ -35842,6 +37164,8 @@ func (ec *executionContext) childFields_CVE(ctx context.Context, field graphql.C
 		return ec.fieldContext_CVE_hasKevEntry(ctx, field)
 	case "knownRansomwareUse":
 		return ec.fieldContext_CVE_knownRansomwareUse(ctx, field)
+	case "riskAssessment":
+		return ec.fieldContext_CVE_riskAssessment(ctx, field)
 	case "workloads":
 		return ec.fieldContext_CVE_workloads(ctx, field)
 	}
@@ -36112,6 +37436,22 @@ func (ec *executionContext) childFields_CreatePostgresAccessPayload(ctx context.
 	return nil, fmt.Errorf("no field named %q was found under type CreatePostgresAccessPayload", field.Name)
 }
 
+func (ec *executionContext) childFields_CreatePostgresBranchPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "postgresBranch":
+		return ec.fieldContext_CreatePostgresBranchPayload_postgresBranch(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type CreatePostgresBranchPayload", field.Name)
+}
+
+func (ec *executionContext) childFields_CreatePostgresPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "postgres":
+		return ec.fieldContext_CreatePostgresPayload_postgres(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type CreatePostgresPayload", field.Name)
+}
+
 func (ec *executionContext) childFields_CreateSecretPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "secret":
@@ -36242,6 +37582,14 @@ func (ec *executionContext) childFields_DeletePostgresBranchPayload(ctx context.
 		return ec.fieldContext_DeletePostgresBranchPayload_postgresBranchDeleted(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type DeletePostgresBranchPayload", field.Name)
+}
+
+func (ec *executionContext) childFields_DeletePostgresPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "deletionRequested":
+		return ec.fieldContext_DeletePostgresPayload_deletionRequested(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type DeletePostgresPayload", field.Name)
 }
 
 func (ec *executionContext) childFields_DeleteSecretPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -36604,18 +37952,12 @@ func (ec *executionContext) childFields_ImageVulnerability(ctx context.Context, 
 		return ec.fieldContext_ImageVulnerability_severity(ctx, field)
 	case "priority":
 		return ec.fieldContext_ImageVulnerability_priority(ctx, field)
+	case "riskAssessment":
+		return ec.fieldContext_ImageVulnerability_riskAssessment(ctx, field)
 	case "description":
 		return ec.fieldContext_ImageVulnerability_description(ctx, field)
 	case "package":
 		return ec.fieldContext_ImageVulnerability_package(ctx, field)
-	case "fixVersion":
-		return ec.fieldContext_ImageVulnerability_fixVersion(ctx, field)
-	case "suppression":
-		return ec.fieldContext_ImageVulnerability_suppression(ctx, field)
-	case "severitySince":
-		return ec.fieldContext_ImageVulnerability_severitySince(ctx, field)
-	case "vulnerabilityDetailsLink":
-		return ec.fieldContext_ImageVulnerability_vulnerabilityDetailsLink(ctx, field)
 	case "cvssScore":
 		return ec.fieldContext_ImageVulnerability_cvssScore(ctx, field)
 	case "epssScore":
@@ -36626,6 +37968,18 @@ func (ec *executionContext) childFields_ImageVulnerability(ctx context.Context, 
 		return ec.fieldContext_ImageVulnerability_hasKevEntry(ctx, field)
 	case "knownRansomwareUse":
 		return ec.fieldContext_ImageVulnerability_knownRansomwareUse(ctx, field)
+	case "remediation":
+		return ec.fieldContext_ImageVulnerability_remediation(ctx, field)
+	case "fixVersion":
+		return ec.fieldContext_ImageVulnerability_fixVersion(ctx, field)
+	case "latestVersion":
+		return ec.fieldContext_ImageVulnerability_latestVersion(ctx, field)
+	case "suppression":
+		return ec.fieldContext_ImageVulnerability_suppression(ctx, field)
+	case "severitySince":
+		return ec.fieldContext_ImageVulnerability_severitySince(ctx, field)
+	case "vulnerabilityDetailsLink":
+		return ec.fieldContext_ImageVulnerability_vulnerabilityDetailsLink(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type ImageVulnerability", field.Name)
 }
@@ -36702,6 +38056,8 @@ func (ec *executionContext) childFields_ImageVulnerabilitySummaryCountsByPriorit
 	switch field.Name {
 	case "urgent":
 		return ec.fieldContext_ImageVulnerabilitySummaryCountsByPriority_urgent(ctx, field)
+	case "knownExploited":
+		return ec.fieldContext_ImageVulnerabilitySummaryCountsByPriority_knownExploited(ctx, field)
 	case "highRisk":
 		return ec.fieldContext_ImageVulnerabilitySummaryCountsByPriority_highRisk(ctx, field)
 	case "elevatedRisk":
@@ -36938,8 +38294,8 @@ func (ec *executionContext) childFields_Job(ctx context.Context, field graphql.C
 		return ec.fieldContext_Job_networkPolicy(ctx, field)
 	case "openSearch":
 		return ec.fieldContext_Job_openSearch(ctx, field)
-	case "postgresBranches":
-		return ec.fieldContext_Job_postgresBranches(ctx, field)
+	case "postgreses":
+		return ec.fieldContext_Job_postgreses(ctx, field)
 	case "secrets":
 		return ec.fieldContext_Job_secrets(ctx, field)
 	case "serviceAccount":
@@ -37696,6 +39052,8 @@ func (ec *executionContext) childFields_Postgres(ctx context.Context, field grap
 	switch field.Name {
 	case "id":
 		return ec.fieldContext_Postgres_id(ctx, field)
+	case "teamEnvironment":
+		return ec.fieldContext_Postgres_teamEnvironment(ctx, field)
 	case "name":
 		return ec.fieldContext_Postgres_name(ctx, field)
 	case "majorVersion":
@@ -37704,6 +39062,8 @@ func (ec *executionContext) childFields_Postgres(ctx context.Context, field grap
 		return ec.fieldContext_Postgres_highAvailability(ctx, field)
 	case "resources":
 		return ec.fieldContext_Postgres_resources(ctx, field)
+	case "desiredActiveBranch":
+		return ec.fieldContext_Postgres_desiredActiveBranch(ctx, field)
 	case "activeBranch":
 		return ec.fieldContext_Postgres_activeBranch(ctx, field)
 	case "branch":
@@ -37712,6 +39072,8 @@ func (ec *executionContext) childFields_Postgres(ctx context.Context, field grap
 		return ec.fieldContext_Postgres_branches(ctx, field)
 	case "labels":
 		return ec.fieldContext_Postgres_labels(ctx, field)
+	case "activityLog":
+		return ec.fieldContext_Postgres_activityLog(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type Postgres", field.Name)
 }
@@ -37786,6 +39148,18 @@ func (ec *executionContext) childFields_PostgresBranch(ctx context.Context, fiel
 	return nil, fmt.Errorf("no field named %q was found under type PostgresBranch", field.Name)
 }
 
+func (ec *executionContext) childFields_PostgresBranchActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "branch":
+		return ec.fieldContext_PostgresBranchActivityLogEntryData_branch(ctx, field)
+	case "sourceBranch":
+		return ec.fieldContext_PostgresBranchActivityLogEntryData_sourceBranch(ctx, field)
+	case "targetTime":
+		return ec.fieldContext_PostgresBranchActivityLogEntryData_targetTime(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostgresBranchActivityLogEntryData", field.Name)
+}
+
 func (ec *executionContext) childFields_PostgresBranchConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "pageInfo":
@@ -37832,6 +39206,38 @@ func (ec *executionContext) childFields_PostgresBranchStateFacetItem(ctx context
 	return nil, fmt.Errorf("no field named %q was found under type PostgresBranchStateFacetItem", field.Name)
 }
 
+func (ec *executionContext) childFields_PostgresConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pageInfo":
+		return ec.fieldContext_PostgresConnection_pageInfo(ctx, field)
+	case "nodes":
+		return ec.fieldContext_PostgresConnection_nodes(ctx, field)
+	case "edges":
+		return ec.fieldContext_PostgresConnection_edges(ctx, field)
+	case "facets":
+		return ec.fieldContext_PostgresConnection_facets(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostgresConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_PostgresEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_PostgresEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_PostgresEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostgresEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_PostgresFacets(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "labels":
+		return ec.fieldContext_PostgresFacets_labels(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostgresFacets", field.Name)
+}
+
 func (ec *executionContext) childFields_PostgresGrantAccessActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "grantee":
@@ -37866,6 +39272,26 @@ func (ec *executionContext) childFields_PostgresResources(ctx context.Context, f
 		return ec.fieldContext_PostgresResources_diskSize(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type PostgresResources", field.Name)
+}
+
+func (ec *executionContext) childFields_PostgresUpdatedActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "updatedFields":
+		return ec.fieldContext_PostgresUpdatedActivityLogEntryData_updatedFields(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostgresUpdatedActivityLogEntryData", field.Name)
+}
+
+func (ec *executionContext) childFields_PostgresUpdatedActivityLogEntryDataUpdatedField(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "field":
+		return ec.fieldContext_PostgresUpdatedActivityLogEntryDataUpdatedField_field(ctx, field)
+	case "oldValue":
+		return ec.fieldContext_PostgresUpdatedActivityLogEntryDataUpdatedField_oldValue(ctx, field)
+	case "newValue":
+		return ec.fieldContext_PostgresUpdatedActivityLogEntryDataUpdatedField_newValue(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostgresUpdatedActivityLogEntryDataUpdatedField", field.Name)
 }
 
 func (ec *executionContext) childFields_Price(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -38928,8 +40354,8 @@ func (ec *executionContext) childFields_Team(ctx context.Context, field graphql.
 		return ec.fieldContext_Team_kafkaTopics(ctx, field)
 	case "openSearches":
 		return ec.fieldContext_Team_openSearches(ctx, field)
-	case "postgresBranches":
-		return ec.fieldContext_Team_postgresBranches(ctx, field)
+	case "postgreses":
+		return ec.fieldContext_Team_postgreses(ctx, field)
 	case "repositories":
 		return ec.fieldContext_Team_repositories(ctx, field)
 	case "secrets":
@@ -39478,6 +40904,12 @@ func (ec *executionContext) childFields_TeamVulnerabilitySummary(ctx context.Con
 		return ec.fieldContext_TeamVulnerabilitySummary_countsBySeverity(ctx, field)
 	case "countsByPriority":
 		return ec.fieldContext_TeamVulnerabilitySummary_countsByPriority(ctx, field)
+	case "highWorkloadCount":
+		return ec.fieldContext_TeamVulnerabilitySummary_highWorkloadCount(ctx, field)
+	case "elevatedWorkloadCount":
+		return ec.fieldContext_TeamVulnerabilitySummary_elevatedWorkloadCount(ctx, field)
+	case "monitorWorkloadCount":
+		return ec.fieldContext_TeamVulnerabilitySummary_monitorWorkloadCount(ctx, field)
 	case "critical":
 		return ec.fieldContext_TeamVulnerabilitySummary_critical(ctx, field)
 	case "high":
@@ -39712,6 +41144,14 @@ func (ec *executionContext) childFields_UpdateOpenSearchPayload(ctx context.Cont
 		return ec.fieldContext_UpdateOpenSearchPayload_openSearch(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type UpdateOpenSearchPayload", field.Name)
+}
+
+func (ec *executionContext) childFields_UpdatePostgresPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "postgres":
+		return ec.fieldContext_UpdatePostgresPayload_postgres(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type UpdatePostgresPayload", field.Name)
 }
 
 func (ec *executionContext) childFields_UpdateSecretPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -40140,6 +41580,34 @@ func (ec *executionContext) childFields_VulnerabilityFixSample(ctx context.Conte
 		return ec.fieldContext_VulnerabilityFixSample_totalWorkloads(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type VulnerabilityFixSample", field.Name)
+}
+
+func (ec *executionContext) childFields_VulnerabilityRemediation(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "fixVersion":
+		return ec.fieldContext_VulnerabilityRemediation_fixVersion(ctx, field)
+	case "latestVersion":
+		return ec.fieldContext_VulnerabilityRemediation_latestVersion(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type VulnerabilityRemediation", field.Name)
+}
+
+func (ec *executionContext) childFields_VulnerabilityRiskAssessment(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "priority":
+		return ec.fieldContext_VulnerabilityRiskAssessment_priority(ctx, field)
+	case "cvssScore":
+		return ec.fieldContext_VulnerabilityRiskAssessment_cvssScore(ctx, field)
+	case "epssScore":
+		return ec.fieldContext_VulnerabilityRiskAssessment_epssScore(ctx, field)
+	case "epssPercentile":
+		return ec.fieldContext_VulnerabilityRiskAssessment_epssPercentile(ctx, field)
+	case "hasKevEntry":
+		return ec.fieldContext_VulnerabilityRiskAssessment_hasKevEntry(ctx, field)
+	case "knownRansomwareUse":
+		return ec.fieldContext_VulnerabilityRiskAssessment_knownRansomwareUse(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type VulnerabilityRiskAssessment", field.Name)
 }
 
 func (ec *executionContext) childFields_WorkloadConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {

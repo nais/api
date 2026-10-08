@@ -4,23 +4,68 @@ kind: Postgres
 metadata:
   name: postgres-1
   namespace: devteam
+  labels:
+    usecase: reporting
 spec:
   majorVersion: "18"
+  highAvailability: false
+  activeBranch: main
+  resources:
+    cpu: 100m
+    memory: 512Mi
+    diskSize: 10Gi
 status:
-  activeBranch: postgres-1
+  activeBranch: main
 ---
 apiVersion: nais.io/v1
 kind: PostgresBranch
 metadata:
-  name: postgres-1
+  name: postgres-1-main-7adae74b
   namespace: devteam
-  labels:
-    key: value
-    team: devteam
 spec:
   postgres: postgres-1
+  branchName: main
 status:
+  clusterName: pg-postgres-1-main-7adae74b
   reconcilePhase: Completed
+  observedGeneration: 0
+  conditions:
+    - type: cluster.postgresql.cnpg.io/ObservedState
+      status: "True"
+      reason: Reconciled
+      message: "Cluster is in phase: Cluster in healthy state"
+      lastTransitionTime: "2026-09-17T00:00:00Z"
+---
+apiVersion: nais.io/v1
+kind: Postgres
+metadata:
+  name: postgres-2
+  namespace: devteam
+  labels:
+    usecase: analytics
+spec:
+  majorVersion: "17"
+  highAvailability: true
+  activeBranch: main
+  resources:
+    cpu: 200m
+    memory: 1Gi
+    diskSize: 20Gi
+status:
+  activeBranch: main
+---
+apiVersion: nais.io/v1
+kind: PostgresBranch
+metadata:
+  name: postgres-2-main-41c0e281
+  namespace: devteam
+spec:
+  postgres: postgres-2
+  branchName: main
+status:
+  clusterName: pg-postgres-2-main-41c0e281
+  reconcilePhase: Completed
+  observedGeneration: 0
   conditions:
     - type: cluster.postgresql.cnpg.io/ObservedState
       status: "True"

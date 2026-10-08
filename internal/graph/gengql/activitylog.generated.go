@@ -789,6 +789,13 @@ func (ec *executionContext) _ActivityLogEntry(ctx context.Context, sel ast.Selec
 			return graphql.Null
 		}
 		return ec._ReconcilerConfiguredActivityLogEntry(ctx, sel, obj)
+	case postgres.PostgresUpdatedActivityLogEntry:
+		return ec._PostgresUpdatedActivityLogEntry(ctx, sel, &obj)
+	case *postgres.PostgresUpdatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._PostgresUpdatedActivityLogEntry(ctx, sel, obj)
 	case postgres.PostgresPersonalAccessCreatedActivityLogEntry:
 		return ec._PostgresPersonalAccessCreatedActivityLogEntry(ctx, sel, &obj)
 	case *postgres.PostgresPersonalAccessCreatedActivityLogEntry:
@@ -817,6 +824,34 @@ func (ec *executionContext) _ActivityLogEntry(ctx context.Context, sel ast.Selec
 			return graphql.Null
 		}
 		return ec._PostgresDeletedActivityLogEntry(ctx, sel, obj)
+	case postgres.PostgresCreatedActivityLogEntry:
+		return ec._PostgresCreatedActivityLogEntry(ctx, sel, &obj)
+	case *postgres.PostgresCreatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._PostgresCreatedActivityLogEntry(ctx, sel, obj)
+	case postgres.PostgresBranchDeletedActivityLogEntry:
+		return ec._PostgresBranchDeletedActivityLogEntry(ctx, sel, &obj)
+	case *postgres.PostgresBranchDeletedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._PostgresBranchDeletedActivityLogEntry(ctx, sel, obj)
+	case postgres.PostgresBranchCreatedActivityLogEntry:
+		return ec._PostgresBranchCreatedActivityLogEntry(ctx, sel, &obj)
+	case *postgres.PostgresBranchCreatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._PostgresBranchCreatedActivityLogEntry(ctx, sel, obj)
+	case postgres.PostgresBranchActivatedActivityLogEntry:
+		return ec._PostgresBranchActivatedActivityLogEntry(ctx, sel, &obj)
+	case *postgres.PostgresBranchActivatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._PostgresBranchActivatedActivityLogEntry(ctx, sel, obj)
 	case opensearch.OpenSearchUpdatedActivityLogEntry:
 		return ec._OpenSearchUpdatedActivityLogEntry(ctx, sel, &obj)
 	case *opensearch.OpenSearchUpdatedActivityLogEntry:
@@ -1045,6 +1080,13 @@ func (ec *executionContext) _ActivityLogger(ctx context.Context, sel ast.Selecti
 			return graphql.Null
 		}
 		return ec._Reconciler(ctx, sel, obj)
+	case postgres.Postgres:
+		return ec._Postgres(ctx, sel, &obj)
+	case *postgres.Postgres:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Postgres(ctx, sel, obj)
 	case workload.ContainerImage:
 		return ec._ContainerImage(ctx, sel, &obj)
 	case *workload.ContainerImage:

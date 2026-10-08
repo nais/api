@@ -8,6 +8,12 @@ import (
 	"github.com/nais/api/internal/graph/model"
 )
 
+func (f *PostgresFacets) Labels(ctx context.Context) []model.LabelFacetItem {
+	return model.ComputeLabelsFacet(f.AllInstances, f.FilteredInstances, func(pg *Postgres) []*model.ResourceLabel {
+		return pg.Labels
+	})
+}
+
 // Filtered returns the filtered Postgres instances, computing it exactly once per request.
 func (f *PostgresBranchFacets) Filtered(ctx context.Context) []*PostgresBranch {
 	f.filteredOnce.Do(func() {

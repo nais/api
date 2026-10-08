@@ -74,7 +74,7 @@ type TeamResolver interface {
 	Jobs(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *job.JobOrder, filter *job.TeamJobsFilter) (*pagination.FacetableConnection[*job.Job, *job.TeamJobsFilter], error)
 	KafkaTopics(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *kafkatopic.KafkaTopicOrder, filter *kafkatopic.KafkaTopicFilter) (*pagination.FacetableConnection[*kafkatopic.KafkaTopic, *kafkatopic.KafkaTopicFilter], error)
 	OpenSearches(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *opensearch.OpenSearchOrder, filter *opensearch.OpenSearchFilter) (*pagination.FacetableConnection[*opensearch.OpenSearch, *opensearch.OpenSearchFilter], error)
-	PostgresBranches(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *postgres.PostgresBranchOrder, filter *postgres.PostgresBranchFilter) (*pagination.FacetableConnection[*postgres.PostgresBranch, *postgres.PostgresBranchFilter], error)
+	Postgreses(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *postgres.TeamPostgresFilter) (*pagination.FacetableConnection[*postgres.Postgres, *postgres.TeamPostgresFilter], error)
 	Repositories(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *repository.RepositoryOrder, filter *repository.TeamRepositoryFilter) (*pagination.Connection[*repository.Repository], error)
 	Secrets(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *secret.SecretOrder, filter *secret.SecretFilter) (*pagination.FacetableConnection[*secret.Secret, *secret.SecretFilter], error)
 	ServiceAccounts(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*serviceaccount.ServiceAccount], error)
@@ -1060,7 +1060,7 @@ func (ec *executionContext) field_Team_openSearches_args(ctx context.Context, ra
 	return args, nil
 }
 
-func (ec *executionContext) field_Team_postgresBranches_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func (ec *executionContext) field_Team_postgreses_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
@@ -1095,22 +1095,14 @@ func (ec *executionContext) field_Team_postgresBranches_args(ctx context.Context
 		return nil, err
 	}
 	args["before"] = arg3
-	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "orderBy",
-		func(ctx context.Context, v any) (*postgres.PostgresBranchOrder, error) {
-			return ec.unmarshalOPostgresBranchOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresBranchOrder(ctx, v)
+	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "filter",
+		func(ctx context.Context, v any) (*postgres.TeamPostgresFilter, error) {
+			return ec.unmarshalOTeamPostgresFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐTeamPostgresFilter(ctx, v)
 		})
 	if err != nil {
 		return nil, err
 	}
-	args["orderBy"] = arg4
-	arg5, err := graphql.ProcessArgField(ctx, rawArgs, "filter",
-		func(ctx context.Context, v any) (*postgres.PostgresBranchFilter, error) {
-			return ec.unmarshalOPostgresBranchFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresBranchFilter(ctx, v)
-		})
-	if err != nil {
-		return nil, err
-	}
-	args["filter"] = arg5
+	args["filter"] = arg4
 	return args, nil
 }
 
@@ -2745,34 +2737,34 @@ func (ec *executionContext) fieldContext_Team_openSearches(ctx context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_postgresBranches(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+func (ec *executionContext) _Team_postgreses(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Team_postgresBranches(ctx, field)
+			return ec.fieldContext_Team_postgreses(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.Resolvers.Team().PostgresBranches(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*postgres.PostgresBranchOrder), fc.Args["filter"].(*postgres.PostgresBranchFilter))
+			return ec.Resolvers.Team().Postgreses(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["filter"].(*postgres.TeamPostgresFilter))
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *pagination.FacetableConnection[*postgres.PostgresBranch, *postgres.PostgresBranchFilter]) graphql.Marshaler {
-			return ec.marshalNPostgresBranchConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *pagination.FacetableConnection[*postgres.Postgres, *postgres.TeamPostgresFilter]) graphql.Marshaler {
+			return ec.marshalNPostgresConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Team_postgresBranches(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Team_postgreses(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Team",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_PostgresBranchConnection(ctx, field)
+			return ec.childFields_PostgresConnection(ctx, field)
 		},
 	}
 	defer func() {
@@ -2782,7 +2774,7 @@ func (ec *executionContext) fieldContext_Team_postgresBranches(ctx context.Conte
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Team_postgresBranches_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Team_postgreses_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -7955,7 +7947,7 @@ func (ec *executionContext) unmarshalInputTeamFilter(ctx context.Context, obj an
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"hasWorkloads"}
+	fieldsInOrder := [...]string{"hasWorkloads", "vulnerabilityPriorityGroup"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -7969,6 +7961,13 @@ func (ec *executionContext) unmarshalInputTeamFilter(ctx context.Context, obj an
 				return it, err
 			}
 			it.HasWorkloads = data
+		case "vulnerabilityPriorityGroup":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("vulnerabilityPriorityGroup"))
+			data, err := ec.unmarshalOTeamVulnerabilityPriorityGroup2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamVulnerabilityPriorityGroup(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.VulnerabilityPriorityGroup = data
 		}
 	}
 	return it, nil
@@ -9220,7 +9219,7 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "postgresBranches":
+		case "postgreses":
 			field := field
 
 			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
@@ -9229,7 +9228,7 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Team_postgresBranches(ctx, field, obj)
+				res = ec._Team_postgreses(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}

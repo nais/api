@@ -16,16 +16,18 @@ const loadersKey ctxKey = iota
 func NewLoaderContext(
 	ctx context.Context,
 	postgresBranchWatcher *watcher.Watcher[*PostgresBranch],
+	postgresWatcher *watcher.Watcher[*Postgres],
 	auditLogProjectID string,
 	auditLogLocation string,
 	tenantName string,
 	clients map[string]dynamic.Interface,
 ) context.Context {
-	return context.WithValue(ctx, loadersKey, newLoaders(postgresBranchWatcher, auditLogProjectID, auditLogLocation, tenantName, clients))
+	return context.WithValue(ctx, loadersKey, newLoaders(postgresBranchWatcher, postgresWatcher, auditLogProjectID, auditLogLocation, tenantName, clients))
 }
 
 type loaders struct {
 	postgresBranchWatcher *watcher.Watcher[*PostgresBranch]
+	postgresWatcher       *watcher.Watcher[*Postgres]
 	auditLogProjectID     string
 	auditLogLocation      string
 	tenantName            string
@@ -34,6 +36,7 @@ type loaders struct {
 
 func newLoaders(
 	postgresBranchWatcher *watcher.Watcher[*PostgresBranch],
+	postgresWatcher *watcher.Watcher[*Postgres],
 	auditLogProjectID string,
 	auditLogLocation string,
 	tenantName string,
@@ -41,6 +44,7 @@ func newLoaders(
 ) *loaders {
 	return &loaders{
 		postgresBranchWatcher: postgresBranchWatcher,
+		postgresWatcher:       postgresWatcher,
 		auditLogProjectID:     auditLogProjectID,
 		auditLogLocation:      auditLogLocation,
 		tenantName:            tenantName,
@@ -65,6 +69,17 @@ func NewPostgresBranchWatcher(ctx context.Context, mgr *watcher.Manager) *watche
 		Group:    "nais.io",
 		Version:  "v1",
 		Resource: "postgresbranches",
+	}))
+	w.Start(ctx)
+	return w
+}
+
+func NewPostgresWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watcher[*Postgres] {
+	w := watcher.Watch(mgr, &Postgres{}, watcher.WithConverter(func(o *unstructured.Unstructured, environmentName string) (obj any, ok bool) {
+		ret, err := toPostgres(o, environmentName)
+		return ret, err == nil
+	}), watcher.WithGVR(schema.GroupVersionResource{
+		Group: "nais.io", Version: "v1", Resource: "postgres",
 	}))
 	w.Start(ctx)
 	return w

@@ -19,6 +19,14 @@ status:
   activeBranch: recovered
 ---
 apiVersion: nais.io/v1
+kind: Postgres
+metadata:
+  name: archive
+  namespace: postgres-workload-team
+spec:
+  majorVersion: "18"
+---
+apiVersion: nais.io/v1
 kind: PostgresBranch
 metadata:
   name: orders-green-d77a35b4
@@ -48,6 +56,8 @@ spec:
       - name: orders
       - name: reports
         envPrefix: REPORTS_
+      - name: archive
+        envPrefix: ARCHIVE_
 ---
 apiVersion: nais.io/v1
 kind: Naisjob
@@ -62,3 +72,5 @@ spec:
       - name: orders
       - name: reports
         envPrefix: REPORTS_
+      - name: archive
+        envPrefix: ARCHIVE_

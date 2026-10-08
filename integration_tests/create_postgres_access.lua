@@ -1,10 +1,14 @@
 local user = User.new("user", "user@usersen.com")
 local otherMemberUser = User.new("othermember", "othermember@usersen.com")
+local creatorUser = User.new("creator", "creator@usersen.com")
+local staleUser = User.new("stale", "stale@usersen.com")
 local nonMemberUser = User.new("nonmember", "other@user.com")
 
 local mainTeam = Team.new("someteamname", "purpose", "#slack_channel")
 mainTeam:addMember(user)
 mainTeam:addMember(otherMemberUser)
+mainTeam:addMember(creatorUser)
+mainTeam:addMember(staleUser)
 
 Helper.readK8sResources("k8s_resources/create_postgres_access")
 
@@ -151,7 +155,7 @@ Test.gql("Create personal postgres access rejects an unavailable instance", func
 end)
 
 Test.gql("Create personal postgres access", function(t)
-	t.addHeader("x-user-email", user:email())
+	t.addHeader("x-user-email", creatorUser:email())
 	t.query [[
 		mutation CreatePostgresAccess {
 			createPostgresAccess(input: {
@@ -179,7 +183,7 @@ Test.gql("Create personal postgres access", function(t)
 end)
 
 Test.gql("Personal postgres access is audited as a self-grant", function(t)
-	t.addHeader("x-user-email", user:email())
+	t.addHeader("x-user-email", creatorUser:email())
 	t.query [[
 		{
 			team(slug: "someteamname") {
@@ -206,9 +210,9 @@ Test.gql("Personal postgres access is audited as a self-grant", function(t)
 				activityLog = {
 					nodes = {
 						{
-							message = Contains("Requested READWRITE personal Postgres access for user@usersen.com"),
+							message = Contains("Requested READWRITE personal Postgres access for creator@usersen.com"),
 							data = {
-								username = "user@usersen.com",
+								username = "creator@usersen.com",
 								accessLevel = "READWRITE",
 								expiresAt = NotNull(),
 								reason = "Testing personal database access",
@@ -218,6 +222,38 @@ Test.gql("Personal postgres access is audited as a self-grant", function(t)
 				},
 			},
 		},
+	}
+end)
+
+Test.gql("Requesting access again returns the live access instead of creating another", function(t)
+	t.addHeader("x-user-email", creatorUser:email())
+	local request = [[
+		mutation { createPostgresAccess(input: {
+			postgres: "foobar", branch: "main", environmentName: "dev", teamSlug: "someteamname",
+			accessLevel: READWRITE, reason: "Testing personal database access"
+		}) { name expiresAt } }
+	]]
+	t.query(request)
+	t.check { data = { createPostgresAccess = { name = NotNull(), expiresAt = NotNull() } } }
+	t.query(request)
+	t.check { data = { createPostgresAccess = { name = NotNull(), expiresAt = NotNull() } } }
+
+	-- A reused access is not a new request, so it must not be audited again.
+	t.query [[{ team(slug: "someteamname") { activityLog(filter: { activityTypes: [POSTGRES_PERSONAL_ACCESS_CREATED] }) { nodes { message } } } }]]
+	t.check { data = { team = { activityLog = { nodes = { { message = Contains("creator@usersen.com") } } } } } }
+end)
+
+Test.gql("Requesting a different access level while one is live is rejected", function(t)
+	t.addHeader("x-user-email", creatorUser:email())
+	t.query [[
+		mutation { createPostgresAccess(input: {
+			postgres: "foobar", branch: "main", environmentName: "dev", teamSlug: "someteamname",
+			accessLevel: READ, reason: "Testing personal database access"
+		}) { name } }
+	]]
+	t.check {
+		errors = { { locations = NotNull(), path = { "createPostgresAccess" }, message = Contains("already have readwrite access") } },
+		data = Null,
 	}
 end)
 
@@ -305,7 +341,7 @@ Test.gql("PostgresAccess connection returns credentials only to its owner", func
 				caCertificate = "test-ca-certificate",
 				serverName = "pg-foobar-main-a4f04c0c-rw.someteamname.svc.cluster.local",
 				username = "user-foobar-role",
-				relayEndpoint = Contains("https://relay.external.dev."),
+				relayEndpoint = "https://relay.external.dev.nav.cloud.nais.io:8443",
 				relayAccess = "someteamname/mapped-access",
 				relayToken = "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8",
 			},
@@ -340,37 +376,60 @@ Test.gql("PostgresAccess credentials cannot be read through generic Secret eleva
 	end
 end)
 
-Test.gql("PostgresAccess connection rejects expired, unready, and missing-secret access", function(t)
+Test.gql("PostgresAccess connection is null without error until the access is ready", function(t)
 	t.addHeader("x-user-email", user:email())
 	for _, test in ipairs({
-		{ name = "expired-access",        state = "EXPIRED", message = "has expired" },
-		{ name = "pending-access",        state = "PENDING", message = "is not ready" },
-		{ name = "failed-access",         state = "FAILED",  message = "is not ready" },
-		{ name = "missing-secret-access", state = "READY",   message = "secrets for PostgresAccess is not available" },
+		{ name = "expired-access", state = "EXPIRED" },
+		{ name = "pending-access", state = "PENDING" },
+		{ name = "failed-access",  state = "FAILED" },
 	}) do
 		t.query(string.format(
 			[[query { team(slug: "someteamname") { environment(name: "dev") { postgresAccess(name: "%s") { state connection { password } } } } }]],
 			test.name))
 		t.check {
-			errors = { { locations = NotNull(), path = { "team", "environment", "postgresAccess", "connection" }, message = Contains(test.message) } },
 			data = { team = { environment = { postgresAccess = { state = test.state, connection = Null } } } },
 		}
 	end
 end)
 
-Test.gql("Personal postgres connection retrieval is audited", function(t)
+Test.gql("PostgresAccess connection is null before relay endpoint is published", function(t)
 	t.addHeader("x-user-email", user:email())
-	t.query [[
-		query { team(slug: "someteamname") { environment(name: "dev") { postgresAccess(name: "ready-access") { connection { password } } } } }
-	]]
-	t.check { data = { team = { environment = { postgresAccess = { connection = { password = "supersecret" } } } } } }
+	t.query [[query { team(slug: "someteamname") { environment(name: "dev") { postgresAccess(name: "ready-no-endpoint-access") { connection { relayEndpoint } } } } }]]
+	t.check { data = { team = { environment = { postgresAccess = { connection = Null } } } } }
+end)
+
+Test.gql("PostgresAccess connection fails when a ready access has no secrets", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[query { team(slug: "someteamname") { environment(name: "dev") { postgresAccess(name: "missing-secret-access") { state connection { password } } } } }]]
+	t.check {
+		errors = { { locations = NotNull(), path = { "team", "environment", "postgresAccess", "connection" }, message = Contains("secrets for PostgresAccess is not available") } },
+		data = { team = { environment = { postgresAccess = { state = "READY", connection = Null } } } },
+	}
+end)
+
+Test.gql("Retrieving personal postgres connection materials does not create activity entries", function(t)
+	t.addHeader("x-user-email", user:email())
+	for _ = 1, 2 do
+		t.query [[
+			query { team(slug: "someteamname") { environment(name: "dev") { postgresAccess(name: "ready-access") { connection { password } } } } }
+		]]
+		t.check { data = { team = { environment = { postgresAccess = { connection = { password = "supersecret" } } } } } }
+	end
 
 	t.query [[
-		{ team(slug: "someteamname") { activityLog(first: 1) { nodes { message ... on PostgresPersonalAccessConnectionActivityLogEntry { resourceName } } } } }
+		{ team(slug: "someteamname") { activityLog(filter: { activityTypes: [POSTGRES_PERSONAL_ACCESS_CONNECTION] }) { nodes { id } } } }
 	]]
-	t.check {
-		data = { team = { activityLog = { nodes = {
-			{ message = Contains("Retrieved personal Postgres connection materials"), resourceName = "ready-access" },
-		} } } },
-	}
+	t.check { data = { team = { activityLog = { nodes = {} } } } }
+end)
+
+Test.gql("An expired access is replaced in the same request", function(t)
+	t.addHeader("x-user-email", staleUser:email())
+	local request = [[
+		mutation { createPostgresAccess(input: {
+			postgres: "foobar", branch: "main", environmentName: "dev", teamSlug: "someteamname",
+			accessLevel: READ, reason: "Testing personal database access"
+		}) { name } }
+	]]
+	t.query(request)
+	t.check { data = { createPostgresAccess = { name = "postgres-access-9269571e872b7c9d" } } }
 end)

@@ -1,0 +1,47 @@
+apiVersion: nais.io/v1
+kind: Postgres
+metadata:
+  name: by-app
+  namespace: pg-delete-whole
+  finalizers:
+    - postgres.nais.io
+spec:
+  majorVersion: "18"
+---
+apiVersion: nais.io/v1
+kind: Postgres
+metadata:
+  name: by-job
+  namespace: pg-delete-whole
+  finalizers:
+    - postgres.nais.io
+spec:
+  majorVersion: "18"
+---
+apiVersion: nais.io/v1
+kind: Postgres
+metadata:
+  name: by-binding
+  namespace: pg-delete-whole
+  finalizers:
+    - postgres.nais.io
+spec:
+  majorVersion: "18"
+---
+apiVersion: nais.io/v1
+kind: Postgres
+metadata:
+  name: removable
+  namespace: pg-delete-whole
+  finalizers:
+    - postgres.nais.io
+spec:
+  majorVersion: "18"
+---
+apiVersion: nais.io/v1
+kind: Postgres
+metadata:
+  name: missing-finalizer
+  namespace: pg-delete-whole
+spec:
+  majorVersion: "18"
