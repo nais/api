@@ -71,6 +71,9 @@ func Delete(ctx context.Context, input DeletePostgresBranchInput) (*DeletePostgr
 	if err := ensureInstanceMayBeDeleted(input.Branch, postgres); err != nil {
 		return nil, err
 	}
+	if err := ensureBranchUnreferenced(ctx, input); err != nil {
+		return nil, err
+	}
 	if err := client.Namespace(input.TeamSlug.String()).Delete(ctx, objectName, metav1.DeleteOptions{Preconditions: &metav1.Preconditions{UID: ptr.To(instance.GetUID())}}); err != nil {
 		return nil, err
 	}
@@ -96,8 +99,9 @@ func ensureInstanceMayBeDeleted(branch string, postgres *unstructured.Unstructur
 	if obj.Status != nil {
 		current = obj.Status.ActiveBranch
 	}
-	// Pgrator selects main when neither field is set.
-	if requested == "" && current == "" {
+	// Until an observed selection exists, bindings follow the initial main,
+	// even when activation of another branch has already been requested.
+	if current == "" {
 		current = nais_io_v1.DefaultBranchName
 	}
 	if branch == requested || branch == current {
@@ -633,19 +637,27 @@ func WorkloadsForInstance(ctx context.Context, teamSlug slug.Slug, environmentNa
 		return nil
 	}
 	postgres, err := GetPostgres(ctx, teamSlug, environmentName, instance.PostgresName)
-	if err != nil || postgres.ActiveBranch == nil || *postgres.ActiveBranch != branchName {
+	if err != nil {
 		return nil
+	}
+	activeBranch := nais_io_v1.DefaultBranchName
+	if postgres.ActiveBranch != nil {
+		activeBranch = *postgres.ActiveBranch
+	}
+	usesBranch := func(use liberatorv1.PostgresUse) bool {
+		return use.Name == instance.PostgresName && (use.Branch == branchName ||
+			use.Branch == "" && activeBranch == branchName)
 	}
 	apps := application.ListAllForTeamInEnvironment(ctx, teamSlug, environmentName)
 	jobs := job.ListAllForTeamInEnvironment(ctx, teamSlug, environmentName)
 	ret := make([]workload.Workload, 0)
 	for _, app := range apps {
-		if app.Spec != nil && app.Spec.Uses != nil && slices.ContainsFunc(app.Spec.Uses.Postgres, func(use liberatorv1.PostgresUse) bool { return use.Name == instance.PostgresName }) {
+		if app.Spec != nil && app.Spec.Uses != nil && slices.ContainsFunc(app.Spec.Uses.Postgres, usesBranch) {
 			ret = append(ret, app)
 		}
 	}
 	for _, j := range jobs {
-		if j.Spec != nil && j.Spec.Uses != nil && slices.ContainsFunc(j.Spec.Uses.Postgres, func(use liberatorv1.PostgresUse) bool { return use.Name == instance.PostgresName }) {
+		if j.Spec != nil && j.Spec.Uses != nil && slices.ContainsFunc(j.Spec.Uses.Postgres, usesBranch) {
 			ret = append(ret, j)
 		}
 	}

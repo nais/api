@@ -46,6 +46,15 @@ func TestDeletePostgresBranchRequiresInactiveBranch(t *testing.T) {
 	}
 }
 
+func TestBranchDeletionProtectsInitialMainDuringPendingActivation(t *testing.T) {
+	postgres := &unstructured.Unstructured{Object: map[string]any{"spec": map[string]any{"activeBranch": "restored"}}}
+	for _, branch := range []string{"main", "restored"} {
+		if err := ensureInstanceMayBeDeleted(branch, postgres); err == nil {
+			t.Errorf("branch %q must be protected until activation is observed", branch)
+		}
+	}
+}
+
 func TestWorkloadUsesMultiplePostgresResources(t *testing.T) {
 	scheme, err := kubernetes.NewScheme()
 	if err != nil {

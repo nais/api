@@ -106,14 +106,27 @@ end)
 
 Test.gql("Deleting a branch logs its name without deleting the Postgres", function(t)
 	t.addHeader("x-user-email", member:email())
+	-- Main remains selected until pgrator observes activation; delete a separate
+	-- inactive branch instead of treating a requested switch as completed.
+	t.query [[mutation { createPostgresBranch(input: {
+		postgres: "existing", branch: "unused", sourceBranch: "main", targetTime: "2026-09-30T12:00:00Z",
+		environmentName: "dev", teamSlug: "pg-crud-team"
+	}) { postgresBranch { name } } }]]
+	t.check { data = { createPostgresBranch = { postgresBranch = { name = "unused" } } } }
 	t.query [[mutation { deletePostgresBranch(input: {
-		postgres: "existing", branch: "main", environmentName: "dev", teamSlug: "pg-crud-team"
+		postgres: "existing", branch: "unused", environmentName: "dev", teamSlug: "pg-crud-team"
 	}) { postgresBranchDeleted } }]]
 	t.check { data = { deletePostgresBranch = { postgresBranchDeleted = true } } }
-	t.query [[{ team(slug: "pg-crud-team") { activityLog(first: 10, filter: { activityTypes: [POSTGRES_BRANCH_DELETED] }) {
-		nodes { __typename resourceName message ... on PostgresBranchDeletedActivityLogEntry { data { branch } } }
-	} } }]]
-	t.check { data = { team = { activityLog = { nodes = {
-		{ __typename = "PostgresBranchDeletedActivityLogEntry", resourceName = "existing", message = "Postgres branch deleted: main", data = { branch = "main" } },
-	} } } } }
+	t.query [[{ team(slug: "pg-crud-team") {
+		environment(name: "dev") { postgres(name: "existing") { name } }
+		activityLog(first: 10, filter: { activityTypes: [POSTGRES_BRANCH_DELETED] }) {
+			nodes { __typename resourceName message ... on PostgresBranchDeletedActivityLogEntry { data { branch } } }
+		}
+	} }]]
+	t.check { data = { team = {
+		environment = { postgres = { name = "existing" } },
+		activityLog = { nodes = {
+			{ __typename = "PostgresBranchDeletedActivityLogEntry", resourceName = "existing", message = "Postgres branch deleted: unused", data = { branch = "unused" } },
+		} },
+	} } }
 end)
