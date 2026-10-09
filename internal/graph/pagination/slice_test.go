@@ -48,7 +48,7 @@ func TestSlice(t *testing.T) {
 
 func TestSliceBeforeBoundary(t *testing.T) {
 	var nodes []int
-	for index := 0; index < 25; index++ {
+	for index := range 25 {
 		nodes = append(nodes, index)
 	}
 	for _, test := range []struct {
