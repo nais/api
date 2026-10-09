@@ -26,11 +26,21 @@ for _, test in ipairs({
 	{ branch = "pr-123",  reference = 'Naisjob "pinned-job"' },
 	{ branch = "binding", reference = 'PostgresBinding "standalone-binding"' },
 }) do
-	Test.gql("Cannot delete branch referenced by " .. test.reference, function(t)
+	Test.gql("Deleting a branch referenced by " .. test.reference .. " is allowed and audited", function(t)
 		t.addHeader("x-user-email", user:email())
 		t.query([[mutation { deletePostgresBranch(input: { postgres: "orders", branch: "]] ..
 			test.branch .. [[", environmentName: "dev", teamSlug: "pg-selection-team" }) { postgresBranchDeleted } }]])
-		t.check { errors = { { locations = NotNull(), path = { "deletePostgresBranch" }, message = Contains(test.reference) } }, data = Null }
+		t.check { data = { deletePostgresBranch = { postgresBranchDeleted = true } } }
+		t.query [[{ team(slug: "pg-selection-team") {
+			activityLog(first: 1, filter: { activityTypes: [POSTGRES_BRANCH_DELETED] }) {
+				nodes { actor createdAt resourceName teamSlug environmentName
+					... on PostgresBranchDeletedActivityLogEntry { data { branch } }
+				}
+			}
+		} }]]
+		t.check { data = { team = { activityLog = { nodes = {
+			{ actor = user:email(), createdAt = NotNull(), resourceName = "orders", teamSlug = "pg-selection-team", environmentName = "dev", data = { branch = test.branch } },
+		} } } } }
 	end)
 end
 

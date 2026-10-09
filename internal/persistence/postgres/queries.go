@@ -71,7 +71,11 @@ func Delete(ctx context.Context, input DeletePostgresBranchInput) (*DeletePostgr
 	if err := ensureInstanceMayBeDeleted(input.Branch, postgres); err != nil {
 		return nil, err
 	}
-	if err := ensureBranchUnreferenced(ctx, input); err != nil {
+	branches, err := client.Namespace(input.TeamSlug.String()).List(ctx, metav1.ListOptions{})
+	if err != nil {
+		return nil, fmt.Errorf("listing remaining Postgres branches before deletion: %w", err)
+	}
+	if err := ensureAnotherBranchExists(input.Postgres, input.Branch, branches); err != nil {
 		return nil, err
 	}
 	if err := client.Namespace(input.TeamSlug.String()).Delete(ctx, objectName, metav1.DeleteOptions{Preconditions: &metav1.Preconditions{UID: ptr.To(instance.GetUID())}}); err != nil {
@@ -108,6 +112,20 @@ func ensureInstanceMayBeDeleted(branch string, postgres *unstructured.Unstructur
 		return apierror.Errorf("PostgresBranch %q is active and cannot be deleted", branch)
 	}
 	return nil
+}
+
+func ensureAnotherBranchExists(postgres, branch string, branches *unstructured.UnstructuredList) error {
+	for i := range branches.Items {
+		obj := &branches.Items[i]
+		if obj.GetDeletionTimestamp() != nil {
+			continue
+		}
+		candidate, err := toPostgresBranch(obj, "")
+		if err == nil && candidate.PostgresName == postgres && candidate.Name != branch {
+			return nil
+		}
+	}
+	return apierror.Errorf("PostgresBranch %q is the last branch in Postgres %q; delete the whole Postgres instead", branch, postgres)
 }
 
 // ListPostgresForWorkload resolves the Postgres databases referenced by a workload,
