@@ -110,6 +110,8 @@ type PostgresBranch implements Persistence & Node {
 type Postgres implements Node {
 	"Opaque identifier for this Postgres."
 	id: ID!
+	"Team owning this Postgres."
+	team: Team!
 	"Team environment containing this Postgres."
 	teamEnvironment: TeamEnvironment!
 	"Name of this Postgres."
@@ -220,10 +222,11 @@ type PostgresBranchStateFacetItem {
 	count: Int!
 }
 
-extend union SearchNode = PostgresBranch
+extend union SearchNode = Postgres
 
 extend enum SearchType {
-	POSTGRES_BRANCH
+	"Search for Postgres databases by name."
+	POSTGRES
 }
 
 extend enum ActivityLogEntryResourceType {

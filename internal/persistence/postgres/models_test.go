@@ -28,9 +28,6 @@ func TestToPostgresBranch(t *testing.T) {
 	if got.GetName() != obj.GetName() {
 		t.Errorf("watcher name = %q, want %q", got.GetName(), obj.GetName())
 	}
-	if got.SearchName() != "orders/restored" {
-		t.Errorf("search name = %q, want orders/restored", got.SearchName())
-	}
 	if got.ID().Type != "PBR" {
 		t.Errorf("PostgresBranch ID type = %q, want PBR", got.ID().Type)
 	}

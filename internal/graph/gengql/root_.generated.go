@@ -1929,6 +1929,7 @@ type ComplexityRoot struct {
 		MajorVersion        func(childComplexity int) int
 		Name                func(childComplexity int) int
 		Resources           func(childComplexity int) int
+		Team                func(childComplexity int) int
 		TeamEnvironment     func(childComplexity int) int
 	}
 
@@ -11973,6 +11974,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Postgres.Resources(childComplexity), true
+
+	case "Postgres.team":
+		if e.ComplexityRoot.Postgres.Team == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Postgres.Team(childComplexity), true
 
 	case "Postgres.teamEnvironment":
 		if e.ComplexityRoot.Postgres.TeamEnvironment == nil {
@@ -28353,6 +28361,8 @@ type PostgresBranch implements Persistence & Node {
 type Postgres implements Node {
 	"Opaque identifier for this Postgres."
 	id: ID!
+	"Team owning this Postgres."
+	team: Team!
 	"Team environment containing this Postgres."
 	teamEnvironment: TeamEnvironment!
 	"Name of this Postgres."
@@ -28463,10 +28473,11 @@ type PostgresBranchStateFacetItem {
 	count: Int!
 }
 
-extend union SearchNode = PostgresBranch
+extend union SearchNode = Postgres
 
 extend enum SearchType {
-	POSTGRES_BRANCH
+	"Search for Postgres databases by name."
+	POSTGRES
 }
 
 extend enum ActivityLogEntryResourceType {
@@ -39052,6 +39063,8 @@ func (ec *executionContext) childFields_Postgres(ctx context.Context, field grap
 	switch field.Name {
 	case "id":
 		return ec.fieldContext_Postgres_id(ctx, field)
+	case "team":
+		return ec.fieldContext_Postgres_team(ctx, field)
 	case "teamEnvironment":
 		return ec.fieldContext_Postgres_teamEnvironment(ctx, field)
 	case "name":

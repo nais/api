@@ -125,12 +125,13 @@ func TestReadyPostgresBranchUsesConcreteName(t *testing.T) {
 	t.Cleanup(mgr.Stop)
 	ctx := context.Background()
 	postgresBranchWatcher := NewPostgresBranchWatcher(ctx, mgr)
+	postgresWatcher := NewPostgresWatcher(ctx, mgr)
 	wait, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 	if !mgr.WaitForReady(wait) {
 		t.Fatal("PostgresBranch watcher did not synchronize")
 	}
-	ctx = NewLoaderContext(ctx, postgresBranchWatcher, nil, "", "", "nav", mgr.GetDynamicClients())
+	ctx = NewLoaderContext(ctx, postgresBranchWatcher, postgresWatcher, "", "", "nav", mgr.GetDynamicClients())
 	team := slug.Slug("someteamname")
 	for _, name := range []string{"main", "recovered"} {
 		instance, err := GetReadyPostgresBranch(ctx, team, "dev", "foobar", name)

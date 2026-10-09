@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"slices"
 	"strconv"
 	"strings"
 	"sync"
@@ -96,6 +97,7 @@ type PostgresResources struct {
 }
 
 func (Postgres) IsNode()            {}
+func (Postgres) IsSearchNode()      {}
 func (Postgres) IsActivityLogger()  {}
 func (p *Postgres) ID() ident.Ident { return newPostgresIdent(p.TeamSlug, p.EnvironmentName, p.Name) }
 
@@ -165,8 +167,6 @@ func (e PostgresBranchState) MarshalJSON() ([]byte, error) {
 func (PostgresBranch) IsPersistence() {}
 
 func (PostgresBranch) IsNode() {}
-
-func (PostgresBranch) IsSearchNode() {}
 
 type CreatePostgresBranchInput struct {
 	Postgres        string    `json:"postgres"`
@@ -403,10 +403,6 @@ func (p *PostgresBranch) DeepCopyObject() runtime.Object {
 
 func (p *PostgresBranch) GetName() string {
 	return nais_io_v1.PostgresBranchObjectName(p.PostgresName, p.Name)
-}
-
-func (p *PostgresBranch) SearchName() string {
-	return p.PostgresName + "/" + p.Name
 }
 
 func (p *PostgresBranch) GetNamespace() string {
@@ -771,10 +767,5 @@ func validateQuantities(verr *validate.ValidationErrors, cpu, memory, diskSize *
 }
 
 func contains(values []string, value string) bool {
-	for _, v := range values {
-		if v == value {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(values, value)
 }

@@ -34,7 +34,6 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/dynamic"
-	"k8s.io/utils/ptr"
 )
 
 func Delete(ctx context.Context, input DeletePostgresBranchInput) (*DeletePostgresBranchPayload, error) {
@@ -78,7 +77,7 @@ func Delete(ctx context.Context, input DeletePostgresBranchInput) (*DeletePostgr
 	if err := ensureAnotherBranchExists(input.Postgres, input.Branch, branches); err != nil {
 		return nil, err
 	}
-	if err := client.Namespace(input.TeamSlug.String()).Delete(ctx, objectName, metav1.DeleteOptions{Preconditions: &metav1.Preconditions{UID: ptr.To(instance.GetUID())}}); err != nil {
+	if err := client.Namespace(input.TeamSlug.String()).Delete(ctx, objectName, metav1.DeleteOptions{Preconditions: &metav1.Preconditions{UID: new(instance.GetUID())}}); err != nil {
 		return nil, err
 	}
 
@@ -463,7 +462,7 @@ func ListForPostgres(ctx context.Context, pg *Postgres, page *pagination.Paginat
 }
 
 func GetPostgres(ctx context.Context, teamSlug slug.Slug, environmentName, name string) (*Postgres, error) {
-	client, err := fromContext(ctx).postgresBranchWatcher.SystemAuthenticatedClient(ctx, environmentName, watcher.WithImpersonatedClientGVR(schema.GroupVersionResource{Group: "nais.io", Version: "v1", Resource: "postgres"}))
+	client, err := fromContext(ctx).postgresWatcher.SystemAuthenticatedClient(ctx, environmentName)
 	if err != nil {
 		return nil, err
 	}
