@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/fs"
-	"maps"
 	"os"
 	"path/filepath"
 	"strings"
@@ -18,11 +17,13 @@ import (
 	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
 	mapperatorv1 "github.com/nais/pgrator/pkg/api/v1"
 	unleash_nais_io_v1 "github.com/nais/unleasherator/api/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/apimachinery/pkg/util/managedfields"
 	"k8s.io/client-go/dynamic"
 	dynfake "k8s.io/client-go/dynamic/fake"
 	"k8s.io/client-go/rest"
@@ -293,51 +294,57 @@ func NewDynamicClient(scheme *runtime.Scheme) *dynfake.FakeDynamicClient {
 		if patchAction.GetPatchType() != types.ApplyPatchType {
 			return false, nil, nil
 		}
+		patchWithOptions, ok := action.(k8stesting.PatchActionImpl)
+		if !ok {
+			return true, nil, fmt.Errorf("expected PatchActionImpl, got %T", action)
+		}
 
 		gvr := patchAction.GetResource()
 		ns := patchAction.GetNamespace()
 		name := patchAction.GetName()
 
 		desired := &unstructured.Unstructured{}
-		if err := json.Unmarshal(patchAction.GetPatch(), &desired.Object); err != nil {
+		if err := json.Unmarshal(patchAction.GetPatch(), desired); err != nil {
 			return true, nil, fmt.Errorf("unmarshaling apply patch: %w", err)
 		}
 
 		existing, err := client.Tracker().Get(gvr, ns, name)
+		created := apierrors.IsNotFound(err)
 		if err != nil {
-			if err := client.Tracker().Create(gvr, desired, ns); err != nil {
+			if !created {
+				return true, nil, err
+			}
+			existing = &unstructured.Unstructured{Object: map[string]any{
+				"apiVersion": desired.GetAPIVersion(),
+				"kind":       desired.GetKind(),
+			}}
+		}
+		gvk := desired.GroupVersionKind()
+		// A per-kind scheme avoids converting to another kind registered with
+		// the same unstructured Go type and group/version.
+		applyScheme := runtime.NewScheme()
+		applyScheme.AddKnownTypeWithName(gvk, &unstructured.Unstructured{})
+		manager, err := managedfields.NewDefaultCRDFieldManager(
+			managedfields.NewDeducedTypeConverter(),
+			applyScheme, applyScheme, applyScheme, gvk, gvk.GroupVersion(), "", nil,
+		)
+		if err != nil {
+			return true, nil, fmt.Errorf("creating field manager: %w", err)
+		}
+		options := patchWithOptions.GetPatchOptions()
+		force := options.Force != nil && *options.Force
+		applied, err := manager.Apply(existing, desired, options.FieldManager, force)
+		if err != nil {
+			return true, nil, err
+		}
+		if created {
+			if err := client.Tracker().Create(gvr, applied, ns); err != nil {
 				return true, nil, fmt.Errorf("creating object via apply: %w", err)
 			}
-			return true, desired, nil
-		}
-
-		existingUnstr, ok := existing.(*unstructured.Unstructured)
-		if !ok {
-			return true, nil, fmt.Errorf("expected *unstructured.Unstructured, got %T", existing)
-		}
-
-		merged := existingUnstr.DeepCopy()
-		for k, v := range desired.Object {
-			if k == "metadata" {
-				// Merge metadata rather than replacing it wholesale.
-				desiredMeta, ok1 := v.(map[string]any)
-				existingMeta, ok2 := merged.Object["metadata"].(map[string]any)
-				if ok1 && ok2 {
-					maps.Copy(existingMeta, desiredMeta)
-					merged.Object["metadata"] = existingMeta
-				} else {
-					merged.Object[k] = v
-				}
-			} else {
-				merged.Object[k] = v
-			}
-		}
-
-		if err := client.Tracker().Update(gvr, merged, ns); err != nil {
+		} else if err := client.Tracker().Update(gvr, applied, ns); err != nil {
 			return true, nil, fmt.Errorf("updating object via apply: %w", err)
 		}
-
-		return true, merged, nil
+		return true, applied, nil
 	})
 
 	return client
