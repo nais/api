@@ -463,7 +463,7 @@ func ListForPostgres(ctx context.Context, pg *Postgres, page *pagination.Paginat
 }
 
 func GetPostgres(ctx context.Context, teamSlug slug.Slug, environmentName, name string) (*Postgres, error) {
-	client, err := fromContext(ctx).postgresBranchWatcher.SystemAuthenticatedClient(ctx, environmentName, watcher.WithImpersonatedClientGVR(schema.GroupVersionResource{Group: "nais.io", Version: "v1", Resource: "postgres"}))
+	client, err := fromContext(ctx).postgresWatcher.SystemAuthenticatedClient(ctx, environmentName)
 	if err != nil {
 		return nil, err
 	}

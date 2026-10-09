@@ -59,12 +59,13 @@ func TestBranchOperationsRejectMissingBranches(t *testing.T) {
 	t.Cleanup(mgr.Stop)
 	ctx := context.Background()
 	branchWatcher := NewPostgresBranchWatcher(ctx, mgr)
+	postgresWatcher := NewPostgresWatcher(ctx, mgr)
 	wait, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 	if !mgr.WaitForReady(wait) {
 		t.Fatal("watchers did not synchronize")
 	}
-	ctx = NewLoaderContext(ctx, branchWatcher, nil, "", "", "nav", mgr.GetDynamicClients())
+	ctx = NewLoaderContext(ctx, branchWatcher, postgresWatcher, "", "", "nav", mgr.GetDynamicClients())
 	team := slug.Slug("someteamname")
 	for _, tt := range []struct{ postgres, branch, want string }{
 		{"foobar", "missing", "not found"},

@@ -232,7 +232,7 @@ func ConfigureGraph(
 		kafkatopic.AddSearch(searcher, watchers.KafkaTopicWatcher)
 		opensearch.AddSearch(searcher, watchers.OpenSearchWatcher)
 		sqlinstance.AddSearchSQLInstance(searcher, watchers.SqlInstanceWatcher)
-		postgres.AddSearchPostgresBranch(searcher, watchers.PostgresBranchWatcher)
+		postgres.AddSearchPostgres(searcher, watchers.PostgresWatcher)
 		valkey.AddSearch(searcher, watchers.ValkeyWatcher)
 		team.AddSearch(searcher, pool, notifier, log.WithField("subsystem", "team_search"))
 		return nil

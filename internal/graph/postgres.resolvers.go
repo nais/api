@@ -85,6 +85,10 @@ func (r *mutationResolver) DeletePostgres(ctx context.Context, input postgres.De
 	return postgres.DeletePostgres(ctx, input)
 }
 
+func (r *postgresResolver) Team(ctx context.Context, obj *postgres.Postgres) (*team.Team, error) {
+	return team.Get(ctx, obj.TeamSlug)
+}
+
 func (r *postgresResolver) TeamEnvironment(ctx context.Context, obj *postgres.Postgres) (*team.TeamEnvironment, error) {
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
