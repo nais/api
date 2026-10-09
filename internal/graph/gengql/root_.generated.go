@@ -28329,7 +28329,7 @@ type PostgresBranch implements Persistence & Node {
 	teamEnvironment: TeamEnvironment!
 	"Postgres owning this PostgresBranch."
 	postgres: Postgres!
-	"Workloads using this branch while it is active."
+	"Workloads explicitly using this branch, or following it while it is active."
 	workloads(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
 		first: Int

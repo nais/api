@@ -1,0 +1,18 @@
+apiVersion: nais.io/v1
+kind: Postgres
+metadata:
+  name: single
+  namespace: pg-delete-team
+spec:
+  majorVersion: "18"
+status:
+  activeBranch: missing
+---
+apiVersion: nais.io/v1
+kind: PostgresBranch
+metadata:
+  name: single-preview-5f844d1d
+  namespace: pg-delete-team
+spec:
+  postgres: single
+  branchName: preview

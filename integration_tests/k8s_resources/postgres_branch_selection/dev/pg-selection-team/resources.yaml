@@ -1,0 +1,115 @@
+apiVersion: nais.io/v1
+kind: Postgres
+metadata:
+  name: orders
+  namespace: pg-selection-team
+spec:
+  majorVersion: "18"
+  activeBranch: pending
+status:
+  activeBranch: green
+---
+apiVersion: nais.io/v1
+kind: PostgresBranch
+metadata:
+  name: orders-main-65648812
+  namespace: pg-selection-team
+spec:
+  postgres: orders
+  branchName: main
+---
+apiVersion: nais.io/v1
+kind: PostgresBranch
+metadata:
+  name: orders-green-d77a35b4
+  namespace: pg-selection-team
+spec:
+  postgres: orders
+  branchName: green
+---
+apiVersion: nais.io/v1
+kind: PostgresBranch
+metadata:
+  name: orders-pr-123-99e54251
+  namespace: pg-selection-team
+spec:
+  postgres: orders
+  branchName: pr-123
+---
+apiVersion: nais.io/v1
+kind: PostgresBranch
+metadata:
+  name: orders-binding-1ada99de
+  namespace: pg-selection-team
+spec:
+  postgres: orders
+  branchName: binding
+---
+apiVersion: nais.io/v1
+kind: PostgresBranch
+metadata:
+  name: orders-old-9cdd54c9
+  namespace: pg-selection-team
+spec:
+  postgres: orders
+  branchName: old
+---
+apiVersion: nais.io/v1
+kind: PostgresBranch
+metadata:
+  name: orders-pending-ef1f4700
+  namespace: pg-selection-team
+spec:
+  postgres: orders
+  branchName: pending
+---
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: pinned-app
+  namespace: pg-selection-team
+spec:
+  image: ghcr.io/nais/testapp:latest
+  uses:
+    postgres:
+      - name: orders
+        branch: main
+---
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: following-app
+  namespace: pg-selection-team
+spec:
+  image: ghcr.io/nais/testapp:latest
+  uses:
+    postgres:
+      - name: orders
+---
+apiVersion: nais.io/v1
+kind: Naisjob
+metadata:
+  name: pinned-job
+  namespace: pg-selection-team
+spec:
+  image: ghcr.io/nais/testapp:latest
+  schedule: "0 0 * * *"
+  uses:
+    postgres:
+      - name: orders
+        branch: pr-123
+---
+apiVersion: nais.io/v1
+kind: PostgresBinding
+metadata:
+  name: standalone-binding
+  namespace: pg-selection-team
+spec:
+  postgres: orders
+  branch: binding
+  consumer:
+    workload:
+      name: standalone
+      type: application
+  credentials:
+    - read
