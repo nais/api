@@ -4,6 +4,7 @@ import (
 	"context"
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/nais/api/internal/slug"
 	nais_io_v1 "github.com/nais/pgrator/pkg/api/v1"
@@ -12,9 +13,10 @@ import (
 )
 
 func TestToPostgresBranch(t *testing.T) {
+	createdAt := time.Date(2025, time.December, 31, 12, 0, 0, 0, time.UTC)
 	obj := &unstructured.Unstructured{Object: map[string]any{
 		"apiVersion": "nais.io/v1", "kind": "PostgresBranch",
-		"metadata": map[string]any{"name": nais_io_v1.PostgresBranchObjectName("orders", "restored"), "namespace": "my-team"},
+		"metadata": map[string]any{"name": nais_io_v1.PostgresBranchObjectName("orders", "restored"), "namespace": "my-team", "creationTimestamp": createdAt.Format(time.RFC3339)},
 		"spec":     map[string]any{"postgres": "orders", "branchName": "restored"},
 		"status":   map[string]any{"reconcilePhase": "Completed", "conditions": []any{map[string]any{"type": "cluster.postgresql.cnpg.io/ObservedState", "status": "True", "lastTransitionTime": "2026-01-01T00:00:00Z", "reason": "Reconciled", "message": "Cluster is in phase: Cluster in healthy state"}}},
 	}}
@@ -24,6 +26,9 @@ func TestToPostgresBranch(t *testing.T) {
 	}
 	if got.Name != "restored" || got.PostgresName != "orders" || got.State != PostgresBranchStateAvailable {
 		t.Errorf("unexpected PostgresBranch: %+v", got)
+	}
+	if !got.CreatedAt.Equal(createdAt) {
+		t.Errorf("createdAt = %v, want %v", got.CreatedAt, createdAt)
 	}
 	if got.GetName() != obj.GetName() {
 		t.Errorf("watcher name = %q, want %q", got.GetName(), obj.GetName())
