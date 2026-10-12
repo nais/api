@@ -84,6 +84,8 @@ type PostgresBranch implements Persistence & Node {
 	name: String!
 	"Time when this branch was created."
 	createdAt: Time!
+	"Earliest time the branch can currently be restored from its archived backups."
+	earliestRestoreTime: Time
 	team: Team!
 	teamEnvironment: TeamEnvironment!
 	"Postgres owning this PostgresBranch."
@@ -128,6 +130,8 @@ type Postgres implements Node {
 	desiredActiveBranch: String
 	"Currently observed active branch, if selected."
 	activeBranch: PostgresBranch
+	"Workloads referencing this Postgres, including references to inactive branches and workloads following the active branch. Each workload is included once."
+	workloads(first: Int, after: Cursor, last: Int, before: Cursor): WorkloadConnection!
 	"Branch with this local name in this Postgres."
 	branch(name: String!): PostgresBranch!
 	"Branches belonging to this Postgres."

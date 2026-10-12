@@ -754,7 +754,19 @@ func (i *UpdatePostgresInput) ValidationErrors(_ context.Context) *validate.Vali
 }
 
 func validateQuantities(verr *validate.ValidationErrors, cpu, memory, diskSize *string) {
-	for field, value := range map[string]*string{"cpu": cpu, "memory": memory, "diskSize": diskSize} {
+	limits := []struct {
+		field  string
+		value  *string
+		min    resource.Quantity
+		hasMin bool
+		max    resource.Quantity
+	}{
+		{field: "cpu", value: cpu, max: resource.MustParse("8")},
+		{field: "memory", value: memory, max: resource.MustParse("32Gi")},
+		{field: "diskSize", value: diskSize, min: resource.MustParse("10Gi"), hasMin: true, max: resource.MustParse("1000Gi")},
+	}
+	for _, limit := range limits {
+		field, value := limit.field, limit.value
 		if value == nil {
 			continue
 		}
@@ -763,6 +775,10 @@ func validateQuantities(verr *validate.ValidationErrors, cpu, memory, diskSize *
 			verr.Add(field, "%q is not a valid quantity.", *value)
 		} else if quantity.Sign() <= 0 {
 			verr.Add(field, "%q must be greater than zero.", *value)
+		} else if limit.hasMin && quantity.Cmp(limit.min) < 0 {
+			verr.Add(field, "%q must be at least %s.", *value, limit.min.String())
+		} else if quantity.Cmp(limit.max) > 0 {
+			verr.Add(field, "%q must be no greater than %s.", *value, limit.max.String())
 		}
 	}
 }

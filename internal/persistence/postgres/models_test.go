@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/validate"
 	nais_io_v1 "github.com/nais/pgrator/pkg/api/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -84,6 +85,43 @@ func TestToPostgres(t *testing.T) {
 	}
 	if got.Resources.CPU == nil || *got.Resources.CPU != "100m" || got.Resources.Memory == nil || *got.Resources.Memory != "2Gi" || got.Resources.DiskSize == nil || *got.Resources.DiskSize != "10Gi" {
 		t.Errorf("unexpected Postgres resources: %+v", got.Resources)
+	}
+}
+
+func TestValidateQuantities(t *testing.T) {
+	tests := []struct {
+		name    string
+		cpu     string
+		memory  string
+		disk    string
+		wantErr bool
+	}{
+		{name: "inclusive limits", cpu: "8000m", memory: "32768Mi", disk: "1000Gi"},
+		{name: "cpu above maximum", cpu: "8.001", wantErr: true},
+		{name: "memory above maximum", memory: "33Gi", wantErr: true},
+		{name: "disk below minimum", disk: "9Gi", wantErr: true},
+		{name: "disk above maximum", disk: "1001Gi", wantErr: true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			verr := validate.New()
+			cpu, memory, disk := tt.cpu, tt.memory, tt.disk
+			var cpuValue, memoryValue, diskValue *string
+			if cpu != "" {
+				cpuValue = &cpu
+			}
+			if memory != "" {
+				memoryValue = &memory
+			}
+			if disk != "" {
+				diskValue = &disk
+			}
+			validateQuantities(verr, cpuValue, memoryValue, diskValue)
+			err := verr.NilIfEmpty()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("validation error = %v, want error %t", err, tt.wantErr)
+			}
+		})
 	}
 }
 
