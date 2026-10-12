@@ -1958,6 +1958,7 @@ type ComplexityRoot struct {
 	}
 
 	PostgresBranch struct {
+		CreatedAt       func(childComplexity int) int
 		ID              func(childComplexity int) int
 		Labels          func(childComplexity int) int
 		Name            func(childComplexity int) int
@@ -12114,6 +12115,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.PostgresAccessConnectionDetails.Username(childComplexity), true
+
+	case "PostgresBranch.createdAt":
+		if e.ComplexityRoot.PostgresBranch.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranch.CreatedAt(childComplexity), true
 
 	case "PostgresBranch.id":
 		if e.ComplexityRoot.PostgresBranch.ID == nil {
@@ -28333,6 +28341,8 @@ type PostgresBranch implements Persistence & Node {
 	id: ID!
 	"Local name of this branch within its Postgres."
 	name: String!
+	"Time when this branch was created."
+	createdAt: Time!
 	team: Team!
 	teamEnvironment: TeamEnvironment!
 	"Postgres owning this PostgresBranch."
@@ -39145,6 +39155,8 @@ func (ec *executionContext) childFields_PostgresBranch(ctx context.Context, fiel
 		return ec.fieldContext_PostgresBranch_id(ctx, field)
 	case "name":
 		return ec.fieldContext_PostgresBranch_name(ctx, field)
+	case "createdAt":
+		return ec.fieldContext_PostgresBranch_createdAt(ctx, field)
 	case "team":
 		return ec.fieldContext_PostgresBranch_team(ctx, field)
 	case "teamEnvironment":
