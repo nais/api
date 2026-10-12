@@ -54,6 +54,7 @@ type PostgresBranchStateFacetItem struct {
 // PostgresBranch represents an independently running database instance.
 type PostgresBranch struct {
 	Name            string                 `json:"name"`
+	CreatedAt       time.Time              `json:"createdAt"`
 	EnvironmentName string                 `json:"-"`
 	TeamSlug        slug.Slug              `json:"-"`
 	PostgresName    string                 `json:"postgres"`
@@ -429,7 +430,7 @@ func toPostgresBranch(u *unstructured.Unstructured, environmentName string) (*Po
 	if obj.Status != nil {
 		state = postgresStateFromConditions(obj.Status.Conditions, obj.Status.ReconcilePhase == "Completed" && obj.Status.ObservedGeneration >= obj.Generation)
 	}
-	return &PostgresBranch{Name: obj.Spec.BranchName, EnvironmentName: environmentName, TeamSlug: slug.Slug(obj.Namespace), PostgresName: obj.Spec.Postgres, State: state, Labels: model.UserLabels(obj.Labels)}, nil
+	return &PostgresBranch{Name: obj.Spec.BranchName, CreatedAt: obj.CreationTimestamp.Time, EnvironmentName: environmentName, TeamSlug: slug.Slug(obj.Namespace), PostgresName: obj.Spec.Postgres, State: state, Labels: model.UserLabels(obj.Labels)}, nil
 }
 
 func toPostgres(u *unstructured.Unstructured, environmentName string) (*Postgres, error) {
