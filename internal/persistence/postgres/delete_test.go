@@ -102,8 +102,35 @@ func TestWorkloadUsesMultiplePostgresResources(t *testing.T) {
 	}
 	for _, entry := range []struct{ postgres, branch string }{{"orders", "green"}, {"reports", "recovered"}} {
 		workloads := WorkloadsForInstance(ctx, team, "dev", entry.postgres, entry.branch)
-		if len(workloads) != 2 || workloads[0].GetName() != "consumer" || workloads[1].GetName() != "scheduled-reader" {
+		wantCount := 2
+		if entry.postgres == "orders" {
+			wantCount = 1
+		}
+		if len(workloads) != wantCount || workloads[0].GetName() != "consumer" || wantCount == 2 && workloads[1].GetName() != "scheduled-reader" {
 			t.Errorf("workloads for %q = %+v", entry.branch, workloads)
+		}
+	}
+	apps[0].Spec.Uses.Postgres = append(apps[0].Spec.Uses.Postgres, apps[0].Spec.Uses.Postgres[0])
+	jobs[0].Spec.Uses.Postgres = append(jobs[0].Spec.Uses.Postgres, jobs[0].Spec.Uses.Postgres[0])
+	for _, pg := range []*Postgres{
+		{Name: "orders", TeamSlug: team, EnvironmentName: "dev"},
+		{Name: "reports", TeamSlug: team, EnvironmentName: "dev"},
+		{Name: "archive", TeamSlug: team, EnvironmentName: "dev"},
+	} {
+		workloads := WorkloadsForPostgres(ctx, pg)
+		if len(workloads) != 2 || workloads[0].GetName() != "consumer" || workloads[1].GetName() != "scheduled-reader" {
+			t.Errorf("aggregate workloads for %q = %+v", pg.Name, workloads)
+		}
+	}
+	if workloads := WorkloadsForPostgres(ctx, &Postgres{Name: "unreferenced", TeamSlug: team, EnvironmentName: "dev"}); len(workloads) != 0 {
+		t.Errorf("unreferenced Postgres workloads = %+v", workloads)
+	}
+	for _, pg := range []*Postgres{
+		{Name: "orders", TeamSlug: team, EnvironmentName: "prod"},
+		{Name: "orders", TeamSlug: slug.Slug("another-team"), EnvironmentName: "dev"},
+	} {
+		if workloads := WorkloadsForPostgres(ctx, pg); len(workloads) != 0 {
+			t.Errorf("workloads leaked across team or environment for %+v: %+v", pg, workloads)
 		}
 	}
 }

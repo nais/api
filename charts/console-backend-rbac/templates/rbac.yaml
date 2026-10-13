@@ -164,6 +164,12 @@ rules:
     verbs:
       - get
   - apiGroups:
+      - barmancloud.cnpg.io
+    resources:
+      - objectstores
+    verbs:
+      - get
+  - apiGroups:
       - "aiven.nais.io"
     resources:
       - aivenapplications

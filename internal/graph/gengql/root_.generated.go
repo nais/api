@@ -1931,6 +1931,7 @@ type ComplexityRoot struct {
 		Resources           func(childComplexity int) int
 		Team                func(childComplexity int) int
 		TeamEnvironment     func(childComplexity int) int
+		Workloads           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 	}
 
 	PostgresAccess struct {
@@ -1958,15 +1959,16 @@ type ComplexityRoot struct {
 	}
 
 	PostgresBranch struct {
-		CreatedAt       func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Labels          func(childComplexity int) int
-		Name            func(childComplexity int) int
-		Postgres        func(childComplexity int) int
-		State           func(childComplexity int) int
-		Team            func(childComplexity int) int
-		TeamEnvironment func(childComplexity int) int
-		Workloads       func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		CreatedAt           func(childComplexity int) int
+		EarliestRestoreTime func(childComplexity int) int
+		ID                  func(childComplexity int) int
+		Labels              func(childComplexity int) int
+		Name                func(childComplexity int) int
+		Postgres            func(childComplexity int) int
+		State               func(childComplexity int) int
+		Team                func(childComplexity int) int
+		TeamEnvironment     func(childComplexity int) int
+		Workloads           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 	}
 
 	PostgresBranchActivatedActivityLogEntry struct {
@@ -11990,6 +11992,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Postgres.TeamEnvironment(childComplexity), true
 
+	case "Postgres.workloads":
+		if e.ComplexityRoot.Postgres.Workloads == nil {
+			break
+		}
+
+		args, err := ec.field_Postgres_workloads_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Postgres.Workloads(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
+
 	case "PostgresAccess.accessLevel":
 		if e.ComplexityRoot.PostgresAccess.AccessLevel == nil {
 			break
@@ -12122,6 +12136,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.PostgresBranch.CreatedAt(childComplexity), true
+
+	case "PostgresBranch.earliestRestoreTime":
+		if e.ComplexityRoot.PostgresBranch.EarliestRestoreTime == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranch.EarliestRestoreTime(childComplexity), true
 
 	case "PostgresBranch.id":
 		if e.ComplexityRoot.PostgresBranch.ID == nil {
@@ -28343,6 +28364,8 @@ type PostgresBranch implements Persistence & Node {
 	name: String!
 	"Time when this branch was created."
 	createdAt: Time!
+	"Earliest time the branch can currently be restored from its archived backups."
+	earliestRestoreTime: Time
 	team: Team!
 	teamEnvironment: TeamEnvironment!
 	"Postgres owning this PostgresBranch."
@@ -28387,6 +28410,8 @@ type Postgres implements Node {
 	desiredActiveBranch: String
 	"Currently observed active branch, if selected."
 	activeBranch: PostgresBranch
+	"Workloads referencing this Postgres, including references to inactive branches and workloads following the active branch. Each workload is included once."
+	workloads(first: Int, after: Cursor, last: Int, before: Cursor): WorkloadConnection!
 	"Branch with this local name in this Postgres."
 	branch(name: String!): PostgresBranch!
 	"Branches belonging to this Postgres."
@@ -39089,6 +39114,8 @@ func (ec *executionContext) childFields_Postgres(ctx context.Context, field grap
 		return ec.fieldContext_Postgres_desiredActiveBranch(ctx, field)
 	case "activeBranch":
 		return ec.fieldContext_Postgres_activeBranch(ctx, field)
+	case "workloads":
+		return ec.fieldContext_Postgres_workloads(ctx, field)
 	case "branch":
 		return ec.fieldContext_Postgres_branch(ctx, field)
 	case "branches":
@@ -39157,6 +39184,8 @@ func (ec *executionContext) childFields_PostgresBranch(ctx context.Context, fiel
 		return ec.fieldContext_PostgresBranch_name(ctx, field)
 	case "createdAt":
 		return ec.fieldContext_PostgresBranch_createdAt(ctx, field)
+	case "earliestRestoreTime":
+		return ec.fieldContext_PostgresBranch_earliestRestoreTime(ctx, field)
 	case "team":
 		return ec.fieldContext_PostgresBranch_team(ctx, field)
 	case "teamEnvironment":

@@ -127,6 +127,9 @@ func NewComplexityRoot() ComplexityRoot {
 	c.Postgres.Branches = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *postgres.PostgresBranchOrder) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
+	c.Postgres.Workloads = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
+		return cursorComplexity(first, last) * childComplexity
+	}
 	c.PostgresBranch.Workloads = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
 		return cursorComplexity(first, last) * childComplexity
 	}

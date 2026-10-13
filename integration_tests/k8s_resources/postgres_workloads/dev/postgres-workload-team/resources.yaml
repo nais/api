@@ -70,6 +70,7 @@ spec:
   uses:
     postgres:
       - name: orders
+        branch: restored
       - name: reports
         envPrefix: REPORTS_
       - name: archive

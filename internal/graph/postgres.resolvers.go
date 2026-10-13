@@ -2,6 +2,7 @@ package graph
 
 import (
 	"context"
+	"time"
 
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/gengql"
@@ -100,6 +101,15 @@ func (r *postgresResolver) ActiveBranch(ctx context.Context, obj *postgres.Postg
 	return postgres.GetPostgresBranch(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Name, *obj.ActiveBranch)
 }
 
+func (r *postgresResolver) Workloads(ctx context.Context, obj *postgres.Postgres, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[workload.Workload], error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+	workloads := postgres.WorkloadsForPostgres(ctx, obj)
+	return pagination.NewConnection(pagination.Slice(workloads, page), page, len(workloads)), nil
+}
+
 func (r *postgresResolver) Branch(ctx context.Context, obj *postgres.Postgres, name string) (*postgres.PostgresBranch, error) {
 	return postgres.GetPostgresBranch(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Name, name)
 }
@@ -128,6 +138,10 @@ func (r *postgresAccessResolver) Connection(ctx context.Context, obj *postgres.P
 	return postgres.GetPostgresAccessConnection(ctx, postgres.PostgresAccessConnectionInput{
 		Name: obj.Name, TeamSlug: obj.TeamSlug, EnvironmentName: obj.EnvironmentName,
 	})
+}
+
+func (r *postgresBranchResolver) EarliestRestoreTime(ctx context.Context, obj *postgres.PostgresBranch) (*time.Time, error) {
+	return postgres.EarliestRestoreTime(ctx, obj)
 }
 
 func (r *postgresBranchResolver) Team(ctx context.Context, obj *postgres.PostgresBranch) (*team.Team, error) {

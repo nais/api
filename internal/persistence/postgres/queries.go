@@ -665,16 +665,26 @@ func WorkloadsForInstance(ctx context.Context, teamSlug slug.Slug, environmentNa
 		return use.Name == instance.PostgresName && (use.Branch == branchName ||
 			use.Branch == "" && activeBranch == branchName)
 	}
+	return workloadsMatchingPostgresUse(ctx, teamSlug, environmentName, usesBranch)
+}
+
+func WorkloadsForPostgres(ctx context.Context, postgres *Postgres) []workload.Workload {
+	return workloadsMatchingPostgresUse(ctx, postgres.TeamSlug, postgres.EnvironmentName, func(use liberatorv1.PostgresUse) bool {
+		return use.Name == postgres.Name
+	})
+}
+
+func workloadsMatchingPostgresUse(ctx context.Context, teamSlug slug.Slug, environmentName string, matches func(liberatorv1.PostgresUse) bool) []workload.Workload {
 	apps := application.ListAllForTeamInEnvironment(ctx, teamSlug, environmentName)
 	jobs := job.ListAllForTeamInEnvironment(ctx, teamSlug, environmentName)
 	ret := make([]workload.Workload, 0)
 	for _, app := range apps {
-		if app.Spec != nil && app.Spec.Uses != nil && slices.ContainsFunc(app.Spec.Uses.Postgres, usesBranch) {
+		if app.Spec != nil && app.Spec.Uses != nil && slices.ContainsFunc(app.Spec.Uses.Postgres, matches) {
 			ret = append(ret, app)
 		}
 	}
 	for _, j := range jobs {
-		if j.Spec != nil && j.Spec.Uses != nil && slices.ContainsFunc(j.Spec.Uses.Postgres, usesBranch) {
+		if j.Spec != nil && j.Spec.Uses != nil && slices.ContainsFunc(j.Spec.Uses.Postgres, matches) {
 			ret = append(ret, j)
 		}
 	}

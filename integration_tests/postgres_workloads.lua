@@ -31,7 +31,24 @@ Test.gql("PostgresBranch workloads reference its Postgres through uses.postgres"
 		{ __typename = "Job",         name = "scheduled-reader" },
 	}
 	t.check { data = { team = { environment = {
-		postgres = { branch = { workloads = { nodes = workloads } } },
+		postgres = { branch = { workloads = { nodes = { workloads[1] } } } },
 		other = { branch = { workloads = { nodes = workloads } } },
+	} } } }
+end)
+
+Test.gql("Postgres workloads include inactive branch references and databases without an active branch", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[{ team(slug: "postgres-workload-team") { environment(name: "dev") {
+		postgres(name: "orders") { workloads(first: 1) { pageInfo { totalCount hasNextPage } nodes { __typename name } } }
+		archive: postgres(name: "archive") { activeBranch { name } workloads { pageInfo { totalCount } nodes { __typename name } } }
+	} } }]]
+	t.check { data = { team = { environment = {
+		postgres = { workloads = { pageInfo = { totalCount = 2, hasNextPage = true }, nodes = {
+			{ __typename = "Application", name = "consumer" },
+		} } },
+		archive = { activeBranch = Null, workloads = { pageInfo = { totalCount = 2 }, nodes = {
+			{ __typename = "Application", name = "consumer" },
+			{ __typename = "Job",         name = "scheduled-reader" },
+		} } },
 	} } } }
 end)
