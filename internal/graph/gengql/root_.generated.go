@@ -28411,12 +28411,7 @@ type Postgres implements Node {
 	"Currently observed active branch, if selected."
 	activeBranch: PostgresBranch
 	"Workloads referencing this Postgres, including references to inactive branches and workloads following the active branch. Each workload is included once."
-	workloads(
-		first: Int
-		after: Cursor
-		last: Int
-		before: Cursor
-	): WorkloadConnection!
+	workloads(first: Int, after: Cursor, last: Int, before: Cursor): WorkloadConnection!
 	"Branch with this local name in this Postgres."
 	branch(name: String!): PostgresBranch!
 	"Branches belonging to this Postgres."
