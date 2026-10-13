@@ -239,19 +239,64 @@ func NewDynamicClient(scheme *runtime.Scheme) *dynfake.FakeDynamicClient {
 		if selector == nil || selector.Empty() {
 			return false, nil, nil
 		}
+		kinds, err := (&FakeKindsResolver{scheme: newScheme}).KindsFor(action.GetResource())
+		if err != nil {
+			return true, nil, err
+		}
+		list, err := client.Tracker().List(action.GetResource(), kinds[0], action.GetNamespace())
+		if err != nil {
+			return true, nil, err
+		}
+		items, err := meta.ExtractList(list)
+		if err != nil {
+			return true, nil, err
+		}
+		matching := make(map[types.NamespacedName]runtime.Object)
+		for _, item := range items {
+			obj, err := meta.Accessor(item)
+			if err != nil {
+				return true, nil, err
+			}
+			if selector.Matches(labels.Set(obj.GetLabels())) {
+				matching[types.NamespacedName{Namespace: obj.GetNamespace(), Name: obj.GetName()}] = item.DeepCopyObject()
+			}
+		}
 		stream, err := client.Tracker().Watch(action.GetResource(), action.GetNamespace())
 		if err != nil {
 			return true, nil, err
 		}
 		return true, watch.Filter(stream, func(event watch.Event) (watch.Event, bool) {
-			if event.Type == watch.Error {
+			if event.Type != watch.Added && event.Type != watch.Modified && event.Type != watch.Deleted {
 				return event, true
 			}
 			obj, err := meta.Accessor(event.Object)
 			if err != nil {
 				return watch.Event{Type: watch.Error, Object: &errors.NewInternalError(err).ErrStatus}, true
 			}
-			return event, selector.Matches(labels.Set(obj.GetLabels()))
+			key := types.NamespacedName{Namespace: obj.GetNamespace(), Name: obj.GetName()}
+			previous, wasMatching := matching[key]
+			isMatching := event.Type != watch.Deleted && selector.Matches(labels.Set(obj.GetLabels()))
+			if isMatching {
+				matching[key] = event.Object.DeepCopyObject()
+				if !wasMatching {
+					event.Type = watch.Added
+				}
+				return event, true
+			}
+			delete(matching, key)
+			if !wasMatching {
+				return event, false
+			}
+			if event.Type != watch.Deleted {
+				// Leaving a selector is a deletion of the last matching object.
+				old, err := meta.Accessor(previous)
+				if err != nil {
+					return watch.Event{Type: watch.Error, Object: &errors.NewInternalError(err).ErrStatus}, true
+				}
+				old.SetResourceVersion(obj.GetResourceVersion())
+				event = watch.Event{Type: watch.Deleted, Object: previous}
+			}
+			return event, true
 		}), nil
 	})
 
