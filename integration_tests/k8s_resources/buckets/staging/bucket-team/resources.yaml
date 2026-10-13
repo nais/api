@@ -1,0 +1,11 @@
+apiVersion: storage.cnrm.cloud.google.com/v1beta1
+kind: StorageBucket
+metadata:
+  name: staging-assets
+  annotations:
+    cnrm.cloud.google.com/project-id: staging-bucket-project
+  labels:
+    purpose: assets
+spec:
+  publicAccessPrevention: enforced
+  uniformBucketLevelAccess: true
