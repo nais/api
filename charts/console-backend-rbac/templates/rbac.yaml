@@ -347,12 +347,6 @@ rules:
     verbs:
       - get
   - apiGroups:
-      - barmancloud.cnpg.io
-    resources:
-      - objectstores
-    verbs:
-      - get
-  - apiGroups:
       - ""
     resources:
       - secrets
