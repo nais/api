@@ -164,6 +164,9 @@ func CreateBranch(ctx context.Context, input CreatePostgresBranchInput) (*Create
 	}
 	existing, err := branches.Get(ctx, nais_io_v1.PostgresBranchObjectName(input.Postgres, input.Branch), metav1.GetOptions{})
 	if err == nil {
+		if existing.GetDeletionTimestamp() != nil {
+			return nil, apierror.Errorf("PostgresBranch %q is being deleted", input.Branch)
+		}
 		if !sameRecovery(existing, input) {
 			return nil, apierror.Errorf("PostgresBranch %q already exists with different recovery settings", input.Branch)
 		}
