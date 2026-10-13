@@ -110,15 +110,13 @@ func TestWorkloadUsesMultiplePostgresResources(t *testing.T) {
 			t.Errorf("workloads for %q = %+v", entry.branch, workloads)
 		}
 	}
-	apps[0].Spec.Uses.Postgres = append(apps[0].Spec.Uses.Postgres, apps[0].Spec.Uses.Postgres[0])
-	jobs[0].Spec.Uses.Postgres = append(jobs[0].Spec.Uses.Postgres, jobs[0].Spec.Uses.Postgres[0])
-	for _, pg := range []*Postgres{
-		{Name: "orders", TeamSlug: team, EnvironmentName: "dev"},
-		{Name: "reports", TeamSlug: team, EnvironmentName: "dev"},
-		{Name: "archive", TeamSlug: team, EnvironmentName: "dev"},
-	} {
+	for _, name := range []string{"orders", "reports", "archive"} {
+		pg, err := GetPostgres(ctx, team, "dev", name)
+		if err != nil {
+			t.Fatal(err)
+		}
 		workloads := WorkloadsForPostgres(ctx, pg)
-		if len(workloads) != 2 || workloads[0].GetName() != "consumer" || workloads[1].GetName() != "scheduled-reader" {
+		if len(workloads) != 2 || workloads[0].Workload.GetName() != "consumer" || workloads[1].Workload.GetName() != "scheduled-reader" {
 			t.Errorf("aggregate workloads for %q = %+v", pg.Name, workloads)
 		}
 	}

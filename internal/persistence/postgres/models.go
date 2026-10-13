@@ -18,6 +18,7 @@ import (
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/validate"
+	"github.com/nais/api/internal/workload"
 	nais_io_v1 "github.com/nais/pgrator/pkg/api/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -68,9 +69,17 @@ type TeamPostgresFilter struct {
 }
 
 type (
-	PostgresConnection = pagination.FacetableConnection[*Postgres, *TeamPostgresFilter]
-	PostgresEdge       = pagination.Edge[*Postgres]
+	PostgresConnection         = pagination.FacetableConnection[*Postgres, *TeamPostgresFilter]
+	PostgresEdge               = pagination.Edge[*Postgres]
+	PostgresWorkloadConnection = pagination.Connection[*PostgresWorkload]
+	PostgresWorkloadEdge       = pagination.Edge[*PostgresWorkload]
 )
+
+type PostgresWorkload struct {
+	Workload     workload.Workload `json:"workload"`
+	PostgresName string            `json:"-"`
+	BranchName   string            `json:"-"`
+}
 
 type PostgresFacets struct {
 	AllInstances      []*Postgres

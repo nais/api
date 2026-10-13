@@ -101,7 +101,7 @@ func (r *postgresResolver) ActiveBranch(ctx context.Context, obj *postgres.Postg
 	return postgres.GetPostgresBranch(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Name, *obj.ActiveBranch)
 }
 
-func (r *postgresResolver) Workloads(ctx context.Context, obj *postgres.Postgres, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[workload.Workload], error) {
+func (r *postgresResolver) Workloads(ctx context.Context, obj *postgres.Postgres, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*postgres.PostgresWorkload], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
@@ -184,6 +184,10 @@ func (r *postgresConnectionResolver) Facets(ctx context.Context, obj *pagination
 	return &postgres.PostgresFacets{AllInstances: obj.GetAllItems(), FilteredInstances: filtered}, nil
 }
 
+func (r *postgresWorkloadResolver) Branch(ctx context.Context, obj *postgres.PostgresWorkload) (*postgres.PostgresBranch, error) {
+	return postgres.GetPostgresBranch(ctx, obj.Workload.GetTeamSlug(), obj.Workload.GetEnvironmentName(), obj.PostgresName, obj.BranchName)
+}
+
 func (r *teamResolver) Postgreses(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *postgres.TeamPostgresFilter) (*pagination.FacetableConnection[*postgres.Postgres, *postgres.TeamPostgresFilter], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
@@ -220,10 +224,15 @@ func (r *Resolver) PostgresConnection() gengql.PostgresConnectionResolver {
 	return &postgresConnectionResolver{r}
 }
 
+func (r *Resolver) PostgresWorkload() gengql.PostgresWorkloadResolver {
+	return &postgresWorkloadResolver{r}
+}
+
 type (
 	postgresResolver                 struct{ *Resolver }
 	postgresAccessResolver           struct{ *Resolver }
 	postgresBranchResolver           struct{ *Resolver }
 	postgresBranchConnectionResolver struct{ *Resolver }
 	postgresConnectionResolver       struct{ *Resolver }
+	postgresWorkloadResolver         struct{ *Resolver }
 )

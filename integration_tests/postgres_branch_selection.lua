@@ -21,6 +21,30 @@ Test.gql("Branch workloads distinguish explicit selection from observed active b
 	} } } } }
 end)
 
+Test.gql("Postgres workload branches use explicit selection or the observed active branch", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[{ team(slug: "pg-selection-team") { environment(name: "dev") {
+		postgres(name: "orders") {
+			desiredActiveBranch activeBranch { name }
+			workloads { pageInfo { totalCount } nodes {
+				workload {
+					... on Application { __typename name }
+					... on Job { __typename name }
+				}
+				branch { name }
+			} }
+		}
+	} } }]]
+	t.check { data = { team = { environment = { postgres = {
+		desiredActiveBranch = "pending", activeBranch = { name = "green" },
+		workloads = { pageInfo = { totalCount = 3 }, nodes = {
+			{ workload = { __typename = "Application", name = "following-app" }, branch = { name = "green" } },
+			{ workload = { __typename = "Application", name = "pinned-app" },    branch = { name = "main" } },
+			{ workload = { __typename = "Job", name = "pinned-job" },            branch = { name = "pr-123" } },
+		} },
+	} } } } }
+end)
+
 for _, test in ipairs({
 	{ branch = "main",    reference = 'Application "pinned-app"' },
 	{ branch = "pr-123",  reference = 'Naisjob "pinned-job"' },
@@ -43,6 +67,30 @@ for _, test in ipairs({
 		} } } } }
 	end)
 end
+
+Test.gql("A missing referenced branch returns an error instead of omitting the workload", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[{ team(slug: "pg-selection-team") { environment(name: "dev") { postgres(name: "orders") {
+		workloads { pageInfo { totalCount } nodes { workload {
+			... on Application { __typename name }
+			... on Job { __typename name }
+		} } }
+	} } } }]]
+	t.check { data = { team = { environment = { postgres = { workloads = {
+		pageInfo = { totalCount = 3 }, nodes = {
+		{ workload = { __typename = "Application", name = "following-app" } },
+		{ workload = { __typename = "Application", name = "pinned-app" } },
+		{ workload = { __typename = "Job", name = "pinned-job" } },
+	},
+	} } } } } }
+	t.query [[{ team(slug: "pg-selection-team") { environment(name: "dev") { postgres(name: "orders") {
+		workloads(first: 2) { nodes { workload { ... on Application { name } } branch { name } } }
+	} } } }]]
+	t.check {
+		data = Null,
+		errors = { { locations = NotNull(), message = Contains("orders/main"), path = { "team", "environment", "postgres", "workloads", "nodes", 1, "branch" } } },
+	}
+end)
 
 Test.gql("Pending activation also prevents deletion", function(t)
 	t.addHeader("x-user-email", user:email())

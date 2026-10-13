@@ -110,6 +110,7 @@ type ResolverRoot interface {
 	PostgresBranch() PostgresBranchResolver
 	PostgresBranchConnection() PostgresBranchConnectionResolver
 	PostgresConnection() PostgresConnectionResolver
+	PostgresWorkload() PostgresWorkloadResolver
 	PrometheusAlert() PrometheusAlertResolver
 	Query() QueryResolver
 	Reconciler() ReconcilerResolver
@@ -2156,6 +2157,22 @@ type ComplexityRoot struct {
 		Field    func(childComplexity int) int
 		NewValue func(childComplexity int) int
 		OldValue func(childComplexity int) int
+	}
+
+	PostgresWorkload struct {
+		Branch   func(childComplexity int) int
+		Workload func(childComplexity int) int
+	}
+
+	PostgresWorkloadConnection struct {
+		Edges    func(childComplexity int) int
+		Nodes    func(childComplexity int) int
+		PageInfo func(childComplexity int) int
+	}
+
+	PostgresWorkloadEdge struct {
+		Cursor func(childComplexity int) int
+		Node   func(childComplexity int) int
 	}
 
 	Price struct {
@@ -13051,6 +13068,55 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.PostgresUpdatedActivityLogEntryDataUpdatedField.OldValue(childComplexity), true
+
+	case "PostgresWorkload.branch":
+		if e.ComplexityRoot.PostgresWorkload.Branch == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresWorkload.Branch(childComplexity), true
+
+	case "PostgresWorkload.workload":
+		if e.ComplexityRoot.PostgresWorkload.Workload == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresWorkload.Workload(childComplexity), true
+
+	case "PostgresWorkloadConnection.edges":
+		if e.ComplexityRoot.PostgresWorkloadConnection.Edges == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresWorkloadConnection.Edges(childComplexity), true
+
+	case "PostgresWorkloadConnection.nodes":
+		if e.ComplexityRoot.PostgresWorkloadConnection.Nodes == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresWorkloadConnection.Nodes(childComplexity), true
+
+	case "PostgresWorkloadConnection.pageInfo":
+		if e.ComplexityRoot.PostgresWorkloadConnection.PageInfo == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresWorkloadConnection.PageInfo(childComplexity), true
+
+	case "PostgresWorkloadEdge.cursor":
+		if e.ComplexityRoot.PostgresWorkloadEdge.Cursor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresWorkloadEdge.Cursor(childComplexity), true
+
+	case "PostgresWorkloadEdge.node":
+		if e.ComplexityRoot.PostgresWorkloadEdge.Node == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresWorkloadEdge.Node(childComplexity), true
 
 	case "Price.value":
 		if e.ComplexityRoot.Price.Value == nil {
@@ -28411,7 +28477,16 @@ type Postgres implements Node {
 	"Currently observed active branch, if selected."
 	activeBranch: PostgresBranch
 	"Workloads referencing this Postgres, including references to inactive branches and workloads following the active branch. Each workload is included once."
-	workloads(first: Int, after: Cursor, last: Int, before: Cursor): WorkloadConnection!
+	workloads(
+		"Get the first n items in the connection."
+		first: Int
+		"Get items after this cursor."
+		after: Cursor
+		"Get the last n items in the connection."
+		last: Int
+		"Get items before this cursor."
+		before: Cursor
+	): PostgresWorkloadConnection!
 	"Branch with this local name in this Postgres."
 	branch(name: String!): PostgresBranch!
 	"Branches belonging to this Postgres."
@@ -28424,6 +28499,32 @@ type Postgres implements Node {
 	): PostgresBranchConnection!
 	"User-defined labels on this Postgres."
 	labels: [ResourceLabel!]!
+}
+
+"A workload referencing a Postgres and the branch it uses."
+type PostgresWorkload {
+	"The application or job referencing this Postgres."
+	workload: Workload!
+	"The explicitly referenced branch, or the observed active branch when no branch is specified. Defaults to main when no active branch has been observed; a requested activation does not change this selection until observed."
+	branch: PostgresBranch!
+}
+
+"A paginated list of workload and branch relationships. Each workload is included once."
+type PostgresWorkloadConnection {
+	"Pagination information, including the total number of workloads before pagination."
+	pageInfo: PageInfo!
+	"Workload and branch relationships on this page."
+	nodes: [PostgresWorkload!]!
+	"Workload and branch relationships with their pagination cursors."
+	edges: [PostgresWorkloadEdge!]!
+}
+
+"A workload and branch relationship with its pagination cursor."
+type PostgresWorkloadEdge {
+	"Cursor for this workload in the connection."
+	cursor: Cursor!
+	"The workload and the branch it uses."
+	node: PostgresWorkload!
 }
 
 "A paginated list of Postgres databases."
@@ -39346,6 +39447,38 @@ func (ec *executionContext) childFields_PostgresUpdatedActivityLogEntryDataUpdat
 		return ec.fieldContext_PostgresUpdatedActivityLogEntryDataUpdatedField_newValue(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type PostgresUpdatedActivityLogEntryDataUpdatedField", field.Name)
+}
+
+func (ec *executionContext) childFields_PostgresWorkload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "workload":
+		return ec.fieldContext_PostgresWorkload_workload(ctx, field)
+	case "branch":
+		return ec.fieldContext_PostgresWorkload_branch(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostgresWorkload", field.Name)
+}
+
+func (ec *executionContext) childFields_PostgresWorkloadConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pageInfo":
+		return ec.fieldContext_PostgresWorkloadConnection_pageInfo(ctx, field)
+	case "nodes":
+		return ec.fieldContext_PostgresWorkloadConnection_nodes(ctx, field)
+	case "edges":
+		return ec.fieldContext_PostgresWorkloadConnection_edges(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostgresWorkloadConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_PostgresWorkloadEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_PostgresWorkloadEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_PostgresWorkloadEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostgresWorkloadEdge", field.Name)
 }
 
 func (ec *executionContext) childFields_Price(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {

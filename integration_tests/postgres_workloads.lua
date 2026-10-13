@@ -3,6 +3,27 @@ local team = Team.new("postgres-workload-team", "Testing workload Postgres uses"
 team:addMember(user)
 Helper.readK8sResources("k8s_resources/postgres_workloads")
 
+local workloadFields = [[fragment PostgresWorkloadFields on PostgresWorkload {
+	workload {
+		... on Application { __typename id name team { slug } teamEnvironment { environment { name } } }
+		... on Job { __typename id name team { slug } teamEnvironment { environment { name } } }
+	}
+	branch { id name }
+}]]
+
+local function workloadNode(workloadType, name, branch)
+	return {
+		workload = {
+			__typename = workloadType,
+			id = NotNull(),
+			name = name,
+			team = { slug = "postgres-workload-team" },
+			teamEnvironment = { environment = { name = "dev" } },
+		},
+		branch = { id = NotNull(), name = branch },
+	}
+end
+
 Test.gql("Application and job list every referenced Postgres, including one without an active branch", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[{ team(slug: "postgres-workload-team") { environment(name: "dev") {
@@ -38,17 +59,32 @@ end)
 
 Test.gql("Postgres workloads include inactive branch references and databases without an active branch", function(t)
 	t.addHeader("x-user-email", user:email())
-	t.query [[{ team(slug: "postgres-workload-team") { environment(name: "dev") {
-		postgres(name: "orders") { workloads(first: 1) { pageInfo { totalCount hasNextPage } nodes { __typename name } } }
-		archive: postgres(name: "archive") { activeBranch { name } workloads { pageInfo { totalCount } nodes { __typename name } } }
-	} } }]]
+	t.query([[{ team(slug: "postgres-workload-team") { environment(name: "dev") {
+		postgres(name: "orders") { workloads(first: 1) { pageInfo { totalCount hasNextPage endCursor } nodes { ...PostgresWorkloadFields } } }
+		reports: postgres(name: "reports") { workloads { pageInfo { totalCount } nodes { ...PostgresWorkloadFields } } }
+		archive: postgres(name: "archive") { desiredActiveBranch activeBranch { name } workloads { pageInfo { totalCount } nodes { ...PostgresWorkloadFields } } }
+	} } }]] .. workloadFields)
 	t.check { data = { team = { environment = {
-		postgres = { workloads = { pageInfo = { totalCount = 2, hasNextPage = true }, nodes = {
-			{ __typename = "Application", name = "consumer" },
+		postgres = { workloads = { pageInfo = { totalCount = 2, hasNextPage = true, endCursor = Save("ordersCursor") }, nodes = {
+			workloadNode("Application", "consumer", "green"),
 		} } },
-		archive = { activeBranch = Null, workloads = { pageInfo = { totalCount = 2 }, nodes = {
-			{ __typename = "Application", name = "consumer" },
-			{ __typename = "Job",         name = "scheduled-reader" },
+		reports = { workloads = { pageInfo = { totalCount = 2 }, nodes = {
+			workloadNode("Application", "consumer", "recovered"),
+			workloadNode("Job", "scheduled-reader", "recovered"),
+		} } },
+		archive = { desiredActiveBranch = "pending", activeBranch = Null, workloads = { pageInfo = { totalCount = 2 }, nodes = {
+			workloadNode("Application", "consumer", "main"),
+			workloadNode("Job", "scheduled-reader", "main"),
 		} } },
 	} } } }
+	t.query([[{ team(slug: "postgres-workload-team") { environment(name: "dev") {
+		postgres(name: "orders") { workloads(first: 1, after: "]] .. State["ordersCursor"] .. [[") {
+			pageInfo { totalCount hasNextPage hasPreviousPage }
+			nodes { ...PostgresWorkloadFields }
+		} }
+	} } }]] .. workloadFields)
+	t.check { data = { team = { environment = { postgres = { workloads = {
+		pageInfo = { totalCount = 2, hasNextPage = false, hasPreviousPage = true },
+		nodes = { workloadNode("Job", "scheduled-reader", "restored") },
+	} } } } } }
 end)
