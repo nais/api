@@ -18,11 +18,14 @@ import (
 	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
 	mapperatorv1 "github.com/nais/pgrator/pkg/api/v1"
 	unleash_nais_io_v1 "github.com/nais/unleasherator/api/v1"
+	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/dynamic"
 	dynfake "k8s.io/client-go/dynamic/fake"
 	"k8s.io/client-go/rest"
@@ -225,6 +228,32 @@ func NewDynamicClient(scheme *runtime.Scheme) *dynfake.FakeDynamicClient {
 			mapperatorv1.GroupVersion.WithResource("valkeys"):                     "ValkeyList",
 			mapperatorv1.GroupVersion.WithResource("opensearches"):                "OpenSearchList",
 		})
+
+	// The fake client filters lists, but its default watch reactor ignores label selectors.
+	client.PrependWatchReactor("*", func(action k8stesting.Action) (bool, watch.Interface, error) {
+		watchAction, ok := action.(k8stesting.WatchAction)
+		if !ok {
+			return false, nil, nil
+		}
+		selector := watchAction.GetWatchRestrictions().Labels
+		if selector == nil || selector.Empty() {
+			return false, nil, nil
+		}
+		stream, err := client.Tracker().Watch(action.GetResource(), action.GetNamespace())
+		if err != nil {
+			return true, nil, err
+		}
+		return true, watch.Filter(stream, func(event watch.Event) (watch.Event, bool) {
+			if event.Type == watch.Error {
+				return event, true
+			}
+			obj, err := meta.Accessor(event.Object)
+			if err != nil {
+				return watch.Event{Type: watch.Error, Object: &errors.NewInternalError(err).ErrStatus}, true
+			}
+			return event, selector.Matches(labels.Set(obj.GetLabels()))
+		}), nil
+	})
 
 	client.PrependReactor("patch", "*", func(action k8stesting.Action) (handled bool, ret runtime.Object, err error) {
 		patchAction, ok := action.(k8stesting.PatchAction)
