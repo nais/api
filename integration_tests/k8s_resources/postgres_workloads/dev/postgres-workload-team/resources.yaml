@@ -25,6 +25,34 @@ metadata:
   namespace: postgres-workload-team
 spec:
   majorVersion: "18"
+  activeBranch: pending
+---
+apiVersion: nais.io/v1
+kind: PostgresBranch
+metadata:
+  name: archive-main-0df7b960
+  namespace: postgres-workload-team
+spec:
+  postgres: archive
+  branchName: main
+---
+apiVersion: nais.io/v1
+kind: PostgresBranch
+metadata:
+  name: archive-pending-725fee7d
+  namespace: postgres-workload-team
+spec:
+  postgres: archive
+  branchName: pending
+---
+apiVersion: nais.io/v1
+kind: PostgresBranch
+metadata:
+  name: orders-restored-9a5f103c
+  namespace: postgres-workload-team
+spec:
+  postgres: orders
+  branchName: restored
 ---
 apiVersion: nais.io/v1
 kind: PostgresBranch

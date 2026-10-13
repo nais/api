@@ -668,10 +668,35 @@ func WorkloadsForInstance(ctx context.Context, teamSlug slug.Slug, environmentNa
 	return workloadsMatchingPostgresUse(ctx, teamSlug, environmentName, usesBranch)
 }
 
-func WorkloadsForPostgres(ctx context.Context, postgres *Postgres) []workload.Workload {
-	return workloadsMatchingPostgresUse(ctx, postgres.TeamSlug, postgres.EnvironmentName, func(use liberatorv1.PostgresUse) bool {
+func WorkloadsForPostgres(ctx context.Context, postgres *Postgres) []*PostgresWorkload {
+	workloads := workloadsMatchingPostgresUse(ctx, postgres.TeamSlug, postgres.EnvironmentName, func(use liberatorv1.PostgresUse) bool {
 		return use.Name == postgres.Name
 	})
+	activeBranch := nais_io_v1.DefaultBranchName
+	if postgres.ActiveBranch != nil {
+		activeBranch = *postgres.ActiveBranch
+	}
+	ret := make([]*PostgresWorkload, 0, len(workloads))
+	for _, current := range workloads {
+		var uses []liberatorv1.PostgresUse
+		switch current := current.(type) {
+		case *application.Application:
+			uses = current.Spec.Uses.Postgres
+		case *job.Job:
+			uses = current.Spec.Uses.Postgres
+		}
+		branchName := activeBranch
+		for _, use := range uses {
+			if use.Name == postgres.Name {
+				if use.Branch != "" {
+					branchName = use.Branch
+				}
+				break
+			}
+		}
+		ret = append(ret, &PostgresWorkload{Workload: current, PostgresName: postgres.Name, BranchName: branchName})
+	}
+	return ret
 }
 
 func workloadsMatchingPostgresUse(ctx context.Context, teamSlug slug.Slug, environmentName string, matches func(liberatorv1.PostgresUse) bool) []workload.Workload {
