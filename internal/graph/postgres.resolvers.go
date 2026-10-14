@@ -242,3 +242,23 @@ type (
 	postgresConnectionResolver       struct{ *Resolver }
 	postgresWorkloadResolver         struct{ *Resolver }
 )
+
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//    it when you're done.
+//  - You have helper methods in this file. Move them out to keep these resolver files clean.
+/*
+	func postgresUsesConnectionForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName string, uses []liberatorv1.PostgresUse, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*postgres.PostgresUse], error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+	postgresUses, err := postgres.PostgresUsesForWorkload(ctx, teamSlug, environmentName, uses)
+	if err != nil {
+		return nil, err
+	}
+	return pagination.NewConnection(pagination.Slice(postgresUses, page), page, len(postgresUses)), nil
+}
+*/

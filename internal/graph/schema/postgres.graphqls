@@ -188,18 +188,14 @@ type PostgresWorkload {
 
 "A Postgres reference from a workload's uses.postgres configuration."
 type PostgresUse {
-	"Name of the Postgres resource in the workload namespace."
-	name: String!
 	"Prefix prepended to the environment variables for this Postgres."
 	envPrefix: String
 	"Database privileges granted to the workload. Defaults to admin."
 	role: PostgresUseRole!
-	"Explicitly selected branch, or null when the workload follows the observed active branch."
-	branch: String
+	"The branch this workload resolves to: the explicit branch, observed active branch, or main before an active branch is observed."
+	branch: PostgresBranch!
 	"The Postgres resource referenced by this use."
 	postgres: Postgres!
-	"The branch this workload resolves to: the explicit branch, observed active branch, or main before an active branch is observed."
-	resolvedBranch: PostgresBranch!
 }
 
 "Database privileges requested by a Postgres workload use."

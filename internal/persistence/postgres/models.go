@@ -92,12 +92,10 @@ const (
 )
 
 type PostgresUse struct {
-	Name           string          `json:"name"`
-	EnvPrefix      *string         `json:"envPrefix,omitempty"`
-	Role           PostgresUseRole `json:"role"`
-	Branch         *string         `json:"branch,omitempty"`
-	Postgres       *Postgres       `json:"postgres"`
-	ResolvedBranch *PostgresBranch `json:"resolvedBranch"`
+	EnvPrefix *string         `json:"envPrefix,omitempty"`
+	Role      PostgresUseRole `json:"role"`
+	Branch    *PostgresBranch `json:"branch"`
+	Postgres  *Postgres       `json:"postgres"`
 }
 
 type PostgresFacets struct {

@@ -4683,29 +4683,6 @@ func (ec *executionContext) fieldContext_PostgresUpdatedActivityLogEntryDataUpda
 	return graphql.NewScalarFieldContext("PostgresUpdatedActivityLogEntryDataUpdatedField", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _PostgresUse_name(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresUse) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PostgresUse_name(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return obj.Name, nil
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_PostgresUse_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("PostgresUse", field, false, false, errors.New("field of type String does not have child fields"))
-}
-
 func (ec *executionContext) _PostgresUse_envPrefix(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresUse) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -4764,15 +4741,24 @@ func (ec *executionContext) _PostgresUse_branch(ctx context.Context, field graph
 			return obj.Branch, nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *postgres.PostgresBranch) graphql.Marshaler {
+			return ec.marshalNPostgresBranch2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresBranch(ctx, selections, v)
 		},
 		true,
-		false,
+		true,
 	)
 }
 func (ec *executionContext) fieldContext_PostgresUse_branch(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("PostgresUse", field, false, false, errors.New("field of type String does not have child fields"))
+	fc = &graphql.FieldContext{
+		Object:     "PostgresUse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_PostgresBranch(ctx, field)
+		},
+	}
+	return fc, nil
 }
 
 func (ec *executionContext) _PostgresUse_postgres(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresUse) (ret graphql.Marshaler) {
@@ -4802,38 +4788,6 @@ func (ec *executionContext) fieldContext_PostgresUse_postgres(_ context.Context,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return ec.childFields_Postgres(ctx, field)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _PostgresUse_resolvedBranch(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresUse) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PostgresUse_resolvedBranch(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return obj.ResolvedBranch, nil
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *postgres.PostgresBranch) graphql.Marshaler {
-			return ec.marshalNPostgresBranch2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresBranch(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_PostgresUse_resolvedBranch(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "PostgresUse",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_PostgresBranch(ctx, field)
 		},
 	}
 	return fc, nil
@@ -8360,11 +8314,6 @@ func (ec *executionContext) _PostgresUse(ctx context.Context, sel ast.SelectionS
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("PostgresUse")
-		case "name":
-			out.Values[i] = ec._PostgresUse_name(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "envPrefix":
 			out.Values[i] = ec._PostgresUse_envPrefix(ctx, field, obj)
 		case "role":
@@ -8374,13 +8323,11 @@ func (ec *executionContext) _PostgresUse(ctx context.Context, sel ast.SelectionS
 			}
 		case "branch":
 			out.Values[i] = ec._PostgresUse_branch(ctx, field, obj)
-		case "postgres":
-			out.Values[i] = ec._PostgresUse_postgres(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "resolvedBranch":
-			out.Values[i] = ec._PostgresUse_resolvedBranch(ctx, field, obj)
+		case "postgres":
+			out.Values[i] = ec._PostgresUse_postgres(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}

@@ -172,12 +172,10 @@ func PostgresUsesForWorkload(ctx context.Context, teamSlug slug.Slug, environmen
 			return nil, err
 		}
 		postgresUses = append(postgresUses, &PostgresUse{
-			Name:           use.Name,
-			EnvPrefix:      optionalPostgresUseString(use.EnvPrefix),
-			Role:           role,
-			Branch:         optionalPostgresUseString(use.Branch),
-			Postgres:       instance,
-			ResolvedBranch: branch,
+			EnvPrefix: optionalPostgresUseString(use.EnvPrefix),
+			Role:      role,
+			Branch:    branch,
+			Postgres:  instance,
 		})
 	}
 	return postgresUses, nil

@@ -24,14 +24,14 @@ end)
 Test.gql("Workload Postgres uses include the configured and resolved branch", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[{ team(slug: "pg-selection-team") { environment(name: "dev") {
-		pinned: application(name: "pinned-app") { postgreses { nodes { name envPrefix role branch postgres { name activeBranch { name } } resolvedBranch { name } } } }
-		following: application(name: "following-app") { postgreses { nodes { name envPrefix role branch postgres { name activeBranch { name } } resolvedBranch { name } } } }
-		job: job(name: "pinned-job") { postgreses { nodes { name envPrefix role branch postgres { name activeBranch { name } } resolvedBranch { name } } } }
+		pinned: application(name: "pinned-app") { postgreses { nodes { envPrefix role branch { name } postgres { name activeBranch { name } } } } }
+		following: application(name: "following-app") { postgreses { nodes { envPrefix role branch { name } postgres { name activeBranch { name } } } } }
+		job: job(name: "pinned-job") { postgreses { nodes { envPrefix role branch { name } postgres { name activeBranch { name } } } } }
 	} } }]]
 	t.check { data = { team = { environment = {
-		pinned = { postgreses = { nodes = { { name = "orders", envPrefix = Null, role = "ADMIN", branch = "main", postgres = { name = "orders", activeBranch = { name = "green" } }, resolvedBranch = { name = "main" } } } } },
-		following = { postgreses = { nodes = { { name = "orders", envPrefix = Null, role = "ADMIN", branch = Null, postgres = { name = "orders", activeBranch = { name = "green" } }, resolvedBranch = { name = "green" } } } } },
-		job = { postgreses = { nodes = { { name = "orders", envPrefix = Null, role = "ADMIN", branch = "pr-123", postgres = { name = "orders", activeBranch = { name = "green" } }, resolvedBranch = { name = "pr-123" } } } } },
+		pinned = { postgreses = { nodes = { { envPrefix = Null, role = "ADMIN", branch = { name = "main" }, postgres = { name = "orders", activeBranch = { name = "green" } } } } } },
+		following = { postgreses = { nodes = { { envPrefix = Null, role = "ADMIN", branch = { name = "green" }, postgres = { name = "orders", activeBranch = { name = "green" } } } } } },
+		job = { postgreses = { nodes = { { envPrefix = Null, role = "ADMIN", branch = { name = "pr-123" }, postgres = { name = "orders", activeBranch = { name = "green" } } } } } },
 	} } } }
 end)
 
@@ -105,7 +105,7 @@ Test.gql("A missing referenced branch returns an error instead of omitting the w
 		errors = { { locations = NotNull(), message = Contains("orders/main"), path = { "team", "environment", "postgres", "workloads", "nodes", 1, "branch" } } },
 	}
 	t.query [[{ team(slug: "pg-selection-team") { environment(name: "dev") {
-		application(name: "pinned-app") { postgreses { nodes { name resolvedBranch { name } } } }
+		application(name: "pinned-app") { postgreses { nodes { postgres { name } branch { name } } } }
 	} } }]]
 	t.check {
 		data = Null,

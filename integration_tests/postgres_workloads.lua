@@ -27,18 +27,18 @@ end
 Test.gql("Application and job Postgres uses expose spec fields and resolved resources", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[{ team(slug: "postgres-workload-team") { environment(name: "dev") {
-		application(name: "consumer") { postgreses { pageInfo { totalCount } nodes { name envPrefix role branch postgres { name activeBranch { name } } resolvedBranch { name } } } }
-		job(name: "scheduled-reader") { postgreses { pageInfo { totalCount } nodes { name envPrefix role branch postgres { name activeBranch { name } } resolvedBranch { name } } } }
+		application(name: "consumer") { postgreses { pageInfo { totalCount } nodes { envPrefix role branch { name } postgres { name activeBranch { name } } } } }
+		job(name: "scheduled-reader") { postgreses { pageInfo { totalCount } nodes { envPrefix role branch { name } postgres { name activeBranch { name } } } } }
 	} } }]]
 	local applicationPostgreses = {
-		{ name = "archive", envPrefix = "ARCHIVE_", role = "ADMIN", branch = Null, postgres = { name = "archive", activeBranch = Null },                   resolvedBranch = { name = "main" } },
-		{ name = "orders",  envPrefix = Null,       role = "READ",  branch = Null, postgres = { name = "orders", activeBranch = { name = "green" } },      resolvedBranch = { name = "green" } },
-		{ name = "reports", envPrefix = "REPORTS_", role = "ADMIN", branch = Null, postgres = { name = "reports", activeBranch = { name = "recovered" } }, resolvedBranch = { name = "recovered" } },
+		{ envPrefix = "ARCHIVE_", role = "ADMIN", branch = { name = "main" },      postgres = { name = "archive", activeBranch = Null } },
+		{ envPrefix = Null,       role = "READ",  branch = { name = "green" },     postgres = { name = "orders", activeBranch = { name = "green" } } },
+		{ envPrefix = "REPORTS_", role = "ADMIN", branch = { name = "recovered" }, postgres = { name = "reports", activeBranch = { name = "recovered" } } },
 	}
 	local jobPostgreses = {
-		{ name = "archive", envPrefix = "ARCHIVE_", role = "ADMIN", branch = Null,       postgres = { name = "archive", activeBranch = Null },                   resolvedBranch = { name = "main" } },
-		{ name = "orders",  envPrefix = Null,       role = "ADMIN", branch = "restored", postgres = { name = "orders", activeBranch = { name = "green" } },      resolvedBranch = { name = "restored" } },
-		{ name = "reports", envPrefix = "REPORTS_", role = "ADMIN", branch = Null,       postgres = { name = "reports", activeBranch = { name = "recovered" } }, resolvedBranch = { name = "recovered" } },
+		{ envPrefix = "ARCHIVE_", role = "ADMIN", branch = { name = "main" },      postgres = { name = "archive", activeBranch = Null } },
+		{ envPrefix = Null,       role = "ADMIN", branch = { name = "restored" },  postgres = { name = "orders", activeBranch = { name = "green" } } },
+		{ envPrefix = "REPORTS_", role = "ADMIN", branch = { name = "recovered" }, postgres = { name = "reports", activeBranch = { name = "recovered" } } },
 	}
 	t.check { data = { team = { environment = {
 		application = { postgreses = { pageInfo = { totalCount = 3 }, nodes = applicationPostgreses } },

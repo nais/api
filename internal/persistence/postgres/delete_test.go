@@ -117,10 +117,10 @@ func TestWorkloadUsesMultiplePostgresResources(t *testing.T) {
 			t.Fatalf("%s Postgres uses = %d, want %d", test.name, len(usages), len(test.branch))
 		}
 		for _, usage := range usages {
-			if want := test.branch[usage.Name]; usage.ResolvedBranch.Name != want {
-				t.Errorf("%s Postgres %q resolved branch = %q, want %q", test.name, usage.Name, usage.ResolvedBranch.Name, want)
+			if want := test.branch[usage.Postgres.Name]; usage.Branch.Name != want {
+				t.Errorf("%s Postgres %q branch = %q, want %q", test.name, usage.Postgres.Name, usage.Branch.Name, want)
 			}
-			delete(test.branch, usage.Name)
+			delete(test.branch, usage.Postgres.Name)
 		}
 		if len(test.branch) != 0 {
 			t.Errorf("%s Postgres uses missing references: %v", test.name, test.branch)

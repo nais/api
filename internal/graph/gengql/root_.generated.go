@@ -2160,12 +2160,10 @@ type ComplexityRoot struct {
 	}
 
 	PostgresUse struct {
-		Branch         func(childComplexity int) int
-		EnvPrefix      func(childComplexity int) int
-		Name           func(childComplexity int) int
-		Postgres       func(childComplexity int) int
-		ResolvedBranch func(childComplexity int) int
-		Role           func(childComplexity int) int
+		Branch    func(childComplexity int) int
+		EnvPrefix func(childComplexity int) int
+		Postgres  func(childComplexity int) int
+		Role      func(childComplexity int) int
 	}
 
 	PostgresUseEdge struct {
@@ -13113,26 +13111,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.PostgresUse.EnvPrefix(childComplexity), true
 
-	case "PostgresUse.name":
-		if e.ComplexityRoot.PostgresUse.Name == nil {
-			break
-		}
-
-		return e.ComplexityRoot.PostgresUse.Name(childComplexity), true
-
 	case "PostgresUse.postgres":
 		if e.ComplexityRoot.PostgresUse.Postgres == nil {
 			break
 		}
 
 		return e.ComplexityRoot.PostgresUse.Postgres(childComplexity), true
-
-	case "PostgresUse.resolvedBranch":
-		if e.ComplexityRoot.PostgresUse.ResolvedBranch == nil {
-			break
-		}
-
-		return e.ComplexityRoot.PostgresUse.ResolvedBranch(childComplexity), true
 
 	case "PostgresUse.role":
 		if e.ComplexityRoot.PostgresUse.Role == nil {
@@ -28641,18 +28625,14 @@ type PostgresWorkload {
 
 "A Postgres reference from a workload's uses.postgres configuration."
 type PostgresUse {
-	"Name of the Postgres resource in the workload namespace."
-	name: String!
 	"Prefix prepended to the environment variables for this Postgres."
 	envPrefix: String
 	"Database privileges granted to the workload. Defaults to admin."
 	role: PostgresUseRole!
-	"Explicitly selected branch, or null when the workload follows the observed active branch."
-	branch: String
+	"The branch this workload resolves to: the explicit branch, observed active branch, or main before an active branch is observed."
+	branch: PostgresBranch!
 	"The Postgres resource referenced by this use."
 	postgres: Postgres!
-	"The branch this workload resolves to: the explicit branch, observed active branch, or main before an active branch is observed."
-	resolvedBranch: PostgresBranch!
 }
 
 "Database privileges requested by a Postgres workload use."
@@ -39625,8 +39605,6 @@ func (ec *executionContext) childFields_PostgresUpdatedActivityLogEntryDataUpdat
 
 func (ec *executionContext) childFields_PostgresUse(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
-	case "name":
-		return ec.fieldContext_PostgresUse_name(ctx, field)
 	case "envPrefix":
 		return ec.fieldContext_PostgresUse_envPrefix(ctx, field)
 	case "role":
@@ -39635,8 +39613,6 @@ func (ec *executionContext) childFields_PostgresUse(ctx context.Context, field g
 		return ec.fieldContext_PostgresUse_branch(ctx, field)
 	case "postgres":
 		return ec.fieldContext_PostgresUse_postgres(ctx, field)
-	case "resolvedBranch":
-		return ec.fieldContext_PostgresUse_resolvedBranch(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type PostgresUse", field.Name)
 }
