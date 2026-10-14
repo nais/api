@@ -24,25 +24,20 @@ local function workloadNode(workloadType, name, branch)
 	}
 end
 
-Test.gql("Application and job uses list every Postgres and its resolved branch", function(t)
+Test.gql("Application and job list every referenced Postgres, including one without an active branch", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[{ team(slug: "postgres-workload-team") { environment(name: "dev") {
-		application(name: "consumer") { uses { nodes { ... on PostgresUsage { postgres { name activeBranch { name } } branch { name } } } } }
-		job(name: "scheduled-reader") { uses { nodes { ... on PostgresUsage { postgres { name activeBranch { name } } branch { name } } } } }
+		application(name: "consumer") { postgreses { nodes { name activeBranch { name } } } }
+		job(name: "scheduled-reader") { postgreses { nodes { name activeBranch { name } } } }
 	} } }]]
-	local applicationUses = {
-		{ postgres = { name = "archive", activeBranch = Null },                   branch = { name = "main" } },
-		{ postgres = { name = "orders", activeBranch = { name = "green" } },      branch = { name = "green" } },
-		{ postgres = { name = "reports", activeBranch = { name = "recovered" } }, branch = { name = "recovered" } },
-	}
-	local jobUses = {
-		{ postgres = { name = "archive", activeBranch = Null },                   branch = { name = "main" } },
-		{ postgres = { name = "orders", activeBranch = { name = "green" } },      branch = { name = "restored" } },
-		{ postgres = { name = "reports", activeBranch = { name = "recovered" } }, branch = { name = "recovered" } },
+	local databases = {
+		{ name = "archive", activeBranch = Null },
+		{ name = "orders",  activeBranch = { name = "green" } },
+		{ name = "reports", activeBranch = { name = "recovered" } },
 	}
 	t.check { data = { team = { environment = {
-		application = { uses = { nodes = applicationUses } },
-		job = { uses = { nodes = jobUses } },
+		application = { postgreses = { nodes = databases } },
+		job = { postgreses = { nodes = databases } },
 	} } } }
 end)
 

@@ -71,11 +71,11 @@ end)
 Test.gql("A workload follows the active physical instance", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[{ team(slug:"someteamname") { environment(name:"dev") {
-	        application(name:"app-with-postgres") { uses { nodes { ... on PostgresUsage { postgres { name activeBranch { name } } branch { name } } } } }
+        application(name:"app-with-postgres") { postgreses { nodes { name activeBranch { name } } } }
         postgres(name:"foobar") { branch(name:"main") { workloads { nodes { __typename name } } } }
     } } }]]
 	t.check { data = { team = { environment = {
-		application = { uses = { nodes = { { postgres = { name = "foobar", activeBranch = { name = "main" } }, branch = { name = "main" } } } } },
+		application = { postgreses = { nodes = { { name = "foobar", activeBranch = { name = "main" } } } } },
 		postgres = { branch = { workloads = { nodes = {
 			{ __typename = "Application", name = "app-with-postgres" },
 			{ __typename = "Application", name = "app-with-postgres-2" },
