@@ -8,46 +8,38 @@ import (
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/persistence/postgres"
+	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
 	"github.com/nais/api/internal/workload/job"
+	liberatorv1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 )
 
-func (r *applicationResolver) Postgreses(ctx context.Context, obj *application.Application) (*pagination.FacetableConnection[*postgres.Postgres, *postgres.TeamPostgresFilter], error) {
-	if obj.Spec == nil || obj.Spec.Uses == nil {
-		return pagination.NewFacetableConnection(pagination.EmptyConnection[*postgres.Postgres](), nil, (*postgres.TeamPostgresFilter)(nil)), nil
-	}
-	instances, err := postgres.ListPostgresForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Spec.Uses.Postgres)
+func postgresUsesConnectionForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName string, uses []liberatorv1.PostgresUse, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*postgres.PostgresUse], error) {
+	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
 	}
-	return pagination.NewFacetableConnection(pagination.NewConnectionWithoutPagination(instances), instances, (*postgres.TeamPostgresFilter)(nil)), nil
-}
-
-func (r *applicationResolver) PostgresUsages(ctx context.Context, obj *application.Application) ([]*postgres.PostgresUsage, error) {
-	if obj.Spec == nil || obj.Spec.Uses == nil {
-		return []*postgres.PostgresUsage{}, nil
-	}
-	return postgres.PostgresUsagesForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Spec.Uses.Postgres)
-}
-
-func (r *jobResolver) Postgreses(ctx context.Context, obj *job.Job) (*pagination.FacetableConnection[*postgres.Postgres, *postgres.TeamPostgresFilter], error) {
-	if obj.Spec == nil || obj.Spec.Uses == nil {
-		return pagination.NewFacetableConnection(pagination.EmptyConnection[*postgres.Postgres](), nil, (*postgres.TeamPostgresFilter)(nil)), nil
-	}
-	instances, err := postgres.ListPostgresForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Spec.Uses.Postgres)
+	postgresUses, err := postgres.PostgresUsesForWorkload(ctx, teamSlug, environmentName, uses)
 	if err != nil {
 		return nil, err
 	}
-	return pagination.NewFacetableConnection(pagination.NewConnectionWithoutPagination(instances), instances, (*postgres.TeamPostgresFilter)(nil)), nil
+	return pagination.NewConnection(pagination.Slice(postgresUses, page), page, len(postgresUses)), nil
 }
 
-func (r *jobResolver) PostgresUsages(ctx context.Context, obj *job.Job) ([]*postgres.PostgresUsage, error) {
+func (r *applicationResolver) Postgreses(ctx context.Context, obj *application.Application, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*postgres.PostgresUse], error) {
 	if obj.Spec == nil || obj.Spec.Uses == nil {
-		return []*postgres.PostgresUsage{}, nil
+		return pagination.EmptyConnection[*postgres.PostgresUse](), nil
 	}
-	return postgres.PostgresUsagesForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Spec.Uses.Postgres)
+	return postgresUsesConnectionForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Spec.Uses.Postgres, first, after, last, before)
+}
+
+func (r *jobResolver) Postgreses(ctx context.Context, obj *job.Job, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*postgres.PostgresUse], error) {
+	if obj.Spec == nil || obj.Spec.Uses == nil {
+		return pagination.EmptyConnection[*postgres.PostgresUse](), nil
+	}
+	return postgresUsesConnectionForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Spec.Uses.Postgres, first, after, last, before)
 }
 
 func (r *mutationResolver) CreatePostgresAccess(ctx context.Context, input postgres.CreatePostgresAccessInput) (*postgres.CreatePostgresAccessPayload, error) {

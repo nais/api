@@ -82,6 +82,7 @@ spec:
   uses:
     postgres:
       - name: orders
+        role: read
       - name: reports
         envPrefix: REPORTS_
       - name: archive

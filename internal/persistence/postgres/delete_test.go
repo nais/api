@@ -109,21 +109,21 @@ func TestWorkloadUsesMultiplePostgresResources(t *testing.T) {
 		{name: "application", uses: apps[0].Spec.Uses.Postgres, branch: map[string]string{"archive": "main", "orders": "green", "reports": "recovered"}},
 		{name: "job", uses: jobs[0].Spec.Uses.Postgres, branch: map[string]string{"archive": "main", "orders": "restored", "reports": "recovered"}},
 	} {
-		usages, err := PostgresUsagesForWorkload(ctx, team, "dev", test.uses)
+		usages, err := PostgresUsesForWorkload(ctx, team, "dev", test.uses)
 		if err != nil {
-			t.Fatalf("%s Postgres usages: %v", test.name, err)
+			t.Fatalf("%s Postgres uses: %v", test.name, err)
 		}
 		if len(usages) != len(test.branch) {
-			t.Fatalf("%s Postgres usages = %d, want %d", test.name, len(usages), len(test.branch))
+			t.Fatalf("%s Postgres uses = %d, want %d", test.name, len(usages), len(test.branch))
 		}
 		for _, usage := range usages {
-			if want := test.branch[usage.Postgres.Name]; usage.Branch.Name != want {
-				t.Errorf("%s Postgres %q branch = %q, want %q", test.name, usage.Postgres.Name, usage.Branch.Name, want)
+			if want := test.branch[usage.Name]; usage.ResolvedBranch.Name != want {
+				t.Errorf("%s Postgres %q resolved branch = %q, want %q", test.name, usage.Name, usage.ResolvedBranch.Name, want)
 			}
-			delete(test.branch, usage.Postgres.Name)
+			delete(test.branch, usage.Name)
 		}
 		if len(test.branch) != 0 {
-			t.Errorf("%s Postgres usages missing references: %v", test.name, test.branch)
+			t.Errorf("%s Postgres uses missing references: %v", test.name, test.branch)
 		}
 	}
 	for _, entry := range []struct{ postgres, branch string }{{"orders", "green"}, {"reports", "recovered"}} {

@@ -269,8 +269,7 @@ type ComplexityRoot struct {
 		Name                      func(childComplexity int) int
 		NetworkPolicy             func(childComplexity int) int
 		OpenSearch                func(childComplexity int) int
-		PostgresUsages            func(childComplexity int) int
-		Postgreses                func(childComplexity int) int
+		Postgreses                func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		Resources                 func(childComplexity int) int
 		SQLInstances              func(childComplexity int, orderBy *sqlinstance.SQLInstanceOrder) int
 		Secrets                   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
@@ -1267,8 +1266,7 @@ type ComplexityRoot struct {
 		Name                      func(childComplexity int) int
 		NetworkPolicy             func(childComplexity int) int
 		OpenSearch                func(childComplexity int) int
-		PostgresUsages            func(childComplexity int) int
-		Postgreses                func(childComplexity int) int
+		Postgreses                func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		Resources                 func(childComplexity int) int
 		Runs                      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		SQLInstances              func(childComplexity int, orderBy *sqlinstance.SQLInstanceOrder) int
@@ -2161,9 +2159,24 @@ type ComplexityRoot struct {
 		OldValue func(childComplexity int) int
 	}
 
-	PostgresUsage struct {
-		Branch   func(childComplexity int) int
-		Postgres func(childComplexity int) int
+	PostgresUse struct {
+		Branch         func(childComplexity int) int
+		EnvPrefix      func(childComplexity int) int
+		Name           func(childComplexity int) int
+		Postgres       func(childComplexity int) int
+		ResolvedBranch func(childComplexity int) int
+		Role           func(childComplexity int) int
+	}
+
+	PostgresUseEdge struct {
+		Cursor func(childComplexity int) int
+		Node   func(childComplexity int) int
+	}
+
+	PostgresUsesConnection struct {
+		Edges    func(childComplexity int) int
+		Nodes    func(childComplexity int) int
+		PageInfo func(childComplexity int) int
 	}
 
 	PostgresWorkload struct {
@@ -4566,19 +4579,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Application.OpenSearch(childComplexity), true
 
-	case "Application.postgresUsages":
-		if e.ComplexityRoot.Application.PostgresUsages == nil {
-			break
-		}
-
-		return e.ComplexityRoot.Application.PostgresUsages(childComplexity), true
-
 	case "Application.postgreses":
 		if e.ComplexityRoot.Application.Postgreses == nil {
 			break
 		}
 
-		return e.ComplexityRoot.Application.Postgreses(childComplexity), true
+		args, err := ec.field_Application_postgreses_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Application.Postgreses(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
 
 	case "Application.resources":
 		if e.ComplexityRoot.Application.Resources == nil {
@@ -8637,19 +8648,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Job.OpenSearch(childComplexity), true
 
-	case "Job.postgresUsages":
-		if e.ComplexityRoot.Job.PostgresUsages == nil {
-			break
-		}
-
-		return e.ComplexityRoot.Job.PostgresUsages(childComplexity), true
-
 	case "Job.postgreses":
 		if e.ComplexityRoot.Job.Postgreses == nil {
 			break
 		}
 
-		return e.ComplexityRoot.Job.Postgreses(childComplexity), true
+		args, err := ec.field_Job_postgreses_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Job.Postgreses(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
 
 	case "Job.resources":
 		if e.ComplexityRoot.Job.Resources == nil {
@@ -13090,19 +13099,82 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.PostgresUpdatedActivityLogEntryDataUpdatedField.OldValue(childComplexity), true
 
-	case "PostgresUsage.branch":
-		if e.ComplexityRoot.PostgresUsage.Branch == nil {
+	case "PostgresUse.branch":
+		if e.ComplexityRoot.PostgresUse.Branch == nil {
 			break
 		}
 
-		return e.ComplexityRoot.PostgresUsage.Branch(childComplexity), true
+		return e.ComplexityRoot.PostgresUse.Branch(childComplexity), true
 
-	case "PostgresUsage.postgres":
-		if e.ComplexityRoot.PostgresUsage.Postgres == nil {
+	case "PostgresUse.envPrefix":
+		if e.ComplexityRoot.PostgresUse.EnvPrefix == nil {
 			break
 		}
 
-		return e.ComplexityRoot.PostgresUsage.Postgres(childComplexity), true
+		return e.ComplexityRoot.PostgresUse.EnvPrefix(childComplexity), true
+
+	case "PostgresUse.name":
+		if e.ComplexityRoot.PostgresUse.Name == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresUse.Name(childComplexity), true
+
+	case "PostgresUse.postgres":
+		if e.ComplexityRoot.PostgresUse.Postgres == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresUse.Postgres(childComplexity), true
+
+	case "PostgresUse.resolvedBranch":
+		if e.ComplexityRoot.PostgresUse.ResolvedBranch == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresUse.ResolvedBranch(childComplexity), true
+
+	case "PostgresUse.role":
+		if e.ComplexityRoot.PostgresUse.Role == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresUse.Role(childComplexity), true
+
+	case "PostgresUseEdge.cursor":
+		if e.ComplexityRoot.PostgresUseEdge.Cursor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresUseEdge.Cursor(childComplexity), true
+
+	case "PostgresUseEdge.node":
+		if e.ComplexityRoot.PostgresUseEdge.Node == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresUseEdge.Node(childComplexity), true
+
+	case "PostgresUsesConnection.edges":
+		if e.ComplexityRoot.PostgresUsesConnection.Edges == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresUsesConnection.Edges(childComplexity), true
+
+	case "PostgresUsesConnection.nodes":
+		if e.ComplexityRoot.PostgresUsesConnection.Nodes == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresUsesConnection.Nodes(childComplexity), true
+
+	case "PostgresUsesConnection.pageInfo":
+		if e.ComplexityRoot.PostgresUsesConnection.PageInfo == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresUsesConnection.PageInfo(childComplexity), true
 
 	case "PostgresWorkload.branch":
 		if e.ComplexityRoot.PostgresWorkload.Branch == nil {
@@ -28409,24 +28481,41 @@ extend type TeamEnvironment {
 }
 
 extend interface Workload {
-	"Postgres databases referenced by uses.postgres, whether or not they have an active branch."
-	postgreses: PostgresConnection!
-	"Postgres databases referenced by this workload and the branch each reference resolves to."
-	postgresUsages: [PostgresUsage!]!
+	"Postgres references configured in uses.postgres, including their resolved branch."
+	postgreses(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+		"Get items after this cursor."
+		after: Cursor
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+		"Get items before this cursor."
+		before: Cursor
+	): PostgresUsesConnection!
 }
 
 extend type Application {
-	"Postgres databases referenced by uses.postgres, whether or not they have an active branch."
-	postgreses: PostgresConnection!
-	"Postgres databases referenced by this workload and the branch each reference resolves to."
-	postgresUsages: [PostgresUsage!]!
+	"Postgres references configured in uses.postgres, including their resolved branch."
+	postgreses(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+		after: Cursor
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+		before: Cursor
+	): PostgresUsesConnection!
 }
 
 extend type Job {
-	"Postgres databases referenced by uses.postgres, whether or not they have an active branch."
-	postgreses: PostgresConnection!
-	"Postgres databases referenced by this workload and the branch each reference resolves to."
-	postgresUsages: [PostgresUsage!]!
+	"Postgres references configured in uses.postgres, including their resolved branch."
+	postgreses(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+		after: Cursor
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+		before: Cursor
+	): PostgresUsesConnection!
 }
 
 "Filter a team's Postgres databases by environment and user-defined labels."
@@ -28550,12 +28639,48 @@ type PostgresWorkload {
 	branch: PostgresBranch!
 }
 
-"A Postgres and the branch selected by a workload reference."
-type PostgresUsage {
-	"Postgres database referenced by the workload."
+"A Postgres reference from a workload's uses.postgres configuration."
+type PostgresUse {
+	"Name of the Postgres resource in the workload namespace."
+	name: String!
+	"Prefix prepended to the environment variables for this Postgres."
+	envPrefix: String
+	"Database privileges granted to the workload. Defaults to admin."
+	role: PostgresUseRole!
+	"Explicitly selected branch, or null when the workload follows the observed active branch."
+	branch: String
+	"The Postgres resource referenced by this use."
 	postgres: Postgres!
-	"Explicitly referenced branch, observed active branch, or main before an active branch is observed."
-	branch: PostgresBranch!
+	"The branch this workload resolves to: the explicit branch, observed active branch, or main before an active branch is observed."
+	resolvedBranch: PostgresBranch!
+}
+
+"Database privileges requested by a Postgres workload use."
+enum PostgresUseRole {
+	"Admin access, including a separate readwrite credential for ordinary application traffic."
+	ADMIN
+	"Read-only database access."
+	READ
+	"Read and write database access."
+	READWRITE
+}
+
+"A paginated list of Postgres uses configured by a workload."
+type PostgresUsesConnection {
+	"Pagination information, including the total number of Postgres uses before pagination."
+	pageInfo: PageInfo!
+	"Postgres uses on this page."
+	nodes: [PostgresUse!]!
+	"Postgres uses with their pagination cursors."
+	edges: [PostgresUseEdge!]!
+}
+
+"A Postgres use and its pagination cursor."
+type PostgresUseEdge {
+	"Cursor for this Postgres use in the connection."
+	cursor: Cursor!
+	"The Postgres use and the branch it resolves to."
+	node: PostgresUse!
 }
 
 "A paginated list of workload and branch relationships. Each workload is included once."
@@ -36944,8 +37069,6 @@ func (ec *executionContext) childFields_Application(ctx context.Context, field g
 		return ec.fieldContext_Application_openSearch(ctx, field)
 	case "postgreses":
 		return ec.fieldContext_Application_postgreses(ctx, field)
-	case "postgresUsages":
-		return ec.fieldContext_Application_postgresUsages(ctx, field)
 	case "secrets":
 		return ec.fieldContext_Application_secrets(ctx, field)
 	case "serviceAccount":
@@ -38494,8 +38617,6 @@ func (ec *executionContext) childFields_Job(ctx context.Context, field graphql.C
 		return ec.fieldContext_Job_openSearch(ctx, field)
 	case "postgreses":
 		return ec.fieldContext_Job_postgreses(ctx, field)
-	case "postgresUsages":
-		return ec.fieldContext_Job_postgresUsages(ctx, field)
 	case "secrets":
 		return ec.fieldContext_Job_secrets(ctx, field)
 	case "serviceAccount":
@@ -39502,14 +39623,44 @@ func (ec *executionContext) childFields_PostgresUpdatedActivityLogEntryDataUpdat
 	return nil, fmt.Errorf("no field named %q was found under type PostgresUpdatedActivityLogEntryDataUpdatedField", field.Name)
 }
 
-func (ec *executionContext) childFields_PostgresUsage(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+func (ec *executionContext) childFields_PostgresUse(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
-	case "postgres":
-		return ec.fieldContext_PostgresUsage_postgres(ctx, field)
+	case "name":
+		return ec.fieldContext_PostgresUse_name(ctx, field)
+	case "envPrefix":
+		return ec.fieldContext_PostgresUse_envPrefix(ctx, field)
+	case "role":
+		return ec.fieldContext_PostgresUse_role(ctx, field)
 	case "branch":
-		return ec.fieldContext_PostgresUsage_branch(ctx, field)
+		return ec.fieldContext_PostgresUse_branch(ctx, field)
+	case "postgres":
+		return ec.fieldContext_PostgresUse_postgres(ctx, field)
+	case "resolvedBranch":
+		return ec.fieldContext_PostgresUse_resolvedBranch(ctx, field)
 	}
-	return nil, fmt.Errorf("no field named %q was found under type PostgresUsage", field.Name)
+	return nil, fmt.Errorf("no field named %q was found under type PostgresUse", field.Name)
+}
+
+func (ec *executionContext) childFields_PostgresUseEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_PostgresUseEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_PostgresUseEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostgresUseEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_PostgresUsesConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pageInfo":
+		return ec.fieldContext_PostgresUsesConnection_pageInfo(ctx, field)
+	case "nodes":
+		return ec.fieldContext_PostgresUsesConnection_nodes(ctx, field)
+	case "edges":
+		return ec.fieldContext_PostgresUsesConnection_edges(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostgresUsesConnection", field.Name)
 }
 
 func (ec *executionContext) childFields_PostgresWorkload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {

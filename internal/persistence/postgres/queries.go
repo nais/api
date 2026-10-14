@@ -144,7 +144,7 @@ func ListPostgresForWorkload(ctx context.Context, teamSlug slug.Slug, environmen
 	return instances, nil
 }
 
-func PostgresUsagesForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName string, uses []liberatorv1.PostgresUse) ([]*PostgresUsage, error) {
+func PostgresUsesForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName string, uses []liberatorv1.PostgresUse) ([]*PostgresUse, error) {
 	uniqueUses, err := uniquePostgresUses(uses)
 	if err != nil {
 		return nil, err
@@ -159,16 +159,48 @@ func PostgresUsagesForWorkload(ctx context.Context, teamSlug slug.Slug, environm
 		usesByName[use.Name] = use
 	}
 
-	usages := make([]*PostgresUsage, 0, len(instances))
+	postgresUses := make([]*PostgresUse, 0, len(instances))
 	for _, instance := range instances {
-		branchName := selectedBranchName(instance, usesByName[instance.Name])
+		use := usesByName[instance.Name]
+		branchName := selectedBranchName(instance, use)
 		branch, err := GetPostgresBranch(ctx, teamSlug, environmentName, instance.Name, branchName)
 		if err != nil {
 			return nil, err
 		}
-		usages = append(usages, &PostgresUsage{Postgres: instance, Branch: branch})
+		role, err := postgresUseRole(use.Role)
+		if err != nil {
+			return nil, err
+		}
+		postgresUses = append(postgresUses, &PostgresUse{
+			Name:           use.Name,
+			EnvPrefix:      optionalPostgresUseString(use.EnvPrefix),
+			Role:           role,
+			Branch:         optionalPostgresUseString(use.Branch),
+			Postgres:       instance,
+			ResolvedBranch: branch,
+		})
 	}
-	return usages, nil
+	return postgresUses, nil
+}
+
+func postgresUseRole(role string) (PostgresUseRole, error) {
+	switch role {
+	case "", "admin":
+		return PostgresUseRoleAdmin, nil
+	case "read":
+		return PostgresUseRoleRead, nil
+	case "readwrite":
+		return PostgresUseRoleReadwrite, nil
+	default:
+		return "", fmt.Errorf("unknown Postgres use role %q", role)
+	}
+}
+
+func optionalPostgresUseString(value string) *string {
+	if value == "" {
+		return nil
+	}
+	return &value
 }
 
 func uniquePostgresUses(uses []liberatorv1.PostgresUse) ([]liberatorv1.PostgresUse, error) {

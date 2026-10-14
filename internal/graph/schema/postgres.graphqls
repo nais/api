@@ -28,24 +28,41 @@ extend type TeamEnvironment {
 }
 
 extend interface Workload {
-	"Postgres databases referenced by uses.postgres, whether or not they have an active branch."
-	postgreses: PostgresConnection!
-	"Postgres databases referenced by this workload and the branch each reference resolves to."
-	postgresUsages: [PostgresUsage!]!
+	"Postgres references configured in uses.postgres, including their resolved branch."
+	postgreses(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+		"Get items after this cursor."
+		after: Cursor
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+		"Get items before this cursor."
+		before: Cursor
+	): PostgresUsesConnection!
 }
 
 extend type Application {
-	"Postgres databases referenced by uses.postgres, whether or not they have an active branch."
-	postgreses: PostgresConnection!
-	"Postgres databases referenced by this workload and the branch each reference resolves to."
-	postgresUsages: [PostgresUsage!]!
+	"Postgres references configured in uses.postgres, including their resolved branch."
+	postgreses(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+		after: Cursor
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+		before: Cursor
+	): PostgresUsesConnection!
 }
 
 extend type Job {
-	"Postgres databases referenced by uses.postgres, whether or not they have an active branch."
-	postgreses: PostgresConnection!
-	"Postgres databases referenced by this workload and the branch each reference resolves to."
-	postgresUsages: [PostgresUsage!]!
+	"Postgres references configured in uses.postgres, including their resolved branch."
+	postgreses(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+		after: Cursor
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+		before: Cursor
+	): PostgresUsesConnection!
 }
 
 "Filter a team's Postgres databases by environment and user-defined labels."
@@ -169,12 +186,48 @@ type PostgresWorkload {
 	branch: PostgresBranch!
 }
 
-"A Postgres and the branch selected by a workload reference."
-type PostgresUsage {
-	"Postgres database referenced by the workload."
+"A Postgres reference from a workload's uses.postgres configuration."
+type PostgresUse {
+	"Name of the Postgres resource in the workload namespace."
+	name: String!
+	"Prefix prepended to the environment variables for this Postgres."
+	envPrefix: String
+	"Database privileges granted to the workload. Defaults to admin."
+	role: PostgresUseRole!
+	"Explicitly selected branch, or null when the workload follows the observed active branch."
+	branch: String
+	"The Postgres resource referenced by this use."
 	postgres: Postgres!
-	"Explicitly referenced branch, observed active branch, or main before an active branch is observed."
-	branch: PostgresBranch!
+	"The branch this workload resolves to: the explicit branch, observed active branch, or main before an active branch is observed."
+	resolvedBranch: PostgresBranch!
+}
+
+"Database privileges requested by a Postgres workload use."
+enum PostgresUseRole {
+	"Admin access, including a separate readwrite credential for ordinary application traffic."
+	ADMIN
+	"Read-only database access."
+	READ
+	"Read and write database access."
+	READWRITE
+}
+
+"A paginated list of Postgres uses configured by a workload."
+type PostgresUsesConnection {
+	"Pagination information, including the total number of Postgres uses before pagination."
+	pageInfo: PageInfo!
+	"Postgres uses on this page."
+	nodes: [PostgresUse!]!
+	"Postgres uses with their pagination cursors."
+	edges: [PostgresUseEdge!]!
+}
+
+"A Postgres use and its pagination cursor."
+type PostgresUseEdge {
+	"Cursor for this Postgres use in the connection."
+	cursor: Cursor!
+	"The Postgres use and the branch it resolves to."
+	node: PostgresUse!
 }
 
 "A paginated list of workload and branch relationships. Each workload is included once."

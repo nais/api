@@ -24,40 +24,25 @@ local function workloadNode(workloadType, name, branch)
 	}
 end
 
-Test.gql("Application and job list every referenced Postgres, including one without an active branch", function(t)
+Test.gql("Application and job Postgres uses expose spec fields and resolved resources", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[{ team(slug: "postgres-workload-team") { environment(name: "dev") {
-		application(name: "consumer") { postgreses { nodes { name activeBranch { name } } } }
-		job(name: "scheduled-reader") { postgreses { nodes { name activeBranch { name } } } }
+		application(name: "consumer") { postgreses { pageInfo { totalCount } nodes { name envPrefix role branch postgres { name activeBranch { name } } resolvedBranch { name } } } }
+		job(name: "scheduled-reader") { postgreses { pageInfo { totalCount } nodes { name envPrefix role branch postgres { name activeBranch { name } } resolvedBranch { name } } } }
 	} } }]]
-	local databases = {
-		{ name = "archive", activeBranch = Null },
-		{ name = "orders",  activeBranch = { name = "green" } },
-		{ name = "reports", activeBranch = { name = "recovered" } },
+	local applicationPostgreses = {
+		{ name = "archive", envPrefix = "ARCHIVE_", role = "ADMIN", branch = Null, postgres = { name = "archive", activeBranch = Null },                   resolvedBranch = { name = "main" } },
+		{ name = "orders",  envPrefix = Null,       role = "READ",  branch = Null, postgres = { name = "orders", activeBranch = { name = "green" } },      resolvedBranch = { name = "green" } },
+		{ name = "reports", envPrefix = "REPORTS_", role = "ADMIN", branch = Null, postgres = { name = "reports", activeBranch = { name = "recovered" } }, resolvedBranch = { name = "recovered" } },
+	}
+	local jobPostgreses = {
+		{ name = "archive", envPrefix = "ARCHIVE_", role = "ADMIN", branch = Null,       postgres = { name = "archive", activeBranch = Null },                   resolvedBranch = { name = "main" } },
+		{ name = "orders",  envPrefix = Null,       role = "ADMIN", branch = "restored", postgres = { name = "orders", activeBranch = { name = "green" } },      resolvedBranch = { name = "restored" } },
+		{ name = "reports", envPrefix = "REPORTS_", role = "ADMIN", branch = Null,       postgres = { name = "reports", activeBranch = { name = "recovered" } }, resolvedBranch = { name = "recovered" } },
 	}
 	t.check { data = { team = { environment = {
-		application = { postgreses = { nodes = databases } },
-		job = { postgreses = { nodes = databases } },
-	} } } }
-end)
-
-Test.gql("Application and job Postgres usages expose one resolved branch per Postgres", function(t)
-	t.addHeader("x-user-email", user:email())
-	t.query [[{ team(slug: "postgres-workload-team") { environment(name: "dev") {
-		application(name: "consumer") { postgresUsages { postgres { name } branch { name } } }
-		job(name: "scheduled-reader") { postgresUsages { postgres { name } branch { name } } }
-	} } }]]
-	t.check { data = { team = { environment = {
-		application = { postgresUsages = {
-			{ postgres = { name = "archive" }, branch = { name = "main" } },
-			{ postgres = { name = "orders" },  branch = { name = "green" } },
-			{ postgres = { name = "reports" }, branch = { name = "recovered" } },
-		} },
-		job = { postgresUsages = {
-			{ postgres = { name = "archive" }, branch = { name = "main" } },
-			{ postgres = { name = "orders" },  branch = { name = "restored" } },
-			{ postgres = { name = "reports" }, branch = { name = "recovered" } },
-		} },
+		application = { postgreses = { pageInfo = { totalCount = 3 }, nodes = applicationPostgreses } },
+		job = { postgreses = { pageInfo = { totalCount = 3 }, nodes = jobPostgreses } },
 	} } } }
 end)
 
