@@ -49,9 +49,6 @@ func NewComplexityRoot() ComplexityRoot {
 	c.Application.Secrets = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
-	c.Application.Uses = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
-		return cursorComplexity(first, last) * childComplexity
-	}
 	c.BigQueryDataset.Access = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bigquery.BigQueryDatasetAccessOrder) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
@@ -104,9 +101,6 @@ func NewComplexityRoot() ComplexityRoot {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.Job.Secrets = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
-		return cursorComplexity(first, last) * childComplexity
-	}
-	c.Job.Uses = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.JobRun.Instances = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {

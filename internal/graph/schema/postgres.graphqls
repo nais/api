@@ -30,45 +30,22 @@ extend type TeamEnvironment {
 extend interface Workload {
 	"Postgres databases referenced by uses.postgres, whether or not they have an active branch."
 	postgreses: PostgresConnection!
-	"External resources used by this workload."
-	uses(
-		"Get the first n items in the connection. This can be used in combination with the after parameter."
-		first: Int
-		"Get items after this cursor."
-		after: Cursor
-		"Get the last n items in the connection. This can be used in combination with the before parameter."
-		last: Int
-		"Get items before this cursor."
-		before: Cursor
-	): WorkloadUsesConnection!
+	"Postgres databases referenced by this workload and the branch each reference resolves to."
+	postgresUsages: [PostgresUsage!]!
 }
 
 extend type Application {
 	"Postgres databases referenced by uses.postgres, whether or not they have an active branch."
 	postgreses: PostgresConnection!
-	"External resources used by this workload."
-	uses(
-		"Get the first n items in the connection. This can be used in combination with the after parameter."
-		first: Int
-		after: Cursor
-		"Get the last n items in the connection. This can be used in combination with the before parameter."
-		last: Int
-		before: Cursor
-	): WorkloadUsesConnection!
+	"Postgres databases referenced by this workload and the branch each reference resolves to."
+	postgresUsages: [PostgresUsage!]!
 }
 
 extend type Job {
 	"Postgres databases referenced by uses.postgres, whether or not they have an active branch."
 	postgreses: PostgresConnection!
-	"External resources used by this workload."
-	uses(
-		"Get the first n items in the connection. This can be used in combination with the after parameter."
-		first: Int
-		after: Cursor
-		"Get the last n items in the connection. This can be used in combination with the before parameter."
-		last: Int
-		before: Cursor
-	): WorkloadUsesConnection!
+	"Postgres databases referenced by this workload and the branch each reference resolves to."
+	postgresUsages: [PostgresUsage!]!
 }
 
 "Filter a team's Postgres databases by environment and user-defined labels."
@@ -198,27 +175,6 @@ type PostgresUsage {
 	postgres: Postgres!
 	"Explicitly referenced branch, observed active branch, or main before an active branch is observed."
 	branch: PostgresBranch!
-}
-
-"A resource referenced by a workload."
-union WorkloadUse = PostgresUsage
-
-"A paginated list of external resources used by a workload."
-type WorkloadUsesConnection {
-	"Pagination information, including the total number of uses before pagination."
-	pageInfo: PageInfo!
-	"Workload uses on this page."
-	nodes: [WorkloadUse!]!
-	"Workload uses with their pagination cursors."
-	edges: [WorkloadUseEdge!]!
-}
-
-"A workload use and its pagination cursor."
-type WorkloadUseEdge {
-	"Cursor for this workload use in the connection."
-	cursor: Cursor!
-	"The external resource used by the workload."
-	node: WorkloadUse!
 }
 
 "A paginated list of workload and branch relationships. Each workload is included once."

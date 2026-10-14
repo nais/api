@@ -5,7 +5,6 @@ package gengql
 import (
 	"context"
 	"errors"
-	"fmt"
 	"math"
 	"strconv"
 	"sync/atomic"
@@ -5018,139 +5017,6 @@ func (ec *executionContext) fieldContext_UpdatePostgresPayload_postgres(_ contex
 	return fc, nil
 }
 
-func (ec *executionContext) _WorkloadUseEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[workload.WorkloadUse]) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_WorkloadUseEdge_cursor(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return obj.Cursor, nil
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v pagination.Cursor) graphql.Marshaler {
-			return ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_WorkloadUseEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("WorkloadUseEdge", field, false, false, errors.New("field of type Cursor does not have child fields"))
-}
-
-func (ec *executionContext) _WorkloadUseEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[workload.WorkloadUse]) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_WorkloadUseEdge_node(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return obj.Node, nil
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v workload.WorkloadUse) graphql.Marshaler {
-			return ec.marshalNWorkloadUse2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkloadUse(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_WorkloadUseEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("WorkloadUseEdge", field, false, false, errors.New("field of type WorkloadUse does not have child fields"))
-}
-
-func (ec *executionContext) _WorkloadUsesConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[workload.WorkloadUse]) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_WorkloadUsesConnection_pageInfo(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return obj.PageInfo, nil
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v pagination.PageInfo) graphql.Marshaler {
-			return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_WorkloadUsesConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "WorkloadUsesConnection",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_PageInfo(ctx, field)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _WorkloadUsesConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[workload.WorkloadUse]) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_WorkloadUsesConnection_nodes(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return obj.Nodes(), nil
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v []workload.WorkloadUse) graphql.Marshaler {
-			return ec.marshalNWorkloadUse2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkloadUseᚄ(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_WorkloadUsesConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("WorkloadUsesConnection", field, true, false, errors.New("field of type WorkloadUse does not have child fields"))
-}
-
-func (ec *executionContext) _WorkloadUsesConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[workload.WorkloadUse]) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_WorkloadUsesConnection_edges(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return obj.Edges, nil
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v []pagination.Edge[workload.WorkloadUse]) graphql.Marshaler {
-			return ec.marshalNWorkloadUseEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_WorkloadUsesConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "WorkloadUsesConnection",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_WorkloadUseEdge(ctx, field)
-		},
-	}
-	return fc, nil
-}
-
 // endregion **************************** field.gotpl *****************************
 
 // region    **************************** input.gotpl *****************************
@@ -5717,24 +5583,6 @@ func (ec *executionContext) unmarshalInputUpdatePostgresInput(ctx context.Contex
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
-
-func (ec *executionContext) _WorkloadUse(ctx context.Context, sel ast.SelectionSet, obj workload.WorkloadUse) graphql.Marshaler {
-	switch obj := (obj).(type) {
-	case nil:
-		return graphql.Null
-	case *postgres.PostgresUsage:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._PostgresUsage(ctx, sel, obj)
-	default:
-		if typedObj, ok := obj.(graphql.Marshaler); ok {
-			return typedObj
-		} else {
-			panic(fmt.Errorf("unexpected type %T; non-generated variants of WorkloadUse must implement graphql.Marshaler", obj))
-		}
-	}
-}
 
 // endregion ************************** interface.gotpl ***************************
 
@@ -8258,7 +8106,7 @@ func (ec *executionContext) _PostgresUpdatedActivityLogEntryDataUpdatedField(ctx
 	return out
 }
 
-var postgresUsageImplementors = []string{"PostgresUsage", "WorkloadUse"}
+var postgresUsageImplementors = []string{"PostgresUsage"}
 
 func (ec *executionContext) _PostgresUsage(ctx context.Context, sel ast.SelectionSet, obj *postgres.PostgresUsage) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, postgresUsageImplementors)
@@ -8522,99 +8370,6 @@ func (ec *executionContext) _UpdatePostgresPayload(ctx context.Context, sel ast.
 			out.Values[i] = graphql.MarshalString("UpdatePostgresPayload")
 		case "postgres":
 			out.Values[i] = ec._UpdatePostgresPayload_postgres(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
-
-	for label, dfs := range deferred {
-		ec.ProcessDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var workloadUseEdgeImplementors = []string{"WorkloadUseEdge"}
-
-func (ec *executionContext) _WorkloadUseEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[workload.WorkloadUse]) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, workloadUseEdgeImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("WorkloadUseEdge")
-		case "cursor":
-			out.Values[i] = ec._WorkloadUseEdge_cursor(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "node":
-			out.Values[i] = ec._WorkloadUseEdge_node(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
-
-	for label, dfs := range deferred {
-		ec.ProcessDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var workloadUsesConnectionImplementors = []string{"WorkloadUsesConnection"}
-
-func (ec *executionContext) _WorkloadUsesConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.Connection[workload.WorkloadUse]) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, workloadUsesConnectionImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("WorkloadUsesConnection")
-		case "pageInfo":
-			out.Values[i] = ec._WorkloadUsesConnection_pageInfo(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "nodes":
-			out.Values[i] = ec._WorkloadUsesConnection_nodes(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "edges":
-			out.Values[i] = ec._WorkloadUsesConnection_edges(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -9045,6 +8800,32 @@ func (ec *executionContext) marshalNPostgresUpdatedActivityLogEntryDataUpdatedFi
 	return ec._PostgresUpdatedActivityLogEntryDataUpdatedField(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNPostgresUsage2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresUsageᚄ(ctx context.Context, sel ast.SelectionSet, v []*postgres.PostgresUsage) graphql.Marshaler {
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNPostgresUsage2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresUsage(ctx, sel, v[i])
+	})
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNPostgresUsage2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresUsage(ctx context.Context, sel ast.SelectionSet, v *postgres.PostgresUsage) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._PostgresUsage(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNPostgresWorkload2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresWorkloadᚄ(ctx context.Context, sel ast.SelectionSet, v []*postgres.PostgresWorkload) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
@@ -9136,66 +8917,6 @@ func (ec *executionContext) marshalNUpdatePostgresPayload2ᚖgithubᚗcomᚋnais
 		return graphql.Null
 	}
 	return ec._UpdatePostgresPayload(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalNWorkloadUse2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkloadUse(ctx context.Context, sel ast.SelectionSet, v workload.WorkloadUse) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._WorkloadUse(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalNWorkloadUse2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkloadUseᚄ(ctx context.Context, sel ast.SelectionSet, v []workload.WorkloadUse) graphql.Marshaler {
-	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
-		fc := graphql.GetFieldContext(ctx)
-		fc.Result = &v[i]
-		return ec.marshalNWorkloadUse2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkloadUse(ctx, sel, v[i])
-	})
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
-func (ec *executionContext) marshalNWorkloadUseEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[workload.WorkloadUse]) graphql.Marshaler {
-	return ec._WorkloadUseEdge(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNWorkloadUseEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[workload.WorkloadUse]) graphql.Marshaler {
-	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
-		fc := graphql.GetFieldContext(ctx)
-		fc.Result = &v[i]
-		return ec.marshalNWorkloadUseEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
-	})
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
-func (ec *executionContext) marshalNWorkloadUsesConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[workload.WorkloadUse]) graphql.Marshaler {
-	return ec._WorkloadUsesConnection(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNWorkloadUsesConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[workload.WorkloadUse]) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._WorkloadUsesConnection(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOPostgresAccessConnectionDetails2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresAccessConnectionDetails(ctx context.Context, sel ast.SelectionSet, v *postgres.PostgresAccessConnectionDetails) graphql.Marshaler {
