@@ -12,20 +12,23 @@ import (
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
 	"github.com/nais/api/internal/workload/job"
+	liberatorv1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 )
 
 func (r *applicationResolver) Postgreses(ctx context.Context, obj *application.Application, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*postgres.WorkloadPostgres], error) {
-	if obj.Spec == nil || obj.Spec.Uses == nil {
-		return pagination.EmptyConnection[*postgres.WorkloadPostgres](), nil
+	var uses []liberatorv1.PostgresUse
+	if obj.Spec != nil && obj.Spec.Uses != nil {
+		uses = obj.Spec.Uses.Postgres
 	}
-	return workloadPostgresConnectionForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Spec.Uses.Postgres, first, after, last, before)
+	return workloadPostgresConnectionForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, uses, first, after, last, before)
 }
 
 func (r *jobResolver) Postgreses(ctx context.Context, obj *job.Job, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*postgres.WorkloadPostgres], error) {
-	if obj.Spec == nil || obj.Spec.Uses == nil {
-		return pagination.EmptyConnection[*postgres.WorkloadPostgres](), nil
+	var uses []liberatorv1.PostgresUse
+	if obj.Spec != nil && obj.Spec.Uses != nil {
+		uses = obj.Spec.Uses.Postgres
 	}
-	return workloadPostgresConnectionForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Spec.Uses.Postgres, first, after, last, before)
+	return workloadPostgresConnectionForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, uses, first, after, last, before)
 }
 
 func (r *mutationResolver) CreatePostgresAccess(ctx context.Context, input postgres.CreatePostgresAccessInput) (*postgres.CreatePostgresAccessPayload, error) {

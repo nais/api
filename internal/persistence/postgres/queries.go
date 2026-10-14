@@ -144,18 +144,23 @@ func ListPostgresForWorkload(ctx context.Context, teamSlug slug.Slug, environmen
 	return instances, nil
 }
 
-func WorkloadPostgresesForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName string, uses []liberatorv1.PostgresUse) ([]*WorkloadPostgres, error) {
+func WorkloadPostgresesForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName string, uses []liberatorv1.PostgresUse, page *pagination.Pagination) ([]*WorkloadPostgres, int, error) {
 	uniqueUses, err := uniquePostgresUses(uses)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
-	instances, err := ListPostgresForWorkload(ctx, teamSlug, environmentName, uniqueUses)
+	slices.SortFunc(uniqueUses, func(a, b liberatorv1.PostgresUse) int {
+		return cmp.Compare(a.Name, b.Name)
+	})
+	totalCount := len(uniqueUses)
+	pageUses := pagination.Slice(uniqueUses, page)
+	instances, err := ListPostgresForWorkload(ctx, teamSlug, environmentName, pageUses)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
-	usesByName := make(map[string]liberatorv1.PostgresUse, len(uniqueUses))
-	for _, use := range uniqueUses {
+	usesByName := make(map[string]liberatorv1.PostgresUse, len(pageUses))
+	for _, use := range pageUses {
 		usesByName[use.Name] = use
 	}
 
@@ -165,11 +170,11 @@ func WorkloadPostgresesForWorkload(ctx context.Context, teamSlug slug.Slug, envi
 		branchName := selectedBranchName(instance, use)
 		branch, err := GetPostgresBranch(ctx, teamSlug, environmentName, instance.Name, branchName)
 		if err != nil {
-			return nil, err
+			return nil, 0, err
 		}
 		role, err := workloadPostgresRole(use.Role)
 		if err != nil {
-			return nil, err
+			return nil, 0, err
 		}
 		workloadPostgreses = append(workloadPostgreses, &WorkloadPostgres{
 			EnvPrefix: optionalPostgresUseString(use.EnvPrefix),
@@ -178,7 +183,7 @@ func WorkloadPostgresesForWorkload(ctx context.Context, teamSlug slug.Slug, envi
 			Postgres:  instance,
 		})
 	}
-	return workloadPostgreses, nil
+	return workloadPostgreses, totalCount, nil
 }
 
 func workloadPostgresRole(role string) (PostgresUserRole, error) {

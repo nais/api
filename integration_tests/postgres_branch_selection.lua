@@ -35,6 +35,17 @@ Test.gql("Workload Postgres uses include the configured and resolved branch", fu
 	} } } }
 end)
 
+Test.gql("Postgres pagination is validated when a workload has no uses", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[{ team(slug: "pg-selection-team") { environment(name: "dev") {
+		job(name: "no-postgres-uses") { postgreses(first: 0) { pageInfo { totalCount } } }
+	} } }]]
+	t.check {
+		data = Null,
+		errors = { { locations = NotNull(), message = Contains("first must be greater than or equal to 1"), path = { "team", "environment", "job", "postgreses" } } },
+	}
+end)
+
 Test.gql("Postgres workload branches use explicit selection or the observed active branch", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[{ team(slug: "pg-selection-team") { environment(name: "dev") {

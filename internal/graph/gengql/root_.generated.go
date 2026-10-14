@@ -28483,9 +28483,11 @@ extend type Application {
 	postgreses(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
 		first: Int
+		"Get items after this cursor."
 		after: Cursor
 		"Get the last n items in the connection. This can be used in combination with the before parameter."
 		last: Int
+		"Get items before this cursor."
 		before: Cursor
 	): WorkloadPostgresConnection!
 }
@@ -28495,9 +28497,11 @@ extend type Job {
 	postgreses(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
 		first: Int
+		"Get items after this cursor."
 		after: Cursor
 		"Get the last n items in the connection. This can be used in combination with the before parameter."
 		last: Int
+		"Get items before this cursor."
 		before: Cursor
 	): WorkloadPostgresConnection!
 }

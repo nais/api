@@ -14,9 +14,9 @@ func workloadPostgresConnectionForWorkload(ctx context.Context, teamSlug slug.Sl
 	if err != nil {
 		return nil, err
 	}
-	workloadPostgreses, err := postgres.WorkloadPostgresesForWorkload(ctx, teamSlug, environmentName, uses)
+	workloadPostgreses, totalCount, err := postgres.WorkloadPostgresesForWorkload(ctx, teamSlug, environmentName, uses, page)
 	if err != nil {
 		return nil, err
 	}
-	return pagination.NewConnection(pagination.Slice(workloadPostgreses, page), page, len(workloadPostgreses)), nil
+	return pagination.NewConnection(workloadPostgreses, page, totalCount), nil
 }
