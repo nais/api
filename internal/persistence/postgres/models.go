@@ -86,6 +86,8 @@ type PostgresUsage struct {
 	Branch   *PostgresBranch `json:"branch"`
 }
 
+func (*PostgresUsage) IsWorkloadUse() {}
+
 type PostgresFacets struct {
 	AllInstances      []*Postgres
 	FilteredInstances []*Postgres

@@ -44,20 +44,20 @@ end)
 Test.gql("Application and job Postgres usages expose one resolved branch per Postgres", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[{ team(slug: "postgres-workload-team") { environment(name: "dev") {
-		application(name: "consumer") { postgresUsages { postgres { name } branch { name } } }
-		job(name: "scheduled-reader") { postgresUsages { postgres { name } branch { name } } }
+		application(name: "consumer") { uses { pageInfo { totalCount } nodes { ... on PostgresUsage { postgres { name } branch { name } } } } }
+		job(name: "scheduled-reader") { uses { pageInfo { totalCount } nodes { ... on PostgresUsage { postgres { name } branch { name } } } } }
 	} } }]]
 	t.check { data = { team = { environment = {
-		application = { postgresUsages = {
+		application = { uses = { pageInfo = { totalCount = 3 }, nodes = {
 			{ postgres = { name = "archive" }, branch = { name = "main" } },
 			{ postgres = { name = "orders" },  branch = { name = "green" } },
 			{ postgres = { name = "reports" }, branch = { name = "recovered" } },
-		} },
-		job = { postgresUsages = {
+		} } },
+		job = { uses = { pageInfo = { totalCount = 3 }, nodes = {
 			{ postgres = { name = "archive" }, branch = { name = "main" } },
 			{ postgres = { name = "orders" },  branch = { name = "restored" } },
 			{ postgres = { name = "reports" }, branch = { name = "recovered" } },
-		} },
+		} } },
 	} } } }
 end)
 

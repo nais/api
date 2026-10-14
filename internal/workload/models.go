@@ -19,8 +19,10 @@ import (
 )
 
 type (
-	WorkloadConnection = pagination.Connection[Workload]
-	WorkloadEdge       = pagination.Edge[Workload]
+	WorkloadConnection     = pagination.Connection[Workload]
+	WorkloadEdge           = pagination.Edge[Workload]
+	WorkloadUsesConnection = pagination.Connection[WorkloadUse]
+	WorkloadUseEdge        = pagination.Edge[WorkloadUse]
 )
 
 type Workload interface {
@@ -38,13 +40,16 @@ type Workload interface {
 	GetRolloutCompleteTime() int64
 	GetType() Type
 	GetLogging() *nais_io_v1.Logging
-
 	// GetSecrets returns a list of secret names used by the workload
 	GetSecrets() []string
 
 	// GetConfigs returns a list of config names used by the workload
 	GetConfigs() []string
 	Image() *ContainerImage
+}
+
+type WorkloadUse interface {
+	IsWorkloadUse()
 }
 
 type Base struct {
