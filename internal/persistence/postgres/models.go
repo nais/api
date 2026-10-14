@@ -71,8 +71,8 @@ type TeamPostgresFilter struct {
 type (
 	PostgresConnection         = pagination.FacetableConnection[*Postgres, *TeamPostgresFilter]
 	PostgresEdge               = pagination.Edge[*Postgres]
-	PostgresUsesConnection     = pagination.Connection[*PostgresUse]
-	PostgresUseEdge            = pagination.Edge[*PostgresUse]
+	WorkloadPostgresConnection = pagination.Connection[*WorkloadPostgres]
+	WorkloadPostgresEdge       = pagination.Edge[*WorkloadPostgres]
 	PostgresWorkloadConnection = pagination.Connection[*PostgresWorkload]
 	PostgresWorkloadEdge       = pagination.Edge[*PostgresWorkload]
 )
@@ -83,19 +83,19 @@ type PostgresWorkload struct {
 	BranchName   string            `json:"-"`
 }
 
-type PostgresUseRole string
+type PostgresUserRole string
 
 const (
-	PostgresUseRoleAdmin     PostgresUseRole = "ADMIN"
-	PostgresUseRoleRead      PostgresUseRole = "READ"
-	PostgresUseRoleReadwrite PostgresUseRole = "READWRITE"
+	PostgresUserRoleAdmin     PostgresUserRole = "ADMIN"
+	PostgresUserRoleRead      PostgresUserRole = "READ"
+	PostgresUserRoleReadwrite PostgresUserRole = "READWRITE"
 )
 
-type PostgresUse struct {
-	EnvPrefix *string         `json:"envPrefix,omitempty"`
-	Role      PostgresUseRole `json:"role"`
-	Branch    *PostgresBranch `json:"branch"`
-	Postgres  *Postgres       `json:"postgres"`
+type WorkloadPostgres struct {
+	EnvPrefix *string          `json:"envPrefix,omitempty"`
+	Role      PostgresUserRole `json:"role"`
+	Branch    *PostgresBranch  `json:"branch"`
+	Postgres  *Postgres        `json:"postgres"`
 }
 
 type PostgresFacets struct {

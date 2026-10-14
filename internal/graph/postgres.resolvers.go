@@ -8,38 +8,24 @@ import (
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/persistence/postgres"
-	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
 	"github.com/nais/api/internal/workload/job"
-	liberatorv1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 )
 
-func postgresUsesConnectionForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName string, uses []liberatorv1.PostgresUse, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*postgres.PostgresUse], error) {
-	page, err := pagination.ParsePage(first, after, last, before)
-	if err != nil {
-		return nil, err
+func (r *applicationResolver) Postgreses(ctx context.Context, obj *application.Application, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*postgres.WorkloadPostgres], error) {
+	if obj.Spec == nil || obj.Spec.Uses == nil {
+		return pagination.EmptyConnection[*postgres.WorkloadPostgres](), nil
 	}
-	postgresUses, err := postgres.PostgresUsesForWorkload(ctx, teamSlug, environmentName, uses)
-	if err != nil {
-		return nil, err
-	}
-	return pagination.NewConnection(pagination.Slice(postgresUses, page), page, len(postgresUses)), nil
+	return workloadPostgresConnectionForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Spec.Uses.Postgres, first, after, last, before)
 }
 
-func (r *applicationResolver) Postgreses(ctx context.Context, obj *application.Application, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*postgres.PostgresUse], error) {
+func (r *jobResolver) Postgreses(ctx context.Context, obj *job.Job, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*postgres.WorkloadPostgres], error) {
 	if obj.Spec == nil || obj.Spec.Uses == nil {
-		return pagination.EmptyConnection[*postgres.PostgresUse](), nil
+		return pagination.EmptyConnection[*postgres.WorkloadPostgres](), nil
 	}
-	return postgresUsesConnectionForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Spec.Uses.Postgres, first, after, last, before)
-}
-
-func (r *jobResolver) Postgreses(ctx context.Context, obj *job.Job, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*postgres.PostgresUse], error) {
-	if obj.Spec == nil || obj.Spec.Uses == nil {
-		return pagination.EmptyConnection[*postgres.PostgresUse](), nil
-	}
-	return postgresUsesConnectionForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Spec.Uses.Postgres, first, after, last, before)
+	return workloadPostgresConnectionForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Spec.Uses.Postgres, first, after, last, before)
 }
 
 func (r *mutationResolver) CreatePostgresAccess(ctx context.Context, input postgres.CreatePostgresAccessInput) (*postgres.CreatePostgresAccessPayload, error) {
@@ -242,23 +228,3 @@ type (
 	postgresConnectionResolver       struct{ *Resolver }
 	postgresWorkloadResolver         struct{ *Resolver }
 )
-
-// !!! WARNING !!!
-// The code below was going to be deleted when updating resolvers. It has been copied here so you have
-// one last chance to move it out of harms way if you want. There are two reasons this happens:
-//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//    it when you're done.
-//  - You have helper methods in this file. Move them out to keep these resolver files clean.
-/*
-	func postgresUsesConnectionForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName string, uses []liberatorv1.PostgresUse, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*postgres.PostgresUse], error) {
-	page, err := pagination.ParsePage(first, after, last, before)
-	if err != nil {
-		return nil, err
-	}
-	postgresUses, err := postgres.PostgresUsesForWorkload(ctx, teamSlug, environmentName, uses)
-	if err != nil {
-		return nil, err
-	}
-	return pagination.NewConnection(pagination.Slice(postgresUses, page), page, len(postgresUses)), nil
-}
-*/

@@ -70,7 +70,7 @@ type JobResolver interface {
 	LogDestinations(ctx context.Context, obj *job.Job) ([]logging.LogDestination, error)
 	NetworkPolicy(ctx context.Context, obj *job.Job) (*netpol.NetworkPolicy, error)
 	OpenSearch(ctx context.Context, obj *job.Job) (*opensearch.OpenSearch, error)
-	Postgreses(ctx context.Context, obj *job.Job, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*postgres.PostgresUse], error)
+	Postgreses(ctx context.Context, obj *job.Job, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*postgres.WorkloadPostgres], error)
 	Secrets(ctx context.Context, obj *job.Job, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.FacetableConnection[*secret.Secret, *secret.SecretFilter], error)
 	ServiceAccount(ctx context.Context, obj *job.Job) (*serviceaccount.ServiceAccount, error)
 	SQLInstances(ctx context.Context, obj *job.Job, orderBy *sqlinstance.SQLInstanceOrder) (*pagination.Connection[*sqlinstance.SQLInstance], error)
@@ -1472,8 +1472,8 @@ func (ec *executionContext) _Job_postgreses(ctx context.Context, field graphql.C
 			return ec.Resolvers.Job().Postgreses(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[*postgres.PostgresUse]) graphql.Marshaler {
-			return ec.marshalNPostgresUsesConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[*postgres.WorkloadPostgres]) graphql.Marshaler {
+			return ec.marshalNWorkloadPostgresConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, selections, v)
 		},
 		true,
 		true,
@@ -1486,7 +1486,7 @@ func (ec *executionContext) fieldContext_Job_postgreses(ctx context.Context, fie
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_PostgresUsesConnection(ctx, field)
+			return ec.childFields_WorkloadPostgresConnection(ctx, field)
 		},
 	}
 	defer func() {

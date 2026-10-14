@@ -144,7 +144,7 @@ func ListPostgresForWorkload(ctx context.Context, teamSlug slug.Slug, environmen
 	return instances, nil
 }
 
-func PostgresUsesForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName string, uses []liberatorv1.PostgresUse) ([]*PostgresUse, error) {
+func WorkloadPostgresesForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName string, uses []liberatorv1.PostgresUse) ([]*WorkloadPostgres, error) {
 	uniqueUses, err := uniquePostgresUses(uses)
 	if err != nil {
 		return nil, err
@@ -159,7 +159,7 @@ func PostgresUsesForWorkload(ctx context.Context, teamSlug slug.Slug, environmen
 		usesByName[use.Name] = use
 	}
 
-	postgresUses := make([]*PostgresUse, 0, len(instances))
+	workloadPostgreses := make([]*WorkloadPostgres, 0, len(instances))
 	for _, instance := range instances {
 		use := usesByName[instance.Name]
 		branchName := selectedBranchName(instance, use)
@@ -167,28 +167,28 @@ func PostgresUsesForWorkload(ctx context.Context, teamSlug slug.Slug, environmen
 		if err != nil {
 			return nil, err
 		}
-		role, err := postgresUseRole(use.Role)
+		role, err := workloadPostgresRole(use.Role)
 		if err != nil {
 			return nil, err
 		}
-		postgresUses = append(postgresUses, &PostgresUse{
+		workloadPostgreses = append(workloadPostgreses, &WorkloadPostgres{
 			EnvPrefix: optionalPostgresUseString(use.EnvPrefix),
 			Role:      role,
 			Branch:    branch,
 			Postgres:  instance,
 		})
 	}
-	return postgresUses, nil
+	return workloadPostgreses, nil
 }
 
-func postgresUseRole(role string) (PostgresUseRole, error) {
+func workloadPostgresRole(role string) (PostgresUserRole, error) {
 	switch role {
 	case "", "admin":
-		return PostgresUseRoleAdmin, nil
+		return PostgresUserRoleAdmin, nil
 	case "read":
-		return PostgresUseRoleRead, nil
+		return PostgresUserRoleRead, nil
 	case "readwrite":
-		return PostgresUseRoleReadwrite, nil
+		return PostgresUserRoleReadwrite, nil
 	default:
 		return "", fmt.Errorf("unknown Postgres use role %q", role)
 	}

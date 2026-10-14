@@ -109,7 +109,7 @@ func TestWorkloadUsesMultiplePostgresResources(t *testing.T) {
 		{name: "application", uses: apps[0].Spec.Uses.Postgres, branch: map[string]string{"archive": "main", "orders": "green", "reports": "recovered"}},
 		{name: "job", uses: jobs[0].Spec.Uses.Postgres, branch: map[string]string{"archive": "main", "orders": "restored", "reports": "recovered"}},
 	} {
-		usages, err := PostgresUsesForWorkload(ctx, team, "dev", test.uses)
+		usages, err := WorkloadPostgresesForWorkload(ctx, team, "dev", test.uses)
 		if err != nil {
 			t.Fatalf("%s Postgres uses: %v", test.name, err)
 		}
