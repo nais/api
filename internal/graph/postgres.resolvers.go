@@ -25,6 +25,13 @@ func (r *applicationResolver) Postgreses(ctx context.Context, obj *application.A
 	return pagination.NewFacetableConnection(pagination.NewConnectionWithoutPagination(instances), instances, (*postgres.TeamPostgresFilter)(nil)), nil
 }
 
+func (r *applicationResolver) PostgresUsages(ctx context.Context, obj *application.Application) ([]*postgres.PostgresUsage, error) {
+	if obj.Spec == nil || obj.Spec.Uses == nil {
+		return []*postgres.PostgresUsage{}, nil
+	}
+	return postgres.PostgresUsagesForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Spec.Uses.Postgres)
+}
+
 func (r *jobResolver) Postgreses(ctx context.Context, obj *job.Job) (*pagination.FacetableConnection[*postgres.Postgres, *postgres.TeamPostgresFilter], error) {
 	if obj.Spec == nil || obj.Spec.Uses == nil {
 		return pagination.NewFacetableConnection(pagination.EmptyConnection[*postgres.Postgres](), nil, (*postgres.TeamPostgresFilter)(nil)), nil
@@ -34,6 +41,13 @@ func (r *jobResolver) Postgreses(ctx context.Context, obj *job.Job) (*pagination
 		return nil, err
 	}
 	return pagination.NewFacetableConnection(pagination.NewConnectionWithoutPagination(instances), instances, (*postgres.TeamPostgresFilter)(nil)), nil
+}
+
+func (r *jobResolver) PostgresUsages(ctx context.Context, obj *job.Job) ([]*postgres.PostgresUsage, error) {
+	if obj.Spec == nil || obj.Spec.Uses == nil {
+		return []*postgres.PostgresUsage{}, nil
+	}
+	return postgres.PostgresUsagesForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Spec.Uses.Postgres)
 }
 
 func (r *mutationResolver) CreatePostgresAccess(ctx context.Context, input postgres.CreatePostgresAccessInput) (*postgres.CreatePostgresAccessPayload, error) {

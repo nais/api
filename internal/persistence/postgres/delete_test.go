@@ -14,6 +14,7 @@ import (
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/workload/application"
 	"github.com/nais/api/internal/workload/job"
+	liberatorv1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	"github.com/sirupsen/logrus/hooks/test"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
@@ -99,6 +100,31 @@ func TestWorkloadUsesMultiplePostgresResources(t *testing.T) {
 	instances, err = ListPostgresForWorkload(ctx, team, "dev", jobs[0].Spec.Uses.Postgres)
 	if err != nil || len(instances) != 3 || instances[0].Name != "archive" || instances[0].ActiveBranch != nil || instances[1].Name != "orders" || instances[2].Name != "reports" {
 		t.Fatalf("job referenced Postgres = %+v, error = %v", instances, err)
+	}
+	for _, test := range []struct {
+		name   string
+		uses   []liberatorv1.PostgresUse
+		branch map[string]string
+	}{
+		{name: "application", uses: apps[0].Spec.Uses.Postgres, branch: map[string]string{"archive": "main", "orders": "green", "reports": "recovered"}},
+		{name: "job", uses: jobs[0].Spec.Uses.Postgres, branch: map[string]string{"archive": "main", "orders": "restored", "reports": "recovered"}},
+	} {
+		usages, err := PostgresUsagesForWorkload(ctx, team, "dev", test.uses)
+		if err != nil {
+			t.Fatalf("%s Postgres usages: %v", test.name, err)
+		}
+		if len(usages) != len(test.branch) {
+			t.Fatalf("%s Postgres usages = %d, want %d", test.name, len(usages), len(test.branch))
+		}
+		for _, usage := range usages {
+			if want := test.branch[usage.Postgres.Name]; usage.Branch.Name != want {
+				t.Errorf("%s Postgres %q branch = %q, want %q", test.name, usage.Postgres.Name, usage.Branch.Name, want)
+			}
+			delete(test.branch, usage.Postgres.Name)
+		}
+		if len(test.branch) != 0 {
+			t.Errorf("%s Postgres usages missing references: %v", test.name, test.branch)
+		}
 	}
 	for _, entry := range []struct{ postgres, branch string }{{"orders", "green"}, {"reports", "recovered"}} {
 		workloads := WorkloadsForInstance(ctx, team, "dev", entry.postgres, entry.branch)

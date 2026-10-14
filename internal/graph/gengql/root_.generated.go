@@ -269,6 +269,7 @@ type ComplexityRoot struct {
 		Name                      func(childComplexity int) int
 		NetworkPolicy             func(childComplexity int) int
 		OpenSearch                func(childComplexity int) int
+		PostgresUsages            func(childComplexity int) int
 		Postgreses                func(childComplexity int) int
 		Resources                 func(childComplexity int) int
 		SQLInstances              func(childComplexity int, orderBy *sqlinstance.SQLInstanceOrder) int
@@ -1266,6 +1267,7 @@ type ComplexityRoot struct {
 		Name                      func(childComplexity int) int
 		NetworkPolicy             func(childComplexity int) int
 		OpenSearch                func(childComplexity int) int
+		PostgresUsages            func(childComplexity int) int
 		Postgreses                func(childComplexity int) int
 		Resources                 func(childComplexity int) int
 		Runs                      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
@@ -2157,6 +2159,11 @@ type ComplexityRoot struct {
 		Field    func(childComplexity int) int
 		NewValue func(childComplexity int) int
 		OldValue func(childComplexity int) int
+	}
+
+	PostgresUsage struct {
+		Branch   func(childComplexity int) int
+		Postgres func(childComplexity int) int
 	}
 
 	PostgresWorkload struct {
@@ -4558,6 +4565,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Application.OpenSearch(childComplexity), true
+
+	case "Application.postgresUsages":
+		if e.ComplexityRoot.Application.PostgresUsages == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Application.PostgresUsages(childComplexity), true
 
 	case "Application.postgreses":
 		if e.ComplexityRoot.Application.Postgreses == nil {
@@ -8622,6 +8636,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Job.OpenSearch(childComplexity), true
+
+	case "Job.postgresUsages":
+		if e.ComplexityRoot.Job.PostgresUsages == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Job.PostgresUsages(childComplexity), true
 
 	case "Job.postgreses":
 		if e.ComplexityRoot.Job.Postgreses == nil {
@@ -13068,6 +13089,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.PostgresUpdatedActivityLogEntryDataUpdatedField.OldValue(childComplexity), true
+
+	case "PostgresUsage.branch":
+		if e.ComplexityRoot.PostgresUsage.Branch == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresUsage.Branch(childComplexity), true
+
+	case "PostgresUsage.postgres":
+		if e.ComplexityRoot.PostgresUsage.Postgres == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresUsage.Postgres(childComplexity), true
 
 	case "PostgresWorkload.branch":
 		if e.ComplexityRoot.PostgresWorkload.Branch == nil {
@@ -28376,16 +28411,22 @@ extend type TeamEnvironment {
 extend interface Workload {
 	"Postgres databases referenced by uses.postgres, whether or not they have an active branch."
 	postgreses: PostgresConnection!
+	"Postgres databases referenced by this workload and the branch each reference resolves to."
+	postgresUsages: [PostgresUsage!]!
 }
 
 extend type Application {
 	"Postgres databases referenced by uses.postgres, whether or not they have an active branch."
 	postgreses: PostgresConnection!
+	"Postgres databases referenced by this workload and the branch each reference resolves to."
+	postgresUsages: [PostgresUsage!]!
 }
 
 extend type Job {
 	"Postgres databases referenced by uses.postgres, whether or not they have an active branch."
 	postgreses: PostgresConnection!
+	"Postgres databases referenced by this workload and the branch each reference resolves to."
+	postgresUsages: [PostgresUsage!]!
 }
 
 "Filter a team's Postgres databases by environment and user-defined labels."
@@ -28506,6 +28547,14 @@ type PostgresWorkload {
 	"The application or job referencing this Postgres."
 	workload: Workload!
 	"The explicitly referenced branch, or the observed active branch when no branch is specified. Defaults to main when no active branch has been observed; a requested activation does not change this selection until observed."
+	branch: PostgresBranch!
+}
+
+"A Postgres and the branch selected by a workload reference."
+type PostgresUsage {
+	"Postgres database referenced by the workload."
+	postgres: Postgres!
+	"Explicitly referenced branch, observed active branch, or main before an active branch is observed."
 	branch: PostgresBranch!
 }
 
@@ -36895,6 +36944,8 @@ func (ec *executionContext) childFields_Application(ctx context.Context, field g
 		return ec.fieldContext_Application_openSearch(ctx, field)
 	case "postgreses":
 		return ec.fieldContext_Application_postgreses(ctx, field)
+	case "postgresUsages":
+		return ec.fieldContext_Application_postgresUsages(ctx, field)
 	case "secrets":
 		return ec.fieldContext_Application_secrets(ctx, field)
 	case "serviceAccount":
@@ -38443,6 +38494,8 @@ func (ec *executionContext) childFields_Job(ctx context.Context, field graphql.C
 		return ec.fieldContext_Job_openSearch(ctx, field)
 	case "postgreses":
 		return ec.fieldContext_Job_postgreses(ctx, field)
+	case "postgresUsages":
+		return ec.fieldContext_Job_postgresUsages(ctx, field)
 	case "secrets":
 		return ec.fieldContext_Job_secrets(ctx, field)
 	case "serviceAccount":
@@ -39447,6 +39500,16 @@ func (ec *executionContext) childFields_PostgresUpdatedActivityLogEntryDataUpdat
 		return ec.fieldContext_PostgresUpdatedActivityLogEntryDataUpdatedField_newValue(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type PostgresUpdatedActivityLogEntryDataUpdatedField", field.Name)
+}
+
+func (ec *executionContext) childFields_PostgresUsage(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "postgres":
+		return ec.fieldContext_PostgresUsage_postgres(ctx, field)
+	case "branch":
+		return ec.fieldContext_PostgresUsage_branch(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostgresUsage", field.Name)
 }
 
 func (ec *executionContext) childFields_PostgresWorkload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {

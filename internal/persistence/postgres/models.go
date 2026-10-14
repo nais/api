@@ -81,6 +81,11 @@ type PostgresWorkload struct {
 	BranchName   string            `json:"-"`
 }
 
+type PostgresUsage struct {
+	Postgres *Postgres       `json:"postgres"`
+	Branch   *PostgresBranch `json:"branch"`
+}
+
 type PostgresFacets struct {
 	AllInstances      []*Postgres
 	FilteredInstances []*Postgres

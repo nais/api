@@ -21,6 +21,20 @@ Test.gql("Branch workloads distinguish explicit selection from observed active b
 	} } } } }
 end)
 
+Test.gql("Workload Postgres usages resolve explicit, active, and pending selections", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[{ team(slug: "pg-selection-team") { environment(name: "dev") {
+		pinned: application(name: "pinned-app") { postgresUsages { postgres { name } branch { name } } }
+		following: application(name: "following-app") { postgresUsages { postgres { name } branch { name } } }
+		job: job(name: "pinned-job") { postgresUsages { postgres { name } branch { name } } }
+	} } }]]
+	t.check { data = { team = { environment = {
+		pinned = { postgresUsages = { { postgres = { name = "orders" }, branch = { name = "main" } } } },
+		following = { postgresUsages = { { postgres = { name = "orders" }, branch = { name = "green" } } } },
+		job = { postgresUsages = { { postgres = { name = "orders" }, branch = { name = "pr-123" } } } },
+	} } } }
+end)
+
 Test.gql("Postgres workload branches use explicit selection or the observed active branch", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[{ team(slug: "pg-selection-team") { environment(name: "dev") {
@@ -89,6 +103,13 @@ Test.gql("A missing referenced branch returns an error instead of omitting the w
 	t.check {
 		data = Null,
 		errors = { { locations = NotNull(), message = Contains("orders/main"), path = { "team", "environment", "postgres", "workloads", "nodes", 1, "branch" } } },
+	}
+	t.query [[{ team(slug: "pg-selection-team") { environment(name: "dev") {
+		application(name: "pinned-app") { postgresUsages { postgres { name } branch { name } } }
+	} } }]]
+	t.check {
+		data = Null,
+		errors = { { locations = NotNull(), message = Contains("orders/main"), path = { "team", "environment", "application", "postgresUsages" } } },
 	}
 end)
 

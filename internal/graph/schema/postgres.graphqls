@@ -30,16 +30,22 @@ extend type TeamEnvironment {
 extend interface Workload {
 	"Postgres databases referenced by uses.postgres, whether or not they have an active branch."
 	postgreses: PostgresConnection!
+	"Postgres databases referenced by this workload and the branch each reference resolves to."
+	postgresUsages: [PostgresUsage!]!
 }
 
 extend type Application {
 	"Postgres databases referenced by uses.postgres, whether or not they have an active branch."
 	postgreses: PostgresConnection!
+	"Postgres databases referenced by this workload and the branch each reference resolves to."
+	postgresUsages: [PostgresUsage!]!
 }
 
 extend type Job {
 	"Postgres databases referenced by uses.postgres, whether or not they have an active branch."
 	postgreses: PostgresConnection!
+	"Postgres databases referenced by this workload and the branch each reference resolves to."
+	postgresUsages: [PostgresUsage!]!
 }
 
 "Filter a team's Postgres databases by environment and user-defined labels."
@@ -160,6 +166,14 @@ type PostgresWorkload {
 	"The application or job referencing this Postgres."
 	workload: Workload!
 	"The explicitly referenced branch, or the observed active branch when no branch is specified. Defaults to main when no active branch has been observed; a requested activation does not change this selection until observed."
+	branch: PostgresBranch!
+}
+
+"A Postgres and the branch selected by a workload reference."
+type PostgresUsage {
+	"Postgres database referenced by the workload."
+	postgres: Postgres!
+	"Explicitly referenced branch, observed active branch, or main before an active branch is observed."
 	branch: PostgresBranch!
 }
 
