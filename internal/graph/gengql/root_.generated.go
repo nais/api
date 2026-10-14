@@ -269,7 +269,6 @@ type ComplexityRoot struct {
 		Name                      func(childComplexity int) int
 		NetworkPolicy             func(childComplexity int) int
 		OpenSearch                func(childComplexity int) int
-		Postgreses                func(childComplexity int) int
 		Resources                 func(childComplexity int) int
 		SQLInstances              func(childComplexity int, orderBy *sqlinstance.SQLInstanceOrder) int
 		Secrets                   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
@@ -1267,7 +1266,6 @@ type ComplexityRoot struct {
 		Name                      func(childComplexity int) int
 		NetworkPolicy             func(childComplexity int) int
 		OpenSearch                func(childComplexity int) int
-		Postgreses                func(childComplexity int) int
 		Resources                 func(childComplexity int) int
 		Runs                      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		SQLInstances              func(childComplexity int, orderBy *sqlinstance.SQLInstanceOrder) int
@@ -4576,13 +4574,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Application.OpenSearch(childComplexity), true
-
-	case "Application.postgreses":
-		if e.ComplexityRoot.Application.Postgreses == nil {
-			break
-		}
-
-		return e.ComplexityRoot.Application.Postgreses(childComplexity), true
 
 	case "Application.resources":
 		if e.ComplexityRoot.Application.Resources == nil {
@@ -8652,13 +8643,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Job.OpenSearch(childComplexity), true
-
-	case "Job.postgreses":
-		if e.ComplexityRoot.Job.Postgreses == nil {
-			break
-		}
-
-		return e.ComplexityRoot.Job.Postgreses(childComplexity), true
 
 	case "Job.resources":
 		if e.ComplexityRoot.Job.Resources == nil {
@@ -28465,8 +28449,6 @@ extend type TeamEnvironment {
 }
 
 extend interface Workload {
-	"Postgres databases referenced by uses.postgres, whether or not they have an active branch."
-	postgreses: PostgresConnection!
 	"External resources used by this workload."
 	uses(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
@@ -28481,8 +28463,6 @@ extend interface Workload {
 }
 
 extend type Application {
-	"Postgres databases referenced by uses.postgres, whether or not they have an active branch."
-	postgreses: PostgresConnection!
 	"External resources used by this workload."
 	uses(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
@@ -28495,8 +28475,6 @@ extend type Application {
 }
 
 extend type Job {
-	"Postgres databases referenced by uses.postgres, whether or not they have an active branch."
-	postgreses: PostgresConnection!
 	"External resources used by this workload."
 	uses(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
@@ -37042,8 +37020,6 @@ func (ec *executionContext) childFields_Application(ctx context.Context, field g
 		return ec.fieldContext_Application_networkPolicy(ctx, field)
 	case "openSearch":
 		return ec.fieldContext_Application_openSearch(ctx, field)
-	case "postgreses":
-		return ec.fieldContext_Application_postgreses(ctx, field)
 	case "uses":
 		return ec.fieldContext_Application_uses(ctx, field)
 	case "secrets":
@@ -38592,8 +38568,6 @@ func (ec *executionContext) childFields_Job(ctx context.Context, field graphql.C
 		return ec.fieldContext_Job_networkPolicy(ctx, field)
 	case "openSearch":
 		return ec.fieldContext_Job_openSearch(ctx, field)
-	case "postgreses":
-		return ec.fieldContext_Job_postgreses(ctx, field)
 	case "uses":
 		return ec.fieldContext_Job_uses(ctx, field)
 	case "secrets":

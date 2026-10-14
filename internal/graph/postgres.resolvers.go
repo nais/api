@@ -14,17 +14,6 @@ import (
 	"github.com/nais/api/internal/workload/job"
 )
 
-func (r *applicationResolver) Postgreses(ctx context.Context, obj *application.Application) (*pagination.FacetableConnection[*postgres.Postgres, *postgres.TeamPostgresFilter], error) {
-	if obj.Spec == nil || obj.Spec.Uses == nil {
-		return pagination.NewFacetableConnection(pagination.EmptyConnection[*postgres.Postgres](), nil, (*postgres.TeamPostgresFilter)(nil)), nil
-	}
-	instances, err := postgres.ListPostgresForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Spec.Uses.Postgres)
-	if err != nil {
-		return nil, err
-	}
-	return pagination.NewFacetableConnection(pagination.NewConnectionWithoutPagination(instances), instances, (*postgres.TeamPostgresFilter)(nil)), nil
-}
-
 func (r *applicationResolver) Uses(ctx context.Context, obj *application.Application, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[workload.WorkloadUse], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
@@ -42,17 +31,6 @@ func (r *applicationResolver) Uses(ctx context.Context, obj *application.Applica
 		uses = append(uses, usage)
 	}
 	return pagination.NewConnection(pagination.Slice(uses, page), page, len(uses)), nil
-}
-
-func (r *jobResolver) Postgreses(ctx context.Context, obj *job.Job) (*pagination.FacetableConnection[*postgres.Postgres, *postgres.TeamPostgresFilter], error) {
-	if obj.Spec == nil || obj.Spec.Uses == nil {
-		return pagination.NewFacetableConnection(pagination.EmptyConnection[*postgres.Postgres](), nil, (*postgres.TeamPostgresFilter)(nil)), nil
-	}
-	instances, err := postgres.ListPostgresForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Spec.Uses.Postgres)
-	if err != nil {
-		return nil, err
-	}
-	return pagination.NewFacetableConnection(pagination.NewConnectionWithoutPagination(instances), instances, (*postgres.TeamPostgresFilter)(nil)), nil
 }
 
 func (r *jobResolver) Uses(ctx context.Context, obj *job.Job, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[workload.WorkloadUse], error) {
@@ -274,31 +252,3 @@ type (
 	postgresConnectionResolver       struct{ *Resolver }
 	postgresWorkloadResolver         struct{ *Resolver }
 )
-
-// !!! WARNING !!!
-// The code below was going to be deleted when updating resolvers. It has been copied here so you have
-// one last chance to move it out of harms way if you want. There are two reasons this happens:
-//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//    it when you're done.
-//  - You have helper methods in this file. Move them out to keep these resolver files clean.
-/*
-	func (r *workloadUseEdgeResolver) Cursor(ctx context.Context, obj *invalid type) (*pagination.Cursor, error){
-			panic(fmt.Errorf("not implemented: Cursor - cursor"))
-		}
-func (r *workloadUseEdgeResolver) Node(ctx context.Context, obj *invalid type) (donotuse.WorkloadUse, error){
-			panic(fmt.Errorf("not implemented: Node - node"))
-		}
-func (r *workloadUsesConnectionResolver) PageInfo(ctx context.Context, obj *invalid type) (*pagination.PageInfo, error){
-			panic(fmt.Errorf("not implemented: PageInfo - pageInfo"))
-		}
-func (r *workloadUsesConnectionResolver) Nodes(ctx context.Context, obj *invalid type) ([]donotuse.WorkloadUse, error){
-			panic(fmt.Errorf("not implemented: Nodes - nodes"))
-		}
-func (r *workloadUsesConnectionResolver) Edges(ctx context.Context, obj *invalid type) ([]invalid type, error){
-			panic(fmt.Errorf("not implemented: Edges - edges"))
-		}
-func (r *Resolver) WorkloadUseEdge() gengql.WorkloadUseEdgeResolver { return &workloadUseEdgeResolver{r} }
-func (r *Resolver) WorkloadUsesConnection() gengql.WorkloadUsesConnectionResolver { return &workloadUsesConnectionResolver{r} }
-type workloadUseEdgeResolver struct { *Resolver }
-type workloadUsesConnectionResolver struct { *Resolver }
-*/
