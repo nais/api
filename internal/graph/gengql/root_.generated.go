@@ -29289,6 +29289,8 @@ input CreatePostgresInput {
 	memory: String
 	"Requested disk size, for example '10Gi'. If omitted, the platform default is used."
 	diskSize: String
+	"Initial user-defined labels to apply."
+	labels: [ResourceLabelInput!]
 }
 
 "Result of creating a Postgres."
@@ -29313,6 +29315,8 @@ input UpdatePostgresInput {
 	memory: String
 	"Requested disk size, for example '10Gi'."
 	diskSize: String
+	"The complete set of user-defined labels to apply. When omitted or null, existing labels are left unchanged; use an empty list to remove all user-defined labels."
+	labels: [ResourceLabelInput!]
 }
 
 "Result of updating a Postgres."
