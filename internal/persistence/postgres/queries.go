@@ -938,6 +938,11 @@ func Update(ctx context.Context, input UpdatePostgresInput) (*UpdatePostgresPayl
 func setPostgresUserLabels(pg *nais_io_v1.Postgres, labels []*model.ResourceLabel) bool {
 	existing := pg.GetLabels()
 	merged := model.MergeUserLabels(existing, labels)
+	for key, value := range existing {
+		if model.HiddenLabelKey(key, value) {
+			merged[key] = value
+		}
+	}
 	if maps.Equal(existing, merged) {
 		return false
 	}

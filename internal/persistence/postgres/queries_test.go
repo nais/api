@@ -34,6 +34,11 @@ func TestCreatePostgresUserLabels(t *testing.T) {
 			labels: []*model.ResourceLabel{{Key: "tier", Value: "backend"}},
 			want:   []*model.ResourceLabel{{Key: "tier", Value: "backend"}},
 		},
+		{
+			name:   "cannot overwrite managed-by label",
+			labels: []*model.ResourceLabel{{Key: "app.kubernetes.io/managed-by", Value: "Helm"}},
+			want:   []*model.ResourceLabel{},
+		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			pg := &nais_io_v1.Postgres{ObjectMeta: metav1.ObjectMeta{Name: "orders", Namespace: "team-a"}}
@@ -85,6 +90,15 @@ func TestUpdatePostgresUserLabels(t *testing.T) {
 			labels:     []*model.ResourceLabel{{Key: "owner", Value: "ledger"}},
 			wantLabels: []*model.ResourceLabel{{Key: "owner", Value: "ledger"}},
 			wantChange: true,
+		},
+		{
+			name: "cannot overwrite managed-by label",
+			labels: []*model.ResourceLabel{
+				{Key: "owner", Value: "payments"},
+				{Key: "tier", Value: "backend"},
+				{Key: "app.kubernetes.io/managed-by", Value: "Helm"},
+			},
+			wantLabels: []*model.ResourceLabel{{Key: "owner", Value: "payments"}, {Key: "tier", Value: "backend"}},
 		},
 		{
 			name:       "empty labels remove user labels",
