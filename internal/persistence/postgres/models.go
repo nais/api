@@ -699,14 +699,15 @@ type PostgresAccessConnectionDetails struct {
 var supportedMajorVersions = []string{"18"}
 
 type CreatePostgresInput struct {
-	Name             string    `json:"name"`
-	EnvironmentName  string    `json:"environmentName"`
-	TeamSlug         slug.Slug `json:"teamSlug"`
-	MajorVersion     string    `json:"majorVersion"`
-	HighAvailability *bool     `json:"highAvailability,omitempty"`
-	CPU              *string   `json:"cpu,omitempty"`
-	Memory           *string   `json:"memory,omitempty"`
-	DiskSize         *string   `json:"diskSize,omitempty"`
+	Name             string                 `json:"name"`
+	EnvironmentName  string                 `json:"environmentName"`
+	TeamSlug         slug.Slug              `json:"teamSlug"`
+	MajorVersion     string                 `json:"majorVersion"`
+	HighAvailability *bool                  `json:"highAvailability,omitempty"`
+	CPU              *string                `json:"cpu,omitempty"`
+	Memory           *string                `json:"memory,omitempty"`
+	DiskSize         *string                `json:"diskSize,omitempty"`
+	Labels           []*model.ResourceLabel `json:"labels,omitempty"`
 }
 
 type CreatePostgresPayload struct {
@@ -714,13 +715,14 @@ type CreatePostgresPayload struct {
 }
 
 type UpdatePostgresInput struct {
-	Name             string    `json:"name"`
-	EnvironmentName  string    `json:"environmentName"`
-	TeamSlug         slug.Slug `json:"teamSlug"`
-	HighAvailability *bool     `json:"highAvailability,omitempty"`
-	CPU              *string   `json:"cpu,omitempty"`
-	Memory           *string   `json:"memory,omitempty"`
-	DiskSize         *string   `json:"diskSize,omitempty"`
+	Name             string                 `json:"name"`
+	EnvironmentName  string                 `json:"environmentName"`
+	TeamSlug         slug.Slug              `json:"teamSlug"`
+	HighAvailability *bool                  `json:"highAvailability,omitempty"`
+	CPU              *string                `json:"cpu,omitempty"`
+	Memory           *string                `json:"memory,omitempty"`
+	DiskSize         *string                `json:"diskSize,omitempty"`
+	Labels           []*model.ResourceLabel `json:"labels,omitempty"`
 }
 
 type UpdatePostgresPayload struct {
@@ -752,6 +754,7 @@ func (i *CreatePostgresInput) ValidationErrors(_ context.Context) *validate.Vali
 		verr.Add("majorVersion", "Major version must be one of: %s.", strings.Join(supportedMajorVersions, ", "))
 	}
 	validateQuantities(verr, i.CPU, i.Memory, i.DiskSize)
+	validatePostgresUserLabels(verr, i.Labels)
 	return verr
 }
 
@@ -776,7 +779,14 @@ func (i *UpdatePostgresInput) ValidationErrors(_ context.Context) *validate.Vali
 		verr.Add("teamSlug", "Team slug must not be empty.")
 	}
 	validateQuantities(verr, i.CPU, i.Memory, i.DiskSize)
+	validatePostgresUserLabels(verr, i.Labels)
 	return verr
+}
+
+func validatePostgresUserLabels(verr *validate.ValidationErrors, labels []*model.ResourceLabel) {
+	if err := model.ValidateUserLabels(labels); err != nil {
+		verr.Add("labels", "%s", err.Error())
+	}
 }
 
 func validateQuantities(verr *validate.ValidationErrors, cpu, memory, diskSize *string) {

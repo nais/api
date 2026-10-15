@@ -8,6 +8,8 @@ import (
 	"time"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/nais/api/internal/graph/model"
+	"github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/slug"
 	liberatorv1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	"github.com/nais/pgrator/pkg/api"
@@ -19,6 +21,167 @@ import (
 	"k8s.io/apimachinery/pkg/util/validation"
 	"k8s.io/client-go/dynamic/fake"
 )
+
+func TestCreatePostgresUserLabels(t *testing.T) {
+	for _, tt := range []struct {
+		name   string
+		labels []*model.ResourceLabel
+		want   []*model.ResourceLabel
+	}{
+		{name: "without labels", want: []*model.ResourceLabel{}},
+		{
+			name:   "with labels",
+			labels: []*model.ResourceLabel{{Key: "tier", Value: "backend"}},
+			want:   []*model.ResourceLabel{{Key: "tier", Value: "backend"}},
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			pg := &nais_io_v1.Postgres{ObjectMeta: metav1.ObjectMeta{Name: "orders", Namespace: "team-a"}}
+			kubernetes.SetManagedByConsoleLabel(pg)
+			setPostgresUserLabels(pg, tt.labels)
+
+			got := model.UserLabels(pg.GetLabels())
+			if diff := cmp.Diff(tt.want, got); diff != "" {
+				t.Errorf("user labels mismatch (-want +got):\n%s", diff)
+			}
+			if got := pg.GetLabels()["app.kubernetes.io/managed-by"]; got != "console" {
+				t.Errorf("managed-by label = %q, want console", got)
+			}
+
+			object, err := toUnstructuredWithoutZeroResources(pg)
+			if err != nil {
+				t.Fatal(err)
+			}
+			created, err := toPostgres(object, "dev")
+			if err != nil {
+				t.Fatal(err)
+			}
+			if diff := cmp.Diff(tt.want, created.Labels); diff != "" {
+				t.Errorf("returned labels mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
+func TestUpdatePostgresUserLabels(t *testing.T) {
+	systemLabels := map[string]string{
+		"app":                          "orders",
+		"app.kubernetes.io/managed-by": "console",
+		"nais.io/platform":             "managed",
+		"team":                         "team-a",
+	}
+	for _, tt := range []struct {
+		name       string
+		labels     []*model.ResourceLabel
+		wantLabels []*model.ResourceLabel
+		wantChange bool
+	}{
+		{
+			name:       "omitted labels preserve existing labels",
+			wantLabels: []*model.ResourceLabel{{Key: "owner", Value: "payments"}, {Key: "tier", Value: "backend"}},
+		},
+		{
+			name:       "labels replace existing user labels",
+			labels:     []*model.ResourceLabel{{Key: "owner", Value: "ledger"}},
+			wantLabels: []*model.ResourceLabel{{Key: "owner", Value: "ledger"}},
+			wantChange: true,
+		},
+		{
+			name:       "empty labels remove user labels",
+			labels:     []*model.ResourceLabel{},
+			wantLabels: []*model.ResourceLabel{},
+			wantChange: true,
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			existingLabels := map[string]string{
+				"app":                          systemLabels["app"],
+				"app.kubernetes.io/managed-by": systemLabels["app.kubernetes.io/managed-by"],
+				"nais.io/platform":             systemLabels["nais.io/platform"],
+				"team":                         systemLabels["team"],
+				"owner":                        "payments",
+				"tier":                         "backend",
+			}
+			pg := &nais_io_v1.Postgres{ObjectMeta: metav1.ObjectMeta{Labels: existingLabels}}
+			changes, err := updatePostgresUserLabels(pg, UpdatePostgresInput{Labels: tt.labels})
+			if err != nil {
+				t.Fatal(err)
+			}
+			if (len(changes) > 0) != tt.wantChange {
+				t.Fatalf("changes = %v, want change %t", changes, tt.wantChange)
+			}
+			if diff := cmp.Diff(tt.wantLabels, model.UserLabels(pg.GetLabels())); diff != "" {
+				t.Errorf("user labels mismatch (-want +got):\n%s", diff)
+			}
+			for key, want := range systemLabels {
+				if got := pg.GetLabels()[key]; got != want {
+					t.Errorf("system label %q = %q, want %q", key, got, want)
+				}
+			}
+		})
+	}
+}
+
+func TestPostgresLabelValidation(t *testing.T) {
+	validCreate := CreatePostgresInput{
+		Name: "orders", EnvironmentName: "dev", TeamSlug: "team-a", MajorVersion: "18",
+	}
+	validUpdate := UpdatePostgresInput{Name: "orders", EnvironmentName: "dev", TeamSlug: "team-a"}
+	for _, tt := range []struct {
+		name   string
+		labels []*model.ResourceLabel
+	}{
+		{name: "reserved key", labels: []*model.ResourceLabel{{Key: "app", Value: "orders"}}},
+		{name: "platform key", labels: []*model.ResourceLabel{{Key: "nais.io/owner", Value: "team-a"}}},
+		{name: "invalid key", labels: []*model.ResourceLabel{{Key: "invalid/key/", Value: "value"}}},
+		{name: "invalid value", labels: []*model.ResourceLabel{{Key: "tier", Value: "backend/value"}}},
+		{name: "duplicate keys", labels: []*model.ResourceLabel{{Key: "tier", Value: "backend"}, {Key: "tier", Value: "frontend"}}},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			create := validCreate
+			create.Labels = tt.labels
+			if err := create.Validate(context.Background()); err == nil {
+				t.Fatal("CreatePostgresInput.Validate() expected an error")
+			}
+			update := validUpdate
+			update.Labels = tt.labels
+			if err := update.Validate(context.Background()); err == nil {
+				t.Fatal("UpdatePostgresInput.Validate() expected an error")
+			}
+		})
+	}
+}
+
+func TestUpdatePostgresWithoutLabelsKeepsExistingLabelsAndUpdatesOtherFields(t *testing.T) {
+	pg := &nais_io_v1.Postgres{
+		ObjectMeta: metav1.ObjectMeta{Labels: map[string]string{"owner": "payments", "app": "orders"}},
+		Spec:       nais_io_v1.PostgresSpec{MajorVersion: "18"},
+	}
+	input := UpdatePostgresInput{HighAvailability: new(true), CPU: new("200m")}
+
+	labelChanges, err := updatePostgresUserLabels(pg, input)
+	if err != nil {
+		t.Fatal(err)
+	}
+	haChanges, err := updateHighAvailability(pg, input)
+	if err != nil {
+		t.Fatal(err)
+	}
+	resourceChanges, err := updateResources(pg, input)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(labelChanges) != 0 || len(haChanges) != 1 || len(resourceChanges) != 1 {
+		t.Fatalf("update changes = labels %v, high availability %v, resources %v", labelChanges, haChanges, resourceChanges)
+	}
+	if got := pg.GetLabels(); got["owner"] != "payments" || got["app"] != "orders" {
+		t.Errorf("labels changed without labels input: %v", got)
+	}
+	if !pg.Spec.HighAvailability || pg.Spec.Resources.Cpu.String() != "200m" {
+		t.Errorf("non-label fields were not updated: %+v", pg.Spec)
+	}
+}
 
 func TestUniquePostgresUses(t *testing.T) {
 	tests := []struct {

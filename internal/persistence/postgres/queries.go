@@ -7,6 +7,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"maps"
 	"slices"
 	"strconv"
 	"strings"
@@ -836,6 +837,7 @@ func Create(ctx context.Context, input CreatePostgresInput) (*CreatePostgresPayl
 	}
 	pg.SetAnnotations(kubernetes.WithCommonAnnotations(nil, authz.ActorFromContext(ctx).User.Identity()))
 	kubernetes.SetManagedByConsoleLabel(pg)
+	setPostgresUserLabels(pg, input.Labels)
 	if input.HighAvailability != nil {
 		pg.Spec.HighAvailability = *input.HighAvailability
 	}
@@ -892,6 +894,7 @@ func Update(ctx context.Context, input UpdatePostgresInput) (*UpdatePostgresPayl
 
 	var changes []*PostgresUpdatedActivityLogEntryDataUpdatedField
 	for _, f := range []func(*nais_io_v1.Postgres, UpdatePostgresInput) ([]*PostgresUpdatedActivityLogEntryDataUpdatedField, error){
+		updatePostgresUserLabels,
 		updateHighAvailability,
 		updateResources,
 	} {
@@ -930,6 +933,33 @@ func Update(ctx context.Context, input UpdatePostgresInput) (*UpdatePostgresPayl
 		return nil, err
 	}
 	return &UpdatePostgresPayload{Postgres: ret}, nil
+}
+
+func setPostgresUserLabels(pg *nais_io_v1.Postgres, labels []*model.ResourceLabel) bool {
+	existing := pg.GetLabels()
+	merged := model.MergeUserLabels(existing, labels)
+	if maps.Equal(existing, merged) {
+		return false
+	}
+	pg.SetLabels(merged)
+	return true
+}
+
+func updatePostgresUserLabels(pg *nais_io_v1.Postgres, input UpdatePostgresInput) ([]*PostgresUpdatedActivityLogEntryDataUpdatedField, error) {
+	if input.Labels == nil {
+		return nil, nil
+	}
+
+	oldLabels := pg.GetLabels()
+	if !setPostgresUserLabels(pg, input.Labels) {
+		return nil, nil
+	}
+
+	return []*PostgresUpdatedActivityLogEntryDataUpdatedField{{
+		Field:    "labels",
+		OldValue: new(model.FormatUserLabels(model.UserLabels(oldLabels))),
+		NewValue: new(model.FormatUserLabels(model.UserLabels(pg.GetLabels()))),
+	}}, nil
 }
 
 // applyResources sets the quantities that were provided. Omitted values are left as they are,
