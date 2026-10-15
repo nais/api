@@ -144,6 +144,94 @@ func ListPostgresForWorkload(ctx context.Context, teamSlug slug.Slug, environmen
 	return instances, nil
 }
 
+func WorkloadPostgresesForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName string, uses []liberatorv1.PostgresUse, page *pagination.Pagination) ([]*WorkloadPostgres, int, error) {
+	uniqueUses, err := uniquePostgresUses(uses)
+	if err != nil {
+		return nil, 0, err
+	}
+	slices.SortFunc(uniqueUses, func(a, b liberatorv1.PostgresUse) int {
+		return cmp.Compare(a.Name, b.Name)
+	})
+	totalCount := len(uniqueUses)
+	pageUses := pagination.Slice(uniqueUses, page)
+	instances, err := ListPostgresForWorkload(ctx, teamSlug, environmentName, pageUses)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	usesByName := make(map[string]liberatorv1.PostgresUse, len(pageUses))
+	for _, use := range pageUses {
+		usesByName[use.Name] = use
+	}
+
+	workloadPostgreses := make([]*WorkloadPostgres, 0, len(instances))
+	for _, instance := range instances {
+		use := usesByName[instance.Name]
+		branchName := selectedBranchName(instance, use)
+		branch, err := GetPostgresBranch(ctx, teamSlug, environmentName, instance.Name, branchName)
+		if err != nil {
+			return nil, 0, err
+		}
+		role, err := workloadPostgresRole(use.Role)
+		if err != nil {
+			return nil, 0, err
+		}
+		workloadPostgreses = append(workloadPostgreses, &WorkloadPostgres{
+			EnvPrefix: optionalPostgresUseString(use.EnvPrefix),
+			Role:      role,
+			Branch:    branch,
+			Postgres:  instance,
+		})
+	}
+	return workloadPostgreses, totalCount, nil
+}
+
+func workloadPostgresRole(role string) (PostgresUserRole, error) {
+	switch role {
+	case "", "admin":
+		return PostgresUserRoleAdmin, nil
+	case "read":
+		return PostgresUserRoleRead, nil
+	case "readwrite":
+		return PostgresUserRoleReadwrite, nil
+	default:
+		return "", fmt.Errorf("unknown Postgres use role %q", role)
+	}
+}
+
+func optionalPostgresUseString(value string) *string {
+	if value == "" {
+		return nil
+	}
+	return &value
+}
+
+func uniquePostgresUses(uses []liberatorv1.PostgresUse) ([]liberatorv1.PostgresUse, error) {
+	unique := make([]liberatorv1.PostgresUse, 0, len(uses))
+	byName := make(map[string]liberatorv1.PostgresUse, len(uses))
+	for _, use := range uses {
+		if existing, ok := byName[use.Name]; ok {
+			if existing.Branch != use.Branch {
+				return nil, fmt.Errorf("workload references multiple branches for Postgres %q", use.Name)
+			}
+			continue
+		}
+		byName[use.Name] = use
+		unique = append(unique, use)
+	}
+	return unique, nil
+}
+
+func selectedBranchName(instance *Postgres, use liberatorv1.PostgresUse) string {
+	if use.Branch != "" {
+		return use.Branch
+	}
+	if instance.ActiveBranch != nil {
+		return *instance.ActiveBranch
+	}
+	return nais_io_v1.DefaultBranchName
+}
+
 func ListPostgresForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, filter *TeamPostgresFilter) *PostgresConnection {
 	all := watcher.Objects(fromContext(ctx).postgresWatcher.GetByNamespace(teamSlug.String(), watcher.WithoutDeleted()))
 	instances := make([]*Postgres, 0, len(all))
@@ -657,13 +745,8 @@ func WorkloadsForInstance(ctx context.Context, teamSlug slug.Slug, environmentNa
 	if err != nil {
 		return nil
 	}
-	activeBranch := nais_io_v1.DefaultBranchName
-	if postgres.ActiveBranch != nil {
-		activeBranch = *postgres.ActiveBranch
-	}
 	usesBranch := func(use liberatorv1.PostgresUse) bool {
-		return use.Name == instance.PostgresName && (use.Branch == branchName ||
-			use.Branch == "" && activeBranch == branchName)
+		return use.Name == instance.PostgresName && selectedBranchName(postgres, use) == branchName
 	}
 	return workloadsMatchingPostgresUse(ctx, teamSlug, environmentName, usesBranch)
 }
@@ -672,10 +755,6 @@ func WorkloadsForPostgres(ctx context.Context, postgres *Postgres) []*PostgresWo
 	workloads := workloadsMatchingPostgresUse(ctx, postgres.TeamSlug, postgres.EnvironmentName, func(use liberatorv1.PostgresUse) bool {
 		return use.Name == postgres.Name
 	})
-	activeBranch := nais_io_v1.DefaultBranchName
-	if postgres.ActiveBranch != nil {
-		activeBranch = *postgres.ActiveBranch
-	}
 	ret := make([]*PostgresWorkload, 0, len(workloads))
 	for _, current := range workloads {
 		var uses []liberatorv1.PostgresUse
@@ -685,12 +764,10 @@ func WorkloadsForPostgres(ctx context.Context, postgres *Postgres) []*PostgresWo
 		case *job.Job:
 			uses = current.Spec.Uses.Postgres
 		}
-		branchName := activeBranch
+		branchName := nais_io_v1.DefaultBranchName
 		for _, use := range uses {
 			if use.Name == postgres.Name {
-				if use.Branch != "" {
-					branchName = use.Branch
-				}
+				branchName = selectedBranchName(postgres, use)
 				break
 			}
 		}

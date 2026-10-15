@@ -9,6 +9,7 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/nais/api/internal/slug"
+	liberatorv1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	"github.com/nais/pgrator/pkg/api"
 	nais_io_v1 "github.com/nais/pgrator/pkg/api/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -18,6 +19,43 @@ import (
 	"k8s.io/apimachinery/pkg/util/validation"
 	"k8s.io/client-go/dynamic/fake"
 )
+
+func TestUniquePostgresUses(t *testing.T) {
+	tests := []struct {
+		name    string
+		uses    []liberatorv1.PostgresUse
+		want    []liberatorv1.PostgresUse
+		wantErr string
+	}{
+		{
+			name: "duplicate references to the same branch collapse",
+			uses: []liberatorv1.PostgresUse{{Name: "orders", Branch: "main"}, {Name: "orders", Branch: "main"}},
+			want: []liberatorv1.PostgresUse{{Name: "orders", Branch: "main"}},
+		},
+		{
+			name:    "one Postgres cannot reference multiple branches",
+			uses:    []liberatorv1.PostgresUse{{Name: "orders", Branch: "main"}, {Name: "orders", Branch: "green"}},
+			wantErr: "multiple branches for Postgres \"orders\"",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := uniquePostgresUses(tt.uses)
+			if tt.wantErr != "" {
+				if err == nil || !strings.Contains(err.Error(), tt.wantErr) {
+					t.Fatalf("uniquePostgresUses() error = %v, want containing %q", err, tt.wantErr)
+				}
+				return
+			}
+			if err != nil {
+				t.Fatalf("uniquePostgresUses() error = %v", err)
+			}
+			if diff := cmp.Diff(tt.want, got); diff != "" {
+				t.Errorf("uniquePostgresUses() mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
 
 func TestNewPostgresAccessResource(t *testing.T) {
 	expiresAt := time.Date(2026, time.September, 17, 12, 0, 0, 0, time.UTC)

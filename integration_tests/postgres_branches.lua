@@ -68,14 +68,14 @@ Test.gql("Branch state facets are scoped to their Postgres", function(t)
 	} } } } } }
 end)
 
-Test.gql("A workload follows the active physical instance", function(t)
+Test.gql("A workload Postgres use follows the active physical instance", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[{ team(slug:"someteamname") { environment(name:"dev") {
-        application(name:"app-with-postgres") { postgreses { nodes { name activeBranch { name } } } }
+	        application(name:"app-with-postgres") { postgreses { nodes { postgres { name activeBranch { name } } branch { name } } } }
         postgres(name:"foobar") { branch(name:"main") { workloads { nodes { __typename name } } } }
     } } }]]
 	t.check { data = { team = { environment = {
-		application = { postgreses = { nodes = { { name = "foobar", activeBranch = { name = "main" } } } } },
+		application = { postgreses = { nodes = { { postgres = { name = "foobar", activeBranch = { name = "main" } }, branch = { name = "main" } } } } },
 		postgres = { branch = { workloads = { nodes = {
 			{ __typename = "Application", name = "app-with-postgres" },
 			{ __typename = "Application", name = "app-with-postgres-2" },

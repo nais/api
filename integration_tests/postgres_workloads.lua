@@ -24,20 +24,25 @@ local function workloadNode(workloadType, name, branch)
 	}
 end
 
-Test.gql("Application and job list every referenced Postgres, including one without an active branch", function(t)
+Test.gql("Application and job Postgres uses expose spec fields and resolved resources", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[{ team(slug: "postgres-workload-team") { environment(name: "dev") {
-		application(name: "consumer") { postgreses { nodes { name activeBranch { name } } } }
-		job(name: "scheduled-reader") { postgreses { nodes { name activeBranch { name } } } }
+		application(name: "consumer") { postgreses { pageInfo { totalCount } nodes { envPrefix role branch { name } postgres { name activeBranch { name } } } } }
+		job(name: "scheduled-reader") { postgreses { pageInfo { totalCount } nodes { envPrefix role branch { name } postgres { name activeBranch { name } } } } }
 	} } }]]
-	local databases = {
-		{ name = "archive", activeBranch = Null },
-		{ name = "orders",  activeBranch = { name = "green" } },
-		{ name = "reports", activeBranch = { name = "recovered" } },
+	local applicationPostgreses = {
+		{ envPrefix = "ARCHIVE_", role = "ADMIN", branch = { name = "main" },      postgres = { name = "archive", activeBranch = Null } },
+		{ envPrefix = Null,       role = "READ",  branch = { name = "green" },     postgres = { name = "orders", activeBranch = { name = "green" } } },
+		{ envPrefix = "REPORTS_", role = "ADMIN", branch = { name = "recovered" }, postgres = { name = "reports", activeBranch = { name = "recovered" } } },
+	}
+	local jobPostgreses = {
+		{ envPrefix = "ARCHIVE_", role = "ADMIN", branch = { name = "main" },      postgres = { name = "archive", activeBranch = Null } },
+		{ envPrefix = Null,       role = "ADMIN", branch = { name = "restored" },  postgres = { name = "orders", activeBranch = { name = "green" } } },
+		{ envPrefix = "REPORTS_", role = "ADMIN", branch = { name = "recovered" }, postgres = { name = "reports", activeBranch = { name = "recovered" } } },
 	}
 	t.check { data = { team = { environment = {
-		application = { postgreses = { nodes = databases } },
-		job = { postgreses = { nodes = databases } },
+		application = { postgreses = { pageInfo = { totalCount = 3 }, nodes = applicationPostgreses } },
+		job = { postgreses = { pageInfo = { totalCount = 3 }, nodes = jobPostgreses } },
 	} } } }
 end)
 

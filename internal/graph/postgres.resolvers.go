@@ -12,28 +12,23 @@ import (
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
 	"github.com/nais/api/internal/workload/job"
+	liberatorv1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 )
 
-func (r *applicationResolver) Postgreses(ctx context.Context, obj *application.Application) (*pagination.FacetableConnection[*postgres.Postgres, *postgres.TeamPostgresFilter], error) {
-	if obj.Spec == nil || obj.Spec.Uses == nil {
-		return pagination.NewFacetableConnection(pagination.EmptyConnection[*postgres.Postgres](), nil, (*postgres.TeamPostgresFilter)(nil)), nil
+func (r *applicationResolver) Postgreses(ctx context.Context, obj *application.Application, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*postgres.WorkloadPostgres], error) {
+	var uses []liberatorv1.PostgresUse
+	if obj.Spec != nil && obj.Spec.Uses != nil {
+		uses = obj.Spec.Uses.Postgres
 	}
-	instances, err := postgres.ListPostgresForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Spec.Uses.Postgres)
-	if err != nil {
-		return nil, err
-	}
-	return pagination.NewFacetableConnection(pagination.NewConnectionWithoutPagination(instances), instances, (*postgres.TeamPostgresFilter)(nil)), nil
+	return workloadPostgresConnectionForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, uses, first, after, last, before)
 }
 
-func (r *jobResolver) Postgreses(ctx context.Context, obj *job.Job) (*pagination.FacetableConnection[*postgres.Postgres, *postgres.TeamPostgresFilter], error) {
-	if obj.Spec == nil || obj.Spec.Uses == nil {
-		return pagination.NewFacetableConnection(pagination.EmptyConnection[*postgres.Postgres](), nil, (*postgres.TeamPostgresFilter)(nil)), nil
+func (r *jobResolver) Postgreses(ctx context.Context, obj *job.Job, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*postgres.WorkloadPostgres], error) {
+	var uses []liberatorv1.PostgresUse
+	if obj.Spec != nil && obj.Spec.Uses != nil {
+		uses = obj.Spec.Uses.Postgres
 	}
-	instances, err := postgres.ListPostgresForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Spec.Uses.Postgres)
-	if err != nil {
-		return nil, err
-	}
-	return pagination.NewFacetableConnection(pagination.NewConnectionWithoutPagination(instances), instances, (*postgres.TeamPostgresFilter)(nil)), nil
+	return workloadPostgresConnectionForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, uses, first, after, last, before)
 }
 
 func (r *mutationResolver) CreatePostgresAccess(ctx context.Context, input postgres.CreatePostgresAccessInput) (*postgres.CreatePostgresAccessPayload, error) {

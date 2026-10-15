@@ -46,6 +46,9 @@ func NewComplexityRoot() ComplexityRoot {
 	c.Application.Issues = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
+	c.Application.Postgreses = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
+		return cursorComplexity(first, last) * childComplexity
+	}
 	c.Application.Secrets = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
@@ -95,6 +98,9 @@ func NewComplexityRoot() ComplexityRoot {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.Job.Issues = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) int {
+		return cursorComplexity(first, last) * childComplexity
+	}
+	c.Job.Postgreses = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.Job.Runs = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {

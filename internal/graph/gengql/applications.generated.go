@@ -68,7 +68,7 @@ type ApplicationResolver interface {
 	LogDestinations(ctx context.Context, obj *application.Application) ([]logging.LogDestination, error)
 	NetworkPolicy(ctx context.Context, obj *application.Application) (*netpol.NetworkPolicy, error)
 	OpenSearch(ctx context.Context, obj *application.Application) (*opensearch.OpenSearch, error)
-	Postgreses(ctx context.Context, obj *application.Application) (*pagination.FacetableConnection[*postgres.Postgres, *postgres.TeamPostgresFilter], error)
+	Postgreses(ctx context.Context, obj *application.Application, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*postgres.WorkloadPostgres], error)
 	Secrets(ctx context.Context, obj *application.Application, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.FacetableConnection[*secret.Secret, *secret.SecretFilter], error)
 	ServiceAccount(ctx context.Context, obj *application.Application) (*serviceaccount.ServiceAccount, error)
 	SQLInstances(ctx context.Context, obj *application.Application, orderBy *sqlinstance.SQLInstanceOrder) (*pagination.Connection[*sqlinstance.SQLInstance], error)
@@ -381,6 +381,44 @@ func (ec *executionContext) field_Application_kafkaTopicAcls_args(ctx context.Co
 		return nil, err
 	}
 	args["orderBy"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Application_postgreses_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
+		func(ctx context.Context, v any) (*int, error) {
+			return ec.unmarshalOInt2ᚖint(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["first"] = arg0
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
+		func(ctx context.Context, v any) (*pagination.Cursor, error) {
+			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["after"] = arg1
+	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
+		func(ctx context.Context, v any) (*int, error) {
+			return ec.unmarshalOInt2ᚖint(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["last"] = arg2
+	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
+		func(ctx context.Context, v any) (*pagination.Cursor, error) {
+			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["before"] = arg3
 	return args, nil
 }
 
@@ -1364,25 +1402,37 @@ func (ec *executionContext) _Application_postgreses(ctx context.Context, field g
 			return ec.fieldContext_Application_postgreses(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return ec.Resolvers.Application().Postgreses(ctx, obj)
+			fc := graphql.GetFieldContext(ctx)
+			return ec.Resolvers.Application().Postgreses(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *pagination.FacetableConnection[*postgres.Postgres, *postgres.TeamPostgresFilter]) graphql.Marshaler {
-			return ec.marshalNPostgresConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[*postgres.WorkloadPostgres]) graphql.Marshaler {
+			return ec.marshalNWorkloadPostgresConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Application_postgreses(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Application_postgreses(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Application",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_PostgresConnection(ctx, field)
+			return ec.childFields_WorkloadPostgresConnection(ctx, field)
 		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Application_postgreses_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }

@@ -21,6 +21,31 @@ Test.gql("Branch workloads distinguish explicit selection from observed active b
 	} } } } }
 end)
 
+Test.gql("Workload Postgres uses include the configured and resolved branch", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[{ team(slug: "pg-selection-team") { environment(name: "dev") {
+		pinned: application(name: "pinned-app") { postgreses { nodes { envPrefix role branch { name } postgres { name activeBranch { name } } } } }
+		following: application(name: "following-app") { postgreses { nodes { envPrefix role branch { name } postgres { name activeBranch { name } } } } }
+		job: job(name: "pinned-job") { postgreses { nodes { envPrefix role branch { name } postgres { name activeBranch { name } } } } }
+	} } }]]
+	t.check { data = { team = { environment = {
+		pinned = { postgreses = { nodes = { { envPrefix = Null, role = "ADMIN", branch = { name = "main" }, postgres = { name = "orders", activeBranch = { name = "green" } } } } } },
+		following = { postgreses = { nodes = { { envPrefix = Null, role = "ADMIN", branch = { name = "green" }, postgres = { name = "orders", activeBranch = { name = "green" } } } } } },
+		job = { postgreses = { nodes = { { envPrefix = Null, role = "ADMIN", branch = { name = "pr-123" }, postgres = { name = "orders", activeBranch = { name = "green" } } } } } },
+	} } } }
+end)
+
+Test.gql("Postgres pagination is validated when a workload has no uses", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[{ team(slug: "pg-selection-team") { environment(name: "dev") {
+		job(name: "no-postgres-uses") { postgreses(first: 0) { pageInfo { totalCount } } }
+	} } }]]
+	t.check {
+		data = Null,
+		errors = { { locations = NotNull(), message = Contains("first must be greater than or equal to 1"), path = { "team", "environment", "job", "postgreses" } } },
+	}
+end)
+
 Test.gql("Postgres workload branches use explicit selection or the observed active branch", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[{ team(slug: "pg-selection-team") { environment(name: "dev") {
@@ -89,6 +114,13 @@ Test.gql("A missing referenced branch returns an error instead of omitting the w
 	t.check {
 		data = Null,
 		errors = { { locations = NotNull(), message = Contains("orders/main"), path = { "team", "environment", "postgres", "workloads", "nodes", 1, "branch" } } },
+	}
+	t.query [[{ team(slug: "pg-selection-team") { environment(name: "dev") {
+		application(name: "pinned-app") { postgreses { nodes { postgres { name } branch { name } } } }
+	} } }]]
+	t.check {
+		data = Null,
+		errors = { { locations = NotNull(), message = Contains("orders/main"), path = { "team", "environment", "application", "postgreses" } } },
 	}
 end)
 

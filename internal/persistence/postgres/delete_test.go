@@ -8,12 +8,14 @@ import (
 	"testing"
 	"time"
 
+	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/kubernetes/fake"
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/workload/application"
 	"github.com/nais/api/internal/workload/job"
+	liberatorv1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	"github.com/sirupsen/logrus/hooks/test"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
@@ -100,6 +102,58 @@ func TestWorkloadUsesMultiplePostgresResources(t *testing.T) {
 	if err != nil || len(instances) != 3 || instances[0].Name != "archive" || instances[0].ActiveBranch != nil || instances[1].Name != "orders" || instances[2].Name != "reports" {
 		t.Fatalf("job referenced Postgres = %+v, error = %v", instances, err)
 	}
+	page, err := pagination.ParsePage(new(3), nil, nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, test := range []struct {
+		name   string
+		uses   []liberatorv1.PostgresUse
+		branch map[string]string
+	}{
+		{name: "application", uses: apps[0].Spec.Uses.Postgres, branch: map[string]string{"archive": "main", "orders": "green", "reports": "recovered"}},
+		{name: "job", uses: jobs[0].Spec.Uses.Postgres, branch: map[string]string{"archive": "main", "orders": "restored", "reports": "recovered"}},
+	} {
+		usages, totalCount, err := WorkloadPostgresesForWorkload(ctx, team, "dev", test.uses, page)
+		if err != nil {
+			t.Fatalf("%s Postgres uses: %v", test.name, err)
+		}
+		if totalCount != len(test.branch) || len(usages) != len(test.branch) {
+			t.Fatalf("%s Postgres uses = (%d, %d), want %d", test.name, len(usages), totalCount, len(test.branch))
+		}
+		for _, usage := range usages {
+			if want := test.branch[usage.Postgres.Name]; usage.Branch.Name != want {
+				t.Errorf("%s Postgres %q branch = %q, want %q", test.name, usage.Postgres.Name, usage.Branch.Name, want)
+			}
+			delete(test.branch, usage.Postgres.Name)
+		}
+		if len(test.branch) != 0 {
+			t.Errorf("%s Postgres uses missing references: %v", test.name, test.branch)
+		}
+	}
+
+	usesWithMissingOffPageBranch := append([]liberatorv1.PostgresUse(nil), apps[0].Spec.Uses.Postgres...)
+	for index := range usesWithMissingOffPageBranch {
+		if usesWithMissingOffPageBranch[index].Name == "reports" {
+			usesWithMissingOffPageBranch[index].Branch = "missing"
+		}
+	}
+	firstPage, err := pagination.ParsePage(new(1), nil, nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	pageUses, totalCount, err := WorkloadPostgresesForWorkload(ctx, team, "dev", usesWithMissingOffPageBranch, firstPage)
+	if err != nil || totalCount != 3 || len(pageUses) != 1 || pageUses[0].Postgres.Name != "archive" {
+		t.Fatalf("first Postgres use page = (%+v, %d), error = %v", pageUses, totalCount, err)
+	}
+	reportsPage, err := pagination.ParsePage(new(3), nil, nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, _, err := WorkloadPostgresesForWorkload(ctx, team, "dev", usesWithMissingOffPageBranch, reportsPage); err == nil {
+		t.Fatal("expected an error for a missing branch on the requested page")
+	}
+
 	for _, entry := range []struct{ postgres, branch string }{{"orders", "green"}, {"reports", "recovered"}} {
 		workloads := WorkloadsForInstance(ctx, team, "dev", entry.postgres, entry.branch)
 		wantCount := 2
