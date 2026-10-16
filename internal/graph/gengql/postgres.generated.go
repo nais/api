@@ -5382,7 +5382,7 @@ func (ec *executionContext) unmarshalInputCreatePostgresBranchInput(ctx context.
 			it.SourceBranch = data
 		case "targetTime":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("targetTime"))
-			data, err := ec.unmarshalNTime2timeᚐTime(ctx, v)
+			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
 			if err != nil {
 				return it, err
 			}

@@ -18,18 +18,18 @@ import (
 )
 
 func TestCreateBranchRejectsInvalidRecoveryRequest(t *testing.T) {
-	base := CreatePostgresBranchInput{Postgres: "foobar", Branch: "recovery", SourceBranch: "main", TargetTime: time.Now().Add(-time.Hour).Truncate(time.Second), EnvironmentName: "dev", TeamSlug: "someteamname"}
+	base := CreatePostgresBranchInput{Postgres: "foobar", Branch: "recovery", SourceBranch: "main", TargetTime: new(time.Now().Add(-time.Hour).Truncate(time.Second)), EnvironmentName: "dev", TeamSlug: "someteamname"}
 	tests := []struct {
 		name   string
 		change func(*CreatePostgresBranchInput)
 	}{
-		{"future recovery", func(i *CreatePostgresBranchInput) { i.TargetTime = time.Now().Add(time.Hour) }},
-		{"missing target", func(i *CreatePostgresBranchInput) { i.TargetTime = time.Time{} }},
+		{"future recovery", func(i *CreatePostgresBranchInput) { i.TargetTime = new(time.Now().Add(time.Hour)) }},
+		{"zero target", func(i *CreatePostgresBranchInput) { i.TargetTime = new(time.Time{}) }},
 		{"same source and destination", func(i *CreatePostgresBranchInput) { i.Branch = "main" }},
 		{"invalid destination", func(i *CreatePostgresBranchInput) { i.Branch = "UPPER_CASE" }},
 		{"invalid source", func(i *CreatePostgresBranchInput) { i.SourceBranch = "bad/source" }},
 		{"fractional target", func(i *CreatePostgresBranchInput) {
-			i.TargetTime = time.Now().Add(-time.Hour).Truncate(time.Second).Add(time.Millisecond)
+			i.TargetTime = new(time.Now().Add(-time.Hour).Truncate(time.Second).Add(time.Millisecond))
 		}},
 	}
 	for _, tt := range tests {
@@ -77,7 +77,7 @@ func TestBranchOperationsRejectMissingBranches(t *testing.T) {
 			t.Errorf("activate %s/%s: %v; want %s", tt.postgres, tt.branch, err, tt.want)
 		}
 	}
-	_, err = CreateBranch(ctx, CreatePostgresBranchInput{Postgres: "foobar", Branch: "new", SourceBranch: "missing", TargetTime: time.Now().Add(-time.Hour).Truncate(time.Second), TeamSlug: team, EnvironmentName: "dev"})
+	_, err = CreateBranch(ctx, CreatePostgresBranchInput{Postgres: "foobar", Branch: "new", SourceBranch: "missing", TargetTime: new(time.Now().Add(-time.Hour).Truncate(time.Second)), TeamSlug: team, EnvironmentName: "dev"})
 	if err == nil || !strings.Contains(err.Error(), "not found") {
 		t.Errorf("create with missing source: %v", err)
 	}
@@ -108,19 +108,45 @@ func TestBranchOperationsRejectMissingBranches(t *testing.T) {
 }
 
 func TestCreateBranchNeverTreatsDifferentRecoveryAsSameRequest(t *testing.T) {
-	input := CreatePostgresBranchInput{Postgres: "orders", Branch: "restore", SourceBranch: "main", TargetTime: time.Date(2026, 9, 1, 12, 0, 0, 0, time.UTC)}
+	input := CreatePostgresBranchInput{Postgres: "orders", Branch: "restore", SourceBranch: "main", TargetTime: new(time.Date(2026, 9, 1, 12, 0, 0, 0, time.UTC))}
 	obj := &unstructured.Unstructured{Object: map[string]any{"spec": map[string]any{"postgres": "orders", "branchName": "restore", "bootstrap": map[string]any{"recovery": map[string]any{"sourceBranch": "main", "targetTime": "2026-09-01T12:00:00Z"}}}}}
 	if !sameRecovery(obj, input) {
 		t.Fatal("matching recovery should be idempotent")
 	}
-	input.TargetTime = input.TargetTime.Add(time.Second)
+	input.TargetTime = new(input.TargetTime.Add(time.Second))
 	if sameRecovery(obj, input) {
 		t.Fatal("different target time must not be treated as a retry")
 	}
-	input.TargetTime = input.TargetTime.Add(-time.Second)
+	input.TargetTime = new(input.TargetTime.Add(-time.Second))
 	input.SourceBranch = "other"
 	if sameRecovery(obj, input) {
 		t.Fatal("different source must not be treated as a retry")
+	}
+	input.SourceBranch = "main"
+	input.TargetTime = nil
+	if sameRecovery(obj, input) {
+		t.Fatal("latest restore must not match an explicit PITR request")
+	}
+	unstructured.RemoveNestedField(obj.Object, "spec", "bootstrap", "recovery", "targetTime")
+	if !sameRecovery(obj, input) {
+		t.Fatal("matching latest restore should be idempotent")
+	}
+	input.TargetTime = new(time.Date(2026, 9, 1, 12, 0, 0, 0, time.UTC))
+	if sameRecovery(obj, input) {
+		t.Fatal("explicit PITR must not match a latest restore")
+	}
+}
+
+func TestCreateBranchAcceptsLatestRestoreInput(t *testing.T) {
+	input := CreatePostgresBranchInput{
+		Postgres: "orders", Branch: "restore", SourceBranch: "main",
+		EnvironmentName: "dev", TeamSlug: "someteamname",
+	}
+	if err := input.Validate(context.Background()); err != nil {
+		t.Fatal(err)
+	}
+	if input.TargetTime != nil {
+		t.Fatal("latest restore must not acquire a recovery target")
 	}
 }
 
@@ -162,7 +188,7 @@ func TestCreateBranchRejectsUnavailableRecovery(t *testing.T) {
 			}
 			ctx = NewLoaderContext(ctx, branchWatcher, postgresWatcher, "", "", "nav", mgr.GetDynamicClients())
 			input := CreatePostgresBranchInput{
-				Postgres: "existing", Branch: "restore", SourceBranch: "main", TargetTime: scenario.targetTime,
+				Postgres: "existing", Branch: "restore", SourceBranch: "main", TargetTime: new(scenario.targetTime),
 				EnvironmentName: "dev", TeamSlug: slug.Slug("pg-crud-team"),
 			}
 			if scenario.missingWindow {
