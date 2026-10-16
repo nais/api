@@ -196,12 +196,12 @@ func (PostgresBranch) IsPersistence() {}
 func (PostgresBranch) IsNode() {}
 
 type CreatePostgresBranchInput struct {
-	Postgres        string    `json:"postgres"`
-	Branch          string    `json:"branch"`
-	SourceBranch    string    `json:"sourceBranch"`
-	TargetTime      time.Time `json:"targetTime"`
-	EnvironmentName string    `json:"environmentName"`
-	TeamSlug        slug.Slug `json:"teamSlug"`
+	Postgres        string     `json:"postgres"`
+	Branch          string     `json:"branch"`
+	SourceBranch    string     `json:"sourceBranch"`
+	TargetTime      *time.Time `json:"targetTime,omitempty"`
+	EnvironmentName string     `json:"environmentName"`
+	TeamSlug        slug.Slug  `json:"teamSlug"`
 }
 
 type CreatePostgresBranchPayload struct {
@@ -244,10 +244,13 @@ func (i *CreatePostgresBranchInput) Validate(ctx context.Context) error {
 	if i.Branch == i.SourceBranch {
 		verr.Add("branch", "Branch must differ from sourceBranch.")
 	}
-	if i.TargetTime.IsZero() || i.TargetTime.After(time.Now()) {
-		verr.Add("targetTime", "Target time must be an explicit instant no later than now.")
-	} else if i.TargetTime.Nanosecond() != 0 {
-		verr.Add("targetTime", "Target time must have whole-second precision.")
+	if i.TargetTime != nil {
+		if i.TargetTime.IsZero() || i.TargetTime.After(time.Now()) {
+			verr.Add("targetTime", "Target time must be an explicit instant no later than now.")
+		} else if i.TargetTime.Nanosecond() != 0 {
+			verr.Add("targetTime", "Target time must have whole-second precision.")
+		}
+		i.TargetTime = new(i.TargetTime.UTC())
 	}
 	return verr.NilIfEmpty()
 }

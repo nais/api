@@ -74,6 +74,15 @@ Test.gql("Repeating a recovery request with different settings is rejected", fun
 	t.check { errors = { { locations = NotNull(), path = { "createPostgresBranch" }, message = Contains("different recovery settings") } }, data = Null }
 end)
 
+Test.gql("Latest restore omits the target and cannot replace an explicit PITR request", function(t)
+	t.addHeader("x-user-email", member:email())
+	t.query [[mutation { createPostgresBranch(input: {
+		postgres: "existing", branch: "restore", sourceBranch: "main",
+		environmentName: "dev", teamSlug: "pg-crud-team"
+	}) { postgresBranch { name } } }]]
+	t.check { errors = { { locations = NotNull(), path = { "createPostgresBranch" }, message = Contains("different recovery settings") } }, data = Null }
+end)
+
 Test.gql("Non-members cannot activate Postgres branches", function(t)
 	t.addHeader("x-user-email", outsider:email())
 	t.query [[mutation { activatePostgresBranch(input: {
@@ -109,10 +118,26 @@ Test.gql("Deleting a branch logs its name without deleting the Postgres", functi
 	-- Main remains selected until pgrator observes activation; delete a separate
 	-- inactive branch instead of treating a requested switch as completed.
 	t.query [[mutation { createPostgresBranch(input: {
-		postgres: "existing", branch: "unused", sourceBranch: "main", targetTime: "2026-09-30T12:00:00Z",
+		postgres: "existing", branch: "unused", sourceBranch: "main",
 		environmentName: "dev", teamSlug: "pg-crud-team"
 	}) { postgresBranch { name } } }]]
 	t.check { data = { createPostgresBranch = { postgresBranch = { name = "unused" } } } }
+	t.query [[mutation { createPostgresBranch(input: {
+		postgres: "existing", branch: "unused", sourceBranch: "main", targetTime: null,
+		environmentName: "dev", teamSlug: "pg-crud-team"
+	}) { postgresBranch { name } } }]]
+	t.check { data = { createPostgresBranch = { postgresBranch = { name = "unused" } } } }
+	t.query [[{ team(slug: "pg-crud-team") { activityLog(first: 1, filter: { activityTypes: [POSTGRES_BRANCH_CREATED] }) {
+		nodes { ... on PostgresBranchCreatedActivityLogEntry { data { branch sourceBranch targetTime } } }
+	} } }]]
+	t.check { data = { team = { activityLog = { nodes = {
+		{ data = { branch = "unused", sourceBranch = "main", targetTime = Null } },
+	} } } } }
+	t.query [[mutation { createPostgresBranch(input: {
+		postgres: "existing", branch: "unused", sourceBranch: "main", targetTime: "2026-09-30T12:00:00Z",
+		environmentName: "dev", teamSlug: "pg-crud-team"
+	}) { postgresBranch { name } } }]]
+	t.check { errors = { { locations = NotNull(), path = { "createPostgresBranch" }, message = Contains("different recovery settings") } }, data = Null }
 	t.query [[mutation { deletePostgresBranch(input: {
 		postgres: "existing", branch: "unused", environmentName: "dev", teamSlug: "pg-crud-team"
 	}) { postgresBranchDeleted } }]]

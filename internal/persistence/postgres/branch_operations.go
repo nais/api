@@ -193,7 +193,7 @@ func CreateBranch(ctx context.Context, input CreatePostgresBranchInput) (*Create
 	if earliest == nil {
 		return nil, apierror.Errorf("Postgres branch %q has no recoverable restore window yet", input.SourceBranch)
 	}
-	if input.TargetTime.Before(*earliest) {
+	if input.TargetTime != nil && input.TargetTime.Before(*earliest) {
 		return nil, apierror.Errorf("restore time must not be before the earliest recoverable time %s", earliest.UTC().Format(time.RFC3339))
 	}
 	resource := &nais_io_v1.PostgresBranch{
@@ -202,7 +202,7 @@ func CreateBranch(ctx context.Context, input CreatePostgresBranchInput) (*Create
 		Spec: nais_io_v1.PostgresBranchSpec{
 			Postgres: input.Postgres, BranchName: input.Branch,
 			Bootstrap: &nais_io_v1.PostgresBranchBootstrap{Recovery: &nais_io_v1.PostgresBranchRecovery{
-				SourceBranch: input.SourceBranch, TargetTime: metav1.NewTime(input.TargetTime.UTC()),
+				SourceBranch: input.SourceBranch,
 			}},
 		},
 	}
@@ -210,6 +210,11 @@ func CreateBranch(ctx context.Context, input CreatePostgresBranchInput) (*Create
 	kubernetes.SetManagedByConsoleLabel(resource)
 	obj, err := kubernetes.ToUnstructured(resource)
 	if err != nil {
+		return nil, err
+	}
+	if input.TargetTime == nil {
+		unstructured.RemoveNestedField(obj.Object, "spec", "bootstrap", "recovery", "targetTime")
+	} else if err := unstructured.SetNestedField(obj.Object, input.TargetTime.UTC().Format(time.RFC3339), "spec", "bootstrap", "recovery", "targetTime"); err != nil {
 		return nil, err
 	}
 	created, err := branches.Create(ctx, obj, metav1.CreateOptions{})
@@ -224,7 +229,7 @@ func CreateBranch(ctx context.Context, input CreatePostgresBranchInput) (*Create
 	} else if err != nil {
 		return nil, err
 	} else if err := logPostgresChange(ctx, activityLogEntryActionBranchCreated, input.Postgres, input.EnvironmentName, input.TeamSlug, PostgresBranchActivityLogEntryData{
-		Branch: input.Branch, SourceBranch: new(input.SourceBranch), TargetTime: new(input.TargetTime.UTC()),
+		Branch: input.Branch, SourceBranch: new(input.SourceBranch), TargetTime: input.TargetTime,
 	}); err != nil {
 		return nil, err
 	}
@@ -237,10 +242,21 @@ func CreateBranch(ctx context.Context, input CreatePostgresBranchInput) (*Create
 
 func sameRecovery(obj *unstructured.Unstructured, input CreatePostgresBranchInput) bool {
 	branch, err := kubernetes.ToConcrete[nais_io_v1.PostgresBranch](obj)
-	return err == nil && branch.Spec.Postgres == input.Postgres && branch.Spec.BranchName == input.Branch &&
-		branch.Spec.Bootstrap != nil && branch.Spec.Bootstrap.Recovery != nil &&
-		branch.Spec.Bootstrap.Recovery.SourceBranch == input.SourceBranch &&
-		branch.Spec.Bootstrap.Recovery.TargetTime.Time.Equal(input.TargetTime)
+	if err != nil || branch.Spec.Bootstrap == nil || branch.Spec.Bootstrap.Recovery == nil {
+		return false
+	}
+	target, found, err := unstructured.NestedString(obj.Object, "spec", "bootstrap", "recovery", "targetTime")
+	if err != nil || (input.TargetTime == nil) != !found {
+		return false
+	}
+	if input.TargetTime != nil {
+		parsed, err := time.Parse(time.RFC3339, target)
+		if err != nil || !parsed.Equal(*input.TargetTime) {
+			return false
+		}
+	}
+	return branch.Spec.Postgres == input.Postgres && branch.Spec.BranchName == input.Branch &&
+		branch.Spec.Bootstrap.Recovery.SourceBranch == input.SourceBranch
 }
 
 func ActivateBranch(ctx context.Context, input ActivatePostgresBranchInput) (*ActivatePostgresBranchPayload, error) {

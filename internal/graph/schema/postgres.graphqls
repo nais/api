@@ -488,7 +488,7 @@ type PostgresBranchActivityLogEntryData {
 	branch: String!
 	"Source branch, populated for branch creation."
 	sourceBranch: String
-	"Recovery instant, populated for branch creation."
+	"Explicit recovery instant, absent when restoring to the latest available state."
 	targetTime: Time
 }
 
@@ -648,7 +648,7 @@ extend type Mutation {
 	createPostgres(input: CreatePostgresInput!): CreatePostgresPayload!
 	"Update an existing Postgres. The PostgreSQL major version cannot be changed."
 	updatePostgres(input: UpdatePostgresInput!): UpdatePostgresPayload!
-	"Create an inactive PostgresBranch recovered from a source branch archive at a UTC point in time."
+	"Create an inactive PostgresBranch recovered from a source branch archive, optionally at a specific point in time."
 	createPostgresBranch(input: CreatePostgresBranchInput!): CreatePostgresBranchPayload!
 	"Request activation of an available PostgresBranch. The observed active branch may lag behind the request."
 	activatePostgresBranch(input: ActivatePostgresBranchInput!): ActivatePostgresBranchPayload!
@@ -702,8 +702,12 @@ input CreatePostgresBranchInput {
 	branch: String!
 	"Local name of the source branch in the same Postgres."
 	sourceBranch: String!
-	"Explicit UTC recovery target; must not be in the future."
-	targetTime: Time!
+	"""
+	Optional recovery target; must not be in the future and must have whole-second precision.
+	Omit to restore the latest state available in the backup and archived transaction logs.
+	An explicit target must be reachable in the archive; recovery fails without falling back to another state if it cannot be reached.
+	"""
+	targetTime: Time
 	"Environment containing the Postgres."
 	environmentName: String!
 	"Team owning the Postgres."
