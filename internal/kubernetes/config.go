@@ -48,9 +48,6 @@ func getStaticClusterConfigs(clusters []StaticCluster) ClusterConfigMap {
 		configs[cluster.Name] = &rest.Config{
 			Host:        cluster.Host,
 			BearerToken: cluster.Token,
-			TLSClientConfig: rest.TLSClientConfig{
-				Insecure: true,
-			},
 			WrapTransport: func(rt http.RoundTripper) http.RoundTripper {
 				return otelhttp.NewTransport(rt, otelhttp.WithServerName(cluster.Name))
 			},
