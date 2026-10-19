@@ -41,7 +41,10 @@ Test.gql("List Postgres and their branches together", function(t)
     } } } }]]
 	t.check { data = { team = { postgreses = { nodes = {
 		{ name = "another-db",    majorVersion = "16", activeBranch = { name = "main" }, branches = { nodes = { { name = "main", state = "AVAILABLE", postgres = { name = "another-db" } } } } },
-		{ name = "foobar",        majorVersion = "17", activeBranch = { name = "main" }, branches = { nodes = { { name = "main", state = "AVAILABLE", postgres = { name = "foobar" } } } } },
+		{ name = "foobar", majorVersion = "17", activeBranch = { name = "main" }, branches = { nodes = {
+			{ name = "failed", state = "DEGRADED",  postgres = { name = "foobar" } },
+			{ name = "main",   state = "AVAILABLE", postgres = { name = "foobar" } },
+		} } },
 		{ name = "with-audit",    majorVersion = "16", activeBranch = { name = "main" }, branches = { nodes = { { name = "main", state = "AVAILABLE", postgres = { name = "with-audit" } } } } },
 		{ name = "without-audit", majorVersion = "15", activeBranch = { name = "main" }, branches = { nodes = { { name = "main", state = "AVAILABLE", postgres = { name = "without-audit" } } } } },
 	} } } } }
@@ -50,10 +53,23 @@ end)
 Test.gql("Retrieve logical Postgres and selected physical instance separately", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[{ team(slug:"someteamname") { environment(name:"dev") {
-        postgres(name:"foobar") { name activeBranch { name } majorVersion highAvailability resources { cpu memory diskSize } branch(name:"main") { name postgres { name } teamEnvironment { name } } branches { nodes { name } } }
+        postgres(name:"foobar") { name activeBranch { name } majorVersion highAvailability resources { cpu memory diskSize } branch(name:"main") { name postgres { name } teamEnvironment { name } } branches { nodes { name state } } }
     } } }]]
 	t.check { data = { team = { environment = {
-		postgres = { name = "foobar", activeBranch = { name = "main" }, majorVersion = "17", highAvailability = false, resources = { cpu = "100m", memory = "2Gi", diskSize = "2Gi" }, branch = { name = "main", postgres = { name = "foobar" }, teamEnvironment = { name = "dev" } }, branches = { nodes = { { name = "main" } } } },
+		postgres = { name = "foobar", activeBranch = { name = "main" }, majorVersion = "17", highAvailability = false, resources = { cpu = "100m", memory = "2Gi", diskSize = "2Gi" }, branch = { name = "main", postgres = { name = "foobar" }, teamEnvironment = { name = "dev" } }, branches = { nodes = {
+			{ name = "failed", state = "DEGRADED" },
+			{ name = "main",   state = "AVAILABLE" },
+		} } },
+	} } } }
+end)
+
+Test.gql("An unrecoverable Postgres branch is degraded", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[{ team(slug:"someteamname") { environment(name:"dev") {
+		postgres(name:"foobar") { branch(name:"failed") { name state } }
+	} } }]]
+	t.check { data = { team = { environment = {
+		postgres = { branch = { name = "failed", state = "DEGRADED" } },
 	} } } }
 end)
 
@@ -63,8 +79,11 @@ Test.gql("Branch state facets are scoped to their Postgres", function(t)
         branches { nodes { name state } facets { states { state count } } }
     } } } }]]
 	t.check { data = { team = { environment = { postgres = { branches = {
-		nodes = { { name = "main", state = "AVAILABLE" } },
-		facets = { states = { { state = "AVAILABLE", count = 1 } } },
+		nodes = {
+			{ name = "failed", state = "DEGRADED" },
+			{ name = "main",   state = "AVAILABLE" },
+		},
+		facets = { states = { { state = "AVAILABLE", count = 1 }, { state = "DEGRADED", count = 1 } } },
 	} } } } } }
 end)
 

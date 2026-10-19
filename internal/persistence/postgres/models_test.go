@@ -133,6 +133,9 @@ func TestPostgresStateFromConditions(t *testing.T) {
 		want       PostgresBranchState
 	}{
 		{name: "not reconciled", want: PostgresBranchStateProgressing},
+		{name: "unrecoverable recovery failure", conditions: []metav1.Condition{{Type: "RecoveryFailed", Status: metav1.ConditionTrue, Reason: "Unrecoverable"}}, want: PostgresBranchStateDegraded},
+		{name: "recovery failure not terminal", conditions: []metav1.Condition{{Type: "RecoveryFailed", Status: metav1.ConditionFalse, Reason: "Recovering"}}, want: PostgresBranchStateProgressing},
+		{name: "ready false without recovery failure", reconciled: true, conditions: []metav1.Condition{{Type: "Ready", Status: metav1.ConditionFalse, Reason: "RecoveryFailed"}}, want: PostgresBranchStateProgressing},
 		{name: "healthy", reconciled: true, conditions: []metav1.Condition{{Type: "cluster.postgresql.cnpg.io/ObservedState", Status: metav1.ConditionTrue, Message: "Cluster is in phase: Cluster in healthy state"}}, want: PostgresBranchStateAvailable},
 		{name: "still starting", reconciled: true, conditions: []metav1.Condition{{Type: "cluster.postgresql.cnpg.io/ObservedState", Status: metav1.ConditionFalse, Message: "Cluster is in phase: "}}, want: PostgresBranchStateProgressing},
 		{name: "unrecoverable", reconciled: true, conditions: []metav1.Condition{{Type: "cluster.postgresql.cnpg.io/ObservedState", Status: metav1.ConditionTrue, Message: "Cluster is in phase: Cluster is unrecoverable and needs manual intervention"}}, want: PostgresBranchStateDegraded},
