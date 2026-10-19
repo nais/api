@@ -552,18 +552,7 @@ Test.gql("VulnerableImageIssue", function(t)
 		data = {
 			team = {
 				issues = {
-					nodes = {
-						{
-							__typename = "VulnerableImageIssue",
-							message = "Image 'vulnerable-image' has 2 known-exploited vulnerabilities",
-							severity = "CRITICAL",
-							critical = 5,
-							riskScore = 250,
-							workload = {
-								name = "vulnerable",
-							},
-						},
-					},
+					nodes = {},
 				},
 			},
 		},
@@ -605,7 +594,7 @@ Test.gql("ExternalIngressUrgentVulnerabilityIssue", function(t)
 					nodes = {
 						{
 							__typename = "ExternalIngressUrgentVulnerabilityIssue",
-							message = "Workload 'vulnerable' (exposed via external ingress) has 2 urgent vulnerabilities",
+							message = "Urgent: Workload 'vulnerable' is exposed via external ingress and has 2 known-exploited vulnerabilities",
 							severity = "CRITICAL",
 							priorityUrgent = 2,
 							ingresses = { "https://vulnerable.example.com" },
@@ -620,7 +609,7 @@ Test.gql("ExternalIngressUrgentVulnerabilityIssue", function(t)
 	}
 end)
 
-Test.gql("ExternalIngressCriticalVulnerabilityIssue remains queryable", function(t)
+Test.gql("ExternalIngressCriticalVulnerabilityIssue is no longer emitted", function(t)
 	t.addHeader("x-user-email", user:email())
 
 	t.query [[
@@ -652,18 +641,7 @@ Test.gql("ExternalIngressCriticalVulnerabilityIssue remains queryable", function
 		data = {
 			team = {
 				issues = {
-					nodes = {
-						{
-							__typename = "ExternalIngressCriticalVulnerabilityIssue",
-							message = "Workload 'vulnerable' (exposed via external ingress) has 2 urgent vulnerabilities",
-							severity = "CRITICAL",
-							cvssScore = 9.0,
-							ingresses = { "https://vulnerable.example.com" },
-							workload = {
-								name = "vulnerable",
-							},
-						},
-					},
+					nodes = {},
 				},
 			},
 		},
