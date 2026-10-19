@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -140,6 +141,85 @@ func TestJWTAuthorized(t *testing.T) {
 				t.Fatalf("expected error %v, got nil", test.expectedError)
 			}
 		})
+	}
+}
+
+func TestJWTAuthorizedSkipsUnrelatedIssuersBeforeJWKSLookup(t *testing.T) {
+	now := time.Date(2025, 5, 15, 13, 48, 42, 0, time.UTC)
+	const issuer = "http://localhost:1234"
+
+	jwkSet, err := newJwkSet("1234")
+	if err != nil {
+		t.Fatal(err)
+	}
+	foreignKeySet, err := newJwkSet("foreign")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var fetches atomic.Int32
+	inner := mockJWKSetClient(jwkSet).Transport
+	httpClient := &http.Client{Transport: RoundTripFn(func(req *http.Request) *http.Response {
+		fetches.Add(1)
+		resp, _ := inner.RoundTrip(req)
+		return resp
+	})}
+
+	cache, err := jwk.NewCache(t.Context(), httprc.NewClient(httprc.WithHTTPClient(httpClient)))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := cache.Register(t.Context(), issuer); err != nil {
+		t.Fatal(err)
+	}
+
+	mw := jwtAuth{
+		issuer:       issuer,
+		audience:     "aud",
+		zitadelOrgID: "org-id",
+		jwksURL:      issuer,
+		jwksCache:    cache,
+		log:          logrus.New(),
+		now:          func() time.Time { return now },
+	}
+
+	signed := func(set jwk.Set, iss string) string {
+		tok := token(now, time.Minute)
+		tok.Set("aud", "aud")
+		tok.Set("urn:zitadel:iam:user:resourceowner:id", "org-id")
+		if iss != "" {
+			tok.Set("iss", iss)
+		}
+		s, err := tok.sign(set)
+		if err != nil {
+			t.Fatal(err)
+		}
+		return s
+	}
+
+	// Prime the cache with a valid token from our own issuer.
+	if _, err := mw.validate(t.Context(), signed(jwkSet, issuer)); err != nil {
+		t.Fatalf("priming validate: %v", err)
+	}
+	primed := fetches.Load()
+
+	unrelated := map[string]string{
+		"foreign issuer, foreign key": signed(foreignKeySet, "http://foreign-issuer"),
+		"foreign issuer, own key":     signed(jwkSet, "http://foreign-issuer"),
+		"missing issuer":              signed(foreignKeySet, ""),
+		"malformed token":             "not-a-jwt",
+		"opaque token":                "a.b.c",
+	}
+	for name, tok := range unrelated {
+		t.Run(name, func(t *testing.T) {
+			if _, err := mw.validate(t.Context(), tok); err == nil {
+				t.Fatal("expected error, got nil")
+			}
+		})
+	}
+
+	if got := fetches.Load() - primed; got != 0 {
+		t.Fatalf("expected no JWKS fetches for unrelated tokens, got %d", got)
 	}
 }
 

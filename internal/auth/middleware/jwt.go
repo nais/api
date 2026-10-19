@@ -36,6 +36,11 @@ func (c clock) Now() time.Time {
 }
 
 func (j *jwtAuth) validate(ctx context.Context, token string) (jwt.Token, error) {
+	// Skip other issuers so their signature failures don't trigger unnecessary JWKS refreshes.
+	if iss, ok := getJWTIssuer(token); !ok || iss != j.issuer {
+		return nil, jwt.InvalidIssuerError()
+	}
+
 	jwks, err := j.jwksCache.Lookup(ctx, j.jwksURL)
 	if err != nil {
 		return nil, fmt.Errorf("provider: fetching jwks: %w", err)
