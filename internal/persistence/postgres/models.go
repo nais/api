@@ -486,9 +486,14 @@ func toPostgres(u *unstructured.Unstructured, environmentName string) (*Postgres
 	}, nil
 }
 
-// postgresStateFromConditions interprets the CNPG phase mirrored by pgrator.
+// postgresStateFromConditions interprets pgrator and CNPG status conditions.
 // ObservedState=False means no phase has been observed, not a failed cluster.
 func postgresStateFromConditions(conditions []metav1.Condition, reconciled bool) PostgresBranchState {
+	for _, condition := range conditions {
+		if condition.Type == "RecoveryFailed" && condition.Status == metav1.ConditionTrue && condition.Reason == "Unrecoverable" {
+			return PostgresBranchStateDegraded
+		}
+	}
 	if !reconciled {
 		return PostgresBranchStateProgressing
 	}
