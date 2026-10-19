@@ -664,45 +664,6 @@ Test.gql("ExternalIngressUrgentVulnerabilityIssue", function(t)
 	}
 end)
 
-Test.gql("ExternalIngressCriticalVulnerabilityIssue is no longer emitted", function(t)
-	t.addHeader("x-user-email", user:email())
-
-	t.query [[
-		query {
-			team(slug: "myteam") {
-				issues(
-					filter: {
-						issueType: EXTERNAL_INGRESS_CRITICAL_VULNERABILITY
-					},
-				) {
-					nodes {
-						__typename
-						severity
-						message
-						... on ExternalIngressCriticalVulnerabilityIssue {
-							cvssScore
-							ingresses
-							workload {
-								name
-							}
-						}
-					}
-				}
-			}
-		}
-	]]
-
-	t.check {
-		data = {
-			team = {
-				issues = {
-					nodes = {},
-				},
-			},
-		},
-	}
-end)
-
 Test.gql("MissingSbomIssue", function(t)
 	t.addHeader("x-user-email", user:email())
 

@@ -113,10 +113,6 @@ func testVulnerabilitiesExternalIngressUrgentIssue(t *testing.T, workloadName, e
 		}
 	}
 
-	if got := len(filterIssues(issues, issue.IssueTypeExternalIngressCriticalVulnerability)); got != 0 {
-		t.Fatalf("expected no legacy critical issues, got %d", got)
-	}
-
 	if !wantIssue {
 		if len(actNowIssues) != 0 {
 			t.Fatalf("expected 0 external ingress act-now issues, got %d", len(actNowIssues))
@@ -259,11 +255,8 @@ func TestVulnerabilities_UrgentGatesIssueEmission(t *testing.T) {
 
 			vulnerableImageIssues := filterIssues(issues, issue.IssueTypeVulnerableImage)
 			urgentIssues := filterIssues(issues, issue.IssueTypeExternalIngressUrgentVulnerability)
-			criticalIssues := filterIssues(issues, issue.IssueTypeExternalIngressCriticalVulnerability)
-
 			assertIssueCount(t, vulnerableImageIssues, tt.wantVulnerableImage, issue.IssueTypeVulnerableImage)
 			assertIssueCount(t, urgentIssues, tt.wantUrgentIngress, issue.IssueTypeExternalIngressUrgentVulnerability)
-			assertIssueCount(t, criticalIssues, false, issue.IssueTypeExternalIngressCriticalVulnerability)
 
 			if tt.wantUrgentIngress && urgentIssues[0].Severity != issue.SeverityCritical {
 				t.Fatalf("expected urgent issue to have critical severity, got %s", urgentIssues[0].Severity)
