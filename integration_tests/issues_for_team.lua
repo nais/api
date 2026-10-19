@@ -2,6 +2,7 @@ Helper.readK8sResources("k8s_resources/issues")
 local user = User.new("name", "auth@user.com", "sdf")
 Team.new("myteam", "purpose", "#slack_channel")
 Team.new("sortteam", "purpose", "#slack_channel")
+Team.new("devteam", "purpose", "#slack_channel")
 local checker = IssueChecker.new()
 checker:runChecks()
 
@@ -552,6 +553,60 @@ Test.gql("VulnerableImageIssue", function(t)
 		data = {
 			team = {
 				issues = {
+					nodes = {},
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("Known exploited workload without external ingress has only image issue", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query [[
+		query {
+			team(slug: "devteam") {
+				imageIssues: issues(filter: {issueType: VULNERABLE_IMAGE}) {
+					nodes {
+						__typename
+						severity
+						message
+						... on VulnerableImageIssue {
+							critical
+							riskScore
+							workload {
+								name
+							}
+						}
+					}
+				}
+				urgentIssues: issues(filter: {issueType: EXTERNAL_INGRESS_URGENT_VULNERABILITY}) {
+					nodes {
+						__typename
+					}
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			team = {
+				imageIssues = {
+					nodes = {
+						{
+							__typename = "VulnerableImageIssue",
+							severity = "WARNING",
+							message = "Image 'vulnerable-image' has 2 known-exploited vulnerabilities",
+							critical = 5,
+							riskScore = 250,
+							workload = {
+								name = "vulnerable",
+							},
+						},
+					},
+				},
+				urgentIssues = {
 					nodes = {},
 				},
 			},
