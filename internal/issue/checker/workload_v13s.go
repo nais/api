@@ -134,6 +134,7 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 
 	var ret []*Issue
 	seenUrgent := map[string]struct{}{}
+	seenKnownExploited := map[string]struct{}{}
 	for _, node := range resp.GetNodes() {
 		workloadRef := node.GetWorkload()
 		if workloadRef == nil {
@@ -206,7 +207,10 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 		key := workloadKey(env, workloadRef.GetNamespace(), workloadRef.GetName())
 		if summary.GetKevCount() > 0 {
 			_, urgent := seenUrgent[key]
-			if workloadType != issue.ResourceTypeApplication || !urgent {
+			knownExploitedKey := string(workloadType) + "/" + key
+			_, seen := seenKnownExploited[knownExploitedKey]
+			if !seen && (workloadType != issue.ResourceTypeApplication || !urgent) {
+				seenKnownExploited[knownExploitedKey] = struct{}{}
 				ret = append(ret, &Issue{
 					IssueType:    issue.IssueTypeVulnerableImage,
 					ResourceType: workloadType,

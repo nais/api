@@ -121,6 +121,9 @@ func testVulnerabilitiesExternalIngressUrgentIssue(t *testing.T, workloadName, e
 		if len(actNowIssues) != 0 {
 			t.Fatalf("expected 0 external ingress act-now issues, got %d", len(actNowIssues))
 		}
+		if got := len(filterIssues(issues, issue.IssueTypeVulnerableImage)); got != 1 {
+			t.Fatalf("expected 1 known-exploited image issue for duplicate summaries, got %d", got)
+		}
 		return
 	}
 
