@@ -35580,6 +35580,9 @@ extend enum ActivityLogEntryResourceType {
 Input for filtering team vulnerability summaries.
 """
 input TeamVulnerabilitySummaryFilter {
+	"Match all user-defined workload label filters; an omitted value matches any value for the key."
+	labels: [LabelFilter!]
+
 	"""
 	Only return vulnerability summaries for the given environment.
 	"""
@@ -36065,9 +36068,14 @@ input VulnerabilitySummaryOrder {
 	The direction to order items by.
 	"""
 	direction: OrderDirection!
+
+	"Required only when field is LABEL. Missing label values sort last in either direction; ties sort by descending risk score, then workload identity."
+	labelKey: String
 }
 
 enum VulnerabilitySummaryOrderByField {
+	"Order team workloads alphabetically by the user-defined label selected by labelKey."
+	LABEL
 	"""
 	Order by name.
 	"""
