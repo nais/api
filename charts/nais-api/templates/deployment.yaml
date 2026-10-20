@@ -57,7 +57,11 @@ spec:
             - name: OAUTH_FRONTEND_URL
               value: "https://{{ .Values.host }}"
             - name: OAUTH_ADDITIONAL_SCOPES
+              {{- if .Values.zitadel.naisOrganizationID }}
+              value: "urn:zitadel:iam:user:resourceowner"
+              {{- else }}
               value: "urn:zitadel:iam:org:id:{{ .Values.zitadel.organizationID }}"
+              {{- end }}
             - name: LISTEN_ADDRESS
               value: ":3000"
             - name: INTERNAL_LISTEN_ADDRESS
@@ -98,6 +102,8 @@ spec:
               value: {{ .Values.zitadel.domain | quote }}
             - name: ZITADEL_ORGANIZATION_ID
               value: {{ .Values.zitadel.organizationID | quote }}
+            - name: ZITADEL_NAIS_ORGANIZATION_ID
+              value: {{ .Values.zitadel.naisOrganizationID | quote }}
             - name: CLOUD_SQL_INSTANCE
               value: {{ .Values.database.instance | quote }}
             - name: NAIS_AUDIT_LOG_PROJECT_ID

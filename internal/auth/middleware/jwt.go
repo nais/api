@@ -20,13 +20,14 @@ import (
 const acceptableClockSkew = 3 * time.Second
 
 type jwtAuth struct {
-	issuer       string
-	audience     string
-	zitadelOrgID string
-	jwksURL      string
-	jwksCache    *jwk.Cache
-	log          logrus.FieldLogger
-	now          clock
+	issuer           string
+	audience         string
+	zitadelOrgID     string
+	naisZitadelOrgID string
+	jwksURL          string
+	jwksCache        *jwk.Cache
+	log              logrus.FieldLogger
+	now              clock
 }
 
 type clock func() time.Time
@@ -65,11 +66,17 @@ func (j *jwtAuth) validate(ctx context.Context, token string) (jwt.Token, error)
 		return nil, fmt.Errorf("provider: parsing token: %w", err)
 	}
 
+	orgID := j.zitadelOrgID
+	var resourceOwner string
+	if j.naisZitadelOrgID != "" && t.Get("urn:zitadel:iam:user:resourceowner:id", &resourceOwner) == nil && resourceOwner == j.naisZitadelOrgID {
+		orgID = j.naisZitadelOrgID
+	}
+
 	return t, jwt.Validate(t,
 		jwt.WithAcceptableSkew(acceptableClockSkew),
 		jwt.WithIssuer(j.issuer),
 		jwt.WithAudience(j.audience),
-		jwt.WithClaimValue("urn:zitadel:iam:user:resourceowner:id", j.zitadelOrgID),
+		jwt.WithClaimValue("urn:zitadel:iam:user:resourceowner:id", orgID),
 		jwt.WithClock(j.now),
 	)
 }
@@ -116,7 +123,7 @@ func (j *jwtAuth) handler(next http.Handler) http.Handler {
 	return http.HandlerFunc(fn)
 }
 
-func JWTAuthentication(ctx context.Context, issuer, audience, zitadelOrgID string, log logrus.FieldLogger) (func(next http.Handler) http.Handler, error) {
+func JWTAuthentication(ctx context.Context, issuer, audience, zitadelOrgID, naisZitadelOrgID string, log logrus.FieldLogger) (func(next http.Handler) http.Handler, error) {
 	if issuer == "" {
 		return nil, errors.New("issuer is required")
 	}
@@ -143,13 +150,14 @@ func JWTAuthentication(ctx context.Context, issuer, audience, zitadelOrgID strin
 	}
 
 	auth := jwtAuth{
-		jwksURL:      client.JwksURI,
-		jwksCache:    cache,
-		issuer:       issuer,
-		audience:     audience,
-		zitadelOrgID: zitadelOrgID,
-		log:          log,
-		now:          time.Now,
+		jwksURL:          client.JwksURI,
+		jwksCache:        cache,
+		issuer:           issuer,
+		audience:         audience,
+		zitadelOrgID:     zitadelOrgID,
+		naisZitadelOrgID: naisZitadelOrgID,
+		log:              log,
+		now:              time.Now,
 	}
 
 	return auth.handler, nil

@@ -24,8 +24,9 @@ import (
 
 type ZitadelWrapper struct {
 	*zitadeluser.Client
-	IDP            string
-	OrganizationID string
+	IDP                string
+	OrganizationID     string
+	NaisOrganizationID string
 }
 
 type Usersynchronizer struct {
@@ -83,13 +84,10 @@ func NewFromConfig(ctx context.Context, pool *pgxpool.Pool, serviceAccount, subj
 	return New(pool, adminGroupPrefix, tenantDomain, zitadelWrapper, srv, log), nil
 }
 
-// Sync fetches all users from the Google Directory of the tenant and adds them as users in Nais API.
-//
-// If a user already exist in Nais API the user will get the name and email potentially updated if it has changed in the
-// Google Directory.
-//
-// After all users have been synced, users that have an email address that matches the tenant domain that no longer
-// exist in the Google Directory will be removed.
+// Sync fetches tenant users from Google Directory and, when configured, active
+// nais.io users from Zitadel. Both complete snapshots are fetched before changing
+// the API database. Users are created or updated, and users absent from both
+// sources are removed. Only tenant users are synchronized into Zitadel.
 //
 // All users present in the admin group in the Google Directory will also be granted the admin role in Nais API, and
 // existing admins that no longer exist in the admin group will get the admin role revoked.
@@ -99,7 +97,15 @@ func (s *Usersynchronizer) Sync(ctx context.Context) error {
 		return fmt.Errorf("get users from Google Directory: %w", err)
 	}
 
-	if s.zitadelClient != nil {
+	var naisUsers []*zitadelgrpcuser.User
+	if s.zitadelClient != nil && s.zitadelClient.NaisOrganizationID != "" {
+		naisUsers, err = s.zitadelClient.activeHumanUsers(ctx, s.zitadelClient.NaisOrganizationID)
+		if err != nil {
+			return fmt.Errorf("get nais.io users from Zitadel: %w", err)
+		}
+	}
+
+	if s.zitadelClient != nil && s.zitadelClient.IDP != "" {
 		wg := &sync.WaitGroup{}
 		wg.Go(func() {
 			s.zitadelUserSync(ctx, googleUsers)
@@ -158,6 +164,10 @@ func (s *Usersynchronizer) Sync(ctx context.Context) error {
 
 		// remove user from map to keep track of users that no longer exist in the Google Directory
 		delete(users.byID, user.ID)
+	}
+
+	if err := syncNaisUsers(ctx, querier, naisUsers, users, s.log); err != nil {
+		return fmt.Errorf("sync nais.io users: %w", err)
 	}
 
 	if err := deleteUnknownUsers(ctx, querier, users.byID, s.log); err != nil {
@@ -331,7 +341,7 @@ func AssignDefaultPermissionsToUser(ctx context.Context, querier usersyncsql.Que
 	return nil
 }
 
-// deleteUnknownUsers will delete users from Nais API that does not exist in the Google Directory.
+// deleteUnknownUsers deletes API users absent from the complete source snapshots.
 func deleteUnknownUsers(ctx context.Context, querier usersyncsql.Querier, unknownUsers map[uuid.UUID]*usersyncsql.User, log logrus.FieldLogger) error {
 	for _, user := range unknownUsers {
 		if err := querier.Delete(ctx, user.ID); err != nil {

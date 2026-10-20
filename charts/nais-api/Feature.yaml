@@ -244,6 +244,12 @@ values:
     computed:
       template: "{{ .Env.zitadel_organization_id | quote }}"
 
+  zitadel.naisOrganizationID:
+    displayName: Nais Zitadel organization ID
+    description: Enables syncing active nais.io users as viewers and allows nais.io login
+    computed:
+      template: '{{ .Env.zitadel_nais_organization_id | default "" | quote }}'
+
   aiven.projects:
     displayName: Aiven projects
     description: |
