@@ -26,10 +26,6 @@ const (
 // ServiceAccountsClient is the client API for ServiceAccounts service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-//
-// ServiceAccounts is an unauthenticated service used by platform provisioning
-// jobs (e.g. the nais-deploy canary) to idempotently ensure a service account
-// exists and to mint tokens for it.
 type ServiceAccountsClient interface {
 	Create(ctx context.Context, in *CreateServiceAccountRequest, opts ...grpc.CallOption) (*CreateServiceAccountResponse, error)
 	CreateToken(ctx context.Context, in *CreateServiceAccountTokenRequest, opts ...grpc.CallOption) (*CreateServiceAccountTokenResponse, error)
@@ -66,10 +62,6 @@ func (c *serviceAccountsClient) CreateToken(ctx context.Context, in *CreateServi
 // ServiceAccountsServer is the server API for ServiceAccounts service.
 // All implementations must embed UnimplementedServiceAccountsServer
 // for forward compatibility.
-//
-// ServiceAccounts is an unauthenticated service used by platform provisioning
-// jobs (e.g. the nais-deploy canary) to idempotently ensure a service account
-// exists and to mint tokens for it.
 type ServiceAccountsServer interface {
 	Create(context.Context, *CreateServiceAccountRequest) (*CreateServiceAccountResponse, error)
 	CreateToken(context.Context, *CreateServiceAccountTokenRequest) (*CreateServiceAccountTokenResponse, error)

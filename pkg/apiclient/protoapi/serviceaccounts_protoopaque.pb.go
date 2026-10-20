@@ -108,10 +108,7 @@ type CreateServiceAccountRequest_builder struct {
 	TeamSlug    string
 	Name        string
 	Description string
-	// Role to assign to the service account, e.g. "Team member". The role must
-	// include the authorizations needed by the caller (such as
-	// k8s_resources:apply).
-	RoleName string
+	RoleName    string
 }
 
 func (b0 CreateServiceAccountRequest_builder) Build() *CreateServiceAccountRequest {

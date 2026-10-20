@@ -24,14 +24,11 @@ const (
 )
 
 type CreateServiceAccountRequest struct {
-	state       protoimpl.MessageState `protogen:"hybrid.v1"`
-	TeamSlug    string                 `protobuf:"bytes,1,opt,name=team_slug,json=teamSlug,proto3" json:"team_slug,omitempty"`
-	Name        string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	Description string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
-	// Role to assign to the service account, e.g. "Team member". The role must
-	// include the authorizations needed by the caller (such as
-	// k8s_resources:apply).
-	RoleName      string `protobuf:"bytes,4,opt,name=role_name,json=roleName,proto3" json:"role_name,omitempty"`
+	state         protoimpl.MessageState `protogen:"hybrid.v1"`
+	TeamSlug      string                 `protobuf:"bytes,1,opt,name=team_slug,json=teamSlug,proto3" json:"team_slug,omitempty"`
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Description   string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
+	RoleName      string                 `protobuf:"bytes,4,opt,name=role_name,json=roleName,proto3" json:"role_name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -111,10 +108,7 @@ type CreateServiceAccountRequest_builder struct {
 	TeamSlug    string
 	Name        string
 	Description string
-	// Role to assign to the service account, e.g. "Team member". The role must
-	// include the authorizations needed by the caller (such as
-	// k8s_resources:apply).
-	RoleName string
+	RoleName    string
 }
 
 func (b0 CreateServiceAccountRequest_builder) Build() *CreateServiceAccountRequest {
