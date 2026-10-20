@@ -31,6 +31,7 @@ message ListAuthorizedRepositoriesResponse {
 service Teams {
   rpc ListAuthorizedRepositories(ListAuthorizedRepositoriesRequest) returns (ListAuthorizedRepositoriesResponse) {}
   rpc Get(GetTeamRequest) returns (GetTeamResponse) {}
+  rpc Create(CreateTeamRequest) returns (CreateTeamResponse) {}
   rpc List(ListTeamsRequest) returns (ListTeamsResponse) {}
   rpc ListForUserByEmail(ListForUserByEmailRequest) returns (ListTeamsResponse) {}
   rpc Members(ListTeamMembersRequest) returns (ListTeamMembersResponse) {}
@@ -93,6 +94,16 @@ message GetTeamResponse {
 
 message GetTeamRequest {
   string slug = 1;
+}
+
+message CreateTeamRequest {
+  string slug = 1;
+  string purpose = 2;
+  string slack_channel = 3;
+}
+
+message CreateTeamResponse {
+  Team team = 1;
 }
 
 message ListTeamsRequest {
