@@ -7,7 +7,8 @@ ON CONFLICT (name, team_slug) DO UPDATE
 SET
 	name = EXCLUDED.name
 RETURNING
-	id, (xmax = 0) AS created
+	id,
+	(xmax = 0) AS created
 ;
 
 -- name: AssignRole :exec
@@ -28,7 +29,13 @@ INSERT INTO
 		service_account_id
 	)
 VALUES
-	(@expires_at, @name, @description, @token, @service_account_id)
+	(
+		@expires_at,
+		@name,
+		@description,
+		@token,
+		@service_account_id
+	)
 RETURNING
 	id
 ;
