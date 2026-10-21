@@ -15,7 +15,10 @@ The CLI's login restriction and tenant selection are handled separately.
 - The API imports active human users from the configured Zitadel organization.
   Users are not copied into the tenant's Zitadel organization or modified there.
 - The Zitadel user ID is stored as `external_id`, matching the token subject.
-  Existing users are not adopted by email from another identity.
+  Neither source adopts existing users by email from another identity. An email
+  collision with a different external ID aborts the database transaction,
+  preserving existing identities, roles and sessions. This also applies to
+  identities absent from the current snapshots.
 - New nais.io users have the existing authenticated-user read access (Viewer),
   without the tenant default `Team creator` role, admin access or team membership.
 - Both user snapshots are fetched before database changes. Failure to fetch any

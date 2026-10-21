@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/google/uuid"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/test"
@@ -232,4 +233,70 @@ func TestSyncNaisUsers(t *testing.T) {
 			t.Fatalf("conflicting identity was changed: %v, %v", users, err)
 		}
 	})
+
+	for _, tc := range []struct {
+		name       string
+		remoteName string
+		absent     bool
+	}{
+		{name: "unchanged nais.io display name", remoteName: "Nais viewer"},
+		{name: "changed nais.io display name", remoteName: "Renamed nais.io viewer"},
+		{name: "nais.io identity absent from current snapshot", absent: true},
+	} {
+		t.Run("Google email collision with "+tc.name, func(t *testing.T) {
+			pool := getConnection(ctx, t, container, dsn, log)
+			q := usersyncsql.New(pool)
+			// Organization membership, not the email domain, determines the
+			// source. This could also be a previously renamed nais.io account.
+			before, err := q.Create(ctx, usersyncsql.CreateParams{
+				Name: "Nais viewer", Email: "shared@example.com", ExternalID: "nais-subject",
+			})
+			if err != nil {
+				t.Fatal(err)
+			}
+			var sessionID uuid.UUID
+			if err := pool.QueryRow(ctx, "INSERT INTO sessions (user_id, expires) VALUES ($1, NOW() + INTERVAL '1 hour') RETURNING id", before.ID).Scan(&sessionID); err != nil {
+				t.Fatal(err)
+			}
+			zc := &usersyncer.ZitadelWrapper{
+				Client: &zitadelclient.Client{UserServiceClient: naisUserService{list: func(*zitadeluser.ListUsersRequest) (*zitadeluser.ListUsersResponse, error) {
+					var users []*zitadeluser.User
+					if !tc.absent {
+						users = append(users, naisUser(before.ExternalID, before.Email, tc.remoteName))
+					}
+					return &zitadeluser.ListUsersResponse{Result: users}, nil
+				}}},
+				NaisOrganizationID: "nais-org",
+			}
+			httpClient := &http.Client{Transport: directoryTransport(func(req *http.Request) *http.Response {
+				if req.URL.Path == "/admin/directory/v1/users" {
+					return test.Response("200 OK", `{"users":[{"id":"tenant-admin","primaryEmail":"shared@example.com","name":{"fullName":"Tenant admin"}}]}`)
+				}
+				return test.Response("200 OK", `{"members":[{"id":"tenant-admin","email":"shared@example.com","type":"USER","status":"ACTIVE"}]}`)
+			})}
+			svc, err := admindirectoryv1.NewService(ctx, option.WithHTTPClient(httpClient))
+			if err != nil {
+				t.Fatal(err)
+			}
+			if err := usersyncer.New(pool, adminGroupPrefix, domain, zc, svc, log).Sync(ctx); err == nil {
+				t.Error("expected conflicting Google identity to abort sync")
+			}
+			users, err := q.List(ctx)
+			if err != nil || len(users) != 1 {
+				t.Fatalf("unexpected users after collision: %v, %v", users, err)
+			}
+			got := users[0]
+			if got.ID != before.ID || got.ExternalID != before.ExternalID || got.Name != before.Name || got.Email != before.Email || got.Admin {
+				t.Errorf("Google identity adopted or changed the nais.io viewer: %+v", got)
+			}
+			var sessionUserID uuid.UUID
+			var sessionIsAdmin bool
+			if err := pool.QueryRow(ctx, "SELECT u.id, u.admin FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.id = $1", sessionID).Scan(&sessionUserID, &sessionIsAdmin); err != nil {
+				t.Fatal(err)
+			}
+			if sessionUserID != before.ID || sessionIsAdmin {
+				t.Errorf("existing nais.io session received tenant admin privileges: user=%s admin=%v", sessionUserID, sessionIsAdmin)
+			}
+		})
+	}
 }

@@ -480,7 +480,10 @@ func getOrCreateUserFromGoogleUser(ctx context.Context, querier usersyncsql.Quer
 	}
 
 	if existingUser, exists := existingUsers.byEmail[googleUser.Email]; exists {
-		return existingUser, nil
+		// Email addresses can be reused by another identity, including a nais.io
+		// user absent from the current snapshot. Reusing its UUID would transfer
+		// existing sessions and roles to the Google identity (or vice versa).
+		return nil, fmt.Errorf("email %q already belongs to external ID %q; refusing to replace it with %q", googleUser.Email, existingUser.ExternalID, googleUser.ID)
 	}
 
 	createdUser, err := querier.Create(ctx, usersyncsql.CreateParams{
