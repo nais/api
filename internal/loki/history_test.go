@@ -214,6 +214,34 @@ func TestEnvironmentLogs_SingleFullPage(t *testing.T) {
 	}
 }
 
+func TestEnvironmentLogs_PageInfoUsesAbsolutePositions(t *testing.T) {
+	lines := []*LogLine{
+		line(testFrom, "app", "a"),
+		line(testFrom.Add(time.Second), "app", "b"),
+		line(testFrom.Add(2*time.Second), "app", "c"),
+		line(testFrom.Add(3*time.Second), "app", "d"),
+	}
+	client := &fakeClient{lines: lines, rnd: rand.New(rand.NewPCG(1, 1))}
+	pageSize := 2
+
+	first, err := environmentLogs(context.Background(), client, "dev", filter(), &pageSize, nil, testNow)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if first.pageInfo.PageStart() != 1 || first.pageInfo.PageEnd() != 2 {
+		t.Fatalf("expected first page positions 1-2, got %d-%d", first.pageInfo.PageStart(), first.pageInfo.PageEnd())
+	}
+
+	after := roundTripCursor(t, *first.pageInfo.EndCursor)
+	second, err := environmentLogs(context.Background(), client, "dev", filter(), &pageSize, after, testNow)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if second.pageInfo.PageStart() != 3 || second.pageInfo.PageEnd() != 4 {
+		t.Fatalf("expected second page positions 3-4, got %d-%d", second.pageInfo.PageStart(), second.pageInfo.PageEnd())
+	}
+}
+
 func TestEnvironmentLogs_EmptyResult(t *testing.T) {
 	client := &fakeClient{rnd: rand.New(rand.NewPCG(1, 1))}
 	conn, err := environmentLogs(context.Background(), client, "dev", filter(), nil, nil, testNow)
@@ -326,23 +354,25 @@ func TestEnvironmentLogs_Canceled(t *testing.T) {
 func TestEnvironmentLogs_Validation(t *testing.T) {
 	offsetCursor := &pagination.Cursor{Offset: 3}
 	outside := pagination.NewTimeCursor(testTo.Add(time.Second), 0)
+	atToWithOffset := pagination.NewTimeCursor(testTo, 1)
 	tests := map[string]struct {
 		filter *EnvironmentLogsFilter
 		first  *int
 		after  *pagination.Cursor
 		field  string
 	}{
-		"from equals to":          {filter: &EnvironmentLogsFilter{Query: `{a="b"}`, From: testFrom, To: testFrom}, field: "to"},
-		"from after to":           {filter: &EnvironmentLogsFilter{Query: `{a="b"}`, From: testTo, To: testFrom}, field: "to"},
-		"to in future":            {filter: &EnvironmentLogsFilter{Query: `{a="b"}`, From: testFrom, To: testNow.Add(time.Nanosecond)}, field: "to"},
-		"zero from":               {filter: &EnvironmentLogsFilter{Query: `{a="b"}`, To: testTo}, field: "from"},
-		"first zero":              {filter: filter(), first: new(0), field: "first"},
-		"first too large":         {filter: filter(), first: new(MaxLogsPageSize + 1), field: "first"},
-		"offset cursor":           {filter: filter(), after: offsetCursor, field: "after"},
-		"cursor outside interval": {filter: filter(), after: &outside, field: "after"},
-		"invalid query":           {filter: &EnvironmentLogsFilter{Query: `not logql`, From: testFrom, To: testTo}, field: "query"},
-		"metric query":            {filter: &EnvironmentLogsFilter{Query: `count_over_time({a="b"}[1m])`, From: testFrom, To: testTo}, field: "query"},
-		"other cluster":           {filter: &EnvironmentLogsFilter{Query: `{a="b", k8s_cluster_name="prod"}`, From: testFrom, To: testTo}, field: "query"},
+		"from equals to":           {filter: &EnvironmentLogsFilter{Query: `{a="b"}`, From: testFrom, To: testFrom}, field: "to"},
+		"from after to":            {filter: &EnvironmentLogsFilter{Query: `{a="b"}`, From: testTo, To: testFrom}, field: "to"},
+		"to in future":             {filter: &EnvironmentLogsFilter{Query: `{a="b"}`, From: testFrom, To: testNow.Add(time.Nanosecond)}, field: "to"},
+		"zero from":                {filter: &EnvironmentLogsFilter{Query: `{a="b"}`, To: testTo}, field: "from"},
+		"first zero":               {filter: filter(), first: new(0), field: "first"},
+		"first too large":          {filter: filter(), first: new(MaxLogsPageSize + 1), field: "first"},
+		"offset cursor":            {filter: filter(), after: offsetCursor, field: "after"},
+		"cursor outside interval":  {filter: filter(), after: &outside, field: "after"},
+		"cursor at to with offset": {filter: filter(), after: &atToWithOffset, field: "after"},
+		"invalid query":            {filter: &EnvironmentLogsFilter{Query: `not logql`, From: testFrom, To: testTo}, field: "query"},
+		"metric query":             {filter: &EnvironmentLogsFilter{Query: `count_over_time({a="b"}[1m])`, From: testFrom, To: testTo}, field: "query"},
+		"other cluster":            {filter: &EnvironmentLogsFilter{Query: `{a="b", k8s_cluster_name="prod"}`, From: testFrom, To: testTo}, field: "query"},
 	}
 
 	for name, tc := range tests {
@@ -366,6 +396,19 @@ func TestEnvironmentLogs_Validation(t *testing.T) {
 				t.Errorf("expected no Loki queries, got %d", client.calls)
 			}
 		})
+	}
+}
+
+func TestEnvironmentLogs_TerminalCursorAtToIsAllowed(t *testing.T) {
+	client := &fakeClient{lines: []*LogLine{line(testTo, "app", "outside")}, rnd: rand.New(rand.NewPCG(1, 1))}
+	cursor := pagination.NewTimeCursor(testTo, 0)
+
+	conn, err := environmentLogs(context.Background(), client, "dev", filter(), nil, &cursor, testNow)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(conn.edges) != 0 || conn.pageInfo.HasNextPage {
+		t.Errorf("terminal cursor at to must not return out-of-range lines: %+v", conn.edges)
 	}
 }
 

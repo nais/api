@@ -102,6 +102,11 @@ func environmentLogs(ctx context.Context, client Client, environmentName string,
 		HasPreviousPage: !after.IsEmpty(),
 	}
 	if len(lines) > 0 {
+		position, _ := after.Position()
+		for i := range lines {
+			ts, _ := lines[i].Cursor.Time()
+			lines[i].Cursor = pagination.NewPositionedTimeCursor(ts, lines[i].Cursor.Offset, position+i+1)
+		}
 		pageInfo.StartCursor = &lines[0].Cursor
 		pageInfo.EndCursor = &lines[len(lines)-1].Cursor
 	}
@@ -151,8 +156,10 @@ func validateEnvironmentLogs(environmentName string, filter *EnvironmentLogsFilt
 		switch {
 		case !ok:
 			verr.Add("after", "Invalid cursor.")
-		case t.Before(filter.From) || t.After(filter.To):
+		case t.Before(filter.From) || t.After(filter.To) || (t.Equal(filter.To) && after.Offset > 0):
 			verr.Add("after", "The cursor is outside of the requested time interval.")
+		case after.Offset < 0:
+			verr.Add("after", "Invalid cursor.")
 		default:
 			start = t
 			skip = after.Offset
@@ -296,7 +303,7 @@ func fetchTimestampGroup(ctx context.Context, client Client, query string, ts ti
 // exactly start. Pagination is lossless independent of how Loki orders log lines sharing a timestamp: a page only ends
 // within a timestamp group when the complete group has been fetched and sorted deterministically.
 func fetchLogPage(ctx context.Context, client Client, query string, start time.Time, skip int, end time.Time, limit int) ([]LogLineEdge, bool, error) {
-	out := make([]LogLineEdge, 0, limit)
+	out := make([]LogLineEdge, 0)
 
 	if skip > 0 {
 		group, err := fetchTimestampGroup(ctx, client, query, start)

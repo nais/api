@@ -30,12 +30,18 @@ func (p *PageInfo) PageStart() int {
 	if p.StartCursor == nil {
 		return 0
 	}
+	if position, ok := p.StartCursor.Position(); ok {
+		return position
+	}
 	return p.StartCursor.Offset + 1
 }
 
 func (p *PageInfo) PageEnd() int {
 	if p.EndCursor == nil {
 		return 0
+	}
+	if position, ok := p.EndCursor.Position(); ok {
+		return position
 	}
 	return p.EndCursor.Offset + 1
 }
