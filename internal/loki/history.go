@@ -3,11 +3,11 @@ package loki
 import (
 	"context"
 	"crypto/sha256"
+	"encoding/binary"
 	"encoding/hex"
 	"errors"
 	"net/http"
 	"slices"
-	"strconv"
 	"strings"
 	"time"
 
@@ -237,45 +237,56 @@ func restrictToEnvironment(query, environmentName string) (string, error) {
 
 type lineWithKey struct {
 	line      *LogLine
-	key       string
+	labels    []*LogLineLabel
 	anchorKey string
 }
 
 func sortLines(lines []*LogLine) []lineWithKey {
 	ret := make([]lineWithKey, len(lines))
 	for i, line := range lines {
-		var b strings.Builder
-		var anchor strings.Builder
-		for _, l := range line.Labels {
-			b.WriteString(l.Key)
-			b.WriteByte(0)
-			b.WriteString(l.Value)
-			b.WriteByte(0)
-			anchor.WriteString(strconv.Itoa(len(l.Key)))
-			anchor.WriteByte(':')
-			anchor.WriteString(l.Key)
-			anchor.WriteString(strconv.Itoa(len(l.Value)))
-			anchor.WriteByte(':')
-			anchor.WriteString(l.Value)
+		labels := slices.Clone(line.Labels)
+		slices.SortFunc(labels, func(a, b *LogLineLabel) int {
+			if c := strings.Compare(a.Key, b.Key); c != 0 {
+				return c
+			}
+			return strings.Compare(a.Value, b.Value)
+		})
+
+		anchor := binary.AppendUvarint(nil, uint64(len(labels)))
+		for _, label := range labels {
+			anchor = binary.AppendUvarint(anchor, uint64(len(label.Key)))
+			anchor = append(anchor, label.Key...)
+			anchor = binary.AppendUvarint(anchor, uint64(len(label.Value)))
+			anchor = append(anchor, label.Value...)
 		}
-		key := b.String()
-		anchor.WriteString(strconv.Itoa(len(line.Message)))
-		anchor.WriteByte(':')
-		anchor.WriteString(line.Message)
-		ret[i] = lineWithKey{line: line, key: key, anchorKey: anchor.String()}
+		anchor = binary.AppendUvarint(anchor, uint64(len(line.Message)))
+		anchor = append(anchor, line.Message...)
+		ret[i] = lineWithKey{line: line, labels: labels, anchorKey: string(anchor)}
 	}
 
 	slices.SortStableFunc(ret, func(a, b lineWithKey) int {
 		if c := a.line.Time.Compare(b.line.Time); c != 0 {
 			return c
 		}
-		if c := strings.Compare(a.key, b.key); c != 0 {
+		if c := compareLabels(a.labels, b.labels); c != 0 {
 			return c
 		}
 		return strings.Compare(a.line.Message, b.line.Message)
 	})
 
 	return ret
+}
+
+func compareLabels(a, b []*LogLineLabel) int {
+	for i := 0; i < min(len(a), len(b)); i++ {
+		if c := strings.Compare(a[i].Key, b[i].Key); c != 0 {
+			return c
+		}
+		if c := strings.Compare(a[i].Value, b[i].Value); c != 0 {
+			return c
+		}
+	}
+	return len(a) - len(b)
 }
 
 // appendGroups appends all lines, which must be sorted and contain complete timestamp groups, with cursors.

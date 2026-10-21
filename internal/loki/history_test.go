@@ -29,6 +29,7 @@ type fakeClient struct {
 	queries []string
 	calls   int
 	counts  int
+	reverse bool
 }
 
 func (f *fakeClient) Tail(context.Context, *LogSubscriptionFilter) (<-chan *LogLine, error) {
@@ -57,6 +58,9 @@ func (f *fakeClient) QueryRange(ctx context.Context, query string, start, end ti
 		matching = matching[:limit]
 	}
 	f.rnd.Shuffle(len(matching), func(i, j int) { matching[i], matching[j] = matching[j], matching[i] })
+	if f.reverse {
+		slices.Reverse(matching)
+	}
 	return matching, nil
 }
 
@@ -293,6 +297,60 @@ func TestEnvironmentLogs_ResumeAfterIdenticalLines(t *testing.T) {
 	want := []string{"last", "same", "same", "same"}
 	if !slices.Equal(got, want) {
 		t.Fatalf("expected %v, got %v", want, got)
+	}
+}
+
+func TestEnvironmentLogs_PaginationWithCollidingLabelKeysAndReversedResponse(t *testing.T) {
+	ts := testFrom.Add(time.Second)
+	singleLabelLine := &LogLine{
+		Time:    ts,
+		Message: "same",
+		Labels: []*LogLineLabel{
+			{Key: "k8s_cluster_name", Value: "dev"},
+			{Key: "service_name", Value: "app\x00version\x001"},
+		},
+	}
+	multipleLabelLine := &LogLine{
+		Time:    ts,
+		Message: "same",
+		Labels: []*LogLineLabel{
+			{Key: "k8s_cluster_name", Value: "dev"},
+			{Key: "service_name", Value: "app"},
+			{Key: "version", Value: "1"},
+		},
+	}
+	lastLine := line(ts, "zzz", "same")
+	client := &fakeClient{
+		lines: []*LogLine{singleLabelLine, multipleLabelLine, lastLine},
+		rnd:   rand.New(rand.NewPCG(1, 1)),
+	}
+
+	firstPageSize := 1
+	first, err := environmentLogs(context.Background(), client, "dev", filter(), &firstPageSize, nil, testNow)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if first.edges[0].Node != multipleLabelLine {
+		t.Fatal("expected the multiple-label line to sort first")
+	}
+
+	client.reverse = true
+	after := roundTripCursor(t, *first.pageInfo.EndCursor)
+	second, err := environmentLogs(context.Background(), client, "dev", filter(), &firstPageSize, after, testNow)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(second.edges) != 1 || second.edges[0].Node != singleLabelLine {
+		t.Fatal("expected the single-label line after reversing Loki's response order")
+	}
+
+	after = roundTripCursor(t, *second.pageInfo.EndCursor)
+	third, err := environmentLogs(context.Background(), client, "dev", filter(), &firstPageSize, after, testNow)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(third.edges) != 1 || third.edges[0].Node != lastLine {
+		t.Fatal("expected the final line after the colliding label sets")
 	}
 }
 
