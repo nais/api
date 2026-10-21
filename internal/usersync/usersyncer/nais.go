@@ -33,7 +33,7 @@ func (z *ZitadelWrapper) activeHumanUsers(ctx context.Context, organizationID st
 				continue
 			}
 			if u.GetUserId() == "" || u.GetHuman().GetEmail().GetEmail() == "" {
-				return nil, fmt.Errorf("Zitadel user is missing ID or email")
+				return nil, fmt.Errorf("zitadel user is missing ID or email")
 			}
 			profile := u.GetHuman().GetProfile()
 			users = append(users, &sourceUser{
