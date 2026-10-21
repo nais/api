@@ -63,9 +63,6 @@ INSERT INTO
 	teams (slug, purpose, slack_channel)
 VALUES
 	($1, $2, $3)
-ON CONFLICT (slug) DO UPDATE
-SET
-	slug = EXCLUDED.slug
 RETURNING
 	slug, purpose, last_successful_sync, slack_channel, google_group_email, entra_id_group_id, github_team_slug, gar_repository, cdn_bucket, delete_key_confirmed_at
 `
