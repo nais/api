@@ -467,6 +467,7 @@ func TestEnvironmentLogs_Validation(t *testing.T) {
 	offsetCursor := &pagination.Cursor{Offset: 3}
 	outside := pagination.NewTimeCursor(testTo.Add(time.Second), 0)
 	atToWithOffset := pagination.NewTimeCursor(testTo, 1)
+	anchoredAtTo := pagination.NewStableTimeCursor(testTo, 0, "labels-and-message", 1)
 	tests := map[string]struct {
 		filter *EnvironmentLogsFilter
 		first  *int
@@ -482,6 +483,7 @@ func TestEnvironmentLogs_Validation(t *testing.T) {
 		"offset cursor":            {filter: filter(), after: offsetCursor, field: "after"},
 		"cursor outside interval":  {filter: filter(), after: &outside, field: "after"},
 		"cursor at to with offset": {filter: filter(), after: &atToWithOffset, field: "after"},
+		"anchored cursor at to":    {filter: filter(), after: &anchoredAtTo, field: "after"},
 		"invalid query":            {filter: &EnvironmentLogsFilter{Query: `not logql`, From: testFrom, To: testTo}, field: "query"},
 		"metric query":             {filter: &EnvironmentLogsFilter{Query: `count_over_time({a="b"}[1m])`, From: testFrom, To: testTo}, field: "query"},
 		"other cluster":            {filter: &EnvironmentLogsFilter{Query: `{a="b", k8s_cluster_name="prod"}`, From: testFrom, To: testTo}, field: "query"},

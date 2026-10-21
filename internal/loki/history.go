@@ -155,10 +155,11 @@ func validateEnvironmentLogs(environmentName string, filter *EnvironmentLogsFilt
 	start = filter.From
 	if after != nil && !after.IsEmpty() {
 		t, ok := after.Time()
+		_, _, hasAnchor := after.Anchor()
 		switch {
 		case !ok:
 			verr.Add("after", "Invalid cursor.")
-		case t.Before(filter.From) || t.After(filter.To) || (t.Equal(filter.To) && after.Offset > 0):
+		case t.Before(filter.From) || t.After(filter.To) || (t.Equal(filter.To) && (after.Offset > 0 || hasAnchor)):
 			verr.Add("after", "The cursor is outside of the requested time interval.")
 		case after.Offset < 0:
 			verr.Add("after", "Invalid cursor.")
