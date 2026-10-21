@@ -12,6 +12,7 @@ type Querier interface {
 	Count(ctx context.Context) (int64, error)
 	CountEnvironments(ctx context.Context, teamSlug slug.Slug) (int64, error)
 	CountMembers(ctx context.Context, teamSlug slug.Slug) (int64, error)
+	Create(ctx context.Context, arg CreateParams) (*Team, error)
 	Delete(ctx context.Context, argSlug slug.Slug) error
 	Get(ctx context.Context, argSlug slug.Slug) (*Team, error)
 	GetTeamRepositories(ctx context.Context, teamSlug slug.Slug) ([]string, error)

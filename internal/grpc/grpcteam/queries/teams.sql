@@ -22,6 +22,18 @@ WHERE
 	slug = @slug
 ;
 
+-- name: Create :one
+INSERT INTO
+	teams (slug, purpose, slack_channel)
+VALUES
+	(@slug, @purpose, @slack_channel)
+ON CONFLICT (slug) DO UPDATE
+SET
+	slug = EXCLUDED.slug
+RETURNING
+	*
+;
+
 -- name: List :many
 SELECT
 	*

@@ -58,6 +58,42 @@ func (q *Queries) CountMembers(ctx context.Context, teamSlug slug.Slug) (int64, 
 	return total, err
 }
 
+const create = `-- name: Create :one
+INSERT INTO
+	teams (slug, purpose, slack_channel)
+VALUES
+	($1, $2, $3)
+ON CONFLICT (slug) DO UPDATE
+SET
+	slug = EXCLUDED.slug
+RETURNING
+	slug, purpose, last_successful_sync, slack_channel, google_group_email, entra_id_group_id, github_team_slug, gar_repository, cdn_bucket, delete_key_confirmed_at
+`
+
+type CreateParams struct {
+	Slug         slug.Slug
+	Purpose      string
+	SlackChannel string
+}
+
+func (q *Queries) Create(ctx context.Context, arg CreateParams) (*Team, error) {
+	row := q.db.QueryRow(ctx, create, arg.Slug, arg.Purpose, arg.SlackChannel)
+	var i Team
+	err := row.Scan(
+		&i.Slug,
+		&i.Purpose,
+		&i.LastSuccessfulSync,
+		&i.SlackChannel,
+		&i.GoogleGroupEmail,
+		&i.EntraIDGroupID,
+		&i.GithubTeamSlug,
+		&i.GarRepository,
+		&i.CdnBucket,
+		&i.DeleteKeyConfirmedAt,
+	)
+	return &i, err
+}
+
 const delete = `-- name: Delete :exec
 DELETE FROM teams
 WHERE

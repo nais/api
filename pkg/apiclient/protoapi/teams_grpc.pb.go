@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	Teams_ListAuthorizedRepositories_FullMethodName           = "/nais.api.protobuf.Teams/ListAuthorizedRepositories"
 	Teams_Get_FullMethodName                                  = "/nais.api.protobuf.Teams/Get"
+	Teams_Create_FullMethodName                               = "/nais.api.protobuf.Teams/Create"
 	Teams_List_FullMethodName                                 = "/nais.api.protobuf.Teams/List"
 	Teams_ListForUserByEmail_FullMethodName                   = "/nais.api.protobuf.Teams/ListForUserByEmail"
 	Teams_Members_FullMethodName                              = "/nais.api.protobuf.Teams/Members"
@@ -37,6 +38,7 @@ const (
 type TeamsClient interface {
 	ListAuthorizedRepositories(ctx context.Context, in *ListAuthorizedRepositoriesRequest, opts ...grpc.CallOption) (*ListAuthorizedRepositoriesResponse, error)
 	Get(ctx context.Context, in *GetTeamRequest, opts ...grpc.CallOption) (*GetTeamResponse, error)
+	Create(ctx context.Context, in *CreateTeamRequest, opts ...grpc.CallOption) (*CreateTeamResponse, error)
 	List(ctx context.Context, in *ListTeamsRequest, opts ...grpc.CallOption) (*ListTeamsResponse, error)
 	ListForUserByEmail(ctx context.Context, in *ListForUserByEmailRequest, opts ...grpc.CallOption) (*ListTeamsResponse, error)
 	Members(ctx context.Context, in *ListTeamMembersRequest, opts ...grpc.CallOption) (*ListTeamMembersResponse, error)
@@ -69,6 +71,16 @@ func (c *teamsClient) Get(ctx context.Context, in *GetTeamRequest, opts ...grpc.
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetTeamResponse)
 	err := c.cc.Invoke(ctx, Teams_Get_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *teamsClient) Create(ctx context.Context, in *CreateTeamRequest, opts ...grpc.CallOption) (*CreateTeamResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateTeamResponse)
+	err := c.cc.Invoke(ctx, Teams_Create_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -161,6 +173,7 @@ func (c *teamsClient) IsRepositoryAuthorized(ctx context.Context, in *IsReposito
 type TeamsServer interface {
 	ListAuthorizedRepositories(context.Context, *ListAuthorizedRepositoriesRequest) (*ListAuthorizedRepositoriesResponse, error)
 	Get(context.Context, *GetTeamRequest) (*GetTeamResponse, error)
+	Create(context.Context, *CreateTeamRequest) (*CreateTeamResponse, error)
 	List(context.Context, *ListTeamsRequest) (*ListTeamsResponse, error)
 	ListForUserByEmail(context.Context, *ListForUserByEmailRequest) (*ListTeamsResponse, error)
 	Members(context.Context, *ListTeamMembersRequest) (*ListTeamMembersResponse, error)
@@ -184,6 +197,9 @@ func (UnimplementedTeamsServer) ListAuthorizedRepositories(context.Context, *Lis
 }
 func (UnimplementedTeamsServer) Get(context.Context, *GetTeamRequest) (*GetTeamResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
+}
+func (UnimplementedTeamsServer) Create(context.Context, *CreateTeamRequest) (*CreateTeamResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
 }
 func (UnimplementedTeamsServer) List(context.Context, *ListTeamsRequest) (*ListTeamsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method List not implemented")
@@ -262,6 +278,24 @@ func _Teams_Get_Handler(srv interface{}, ctx context.Context, dec func(interface
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(TeamsServer).Get(ctx, req.(*GetTeamRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Teams_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateTeamRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TeamsServer).Create(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Teams_Create_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TeamsServer).Create(ctx, req.(*CreateTeamRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -424,6 +458,10 @@ var Teams_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Get",
 			Handler:    _Teams_Get_Handler,
+		},
+		{
+			MethodName: "Create",
+			Handler:    _Teams_Create_Handler,
 		},
 		{
 			MethodName: "List",

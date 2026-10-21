@@ -38,6 +38,74 @@ func (_m *MockTeamsServer) EXPECT() *MockTeamsServer_Expecter {
 	return &MockTeamsServer_Expecter{mock: &_m.Mock}
 }
 
+// Create provides a mock function for the type MockTeamsServer
+func (_mock *MockTeamsServer) Create(context1 context.Context, createTeamRequest *CreateTeamRequest) (*CreateTeamResponse, error) {
+	ret := _mock.Called(context1, createTeamRequest)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Create")
+	}
+
+	var r0 *CreateTeamResponse
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *CreateTeamRequest) (*CreateTeamResponse, error)); ok {
+		return returnFunc(context1, createTeamRequest)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *CreateTeamRequest) *CreateTeamResponse); ok {
+		r0 = returnFunc(context1, createTeamRequest)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*CreateTeamResponse)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, *CreateTeamRequest) error); ok {
+		r1 = returnFunc(context1, createTeamRequest)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockTeamsServer_Create_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Create'
+type MockTeamsServer_Create_Call struct {
+	*mock.Call
+}
+
+// Create is a helper method to define mock.On call
+//   - context1 context.Context
+//   - createTeamRequest *CreateTeamRequest
+func (_e *MockTeamsServer_Expecter) Create(context1 interface{}, createTeamRequest interface{}) *MockTeamsServer_Create_Call {
+	return &MockTeamsServer_Create_Call{Call: _e.mock.On("Create", context1, createTeamRequest)}
+}
+
+func (_c *MockTeamsServer_Create_Call) Run(run func(context1 context.Context, createTeamRequest *CreateTeamRequest)) *MockTeamsServer_Create_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 *CreateTeamRequest
+		if args[1] != nil {
+			arg1 = args[1].(*CreateTeamRequest)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockTeamsServer_Create_Call) Return(createTeamResponse *CreateTeamResponse, err error) *MockTeamsServer_Create_Call {
+	_c.Call.Return(createTeamResponse, err)
+	return _c
+}
+
+func (_c *MockTeamsServer_Create_Call) RunAndReturn(run func(context1 context.Context, createTeamRequest *CreateTeamRequest) (*CreateTeamResponse, error)) *MockTeamsServer_Create_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Delete provides a mock function for the type MockTeamsServer
 func (_mock *MockTeamsServer) Delete(context1 context.Context, deleteTeamRequest *DeleteTeamRequest) (*DeleteTeamResponse, error) {
 	ret := _mock.Called(context1, deleteTeamRequest)
