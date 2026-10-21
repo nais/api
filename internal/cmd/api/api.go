@@ -278,7 +278,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 
 	var jwtMiddleware func(next http.Handler) http.Handler
 	if !cfg.JWT.SkipMiddleware {
-		jwtMiddleware, err = middleware.JWTAuthentication(ctx, cfg.JWT.Issuer, cfg.JWT.Audience, cfg.Zitadel.OrganizationID, cfg.Zitadel.NaisOrganizationID, log.WithField("subsystem", "jwt"))
+		jwtMiddleware, err = middleware.JWTAuthentication(ctx, cfg.JWT.Issuer, cfg.JWT.Audience, cfg.Zitadel.OrganizationID, log.WithField("subsystem", "jwt"))
 		if err != nil {
 			return fmt.Errorf("failed to create JWT authentication middleware: %w", err)
 		}

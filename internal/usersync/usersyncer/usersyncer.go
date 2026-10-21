@@ -45,10 +45,11 @@ type userMap struct {
 	byEmail      map[string]*usersyncsql.User
 }
 
-type googleUser struct {
-	ID    string
-	Email string
-	Name  admindirectoryv1.UserName
+type sourceUser struct {
+	ID           string
+	Email        string
+	Name         admindirectoryv1.UserName
+	isTenantUser bool
 }
 
 func New(pool *pgxpool.Pool, adminGroupPrefix, tenantDomain string, zitadelWrapper *ZitadelWrapper, service *admindirectoryv1.Service, log logrus.FieldLogger) *Usersynchronizer {
@@ -97,7 +98,7 @@ func (s *Usersynchronizer) Sync(ctx context.Context) error {
 		return fmt.Errorf("get users from Google Directory: %w", err)
 	}
 
-	var naisUsers []*zitadelgrpcuser.User
+	var naisUsers []*sourceUser
 	if s.zitadelClient != nil && s.zitadelClient.NaisOrganizationID != "" {
 		naisUsers, err = s.zitadelClient.activeHumanUsers(ctx, s.zitadelClient.NaisOrganizationID)
 		if err != nil {
@@ -132,8 +133,8 @@ func (s *Usersynchronizer) Sync(ctx context.Context) error {
 	}
 
 	googleUserMap := make(map[string]*usersyncsql.User)
-	for _, gu := range googleUsers {
-		user, err := getOrCreateUserFromGoogleUser(ctx, querier, gu, users, s.log)
+	for _, gu := range append(googleUsers, naisUsers...) {
+		user, err := getOrCreateUser(ctx, querier, gu, users, s.log)
 		if err != nil {
 			return fmt.Errorf("get or create user %q: %w", gu.Email, err)
 		}
@@ -160,14 +161,12 @@ func (s *Usersynchronizer) Sync(ctx context.Context) error {
 			}
 		}
 
-		googleUserMap[gu.ID] = user
+		if gu.isTenantUser {
+			googleUserMap[gu.ID] = user
+		}
 
-		// remove user from map to keep track of users that no longer exist in the Google Directory
+		// Keep track of users absent from both source snapshots.
 		delete(users.byID, user.ID)
-	}
-
-	if err := syncNaisUsers(ctx, querier, naisUsers, users, s.log); err != nil {
-		return fmt.Errorf("sync nais.io users: %w", err)
 	}
 
 	if err := deleteUnknownUsers(ctx, querier, users.byID, s.log); err != nil {
@@ -181,7 +180,7 @@ func (s *Usersynchronizer) Sync(ctx context.Context) error {
 	return tx.Commit(ctx)
 }
 
-func (s *Usersynchronizer) zitadelUserSync(ctx context.Context, googleUsers []*googleUser) {
+func (s *Usersynchronizer) zitadelUserSync(ctx context.Context, googleUsers []*sourceUser) {
 	start := time.Now()
 	defer func() {
 		s.log.WithField("duration", time.Since(start).String()).Debugf("Zitadel user sync done")
@@ -457,7 +456,7 @@ func getAdminGroupMembers(ctx context.Context, membersService *admindirectoryv1.
 }
 
 // userIsOutdated checks if a user needs to get its name or its email address updated.
-func userIsOutdated(user *usersyncsql.User, gu *googleUser) bool {
+func userIsOutdated(user *usersyncsql.User, gu *sourceUser) bool {
 	if user.Name != gu.Name.FullName {
 		return true
 	}
@@ -473,30 +472,30 @@ func userIsOutdated(user *usersyncsql.User, gu *googleUser) bool {
 	return false
 }
 
-// getOrCreateUserFromGoogleUser will return a user for a Google user, creating it first if needed.
-func getOrCreateUserFromGoogleUser(ctx context.Context, querier usersyncsql.Querier, googleUser *googleUser, existingUsers *userMap, log logrus.FieldLogger) (*usersyncsql.User, error) {
-	if existingUser, exists := existingUsers.byExternalID[googleUser.ID]; exists {
+// getOrCreateUser matches globally unique email addresses across user sources.
+func getOrCreateUser(ctx context.Context, querier usersyncsql.Querier, remote *sourceUser, existingUsers *userMap, log logrus.FieldLogger) (*usersyncsql.User, error) {
+	if existingUser, exists := existingUsers.byEmail[remote.Email]; exists {
 		return existingUser, nil
 	}
 
-	if existingUser, exists := existingUsers.byEmail[googleUser.Email]; exists {
-		// Email addresses can be reused by another identity, including a nais.io
-		// user absent from the current snapshot. Reusing its UUID would transfer
-		// existing sessions and roles to the Google identity (or vice versa).
-		return nil, fmt.Errorf("email %q already belongs to external ID %q; refusing to replace it with %q", googleUser.Email, existingUser.ExternalID, googleUser.ID)
+	// Preserve the existing support for email changes without losing roles or sessions.
+	if existingUser, exists := existingUsers.byExternalID[remote.ID]; exists {
+		return existingUser, nil
 	}
 
 	createdUser, err := querier.Create(ctx, usersyncsql.CreateParams{
-		Name:       googleUser.Name.FullName,
-		Email:      googleUser.Email,
-		ExternalID: googleUser.ID,
+		Name:       remote.Name.FullName,
+		Email:      remote.Email,
+		ExternalID: remote.ID,
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	if err := AssignDefaultPermissionsToUser(ctx, querier, createdUser.ID); err != nil {
-		return nil, err
+	if remote.isTenantUser {
+		if err := AssignDefaultPermissionsToUser(ctx, querier, createdUser.ID); err != nil {
+			return nil, err
+		}
 	}
 
 	if err := querier.CreateLogEntry(ctx, usersyncsql.CreateLogEntryParams{
@@ -512,15 +511,16 @@ func getOrCreateUserFromGoogleUser(ctx context.Context, querier usersyncsql.Quer
 }
 
 // getGoogleUsers fetches all users from the Google Directory.
-func getGoogleUsers(ctx context.Context, svc *admindirectoryv1.UsersService, tenantDomain string, log logrus.FieldLogger) ([]*googleUser, error) {
-	users := make([]*googleUser, 0)
+func getGoogleUsers(ctx context.Context, svc *admindirectoryv1.UsersService, tenantDomain string, log logrus.FieldLogger) ([]*sourceUser, error) {
+	users := make([]*sourceUser, 0)
 	callback := func(fragments *admindirectoryv1.Users) error {
 		log.WithField("num", len(fragments.Users)).Debugf("fetched batch of users from from Google Directory")
 		for _, user := range fragments.Users {
-			users = append(users, &googleUser{
-				ID:    user.Id,
-				Email: strings.ToLower(user.PrimaryEmail),
-				Name:  *user.Name,
+			users = append(users, &sourceUser{
+				ID:           user.Id,
+				Email:        strings.ToLower(user.PrimaryEmail),
+				Name:         *user.Name,
+				isTenantUser: true,
 			})
 		}
 		return nil

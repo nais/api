@@ -155,18 +155,7 @@ func (h *handler) Callback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var u *user.User
-	if h.oauth2Config.IsZitadel() {
-		// Zitadel subjects identify the synced user across organizations. An email
-		// address alone must not allow an identity from another organization in.
-		if idToken.Subject == "" {
-			err = fmt.Errorf("missing subject in Zitadel ID token")
-		} else {
-			u, err = user.GetByExternalID(r.Context(), idToken.Subject)
-		}
-	} else {
-		u, err = user.GetByEmail(r.Context(), claims.Email)
-	}
+	u, err := user.GetByEmail(r.Context(), claims.Email)
 	if err != nil {
 		h.log.WithError(err).Errorf("get user (%s) from db", claims.Email)
 		http.Redirect(w, r, "/?error=unknown-user", http.StatusFound)

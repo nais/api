@@ -52,7 +52,7 @@ func (k callbackKeySet) VerifySignature(context.Context, string) ([]byte, error)
 	return k.payload, nil
 }
 
-func TestCallbackUsesZitadelSubject(t *testing.T) {
+func TestCallbackUsesEmail(t *testing.T) {
 	ctx := t.Context()
 	log, _ := logrustest.NewNullLogger()
 	container, err := postgres.Run(ctx, "docker.io/postgres:16-alpine",
@@ -76,18 +76,24 @@ func TestCallbackUsesZitadelSubject(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	tenant, err := q.Create(ctx, usersyncsql.CreateParams{Name: "Tenant viewer", Email: "viewer@nav.no", ExternalID: "tenant-subject"})
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	for _, tc := range []struct {
-		name      string
-		config    callbackOAuth
-		wantLogin bool
+		name       string
+		config     callbackOAuth
+		wantUserID uuid.UUID
 	}{
-		{name: "synced Zitadel subject", config: callbackOAuth{zitadel: true, subject: u.ExternalID, email: u.Email}, wantLogin: true},
-		{name: "subject remains authoritative after email changes", config: callbackOAuth{zitadel: true, subject: u.ExternalID, email: "renamed@nais.io"}, wantLogin: true},
-		{name: "same email from another identity", config: callbackOAuth{zitadel: true, subject: "foreign-subject", email: u.Email}},
-		{name: "missing subject cannot fall back to email", config: callbackOAuth{zitadel: true, email: u.Email}},
+		{name: "nais.io user", config: callbackOAuth{zitadel: true, subject: u.ExternalID, email: u.Email}, wantUserID: u.ID},
+		{name: "tenant user", config: callbackOAuth{zitadel: true, subject: tenant.ExternalID, email: tenant.Email}, wantUserID: tenant.ID},
+		{name: "nais.io user matched by email regardless of subject", config: callbackOAuth{zitadel: true, subject: "new-nais-subject", email: u.Email}, wantUserID: u.ID},
+		{name: "tenant user matched by email regardless of subject", config: callbackOAuth{zitadel: true, subject: "new-tenant-subject", email: tenant.Email}, wantUserID: tenant.ID},
+		{name: "known nais.io subject with unknown email", config: callbackOAuth{zitadel: true, subject: u.ExternalID, email: "unknown@nais.io"}},
+		{name: "known tenant subject with unknown email", config: callbackOAuth{zitadel: true, subject: tenant.ExternalID, email: "unknown@nav.no"}},
 		{name: "unsynced user", config: callbackOAuth{zitadel: true, subject: "unsynced", email: "unsynced@nais.io"}},
-		{name: "non-Zitadel login still uses email", config: callbackOAuth{subject: "google-subject", email: u.Email}, wantLogin: true},
+		{name: "non-Zitadel login still uses email", config: callbackOAuth{subject: "google-subject", email: tenant.Email}, wantUserID: tenant.ID},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			ctx := database.NewLoaderContext(t.Context(), pool)
@@ -100,7 +106,7 @@ func TestCallbackUsesZitadelSubject(t *testing.T) {
 			if rec.Code != http.StatusFound {
 				t.Fatalf("expected redirect, got %d: %s", rec.Code, rec.Body.String())
 			}
-			if !tc.wantLogin {
+			if tc.wantUserID == uuid.Nil {
 				if got := rec.Header().Get("Location"); got != "/?error=unknown-user" {
 					t.Fatalf("expected unknown user, got %q", got)
 				}
@@ -119,7 +125,7 @@ func TestCallbackUsesZitadelSubject(t *testing.T) {
 					continue
 				}
 				sess, err := session.Get(ctx, uuid.MustParse(cookie.Value))
-				if err != nil || sess.UserID != u.ID {
+				if err != nil || sess.UserID != tc.wantUserID {
 					t.Fatalf("session belongs to wrong identity: %v, %v", sess, err)
 				}
 				return

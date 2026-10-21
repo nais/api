@@ -30,12 +30,11 @@ func TestJWTAuthorized(t *testing.T) {
 		inputZitadelOrgID string
 		inputTime         time.Time
 
-		expectedAudience         string
-		expectedIssuer           string
-		expectedZitadelOrgID     string
-		expectedNaisZitadelOrgID string
-		expectedTime             time.Time
-		expectedError            error
+		expectedAudience     string
+		expectedIssuer       string
+		expectedZitadelOrgID string
+		expectedTime         time.Time
+		expectedError        error
 	}{
 		"valid token": {
 			inputAudience:        "aud",
@@ -53,47 +52,6 @@ func TestJWTAuthorized(t *testing.T) {
 			expectedIssuer:       "http://localhost:1234",
 			expectedZitadelOrgID: "org-id",
 			expectedError:        jwt.InvalidAudienceError(),
-		},
-		"nais.io token when enabled": {
-			inputAudience: "aud", inputIssuer: "http://localhost:1234", inputZitadelOrgID: "nais-org-id",
-			expectedAudience: "aud", expectedIssuer: "http://localhost:1234", expectedZitadelOrgID: "org-id",
-			expectedNaisZitadelOrgID: "nais-org-id",
-		},
-		"nais.io token when disabled": {
-			inputAudience: "aud", inputIssuer: "http://localhost:1234", inputZitadelOrgID: "nais-org-id",
-			expectedAudience: "aud", expectedIssuer: "http://localhost:1234", expectedZitadelOrgID: "org-id",
-			expectedError: jwt.ValidateError(),
-		},
-		"tenant token when nais.io is enabled": {
-			inputAudience: "aud", inputIssuer: "http://localhost:1234", inputZitadelOrgID: "org-id",
-			expectedAudience: "aud", expectedIssuer: "http://localhost:1234", expectedZitadelOrgID: "org-id",
-			expectedNaisZitadelOrgID: "nais-org-id",
-		},
-		"another organization when nais.io is enabled": {
-			inputAudience: "aud", inputIssuer: "http://localhost:1234", inputZitadelOrgID: "other-org-id",
-			expectedAudience: "aud", expectedIssuer: "http://localhost:1234", expectedZitadelOrgID: "org-id",
-			expectedNaisZitadelOrgID: "nais-org-id", expectedError: jwt.ValidateError(),
-		},
-		"nais.io token with invalid audience": {
-			inputAudience: "other-aud", inputIssuer: "http://localhost:1234", inputZitadelOrgID: "nais-org-id",
-			expectedAudience: "aud", expectedIssuer: "http://localhost:1234", expectedZitadelOrgID: "org-id",
-			expectedNaisZitadelOrgID: "nais-org-id", expectedError: jwt.InvalidAudienceError(),
-		},
-		"nais.io token with invalid issuer": {
-			inputAudience: "aud", inputIssuer: "http://other-issuer", inputZitadelOrgID: "nais-org-id",
-			expectedAudience: "aud", expectedIssuer: "http://localhost:1234", expectedZitadelOrgID: "org-id",
-			expectedNaisZitadelOrgID: "nais-org-id", expectedError: jwt.InvalidIssuerError(),
-		},
-		"nais.io expired token": {
-			inputAudience: "aud", inputIssuer: "http://localhost:1234", inputZitadelOrgID: "nais-org-id",
-			inputTime:        now.Add(-time.Hour),
-			expectedAudience: "aud", expectedIssuer: "http://localhost:1234", expectedZitadelOrgID: "org-id",
-			expectedNaisZitadelOrgID: "nais-org-id", expectedError: jwt.TokenExpiredError(),
-		},
-		"missing organization when nais.io is enabled": {
-			inputAudience: "aud", inputIssuer: "http://localhost:1234",
-			expectedAudience: "aud", expectedIssuer: "http://localhost:1234", expectedZitadelOrgID: "org-id",
-			expectedNaisZitadelOrgID: "nais-org-id", expectedError: jwt.ValidateError(),
 		},
 		"invalid issuer": {
 			inputAudience:        "aud",
@@ -154,13 +112,12 @@ func TestJWTAuthorized(t *testing.T) {
 			cache.Register(t.Context(), test.expectedIssuer)
 
 			mw := jwtAuth{
-				issuer:           test.expectedIssuer,
-				audience:         test.expectedAudience,
-				zitadelOrgID:     test.expectedZitadelOrgID,
-				naisZitadelOrgID: test.expectedNaisZitadelOrgID,
-				jwksURL:          test.expectedIssuer,
-				jwksCache:        cache,
-				log:              log,
+				issuer:       test.expectedIssuer,
+				audience:     test.expectedAudience,
+				zitadelOrgID: test.expectedZitadelOrgID,
+				jwksURL:      test.expectedIssuer,
+				jwksCache:    cache,
+				log:          log,
 				now: func() time.Time {
 					return defaultTime(test.expectedTime)
 				},

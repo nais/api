@@ -52,8 +52,10 @@ func TestActiveHumanUsers(t *testing.T) {
 			}
 			inactive := activeUser("inactive", "inactive@nais.io")
 			inactive.State = zitadeluser.UserState_USER_STATE_INACTIVE
+			last := activeUser("last", "LAST@nais.io")
+			last.GetHuman().Profile = &zitadeluser.HumanProfile{DisplayName: new("Last user")}
 			return &zitadeluser.ListUsersResponse{Result: []*zitadeluser.User{
-				activeUser("last", "last@nais.io"), inactive,
+				last, inactive,
 				{UserId: "machine", State: zitadeluser.UserState_USER_STATE_ACTIVE, Type: &zitadeluser.User_Machine{Machine: &zitadeluser.MachineUser{}}},
 			}}, nil
 		},
@@ -64,6 +66,10 @@ func TestActiveHumanUsers(t *testing.T) {
 	}
 	if len(users) != 251 || len(offsets) != 2 || offsets[0] != 0 || offsets[1] != 250 {
 		t.Fatalf("got %d users, offsets %v", len(users), offsets)
+	}
+	last := users[len(users)-1]
+	if last.ID != "last" || last.Email != "last@nais.io" || last.Name.FullName != "Last user" || last.isTenantUser {
+		t.Fatalf("unexpected mapped nais.io user: %+v", last)
 	}
 }
 
