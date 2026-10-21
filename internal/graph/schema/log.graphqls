@@ -7,6 +7,98 @@ extend type Subscription {
 	log(filter: LogSubscriptionFilter!): LogLine!
 }
 
+extend type Environment {
+	"""
+	Log lines from the environment within a fixed time interval.
+
+	The interval is half-open: log lines with a timestamp equal to or after `from`, and strictly before `to`, are returned.
+	Log lines are ordered by timestamp ascending, then by labels and message. Timestamps keep nanosecond precision.
+
+	Fetch the next page by passing `pageInfo.endCursor` as `after` while keeping the filter unchanged. The interval has
+	been completely fetched when `pageInfo.hasNextPage` is `false`. Log lines sharing a timestamp are never split in a way
+	that causes loss or duplicates, but if a single timestamp has 5000 or more matching log lines the query fails, and
+	must be narrowed.
+
+	Log lines ingested after a page has been fetched, with a timestamp before the cursor of that page, are not included.
+	For the most recent minutes, log lines may still be arriving.
+
+	`pageInfo.totalCount` requires an additional count query, and is only computed when requested.
+	"""
+	logs(
+		"""
+		Filter the log lines.
+		"""
+		filter: EnvironmentLogsFilter!
+
+		"""
+		Get the first n log lines. Defaults to 100, and can not exceed 1000.
+		"""
+		first: Int
+
+		"""
+		Get log lines after this cursor.
+		"""
+		after: Cursor
+	): LogLineConnection!
+}
+
+"""
+Filter for log lines in an environment.
+"""
+input EnvironmentLogsFilter {
+	"""
+	LogQL log query, for instance `{service_name="my-app"} |= "error"`.
+
+	The query is always restricted to the environment. Metric queries are not supported.
+	"""
+	query: String!
+
+	"""
+	Start of the interval (inclusive).
+	"""
+	from: Time!
+
+	"""
+	End of the interval (exclusive). Must be after `from`, and can not be in the future.
+	"""
+	to: Time!
+}
+
+"""
+Log line connection.
+"""
+type LogLineConnection {
+	"""
+	Pagination information.
+	"""
+	pageInfo: PageInfo!
+
+	"""
+	List of nodes.
+	"""
+	nodes: [LogLine!]!
+
+	"""
+	List of edges.
+	"""
+	edges: [LogLineEdge!]!
+}
+
+"""
+Log line edge.
+"""
+type LogLineEdge {
+	"""
+	Cursor for this edge that can be used for pagination.
+	"""
+	cursor: Cursor!
+
+	"""
+	The log line.
+	"""
+	node: LogLine!
+}
+
 input LogSubscriptionInitialBatch {
 	"""
 	Specifies the start timestamp of the initial batch. Defaults to one hour ago.

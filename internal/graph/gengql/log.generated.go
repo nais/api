@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/99designs/gqlgen/graphql"
+	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/loki"
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -107,6 +108,157 @@ func (ec *executionContext) fieldContext_LogLine_labels(_ context.Context, field
 	return fc, nil
 }
 
+func (ec *executionContext) _LogLineConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *loki.LogLineConnection) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_LogLineConnection_pageInfo(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.PageInfo(ctx)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *pagination.PageInfo) graphql.Marshaler {
+			return ec.marshalNPageInfo2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_LogLineConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LogLineConnection",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_PageInfo(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LogLineConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *loki.LogLineConnection) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_LogLineConnection_nodes(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Nodes(), nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []*loki.LogLine) graphql.Marshaler {
+			return ec.marshalNLogLine2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋlokiᚐLogLineᚄ(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_LogLineConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LogLineConnection",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_LogLine(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LogLineConnection_edges(ctx context.Context, field graphql.CollectedField, obj *loki.LogLineConnection) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_LogLineConnection_edges(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Edges(), nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []loki.LogLineEdge) graphql.Marshaler {
+			return ec.marshalNLogLineEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_LogLineConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LogLineConnection",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_LogLineEdge(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LogLineEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*loki.LogLine]) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_LogLineEdge_cursor(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Cursor, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v pagination.Cursor) graphql.Marshaler {
+			return ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_LogLineEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("LogLineEdge", field, false, false, errors.New("field of type Cursor does not have child fields"))
+}
+
+func (ec *executionContext) _LogLineEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*loki.LogLine]) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_LogLineEdge_node(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Node, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *loki.LogLine) graphql.Marshaler {
+			return ec.marshalNLogLine2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋlokiᚐLogLine(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_LogLineEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LogLineEdge",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_LogLine(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _LogLineLabel_key(ctx context.Context, field graphql.CollectedField, obj *loki.LogLineLabel) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -156,6 +308,50 @@ func (ec *executionContext) fieldContext_LogLineLabel_value(_ context.Context, f
 // endregion **************************** field.gotpl *****************************
 
 // region    **************************** input.gotpl *****************************
+
+func (ec *executionContext) unmarshalInputEnvironmentLogsFilter(ctx context.Context, obj any) (loki.EnvironmentLogsFilter, error) {
+	var it loki.EnvironmentLogsFilter
+	if obj == nil {
+		return it, nil
+	}
+
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"query", "from", "to"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "query":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("query"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Query = data
+		case "from":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("from"))
+			data, err := ec.unmarshalNTime2timeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.From = data
+		case "to":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("to"))
+			data, err := ec.unmarshalNTime2timeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.To = data
+		}
+	}
+	return it, nil
+}
 
 func (ec *executionContext) unmarshalInputLogSubscriptionFilter(ctx context.Context, obj any) (loki.LogSubscriptionFilter, error) {
 	var it loki.LogSubscriptionFilter
@@ -303,6 +499,130 @@ func (ec *executionContext) _LogLine(ctx context.Context, sel ast.SelectionSet, 
 	return out
 }
 
+var logLineConnectionImplementors = []string{"LogLineConnection"}
+
+func (ec *executionContext) _LogLineConnection(ctx context.Context, sel ast.SelectionSet, obj *loki.LogLineConnection) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, logLineConnectionImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("LogLineConnection")
+		case "pageInfo":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._LogLineConnection_pageInfo(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "nodes":
+			out.Values[i] = ec._LogLineConnection_nodes(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "edges":
+			out.Values[i] = ec._LogLineConnection_edges(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var logLineEdgeImplementors = []string{"LogLineEdge"}
+
+func (ec *executionContext) _LogLineEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[*loki.LogLine]) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, logLineEdgeImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("LogLineEdge")
+		case "cursor":
+			out.Values[i] = ec._LogLineEdge_cursor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "node":
+			out.Values[i] = ec._LogLineEdge_node(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var logLineLabelImplementors = []string{"LogLineLabel"}
 
 func (ec *executionContext) _LogLineLabel(ctx context.Context, sel ast.SelectionSet, obj *loki.LogLineLabel) graphql.Marshaler {
@@ -351,8 +671,29 @@ func (ec *executionContext) _LogLineLabel(ctx context.Context, sel ast.Selection
 
 // region    ***************************** type.gotpl *****************************
 
+func (ec *executionContext) unmarshalNEnvironmentLogsFilter2githubᚗcomᚋnaisᚋapiᚋinternalᚋlokiᚐEnvironmentLogsFilter(ctx context.Context, v any) (loki.EnvironmentLogsFilter, error) {
+	res, err := ec.unmarshalInputEnvironmentLogsFilter(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) marshalNLogLine2githubᚗcomᚋnaisᚋapiᚋinternalᚋlokiᚐLogLine(ctx context.Context, sel ast.SelectionSet, v loki.LogLine) graphql.Marshaler {
 	return ec._LogLine(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNLogLine2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋlokiᚐLogLineᚄ(ctx context.Context, sel ast.SelectionSet, v []*loki.LogLine) graphql.Marshaler {
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNLogLine2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋlokiᚐLogLine(ctx, sel, v[i])
+	})
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) marshalNLogLine2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋlokiᚐLogLine(ctx context.Context, sel ast.SelectionSet, v *loki.LogLine) graphql.Marshaler {
@@ -363,6 +704,40 @@ func (ec *executionContext) marshalNLogLine2ᚖgithubᚗcomᚋnaisᚋapiᚋinter
 		return graphql.Null
 	}
 	return ec._LogLine(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNLogLineConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋlokiᚐLogLineConnection(ctx context.Context, sel ast.SelectionSet, v loki.LogLineConnection) graphql.Marshaler {
+	return ec._LogLineConnection(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNLogLineConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋlokiᚐLogLineConnection(ctx context.Context, sel ast.SelectionSet, v *loki.LogLineConnection) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._LogLineConnection(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNLogLineEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v loki.LogLineEdge) graphql.Marshaler {
+	return ec._LogLineEdge(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNLogLineEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []loki.LogLineEdge) graphql.Marshaler {
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNLogLineEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
+	})
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) marshalNLogLineLabel2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋlokiᚐLogLineLabelᚄ(ctx context.Context, sel ast.SelectionSet, v []*loki.LogLineLabel) graphql.Marshaler {

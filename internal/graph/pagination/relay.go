@@ -51,6 +51,8 @@ func ParsePage(first *int, after *Cursor, last *int, before *Cursor) (*Paginatio
 	}
 
 	switch {
+	case (after != nil && after.hasTime) || (before != nil && before.hasTime):
+		return nil, apierror.Errorf("Unsupported cursor for this connection")
 	case first != nil && before.valid():
 		return nil, apierror.Errorf("first and before cannot be used together")
 	case last != nil && after != nil:
