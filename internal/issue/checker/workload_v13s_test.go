@@ -106,16 +106,16 @@ func testVulnerabilitiesExternalIngressUrgentIssue(t *testing.T, workloadName, e
 	}
 
 	issues := workload.vulnerabilities(ctx)
-	actNowIssues := make([]*Issue, 0)
+	urgentIssues := make([]*Issue, 0)
 	for i := range issues {
 		if issues[i].IssueType == issue.IssueTypeExternalIngressUrgentVulnerability {
-			actNowIssues = append(actNowIssues, issues[i])
+			urgentIssues = append(urgentIssues, issues[i])
 		}
 	}
 
 	if !wantIssue {
-		if len(actNowIssues) != 0 {
-			t.Fatalf("expected 0 external ingress act-now issues, got %d", len(actNowIssues))
+		if len(urgentIssues) != 0 {
+			t.Fatalf("expected 0 external ingress urgent issues, got %d", len(urgentIssues))
 		}
 		if got := len(filterIssues(issues, issue.IssueTypeVulnerableImage)); got != 1 {
 			t.Fatalf("expected 1 known-exploited image issue for duplicate summaries, got %d", got)
@@ -123,14 +123,14 @@ func testVulnerabilitiesExternalIngressUrgentIssue(t *testing.T, workloadName, e
 		return
 	}
 
-	if len(actNowIssues) != 1 {
-		t.Fatalf("expected 1 external ingress act-now issue, got %d", len(actNowIssues))
+	if len(urgentIssues) != 1 {
+		t.Fatalf("expected 1 external ingress urgent issue, got %d", len(urgentIssues))
 	}
 	if got := len(filterIssues(issues, issue.IssueTypeVulnerableImage)); got != 0 {
 		t.Fatalf("expected no known-exploited image issues when urgent exists, got %d", got)
 	}
 
-	got := actNowIssues[0]
+	got := urgentIssues[0]
 	if got.IssueType != issue.IssueTypeExternalIngressUrgentVulnerability {
 		t.Fatalf("expected issue type %s, got %s", issue.IssueTypeExternalIngressUrgentVulnerability, got.IssueType)
 	}
@@ -144,7 +144,7 @@ func testVulnerabilitiesExternalIngressUrgentIssue(t *testing.T, workloadName, e
 
 	details, ok := got.IssueDetails.(issue.ExternalIngressUrgentVulnerabilityIssueDetails)
 	if !ok {
-		t.Fatalf("expected external ingress act-now details, got %T", got.IssueDetails)
+		t.Fatalf("expected external ingress urgent details, got %T", got.IssueDetails)
 	}
 
 	if details.PriorityUrgent != 2 {
