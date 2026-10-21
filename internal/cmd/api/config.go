@@ -131,7 +131,7 @@ type zitadelConfig struct {
 	// OrganizationID is the ID of the organization to use for the Zitadel API
 	OrganizationID string `env:"ZITADEL_ORGANIZATION_ID"`
 
-	// NaisOrganizationID enables syncing active nais.io users from this Zitadel organization.
+	// NaisOrganizationID enables syncing and authenticating nais.io users from this Zitadel organization.
 	// The usersync machine user must have read access to its users.
 	NaisOrganizationID string `env:"ZITADEL_NAIS_ORGANIZATION_ID"`
 }

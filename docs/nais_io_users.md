@@ -8,8 +8,8 @@ The machine user configured by `ZITADEL_KEY` needs read access to users in the
 nais.io organization, in addition to its existing tenant user-management access.
 Terraform must also grant the nais.io organization access to each tenant's
 Console project. These permissions must be deployed before enabling the setting.
-CLI support, including a shared email-based token lookup for tenant and nais.io
-users, is handled separately. This change does not modify JWT authentication.
+The API also accepts CLI JWTs from the configured nais.io organization. Removing
+the CLI's login restriction and adding tenant selection are handled separately.
 
 ## User identity
 
@@ -41,7 +41,13 @@ Workspace alone is not sufficient: deactivation must also reach Zitadel.
 
 Console login no longer pins the flow to the tenant organization when nais.io
 login is enabled. Users must still authenticate through the configured OIDC
-provider and exist in the local API database. The tenant CLI's existing issuer,
-audience, organization and subject validation is unchanged. Its access token does
-not currently include email; supporting nais.io CLI login will require a shared
-token-format change for both tenant and nais.io users.
+provider and exist in the local API database.
+
+CLI JWT authentication uses the same validation and user lookup for tenant and
+nais.io users: the signature, issuer, audience and expiry must be valid, the
+resource-owner organization must be either the tenant organization or the
+configured nais.io organization, and the subject must match a synced user's
+`external_id`. With no nais.io organization configured, only the tenant
+organization is accepted. No token-format change is needed for this support.
+Moving CLI authentication to email lookup later would require including email in
+access tokens for both tenant and nais.io users.
