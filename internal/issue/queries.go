@@ -215,17 +215,6 @@ func convert(issue *issuesql.Issue) (Issue, error) {
 			Base: base,
 			ExternalIngressUrgentVulnerabilityIssueDetails: *d,
 		}, nil
-	// Deprecated: retained for GraphQL backwards compatibility during the
-	// migration window.
-	case IssueTypeExternalIngressCriticalVulnerability:
-		d, err := unmarshal[ExternalIngressCriticalVulnerabilityIssueDetails](issue.IssueDetails)
-		if err != nil {
-			return nil, err
-		}
-		return &ExternalIngressCriticalVulnerabilityIssue{
-			Base: base,
-			ExternalIngressCriticalVulnerabilityIssueDetails: *d,
-		}, nil
 	case IssueTypeUnleashReleaseChannel:
 		d, err := unmarshal[UnleashReleaseChannelIssueDetails](issue.IssueDetails)
 		if err != nil {

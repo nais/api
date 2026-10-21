@@ -7165,13 +7165,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._ExternalIngressUrgentVulnerabilityIssue(ctx, sel, obj)
-	case issue.ExternalIngressCriticalVulnerabilityIssue:
-		return ec._ExternalIngressCriticalVulnerabilityIssue(ctx, sel, &obj)
-	case *issue.ExternalIngressCriticalVulnerabilityIssue:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._ExternalIngressCriticalVulnerabilityIssue(ctx, sel, obj)
 	case issue.DeprecatedRegistryIssue:
 		return ec._DeprecatedRegistryIssue(ctx, sel, &obj)
 	case *issue.DeprecatedRegistryIssue:
