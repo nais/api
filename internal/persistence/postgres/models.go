@@ -111,6 +111,7 @@ type Postgres struct {
 	ActiveBranch        *string                `json:"activeBranch,omitempty"`
 	DesiredActiveBranch *string                `json:"desiredActiveBranch,omitempty"`
 	MajorVersion        string                 `json:"majorVersion"`
+	Extensions          []string               `json:"extensions"`
 	HighAvailability    bool                   `json:"highAvailability"`
 	Resources           PostgresResources      `json:"resources"`
 	Labels              []*model.ResourceLabel `json:"labels"`
@@ -475,9 +476,13 @@ func toPostgres(u *unstructured.Unstructured, environmentName string) (*Postgres
 		text := value.String()
 		return &text
 	}
+	extensions := make([]string, 0, len(obj.Spec.Extensions))
+	for _, extension := range obj.Spec.Extensions {
+		extensions = append(extensions, extension.Name)
+	}
 	return &Postgres{
 		Name: obj.Name, EnvironmentName: environmentName, TeamSlug: slug.Slug(obj.Namespace),
-		ActiveBranch: active, DesiredActiveBranch: strPtr(obj.Spec.ActiveBranch), MajorVersion: obj.Spec.MajorVersion, HighAvailability: obj.Spec.HighAvailability,
+		ActiveBranch: active, DesiredActiveBranch: strPtr(obj.Spec.ActiveBranch), MajorVersion: obj.Spec.MajorVersion, Extensions: extensions, HighAvailability: obj.Spec.HighAvailability,
 		Resources: PostgresResources{
 			CPU: quantity(obj.Spec.Resources.Cpu), Memory: quantity(obj.Spec.Resources.Memory),
 			DiskSize: quantity(obj.Spec.Resources.DiskSize),

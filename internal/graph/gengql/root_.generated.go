@@ -1913,6 +1913,7 @@ type ComplexityRoot struct {
 		Branch              func(childComplexity int, name string) int
 		Branches            func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *postgres.PostgresBranchOrder) int
 		DesiredActiveBranch func(childComplexity int) int
+		Extensions          func(childComplexity int) int
 		HighAvailability    func(childComplexity int) int
 		ID                  func(childComplexity int) int
 		Labels              func(childComplexity int) int
@@ -11920,6 +11921,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Postgres.DesiredActiveBranch(childComplexity), true
+
+	case "Postgres.extensions":
+		if e.ComplexityRoot.Postgres.Extensions == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Postgres.Extensions(childComplexity), true
 
 	case "Postgres.highAvailability":
 		if e.ComplexityRoot.Postgres.HighAvailability == nil {
@@ -28504,6 +28512,8 @@ type Postgres implements Node {
 	name: String!
 	"Configured PostgreSQL major version."
 	majorVersion: String!
+	"PostgreSQL extensions configured for this Postgres."
+	extensions: [String!]!
 	"Whether high availability is configured."
 	highAvailability: Boolean!
 	"Requested CPU, memory and disk size, when present on this Postgres."
@@ -39287,6 +39297,8 @@ func (ec *executionContext) childFields_Postgres(ctx context.Context, field grap
 		return ec.fieldContext_Postgres_name(ctx, field)
 	case "majorVersion":
 		return ec.fieldContext_Postgres_majorVersion(ctx, field)
+	case "extensions":
+		return ec.fieldContext_Postgres_extensions(ctx, field)
 	case "highAvailability":
 		return ec.fieldContext_Postgres_highAvailability(ctx, field)
 	case "resources":
