@@ -60,8 +60,15 @@ func (t *Server) Create(ctx context.Context, req *protoapi.CreateTeamRequest) (*
 		return nil, status.Errorf(codes.InvalidArgument, "only the nais-verification team may be created through this endpoint")
 	}
 
+	teamSlug := slug.Slug(req.Slug)
+	if existing, err := t.querier.Get(ctx, teamSlug); err == nil {
+		return &protoapi.CreateTeamResponse{Team: toProtoTeam(existing)}, nil
+	} else if !errors.Is(err, pgx.ErrNoRows) {
+		return nil, status.Errorf(codes.Internal, "failed to look up team: %s", err)
+	}
+
 	team, err := t.querier.Create(ctx, grpcteamsql.CreateParams{
-		Slug:         slug.Slug(req.Slug),
+		Slug:         teamSlug,
 		Purpose:      req.Purpose,
 		SlackChannel: req.SlackChannel,
 	})
