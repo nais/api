@@ -242,6 +242,60 @@ func TestEnvironmentLogs_PageInfoUsesAbsolutePositions(t *testing.T) {
 	}
 }
 
+func TestEnvironmentLogs_ResumeAfterLateLineWithSameTimestamp(t *testing.T) {
+	ts := testFrom.Add(time.Second)
+	client := &fakeClient{
+		lines: []*LogLine{
+			line(ts, "app", "b"),
+			line(ts, "app", "c"),
+			line(ts, "app", "d"),
+		},
+		rnd: rand.New(rand.NewPCG(1, 1)),
+	}
+	pageSize := 2
+
+	first, err := environmentLogs(context.Background(), client, "dev", filter(), &pageSize, nil, testNow)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := []string{first.edges[0].Node.Message, first.edges[1].Node.Message}; !slices.Equal(got, []string{"b", "c"}) {
+		t.Fatalf("expected first page [b c], got %v", got)
+	}
+
+	client.lines = append(client.lines, line(ts, "app", "a"))
+	after := roundTripCursor(t, *first.pageInfo.EndCursor)
+	second, err := environmentLogs(context.Background(), client, "dev", filter(), &pageSize, after, testNow)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := second.Nodes(); len(got) != 1 || got[0].Message != "d" {
+		messages := make([]string, len(got))
+		for i, item := range got {
+			messages[i] = item.Message
+		}
+		t.Fatalf("expected only d after inserting an earlier-sorting line, got %v", messages)
+	}
+}
+
+func TestEnvironmentLogs_ResumeAfterIdenticalLines(t *testing.T) {
+	ts := testFrom.Add(time.Second)
+	client := &fakeClient{
+		lines: []*LogLine{
+			line(ts, "app", "same"),
+			line(ts, "app", "same"),
+			line(ts, "app", "same"),
+			line(ts, "app", "last"),
+		},
+		rnd: rand.New(rand.NewPCG(1, 1)),
+	}
+
+	got := fetchAll(t, client, filter(), 1)
+	want := []string{"last", "same", "same", "same"}
+	if !slices.Equal(got, want) {
+		t.Fatalf("expected %v, got %v", want, got)
+	}
+}
+
 func TestEnvironmentLogs_EmptyResult(t *testing.T) {
 	client := &fakeClient{rnd: rand.New(rand.NewPCG(1, 1))}
 	conn, err := environmentLogs(context.Background(), client, "dev", filter(), nil, nil, testNow)

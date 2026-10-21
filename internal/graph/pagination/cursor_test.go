@@ -125,6 +125,32 @@ func TestCursor_PositionedTimeRoundTrip(t *testing.T) {
 	}
 }
 
+func TestCursor_StableTimeRoundTrip(t *testing.T) {
+	want := NewStableTimeCursor(time.Unix(0, 1792570000123456789), 2, "labels\x00value\x00message", 3).WithPosition(17)
+	buf := &bytes.Buffer{}
+	if err := want.MarshalGQLContext(context.TODO(), buf); err != nil {
+		t.Fatal(err)
+	}
+
+	got := &Cursor{}
+	if err := got.UnmarshalGQLContext(context.TODO(), strings.Trim(buf.String(), `"`)); err != nil {
+		t.Fatal(err)
+	}
+	gotTime, hasTime := got.Time()
+	position, hasPosition := got.Position()
+	anchor, occurrence, hasAnchor := got.Anchor()
+	if !hasTime || !gotTime.Equal(time.Unix(0, 1792570000123456789)) || got.Offset != 2 {
+		t.Fatalf("unexpected stable time cursor: %+v, %v", got, gotTime)
+	}
+	if !hasPosition || position != 17 {
+		t.Fatalf("expected position 17, got %d (present: %v)", position, hasPosition)
+	}
+	wantAnchor, _, _ := want.Anchor()
+	if !hasAnchor || anchor != wantAnchor || occurrence != 3 {
+		t.Fatalf("expected anchor %q occurrence 3, got %q occurrence %d", wantAnchor, anchor, occurrence)
+	}
+}
+
 func TestCursor_OffsetCursorHasNoTime(t *testing.T) {
 	c := &Cursor{}
 	if err := c.UnmarshalGQLContext(context.TODO(), "ELQhtKc"); err != nil {
@@ -144,7 +170,7 @@ func TestCursor_OffsetCursorHasNoTime(t *testing.T) {
 }
 
 func TestCursor_InvalidTimeCursor(t *testing.T) {
-	for _, raw := range []string{"t1:", "t1:123", "t1:abc:0", "t1:123:abc", "t1:123:-1", "t1:123:99999999999", "t2:123:0", "t2:123:-1:1", "t2:123:0:0", "t2:123:0:abc", "t2:123:0:2147483648"} {
+	for _, raw := range []string{"t1:", "t1:123", "t1:abc:0", "t1:123:abc", "t1:123:-1", "t1:123:99999999999", "t2:123:0", "t2:123:-1:1", "t2:123:0:0", "t2:123:0:abc", "t2:123:0:2147483648", "t3:1:2:3:0:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef", "t3:1:2:3:1:bad"} {
 		c := &Cursor{}
 		if err := c.UnmarshalGQLContext(context.TODO(), base58.Encode([]byte(raw))); err == nil {
 			t.Errorf("expected error for %q", raw)

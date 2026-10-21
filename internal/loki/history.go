@@ -2,9 +2,12 @@ package loki
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"errors"
 	"net/http"
 	"slices"
+	"strconv"
 	"strings"
 	"time"
 
@@ -87,12 +90,12 @@ func EnvironmentLogs(ctx context.Context, environmentName string, filter *Enviro
 }
 
 func environmentLogs(ctx context.Context, client Client, environmentName string, filter *EnvironmentLogsFilter, first *int, after *pagination.Cursor, now time.Time) (*LogLineConnection, error) {
-	query, limit, start, skip, err := validateEnvironmentLogs(environmentName, filter, first, after, now)
+	query, limit, start, skip, anchor, occurrence, err := validateEnvironmentLogs(environmentName, filter, first, after, now)
 	if err != nil {
 		return nil, err
 	}
 
-	lines, hasNext, err := fetchLogPage(ctx, client, query, start, skip, filter.To, limit)
+	lines, hasNext, err := fetchLogPage(ctx, client, query, start, skip, anchor, occurrence, filter.To, limit)
 	if err != nil {
 		return nil, lokiQueryError(err)
 	}
@@ -104,8 +107,7 @@ func environmentLogs(ctx context.Context, client Client, environmentName string,
 	if len(lines) > 0 {
 		position, _ := after.Position()
 		for i := range lines {
-			ts, _ := lines[i].Cursor.Time()
-			lines[i].Cursor = pagination.NewPositionedTimeCursor(ts, lines[i].Cursor.Offset, position+i+1)
+			lines[i].Cursor = lines[i].Cursor.WithPosition(position + i + 1)
 		}
 		pageInfo.StartCursor = &lines[0].Cursor
 		pageInfo.EndCursor = &lines[len(lines)-1].Cursor
@@ -124,7 +126,7 @@ func environmentLogs(ctx context.Context, client Client, environmentName string,
 	}, nil
 }
 
-func validateEnvironmentLogs(environmentName string, filter *EnvironmentLogsFilter, first *int, after *pagination.Cursor, now time.Time) (query string, limit int, start time.Time, skip int, err error) {
+func validateEnvironmentLogs(environmentName string, filter *EnvironmentLogsFilter, first *int, after *pagination.Cursor, now time.Time) (query string, limit int, start time.Time, skip int, anchor string, occurrence int, err error) {
 	verr := validate.New()
 
 	query, qerr := restrictToEnvironment(filter.Query, environmentName)
@@ -163,14 +165,18 @@ func validateEnvironmentLogs(environmentName string, filter *EnvironmentLogsFilt
 		default:
 			start = t
 			skip = after.Offset
+			anchor, occurrence, _ = after.Anchor()
+			if anchor != "" {
+				skip = 0
+			}
 		}
 	}
 
 	if err := verr.NilIfEmpty(); err != nil {
-		return "", 0, time.Time{}, 0, err
+		return "", 0, time.Time{}, 0, "", 0, err
 	}
 
-	return query, limit, start, skip, nil
+	return query, limit, start, skip, anchor, occurrence, nil
 }
 
 type queryValidationError string
@@ -230,21 +236,33 @@ func restrictToEnvironment(query, environmentName string) (string, error) {
 }
 
 type lineWithKey struct {
-	line *LogLine
-	key  string
+	line      *LogLine
+	key       string
+	anchorKey string
 }
 
 func sortLines(lines []*LogLine) []lineWithKey {
 	ret := make([]lineWithKey, len(lines))
 	for i, line := range lines {
 		var b strings.Builder
+		var anchor strings.Builder
 		for _, l := range line.Labels {
 			b.WriteString(l.Key)
 			b.WriteByte(0)
 			b.WriteString(l.Value)
 			b.WriteByte(0)
+			anchor.WriteString(strconv.Itoa(len(l.Key)))
+			anchor.WriteByte(':')
+			anchor.WriteString(l.Key)
+			anchor.WriteString(strconv.Itoa(len(l.Value)))
+			anchor.WriteByte(':')
+			anchor.WriteString(l.Value)
 		}
-		ret[i] = lineWithKey{line: line, key: b.String()}
+		key := b.String()
+		anchor.WriteString(strconv.Itoa(len(line.Message)))
+		anchor.WriteByte(':')
+		anchor.WriteString(line.Message)
+		ret[i] = lineWithKey{line: line, key: key, anchorKey: anchor.String()}
 	}
 
 	slices.SortStableFunc(ret, func(a, b lineWithKey) int {
@@ -275,13 +293,20 @@ func appendGroups(out []LogLineEdge, lines []lineWithKey) []LogLineEdge {
 
 // appendGroupSlice appends group[from:from+n] where group contains all lines with the same timestamp.
 func appendGroupSlice(out []LogLineEdge, group []lineWithKey, from, n int) []LogLineEdge {
-	for idx := from; idx < from+n; idx++ {
+	occurrences := make(map[string]int)
+	for idx := range from + n {
+		keyHash := sortKeyHash(group[idx].anchorKey)
+		occurrences[keyHash]++
+		if idx < from {
+			continue
+		}
+
 		ts := group[idx].line.Time
 		var cursor pagination.Cursor
 		if idx+1 == len(group) {
 			cursor = pagination.NewTimeCursor(ts.Add(time.Nanosecond), 0)
 		} else {
-			cursor = pagination.NewTimeCursor(ts, idx+1)
+			cursor = pagination.NewStableTimeCursor(ts, idx+1, group[idx].anchorKey, occurrences[keyHash])
 		}
 		out = append(out, LogLineEdge{Node: group[idx].line, Cursor: cursor})
 	}
@@ -302,19 +327,37 @@ func fetchTimestampGroup(ctx context.Context, client Client, query string, ts ti
 // fetchLogPage fetches at most limit log lines within [start, end), skipping the first skip log lines with timestamp
 // exactly start. Pagination is lossless independent of how Loki orders log lines sharing a timestamp: a page only ends
 // within a timestamp group when the complete group has been fetched and sorted deterministically.
-func fetchLogPage(ctx context.Context, client Client, query string, start time.Time, skip int, end time.Time, limit int) ([]LogLineEdge, bool, error) {
+func fetchLogPage(ctx context.Context, client Client, query string, start time.Time, skip int, anchor string, occurrence int, end time.Time, limit int) ([]LogLineEdge, bool, error) {
 	out := make([]LogLineEdge, 0)
 
-	if skip > 0 {
+	if skip > 0 || anchor != "" {
 		group, err := fetchTimestampGroup(ctx, client, query, start)
 		if err != nil {
 			return nil, false, err
 		}
+		if anchor != "" {
+			skip = -1
+			var seen int
+			for i, line := range group {
+				if sortKeyHash(line.anchorKey) == anchor {
+					seen++
+					if seen == occurrence {
+						skip = i + 1
+						break
+					}
+				}
+			}
+			if skip < 0 {
+				return nil, false, apierror.Errorf("The log cursor no longer matches the result set. Restart pagination.")
+			}
+		}
 		if skip < len(group) {
-			n := min(limit, len(group)-skip)
-			out = appendGroupSlice(out, group, skip, n)
-			if skip+n < len(group) {
-				return out, true, nil
+			if skip >= 0 {
+				n := min(limit, len(group)-skip)
+				out = appendGroupSlice(out, group, skip, n)
+				if skip+n < len(group) {
+					return out, true, nil
+				}
 			}
 		}
 		start = start.Add(time.Nanosecond)
@@ -359,6 +402,11 @@ func fetchLogPage(ctx context.Context, client Client, query string, start time.T
 	out = appendGroupSlice(out, group, 0, n)
 	// When the group is exhausted we can not know whether more log lines exist, so we report a next page.
 	return out, true, nil
+}
+
+func sortKeyHash(key string) string {
+	hash := sha256.Sum256([]byte(key))
+	return hex.EncodeToString(hash[:])
 }
 
 func lokiQueryError(err error) error {

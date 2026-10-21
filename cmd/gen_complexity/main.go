@@ -1,5 +1,4 @@
-// This program generates a complexity function for all fields in GraphQL
-// that contains a first and last parameter.
+// This program generates a complexity function for paginated GraphQL fields.
 
 package main
 
@@ -37,20 +36,20 @@ func NewComplexityRoot() ComplexityRoot {
 
 	{{ range .Funcs -}}
 	c.{{.Name}} = func({{ .Signature }}) int {
-		return cursorComplexity(first, last) * childComplexity
+		return {{ .ComplexityCall }} * childComplexity
 	}
 	{{ end }}
 	return c
 }
 
-func cursorComplexity(first, last *int) int {
+func cursorComplexity(first, last *int, defaultPageSize int) int {
 	if first != nil {
 		return *first
 	}
 	if last != nil {
 		return *last
 	}
-	return pagination.DefaultPageSize
+	return defaultPageSize
 }
 
 `
@@ -104,16 +103,41 @@ func main() {
 }
 
 type Func struct {
-	Name      string
-	Signature string
+	Name           string
+	Signature      string
+	ComplexityCall string
 }
 
 func combine(f *Field, parent ...string) (ret []Func) {
 	for _, n := range f.Nested {
 		if n.Params != nil {
+			var first, last bool
+			for param := range n.Params.Variables() {
+				switch param.Name() {
+				case "first":
+					first = true
+				case "last":
+					last = true
+				}
+			}
+			if !first && !last {
+				continue
+			}
+			defaultPageSize := "pagination.DefaultPageSize"
+			if strings.Join(append(parent, n.Name), ".") == "Environment.Logs" {
+				defaultPageSize = "loki.DefaultLogsPageSize"
+			}
+			firstArg, lastArg := "nil", "nil"
+			if first {
+				firstArg = "first"
+			}
+			if last {
+				lastArg = "last"
+			}
 			ret = append(ret, Func{
-				Name:      strings.Join(append(parent, n.Name), "."),
-				Signature: signature(n.Params),
+				Name:           strings.Join(append(parent, n.Name), "."),
+				Signature:      signature(n.Params),
+				ComplexityCall: fmt.Sprintf("cursorComplexity(%s, %s, %s)", firstArg, lastArg, defaultPageSize),
 			})
 		} else {
 			ret = append(ret, combine(n, append(parent, n.Name)...)...)
@@ -176,7 +200,7 @@ func generateForStruct(name string, str *types.Struct) *Field {
 					last = param
 				}
 			}
-			if first == nil || last == nil {
+			if first == nil && last == nil {
 				continue
 			}
 

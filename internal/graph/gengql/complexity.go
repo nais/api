@@ -10,6 +10,7 @@ import (
 	repository "github.com/nais/api/internal/github/repository"
 	pagination "github.com/nais/api/internal/graph/pagination"
 	issue "github.com/nais/api/internal/issue"
+	loki "github.com/nais/api/internal/loki"
 	bigquery "github.com/nais/api/internal/persistence/bigquery"
 	bucket "github.com/nais/api/internal/persistence/bucket"
 	kafkatopic "github.com/nais/api/internal/persistence/kafkatopic"
@@ -32,276 +33,279 @@ func NewComplexityRoot() ComplexityRoot {
 	c := ComplexityRoot{}
 
 	c.Application.ActivityLog = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Application.Configs = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Application.Deployments = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Application.Instances = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Application.Issues = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Application.Postgreses = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Application.Secrets = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.BigQueryDataset.Access = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bigquery.BigQueryDatasetAccessOrder) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.CVE.Workloads = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *vulnerability.CVEWorkloadsFilter) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Config.ActivityLog = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Config.Applications = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Config.Jobs = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Config.Workloads = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.ContainerImage.ActivityLog = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.ContainerImage.Vulnerabilities = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *vulnerability.ImageVulnerabilityFilter, orderBy *vulnerability.ImageVulnerabilityOrder) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.ContainerImage.WorkloadReferences = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Deployment.Resources = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Deployment.Statuses = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
+	}
+	c.Environment.Logs = func(childComplexity int, filter loki.EnvironmentLogsFilter, first *int, after *pagination.Cursor) int {
+		return cursorComplexity(first, nil, loki.DefaultLogsPageSize) * childComplexity
 	}
 	c.Environment.Workloads = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *workload.EnvironmentWorkloadOrder) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Job.ActivityLog = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Job.Configs = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Job.Deployments = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Job.Issues = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Job.Postgreses = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Job.Runs = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Job.Secrets = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.JobRun.Instances = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.KafkaTopic.ACL = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *kafkatopic.KafkaTopicACLFilter, orderBy *kafkatopic.KafkaTopicACLOrder) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.OpenSearch.Access = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *opensearch.OpenSearchAccessOrder) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.OpenSearch.ActivityLog = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.OpenSearch.Issues = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.OpenSearchMaintenance.Updates = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Postgres.ActivityLog = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Postgres.Branches = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *postgres.PostgresBranchOrder) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Postgres.Workloads = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.PostgresBranch.Workloads = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Query.ActivityLog = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Query.Cves = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *vulnerability.CVEOrder, filter *vulnerability.CVEFilter) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Query.Deployments = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *deployment.DeploymentOrder, filter *deployment.DeploymentFilter) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Query.Reconcilers = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Query.Roles = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *authz.RoleFilter) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Query.Search = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter search.SearchFilter) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Query.ServiceAccounts = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Query.Teams = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.TeamOrder, filter *team.TeamFilter) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Query.UserSyncLog = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Query.Users = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *user.UserOrder) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Query.VulnerabilitySummaries = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *vulnerability.TenantVulnerabilitySummaryFilter, orderBy *vulnerability.VulnerabilitySummaryOrder) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Reconciler.ActivityLog = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Reconciler.Errors = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Secret.ActivityLog = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Secret.Applications = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Secret.Jobs = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Secret.Workloads = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.ServiceAccount.ActivityLog = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.ServiceAccount.Roles = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.ServiceAccount.Tokens = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.ServiceAccount.WorkloadBindings = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.SqlInstance.Flags = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.SqlInstance.Issues = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.SqlInstance.Users = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *sqlinstance.SQLInstanceUserOrder) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Team.ActivityLog = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Team.Alerts = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *alerts.AlertOrder, filter *alerts.TeamAlertsFilter) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Team.Applications = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *application.ApplicationOrder, filter *application.TeamApplicationsFilter) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Team.BigQueryDatasets = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bigquery.BigQueryDatasetOrder, filter *bigquery.BigQueryDatasetFilter) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Team.Buckets = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bucket.BucketOrder, filter *bucket.BucketFilter) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Team.Configs = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *config.ConfigOrder, filter *config.ConfigFilter) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Team.Deployments = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Team.Issues = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.IssueFilter) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Team.Jobs = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *job.JobOrder, filter *job.TeamJobsFilter) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Team.KafkaTopics = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *kafkatopic.KafkaTopicOrder, filter *kafkatopic.KafkaTopicFilter) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Team.Members = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.TeamMemberOrder) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Team.OpenSearches = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *opensearch.OpenSearchOrder, filter *opensearch.OpenSearchFilter) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Team.Postgreses = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *postgres.TeamPostgresFilter) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Team.Repositories = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *repository.RepositoryOrder, filter *repository.TeamRepositoryFilter) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Team.SQLInstances = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *sqlinstance.SQLInstanceOrder, filter *sqlinstance.SQLInstanceFilter) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Team.Secrets = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *secret.SecretOrder, filter *secret.SecretFilter) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Team.ServiceAccounts = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Team.Valkeys = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *valkey.ValkeyOrder, filter *valkey.ValkeyFilter) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Team.VulnerabilitySummaries = func(childComplexity int, filter *vulnerability.TeamVulnerabilitySummaryFilter, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *vulnerability.VulnerabilitySummaryOrder) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Team.Workloads = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *workload.WorkloadOrder, filter *workload.TeamWorkloadsFilter) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.TeamEnvironment.Alerts = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *alerts.AlertOrder, filter *alerts.TeamAlertsFilter) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.UnleashInstance.AllowedTeams = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.User.Teams = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.UserTeamOrder) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Valkey.Access = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *valkey.ValkeyAccessOrder) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Valkey.ActivityLog = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.Valkey.Issues = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 	c.ValkeyMaintenance.Updates = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
-		return cursorComplexity(first, last) * childComplexity
+		return cursorComplexity(first, last, pagination.DefaultPageSize) * childComplexity
 	}
 
 	return c
 }
 
-func cursorComplexity(first, last *int) int {
+func cursorComplexity(first, last *int, defaultPageSize int) int {
 	if first != nil {
 		return *first
 	}
 	if last != nil {
 		return *last
 	}
-	return pagination.DefaultPageSize
+	return defaultPageSize
 }
