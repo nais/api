@@ -2,3 +2,195 @@
 // source: event.sql
 
 package eventsql
+
+import (
+	"context"
+
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
+)
+
+const countForWorkload = `-- name: CountForWorkload :one
+SELECT
+	COUNT(*)
+FROM
+	k8s_events
+WHERE
+	involved_namespace = $1
+	AND environment_name = $2
+	AND reason IN ('SuccessfulRescale', 'Killing')
+	AND (
+		(
+			involved_kind = ANY ($3::TEXT[])
+			AND involved_name = $4
+		)
+		OR (
+			data ->> 'workloadKind' = $5::TEXT
+			AND data ->> 'workloadName' = $4
+		)
+	)
+	AND (
+		$6::TIMESTAMPTZ IS NULL
+		OR triggered_at >= $6
+	)
+	AND (
+		$7::TIMESTAMPTZ IS NULL
+		OR triggered_at < $7
+	)
+`
+
+type CountForWorkloadParams struct {
+	Namespace       string
+	EnvironmentName string
+	Kinds           []string
+	Name            string
+	WorkloadKind    string
+	From            pgtype.Timestamptz
+	To              pgtype.Timestamptz
+}
+
+func (q *Queries) CountForWorkload(ctx context.Context, arg CountForWorkloadParams) (int64, error) {
+	row := q.db.QueryRow(ctx, countForWorkload,
+		arg.Namespace,
+		arg.EnvironmentName,
+		arg.Kinds,
+		arg.Name,
+		arg.WorkloadKind,
+		arg.From,
+		arg.To,
+	)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const listByIDs = `-- name: ListByIDs :many
+SELECT
+	uid, environment_name, involved_kind, involved_name, involved_namespace, data, reason, triggered_at, id
+FROM
+	k8s_events
+WHERE
+	id = ANY ($1::UUID[])
+	AND reason IN ('SuccessfulRescale', 'Killing')
+ORDER BY
+	triggered_at DESC,
+	id DESC
+`
+
+func (q *Queries) ListByIDs(ctx context.Context, ids []uuid.UUID) ([]*K8sEvent, error) {
+	rows, err := q.db.Query(ctx, listByIDs, ids)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*K8sEvent{}
+	for rows.Next() {
+		var i K8sEvent
+		if err := rows.Scan(
+			&i.Uid,
+			&i.EnvironmentName,
+			&i.InvolvedKind,
+			&i.InvolvedName,
+			&i.InvolvedNamespace,
+			&i.Data,
+			&i.Reason,
+			&i.TriggeredAt,
+			&i.ID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listForWorkload = `-- name: ListForWorkload :many
+SELECT
+	uid, environment_name, involved_kind, involved_name, involved_namespace, data, reason, triggered_at, id
+FROM
+	k8s_events
+WHERE
+	involved_namespace = $1
+	AND environment_name = $2
+	AND reason IN ('SuccessfulRescale', 'Killing')
+	AND (
+		(
+			involved_kind = ANY ($3::TEXT[])
+			AND involved_name = $4
+		)
+		OR (
+			data ->> 'workloadKind' = $5::TEXT
+			AND data ->> 'workloadName' = $4
+		)
+	)
+	AND (
+		$6::TIMESTAMPTZ IS NULL
+		OR triggered_at >= $6
+	)
+	AND (
+		$7::TIMESTAMPTZ IS NULL
+		OR triggered_at < $7
+	)
+ORDER BY
+	triggered_at DESC,
+	id DESC
+LIMIT
+	$9
+OFFSET
+	$8
+`
+
+type ListForWorkloadParams struct {
+	Namespace       string
+	EnvironmentName string
+	Kinds           []string
+	Name            string
+	WorkloadKind    string
+	From            pgtype.Timestamptz
+	To              pgtype.Timestamptz
+	Offset          int32
+	Limit           int32
+}
+
+func (q *Queries) ListForWorkload(ctx context.Context, arg ListForWorkloadParams) ([]*K8sEvent, error) {
+	rows, err := q.db.Query(ctx, listForWorkload,
+		arg.Namespace,
+		arg.EnvironmentName,
+		arg.Kinds,
+		arg.Name,
+		arg.WorkloadKind,
+		arg.From,
+		arg.To,
+		arg.Offset,
+		arg.Limit,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*K8sEvent{}
+	for rows.Next() {
+		var i K8sEvent
+		if err := rows.Scan(
+			&i.Uid,
+			&i.EnvironmentName,
+			&i.InvolvedKind,
+			&i.InvolvedName,
+			&i.InvolvedNamespace,
+			&i.Data,
+			&i.Reason,
+			&i.TriggeredAt,
+			&i.ID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

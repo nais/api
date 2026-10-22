@@ -41,7 +41,7 @@ type CreateParams struct {
 	Action            string
 	ResourceType      string
 	ResourceName      string
-	TeamSlug          *slug.Slug
+	TeamSlug          *string
 	EnvironmentName   *string
 	Data              []byte
 	GithubActorClaims []byte
@@ -57,6 +57,59 @@ func (q *Queries) Create(ctx context.Context, arg CreateParams) error {
 		arg.EnvironmentName,
 		arg.Data,
 		arg.GithubActorClaims,
+	)
+	return err
+}
+
+const createClusterAudit = `-- name: CreateClusterAudit :exec
+INSERT INTO
+	activity_log_entries (
+		created_at,
+		actor,
+		action,
+		resource_type,
+		resource_name,
+		team_slug,
+		data,
+		environment,
+		kubernetes_audit_uid
+	)
+VALUES
+	(
+		$1,
+		$2,
+		'CLUSTER_AUDIT',
+		'CLUSTER_AUDIT',
+		$3,
+		$4::TEXT,
+		$5,
+		$6,
+		$7::UUID
+	)
+ON CONFLICT (kubernetes_audit_uid, created_at)
+WHERE
+	kubernetes_audit_uid IS NOT NULL DO NOTHING
+`
+
+type CreateClusterAuditParams struct {
+	CreatedAt          pgtype.Timestamptz
+	Actor              string
+	ResourceName       string
+	Namespace          string
+	Data               []byte
+	EnvironmentName    *string
+	KubernetesAuditUid uuid.UUID
+}
+
+func (q *Queries) CreateClusterAudit(ctx context.Context, arg CreateClusterAuditParams) error {
+	_, err := q.db.Exec(ctx, createClusterAudit,
+		arg.CreatedAt,
+		arg.Actor,
+		arg.ResourceName,
+		arg.Namespace,
+		arg.Data,
+		arg.EnvironmentName,
+		arg.KubernetesAuditUid,
 	)
 	return err
 }

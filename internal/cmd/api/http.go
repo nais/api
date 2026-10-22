@@ -26,6 +26,7 @@ import (
 	"github.com/nais/api/internal/graph/loader"
 	"github.com/nais/api/internal/issue"
 	apik8s "github.com/nais/api/internal/kubernetes"
+	"github.com/nais/api/internal/kubernetes/event"
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/kubernetes/watchers"
 	"github.com/nais/api/internal/loki"
@@ -367,6 +368,7 @@ func ConfigureGraph(
 		ctx = repository.NewLoaderContext(ctx, pool)
 		ctx = authz.NewLoaderContext(ctx, pool)
 		ctx = activitylog.NewLoaderContext(ctx, pool)
+		ctx = event.NewLoaderContext(ctx, pool)
 		ctx = vulnerability.NewLoaderContext(ctx, vulnMgr, log)
 		ctx = servicemaintenance.NewLoaderContext(ctx, serviceMaintenanceManager, log)
 		ctx = reconciler.NewLoaderContext(ctx, pool)

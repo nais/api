@@ -671,3 +671,33 @@ ORDER BY
 -- name: RefreshMaterializedView :exec
 REFRESH MATERIALIZED VIEW CONCURRENTLY activity_log_subset_mat_view
 ;
+
+-- name: CreateClusterAudit :exec
+INSERT INTO
+	activity_log_entries (
+		created_at,
+		actor,
+		action,
+		resource_type,
+		resource_name,
+		team_slug,
+		data,
+		environment,
+		kubernetes_audit_uid
+	)
+VALUES
+	(
+		@created_at,
+		@actor,
+		'CLUSTER_AUDIT',
+		'CLUSTER_AUDIT',
+		@resource_name,
+		@namespace::TEXT,
+		@data,
+		@environment_name,
+		@kubernetes_audit_uid::UUID
+	)
+ON CONFLICT (kubernetes_audit_uid, created_at)
+WHERE
+	kubernetes_audit_uid IS NOT NULL DO NOTHING
+;

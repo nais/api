@@ -65,6 +65,10 @@ func Create(ctx context.Context, input CreateInput) error {
 	if input.EnvironmentName != nil {
 		environmentName = new(environmentmapper.EnvironmentName(*input.EnvironmentName))
 	}
+	var teamSlug *string
+	if input.TeamSlug != nil {
+		teamSlug = new(input.TeamSlug.String())
+	}
 
 	return q.Create(ctx, activitylogsql.CreateParams{
 		Action:            string(input.Action),
@@ -73,7 +77,7 @@ func Create(ctx context.Context, input CreateInput) error {
 		EnvironmentName:   environmentName,
 		ResourceName:      input.ResourceName,
 		ResourceType:      string(input.ResourceType),
-		TeamSlug:          input.TeamSlug,
+		TeamSlug:          teamSlug,
 		GithubActorClaims: claimsData,
 	})
 }

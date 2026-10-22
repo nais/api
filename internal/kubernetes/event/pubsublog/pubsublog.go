@@ -10,20 +10,20 @@ import (
 	"cloud.google.com/go/pubsub"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/nais/api/internal/activitylog/activitylogsql"
 	"github.com/nais/api/internal/environmentmapper"
-	"github.com/nais/api/internal/kubernetes/event/eventsql"
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/sirupsen/logrus"
 )
 
 type Subscriber struct {
 	pubsubSubscription *pubsub.Subscription
-	querier            eventsql.Querier
+	querier            activitylogsql.Querier
 	log                logrus.FieldLogger
 	mappers            map[string]watcher.KindResolver
 }
 
-func NewSubscriber(pubsubSubscription *pubsub.Subscription, querier eventsql.Querier, mappers map[string]watcher.KindResolver, log logrus.FieldLogger) (*Subscriber, error) {
+func NewSubscriber(pubsubSubscription *pubsub.Subscription, querier activitylogsql.Querier, mappers map[string]watcher.KindResolver, log logrus.FieldLogger) (*Subscriber, error) {
 	return &Subscriber{
 		pubsubSubscription: pubsubSubscription,
 		querier:            querier,
@@ -119,41 +119,32 @@ func (s *Subscriber) receive(ctx context.Context, msg *pubsub.Message) {
 		return
 	}
 
-	b, err := json.Marshal(auditData.Data)
+	if auditData.Reason == "" {
+		auditData.Reason = "Unknown"
+	}
+
+	b, err := json.Marshal(ClusterAuditActivityLogEntryData{
+		Action:       auditData.Reason,
+		ResourceKind: gvks[0].Kind,
+	})
 	if err != nil {
 		log.WithError(err).WithField("resourceName", line.ProtoPayload.ResourceName).Error("failed to marshal audit data")
 		msg.Ack()
 		return
 	}
 
-	if auditData.Reason == "" {
-		auditData.Reason = "Unknown"
-	}
-
-	var upsertErr error
-	s.querier.Upsert(ctx, []eventsql.UpsertParams{
-		{
-			EnvironmentName:   cluster,
-			InvolvedKind:      gvks[0].Kind,
-			InvolvedName:      res.Name,
-			InvolvedNamespace: res.Namespace,
-			TriggeredAt: pgtype.Timestamptz{
-				Time:  line.Timestamp,
-				Valid: true,
-			},
-			Data:   b,
-			Reason: auditData.Reason,
-			Uid:    line.Operation.ID,
-		},
-	}).Exec(func(i int, err error) {
-		if err != nil {
-			upsertErr = err
-		}
+	err = s.querier.CreateClusterAudit(ctx, activitylogsql.CreateClusterAuditParams{
+		EnvironmentName:    &cluster,
+		ResourceName:       res.Name,
+		Namespace:          res.Namespace,
+		CreatedAt:          pgtype.Timestamptz{Time: line.Timestamp, Valid: true},
+		Actor:              line.ProtoPayload.AuthenticationInfo.PrincipalEmail,
+		Data:               b,
+		KubernetesAuditUid: line.Operation.ID,
 	})
-
-	if upsertErr != nil {
-		log.WithError(upsertErr).Error("failed to upsert event")
-		msg.Ack()
+	if err != nil {
+		log.WithError(err).Error("failed to create cluster audit activity log entry")
+		msg.Nack()
 		return
 	}
 
