@@ -839,13 +839,20 @@ func (ec *executionContext) unmarshalInputTeamWorkloadsFilter(ctx context.Contex
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"environments", "labels", "sbomStatus"}
+	fieldsInOrder := [...]string{"name", "environments", "labels", "sbomStatus"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
 		case "environments":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environments"))
 			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)

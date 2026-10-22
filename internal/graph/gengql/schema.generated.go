@@ -136,6 +136,7 @@ type MutationResolver interface {
 	DeleteValkey(ctx context.Context, input valkey.DeleteValkeyInput) (*valkey.DeleteValkeyPayload, error)
 	CreateValkeyCredentials(ctx context.Context, input valkey.CreateValkeyCredentialsInput) (*valkey.CreateValkeyCredentialsPayload, error)
 	UpdateImageVulnerability(ctx context.Context, input vulnerability.UpdateImageVulnerabilityInput) (*vulnerability.UpdateImageVulnerabilityPayload, error)
+	ReanalyzeVulnerabilities(ctx context.Context, input vulnerability.ReanalyzeVulnerabilitiesInput) (*vulnerability.ReanalyzeVulnerabilitiesPayload, error)
 }
 type QueryResolver interface {
 	Node(ctx context.Context, id ident.Ident) (model.Node, error)
@@ -741,6 +742,20 @@ func (ec *executionContext) field_Mutation_enableReconciler_args(ctx context.Con
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input",
 		func(ctx context.Context, v any) (reconciler.EnableReconcilerInput, error) {
 			return ec.unmarshalNEnableReconcilerInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋreconcilerᚐEnableReconcilerInput(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_reanalyzeVulnerabilities_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input",
+		func(ctx context.Context, v any) (vulnerability.ReanalyzeVulnerabilitiesInput, error) {
+			return ec.unmarshalNReanalyzeVulnerabilitiesInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐReanalyzeVulnerabilitiesInput(ctx, v)
 		})
 	if err != nil {
 		return nil, err
@@ -5019,6 +5034,50 @@ func (ec *executionContext) fieldContext_Mutation_updateImageVulnerability(ctx c
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_reanalyzeVulnerabilities(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Mutation_reanalyzeVulnerabilities(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.Resolvers.Mutation().ReanalyzeVulnerabilities(ctx, fc.Args["input"].(vulnerability.ReanalyzeVulnerabilitiesInput))
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *vulnerability.ReanalyzeVulnerabilitiesPayload) graphql.Marshaler {
+			return ec.marshalNReanalyzeVulnerabilitiesPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐReanalyzeVulnerabilitiesPayload(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Mutation_reanalyzeVulnerabilities(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_ReanalyzeVulnerabilitiesPayload(ctx, field)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_reanalyzeVulnerabilities_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _PageInfo_hasNextPage(ctx context.Context, field graphql.CollectedField, obj *pagination.PageInfo) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -8059,6 +8118,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "updateImageVulnerability":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_updateImageVulnerability(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "reanalyzeVulnerabilities":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_reanalyzeVulnerabilities(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++

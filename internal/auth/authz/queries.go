@@ -288,6 +288,14 @@ func CanUpdateVulnerability(ctx context.Context, teamSlug slug.Slug) error {
 	return requireTeamAuthorization(ctx, teamSlug, "vulnerability:update")
 }
 
+func CanReanalyzeVulnerabilities(ctx context.Context, teamSlug slug.Slug) error {
+	actor := ActorFromContext(ctx)
+	if actor == nil || actor.User == nil || actor.User.IsServiceAccount() {
+		return ErrUnauthorized
+	}
+	return requireStrictTeamAuthorization(ctx, teamSlug, "vulnerability:update")
+}
+
 func CanStartServiceMaintenance(ctx context.Context, teamSlug slug.Slug) error {
 	return requireTeamAuthorization(ctx, teamSlug, "service_maintenance:update:start")
 }
