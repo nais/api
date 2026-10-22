@@ -117,6 +117,27 @@ type Postgres struct {
 	Labels              []*model.ResourceLabel `json:"labels"`
 }
 
+type PostgresExtension string
+
+const (
+	PostgresExtensionPGAudit         PostgresExtension = "PGAUDIT"
+	PostgresExtensionVector          PostgresExtension = "VECTOR"
+	PostgresExtensionPGFailoverSlots PostgresExtension = "PG_FAILOVER_SLOTS"
+)
+
+func PostgresExtensionFromName(name string) (PostgresExtension, error) {
+	switch name {
+	case "pgaudit":
+		return PostgresExtensionPGAudit, nil
+	case "vector":
+		return PostgresExtensionVector, nil
+	case "pg_failover_slots":
+		return PostgresExtensionPGFailoverSlots, nil
+	default:
+		return "", fmt.Errorf("unsupported Postgres extension %q", name)
+	}
+}
+
 // PostgresResources contains only resource requests observed on the Postgres CR.
 type PostgresResources struct {
 	CPU      *string `json:"cpu,omitempty"`

@@ -28513,7 +28513,7 @@ type Postgres implements Node {
 	"Configured PostgreSQL major version."
 	majorVersion: String!
 	"PostgreSQL extensions configured for this Postgres."
-	extensions: [String!]!
+	extensions: [PostgresExtension!]
 	"Whether high availability is configured."
 	highAvailability: Boolean!
 	"Requested CPU, memory and disk size, when present on this Postgres."
@@ -28545,6 +28545,16 @@ type Postgres implements Node {
 	): PostgresBranchConnection!
 	"User-defined labels on this Postgres."
 	labels: [ResourceLabel!]!
+}
+
+"PostgreSQL extensions available in the standard Postgres image."
+enum PostgresExtension {
+	"Audits PostgreSQL statements."
+	PGAUDIT
+	"Adds the vector data type and similarity search."
+	VECTOR
+	"Adds logical replication failover slots."
+	PG_FAILOVER_SLOTS
 }
 
 "A workload referencing a Postgres and the branch it uses."

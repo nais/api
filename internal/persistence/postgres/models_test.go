@@ -106,6 +106,32 @@ func TestToPostgresWithoutExtensions(t *testing.T) {
 	}
 }
 
+func TestPostgresExtensionFromName(t *testing.T) {
+	tests := []struct {
+		name string
+		want PostgresExtension
+	}{
+		{name: "pgaudit", want: PostgresExtensionPGAudit},
+		{name: "vector", want: PostgresExtensionVector},
+		{name: "pg_failover_slots", want: PostgresExtensionPGFailoverSlots},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := PostgresExtensionFromName(tt.name)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if got != tt.want {
+				t.Errorf("PostgresExtensionFromName(%q) = %q, want %q", tt.name, got, tt.want)
+			}
+		})
+	}
+
+	if _, err := PostgresExtensionFromName("unknown"); err == nil {
+		t.Fatal("expected unsupported extension to return an error")
+	}
+}
+
 func TestValidateQuantities(t *testing.T) {
 	tests := []struct {
 		name    string
