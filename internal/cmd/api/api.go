@@ -129,10 +129,6 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		return err
 	}
 
-	if err := setupStaticServiceAccounts(ctx, pool, cfg.StaticServiceAccounts); err != nil {
-		return err
-	}
-
 	scheme, err := kubernetes.NewScheme()
 	if err != nil {
 		return fmt.Errorf("create k8s scheme: %w", err)

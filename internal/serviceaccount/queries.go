@@ -403,47 +403,6 @@ func ListTokensForServiceAccount(ctx context.Context, page *pagination.Paginatio
 	}), nil
 }
 
-// TODO: Remove once static service accounts has been removed
-func DeleteStaticServiceAccounts(ctx context.Context) error {
-	return db(ctx).DeleteStaticServiceAccounts(ctx)
-}
-
-// TODO: Remove once static service accounts has been removed
-func CreateStaticServiceAccount(ctx context.Context, name string, roles []string, secret string) error {
-	return database.Transaction(ctx, func(ctx context.Context) error {
-		sa, err := db(ctx).Create(ctx, serviceaccountsql.CreateParams{
-			Name:        name,
-			Description: "Static service account created by Nais",
-		})
-		if err != nil {
-			return err
-		}
-
-		for _, r := range roles {
-			if err := authz.AssignRoleToServiceAccount(ctx, sa.ID, r); err != nil {
-				return err
-			}
-		}
-
-		hashedToken, err := HashToken(secret)
-		if err != nil {
-			return err
-		}
-
-		_, err = db(ctx).CreateToken(ctx, serviceaccountsql.CreateTokenParams{
-			Name:             "Static service account token",
-			Description:      "Token created by Nais",
-			Token:            hashedToken,
-			ServiceAccountID: sa.ID,
-		})
-		if err != nil {
-			return err
-		}
-
-		return nil
-	})
-}
-
 func AssignRole(ctx context.Context, input AssignRoleToServiceAccountInput) (*ServiceAccount, error) {
 	sa, err := GetByIdent(ctx, input.ServiceAccountID)
 	if err != nil {

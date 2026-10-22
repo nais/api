@@ -103,18 +103,6 @@ func (q *Queries) Delete(ctx context.Context, id uuid.UUID) error {
 	return err
 }
 
-const deleteStaticServiceAccounts = `-- name: DeleteStaticServiceAccounts :exec
-DELETE FROM service_accounts
-WHERE
-	name LIKE 'nais-%'
-`
-
-// TODO: Remove once static service accounts has been removed
-func (q *Queries) DeleteStaticServiceAccounts(ctx context.Context) error {
-	_, err := q.db.Exec(ctx, deleteStaticServiceAccounts)
-	return err
-}
-
 const deleteToken = `-- name: DeleteToken :exec
 DELETE FROM service_account_tokens
 WHERE
