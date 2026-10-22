@@ -111,9 +111,54 @@ func TestPostgresExtensionFromName(t *testing.T) {
 		name string
 		want PostgresExtension
 	}{
-		{name: "pgaudit", want: PostgresExtensionPGAudit},
-		{name: "vector", want: PostgresExtensionVector},
-		{name: "pg_failover_slots", want: PostgresExtensionPGFailoverSlots},
+		{name: "tablefunc", want: "TABLEFUNC"},
+		{name: "citext", want: "CITEXT"},
+		{name: "pageinspect", want: "PAGEINSPECT"},
+		{name: "hstore", want: "HSTORE"},
+		{name: "pg_logicalinspect", want: "PG_LOGICALINSPECT"},
+		{name: "xml2", want: "XML2"},
+		{name: "file_fdw", want: "FILE_FDW"},
+		{name: "pgrowlocks", want: "PGROWLOCKS"},
+		{name: "pg_visibility", want: "PG_VISIBILITY"},
+		{name: "pgstattuple", want: "PGSTATTUPLE"},
+		{name: "dict_int", want: "DICT_INT"},
+		{name: "pg_freespacemap", want: "PG_FREESPACEMAP"},
+		{name: "tcn", want: "TCN"},
+		{name: "bloom", want: "BLOOM"},
+		{name: "btree_gin", want: "BTREE_GIN"},
+		{name: "unaccent", want: "UNACCENT"},
+		{name: "seg", want: "SEG"},
+		{name: "tsm_system_rows", want: "TSM_SYSTEM_ROWS"},
+		{name: "insert_username", want: "INSERT_USERNAME"},
+		{name: "dict_xsyn", want: "DICT_XSYN"},
+		{name: "tsm_system_time", want: "TSM_SYSTEM_TIME"},
+		{name: "postgres_fdw", want: "POSTGRES_FDW"},
+		{name: "autoinc", want: "AUTOINC"},
+		{name: "earthdistance", want: "EARTHDISTANCE"},
+		{name: "amcheck", want: "AMCHECK"},
+		{name: "fuzzystrmatch", want: "FUZZYSTRMATCH"},
+		{name: "plpgsql", want: "PLPGSQL"},
+		{name: "refint", want: "REFINT"},
+		{name: "uuid-ossp", want: "UUID_OSSP"},
+		{name: "intarray", want: "INTARRAY"},
+		{name: "btree_gist", want: "BTREE_GIST"},
+		{name: "pg_buffercache", want: "PG_BUFFERCACHE"},
+		{name: "pg_stat_statements", want: "PG_STAT_STATEMENTS"},
+		{name: "intagg", want: "INTAGG"},
+		{name: "ltree", want: "LTREE"},
+		{name: "cube", want: "CUBE"},
+		{name: "pg_walinspect", want: "PG_WALINSPECT"},
+		{name: "dblink", want: "DBLINK"},
+		{name: "pg_prewarm", want: "PG_PREWARM"},
+		{name: "sslinfo", want: "SSLINFO"},
+		{name: "pgcrypto", want: "PGCRYPTO"},
+		{name: "moddatetime", want: "MODDATETIME"},
+		{name: "pg_trgm", want: "PG_TRGM"},
+		{name: "pg_surgery", want: "PG_SURGERY"},
+		{name: "isn", want: "ISN"},
+		{name: "lo", want: "LO"},
+		{name: "vector", want: "VECTOR"},
+		{name: "pgaudit", want: "PGAUDIT"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -129,6 +174,9 @@ func TestPostgresExtensionFromName(t *testing.T) {
 
 	if _, err := PostgresExtensionFromName("unknown"); err == nil {
 		t.Fatal("expected unsupported extension to return an error")
+	}
+	if _, err := PostgresExtensionFromName("pg_failover_slots"); err == nil {
+		t.Fatal("expected extension unavailable in pg_available_extensions to return an error")
 	}
 }
 

@@ -119,23 +119,27 @@ type Postgres struct {
 
 type PostgresExtension string
 
-const (
-	PostgresExtensionPGAudit         PostgresExtension = "PGAUDIT"
-	PostgresExtensionVector          PostgresExtension = "VECTOR"
-	PostgresExtensionPGFailoverSlots PostgresExtension = "PG_FAILOVER_SLOTS"
-)
+var allPostgresExtensions = map[PostgresExtension]struct{}{
+	"TABLEFUNC": {}, "CITEXT": {}, "PAGEINSPECT": {}, "HSTORE": {},
+	"PG_LOGICALINSPECT": {}, "XML2": {}, "FILE_FDW": {}, "PGROWLOCKS": {},
+	"PG_VISIBILITY": {}, "PGSTATTUPLE": {}, "DICT_INT": {}, "PG_FREESPACEMAP": {},
+	"TCN": {}, "BLOOM": {}, "BTREE_GIN": {}, "UNACCENT": {},
+	"SEG": {}, "TSM_SYSTEM_ROWS": {}, "INSERT_USERNAME": {}, "DICT_XSYN": {},
+	"TSM_SYSTEM_TIME": {}, "POSTGRES_FDW": {}, "AUTOINC": {}, "EARTHDISTANCE": {},
+	"AMCHECK": {}, "FUZZYSTRMATCH": {}, "PLPGSQL": {}, "REFINT": {},
+	"UUID_OSSP": {}, "INTARRAY": {}, "BTREE_GIST": {}, "PG_BUFFERCACHE": {},
+	"PG_STAT_STATEMENTS": {}, "INTAGG": {}, "LTREE": {}, "CUBE": {},
+	"PG_WALINSPECT": {}, "DBLINK": {}, "PG_PREWARM": {}, "SSLINFO": {},
+	"PGCRYPTO": {}, "MODDATETIME": {}, "PG_TRGM": {}, "PG_SURGERY": {},
+	"ISN": {}, "LO": {}, "VECTOR": {}, "PGAUDIT": {},
+}
 
 func PostgresExtensionFromName(name string) (PostgresExtension, error) {
-	switch name {
-	case "pgaudit":
-		return PostgresExtensionPGAudit, nil
-	case "vector":
-		return PostgresExtensionVector, nil
-	case "pg_failover_slots":
-		return PostgresExtensionPGFailoverSlots, nil
-	default:
+	extension := PostgresExtension(strings.ToUpper(strings.ReplaceAll(name, "-", "_")))
+	if _, ok := allPostgresExtensions[extension]; !ok {
 		return "", fmt.Errorf("unsupported Postgres extension %q", name)
 	}
+	return extension, nil
 }
 
 // PostgresResources contains only resource requests observed on the Postgres CR.
