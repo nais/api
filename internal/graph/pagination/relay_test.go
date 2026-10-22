@@ -2,6 +2,7 @@ package pagination_test
 
 import (
 	"testing"
+	"time"
 
 	"github.com/nais/api/internal/graph/pagination"
 )
@@ -161,5 +162,15 @@ func TestParsePage(t *testing.T) {
 				t.Errorf("Expected offset %d, got %d", tt.wantOffset, got.Offset())
 			}
 		})
+	}
+}
+
+func TestParsePage_RejectsTimeCursor(t *testing.T) {
+	c := pagination.NewTimeCursor(time.Unix(0, 1), 0)
+	if _, err := pagination.ParsePage(nil, &c, nil, nil); err == nil {
+		t.Error("expected error for time cursor in after")
+	}
+	if _, err := pagination.ParsePage(nil, nil, nil, &c); err == nil {
+		t.Error("expected error for time cursor in before")
 	}
 }

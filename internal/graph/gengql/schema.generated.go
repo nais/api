@@ -8810,6 +8810,16 @@ func (ec *executionContext) marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinterna
 	return ec._PageInfo(ctx, sel, &v)
 }
 
+func (ec *executionContext) marshalNPageInfo2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx context.Context, sel ast.SelectionSet, v *pagination.PageInfo) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._PageInfo(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNWeekday2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐWeekday(ctx context.Context, v any) (model.Weekday, error) {
 	var res model.Weekday
 	err := res.UnmarshalGQL(v)

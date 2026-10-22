@@ -953,6 +953,7 @@ type ComplexityRoot struct {
 
 	Environment struct {
 		ID            func(childComplexity int) int
+		Logs          func(childComplexity int, filter loki.EnvironmentLogsFilter, first *int, after *pagination.Cursor) int
 		Metrics       func(childComplexity int, input metrics.MetricsQueryInput) int
 		Name          func(childComplexity int) int
 		OIDCIssuerURL func(childComplexity int) int
@@ -1576,6 +1577,17 @@ type ComplexityRoot struct {
 		Labels  func(childComplexity int) int
 		Message func(childComplexity int) int
 		Time    func(childComplexity int) int
+	}
+
+	LogLineConnection struct {
+		Edges    func(childComplexity int) int
+		Nodes    func(childComplexity int) int
+		PageInfo func(childComplexity int) int
+	}
+
+	LogLineEdge struct {
+		Cursor func(childComplexity int) int
+		Node   func(childComplexity int) int
 	}
 
 	LogLineLabel struct {
@@ -7220,6 +7232,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Environment.ID(childComplexity), true
 
+	case "Environment.logs":
+		if e.ComplexityRoot.Environment.Logs == nil {
+			break
+		}
+
+		args, err := ec.field_Environment_logs_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Environment.Logs(childComplexity, args["filter"].(loki.EnvironmentLogsFilter), args["first"].(*int), args["after"].(*pagination.Cursor)), true
+
 	case "Environment.metrics":
 		if e.ComplexityRoot.Environment.Metrics == nil {
 			break
@@ -9969,6 +9993,41 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.LogLine.Time(childComplexity), true
+
+	case "LogLineConnection.edges":
+		if e.ComplexityRoot.LogLineConnection.Edges == nil {
+			break
+		}
+
+		return e.ComplexityRoot.LogLineConnection.Edges(childComplexity), true
+
+	case "LogLineConnection.nodes":
+		if e.ComplexityRoot.LogLineConnection.Nodes == nil {
+			break
+		}
+
+		return e.ComplexityRoot.LogLineConnection.Nodes(childComplexity), true
+
+	case "LogLineConnection.pageInfo":
+		if e.ComplexityRoot.LogLineConnection.PageInfo == nil {
+			break
+		}
+
+		return e.ComplexityRoot.LogLineConnection.PageInfo(childComplexity), true
+
+	case "LogLineEdge.cursor":
+		if e.ComplexityRoot.LogLineEdge.Cursor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.LogLineEdge.Cursor(childComplexity), true
+
+	case "LogLineEdge.node":
+		if e.ComplexityRoot.LogLineEdge.Node == nil {
+			break
+		}
+
+		return e.ComplexityRoot.LogLineEdge.Node(childComplexity), true
 
 	case "LogLineLabel.key":
 		if e.ComplexityRoot.LogLineLabel.Key == nil {
@@ -21867,6 +21926,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputDeploymentOrder,
 		ec.unmarshalInputDisableReconcilerInput,
 		ec.unmarshalInputEnableReconcilerInput,
+		ec.unmarshalInputEnvironmentLogsFilter,
 		ec.unmarshalInputEnvironmentOrder,
 		ec.unmarshalInputEnvironmentWorkloadOrder,
 		ec.unmarshalInputImageVulnerabilityFilter,
@@ -27466,6 +27526,100 @@ input ResourceLabelInput {
 	This subscription is used to stream log lines.
 	"""
 	log(filter: LogSubscriptionFilter!): LogLine!
+}
+
+extend type Environment {
+	"""
+	Log lines from the environment within a fixed time interval.
+
+	The interval is half-open: log lines with a timestamp equal to or after ` + "`" + `from` + "`" + `, and strictly before ` + "`" + `to` + "`" + `, are returned.
+	Log lines are ordered by timestamp ascending, then by labels and message. Timestamps keep nanosecond precision.
+
+	Fetch the next page by passing ` + "`" + `pageInfo.endCursor` + "`" + ` as ` + "`" + `after` + "`" + ` while keeping the filter unchanged. The interval has
+	been completely fetched when ` + "`" + `pageInfo.hasNextPage` + "`" + ` is ` + "`" + `false` + "`" + `. Log lines sharing a timestamp are never split in a way
+	that causes loss or duplicates for a fixed result set, but if a single timestamp has 5000 or more matching log lines
+	the query fails and must be narrowed.
+
+	Log lines ingested after a page has been fetched are not included if they sort before its cursor; later-sorting lines
+	with the same timestamp may appear on the next page. Identical lines are tracked by occurrence count, but a newly
+	ingested line identical in timestamp, labels and message cannot be distinguished from existing copies.
+	For the most recent minutes, log lines may still be arriving.
+
+	` + "`" + `pageInfo.totalCount` + "`" + ` requires an additional count query, and is only computed when requested.
+	"""
+	logs(
+		"""
+		Filter the log lines.
+		"""
+		filter: EnvironmentLogsFilter!
+
+		"""
+		Get the first n log lines. Defaults to 100, and can not exceed 1000.
+		"""
+		first: Int
+
+		"""
+		Get log lines after this cursor.
+		"""
+		after: Cursor
+	): LogLineConnection!
+}
+
+"""
+Filter for log lines in an environment.
+"""
+input EnvironmentLogsFilter {
+	"""
+	LogQL log query, for instance ` + "`" + `{service_name="my-app"} |= "error"` + "`" + `.
+
+	The query is always restricted to the environment. Metric queries are not supported.
+	"""
+	query: String!
+
+	"""
+	Start of the interval (inclusive).
+	"""
+	from: Time!
+
+	"""
+	End of the interval (exclusive). Must be after ` + "`" + `from` + "`" + `, and can not be in the future.
+	"""
+	to: Time!
+}
+
+"""
+Log line connection.
+"""
+type LogLineConnection {
+	"""
+	Pagination information.
+	"""
+	pageInfo: PageInfo!
+
+	"""
+	List of nodes.
+	"""
+	nodes: [LogLine!]!
+
+	"""
+	List of edges.
+	"""
+	edges: [LogLineEdge!]!
+}
+
+"""
+Log line edge.
+"""
+type LogLineEdge {
+	"""
+	Cursor for this edge that can be used for pagination.
+	"""
+	cursor: Cursor!
+
+	"""
+	The log line.
+	"""
+	node: LogLine!
 }
 
 input LogSubscriptionInitialBatch {
@@ -38017,6 +38171,8 @@ func (ec *executionContext) childFields_Environment(ctx context.Context, field g
 		return ec.fieldContext_Environment_name(ctx, field)
 	case "oidcIssuerURL":
 		return ec.fieldContext_Environment_oidcIssuerURL(ctx, field)
+	case "logs":
+		return ec.fieldContext_Environment_logs(ctx, field)
 	case "metrics":
 		return ec.fieldContext_Environment_metrics(ctx, field)
 	case "workloads":
@@ -38921,6 +39077,28 @@ func (ec *executionContext) childFields_LogLine(ctx context.Context, field graph
 		return ec.fieldContext_LogLine_labels(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type LogLine", field.Name)
+}
+
+func (ec *executionContext) childFields_LogLineConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pageInfo":
+		return ec.fieldContext_LogLineConnection_pageInfo(ctx, field)
+	case "nodes":
+		return ec.fieldContext_LogLineConnection_nodes(ctx, field)
+	case "edges":
+		return ec.fieldContext_LogLineConnection_edges(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type LogLineConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_LogLineEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_LogLineEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_LogLineEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type LogLineEdge", field.Name)
 }
 
 func (ec *executionContext) childFields_LogLineLabel(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
