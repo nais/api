@@ -131,12 +131,6 @@ values:
     config:
       type: string
 
-  staticServiceAccounts:
-    displayName: Static nais-api service accounts
-    description: JSON-encoded list of static service accounts
-    computed:
-      template: "{{.Management.teams_static_service_accounts | quote}}"
-
   database.instance:
     displayName: Cloud SQL instance name
     description: The name of the Cloud SQL instance
