@@ -20,6 +20,7 @@ import (
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/issue"
+	"github.com/nais/api/internal/kubernetes/event"
 	"github.com/nais/api/internal/loki"
 	"github.com/nais/api/internal/metrics"
 	"github.com/nais/api/internal/persistence/bigquery"
@@ -253,6 +254,7 @@ type ComplexityRoot struct {
 		Cost                      func(childComplexity int) int
 		DeletionStartedAt         func(childComplexity int) int
 		Deployments               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Events                    func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *event.WorkloadEventFilter) int
 		History                   func(childComplexity int) int
 		ID                        func(childComplexity int) int
 		Image                     func(childComplexity int) int
@@ -1244,6 +1246,7 @@ type ComplexityRoot struct {
 		Cost                      func(childComplexity int) int
 		DeletionStartedAt         func(childComplexity int) int
 		Deployments               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Events                    func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *event.WorkloadEventFilter) int
 		ID                        func(childComplexity int) int
 		Image                     func(childComplexity int) int
 		ImageVulnerabilityHistory func(childComplexity int, from scalar.Date) int
@@ -4031,6 +4034,25 @@ type ComplexityRoot struct {
 		Node   func(childComplexity int) int
 	}
 
+	WorkloadEventConnection struct {
+		Edges    func(childComplexity int) int
+		Nodes    func(childComplexity int) int
+		PageInfo func(childComplexity int) int
+	}
+
+	WorkloadEventEdge struct {
+		Cursor func(childComplexity int) int
+		Node   func(childComplexity int) int
+	}
+
+	WorkloadKillingEvent struct {
+		Container   func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Message     func(childComplexity int) int
+		Reason      func(childComplexity int) int
+		TriggeredAt func(childComplexity int) int
+	}
+
 	WorkloadLogLine struct {
 		Instance func(childComplexity int) int
 		Message  func(childComplexity int) int
@@ -4069,6 +4091,14 @@ type ComplexityRoot struct {
 	WorkloadResourceQuantity struct {
 		CPU    func(childComplexity int) int
 		Memory func(childComplexity int) int
+	}
+
+	WorkloadSuccessfulRescaleEvent struct {
+		Direction   func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Message     func(childComplexity int) int
+		NewSize     func(childComplexity int) int
+		TriggeredAt func(childComplexity int) int
 	}
 
 	WorkloadUtilization struct {
@@ -4440,6 +4470,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Application.Deployments(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
+
+	case "Application.events":
+		if e.ComplexityRoot.Application.Events == nil {
+			break
+		}
+
+		args, err := ec.field_Application_events_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Application.Events(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["filter"].(*event.WorkloadEventFilter)), true
 
 	case "Application.history":
 		if e.ComplexityRoot.Application.History == nil {
@@ -8493,6 +8535,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Job.Deployments(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
+
+	case "Job.events":
+		if e.ComplexityRoot.Job.Events == nil {
+			break
+		}
+
+		args, err := ec.field_Job_events_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Job.Events(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["filter"].(*event.WorkloadEventFilter)), true
 
 	case "Job.id":
 		if e.ComplexityRoot.Job.ID == nil {
@@ -21408,6 +21462,76 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.WorkloadEdge.Node(childComplexity), true
 
+	case "WorkloadEventConnection.edges":
+		if e.ComplexityRoot.WorkloadEventConnection.Edges == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadEventConnection.Edges(childComplexity), true
+
+	case "WorkloadEventConnection.nodes":
+		if e.ComplexityRoot.WorkloadEventConnection.Nodes == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadEventConnection.Nodes(childComplexity), true
+
+	case "WorkloadEventConnection.pageInfo":
+		if e.ComplexityRoot.WorkloadEventConnection.PageInfo == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadEventConnection.PageInfo(childComplexity), true
+
+	case "WorkloadEventEdge.cursor":
+		if e.ComplexityRoot.WorkloadEventEdge.Cursor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadEventEdge.Cursor(childComplexity), true
+
+	case "WorkloadEventEdge.node":
+		if e.ComplexityRoot.WorkloadEventEdge.Node == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadEventEdge.Node(childComplexity), true
+
+	case "WorkloadKillingEvent.container":
+		if e.ComplexityRoot.WorkloadKillingEvent.Container == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadKillingEvent.Container(childComplexity), true
+
+	case "WorkloadKillingEvent.id":
+		if e.ComplexityRoot.WorkloadKillingEvent.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadKillingEvent.ID(childComplexity), true
+
+	case "WorkloadKillingEvent.message":
+		if e.ComplexityRoot.WorkloadKillingEvent.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadKillingEvent.Message(childComplexity), true
+
+	case "WorkloadKillingEvent.reason":
+		if e.ComplexityRoot.WorkloadKillingEvent.Reason == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadKillingEvent.Reason(childComplexity), true
+
+	case "WorkloadKillingEvent.triggeredAt":
+		if e.ComplexityRoot.WorkloadKillingEvent.TriggeredAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadKillingEvent.TriggeredAt(childComplexity), true
+
 	case "WorkloadLogLine.instance":
 		if e.ComplexityRoot.WorkloadLogLine.Instance == nil {
 			break
@@ -21561,6 +21685,41 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.WorkloadResourceQuantity.Memory(childComplexity), true
+
+	case "WorkloadSuccessfulRescaleEvent.direction":
+		if e.ComplexityRoot.WorkloadSuccessfulRescaleEvent.Direction == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadSuccessfulRescaleEvent.Direction(childComplexity), true
+
+	case "WorkloadSuccessfulRescaleEvent.id":
+		if e.ComplexityRoot.WorkloadSuccessfulRescaleEvent.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadSuccessfulRescaleEvent.ID(childComplexity), true
+
+	case "WorkloadSuccessfulRescaleEvent.message":
+		if e.ComplexityRoot.WorkloadSuccessfulRescaleEvent.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadSuccessfulRescaleEvent.Message(childComplexity), true
+
+	case "WorkloadSuccessfulRescaleEvent.newSize":
+		if e.ComplexityRoot.WorkloadSuccessfulRescaleEvent.NewSize == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadSuccessfulRescaleEvent.NewSize(childComplexity), true
+
+	case "WorkloadSuccessfulRescaleEvent.triggeredAt":
+		if e.ComplexityRoot.WorkloadSuccessfulRescaleEvent.TriggeredAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadSuccessfulRescaleEvent.TriggeredAt(childComplexity), true
 
 	case "WorkloadUtilization.current":
 		if e.ComplexityRoot.WorkloadUtilization.Current == nil {
@@ -21951,6 +22110,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputValkeyOrder,
 		ec.unmarshalInputViewSecretValuesInput,
 		ec.unmarshalInputVulnerabilitySummaryOrder,
+		ec.unmarshalInputWorkloadEventFilter,
 		ec.unmarshalInputWorkloadLogSubscriptionFilter,
 		ec.unmarshalInputWorkloadOrder,
 		ec.unmarshalInputWorkloadUtilizationSeriesInput,
@@ -36254,6 +36414,126 @@ enum SBOMStatus {
 	FAILED
 }
 `, BuiltIn: false},
+	{Name: "../schema/workload_events.graphqls", Input: `extend interface Workload {
+	"Workload events, newest first."
+	events(
+		"Get the first n items, optionally after a cursor."
+		first: Int
+		"Get items after this cursor."
+		after: Cursor
+		"Get the last n items before a cursor."
+		last: Int
+		"Get items before this cursor."
+		before: Cursor
+		"Filter events by time."
+		filter: WorkloadEventFilter
+	): WorkloadEventConnection!
+}
+
+extend type Application {
+	"Application events, newest first."
+	events(
+		"Get the first n items, optionally after a cursor."
+		first: Int
+		"Get items after this cursor."
+		after: Cursor
+		"Get the last n items before a cursor."
+		last: Int
+		"Get items before this cursor."
+		before: Cursor
+		"Filter events by time."
+		filter: WorkloadEventFilter
+	): WorkloadEventConnection!
+}
+
+extend type Job {
+	"Job events, newest first."
+	events(
+		"Get the first n items, optionally after a cursor."
+		first: Int
+		"Get items after this cursor."
+		after: Cursor
+		"Get the last n items before a cursor."
+		last: Int
+		"Get items before this cursor."
+		before: Cursor
+		"Filter events by time."
+		filter: WorkloadEventFilter
+	): WorkloadEventConnection!
+}
+
+"Event time bounds."
+input WorkloadEventFilter {
+	"Only include events triggered at or after this timestamp."
+	from: Time
+	"Only include events triggered before this timestamp."
+	to: Time
+}
+
+"A workload event."
+interface WorkloadEvent implements Node {
+	"Unique event identifier."
+	id: ID!
+	"When the event occurred."
+	triggeredAt: Time!
+	"Event summary."
+	message: String!
+}
+
+"A successful replica count change."
+type WorkloadSuccessfulRescaleEvent implements WorkloadEvent & Node {
+	"Unique event identifier."
+	id: ID!
+	"When the event occurred."
+	triggeredAt: Time!
+	"Event summary."
+	message: String!
+	"Replica count after an autoscaling event."
+	newSize: Int!
+	"Autoscaling direction."
+	direction: WorkloadSuccessfulRescaleEventDirection!
+}
+
+"Autoscaling direction."
+enum WorkloadSuccessfulRescaleEventDirection {
+	"Replica count increased."
+	UP
+	"Replica count decreased."
+	DOWN
+}
+
+"A container restart."
+type WorkloadKillingEvent implements WorkloadEvent & Node {
+	"Unique event identifier."
+	id: ID!
+	"When the event occurred."
+	triggeredAt: Time!
+	"Event summary."
+	message: String!
+	"Restarted container."
+	container: String!
+	"Restart reason."
+	reason: String!
+}
+
+"A paginated collection of events."
+type WorkloadEventConnection {
+	"Pagination information."
+	pageInfo: PageInfo!
+	"Events in this page."
+	nodes: [WorkloadEvent!]!
+	"Events with their pagination cursors."
+	edges: [WorkloadEventEdge!]!
+}
+
+"An event with its pagination cursor."
+type WorkloadEventEdge {
+	"Pagination cursor for the event."
+	cursor: Cursor!
+	"The event."
+	node: WorkloadEvent!
+}
+`, BuiltIn: false},
 	{Name: "../schema/workloads.graphqls", Input: `extend type Team {
 	"""
 	Nais workloads owned by the team.
@@ -36989,6 +37269,8 @@ func (ec *executionContext) childFields_Application(ctx context.Context, field g
 		return ec.fieldContext_Application_imageVulnerabilityHistory(ctx, field)
 	case "vulnerabilityFixHistory":
 		return ec.fieldContext_Application_vulnerabilityFixHistory(ctx, field)
+	case "events":
+		return ec.fieldContext_Application_events(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type Application", field.Name)
 }
@@ -38535,6 +38817,8 @@ func (ec *executionContext) childFields_Job(ctx context.Context, field graphql.C
 		return ec.fieldContext_Job_imageVulnerabilityHistory(ctx, field)
 	case "vulnerabilityFixHistory":
 		return ec.fieldContext_Job_vulnerabilityFixHistory(ctx, field)
+	case "events":
+		return ec.fieldContext_Job_events(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type Job", field.Name)
 }
@@ -41941,6 +42225,28 @@ func (ec *executionContext) childFields_WorkloadEdge(ctx context.Context, field 
 		return ec.fieldContext_WorkloadEdge_node(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type WorkloadEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_WorkloadEventConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pageInfo":
+		return ec.fieldContext_WorkloadEventConnection_pageInfo(ctx, field)
+	case "nodes":
+		return ec.fieldContext_WorkloadEventConnection_nodes(ctx, field)
+	case "edges":
+		return ec.fieldContext_WorkloadEventConnection_edges(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type WorkloadEventConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_WorkloadEventEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_WorkloadEventEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_WorkloadEventEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type WorkloadEventEdge", field.Name)
 }
 
 func (ec *executionContext) childFields_WorkloadLogLine(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {

@@ -258,14 +258,14 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		}
 
 		log.WithField("envs", len(k8sClients)).Info("Start event watcher")
-		eventWatcher, err := event.NewWatcher(pool, pubsubClient.Subscription(cfg.PubSub.EventsSubscription), k8sClients, watcherMgr.ResourceMappers(), log.WithField("subsystem", "event_watcher"))
+		eventWatcher, err := event.NewWatcher(pool, pubsubClient.Subscription(cfg.PubSub.EventsSubscription), k8sClients, watchers.PodWatcher, watcherMgr.ResourceMappers(), log.WithField("subsystem", "event_watcher"))
 		if err != nil {
 			return fmt.Errorf("creating event watcher: %w", err)
 		}
 		go eventWatcher.Run(ctx)
 	} else {
 		log.Info("Start fake event watcher")
-		eventWatcher, err := event.NewWatcher(pool, pubsubClient.Subscription(cfg.PubSub.EventsSubscription), nil, watcherMgr.ResourceMappers(), log.WithField("subsystem", "event_watcher"))
+		eventWatcher, err := event.NewWatcher(pool, pubsubClient.Subscription(cfg.PubSub.EventsSubscription), nil, watchers.PodWatcher, watcherMgr.ResourceMappers(), log.WithField("subsystem", "event_watcher"))
 		if err != nil {
 			return fmt.Errorf("creating event watcher: %w", err)
 		}
