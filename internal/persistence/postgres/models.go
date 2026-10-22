@@ -12,6 +12,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
@@ -137,7 +138,7 @@ var allPostgresExtensions = map[PostgresExtension]struct{}{
 func PostgresExtensionFromName(name string) (PostgresExtension, error) {
 	extension := PostgresExtension(strings.ToUpper(strings.ReplaceAll(name, "-", "_")))
 	if _, ok := allPostgresExtensions[extension]; !ok {
-		return "", fmt.Errorf("unsupported Postgres extension %q", name)
+		return "", apierror.Errorf("unsupported Postgres extension %q", name)
 	}
 	return extension, nil
 }

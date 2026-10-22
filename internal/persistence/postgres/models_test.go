@@ -3,12 +3,16 @@ package postgres
 import (
 	"context"
 	"reflect"
+	"strings"
 	"testing"
 	"time"
 
+	"github.com/99designs/gqlgen/graphql"
+	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/validate"
 	nais_io_v1 "github.com/nais/pgrator/pkg/api/v1"
+	"github.com/sirupsen/logrus"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
@@ -172,9 +176,18 @@ func TestPostgresExtensionFromName(t *testing.T) {
 		})
 	}
 
-	if _, err := PostgresExtensionFromName("unknown"); err == nil {
+	_, err := PostgresExtensionFromName("unknown")
+	if err == nil {
 		t.Fatal("expected unsupported extension to return an error")
 	}
+
+	ctx := context.Background()
+	presenter := apierror.GetErrorPresenter(logrus.New())
+	presented := presenter(ctx, graphql.DefaultErrorPresenter(ctx, err))
+	if !strings.Contains(presented.Message, `"unknown"`) {
+		t.Errorf("presented error = %q, want to identify the unsupported extension", presented.Message)
+	}
+
 	if _, err := PostgresExtensionFromName("pg_failover_slots"); err == nil {
 		t.Fatal("expected extension unavailable in pg_available_extensions to return an error")
 	}
