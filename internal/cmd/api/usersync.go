@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"encoding/base64"
+	"fmt"
 	"time"
 
 	"github.com/coreos/go-oidc/v3/oidc"
@@ -28,6 +29,9 @@ func runUsersync(ctx context.Context, pool *pgxpool.Pool, cfg *Config, log logru
 	}
 
 	var zw *usersyncer.ZitadelWrapper
+	if cfg.Zitadel.NaisOrganizationID != "" && (cfg.Zitadel.Domain == "" || cfg.Zitadel.Key == "" || cfg.Zitadel.IDPID == "") {
+		return fmt.Errorf("nais.io user sync requires Zitadel domain, key and IDP ID")
+	}
 	if cfg.Zitadel.Domain != "" && cfg.Zitadel.Key != "" && cfg.Zitadel.IDPID != "" {
 		key, err := base64.StdEncoding.DecodeString(cfg.Zitadel.Key)
 		if err != nil {
@@ -42,9 +46,10 @@ func runUsersync(ctx context.Context, pool *pgxpool.Pool, cfg *Config, log logru
 		}
 
 		zw = &usersyncer.ZitadelWrapper{
-			Client:         zc,
-			IDP:            cfg.Zitadel.IDPID,
-			OrganizationID: cfg.Zitadel.OrganizationID,
+			Client:             zc,
+			IDP:                cfg.Zitadel.IDPID,
+			OrganizationID:     cfg.Zitadel.OrganizationID,
+			NaisOrganizationID: cfg.Zitadel.NaisOrganizationID,
 		}
 	}
 

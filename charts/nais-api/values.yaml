@@ -89,6 +89,7 @@ zitadel:
   idpID:
   key:
   organizationID:
+  naisOrganizationID: "" # Enables nais.io user sync and Console login when configured
 
 aiven:
   projects: ""
