@@ -14,10 +14,7 @@ import (
 	"k8s.io/utils/ptr"
 )
 
-const (
-	v13sQueryLimit          = 69000
-	legacyCriticalCvssScore = 9.0
-)
+const v13sQueryLimit = 69000
 
 type V13sClient interface {
 	ListVulnerabilitySummaries(ctx context.Context, opts ...vulnerabilities.Option) (*vulnerabilities.ListVulnerabilitySummariesResponse, error)
@@ -133,64 +130,11 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 		return nil
 	}
 
-	var ret []*Issue
-
-	for _, node := range resp.GetNodes() {
-		workloadType, ok := mapType(node.Workload.GetType())
-		if !ok {
-			continue
-		}
-
-		if !w.exists(node, workloadType) {
-			continue
-		}
-
-		summary := node.VulnerabilitySummary
-		env := environmentmapper.EnvironmentName(node.Workload.GetCluster())
-		kevCount := int(summary.GetKevCount())
-		if summary != nil && kevCount > 0 {
-			ret = append(ret, &Issue{
-				IssueType:    issue.IssueTypeVulnerableImage,
-				ResourceType: workloadType,
-				ResourceName: node.Workload.GetName(),
-				Team:         node.Workload.GetNamespace(),
-				Env:          env,
-				Severity:     issue.SeverityCritical,
-				Message: fmt.Sprintf(
-					"Image '%s' has %d known-exploited vulnerabilities",
-					node.Workload.ImageName,
-					kevCount,
-				),
-				IssueDetails: issue.VulnerableImageIssueDetails{
-					Critical:  int(summary.Critical),
-					RiskScore: int(summary.RiskScore),
-				},
-			})
-		}
-
-		sbomStatus := node.GetSbomStatus().GetStatus()
-		if sbomStatus != vulnerabilities.SbomStatus_SBOM_STATUS_READY &&
-			sbomStatus != vulnerabilities.SbomStatus_SBOM_STATUS_PROCESSING &&
-			sbomStatus != vulnerabilities.SbomStatus_SBOM_STATUS_UNSPECIFIED {
-			ret = append(ret, &Issue{
-				IssueType:    issue.IssueTypeMissingSBOM,
-				ResourceType: workloadType,
-				ResourceName: node.Workload.GetName(),
-				Team:         node.Workload.GetNamespace(),
-				Env:          env,
-				Severity:     issue.SeverityWarning,
-				Message: fmt.Sprintf(
-					"Image '%s:%s' is missing a Software Bill of Materials (SBOM)",
-					node.Workload.ImageName,
-					node.Workload.ImageTag,
-				),
-			})
-		}
-	}
-
 	ingress := w.ingressExposureByWorkload()
 
+	var ret []*Issue
 	seenUrgent := map[string]struct{}{}
+	seenKnownExploited := map[string]struct{}{}
 	for _, node := range resp.GetNodes() {
 		workloadRef := node.GetWorkload()
 		if workloadRef == nil {
@@ -223,6 +167,9 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 		if len(externalIngresses) == 0 {
 			continue
 		}
+		if !w.exists(node, workloadType) {
+			continue
+		}
 		seenUrgent[key] = struct{}{}
 
 		ret = append(ret, &Issue{
@@ -233,7 +180,7 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 			Env:          env,
 			Severity:     issue.SeverityCritical,
 			Message: fmt.Sprintf(
-				"Workload '%s' (exposed via external ingress) has %d urgent vulnerabilities",
+				"Urgent: Workload '%s' is exposed via external ingress and has %d known-exploited vulnerabilities",
 				workloadRef.GetName(),
 				kevCount,
 			),
@@ -243,23 +190,65 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 			},
 		})
 
-		ret = append(ret, &Issue{
-			IssueType:    issue.IssueTypeExternalIngressCriticalVulnerability,
-			ResourceType: workloadType,
-			ResourceName: workloadRef.GetName(),
-			Team:         workloadRef.GetNamespace(),
-			Env:          env,
-			Severity:     issue.SeverityCritical,
-			Message: fmt.Sprintf(
-				"Workload '%s' (exposed via external ingress) has %d urgent vulnerabilities",
-				workloadRef.GetName(),
-				kevCount,
-			),
-			IssueDetails: issue.ExternalIngressCriticalVulnerabilityIssueDetails{
-				CvssScore: legacyCriticalCvssScore,
-				Ingresses: externalIngresses,
-			},
-		})
+	}
+
+	for _, node := range resp.GetNodes() {
+		workloadRef := node.GetWorkload()
+		if workloadRef == nil {
+			continue
+		}
+		workloadType, ok := mapType(workloadRef.GetType())
+		if !ok || !w.exists(node, workloadType) {
+			continue
+		}
+
+		summary := node.GetVulnerabilitySummary()
+		env := environmentmapper.EnvironmentName(workloadRef.GetCluster())
+		key := workloadKey(env, workloadRef.GetNamespace(), workloadRef.GetName())
+		if summary.GetKevCount() > 0 {
+			_, urgent := seenUrgent[key]
+			knownExploitedKey := string(workloadType) + "/" + key
+			_, seen := seenKnownExploited[knownExploitedKey]
+			if !seen && (workloadType != issue.ResourceTypeApplication || !urgent) {
+				seenKnownExploited[knownExploitedKey] = struct{}{}
+				ret = append(ret, &Issue{
+					IssueType:    issue.IssueTypeVulnerableImage,
+					ResourceType: workloadType,
+					ResourceName: workloadRef.GetName(),
+					Team:         workloadRef.GetNamespace(),
+					Env:          env,
+					Severity:     issue.SeverityWarning,
+					Message: fmt.Sprintf(
+						"Image '%s' has %d known-exploited vulnerabilities",
+						workloadRef.GetImageName(),
+						summary.GetKevCount(),
+					),
+					IssueDetails: issue.VulnerableImageIssueDetails{
+						Critical:  int(summary.GetCritical()),
+						RiskScore: int(summary.GetRiskScore()),
+					},
+				})
+			}
+		}
+
+		sbomStatus := node.GetSbomStatus().GetStatus()
+		if sbomStatus != vulnerabilities.SbomStatus_SBOM_STATUS_READY &&
+			sbomStatus != vulnerabilities.SbomStatus_SBOM_STATUS_PROCESSING &&
+			sbomStatus != vulnerabilities.SbomStatus_SBOM_STATUS_UNSPECIFIED {
+			ret = append(ret, &Issue{
+				IssueType:    issue.IssueTypeMissingSBOM,
+				ResourceType: workloadType,
+				ResourceName: workloadRef.GetName(),
+				Team:         workloadRef.GetNamespace(),
+				Env:          env,
+				Severity:     issue.SeverityWarning,
+				Message: fmt.Sprintf(
+					"Image '%s:%s' is missing a Software Bill of Materials (SBOM)",
+					workloadRef.GetImageName(),
+					workloadRef.GetImageTag(),
+				),
+			})
+		}
 	}
 
 	return ret

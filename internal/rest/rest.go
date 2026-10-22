@@ -108,6 +108,8 @@ func MakeRouter(ctx context.Context, cfg Config) *chi.Mux {
 			r.Use(cfg.GitHubOIDCMiddleware)
 		}
 
+		r.Use(middleware.ApiKeyAuthentication())
+
 		r.Use(
 			middleware.RequireAuthenticatedUser(),
 		)

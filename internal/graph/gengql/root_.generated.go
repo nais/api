@@ -82,7 +82,6 @@ type ResolverRoot interface {
 	DeprecatedIngressIssue() DeprecatedIngressIssueResolver
 	DeprecatedRegistryIssue() DeprecatedRegistryIssueResolver
 	Environment() EnvironmentResolver
-	ExternalIngressCriticalVulnerabilityIssue() ExternalIngressCriticalVulnerabilityIssueResolver
 	ExternalIngressUrgentVulnerabilityIssue() ExternalIngressUrgentVulnerabilityIssueResolver
 	FailedSynchronizationIssue() FailedSynchronizationIssueResolver
 	Ingress() IngressResolver
@@ -969,16 +968,6 @@ type ComplexityRoot struct {
 	EnvironmentEdge struct {
 		Cursor func(childComplexity int) int
 		Node   func(childComplexity int) int
-	}
-
-	ExternalIngressCriticalVulnerabilityIssue struct {
-		CvssScore       func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Ingresses       func(childComplexity int) int
-		Message         func(childComplexity int) int
-		Severity        func(childComplexity int) int
-		TeamEnvironment func(childComplexity int) int
-		Workload        func(childComplexity int) int
 	}
 
 	ExternalIngressUrgentVulnerabilityIssue struct {
@@ -7303,55 +7292,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.EnvironmentEdge.Node(childComplexity), true
-
-	case "ExternalIngressCriticalVulnerabilityIssue.cvssScore":
-		if e.ComplexityRoot.ExternalIngressCriticalVulnerabilityIssue.CvssScore == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ExternalIngressCriticalVulnerabilityIssue.CvssScore(childComplexity), true
-
-	case "ExternalIngressCriticalVulnerabilityIssue.id":
-		if e.ComplexityRoot.ExternalIngressCriticalVulnerabilityIssue.ID == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ExternalIngressCriticalVulnerabilityIssue.ID(childComplexity), true
-
-	case "ExternalIngressCriticalVulnerabilityIssue.ingresses":
-		if e.ComplexityRoot.ExternalIngressCriticalVulnerabilityIssue.Ingresses == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ExternalIngressCriticalVulnerabilityIssue.Ingresses(childComplexity), true
-
-	case "ExternalIngressCriticalVulnerabilityIssue.message":
-		if e.ComplexityRoot.ExternalIngressCriticalVulnerabilityIssue.Message == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ExternalIngressCriticalVulnerabilityIssue.Message(childComplexity), true
-
-	case "ExternalIngressCriticalVulnerabilityIssue.severity":
-		if e.ComplexityRoot.ExternalIngressCriticalVulnerabilityIssue.Severity == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ExternalIngressCriticalVulnerabilityIssue.Severity(childComplexity), true
-
-	case "ExternalIngressCriticalVulnerabilityIssue.teamEnvironment":
-		if e.ComplexityRoot.ExternalIngressCriticalVulnerabilityIssue.TeamEnvironment == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ExternalIngressCriticalVulnerabilityIssue.TeamEnvironment(childComplexity), true
-
-	case "ExternalIngressCriticalVulnerabilityIssue.workload":
-		if e.ComplexityRoot.ExternalIngressCriticalVulnerabilityIssue.Workload == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ExternalIngressCriticalVulnerabilityIssue.Workload(childComplexity), true
 
 	case "ExternalIngressUrgentVulnerabilityIssue.id":
 		if e.ComplexityRoot.ExternalIngressUrgentVulnerabilityIssue.ID == nil {
@@ -26171,8 +26111,6 @@ enum IssueType {
 	INVALID_SPEC @deprecated(reason: "Use WORKLOAD_PROBLEM instead.")
 	MISSING_SBOM
 	VULNERABLE_IMAGE
-	EXTERNAL_INGRESS_CRITICAL_VULNERABILITY
-		@deprecated(reason: "Use EXTERNAL_INGRESS_URGENT_VULNERABILITY.")
 	"Raised when a workload has external ingress exposure and urgent vulnerabilities."
 	EXTERNAL_INGRESS_URGENT_VULNERABILITY
 	UNLEASH_RELEASE_CHANNEL
@@ -26189,26 +26127,6 @@ type VulnerableImageIssue implements Issue & Node {
 	workload: Workload!
 	riskScore: Int!
 	critical: Int!
-}
-
-"Deprecated: use ExternalIngressUrgentVulnerabilityIssue."
-type ExternalIngressCriticalVulnerabilityIssue implements Issue & Node {
-	"The globally unique identifier for this issue."
-	id: ID! @deprecated(reason: "Use ExternalIngressUrgentVulnerabilityIssue instead.")
-	"The team environment where the affected workload is deployed."
-	teamEnvironment: TeamEnvironment!
-		@deprecated(reason: "Use ExternalIngressUrgentVulnerabilityIssue instead.")
-	"The severity assigned to this issue."
-	severity: Severity! @deprecated(reason: "Use ExternalIngressUrgentVulnerabilityIssue instead.")
-	"A human-readable description of the issue."
-	message: String! @deprecated(reason: "Use ExternalIngressUrgentVulnerabilityIssue instead.")
-
-	"The workload with critical vulnerabilities and external ingresses."
-	workload: Workload! @deprecated(reason: "Use ExternalIngressUrgentVulnerabilityIssue instead.")
-	"The highest CVSS score among vulnerabilities relevant to this issue."
-	cvssScore: Float! @deprecated(reason: "Use ExternalIngressUrgentVulnerabilityIssue instead.")
-	"External ingress URLs that expose the workload."
-	ingresses: [String!]! @deprecated(reason: "Use ExternalIngressUrgentVulnerabilityIssue instead.")
 }
 
 "Raised when a workload with external ingresses has one or more urgent vulnerability-priority findings."

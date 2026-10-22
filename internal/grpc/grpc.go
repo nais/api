@@ -10,6 +10,7 @@ import (
 	"github.com/nais/api/internal/grpc/grpcdatabase"
 	"github.com/nais/api/internal/grpc/grpcdeployment"
 	"github.com/nais/api/internal/grpc/grpcreconciler"
+	"github.com/nais/api/internal/grpc/grpcserviceaccount"
 	"github.com/nais/api/internal/grpc/grpcteam"
 	"github.com/nais/api/internal/grpc/grpcuser"
 	"github.com/nais/api/internal/kubernetes/watchers"
@@ -37,6 +38,7 @@ func Run(ctx context.Context, listenAddress string, pool *pgxpool.Pool, sqlDatab
 	protoapi.RegisterReconcilersServer(s, grpcreconciler.NewServer(pool))
 	protoapi.RegisterDeploymentsServer(s, grpcdeployment.NewServer(pool))
 	protoapi.RegisterDatabasesServer(s, grpcdatabase.NewServer(sqlDatabaseWatcher, postgresBranchWatcher))
+	protoapi.RegisterServiceAccountsServer(s, grpcserviceaccount.NewServer(pool))
 
 	g, ctx := errgroup.WithContext(ctx)
 	g.Go(func() error { return s.Serve(lis) })

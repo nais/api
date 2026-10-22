@@ -40,14 +40,6 @@ func (r *deprecatedRegistryIssueResolver) Workload(ctx context.Context, obj *iss
 	return getWorkloadByResourceType(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ResourceName, obj.ResourceType)
 }
 
-func (r *externalIngressCriticalVulnerabilityIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.ExternalIngressCriticalVulnerabilityIssue) (*team.TeamEnvironment, error) {
-	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
-}
-
-func (r *externalIngressCriticalVulnerabilityIssueResolver) Workload(ctx context.Context, obj *issue.ExternalIngressCriticalVulnerabilityIssue) (workload.Workload, error) {
-	return getWorkloadByResourceType(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ResourceName, obj.ResourceType)
-}
-
 func (r *externalIngressUrgentVulnerabilityIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.ExternalIngressUrgentVulnerabilityIssue) (*team.TeamEnvironment, error) {
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
@@ -181,10 +173,6 @@ func (r *Resolver) DeprecatedRegistryIssue() gengql.DeprecatedRegistryIssueResol
 	return &deprecatedRegistryIssueResolver{r}
 }
 
-func (r *Resolver) ExternalIngressCriticalVulnerabilityIssue() gengql.ExternalIngressCriticalVulnerabilityIssueResolver {
-	return &externalIngressCriticalVulnerabilityIssueResolver{r}
-}
-
 func (r *Resolver) ExternalIngressUrgentVulnerabilityIssue() gengql.ExternalIngressUrgentVulnerabilityIssueResolver {
 	return &externalIngressUrgentVulnerabilityIssueResolver{r}
 }
@@ -240,22 +228,21 @@ func (r *Resolver) WorkloadProblemIssue() gengql.WorkloadProblemIssueResolver {
 }
 
 type (
-	applicationRestartLoopIssueResolver               struct{ *Resolver }
-	deprecatedIngressIssueResolver                    struct{ *Resolver }
-	deprecatedRegistryIssueResolver                   struct{ *Resolver }
-	externalIngressCriticalVulnerabilityIssueResolver struct{ *Resolver }
-	externalIngressUrgentVulnerabilityIssueResolver   struct{ *Resolver }
-	failedSynchronizationIssueResolver                struct{ *Resolver }
-	invalidSpecIssueResolver                          struct{ *Resolver }
-	issueConnectionResolver                           struct{ *Resolver }
-	lastRunFailedIssueResolver                        struct{ *Resolver }
-	missingSbomIssueResolver                          struct{ *Resolver }
-	noRunningInstancesIssueResolver                   struct{ *Resolver }
-	openSearchIssueResolver                           struct{ *Resolver }
-	sqlInstanceStateIssueResolver                     struct{ *Resolver }
-	sqlInstanceVersionIssueResolver                   struct{ *Resolver }
-	unleashReleaseChannelIssueResolver                struct{ *Resolver }
-	valkeyIssueResolver                               struct{ *Resolver }
-	vulnerableImageIssueResolver                      struct{ *Resolver }
-	workloadProblemIssueResolver                      struct{ *Resolver }
+	applicationRestartLoopIssueResolver             struct{ *Resolver }
+	deprecatedIngressIssueResolver                  struct{ *Resolver }
+	deprecatedRegistryIssueResolver                 struct{ *Resolver }
+	externalIngressUrgentVulnerabilityIssueResolver struct{ *Resolver }
+	failedSynchronizationIssueResolver              struct{ *Resolver }
+	invalidSpecIssueResolver                        struct{ *Resolver }
+	issueConnectionResolver                         struct{ *Resolver }
+	lastRunFailedIssueResolver                      struct{ *Resolver }
+	missingSbomIssueResolver                        struct{ *Resolver }
+	noRunningInstancesIssueResolver                 struct{ *Resolver }
+	openSearchIssueResolver                         struct{ *Resolver }
+	sqlInstanceStateIssueResolver                   struct{ *Resolver }
+	sqlInstanceVersionIssueResolver                 struct{ *Resolver }
+	unleashReleaseChannelIssueResolver              struct{ *Resolver }
+	valkeyIssueResolver                             struct{ *Resolver }
+	vulnerableImageIssueResolver                    struct{ *Resolver }
+	workloadProblemIssueResolver                    struct{ *Resolver }
 )
