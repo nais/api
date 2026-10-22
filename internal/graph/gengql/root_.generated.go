@@ -35368,6 +35368,7 @@ extend type ContainerImage {
 }
 
 extend type Team {
+	"Get the team's vulnerability summary. Label filters are not supported."
 	vulnerabilitySummary(filter: TeamVulnerabilitySummaryFilter): TeamVulnerabilitySummary!
 
 	"Fetch vulnerability summaries for workloads in the team."
@@ -35420,7 +35421,7 @@ extend enum ActivityLogEntryResourceType {
 Input for filtering team vulnerability summaries.
 """
 input TeamVulnerabilitySummaryFilter {
-	"Match all user-defined workload label filters; an omitted value matches any value for the key."
+	"Match all given workload labels; an omitted value matches any value for the key. Not supported by Team.vulnerabilitySummary."
 	labels: [LabelFilter!]
 
 	"""
@@ -35909,12 +35910,12 @@ input VulnerabilitySummaryOrder {
 	"""
 	direction: OrderDirection!
 
-	"Required only when field is LABEL. Missing label values sort last in either direction; ties sort by descending risk score, then workload identity."
+	"Required for LABEL and not allowed otherwise. Missing label values sort last in either direction; ties sort by descending risk score, then workload identity."
 	labelKey: String
 }
 
 enum VulnerabilitySummaryOrderByField {
-	"Order team workloads alphabetically by the user-defined label selected by labelKey."
+	"Order team workload summaries by the label selected by labelKey. Not supported for tenant-wide summaries."
 	LABEL
 	"""
 	Order by name.
