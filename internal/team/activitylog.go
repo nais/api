@@ -121,7 +121,7 @@ func init() {
 		activityLogEntryActionConfirmDeleteKey,
 		activityLogEntryResourceTypeTeam,
 		activitylog.GlobalOnly(),
-		activitylog.WithDescription("Triggered when a delete key is confirmed for a team and the team is deleted."),
+		activitylog.WithDescription("Triggered when a delete key is confirmed for a team; team deletion is pending."),
 	)
 	activitylog.RegisterActivityType(
 		"TEAM_MEMBER_ADDED",

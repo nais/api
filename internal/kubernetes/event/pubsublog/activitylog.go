@@ -13,7 +13,13 @@ const (
 )
 
 func init() {
-	activitylog.RegisterActivityType(activityLogActivityTypeClusterAudit, activityLogEntryActionClusterAudit, ActivityLogEntryResourceTypeClusterAudit, activitylog.GlobalOnly())
+	activitylog.RegisterActivityType(
+		activityLogActivityTypeClusterAudit,
+		activityLogEntryActionClusterAudit,
+		ActivityLogEntryResourceTypeClusterAudit,
+		activitylog.GlobalOnly(),
+		activitylog.WithDescription("Triggered when an action on a Kubernetes resource is recorded in the cluster audit log."),
+	)
 
 	activitylog.RegisterTransformer(ActivityLogEntryResourceTypeClusterAudit, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
 		data, err := activitylog.UnmarshalData[ClusterAuditActivityLogEntryData](entry)
