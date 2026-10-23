@@ -36334,6 +36334,7 @@ input UpdateImageVulnerabilityInput {
 	state: ImageVulnerabilitySuppressionState
 }
 
+"Omit both workload selectors to reanalyze the whole team environment, or supply both to select one workload."
 input ReanalyzeVulnerabilitiesInput {
 	"Team that owns the workloads."
 	teamSlug: Slug!
@@ -36345,6 +36346,7 @@ input ReanalyzeVulnerabilitiesInput {
 	workloadType: WorkloadType
 }
 
+"Result of requesting vulnerability reanalysis, not of completed analyses."
 type ReanalyzeVulnerabilitiesPayload {
 	"Number of eligible image tags submitted for reanalysis; duplicates may already be queued."
 	numImages: Int!
