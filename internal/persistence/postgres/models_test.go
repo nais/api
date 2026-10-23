@@ -3,12 +3,16 @@ package postgres
 import (
 	"context"
 	"reflect"
+	"strings"
 	"testing"
 	"time"
 
+	"github.com/99designs/gqlgen/graphql"
+	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/validate"
 	nais_io_v1 "github.com/nais/pgrator/pkg/api/v1"
+	"github.com/sirupsen/logrus"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
@@ -73,7 +77,7 @@ func TestToPostgres(t *testing.T) {
 	obj := &unstructured.Unstructured{Object: map[string]any{
 		"apiVersion": "nais.io/v1", "kind": "Postgres",
 		"metadata": map[string]any{"name": "orders", "namespace": "my-team"},
-		"spec":     map[string]any{"majorVersion": "17", "highAvailability": true, "resources": map[string]any{"cpu": "100m", "memory": "2Gi", "diskSize": "10Gi"}},
+		"spec":     map[string]any{"majorVersion": "17", "highAvailability": true, "extensions": []any{map[string]any{"name": "pg_trgm"}, map[string]any{"name": "uuid-ossp"}}, "resources": map[string]any{"cpu": "100m", "memory": "2Gi", "diskSize": "10Gi"}},
 		"status":   map[string]any{"activeBranch": "restored"},
 	}}
 	got, err := toPostgres(obj, "dev")
@@ -83,8 +87,109 @@ func TestToPostgres(t *testing.T) {
 	if got.Name != "orders" || got.MajorVersion != "17" || got.ActiveBranch == nil || *got.ActiveBranch != "restored" {
 		t.Errorf("unexpected Postgres: %+v", got)
 	}
+	if !reflect.DeepEqual(got.Extensions, []string{"pg_trgm", "uuid-ossp"}) {
+		t.Errorf("extensions = %v, want [pg_trgm uuid-ossp]", got.Extensions)
+	}
 	if got.Resources.CPU == nil || *got.Resources.CPU != "100m" || got.Resources.Memory == nil || *got.Resources.Memory != "2Gi" || got.Resources.DiskSize == nil || *got.Resources.DiskSize != "10Gi" {
 		t.Errorf("unexpected Postgres resources: %+v", got.Resources)
+	}
+}
+
+func TestToPostgresWithoutExtensions(t *testing.T) {
+	obj := &unstructured.Unstructured{Object: map[string]any{
+		"apiVersion": "nais.io/v1", "kind": "Postgres",
+		"metadata": map[string]any{"name": "orders", "namespace": "my-team"},
+		"spec":     map[string]any{"majorVersion": "17"},
+	}}
+	got, err := toPostgres(obj, "dev")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.Extensions == nil || len(got.Extensions) != 0 {
+		t.Errorf("extensions = %v, want an empty list", got.Extensions)
+	}
+}
+
+func TestPostgresExtensionFromName(t *testing.T) {
+	tests := []struct {
+		name string
+		want PostgresExtension
+	}{
+		{name: "tablefunc", want: "TABLEFUNC"},
+		{name: "citext", want: "CITEXT"},
+		{name: "pageinspect", want: "PAGEINSPECT"},
+		{name: "hstore", want: "HSTORE"},
+		{name: "pg_logicalinspect", want: "PG_LOGICALINSPECT"},
+		{name: "xml2", want: "XML2"},
+		{name: "file_fdw", want: "FILE_FDW"},
+		{name: "pgrowlocks", want: "PGROWLOCKS"},
+		{name: "pg_visibility", want: "PG_VISIBILITY"},
+		{name: "pgstattuple", want: "PGSTATTUPLE"},
+		{name: "dict_int", want: "DICT_INT"},
+		{name: "pg_freespacemap", want: "PG_FREESPACEMAP"},
+		{name: "tcn", want: "TCN"},
+		{name: "bloom", want: "BLOOM"},
+		{name: "btree_gin", want: "BTREE_GIN"},
+		{name: "unaccent", want: "UNACCENT"},
+		{name: "seg", want: "SEG"},
+		{name: "tsm_system_rows", want: "TSM_SYSTEM_ROWS"},
+		{name: "insert_username", want: "INSERT_USERNAME"},
+		{name: "dict_xsyn", want: "DICT_XSYN"},
+		{name: "tsm_system_time", want: "TSM_SYSTEM_TIME"},
+		{name: "postgres_fdw", want: "POSTGRES_FDW"},
+		{name: "autoinc", want: "AUTOINC"},
+		{name: "earthdistance", want: "EARTHDISTANCE"},
+		{name: "amcheck", want: "AMCHECK"},
+		{name: "fuzzystrmatch", want: "FUZZYSTRMATCH"},
+		{name: "plpgsql", want: "PLPGSQL"},
+		{name: "refint", want: "REFINT"},
+		{name: "uuid-ossp", want: "UUID_OSSP"},
+		{name: "intarray", want: "INTARRAY"},
+		{name: "btree_gist", want: "BTREE_GIST"},
+		{name: "pg_buffercache", want: "PG_BUFFERCACHE"},
+		{name: "pg_stat_statements", want: "PG_STAT_STATEMENTS"},
+		{name: "intagg", want: "INTAGG"},
+		{name: "ltree", want: "LTREE"},
+		{name: "cube", want: "CUBE"},
+		{name: "pg_walinspect", want: "PG_WALINSPECT"},
+		{name: "dblink", want: "DBLINK"},
+		{name: "pg_prewarm", want: "PG_PREWARM"},
+		{name: "sslinfo", want: "SSLINFO"},
+		{name: "pgcrypto", want: "PGCRYPTO"},
+		{name: "moddatetime", want: "MODDATETIME"},
+		{name: "pg_trgm", want: "PG_TRGM"},
+		{name: "pg_surgery", want: "PG_SURGERY"},
+		{name: "isn", want: "ISN"},
+		{name: "lo", want: "LO"},
+		{name: "vector", want: "VECTOR"},
+		{name: "pgaudit", want: "PGAUDIT"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := PostgresExtensionFromName(tt.name)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if got != tt.want {
+				t.Errorf("PostgresExtensionFromName(%q) = %q, want %q", tt.name, got, tt.want)
+			}
+		})
+	}
+
+	_, err := PostgresExtensionFromName("unknown")
+	if err == nil {
+		t.Fatal("expected unsupported extension to return an error")
+	}
+
+	ctx := context.Background()
+	presenter := apierror.GetErrorPresenter(logrus.New())
+	presented := presenter(ctx, graphql.DefaultErrorPresenter(ctx, err))
+	if !strings.Contains(presented.Message, `"unknown"`) {
+		t.Errorf("presented error = %q, want to identify the unsupported extension", presented.Message)
+	}
+
+	if _, err := PostgresExtensionFromName("pg_failover_slots"); err == nil {
+		t.Fatal("expected extension unavailable in pg_available_extensions to return an error")
 	}
 }
 
