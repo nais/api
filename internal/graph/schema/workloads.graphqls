@@ -467,6 +467,9 @@ enum ValueEncoding {
 Input for filtering team workloads.
 """
 input TeamWorkloadsFilter {
+	"Match workloads whose name contains this text, ignoring case."
+	name: String
+
 	"""
 	Only return workloads from the given named environments.
 	"""
