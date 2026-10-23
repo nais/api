@@ -257,6 +257,7 @@ func Trigger(ctx context.Context, teamSlug slug.Slug, environmentName, name, run
 		Actor:           authz.ActorFromContext(ctx).User,
 		ResourceType:    ActivityLogEntryResourceTypeJob,
 		ResourceName:    name,
+		Data:            &JobTriggeredActivityLogEntryData{RunName: newRun.GetName()},
 		EnvironmentName: &environmentName,
 		TeamSlug:        &teamSlug,
 	}); err != nil {

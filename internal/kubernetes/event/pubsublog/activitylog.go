@@ -18,6 +18,7 @@ func init() {
 		activityLogEntryActionClusterAudit,
 		ActivityLogEntryResourceTypeClusterAudit,
 		activitylog.GlobalOnly(),
+		activitylog.IgnoreWebhook(),
 		activitylog.WithDescription("Triggered when an action on a Kubernetes resource is recorded in the cluster audit log."),
 	)
 
