@@ -31,7 +31,7 @@ type WebhookEventTypeInfo struct {
 	// TeamScoped indicates if this event type can be subscribed to by team-scoped webhooks.
 	TeamScoped bool `json:"teamScoped"`
 
-	ignoreWebhook bool // internal flag to indicate that this event type should not be exposed in the webhook catalogue
+	ignoreWebhook bool
 }
 
 type ActivityTypeOption func(*WebhookEventTypeInfo)
@@ -57,7 +57,7 @@ func GlobalOnly() ActivityTypeOption {
 	}
 }
 
-// IgnoreWebhook excludes the event type from the webhook event type catalogue entirely.
+// IgnoreWebhook excludes the event type from the webhook catalogue, subscriptions, and delivery.
 func IgnoreWebhook() ActivityTypeOption {
 	return func(info *WebhookEventTypeInfo) {
 		info.ignoreWebhook = true
@@ -164,6 +164,11 @@ func IsTeamScoped(at ActivityLogActivityType) bool {
 		return true
 	}
 	return info.TeamScoped
+}
+
+// IsIgnoredForWebhook reports whether the event type is excluded from webhooks.
+func IsIgnoredForWebhook(at ActivityLogActivityType) bool {
+	return eventTypeInfos[at].ignoreWebhook
 }
 
 // IsValidActivityType returns true if the event type is '*' or a registered activity type.

@@ -90,6 +90,32 @@ func TestIsTeamScoped(t *testing.T) {
 	}
 }
 
+func TestIsIgnoredForWebhook(t *testing.T) {
+	const visible ActivityLogActivityType = "FILTER_TEST_WEBHOOK_VISIBLE"
+	const ignored ActivityLogActivityType = "FILTER_TEST_WEBHOOK_IGNORED"
+	RegisterActivityType(visible, ActivityLogEntryActionCreated, "FILTER_TEST_WEBHOOK_VISIBLE_RESOURCE")
+	RegisterActivityType(ignored, ActivityLogEntryActionCreated, "FILTER_TEST_WEBHOOK_IGNORED_RESOURCE", IgnoreWebhook())
+
+	for _, tt := range []struct {
+		activityType ActivityLogActivityType
+		want         bool
+	}{
+		{visible, false},
+		{ignored, true},
+		{"FILTER_TEST_WEBHOOK_UNKNOWN", false},
+	} {
+		if got := IsIgnoredForWebhook(tt.activityType); got != tt.want {
+			t.Errorf("IsIgnoredForWebhook(%q) = %v, want %v", tt.activityType, got, tt.want)
+		}
+	}
+	if !ignored.IsValid() {
+		t.Error("ignored webhook types must remain valid activity log types")
+	}
+	if got := LookupActivityTypes("FILTER_TEST_WEBHOOK_IGNORED_RESOURCE", string(ActivityLogEntryActionCreated)); !slices.Contains(got, ignored) {
+		t.Errorf("ignored webhook type missing from activity log lookup: %v", got)
+	}
+}
+
 func TestIsValidActivityType(t *testing.T) {
 	const activityType ActivityLogActivityType = "FILTER_TEST_VALID"
 	RegisterActivityType(activityType, ActivityLogEntryActionCreated, "FILTER_TEST_RESOURCE_F")

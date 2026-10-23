@@ -11,6 +11,7 @@ import (
 func init() {
 	activitylog.RegisterActivityType("WEBHOOK_TEST_QUERIES_EVENT", activitylog.ActivityLogEntryActionCreated, "WEBHOOK_TEST_QUERIES_RESOURCE")
 	activitylog.RegisterActivityType("WEBHOOK_TEST_QUERIES_GLOBAL_EVENT", activitylog.ActivityLogEntryActionCreated, "WEBHOOK_TEST_QUERIES_RESOURCE", activitylog.GlobalOnly())
+	activitylog.RegisterActivityType("WEBHOOK_TEST_QUERIES_IGNORED_EVENT", activitylog.ActivityLogEntryActionCreated, "WEBHOOK_TEST_QUERIES_IGNORED_RESOURCE", activitylog.IgnoreWebhook())
 }
 
 func TestMaskedSecret(t *testing.T) {
@@ -55,6 +56,21 @@ func TestValidateEventTypes_Wildcard(t *testing.T) {
 func TestValidateEventTypes_UnknownActivityType(t *testing.T) {
 	if err := validateEventTypes(nil, []string{"WEBHOOK_TEST_QUERIES_UNKNOWN"}); err == nil {
 		t.Error("expected an error for an unknown activity type")
+	}
+}
+
+func TestValidateEventTypes_IgnoredActivityType(t *testing.T) {
+	team := slug.Slug("my-team")
+	for _, teamSlug := range []*slug.Slug{nil, &team} {
+		for _, eventTypes := range [][]string{
+			{"WEBHOOK_TEST_QUERIES_IGNORED_EVENT"},
+			{"*", "WEBHOOK_TEST_QUERIES_IGNORED_EVENT"},
+		} {
+			err := validateEventTypes(teamSlug, eventTypes)
+			if err == nil || !strings.Contains(err.Error(), "excluded from webhooks") {
+				t.Errorf("validateEventTypes(%v, %v) = %v, want ignored event error", teamSlug, eventTypes, err)
+			}
+		}
 	}
 }
 

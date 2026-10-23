@@ -74,6 +74,22 @@ Test.gql("as team member", function(t)
 	}
 end)
 
+Test.sql("trigger activity identifies the created run", function(t)
+	t.queryRow [[
+		SELECT
+			resource_name,
+			environment,
+			CONVERT_FROM(data, 'UTF8')::JSONB AS data
+		FROM activity_log_entries
+		WHERE team_slug = 'slug-1' AND resource_type = 'JOB' AND action = 'TRIGGER_JOB'
+	]]
+	t.check {
+		resource_name = "jobname-1",
+		environment = "dev",
+		data = { runName = "newRun" },
+	}
+end)
+
 Test.gql("as non-team member", function(t)
 	t.addHeader("x-user-email", nonMember:email())
 

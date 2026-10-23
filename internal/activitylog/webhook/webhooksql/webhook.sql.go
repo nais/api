@@ -14,7 +14,7 @@ import (
 const claimOutboxEventsForFanout = `-- name: ClaimOutboxEventsForFanout :many
 SELECT
 	webhook_events.id, webhook_events.activity_log_entries_id, webhook_events.status, webhook_events.created_at,
-	activity_log_entries.id, activity_log_entries.created_at, activity_log_entries.actor, activity_log_entries.action, activity_log_entries.resource_type, activity_log_entries.resource_name, activity_log_entries.team_slug, activity_log_entries.data, activity_log_entries.environment
+	activity_log_entries.id, activity_log_entries.created_at, activity_log_entries.actor, activity_log_entries.action, activity_log_entries.resource_type, activity_log_entries.resource_name, activity_log_entries.team_slug, activity_log_entries.data, activity_log_entries.environment, activity_log_entries.github_actor_claims, activity_log_entries.kubernetes_audit_uid
 FROM
 	webhook_events
 	JOIN activity_log_entries ON webhook_events.activity_log_entries_id = activity_log_entries.id
@@ -59,6 +59,8 @@ func (q *Queries) ClaimOutboxEventsForFanout(ctx context.Context, batchSize int3
 			&i.ActivityLogEntry.TeamSlug,
 			&i.ActivityLogEntry.Data,
 			&i.ActivityLogEntry.Environment,
+			&i.ActivityLogEntry.GithubActorClaims,
+			&i.ActivityLogEntry.KubernetesAuditUid,
 		); err != nil {
 			return nil, err
 		}
@@ -98,7 +100,7 @@ WITH
 SELECT
 	webhook_event_deliveries.id, webhook_event_deliveries.webhook_event_id, webhook_event_deliveries.subscription_id, webhook_event_deliveries.status, webhook_event_deliveries.retry_count, webhook_event_deliveries.run_at, webhook_event_deliveries.created_at,
 	webhook_subscriptions.id, webhook_subscriptions.team_slug, webhook_subscriptions.url, webhook_subscriptions.secret, webhook_subscriptions.event_types, webhook_subscriptions.enabled, webhook_subscriptions.consecutive_failures, webhook_subscriptions.disabled_at, webhook_subscriptions.created_by, webhook_subscriptions.created_at, webhook_subscriptions.updated_at,
-	activity_log_entries.id, activity_log_entries.created_at, activity_log_entries.actor, activity_log_entries.action, activity_log_entries.resource_type, activity_log_entries.resource_name, activity_log_entries.team_slug, activity_log_entries.data, activity_log_entries.environment
+	activity_log_entries.id, activity_log_entries.created_at, activity_log_entries.actor, activity_log_entries.action, activity_log_entries.resource_type, activity_log_entries.resource_name, activity_log_entries.team_slug, activity_log_entries.data, activity_log_entries.environment, activity_log_entries.github_actor_claims, activity_log_entries.kubernetes_audit_uid
 FROM
 	claimed_deliveries webhook_event_deliveries
 	JOIN webhook_subscriptions ON webhook_event_deliveries.subscription_id = webhook_subscriptions.id
@@ -151,6 +153,8 @@ func (q *Queries) ClaimPendingDeliveries(ctx context.Context, batchSize int32) (
 			&i.ActivityLogEntry.TeamSlug,
 			&i.ActivityLogEntry.Data,
 			&i.ActivityLogEntry.Environment,
+			&i.ActivityLogEntry.GithubActorClaims,
+			&i.ActivityLogEntry.KubernetesAuditUid,
 		); err != nil {
 			return nil, err
 		}

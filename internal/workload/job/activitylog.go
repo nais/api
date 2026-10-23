@@ -101,6 +101,7 @@ func init() {
 		"DEPLOYMENT",
 		deploymentactivity.ActivityLogEntryActionDeployment,
 		ActivityLogEntryResourceTypeJob,
+		activitylog.IgnoreWebhook(),
 		activitylog.WithDescription("Triggered when a resource is deployed using the nais/deploy action."),
 	)
 	activitylog.RegisterActivityType(
@@ -121,17 +122,21 @@ type JobTriggeredActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
 }
 
+type JobTriggeredActivityLogEntryData struct {
+	RunName string `json:"runName"`
+}
+
 type JobDeletedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
 }
 
 type JobRunDeletedActivityLogEntryData struct {
-	RunName string
+	RunName string `json:"runName"`
 }
 
 type JobRunDeletedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
-	Data *JobRunDeletedActivityLogEntryData
+	Data *JobRunDeletedActivityLogEntryData `json:"data"`
 }
 
 type JobCreatedActivityLogEntry struct {

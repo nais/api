@@ -98,12 +98,14 @@ func init() {
 		"APPLICATION_SCALED",
 		activityLogEntryActionAutoScaleApplication,
 		ActivityLogEntryResourceTypeApplication,
+		activitylog.IgnoreWebhook(),
 		activitylog.WithDescription("Triggered when an application is scaled."),
 	)
 	activitylog.RegisterActivityType(
 		"DEPLOYMENT",
 		deploymentactivity.ActivityLogEntryActionDeployment,
 		ActivityLogEntryResourceTypeApplication,
+		activitylog.IgnoreWebhook(),
 		activitylog.WithDescription("Triggered when a resource is deployed using the nais/deploy action."),
 	)
 	activitylog.RegisterActivityType(

@@ -254,6 +254,9 @@ func validateEventTypes(teamSlug *slug.Slug, eventTypes []string) error {
 		if !activitylog.IsValidActivityType(et) {
 			return fmt.Errorf("invalid event type: %q", et)
 		}
+		if activitylog.IsIgnoredForWebhook(activitylog.ActivityLogActivityType(et)) {
+			return fmt.Errorf("event type %q is excluded from webhooks", et)
+		}
 		if teamSlug != nil && et != "*" {
 			if !activitylog.IsTeamScoped(activitylog.ActivityLogActivityType(et)) {
 				return fmt.Errorf("event type %q is global-only and cannot be subscribed to by a team-scoped webhook", et)

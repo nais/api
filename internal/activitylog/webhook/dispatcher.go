@@ -233,6 +233,9 @@ func toWebhookEvent(a *webhooksql.ActivityLogEntry) WebhookEvent {
 
 func (d *Dispatcher) processDelivery(ctx context.Context, q *webhooksql.Queries, del *webhooksql.WebhookEventDelivery, sub *webhooksql.WebhookSubscription, a *webhooksql.ActivityLogEntry) {
 	event := toWebhookEvent(a)
+	if event.isIgnored() {
+		return
+	}
 
 	// Use the first resolved activity type as the delivery event type label.
 	eventType := event.RawEventType

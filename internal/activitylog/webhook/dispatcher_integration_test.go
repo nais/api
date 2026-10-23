@@ -602,12 +602,16 @@ func createTeam(ctx context.Context, t *testing.T, pool *pgxpool.Pool, teamSlug 
 
 func insertActivityLogEntry(ctx context.Context, t *testing.T, pool *pgxpool.Pool, teamSlug *slug.Slug, resourceName string) {
 	t.Helper()
+	var teamSlugString *string
+	if teamSlug != nil {
+		teamSlugString = new(teamSlug.String())
+	}
 	err := activitylogsql.New(pool).Create(ctx, activitylogsql.CreateParams{
 		Actor:        "actor@example.com",
 		Action:       string(activitylog.ActivityLogEntryActionCreated),
 		ResourceType: testResourceType,
 		ResourceName: resourceName,
-		TeamSlug:     teamSlug,
+		TeamSlug:     teamSlugString,
 	})
 	if err != nil {
 		t.Fatalf("failed to insert activity log entry: %v", err)
