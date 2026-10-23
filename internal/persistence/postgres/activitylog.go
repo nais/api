@@ -22,16 +22,66 @@ const (
 func init() {
 	activitylog.RegisterTransformer(ActivityLogEntryResourceTypePostgres, transformPostgresActivityLogEntry)
 
-	activitylog.RegisterActivityType("POSTGRES_GRANT_ACCESS", activityLogEntryActionGrantAccess, ActivityLogEntryResourceTypePostgres)
-	activitylog.RegisterActivityType("POSTGRES_PERSONAL_ACCESS_CREATED", activityLogEntryActionCreatePersonalAccess, ActivityLogEntryResourceTypePostgres)
-	activitylog.RegisterActivityType("POSTGRES_PERSONAL_ACCESS_CONNECTION", activityLogEntryActionGetPersonalAccessConnection, ActivityLogEntryResourceTypePostgres)
-	activitylog.RegisterActivityType("POSTGRES_CREATED", activitylog.ActivityLogEntryActionCreated, ActivityLogEntryResourceTypePostgres)
-	activitylog.RegisterActivityType("POSTGRES_UPDATED", activitylog.ActivityLogEntryActionUpdated, ActivityLogEntryResourceTypePostgres)
-	activitylog.RegisterActivityType("POSTGRES_DELETED", activitylog.ActivityLogEntryActionDeleted, ActivityLogEntryResourceTypePostgres)
-	activitylog.RegisterActivityType("POSTGRES_DELETION_REQUESTED", activityLogEntryActionDeletionRequested, ActivityLogEntryResourceTypePostgres)
-	activitylog.RegisterActivityType("POSTGRES_BRANCH_CREATED", activityLogEntryActionBranchCreated, ActivityLogEntryResourceTypePostgres)
-	activitylog.RegisterActivityType("POSTGRES_BRANCH_ACTIVATED", activityLogEntryActionBranchActivated, ActivityLogEntryResourceTypePostgres)
-	activitylog.RegisterActivityType("POSTGRES_BRANCH_DELETED", activityLogEntryActionBranchDeleted, ActivityLogEntryResourceTypePostgres)
+	activitylog.RegisterActivityType(
+		"POSTGRES_GRANT_ACCESS",
+		activityLogEntryActionGrantAccess,
+		ActivityLogEntryResourceTypePostgres,
+		activitylog.WithDescription("Triggered when temporary access to Postgres is granted."),
+	)
+	activitylog.RegisterActivityType(
+		"POSTGRES_PERSONAL_ACCESS_CREATED",
+		activityLogEntryActionCreatePersonalAccess,
+		ActivityLogEntryResourceTypePostgres,
+		activitylog.WithDescription("Triggered when personal access to a Postgres branch is requested."),
+	)
+	activitylog.RegisterActivityType(
+		"POSTGRES_PERSONAL_ACCESS_CONNECTION",
+		activityLogEntryActionGetPersonalAccessConnection,
+		ActivityLogEntryResourceTypePostgres,
+		activitylog.WithDescription("Triggered when connection details for personal Postgres access are retrieved."),
+	)
+	activitylog.RegisterActivityType(
+		"POSTGRES_CREATED",
+		activitylog.ActivityLogEntryActionCreated,
+		ActivityLogEntryResourceTypePostgres,
+		activitylog.WithDescription("Triggered when a Postgres instance is created."),
+	)
+	activitylog.RegisterActivityType(
+		"POSTGRES_UPDATED",
+		activitylog.ActivityLogEntryActionUpdated,
+		ActivityLogEntryResourceTypePostgres,
+		activitylog.WithDescription("Triggered when a Postgres instance is updated."),
+	)
+	activitylog.RegisterActivityType(
+		"POSTGRES_DELETED",
+		activitylog.ActivityLogEntryActionDeleted,
+		ActivityLogEntryResourceTypePostgres,
+		activitylog.WithDescription("Triggered when a Postgres branch is deleted (legacy event without a branch name)."),
+	)
+	activitylog.RegisterActivityType(
+		"POSTGRES_DELETION_REQUESTED",
+		activityLogEntryActionDeletionRequested,
+		ActivityLogEntryResourceTypePostgres,
+		activitylog.WithDescription("Triggered when deletion of a Postgres instance is requested; cleanup is pending."),
+	)
+	activitylog.RegisterActivityType(
+		"POSTGRES_BRANCH_CREATED",
+		activityLogEntryActionBranchCreated,
+		ActivityLogEntryResourceTypePostgres,
+		activitylog.WithDescription("Triggered when a Postgres branch is created."),
+	)
+	activitylog.RegisterActivityType(
+		"POSTGRES_BRANCH_ACTIVATED",
+		activityLogEntryActionBranchActivated,
+		ActivityLogEntryResourceTypePostgres,
+		activitylog.WithDescription("Triggered when a Postgres branch is activated."),
+	)
+	activitylog.RegisterActivityType(
+		"POSTGRES_BRANCH_DELETED",
+		activityLogEntryActionBranchDeleted,
+		ActivityLogEntryResourceTypePostgres,
+		activitylog.WithDescription("Triggered when a Postgres branch is deleted."),
+	)
 }
 
 func transformPostgresActivityLogEntry(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {

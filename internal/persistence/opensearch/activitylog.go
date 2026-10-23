@@ -84,7 +84,7 @@ func init() {
 		"OPENSEARCH_CREDENTIALS_CREATED",
 		activitylog.ActivityLogEntryActionCredentialsCreated,
 		ActivityLogEntryResourceTypeOpenSearch,
-		activitylog.WithDescription("Triggered when credentials are created for an OpenSearch instance or a Valkey."),
+		activitylog.WithDescription("Triggered when credentials are created for an OpenSearch instance."),
 	)
 }
 
