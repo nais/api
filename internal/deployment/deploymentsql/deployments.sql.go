@@ -34,8 +34,22 @@ WHERE
 	AND deployment_k8s_resources.kind = $2
 	AND deployments.environment_name = $3
 	AND deployments.team_slug = $4
+UNION ALL
+SELECT
+	activity_log_entries.created_at
+FROM
+	activity_log_entries
+WHERE
+	activity_log_entries.resource_name = $1
+	AND activity_log_entries.resource_type = CASE $2::TEXT
+		WHEN 'Application' THEN 'APP'
+		WHEN 'Naisjob' THEN 'JOB'
+	END
+	AND activity_log_entries.environment = $3
+	AND activity_log_entries.team_slug = $4
+	AND activity_log_entries.action IN ('CREATED', 'UPDATED')
 ORDER BY
-	deployments.created_at DESC
+	created_at DESC
 LIMIT
 	1
 `
