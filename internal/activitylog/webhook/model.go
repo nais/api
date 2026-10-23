@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/slug"
@@ -105,8 +106,17 @@ type WebhookEvent struct {
 	Data         []byte
 }
 
+func (e WebhookEvent) isIgnored() bool {
+	for _, at := range e.ActivityTypes {
+		if activitylog.IsIgnoredForWebhook(activitylog.ActivityLogActivityType(at)) {
+			return true
+		}
+	}
+	return false
+}
+
 func (w *WebhookSubscription) MatchesEvent(event WebhookEvent) bool {
-	if !w.Enabled {
+	if !w.Enabled || event.isIgnored() {
 		return false
 	}
 

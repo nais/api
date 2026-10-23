@@ -150,44 +150,44 @@ type SecretCreatedActivityLogEntry struct {
 
 type SecretUpdatedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
-	Data *SecretUpdatedActivityLogEntryData
+	Data *SecretUpdatedActivityLogEntryData `json:"data"`
 }
 
 type SecretUpdatedActivityLogEntryData struct {
-	UpdatedFields []*SecretUpdatedActivityLogEntryDataUpdatedField
+	UpdatedFields []*SecretUpdatedActivityLogEntryDataUpdatedField `json:"updatedFields"`
 }
 
 type SecretUpdatedActivityLogEntryDataUpdatedField struct {
-	Field    string
-	OldValue *string
-	NewValue *string
+	Field    string  `json:"field"`
+	OldValue *string `json:"oldValue"`
+	NewValue *string `json:"newValue"`
 }
 
 type SecretValueAddedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
-	Data *SecretValueAddedActivityLogEntryData
+	Data *SecretValueAddedActivityLogEntryData `json:"data"`
 }
 
 type SecretValueAddedActivityLogEntryData struct {
-	ValueName string
+	ValueName string `json:"valueName"`
 }
 
 type SecretValueUpdatedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
-	Data *SecretValueUpdatedActivityLogEntryData
+	Data *SecretValueUpdatedActivityLogEntryData `json:"data"`
 }
 
 type SecretValueUpdatedActivityLogEntryData struct {
-	ValueName string
+	ValueName string `json:"valueName"`
 }
 
 type SecretValueRemovedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
-	Data *SecretValueRemovedActivityLogEntryData
+	Data *SecretValueRemovedActivityLogEntryData `json:"data"`
 }
 
 type SecretValueRemovedActivityLogEntryData struct {
-	ValueName string
+	ValueName string `json:"valueName"`
 }
 
 type SecretDeletedActivityLogEntry struct {
@@ -196,10 +196,10 @@ type SecretDeletedActivityLogEntry struct {
 
 type SecretValuesViewedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
-	Data *SecretValuesViewedActivityLogEntryData
+	Data *SecretValuesViewedActivityLogEntryData `json:"data"`
 }
 
 type SecretValuesViewedActivityLogEntryData struct {
-	Reason      string
-	ElevationID string
+	Reason      string `json:"reason"`
+	ElevationID string `json:"elevationID"`
 }

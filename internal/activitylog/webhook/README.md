@@ -82,7 +82,8 @@ The dispatcher is started on every API replica (`go webhookDispatcher.Run(ctx)`,
 ## Event types
 
 Event types are driven by `activitylog.RegisterActivityType` calls throughout the codebase.
-Every registered activity type is automatically available as a subscribable event type. Option functions allow customising descriptions, grouping, or scope.
+Registered activity types are available as subscribable event types unless marked with
+`activitylog.IgnoreWebhook()`. Option functions allow customising descriptions, grouping, or scope.
 
 ```go
 // Any domain package's init():
@@ -106,6 +107,24 @@ activitylog.RegisterActivityType(
 The `webhookEventTypes` GraphQL query exposes the full catalogue with descriptions, groups, and `teamScoped` status.
 
 Subscription `event_types` accepts activity type names (e.g. `TEAM_MEMBER_ADDED`) or `*` for all events. If a team-scoped webhook tries to subscribe to a `GlobalOnly` event type, creation/update will fail validation.
+
+`IgnoreWebhook()` excludes an event type from the catalogue and rejects explicit
+subscriptions. Ignored events are never delivered, including through wildcard or existing
+subscriptions. Already queued deliveries and retries are also skipped if their event type
+is ignored. Activity log entries remain available through the activity log.
+
+`DEPLOYMENT`, `APPLICATION_SCALED`, `CLUSTER_AUDIT`, and `VULNERABILITY_UPDATED`
+are excluded, along with Tunnel and Unleash events.
+
+### Event payloads
+
+New activity log payloads use camelCase JSON keys. Both `JOB_TRIGGERED` and
+`JOB_RUN_DELETED` include `data.data.runName`, identifying the affected run while
+`data.resourceName` identifies the parent job.
+
+Payload data is forwarded from the stored activity log entry without rewriting historical
+entries. Older Secret and job-run deletion entries can therefore still contain PascalCase
+keys, and older `JOB_TRIGGERED` entries have no run name.
 
 ## CloudEvents type mapping
 
