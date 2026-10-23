@@ -3,6 +3,13 @@ local team = Team.new("slug-1", "purpose", "#channel")
 local user = User.new("authenticated", "authenticated@example.com", "some-id")
 local reanalysisMember = User.new("reanalysis-member", "reanalysis-member@example.com", "reanalysis-member")
 team:addMember(reanalysisMember)
+local reanalysisAdmin = User.new("reanalysis-admin", "reanalysis-admin@example.com", "reanalysis-admin")
+reanalysisAdmin:admin(true)
+local reanalysisGlobalMember = User.new("reanalysis-global-member", "reanalysis-global-member@example.com",
+	"reanalysis-global-member")
+Helper.SQLExec("INSERT INTO user_roles (user_id, role_name) VALUES ($1, $2)", reanalysisGlobalMember:id(), "Team member")
+local reanalysisServiceAccount = ServiceAccount.new("reanalysis-service-account", team:slug())
+reanalysisServiceAccount:assignRole("Team member")
 
 Test.gql("Reanalyze an application using WorkloadType", function(t)
 	t.addHeader("x-user-email", reanalysisMember:email())
@@ -49,6 +56,64 @@ Test.gql("Reject reanalysis from a non-member", function(t)
 		},
 	}
 end)
+
+for _, actor in ipairs({
+	{ name = "service account with vulnerability:update",   header = "Authorization", value = "Bearer " .. reanalysisServiceAccount:token() },
+	{ name = "non-member admin",                            header = "x-user-email",  value = reanalysisAdmin:email() },
+	{ name = "non-member with global vulnerability:update", header = "x-user-email",  value = reanalysisGlobalMember:email() },
+}) do
+	Test.gql("Reject reanalysis from " .. actor.name, function(t)
+		t.addHeader(actor.header, actor.value)
+		t.query [[
+			mutation {
+				reanalyzeVulnerabilities(input: { teamSlug: "slug-1", environmentName: "dev" }) {
+					numImages
+				}
+			}
+		]]
+		t.check {
+			data = Null,
+			errors = {
+				{
+					locations = NotNull(),
+					message = Contains("You are authenticated"),
+					path = { "reanalyzeVulnerabilities" },
+				},
+			},
+		}
+	end)
+end
+
+for _, selector in ipairs({
+	{ name = "type without name", fields = 'workloadType: APPLICATION',                  message = "workloadType requires workloadName" },
+	{ name = "name without type", fields = 'workloadName: "app-with-vulnerabilities"',   message = "workloadName and workloadType must both be set" },
+	{ name = "empty name",        fields = 'workloadName: "" workloadType: APPLICATION', message = "workloadName and workloadType must both be set" },
+}) do
+	Test.gql("Reject reanalysis with " .. selector.name, function(t)
+		t.addHeader("x-user-email", reanalysisMember:email())
+		t.query(string.format([[
+			mutation {
+				reanalyzeVulnerabilities(input: {
+					teamSlug: "slug-1"
+					environmentName: "dev"
+					%s
+				}) {
+					numImages
+				}
+			}
+		]], selector.fields))
+		t.check {
+			data = Null,
+			errors = {
+				{
+					locations = NotNull(),
+					message = Contains(selector.message),
+					path = { "reanalyzeVulnerabilities" },
+				},
+			},
+		}
+	end)
+end
 
 Test.gql("List vulnerability history for image", function(t)
 	t.addHeader("x-user-email", user:email())
