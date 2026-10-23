@@ -2,12 +2,12 @@ package workload_test
 
 import (
 	"context"
+	"slices"
 	"testing"
 
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
 	"github.com/nais/api/internal/workload/job"
-	"github.com/stretchr/testify/require"
 )
 
 func TestTeamWorkloadNameFilterMatchesAcrossTypesAndEnvironments(t *testing.T) {
@@ -21,8 +21,18 @@ func TestTeamWorkloadNameFilterMatchesAcrossTypesAndEnvironments(t *testing.T) {
 	filtered := workload.SortFilter.Filter(context.Background(), items, &workload.TeamWorkloadsFilter{
 		Name: &name, Environments: []string{"dev"},
 	})
-	require.Equal(t, items[:2], filtered)
+	if len(filtered) != 2 || !slices.Contains(filtered, items[0]) || !slices.Contains(filtered, items[1]) {
+		t.Errorf("filtered workloads = %v, want %v and %v", filtered, items[0], items[1])
+	}
 
 	empty := ""
-	require.Equal(t, items, workload.SortFilter.Filter(context.Background(), items, &workload.TeamWorkloadsFilter{Name: &empty}))
+	filtered = workload.SortFilter.Filter(context.Background(), items, &workload.TeamWorkloadsFilter{Name: &empty})
+	if len(filtered) != len(items) {
+		t.Fatalf("filtered workloads = %v, want all %d workloads", filtered, len(items))
+	}
+	for _, item := range items {
+		if !slices.Contains(filtered, item) {
+			t.Errorf("filtered workloads missing %v", item)
+		}
+	}
 }
