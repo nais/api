@@ -140,8 +140,22 @@ WHERE
 	AND deployment_k8s_resources.kind = @workload_kind
 	AND deployments.environment_name = @environment_name
 	AND deployments.team_slug = @team_slug
+UNION ALL
+SELECT
+	activity_log_entries.created_at
+FROM
+	activity_log_entries
+WHERE
+	activity_log_entries.resource_name = @workload_name
+	AND activity_log_entries.resource_type = CASE @workload_kind::TEXT
+		WHEN 'Application' THEN 'APP'
+		WHEN 'Naisjob' THEN 'JOB'
+	END
+	AND activity_log_entries.environment = @environment_name
+	AND activity_log_entries.team_slug = @team_slug
+	AND activity_log_entries.action IN ('CREATED', 'UPDATED')
 ORDER BY
-	deployments.created_at DESC
+	created_at DESC
 LIMIT
 	1
 ;

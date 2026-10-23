@@ -1,5 +1,6 @@
 [settings]
 pin = true
+lockfile = true
 
 [tools]
 go = "1.26.7"
