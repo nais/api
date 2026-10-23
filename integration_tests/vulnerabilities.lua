@@ -1,6 +1,54 @@
 Helper.readK8sResources("k8s_resources/vulnerability")
 local team = Team.new("slug-1", "purpose", "#channel")
 local user = User.new("authenticated", "authenticated@example.com", "some-id")
+local reanalysisMember = User.new("reanalysis-member", "reanalysis-member@example.com", "reanalysis-member")
+team:addMember(reanalysisMember)
+
+Test.gql("Reanalyze an application using WorkloadType", function(t)
+	t.addHeader("x-user-email", reanalysisMember:email())
+	t.query [[
+		mutation {
+			reanalyzeVulnerabilities(input: {
+				teamSlug: "slug-1"
+				environmentName: "dev"
+				workloadName: "app-with-vulnerabilities"
+				workloadType: APPLICATION
+			}) {
+				numImages
+				requestedAt
+			}
+		}
+	]]
+	t.check {
+		data = {
+			reanalyzeVulnerabilities = {
+				numImages = 0,
+				requestedAt = Null,
+			},
+		},
+	}
+end)
+
+Test.gql("Reject reanalysis from a non-member", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[
+		mutation {
+			reanalyzeVulnerabilities(input: { teamSlug: "slug-1", environmentName: "dev" }) {
+				numImages
+			}
+		}
+	]]
+	t.check {
+		data = Null,
+		errors = {
+			{
+				locations = NotNull(),
+				message = Contains("You are authenticated"),
+				path = { "reanalyzeVulnerabilities" },
+			},
+		},
+	}
+end)
 
 Test.gql("List vulnerability history for image", function(t)
 	t.addHeader("x-user-email", user:email())
