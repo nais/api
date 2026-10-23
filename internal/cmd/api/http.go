@@ -12,6 +12,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/nais/api/internal/activitylog"
+	"github.com/nais/api/internal/activitylog/webhook"
 	"github.com/nais/api/internal/alerts"
 	"github.com/nais/api/internal/auth/authn"
 	"github.com/nais/api/internal/auth/authz"
@@ -88,7 +89,8 @@ func runHTTPServer(
 	log logrus.FieldLogger,
 ) error {
 	router := chi.NewRouter()
-	router.Method("GET", "/",
+	router.Method(
+		"GET", "/",
 		otelhttp.NewHandler(playground.Handler("GraphQL playground", "/graphql"), "playground"),
 	)
 
@@ -199,6 +201,7 @@ func ConfigureGraph(
 	lokiClient loki.Client,
 	auditLogProjectID string,
 	auditLogLocation string,
+	webhookDispatcher *webhook.Dispatcher,
 	log logrus.FieldLogger,
 ) (func(http.Handler) http.Handler, error) {
 	logStep := func(name string, fn func() error) error {
@@ -380,6 +383,7 @@ func ConfigureGraph(
 		ctx = tunnel.WithLoaders(ctx, tunnel.NewLoaders(watchers.TunnelWatcher))
 		ctx = logging.NewPackageContext(ctx, tenantName, defaultLogDestinations)
 		ctx = environment.NewLoaderContext(ctx, pool)
+		ctx = webhook.NewLoaderContext(ctx, pool, webhookDispatcher)
 		unleashAvailable := unleashCfg.Enabled && watchers.UnleashWatcher != nil && watchers.UnleashWatcher.Enabled()
 		ctx = feature.NewLoaderContext(
 			ctx,

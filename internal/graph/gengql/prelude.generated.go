@@ -11,6 +11,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
+	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/persistence/opensearch"
 	"github.com/vektah/gqlparser/v2/ast"
@@ -1638,6 +1639,16 @@ func (ec *executionContext) marshalNInt2ᚕintᚄ(ctx context.Context, sel ast.S
 	}
 
 	return ret
+}
+
+func (ec *executionContext) unmarshalNString2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogActivityType(ctx context.Context, v any) (activitylog.ActivityLogActivityType, error) {
+	var res activitylog.ActivityLogActivityType
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNString2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogActivityType(ctx context.Context, sel ast.SelectionSet, v activitylog.ActivityLogActivityType) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v any) (string, error) {

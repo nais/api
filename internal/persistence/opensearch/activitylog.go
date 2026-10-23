@@ -56,11 +56,36 @@ func init() {
 		}
 	})
 
-	activitylog.RegisterFilter("OPENSEARCH_CREATED", activitylog.ActivityLogEntryActionCreated, ActivityLogEntryResourceTypeOpenSearch)
-	activitylog.RegisterFilter("OPENSEARCH_UPDATED", activitylog.ActivityLogEntryActionUpdated, ActivityLogEntryResourceTypeOpenSearch)
-	activitylog.RegisterFilter("OPENSEARCH_DELETED", activitylog.ActivityLogEntryActionDeleted, ActivityLogEntryResourceTypeOpenSearch)
-	activitylog.RegisterFilter("OPENSEARCH_MAINTENANCE_STARTED", servicemaintenanceal.ActivityLogEntryActionMaintenanceStarted, ActivityLogEntryResourceTypeOpenSearch)
-	activitylog.RegisterFilter("OPENSEARCH_CREDENTIALS_CREATED", activitylog.ActivityLogEntryActionCredentialsCreated, ActivityLogEntryResourceTypeOpenSearch)
+	activitylog.RegisterActivityType(
+		"OPENSEARCH_CREATED",
+		activitylog.ActivityLogEntryActionCreated,
+		ActivityLogEntryResourceTypeOpenSearch,
+		activitylog.WithDescription("Triggered when an OpenSearch instance is created."),
+	)
+	activitylog.RegisterActivityType(
+		"OPENSEARCH_UPDATED",
+		activitylog.ActivityLogEntryActionUpdated,
+		ActivityLogEntryResourceTypeOpenSearch,
+		activitylog.WithDescription("Triggered when an OpenSearch instance is updated."),
+	)
+	activitylog.RegisterActivityType(
+		"OPENSEARCH_DELETED",
+		activitylog.ActivityLogEntryActionDeleted,
+		ActivityLogEntryResourceTypeOpenSearch,
+		activitylog.WithDescription("Triggered when an OpenSearch instance is deleted."),
+	)
+	activitylog.RegisterActivityType(
+		"OPENSEARCH_MAINTENANCE_STARTED",
+		servicemaintenanceal.ActivityLogEntryActionMaintenanceStarted,
+		ActivityLogEntryResourceTypeOpenSearch,
+		activitylog.WithDescription("Triggered when service maintenance is started for an OpenSearch instance."),
+	)
+	activitylog.RegisterActivityType(
+		"OPENSEARCH_CREDENTIALS_CREATED",
+		activitylog.ActivityLogEntryActionCredentialsCreated,
+		ActivityLogEntryResourceTypeOpenSearch,
+		activitylog.WithDescription("Triggered when credentials are created for an OpenSearch instance."),
+	)
 }
 
 type OpenSearchCreatedActivityLogEntry struct {

@@ -79,16 +79,51 @@ func init() {
 		}
 	})
 
-	activitylog.RegisterFilter("JOB_DELETED", activitylog.ActivityLogEntryActionDeleted, ActivityLogEntryResourceTypeJob)
-	activitylog.RegisterFilter("JOB_RUN_DELETED", activityLogEntryActionDeleteJobRun, ActivityLogEntryResourceTypeJob)
-	activitylog.RegisterFilter("JOB_TRIGGERED", activityLogEntryActionTriggerJob, ActivityLogEntryResourceTypeJob)
-	activitylog.RegisterFilter("DEPLOYMENT", deploymentactivity.ActivityLogEntryActionDeployment, ActivityLogEntryResourceTypeJob)
-	activitylog.RegisterFilter("GENERIC_KUBERNETES_RESOURCE_CREATED", activitylog.ActivityLogEntryActionCreated, ActivityLogEntryResourceTypeJob)
-	activitylog.RegisterFilter("JOB_UPDATED", activitylog.ActivityLogEntryActionUpdated, ActivityLogEntryResourceTypeJob)
+	activitylog.RegisterActivityType(
+		"JOB_DELETED",
+		activitylog.ActivityLogEntryActionDeleted,
+		ActivityLogEntryResourceTypeJob,
+		activitylog.WithDescription("Triggered when a job is deleted."),
+	)
+	activitylog.RegisterActivityType(
+		"JOB_RUN_DELETED",
+		activityLogEntryActionDeleteJobRun,
+		ActivityLogEntryResourceTypeJob,
+		activitylog.WithDescription("Triggered when a job run is deleted."),
+	)
+	activitylog.RegisterActivityType(
+		"JOB_TRIGGERED",
+		activityLogEntryActionTriggerJob,
+		ActivityLogEntryResourceTypeJob,
+		activitylog.WithDescription("Triggered when a job is manually triggered."),
+	)
+	activitylog.RegisterActivityType(
+		"DEPLOYMENT",
+		deploymentactivity.ActivityLogEntryActionDeployment,
+		ActivityLogEntryResourceTypeJob,
+		activitylog.IgnoreWebhook(),
+		activitylog.WithDescription("Triggered when a resource is deployed using the nais/deploy action."),
+	)
+	activitylog.RegisterActivityType(
+		"GENERIC_KUBERNETES_RESOURCE_CREATED",
+		activitylog.ActivityLogEntryActionCreated,
+		ActivityLogEntryResourceTypeJob,
+		activitylog.WithDescription("Triggered when a generic Kubernetes resource is created."),
+	)
+	activitylog.RegisterActivityType(
+		"JOB_UPDATED",
+		activitylog.ActivityLogEntryActionUpdated,
+		ActivityLogEntryResourceTypeJob,
+		activitylog.WithDescription("Triggered when a job is updated."),
+	)
 }
 
 type JobTriggeredActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
+}
+
+type JobTriggeredActivityLogEntryData struct {
+	RunName string `json:"runName"`
 }
 
 type JobDeletedActivityLogEntry struct {
@@ -96,12 +131,12 @@ type JobDeletedActivityLogEntry struct {
 }
 
 type JobRunDeletedActivityLogEntryData struct {
-	RunName string
+	RunName string `json:"runName"`
 }
 
 type JobRunDeletedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
-	Data *JobRunDeletedActivityLogEntryData
+	Data *JobRunDeletedActivityLogEntryData `json:"data"`
 }
 
 type JobCreatedActivityLogEntry struct {
