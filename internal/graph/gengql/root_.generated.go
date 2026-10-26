@@ -24135,6 +24135,43 @@ type RoleEdge {
 	cursor: Cursor!
 }
 `, BuiltIn: false},
+	{Name: "../schema/available_values.graphqls", Input: `extend type Environment {
+	"""
+	Available configuration values accepted in this environment.
+	"""
+	availableValues: AvailableValues!
+}
+
+"""
+Available configuration values for an environment, updated as platform capabilities change.
+"""
+type AvailableValues implements Node {
+	"""
+	The globally unique ID of this environment's available configuration values.
+	"""
+	id: ID!
+}
+
+"""
+Allowed string values and the default selection for a setting in an environment.
+"""
+type AvailableValueOptions implements Node {
+	"""
+	The globally unique ID of these configuration options.
+	"""
+	id: ID!
+	"""
+	The values accepted for this setting.
+	"""
+	values: [String!]!
+	"""
+	The default selection. Null when no default is declared; an empty list means
+	an explicitly empty default. Scalar settings have at most one default value;
+	settings accepting multiple values may have several.
+	"""
+	defaultValues: [String!]
+}
+`, BuiltIn: false},
 	{Name: "../schema/bigquery.graphqls", Input: `extend type Team {
 	"BigQuery datasets owned by the team."
 	bigQueryDatasets(
@@ -25705,43 +25742,6 @@ input DeploymentOrder {
 enum DeploymentOrderField {
 	"The time the deployment was created at."
 	CREATED_AT
-}
-`, BuiltIn: false},
-	{Name: "../schema/enum_values.graphqls", Input: `extend type Environment {
-	"""
-	Available configuration values accepted in this environment.
-	"""
-	availableValues: AvailableValues!
-}
-
-"""
-Available configuration values for an environment, updated as platform capabilities change.
-"""
-type AvailableValues implements Node {
-	"""
-	The globally unique ID of this environment's available configuration values.
-	"""
-	id: ID!
-}
-
-"""
-Allowed string values and the default selection for a setting in an environment.
-"""
-type AvailableValueOptions implements Node {
-	"""
-	The globally unique ID of these configuration options.
-	"""
-	id: ID!
-	"""
-	The values accepted for this setting.
-	"""
-	values: [String!]!
-	"""
-	The default selection. Null when no default is declared; an empty list means
-	an explicitly empty default. Scalar settings have at most one default value;
-	settings accepting multiple values may have several.
-	"""
-	defaultValues: [String!]
 }
 `, BuiltIn: false},
 	{Name: "../schema/environments.graphqls", Input: `extend type Query {
