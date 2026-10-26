@@ -10,10 +10,12 @@ type identType int
 
 const (
 	identEnvironment identType = iota
+	identAvailableValues
 )
 
 func init() {
 	ident.RegisterIdentType(identEnvironment, "E", GetByIdent)
+	ident.RegisterIdentType(identAvailableValues, "AV", getAvailableValuesByIdent)
 }
 
 func newIdent(name string) ident.Ident {

@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/nais/api/internal/auth/authz"
+	"github.com/nais/api/internal/environment"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/persistence/postgres"
@@ -21,6 +22,10 @@ func (r *applicationResolver) Postgreses(ctx context.Context, obj *application.A
 		uses = obj.Spec.Uses.Postgres
 	}
 	return workloadPostgresConnectionForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, uses, first, after, last, before)
+}
+
+func (r *availableValuesResolver) PostgresMajorVersions(ctx context.Context, obj *environment.AvailableValues) ([]string, error) {
+	return postgres.AvailableMajorVersions(ctx, obj.EnvironmentName)
 }
 
 func (r *jobResolver) Postgreses(ctx context.Context, obj *job.Job, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*postgres.WorkloadPostgres], error) {

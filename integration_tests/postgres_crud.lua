@@ -4,6 +4,23 @@ local team = Team.new("pg-crud-team", "Testing Postgres create and update", "#po
 team:addMember(member)
 Helper.readK8sResources("k8s_resources/postgres_crud")
 
+Test.gql("Discover Postgres versions accepted in an environment", function(t)
+	t.addHeader("x-user-email", member:email())
+	t.query [[{ environment(name: "dev") { availableValues { id postgresMajorVersions } } }]]
+	t.check {
+		data = { environment = { availableValues = { id = NotNull(), postgresMajorVersions = { "18", "17", "16" } } } },
+	}
+end)
+
+Test.gql("Missing version catalog is an availability error, not an empty list", function(t)
+	t.addHeader("x-user-email", member:email())
+	t.query [[{ environment(name: "staging") { availableValues { postgresMajorVersions } } }]]
+	t.check {
+		errors = { { locations = NotNull(), path = { "environment", "availableValues", "postgresMajorVersions" }, message = Contains("unavailable") } },
+		data = Null,
+	}
+end)
+
 local function create(name, extra)
 	return string.format(
 		[[mutation { createPostgres(input: {
@@ -73,6 +90,31 @@ Test.gql("Unsupported major version is rejected", function(t)
 		errors = { { extensions = { field = "majorVersion" }, path = { "createPostgres" }, message = Contains("Major version must be one of") } },
 		data = Null,
 	}
+end)
+
+Test.gql("Empty major version is rejected", function(t)
+	t.addHeader("x-user-email", member:email())
+	t.query(create("emptyversion", 'majorVersion: ""'))
+	t.check {
+		errors = { { extensions = { field = "majorVersion" }, path = { "createPostgres" }, message = Contains("Major version must not be empty") } },
+		data = Null,
+	}
+end)
+
+Test.gql("Creating Postgres requires an available version catalog", function(t)
+	t.addHeader("x-user-email", member:email())
+	for _, environment in ipairs({ "staging", "unknown" }) do
+		t.query(string.format(
+			[[mutation { createPostgres(input: {
+				name: "unavailable", environmentName: "%s", teamSlug: "pg-crud-team", majorVersion: "18"
+			}) { postgres { name } } }]],
+			environment
+		))
+		t.check {
+			errors = { { locations = NotNull(), path = { "createPostgres" }, message = Contains("unavailable") } },
+			data = Null,
+		}
+	end
 end)
 
 Test.gql("Invalid resource quantity is rejected", function(t)
@@ -192,4 +234,19 @@ Test.gql("Postgres activity log excludes other Postgres instances", function(t)
 			pageInfo = { hasNextPage = false },
 		} } } } },
 	}
+end)
+
+Test.gql("Every major version offered by the environment can be selected", function(t)
+	t.addHeader("x-user-email", member:email())
+	for _, version in ipairs({ "17", "16" }) do
+		t.query(create("version-" .. version, string.format('majorVersion: "%s"', version)))
+		t.check {
+			data = { createPostgres = { postgres = {
+				name = "version-" .. version,
+				majorVersion = version,
+				highAvailability = false,
+				resources = { cpu = Null, memory = Null, diskSize = Null },
+			} } },
+		}
+	end
 end)
