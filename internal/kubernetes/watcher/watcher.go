@@ -12,6 +12,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/labels"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/tools/cache"
@@ -99,6 +100,15 @@ func (w *Watcher[T]) Enabled() bool {
 	return false
 }
 
+func (w *Watcher[T]) HasSynced(environmentName string) bool {
+	for _, watcher := range w.watchers {
+		if watcher.cluster == environmentName {
+			return watcher.informer.Informer().HasSynced()
+		}
+	}
+	return false
+}
+
 func (w *Watcher[T]) add(cluster string, obj T) {
 	if w.onAdd != nil {
 		w.onAdd(cluster, obj)
@@ -169,7 +179,13 @@ func (w *Watcher[T]) Get(cluster, namespace, name string) (T, error) {
 			continue
 		}
 
-		obj, err := wat.informer.Lister().ByNamespace(namespace).Get(name)
+		var obj runtime.Object
+		var err error
+		if namespace == "" {
+			obj, err = wat.informer.Lister().Get(name)
+		} else {
+			obj, err = wat.informer.Lister().ByNamespace(namespace).Get(name)
+		}
 		if err != nil {
 			if errors.IsNotFound(err) {
 				return nilish, &ErrorNotFound{

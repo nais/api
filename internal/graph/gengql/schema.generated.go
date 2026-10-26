@@ -7523,6 +7523,20 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._CVE(ctx, sel, obj)
+	case environment.AvailableValues:
+		return ec._AvailableValues(ctx, sel, &obj)
+	case *environment.AvailableValues:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._AvailableValues(ctx, sel, obj)
+	case environment.AvailableValueOptions:
+		return ec._AvailableValueOptions(ctx, sel, &obj)
+	case *environment.AvailableValueOptions:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._AvailableValueOptions(ctx, sel, obj)
 	case application.ApplicationInstance:
 		return ec._ApplicationInstance(ctx, sel, &obj)
 	case *application.ApplicationInstance:

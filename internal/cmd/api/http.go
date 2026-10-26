@@ -26,6 +26,7 @@ import (
 	"github.com/nais/api/internal/graph/loader"
 	"github.com/nais/api/internal/issue"
 	apik8s "github.com/nais/api/internal/kubernetes"
+	"github.com/nais/api/internal/kubernetes/crd"
 	"github.com/nais/api/internal/kubernetes/event"
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/kubernetes/watchers"
@@ -338,6 +339,7 @@ func ConfigureGraph(
 	})
 
 	setupContext := func(ctx context.Context) context.Context {
+		ctx = crd.NewLoaderContext(ctx, watchers.AvailableValues)
 		ctx = podlog.NewLoaderContext(ctx, podLogStreamer)
 		ctx = application.NewLoaderContext(ctx, watchers.AppWatcher, watchers.IngressWatcher, log)
 		ctx = bigquery.NewLoaderContext(ctx, watchers.BqWatcher)

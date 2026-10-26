@@ -65,6 +65,7 @@ type ResolverRoot interface {
 	ApplicationConnection() ApplicationConnectionResolver
 	ApplicationInstance() ApplicationInstanceResolver
 	ApplicationRestartLoopIssue() ApplicationRestartLoopIssueResolver
+	AvailableValues() AvailableValuesResolver
 	BigQueryDataset() BigQueryDatasetResolver
 	BigQueryDatasetConnection() BigQueryDatasetConnectionResolver
 	Bucket() BucketResolver
@@ -451,6 +452,17 @@ type ComplexityRoot struct {
 
 	AuditLog struct {
 		LogURL func(childComplexity int) int
+	}
+
+	AvailableValueOptions struct {
+		DefaultValues func(childComplexity int) int
+		ID            func(childComplexity int) int
+		Values        func(childComplexity int) int
+	}
+
+	AvailableValues struct {
+		ID                    func(childComplexity int) int
+		PostgresMajorVersions func(childComplexity int) int
 	}
 
 	BigQueryDataset struct {
@@ -954,11 +966,12 @@ type ComplexityRoot struct {
 	}
 
 	Environment struct {
-		ID            func(childComplexity int) int
-		Metrics       func(childComplexity int, input metrics.MetricsQueryInput) int
-		Name          func(childComplexity int) int
-		OIDCIssuerURL func(childComplexity int) int
-		Workloads     func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *workload.EnvironmentWorkloadOrder) int
+		AvailableValues func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Metrics         func(childComplexity int, input metrics.MetricsQueryInput) int
+		Name            func(childComplexity int) int
+		OIDCIssuerURL   func(childComplexity int) int
+		Workloads       func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *workload.EnvironmentWorkloadOrder) int
 	}
 
 	EnvironmentConnection struct {
@@ -5422,6 +5435,41 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.AuditLog.LogURL(childComplexity), true
 
+	case "AvailableValueOptions.defaultValues":
+		if e.ComplexityRoot.AvailableValueOptions.DefaultValues == nil {
+			break
+		}
+
+		return e.ComplexityRoot.AvailableValueOptions.DefaultValues(childComplexity), true
+
+	case "AvailableValueOptions.id":
+		if e.ComplexityRoot.AvailableValueOptions.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.AvailableValueOptions.ID(childComplexity), true
+
+	case "AvailableValueOptions.values":
+		if e.ComplexityRoot.AvailableValueOptions.Values == nil {
+			break
+		}
+
+		return e.ComplexityRoot.AvailableValueOptions.Values(childComplexity), true
+
+	case "AvailableValues.id":
+		if e.ComplexityRoot.AvailableValues.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.AvailableValues.ID(childComplexity), true
+
+	case "AvailableValues.postgresMajorVersions":
+		if e.ComplexityRoot.AvailableValues.PostgresMajorVersions == nil {
+			break
+		}
+
+		return e.ComplexityRoot.AvailableValues.PostgresMajorVersions(childComplexity), true
+
 	case "BigQueryDataset.access":
 		if e.ComplexityRoot.BigQueryDataset.Access == nil {
 			break
@@ -7254,6 +7302,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.EntraIDAuthIntegration.Name(childComplexity), true
+
+	case "Environment.availableValues":
+		if e.ComplexityRoot.Environment.AvailableValues == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Environment.AvailableValues(childComplexity), true
 
 	case "Environment.id":
 		if e.ComplexityRoot.Environment.ID == nil {
@@ -24080,6 +24135,43 @@ type RoleEdge {
 	cursor: Cursor!
 }
 `, BuiltIn: false},
+	{Name: "../schema/available_values.graphqls", Input: `extend type Environment {
+	"""
+	Available configuration values accepted in this environment.
+	"""
+	availableValues: AvailableValues!
+}
+
+"""
+Available configuration values for an environment, updated as platform capabilities change.
+"""
+type AvailableValues implements Node {
+	"""
+	The globally unique ID of this environment's available configuration values.
+	"""
+	id: ID!
+}
+
+"""
+Allowed string values and the default selection for a setting in an environment.
+"""
+type AvailableValueOptions implements Node {
+	"""
+	The globally unique ID of these configuration options.
+	"""
+	id: ID!
+	"""
+	The values accepted for this setting.
+	"""
+	values: [String!]!
+	"""
+	The default selection. Null when no default is declared; an empty list means
+	an explicitly empty default. Scalar settings have at most one default value;
+	settings accepting multiple values may have several.
+	"""
+	defaultValues: [String!]
+}
+`, BuiltIn: false},
 	{Name: "../schema/bigquery.graphqls", Input: `extend type Team {
 	"BigQuery datasets owned by the team."
 	bigQueryDatasets(
@@ -28513,7 +28605,15 @@ type WorkloadLogLine {
 	instance: String!
 }
 `, BuiltIn: false},
-	{Name: "../schema/postgres.graphqls", Input: `extend type Team {
+	{Name: "../schema/postgres.graphqls", Input: `extend type AvailableValues {
+	"""
+	PostgreSQL major versions accepted when creating a database in this environment.
+	Returns an error if the available versions cannot be determined.
+	"""
+	postgresMajorVersions: AvailableValueOptions!
+}
+
+extend type Team {
 	"Postgres databases owned by the team, including those without branches."
 	postgreses(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
@@ -29357,7 +29457,7 @@ input CreatePostgresInput {
 	environmentName: String!
 	"The team that owns the Postgres."
 	teamSlug: Slug!
-	"PostgreSQL major version."
+	"PostgreSQL major version, selected from the environment's availableValues.postgresMajorVersions.values."
 	majorVersion: String!
 	"Add a third instance and enable synchronous replication. Defaults to false."
 	highAvailability: Boolean
@@ -37467,6 +37567,28 @@ func (ec *executionContext) childFields_AuditLog(ctx context.Context, field grap
 	return nil, fmt.Errorf("no field named %q was found under type AuditLog", field.Name)
 }
 
+func (ec *executionContext) childFields_AvailableValueOptions(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_AvailableValueOptions_id(ctx, field)
+	case "values":
+		return ec.fieldContext_AvailableValueOptions_values(ctx, field)
+	case "defaultValues":
+		return ec.fieldContext_AvailableValueOptions_defaultValues(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type AvailableValueOptions", field.Name)
+}
+
+func (ec *executionContext) childFields_AvailableValues(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_AvailableValues_id(ctx, field)
+	case "postgresMajorVersions":
+		return ec.fieldContext_AvailableValues_postgresMajorVersions(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type AvailableValues", field.Name)
+}
+
 func (ec *executionContext) childFields_BigQueryDataset(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "id":
@@ -38299,6 +38421,8 @@ func (ec *executionContext) childFields_Environment(ctx context.Context, field g
 		return ec.fieldContext_Environment_name(ctx, field)
 	case "oidcIssuerURL":
 		return ec.fieldContext_Environment_oidcIssuerURL(ctx, field)
+	case "availableValues":
+		return ec.fieldContext_Environment_availableValues(ctx, field)
 	case "metrics":
 		return ec.fieldContext_Environment_metrics(ctx, field)
 	case "workloads":
