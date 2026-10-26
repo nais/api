@@ -147,7 +147,7 @@ func (u *Updater) FetchBigQueryData(ctx context.Context, ch chan<- costsql.CostU
 	}
 
 	u.log.WithFields(logrus.Fields{
-		"duration": time.Since(start),
+		"duration": time.Since(start).String(),
 		"num_rows": numRows,
 	}).Infof("done fetching data from BigQuery")
 	return nil
@@ -174,7 +174,7 @@ func (u *Updater) UpdateCosts(ctx context.Context, ch <-chan costsql.CostUpsertP
 	}
 
 	u.log.WithFields(logrus.Fields{
-		"duration":   time.Since(start),
+		"duration":   time.Since(start).String(),
 		"num_rows":   numUpserted,
 		"num_errors": numErrors,
 	}).Infof("cost data has been updated")
@@ -210,7 +210,7 @@ func (u *Updater) upsertBatch(ctx context.Context, batch []costsql.CostUpsertPar
 
 	upserted += len(batch) - errors
 	u.log.WithError(batchErr).WithFields(logrus.Fields{
-		"duration":   time.Since(start),
+		"duration":   time.Since(start).String(),
 		"num_rows":   upserted,
 		"num_errors": errors,
 	}).Infof("upserted batch")
