@@ -26,7 +26,7 @@ end)
 
 Test.gql("String options can be fetched by node ID", function(t)
 	t.addHeader("x-user-email", member:email())
-	t.query(string.format([[{ node(id: "%s") { ... on StringOptions { id values defaultValues } } }]],
+	t.query(string.format([[{ node(id: "%s") { ... on AvailableValueOptions { id values defaultValues } } }]],
 		State.postgresOptionsID))
 	t.check {
 		data = { node = {

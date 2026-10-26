@@ -19,7 +19,7 @@ type Enum struct {
 	Path    []string
 }
 
-type StringOptions struct {
+type AvailableValueOptions struct {
 	Values        []string
 	DefaultValues []string
 }
@@ -46,7 +46,8 @@ type Catalog struct {
 
 func NewWatcher(ctx context.Context, mgr *watcher.Manager) *Catalog {
 	c := &Catalog{fields: maps.Clone(registeredEnums)}
-	w := watcher.Watch(mgr, &unstructured.Unstructured{},
+	w := watcher.Watch(
+		mgr, &unstructured.Unstructured{},
 		watcher.WithGVR(schema.GroupVersionResource{
 			Group: "apiextensions.k8s.io", Version: "v1", Resource: "customresourcedefinitions",
 		}),
@@ -68,7 +69,7 @@ func NewLoaderContext(ctx context.Context, catalog *Catalog) context.Context {
 	return context.WithValue(ctx, loadersKey, catalog)
 }
 
-func Options(ctx context.Context, environmentName, field string) (*StringOptions, error) {
+func Options(ctx context.Context, environmentName, field string) (*AvailableValueOptions, error) {
 	catalog, _ := ctx.Value(loadersKey).(*Catalog)
 	if catalog == nil {
 		return nil, &unavailableError{environmentName, field, fmt.Errorf("catalog is not configured")}
@@ -76,7 +77,7 @@ func Options(ctx context.Context, environmentName, field string) (*StringOptions
 	return catalog.Options(environmentName, field)
 }
 
-func (c *Catalog) Options(environmentName, name string) (*StringOptions, error) {
+func (c *Catalog) Options(environmentName, name string) (*AvailableValueOptions, error) {
 	options, err := c.options(environmentName, name)
 	if err != nil {
 		return nil, &unavailableError{environmentName, name, err}
@@ -84,7 +85,7 @@ func (c *Catalog) Options(environmentName, name string) (*StringOptions, error) 
 	return options, nil
 }
 
-func (c *Catalog) options(environmentName, name string) (*StringOptions, error) {
+func (c *Catalog) options(environmentName, name string) (*AvailableValueOptions, error) {
 	field, ok := c.fields[name]
 	if !ok {
 		return nil, fmt.Errorf("enum is not registered")
@@ -112,7 +113,7 @@ func (c *Catalog) options(environmentName, name string) (*StringOptions, error) 
 	if err != nil {
 		return nil, err
 	}
-	return &StringOptions{Values: values, DefaultValues: defaults}, nil
+	return &AvailableValueOptions{Values: values, DefaultValues: defaults}, nil
 }
 
 // Only retain registered values, not the full schemas or last-applied annotations.
@@ -161,7 +162,7 @@ func (c *Catalog) transform(obj any) (any, error) {
 	return projected, nil
 }
 
-func (e Enum) extract(obj *unstructured.Unstructured) (*StringOptions, error) {
+func (e Enum) extract(obj *unstructured.Unstructured) (*AvailableValueOptions, error) {
 	rawVersions, _, err := unstructured.NestedFieldNoCopy(obj.Object, "spec", "versions")
 	if err != nil {
 		return nil, err
@@ -201,7 +202,7 @@ func (e Enum) extract(obj *unstructured.Unstructured) (*StringOptions, error) {
 	return nil, fmt.Errorf("schema version %q is missing", e.Version)
 }
 
-func extractOptions(property map[string]any) (*StringOptions, error) {
+func extractOptions(property map[string]any) (*AvailableValueOptions, error) {
 	enumPath := []string{"enum"}
 	switch property["type"] {
 	case "string":
@@ -224,7 +225,7 @@ func extractOptions(property map[string]any) (*StringOptions, error) {
 	if !found || len(values) == 0 {
 		return nil, fmt.Errorf("no string enum")
 	}
-	options := &StringOptions{Values: values}
+	options := &AvailableValueOptions{Values: values}
 	if property["type"] == "array" {
 		options.DefaultValues, _, err = unstructured.NestedStringSlice(property, "default")
 		if err != nil {

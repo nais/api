@@ -11,13 +11,13 @@ type identType int
 const (
 	identEnvironment identType = iota
 	identAvailableValues
-	identStringOptions
+	identAvailableValueOptions
 )
 
 func init() {
 	ident.RegisterIdentType(identEnvironment, "E", GetByIdent)
 	ident.RegisterIdentType(identAvailableValues, "AV", getAvailableValuesByIdent)
-	ident.RegisterIdentType(identStringOptions, "SO", getStringOptionsByIdent)
+	ident.RegisterIdentType(identAvailableValueOptions, "SO", getAvailableValueOptionsByIdent)
 }
 
 func newIdent(name string) ident.Ident {

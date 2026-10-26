@@ -18,7 +18,7 @@ type AvailableValues implements Node {
 """
 Allowed string values and the default selection for a setting in an environment.
 """
-type StringOptions implements Node {
+type AvailableValueOptions implements Node {
 	"""
 	The globally unique ID of these configuration options.
 	"""

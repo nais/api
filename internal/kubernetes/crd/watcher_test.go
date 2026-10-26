@@ -137,7 +137,7 @@ func TestExtractEnum(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			if diff := cmp.Diff(&StringOptions{Values: tt.want}, got); diff != "" {
+			if diff := cmp.Diff(&AvailableValueOptions{Values: tt.want}, got); diff != "" {
 				t.Errorf("values mismatch (-want +got):\n%s", diff)
 			}
 		})
@@ -148,23 +148,23 @@ func TestExtractStringDefaults(t *testing.T) {
 	for _, tt := range []struct {
 		name     string
 		property map[string]any
-		want     *StringOptions
+		want     *AvailableValueOptions
 		err      string
 	}{
 		{
 			name:     "scalar without default",
 			property: map[string]any{"type": "string", "enum": []any{"a", "b"}},
-			want:     &StringOptions{Values: []string{"a", "b"}},
+			want:     &AvailableValueOptions{Values: []string{"a", "b"}},
 		},
 		{
 			name:     "scalar default",
 			property: map[string]any{"type": "string", "enum": []any{"a", "b"}, "default": "b"},
-			want:     &StringOptions{Values: []string{"a", "b"}, DefaultValues: []string{"b"}},
+			want:     &AvailableValueOptions{Values: []string{"a", "b"}, DefaultValues: []string{"b"}},
 		},
 		{
 			name:     "empty string is a default",
 			property: map[string]any{"type": "string", "enum": []any{"", "a"}, "default": ""},
-			want:     &StringOptions{Values: []string{"", "a"}, DefaultValues: []string{""}},
+			want:     &AvailableValueOptions{Values: []string{"", "a"}, DefaultValues: []string{""}},
 		},
 		{
 			name:     "scalar rejects multiple defaults",
@@ -184,27 +184,27 @@ func TestExtractStringDefaults(t *testing.T) {
 		{
 			name:     "array without default",
 			property: map[string]any{"type": "array", "items": map[string]any{"type": "string", "enum": []any{"a", "b"}}},
-			want:     &StringOptions{Values: []string{"a", "b"}},
+			want:     &AvailableValueOptions{Values: []string{"a", "b"}},
 		},
 		{
 			name:     "item default is not an array selection",
 			property: map[string]any{"type": "array", "items": map[string]any{"type": "string", "enum": []any{"a", "b"}, "default": "a"}},
-			want:     &StringOptions{Values: []string{"a", "b"}},
+			want:     &AvailableValueOptions{Values: []string{"a", "b"}},
 		},
 		{
 			name:     "array with empty default",
 			property: map[string]any{"type": "array", "items": map[string]any{"type": "string", "enum": []any{"a", "b"}}, "default": []any{}},
-			want:     &StringOptions{Values: []string{"a", "b"}, DefaultValues: []string{}},
+			want:     &AvailableValueOptions{Values: []string{"a", "b"}, DefaultValues: []string{}},
 		},
 		{
 			name:     "array with single default",
 			property: map[string]any{"type": "array", "items": map[string]any{"type": "string", "enum": []any{"a", "b"}}, "default": []any{"b"}},
-			want:     &StringOptions{Values: []string{"a", "b"}, DefaultValues: []string{"b"}},
+			want:     &AvailableValueOptions{Values: []string{"a", "b"}, DefaultValues: []string{"b"}},
 		},
 		{
 			name:     "array with multiple defaults preserves ordering",
 			property: map[string]any{"type": "array", "items": map[string]any{"type": "string", "enum": []any{"a", "b"}}, "default": []any{"b", "a"}},
-			want:     &StringOptions{Values: []string{"a", "b"}, DefaultValues: []string{"b", "a"}},
+			want:     &AvailableValueOptions{Values: []string{"a", "b"}, DefaultValues: []string{"b", "a"}},
 		},
 		{
 			name:     "array rejects scalar default",
@@ -273,9 +273,9 @@ func TestCatalogWatchesChanges(t *testing.T) {
 	if !mgr.WaitForReady(ctx) {
 		t.Fatal("catalog did not synchronize")
 	}
-	waitForOptions := func(environment string, want *StringOptions) {
+	waitForOptions := func(environment string, want *AvailableValueOptions) {
 		t.Helper()
-		var got *StringOptions
+		var got *AvailableValueOptions
 		var getErr error
 		err := wait.PollUntilContextTimeout(t.Context(), 10*time.Millisecond, 5*time.Second, true, func(context.Context) (bool, error) {
 			got, getErr = catalog.Options(environment, majorVersions.Name)
@@ -302,11 +302,11 @@ func TestCatalogWatchesChanges(t *testing.T) {
 	if _, err := client.Create(t.Context(), obj, metav1.CreateOptions{}); err != nil {
 		t.Fatal(err)
 	}
-	waitForOptions("dev", &StringOptions{Values: []string{"18", "17"}})
+	waitForOptions("dev", &AvailableValueOptions{Values: []string{"18", "17"}})
 	if _, err := mgr.GetDynamicClients()["staging"].Resource(gvr).Create(t.Context(), definition("16"), metav1.CreateOptions{}); err != nil {
 		t.Fatal(err)
 	}
-	waitForOptions("staging", &StringOptions{Values: []string{"16"}})
+	waitForOptions("staging", &AvailableValueOptions{Values: []string{"16"}})
 	cached, err := catalog.watcher.Get("dev", "", majorVersions.CRDName)
 	if err != nil {
 		t.Fatal(err)
@@ -326,20 +326,20 @@ func TestCatalogWatchesChanges(t *testing.T) {
 		t.Fatal(err)
 	}
 	options.Values[0] = "corrupted"
-	waitForOptions("dev", &StringOptions{Values: []string{"18", "17"}})
+	waitForOptions("dev", &AvailableValueOptions{Values: []string{"18", "17"}})
 	for _, defaultValue := range []string{"17", "18"} {
 		updated := definitionWithProperty(t, map[string]any{"type": "string", "enum": []any{"18", "17"}, "default": defaultValue})
 		if _, err := client.Update(t.Context(), updated, metav1.UpdateOptions{}); err != nil {
 			t.Fatal(err)
 		}
-		waitForOptions("dev", &StringOptions{Values: []string{"18", "17"}, DefaultValues: []string{defaultValue}})
+		waitForOptions("dev", &AvailableValueOptions{Values: []string{"18", "17"}, DefaultValues: []string{defaultValue}})
 	}
 	options, err = catalog.Options("dev", majorVersions.Name)
 	if err != nil {
 		t.Fatal(err)
 	}
 	options.DefaultValues[0] = "corrupted"
-	waitForOptions("dev", &StringOptions{Values: []string{"18", "17"}, DefaultValues: []string{"18"}})
+	waitForOptions("dev", &AvailableValueOptions{Values: []string{"18", "17"}, DefaultValues: []string{"18"}})
 	invalidDefault := definitionWithProperty(t, map[string]any{"type": "string", "enum": []any{"18", "17"}, "default": "19"})
 	if _, err := client.Update(t.Context(), invalidDefault, metav1.UpdateOptions{}); err != nil {
 		t.Fatal(err)
@@ -348,8 +348,8 @@ func TestCatalogWatchesChanges(t *testing.T) {
 	if _, err := client.Update(t.Context(), definition("19", "18"), metav1.UpdateOptions{}); err != nil {
 		t.Fatal(err)
 	}
-	waitForOptions("dev", &StringOptions{Values: []string{"19", "18"}})
-	waitForOptions("staging", &StringOptions{Values: []string{"16"}})
+	waitForOptions("dev", &AvailableValueOptions{Values: []string{"19", "18"}})
+	waitForOptions("staging", &AvailableValueOptions{Values: []string{"16"}})
 	for _, defaults := range [][]string{{"18", "19"}, {}, nil} {
 		property := map[string]any{"type": "array", "items": map[string]any{"type": "string", "enum": []any{"19", "18"}}}
 		if defaults != nil {
@@ -360,7 +360,7 @@ func TestCatalogWatchesChanges(t *testing.T) {
 		if _, err := client.Update(t.Context(), definitionWithProperty(t, property), metav1.UpdateOptions{}); err != nil {
 			t.Fatal(err)
 		}
-		waitForOptions("dev", &StringOptions{Values: []string{"19", "18"}, DefaultValues: defaults})
+		waitForOptions("dev", &AvailableValueOptions{Values: []string{"19", "18"}, DefaultValues: defaults})
 	}
 	if _, err := client.Update(t.Context(), definition(int64(19)), metav1.UpdateOptions{}); err != nil {
 		t.Fatal(err)
@@ -369,7 +369,7 @@ func TestCatalogWatchesChanges(t *testing.T) {
 	if _, err := client.Update(t.Context(), definition("20"), metav1.UpdateOptions{}); err != nil {
 		t.Fatal(err)
 	}
-	waitForOptions("dev", &StringOptions{Values: []string{"20"}})
+	waitForOptions("dev", &AvailableValueOptions{Values: []string{"20"}})
 	if err := client.Delete(t.Context(), obj.GetName(), metav1.DeleteOptions{}); err != nil {
 		t.Fatal(err)
 	}
@@ -377,7 +377,7 @@ func TestCatalogWatchesChanges(t *testing.T) {
 	if _, err := client.Create(t.Context(), definition("21"), metav1.CreateOptions{}); err != nil {
 		t.Fatal(err)
 	}
-	waitForOptions("dev", &StringOptions{Values: []string{"21"}})
+	waitForOptions("dev", &AvailableValueOptions{Values: []string{"21"}})
 }
 
 func TestCatalogUnavailableWithoutContext(t *testing.T) {

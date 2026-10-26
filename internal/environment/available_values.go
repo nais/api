@@ -30,25 +30,25 @@ func getAvailableValuesByIdent(ctx context.Context, id ident.Ident) (*AvailableV
 	return &AvailableValues{EnvironmentName: env.Name}, nil
 }
 
-type StringOptions struct {
+type AvailableValueOptions struct {
 	EnvironmentName string
 	Name            string
 	Values          []string
 	DefaultValues   []string
 }
 
-func (StringOptions) IsNode() {}
+func (AvailableValueOptions) IsNode() {}
 
-func (o StringOptions) ID() ident.Ident {
-	return ident.NewIdent(identStringOptions, o.EnvironmentName, o.Name)
+func (o AvailableValueOptions) ID() ident.Ident {
+	return ident.NewIdent(identAvailableValueOptions, o.EnvironmentName, o.Name)
 }
 
-func GetStringOptions(ctx context.Context, environmentName, name string) (*StringOptions, error) {
+func GetAvailableValueOptions(ctx context.Context, environmentName, name string) (*AvailableValueOptions, error) {
 	options, err := crd.Options(ctx, environmentName, name)
 	if err != nil {
 		return nil, err
 	}
-	return &StringOptions{
+	return &AvailableValueOptions{
 		EnvironmentName: environmentName,
 		Name:            name,
 		Values:          options.Values,
@@ -56,14 +56,10 @@ func GetStringOptions(ctx context.Context, environmentName, name string) (*Strin
 	}, nil
 }
 
-func getStringOptionsByIdent(ctx context.Context, id ident.Ident) (*StringOptions, error) {
+func getAvailableValueOptionsByIdent(ctx context.Context, id ident.Ident) (*AvailableValueOptions, error) {
 	parts := id.Parts()
 	if len(parts) != 2 {
 		return nil, fmt.Errorf("invalid string options ident")
 	}
-	env, err := Get(ctx, parts[0])
-	if err != nil {
-		return nil, err
-	}
-	return GetStringOptions(ctx, env.Name, parts[1])
+	return GetAvailableValueOptions(ctx, parts[0], parts[1])
 }

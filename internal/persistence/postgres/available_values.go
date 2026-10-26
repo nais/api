@@ -18,6 +18,6 @@ func init() {
 	})
 }
 
-func AvailableMajorVersions(ctx context.Context, environmentName string) (*environment.StringOptions, error) {
-	return environment.GetStringOptions(ctx, environmentName, majorVersionsEnumName)
+func AvailableMajorVersions(ctx context.Context, environmentName string) (*environment.AvailableValueOptions, error) {
+	return environment.GetAvailableValueOptions(ctx, environmentName, majorVersionsEnumName)
 }

@@ -454,6 +454,12 @@ type ComplexityRoot struct {
 		LogURL func(childComplexity int) int
 	}
 
+	AvailableValueOptions struct {
+		DefaultValues func(childComplexity int) int
+		ID            func(childComplexity int) int
+		Values        func(childComplexity int) int
+	}
+
 	AvailableValues struct {
 		ID                    func(childComplexity int) int
 		PostgresMajorVersions func(childComplexity int) int
@@ -3044,12 +3050,6 @@ type ComplexityRoot struct {
 		Value func(childComplexity int) int
 	}
 
-	StringOptions struct {
-		DefaultValues func(childComplexity int) int
-		ID            func(childComplexity int) int
-		Values        func(childComplexity int) int
-	}
-
 	Subscription struct {
 		Log         func(childComplexity int, filter loki.LogSubscriptionFilter) int
 		WorkloadLog func(childComplexity int, filter podlog.WorkloadLogSubscriptionFilter) int
@@ -5434,6 +5434,27 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.AuditLog.LogURL(childComplexity), true
+
+	case "AvailableValueOptions.defaultValues":
+		if e.ComplexityRoot.AvailableValueOptions.DefaultValues == nil {
+			break
+		}
+
+		return e.ComplexityRoot.AvailableValueOptions.DefaultValues(childComplexity), true
+
+	case "AvailableValueOptions.id":
+		if e.ComplexityRoot.AvailableValueOptions.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.AvailableValueOptions.ID(childComplexity), true
+
+	case "AvailableValueOptions.values":
+		if e.ComplexityRoot.AvailableValueOptions.Values == nil {
+			break
+		}
+
+		return e.ComplexityRoot.AvailableValueOptions.Values(childComplexity), true
 
 	case "AvailableValues.id":
 		if e.ComplexityRoot.AvailableValues.ID == nil {
@@ -17087,27 +17108,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.StringFacetItem.Value(childComplexity), true
 
-	case "StringOptions.defaultValues":
-		if e.ComplexityRoot.StringOptions.DefaultValues == nil {
-			break
-		}
-
-		return e.ComplexityRoot.StringOptions.DefaultValues(childComplexity), true
-
-	case "StringOptions.id":
-		if e.ComplexityRoot.StringOptions.ID == nil {
-			break
-		}
-
-		return e.ComplexityRoot.StringOptions.ID(childComplexity), true
-
-	case "StringOptions.values":
-		if e.ComplexityRoot.StringOptions.Values == nil {
-			break
-		}
-
-		return e.ComplexityRoot.StringOptions.Values(childComplexity), true
-
 	case "Subscription.log":
 		if e.ComplexityRoot.Subscription.Log == nil {
 			break
@@ -25727,7 +25727,7 @@ type AvailableValues implements Node {
 """
 Allowed string values and the default selection for a setting in an environment.
 """
-type StringOptions implements Node {
+type AvailableValueOptions implements Node {
 	"""
 	The globally unique ID of these configuration options.
 	"""
@@ -28610,7 +28610,7 @@ type WorkloadLogLine {
 	PostgreSQL major versions accepted when creating a database in this environment.
 	Returns an error if the available versions cannot be determined.
 	"""
-	postgresMajorVersions: StringOptions!
+	postgresMajorVersions: AvailableValueOptions!
 }
 
 extend type Team {
@@ -37567,6 +37567,18 @@ func (ec *executionContext) childFields_AuditLog(ctx context.Context, field grap
 	return nil, fmt.Errorf("no field named %q was found under type AuditLog", field.Name)
 }
 
+func (ec *executionContext) childFields_AvailableValueOptions(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_AvailableValueOptions_id(ctx, field)
+	case "values":
+		return ec.fieldContext_AvailableValueOptions_values(ctx, field)
+	case "defaultValues":
+		return ec.fieldContext_AvailableValueOptions_defaultValues(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type AvailableValueOptions", field.Name)
+}
+
 func (ec *executionContext) childFields_AvailableValues(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "id":
@@ -40957,18 +40969,6 @@ func (ec *executionContext) childFields_StringFacetItem(ctx context.Context, fie
 		return ec.fieldContext_StringFacetItem_count(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type StringFacetItem", field.Name)
-}
-
-func (ec *executionContext) childFields_StringOptions(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-	switch field.Name {
-	case "id":
-		return ec.fieldContext_StringOptions_id(ctx, field)
-	case "values":
-		return ec.fieldContext_StringOptions_values(ctx, field)
-	case "defaultValues":
-		return ec.fieldContext_StringOptions_defaultValues(ctx, field)
-	}
-	return nil, fmt.Errorf("no field named %q was found under type StringOptions", field.Name)
 }
 
 func (ec *executionContext) childFields_Team(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {

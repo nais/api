@@ -3,7 +3,7 @@ extend type AvailableValues {
 	PostgreSQL major versions accepted when creating a database in this environment.
 	Returns an error if the available versions cannot be determined.
 	"""
-	postgresMajorVersions: StringOptions!
+	postgresMajorVersions: AvailableValueOptions!
 }
 
 extend type Team {

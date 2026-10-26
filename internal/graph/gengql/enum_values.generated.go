@@ -18,7 +18,7 @@ import (
 // region    ************************** generated!.gotpl **************************
 
 type AvailableValuesResolver interface {
-	PostgresMajorVersions(ctx context.Context, obj *environment.AvailableValues) (*environment.StringOptions, error)
+	PostgresMajorVersions(ctx context.Context, obj *environment.AvailableValues) (*environment.AvailableValueOptions, error)
 }
 
 // endregion ************************** generated!.gotpl **************************
@@ -32,6 +32,75 @@ type AvailableValuesResolver interface {
 // endregion ************************** directives.gotpl **************************
 
 // region    **************************** field.gotpl *****************************
+
+func (ec *executionContext) _AvailableValueOptions_id(ctx context.Context, field graphql.CollectedField, obj *environment.AvailableValueOptions) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_AvailableValueOptions_id(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.ID(), nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
+			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_AvailableValueOptions_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("AvailableValueOptions", field, true, false, errors.New("field of type ID does not have child fields"))
+}
+
+func (ec *executionContext) _AvailableValueOptions_values(ctx context.Context, field graphql.CollectedField, obj *environment.AvailableValueOptions) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_AvailableValueOptions_values(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Values, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []string) graphql.Marshaler {
+			return ec.marshalNString2ᚕstringᚄ(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_AvailableValueOptions_values(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("AvailableValueOptions", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _AvailableValueOptions_defaultValues(ctx context.Context, field graphql.CollectedField, obj *environment.AvailableValueOptions) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_AvailableValueOptions_defaultValues(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.DefaultValues, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []string) graphql.Marshaler {
+			return ec.marshalOString2ᚕstringᚄ(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_AvailableValueOptions_defaultValues(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("AvailableValueOptions", field, false, false, errors.New("field of type String does not have child fields"))
+}
 
 func (ec *executionContext) _AvailableValues_id(ctx context.Context, field graphql.CollectedField, obj *environment.AvailableValues) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
@@ -68,8 +137,8 @@ func (ec *executionContext) _AvailableValues_postgresMajorVersions(ctx context.C
 			return ec.Resolvers.AvailableValues().PostgresMajorVersions(ctx, obj)
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *environment.StringOptions) graphql.Marshaler {
-			return ec.marshalNStringOptions2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋenvironmentᚐStringOptions(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *environment.AvailableValueOptions) graphql.Marshaler {
+			return ec.marshalNAvailableValueOptions2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋenvironmentᚐAvailableValueOptions(ctx, selections, v)
 		},
 		true,
 		true,
@@ -82,79 +151,10 @@ func (ec *executionContext) fieldContext_AvailableValues_postgresMajorVersions(_
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_StringOptions(ctx, field)
+			return ec.childFields_AvailableValueOptions(ctx, field)
 		},
 	}
 	return fc, nil
-}
-
-func (ec *executionContext) _StringOptions_id(ctx context.Context, field graphql.CollectedField, obj *environment.StringOptions) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_StringOptions_id(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return obj.ID(), nil
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_StringOptions_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("StringOptions", field, true, false, errors.New("field of type ID does not have child fields"))
-}
-
-func (ec *executionContext) _StringOptions_values(ctx context.Context, field graphql.CollectedField, obj *environment.StringOptions) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_StringOptions_values(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return obj.Values, nil
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v []string) graphql.Marshaler {
-			return ec.marshalNString2ᚕstringᚄ(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_StringOptions_values(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("StringOptions", field, false, false, errors.New("field of type String does not have child fields"))
-}
-
-func (ec *executionContext) _StringOptions_defaultValues(ctx context.Context, field graphql.CollectedField, obj *environment.StringOptions) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_StringOptions_defaultValues(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return obj.DefaultValues, nil
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v []string) graphql.Marshaler {
-			return ec.marshalOString2ᚕstringᚄ(ctx, selections, v)
-		},
-		true,
-		false,
-	)
-}
-func (ec *executionContext) fieldContext_StringOptions_defaultValues(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("StringOptions", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 // endregion **************************** field.gotpl *****************************
@@ -168,6 +168,52 @@ func (ec *executionContext) fieldContext_StringOptions_defaultValues(_ context.C
 // endregion ************************** interface.gotpl ***************************
 
 // region    **************************** object.gotpl ****************************
+
+var availableValueOptionsImplementors = []string{"AvailableValueOptions", "Node"}
+
+func (ec *executionContext) _AvailableValueOptions(ctx context.Context, sel ast.SelectionSet, obj *environment.AvailableValueOptions) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, availableValueOptionsImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AvailableValueOptions")
+		case "id":
+			out.Values[i] = ec._AvailableValueOptions_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "values":
+			out.Values[i] = ec._AvailableValueOptions_values(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "defaultValues":
+			out.Values[i] = ec._AvailableValueOptions_defaultValues(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
 
 var availableValuesImplementors = []string{"AvailableValues", "Node"}
 
@@ -244,55 +290,23 @@ func (ec *executionContext) _AvailableValues(ctx context.Context, sel ast.Select
 	return out
 }
 
-var stringOptionsImplementors = []string{"StringOptions", "Node"}
-
-func (ec *executionContext) _StringOptions(ctx context.Context, sel ast.SelectionSet, obj *environment.StringOptions) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, stringOptionsImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("StringOptions")
-		case "id":
-			out.Values[i] = ec._StringOptions_id(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "values":
-			out.Values[i] = ec._StringOptions_values(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "defaultValues":
-			out.Values[i] = ec._StringOptions_defaultValues(ctx, field, obj)
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
-
-	for label, dfs := range deferred {
-		ec.ProcessDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
 // endregion **************************** object.gotpl ****************************
 
 // region    ***************************** type.gotpl *****************************
+
+func (ec *executionContext) marshalNAvailableValueOptions2githubᚗcomᚋnaisᚋapiᚋinternalᚋenvironmentᚐAvailableValueOptions(ctx context.Context, sel ast.SelectionSet, v environment.AvailableValueOptions) graphql.Marshaler {
+	return ec._AvailableValueOptions(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAvailableValueOptions2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋenvironmentᚐAvailableValueOptions(ctx context.Context, sel ast.SelectionSet, v *environment.AvailableValueOptions) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._AvailableValueOptions(ctx, sel, v)
+}
 
 func (ec *executionContext) marshalNAvailableValues2githubᚗcomᚋnaisᚋapiᚋinternalᚋenvironmentᚐAvailableValues(ctx context.Context, sel ast.SelectionSet, v environment.AvailableValues) graphql.Marshaler {
 	return ec._AvailableValues(ctx, sel, &v)
@@ -306,20 +320,6 @@ func (ec *executionContext) marshalNAvailableValues2ᚖgithubᚗcomᚋnaisᚋapi
 		return graphql.Null
 	}
 	return ec._AvailableValues(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalNStringOptions2githubᚗcomᚋnaisᚋapiᚋinternalᚋenvironmentᚐStringOptions(ctx context.Context, sel ast.SelectionSet, v environment.StringOptions) graphql.Marshaler {
-	return ec._StringOptions(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNStringOptions2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋenvironmentᚐStringOptions(ctx context.Context, sel ast.SelectionSet, v *environment.StringOptions) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._StringOptions(ctx, sel, v)
 }
 
 // endregion ***************************** type.gotpl *****************************

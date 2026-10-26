@@ -24,7 +24,7 @@ func (r *applicationResolver) Postgreses(ctx context.Context, obj *application.A
 	return workloadPostgresConnectionForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, uses, first, after, last, before)
 }
 
-func (r *availableValuesResolver) PostgresMajorVersions(ctx context.Context, obj *environment.AvailableValues) (*environment.StringOptions, error) {
+func (r *availableValuesResolver) PostgresMajorVersions(ctx context.Context, obj *environment.AvailableValues) (*environment.AvailableValueOptions, error) {
 	return postgres.AvailableMajorVersions(ctx, obj.EnvironmentName)
 }
 
