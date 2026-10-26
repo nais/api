@@ -308,20 +308,6 @@ func (q *Queries) DeleteSubscription(ctx context.Context, id uuid.UUID) error {
 	return err
 }
 
-const disableSubscription = `-- name: DisableSubscription :exec
-UPDATE webhook_subscriptions
-SET
-	enabled = FALSE,
-	disabled_at = NOW()
-WHERE
-	id = $1
-`
-
-func (q *Queries) DisableSubscription(ctx context.Context, id uuid.UUID) error {
-	_, err := q.db.Exec(ctx, disableSubscription, id)
-	return err
-}
-
 const getDelivery = `-- name: GetDelivery :one
 SELECT
 	id, subscription_id, webhook_event_delivery_id, event_type, request_body, response_status, response_body, duration_ms, success, created_at
@@ -397,35 +383,6 @@ WHERE
 
 func (q *Queries) GetSubscription(ctx context.Context, id uuid.UUID) (*WebhookSubscription, error) {
 	row := q.db.QueryRow(ctx, getSubscription, id)
-	var i WebhookSubscription
-	err := row.Scan(
-		&i.ID,
-		&i.TeamSlug,
-		&i.Url,
-		&i.Secret,
-		&i.EventTypes,
-		&i.Enabled,
-		&i.ConsecutiveFailures,
-		&i.DisabledAt,
-		&i.CreatedBy,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return &i, err
-}
-
-const incrementConsecutiveFailures = `-- name: IncrementConsecutiveFailures :one
-UPDATE webhook_subscriptions
-SET
-	consecutive_failures = consecutive_failures + 1
-WHERE
-	id = $1
-RETURNING
-	id, team_slug, url, secret, event_types, enabled, consecutive_failures, disabled_at, created_by, created_at, updated_at
-`
-
-func (q *Queries) IncrementConsecutiveFailures(ctx context.Context, id uuid.UUID) (*WebhookSubscription, error) {
-	row := q.db.QueryRow(ctx, incrementConsecutiveFailures, id)
 	var i WebhookSubscription
 	err := row.Scan(
 		&i.ID,
@@ -821,6 +778,61 @@ func (q *Queries) PruneOldOutboxEvents(ctx context.Context, before pgtype.Timest
 	return err
 }
 
+const recordDeliveryResult = `-- name: RecordDeliveryResult :one
+WITH
+	previous AS (
+		SELECT
+			webhook_subscriptions.id,
+			webhook_subscriptions.enabled
+		FROM
+			webhook_subscriptions
+		WHERE
+			webhook_subscriptions.id = $3
+		FOR UPDATE
+	)
+UPDATE webhook_subscriptions AS subscription
+SET
+	consecutive_failures = CASE
+		WHEN $1::BOOLEAN THEN 0
+		ELSE subscription.consecutive_failures + 1
+	END,
+	enabled = CASE
+		WHEN NOT $1::BOOLEAN
+		AND subscription.consecutive_failures + 1 >= $2::INT THEN FALSE
+		ELSE subscription.enabled
+	END,
+	disabled_at = CASE
+		WHEN previous.enabled
+		AND NOT $1::BOOLEAN
+		AND subscription.consecutive_failures + 1 >= $2::INT THEN NOW()
+		ELSE subscription.disabled_at
+	END
+FROM
+	previous
+WHERE
+	subscription.id = previous.id
+RETURNING
+	COALESCE(
+		previous.enabled
+		AND NOT subscription.enabled,
+		FALSE
+	)::BOOLEAN AS auto_disabled
+`
+
+type RecordDeliveryResultParams struct {
+	Success          bool
+	DisableThreshold int32
+	ID               uuid.UUID
+}
+
+// Serialize result bookkeeping for each subscription and report an auto-disable transition only once.
+func (q *Queries) RecordDeliveryResult(ctx context.Context, arg RecordDeliveryResultParams) (bool, error) {
+	row := q.db.QueryRow(ctx, recordDeliveryResult, arg.Success, arg.DisableThreshold, arg.ID)
+	var auto_disabled bool
+	err := row.Scan(&auto_disabled)
+	return auto_disabled, err
+}
+
 const requeueDelivery = `-- name: RequeueDelivery :exec
 UPDATE webhook_event_deliveries
 SET
@@ -839,19 +851,6 @@ type RequeueDeliveryParams struct {
 
 func (q *Queries) RequeueDelivery(ctx context.Context, arg RequeueDeliveryParams) error {
 	_, err := q.db.Exec(ctx, requeueDelivery, arg.RetryCount, arg.RunAt, arg.ID)
-	return err
-}
-
-const resetConsecutiveFailures = `-- name: ResetConsecutiveFailures :exec
-UPDATE webhook_subscriptions
-SET
-	consecutive_failures = 0
-WHERE
-	id = $1
-`
-
-func (q *Queries) ResetConsecutiveFailures(ctx context.Context, id uuid.UUID) error {
-	_, err := q.db.Exec(ctx, resetConsecutiveFailures, id)
 	return err
 }
 

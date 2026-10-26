@@ -9,6 +9,18 @@ durable delivery via a PostgreSQL outbox, and automatic retry with exponential b
 Processing happens in two stages: outbox events are fanned out into per-subscription
 delivery rows, and each delivery row is then retried independently of the others.
 
+Each API replica runs one fan-out loop and three independent delivery workers. Workers
+claim one delivery at a time directly from PostgreSQL; there is no in-memory delivery
+queue or batch barrier. Fan-out wakes all workers after each committed batch, and wake-ups
+are coalesced. Each worker also polls every 30 seconds for missed wake-ups and due retries.
+Slow HTTP requests do not block fan-out or the other delivery workers.
+On shutdown, workers stop claiming new work and finish active deliveries and bookkeeping,
+with a 20-second deadline per active delivery.
+
+Delivery order is not guaranteed, including within one subscription. Failure counters
+follow the order in which results are recorded in PostgreSQL, not event creation order.
+Updating the counter and automatically disabling a subscription happen atomically.
+
 ```mermaid
 sequenceDiagram
     participant App as Application code
@@ -24,7 +36,7 @@ sequenceDiagram
     D->>WE: SELECT … FOR UPDATE SKIP LOCKED (claim batch)
     D->>ED: Match against enabled subscriptions, INSERT one row per match
     D->>WE: mark fanned-out event 'completed' (same transaction as above)
-    D->>ED: SELECT … FOR UPDATE SKIP LOCKED (claim batch)
+    D->>ED: Three workers: SELECT … FOR UPDATE SKIP LOCKED (claim one each)
     D->>Sub: HTTP POST CloudEvent (HMAC-signed)
     alt 2xx
         D->>ED: status = 'completed'
@@ -68,7 +80,7 @@ level.
 The dispatcher is started on every API replica (`go webhookDispatcher.Run(ctx)`, unconditional — no leader election). This is safe:
 
 - Postgres `NOTIFY` on `api_notify` is broadcast to every connection currently `LISTEN`ing on it, so all replicas wake up when new work arrives (plus a 30s poll fallback per replica in case a notification is missed).
-- Both the fan-out claim (`ClaimOutboxEventsForFanout`) and the delivery claim (`ClaimPendingDeliveries`) use `SELECT ... FOR UPDATE SKIP LOCKED`. Concurrent replicas racing on these queries can never select the same row — whichever transaction locks a row first "wins" it, and everyone else's `SKIP LOCKED` simply skips it and claims different rows instead. More replicas just means more parallel draining capacity, never duplicate work.
+- Both the fan-out claim (`ClaimOutboxEventsForFanout`) and the delivery claim (`ClaimPendingDeliveries`) use `SELECT ... FOR UPDATE SKIP LOCKED`. Concurrent workers or replicas racing on these queries cannot claim the same row in that claim cycle. Each replica adds three delivery workers; retries can still produce duplicate HTTP deliveries.
 - Fan-out (claiming an event, matching subscriptions, inserting delivery rows, marking the event completed) happens in a single DB transaction. `CreateEventDelivery` is idempotent (`ON CONFLICT (webhook_event_id, subscription_id) DO NOTHING`), so an interrupted or repeated fan-out attempt is safe.
 - Delivery marks a `webhook_event_deliveries` row `completed` at claim time, before the HTTP call is made. A replica killed mid-delivery could lose that one delivery without a retry — a known trade-off; a `processing` status with a lease and reaper would close this gap if it becomes a problem in practice.
 

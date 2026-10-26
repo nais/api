@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -25,8 +26,8 @@ import (
 const (
 	defaultTimeout    = 10 * time.Second
 	eventBatchSize    = 50
+	deliveryWorkers   = 3
 	pollInterval      = 30 * time.Second
-	maxRetryCount     = 7  // ~24h total with exponential backoff
 	disableThreshold  = 10 // auto-disable after 10 consecutive failures
 	userAgentHeader   = "Nais-API-Webhook/1.0"
 	signatureHeader   = "X-Webhook-Signature"
@@ -44,15 +45,18 @@ var retryBackoffs = []time.Duration{
 	8 * time.Hour,
 	12 * time.Hour,
 }
+var maxRetryCount = len(retryBackoffs)
 
 // Dispatcher processes webhook events from the outbox table and delivers them to subscribers.
 type Dispatcher struct {
 	pool       *pgxpool.Pool
+	queries    webhooksql.Querier
 	notifier   *notify.Notifier
 	log        logrus.FieldLogger
 	source     string
 	httpClient *http.Client
 	metrics    *webhookMetrics
+	wakeups    [deliveryWorkers]chan struct{}
 }
 
 // NewDispatcher creates a new webhook dispatcher that drains events from the outbox table.
@@ -63,8 +67,9 @@ func NewDispatcher(pool *pgxpool.Pool, notifier *notify.Notifier, source string,
 		return nil, fmt.Errorf("setting up webhook metrics: %w", err)
 	}
 
-	return &Dispatcher{
+	d := &Dispatcher{
 		pool:     pool,
+		queries:  q,
 		notifier: notifier,
 		log:      log.WithField("subsystem", "webhook_dispatcher"),
 		source:   source,
@@ -72,36 +77,65 @@ func NewDispatcher(pool *pgxpool.Pool, notifier *notify.Notifier, source string,
 			Timeout: defaultTimeout,
 		},
 		metrics: m,
-	}, nil
+	}
+	for i := range d.wakeups {
+		d.wakeups[i] = make(chan struct{}, 1)
+	}
+	return d, nil
 }
 
 // Run starts the dispatcher. It listens for PG NOTIFY on "webhook_events" and
-// periodically polls for unprocessed events. Blocks until ctx is cancelled.
+// periodically polls for unprocessed events. It returns after cancellation and active deliveries finish.
 func (d *Dispatcher) Run(ctx context.Context) {
 	ch := d.notifier.Listen("webhook_events")
-
-	// Process any events that were queued before we started
-	d.drainOutbox(ctx)
-
+	workers := d.startDeliveryWorkers(ctx)
+	defer workers.Wait()
+	ticker := time.NewTicker(pollInterval)
+	defer ticker.Stop()
+	d.fanOutPendingEvents(ctx)
 	for {
 		select {
 		case <-ctx.Done():
 			return
 		case <-ch:
-			d.drainOutbox(ctx)
-		case <-time.After(pollInterval):
-			// Safety net: poll periodically in case a notification was missed
-			// or to pick up events/deliveries whose run_at has arrived.
-			d.drainOutbox(ctx)
+			d.fanOutPendingEvents(ctx)
+		case <-ticker.C:
+			d.fanOutPendingEvents(ctx)
 		}
 	}
 }
 
-// drainOutbox fans pending outbox events out into per-subscription delivery rows, then
-// drains and delivers any pending delivery rows.
-func (d *Dispatcher) drainOutbox(ctx context.Context) {
-	d.fanOutPendingEvents(ctx)
-	d.drainPendingDeliveries(ctx)
+func (d *Dispatcher) startDeliveryWorkers(ctx context.Context) *sync.WaitGroup {
+	var workers sync.WaitGroup
+	for _, wakeup := range d.wakeups {
+		workers.Go(func() {
+			d.runDeliveryWorker(ctx, wakeup)
+		})
+	}
+	return &workers
+}
+
+func (d *Dispatcher) wakeDeliveryWorkers() {
+	for _, wakeup := range d.wakeups {
+		select {
+		case wakeup <- struct{}{}:
+		default:
+		}
+	}
+}
+
+func (d *Dispatcher) runDeliveryWorker(ctx context.Context, wakeup <-chan struct{}) {
+	ticker := time.NewTicker(pollInterval)
+	defer ticker.Stop()
+	for ctx.Err() == nil {
+		d.drainPendingDeliveries(ctx)
+		select {
+		case <-ctx.Done():
+			return
+		case <-wakeup:
+		case <-ticker.C:
+		}
+	}
 }
 
 // fanOutPendingEvents claims batches of outbox events that haven't been matched against
@@ -109,7 +143,7 @@ func (d *Dispatcher) drainOutbox(ctx context.Context) {
 // subscription that matches. Subscription matching only happens here; every later retry
 // operates on a single (event, subscription) delivery row.
 func (d *Dispatcher) fanOutPendingEvents(ctx context.Context) {
-	for {
+	for ctx.Err() == nil {
 		more, err := d.fanOutBatch(ctx)
 		if err != nil {
 			d.log.WithError(err).Error("fanning out webhook outbox events")
@@ -118,6 +152,7 @@ func (d *Dispatcher) fanOutPendingEvents(ctx context.Context) {
 		if !more {
 			return
 		}
+		d.wakeDeliveryWorkers()
 	}
 }
 
@@ -175,12 +210,10 @@ func (d *Dispatcher) fanOutBatch(ctx context.Context) (bool, error) {
 	return true, nil
 }
 
-// drainPendingDeliveries claims and processes batches of per-subscription delivery rows.
+// drainPendingDeliveries claims one delivery at a time so each worker only owns its active job.
 func (d *Dispatcher) drainPendingDeliveries(ctx context.Context) {
-	q := webhooksql.New(d.pool)
-
-	for {
-		deliveries, err := q.ClaimPendingDeliveries(ctx, eventBatchSize)
+	for ctx.Err() == nil {
+		deliveries, err := d.queries.ClaimPendingDeliveries(ctx, 1)
 		if err != nil {
 			d.log.WithError(err).Error("claiming pending webhook deliveries")
 			return
@@ -191,7 +224,10 @@ func (d *Dispatcher) drainPendingDeliveries(ctx context.Context) {
 		}
 
 		for _, row := range deliveries {
-			d.processDelivery(ctx, q, &row.WebhookEventDelivery, &row.WebhookSubscription, &row.ActivityLogEntry)
+			// Finish claimed work on shutdown, including its database bookkeeping.
+			deliveryCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 2*defaultTimeout)
+			d.processDelivery(deliveryCtx, d.queries, &row.WebhookEventDelivery, &row.WebhookSubscription, &row.ActivityLogEntry)
+			cancel()
 		}
 	}
 }
@@ -231,7 +267,7 @@ func toWebhookEvent(a *webhooksql.ActivityLogEntry) WebhookEvent {
 	}
 }
 
-func (d *Dispatcher) processDelivery(ctx context.Context, q *webhooksql.Queries, del *webhooksql.WebhookEventDelivery, sub *webhooksql.WebhookSubscription, a *webhooksql.ActivityLogEntry) {
+func (d *Dispatcher) processDelivery(ctx context.Context, q webhooksql.Querier, del *webhooksql.WebhookEventDelivery, sub *webhooksql.WebhookSubscription, a *webhooksql.ActivityLogEntry) {
 	event := toWebhookEvent(a)
 	if event.isIgnored() {
 		return
@@ -288,7 +324,7 @@ func (d *Dispatcher) processDelivery(ctx context.Context, q *webhooksql.Queries,
 // deliver sends a single HTTP delivery attempt to sub and records it in the audit log.
 // deliveryRowID links the audit row back to the originating webhook_event_deliveries row,
 // and is nil for ad hoc deliveries (e.g. Ping) that aren't backed by a queue row.
-func (d *Dispatcher) deliver(ctx context.Context, q *webhooksql.Queries, sub *webhooksql.WebhookSubscription, eventType string, payload []byte, deliveryRowID *uuid.UUID) bool {
+func (d *Dispatcher) deliver(ctx context.Context, q webhooksql.Querier, sub *webhooksql.WebhookSubscription, eventType string, payload []byte, deliveryRowID *uuid.UUID) bool {
 	signature := SignPayload(sub.Secret, payload)
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, sub.Url, bytes.NewReader(payload))
@@ -359,26 +395,18 @@ func (d *Dispatcher) deliver(ctx context.Context, q *webhooksql.Queries, sub *we
 		d.log.WithError(recordErr).Error("recording webhook delivery")
 	}
 
-	// Track consecutive failures for auto-disable
-	if success {
-		if sub.ConsecutiveFailures > 0 {
-			if err := q.ResetConsecutiveFailures(ctx, sub.ID); err != nil {
-				d.log.WithError(err).Error("resetting consecutive failures")
-			}
-		}
-	} else {
-		updated, err := q.IncrementConsecutiveFailures(ctx, sub.ID)
-		if err != nil {
-			d.log.WithError(err).Error("incrementing consecutive failures")
-		} else if updated.ConsecutiveFailures >= disableThreshold {
-			d.log.WithField("subscription_id", sub.ID).Warn("auto-disabling webhook subscription after repeated failures")
-			if err := q.DisableSubscription(ctx, sub.ID); err != nil {
-				d.log.WithError(err).Error("disabling webhook subscription")
-			}
-			d.metrics.autoDisabledCounter.Add(ctx, 1, metric.WithAttributes(
-				attribute.String("subscription_id", sub.ID.String()),
-			))
-		}
+	autoDisabled, err := q.RecordDeliveryResult(ctx, webhooksql.RecordDeliveryResultParams{
+		ID:               sub.ID,
+		Success:          success,
+		DisableThreshold: disableThreshold,
+	})
+	if err != nil {
+		d.log.WithError(err).Error("recording webhook subscription delivery result")
+	} else if autoDisabled {
+		d.log.WithField("subscription_id", sub.ID).Warn("auto-disabling webhook subscription after repeated failures")
+		d.metrics.autoDisabledCounter.Add(ctx, 1, metric.WithAttributes(
+			attribute.String("subscription_id", sub.ID.String()),
+		))
 	}
 
 	return success
