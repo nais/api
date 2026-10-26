@@ -95,31 +95,46 @@ ORDER BY
 	created_at DESC
 ;
 
--- name: IncrementConsecutiveFailures :one
-UPDATE webhook_subscriptions
+-- name: RecordDeliveryResult :one
+-- Serialize result bookkeeping for each subscription and report an auto-disable transition only once.
+WITH
+	previous AS (
+		SELECT
+			webhook_subscriptions.id,
+			webhook_subscriptions.enabled
+		FROM
+			webhook_subscriptions
+		WHERE
+			webhook_subscriptions.id = @id
+		FOR UPDATE
+	)
+UPDATE webhook_subscriptions AS subscription
 SET
-	consecutive_failures = consecutive_failures + 1
+	consecutive_failures = CASE
+		WHEN @success::BOOLEAN THEN 0
+		ELSE subscription.consecutive_failures + 1
+	END,
+	enabled = CASE
+		WHEN NOT @success::BOOLEAN
+		AND subscription.consecutive_failures + 1 >= @disable_threshold::INT THEN FALSE
+		ELSE subscription.enabled
+	END,
+	disabled_at = CASE
+		WHEN previous.enabled
+		AND NOT @success::BOOLEAN
+		AND subscription.consecutive_failures + 1 >= @disable_threshold::INT THEN NOW()
+		ELSE subscription.disabled_at
+	END
+FROM
+	previous
 WHERE
-	id = @id
+	subscription.id = previous.id
 RETURNING
-	*
-;
-
--- name: ResetConsecutiveFailures :exec
-UPDATE webhook_subscriptions
-SET
-	consecutive_failures = 0
-WHERE
-	id = @id
-;
-
--- name: DisableSubscription :exec
-UPDATE webhook_subscriptions
-SET
-	enabled = FALSE,
-	disabled_at = NOW()
-WHERE
-	id = @id
+	COALESCE(
+		previous.enabled
+		AND NOT subscription.enabled,
+		FALSE
+	)::BOOLEAN AS auto_disabled
 ;
 
 -- name: CreateDelivery :one

@@ -19,6 +19,19 @@ to act as a regular user, or `admin.usersen@example.com` if you need an admin us
 
 Locally, most external services are replaced with fake clients, and the Kubernetes client reads data from `data/k8s`.
 
+To generate a continuous stream of team membership activity, use a dedicated existing user
+who is not already a member of the team:
+
+```bash
+go run ./hack/stress_team_membership --team my-team --member stress-user@example.com --actor-email admin.usersen@example.com --interval 250ms
+```
+
+The command alternates adding and removing the user until Ctrl+C, then removes any member
+it successfully added. `--interval` sets the delay after each request (default `1s`).
+Use `--url` for another GraphQL endpoint and `NAIS_API_TOKEN` instead of `--actor-email`
+for bearer authentication. Requests have a 10-second timeout; errors stop the loop.
+An in-flight request finishes before shutdown. If its response is lost, check membership manually.
+
 The test suite uses [testcontainers](https://testcontainers.com/), and if you are using Colima you might need to follow
 the guidelines in the [testcontainers documentation](https://golang.testcontainers.org/system_requirements/using_colima/).
 

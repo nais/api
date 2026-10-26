@@ -21,11 +21,9 @@ type Querier interface {
 	CreateEventDelivery(ctx context.Context, arg CreateEventDeliveryParams) error
 	CreateSubscription(ctx context.Context, arg CreateSubscriptionParams) (*WebhookSubscription, error)
 	DeleteSubscription(ctx context.Context, id uuid.UUID) error
-	DisableSubscription(ctx context.Context, id uuid.UUID) error
 	GetDelivery(ctx context.Context, id uuid.UUID) (*WebhookDelivery, error)
 	GetQueueSizeByStatus(ctx context.Context) ([]*GetQueueSizeByStatusRow, error)
 	GetSubscription(ctx context.Context, id uuid.UUID) (*WebhookSubscription, error)
-	IncrementConsecutiveFailures(ctx context.Context, id uuid.UUID) (*WebhookSubscription, error)
 	ListDeliveriesByIDs(ctx context.Context, ids []uuid.UUID) ([]*WebhookDelivery, error)
 	ListDeliveriesForSubscription(ctx context.Context, arg ListDeliveriesForSubscriptionParams) ([]*ListDeliveriesForSubscriptionRow, error)
 	ListEnabledSubscriptions(ctx context.Context) ([]*WebhookSubscription, error)
@@ -39,8 +37,9 @@ type Querier interface {
 	// Prunes outbox events whose deliveries have all reached a terminal state (a delete
 	// cascades to webhook_event_deliveries, so pending rows must be excluded).
 	PruneOldOutboxEvents(ctx context.Context, before pgtype.Timestamptz) error
+	// Serialize result bookkeeping for each subscription and report an auto-disable transition only once.
+	RecordDeliveryResult(ctx context.Context, arg RecordDeliveryResultParams) (bool, error)
 	RequeueDelivery(ctx context.Context, arg RequeueDeliveryParams) error
-	ResetConsecutiveFailures(ctx context.Context, id uuid.UUID) error
 	UpdateSubscription(ctx context.Context, arg UpdateSubscriptionParams) (*WebhookSubscription, error)
 }
 

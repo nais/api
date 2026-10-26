@@ -48,6 +48,157 @@ func TestDispatcherIntegration(t *testing.T) {
 		t.Fatalf("failed to start postgres container: %v", err)
 	}
 
+	t.Run("concurrent delivery results disable once and success does not reenable", func(t *testing.T) {
+		pool := getConnection(ctx, t, container, dsn, log)
+		q := webhooksql.New(pool)
+		sub, err := q.CreateSubscription(ctx, webhooksql.CreateSubscriptionParams{
+			Url: "https://subscriber.example.test", Secret: "test-secret",
+			EventTypes: []string{"*"}, CreatedBy: "tester",
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		params := webhooksql.RecordDeliveryResultParams{ID: sub.ID, DisableThreshold: disableThreshold}
+		if _, err := q.RecordDeliveryResult(ctx, params); err != nil {
+			t.Fatal(err)
+		}
+		params.Success = true
+		if disabled, err := q.RecordDeliveryResult(ctx, params); err != nil || disabled {
+			t.Fatalf("record success: disabled=%v, error=%v", disabled, err)
+		}
+		reset, err := q.GetSubscription(ctx, sub.ID)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if reset.ConsecutiveFailures != 0 || !reset.Enabled {
+			t.Fatalf("success should reset failures without disabling: %+v", reset)
+		}
+
+		type result struct {
+			disabled bool
+			err      error
+		}
+		const attempts = disableThreshold + 5
+		results := make(chan result, attempts)
+		start := make(chan struct{})
+		params.Success = false
+		for range attempts {
+			go func() {
+				<-start
+				disabled, err := q.RecordDeliveryResult(ctx, params)
+				results <- result{disabled: disabled, err: err}
+			}()
+		}
+		close(start)
+		transitions := 0
+		for range attempts {
+			outcome := <-results
+			if outcome.err != nil {
+				t.Errorf("record failure: %v", outcome.err)
+			}
+			if outcome.disabled {
+				transitions++
+			}
+		}
+		disabled, err := q.GetSubscription(ctx, sub.ID)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if transitions != 1 || disabled.Enabled || !disabled.DisabledAt.Valid || disabled.ConsecutiveFailures != attempts {
+			t.Fatalf("transitions=%d, subscription=%+v; want one transition and %d failures", transitions, disabled, attempts)
+		}
+		params.Success = true
+		if transitioned, err := q.RecordDeliveryResult(ctx, params); err != nil || transitioned {
+			t.Fatalf("record success after disable: transition=%v, error=%v", transitioned, err)
+		}
+		afterSuccess, err := q.GetSubscription(ctx, sub.ID)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if afterSuccess.Enabled || afterSuccess.ConsecutiveFailures != 0 ||
+			!afterSuccess.DisabledAt.Time.Equal(disabled.DisabledAt.Time) {
+			t.Fatalf("success should reset failures but preserve disabled state: %+v", afterSuccess)
+		}
+	})
+
+	t.Run("fan out continues while all delivery workers are busy", func(t *testing.T) {
+		pool := getConnection(ctx, t, container, dsn, log)
+		q := webhooksql.New(pool)
+		sub, err := q.CreateSubscription(ctx, webhooksql.CreateSubscriptionParams{
+			Url: "https://subscriber.example.test", Secret: "test-secret",
+			EventTypes: []string{"*"}, CreatedBy: "tester",
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		d := newTestDispatcher(t, pool, log)
+		started := make(chan struct{}, 4)
+		release := make(chan struct{})
+		unblock := sync.OnceFunc(func() { close(release) })
+		d.httpClient.Transport = workerRoundTripFunc(func(req *http.Request) (*http.Response, error) {
+			started <- struct{}{}
+			select {
+			case <-release:
+				return workerTestResponse(http.StatusOK), nil
+			case <-req.Context().Done():
+				return nil, req.Context().Err()
+			}
+		})
+		runCtx, cancel := context.WithCancel(t.Context())
+		notifierDone := make(chan struct{})
+		probe := d.notifier.Listen("webhook_events")
+		go func() {
+			defer close(notifierDone)
+			d.notifier.Run(runCtx)
+		}()
+		dispatcherDone := make(chan struct{})
+		t.Cleanup(func() {
+			cancel()
+			unblock()
+			waitForWorkerSignal(t, dispatcherDone)
+			waitForWorkerSignal(t, notifierDone)
+		})
+		go func() {
+			defer close(dispatcherDone)
+			d.Run(runCtx)
+		}()
+		waitForDispatcherCondition(t, func() bool {
+			if _, err := pool.Exec(ctx, `SELECT pg_notify('api_notify', '{"table":"webhook_events","op":"INSERT"}')`); err != nil {
+				t.Fatal(err)
+			}
+			select {
+			case <-probe:
+				return true
+			default:
+				return false
+			}
+		})
+		for i := range 3 {
+			insertActivityLogEntry(ctx, t, pool, nil, fmt.Sprintf("resource-%d", i))
+		}
+		for range 3 {
+			waitForWorkerSignal(t, started)
+		}
+		insertActivityLogEntry(ctx, t, pool, nil, "resource-4")
+		waitForDispatcherCondition(t, func() bool {
+			var completed int
+			if err := pool.QueryRow(ctx, `SELECT count(*) FROM webhook_events WHERE status = 'completed'`).Scan(&completed); err != nil {
+				t.Fatal(err)
+			}
+			return completed == 4
+		})
+		var total, pending int
+		if err := pool.QueryRow(ctx, `
+			SELECT count(*), count(*) FILTER (WHERE status = 'pending')
+			FROM webhook_event_deliveries WHERE subscription_id = $1
+		`, sub.ID).Scan(&total, &pending); err != nil {
+			t.Fatal(err)
+		}
+		if total != 4 || pending != 1 {
+			t.Fatalf("total deliveries=%d, pending=%d; want 4, 1 while all three workers are busy", total, pending)
+		}
+	})
+
 	t.Run("fan out and deliver success", func(t *testing.T) {
 		pool := getConnection(ctx, t, container, dsn, log)
 		createTeam(ctx, t, pool, "team-a")
@@ -581,6 +732,21 @@ func TestDispatcherIntegration(t *testing.T) {
 			t.Error("expected fresh audit delivery row to survive pruning")
 		}
 	})
+}
+
+func waitForDispatcherCondition(t *testing.T, condition func() bool) {
+	t.Helper()
+	ticker := time.NewTicker(10 * time.Millisecond)
+	defer ticker.Stop()
+	timeout := time.NewTimer(5 * time.Second)
+	defer timeout.Stop()
+	for !condition() {
+		select {
+		case <-ticker.C:
+		case <-timeout.C:
+			t.Fatal("timed out waiting for dispatcher")
+		}
+	}
 }
 
 func newTestDispatcher(t *testing.T, pool *pgxpool.Pool, log logrus.FieldLogger) *Dispatcher {
