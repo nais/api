@@ -66,7 +66,7 @@ func TestBranchOperationsRejectMissingBranches(t *testing.T) {
 	if !mgr.WaitForReady(wait) {
 		t.Fatal("watchers did not synchronize")
 	}
-	ctx = NewLoaderContext(ctx, branchWatcher, postgresWatcher, "", "", "nav", mgr.GetDynamicClients())
+	ctx = NewLoaderContext(ctx, branchWatcher, postgresWatcher, nil, "", "", "nav", mgr.GetDynamicClients())
 	team := slug.Slug("someteamname")
 	for _, tt := range []struct{ postgres, branch, want string }{
 		{"foobar", "missing", "not found"},
@@ -160,7 +160,7 @@ func TestCreateBranchRejectsUnavailableRecovery(t *testing.T) {
 			if !mgr.WaitForReady(wait) {
 				t.Fatal("watchers did not synchronize")
 			}
-			ctx = NewLoaderContext(ctx, branchWatcher, postgresWatcher, "", "", "nav", mgr.GetDynamicClients())
+			ctx = NewLoaderContext(ctx, branchWatcher, postgresWatcher, nil, "", "", "nav", mgr.GetDynamicClients())
 			input := CreatePostgresBranchInput{
 				Postgres: "existing", Branch: "restore", SourceBranch: "main", TargetTime: scenario.targetTime,
 				EnvironmentName: "dev", TeamSlug: slug.Slug("pg-crud-team"),

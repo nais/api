@@ -1952,6 +1952,7 @@ type ComplexityRoot struct {
 	}
 
 	PostgresBranch struct {
+		Configuration       func(childComplexity int) int
 		CreatedAt           func(childComplexity int) int
 		EarliestRestoreTime func(childComplexity int) int
 		ID                  func(childComplexity int) int
@@ -2032,6 +2033,10 @@ type ComplexityRoot struct {
 		State func(childComplexity int) int
 	}
 
+	PostgresConfiguration struct {
+		Parameters func(childComplexity int) int
+	}
+
 	PostgresConnection struct {
 		Edges    func(childComplexity int) int
 		Facets   func(childComplexity int) int
@@ -2088,6 +2093,11 @@ type ComplexityRoot struct {
 	PostgresGrantAccessActivityLogEntryData struct {
 		Grantee func(childComplexity int) int
 		Until   func(childComplexity int) int
+	}
+
+	PostgresParameter struct {
+		Name  func(childComplexity int) int
+		Value func(childComplexity int) int
 	}
 
 	PostgresPersonalAccessConnectionActivityLogEntry struct {
@@ -12169,6 +12179,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.PostgresAccessConnectionDetails.Username(childComplexity), true
 
+	case "PostgresBranch.configuration":
+		if e.ComplexityRoot.PostgresBranch.Configuration == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranch.Configuration(childComplexity), true
+
 	case "PostgresBranch.createdAt":
 		if e.ComplexityRoot.PostgresBranch.CreatedAt == nil {
 			break
@@ -12552,6 +12569,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.PostgresBranchStateFacetItem.State(childComplexity), true
 
+	case "PostgresConfiguration.parameters":
+		if e.ComplexityRoot.PostgresConfiguration.Parameters == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresConfiguration.Parameters(childComplexity), true
+
 	case "PostgresConnection.edges":
 		if e.ComplexityRoot.PostgresConnection.Edges == nil {
 			break
@@ -12810,6 +12834,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.PostgresGrantAccessActivityLogEntryData.Until(childComplexity), true
+
+	case "PostgresParameter.name":
+		if e.ComplexityRoot.PostgresParameter.Name == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresParameter.Name(childComplexity), true
+
+	case "PostgresParameter.value":
+		if e.ComplexityRoot.PostgresParameter.Value == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresParameter.Value(childComplexity), true
 
 	case "PostgresPersonalAccessConnectionActivityLogEntry.actor":
 		if e.ComplexityRoot.PostgresPersonalAccessConnectionActivityLogEntry.Actor == nil {
@@ -28628,6 +28666,8 @@ type PostgresBranch implements Persistence & Node {
 	createdAt: Time!
 	"Earliest time the branch can currently be restored from its archived backups."
 	earliestRestoreTime: Time
+	"PostgreSQL configuration observed on the branch's CNPG Cluster. Null while the Cluster is unavailable. These are configured settings, not necessarily active runtime values."
+	configuration: PostgresConfiguration
 	team: Team!
 	teamEnvironment: TeamEnvironment!
 	"Postgres owning this PostgresBranch."
@@ -28650,6 +28690,20 @@ type PostgresBranch implements Persistence & Node {
 	state: PostgresBranchState!
 	"User-defined labels on this branch."
 	labels: [ResourceLabel!]!
+}
+
+"PostgreSQL configuration observed on a branch's CNPG Cluster."
+type PostgresConfiguration {
+	"Explicitly configured PostgreSQL parameters, sorted by name. PostgreSQL and operator defaults absent from the Cluster resource are not included."
+	parameters: [PostgresParameter!]!
+}
+
+"A PostgreSQL parameter explicitly configured on a CNPG Cluster."
+type PostgresParameter {
+	"PostgreSQL parameter name, including any extension prefix."
+	name: String!
+	"Unmodified configured value, including units when specified."
+	value: String!
 }
 
 "A Postgres whose active branch can change."
@@ -39651,6 +39705,8 @@ func (ec *executionContext) childFields_PostgresBranch(ctx context.Context, fiel
 		return ec.fieldContext_PostgresBranch_createdAt(ctx, field)
 	case "earliestRestoreTime":
 		return ec.fieldContext_PostgresBranch_earliestRestoreTime(ctx, field)
+	case "configuration":
+		return ec.fieldContext_PostgresBranch_configuration(ctx, field)
 	case "team":
 		return ec.fieldContext_PostgresBranch_team(ctx, field)
 	case "teamEnvironment":
@@ -39725,6 +39781,14 @@ func (ec *executionContext) childFields_PostgresBranchStateFacetItem(ctx context
 	return nil, fmt.Errorf("no field named %q was found under type PostgresBranchStateFacetItem", field.Name)
 }
 
+func (ec *executionContext) childFields_PostgresConfiguration(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "parameters":
+		return ec.fieldContext_PostgresConfiguration_parameters(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostgresConfiguration", field.Name)
+}
+
 func (ec *executionContext) childFields_PostgresConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "pageInfo":
@@ -39765,6 +39829,16 @@ func (ec *executionContext) childFields_PostgresGrantAccessActivityLogEntryData(
 		return ec.fieldContext_PostgresGrantAccessActivityLogEntryData_until(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type PostgresGrantAccessActivityLogEntryData", field.Name)
+}
+
+func (ec *executionContext) childFields_PostgresParameter(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "name":
+		return ec.fieldContext_PostgresParameter_name(ctx, field)
+	case "value":
+		return ec.fieldContext_PostgresParameter_value(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostgresParameter", field.Name)
 }
 
 func (ec *executionContext) childFields_PostgresPersonalAccessCreatedActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {

@@ -193,6 +193,63 @@ Test.gql("Postgres workload pagination keeps same-name application and job disti
 	}, {})
 end)
 
+Test.gql("Postgres configuration exposes explicitly configured parameters in name order", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[{ team(slug: "someteamname") { environment(name: "dev") { postgres(name: "foobar") {
+		activeBranch { name configuration { parameters { name value } } }
+	} } } }]]
+	t.check { data = { team = { environment = { postgres = { activeBranch = {
+		name = "main",
+		configuration = { parameters = {
+			{ name = "bgwriter_lru_maxpages",      value = "200" },
+			{ name = "checkpoint_timeout",         value = "10min" },
+			{ name = "commit_delay",               value = "100" },
+			{ name = "commit_siblings",            value = "10" },
+			{ name = "effective_cache_size",       value = "1536MB" },
+			{ name = "effective_io_concurrency",   value = "200" },
+			{ name = "huge_pages",                 value = "off" },
+			{ name = "log_min_duration_statement", value = "1000" },
+			{ name = "maintenance_work_mem",       value = "256MB" },
+			{ name = "max_wal_size",               value = "2GB" },
+			{ name = "pg_stat_statements.track",   value = "all" },
+			{ name = "pgaudit.log",                value = "read,write,ddl,role" },
+			{ name = "pgaudit.log_parameter",      value = "on" },
+			{ name = "pgaudit.log_relation",       value = "on" },
+			{ name = "random_page_cost",           value = "1.1" },
+			{ name = "shared_buffers",             value = "512MB" },
+			{ name = "track_io_timing",            value = "on" },
+			{ name = "wal_compression",            value = "zstd" },
+			{ name = "work_mem",                   value = "32MB" },
+		} },
+	} } } } } }
+end)
+
+Test.gql("Postgres configuration is scoped to branch, database, team and environment", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[{
+		team(slug: "someteamname") {
+			dev: environment(name: "dev") {
+				postgres(name: "foobar") { branch(name: "failed") { configuration { parameters { name value } } } }
+				empty: postgres(name: "another-db") { activeBranch { configuration { parameters { name value } } } }
+				missing: postgres(name: "without-audit") { name activeBranch { name configuration { parameters { name value } } } }
+			}
+			staging: environment(name: "staging") { postgres(name: "foobar") { activeBranch { configuration { parameters { name value } } } } }
+		}
+		other: team(slug: "postgres-other-team") { environment(name: "dev") { postgres(name: "foobar") { activeBranch { configuration { parameters { name value } } } } } }
+	}]]
+	t.check { data = {
+		team = {
+			dev = {
+				postgres = { branch = { configuration = { parameters = { { name = "shared_buffers", value = "128MB" } } } } },
+				empty = { activeBranch = { configuration = { parameters = {} } } },
+				missing = { name = "without-audit", activeBranch = { name = "main", configuration = Null } },
+			},
+			staging = { postgres = { activeBranch = { configuration = { parameters = { { name = "work_mem", value = "8MB" } } } } } },
+		},
+		other = { environment = { postgres = { activeBranch = { configuration = { parameters = { { name = "work_mem", value = "16MB" } } } } } } },
+	} }
+end)
+
 Test.gql("Delete a concrete PostgresBranch requires authorization", function(t)
 	t.addHeader("x-user-email", nonMember:email())
 	t.query [[mutation { deletePostgresBranch(input:{postgres:"foobar",branch:"main",environmentName:"dev",teamSlug:"someteamname"}) { postgresBranchDeleted } }]]

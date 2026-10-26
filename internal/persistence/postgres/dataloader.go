@@ -17,17 +17,19 @@ func NewLoaderContext(
 	ctx context.Context,
 	postgresBranchWatcher *watcher.Watcher[*PostgresBranch],
 	postgresWatcher *watcher.Watcher[*Postgres],
+	cnpgClusterWatcher *watcher.Watcher[*CNPGCluster],
 	auditLogProjectID string,
 	auditLogLocation string,
 	tenantName string,
 	clients map[string]dynamic.Interface,
 ) context.Context {
-	return context.WithValue(ctx, loadersKey, newLoaders(postgresBranchWatcher, postgresWatcher, auditLogProjectID, auditLogLocation, tenantName, clients))
+	return context.WithValue(ctx, loadersKey, newLoaders(postgresBranchWatcher, postgresWatcher, cnpgClusterWatcher, auditLogProjectID, auditLogLocation, tenantName, clients))
 }
 
 type loaders struct {
 	postgresBranchWatcher *watcher.Watcher[*PostgresBranch]
 	postgresWatcher       *watcher.Watcher[*Postgres]
+	cnpgClusterWatcher    *watcher.Watcher[*CNPGCluster]
 	auditLogProjectID     string
 	auditLogLocation      string
 	tenantName            string
@@ -37,6 +39,7 @@ type loaders struct {
 func newLoaders(
 	postgresBranchWatcher *watcher.Watcher[*PostgresBranch],
 	postgresWatcher *watcher.Watcher[*Postgres],
+	cnpgClusterWatcher *watcher.Watcher[*CNPGCluster],
 	auditLogProjectID string,
 	auditLogLocation string,
 	tenantName string,
@@ -45,6 +48,7 @@ func newLoaders(
 	return &loaders{
 		postgresBranchWatcher: postgresBranchWatcher,
 		postgresWatcher:       postgresWatcher,
+		cnpgClusterWatcher:    cnpgClusterWatcher,
 		auditLogProjectID:     auditLogProjectID,
 		auditLogLocation:      auditLogLocation,
 		tenantName:            tenantName,

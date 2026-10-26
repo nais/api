@@ -25,3 +25,12 @@ spec:
   uses:
     postgres:
       - name: foobar
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: pg-foobar-main-a4f04c0c
+spec:
+  postgresql:
+    parameters:
+      work_mem: 8MB
