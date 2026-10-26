@@ -26073,7 +26073,7 @@ enum InstanceGroupValueSourceKind {
 	SPEC
 
 	"""
-	The value was injected by the Nais platform (naiserator), not defined by the user.
+	The value was injected by the Nais platform, not defined by the user.
 	"""
 	NAIS
 }
@@ -28666,7 +28666,7 @@ type PostgresBranch implements Persistence & Node {
 	createdAt: Time!
 	"Earliest time the branch can currently be restored from its archived backups."
 	earliestRestoreTime: Time
-	"PostgreSQL configuration reported in the branch's status by pgrator. Null until configuration is available. These are configured settings, not necessarily active runtime values."
+	"Configured PostgreSQL settings for this branch. Null until configuration is available."
 	configuration: PostgresConfiguration
 	team: Team!
 	teamEnvironment: TeamEnvironment!
@@ -28692,13 +28692,13 @@ type PostgresBranch implements Persistence & Node {
 	labels: [ResourceLabel!]!
 }
 
-"PostgreSQL configuration reported in a branch's status."
+"Configured PostgreSQL settings for a branch."
 type PostgresConfiguration {
-	"Explicitly configured PostgreSQL parameters, sorted by name. Implicit PostgreSQL and operator defaults are not included."
+	"Explicitly configured PostgreSQL parameters, sorted by name. Implicit default values are not included."
 	parameters: [PostgresParameter!]!
 }
 
-"An explicitly configured PostgreSQL parameter reported by pgrator."
+"An explicitly configured PostgreSQL parameter."
 type PostgresParameter {
 	"PostgreSQL parameter name, including any extension prefix."
 	name: String!
@@ -28722,7 +28722,7 @@ type Postgres implements Node {
 	highAvailability: Boolean!
 	"Requested CPU, memory and disk size, when present on this Postgres."
 	resources: PostgresResources!
-	"Branch requested for activation; may differ from the observed active branch while reconciliation runs."
+	"Branch requested for activation; may differ from the active branch while activation is in progress."
 	desiredActiveBranch: String
 	"Currently observed active branch, if selected."
 	activeBranch: PostgresBranch
@@ -28847,7 +28847,7 @@ type PostgresResources {
 	diskSize: String
 }
 
-"Reconciliation and observed health of a PostgresBranch."
+"Provisioning state and observed health of a PostgresBranch."
 enum PostgresBranchState {
 	"The branch is healthy and ready."
 	AVAILABLE
@@ -28950,7 +28950,7 @@ type PostgresGrantAccessActivityLogEntryData {
 	until: Time!
 }
 
-"An audit-log entry for personal Postgres access created through the API broker."
+"An audit-log entry for personal Postgres access creation."
 type PostgresPersonalAccessCreatedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
@@ -29185,7 +29185,7 @@ extend enum ActivityLogActivityType {
 	"""
 	POSTGRES_GRANT_ACCESS
 	"""
-	A personal Postgres access was created through the API broker
+	A personal Postgres access was created
 	"""
 	POSTGRES_PERSONAL_ACCESS_CREATED
 	"""
@@ -29209,7 +29209,7 @@ extend enum ActivityLogActivityType {
 extend type Mutation {
 	"""
 	EXPERIMENTAL: DO NOT USE
-	Create time-limited personal access to a NAIS Postgres branch through the brokered PostgresAccess and relay flow.
+	Create time-limited personal access to a Postgres branch.
 	When the access is ready, retrieve its connection materials through PostgresAccess.connection.
 	"""
 	createPostgresAccess(input: CreatePostgresAccessInput!): CreatePostgresAccessPayload!
@@ -29285,7 +29285,7 @@ type CreatePostgresBranchPayload {
 	postgresBranch: PostgresBranch!
 }
 
-"Request a branch for normal workloads; pgrator activates it once its cluster is ready."
+"Request a branch for normal workloads. It becomes active once its database is ready."
 input ActivatePostgresBranchInput {
 	"Name of the owning Postgres."
 	postgres: String!
@@ -29297,7 +29297,7 @@ input ActivatePostgresBranchInput {
 	teamSlug: Slug!
 }
 
-"Result of requesting activation; compare desiredActiveBranch to activeBranch while reconciling."
+"Result of requesting activation; compare desiredActiveBranch to activeBranch while activation is in progress."
 type ActivatePostgresBranchPayload {
 	"Postgres with desired and observed branch selection."
 	postgres: Postgres!
@@ -29364,7 +29364,7 @@ type PostgresAccess implements Node {
 	state: PostgresAccessState!
 	"Human-readable message for the current state."
 	message: String
-	"Name of the controller-owned relay mapping, once created. Contains no credential."
+	"Connection routing identifier, once available. Contains no credential."
 	relayAccess: String
 	"""
 	EXPERIMENTAL: DO NOT USE
@@ -29373,13 +29373,13 @@ type PostgresAccess implements Node {
 	connection: PostgresAccessConnectionDetails
 }
 
-"High-level reconciliation state of a personal Postgres access."
+"Current state of a personal Postgres access."
 enum PostgresAccessState {
-	"The controller has not finished provisioning the access."
+	"The access is being prepared."
 	PENDING
 	"The access and its connection materials are ready."
 	READY
-	"The controller cannot provision the requested access."
+	"The requested access could not be prepared."
 	FAILED
 	"The server-controlled expiry time has passed."
 	EXPIRED
@@ -32808,8 +32808,8 @@ extend type Mutation {
 	The user creating the team will be granted team ownership, unless the user is a service account, in which case the
 	team will not get an initial owner. To add one or more owners to the team, refer to the ` + "`" + `addTeamOwners` + "`" + ` mutation.
 
-	Creation of a team will also create external resources for the team, which will be managed by the Nais API
-	reconcilers. This will be done asynchronously.
+	Creation of a team will also create external resources for the team. These resources are managed by the platform
+	and are created asynchronously.
 
 	Refer to the [official Nais documentation](https://docs.nais.io/explanations/team/) for more information regarding
 	Nais teams.
@@ -32880,7 +32880,7 @@ The team type represents a team on the [Nais platform](https://nais.io/).
 
 Learn more about what Nais teams are and what they can be used for in the [official Nais documentation](https://docs.nais.io/explanations/team/).
 
-External resources (e.g. entraIDGroupID, gitHubTeamSlug) are managed by [Nais API reconcilers](https://github.com/nais/api-reconcilers).
+External resources (e.g. entraIDGroupID, gitHubTeamSlug) are managed by the platform.
 """
 type Team implements Node {
 	"The globally unique ID of the team."
@@ -34235,7 +34235,7 @@ type User implements Node {
 	name: String!
 
 	"""
-	The external ID of the user. This value is managed by the Nais API user synchronization.
+	The external ID of the user. This value is managed by the platform.
 	"""
 	externalID: String!
 

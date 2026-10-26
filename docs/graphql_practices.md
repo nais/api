@@ -54,6 +54,10 @@ All types, fields, queries, and mutations should be documented using
 [`teams` schema](../internal/graph/schema/teams.graphqls) for examples. Keep in mind that this will be public
 facing documentation, and the entry point for developer who wants to use the GraphQL API.
 
+Describe user-facing resources and behavior, not the internal implementation. Do not name internal controllers,
+operators, or services (for example, pgrator, CNPG, or naiserator) in descriptions of user-facing features. Include
+protocol details only when callers need them to use a field correctly.
+
 ## Query conventions
 
 We want to reduce the number of queries and mutations to a minimum, and utilize the graphing capabilities of GraphQL.
