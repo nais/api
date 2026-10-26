@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 
+	"github.com/nais/api/internal/environment"
 	"github.com/nais/api/internal/kubernetes/crd"
 )
 
@@ -17,6 +18,6 @@ func init() {
 	})
 }
 
-func AvailableMajorVersions(ctx context.Context, environmentName string) ([]string, error) {
-	return crd.Values(ctx, environmentName, majorVersionsEnumName)
+func AvailableMajorVersions(ctx context.Context, environmentName string) (*environment.StringOptions, error) {
+	return environment.GetStringOptions(ctx, environmentName, majorVersionsEnumName)
 }

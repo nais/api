@@ -3,7 +3,7 @@ extend type AvailableValues {
 	PostgreSQL major versions accepted when creating a database in this environment.
 	Returns an error if the available versions cannot be determined.
 	"""
-	postgresMajorVersions: [String!]!
+	postgresMajorVersions: StringOptions!
 }
 
 extend type Team {
@@ -850,7 +850,7 @@ input CreatePostgresInput {
 	environmentName: String!
 	"The team that owns the Postgres."
 	teamSlug: Slug!
-	"PostgreSQL major version, selected from the environment's availableValues.postgresMajorVersions."
+	"PostgreSQL major version, selected from the environment's availableValues.postgresMajorVersions.values."
 	majorVersion: String!
 	"Add a third instance and enable synchronous replication. Defaults to false."
 	highAvailability: Boolean

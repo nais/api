@@ -14,3 +14,23 @@ type AvailableValues implements Node {
 	"""
 	id: ID!
 }
+
+"""
+Allowed string values and the default selection for a setting in an environment.
+"""
+type StringOptions implements Node {
+	"""
+	The globally unique ID of these configuration options.
+	"""
+	id: ID!
+	"""
+	The values accepted for this setting.
+	"""
+	values: [String!]!
+	"""
+	The default selection. Null when no default is declared; an empty list means
+	an explicitly empty default. Scalar settings have at most one default value;
+	settings accepting multiple values may have several.
+	"""
+	defaultValues: [String!]
+}

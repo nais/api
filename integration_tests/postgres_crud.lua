@@ -6,15 +6,38 @@ Helper.readK8sResources("k8s_resources/postgres_crud")
 
 Test.gql("Discover Postgres versions accepted in an environment", function(t)
 	t.addHeader("x-user-email", member:email())
-	t.query [[{ environment(name: "dev") { availableValues { id postgresMajorVersions } } }]]
+	t.query [[{ environment(name: "dev") { availableValues { id postgresMajorVersions { id values defaultValues } } } }]]
 	t.check {
-		data = { environment = { availableValues = { id = NotNull(), postgresMajorVersions = { "18", "17", "16" } } } },
+		data = { environment = { availableValues = { id = NotNull(), postgresMajorVersions = {
+			id = Save("postgresOptionsID"), values = { "18", "17", "16" }, defaultValues = Null,
+		} } } },
+	}
+end)
+
+Test.gql("Discover the default Postgres version for the target environment", function(t)
+	t.addHeader("x-user-email", member:email())
+	t.query [[{ environment(name: "dev-gcp") { availableValues { postgresMajorVersions { values defaultValues } } } }]]
+	t.check {
+		data = { environment = { availableValues = { postgresMajorVersions = {
+			values = { "18", "17" }, defaultValues = { "17" },
+		} } } },
+	}
+end)
+
+Test.gql("String options can be fetched by node ID", function(t)
+	t.addHeader("x-user-email", member:email())
+	t.query(string.format([[{ node(id: "%s") { ... on StringOptions { id values defaultValues } } }]],
+		State.postgresOptionsID))
+	t.check {
+		data = { node = {
+			id = State.postgresOptionsID, values = { "18", "17", "16" }, defaultValues = Null,
+		} },
 	}
 end)
 
 Test.gql("Missing version catalog is an availability error, not an empty list", function(t)
 	t.addHeader("x-user-email", member:email())
-	t.query [[{ environment(name: "staging") { availableValues { postgresMajorVersions } } }]]
+	t.query [[{ environment(name: "staging") { availableValues { postgresMajorVersions { values defaultValues } } } }]]
 	t.check {
 		errors = { { locations = NotNull(), path = { "environment", "availableValues", "postgresMajorVersions" }, message = Contains("unavailable") } },
 		data = Null,

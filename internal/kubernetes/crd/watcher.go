@@ -19,6 +19,11 @@ type Enum struct {
 	Path    []string
 }
 
+type StringOptions struct {
+	Values        []string
+	DefaultValues []string
+}
+
 var registeredEnums = make(map[string]Enum)
 
 // RegisterEnum must be called during package initialization, before watchers start.
@@ -63,23 +68,23 @@ func NewLoaderContext(ctx context.Context, catalog *Catalog) context.Context {
 	return context.WithValue(ctx, loadersKey, catalog)
 }
 
-func Values(ctx context.Context, environmentName, field string) ([]string, error) {
+func Options(ctx context.Context, environmentName, field string) (*StringOptions, error) {
 	catalog, _ := ctx.Value(loadersKey).(*Catalog)
 	if catalog == nil {
 		return nil, &unavailableError{environmentName, field, fmt.Errorf("catalog is not configured")}
 	}
-	return catalog.Values(environmentName, field)
+	return catalog.Options(environmentName, field)
 }
 
-func (c *Catalog) Values(environmentName, name string) ([]string, error) {
-	values, err := c.values(environmentName, name)
+func (c *Catalog) Options(environmentName, name string) (*StringOptions, error) {
+	options, err := c.options(environmentName, name)
 	if err != nil {
 		return nil, &unavailableError{environmentName, name, err}
 	}
-	return values, nil
+	return options, nil
 }
 
-func (c *Catalog) values(environmentName, name string) ([]string, error) {
+func (c *Catalog) options(environmentName, name string) (*StringOptions, error) {
 	field, ok := c.fields[name]
 	if !ok {
 		return nil, fmt.Errorf("enum is not registered")
@@ -103,7 +108,11 @@ func (c *Catalog) values(environmentName, name string) ([]string, error) {
 	if !found || len(values) == 0 {
 		return nil, fmt.Errorf("enum values are missing")
 	}
-	return values, nil
+	defaults, _, err := unstructured.NestedStringSlice(obj.Object, "enumValues", name, "defaultValues")
+	if err != nil {
+		return nil, err
+	}
+	return &StringOptions{Values: values, DefaultValues: defaults}, nil
 }
 
 // Only retain registered values, not the full schemas or last-applied annotations.
@@ -120,16 +129,23 @@ func (c *Catalog) transform(obj any) (any, error) {
 		if o.GetName() != field.CRDName {
 			continue
 		}
-		values, err := field.extract(o)
+		options, err := field.extract(o)
 		if err != nil {
 			// Cache extraction failures as well, so an invalid update cannot leave old values valid.
 			enums[name] = map[string]any{"error": err.Error()}
 		} else {
-			items := make([]any, len(values))
-			for i, value := range values {
-				items[i] = value
+			data := make(map[string]any)
+			for key, values := range map[string][]string{"values": options.Values, "defaultValues": options.DefaultValues} {
+				if values == nil {
+					continue
+				}
+				items := make([]any, len(values))
+				for i, value := range values {
+					items[i] = value
+				}
+				data[key] = items
 			}
-			enums[name] = map[string]any{"values": items}
+			enums[name] = data
 		}
 	}
 	projected := &unstructured.Unstructured{Object: map[string]any{
@@ -145,7 +161,7 @@ func (c *Catalog) transform(obj any) (any, error) {
 	return projected, nil
 }
 
-func (e Enum) extract(obj *unstructured.Unstructured) ([]string, error) {
+func (e Enum) extract(obj *unstructured.Unstructured) (*StringOptions, error) {
 	rawVersions, _, err := unstructured.NestedFieldNoCopy(obj.Object, "spec", "versions")
 	if err != nil {
 		return nil, err
@@ -169,16 +185,66 @@ func (e Enum) extract(obj *unstructured.Unstructured) ([]string, error) {
 		for _, property := range e.Path {
 			path = append(path, "properties", property)
 		}
-		values, found, err := unstructured.NestedStringSlice(version, append(path, "enum")...)
+		property, found, err := unstructured.NestedMap(version, path...)
 		if err != nil {
 			return nil, err
 		}
-		if !found || len(values) == 0 {
+		if !found {
 			return nil, fmt.Errorf("no string enum at %s in version %s", strings.Join(e.Path, "."), e.Version)
 		}
-		return values, nil
+		options, err := extractOptions(property)
+		if err != nil {
+			return nil, fmt.Errorf("options at %s in version %s: %w", strings.Join(e.Path, "."), e.Version, err)
+		}
+		return options, nil
 	}
 	return nil, fmt.Errorf("schema version %q is missing", e.Version)
+}
+
+func extractOptions(property map[string]any) (*StringOptions, error) {
+	enumPath := []string{"enum"}
+	switch property["type"] {
+	case "string":
+	case "array":
+		itemType, _, err := unstructured.NestedString(property, "items", "type")
+		if err != nil {
+			return nil, err
+		}
+		if itemType != "string" {
+			return nil, fmt.Errorf("array items must be strings")
+		}
+		enumPath = []string{"items", "enum"}
+	default:
+		return nil, fmt.Errorf("expected a string or an array of strings")
+	}
+	values, found, err := unstructured.NestedStringSlice(property, enumPath...)
+	if err != nil {
+		return nil, err
+	}
+	if !found || len(values) == 0 {
+		return nil, fmt.Errorf("no string enum")
+	}
+	options := &StringOptions{Values: values}
+	if property["type"] == "array" {
+		options.DefaultValues, _, err = unstructured.NestedStringSlice(property, "default")
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		value, found, err := unstructured.NestedString(property, "default")
+		if err != nil {
+			return nil, err
+		}
+		if found {
+			options.DefaultValues = []string{value}
+		}
+	}
+	for _, value := range options.DefaultValues {
+		if !slices.Contains(values, value) {
+			return nil, fmt.Errorf("default value %q is not in the enum", value)
+		}
+	}
+	return options, nil
 }
 
 type unavailableError struct {

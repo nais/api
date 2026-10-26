@@ -738,9 +738,9 @@ func (i *CreatePostgresInput) Validate(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	if !slices.Contains(versions, i.MajorVersion) {
+	if !slices.Contains(versions.Values, i.MajorVersion) {
 		verr := validate.New()
-		verr.Add("majorVersion", "Major version must be one of: %s.", strings.Join(versions, ", "))
+		verr.Add("majorVersion", "Major version must be one of: %s.", strings.Join(versions.Values, ", "))
 		return verr
 	}
 	return nil

@@ -3044,6 +3044,12 @@ type ComplexityRoot struct {
 		Value func(childComplexity int) int
 	}
 
+	StringOptions struct {
+		DefaultValues func(childComplexity int) int
+		ID            func(childComplexity int) int
+		Values        func(childComplexity int) int
+	}
+
 	Subscription struct {
 		Log         func(childComplexity int, filter loki.LogSubscriptionFilter) int
 		WorkloadLog func(childComplexity int, filter podlog.WorkloadLogSubscriptionFilter) int
@@ -17081,6 +17087,27 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.StringFacetItem.Value(childComplexity), true
 
+	case "StringOptions.defaultValues":
+		if e.ComplexityRoot.StringOptions.DefaultValues == nil {
+			break
+		}
+
+		return e.ComplexityRoot.StringOptions.DefaultValues(childComplexity), true
+
+	case "StringOptions.id":
+		if e.ComplexityRoot.StringOptions.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.StringOptions.ID(childComplexity), true
+
+	case "StringOptions.values":
+		if e.ComplexityRoot.StringOptions.Values == nil {
+			break
+		}
+
+		return e.ComplexityRoot.StringOptions.Values(childComplexity), true
+
 	case "Subscription.log":
 		if e.ComplexityRoot.Subscription.Log == nil {
 			break
@@ -25696,6 +25723,26 @@ type AvailableValues implements Node {
 	"""
 	id: ID!
 }
+
+"""
+Allowed string values and the default selection for a setting in an environment.
+"""
+type StringOptions implements Node {
+	"""
+	The globally unique ID of these configuration options.
+	"""
+	id: ID!
+	"""
+	The values accepted for this setting.
+	"""
+	values: [String!]!
+	"""
+	The default selection. Null when no default is declared; an empty list means
+	an explicitly empty default. Scalar settings have at most one default value;
+	settings accepting multiple values may have several.
+	"""
+	defaultValues: [String!]
+}
 `, BuiltIn: false},
 	{Name: "../schema/environments.graphqls", Input: `extend type Query {
 	"""
@@ -28563,7 +28610,7 @@ type WorkloadLogLine {
 	PostgreSQL major versions accepted when creating a database in this environment.
 	Returns an error if the available versions cannot be determined.
 	"""
-	postgresMajorVersions: [String!]!
+	postgresMajorVersions: StringOptions!
 }
 
 extend type Team {
@@ -29410,7 +29457,7 @@ input CreatePostgresInput {
 	environmentName: String!
 	"The team that owns the Postgres."
 	teamSlug: Slug!
-	"PostgreSQL major version, selected from the environment's availableValues.postgresMajorVersions."
+	"PostgreSQL major version, selected from the environment's availableValues.postgresMajorVersions.values."
 	majorVersion: String!
 	"Add a third instance and enable synchronous replication. Defaults to false."
 	highAvailability: Boolean
@@ -40910,6 +40957,18 @@ func (ec *executionContext) childFields_StringFacetItem(ctx context.Context, fie
 		return ec.fieldContext_StringFacetItem_count(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type StringFacetItem", field.Name)
+}
+
+func (ec *executionContext) childFields_StringOptions(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_StringOptions_id(ctx, field)
+	case "values":
+		return ec.fieldContext_StringOptions_values(ctx, field)
+	case "defaultValues":
+		return ec.fieldContext_StringOptions_defaultValues(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type StringOptions", field.Name)
 }
 
 func (ec *executionContext) childFields_Team(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {

@@ -7351,6 +7351,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._TeamEnvironment(ctx, sel, obj)
+	case environment.StringOptions:
+		return ec._StringOptions(ctx, sel, &obj)
+	case *environment.StringOptions:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._StringOptions(ctx, sel, obj)
 	case serviceaccount.ServiceAccountWorkloadBinding:
 		return ec._ServiceAccountWorkloadBinding(ctx, sel, &obj)
 	case *serviceaccount.ServiceAccountWorkloadBinding:
