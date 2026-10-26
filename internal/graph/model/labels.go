@@ -7,9 +7,10 @@ import (
 	"slices"
 	"strings"
 
+	labelpolicy "github.com/nais/v13s/pkg/api/labels"
+	"k8s.io/apimachinery/pkg/api/validate/content"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/selection"
-	"k8s.io/apimachinery/pkg/util/validation"
 )
 
 type ResourceLabel struct {
@@ -73,10 +74,10 @@ func ValidateUserLabels(labels []*ResourceLabel) error {
 			return LabelValidationError{Message: fmt.Sprintf("Label key %q is reserved", l.Key)}
 		}
 
-		for _, msg := range validation.IsQualifiedName(l.Key) {
+		for _, msg := range content.IsLabelKey(l.Key) {
 			return LabelValidationError{Message: fmt.Sprintf("Invalid label key %q: %s.", l.Key, msg)}
 		}
-		for _, msg := range validation.IsValidLabelValue(l.Value) {
+		for _, msg := range content.IsLabelValue(l.Value) {
 			return LabelValidationError{Message: fmt.Sprintf("Invalid value for label %q: %s.", l.Key, msg)}
 		}
 	}
@@ -223,12 +224,5 @@ func MergeUserLabels(existing map[string]string, desired []*ResourceLabel) map[s
 
 // HiddenLabelKey return true if the label key is considered managed by the platform
 func HiddenLabelKey(key, value string) bool {
-	switch key {
-	case "app", "team", "euthanaisa.nais.io/kill-after":
-		return true
-	case "app.kubernetes.io/managed-by":
-		return value == "console"
-	}
-
-	return strings.Contains(key, "nais.io/")
+	return labelpolicy.IsPlatformLabel(key, value)
 }

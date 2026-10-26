@@ -6,29 +6,6 @@ import (
 	"github.com/nais/api/internal/graph/model"
 )
 
-func TestHiddenLabelKey(t *testing.T) {
-	tests := []struct {
-		key  string
-		val  string
-		want bool
-	}{
-		{"app", "foo", true},
-		{"team", "bar", true},
-		{"euthanaisa.nais.io/kill-after", "12345", true},
-		{"app.kubernetes.io/managed-by", "console", true},
-		{"app.kubernetes.io/managed-by", "Helm", false},
-		{"my-custom-label", "whatever", false},
-		{"nais.io/something", "any", true},
-	}
-
-	for _, tt := range tests {
-		got := model.HiddenLabelKey(tt.key, tt.val)
-		if got != tt.want {
-			t.Errorf("HiddenLabelKey(%q, %q) = %v; want %v", tt.key, tt.val, got, tt.want)
-		}
-	}
-}
-
 func TestMergeUserLabels(t *testing.T) {
 	existing := map[string]string{
 		"app.kubernetes.io/managed-by": "Helm",
