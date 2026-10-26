@@ -236,6 +236,44 @@ Test.gql("Get vulnerability summary for tenant", function(t)
 	}
 end)
 
+Test.gql("Filter vulnerability summaries by user labels", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[
+		query($filter: TeamVulnerabilitySummaryFilter = { labels: [{ key: "owner", value: "label-test" }, { key: "empty" }] }) {
+			team(slug: "slug-1") {
+				exists: vulnerabilitySummaries(
+					first: 1
+					filter: $filter
+					orderBy: { field: VULNERABILITY_RISK_SCORE, direction: DESC }
+				) {
+					pageInfo { totalCount }
+					nodes { workload { name } }
+				}
+				empty: vulnerabilitySummaries(
+					filter: { labels: [{ key: "owner", value: "label-test" }, { key: "empty", value: "" }] }
+				) {
+					pageInfo { totalCount }
+				}
+				missing: vulnerabilitySummaries(filter: { labels: [{ key: "absent-label" }] }) {
+					pageInfo { totalCount }
+				}
+			}
+		}
+	]]
+	t.check {
+		data = {
+			team = {
+				exists = {
+					pageInfo = { totalCount = 1 },
+					nodes = { { workload = { name = "app-with-vulnerabilities" } } },
+				},
+				empty = { pageInfo = { totalCount = 1 } },
+				missing = { pageInfo = { totalCount = 0 } },
+			},
+		},
+	}
+end)
+
 Test.gql("List vulnerability summaries across teams", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query([[
