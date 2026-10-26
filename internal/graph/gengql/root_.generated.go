@@ -28666,7 +28666,7 @@ type PostgresBranch implements Persistence & Node {
 	createdAt: Time!
 	"Earliest time the branch can currently be restored from its archived backups."
 	earliestRestoreTime: Time
-	"PostgreSQL configuration observed on the branch's CNPG Cluster. Null while the Cluster is unavailable. These are configured settings, not necessarily active runtime values."
+	"PostgreSQL configuration reported in the branch's status by pgrator. Null until configuration is available. These are configured settings, not necessarily active runtime values."
 	configuration: PostgresConfiguration
 	team: Team!
 	teamEnvironment: TeamEnvironment!
@@ -28692,13 +28692,13 @@ type PostgresBranch implements Persistence & Node {
 	labels: [ResourceLabel!]!
 }
 
-"PostgreSQL configuration observed on a branch's CNPG Cluster."
+"PostgreSQL configuration reported in a branch's status."
 type PostgresConfiguration {
-	"Explicitly configured PostgreSQL parameters, sorted by name. PostgreSQL and operator defaults absent from the Cluster resource are not included."
+	"Explicitly configured PostgreSQL parameters, sorted by name. Implicit PostgreSQL and operator defaults are not included."
 	parameters: [PostgresParameter!]!
 }
 
-"A PostgreSQL parameter explicitly configured on a CNPG Cluster."
+"An explicitly configured PostgreSQL parameter reported by pgrator."
 type PostgresParameter {
 	"PostgreSQL parameter name, including any extension prefix."
 	name: String!

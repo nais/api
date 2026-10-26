@@ -45,7 +45,7 @@ type PostgresAccessResolver interface {
 }
 type PostgresBranchResolver interface {
 	EarliestRestoreTime(ctx context.Context, obj *postgres.PostgresBranch) (*time.Time, error)
-	Configuration(ctx context.Context, obj *postgres.PostgresBranch) (*postgres.PostgresConfiguration, error)
+
 	Team(ctx context.Context, obj *postgres.PostgresBranch) (*team.Team, error)
 	TeamEnvironment(ctx context.Context, obj *postgres.PostgresBranch) (*team.TeamEnvironment, error)
 	Postgres(ctx context.Context, obj *postgres.PostgresBranch) (*postgres.Postgres, error)
@@ -1445,7 +1445,7 @@ func (ec *executionContext) _PostgresBranch_configuration(ctx context.Context, f
 			return ec.fieldContext_PostgresBranch_configuration(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return ec.Resolvers.PostgresBranch().Configuration(ctx, obj)
+			return obj.Configuration, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *postgres.PostgresConfiguration) graphql.Marshaler {
@@ -1459,8 +1459,8 @@ func (ec *executionContext) fieldContext_PostgresBranch_configuration(_ context.
 	fc = &graphql.FieldContext{
 		Object:     "PostgresBranch",
 		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return ec.childFields_PostgresConfiguration(ctx, field)
 		},
@@ -6794,38 +6794,7 @@ func (ec *executionContext) _PostgresBranch(ctx context.Context, sel ast.Selecti
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "configuration":
-			field := field
-
-			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._PostgresBranch_configuration(ctx, field, obj)
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			out.Values[i] = ec._PostgresBranch_configuration(ctx, field, obj)
 		case "team":
 			field := field
 

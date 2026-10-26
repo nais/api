@@ -139,10 +139,6 @@ func (r *postgresBranchResolver) EarliestRestoreTime(ctx context.Context, obj *p
 	return postgres.EarliestRestoreTime(ctx, obj)
 }
 
-func (r *postgresBranchResolver) Configuration(ctx context.Context, obj *postgres.PostgresBranch) (*postgres.PostgresConfiguration, error) {
-	return postgres.Configuration(ctx, obj)
-}
-
 func (r *postgresBranchResolver) Team(ctx context.Context, obj *postgres.PostgresBranch) (*team.Team, error) {
 	return team.Get(ctx, obj.TeamSlug)
 }

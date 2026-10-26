@@ -163,8 +163,6 @@ rules:
       - clusters
     verbs:
       - get
-      - list
-      - watch
   - apiGroups:
       - barmancloud.cnpg.io
     resources:
@@ -348,8 +346,6 @@ rules:
       - clusters
     verbs:
       - get
-      - list
-      - watch
   - apiGroups:
       - ""
     resources:

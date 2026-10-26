@@ -1,14 +1,11 @@
 package postgres
 
 import (
-	"context"
-	"errors"
 	"fmt"
 	"maps"
 	"slices"
 
-	"github.com/nais/api/internal/kubernetes/watcher"
-	nais_io_v1 "github.com/nais/pgrator/pkg/api/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
 type PostgresConfiguration struct {
@@ -20,18 +17,27 @@ type PostgresParameter struct {
 	Value string `json:"value"`
 }
 
-func Configuration(ctx context.Context, branch *PostgresBranch) (*PostgresConfiguration, error) {
-	clusterName := nais_io_v1.CNPGClusterName(nais_io_v1.PostgresBranchObjectName(branch.PostgresName, branch.Name))
-	cluster, err := fromContext(ctx).cnpgClusterWatcher.Get(branch.EnvironmentName, branch.TeamSlug.String(), clusterName)
-	if errors.Is(err, &watcher.ErrorNotFound{}) {
+// Read the additive status field directly until it is available in the published
+// pgrator API types. This also supports branches reconciled by older pgrators.
+func toPostgresConfiguration(branch *unstructured.Unstructured) (*PostgresConfiguration, error) {
+	value, found, err := unstructured.NestedFieldNoCopy(branch.Object, "status", "configuration")
+	if err != nil {
+		return nil, fmt.Errorf("reading PostgresBranch %q configuration: %w", branch.GetName(), err)
+	}
+	if !found || value == nil {
 		return nil, nil
 	}
-	if err != nil {
-		return nil, fmt.Errorf("getting CNPG Cluster %q configuration: %w", clusterName, err)
+	configuration, ok := value.(map[string]any)
+	if !ok {
+		return nil, fmt.Errorf("PostgresBranch %q configuration has unexpected type %T", branch.GetName(), value)
 	}
-	parameters := make([]*PostgresParameter, 0, len(cluster.Parameters))
-	for _, name := range slices.Sorted(maps.Keys(cluster.Parameters)) {
-		parameters = append(parameters, &PostgresParameter{Name: name, Value: cluster.Parameters[name]})
+	values, _, err := unstructured.NestedStringMap(configuration, "parameters")
+	if err != nil {
+		return nil, fmt.Errorf("reading PostgresBranch %q parameters: %w", branch.GetName(), err)
+	}
+	parameters := make([]*PostgresParameter, 0, len(values))
+	for _, name := range slices.Sorted(maps.Keys(values)) {
+		parameters = append(parameters, &PostgresParameter{Name: name, Value: values[name]})
 	}
 	return &PostgresConfiguration{Parameters: parameters}, nil
 }
