@@ -6,6 +6,11 @@ metadata:
   namespace: someteamname
 spec:
   majorVersion: "17"
+  extensions:
+    - name: pgaudit
+    - name: uuid-ossp
+    - name: postgis
+    - name: timescaledb
   resources:
     cpu: 100m
     memory: 2Gi
