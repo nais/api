@@ -22,6 +22,18 @@ spec:
             matchLabels:
               app.kubernetes.io/name: mimir
     - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: nais-system
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: loki
+              app.kubernetes.io/instance: loki
+              app.kubernetes.io/component: querier
+      ports:
+        - port: 3100
+          protocol: TCP
+    - to:
         - podSelector:
             matchLabels:
               app.kubernetes.io/name: hookd

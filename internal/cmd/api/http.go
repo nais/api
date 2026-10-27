@@ -85,15 +85,30 @@ func runHTTPServer(
 	githubOIDCMiddleware func(http.Handler) http.Handler,
 	authHandler authn.Handler,
 	graphHandler *handler.Server,
+	lokiProxy http.Handler,
 	contextDependencies func(http.Handler) http.Handler,
 	log logrus.FieldLogger,
 ) error {
+	router := newHTTPRouter(fakes, jwtMiddleware, k8sSAMiddleware, githubOIDCMiddleware, authHandler, graphHandler, lokiProxy, contextDependencies)
+	return serveHTTP(ctx, listenAddress, router, log)
+}
+
+func newHTTPRouter(
+	fakes Fakes,
+	jwtMiddleware func(http.Handler) http.Handler,
+	k8sSAMiddleware func(http.Handler) http.Handler,
+	githubOIDCMiddleware func(http.Handler) http.Handler,
+	authHandler authn.Handler,
+	graphHandler *handler.Server,
+	lokiProxy http.Handler,
+	contextDependencies func(http.Handler) http.Handler,
+) http.Handler {
 	router := chi.NewRouter()
 	router.Method("GET", "/",
 		otelhttp.NewHandler(playground.Handler("GraphQL playground", "/graphql"), "playground"),
 	)
 
-	router.Route("/graphql", func(r chi.Router) {
+	router.Group(func(r chi.Router) {
 		middlewares := []func(http.Handler) http.Handler{
 			contextDependencies,
 			cors.New(
@@ -130,14 +145,17 @@ func runHTTPServer(
 		middlewares = append(
 			middlewares,
 			middleware.RequireAuthenticatedUser(),
-			otelhttp.NewMiddleware(
+		)
+		r.Use(middlewares...)
+		r.Route("/graphql", func(r chi.Router) {
+			r.Use(otelhttp.NewMiddleware(
 				"graphql",
 				otelhttp.WithPublicEndpointFn(func(*http.Request) bool { return true }),
 				otelhttp.WithSpanOptions(trace.WithAttributes(semconv.ServiceName("http"))),
-			),
-		)
-		r.Use(middlewares...)
-		r.Method("POST", "/", graphHandler)
+			))
+			r.Method("POST", "/", graphHandler)
+		})
+		r.Mount("/api/loki", otelhttp.NewHandler(lokiProxy, "loki"))
 	})
 
 	router.Route("/oauth2", func(r chi.Router) {
@@ -147,6 +165,10 @@ func runHTTPServer(
 		r.Get("/callback", authHandler.Callback)
 	})
 
+	return router
+}
+
+func serveHTTP(ctx context.Context, listenAddress string, router http.Handler, log logrus.FieldLogger) error {
 	srv := &http.Server{
 		Addr:              listenAddress,
 		Handler:           router,
