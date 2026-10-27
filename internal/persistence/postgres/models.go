@@ -61,6 +61,7 @@ type PostgresBranch struct {
 	PostgresName    string                 `json:"postgres"`
 	State           PostgresBranchState    `json:"state"`
 	Labels          []*model.ResourceLabel `json:"labels"`
+	Configuration   *PostgresConfiguration `json:"configuration,omitempty"`
 }
 
 type TeamPostgresFilter struct {
@@ -454,10 +455,12 @@ func toPostgresBranch(u *unstructured.Unstructured, environmentName string) (*Po
 		return nil, fmt.Errorf("PostgresBranch %q has invalid postgres or branchName", obj.Name)
 	}
 	state := PostgresBranchStateProgressing
+	var configuration *PostgresConfiguration
 	if obj.Status != nil {
 		state = postgresStateFromConditions(obj.Status.Conditions, obj.Status.ReconcilePhase == "Completed" && obj.Status.ObservedGeneration >= obj.Generation)
+		configuration = toPostgresConfiguration(obj.Status.Configuration)
 	}
-	return &PostgresBranch{Name: obj.Spec.BranchName, CreatedAt: obj.CreationTimestamp.Time, EnvironmentName: environmentName, TeamSlug: slug.Slug(obj.Namespace), PostgresName: obj.Spec.Postgres, State: state, Labels: model.UserLabels(obj.Labels)}, nil
+	return &PostgresBranch{Name: obj.Spec.BranchName, CreatedAt: obj.CreationTimestamp.Time, EnvironmentName: environmentName, TeamSlug: slug.Slug(obj.Namespace), PostgresName: obj.Spec.Postgres, State: state, Labels: model.UserLabels(obj.Labels), Configuration: configuration}, nil
 }
 
 func toPostgres(u *unstructured.Unstructured, environmentName string) (*Postgres, error) {
@@ -704,10 +707,6 @@ type PostgresAccessConnectionDetails struct {
 	RelayToken    string `json:"relayToken"`
 }
 
-// supportedMajorVersions are the versions the API accepts for new Postgres. The CRD enum
-// also allows older versions, but those are not offered to users.
-var supportedMajorVersions = []string{"18"}
-
 type CreatePostgresInput struct {
 	Name             string                 `json:"name"`
 	EnvironmentName  string                 `json:"environmentName"`
@@ -740,7 +739,19 @@ type UpdatePostgresPayload struct {
 }
 
 func (i *CreatePostgresInput) Validate(ctx context.Context) error {
-	return i.ValidationErrors(ctx).NilIfEmpty()
+	if err := i.ValidationErrors(ctx).NilIfEmpty(); err != nil {
+		return err
+	}
+	versions, err := AvailableMajorVersions(ctx, i.EnvironmentName)
+	if err != nil {
+		return err
+	}
+	if !slices.Contains(versions.Values, i.MajorVersion) {
+		verr := validate.New()
+		verr.Add("majorVersion", "Major version must be one of: %s.", strings.Join(versions.Values, ", "))
+		return verr
+	}
+	return nil
 }
 
 func (i *CreatePostgresInput) ValidationErrors(_ context.Context) *validate.ValidationErrors {
@@ -760,8 +771,8 @@ func (i *CreatePostgresInput) ValidationErrors(_ context.Context) *validate.Vali
 	if i.TeamSlug == "" {
 		verr.Add("teamSlug", "Team slug must not be empty.")
 	}
-	if !contains(supportedMajorVersions, i.MajorVersion) {
-		verr.Add("majorVersion", "Major version must be one of: %s.", strings.Join(supportedMajorVersions, ", "))
+	if i.MajorVersion == "" {
+		verr.Add("majorVersion", "Major version must not be empty.")
 	}
 	validateQuantities(verr, i.CPU, i.Memory, i.DiskSize)
 	validatePostgresUserLabels(verr, i.Labels)
@@ -827,8 +838,4 @@ func validateQuantities(verr *validate.ValidationErrors, cpu, memory, diskSize *
 			verr.Add(field, "%q must be no greater than %s.", *value, limit.max.String())
 		}
 	}
-}
-
-func contains(values []string, value string) bool {
-	return slices.Contains(values, value)
 }

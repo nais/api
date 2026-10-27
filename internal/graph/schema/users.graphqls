@@ -60,7 +60,7 @@ type User implements Node {
 	name: String!
 
 	"""
-	The external ID of the user. This value is managed by the Nais API user synchronization.
+	The external ID of the user. This value is managed by the platform.
 	"""
 	externalID: String!
 

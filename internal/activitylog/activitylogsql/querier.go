@@ -10,6 +10,7 @@ import (
 
 type Querier interface {
 	Create(ctx context.Context, arg CreateParams) error
+	CreateClusterAudit(ctx context.Context, arg CreateClusterAuditParams) error
 	FacetsForResource(ctx context.Context, arg FacetsForResourceParams) ([]*FacetsForResourceRow, error)
 	FacetsForResourceAndTeam(ctx context.Context, arg FacetsForResourceAndTeamParams) ([]*FacetsForResourceAndTeamRow, error)
 	FacetsForResourceTeamAndEnvironment(ctx context.Context, arg FacetsForResourceTeamAndEnvironmentParams) ([]*FacetsForResourceTeamAndEnvironmentRow, error)

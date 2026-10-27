@@ -2,15 +2,20 @@ package utilization
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"math"
 	"slices"
 	"strings"
 	"time"
 
+	"github.com/nais/api/internal/environmentmapper"
+	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/thirdparty/promclient"
+	"github.com/nais/api/internal/workload/application"
+	"github.com/nais/api/internal/workload/job"
 	promv1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	prom "github.com/prometheus/common/model"
 	"github.com/sirupsen/logrus"
@@ -179,9 +184,22 @@ func ForTeam(ctx context.Context, teamSlug slug.Slug, resourceType UtilizationRe
 	ret := []*WorkloadUtilizationData{}
 
 	for _, sample := range requested {
+		workloadName := string(sample.Metric["container"])
+		environmentName := environmentmapper.EnvironmentName(string(sample.Metric["k8s_cluster_name"]))
+		if _, err := application.Get(ctx, teamSlug, environmentName, workloadName); err != nil {
+			if !errors.Is(err, &watcher.ErrorNotFound{}) {
+				return nil, err
+			}
+			if _, err := job.Get(ctx, teamSlug, environmentName, workloadName); err != nil {
+				if errors.Is(err, &watcher.ErrorNotFound{}) {
+					continue
+				}
+				return nil, err
+			}
+		}
 		ret = append(ret, &WorkloadUtilizationData{
 			TeamSlug:        teamSlug,
-			WorkloadName:    string(sample.Metric["container"]),
+			WorkloadName:    workloadName,
 			EnvironmentName: string(sample.Metric["k8s_cluster_name"]),
 			Requested:       float64(sample.Value),
 		})

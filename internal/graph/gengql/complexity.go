@@ -10,6 +10,7 @@ import (
 	repository "github.com/nais/api/internal/github/repository"
 	pagination "github.com/nais/api/internal/graph/pagination"
 	issue "github.com/nais/api/internal/issue"
+	event "github.com/nais/api/internal/kubernetes/event"
 	bigquery "github.com/nais/api/internal/persistence/bigquery"
 	bucket "github.com/nais/api/internal/persistence/bucket"
 	kafkatopic "github.com/nais/api/internal/persistence/kafkatopic"
@@ -38,6 +39,9 @@ func NewComplexityRoot() ComplexityRoot {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.Application.Deployments = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
+		return cursorComplexity(first, last) * childComplexity
+	}
+	c.Application.Events = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *event.WorkloadEventFilter) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.Application.Instances = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
@@ -95,6 +99,9 @@ func NewComplexityRoot() ComplexityRoot {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.Job.Deployments = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
+		return cursorComplexity(first, last) * childComplexity
+	}
+	c.Job.Events = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *event.WorkloadEventFilter) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.Job.Issues = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) int {

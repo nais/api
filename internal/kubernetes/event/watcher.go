@@ -12,6 +12,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/nais/api/internal/activitylog/activitylogsql"
 	"github.com/nais/api/internal/kubernetes/event/eventsql"
 	"github.com/nais/api/internal/kubernetes/event/pubsublog"
 	"github.com/nais/api/internal/kubernetes/watcher"
@@ -21,6 +22,7 @@ import (
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
+	corev1 "k8s.io/api/core/v1"
 	eventv1 "k8s.io/api/events/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/watch"
@@ -32,6 +34,7 @@ import (
 type Watcher struct {
 	queries        eventsql.Querier
 	clients        map[string]kubernetes.Interface
+	podWatcher     *watcher.Watcher[*corev1.Pod]
 	events         chan eventsql.UpsertParams
 	log            logrus.FieldLogger
 	logsSubscriber *pubsublog.Subscriber
@@ -43,7 +46,7 @@ type Watcher struct {
 	handlersCounter metric.Int64UpDownCounter
 }
 
-func NewWatcher(pool *pgxpool.Pool, logsSubscription *pubsub.Subscription, clients map[string]kubernetes.Interface, restMappers map[string]watcher.KindResolver, log logrus.FieldLogger) (*Watcher, error) {
+func NewWatcher(pool *pgxpool.Pool, logsSubscription *pubsub.Subscription, clients map[string]kubernetes.Interface, podWatcher *watcher.Watcher[*corev1.Pod], restMappers map[string]watcher.KindResolver, log logrus.FieldLogger) (*Watcher, error) {
 	chs := make([]chan bool, 0, len(clients))
 	for range clients {
 		chs = append(chs, make(chan bool, 1))
@@ -62,13 +65,14 @@ func NewWatcher(pool *pgxpool.Pool, logsSubscription *pubsub.Subscription, clien
 
 	queries := eventsql.New(pool)
 
-	logSub, err := pubsublog.NewSubscriber(logsSubscription, queries, restMappers, log.WithField("sub", "pubsub_log"))
+	logSub, err := pubsublog.NewSubscriber(logsSubscription, activitylogsql.New(pool), restMappers, log.WithField("sub", "pubsub_log"))
 	if err != nil {
 		return nil, fmt.Errorf("creating pubsub log subscriber: %w", err)
 	}
 
 	return &Watcher{
 		clients:         clients,
+		podWatcher:      podWatcher,
 		events:          make(chan eventsql.UpsertParams, 20),
 		queries:         queries,
 		log:             log,
@@ -322,6 +326,12 @@ func (w *Watcher) toUpsertParams(environmentName string, e *eventv1.Event, data 
 		return eventsql.UpsertParams{}, false
 	}
 
+	// Persist the workload reference while the pod still exists. Pod names alone
+	// cannot safely identify a workload after the pod has been deleted.
+	if e.Regarding.Kind == "Pod" {
+		w.addPodWorkload(environmentName, e, data)
+	}
+
 	b, err := json.Marshal(data)
 	if err != nil {
 		w.log.WithError(err).Error("failed to marshal event data")
@@ -344,6 +354,36 @@ func (w *Watcher) toUpsertParams(environmentName string, e *eventv1.Event, data 
 
 		TriggeredAt: ts,
 	}, true
+}
+
+func (w *Watcher) addPodWorkload(environment string, e *eventv1.Event, data map[string]any) {
+	pod, err := w.podWatcher.Get(environment, e.Regarding.Namespace, e.Regarding.Name)
+	if err != nil {
+		w.log.WithError(err).WithField("pod", e.Regarding.Name).Debug("unable to resolve event workload")
+		return
+	}
+	if e.Regarding.UID != "" && pod.UID != e.Regarding.UID {
+		return
+	}
+	name := pod.Labels["app"]
+	if name == "" {
+		return
+	}
+	owner := metav1.GetControllerOf(pod)
+	if owner == nil {
+		return
+	}
+	var kind string
+	switch owner.Kind {
+	case "ReplicaSet":
+		kind = "Application"
+	case "Job":
+		kind = "Naisjob"
+	default:
+		return
+	}
+	data["workloadKind"] = kind
+	data["workloadName"] = name
 }
 
 func lastEventTimestamp(e *eventv1.Event) pgtype.Timestamptz {

@@ -178,10 +178,6 @@ type Config struct {
 	LogFormat string `env:"LOG_FORMAT,default=json"`
 	LogLevel  string `env:"LOG_LEVEL,default=info"`
 
-	// StaticServiceAccounts A JSON-encoded value describing a set of service accounts to be created when the
-	// application starts. Refer to the README for the format.
-	StaticServiceAccounts StaticServiceAccounts `env:"STATIC_SERVICE_ACCOUNTS"`
-
 	// ListenAddress is host:port combination used by the http server
 	ListenAddress         string `env:"LISTEN_ADDRESS,default=127.0.0.1:3000"`
 	InternalListenAddress string `env:"INTERNAL_LISTEN_ADDRESS,default=127.0.0.1:3005"`

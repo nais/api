@@ -4,7 +4,7 @@ environmentKinds:
 dependencies:
   - allOf:
       - monitoring-crds
-      - fqdn-policy
+      - fqdn-policy-crds
 
 values:
   apiserverIP:
@@ -130,12 +130,6 @@ values:
     description: The issuer that the OAuth client should use
     config:
       type: string
-
-  staticServiceAccounts:
-    displayName: Static nais-api service accounts
-    description: JSON-encoded list of static service accounts
-    computed:
-      template: "{{.Management.teams_static_service_accounts | quote}}"
 
   database.instance:
     displayName: Cloud SQL instance name

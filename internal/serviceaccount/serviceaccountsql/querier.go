@@ -14,8 +14,6 @@ type Querier interface {
 	CreateToken(ctx context.Context, arg CreateTokenParams) (*ServiceAccountToken, error)
 	Delete(ctx context.Context, id uuid.UUID) error
 	DeleteBinding(ctx context.Context, id uuid.UUID) error
-	// TODO: Remove once static service accounts has been removed
-	DeleteStaticServiceAccounts(ctx context.Context) error
 	DeleteToken(ctx context.Context, id uuid.UUID) error
 	GetBindingByID(ctx context.Context, id uuid.UUID) (*ServiceAccountWorkloadBinding, error)
 	GetBindingByWorkload(ctx context.Context, arg GetBindingByWorkloadParams) (*ServiceAccountWorkloadBinding, error)
